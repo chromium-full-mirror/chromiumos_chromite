@@ -17,7 +17,7 @@ class ComparatorTest(cros_test_lib.TestCase):
     TEST_KEY1 = "monkey"
     TEST_KEY2 = "foon"
 
-    def testEquals(self):
+    def testEquals(self) -> None:
         """__eq__, __ne__ functionality of Comparator classes."""
         for cls_name in ["In", "Regex", "ListRegex"]:
             cls = getattr(partial_mock, cls_name)
@@ -28,14 +28,14 @@ class ComparatorTest(cros_test_lib.TestCase):
             self.assertFalse(obj1 == obj3)
             self.assertNotEqual(obj1, obj3)
 
-    def testIgnoreEquals(self):
+    def testIgnoreEquals(self) -> None:
         """Verify __eq__ functionality for Ignore."""
         obj1 = partial_mock.Ignore()
         obj2 = partial_mock.Ignore()
         self.assertEqual(obj1, obj2)
         self.assertFalse(obj1 != obj2)
 
-    def testListRegex(self):
+    def testListRegex(self) -> None:
         """Verify ListRegex match functionality."""
         obj = partial_mock.ListRegex(".*monkey.*")
         self.assertTrue(obj.Match(["the", "small monkeys", "jumped"]))
@@ -52,13 +52,13 @@ class RecursiveCompareTest(cros_test_lib.TestCase):
     LIST = [1, 2, 3, 4]
     TUPLE = (1, 2, 3, 4)
 
-    def TrueHelper(self, lhs, rhs):
+    def TrueHelper(self, lhs, rhs) -> None:
         self.assertTrue(partial_mock._RecursiveCompare(lhs, rhs))
 
-    def FalseHelper(self, lhs, rhs):
+    def FalseHelper(self, lhs, rhs) -> None:
         self.assertFalse(partial_mock._RecursiveCompare(lhs, rhs))
 
-    def testIt(self):
+    def testIt(self) -> None:
         """Test basic equality cases."""
         self.TrueHelper(self.LHS_DICT, self.RHS_DICT)
         self.TrueHelper(
@@ -70,7 +70,7 @@ class RecursiveCompareTest(cros_test_lib.TestCase):
         )
         self.FalseHelper(self.LIST, self.TUPLE)
 
-    def testUnicode(self):
+    def testUnicode(self) -> None:
         """Test recursively comparing unicode and non-unicode strings."""
         self.assertTrue(partial_mock._RecursiveCompare(["foo"], ["foo"]))
 
@@ -98,21 +98,21 @@ class ListContainsTest(cros_test_lib.TestCase):
         list(range(-1, 5)),
     ]
 
-    def testStrictContains(self):
+    def testStrictContains(self) -> None:
         """Test ListContains with strict=True."""
         for x in self.STRICTLY_TRUE_LISTS:
             self.assertTrue(partial_mock.ListContains(x, self.L, strict=True))
         for x in self.LOOSELY_TRUE_LISTS + self.FALSE_LISTS:
             self.assertFalse(partial_mock.ListContains(x, self.L, strict=True))
 
-    def testLooseContains(self):
+    def testLooseContains(self) -> None:
         """Test ListContains with strict=False."""
         for x in self.STRICTLY_TRUE_LISTS + self.LOOSELY_TRUE_LISTS:
             self.assertTrue(partial_mock.ListContains(x, self.L))
         for x in self.FALSE_LISTS:
             self.assertFalse(partial_mock.ListContains(x, self.L))
 
-    def testUnicode(self):
+    def testUnicode(self) -> None:
         """Test ListContains with unicode and non-unicode strings."""
         self.assertTrue(partial_mock.ListContains(["foo"], ["foo"]))
 
@@ -120,14 +120,14 @@ class ListContainsTest(cros_test_lib.TestCase):
 class HasStringTest(cros_test_lib.TestCase):
     """Unittests for HasString."""
 
-    def testEqual(self):
+    def testEqual(self) -> None:
         self.assertTrue(
             partial_mock.HasString("substring") == "sentence with substring..."
         )
         self.assertTrue(partial_mock.HasString("tr") == "it should be true")
         self.assertTrue(partial_mock.HasString("") == "match any string")
 
-    def testUneuqal(self):
+    def testUneuqal(self) -> None:
         self.assertFalse(partial_mock.HasString("not there") == "typo no there")
         self.assertFalse(
             partial_mock.HasString("Uppercase matters") == "uppercase matters"
@@ -142,43 +142,43 @@ class MockedCallResultsTest(cros_test_lib.TestCase):
     KWARGS = {"test": "ing"}
     NEW_ENTRY = {"new": "entry"}
 
-    def KwargsHelper(self, result, kwargs, strict=True):
+    def KwargsHelper(self, result, kwargs, strict=True) -> None:
         self.mr.AddResultForParams(
             self.ARGS, result, kwargs=kwargs, strict=strict
         )
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.mr = partial_mock.MockedCallResults("SomeFunction")
 
-    def testNoMock(self):
+    def testNoMock(self) -> None:
         """The call is not mocked."""
         self.assertRaises(AssertionError, self.mr.LookupResult, self.ARGS)
 
-    def testArgReplacement(self):
+    def testArgReplacement(self) -> None:
         """Replacing mocks for args-only calls."""
         self.mr.AddResultForParams(self.ARGS, 1)
         self.mr.AddResultForParams(self.ARGS, 2)
         self.assertEqual(2, self.mr.LookupResult(self.ARGS))
 
-    def testKwargsStrictReplacement(self):
+    def testKwargsStrictReplacement(self) -> None:
         """Replacing strict kwargs mock with another strict mock."""
         self.KwargsHelper(1, self.KWARGS)
         self.KwargsHelper(2, self.KWARGS)
         self.assertEqual(2, self.mr.LookupResult(self.ARGS, kwargs=self.KWARGS))
 
-    def testKwargsNonStrictReplacement(self):
+    def testKwargsNonStrictReplacement(self) -> None:
         """Replacing strict kwargs mock with nonstrict mock."""
         self.KwargsHelper(1, self.KWARGS)
         self.KwargsHelper(2, self.KWARGS, strict=False)
         self.assertEqual(2, self.mr.LookupResult(self.ARGS, kwargs=self.KWARGS))
 
-    def testListArgLookup(self):
+    def testListArgLookup(self) -> None:
         """Matching of arguments containing lists."""
         self.mr.AddResultForParams(self.LIST_ARGS, 1)
         self.mr.AddResultForParams(self.ARGS, 1)
         self.assertEqual(1, self.mr.LookupResult(self.LIST_ARGS))
 
-    def testKwargsStrictLookup(self):
+    def testKwargsStrictLookup(self) -> None:
         """Strict lookup fails due to extra kwarg."""
         self.KwargsHelper(1, self.KWARGS)
         kwargs = self.NEW_ENTRY
@@ -187,14 +187,14 @@ class MockedCallResultsTest(cros_test_lib.TestCase):
             AssertionError, self.mr.LookupResult, self.ARGS, kwargs=kwargs
         )
 
-    def testKwargsNonStrictLookup(self):
+    def testKwargsNonStrictLookup(self) -> None:
         """Nonstrict lookup passes with extra kwarg."""
         self.KwargsHelper(1, self.KWARGS, strict=False)
         kwargs = self.NEW_ENTRY
         kwargs.update(self.KWARGS)
         self.assertEqual(1, self.mr.LookupResult(self.ARGS, kwargs=kwargs))
 
-    def testIgnoreMatching(self):
+    def testIgnoreMatching(self) -> None:
         """Deep matching of Ignore objects."""
         ignore = partial_mock.Ignore()
         self.mr.AddResultForParams((ignore, ignore), 1, kwargs={"test": ignore})
@@ -202,20 +202,20 @@ class MockedCallResultsTest(cros_test_lib.TestCase):
             1, self.mr.LookupResult(("some", "values"), {"test": "bla"})
         )
 
-    def testRegexMatching(self):
+    def testRegexMatching(self) -> None:
         """Regex matching."""
         self.mr.AddResultForParams((partial_mock.Regex("pre.ix"),), 1)
         self.mr.AddResultForParams((partial_mock.Regex("suffi."),), 2)
         self.assertEqual(1, self.mr.LookupResult(("prefix",)))
         self.assertEqual(2, self.mr.LookupResult(("suffix",)))
 
-    def testMultipleMatches(self):
+    def testMultipleMatches(self) -> None:
         """Lookup matches mutilple results."""
         self.mr.AddResultForParams((partial_mock.Ignore(),), 1)
         self.mr.AddResultForParams((partial_mock.In("test"),), 2)
         self.assertRaises(AssertionError, self.mr.LookupResult, ("test",))
 
-    def testDefaultResult(self):
+    def testDefaultResult(self) -> None:
         """Test default result matching."""
         self.mr.SetDefaultResult(1)
         self.mr.AddResultForParams((partial_mock.In("test"),), 2)
@@ -228,7 +228,7 @@ class MockedCallResultsTest(cros_test_lib.TestCase):
         self.assertEqual(kwargs, self.KWARGS)
         return 2
 
-    def testHook(self):
+    def testHook(self) -> None:
         """Return value of hook is used as the final result."""
         self.mr.AddResultForParams(self.ARGS, 1, side_effect=self._ExampleHook)
         self.assertEqual(
@@ -238,7 +238,7 @@ class MockedCallResultsTest(cros_test_lib.TestCase):
             ),
         )
 
-    def testDefaultHook(self):
+    def testDefaultHook(self) -> None:
         """Verify default hooks are used."""
         self.mr.SetDefaultResult(1, self._ExampleHook)
         self.mr.AddResultForParams((partial_mock.In("test"),), 3)
@@ -253,7 +253,7 @@ class MockedCallResultsTest(cros_test_lib.TestCase):
     class _StubException(Exception):
         """A do-nothing exception class for test."""
 
-    def testExceptionInstanceRaise(self):
+    def testExceptionInstanceRaise(self) -> None:
         """Verify that exception is raised."""
         expected_msg = "expected exception"
         self.mr.AddResultForParams(
@@ -264,7 +264,7 @@ class MockedCallResultsTest(cros_test_lib.TestCase):
         with self.assertRaisesRegex(self._StubException, expected_msg):
             self.mr.LookupResult(("test",))
 
-    def testExceptionClassRaise(self):
+    def testExceptionClassRaise(self) -> None:
         """Verify that exception is raised."""
         self.mr.AddResultForParams(
             (partial_mock.In("test"),), 3, side_effect=self._StubException

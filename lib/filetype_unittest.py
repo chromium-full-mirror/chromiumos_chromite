@@ -16,7 +16,7 @@ from chromite.lib import unittest_lib
 class FileTypeDecoderTest(cros_test_lib.TempDirTestCase):
     """Test the FileTypeDecoder class."""
 
-    def testSpecialFiles(self):
+    def testSpecialFiles(self) -> None:
         """Test special files, such as symlinks, directories and named pipes."""
         somedir = os.path.join(self.tempdir, "somedir")
         osutils.SafeMakedirs(somedir)
@@ -42,7 +42,7 @@ class FileTypeDecoderTest(cros_test_lib.TempDirTestCase):
             "inode/symlink", filetype.FileTypeDecoder.DecodeFile(a_link)
         )
 
-    def testTextShebangFiles(self):
+    def testTextShebangFiles(self) -> None:
         """Test shebangs (#!) file decoding based on the executed path."""
         # If the file has only one line is considered a "shebang" rather than a
         # script.
@@ -81,7 +81,7 @@ class FileTypeDecoderTest(cros_test_lib.TempDirTestCase):
             "text/script/perl", filetype.FileTypeDecoder.DecodeFile(perlscript)
         )
 
-    def testTextPEMFiles(self):
+    def testTextPEMFiles(self) -> None:
         """Test decoding various PEM files."""
         # A RSA private key (sample from update_engine unittest).
         some_cert = os.path.join(self.tempdir, "some_cert")
@@ -137,7 +137,7 @@ or10mrNRF3tyGy8e/sw88a74Q/6v/PgChZHmq6QjOOU=
             "text/pem/rsa-private", filetype.FileTypeDecoder.DecodeFile(rsa_key)
         )
 
-    def testBinaryELFFiles(self):
+    def testBinaryELFFiles(self) -> None:
         """Test decoding ELF files."""
         liba_so = os.path.join(self.tempdir, "liba.so")
         unittest_lib.BuildELF(liba_so, ["func_a"])
@@ -161,7 +161,7 @@ or10mrNRF3tyGy8e/sw88a74Q/6v/PgChZHmq6QjOOU=
             filetype.FileTypeDecoder.DecodeFile(prog_static),
         )
 
-    def testBinaryCompressedFiles(self):
+    def testBinaryCompressedFiles(self) -> None:
         """Test decoding compressed files."""
         compressed = os.path.join(self.tempdir, "compressed")
 
@@ -203,7 +203,7 @@ or10mrNRF3tyGy8e/sw88a74Q/6v/PgChZHmq6QjOOU=
             filetype.FileTypeDecoder.DecodeFile(compressed),
         )
 
-    def testBinaryMiscFiles(self):
+    def testBinaryMiscFiles(self) -> None:
         """Test for various binary file formats."""
         # A timezone file.
         some_timezone = os.path.join(self.tempdir, "some_timezone")

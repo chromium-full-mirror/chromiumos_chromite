@@ -73,7 +73,7 @@ def GetLuciGitCreds(
     )
 
 
-def Login(service_account_json=None):
+def Login(service_account_json=None) -> None:
     """Logs a user into chrome-infra-auth using luci-auth.
 
     Runs 'luci-auth login' to get a OAuth2 refresh token.

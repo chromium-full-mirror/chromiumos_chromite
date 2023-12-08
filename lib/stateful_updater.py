@@ -51,7 +51,9 @@ class StatefulUpdater:
             self._stateful_dir, self._UPDATE_TYPE_FILE
         )
 
-    def Update(self, payload_path, is_payload_on_device=True, update_type=None):
+    def Update(
+        self, payload_path, is_payload_on_device=True, update_type=None
+    ) -> None:
         """Updates the stateful partition given the update file.
 
         Args:
@@ -100,7 +102,7 @@ class StatefulUpdater:
             else self.UPDATE_TYPE_STANDARD
         )
 
-    def _MarkUpdateType(self, update_type):
+    def _MarkUpdateType(self, update_type) -> None:
         """Marks the type of the update.
 
         Args:
@@ -129,7 +131,7 @@ class StatefulUpdater:
                     % e
                 )
 
-    def Reset(self):
+    def Reset(self) -> None:
         """Resets the stateful partition."""
         logging.info("Resetting stateful update state.")
 

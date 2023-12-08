@@ -31,19 +31,19 @@ GS_ALTERNATE_DIR = "gs://chromeos-alternate-archive/"
 class xBuddyTest(cros_test_lib.TestCase):
     """Regression tests for xbuddy."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.static_image_dir = tempfile.mkdtemp("xbuddy_unittest_static")
 
         self.mock_xb = xbuddy.XBuddy(True, static_dir=self.static_image_dir)
         self.images_dir = tempfile.mkdtemp("xbuddy_unittest_images")
         self.mock_xb.images_dir = self.images_dir
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Removes testing files."""
         shutil.rmtree(self.static_image_dir)
         shutil.rmtree(self.images_dir)
 
-    def testParseBoolean(self):
+    def testParseBoolean(self) -> None:
         """Check that some common True/False strings are handled."""
         self.assertEqual(xbuddy.XBuddy.ParseBoolean(None), False)
         self.assertEqual(xbuddy.XBuddy.ParseBoolean("false"), False)
@@ -51,7 +51,7 @@ class xBuddyTest(cros_test_lib.TestCase):
         self.assertEqual(xbuddy.XBuddy.ParseBoolean("true"), True)
         self.assertEqual(xbuddy.XBuddy.ParseBoolean("y"), True)
 
-    def testGetLatestVersionFromGsDir(self):
+    def testGetLatestVersionFromGsDir(self) -> None:
         """Test that we can get the most recent version from gsutil calls."""
         mock_data1 = """gs://chromeos-releases/stable-channel/parrot/3701.96.0/
     gs://chromeos-releases/stable-channel/parrot/3701.98.0/
@@ -85,7 +85,7 @@ class xBuddyTest(cros_test_lib.TestCase):
             )
             ls_mock.assert_called_with("url2", list_subdirectory=True)
 
-    def testLookupOfficial(self):
+    def testLookupOfficial(self) -> None:
         """Basic test of _LookupOfficial.
 
         Checks that a given suffix is handled.
@@ -105,7 +105,7 @@ class xBuddyTest(cros_test_lib.TestCase):
         "_GetLatestVersionFromGsDir",
         side_effect=["4100.68.0", "R28-4100.68.0"],
     )
-    def testLookupChannel(self, version_mock):
+    def testLookupChannel(self, version_mock) -> None:
         """Basic test of _LookupChannel.
 
         Checks that a given suffix is handled.
@@ -119,7 +119,7 @@ class xBuddyTest(cros_test_lib.TestCase):
             list_subdirectory=True,
         )
 
-    def testLookupAliasPathRewrite(self):
+    def testLookupAliasPathRewrite(self) -> None:
         """Tests LookupAlias of path rewrite, including keyword substitution."""
         path = "remote/BOARD/VERSION/test"
         with mock.patch.object(
@@ -133,7 +133,7 @@ class xBuddyTest(cros_test_lib.TestCase):
             )
             get_mock.assert_called_with("PATH_REWRITES", "foobar")
 
-    def testLookupAliasSuffix(self):
+    def testLookupAliasSuffix(self) -> None:
         """Tests LookupAlias of location suffix."""
         with mock.patch.object(
             self.mock_xb.config,
@@ -148,7 +148,7 @@ class xBuddyTest(cros_test_lib.TestCase):
             )
             get_mock.assert_called_with("PATH_REWRITES", "foobar")
 
-    def testLookupAliasPathRewriteAndSuffix(self):
+    def testLookupAliasPathRewriteAndSuffix(self) -> None:
         """Tests LookupAlias with both path rewrite and suffix."""
         path = "remote/BOARD/VERSION/test"
         with mock.patch.object(
@@ -163,7 +163,9 @@ class xBuddyTest(cros_test_lib.TestCase):
             get_mock.assert_called_with("PATH_REWRITES", "foobar")
 
     @mock.patch.object(xbuddy.XBuddy, "_LookupOfficial")
-    def testResolveVersionToBuildIdAndChannel_Official(self, lookup_mock):
+    def testResolveVersionToBuildIdAndChannel_Official(
+        self, lookup_mock
+    ) -> None:
         """Test _ResolveVersionToBuildIdAndChannel works for official build."""
         board = "chell"
         suffix = "-s"
@@ -191,7 +193,9 @@ class xBuddyTest(cros_test_lib.TestCase):
         )
 
     @mock.patch.object(xbuddy.XBuddy, "_LookupChannel")
-    def testResolveVersionToBuildIdAndChannel_Channel(self, lookup_mock):
+    def testResolveVersionToBuildIdAndChannel_Channel(
+        self, lookup_mock
+    ) -> None:
         """Check _ResolveVersionToBuildIdAndChannel support for channels."""
         board = "chell"
         suffix = "-s"
@@ -239,7 +243,7 @@ class xBuddyTest(cros_test_lib.TestCase):
     #   self.mock_xb._ResolveVersionToBuildId(board, suffix, '1.2.3')
     #   self.mox.VerifyAll()
 
-    def testBasicInterpretPath(self):
+    def testBasicInterpretPath(self) -> None:
         """Basic checks for splitting a path"""
         path = "parrot/R27-2455.0.0/test"
         expected = ("test", "parrot", "R27-2455.0.0", True)
@@ -273,7 +277,7 @@ class xBuddyTest(cros_test_lib.TestCase):
         expected = ("ANY", "parrot", "latest", True)
         self.assertEqual(xbuddy.InterpretPath(path=path), expected)
 
-    def testInterpretPathWithDefaults(self):
+    def testInterpretPathWithDefaults(self) -> None:
         """Test path splitting with default board/version."""
         path = ""
         expected = ("ANY", "parrot", "latest", True)
@@ -353,7 +357,7 @@ class xBuddyTest(cros_test_lib.TestCase):
                 ),
             )
 
-    def testTimestampsAndList(self):
+    def testTimestampsAndList(self) -> None:
         """Creation and listing of builds according to their timestamps."""
         # make 3 different timestamp files
         b_id11 = "b1/v1"
@@ -375,7 +379,7 @@ class xBuddyTest(cros_test_lib.TestCase):
         self.assertEqual(result[1][0], b_id23)
         self.assertEqual(result[2][0], b_id11)
 
-    def testSyncRegistry(self):
+    def testSyncRegistry(self) -> None:
         # check that there are no builds initially
         result = self.mock_xb._ListBuildTimes()
         self.assertEqual(len(result), 0)
@@ -393,7 +397,7 @@ class xBuddyTest(cros_test_lib.TestCase):
         result = self.mock_xb._ListBuildTimes()
         self.assertEqual(len(result), 4)
 
-    def testXBuddyCaching(self):
+    def testXBuddyCaching(self) -> None:
         """Caching & replacement of timestamp files."""
 
         def _ReleaseOnly(name):
@@ -408,7 +412,7 @@ class xBuddyTest(cros_test_lib.TestCase):
             with mock.patch.object(self.mock_xb, "_Download") as download_mock:
                 version = "%s-release/R0"
 
-                def _Download(image):
+                def _Download(image) -> None:
                     gs_image = "gs://chromeos-image-archive/" + version
                     self.mock_xb.Get(("remote", image, "R0", "test"))
                     ls_mock.assert_called_with(gs_image % image)
@@ -457,7 +461,7 @@ class xBuddyTest(cros_test_lib.TestCase):
         return_value=("reef/R1-1.2.3", "stable"),
     )
     # pylint: disable=unused-argument
-    def testGet(self, resolve_mock, downloader_mock):
+    def testGet(self, resolve_mock, downloader_mock) -> None:
         """Tests _GetArtifact method."""
         self.assertEqual(
             self.mock_xb.Get(["remote", "reef", "R1-1.2.3", "test"]),
@@ -514,7 +518,7 @@ valid_full_uris = [
 
 
 @pytest.mark.parametrize("uri,expected", valid_full_uris)
-def test_parse_valid_uri(uri, expected):
+def test_parse_valid_uri(uri, expected) -> None:
     """Basic checks for parsing an XBuddy URI."""
     assert xbuddy.parse(uri) == expected
 
@@ -529,13 +533,13 @@ valid_uris_without_schema = [
 
 
 @pytest.mark.parametrize("uri,expected", valid_uris_without_schema)
-def test_parse_uri_with_empty_scheme_not_strict(uri, expected):
+def test_parse_uri_with_empty_scheme_not_strict(uri, expected) -> None:
     """Basic checks for parsing an XBuddy URI without a scheme."""
     assert xbuddy.parse(uri) == expected
 
 
 @pytest.mark.parametrize("uri", [tc[0] for tc in valid_uris_without_schema])
-def test_parse_uri_with_empty_scheme_strict(uri):
+def test_parse_uri_with_empty_scheme_strict(uri) -> None:
     """Fail strict scheme checking for URIs without scheme provided."""
     with pytest.raises(xbuddy.XBuddyInvalidSchemeException):
         xbuddy.parse(uri, strict=True)
@@ -544,7 +548,7 @@ def test_parse_uri_with_empty_scheme_strict(uri):
 @pytest.mark.parametrize(
     "uri", ["gs://test/bucket", "usb://", "ftp://path/to/image"]
 )
-def test_parse_invalid_uri(uri):
+def test_parse_invalid_uri(uri) -> None:
     """Test exception is raised when the scheme is specified and not xbuddy."""
     with pytest.raises(xbuddy.XBuddyInvalidSchemeException):
         xbuddy.parse(uri)

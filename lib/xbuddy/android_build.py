@@ -69,7 +69,7 @@ class BuildAccessor:
         return "submitted"
 
     @classmethod
-    def _VerifyBranch(cls, service_obj, branch, build_id, target):
+    def _VerifyBranch(cls, service_obj, branch, build_id, target) -> None:
         """Verify build with given id and target is for the specified branch.
 
         Args:
@@ -148,7 +148,7 @@ class BuildAccessor:
 
     @classmethod
     @retry.retry(Exception, timeout_min=DOWNLOAD_TIMEOUT_MINS)
-    def Download(cls, branch, build_id, target, resource_id, dest_file):
+    def Download(cls, branch, build_id, target, resource_id, dest_file) -> None:
         """Download the list of artifacts for given build id and target.
 
         Args:

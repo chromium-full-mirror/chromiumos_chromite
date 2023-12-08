@@ -103,7 +103,7 @@ def CreateMiniOsKernelImage(
     return kernel
 
 
-def InsertMiniOsKernelImage(image: str, kernel: str):
+def InsertMiniOsKernelImage(image: str, kernel: str) -> None:
     """Writes miniOS kernel into A + B miniOS partitions of the image.
 
     A + B partitions of miniOS need to have enough space allocated for each copy

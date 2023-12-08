@@ -28,7 +28,7 @@ TEST_LAYOUT = {
 class CommonUtilTest(cros_test_lib.TestCase):
     """Base class for CommonUtil tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._static_dir = tempfile.mkdtemp("common_util_unittest")
         self._outside_sandbox_dir = tempfile.mkdtemp("common_util_unittest")
 
@@ -54,11 +54,11 @@ class CommonUtilTest(cros_test_lib.TestCase):
                     "UPDATE_FILE",
                 )
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         shutil.rmtree(self._static_dir)
         shutil.rmtree(self._outside_sandbox_dir)
 
-    def testPathInDir(self):
+    def testPathInDir(self) -> None:
         """Various tests around the PathInDir test."""
         # Path is in sandbox.
         self.assertTrue(
@@ -93,14 +93,14 @@ class CommonUtilTest(cros_test_lib.TestCase):
             )
         )
 
-    def testGetLatestBuildVersion(self):
+    def testGetLatestBuildVersion(self) -> None:
         """Tests that the latest version is correct given our setup."""
         self.assertEqual(
             common_util.GetLatestBuildVersion(self._static_dir, "test-board-1"),
             "R17-1413.0.0-a1-b1346",
         )
 
-    def testGetLatestBuildVersionLatest(self):
+    def testGetLatestBuildVersionLatest(self) -> None:
         """Test that we raise CommonUtilError when a build dir is empty."""
         self.assertRaises(
             common_util.CommonUtilError,
@@ -109,7 +109,7 @@ class CommonUtilTest(cros_test_lib.TestCase):
             "test-board-3",
         )
 
-    def testGetLatestBuildVersionUnknownBuild(self):
+    def testGetLatestBuildVersionUnknownBuild(self) -> None:
         """Verify we raise CommonUtilError when a build dir does not exist."""
         self.assertRaises(
             common_util.CommonUtilError,
@@ -118,7 +118,7 @@ class CommonUtilTest(cros_test_lib.TestCase):
             "bad-dir",
         )
 
-    def testGetLatestBuildVersionMilestone(self):
+    def testGetLatestBuildVersionMilestone(self) -> None:
         """Test that we can get builds based on milestone."""
         expected_build_str = "R16-2241.0.0-a0-b2"
         milestone = "R16"
@@ -127,7 +127,7 @@ class CommonUtilTest(cros_test_lib.TestCase):
         )
         self.assertEqual(expected_build_str, build_str)
 
-    def testGetControlFile(self):
+    def testGetControlFile(self) -> None:
         """Creates a fake control file and verifies that we can get it."""
         control_file_dir = os.path.join(
             self._static_dir,
@@ -148,7 +148,7 @@ class CommonUtilTest(cros_test_lib.TestCase):
         )
         self.assertEqual(control_content, "hello!")
 
-    def testSymlinkFile(self):
+    def testSymlinkFile(self) -> None:
         link_fd, link_base = tempfile.mkstemp(prefix="common-symlink-test")
         link_a = link_base + "-link-a"
         link_b = link_base + "-link-b"

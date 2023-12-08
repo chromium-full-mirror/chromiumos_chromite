@@ -89,13 +89,13 @@ class Downloader:
         return self._build
 
     @staticmethod
-    def TouchTimestampForStaged(directory_path):
+    def TouchTimestampForStaged(directory_path) -> None:
         osutils.Touch(
             os.path.join(directory_path, Downloader._TIMESTAMP_FILENAME)
         )
 
     @staticmethod
-    def _TryRemoveStageDir(directory_path):
+    def _TryRemoveStageDir(directory_path) -> None:
         """If download failed, try to remove the stage dir.
 
         If the download attempt failed (ArtifactDownloadError) and
@@ -153,7 +153,7 @@ class Downloader:
             build_dir_info += output_format % ls_info._asdict()
         return build_dir_info
 
-    def Download(self, factory):
+    def Download(self, factory) -> None:
         """Downloads and caches the |artifacts|.
 
         Downloads and caches the |artifacts|. Returns once these are present on
@@ -209,7 +209,7 @@ class Downloader:
 
         return all(artifact.ArtifactStaged() for artifact in required_artifacts)
 
-    def _DownloadArtifactsSerially(self, artifacts, no_wait):
+    def _DownloadArtifactsSerially(self, artifacts, no_wait) -> None:
         """Simple function to download all the given artifacts serially.
 
         Args:
@@ -229,7 +229,7 @@ class Downloader:
             Downloader._TryRemoveStageDir(self._build_dir)
             raise
 
-    def _DownloadArtifactsInBackground(self, artifacts):
+    def _DownloadArtifactsInBackground(self, artifacts) -> None:
         """Downloads |artifacts| in the background.
 
         Downloads |artifacts| in the background. As these are backgrounded
@@ -247,7 +247,7 @@ class Downloader:
         )
         thread.start()
 
-    def Wait(self, name, is_regex_name, alt_name, timeout):
+    def Wait(self, name, is_regex_name, alt_name, timeout) -> None:
         """Waits for artifact to exist and returns the appropriate names.
 
         Args:
@@ -261,7 +261,7 @@ class Downloader:
         """
         raise NotImplementedError()
 
-    def Fetch(self, remote_name, local_path):
+    def Fetch(self, remote_name, local_path) -> None:
         """Downloads artifact from given source to a local directory.
 
         Args:
@@ -273,7 +273,7 @@ class Downloader:
         """
         raise NotImplementedError()
 
-    def DescribeSource(self):
+    def DescribeSource(self) -> None:
         """Gets the source of the download, e.g., a url to GS."""
         raise NotImplementedError()
 

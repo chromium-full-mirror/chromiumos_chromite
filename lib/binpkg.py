@@ -70,7 +70,7 @@ class PackageIndex:
         # was written.
         self.modified = False
 
-    def _PopulateDuplicateDB(self, db, expires):
+    def _PopulateDuplicateDB(self, db, expires) -> None:
         """Populate db with SHA1 -> URL mapping for packages.
 
         Args:
@@ -146,7 +146,7 @@ class PackageIndex:
 
         return lines
 
-    def _WritePkgIndex(self, pkgfile, entry):
+    def _WritePkgIndex(self, pkgfile, entry) -> None:
         """Write header entry or package entry to packages file.
 
         The keys and values will be separated by a colon and a space. The entry
@@ -159,7 +159,7 @@ class PackageIndex:
         lines = self._FormatPkgIndex(entry)
         pkgfile.write("%s\n" % "\n".join(lines))
 
-    def _ReadHeader(self, pkgfile):
+    def _ReadHeader(self, pkgfile) -> None:
         """Read header of packages file.
 
         Args:
@@ -168,7 +168,7 @@ class PackageIndex:
         assert not self.header, "Should only read header once."
         self.header = self._ReadPkgIndex(pkgfile)
 
-    def _ReadBody(self, pkgfile):
+    def _ReadBody(self, pkgfile) -> None:
         """Read body of packages file.
 
         Before calling this function, you must first read the header (using
@@ -189,7 +189,7 @@ class PackageIndex:
             if "CPV" in d:
                 self.packages.append(d)
 
-    def Read(self, pkgfile):
+    def Read(self, pkgfile) -> None:
         """Read the entire packages file.
 
         Args:
@@ -198,7 +198,7 @@ class PackageIndex:
         self._ReadHeader(pkgfile)
         self._ReadBody(pkgfile)
 
-    def ReadFilePath(self, pkgfile_path: str):
+    def ReadFilePath(self, pkgfile_path: str) -> None:
         """Read the packages file path.
 
         Args:
@@ -207,7 +207,7 @@ class PackageIndex:
         with open(pkgfile_path, encoding="utf-8") as f:
             self.Read(f)
 
-    def RemoveFilteredPackages(self, filter_fn):
+    def RemoveFilteredPackages(self, filter_fn) -> None:
         """Remove packages which match filter_fn.
 
         Args:
@@ -270,7 +270,7 @@ class PackageIndex:
                 uploads.append(pkg)
         return uploads
 
-    def SetUploadLocation(self, base_uri, path_prefix):
+    def SetUploadLocation(self, base_uri, path_prefix) -> None:
         """Set upload location to base_uri + path_prefix.
 
         Args:
@@ -286,7 +286,7 @@ class PackageIndex:
             path = pkg["CPV"] + ".tbz2"
             pkg["PATH"] = "%s/%s" % (path_prefix.rstrip("/"), path)
 
-    def Write(self, pkgfile):
+    def Write(self, pkgfile) -> None:
         """Write a packages file to disk.
 
         If 'modified' flag is set, the TIMESTAMP and PACKAGES fields in the
@@ -317,7 +317,7 @@ class PackageIndex:
         f.seek(0)
         return f
 
-    def WriteFile(self, file_path, sudo=False):
+    def WriteFile(self, file_path, sudo=False) -> None:
         """Like Write, but takes a file path."""
         self._ModifiedHeaderUpdate()
         lines = self._FormatPkgIndex(self.header)
@@ -329,7 +329,7 @@ class PackageIndex:
         # this is refactored and simplified.
         osutils.WriteFile(file_path, "%s\n" % "\n".join(lines), sudo=sudo)
 
-    def _ModifiedHeaderUpdate(self):
+    def _ModifiedHeaderUpdate(self) -> None:
         if self.modified:
             self.header["TIMESTAMP"] = str(math.trunc(time.time()))
             self.header["PACKAGES"] = str(len(self.packages))
@@ -485,7 +485,7 @@ def GrabLocalPackageIndex(package_path):
     return pkgindex
 
 
-def _DownloadURLs(urls, dest_dir):
+def _DownloadURLs(urls, dest_dir) -> None:
     """Copy URLs into the specified |dest_dir|.
 
     Args:
@@ -497,7 +497,7 @@ def _DownloadURLs(urls, dest_dir):
     gs_ctx.DoCommand(cmd, parallel=len(urls) > 1)
 
 
-def FetchTarballs(binhost_urls, pkgdir):
+def FetchTarballs(binhost_urls, pkgdir) -> None:
     """Prefetch the specified |binhost_urls| to the specified |pkgdir|.
 
     This function fetches the tarballs from the specified list of binhost

@@ -17,19 +17,19 @@ from chromite.lib import remoteexec_util
 class ChrootTest(cros_test_lib.MockTempDirTestCase):
     """Chroot class tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self.chroot_path = self.tempdir / "chroot"
         self.out_path = self.tempdir / "out"
         osutils.SafeMakedirs(self.chroot_path)
         osutils.SafeMakedirs(self.out_path)
 
-    def testGetEnterArgsEmpty(self):
+    def testGetEnterArgsEmpty(self) -> None:
         """Test empty instance behavior."""
         chroot = chroot_lib.Chroot()
         self.assertFalse(chroot.get_enter_args())
 
-    def testGetEnterArgsAll(self):
+    def testGetEnterArgsAll(self) -> None:
         """Test complete instance behavior."""
         path = "/chroot/path"
         out_path = "/chroot/out"
@@ -72,13 +72,13 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertCountEqual(expected, chroot.get_enter_args())
 
-    def testEnv(self):
+    def testEnv(self) -> None:
         """Test the env handling."""
         env = {"VAR": "val"}
         chroot = chroot_lib.Chroot(env=env)
         self.assertEqual(env, chroot.env)
 
-    def testEnvRemoteexec(self):
+    def testEnvRemoteexec(self) -> None:
         reclient_dir = os.path.join(self.tempdir, "cipd/rbe")
         osutils.SafeMakedirs(reclient_dir)
         reproxy_cfg_file = os.path.join(
@@ -93,7 +93,7 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
         self.assertEndsWith(chroot.env["RECLIENT_DIR"], "/reclient")
         self.assertEndsWith(chroot.env["REPROXY_CFG"], "/reproxy_chroot.cfg")
 
-    def testTempdir(self):
+    def testTempdir(self) -> None:
         """Test the tempdir functionality."""
         chroot = chroot_lib.Chroot(
             path=self.chroot_path, out_path=self.out_path
@@ -107,7 +107,7 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertNotExists(tempdir)
 
-    def testExists(self):
+    def testExists(self) -> None:
         """Test chroot exists."""
         chroot = chroot_lib.Chroot(self.chroot_path, out_path=self.out_path)
         self.assertTrue(chroot.exists())
@@ -117,7 +117,7 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertFalse(chroot.exists())
 
-    def testChrootPath(self):
+    def testChrootPath(self) -> None:
         """Test chroot_path functionality."""
         chroot = chroot_lib.Chroot(self.chroot_path, out_path=self.out_path)
         path1 = self.chroot_path / "some/path"
@@ -128,7 +128,7 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
         # Make sure it raises an error for paths not inside the chroot.
         self.assertRaises(ValueError, chroot.chroot_path, path2)
 
-    def testFullPath(self):
+    def testFullPath(self) -> None:
         """Test full_path functionality."""
         chroot = chroot_lib.Chroot(self.chroot_path, out_path=self.out_path)
 
@@ -138,7 +138,7 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
             chroot.full_path("/some/path"),
         )
 
-    def testRelativePath(self):
+    def testRelativePath(self) -> None:
         """Test relative path functionality."""
         self.PatchObject(os, "getcwd", return_value="/path/to/workspace")
         chroot = chroot_lib.Chroot(self.chroot_path, out_path=self.out_path)
@@ -149,7 +149,7 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
             chroot.full_path("some/path"),
         )
 
-    def testFullPathWithExtraArgs(self):
+    def testFullPathWithExtraArgs(self) -> None:
         """Test full_path functionality with extra args passed."""
         chroot = chroot_lib.Chroot(self.chroot_path, out_path=self.out_path)
         self.assertEqual(
@@ -157,7 +157,7 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
             chroot.full_path("/some/path", "abc", "def", "g/h/i"),
         )
 
-    def testHasPathSuccess(self):
+    def testHasPathSuccess(self) -> None:
         """Test has path for a valid path."""
         tempdir_path = self.chroot_path / "some/file.txt"
         osutils.Touch(tempdir_path, makedirs=True)
@@ -167,12 +167,12 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertTrue(chroot.has_path("/some/file.txt"))
 
-    def testHasPathInvalidPath(self):
+    def testHasPathInvalidPath(self) -> None:
         """Test has path for a non-existent path."""
         chroot = chroot_lib.Chroot(self.chroot_path, out_path=self.out_path)
         self.assertFalse(chroot.has_path("/does/not/exist"))
 
-    def testHasPathVariadic(self):
+    def testHasPathVariadic(self) -> None:
         """Test multiple args to has path."""
         path = ["some", "file.txt"]
         tempdir_path = os.path.join(self.chroot_path, *path)
@@ -181,7 +181,7 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
         chroot = chroot_lib.Chroot(self.chroot_path, out_path=self.out_path)
         self.assertTrue(chroot.has_path("/some", "file.txt"))
 
-    def testEqual(self):
+    def testEqual(self) -> None:
         """__eq__ method check."""
         path = "/chroot/path"
         out_path = "/out/path"
@@ -207,7 +207,7 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
         self.assertNotEqual(chroot3, chroot5)
 
 
-def test_tarball_version(tmp_path, outside_sdk):
+def test_tarball_version(tmp_path, outside_sdk) -> None:
     """Test chroot.tarball_version."""
     del outside_sdk
     chroot = chroot_lib.Chroot(path=tmp_path)
@@ -219,7 +219,7 @@ def test_tarball_version(tmp_path, outside_sdk):
     assert chroot.tarball_version == "1234_56"
 
 
-def test_tarball_version_missing(tmp_path, outside_sdk):
+def test_tarball_version_missing(tmp_path, outside_sdk) -> None:
     """Test chroot.tarball_version on a chroot missing /etc/os-release."""
     del outside_sdk
     chroot = chroot_lib.Chroot(path=tmp_path)
@@ -229,12 +229,12 @@ def test_tarball_version_missing(tmp_path, outside_sdk):
 class ChrootRunTest(cros_test_lib.RunCommandTempDirTestCase):
     """Chroot tests with mock run()."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.chroot = chroot_lib.Chroot(
             path=self.tempdir / "chroot", out_path=self.tempdir / "out"
         )
 
-    def testRunSimple(self):
+    def testRunSimple(self) -> None:
         """With simple params."""
         self.chroot.run(["./foo", "bar"])
         self.assertCommandContains(
@@ -249,7 +249,7 @@ class ChrootRunTest(cros_test_lib.RunCommandTempDirTestCase):
             extra_env={},
         )
 
-    def testRunExtraEnv(self):
+    def testRunExtraEnv(self) -> None:
         """With extra_env dictionary."""
         self.chroot.run(["cat", "dog"], extra_env={"USE": "antigravity"})
         self.assertCommandContains(
@@ -264,14 +264,14 @@ class ChrootRunTest(cros_test_lib.RunCommandTempDirTestCase):
             extra_env={"USE": "antigravity"},
         )
 
-    def testExtraEnvNone(self):
+    def testExtraEnvNone(self) -> None:
         """With extra_env=None."""
         self.chroot.run(["cat"], extra_env=None)
         self.assertCommandContains(
             ["cat"], enter_chroot=True, chroot_args=mock.ANY, extra_env={}
         )
 
-    def testChrootArgs(self):
+    def testChrootArgs(self) -> None:
         """With additional supplied chroot_args."""
         self.chroot.run(["cat"], chroot_args=["--no-read-only"])
         self.assertCommandContains(

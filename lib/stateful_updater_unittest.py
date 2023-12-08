@@ -38,7 +38,7 @@ class ChromiumOSDeviceMock(partial_mock.PartialMock):
 class StatefulUpdaterTest(cros_test_lib.MockTempDirTestCase):
     """A class for testing StatefulUpdater."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Sets up the objects needed for testing."""
         self._CreateStatefulUpdate()
         self._stateful_dir = os.path.join(self.tempdir, "target")
@@ -46,7 +46,7 @@ class StatefulUpdaterTest(cros_test_lib.MockTempDirTestCase):
 
         self.StartPatcher(ChromiumOSDeviceMock())
 
-    def _CreateStatefulUpdate(self):
+    def _CreateStatefulUpdate(self) -> None:
         """Creates a stateful update tar file so we can test it."""
         self._payload = os.path.join(self.tempdir, "stateful.tgz")
 
@@ -63,7 +63,7 @@ class StatefulUpdaterTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertExists(self._payload)
 
-    def testTargetStatefulUpdateFileDoNotExist(self):
+    def testTargetStatefulUpdateFileDoNotExist(self) -> None:
         """Verify we raise error if the target stateful file doesn't exist."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -72,7 +72,7 @@ class StatefulUpdaterTest(cros_test_lib.MockTempDirTestCase):
             with self.assertRaises(stateful_updater.Error):
                 updater.Update("/foo/path")
 
-    def testUpdateStandard(self):
+    def testUpdateStandard(self) -> None:
         """Tests Update function with default arguments."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -89,7 +89,7 @@ class StatefulUpdaterTest(cros_test_lib.MockTempDirTestCase):
                 "",
             )
 
-    def testUpdateFileDescriptor(self):
+    def testUpdateFileDescriptor(self) -> None:
         """Tests Update function with file descriptor input."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -111,7 +111,7 @@ class StatefulUpdaterTest(cros_test_lib.MockTempDirTestCase):
                 "",
             )
 
-    def testUpdateClobber(self):
+    def testUpdateClobber(self) -> None:
         """Tests Update function with default arguments."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -130,7 +130,7 @@ class StatefulUpdaterTest(cros_test_lib.MockTempDirTestCase):
                 updater.UPDATE_TYPE_CLOBBER,
             )
 
-    def testInvalidUpdateType(self):
+    def testInvalidUpdateType(self) -> None:
         """Tests we raise error on invalid given update type."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -142,7 +142,7 @@ class StatefulUpdaterTest(cros_test_lib.MockTempDirTestCase):
     @mock.patch.object(
         remote_access.RemoteDevice, "IfPathExists", return_value=False
     )
-    def testUpdateFailed(self, _):
+    def testUpdateFailed(self, _) -> None:
         """Tests Update function fails to untar the payload."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -154,7 +154,7 @@ class StatefulUpdaterTest(cros_test_lib.MockTempDirTestCase):
             with self.assertRaises(stateful_updater.Error):
                 updater.Update(self._payload)
 
-    def testReset(self):
+    def testReset(self) -> None:
         """Tests Reset function."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP

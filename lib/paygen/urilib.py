@@ -116,11 +116,11 @@ class URLopener(urllib.request.FancyURLopener):
     # The urllib.urlretrieve function, which seems like a good fit for this,
     # does not give access to error code.
 
-    def http_error_default(self, *args, **kwargs):
+    def http_error_default(self, *args, **kwargs) -> None:
         urllib.request.URLopener.http_error_default(self, *args, **kwargs)
 
 
-def URLRetrieve(src_url, dest_path):
+def URLRetrieve(src_url, dest_path) -> None:
     """Download file from given URL to given local file path.
 
     Args:

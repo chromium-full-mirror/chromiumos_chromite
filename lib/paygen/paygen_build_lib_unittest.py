@@ -12,7 +12,7 @@ from chromite.lib.paygen import paygen_build_lib
 class BasePaygenBuildLibTestWithBuilds(cros_test_lib.MockTempDirTestCase):
     """Test PaygenBuildLib class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.dlc_id = "sample-dlc"
         self.dlc_id2 = "sample-dlc2"
         self.dlc_package = "sample-package"
@@ -94,7 +94,7 @@ class BasePaygenBuildLibTestWithBuilds(cros_test_lib.MockTempDirTestCase):
             tgt_image=self.basic_image, minios=True
         )
 
-    def testDefaultPayloadUri(self):
+    def testDefaultPayloadUri(self) -> None:
         """Test paygen_payload_lib.DefaultPayloadUri."""
 
         # Test a Full Payload

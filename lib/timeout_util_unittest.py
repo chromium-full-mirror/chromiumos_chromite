@@ -16,7 +16,7 @@ from chromite.lib import timeout_util
 class TestTimeouts(cros_test_lib.MockTestCase):
     """Tests for timeout_util.Timeout."""
 
-    def testTimeout(self):
+    def testTimeout(self) -> None:
         """Tests that we can nest Timeout correctly."""
         self.assertFalse("mock" in str(time.sleep).lower())
         with timeout_util.Timeout(30):
@@ -27,7 +27,7 @@ class TestTimeouts(cros_test_lib.MockTestCase):
                 # Should not raise a timeout exception as 20 > 2.
                 time.sleep(1)
 
-    def testTimeoutNested(self):
+    def testTimeoutNested(self) -> None:
         """Tests that we still re-raise an alarm if both are reached."""
         with timeout_util.Timeout(1):
             try:
@@ -40,7 +40,7 @@ class TestTimeouts(cros_test_lib.MockTestCase):
             else:
                 self.fail("Should have thrown an exception")
 
-    def testFractionTimeout(self):
+    def testFractionTimeout(self) -> None:
         # Capture setitimer arguments.
         mock_setitimer = self.PatchObject(
             signal, "setitimer", autospec=True, return_value=(0, 0)
@@ -63,7 +63,7 @@ class TestTimeouts(cros_test_lib.MockTestCase):
 class TestTimeoutDecorator(cros_test_lib.TestCase):
     """Tests timeout_util.TimeoutDecorator."""
 
-    def testNoTimeout(self):
+    def testNoTimeout(self) -> None:
         """Test normal class with no timeout."""
 
         @timeout_util.TimeoutDecorator(10)
@@ -74,11 +74,11 @@ class TestTimeoutDecorator(cros_test_lib.TestCase):
 
         self.assertEqual(result, 3)
 
-    def testTimeout(self):
+    def testTimeout(self) -> None:
         """Test timing out a function."""
 
         @timeout_util.TimeoutDecorator(1)
-        def timedFunction():
+        def timedFunction() -> None:
             time.sleep(10)
 
         with self.assertRaises(timeout_util.TimeoutError):
@@ -88,7 +88,7 @@ class TestTimeoutDecorator(cros_test_lib.TestCase):
 class TestWaitFors(cros_test_lib.TestCase):
     """Tests for assorted timeout_utils WaitForX methods."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.values_ix = 0
         self.timestart = None
         self.timestop = None
@@ -135,7 +135,7 @@ class TestWaitFors(cros_test_lib.TestCase):
         func = self.GetFunc(list(range(20)))
         return timeout_util.WaitForReturnValue(values, func, timeout, **kwargs)
 
-    def testWaitForSuccessNotMainThread(self):
+    def testWaitForSuccessNotMainThread(self) -> None:
         """Test success after a few tries."""
         pool = ThreadPool(processes=1)
         async_result = pool.apply_async(
@@ -151,13 +151,13 @@ class TestWaitFors(cros_test_lib.TestCase):
         self.assertEqual(5, self.GetTryCount())
         self.assertEqual(4, self.GetTrySeconds())
 
-    def testWaitForSuccess1(self):
+    def testWaitForSuccess1(self) -> None:
         """Test success after a few tries."""
         self.assertEqual(4, self._TestWaitForSuccess(4, 10, period=1))
         self.assertEqual(5, self.GetTryCount())
         self.assertEqual(4, self.GetTrySeconds())
 
-    def testWaitForSuccess2(self):
+    def testWaitForSuccess2(self) -> None:
         """Test timeout after a couple tries."""
         self.assertRaises(
             timeout_util.TimeoutError, self._TestWaitForSuccess, 4, 3, period=1
@@ -165,35 +165,35 @@ class TestWaitFors(cros_test_lib.TestCase):
         self.assertEqual(3, self.GetTryCount())
         self.assertEqual(2, self.GetTrySeconds())
 
-    def testWaitForSuccess3(self):
+    def testWaitForSuccess3(self) -> None:
         """Test success on first try."""
         self.assertEqual(0, self._TestWaitForSuccess(0, 10, period=1))
         self.assertEqual(1, self.GetTryCount())
         self.assertEqual(0, self.GetTrySeconds())
 
-    def testWaitForSuccess4(self):
+    def testWaitForSuccess4(self) -> None:
         """Test success after a few tries with longer period."""
         self.assertEqual(3, self._TestWaitForSuccess(3, 10, period=2))
         self.assertEqual(4, self.GetTryCount())
         self.assertEqual(6, self.GetTrySeconds())
 
-    def testWaitForReturnValue1(self):
+    def testWaitForReturnValue1(self) -> None:
         """Test value found after a few tries."""
         self.assertEqual(4, self._TestWaitForReturnValue((4, 5), 10, period=1))
         self.assertEqual(5, self.GetTryCount())
         self.assertEqual(4, self.GetTrySeconds())
 
-    def testWaitForReturnValue2(self):
+    def testWaitForReturnValue2(self) -> None:
         """Test value found on first try."""
         self.assertEqual(0, self._TestWaitForReturnValue((0, 1), 10, period=1))
         self.assertEqual(1, self.GetTryCount())
         self.assertEqual(0, self.GetTrySeconds())
 
-    def testWaitForCallback(self):
+    def testWaitForCallback(self) -> None:
         """Verify side_effect_func works."""
         side_effect_called = [False]
 
-        def _SideEffect(remaining):
+        def _SideEffect(remaining) -> None:
             self.assertIsInstance(remaining, datetime.timedelta)
             side_effect_called[0] = True
 
@@ -205,11 +205,11 @@ class TestWaitFors(cros_test_lib.TestCase):
         )
         self.assertTrue(side_effect_called[0])
 
-    def testWaitForCallbackSleepsLong(self):
+    def testWaitForCallbackSleepsLong(self) -> None:
         """Verify a long running side effect doesn't sleep negative time."""
         side_effect_called = [False]
 
-        def _SideEffect(_remaining):
+        def _SideEffect(_remaining) -> None:
             time.sleep(0.3)
             side_effect_called[0] = True
 
@@ -223,11 +223,11 @@ class TestWaitFors(cros_test_lib.TestCase):
         )
         self.assertTrue(side_effect_called[0])
 
-    def testWaitForCallbackAfterTimeout(self):
+    def testWaitForCallbackAfterTimeout(self) -> None:
         """Verify remaining is zero when side_effect called after timeout."""
         side_effect_called = [False]
 
-        def _SideEffect(remaining):
+        def _SideEffect(remaining) -> None:
             self.assertGreaterEqual(remaining.total_seconds(), 0)
             side_effect_called[0] = True
 

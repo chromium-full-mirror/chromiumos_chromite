@@ -24,7 +24,7 @@ DEFAULT_OPTIONS = ts_mon_config._GenerateTsMonArgparseOptions(
 class TestConsumeMessages(cros_test_lib.MockTestCase):
     """Test that ConsumeMessages works correctly."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Every call to "time.time()" will look like 1 second has passed.
         # Nb. we only want to mock out ts_mon_config's view of time, otherwise
         # things like Process.join(10) won't sleep.
@@ -36,7 +36,7 @@ class TestConsumeMessages(cros_test_lib.MockTestCase):
         self.mock_metric = self.PatchObject(metrics, "Boolean")
         self.common_metric_fields, _ = ts_mon_config.AddCommonFields({}, [])
 
-    def testGetMetricFieldSpec(self):
+    def testGetMetricFieldSpec(self) -> None:
         """Test each field type gets its FieldSpec."""
         fields = {
             "int": 12,
@@ -52,7 +52,7 @@ class TestConsumeMessages(cros_test_lib.MockTestCase):
             ts_mon_config.GetMetricFieldSpec(fields), expected_fieldspec
         )
 
-    def testNoneEndsProcess(self):
+    def testNoneEndsProcess(self) -> None:
         """None on the Queue should immediately end the consumption loop."""
         q = Queue.Queue()
         q.put(None)
@@ -65,7 +65,7 @@ class TestConsumeMessages(cros_test_lib.MockTestCase):
         self.assertFalse(ts_mon_config.time.time.called)
         self.assertFalse(ts_mon_config.metrics.Flush.called)
 
-    def testConsumeOneMetric(self):
+    def testConsumeOneMetric(self) -> None:
         """Tests that sending one metric calls flush once."""
         q = Queue.Queue()
         q.put(
@@ -92,7 +92,7 @@ class TestConsumeMessages(cros_test_lib.MockTestCase):
             "arg1", fields=self.common_metric_fields, kwarg1="value"
         )
 
-    def testConsumeTwoMetrics(self):
+    def testConsumeTwoMetrics(self) -> None:
         """Tests that sending two metrics only calls flush once."""
         q = Queue.Queue()
         q.put(
@@ -133,7 +133,7 @@ class TestConsumeMessages(cros_test_lib.MockTestCase):
             "arg2", fields=self.common_metric_fields, kwarg2="value"
         )
 
-    def testFlushingProcessExits(self):
+    def testFlushingProcessExits(self) -> None:
         """Tests that _CreateTsMonFlushingProcess cleans up the process."""
         processes = []
         original_process_function = multiprocessing.Process
@@ -158,14 +158,14 @@ class TestConsumeMessages(cros_test_lib.MockTestCase):
 
         self.assertEqual(0, processes[0].exitcode)
 
-    def testCatchesException(self):
+    def testCatchesException(self) -> None:
         """Tests that the _SetupAndConsumeMessages loop catches exceptions."""
         q = Queue.Queue()
 
         class RaisesException:
             """Class to raise an exception"""
 
-            def raiseException(self, *_args, **_kwargs):
+            def raiseException(self, *_args, **_kwargs) -> None:
                 raise Exception()
 
         metrics.RaisesException = RaisesException
@@ -193,7 +193,7 @@ class TestConsumeMessages(cros_test_lib.MockTestCase):
         self.assertEqual(0, ts_mon_config.time.sleep.call_count)
         self.assertEqual(0, ts_mon_config.metrics.Flush.call_count)
 
-    def testResetAfter(self):
+    def testResetAfter(self) -> None:
         """Tests that metrics with reset_after set are cleared after."""
         q = Queue.Queue()
 
@@ -220,7 +220,7 @@ class TestConsumeMessages(cros_test_lib.MockTestCase):
             "arg1", fields=self.common_metric_fields, kwarg1="value1"
         )
 
-    def testSubprocessQuitsWhenNotSetup(self):
+    def testSubprocessQuitsWhenNotSetup(self) -> None:
         self.PatchObject(ts_mon_config.logging, "exception")
         self.PatchObject(ts_mon_config, "_WasSetup", False)
         ts_mon_config._SetupAndConsumeMessages(None, DEFAULT_OPTIONS)
@@ -228,7 +228,7 @@ class TestConsumeMessages(cros_test_lib.MockTestCase):
         # The entry should not have been consumed by _ConsumeMessages
         self.assertEqual(0, ts_mon_config.logging.exception.call_count)
 
-    def testSetOnceMetricKeepsEmitting(self):
+    def testSetOnceMetricKeepsEmitting(self) -> None:
         """Verify a metric which is set once emits many times if left alone."""
         self.PatchObject(ts_mon_config, "FLUSH_INTERVAL", 0)
         self.time_mock.time.side_effect = [1, 2, 3, 4, 5]
@@ -244,14 +244,14 @@ class TestConsumeMessages(cros_test_lib.MockTestCase):
 class TestSetupTsMonGlobalState(cros_test_lib.MockTestCase):
     """Test that SetupTsMonGlobalState works correctly."""
 
-    def testTaskNumArgument(self):
+    def testTaskNumArgument(self) -> None:
         """The task_num argument should set the task_num in ts-mon."""
         ts_mon_config.SetupTsMonGlobalState(
             "unittest", auto_flush=False, task_num=42
         )
         self.assertEqual(ts_mon.common.interface.state.target.task_num, 42)
 
-    def testTaskNumWithIndirect(self):
+    def testTaskNumWithIndirect(self) -> None:
         """The task_num argument should propagate to the flushing subprocess."""
         create_flushing_process = self.PatchObject(
             ts_mon_config, "_CreateTsMonFlushingProcess"

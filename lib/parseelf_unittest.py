@@ -17,14 +17,14 @@ class ELFParsingTest(cros_test_lib.TempDirTestCase):
 
     _ldpaths = {"interp": [], "env": [], "conf": []}
 
-    def testIsLib(self):
+    def testIsLib(self) -> None:
         """Tests the 'is_lib' attribute is inferred correctly for libs."""
         unittest_lib.BuildELF(os.path.join(self.tempdir, "liba.so"), ["func_a"])
         elf = parseelf.ParseELF(self.tempdir, "liba.so", self._ldpaths)
         self.assertTrue("is_lib" in elf)
         self.assertTrue(elf["is_lib"])
 
-    def testNotIsLib(self):
+    def testNotIsLib(self) -> None:
         """Verify 'is_lib' attribute is inferred correctly for executables."""
         unittest_lib.BuildELF(
             os.path.join(self.tempdir, "abc_main"), executable=True
@@ -33,7 +33,7 @@ class ELFParsingTest(cros_test_lib.TempDirTestCase):
         self.assertTrue("is_lib" in elf)
         self.assertFalse(elf["is_lib"])
 
-    def testUnsupportedFiles(self):
+    def testUnsupportedFiles(self) -> None:
         """Tests unsupported files are ignored."""
         osutils.WriteFile(os.path.join(self.tempdir, "foo.so"), "foo")
         self.assertEqual(
@@ -45,7 +45,7 @@ class ELFParsingTest(cros_test_lib.TempDirTestCase):
             None, parseelf.ParseELF(self.tempdir, "foo.so", self._ldpaths)
         )
 
-    def testParsedSymbols(self):
+    def testParsedSymbols(self) -> None:
         """Tests the list of imported/exported symbols."""
         unittest_lib.BuildELF(
             os.path.join(self.tempdir, "libabc.so"),
@@ -76,7 +76,7 @@ class ELFParsingTest(cros_test_lib.TempDirTestCase):
         self.assertIn(b"fy", elf["exp_sym"])
         self.assertIn(b"fz", elf["exp_sym"])
 
-    def testLibDependencies(self):
+    def testLibDependencies(self) -> None:
         """Tests the list direct dependencies."""
         # Dependencies:
         #   u -> abc
@@ -111,7 +111,7 @@ class ELFParsingTest(cros_test_lib.TempDirTestCase):
         self.assertTrue("libv.so" in elf_prog["needed"])
         self.assertFalse("libabc.so" in elf_prog["needed"])
 
-    def testRelativeLibPaths(self):
+    def testRelativeLibPaths(self) -> None:
         """Test that the paths reported by ParseELF are relative to root."""
         unittest_lib.BuildELF(os.path.join(self.tempdir, "liba.so"), ["fa"])
         unittest_lib.BuildELF(

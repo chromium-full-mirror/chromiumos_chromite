@@ -16,7 +16,7 @@ from chromite.lib import parallel
 class MetadataTest(cros_test_lib.TestCase):
     """Tests the correctness of various metadata methods."""
 
-    def testGetDict(self):
+    def testGetDict(self) -> None:
         starting_dict = {
             "key1": 1,
             "key2": "2",
@@ -29,7 +29,7 @@ class MetadataTest(cros_test_lib.TestCase):
         ending_dict = metadata.GetDict()
         self.assertEqual(starting_dict, ending_dict)
 
-    def testGetValue(self):
+    def testGetValue(self) -> None:
         """Test GetValue."""
         starting_dict = {"key1": 1, "key2": "2"}
         metadata = metadata_lib.CBuildbotMetadata(starting_dict)
@@ -37,7 +37,7 @@ class MetadataTest(cros_test_lib.TestCase):
         self.assertEqual(metadata.GetValue("key2"), "2")
         self.assertRaises(KeyError, metadata.GetValue, "key3")
 
-    def testGetJSON(self):
+    def testGetJSON(self) -> None:
         """Test GetJSON."""
         starting_dict = {
             "key1": 1,
@@ -51,7 +51,7 @@ class MetadataTest(cros_test_lib.TestCase):
         self.assertEqual(data["key2"], "2")
         self.assertEqual(data["path"], "/foo")
 
-    def testGetValueWithDefault(self):
+    def testGetValueWithDefault(self) -> None:
         """Test GetValueWithDefault."""
         starting_dict = {"key1": 1, "key2": "2"}
         metadata = metadata_lib.CBuildbotMetadata(starting_dict)
@@ -59,7 +59,7 @@ class MetadataTest(cros_test_lib.TestCase):
         self.assertEqual(metadata.GetValueWithDefault("key2", 2), "2")
         self.assertEqual(metadata.GetValueWithDefault("key3", 3), 3)
 
-    def testUpdateKeyDictWithDict(self):
+    def testUpdateKeyDictWithDict(self) -> None:
         expected_dict = {str(x): x for x in range(20)}
         m = multiprocessing.Manager()
         metadata = metadata_lib.CBuildbotMetadata(multiprocess_manager=m)
@@ -68,7 +68,7 @@ class MetadataTest(cros_test_lib.TestCase):
 
         self.assertEqual(expected_dict, metadata.GetDict()["my_dict"])
 
-    def testExtendKeyListWithList(self):
+    def testExtendKeyListWithList(self) -> None:
         """Test ExtendKeyListWithList."""
         m = multiprocessing.Manager()
         metadata = metadata_lib.CBuildbotMetadata(multiprocess_manager=m)
@@ -83,7 +83,7 @@ class MetadataTest(cros_test_lib.TestCase):
         metadata.ExtendKeyListWithList("my_list_2", sub_list_2)
         self.assertEqual(expected_list, metadata.GetDict()["my_list_2"])
 
-    def testUpdateKeyDictWithDictMultiprocess(self):
+    def testUpdateKeyDictWithDictMultiprocess(self) -> None:
         expected_dict = {str(x): x for x in range(20)}
         m = multiprocessing.Manager()
         metadata = metadata_lib.CBuildbotMetadata(multiprocess_manager=m)
@@ -94,12 +94,12 @@ class MetadataTest(cros_test_lib.TestCase):
 
         self.assertEqual(expected_dict, metadata.GetDict()["my_dict"])
 
-    def testUpdateBoardMetadataWithEmptyDict(self):
+    def testUpdateBoardMetadataWithEmptyDict(self) -> None:
         metadata = metadata_lib.CBuildbotMetadata()
         metadata.UpdateBoardDictWithDict("someboard", {})
         self.assertEqual(metadata.GetDict()["board-metadata"]["someboard"], {})
 
-    def testUpdateBoardMetadataWithMultiprocessDict(self):
+    def testUpdateBoardMetadataWithMultiprocessDict(self) -> None:
         starting_dict = {
             "key1": 1,
             "key2": "2",
@@ -124,7 +124,7 @@ class MetadataTest(cros_test_lib.TestCase):
             "some value",
         )
 
-    def testMultiprocessSafety(self):
+    def testMultiprocessSafety(self) -> None:
         m = multiprocessing.Manager()
         metadata = metadata_lib.CBuildbotMetadata(multiprocess_manager=m)
         key_dict = {"key1": 1, "key2": 2}
@@ -152,7 +152,7 @@ class MetadataTest(cros_test_lib.TestCase):
         ending_dict = metadata.GetDict()
         self.assertEqual(starting_dict, ending_dict)
 
-    def testPerBoardDict(self):
+    def testPerBoardDict(self) -> None:
         starting_per_board_dict = {
             "board-1": {
                 "kubrick": 2001,

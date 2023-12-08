@@ -143,7 +143,7 @@ class SchemaVersionedMySQLConnection:
     SCHEMA_VERSION_TABLE_NAME = "schemaVersionTable"
     SCHEMA_VERSION_COL = "schemaVersion"
 
-    def _UpdateConnectUrlArgs(self, key, db_credentials_dir, filename):
+    def _UpdateConnectUrlArgs(self, key, db_credentials_dir, filename) -> None:
         """Read an argument for the sql connection from the given file.
 
         side effect: store argument in self._connect_url_args
@@ -157,7 +157,7 @@ class SchemaVersionedMySQLConnection:
         if os.path.exists(file_path):
             self._connect_url_args[key] = osutils.ReadFile(file_path).strip()
 
-    def _UpdateConnectUrlQuery(self, key, db_credentials_dir, filename):
+    def _UpdateConnectUrlQuery(self, key, db_credentials_dir, filename) -> None:
         """Read 'query' args from the given file and update connect url.
 
         Args:
@@ -172,7 +172,7 @@ class SchemaVersionedMySQLConnection:
         except IOError as e:
             log.warning("Error reading %s from file %s: %s", key, file_path, e)
 
-    def _UpdateConnectArgs(self, db_credentials_dir, for_service=False):
+    def _UpdateConnectArgs(self, db_credentials_dir, for_service=False) -> None:
         """Update all connection args from |db_credentials_dir|."""
         self._UpdateConnectUrlArgs("username", db_credentials_dir, "user.txt")
         self._UpdateConnectUrlArgs(
@@ -233,7 +233,7 @@ class SchemaVersionedMySQLConnection:
             def __init__(self):
                 pass
 
-            def connect(self, dbapi_con, *_args, **_kwargs):
+            def connect(self, dbapi_con, *_args, **_kwargs) -> None:
                 """Ensure STRICT_ALL_TABLES for all connections."""
                 cur = dbapi_con.cursor()
                 cur.execute("SET SESSION sql_mode='STRICT_ALL_TABLES'")
@@ -300,7 +300,7 @@ class SchemaVersionedMySQLConnection:
             sqlalchemy.__version__,
         )
 
-    def DropDatabase(self):
+    def DropDatabase(self) -> None:
         """Delete all data and tables from database, and drop database.
 
         Use with caution. All data in database will be deleted. Invalidates
@@ -348,7 +348,7 @@ class SchemaVersionedMySQLConnection:
         migrations.sort()
         return migrations
 
-    def ApplySchemaMigrations(self, maxVersion=None):
+    def ApplySchemaMigrations(self, maxVersion=None) -> None:
         """Apply pending migration scripts to database, in order.
 
         Args:
@@ -377,7 +377,7 @@ class SchemaVersionedMySQLConnection:
                         "schema version to %s as expected. " % (number, script)
                     )
 
-    def RunQueryScript(self, script_path):
+    def RunQueryScript(self, script_path) -> None:
         """Run a .sql script file located at |script_path| on the database."""
         with open(script_path, "r", encoding="utf-8") as f:
             script = f.read()
@@ -386,7 +386,7 @@ class SchemaVersionedMySQLConnection:
             # This is intentionally not wrapped in retries.
             self._GetEngine().execute(q)
 
-    def _ReflectToMetadata(self):
+    def _ReflectToMetadata(self) -> None:
         """Use sqlalchemy reflection to construct MetaData model of database.
 
         If self._meta is already populated, this does nothing.
@@ -580,7 +580,7 @@ class SchemaVersionedMySQLConnection:
 
         # TODO(hidehiko): Move this back to retry implementation, because this
         # should be useful for other retry run, too.
-        def _StatusCallback(attempt, success):
+        def _StatusCallback(attempt, success) -> None:
             if success and attempt:
                 log.info("cidb query succeeded after %d retries", attempt)
 
@@ -621,7 +621,7 @@ class SchemaVersionedMySQLConnection:
             )
             return self._engine
 
-    def _InvalidateEngine(self):
+    def _InvalidateEngine(self) -> None:
         """Dispose of a sqlalchemy engine."""
         try:
             pid = os.getpid()
@@ -792,7 +792,7 @@ GROUP BY b.build_config
         return self._Insert("buildTable", values)
 
     @minimum_schema(6)
-    def InsertBoardPerBuild(self, build_id, board):
+    def InsertBoardPerBuild(self, build_id, board) -> None:
         """Inserts a board-per-build entry into database.
 
         Args:
@@ -804,7 +804,7 @@ GROUP BY b.build_config
         )
 
     @minimum_schema(7)
-    def InsertChildConfigPerBuild(self, build_id, child_config):
+    def InsertChildConfigPerBuild(self, build_id, child_config) -> None:
         """Insert a child-config-per-build entry into database.
 
         Args:
@@ -1032,7 +1032,7 @@ GROUP BY b.build_config
         return self._UpdateWhere("buildTable", clause, values)
 
     @minimum_schema(16)
-    def FinishChildConfig(self, build_id, child_config, status=None):
+    def FinishChildConfig(self, build_id, child_config, status=None) -> None:
         """Marks the given child config as finished with |status|.
 
         This should be called before FinishBuild, on all child configs that
@@ -1474,7 +1474,7 @@ GROUP BY b.build_config
         return [dict(zip(columns, values)) for values in results]
 
 
-def _INV():
+def _INV() -> None:
     raise AssertionError("CIDB connection factory has been invalidated.")
 
 
@@ -1540,7 +1540,7 @@ class CIDBConnectionFactoryClass(factory.ObjectFactory):
         """
         return self.setup_type
 
-    def InvalidateCIDBSetup(self):
+    def InvalidateCIDBSetup(self) -> None:
         """Invalidate the CIDB connection factory.
 
         This method may be called at any time, even after a setup method. Once
@@ -1549,7 +1549,7 @@ class CIDBConnectionFactoryClass(factory.ObjectFactory):
         """
         self.Setup(CONNECTION_TYPE_INV)
 
-    def SetupProdCidb(self):
+    def SetupProdCidb(self) -> None:
         """Sets up CIDB to use the prod instance of the database.
 
         May be called only once, and may not be called after any other CIDB
@@ -1557,7 +1557,7 @@ class CIDBConnectionFactoryClass(factory.ObjectFactory):
         """
         self.Setup(CONNECTION_TYPE_PROD)
 
-    def SetupDebugCidb(self):
+    def SetupDebugCidb(self) -> None:
         """Sets up CIDB to use the debug instance of the database.
 
         May be called only once, and may not be called after any other CIDB
@@ -1565,7 +1565,7 @@ class CIDBConnectionFactoryClass(factory.ObjectFactory):
         """
         self.Setup(CONNECTION_TYPE_DEBUG)
 
-    def SetupMockCidb(self, mock_cidb=None):
+    def SetupMockCidb(self, mock_cidb=None) -> None:
         """Sets up CIDB to use a mock object. May be called more than once.
 
         Args:
@@ -1576,14 +1576,14 @@ class CIDBConnectionFactoryClass(factory.ObjectFactory):
         """
         self.Setup(CONNECTION_TYPE_MOCK, mock_cidb)
 
-    def SetupNoCidb(self):
+    def SetupNoCidb(self) -> None:
         """Sets up CIDB to use an explicit None connection.
 
         May be called more than once, or after SetupMockCidb.
         """
         self.Setup(CONNECTION_TYPE_NONE)
 
-    def ClearMock(self):
+    def ClearMock(self) -> None:
         """Clear a mock CIDB object.
 
         This method clears a cidb mock object, but leaves the connection factory
@@ -1606,7 +1606,7 @@ class CIDBConnectionFactoryClass(factory.ObjectFactory):
         """
         return self.GetInstance()
 
-    def _ClearCIDBSetup(self):
+    def _ClearCIDBSetup(self) -> None:
         """Clears the CIDB Setup state. For testing purposes only."""
         self._clear_setup()
 

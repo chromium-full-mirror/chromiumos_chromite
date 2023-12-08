@@ -466,13 +466,13 @@ class EasyAttr(dict):
         except KeyError:
             raise AttributeError(attr)
 
-    def __delattr__(self, attr):
+    def __delattr__(self, attr) -> None:
         try:
             self.pop(attr)
         except KeyError:
             raise AttributeError(attr)
 
-    def __setattr__(self, attr, value):
+    def __setattr__(self, attr, value) -> None:
         self[attr] = value
 
     def __dir__(self):
@@ -505,17 +505,17 @@ class LoggingCapturer:
         self.StartCapturing()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.StopCapturing()
 
-    def StartCapturing(self):
+    def StartCapturing(self) -> None:
         """Begin capturing logging messages."""
         logger = logging.getLogger(self.logger_name)
         self._old_level = logger.getEffectiveLevel()
         logger.setLevel(self._log_level)
         logger.addFilter(self._log_filter)
 
-    def StopCapturing(self):
+    def StopCapturing(self) -> None:
         """Stop capturing logging messages."""
         logger = logging.getLogger(self.logger_name)
         logger.setLevel(self._old_level)
@@ -679,7 +679,7 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
                 raise AssertionError("\n".join(bad))
             return e
 
-    def assertExists(self, path, msg=None):
+    def assertExists(self, path, msg=None) -> None:
         """Make sure |path| exists"""
         if os.path.exists(path):
             return
@@ -701,7 +701,7 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
 
         raise self.failureException(msg)
 
-    def assertNotExists(self, path, msg=None):
+    def assertNotExists(self, path, msg=None) -> None:
         """Make sure |path| does not exist"""
         if not os.path.exists(path):
             return
@@ -711,7 +711,7 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
 
         raise self.failureException(msg)
 
-    def assertStartsWith(self, s, prefix, msg=None):
+    def assertStartsWith(self, s, prefix, msg=None) -> None:
         """Asserts that |s| starts with |prefix|.
 
         This function should be preferred over assertTrue(s.startswith(prefix))
@@ -725,7 +725,7 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
 
         raise self.failureException(msg)
 
-    def assertEndsWith(self, s, suffix, msg=None):
+    def assertEndsWith(self, s, suffix, msg=None) -> None:
         """Asserts that |s| ends with |suffix|.
 
         This function should be preferred over assertTrue(s.endswith(suffix))
@@ -806,7 +806,7 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
 class LoggingTestCase(TestCase):
     """Base class for logging capturer test cases."""
 
-    def AssertLogsMatch(self, log_capturer, regex, inverted=False):
+    def AssertLogsMatch(self, log_capturer, regex, inverted=False) -> None:
         """Verifies a regex matches the logs."""
         assert_msg = "%r not found in %r" % (regex, log_capturer.messages)
         assert_fn = self.assertTrue
@@ -913,7 +913,7 @@ class OutputTestCase(TestCase):
 
     def _AssertOutputContainsMsg(
         self, check_msg_func, invert, check_stdout, check_stderr
-    ):
+    ) -> None:
         assert check_stdout or check_stderr
 
         lines = []
@@ -988,7 +988,7 @@ class OutputTestCase(TestCase):
 
     def _AssertOutputEndsInMsg(
         self, check_msg_func, check_stdout, check_stderr
-    ):
+    ) -> None:
         """Pass if requested output(s) ends(end) with an error message."""
         assert check_stdout or check_stderr
 
@@ -1071,7 +1071,7 @@ class OutputTestCase(TestCase):
             exit_code = ex.args[0]
             return None, exit_code
 
-    def AssertFuncSystemExitZero(self, func, *args, **kwargs):
+    def AssertFuncSystemExitZero(self, func, *args, **kwargs) -> None:
         """Run |func| with |args| and |kwargs| catching SystemExit.
 
         If the func does not raise a SystemExit with exit code 0 then assert.
@@ -1086,7 +1086,7 @@ class OutputTestCase(TestCase):
             msg="Expected system exit code 0, but caught %d" % exit_code,
         )
 
-    def AssertFuncSystemExitNonZero(self, func, *args, **kwargs):
+    def AssertFuncSystemExitNonZero(self, func, *args, **kwargs) -> None:
         """Run |func| with |args| and |kwargs| catching SystemExit.
 
         If the func does not raise a non-zero SystemExit code then assert.
@@ -1152,7 +1152,7 @@ class TempDirTestCase(TestCase):
         )
         return cls._NO_DELETE_TEMPDIR_OBJ.tempdir
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._tempdir_obj = osutils.TempDir(
             prefix="chromite.test", set_global=True, delete=self.DELETE
         )
@@ -1163,24 +1163,24 @@ class TempDirTestCase(TestCase):
         # functions.
         self.addCleanup(self._CleanTempDir)
 
-    def _CleanTempDir(self):
+    def _CleanTempDir(self) -> None:
         if self._tempdir_obj is not None:
             self._tempdir_obj.Cleanup()
             self._tempdir_obj = None
             self.tempdir = None
 
-    def ExpectRootOwnedFiles(self):
+    def ExpectRootOwnedFiles(self) -> None:
         """Tells us that we may need to clean up root owned files."""
         if self._tempdir_obj is not None:
             self._tempdir_obj.SetSudoRm()
 
-    def assertFileContents(self, file_path, content):
+    def assertFileContents(self, file_path, content) -> None:
         """Assert that the file contains the given content."""
         self.assertExists(file_path)
         read_content = osutils.ReadFile(file_path)
         self.assertEqual(read_content, content)
 
-    def assertTempFileContents(self, file_path, content):
+    def assertTempFileContents(self, file_path, content) -> None:
         """Assert a file in the temp directory contains the given content."""
         self.assertFileContents(os.path.join(self.tempdir, file_path), content)
 
@@ -1192,7 +1192,7 @@ class TempDirTestCase(TestCase):
         """
         return osutils.ReadFile(os.path.join(self.tempdir, path))
 
-    def WriteTempFile(self, path, content, **kwargs):
+    def WriteTempFile(self, path, content, **kwargs) -> None:
         """Write the given content to the temp directory
 
         Args:
@@ -1332,7 +1332,7 @@ class ProgressBarTestCase(MockOutputTestCase):
 
     # pylint: disable=protected-access
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._terminal_size = self.PatchObject(
             operation.ProgressBarOperation,
             "_GetTerminalSize",
@@ -1340,13 +1340,13 @@ class ProgressBarTestCase(MockOutputTestCase):
         )
         self.PatchObject(os, "isatty", return_value=True)
 
-    def SetMockTerminalSize(self, width, height):
+    def SetMockTerminalSize(self, width, height) -> None:
         """Set mock terminal's size."""
         self._terminal_size.return_value = operation._TerminalSize(
             width, height
         )
 
-    def AssertProgressBarAllEvents(self, num_events):
+    def AssertProgressBarAllEvents(self, num_events) -> None:
         """Check that the progress bar generates expected events."""
         skipped = 0
         for i in range(num_events):
@@ -1611,7 +1611,7 @@ class TestProgram(unittest.TestProgram):
 
         return parser
 
-    def parseArgs(self, argv):
+    def parseArgs(self, argv) -> None:
         """Parse the command line for the test"""
         parser = self.GetParser()
         opts = parser.parse_args(argv[1:])

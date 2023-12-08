@@ -39,7 +39,7 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
     """Test the helper functions related to naming."""
 
     # pylint: disable=protected-access
-    def testParseBenchmarkProfileName(self):
+    def testParseBenchmarkProfileName(self) -> None:
         """Test top-level function _ParseBenchmarkProfileName."""
         # Test parse failure
         profile_name_to_fail = "this_is_an_invalid_name"
@@ -81,7 +81,7 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
             ),
         )
 
-    def testParseCWPProfileName(self):
+    def testParseCWPProfileName(self) -> None:
         """Test top-level function _ParseCWPProfileName."""
         # Test parse failure
         profile_name_to_fail = "this_is_an_invalid_name"
@@ -101,7 +101,7 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
             ),
         )
 
-    def testParseMergedProfileName(self):
+    def testParseMergedProfileName(self) -> None:
         """Test top-level function _ParseMergedProfileName."""
         # Test parse failure
         profile_name_to_fail = "this_is_an_invalid_name"
@@ -156,7 +156,7 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
             ),
         )
 
-    def testCompressAFDOFiles(self):
+    def testCompressAFDOFiles(self) -> None:
         """Test _CompressAFDOFiles()."""
         input_dir = "/path/to/inputs"
         output_dir = "/another/path/to/outputs"
@@ -188,7 +188,7 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
         calls = [mock.call(n, o) for n, o in zip(inputs, outputs)]
         cros_build_lib.CompressFile.assert_has_calls(calls)
 
-    def testGetProfileAge(self):
+    def testGetProfileAge(self) -> None:
         """Test top-level function _GetProfileAge()."""
         # Test unsupported artifact_type
         current_day_profile = "R0-0.0-%d" % int(time.time())
@@ -215,7 +215,7 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
 class PrepareBundleTest(cros_test_lib.RunCommandTempDirTestCase):
     """Setup code common to Prepare/Bundle class methods."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self.board = "chell"
@@ -268,7 +268,7 @@ class PrepareBundleTest(cros_test_lib.RunCommandTempDirTestCase):
 class CommonPrepareBundleTest(PrepareBundleTest):
     """Test common Prepare/Bundle class methods."""
 
-    def testGetEbuildInfo(self):
+    def testGetEbuildInfo(self) -> None:
         """Verify that EbuildInfo is correctly returned."""
         self.glob.return_value = ["chromeos-chrome-96.0.4657.0_rc-r2.ebuild"]
         ret = self.obj._GetEbuildInfo("chromeos-chrome")
@@ -280,7 +280,7 @@ class CommonPrepareBundleTest(PrepareBundleTest):
         self.assertEqual(ret.CPV.package, "chromeos-chrome")
         self.glob.assert_called_once()
 
-    def testGetEbuildInfoWithoutRevision(self):
+    def testGetEbuildInfoWithoutRevision(self) -> None:
         """Verify that EbuildInfo is correctly returned."""
         self.glob.return_value = ["chromeos-chrome-96.0.4657.0_rc.ebuild"]
         ret = self.obj._GetEbuildInfo("chromeos-chrome")
@@ -288,7 +288,7 @@ class CommonPrepareBundleTest(PrepareBundleTest):
         self.assertEqual(ret.CPV.version, "96.0.4657.0_rc")
         self.assertEqual(ret.CPV.revision, 0)
 
-    def testGetEbuildInfoWithMultipleChromes(self):
+    def testGetEbuildInfoWithMultipleChromes(self) -> None:
         self.glob.return_value = [
             "chromeos-chrome-78.0.3893.0.ebuild",
             "chromeos-chrome-78.0.3893.0_rc-r1.ebuild",
@@ -300,7 +300,7 @@ class CommonPrepareBundleTest(PrepareBundleTest):
         self.assertEqual(ret.CPV.version, "78.0.3893.100_rc")
         self.assertEqual(ret.CPV.revision, 1)
 
-    def test_GetArtifactVersionInGob(self):
+    def test_GetArtifactVersionInGob(self) -> None:
         """Test that we look in the right place in GoB."""
         self.assertRaises(
             ValueError, self.obj._GetArtifactVersionInGob, "badarch"
@@ -327,7 +327,7 @@ class CommonPrepareBundleTest(PrepareBundleTest):
 class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
     """Test related function to compare freshness of AFDO artifacts."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.board = "board"
         self.gs_url = "gs://path/to/any_gs_url"
         self.current_branch = "78"
@@ -358,13 +358,13 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
         ]
         self.gsc_list.return_value = self.gs_list
 
-    def testValidBenchmarkProfileVersion(self):
+    def testValidBenchmarkProfileVersion(self) -> None:
         """Test that it returns None for unparsable profile name."""
         prof = "unparsable-file.data"
         ver_none = self.obj._ValidBenchmarkProfileVersion(prof)
         self.assertIsNone(ver_none)
 
-    def testFindLatestAFDOArtifactPassWithBenchmarkAfdo(self):
+    def testFindLatestAFDOArtifactPassWithBenchmarkAfdo(self) -> None:
         """Test _FindLatestAFDOArtifact returns latest benchmark AFDO."""
         latest_afdo = self.obj._FindLatestAFDOArtifact(
             [self.gs_url], self.obj._ValidBenchmarkProfileVersion
@@ -376,7 +376,7 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
             ),
         )
 
-    def testFindLatestAFDOArtifactPassWithBenchmarkAfdoArm(self):
+    def testFindLatestAFDOArtifactPassWithBenchmarkAfdoArm(self) -> None:
         """Test _FindLatestAFDOArtifact returns latest benchmark Arm AFDO."""
         self.obj.arch = "arm"
         latest_afdo = self.obj._FindLatestAFDOArtifact(
@@ -389,7 +389,7 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
             ),
         )
 
-    def testFindLatestAfdoArtifactOnPriorBranch(self):
+    def testFindLatestAfdoArtifactOnPriorBranch(self) -> None:
         """Test that we find a file from prior branch when we have none."""
         self.obj._ebuild_info["chromeos-chrome"] = toolchain_util._EbuildInfo(
             path="path",
@@ -408,7 +408,7 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
             ),
         )
 
-    def testFindLatestAFDOArtifactFailToFindAnyFiles(self):
+    def testFindLatestAFDOArtifactFailToFindAnyFiles(self) -> None:
         """Test function fails when no files on current branch."""
         self.obj._ebuild_info["chromeos-chrome"] = toolchain_util._EbuildInfo(
             path="path",
@@ -428,7 +428,7 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
             str(context.exception),
         )
 
-    def testFindLatestAFDOArtifactsFindMaxFromInvalidFiles(self):
+    def testFindLatestAFDOArtifactsFindMaxFromInvalidFiles(self) -> None:
         """Test function fails when finds only invalid files."""
         mock_gs_list = [
             self.MockListResult(
@@ -452,7 +452,7 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
 class PrepareForBuildHandlerTest(PrepareBundleTest):
     """Test PrepareForBuildHandler specific methods."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.artifact_type = "Unspecified"
         self.input_artifacts = {}
         self.kernel_version = "5_4"
@@ -513,7 +513,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         input_artifacts,
         mock_patch=True,
         profile_info_extra=None,
-    ):
+    ) -> None:
         """Set up to test _Prepare${artifactType}."""
         self.artifact_type = artifact_type
         self.input_artifacts = input_artifacts
@@ -541,7 +541,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
 
     def setupUnverifiedChromeBenchmarkAfdoFileInputProperties(
         self, profile_info_extra=None
-    ):
+    ) -> None:
         self.SetUpPrepare(
             "UnverifiedChromeBenchmarkAfdoFile",
             {
@@ -552,7 +552,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             profile_info_extra=profile_info_extra,
         )
 
-    def testPrepareUnverifiedChromeBenchmarkAfdoFileExists(self):
+    def testPrepareUnverifiedChromeBenchmarkAfdoFileExists(self) -> None:
         """Normal flow, build is needed, all artifacts are present."""
         self.setupUnverifiedChromeBenchmarkAfdoFileInputProperties()
         # Published artifact is missing, debug binary is present, perf.data is
@@ -585,7 +585,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         # There is no need to patch the ebuild.
         self.patch_ebuild.assert_not_called()
 
-    def testPrepareUnverifiedChromeBenchmarkArmAfdoFile(self):
+    def testPrepareUnverifiedChromeBenchmarkArmAfdoFile(self) -> None:
         """Normal flow with Arm, build is needed, all artifacts are present."""
         profile_info_extra = {"chrome_cwp_profile": "arm", "arch": "arm"}
         self.setupUnverifiedChromeBenchmarkAfdoFileInputProperties(
@@ -622,7 +622,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         # There is no need to patch the ebuild.
         self.patch_ebuild.assert_not_called()
 
-    def testPrepareUnverifiedChromeBenchmarkAfdoFileMissingDebug(self):
+    def testPrepareUnverifiedChromeBenchmarkAfdoFileMissingDebug(self) -> None:
         """Test raised exception when chrome.debug file is missing."""
         self.setupUnverifiedChromeBenchmarkAfdoFileInputProperties()
         # Published artifact is missing, debug binary is missing.
@@ -636,7 +636,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         ):
             self.obj.Prepare()
 
-    def testPrepareUnverifiedChromeBenchmarkAfdoFileMissingPerf(self):
+    def testPrepareUnverifiedChromeBenchmarkAfdoFileMissingPerf(self) -> None:
         """Test raised exception when perf.data file is missing."""
         self.setupUnverifiedChromeBenchmarkAfdoFileInputProperties()
         # Published artifact is missing, debug binary is present,
@@ -650,7 +650,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         ):
             self.obj.Prepare()
 
-    def testPrepareUnverifiedChromeBenchmarkAfdoFileMultArtifacts(self):
+    def testPrepareUnverifiedChromeBenchmarkAfdoFileMultArtifacts(self) -> None:
         """Test raised exception on multiple artifacts of one type."""
         self.setupUnverifiedChromeBenchmarkAfdoFileInputProperties()
         # Published artifact is missing, multiple debug binary artifacts.
@@ -667,7 +667,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         ):
             self.obj.Prepare()
 
-    def testCleanupArtifactDirectory(self):
+    def testCleanupArtifactDirectory(self) -> None:
         mock_rmdir = self.PatchObject(osutils, "RmDir")
         mock_isdir = self.PatchObject(os.path, "exists")
         for test_dir in [
@@ -707,7 +707,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         cwp_new_loc=None,
         cwp_old_ver=None,
         cwp_new_ver=None,
-    ):
+    ) -> None:
         """Helper function to set up and verify Prepare() call.
 
         Args:
@@ -781,7 +781,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             new_contents,
         )
 
-    def testPrepareVerifiedKernelCwpAfdoFileOldEbuild(self):
+    def testPrepareVerifiedKernelCwpAfdoFileOldEbuild(self) -> None:
         """Test PrepareVerifiedKernelCwpAfdoFile and patch old ebuild."""
         ebuild_data = (
             "# some comment\n",
@@ -790,7 +790,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         )
         self.callPrepareVerifiedKernelCwpAfdoFile(ebuild_data)
 
-    def testPrepareVerifiedKernelCwpAfdoFileNewEbuild(self):
+    def testPrepareVerifiedKernelCwpAfdoFileNewEbuild(self) -> None:
         """Test PrepareVerifiedKernelCwpAfdoFile and patch new ebuild."""
         ebuild_data = (
             "# some comment\n",
@@ -799,7 +799,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         )
         self.callPrepareVerifiedKernelCwpAfdoFile(ebuild_data)
 
-    def testPrepareVerifiedKernelCwpAfdoFileArm(self):
+    def testPrepareVerifiedKernelCwpAfdoFileArm(self) -> None:
         """Test PrepareVerifiedKernelCwpAfdoFile with the Arm profile."""
         cwp_old_ver = "R99-14469.8-1644229953"
         cwp_new_ver = "R100-14496.0-1644834841"
@@ -821,7 +821,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             ebuild_data, cwp_old_ver=cwp_old_ver, cwp_new_ver=cwp_new_ver
         )
 
-    def testPrepareVerifiedKernelCwpAfdoFileArmAndAmd64(self):
+    def testPrepareVerifiedKernelCwpAfdoFileArmAndAmd64(self) -> None:
         """Test PrepareVerifiedKernelCwpAfdoFile with the Amd64 profile."""
         cwp_old_ver = "R99-14469.8-1644229953"
         cwp_new_ver = "R100-14496.0-1644834841"
@@ -871,7 +871,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             )
         raise toolchain_util.NoProfilesInGsBucketError("no profiles")
 
-    def setupPrepareVerifiedReleaseAfdoFileMocks(self):
+    def setupPrepareVerifiedReleaseAfdoFileMocks(self) -> None:
         self.PatchObject(
             self.obj,
             "_FindLatestAFDOArtifact",
@@ -882,7 +882,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         self.PatchObject(self.obj, "_ProcessAFDOProfile")
         self.PatchObject(os, "rename")
 
-    def testPrepareVerifiedReleaseAfdoFileExists(self):
+    def testPrepareVerifiedReleaseAfdoFileExists(self) -> None:
         """Test that _PrepareVerifiedReleaseAfdoFile works when POINTLESS."""
         profile_info_extra = {"chrome_cwp_profile": "atom"}
         self.SetUpPrepare(
@@ -912,7 +912,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         self,
         profile_info_extra,
         input_artifacts=None,
-    ):
+    ) -> None:
         profile = (
             profile_info_extra["chrome_cwp_profile"]
             if profile_info_extra
@@ -934,7 +934,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             profile_info_extra=profile_info_extra,
         )
 
-    def testPrepareVerifiedReleaseAfdoFile(self):
+    def testPrepareVerifiedReleaseAfdoFile(self) -> None:
         """Normal flow, build is needed, all artifacts are present."""
         pi_extra = {"chrome_cwp_profile": "atom"}
         self.setupPrepareVerifiedReleaseAfdoFileInputProperties(
@@ -976,7 +976,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             uprev=True,
         )
 
-    def testPrepareVerifiedReleaseAfdoFileArmProfile(self):
+    def testPrepareVerifiedReleaseAfdoFileArmProfile(self) -> None:
         """Test fresh arm profiles."""
         pi_extra = {"chrome_cwp_profile": "arm", "arch": "arm"}
         self.setupPrepareVerifiedReleaseAfdoFileInputProperties(
@@ -1003,7 +1003,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             uprev=True,
         )
 
-    def testPrepareVerifiedReleaseAfdoFileMissingInput(self):
+    def testPrepareVerifiedReleaseAfdoFileMissingInput(self) -> None:
         """Test that _PrepareVerifiedReleaseAfdoFile raises assert."""
         self.setupPrepareVerifiedReleaseAfdoFileInputProperties(
             profile_info_extra=None
@@ -1018,7 +1018,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         ):
             self.obj.Prepare()
 
-    def testPrepareVerifiedReleaseAfdoFileArm32Profile(self):
+    def testPrepareVerifiedReleaseAfdoFileArm32Profile(self) -> None:
         """Test fresh arm profiles for arm32."""
         pi_extra = {"chrome_cwp_profile": "arm32", "arch": "arm"}
         self.setupPrepareVerifiedReleaseAfdoFileInputProperties(
@@ -1054,7 +1054,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             uprev=True,
         )
 
-    def testPrepareVerifiedReleaseAfdoFileExpProfileFromArm(self):
+    def testPrepareVerifiedReleaseAfdoFileExpProfileFromArm(self) -> None:
         """Test experimental profiles on arm."""
         pi_extra = {"chrome_cwp_profile": "exp", "arch": "arm"}
         # cwp location is atom.
@@ -1092,7 +1092,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             uprev=True,
         )
 
-    def testPrepareVerifiedReleaseAfdoFileExpProfileFromAmd(self):
+    def testPrepareVerifiedReleaseAfdoFileExpProfileFromAmd(self) -> None:
         """Test experimental profiles on arm."""
         pi_extra = {"chrome_cwp_profile": "exp-amd64", "arch": "arm"}
         # cwp location is atom.
@@ -1130,7 +1130,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             uprev=True,
         )
 
-    def testPrepareVerifiedReleaseAfdoFileExpInvalidProfile(self):
+    def testPrepareVerifiedReleaseAfdoFileExpInvalidProfile(self) -> None:
         """Test experimental profiles on arm."""
         pi_extra = {"chrome_cwp_profile": "exp-invalid", "arch": "arm"}
         # cwp location is atom.
@@ -1154,8 +1154,8 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
 class BundleArtifactHandlerTest(PrepareBundleTest):
     """Test BundleArtifactHandler specific methods."""
 
-    def setUp(self):
-        def _Bundle(_self):
+    def setUp(self) -> None:
+        def _Bundle(_self) -> None:
             osutils.WriteFile(
                 os.path.join(_self.output_dir, "artifact"), "data\n"
             )
@@ -1204,7 +1204,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
 
         self.PatchObject(datetime, "datetime", new=mock_datetime)
 
-    def SetUpBundle(self, artifact_type):
+    def SetUpBundle(self, artifact_type) -> None:
         """Set up to test _Bundle${artifactType}."""
         self.artifact_type = artifact_type
         self.outdir = os.path.join(self.tempdir, "tmp", "output_dir")
@@ -1221,7 +1221,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         )
         self.obj._gs_context = self.gs_context
 
-    def testBundleArtifactHandlerWithoutArchRaises(self):
+    def testBundleArtifactHandlerWithoutArchRaises(self) -> None:
         """Test that BundleArtifactHandler w/o arch in profile_info raises."""
         self.profile_info = {
             "chrome_cwp_profile": "atom",
@@ -1248,7 +1248,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         )
         return chrome_binary
 
-    def testCheckArgumentsFail(self):
+    def testCheckArgumentsFail(self) -> None:
         """Test arguments checking fails without files existing."""
         self.SetUpBundle("UnverifiedChromeBenchmarkAfdoFile")
         chrome_binary = self.mockChrome()
@@ -1269,7 +1269,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         ):
             self.obj._CheckArguments(chrome_binary)
 
-    def testBundleChromeClangWarningsFile(self):
+    def testBundleChromeClangWarningsFile(self) -> None:
         """Test that BundleChromeClangWarningsFile works."""
         self.SetUpBundle("ChromeClangWarningsFile")
         artifact = os.path.join(
@@ -1278,11 +1278,11 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         self.assertEqual([artifact], self.obj.Bundle())
         self.copy2.assert_called_once_with(mock.ANY, artifact)
 
-    def testBundleUnverifiedChromeBenchmarkPerfFile(self):
+    def testBundleUnverifiedChromeBenchmarkPerfFile(self) -> None:
         self.SetUpBundle("UnverifiedChromeBenchmarkPerfFile")
         self.assertEqual([], self.obj.Bundle())
 
-    def testBundleChromeDebugBinary(self):
+    def testBundleChromeDebugBinary(self) -> None:
         self.SetUpBundle("ChromeDebugBinary")
         bin_path = toolchain_util._CHROME_DEBUG_BIN % {
             "root": self.chroot.path,
@@ -1295,7 +1295,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         )
         self.assertEqual([output], self.obj.Bundle())
 
-    def testBundleUnverifiedChromeBenchmarkAfdoFile(self):
+    def testBundleUnverifiedChromeBenchmarkAfdoFile(self) -> None:
         self.SetUpBundle("UnverifiedChromeBenchmarkAfdoFile")
         self.PatchObject(
             self.obj,
@@ -1340,7 +1340,9 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         )
         self.rc.assertCommandContains(["bzip2", "-c", afdo_path_inside])
 
-    def testBundleUnverifiedChromeBenchmarkAfdoFileLinksMismatchedChrome(self):
+    def testBundleUnverifiedChromeBenchmarkAfdoFileLinksMismatchedChrome(
+        self,
+    ) -> None:
         """Checks that Bundle() is OK with mismatched debuginfo files.
 
         Regression test for b/292382163. It's correct, though rare, for us to
@@ -1375,7 +1377,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
             ),
         )
 
-    def testBundleUnverifiedChromeBenchmarkAfdoFileRaisesError(self):
+    def testBundleUnverifiedChromeBenchmarkAfdoFileRaisesError(self) -> None:
         self.SetUpBundle("UnverifiedChromeBenchmarkAfdoFile")
         self.PatchObject(
             self.obj,
@@ -1391,7 +1393,9 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         with self.assertRaises(toolchain_util.BundleArtifactsHandlerError):
             self.obj.Bundle()
 
-    def testBundleChromeAFDOProfileForAndroidLinuxFailWhenNoBenchmark(self):
+    def testBundleChromeAFDOProfileForAndroidLinuxFailWhenNoBenchmark(
+        self,
+    ) -> None:
         self.SetUpBundle("ChromeAFDOProfileForAndroidLinux")
         merge_function = self.PatchObject(
             self.obj, "_CreateAndUploadMergedAFDOProfile"
@@ -1401,7 +1405,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         self.assertIn("No new AFDO profile created", str(context.exception))
         merge_function.assert_not_called()
 
-    def testBundleChromeAFDOProfileForAndroidLinuxPass(self):
+    def testBundleChromeAFDOProfileForAndroidLinuxPass(self) -> None:
         self.SetUpBundle("ChromeAFDOProfileForAndroidLinux")
         self.PatchObject(os.path, "exists", return_value=True)
         merge_function = self.PatchObject(
@@ -1428,7 +1432,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         )
         self.rc.assertCommandContains(["bzip2", "-c", merged_path_inside])
 
-    def callBundleVerifiedKernelCwpAfdoFile(self, ebuild_data_list):
+    def callBundleVerifiedKernelCwpAfdoFile(self, ebuild_data_list) -> None:
         self.SetUpBundle("VerifiedKernelCwpAfdoFile")
         ebuild_info_path = self.chroot.full_path(
             "path", "to", "kernel-9999.ebuild"
@@ -1462,7 +1466,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         )
         self.copy2.assert_called_once_with(profile_path, verified_profile)
 
-    def testBundleVerifiedKernelCwpAfdoFileOld(self):
+    def testBundleVerifiedKernelCwpAfdoFileOld(self) -> None:
         """Test BundleVerifiedKernelCwpAfdoFile with the old ebuild."""
         ebuild_data_list = (
             "# some comment\n",
@@ -1471,7 +1475,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         )
         self.callBundleVerifiedKernelCwpAfdoFile(ebuild_data_list)
 
-    def testBundleVerifiedKernelCwpAfdoFileNew(self):
+    def testBundleVerifiedKernelCwpAfdoFileNew(self) -> None:
         """Test BundleVerifiedKernelCwpAfdoFile with the new ebuild."""
         ebuild_data_list = (
             "# some comment\n",
@@ -1480,7 +1484,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         )
         self.callBundleVerifiedKernelCwpAfdoFile(ebuild_data_list)
 
-    def testBundleVerifiedKernelCwpAfdoFileArm(self):
+    def testBundleVerifiedKernelCwpAfdoFileArm(self) -> None:
         """Test BundleVerifiedKernelCwpAfdoFile with the old ebuild."""
         unchanged_profile = "R100-14496.0-1644834841"
         ebuild_data_list = (
@@ -1498,7 +1502,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         self.kernel_version = "5_15"
         self.callBundleVerifiedKernelCwpAfdoFile(ebuild_data_list)
 
-    def testBundleVerifiedKernelCwpAfdoFileRaises(self):
+    def testBundleVerifiedKernelCwpAfdoFileRaises(self) -> None:
         """Test that BundleVerifiedKernelCwpAfdoFile raises exception."""
         # AFDO_PROFILE_VERSION is missing in the ebuild.
         ebuild_data_list = ("# some comment\n", 'AFDO_LOCATION=""')
@@ -1511,7 +1515,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
 
     def runToolchainBundleTest(
         self, artifact_path, tarball_name, input_files, expected_output_files
-    ):
+    ) -> None:
         """Asserts that the given artifact_path is tarred up properly.
 
         If no output files are expected, we assert that no tarballs are created.
@@ -1552,7 +1556,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
                 # Bundlers do not create tarballs when no artifacts are found.
                 self.assertEqual(tarball, [])
 
-    def testBundleToolchainWarningLogs(self):
+    def testBundleToolchainWarningLogs(self) -> None:
         self.SetUpBundle("ToolchainWarningLogs")
         artifact_path = "/tmp/fatal_clang_warnings"
         tarball_name = "%s.DATE.fatal_clang_warnings.tar.xz" % self.board
@@ -1573,7 +1577,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
             ),
         )
 
-    def testBundleClangCrashDiagnoses(self):
+    def testBundleClangCrashDiagnoses(self) -> None:
         self.SetUpBundle("ClangCrashDiagnoses")
         artifact_path = "/tmp/clang_crash_diagnostics"
         tarball_name = "%s.DATE.clang_crash_diagnoses.tar.xz" % self.board
@@ -1600,7 +1604,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
             ),
         )
 
-    def testBundleCompilerRusageLogs(self):
+    def testBundleCompilerRusageLogs(self) -> None:
         self.SetUpBundle("CompilerRusageLogs")
         artifact_path = "/tmp/compiler_rusage"
         tarball_name = "%s.DATE.compiler_rusage_logs.tar.xz" % self.board
@@ -1640,7 +1644,7 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
     environment.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.cwp_name = "R77-3809.38-1562580965.afdo"
         self.cwp_full = self.cwp_name + toolchain_util.XZ_COMPRESSION_SUFFIX
         self.arch = "atom"
@@ -1676,7 +1680,7 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
         self.gs_copy = self.PatchObject(self.gs_context, "Copy")
         self.decompress = self.PatchObject(cros_build_lib, "UncompressFile")
 
-    def testMergeAFDOProfiles(self):
+    def testMergeAFDOProfiles(self) -> None:
         self.obj._MergeAFDOProfiles(self.merge_inputs, self.merge_output)
         merge_command = [
             "llvm-profdata",
@@ -1696,7 +1700,7 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
         output_path=None,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         if not input_path:
             input_path = self.chroot.full_path("input.afdo")
         if not output_path:
@@ -1708,7 +1712,7 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
         for expected_command in expected_commands:
             self.rc.assertCommandContains(expected_command)
 
-    def testProcessAFDOProfileForAndroidLinuxProfile(self):
+    def testProcessAFDOProfileForAndroidLinuxProfile(self) -> None:
         """Test call on _processAFDOProfile() for Android/Linux profiles."""
         input_path = self.chroot.full_path("android.prof.afdo")
         input_path_inchroot = self.chroot.chroot_path(input_path)
@@ -1756,7 +1760,7 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
             reduce_functions=reduce_functions,
         )
 
-    def testProcessAFDOProfileRaisesError(self):
+    def testProcessAFDOProfileRaisesError(self) -> None:
         input_path = self.chroot.full_path("input.afdo")
         output_path = self.chroot.full_path("output.afdo")
         # Return invalid size of the profile.
@@ -1764,7 +1768,7 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
         with self.assertRaises(toolchain_util.BundleArtifactsHandlerError):
             self.obj._ProcessAFDOProfile(input_path, output_path)
 
-    def testProcessAFDOProfileForChromeOSReleaseProfile(self):
+    def testProcessAFDOProfileForChromeOSReleaseProfile(self) -> None:
         """Test call on _processAFDOProfile() for CrOS release profiles."""
         input_path = self.chroot.full_path(self.merged_name)
         input_path_inchroot = self.chroot.chroot_path(input_path)
@@ -1820,7 +1824,7 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
             extbinary=True,
         )
 
-    def testCreateReleaseChromeAFDO(self):
+    def testCreateReleaseChromeAFDO(self) -> None:
         merged_call = self.PatchObject(self.obj, "_MergeAFDOProfiles")
         process_call = self.PatchObject(self.obj, "_ProcessAFDOProfile")
         ret = self.obj._CreateReleaseChromeAFDO(
@@ -1899,7 +1903,7 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
             result += toolchain_util.BZ2_COMPRESSION_SUFFIX
         return result
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.benchmark_url = "gs://path/to/unvetted"
         self.obj.input_artifacts = {
             "UnverifiedChromeBenchmarkAfdoFile": [self.benchmark_url],
@@ -2012,7 +2016,9 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
             process_afdo_profile=process_afdo_profile,
         )
 
-    def testCreateAndUploadMergedAFDOProfileErrorWhenProfileInBucket(self):
+    def testCreateAndUploadMergedAFDOProfileErrorWhenProfileInBucket(
+        self,
+    ) -> None:
         unmerged_name = self._benchmark_afdo_profile_name(major=10, build=13)
         merged_name = None
         with self.assertRaises(AssertionError):
@@ -2021,7 +2027,7 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
             )
         self.assertIsNone(merged_name)
 
-    def testCreateAndUploadMergedAFDOProfileMergesBranchProfiles(self):
+    def testCreateAndUploadMergedAFDOProfileMergesBranchProfiles(self) -> None:
         unmerged_name = self._benchmark_afdo_profile_name(
             major=10, build=13, patch=99, compression_suffix=False
         )
@@ -2070,7 +2076,9 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
         self.assertCountEqual(unordered_args, expected_unordered_args)
         self.assertEqual(mocks.gs_context.Copy.call_count, 4)
 
-    def testCreateAndUploadMergedAFDOProfileRemovesIndirectCallTargets(self):
+    def testCreateAndUploadMergedAFDOProfileRemovesIndirectCallTargets(
+        self,
+    ) -> None:
         unmerged_name = self._benchmark_afdo_profile_name(
             major=10, build=13, patch=99, compression_suffix=False
         )
@@ -2127,7 +2135,7 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
             extbinary=False,
         )
 
-    def testCreateAndUploadMergedAFDOProfileRedactsProfileOnArm(self):
+    def testCreateAndUploadMergedAFDOProfileRedactsProfileOnArm(self) -> None:
         prof = self._benchmark_afdo_profile_name(
             major=9999, compression_suffix=False, arch="arm"
         )
@@ -2144,7 +2152,7 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
             extbinary=False,
         )
 
-    def testCreateAndUploadMergedAFDOProfileWorksInTheHappyCase(self):
+    def testCreateAndUploadMergedAFDOProfileWorksInTheHappyCase(self) -> None:
         merged_name, mocks = self.runCreateAndUploadMergedAFDOProfileOnce()
         self.assertIsNotNone(merged_name)
 
@@ -2207,7 +2215,7 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
             any_order=True, calls=[call_for(n) for n in input_afdo_names[:-1]]
         )
 
-    def testCreateAndUploadMergedAFDOProfileWorksForArm(self):
+    def testCreateAndUploadMergedAFDOProfileWorksForArm(self) -> None:
         prof = self._benchmark_afdo_profile_name(
             major=9999, compression_suffix=False, arch="arm"
         )
@@ -2279,14 +2287,14 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
             any_order=True, calls=[call_for(n) for n in input_afdo_names[:-1]]
         )
 
-    def testMergeIsOKIfWeFindFewerProfilesThanWeWant(self):
+    def testMergeIsOKIfWeFindFewerProfilesThanWeWant(self) -> None:
         merged_name, mocks = self.runCreateAndUploadMergedAFDOProfileOnce(
             recent_to_merge=1000, max_age_days=1000
         )
         self.assertIsNotNone(merged_name)
         self.assertEqual(mocks.gs_context.Copy.call_count, 9)
 
-    def testNoFilesAfterUnmergedNameAreIncluded(self):
+    def testNoFilesAfterUnmergedNameAreIncluded(self) -> None:
         max_name = self._benchmark_afdo_profile_name(
             major=10, build=11, patch=2, compression_suffix=False
         )
@@ -2345,7 +2353,7 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
         self.assertEqual(mocks.gs_context.Copy.call_count, 3)
         self.assertEqual(mocks.uncompress_file.call_count, 3)
 
-    def testMergeDoesntHappenIfNoProfilesAreMerged(self):
+    def testMergeDoesntHappenIfNoProfilesAreMerged(self) -> None:
         runs = [
             self.runCreateAndUploadMergedAFDOProfileOnce(recent_to_merge=1),
             self.runCreateAndUploadMergedAFDOProfileOnce(max_age_days=0),
@@ -2358,7 +2366,7 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
             mocks.uncompress_file.assert_not_called()
             mocks.compress_file.assert_not_called()
 
-    def testCreateAndUploadMergedAFDOProfileNoProfiles(self):
+    def testCreateAndUploadMergedAFDOProfileNoProfiles(self) -> None:
         unmerged_name = self._benchmark_afdo_profile_name(major=10, build=13)
         merged_name = None
         self.gs_context.List = mock.MagicMock()
@@ -2374,7 +2382,7 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
 class GetUpdatedFilesTest(cros_test_lib.MockTempDirTestCase):
     """Test functions in class GetUpdatedFilesForCommit."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Prepare a JSON file containing metadata
         toolchain_util.TOOLCHAIN_UTILS_PATH = self.tempdir
         osutils.SafeMakedirs(os.path.join(self.tempdir, "afdo_metadata"))
@@ -2407,21 +2415,21 @@ class GetUpdatedFilesTest(cros_test_lib.MockTempDirTestCase):
             "arch": "amd64",
         }
 
-    def testUpdateKernelMetadataFailureWithInvalidKernel(self):
+    def testUpdateKernelMetadataFailureWithInvalidKernel(self) -> None:
         with self.assertRaises(AssertionError) as context:
             toolchain_util.GetUpdatedFilesHandler._UpdateKernelMetadata(
                 "3.8", None
             )
         self.assertIn("does not exist", str(context.exception))
 
-    def testUpdateKernelMetadataFailureWithOlderProfile(self):
+    def testUpdateKernelMetadataFailureWithOlderProfile(self) -> None:
         with self.assertRaises(AssertionError) as context:
             toolchain_util.GetUpdatedFilesHandler._UpdateKernelMetadata(
                 self.kernel, self.afdo_sorted_by_freshness[0]
             )
         self.assertIn("is not newer than", str(context.exception))
 
-    def testUpdateKernelMetadataPass(self):
+    def testUpdateKernelMetadataPass(self) -> None:
         toolchain_util.GetUpdatedFilesHandler._UpdateKernelMetadata(
             self.kernel, self.afdo_sorted_by_freshness[2]
         )
@@ -2439,7 +2447,7 @@ class GetUpdatedFilesTest(cros_test_lib.MockTempDirTestCase):
             if k != self.kernel_key_name:
                 self.assertEqual(self.afdo_versions[k], new_afdo_versions[k])
 
-    def testUpdateKernelProfileMetadata(self):
+    def testUpdateKernelProfileMetadata(self) -> None:
         ret_files, ret_commit = toolchain_util.GetUpdatedFiles(
             "VerifiedKernelCwpAfdoFile", self.artifact_path, self.profile_info
         )
@@ -2454,7 +2462,7 @@ class GetUpdatedFilesTest(cros_test_lib.MockTempDirTestCase):
             f"Update 4.14 to {self.afdo_sorted_by_freshness[2]}", ret_commit
         )
 
-    def testUpdateFailWithOtherTypes(self):
+    def testUpdateFailWithOtherTypes(self) -> None:
         with self.assertRaises(
             toolchain_util.GetUpdatedFilesForCommitError
         ) as context:

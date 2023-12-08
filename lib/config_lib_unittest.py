@@ -90,7 +90,7 @@ class _CustomObjectWithSlots:
 class BuildConfigClassTest(cros_test_lib.TestCase):
     """BuildConfig tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.fooConfig = config_lib.BuildConfig(name="foo", foo=1)
         self.barConfig = config_lib.BuildConfig(name="bar", bar=2)
         self.deepConfig = config_lib.BuildConfig(
@@ -99,7 +99,7 @@ class BuildConfigClassTest(cros_test_lib.TestCase):
             deep=3,
         )
 
-    def testAppendUseflags(self):
+    def testAppendUseflags(self) -> None:
         base_config = config_lib.BuildConfig(useflags=[])
         inherited_config_1 = base_config.derive(
             useflags=config_lib.append_useflags(["foo", "bar", "-baz"])
@@ -111,7 +111,7 @@ class BuildConfigClassTest(cros_test_lib.TestCase):
         self.assertEqual(inherited_config_1.useflags, ["-baz", "bar", "foo"])
         self.assertEqual(inherited_config_2.useflags, ["-bar", "baz", "foo"])
 
-    def testMockSiteConfig(self):
+    def testMockSiteConfig(self) -> None:
         """Make sure Mock generator fucntion doesn't crash."""
         site_config = MockSiteConfig()
         self.assertIsNotNone(site_config)
@@ -119,36 +119,36 @@ class BuildConfigClassTest(cros_test_lib.TestCase):
         build_config = MockBuildConfig()
         self.assertIsNotNone(build_config)
 
-    def testValueAccess(self):
+    def testValueAccess(self) -> None:
         self.assertEqual(self.fooConfig.name, "foo")
         self.assertEqual(self.fooConfig.name, self.fooConfig["name"])
 
         self.assertRaises(AttributeError, getattr, self.fooConfig, "foobar")
 
-    def testApplyEmpty(self):
+    def testApplyEmpty(self) -> None:
         orig = self.fooConfig.deepcopy()
 
         # Do nothing.
         self.fooConfig.apply()
         self.assertEqual(self.fooConfig, orig)
 
-    def testApplyValues(self):
+    def testApplyValues(self) -> None:
         # Apply simple values..
         self.fooConfig.apply(a=1, b=2)
         self.assertEqual(self.fooConfig, dict(name="foo", foo=1, a=1, b=2))
 
-    def testApplyBuildConfig(self):
+    def testApplyBuildConfig(self) -> None:
         # Apply a BuildConfig.
         self.fooConfig.apply(self.barConfig)
         self.assertEqual(self.fooConfig, dict(name="bar", foo=1, bar=2))
 
-    def testApplyMixed(self):
+    def testApplyMixed(self) -> None:
         # Apply simple values..
         config = config_lib.BuildConfig()
         config.apply(self.fooConfig, self.barConfig, a=1, b=2, bar=3)
         self.assertEqual(config, dict(name="bar", foo=1, bar=3, a=1, b=2))
 
-    def testDeriveMixed(self):
+    def testDeriveMixed(self) -> None:
         config = config_lib.BuildConfig()
         result = config.derive(self.fooConfig, self.barConfig, a=1, b=2, bar=3)
 
@@ -156,7 +156,7 @@ class BuildConfigClassTest(cros_test_lib.TestCase):
         self.assertEqual(config, {})
         self.assertEqual(result, dict(name="bar", foo=1, bar=3, a=1, b=2))
 
-    def testApplyCallable(self):
+    def testApplyCallable(self) -> None:
         # Callable that adds a configurable amount.
         def append(x):
             return lambda base: base + " " + x
@@ -228,7 +228,7 @@ class BuildConfigClassTest(cros_test_lib.TestCase):
         self.assertEqual(base.foo, "base")
         self.assertEqual(site_config.templates.fixed.foo, "fixed")
 
-    def AssertDeepCopy(self, obj1, obj2, obj3):
+    def AssertDeepCopy(self, obj1, obj2, obj3) -> None:
         """Assert that |obj3| is a deep copy of |obj1|.
 
         Args:
@@ -276,12 +276,12 @@ class BuildConfigClassTest(cros_test_lib.TestCase):
             # handle this kind of object.
             self.assertIs(obj1, obj2)
 
-    def testDeepCopy(self):
+    def testDeepCopy(self) -> None:
         """Test that we deep copy correctly."""
         for cfg in [self.fooConfig, self.barConfig, self.deepConfig]:
             self.AssertDeepCopy(cfg, copy.deepcopy(cfg), cfg.deepcopy())
 
-    def testAssertDeepCopy(self):
+    def testAssertDeepCopy(self) -> None:
         """Test that we test deep copy correctly."""
         test1 = ["foo", "bar", ["hey"]]
         tests = [
@@ -302,7 +302,7 @@ class BuildConfigClassTest(cros_test_lib.TestCase):
                     AssertionError, self.AssertDeepCopy, x, copy_x, copy.copy(x)
                 )
 
-    def testPickle(self):
+    def testPickle(self) -> None:
         bc1 = MockBuildConfig()
         bc2 = pickle.loads(pickle.dumps(bc1))
 
@@ -313,7 +313,7 @@ class BuildConfigClassTest(cros_test_lib.TestCase):
 class GetSiteParamsTest(cros_test_lib.TestCase):
     """Tests for the return value from config_lib.GetSiteParams()."""
 
-    def testAttributeAccess(self):
+    def testAttributeAccess(self) -> None:
         """Test that dot-accessor works correctly."""
         site_params = config_lib.GetSiteParams()
 
@@ -337,7 +337,7 @@ class SiteConfigTest(cros_test_lib.TestCase):
     def _callable(x):
         return x + " extended"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.complex_defaults = {
             "value": "default",
         }
@@ -396,7 +396,7 @@ class SiteConfigTest(cros_test_lib.TestCase):
 
         self.site_config = site_config
 
-    def testAddedContents(self):
+    def testAddedContents(self) -> None:
         """Verify our complex config looks like we expect, before saving."""
         expected = {
             "default": {
@@ -468,7 +468,7 @@ class SiteConfigTest(cros_test_lib.TestCase):
                 self.site_config[name].items(), expected[name].items(), name
             )
 
-    def testAddErrors(self):
+    def testAddErrors(self) -> None:
         """Test the SiteConfig.Add behavior."""
         self.site_config.Add("foo")
 
@@ -485,7 +485,7 @@ class SiteConfigTest(cros_test_lib.TestCase):
         with self.assertRaises(AssertionError):
             self.site_config.Add("bar", fake_template)
 
-    def testTemplateAttr(self):
+    def testTemplateAttr(self) -> None:
         """Test the SiteConfig.templates.name behavior."""
         template1 = self.site_config.AddTemplate("template1", value="template")
         template2 = self.site_config.AddTemplate("template2", value="template")
@@ -499,7 +499,7 @@ class SiteConfigTest(cros_test_lib.TestCase):
             self.site_config.templates.no_such_template
             # pylint: enable=pointless-statement
 
-    def testAddForBoards(self):
+    def testAddForBoards(self) -> None:
         per_board = {
             "foo": config_lib.BuildConfig(value="foo"),
             "bar": config_lib.BuildConfig(value="bar"),
@@ -623,7 +623,7 @@ class SiteConfigTest(cros_test_lib.TestCase):
 
         return loaded
 
-    def testSaveLoadEmpty(self):
+    def testSaveLoadEmpty(self) -> None:
         """Create, save, and reload an empty config."""
         site_config = config_lib.SiteConfig()
 
@@ -633,7 +633,7 @@ class SiteConfigTest(cros_test_lib.TestCase):
         self.assertEqual(list(loaded._templates), [])
         self.assertDictEqual(loaded.GetDefault(), config_lib.DefaultSettings())
 
-    def testSaveLoadComplex(self):
+    def testSaveLoadComplex(self) -> None:
         """Create, save, and reload an complex config."""
         # Verify it.
         loaded = self._verifyLoadSave(self.site_config)
@@ -646,7 +646,7 @@ class SiteConfigTest(cros_test_lib.TestCase):
         # Ensure that expected templates are present.
         self.assertCountEqual(list(loaded.templates), ["template", "callable"])
 
-    def testTemplatesToSave(self):
+    def testTemplatesToSave(self) -> None:
         def _invert(x):
             return not x
 
@@ -682,11 +682,11 @@ class SiteConfigTest(cros_test_lib.TestCase):
 class SiteConfigFindTests(cros_test_lib.TestCase):
     """Tests related to Find helpers on SiteConfig."""
 
-    def testGetBoardsMockConfig(self):
+    def testGetBoardsMockConfig(self) -> None:
         site_config = MockSiteConfig()
         self.assertEqual(site_config.GetBoards(), set(["amd64-generic"]))
 
-    def testGetBoardsComplexConfig(self):
+    def testGetBoardsComplexConfig(self) -> None:
         site_config = MockSiteConfig()
         site_config.Add("build_a", boards=["foo_board"])
         site_config.Add("build_b", boards=["bar_board"])
@@ -697,7 +697,7 @@ class SiteConfigFindTests(cros_test_lib.TestCase):
             set(["amd64-generic", "foo_board", "bar_board", "car_board"]),
         )
 
-    def testFindCanonicalConfig(self):
+    def testFindCanonicalConfig(self) -> None:
         site_config = MockSiteConfig()
         amd64_full = site_config.Add(
             "amd64-generic-full", boards=["amd64-generic"]
@@ -717,7 +717,7 @@ class SiteConfigFindTests(cros_test_lib.TestCase):
             site_config.FindCanonicalConfigForBoard(None), amd64_full
         )
 
-    def testGetSlaveConfigMapForMasterAll(self):
+    def testGetSlaveConfigMapForMasterAll(self) -> None:
         """Test GetSlaveConfigMapForMaster, GetSlavesForMaster all slaves."""
 
         site_config = MockSiteConfig()
@@ -741,7 +741,7 @@ class SiteConfigFindTests(cros_test_lib.TestCase):
         self.assertEqual(results_map, {"slave_a": slave_a, "slave_b": slave_b})
         self.assertCountEqual(results_slaves, [slave_a, slave_b])
 
-    def testGetSlaveConfigMapForMasterImportant(self):
+    def testGetSlaveConfigMapForMasterImportant(self) -> None:
         """Test GetSlaveConfigMapForMaster/GetSlavesForMaster important only."""
 
         site_config = MockSiteConfig()
@@ -765,7 +765,7 @@ class SiteConfigFindTests(cros_test_lib.TestCase):
 class GetConfigTests(cros_test_lib.TestCase):
     """Tests related to SiteConfig.GetConfig()."""
 
-    def testGetConfigCaching(self):
+    def testGetConfigCaching(self) -> None:
         """Test that config_lib.GetConfig() caches it's results correctly."""
         config_a = config_lib.GetConfig()
         config_b = config_lib.GetConfig()
@@ -778,7 +778,7 @@ class GetConfigTests(cros_test_lib.TestCase):
 class GEBuildConfigTests(cros_test_lib.TestCase):
     """Test GE build config related methods."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._fake_ge_build_config_json = """
 {
   "metadata_version": "1.0",
@@ -817,13 +817,13 @@ class GEBuildConfigTests(cros_test_lib.TestCase):
     """
         self._fake_ge_build_config = json.loads(self._fake_ge_build_config_json)
 
-    def testGetArchBoardDict(self):
+    def testGetArchBoardDict(self) -> None:
         """Test GetArchBoardDict."""
         ge_build_config = config_lib.LoadGEBuildConfigFromFile()
         arch_board_dict = config_lib.GetArchBoardDict(ge_build_config)
         self.assertIsNotNone(arch_board_dict)
 
-    def testGetArchBoardDictUnifiedBuilds(self):
+    def testGetArchBoardDictUnifiedBuilds(self) -> None:
         """Test GetArchBoardDict."""
         arch_board_dict = config_lib.GetArchBoardDict(
             self._fake_ge_build_config
@@ -831,12 +831,12 @@ class GEBuildConfigTests(cros_test_lib.TestCase):
         self.assertIsNotNone(arch_board_dict)
         self.assertIs(1, len(arch_board_dict[config_lib.CONFIG_X86_INTERNAL]))
 
-    def testGetUnifiedBuildConfigAllBuilds(self):
+    def testGetUnifiedBuildConfigAllBuilds(self) -> None:
         uni_builds = config_lib.GetUnifiedBuildConfigAllBuilds(
             self._fake_ge_build_config
         )
         self.assertEqual(1, len(uni_builds))
 
-    def testGetUnifiedBuildConfigAllBuildsWithNoBuilds(self):
+    def testGetUnifiedBuildConfigAllBuildsWithNoBuilds(self) -> None:
         uni_builds = config_lib.GetUnifiedBuildConfigAllBuilds({})
         self.assertEqual(0, len(uni_builds))

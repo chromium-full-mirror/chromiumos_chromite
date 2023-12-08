@@ -11,7 +11,7 @@ from chromite.lib import cros_test_lib
 class TestAnnotation(cros_test_lib.TestCase):
     """Tests for Annotation."""
 
-    def testAnnotation(self):
+    def testAnnotation(self) -> None:
         steplink = buildbot_annotations.Annotation(
             "STEP_LINK", ("foo@example.com", "http://example.com/")
         )
@@ -20,7 +20,7 @@ class TestAnnotation(cros_test_lib.TestCase):
             "@@@STEP_LINK@foo-AT-example.com@http://example.com/@@@",
         )
 
-    def test_human_friendly(self):
+    def test_human_friendly(self) -> None:
         steplink = buildbot_annotations.Annotation(
             "STEP_LINK", ("foo@example.com", "http://example.com/")
         )
@@ -29,11 +29,11 @@ class TestAnnotation(cros_test_lib.TestCase):
             "STEP_LINK: foo@example.com; http://example.com/",
         )
 
-    def testStepText(self):
+    def testStepText(self) -> None:
         steplink = buildbot_annotations.StepText("some text")
         self.assertEqual(str(steplink), "@@@STEP_TEXT@some text@@@")
 
-    def testSetBuildProperty(self):
+    def testSetBuildProperty(self) -> None:
         ann = buildbot_annotations.SetBuildProperty(
             "some_property", "http://fun.com"
         )
@@ -41,12 +41,12 @@ class TestAnnotation(cros_test_lib.TestCase):
             str(ann), '@@@SET_BUILD_PROPERTY@some_property@"http://fun.com"@@@'
         )
 
-    def testSetBuildPropertyComplex(self):
+    def testSetBuildPropertyComplex(self) -> None:
         ann = buildbot_annotations.SetBuildProperty("some_property", {"a": 1})
         self.assertEqual(
             str(ann), '@@@SET_BUILD_PROPERTY@some_property@{"a": 1}@@@'
         )
 
-    def test_human_friendly_without_args(self):
+    def test_human_friendly_without_args(self) -> None:
         steplink = buildbot_annotations.Annotation("STEP_FAILURE", ())
         self.assertEqual(steplink.human_friendly, "STEP_FAILURE")

@@ -23,7 +23,7 @@ from chromite.utils import hostname_util
 class GomaTest(cros_test_lib.TempDirTestCase, cros_test_lib.RunCommandTestCase):
     """Tests for the Goma object."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self.goma_dir = self.tempdir / "goma"
@@ -41,7 +41,7 @@ class GomaTest(cros_test_lib.TempDirTestCase, cros_test_lib.RunCommandTestCase):
         osutils.SafeMakedirs(self.goma_dir)
         osutils.SafeMakedirs(self.chroot_tmp)
 
-    def testExtraEnvCustomChroot(self):
+    def testExtraEnvCustomChroot(self) -> None:
         """Test the chroot env building with a custom chroot location."""
         stats_filename = "stats_filename"
         counterz_filename = "counterz_filename"
@@ -91,7 +91,7 @@ class GomaTest(cros_test_lib.TempDirTestCase, cros_test_lib.RunCommandTestCase):
             chroot_env["GOMA_DUMP_COUNTERZ_FILE"],
         )
 
-    def testExtraEnvGomaApproach(self):
+    def testExtraEnvGomaApproach(self) -> None:
         """Test the chroot env building with a goma approach."""
         goma_approach = goma_lib.GomaApproach("foo", "bar", True)
         goma = goma_lib.Goma(
@@ -107,14 +107,14 @@ class GomaTest(cros_test_lib.TempDirTestCase, cros_test_lib.RunCommandTestCase):
         self.assertEqual(env["GOMA_SERVER_HOST"], "bar")
         self.assertEqual(env["GOMA_ARBITRARY_TOOLCHAIN_SUPPORT"], "true")
 
-    def testInvalidArg(self):
+    def testInvalidArg(self) -> None:
         """Test invalid Goma input arguments."""
         with self.assertRaises(ValueError):
             goma_lib.Goma(Path("some/path"))
         with self.assertRaises(ValueError):
             goma_lib.Goma(self.goma_dir, Path("some/path/goma_client.json"))
 
-    def testCommand(self):
+    def testCommand(self) -> None:
         """Test Goma instance command interface."""
         goma_ctl = self.goma_dir / "goma_ctl.py"
 
@@ -135,13 +135,13 @@ class GomaTest(cros_test_lib.TempDirTestCase, cros_test_lib.RunCommandTestCase):
 class TestLogsArchiver(cros_test_lib.MockTempDirTestCase):
     """Tests for goma_lib.LogsArchiver."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.goma_log_dir = os.path.join(self.tempdir, "goma_log_dir")
         osutils.SafeMakedirs(self.goma_log_dir)
         self.dest_dir = os.path.join(self.tempdir, "destination_dir")
         osutils.SafeMakedirs(self.dest_dir)
 
-    def _CreateFile(self, name: str):
+    def _CreateFile(self, name: str) -> None:
         """Creates a basic file, such as a stats or counterz file.
 
         Args:
@@ -151,7 +151,7 @@ class TestLogsArchiver(cros_test_lib.MockTempDirTestCase):
             os.path.join(self.goma_log_dir, name), "File: " + name
         )
 
-    def _CreateLogFile(self, name: str, timestamp: datetime.datetime):
+    def _CreateLogFile(self, name: str, timestamp: datetime.datetime) -> None:
         """Creates a log file for testing.
 
         Args:
@@ -167,7 +167,7 @@ class TestLogsArchiver(cros_test_lib.MockTempDirTestCase):
             path, timestamp.strftime("Log file created at: %Y/%m/%d %H:%M:%S")
         )
 
-    def testArchive(self):
+    def testArchive(self) -> None:
         """Test successful archive of goma logs without stats/counterz."""
         self._CreateLogFile(
             "compiler_proxy", datetime.datetime(2017, 4, 26, 12, 0, 0)
@@ -203,7 +203,7 @@ class TestLogsArchiver(cros_test_lib.MockTempDirTestCase):
             ],
         )
 
-    def testArchiveWithStatsAndCounterz(self):
+    def testArchiveWithStatsAndCounterz(self) -> None:
         """Test successful archive of goma logs with stats and counterz."""
         self._CreateLogFile(
             "compiler_proxy", datetime.datetime(2017, 4, 26, 12, 0, 0)
@@ -236,7 +236,7 @@ class TestLogsArchiver(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(archiver_tuple.stats_file, "stats.binaryproto")
         self.assertEqual(archiver_tuple.counterz_file, "counterz.binaryproto")
 
-    def testArchiveWithStatsAndMissingCounterz(self):
+    def testArchiveWithStatsAndMissingCounterz(self) -> None:
         """Test successful archive of goma logs with stats and counterz."""
         self._CreateLogFile(
             "compiler_proxy", datetime.datetime(2017, 4, 26, 12, 0, 0)
@@ -269,7 +269,7 @@ class TestLogsArchiver(cros_test_lib.MockTempDirTestCase):
             ],
         )
 
-    def testNinjaLogArchive(self):
+    def testNinjaLogArchive(self) -> None:
         """Test successful archive of ninja logs."""
         self._CreateLogFile(
             "compiler_proxy", datetime.datetime(2017, 8, 21, 12, 0, 0)

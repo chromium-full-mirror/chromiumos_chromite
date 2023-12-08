@@ -333,7 +333,7 @@ class DeviceParser:
             logging.error("Internal error while parsing device input: %s", e)
             raise
 
-    def _EnforceConstraints(self, device, value):
+    def _EnforceConstraints(self, device, value) -> None:
         """Verifies that user-specified constraints are upheld.
 
         Checks that the parsed device has a scheme that matches what the user
@@ -544,7 +544,7 @@ class _AppendOption(argparse.Action):
             raise ValueError("nargs is not supported for append_option action")
         super().__init__(option_strings, dest, nargs=0, **kwargs)
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser, namespace, values, option_string=None) -> None:
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
         getattr(namespace, self.dest).append(option_string)
@@ -563,7 +563,7 @@ class _AppendOptionValue(argparse.Action):
     options.out == ["-barg", "foo", "-b", "bar"]
     """
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser, namespace, values, option_string=None) -> None:
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
         getattr(namespace, self.dest).extend([option_string, str(values)])
@@ -607,7 +607,7 @@ class _EnumAction(argparse.Action):
 
         super().__init__(*args, **kwargs)
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser, namespace, values, option_string=None) -> None:
         setattr(namespace, self.dest, values)
 
 
@@ -621,7 +621,7 @@ class _SplitExtendAction(argparse.Action):
         cbuildbot -p "$(some_command_that_returns_nothing)" ...
     """
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser, namespace, values, option_string=None) -> None:
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
         getattr(namespace, self.dest).extend(values.split())
@@ -759,7 +759,7 @@ class FilteringOption(Option):
     TYPED_ACTIONS = Option.TYPED_ACTIONS + _EXTRA_ACTIONS
     ALWAYS_TYPED_ACTIONS = Option.ALWAYS_TYPED_ACTIONS + _EXTRA_ACTIONS
 
-    def take_action(self, action, dest, opt, value, values, parser):
+    def take_action(self, action, dest, opt, value, values, parser) -> None:
         if action == "split_extend":
             lvalue = value.split()
             values.ensure_value(dest, []).extend(lvalue)
@@ -782,7 +782,7 @@ class _PathFilterAction(argparse.Action):
             raise ValueError("nargs is not supported for filter action")
         super().__init__(option_strings, dest, nargs=1, **kwargs)
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser, namespace, values, option_string=None) -> None:
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, path_filter.PathFilter([]))
         getattr(namespace, self.dest).rules.extend(values)
@@ -887,7 +887,7 @@ class BaseParser:
         self._cros_defaults = {}
 
     @staticmethod
-    def PopUsedArgs(kwarg_dict):
+    def PopUsedArgs(kwarg_dict) -> None:
         """Removes keys used by the base parser from the kwarg namespace."""
         parser_keys = [
             "logging",
@@ -901,7 +901,7 @@ class BaseParser:
         for key in parser_keys:
             kwarg_dict.pop(key, None)
 
-    def SetupOptions(self):
+    def SetupOptions(self) -> None:
         """Sets up standard chromite options."""
         # NB: All options here must go through add_common_argument_to_group.
         # You cannot use add_argument or such helpers directly.  This is to
@@ -1100,7 +1100,7 @@ class BaseParser:
         return opts, args
 
     @staticmethod
-    def ConfigureCacheDir(cache_dir):
+    def ConfigureCacheDir(cache_dir) -> None:
         if cache_dir is None:
             os.environ.pop(constants.SHARED_CACHE_ENVVAR, None)
             logging.debug("Removed cache_dir setting")
@@ -1176,7 +1176,7 @@ class FilteringParser(optparse.OptionParser, BaseParser):
         )
         return self.DoPostParseSetup(opts, remaining)
 
-    def AddParsedArg(self, opt_inst, opt_str, value_str):
+    def AddParsedArg(self, opt_inst, opt_str, value_str) -> None:
         """Add a parsed argument with attributes.
 
         Args:
@@ -1232,14 +1232,14 @@ class ArgumentParser(BaseParser, argparse.ArgumentParser):
         self.SetupOptions()
         self._RegisterActions()
 
-    def _SetupTypes(self):
+    def _SetupTypes(self) -> None:
         """Register types with ArgumentParser."""
         for t, check_f in VALID_TYPES.items():
             self.register("type", t, check_f)
         for a, class_a in VALID_ACTIONS.items():
             self.register("action", a, class_a)
 
-    def _RegisterActions(self):
+    def _RegisterActions(self) -> None:
         """Update the container's actions.
 
         This method builds out a new action class to register for each action
@@ -1339,7 +1339,7 @@ class ArgumentParser(BaseParser, argparse.ArgumentParser):
             f"--no-{flag}", action="store_false", dest=dest, help=disabled_desc
         )
 
-    def _add_cros_methods_to_group(self, group):
+    def _add_cros_methods_to_group(self, group) -> None:
         """Given an argument group, patch in our customized methods."""
         for method_name in ["add_argument", "add_bool_argument"]:
             unbound = getattr(type(self), method_name)
@@ -1388,7 +1388,7 @@ class _ShutDownException(SystemExit):
         return self.args[1]
 
 
-def _DefaultHandler(signum, _frame):
+def _DefaultHandler(signum, _frame) -> None:
     # Don't double process sigterms; just trigger shutdown from the first
     # exception.
     signal.signal(signum, signal.SIG_IGN)
@@ -1416,7 +1416,7 @@ def _RestartInChroot(cmd, chroot_args, extra_env):
     ).returncode
 
 
-def RunInsideChroot(command=None, chroot_args=None):
+def RunInsideChroot(command=None, chroot_args=None) -> None:
     """Restart the current command inside the chroot.
 
     This method is only valid for any code that is run via ScriptWrapperMain.
@@ -1446,7 +1446,7 @@ def RunInsideChroot(command=None, chroot_args=None):
     raise ChrootRequiredError(argv, chroot_args)
 
 
-def RunAsRootUser(argv: List[str], preserve_env: bool = False):
+def RunAsRootUser(argv: List[str], preserve_env: bool = False) -> None:
     """Run the given command as the root user.
 
     Args:
@@ -1476,7 +1476,7 @@ def RunAsRootUser(argv: List[str], preserve_env: bool = False):
     os.execvp(cmd[0], cmd)
 
 
-def ReExec():
+def ReExec() -> None:
     """Restart the current command.
 
     This method is only valid for any code that is run via ScriptWrapperMain.
@@ -1492,7 +1492,7 @@ def ScriptWrapperMain(
     argv=None,
     log_level=logging.DEBUG,
     log_format=constants.LOGGER_FMT,
-):
+) -> None:
     """Function usable for chromite.script.* style wrapping.
 
     Note that this function invokes sys.exit on the way out by default.

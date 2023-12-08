@@ -102,7 +102,7 @@ int main() {
         os.unlink(source_fn)
 
 
-def create_stub_make_conf(sysroot: os.PathLike):
+def create_stub_make_conf(sysroot: os.PathLike) -> None:
     """Create a stub sysroot_lib._MAKE_CONF for tests to correctly read configs.
 
     sysroot_lib expects sysroot_lib._MAKE_CONF (etc/make.conf) to exist and to

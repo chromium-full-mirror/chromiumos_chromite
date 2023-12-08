@@ -46,7 +46,7 @@ class HelperFunctionsTest(cros_test_lib.TestCase):
 
     # pylint: disable=protected-access
     @unittest.skipIf(not cidb.sqlalchemy_imported, "Missing sqlalchemy")
-    def testIsRetryableExceptionMatch(self):
+    def testIsRetryableExceptionMatch(self) -> None:
         self.assertTrue(cidb._IsRetryableException(RetryableOperationalError()))
         self.assertFalse(cidb._IsRetryableException(FatalOperationalError()))
         self.assertFalse(cidb._IsRetryableException(UnknownError()))
@@ -67,24 +67,24 @@ class HelperFunctionsTest(cros_test_lib.TestCase):
 class CIDBConnectionFactoryTest(cros_test_lib.MockTestCase):
     """Test that CIDBConnectionFactory behaves as expected."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Ensure that we do not create any live connections in this unit test.
         self.connection_mock = self.PatchObject(cidb, "CIDBConnection")
         # pylint: disable=protected-access
         cidb.CIDBConnectionFactory._ClearCIDBSetup()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # pylint: disable=protected-access
         cidb.CIDBConnectionFactory._ClearCIDBSetup()
 
-    def testGetConnectionBeforeSetup(self):
+    def testGetConnectionBeforeSetup(self) -> None:
         """Calling GetConnection before Setup should raise exception."""
         self.assertRaises(
             factory.ObjectFactoryIllegalOperation,
             cidb.CIDBConnectionFactory.GetCIDBConnectionForBuilder,
         )
 
-    def testSetupProd(self):
+    def testSetupProd(self) -> None:
         """Test that SetupProd behaves as expected."""
         cidb.CIDBConnectionFactory.SetupProdCidb()
         cidb.CIDBConnectionFactory.GetCIDBConnectionForBuilder()
@@ -109,7 +109,7 @@ class CIDBConnectionFactoryTest(cros_test_lib.MockTestCase):
             cidb.CIDBConnectionFactory.SetupNoCidb,
         )
 
-    def testSetupDebug(self):
+    def testSetupDebug(self) -> None:
         """Test that SetupDebug behaves as expected."""
         cidb.CIDBConnectionFactory.SetupDebugCidb()
         cidb.CIDBConnectionFactory.GetCIDBConnectionForBuilder()
@@ -134,7 +134,7 @@ class CIDBConnectionFactoryTest(cros_test_lib.MockTestCase):
             cidb.CIDBConnectionFactory.SetupNoCidb,
         )
 
-    def testInvalidateSetup(self):
+    def testInvalidateSetup(self) -> None:
         """Test that cidb connection can be invalidated."""
         cidb.CIDBConnectionFactory.SetupProdCidb()
         cidb.CIDBConnectionFactory.InvalidateCIDBSetup()
@@ -143,7 +143,7 @@ class CIDBConnectionFactoryTest(cros_test_lib.MockTestCase):
             cidb.CIDBConnectionFactory.GetCIDBConnectionForBuilder,
         )
 
-    def testSetupMock(self):
+    def testSetupMock(self) -> None:
         """Test that SetupMock behaves as expected."""
         # Set the CIDB to mock mode, but without supplying a mock
         cidb.CIDBConnectionFactory.SetupMockCidb()
@@ -186,7 +186,7 @@ class CIDBConnectionFactoryTest(cros_test_lib.MockTestCase):
             cidb.CIDBConnectionFactory.SetupDebugCidb,
         )
 
-    def testSetupNo(self):
+    def testSetupNo(self) -> None:
         """Test that SetupNoCidb behaves as expected."""
         cidb.CIDBConnectionFactory.SetupMockCidb()
         cidb.CIDBConnectionFactory.SetupNoCidb()
@@ -214,7 +214,7 @@ class CIDBConnectionFactoryTest(cros_test_lib.MockTestCase):
 class SchemaVersionedMySQLConnectionTest(cros_test_lib.MockTempDirTestCase):
     """Test for SchemaVersionedMySQLConnection."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.db_name = "cidb"
         mock_engine = mock.Mock()
         self.PatchObject(sqlalchemy, "create_engine", return_value=mock_engine)
@@ -231,7 +231,7 @@ class SchemaVersionedMySQLConnectionTest(cros_test_lib.MockTempDirTestCase):
             return_value=mock_result,
         )
 
-    def testConnectionWithIP(self):
+    def testConnectionWithIP(self) -> None:
         """Test connection with IP."""
         host_path = os.path.join(self.tempdir, "host.txt")
         osutils.WriteFile(host_path, "127.0.0.1")
@@ -245,7 +245,7 @@ class SchemaVersionedMySQLConnectionTest(cros_test_lib.MockTempDirTestCase):
             str(conn._connect_url), "mysql://user:password@127.0.0.1:3306/cidb"
         )
 
-    def testConnectionWithUnixSocket(self):
+    def testConnectionWithUnixSocket(self) -> None:
         """Test Connection with Unix Socket."""
         # No unix_socket.txt found.
         conn = cidb.SchemaVersionedMySQLConnection(

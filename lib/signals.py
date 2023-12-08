@@ -48,7 +48,7 @@ def DeferSignals(*args):
 
     received = []
 
-    def handler(signum, frame):
+    def handler(signum, frame) -> None:
         received.append((signum, frame))
 
     try:

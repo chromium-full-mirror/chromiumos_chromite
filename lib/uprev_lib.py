@@ -508,7 +508,7 @@ class UprevChromeManager:
                 Outcome.NEW_EBUILD_CREATED, [new_ebuild.ebuild_path]
             )
 
-    def _clean_stale_package(self, package):
+    def _clean_stale_package(self, package) -> None:
         clean_stale_packages(
             [package], self._build_targets, chroot=self._chroot
         )
@@ -767,7 +767,7 @@ def clean_stale_packages(
     # First unmerge all the packages for a board, then eclean it.
     # We need these two steps to run in order (unmerge/eclean),
     # but we can let all the boards run in parallel.
-    def _do_clean_stale_packages(board):
+    def _do_clean_stale_packages(board) -> None:
         if board:
             suffix = "-" + board
             runcmd = cros_build_lib.run

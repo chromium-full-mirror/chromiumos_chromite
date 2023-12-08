@@ -24,7 +24,7 @@ pytestmark = cros_test_lib.pytestmark_inside_only
 class DownloaderTest(cros_test_lib.TestCase):
     """Downloader Unittests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._work_dir = tempfile.mkdtemp("downloader-test")
         self.board = "kevin-full"
         self.build = "R81-12829.0.0-rc1"
@@ -42,14 +42,14 @@ class DownloaderTest(cros_test_lib.TestCase):
             os.path.join(self._work_dir, self.board, self.build) + "/"
         )
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         shutil.rmtree(self._work_dir, ignore_errors=True)
 
     @mock.patch.object(downloader.Downloader, "_DownloadArtifactsSerially")
     @mock.patch.object(downloader.Downloader, "_DownloadArtifactsInBackground")
     def _SimpleDownloadOfTestSuites(
         self, downloader_instance, bg_mock, serial_mock
-    ):
+    ) -> None:
         """Helper to verify test_suites are downloaded correctly.
 
         Args:
@@ -73,7 +73,7 @@ class DownloaderTest(cros_test_lib.TestCase):
         serial_mock.assert_called()
         bg_mock.assert_called()
 
-    def testSimpleDownloadOfTestSuitesFromGS(self):
+    def testSimpleDownloadOfTestSuitesFromGS(self) -> None:
         """Basic test_suites test.
 
         Verifies that if we request the test_suites from Google Storage, it gets
@@ -89,7 +89,7 @@ class DownloaderTest(cros_test_lib.TestCase):
             )
         )
 
-    def testSimpleDownloadOfTestSuitesFromLocal(self):
+    def testSimpleDownloadOfTestSuitesFromLocal(self) -> None:
         """Basic test_suites test.
 
         Verifies that if we request the test_suites from a local path, it gets
@@ -101,7 +101,9 @@ class DownloaderTest(cros_test_lib.TestCase):
 
     @mock.patch.object(downloader.Downloader, "_DownloadArtifactsSerially")
     @mock.patch.object(downloader.Downloader, "_DownloadArtifactsInBackground")
-    def _DownloadSymbolsHelper(self, downloader_instance, bg_mock, serial_mock):
+    def _DownloadSymbolsHelper(
+        self, downloader_instance, bg_mock, serial_mock
+    ) -> None:
         """Basic symbols download."""
         factory = build_artifact.ChromeOSArtifactFactory(
             downloader_instance.GetBuildDir(),
@@ -115,7 +117,7 @@ class DownloaderTest(cros_test_lib.TestCase):
         serial_mock.assert_called()
         bg_mock.assert_not_called()
 
-    def testDownloadSymbolsFromGS(self):
+    def testDownloadSymbolsFromGS(self) -> None:
         """Basic symbols download from Google Storage."""
         self._DownloadSymbolsHelper(
             downloader.GoogleStorageDownloader(
@@ -127,7 +129,7 @@ class DownloaderTest(cros_test_lib.TestCase):
             )
         )
 
-    def testDownloadSymbolsFromLocal(self):
+    def testDownloadSymbolsFromLocal(self) -> None:
         """Basic symbols download from a Local Path."""
         self._DownloadSymbolsHelper(
             downloader.LocalDownloader(self._work_dir, self.local_path)
@@ -171,7 +173,7 @@ class DownloaderTest(cros_test_lib.TestCase):
         return downloader_instance, factory
 
     @mock.patch.object(downloader.Downloader, "_DownloadArtifactsInBackground")
-    def testFullPayloadDownload(self, bg_mock):
+    def testFullPayloadDownload(self, bg_mock) -> None:
         """Test full payload download."""
         downloader_instance, factory = self._DownloadFullPayload()
         with mock.patch.object(
@@ -197,7 +199,7 @@ class DownloaderTest(cros_test_lib.TestCase):
         )
 
     @mock.patch.object(downloader.Downloader, "_DownloadArtifactsInBackground")
-    def testAnonymousDownload(self, bg_mock):
+    def testAnonymousDownload(self, bg_mock) -> None:
         """Test anonymous download of full payload."""
         err_msg = (
             "ServiceException: 401 Anonymous caller does not have "
@@ -231,18 +233,18 @@ class DownloaderTest(cros_test_lib.TestCase):
 class AndroidDownloaderTest(cros_test_lib.TestCase):
     """Android Downloader Unittests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._work_dir = tempfile.mkdtemp("downloader-test")
         self.branch = "release"
         self.target = "shamu-userdebug"
         self.build_id = "123456"
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         shutil.rmtree(self._work_dir, ignore_errors=True)
 
     @mock.patch.object(downloader.Downloader, "_DownloadArtifactsSerially")
     @mock.patch.object(downloader.Downloader, "_DownloadArtifactsInBackground")
-    def testDownloadFromAndroidBuildServer(self, bg_mock, serial_mock):
+    def testDownloadFromAndroidBuildServer(self, bg_mock, serial_mock) -> None:
         """Basic test to check download from Android's build server works."""
         downloader_instance = downloader.AndroidBuildDownloader(
             self._work_dir, self.branch, self.build_id, self.target

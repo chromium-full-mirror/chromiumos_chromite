@@ -99,7 +99,7 @@ class CrOSTest:
 
         self._device = device.Device.Create(opts)
 
-    def __del__(self):
+    def __del__(self) -> None:
         self._StopVM()
 
         logging.info(
@@ -119,7 +119,7 @@ class CrOSTest:
             backoff_factor=2,
             exception=cros_build_lib.RunCommandError,
         )
-        def _FlashWithRetry():
+        def _FlashWithRetry() -> None:
             self._Flash()
 
         self._Build()
@@ -131,7 +131,7 @@ class CrOSTest:
         self._StopVM()
         return returncode
 
-    def _StartVM(self):
+    def _StartVM(self) -> None:
         """Start a VM if necessary.
 
         If --start-vm is specified, we launch a new VM, otherwise we use an
@@ -146,7 +146,7 @@ class CrOSTest:
         if self.start_vm:
             self._device.Start()
 
-    def _StopVM(self):
+    def _StopVM(self) -> None:
         """Stop the VM if necessary.
 
         If --start-vm was specified, we launched this VM, so we now stop it.
@@ -154,7 +154,7 @@ class CrOSTest:
         if self._device and self.start_vm:
             self._device.Stop()
 
-    def _Build(self):
+    def _Build(self) -> None:
         """Build chrome."""
         if not self.build:
             return
@@ -165,7 +165,7 @@ class CrOSTest:
             dryrun=self.dryrun,
         )
 
-    def _Flash(self):
+    def _Flash(self) -> None:
         """Flash device."""
         if not self.flash:
             return
@@ -239,7 +239,7 @@ class CrOSTest:
         ]
         cros_build_lib.run(flash_cmd, dryrun=self.dryrun)
 
-    def _Deploy(self):
+    def _Deploy(self) -> None:
         """Deploy binary files to device."""
         if not self.build and not self.deploy and not self.deploy_lacros:
             return
@@ -256,7 +256,7 @@ class CrOSTest:
         if self.deploy_lacros:
             self._DeployLacrosLauncherScript()
 
-    def _DeployChrome(self, build_dir, is_lacros):
+    def _DeployChrome(self, build_dir, is_lacros) -> None:
         """Deploy lacros-chrome or ash-chrome.
 
         Args:
@@ -306,7 +306,7 @@ class CrOSTest:
         cros_build_lib.run(deploy_cmd, dryrun=self.dryrun)
         self._device.WaitForBoot()
 
-    def _DeployChromeTest(self):
+    def _DeployChromeTest(self) -> None:
         """Deploy chrome test binary and its runtime files to device."""
         src_dir = os.path.dirname(os.path.dirname(self.build_dir))
         self._DeployCopyPaths(
@@ -317,7 +317,7 @@ class CrOSTest:
             ),
         )
 
-    def _DeployLacrosLauncherScript(self):
+    def _DeployLacrosLauncherScript(self) -> None:
         """Deploy a script that is needed to launch Lacros in Tast tests."""
         self._DeployCopyPaths(
             os.path.dirname(self.lacros_launcher_script),
@@ -325,7 +325,9 @@ class CrOSTest:
             [chrome_util.Path(os.path.basename(self.lacros_launcher_script))],
         )
 
-    def _DeployCopyPaths(self, host_src_dir, remote_target_dir, copy_paths):
+    def _DeployCopyPaths(
+        self, host_src_dir, remote_target_dir, copy_paths
+    ) -> None:
         """Deploy files in copy_paths to device.
 
         Args:
@@ -339,7 +341,7 @@ class CrOSTest:
         # The rsync connection can occasionally crash during the transfer, so
         # retry in the hope that it's transient.
         @retry_util.WithRetry(max_retry=3, sleep=1, backoff_factor=2)
-        def copy_with_retries():
+        def copy_with_retries() -> None:
             if self._device.remote.HasRsync():
                 self._device.remote.CopyToDevice(
                     "%s/" % os.path.abspath(self.staging_dir),
@@ -560,7 +562,7 @@ class CrOSTest:
 
         return result.returncode
 
-    def _MaybeSaveVMImage(self, result):
+    def _MaybeSaveVMImage(self, result) -> None:
         """Tells the VM to save its image on shutdown if the test failed.
 
         Args:
@@ -576,7 +578,7 @@ class CrOSTest:
         osutils.SafeMakedirs(self.results_dest_dir)
         self._device.SaveVMImageOnShutdown(self.results_dest_dir)
 
-    def _FetchResults(self):
+    def _FetchResults(self) -> None:
         """Fetch results files/directories."""
         if not self.results_src:
             return
@@ -594,7 +596,7 @@ class CrOSTest:
                 ignore_failures=True,
             )
 
-    def _AuthorizeKeys(self):
+    def _AuthorizeKeys(self) -> None:
         """Authorize the test ssh keys with chronos."""
         # With "nosymfollow" mount option present in /home/chronos/user/,
         # "-L" is required and it will copy symbolic links as real files.

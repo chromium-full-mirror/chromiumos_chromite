@@ -55,7 +55,7 @@ class FakeMultiprocessManager:
     def __enter__(self, *args, **kwargs):
         return self
 
-    def __exit__(self, *args, **kwargs):
+    def __exit__(self, *args, **kwargs) -> None:
         return None
 
     def Queue(self):
@@ -82,7 +82,7 @@ class ParallelMock(partial_mock.PartialMock):
     TARGET = "chromite.lib.parallel._BackgroundTask"
     ATTRS = ("ParallelTasks", "TaskRunner")
 
-    def PreStart(self):
+    def PreStart(self) -> None:
         self.PatchObject(
             parallel, "Manager", side_effect=FakeMultiprocessManager
         )
@@ -102,7 +102,7 @@ class ParallelMock(partial_mock.PartialMock):
 
     def TaskRunner(
         self, queue, task, onexit=None, task_args=None, task_kwargs=None
-    ):
+    ) -> None:
         # Setup of these matches the original code.
         if task_args is None:
             task_args = []
@@ -159,7 +159,7 @@ class BackgroundTaskVerifier(partial_mock.PartialMock):
 class TestManager(cros_test_lib.TestCase):
     """Test parallel.Manager()."""
 
-    def testSigint(self):
+    def testSigint(self) -> None:
         """Tests that parallel.Manager() ignores SIGINT."""
         with parallel.Manager() as manager:
             queue = manager.Queue()
@@ -167,7 +167,7 @@ class TestManager(cros_test_lib.TestCase):
             with self.assertRaises(Queue.Empty):
                 queue.get(block=False)
 
-    def testSigterm(self):
+    def testSigterm(self) -> None:
         """Tests that parallel.Manager() ignores SIGTERM."""
         with parallel.Manager() as manager:
             queue = manager.Queue()
@@ -179,7 +179,7 @@ class TestManager(cros_test_lib.TestCase):
 class TestBackgroundWrapper(cros_test_lib.TestCase):
     """Unittests for background wrapper."""
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # Wait for children to exit.
         try:
             timeout_util.WaitForReturnValue(
@@ -211,10 +211,10 @@ class TestBackgroundWrapper(cros_test_lib.TestCase):
 class TestUnicodeContinuation(TestBackgroundWrapper):
     """Test handling unicode continuation output from background envs."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.printed_message = multiprocessing.Event()
 
-    def _WriteMessageToStdout(self):
+    def _WriteMessageToStdout(self) -> None:
         """Write binary message to stdout."""
         # Python3 has sys.stdout.buffer to handle binary output.
         sys.stdout.buffer.write(_BINARY_GREETING_START)
@@ -230,7 +230,7 @@ class TestUnicodeContinuation(TestBackgroundWrapper):
         sys.stdout.buffer.write(_BINARY_GREETING)
         sys.stdout.flush()
 
-    def _ParallelWriteMessage(self):
+    def _ParallelWriteMessage(self) -> None:
         """Write binary message to stdout using multiple processes."""
         with parallel.Manager() as manager:
             queue = manager.Queue()
@@ -240,7 +240,7 @@ class TestUnicodeContinuation(TestBackgroundWrapper):
                 queue.put([])
                 self.printed_message.wait()
 
-    def testParallelHelloWorld(self):
+    def testParallelHelloWorld(self) -> None:
         """Test that output is not written multiple times when seeking."""
         out = self.wrapOutputTest(self._ParallelWriteMessage)
         # Verify that the _BINARY_GREETING gets read (because it's decoded)
@@ -251,10 +251,10 @@ class TestUnicodeContinuation(TestBackgroundWrapper):
 class BackgroundHelloWorldTests(TestBackgroundWrapper):
     """Test HelloWorld output in various background environments."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.printed_hello = multiprocessing.Event()
 
-    def _HelloWorld(self):
+    def _HelloWorld(self) -> None:
         """Write 'hello world' to stdout."""
         sys.stdout.write("hello")
         sys.stdout.flush()
@@ -268,7 +268,7 @@ class BackgroundHelloWorldTests(TestBackgroundWrapper):
         sys.stdout.write(_GREETING)
         sys.stdout.flush()
 
-    def _ParallelHelloWorld(self):
+    def _ParallelHelloWorld(self) -> None:
         """Write 'hello world' to stdout using multiple processes."""
         with parallel.Manager() as manager:
             queue = manager.Queue()
@@ -276,22 +276,22 @@ class BackgroundHelloWorldTests(TestBackgroundWrapper):
                 queue.put([])
                 self.printed_hello.wait()
 
-    def VerifyDefaultQueue(self):
+    def VerifyDefaultQueue(self) -> None:
         """Verify that BackgroundTaskRunner will create a queue on it's own."""
         with parallel.BackgroundTaskRunner(self._HelloWorld) as queue:
             queue.put([])
             self.printed_hello.wait()
 
-    def testParallelHelloWorld(self):
+    def testParallelHelloWorld(self) -> None:
         """Test that output is not written multiple times when seeking."""
         out = self.wrapOutputTest(self._ParallelHelloWorld)
         self.assertEqual(out, _GREETING)
 
-    def testMultipleHelloWorlds(self):
+    def testMultipleHelloWorlds(self) -> None:
         """Test that multiple threads can be created."""
         parallel.RunParallelSteps([self.testParallelHelloWorld] * 2)
 
-    def testLongTempDirectory(self):
+    def testLongTempDirectory(self) -> None:
         """Test that we can handle a long temporary directory."""
         with osutils.TempDir() as tempdir:
             new_tempdir = os.path.join(tempdir, "xxx/" * 100)
@@ -303,7 +303,9 @@ class BackgroundHelloWorldTests(TestBackgroundWrapper):
                 osutils.SetGlobalTempDir(old_tempdir, old_tempdir_env)
 
 
-def _BackgroundTaskRunnerArgs(results, arg1, arg2, kwarg1=None, kwarg2=None):
+def _BackgroundTaskRunnerArgs(
+    results, arg1, arg2, kwarg1=None, kwarg2=None
+) -> None:
     """Helper for TestBackgroundTaskRunnerArgs
 
     We specifically want a module function to test against and not a class
@@ -315,7 +317,7 @@ def _BackgroundTaskRunnerArgs(results, arg1, arg2, kwarg1=None, kwarg2=None):
 class TestBackgroundTaskRunnerArgs(TestBackgroundWrapper):
     """Unittests for BackgroundTaskRunner argument handling."""
 
-    def testArgs(self):
+    def testArgs(self) -> None:
         """Test that we can pass args down to the task."""
         with parallel.Manager() as manager:
             results = manager.Queue()
@@ -341,24 +343,24 @@ class TestBackgroundTaskRunnerArgs(TestBackgroundWrapper):
 class TestFastPrinting(TestBackgroundWrapper):
     """Stress tests for background sys.stdout handling."""
 
-    def _FastPrinter(self):
+    def _FastPrinter(self) -> None:
         # Writing lots of output quickly often reproduces bugs in this module
         # because it can trigger race conditions.
         for _ in range(_NUM_WRITES - 1):
             sys.stdout.write("x" * _BUFSIZE)
         sys.stderr.write("x" * (_BUFSIZE - 1) + "\n")
 
-    def _ParallelPrinter(self):
+    def _ParallelPrinter(self) -> None:
         parallel.RunParallelSteps([self._FastPrinter] * _NUM_THREADS)
 
-    def _NestedParallelPrinter(self):
+    def _NestedParallelPrinter(self) -> None:
         parallel.RunParallelSteps([self._ParallelPrinter])
 
-    def testSimpleParallelPrinter(self):
+    def testSimpleParallelPrinter(self) -> None:
         out = self.wrapOutputTest(self._ParallelPrinter)
         self.assertEqual(len(out), _TOTAL_BYTES)
 
-    def testNestedParallelPrinter(self):
+    def testNestedParallelPrinter(self) -> None:
         """Verify that no output is lost when lots of output is written."""
         out = self.wrapOutputTest(self._NestedParallelPrinter)
         self.assertEqual(len(out), _TOTAL_BYTES)
@@ -367,7 +369,7 @@ class TestFastPrinting(TestBackgroundWrapper):
 class TestRunParallelSteps(cros_test_lib.TestCase):
     """Tests for RunParallelSteps."""
 
-    def testReturnValues(self):
+    def testReturnValues(self) -> None:
         """Test that we pass return values through when requested."""
 
         def f1():
@@ -376,7 +378,7 @@ class TestRunParallelSteps(cros_test_lib.TestCase):
         def f2():
             return 2
 
-        def f3():
+        def f3() -> None:
             pass
 
         return_values = parallel.RunParallelSteps(
@@ -384,7 +386,7 @@ class TestRunParallelSteps(cros_test_lib.TestCase):
         )
         self.assertEqual(return_values, [1, 2, None])
 
-    def testLargeReturnValues(self):
+    def testLargeReturnValues(self) -> None:
         """Verify the managed queue prevents hanging on large return values."""
 
         def f1():
@@ -401,20 +403,20 @@ class TestRunParallelSteps(cros_test_lib.TestCase):
 class TestParallelMock(TestBackgroundWrapper):
     """Test the ParallelMock class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._calls = 0
 
     def _Callback(self):
         self._calls += 1
         return self._calls
 
-    def testRunParallelSteps(self):
+    def testRunParallelSteps(self) -> None:
         """Make sure RunParallelSteps is mocked out."""
         with ParallelMock():
             parallel.RunParallelSteps([self._Callback])
             self.assertEqual(1, self._calls)
 
-    def testBackgroundTaskRunner(self):
+    def testBackgroundTaskRunner(self) -> None:
         """Make sure BackgroundTaskRunner is mocked out."""
         with ParallelMock():
             parallel.RunTasksInProcessPool(self._Callback, [])
@@ -434,11 +436,11 @@ class TestParallelMock(TestBackgroundWrapper):
 class TestExceptions(cros_test_lib.MockOutputTestCase):
     """Test cases where child processes raise exceptions."""
 
-    def _SystemExit(self):
+    def _SystemExit(self) -> None:
         sys.stdout.write(_GREETING)
         sys.exit(1)
 
-    def _KeyboardInterrupt(self):
+    def _KeyboardInterrupt(self) -> None:
         sys.stdout.write(_GREETING)
         raise KeyboardInterrupt()
 
@@ -448,7 +450,7 @@ class TestExceptions(cros_test_lib.MockOutputTestCase):
     class _TestException(Exception):
         """Custom exception for testing."""
 
-    def _VerifyExceptionRaised(self, fn, exc_type):
+    def _VerifyExceptionRaised(self, fn, exc_type) -> None:
         """A helper function to verify the correct |exc_type| is raised."""
         for task in (
             lambda: parallel.RunTasksInProcessPool(fn, [[]]),
@@ -467,13 +469,13 @@ class TestExceptions(cros_test_lib.MockOutputTestCase):
             self.assertEqual(output_str, _GREETING)
             self.assertTrue(str(exc_type) in ex_str)
 
-    def testExceptionRaising(self):
+    def testExceptionRaising(self) -> None:
         """Tests the exceptions are raised correctly."""
         self.StartPatcher(BackgroundTaskVerifier())
         self._VerifyExceptionRaised(self._KeyboardInterrupt, KeyboardInterrupt)
         self._VerifyExceptionRaised(self._SystemExit, SystemExit)
 
-    def testExceptionPriority(self):
+    def testExceptionPriority(self) -> None:
         """Tests that foreground exceptions take priority over background."""
         self.StartPatcher(BackgroundTaskVerifier())
         with self.assertRaises(self._TestException):
@@ -487,14 +489,14 @@ class TestExceptions(cros_test_lib.MockOutputTestCase):
     @unittest.skipIf(
         sys.version_info >= (3, 5), "https://bugs.python.org/issue29187"
     )
-    def testFailedPickle(self):
+    def testFailedPickle(self) -> None:
         """PicklingError should be thrown when an argument fails to pickle."""
         with self.assertRaises(pickle.PickleError):
             parallel.RunTasksInProcessPool(
                 self._SystemExit, [[self._SystemExit]]
             )
 
-    def testFailedPickleOnReturn(self):
+    def testFailedPickleOnReturn(self) -> None:
         """Verify PicklingError thrown when a return value fails to pickle."""
         with self.assertRaises(parallel.BackgroundFailure):
             parallel.RunParallelSteps([self._BadPickler], return_values=True)
@@ -507,7 +509,7 @@ class _TestForegroundException(Exception):
 class TestHalting(cros_test_lib.MockOutputTestCase, TestBackgroundWrapper):
     """Test that child processes are halted when exceptions occur."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.failed = multiprocessing.Event()
         self.passed = multiprocessing.Event()
 
@@ -523,25 +525,25 @@ class TestHalting(cros_test_lib.MockOutputTestCase, TestBackgroundWrapper):
             + parallel._BackgroundTask.SIGKILL_TIMEOUT
         ) + 30
 
-    def _Pass(self):
+    def _Pass(self) -> None:
         self.passed.set()
         sys.stdout.write(_GREETING)
 
-    def _Exit(self):
+    def _Exit(self) -> None:
         sys.stdout.write(_GREETING)
         self.passed.wait()
         sys.exit(1)
 
-    def _Fail(self):
+    def _Fail(self) -> None:
         self.failed.wait(self._GetKillChildrenTimeout())
         self.failed.set()
 
-    def _PassEventually(self):
+    def _PassEventually(self) -> None:
         self.passed.wait(self._GetKillChildrenTimeout())
         self.passed.set()
 
     @unittest.skipIf(_SKIP_FLAKY_TESTS, "Occasionally fails.")
-    def testExceptionRaising(self):
+    def testExceptionRaising(self) -> None:
         """Test that exceptions halt all running steps."""
         steps = [self._Exit, self._Fail, self._Pass, self._Fail]
         output_str, ex_str = None, None
@@ -557,7 +559,7 @@ class TestHalting(cros_test_lib.MockOutputTestCase, TestBackgroundWrapper):
         self.assertEqual(output_str, _GREETING)
         self.assertFalse(self.failed.is_set())
 
-    def testForegroundExceptionRaising(self):
+    def testForegroundExceptionRaising(self) -> None:
         """Verify BackgroundTaskRunner halts tasks on a foreground exception."""
         with self.assertRaises(_TestForegroundException):
             with mock.patch.multiple(
@@ -571,14 +573,14 @@ class TestHalting(cros_test_lib.MockOutputTestCase, TestBackgroundWrapper):
         self.assertFalse(self.passed.is_set())
 
     @unittest.skipIf(_SKIP_FLAKY_TESTS, "Occasionally fails.")
-    def testTempFileCleanup(self):
+    def testTempFileCleanup(self) -> None:
         """Test that all temp files are cleaned up."""
         with osutils.TempDir() as tempdir:
             self.assertEqual(os.listdir(tempdir), [])
             self.testExceptionRaising()
             self.assertEqual(os.listdir(tempdir), [])
 
-    def testKillQuiet(self, steps=None, **kwargs):
+    def testKillQuiet(self, steps=None, **kwargs) -> None:
         """Test that processes do get killed if they're silent for too long."""
         if steps is None:
             steps = [self._Fail] * 2
@@ -606,7 +608,7 @@ class TestHalting(cros_test_lib.MockOutputTestCase, TestBackgroundWrapper):
 class TestConstants(cros_test_lib.TestCase):
     """Test values of constants."""
 
-    def testSilentTimeout(self):
+    def testSilentTimeout(self) -> None:
         """Verify the silent timeout is small enough."""
         # Enforce that the default timeout is less than 9000, the default
         # timeout set in
@@ -624,17 +626,17 @@ class TestConstants(cros_test_lib.TestCase):
 class TestExitWithParent(cros_test_lib.TestCase):
     """Tests ExitWithParent."""
 
-    def testChildExits(self):
+    def testChildExits(self) -> None:
         """Create a child and a grandchild.
 
         The child should die with the parent.
         """
 
-        def GrandChild():
+        def GrandChild() -> None:
             parallel.ExitWithParent()
             time.sleep(9)
 
-        def Child(queue):
+        def Child(queue) -> None:
             grand_child = multiprocessing.Process(target=GrandChild)
             grand_child.start()
             queue.put(grand_child.pid)

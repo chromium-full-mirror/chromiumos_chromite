@@ -75,7 +75,7 @@ class BuildSummary:
     def __repr__(self):
         return "BuildSummary(%s)" % self.to_json()
 
-    def from_json(self, raw_json):
+    def from_json(self, raw_json) -> None:
         """Merge the state encoded in |raw_json| into this object.
 
         Unknown keys will be ignored (with a warning).  Values for missing keys

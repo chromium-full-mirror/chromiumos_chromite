@@ -32,7 +32,7 @@ def Timedelta(num, zero_ok=False):
     return num
 
 
-def _ScheduleTimer(seconds, interval=0):
+def _ScheduleTimer(seconds, interval=0) -> None:
     """Schedules the timer to raise SIGALRM.
 
     If |seconds| is less than minimum resolution, it would be round up to the
@@ -84,7 +84,7 @@ def Timeout(
         error_message += reason_message
 
     # pylint: disable=unused-argument
-    def kill_us(sig_num, frame):
+    def kill_us(sig_num, frame) -> None:
         raise TimeoutError(error_message % {"time": max_run_time})
 
     previous_time = time.time()
@@ -132,7 +132,7 @@ def FatalTimeout(max_run_time, display_message=None):
     max_run_time = Timedelta(max_run_time).total_seconds()
 
     # pylint: disable=unused-argument
-    def kill_us(sig_num, frame):
+    def kill_us(sig_num, frame) -> None:
         # While this SystemExit *should* crash it's way back up the
         # stack to our exit handler, we do have live/production code
         # that uses blanket except statements which could suppress this.
@@ -185,7 +185,7 @@ def TimeoutDecorator(max_time):
             signal.ITIMER_REAL,
         )
 
-    def _Restore(values):
+    def _Restore(values) -> None:
         (
             time.time,
             signal.signal,
@@ -217,7 +217,7 @@ def TimeoutDecorator(max_time):
     return NestedTimeoutDecorator
 
 
-def WaitForReturnTrue(*args, **kwargs):
+def WaitForReturnTrue(*args, **kwargs) -> None:
     """Periodically run a function, waiting in between runs.
 
     Continues to run until the function returns True.

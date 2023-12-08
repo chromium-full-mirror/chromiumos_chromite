@@ -39,7 +39,7 @@ class FailStage(generic_stages.BuilderStage):
 
     FAIL_EXCEPTION = failures_lib.StepFailure("Fail stage needs to fail.")
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Throw the exception to make us fail."""
         raise self.FAIL_EXCEPTION
 
@@ -47,7 +47,7 @@ class FailStage(generic_stages.BuilderStage):
 class SneakyFailStage(generic_stages.BuilderStage):
     """SneakyFailStage exits with an error."""
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Exit without reporting back."""
         # pylint: disable=protected-access
         os._exit(1)
@@ -56,7 +56,7 @@ class SneakyFailStage(generic_stages.BuilderStage):
 class SuicideStage(generic_stages.BuilderStage):
     """SuicideStage kills itself with kill -9."""
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Exit without reporting back."""
         os.kill(os.getpid(), signal.SIGKILL)
 
@@ -80,7 +80,7 @@ class SetAttrStage(generic_stages.BuilderStage):
         self.delay = delay
         self.attr = attr
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Wait self.delay seconds then set requested run attribute."""
         time.sleep(self.delay)
         self._run.attrs.SetParallel(self.attr, self.VALUE)
@@ -109,7 +109,7 @@ class GetAttrStage(generic_stages.BuilderStage):
         self.timeout = timeout
         self.attr = attr
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Wait for attrs.test value to show up."""
         assert not self._run.attrs.HasParallel(self.attr)
         value = self._run.attrs.GetParallel(self.attr, self.timeout)
@@ -126,7 +126,7 @@ class GetAttrStage(generic_stages.BuilderStage):
 class BuildStagesResultsTest(cros_test_lib.TestCase):
     """Tests for stage results and reporting."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Always stub RunCommand out as we use it in every method.
         self._bot_id = "amd64-generic-release"
         self.buildstore = FakeBuildStore()
@@ -169,14 +169,14 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
 
         results_lib.Results.Clear()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # Mimic exiting with statement for self._manager.
         if hasattr(self, "_manager") and self._manager is not None:
             self._manager.__exit__(None, None, None)
 
         cidb.CIDBConnectionFactory.SetupMockCidb()
 
-    def _runStages(self):
+    def _runStages(self) -> None:
         """Run a couple of stages so we can capture the results"""
         # Run two pass stages, and one fail stage.
         PassStage(self._run, self.buildstore).Run()
@@ -185,7 +185,7 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
             failures_lib.StepFailure, FailStage(self._run, self.buildstore).Run
         )
 
-    def _verifyRunResults(self, expectedResults, max_time=2.0):
+    def _verifyRunResults(self, expectedResults, max_time=2.0) -> None:
         actualResults = results_lib.Results.Get()
 
         # Break out the asserts to be per item to make debugging easier
@@ -209,7 +209,7 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
         )
         return results_lib.Results.SPLIT_TOKEN.join(record) + "\n"
 
-    def testRunStages(self):
+    def testRunStages(self) -> None:
         """Run some stages and verify the captured results"""
 
         self.assertEqual(results_lib.Results.Get(), [])
@@ -224,7 +224,7 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
         ]
         self._verifyRunResults(expectedResults)
 
-    def testSuccessTest(self):
+    def testSuccessTest(self) -> None:
         """Run some stages and verify the captured results"""
 
         results_lib.Results.Record("Pass", results_lib.Results.SUCCESS)
@@ -239,7 +239,7 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
 
         self.assertFalse(results_lib.Results.BuildSucceededSoFar())
 
-    def testSuccessTestWithDB(self):
+    def testSuccessTestWithDB(self) -> None:
         """Test BuildSucceededSoFar with DB instance"""
         build_id = self.db.InsertBuild(
             "builder_name",
@@ -302,7 +302,7 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
 
         return error
 
-    def testParallelStages(self):
+    def testParallelStages(self) -> None:
         bs = FakeBuildStore()
         stage_objs = [
             stage(self._run, bs)
@@ -325,10 +325,10 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
         ]
         self._verifyRunResults(expectedResults)
 
-    def testParallelStageCommunicationOK(self):
+    def testParallelStageCommunicationOK(self) -> None:
         """Test run attr communication betweeen parallel stages."""
 
-        def assert_test(value):
+        def assert_test(value) -> None:
             self.assertEqual(
                 value,
                 SetAttrStage.VALUE,
@@ -355,10 +355,10 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
         value = self._run.attrs.GetParallel("unittest_value")
         self.assertEqual(SetAttrStage.VALUE, value)
 
-    def testParallelStageCommunicationTimeout(self):
+    def testParallelStageCommunicationTimeout(self) -> None:
         """Test attr communication between parallel stages that times out."""
 
-        def assert_test(value):
+        def assert_test(value) -> None:
             self.assertEqual(
                 value,
                 SetAttrStage.VALUE,
@@ -379,7 +379,7 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
         ]
         self._verifyRunResults(expectedResults, max_time=12.0)
 
-    def testParallelStageCommunicationNotQueueable(self):
+    def testParallelStageCommunicationNotQueueable(self) -> None:
         """Test setting non-queueable run attr in parallel stage."""
         bs = FakeBuildStore()
         stage_objs = [
@@ -394,7 +394,7 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
         ]
         self._verifyRunResults(expectedResults, max_time=12.0)
 
-    def testStagesReportSuccess(self):
+    def testStagesReportSuccess(self) -> None:
         """Tests Stage reporting."""
 
         # Store off a known set of results and generate a report
@@ -439,7 +439,7 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
             self.assertEqual(expectedLines[i], actualLines[i])
         self.assertEqual(len(expectedLines), len(actualLines))
 
-    def testStagesReportError(self):
+    def testStagesReportError(self) -> None:
         """Tests Stage reporting with exceptions."""
 
         # Store off a known set of results and generate a report
@@ -498,7 +498,7 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
             self.assertEqual(expectedLines[i], actualLines[i])
         self.assertEqual(len(expectedLines), len(actualLines))
 
-    def testStagesReportReleaseTag(self):
+    def testStagesReportReleaseTag(self) -> None:
         """Tests Release Tag entry in stages report."""
 
         current_version = "release_tag_string"
@@ -527,7 +527,7 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
             self.assertEqual(expectedLine, actualLine)
         self.assertEqual(len(expectedLines), len(actualLines))
 
-    def testSaveCompletedStages(self):
+    def testSaveCompletedStages(self) -> None:
         """Tests that we can save out completed stages."""
 
         # Run this again to make sure we have the expected results stored
@@ -539,7 +539,7 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
         results_lib.Results.SaveCompletedStages(saveFile)
         self.assertEqual(saveFile.getvalue(), self._PassString())
 
-    def testRestoreCompletedStages(self):
+    def testRestoreCompletedStages(self) -> None:
         """Tests that we can read in completed stages."""
 
         results_lib.Results.RestoreCompletedStages(
@@ -549,7 +549,7 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
         previous = results_lib.Results.GetPrevious()
         self.assertEqual(list(previous), ["Pass"])
 
-    def testRunAfterRestore(self):
+    def testRunAfterRestore(self) -> None:
         """Tests that we skip previously completed stages."""
 
         # Fake results_lib.Results.RestoreCompletedStages
@@ -567,7 +567,7 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
         ]
         self._verifyRunResults(expectedResults)
 
-    def testFailedButForgiven(self):
+    def testFailedButForgiven(self) -> None:
         """Tests that warnings are flagged as such."""
         results_lib.Results.Record("Warn", results_lib.Results.FORGIVEN, time=1)
         results = io.StringIO()

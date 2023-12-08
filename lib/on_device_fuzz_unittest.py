@@ -24,17 +24,17 @@ class RemoteDeviceMock(partial_mock.PartialMock):
     def IfFileExists(self, _):
         return True
 
-    def mkdir(self, *_, **__):
+    def mkdir(self, *_, **__) -> None:
         return None
 
-    def run(self, *_, **__):
+    def run(self, *_, **__) -> None:
         return None
 
 
 class OnDeviceFuzzTest(cros_test_lib.RunCommandTestCase):
     """Tests on_device_fuzz functions."""
 
-    def test_create_sysroot_tarball(self):
+    def test_create_sysroot_tarball(self) -> None:
         """Test that we can call create_sysroot_tarball."""
         with mock.patch.object(
             on_device_fuzz, "sysroot_tarball_setup_checks"
@@ -47,14 +47,14 @@ class OnDeviceFuzzTest(cros_test_lib.RunCommandTestCase):
             self.assertEqual(result, output_path)
             checks.assert_called_once()
 
-    def test_not_installed_packages(self):
+    def test_not_installed_packages(self) -> None:
         """Test that we catch packages that are not installed in the chroot."""
         with self.assertRaises(on_device_fuzz.SetupError):
             on_device_fuzz.sysroot_tarball_setup_checks(
                 ["does123", "not456", "exist678"], Path("/build/amd64-generic")
             )
 
-    def test_run_fuzzer_executable(self):
+    def test_run_fuzzer_executable(self) -> None:
         """Test that we can call fuzzer executables on mock devices."""
         mock_device = RemoteDeviceMock()
         on_device_fuzz.run_fuzzer_executable(

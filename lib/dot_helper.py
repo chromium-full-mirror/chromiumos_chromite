@@ -20,7 +20,7 @@ class Subgraph:
         self._arcs = set()
         self._rank = None
 
-    def AddNode(self, node_id, name=None, color=None, href=None):
+    def AddNode(self, node_id, name=None, color=None, href=None) -> None:
         """Adds a node to the subgraph."""
         tags = {}
         if name:
@@ -32,7 +32,7 @@ class Subgraph:
             tags["href"] = href
         self._nodes.append({"id": node_id, "tags": tags})
 
-    def AddSubgraph(self, subgraph):
+    def AddSubgraph(self, subgraph) -> None:
         """Adds a subgraph to the subgraph."""
         self._subgraphs.append(subgraph)
 
@@ -42,7 +42,7 @@ class Subgraph:
         self.AddSubgraph(subgraph)
         return subgraph
 
-    def AddArc(self, node_from, node_to):
+    def AddArc(self, node_from, node_to) -> None:
         """Adds an arc between two nodes."""
         self._arcs.add((node_from, node_to))
 
@@ -99,7 +99,9 @@ class Graph(Subgraph):
         )
 
 
-def GenerateImage(lines, filename, out_format="svg", save_dot_filename=None):
+def GenerateImage(
+    lines, filename, out_format="svg", save_dot_filename=None
+) -> None:
     """Generates the image by calling dot on the input lines."""
     data = "\n".join(lines)
     cros_build_lib.run(["dot", "-T%s" % out_format, "-o", filename], input=data)

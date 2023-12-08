@@ -252,14 +252,14 @@ class Artifact(metaclass=ArtifactMeta):
         ) as f:
             return [line.strip() for line in f]
 
-    def _MarkArtifactStaged(self):
+    def _MarkArtifactStaged(self) -> None:
         """Marks the artifact as staged."""
         osutils.WriteFile(
             os.path.join(self.install_dir, self.marker_name),
             "\n".join(self.installed_files),
         )
 
-    def _UpdateName(self, names):
+    def _UpdateName(self, names) -> None:
         if self.single_name and len(names) > 1:
             raise ArtifactDownloadError(
                 "Too many artifacts match %s" % self.name
@@ -267,18 +267,18 @@ class Artifact(metaclass=ArtifactMeta):
 
         self.name = names[0]
 
-    def _Setup(self):
+    def _Setup(self) -> None:
         """Process downloaded content, update the list of installed files."""
         # In this primitive case, what was downloaded (has to be a single file)
         # is what's installed.
         self.installed_files = [self.install_path]
 
-    def _ClearException(self):
+    def _ClearException(self) -> None:
         """Delete any existing exception saved for this artifact."""
         if os.path.exists(self.exception_file_path):
             os.remove(self.exception_file_path)
 
-    def _SaveException(self, e):
+    def _SaveException(self, e) -> None:
         """Save the exception and traceback to a file for downloader.IsStaged.
 
         Args:
@@ -300,7 +300,7 @@ class Artifact(metaclass=ArtifactMeta):
         with open(self.exception_file_path, "rb") as f:
             return pickle.load(f)
 
-    def Process(self, downloader, no_wait):
+    def Process(self, downloader, no_wait) -> None:
         """Main call point to all artifacts. Downloads and Stages artifact.
 
         Downloads and Stages artifact from Google Storage to the install
@@ -417,10 +417,10 @@ class MultiArtifact(Artifact):
         super().__init__(*args, **kwargs)
         self.single_name = False
 
-    def _UpdateName(self, names):
+    def _UpdateName(self, names) -> None:
         self.name = names if isinstance(names, list) else [names]
 
-    def _Setup(self):
+    def _Setup(self) -> None:
         super()._Setup()
 
         self.installed_files = [
@@ -493,7 +493,7 @@ class BundledArtifact(Artifact):
                 % (self.install_path, e)
             )
 
-    def _Setup(self):
+    def _Setup(self) -> None:
         extract_result = self._Extract()
         if self.store_installed_files:
             # List both the archive and the extracted files.
@@ -546,7 +546,7 @@ class AutotestTarball(BundledArtifact):
         # this can get huge and unwieldy, and generally make little sense.
         self.store_installed_files = False
 
-    def _Setup(self):
+    def _Setup(self) -> None:
         """Extracts the tarball into the install path excluding test suites."""
         super()._Setup()
 
@@ -581,7 +581,7 @@ class AutotestTarball(BundledArtifact):
 class SignedArtifact(Artifact):
     """Wrapper for signed artifacts which need a path translation."""
 
-    def _Setup(self):
+    def _Setup(self) -> None:
         super()._Setup()
 
         # Rename to signed_image.bin.
@@ -639,7 +639,7 @@ def _CreateNewArtifact(tag, base, name, *fixed_args, **fixed_kwargs):
 chromeos_artifact_map = {}
 
 
-def _AddCrOSArtifact(tag, base, name, *fixed_args, **fixed_kwargs):
+def _AddCrOSArtifact(tag, base, name, *fixed_args, **fixed_kwargs) -> None:
     """Add a data wrapper for ChromeOS artifacts.
 
     Add a data wrapper that describes a ChromeOS artifact's implementation to
@@ -766,7 +766,7 @@ _AddCrOSArtifact(
 android_artifact_map = {}
 
 
-def _AddAndroidArtifact(tag, base, name, *fixed_args, **fixed_kwargs):
+def _AddAndroidArtifact(tag, base, name, *fixed_args, **fixed_kwargs) -> None:
     """Add a data wrapper for android artifacts.
 
     Add a data wrapper that describes an Android artifact's implementation to

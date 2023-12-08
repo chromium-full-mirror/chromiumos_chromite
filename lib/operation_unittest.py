@@ -17,7 +17,7 @@ from chromite.lib import parallel
 class TestWrapperProgressBarOperation(operation.ProgressBarOperation):
     """Inherit from operation.ProgressBarOperation for testing."""
 
-    def ParseOutput(self, output=None):
+    def ParseOutput(self, output=None) -> None:
         print("Calling ParseOutput")
         print(self._stdout.read())
 
@@ -29,7 +29,7 @@ class FakeParallelEmergeOperation(operation.ParallelEmergeOperation):
         super().__init__()
         self._queue = queue
 
-    def ParseOutput(self, output=None):
+    def ParseOutput(self, output=None) -> None:
         super().ParseOutput()
         self._queue.put("advance")
 
@@ -47,7 +47,7 @@ class ProgressBarOperationTest(
 
     # pylint: disable=protected-access
 
-    def setUp(self):
+    def setUp(self) -> None:
         terminal_width = 20
         self._terminal = self.PatchObject(
             operation.ProgressBarOperation,
@@ -58,7 +58,7 @@ class ProgressBarOperationTest(
 
     def _VerifyProgressBar(
         self, width, percent, expected_shaded, expected_unshaded
-    ):
+    ) -> None:
         """Helper to test progress bar with different percentages, lengths."""
         terminal_width = width + (
             operation.ProgressBarOperation._PROGRESS_BAR_BORDER_SIZE
@@ -75,7 +75,7 @@ class ProgressBarOperationTest(
         self.assertEqual(stdout.count("#"), expected_shaded)
         self.assertEqual(stdout.count("-"), expected_unshaded)
 
-    def testProgressBar(self):
+    def testProgressBar(self) -> None:
         """Test progress bar at different percentages."""
         self._VerifyProgressBar(10, 0.7, 7, 3)
         self._VerifyProgressBar(10, 0, 0, 10)
@@ -86,7 +86,7 @@ class ProgressBarOperationTest(
         self._VerifyProgressBar(-5, 0, 0, 1)
         self._VerifyProgressBar(-5, 1, 1, 0)
 
-    def testWaitUntilComplete(self):
+    def testWaitUntilComplete(self) -> None:
         """Test WaitUntilComplete returns False if background task not complete.
 
         As the background task is not started in this test, we expect it not to
@@ -95,10 +95,10 @@ class ProgressBarOperationTest(
         op = operation.ProgressBarOperation()
         self.assertFalse(op.WaitUntilComplete(0))
 
-    def testCaptureOutputInBackground(self):
+    def testCaptureOutputInBackground(self) -> None:
         """Test CaptureOutputInBackground puts finished in reasonable time."""
 
-        def func():
+        def func() -> None:
             print("hi")
 
         op = operation.ProgressBarOperation()
@@ -108,11 +108,11 @@ class ProgressBarOperationTest(
         # longer time so the test does not fail on highly loaded builders.
         self.assertTrue(op.WaitUntilComplete(10))
 
-    def testRun(self):
+    def testRun(self) -> None:
         """Test that ParseOutput is called and foo is run in background."""
         expected_output = "hi"
 
-        def func():
+        def func() -> None:
             print(expected_output)
 
         op = TestWrapperProgressBarOperation()
@@ -130,10 +130,10 @@ class ProgressBarOperationTest(
         #   would only be called once.
         self.AssertOutputContainsLine("Calling ParseOutput")
 
-    def testExceptionHandling(self):
+    def testExceptionHandling(self) -> None:
         """Test exception handling."""
 
-        def func():
+        def func() -> None:
             print("foo")
             print("bar", file=sys.stderr)
             raise FakeException()
@@ -153,13 +153,13 @@ class ProgressBarOperationTest(
         self.AssertOutputContainsLine("foo")
         self.AssertOutputContainsLine("bar", check_stderr=True)
 
-    def testLogLevel(self):
+    def testLogLevel(self) -> None:
         """Test that the log level of the function running is set correctly."""
         func_log_level = logging.DEBUG
         test_log_level = logging.NOTICE
         expected_output = "hi"
 
-        def func():
+        def func() -> None:
             if logging.getLogger().getEffectiveLevel() == func_log_level:
                 print(expected_output)
 
@@ -176,10 +176,10 @@ class ProgressBarOperationTest(
             logging.getLogger().getEffectiveLevel(), test_log_level
         )
 
-    def testParallelEmergeOperationParseOutputTotalNotFound(self):
+    def testParallelEmergeOperationParseOutputTotalNotFound(self) -> None:
         """Test that ParallelEmergeOperation.ParseOutput if total is not set."""
 
-        def func():
+        def func() -> None:
             print("hi")
 
         op = operation.ParallelEmergeOperation()
@@ -189,10 +189,10 @@ class ProgressBarOperationTest(
         # Check that the output is empty.
         self.AssertOutputContainsLine("hi", check_stderr=True, invert=True)
 
-    def testParallelEmergeOperationParseOutputTotalIsZero(self):
+    def testParallelEmergeOperationParseOutputTotalIsZero(self) -> None:
         """Test that ParallelEmergeOperation.ParseOutput if total is zero."""
 
-        def func():
+        def func() -> None:
             print("Total: 0 packages.")
 
         op = operation.ParallelEmergeOperation()
@@ -205,10 +205,10 @@ class ProgressBarOperationTest(
         # Check logs contain message.
         self.AssertLogsContain(logs, "No packages to build.")
 
-    def testParallelEmergeOperationParseOutputTotalNonZero(self):
+    def testParallelEmergeOperationParseOutputTotalNonZero(self) -> None:
         """Verify ParallelEmergeOperation.ParseOutput's progress bar updates."""
 
-        def func(queue):
+        def func(queue) -> None:
             print("Total: 2 packages.")
             for _ in range(2):
                 queue.get()

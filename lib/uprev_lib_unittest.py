@@ -26,7 +26,7 @@ from chromite.lib.parser import package_info
 class ChromeVersionTest(cros_test_lib.TestCase):
     """Tests for best_version and get_version_from_refs."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # The tag ref template.
         ref_tpl = "refs/tags/%s"
 
@@ -41,40 +41,40 @@ class ChromeVersionTest(cros_test_lib.TestCase):
         self.unstable = "9999"
         self.unstable_versions = self.versions + [self.unstable]
 
-    def test_single_version(self):
+    def test_single_version(self) -> None:
         """Test a single version."""
         self.assertEqual(self.best, uprev_lib.best_version([self.best]))
 
-    def test_multiple_versions(self):
+    def test_multiple_versions(self) -> None:
         """Test a single version."""
         self.assertEqual(self.best, uprev_lib.best_version(self.versions))
 
-    def test_no_versions_fail(self):
+    def test_no_versions_fail(self) -> None:
         """Test no versions given."""
         with self.assertRaises(uprev_lib.NoVersionsError):
             uprev_lib.best_version([])
 
-    def test_unstable_only(self):
+    def test_unstable_only(self) -> None:
         """Test the unstable version."""
         self.assertEqual(self.unstable, uprev_lib.best_version([self.unstable]))
 
-    def test_unstable_multiple(self):
+    def test_unstable_multiple(self) -> None:
         """Test unstable alongside multiple other versions."""
         self.assertEqual(
             self.unstable, uprev_lib.best_version(self.unstable_versions)
         )
 
-    def test_single_ref(self):
+    def test_single_ref(self) -> None:
         """Test a single ref."""
         self.assertEqual(
             self.best, uprev_lib.get_version_from_refs([self.best_ref])
         )
 
-    def test_multiple_refs(self):
+    def test_multiple_refs(self) -> None:
         """Test multiple refs."""
         self.assertEqual(self.best, uprev_lib.get_version_from_refs(self.refs))
 
-    def test_no_refs_fail(self):
+    def test_no_refs_fail(self) -> None:
         """Test no versions given."""
         with self.assertRaises(uprev_lib.NoRefsError):
             uprev_lib.get_version_from_refs([])
@@ -83,7 +83,7 @@ class ChromeVersionTest(cros_test_lib.TestCase):
 class ChromeEbuildVersionTest(cros_test_lib.MockTempDirTestCase):
     """Tests for best_chrome_ebuild and get_stable_chrome_version."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Setup some ebuilds to test against.
         pkg_dir = os.path.join(self.tempdir, constants.CHROME_CP)
         osutils.SafeMakedirs(pkg_dir)
@@ -116,22 +116,22 @@ class ChromeEbuildVersionTest(cros_test_lib.MockTempDirTestCase):
         self.ebuilds = [uprev_lib.ChromeEBuild(path) for path in ebuild_paths]
         self.best_ebuild = uprev_lib.ChromeEBuild(best_ebuild_path)
 
-    def test_no_ebuilds(self):
+    def test_no_ebuilds(self) -> None:
         """Test error on no ebuilds provided."""
         with self.assertRaises(uprev_lib.NoEbuildsError):
             uprev_lib.best_chrome_ebuild([])
 
-    def test_single_ebuild(self):
+    def test_single_ebuild(self) -> None:
         """Test a single ebuild."""
         best = uprev_lib.best_chrome_ebuild([self.best_ebuild])
         self.assertEqual(self.best_ebuild.ebuild_path, best.ebuild_path)
 
-    def test_multiple_ebuilds(self):
+    def test_multiple_ebuilds(self) -> None:
         """Test multiple ebuilds."""
         best = uprev_lib.best_chrome_ebuild(self.ebuilds)
         self.assertEqual(self.best_ebuild.ebuild_path, best.ebuild_path)
 
-    def test_get_stable_version(self):
+    def test_get_stable_version(self) -> None:
         """Test fetching latest stable version from ebuilds."""
         self.PatchObject(uprev_lib, "_CHROME_OVERLAY_PATH", new=self.tempdir)
         version = uprev_lib.get_stable_chrome_version()
@@ -141,7 +141,7 @@ class ChromeEbuildVersionTest(cros_test_lib.MockTempDirTestCase):
 class FindChromeEbuildsTest(cros_test_lib.TempDirTestCase):
     """find_chrome_ebuilds tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         ebuild = os.path.join(self.tempdir, "chromeos-chrome-%s.ebuild")
         self.unstable = ebuild % "9999"
         self.alpha_unstable = ebuild % "4.3.2.1_alpha-r12"
@@ -156,7 +156,7 @@ class FindChromeEbuildsTest(cros_test_lib.TempDirTestCase):
         osutils.WriteFile(self.best_stable, stable_data)
         osutils.WriteFile(self.old_stable, stable_data)
 
-    def test_find_all(self):
+    def test_find_all(self) -> None:
         unstable, stables = uprev_lib.find_chrome_ebuilds(self.tempdir)
         self.assertEqual(self.unstable, unstable.ebuild_path)
         self.assertCountEqual(
@@ -168,7 +168,7 @@ class FindChromeEbuildsTest(cros_test_lib.TempDirTestCase):
 class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
     """UprevChromeManager tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         ebuild = "chromeos-chrome-%s.ebuild"
         self.stable_chrome_version = "4.3.2.1"
         self.new_chrome_version = "4.3.2.2"
@@ -192,7 +192,7 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
         # Avoid chroot interactions for the tests.
         self.PatchObject(uprev_lib, "clean_stale_packages")
 
-    def test_no_change(self):
+    def test_no_change(self) -> None:
         """Test a no-change uprev."""
         # No changes should be made when the stable and unstable ebuilds match.
         manager = uprev_lib.UprevChromeManager(
@@ -202,7 +202,7 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertFalse(manager.modified_ebuilds)
 
-    def test_older_version(self):
+    def test_older_version(self) -> None:
         """Test uprevving to an older version."""
         manager = uprev_lib.UprevChromeManager(
             "1.2.3.4", overlay_dir=self.tempdir
@@ -211,7 +211,7 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertFalse(manager.modified_ebuilds)
 
-    def test_new_version(self):
+    def test_new_version(self) -> None:
         """Test a new chrome version."""
         # The stable ebuild should be replaced with one of the new version.
         manager = uprev_lib.UprevChromeManager(
@@ -233,7 +233,7 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
         expected_version = "%s_rc-r1" % self.new_chrome_version
         self.assertEqual(expected_version, new_ebuild.version)
 
-    def test_uprev(self):
+    def test_uprev(self) -> None:
         """Test a revision bump."""
         # Make the contents different to force the uprev.
         osutils.WriteFile(self.unstable_path, 'IUSE=""', mode="a")
@@ -263,7 +263,7 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
 class UprevManagerTest(cros_test_lib.MockTestCase):
     """UprevManager tests."""
 
-    def test_clean_stale_packages_no_chroot(self):
+    def test_clean_stale_packages_no_chroot(self) -> None:
         """Test no chroot skip."""
         manager = uprev_lib.UprevOverlayManager([], None)
         self.PatchObject(parallel, "RunTasksInProcessPool")
@@ -275,7 +275,7 @@ class UprevManagerTest(cros_test_lib.MockTestCase):
         # TODO(crbug/1065172): Invalid assertion that was previously mocked.
         # patch.assert_not_called()
 
-    def test_clean_stale_packages_chroot_not_exists(self):
+    def test_clean_stale_packages_chroot_not_exists(self) -> None:
         """Cannot run the commands when the chroot does not exist."""
         chroot = chroot_lib.Chroot()
         self.PatchObject(chroot, "exists", return_value=False)
@@ -289,7 +289,7 @@ class UprevManagerTest(cros_test_lib.MockTestCase):
         # TODO(crbug/1065172): Invalid assertion that was previously mocked.
         # patch.assert_not_called()
 
-    def test_clean_stale_packages_no_build_targets(self):
+    def test_clean_stale_packages_no_build_targets(self) -> None:
         """Make sure it behaves as expected with no build targets provided."""
         chroot = chroot_lib.Chroot()
         self.PatchObject(chroot, "exists", return_value=True)
@@ -302,7 +302,7 @@ class UprevManagerTest(cros_test_lib.MockTestCase):
         # Make sure we aren't doing any work.
         patch.assert_called_once_with(mock.ANY, [[None]])
 
-    def test_clean_stale_packages_with_boards(self):
+    def test_clean_stale_packages_with_boards(self) -> None:
         """Test it cleans all boards as well as the chroot."""
         targets = ["board1", "board2"]
         build_targets = [build_target_lib.BuildTarget(t) for t in targets]
@@ -319,7 +319,7 @@ class UprevManagerTest(cros_test_lib.MockTestCase):
         patch.assert_called_once_with(mock.ANY, [[t] for t in targets + [None]])
 
 
-def test_find_chrome_ebuilds(overlay_stack):
+def test_find_chrome_ebuilds(overlay_stack) -> None:
     """Test that chrome ebuilds can be discovered in the test overlay."""
 
     (overlay,) = overlay_stack(1)
@@ -339,7 +339,7 @@ def test_find_chrome_ebuilds(overlay_stack):
     assert stable
 
 
-def test_find_chrome_stable_candidate(overlay_stack):
+def test_find_chrome_stable_candidate(overlay_stack) -> None:
     """Test that a stable uprev candidate can be chosen in the expected case."""
     NEW_CHROME_VERSION = "80.0.1234.0"
 
@@ -363,7 +363,7 @@ def test_find_chrome_stable_candidate(overlay_stack):
     assert candidate
 
 
-def test_basic_chrome_uprev(overlay_stack):
+def test_basic_chrome_uprev(overlay_stack) -> None:
     """Test that the default uprev path works as expected."""
     NEW_CHROME_VERSION = "80.0.1234.0"
 
@@ -392,7 +392,7 @@ def test_basic_chrome_uprev(overlay_stack):
     assert new_chrome.cpv in overlay
 
 
-def test_chrome_uprev_revision_bump(overlay_stack):
+def test_chrome_uprev_revision_bump(overlay_stack) -> None:
     """Verify an uprev with the same major version just increments revision."""
     NEW_CHROME_VERSION = "80.0.1234.0"
 
@@ -426,7 +426,7 @@ def test_chrome_uprev_revision_bump(overlay_stack):
     assert expected_uprev.cpv in overlay
 
 
-def test_no_chrome_uprev_same_version(overlay_stack, caplog):
+def test_no_chrome_uprev_same_version(overlay_stack, caplog) -> None:
     """Test that no uprev occurs when version and contents are the same."""
     NEW_CHROME_VERSION = "80.0.1234.0"
 
@@ -455,7 +455,7 @@ def test_no_chrome_uprev_same_version(overlay_stack, caplog):
     assert ebuild_redundant_warning in caplog.text
 
 
-def test_no_chrome_uprev_older_version(overlay_stack, caplog):
+def test_no_chrome_uprev_older_version(overlay_stack, caplog) -> None:
     """Test that no uprev occurs when a newer version already exists."""
     # Intentionally older than what already exists.
     NEW_CHROME_VERSION = "55.0.1234.0"
@@ -487,7 +487,7 @@ def test_no_chrome_uprev_older_version(overlay_stack, caplog):
     assert "Candidate version found: 80.0.1234.0" in caplog.messages
 
 
-def test_chrome_uprev_no_existing_stable(overlay_stack):
+def test_chrome_uprev_no_existing_stable(overlay_stack) -> None:
     """Test that an uprev generates a stable ebuild if one doesn't exist yet."""
     NEW_CHROME_VERSION = "80.0.1234.0"
 
@@ -519,7 +519,7 @@ def test_chrome_uprev_no_existing_stable(overlay_stack):
     assert stable_chrome.cpv in overlay
 
 
-def test_get_stable_ebuild_version(overlay_stack, monkeypatch):
+def test_get_stable_ebuild_version(overlay_stack, monkeypatch) -> None:
     """Test getting the stable ebuild version."""
     (overlay,) = overlay_stack(1)
     unstable_package = cr.test.Package(
@@ -544,7 +544,9 @@ def test_get_stable_ebuild_version(overlay_stack, monkeypatch):
     assert stable_version == stable_package.package_info.version
 
 
-def test_get_stable_ebuild_version_2_stable_ebuilds(overlay_stack, monkeypatch):
+def test_get_stable_ebuild_version_2_stable_ebuilds(
+    overlay_stack, monkeypatch
+) -> None:
     """Test getting the stable ebuild version on multiple stable ebuilds."""
     (overlay,) = overlay_stack(1)
     unstable_package = cr.test.Package(
@@ -572,7 +574,9 @@ def test_get_stable_ebuild_version_2_stable_ebuilds(overlay_stack, monkeypatch):
         )
 
 
-def test_get_stable_ebuild_version_no_unstable(overlay_stack, monkeypatch):
+def test_get_stable_ebuild_version_no_unstable(
+    overlay_stack, monkeypatch
+) -> None:
     """Test getting the stable ebuild version on no unstable ebuild."""
     (overlay,) = overlay_stack(1)
     stable_package = cr.test.Package(
@@ -591,7 +595,7 @@ def test_get_stable_ebuild_version_no_unstable(overlay_stack, monkeypatch):
 @pytest.mark.inside_only
 def test_non_workon_fails_uprev_workon_ebuild_to_version(
     overlay_stack, monkeypatch
-):
+) -> None:
     (overlay,) = overlay_stack(1)
     unstable_package = cr.test.Package(
         "chromeos-base",
@@ -621,7 +625,9 @@ def test_non_workon_fails_uprev_workon_ebuild_to_version(
 
 
 @pytest.mark.inside_only
-def test_simple_uprev_workon_ebuild_to_version(overlay_stack, monkeypatch):
+def test_simple_uprev_workon_ebuild_to_version(
+    overlay_stack, monkeypatch
+) -> None:
     (overlay,) = overlay_stack(1)
     unstable_package = cr.test.Package(
         "chromeos-base",
@@ -656,7 +662,7 @@ def test_simple_uprev_workon_ebuild_to_version(overlay_stack, monkeypatch):
 
 def test_uprev_workon_ebuild_to_version_newer_exists(
     overlay_stack, monkeypatch
-):
+) -> None:
     """Test no uprev when downrev not allowed and newer version exists."""
     (overlay,) = overlay_stack(1)
     unstable_ebuild = cr.test.Package(

@@ -38,19 +38,19 @@ pytestmark = cros_test_lib.pytestmark_inside_only
 class PayloadFileToDescriptionFileTest(cros_test_lib.RunCommandTempDirTestCase):
     """_payload_file_to_description_file tests."""
 
-    def testUnsigned(self):
+    def testUnsigned(self) -> None:
         description_file = paygen_payload_lib._payload_file_to_description_file(
             "delta1.bin"
         )
         self.assertEqual(description_file, "delta1.json")
 
-    def testSigned(self):
+    def testSigned(self) -> None:
         description_file = paygen_payload_lib._payload_file_to_description_file(
             "delta1.bin.signed"
         )
         self.assertEqual(description_file, "delta1.json")
 
-    def testBadValue(self):
+    def testBadValue(self) -> None:
         with self.assertRaises(ValueError):
             paygen_payload_lib._payload_file_to_description_file("foo")
 
@@ -58,7 +58,7 @@ class PayloadFileToDescriptionFileTest(cros_test_lib.RunCommandTempDirTestCase):
 class PaygenLibTest(cros_test_lib.RunCommandTempDirTestCase):
     """PaygenPayloadLib tests base class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.old_build = gspaths.Build(
             channel="dev-channel",
             board="x86-alex",
@@ -191,12 +191,12 @@ class PaygenLibTest(cros_test_lib.RunCommandTempDirTestCase):
         self.PatchObject(cros_build_lib, "GetRandomString", side_effect=_random)
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         cls.cache_dir = tempfile.mkdtemp(prefix="crostools-unittest-cache")
         cls.cache = download_cache.DownloadCache(cls.cache_dir)
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
         cls.cache = None
         shutil.rmtree(cls.cache_dir)
 
@@ -204,7 +204,7 @@ class PaygenLibTest(cros_test_lib.RunCommandTempDirTestCase):
 class PaygenSignerTest(PaygenLibTest):
     """PaygenSigner testing."""
 
-    def testSetupOfficialSigner(self):
+    def testSetupOfficialSigner(self) -> None:
         """Tests that official signer is being setup properly."""
         signer = paygen_payload_lib.PaygenSigner(
             chroot=chroot_lib.Chroot(),
@@ -220,7 +220,7 @@ class PaygenSignerTest(PaygenLibTest):
         self.assertIsNone(signer._private_key)
         self.assertIsNone(signer.public_key)
 
-    def testSetupUnofficialSigner(self):
+    def testSetupUnofficialSigner(self) -> None:
         """Tests that unofficial signer is being setup properly.
 
         And private key is set to the default correctly.
@@ -249,7 +249,7 @@ class PaygenSignerTest(PaygenLibTest):
         )
         pubkey_extract_mock.assert_called_once_with("/foo/public_key.pem")
 
-    def testSetupUnofficialSignerPassedPrivateKey(self):
+    def testSetupUnofficialSignerPassedPrivateKey(self) -> None:
         """Tests that setting signers use correct passed private key."""
         build = self.new_build
         build.bucket = "foo-bucket"
@@ -266,7 +266,7 @@ class PaygenSignerTest(PaygenLibTest):
         )
         self.assertEqual(signer._private_key, "some-foo-private-key")
 
-    def testSetupLocalSigner(self):
+    def testSetupLocalSigner(self) -> None:
         """Tests that local signer is being setup properly."""
         signer = paygen_payload_lib.PaygenSigner(
             chroot=chroot_lib.Chroot(),
@@ -317,7 +317,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
         return gen
 
-    def testPaygenPayloadRunOSPayload(self):
+    def testPaygenPayloadRunOSPayload(self) -> None:
         gen = self._GetStdGenerator(work_dir="/foo", minios=False)
 
         mock_inner_run = self.PatchObject(
@@ -333,7 +333,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             ],
         )
 
-    def testPaygenPayloadRunMiniOSPayload(self):
+    def testPaygenPayloadRunMiniOSPayload(self) -> None:
         gen = self._GetStdGenerator(work_dir="/foo", minios=True)
 
         mock_inner_run = self.PatchObject(
@@ -350,7 +350,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             ],
         )
 
-    def testWorkingDirNames(self):
+    def testWorkingDirNames(self) -> None:
         """Make sure that files we create have the expected names."""
         gen = self._GetStdGenerator(work_dir="/foo")
 
@@ -358,7 +358,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         self.assertEqual(gen.tgt_image_file, "/foo/tgt_image.bin")
         self.assertEqual(gen.log_file, "/foo/delta.log")
 
-    def testWorkingDirNamesNonStatic(self):
+    def testWorkingDirNamesNonStatic(self) -> None:
         """Make sure that files we create have the expected names."""
         gen = self._GetStdGenerator(work_dir="/foo", static=False)
 
@@ -366,7 +366,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         self.assertEqual(gen.tgt_image_file, "/foo/tgt_image-<random1>.bin")
         self.assertEqual(gen.log_file, "/foo/delta-<random1>.log")
 
-    def testWorkingDirNamesMiniOS(self):
+    def testWorkingDirNamesMiniOS(self) -> None:
         """Make sure that files we create have the expected names."""
         gen = self._GetStdGenerator(work_dir="/foo", minios=True)
 
@@ -374,7 +374,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         self.assertEqual(gen.tgt_image_file, "/foo/tgt_image-<random1>.bin")
         self.assertEqual(gen.log_file, "/foo/delta-<random1>.log")
 
-    def testUriManipulators(self):
+    def testUriManipulators(self) -> None:
         """Validate _MetadataUri."""
         gen = self._GetStdGenerator(work_dir="/foo")
 
@@ -391,7 +391,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         self.assertEqual(gen._JsonUri("/foo/bar"), "/foo/bar.json")
         self.assertEqual(gen._JsonUri("gs://foo/bar"), "gs://foo/bar.json")
 
-    def testRunGeneratorCmd(self):
+    def testRunGeneratorCmd(self) -> None:
         """Test the specialized command to run programs in chroot."""
         expected_cmd = ["cmd", "bar", "jo nes"]
         expected_stdout = b"foo output"
@@ -415,7 +415,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             ),
         )
 
-    def testRunGeneratorCmdSquawk(self):
+    def testRunGeneratorCmdSquawk(self) -> None:
         """Test the specialized command to run programs in chroot w/squawk."""
         expected_cmd = ["cmd", "bar", "jo nes"]
         expected_stdout = b"foo output"
@@ -439,7 +439,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             ),
         )
 
-    def testBuildArg(self):
+    def testBuildArg(self) -> None:
         """Make sure the function semantics is satisfied."""
         gen = self._GetStdGenerator(work_dir="/work")
         test_dict = {"foo": "bar"}
@@ -458,7 +458,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             "--foo2=baz",
         )
 
-    def _DoPrepareImageTest(self, image_type):
+    def _DoPrepareImageTest(self, image_type) -> None:
         """Test _PrepareImage."""
         download_uri = "gs://bucket/foo/image.bin"
         image_file = "/work/image.bin"
@@ -512,15 +512,15 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
                 os.path.join(self.tempdir, test_extract_file), image_file
             )
 
-    def testPrepareImageNormal(self):
+    def testPrepareImageNormal(self) -> None:
         """Test preparing a normal image."""
         self._DoPrepareImageTest("Image")
 
-    def testPrepareImageTest(self):
+    def testPrepareImageTest(self) -> None:
         """Test preparing a test image."""
         self._DoPrepareImageTest("UnsignedImageArchive")
 
-    def testGeneratePostinstConfigTrue(self):
+    def testGeneratePostinstConfigTrue(self) -> None:
         """Tests creating the postinstall config file."""
         gen = self._GetStdGenerator(
             payload=self.full_payload, work_dir=self.tempdir
@@ -532,7 +532,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             "RUN_POSTINSTALL_root=true\n",
         )
 
-    def testGeneratePostinstConfigFalse(self):
+    def testGeneratePostinstConfigFalse(self) -> None:
         """Tests creating the postinstall config file."""
         gen = self._GetStdGenerator(
             payload=self.full_payload, work_dir=self.tempdir
@@ -544,7 +544,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             "RUN_POSTINSTALL_root=false\n",
         )
 
-    def testPreparePartitionsImageType(self):
+    def testPreparePartitionsImageType(self) -> None:
         """Tests discrepancy in image types for _PreparePartitions function."""
         gen = self._GetStdGenerator(
             payload=self.delta_payload, work_dir=self.tempdir
@@ -565,7 +565,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         ):
             gen._PreparePartitions()
 
-    def testPreparePartitionsGptFull(self):
+    def testPreparePartitionsGptFull(self) -> None:
         """Tests _PreparePartitions function for GPT (platform) images.
 
         This test is or full payloads only.
@@ -606,7 +606,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         # it again.
         self.assertIsNone(gen.tgt_image_file)
 
-    def testPreparePartitionsGptDelta(self):
+    def testPreparePartitionsGptDelta(self) -> None:
         """Tests _PreparePartitions function for GPT (platform) images.
 
         This test is or delta payloads only.
@@ -635,7 +635,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         self.assertEqual(root_ext_mock.call_count, 2)
         self.assertEqual(kern_ext_mock.call_count, 2)
 
-    def testPreparePartitionsDlc(self):
+    def testPreparePartitionsDlc(self) -> None:
         """Tests _PreparePartitions function for DLC images."""
         gen = self._GetStdGenerator(
             payload=self.full_payload, work_dir=self.tempdir
@@ -659,7 +659,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         self.assertFalse(postinst_mock.called)
         get_params_mock.assert_called_once()
 
-    def testPreparePartitionsMiniOSFull(self):
+    def testPreparePartitionsMiniOSFull(self) -> None:
         """Tests _PreparePartitions function for only the MiniOS partition.
 
         This test is for full payloads only.
@@ -694,7 +694,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         # it again.
         self.assertIsNone(gen.tgt_image_file)
 
-    def testPreparePartitionsMiniOSDelta(self):
+    def testPreparePartitionsMiniOSDelta(self) -> None:
         """Tests _PreparePartitions function for only the MiniOS partition.
 
         This test is for delta payloads only.
@@ -719,7 +719,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         # partition once for source partition and once for target partition.
         self.assertEqual(minios_ext_mock.call_count, 2)
 
-    def _TestGetDlcImageParams(self, tgt_id, tgt_package):
+    def _TestGetDlcImageParams(self, tgt_id, tgt_package) -> None:
         """Utility function for Testing _GetDlcImageParams."""
         payload = self.full_dlc_payload
         tgt_image = self.new_dlc_image
@@ -746,21 +746,21 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         self.assertEqual(dlc_appid, "foo-appid")
         lsb_read_mock.assert_called_once()
 
-    def testGetDlcImageParamsCorrect(self):
+    def testGetDlcImageParamsCorrect(self) -> None:
         """Tests _GetDlcImageParams function."""
         self._TestGetDlcImageParams("sample-dlc", "sample-package")
 
-    def testGetDlcImageParamsMismatchId(self):
+    def testGetDlcImageParamsMismatchId(self) -> None:
         """Tests _GetDlcImageParams function with mismatched DLC ID."""
         with self.assertRaises(paygen_payload_lib.Error):
             self._TestGetDlcImageParams("sample-dlc2", "sample-package")
 
-    def testGetDlcImageParamsMismatchPackage(self):
+    def testGetDlcImageParamsMismatchPackage(self) -> None:
         """Tests _GetDlcImageParams function with mismatched DLC package."""
         with self.assertRaises(paygen_payload_lib.Error):
             self._TestGetDlcImageParams("sample-dlc", "sample-package2")
 
-    def testGenerateUnsignedPayloadFull(self):
+    def testGenerateUnsignedPayloadFull(self) -> None:
         """Test _GenerateUnsignedPayload with full payload."""
         gen = self._GetStdGenerator(
             payload=self.full_payload, work_dir=self.tempdir
@@ -785,7 +785,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         ]
         run_mock.assert_called_once_with(cmd, squawk_wrap=True)
 
-    def testGenerateUnsignedPayloadDelta(self):
+    def testGenerateUnsignedPayloadDelta(self) -> None:
         """Test _GenerateUnsignedPayload with delta payload."""
         gen = self._GetStdGenerator(
             payload=self.delta_payload, work_dir=self.tempdir
@@ -809,7 +809,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         ]
         run_mock.assert_called_once_with(cmd, squawk_wrap=True)
 
-    def testGenerateUnsignedPayloadMiniOSDelta(self):
+    def testGenerateUnsignedPayloadMiniOSDelta(self) -> None:
         """Test _GenerateUnsignedPayload with MiniOS delta payload."""
         gen = self._GetStdGenerator(
             payload=self.delta_payload, work_dir=self.tempdir, minios=True
@@ -841,7 +841,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 
         run_mock.assert_called_once_with(cmd, squawk_wrap=True)
 
-    def testGenerateHashes(self):
+    def testGenerateHashes(self) -> None:
         """Test _GenerateHashes."""
         gen = self._GetStdGenerator()
 
@@ -884,7 +884,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         ]
         run_mock.assert_called_once_with(cmd)
 
-    def testSignHashes(self):
+    def testSignHashes(self) -> None:
         """Test _SignHashes."""
         hashes = (b"foo", b"bar")
         signatures = ((b"0" * 256,), (b"1" * 256,))
@@ -906,7 +906,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             hashes, keysets=gen.PAYLOAD_SIGNATURE_KEYSETS
         )
 
-    def testWriteSignaturesToFile(self):
+    def testWriteSignaturesToFile(self) -> None:
         """Test writing signatures into files."""
         gen = self._GetStdGenerator(payload=self.delta_payload)
         signatures = (b"0" * 256, b"1" * 256)
@@ -922,7 +922,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             osutils.ReadFile(file_paths[1], mode="rb"), signatures[1]
         )
 
-    def testInsertSignaturesIntoPayload(self):
+    def testInsertSignaturesIntoPayload(self) -> None:
         """Test inserting payload and metadata signatures."""
         gen = self._GetStdGenerator(payload=self.delta_payload)
         payload_signatures = (b"0" * 256,)
@@ -950,7 +950,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         ]
         run_mock.assert_called_once_with(cmd)
 
-    def testStoreMetadataSignatures(self):
+    def testStoreMetadataSignatures(self) -> None:
         """Test how we store metadata signatures."""
         gen = self._GetStdGenerator(
             payload=self.delta_payload, work_dir=self.tempdir
@@ -977,7 +977,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             encoded_metadata_signature,
         )
 
-    def testVerifyPayloadDelta(self):
+    def testVerifyPayloadDelta(self) -> None:
         """Test _VerifyPayload with delta payload."""
         gen = self._GetStdGenerator(
             payload=self.delta_test_payload, work_dir="/work"
@@ -1030,7 +1030,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         ]
         run_mock.assert_called_once_with(cmd)
 
-    def testVerifyPayloadFull(self):
+    def testVerifyPayloadFull(self) -> None:
         """Test _VerifyPayload with Full payload."""
         gen = self._GetStdGenerator(
             payload=self.full_test_payload, work_dir="/work"
@@ -1076,7 +1076,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         ]
         run_mock.assert_called_once_with(cmd)
 
-    def testVerifyPayloadPublicKey(self):
+    def testVerifyPayloadPublicKey(self) -> None:
         """Test _VerifyPayload with delta payload."""
         payload = self.full_test_payload
         payload.build.bucket = "gs://chromeos-release-test"
@@ -1107,7 +1107,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         cmd.extend(["--key", public_key])
         run_mock.assert_called_once_with(cmd)
 
-    def testSignPayload(self):
+    def testSignPayload(self) -> None:
         """Test the overall payload signature process."""
         payload_hash = b"payload_hash"
         metadata_hash = b"metadata_hash"
@@ -1164,7 +1164,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             metadata_sigs,
         )
 
-    def testCreateSignedDelta(self):
+    def testCreateSignedDelta(self) -> None:
         """Test the overall payload generation process."""
         payload = self.delta_payload
         gen = self._GetStdGenerator(payload=payload, work_dir=self.tempdir)
@@ -1218,7 +1218,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         )
         prep_part_mock.assert_called_once()
 
-    def testCreateSignedMiniOSFullWithoutMiniOSPartition(self):
+    def testCreateSignedMiniOSFullWithoutMiniOSPartition(self) -> None:
         """Test the overall payload generation process with miniOS."""
         payload = self.full_minios_payload
         gen = self._GetStdGenerator(payload=payload, work_dir="/work")
@@ -1248,7 +1248,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         )
         check_minios_mock.assert_called_once_with()
 
-    def testCreateSignedMiniOSFullWithMiniOSPartitionMismatch(self):
+    def testCreateSignedMiniOSFullWithMiniOSPartitionMismatch(self) -> None:
         """Test the overall payload generation process with miniOS."""
         payload = self.full_minios_payload
         gen = self._GetStdGenerator(payload=payload, work_dir="/work")
@@ -1280,7 +1280,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         )
         check_minios_mock.assert_called_once_with()
 
-    def testCreateSignedMiniOSFullWithMiniOSPartition(self):
+    def testCreateSignedMiniOSFullWithMiniOSPartition(self) -> None:
         """Test the overall payload generation process with miniOS."""
         payload = self.full_minios_payload
         gen = self._GetStdGenerator(payload=payload, work_dir=self.tempdir)
@@ -1336,7 +1336,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         )
         prep_part_mock.assert_called_once()
 
-    def testUploadResults(self):
+    def testUploadResults(self) -> None:
         """Test the overall payload generation process."""
         gen_sign = self._GetStdGenerator(work_dir="/work", sign=True)
         gen_nosign = self._GetStdGenerator(work_dir="/work", sign=False)
@@ -1368,7 +1368,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             ],
         )
 
-    def testUploadResultsNonStatic(self):
+    def testUploadResultsNonStatic(self) -> None:
         """Test the overall payload generation process."""
         gen_sign = self._GetStdGenerator(
             work_dir="/work", sign=True, static=False
@@ -1422,7 +1422,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             ],
         )
 
-    def testUploadResultsForMiniOS(self):
+    def testUploadResultsForMiniOS(self) -> None:
         """Test the overall payload generation process."""
         gen_sign = self._GetStdGenerator(
             work_dir="/work", sign=True, minios=True
@@ -1476,7 +1476,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             ],
         )
 
-    def testFindCacheDir(self):
+    def testFindCacheDir(self) -> None:
         """Test calculating the location of the cache directory."""
         gen = self._GetStdGenerator(work_dir="/foo")
 
@@ -1484,7 +1484,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         # changes. Ensure it ends with the right directory name.
         self.assertEqual(os.path.basename(gen._FindCacheDir()), "paygen_cache")
 
-    def testGetPayloadPropertiesMap(self):
+    def testGetPayloadPropertiesMap(self) -> None:
         """Tests getting the payload properties as a dict."""
         gen = self._GetStdGenerator(sign=False)
         run_mock = self.PatchObject(gen, "_RunGeneratorCmd")
@@ -1516,7 +1516,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             },
         )
 
-    def testGetDeltaPayloadPropertiesMap(self):
+    def testGetDeltaPayloadPropertiesMap(self) -> None:
         """Tests getting the delta payload properties as a dict."""
         gen = self._GetStdGenerator(sign=False, payload=self.delta_payload)
         run_mock = self.PatchObject(gen, "_RunGeneratorCmd")
@@ -1549,7 +1549,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
             },
         )
 
-    def testGetPayloadPropertiesMapSigned(self):
+    def testGetPayloadPropertiesMapSigned(self) -> None:
         """Test getting the payload properties as a dict for signed payloads."""
         gen = self._GetStdGenerator()
 
@@ -1581,7 +1581,7 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
 class GenerateUpdatePayloadTest(PaygenLibTest):
     """Tests for GenerateUpdatePayload."""
 
-    def testGenerateUpdatePayload(self):
+    def testGenerateUpdatePayload(self) -> None:
         self.PatchObject(
             partition_lib,
             "LookupImageType",

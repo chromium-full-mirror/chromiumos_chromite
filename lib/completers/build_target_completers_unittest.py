@@ -12,7 +12,7 @@ from chromite.lib import portage_util
 from chromite.lib.completers import build_target_completers
 
 
-def test_build_target(monkeypatch):
+def test_build_target(monkeypatch) -> None:
     """Test that expected build targets are returned from overlays."""
 
     def mock_find_overlays(overlay_type, *_args, **_kwargs):
@@ -36,7 +36,7 @@ def test_build_target(monkeypatch):
     assert build_targets == expected_build_targets
 
 
-def test_built_build_target(monkeypatch, tmp_path):
+def test_built_build_target(monkeypatch, tmp_path) -> None:
     """Test that only built build targets are returned."""
 
     def mock_path(path, *_args, **_kwargs):

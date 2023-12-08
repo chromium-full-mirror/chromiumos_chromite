@@ -36,16 +36,16 @@ class ChromeOSVersionFinderTest(
 
     CAT_ERROR = "CommandException: No URLs matched %s" % VERSION_BASE
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.finder = chrome_lkgm.ChromeOSVersionFinder(
             self.tempdir, self.BOARD, 10
         )
 
-    def testConfigName(self):
+    def testConfigName(self) -> None:
         """Test config_name contains the given board name."""
         self.assertTrue(self.BOARD in self.finder.config_name)
 
-    def testFullVersionFromPlatformVersion(self):
+    def testFullVersionFromPlatformVersion(self) -> None:
         """Test full version calculation from the platform version."""
         self.gs_mock.AddCmdResult(
             partial_mock.ListRegex("cat .*/LATEST-%s" % self.VERSION),
@@ -56,10 +56,10 @@ class ChromeOSVersionFinderTest(
             self.finder.GetFullVersionFromLatest(self.VERSION),
         )
 
-    def _SetupMissingVersions(self):
+    def _SetupMissingVersions(self) -> None:
         """Version & Version-1 are missing, but Version-2 exists."""
 
-        def _RaiseGSNoSuchKey(*_args, **_kwargs):
+        def _RaiseGSNoSuchKey(*_args, **_kwargs) -> None:
             raise gs.GSNoSuchKey("file does not exist")
 
         self.gs_mock.AddCmdResult(
@@ -79,10 +79,10 @@ class ChromeOSVersionFinderTest(
             stdout=self.FULL_VERSION_RECENT,
         )
 
-    def testNoFallbackVersion(self):
+    def testNoFallbackVersion(self) -> None:
         """Test that all versions are checked before returning None."""
 
-        def _RaiseGSNoSuchKey(*_args, **_kwargs):
+        def _RaiseGSNoSuchKey(*_args, **_kwargs) -> None:
             raise gs.GSNoSuchKey("file does not exist")
 
         self.gs_mock.AddCmdResult(
@@ -97,7 +97,7 @@ class ChromeOSVersionFinderTest(
         self.AssertLogsContain(logs, "LATEST-1.0.0")
         self.AssertLogsContain(logs, "LATEST--1.0.0", inverted=True)
 
-    def testFallbackVersions(self):
+    def testFallbackVersions(self) -> None:
         """Test full version calculation with various fallback versions."""
         self._SetupMissingVersions()
         for version in range(6):
@@ -109,7 +109,7 @@ class ChromeOSVersionFinderTest(
                 self.finder.GetFullVersionFromLatest(self.VERSION),
             )
 
-    def testBranchFallbackVersions(self):
+    def testBranchFallbackVersions(self) -> None:
         """Test full version calculation for a branch version with fallbacks."""
         self.gs_mock.AddCmdResult(
             partial_mock.ListRegex("cat .*/LATEST-%s" % "12345.89.0"),
@@ -128,7 +128,7 @@ class ChromeOSVersionFinderTest(
             "R123-12345.87.0",
         )
 
-    def testBranchNoFallbackVersions(self):
+    def testBranchNoFallbackVersions(self) -> None:
         """Test version calculation for a branch version with no fallbacks."""
         self.gs_mock.AddCmdResult(
             partial_mock.ListRegex("cat .*/LATEST-*"),
@@ -138,7 +138,7 @@ class ChromeOSVersionFinderTest(
             self.finder.GetFullVersionFromLatest("12345.89.0"), None
         )
 
-    def testMiniBranchFullVersion(self):
+    def testMiniBranchFullVersion(self) -> None:
         """Test full version calculation for a mini branch version."""
         self.gs_mock.AddCmdResult(
             partial_mock.ListRegex(
@@ -151,7 +151,7 @@ class ChromeOSVersionFinderTest(
             self.finder.GetFullVersionFromLatest(self.MINI_BRANCH_VERSION),
         )
 
-    def testMiniBranchNoLatestVersion(self):
+    def testMiniBranchNoLatestVersion(self) -> None:
         """There is no matching latest mini branch."""
         self.gs_mock.AddCmdResult(
             partial_mock.ListRegex(

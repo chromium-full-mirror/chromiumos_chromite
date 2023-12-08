@@ -27,10 +27,10 @@ class SmtpServerTest(cros_test_lib.MockTestCase):
 
     # pylint: disable=protected-access
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.smtp_mock = self.PatchObject(smtplib, "SMTP")
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Basic spot check."""
         msg = alerts.CreateEmail(
             "fake subject", "fake@localhost", "fake message"
@@ -40,7 +40,7 @@ class SmtpServerTest(cros_test_lib.MockTestCase):
         self.assertTrue(ret)
         self.assertEqual(self.smtp_mock.call_count, 1)
 
-    def testRetryException(self):
+    def testRetryException(self) -> None:
         """Verify we try sending multiple times & don't abort socket.error."""
         self.smtp_mock.side_effect = socket.error("test fail")
         msg = alerts.CreateEmail(
@@ -82,12 +82,12 @@ class GmailServerTest(cros_test_lib.MockTempDirTestCase):
         "user_agent": None,
     }
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(alerts, "apiclient_build")
         self.token_cache_file = os.path.join(self.tempdir, "fake_cache")
         self.token_json_file = os.path.join(self.tempdir, "fake_json")
 
-    def testValidCache(self):
+    def testValidCache(self) -> None:
         """Test valid cache."""
         osutils.WriteFile(self.token_cache_file, json.dumps(self.FAKE_CACHE))
         msg = alerts.CreateEmail("fake subject", "fake@localhost", "fake msg")
@@ -95,7 +95,7 @@ class GmailServerTest(cros_test_lib.MockTempDirTestCase):
         ret = server.Send(msg)
         self.assertTrue(ret)
 
-    def testCacheNotExistsTokenExists(self):
+    def testCacheNotExistsTokenExists(self) -> None:
         """Test cache not exists, token exists"""
         osutils.WriteFile(
             self.token_json_file, json.dumps(self.FAKE_TOKEN_JSON)
@@ -110,7 +110,7 @@ class GmailServerTest(cros_test_lib.MockTempDirTestCase):
         # Cache file should be auto-generated.
         self.assertExists(self.token_cache_file)
 
-    def testCacheNotExistsTokenNotExists(self):
+    def testCacheNotExistsTokenNotExists(self) -> None:
         """Test cache not exists, token not exists."""
         msg = alerts.CreateEmail("fake subject", "fake@localhost", "fake msg")
         server = alerts.GmailServer(
@@ -120,7 +120,7 @@ class GmailServerTest(cros_test_lib.MockTempDirTestCase):
         ret = server.Send(msg)
         self.assertFalse(ret)
 
-    def testCacheInvalidTokenExists(self):
+    def testCacheInvalidTokenExists(self) -> None:
         """Test cache exists but invalid, token exists."""
         invalid_cache = self.FAKE_CACHE.copy()
         invalid_cache["invalid"] = True
@@ -138,7 +138,7 @@ class GmailServerTest(cros_test_lib.MockTempDirTestCase):
         valid_cache = json.loads(osutils.ReadFile(self.token_cache_file))
         self.assertFalse(valid_cache["invalid"])
 
-    def testCacheInvalidTokenNotExists(self):
+    def testCacheInvalidTokenNotExists(self) -> None:
         """Test cache exists but invalid, token not exists."""
         invalid_cache = self.FAKE_CACHE.copy()
         invalid_cache["invalid"] = True
@@ -157,7 +157,7 @@ class GmailServerTest(cros_test_lib.MockTempDirTestCase):
 class CreateEmailTest(cros_test_lib.TestCase):
     """Tests for CreateEmail."""
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Check default basic call."""
         msg = alerts.CreateEmail("subj", ["fake@localhost"])
         self.assertIsNotNone(msg)
@@ -165,17 +165,17 @@ class CreateEmailTest(cros_test_lib.TestCase):
         self.assertEqual("subj", msg["Subject"])
         self.assertEqual("fake@localhost", msg["To"])
 
-    def testNoRecipients(self):
+    def testNoRecipients(self) -> None:
         """Check empty recipients behavior."""
         msg = alerts.CreateEmail("subj", [])
         self.assertIsNone(msg)
 
-    def testMultipleRecipients(self):
+    def testMultipleRecipients(self) -> None:
         """Check multiple recipients behavior."""
         msg = alerts.CreateEmail("subj", ["fake1@localhost", "fake2@localhost"])
         self.assertEqual("fake1@localhost, fake2@localhost", msg["To"])
 
-    def testExtraFields(self):
+    def testExtraFields(self) -> None:
         """Check extra fields are added correctly."""
         msg = alerts.CreateEmail(
             "subj",
@@ -186,7 +186,7 @@ class CreateEmailTest(cros_test_lib.TestCase):
         self.assertEqual("bye", msg["X-Hi"])
         self.assertEqual("data", msg["field"])
 
-    def testAttachment(self):
+    def testAttachment(self) -> None:
         """Check attachment behavior."""
         msg = alerts.CreateEmail("subj", ["fake@localhost"], attachment="blah")
         # Make sure there's a payload in there somewhere.
@@ -201,13 +201,13 @@ class CreateEmailTest(cros_test_lib.TestCase):
 class SendEmailTest(cros_test_lib.MockTestCase):
     """Tests for SendEmail."""
 
-    def testSmtp(self):
+    def testSmtp(self) -> None:
         """Smtp check."""
         send_mock = self.PatchObject(alerts.SmtpServer, "Send")
         alerts.SendEmail("mail", "root@localhost")
         self.assertEqual(send_mock.call_count, 1)
 
-    def testGmail(self):
+    def testGmail(self) -> None:
         """Gmail check."""
         send_mock = self.PatchObject(alerts.GmailServer, "Send")
         alerts.SendEmail(
@@ -221,13 +221,13 @@ class SendEmailTest(cros_test_lib.MockTestCase):
 class SendEmailLogTest(cros_test_lib.MockTestCase):
     """Tests for SendEmailLog()."""
 
-    def testSmtp(self):
+    def testSmtp(self) -> None:
         """Smtp check."""
         send_mock = self.PatchObject(alerts.SmtpServer, "Send")
         alerts.SendEmailLog("mail", "root@localhost")
         self.assertEqual(send_mock.call_count, 1)
 
-    def testGmail(self):
+    def testGmail(self) -> None:
         """Gmail check."""
         send_mock = self.PatchObject(alerts.GmailServer, "Send")
         alerts.SendEmailLog(

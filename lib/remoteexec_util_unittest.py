@@ -16,7 +16,7 @@ class TestRemoteexecUtil(
 ):
     """Tests for remoteexec_util."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.reclient_dir = self.tempdir / "cipd" / "rbe"
         self.reproxy_cfg_file = (
             self.tempdir / "reclient_cfgs" / "reproxy_config.cfg"
@@ -29,13 +29,13 @@ class TestRemoteexecUtil(
             self.reclient_dir, self.reproxy_cfg_file
         )
 
-    def testExtraEnvCustomChroot(self):
+    def testExtraEnvCustomChroot(self) -> None:
         """Test that the extra chroot envs for remoteexec are correct."""
         chroot_env = self.remote.GetChrootExtraEnv()
         self.assertEndsWith(chroot_env["RECLIENT_DIR"], "/reclient")
         self.assertEndsWith(chroot_env["REPROXY_CFG"], "/reproxy_chroot.cfg")
 
-    def testInvalidArg(self):
+    def testInvalidArg(self) -> None:
         """Test the remoteexec with invalid argument."""
         with self.assertRaises(ValueError):
             remoteexec_util.Remoteexec(
@@ -44,7 +44,7 @@ class TestRemoteexecUtil(
         with self.assertRaises(ValueError):
             remoteexec_util.Remoteexec(self.reclient_dir, "some_conf_file")
 
-    def testRemoteExecCommand(self):
+    def testRemoteExecCommand(self) -> None:
         """Test the remoteexec command interface."""
         bootstrap_cmd = self.reclient_dir / "bootstrap"
         reproxy_cmd = self.reclient_dir / "reproxy"

@@ -564,7 +564,7 @@ class Cgroup:
                 raise
             return False
 
-    def __del__(self):
+    def __del__(self) -> None:
         if self.autoclean and self._inited and self.CGROUP_ROOT:
             # Suppress any sudo_strict behaviour, since we may be invoked
             # during interpreter shutdown.
@@ -577,7 +577,7 @@ class Cgroup:
 
         my_pids = set(str(x) for x in self._GetCurrentProcessThreads())
 
-        def _SignalPids(pids, signum):
+        def _SignalPids(pids, signum) -> None:
             cros_build_lib.sudo_run(
                 ["kill", "-%i" % signum] + sorted(pids),
                 print_cmd=False,
@@ -773,7 +773,7 @@ class ContainChildren(cros_build_lib.PrimaryPidContextManager):
         self.sigterm_timeout = sigterm_timeout
         self.run_kill = False
 
-    def _enter(self):
+    def _enter(self) -> None:
         self.pid = os.getpid()
 
         # Note: We use lazy init here so that we cannot trigger a
@@ -791,7 +791,7 @@ class ContainChildren(cros_build_lib.PrimaryPidContextManager):
             )
         self.run_kill = True
 
-    def _exit(self, exc_type, exc, exc_tb):
+    def _exit(self, exc_type, exc, exc_tb) -> None:
         with signals.DeferSignals():
             self.node.TransferCurrentProcess()
             if self.run_kill:

@@ -123,7 +123,7 @@ class Lock:
 
         return expired, stat_results.generation
 
-    def _AcquireLock(self):
+    def _AcquireLock(self) -> None:
         """Attempt to acquire the lock.
 
         Raises:
@@ -170,7 +170,7 @@ class Lock:
                 "Lock: %s held by: %s" % (self._gs_path, contents)
             )
 
-    def Acquire(self):
+    def Acquire(self) -> None:
         """Attempt to acquire the lock.
 
         Will remove an existing lock if it has timed out.
@@ -192,7 +192,7 @@ class Lock:
             self._generation = generation
             self._AcquireLock()
 
-    def Release(self):
+    def Release(self) -> None:
         """Release the lock."""
         try:
             self._ctx.Remove(
@@ -204,7 +204,7 @@ class Lock:
             logging.warning("Lock at %s expired and was stolen.", self._gs_path)
         self._generation = 0
 
-    def Renew(self):
+    def Renew(self) -> None:
         """Resets the timeout on a lock you are holding.
 
         Raises:
@@ -219,6 +219,6 @@ class Lock:
         self.Acquire()
         return self
 
-    def __exit__(self, _type, _value, _traceback):
+    def __exit__(self, _type, _value, _traceback) -> None:
         """Support for exiting a with clause."""
         self.Release()

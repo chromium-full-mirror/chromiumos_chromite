@@ -29,7 +29,7 @@ StringReplacementRule = replication_config_pb2.StringReplacementRule
 class ReplicateTest(cros_test_lib.MockTempDirTestCase):
     """Tests of the Replicate method."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         file_layout = (
             D("src", ["build_config.json", "audio_file", "firmware.bin"]),
         )
@@ -62,7 +62,7 @@ class ReplicateTest(cros_test_lib.MockTempDirTestCase):
 
         self.PatchObject(constants, "SOURCE_ROOT", new=self.tempdir)
 
-    def testReplicate(self):
+    def testReplicate(self) -> None:
         """Test basic Replication functionality.
 
         - destination_fields used to filter JSON payload.
@@ -117,7 +117,7 @@ class ReplicateTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertTempFileContents(audio_dst_path, "[Speaker A Settings]")
 
-    def testReplicateDestinationExists(self):
+    def testReplicateDestinationExists(self) -> None:
         """Test existing files are overwritten."""
         file_layout = (D("dst", ["audio_file"]),)
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, file_layout)
@@ -147,7 +147,7 @@ class ReplicateTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertTempFileContents(audio_dst_path, "[Speaker A Settings]")
 
-    def testReplicateInvalidRules(self):
+    def testReplicateInvalidRules(self) -> None:
         """Tests invalid FileReplicationRules cause errors."""
         with self.assertRaisesRegex(
             ValueError,
@@ -249,7 +249,7 @@ class ReplicateTest(cros_test_lib.MockTempDirTestCase):
                 )
             )
 
-    def testReplicateFileMode(self):
+    def testReplicateFileMode(self) -> None:
         """Tests file mode data is replicated."""
         # Check that the original mode is not 777 and then chmod.
         full_audio_path = os.path.join(self.tempdir, self.audio_path)
@@ -280,7 +280,7 @@ class ReplicateTest(cros_test_lib.MockTempDirTestCase):
             0o777,
         )
 
-    def testReplicateNonChromeOSConfig(self):
+    def testReplicateNonChromeOSConfig(self) -> None:
         """Test replicating a non ChromeOS Config payload JSON file."""
         src_path = os.path.join("src", "other.json")
         dst_path = os.path.join("dst", "other.json")
@@ -303,7 +303,7 @@ class ReplicateTest(cros_test_lib.MockTempDirTestCase):
         ):
             replication_lib.Replicate(replication_config)
 
-    def testReplicateStringReplicationRules(self):
+    def testReplicateStringReplicationRules(self) -> None:
         audio_dst_path = os.path.join("dst", "audio_file")
 
         replication_config = ReplicationConfig(
@@ -329,7 +329,7 @@ class ReplicateTest(cros_test_lib.MockTempDirTestCase):
             audio_dst_path, "[Speaker B Settings (Updated)]"
         )
 
-    def testReplicateJsonTrailingNewline(self):
+    def testReplicateJsonTrailingNewline(self) -> None:
         """Test JSON payloads have a trailing newline."""
         build_config_dst_path = os.path.join("dst", "build_config.json")
 

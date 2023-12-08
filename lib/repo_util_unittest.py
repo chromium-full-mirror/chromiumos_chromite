@@ -15,12 +15,12 @@ from chromite.lib import osutils
 from chromite.lib import repo_util
 
 
-def RepoInitSideEffects(*_args, **kwargs):
+def RepoInitSideEffects(*_args, **kwargs) -> None:
     """Mimic side effects of `repo init` by creating .repo dir."""
     os.mkdir(os.path.join(kwargs["cwd"], ".repo"))
 
 
-def CopySideEffects(dest):
+def CopySideEffects(dest) -> None:
     """Mimic side effects of Repository.Copy by creating .repo dir."""
     os.mkdir(os.path.join(dest, ".repo"))
 
@@ -35,7 +35,7 @@ class RepositoryTest(cros_test_lib.RunCommandTempDirTestCase):
 
     MANIFEST_URL = "https://example.com/manifest.xml"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.empty_root = os.path.join(self.tempdir, "empty")
         self.empty_root_subdir = os.path.join(self.empty_root, "sub", "dir")
         os.makedirs(self.empty_root_subdir)
@@ -45,17 +45,17 @@ class RepositoryTest(cros_test_lib.RunCommandTempDirTestCase):
         self.repo_dir = os.path.join(self.repo_root, ".repo")
         os.makedirs(self.repo_dir)
 
-    def testInit(self):
+    def testInit(self) -> None:
         """Test Repository.__init__."""
         repo = repo_util.Repository(self.repo_root)
         self.assertTrue(os.path.samefile(repo.root, self.repo_root))
 
-    def testInitNoRepoDir(self):
+    def testInitNoRepoDir(self) -> None:
         """Test Repository.__init__ fails if not in repo."""
         with self.assertRaises(repo_util.NotInRepoError):
             repo_util.Repository(self.empty_root)
 
-    def testInitializeSimple(self):
+    def testInitializeSimple(self) -> None:
         """Test Repository.Initialize simple call."""
         expected_cmd = ["repo", "init", "--manifest-url", self.MANIFEST_URL]
         self.rc.AddCmdResult(expected_cmd, side_effect=RepoInitSideEffects)
@@ -65,7 +65,7 @@ class RepositoryTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandCalled(expected_cmd, cwd=self.empty_root)
         self.assertTrue(os.path.samefile(repo.root, self.empty_root))
 
-    def testInitializeComplex(self):
+    def testInitializeComplex(self) -> None:
         """Test Repository.Initialize complex call."""
         expected_cmd = [
             "repo",
@@ -104,19 +104,19 @@ class RepositoryTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandCalled(expected_cmd, cwd=self.empty_root)
         self.assertTrue(os.path.samefile(repo.root, self.empty_root))
 
-    def testInitializeExistingRepoDir(self):
+    def testInitializeExistingRepoDir(self) -> None:
         """Test Repository.Initialize fails in existing repo dir."""
         with self.assertRaisesRegex(repo_util.Error, "cannot init in existing"):
             repo_util.Repository.Initialize(self.repo_root, self.MANIFEST_URL)
 
-    def testInitializeExistingRepoSubdir(self):
+    def testInitializeExistingRepoSubdir(self) -> None:
         """Test Repository.Initialize fails in existing repo subdir."""
         with self.assertRaisesRegex(repo_util.Error, "cannot init in existing"):
             repo_util.Repository.Initialize(
                 self.repo_root_subdir, self.MANIFEST_URL
             )
 
-    def testInitializeFailCleanup(self):
+    def testInitializeFailCleanup(self) -> None:
         """Test Repository.Initialize failure deletes .repo."""
         expected_cmd = ["repo", "init", "--manifest-url", self.MANIFEST_URL]
         self.rc.AddCmdResult(
@@ -128,21 +128,21 @@ class RepositoryTest(cros_test_lib.RunCommandTempDirTestCase):
         repo_dir = os.path.join(self.empty_root, ".repo")
         rmdir.assert_any_call(repo_dir, ignore_missing=True)
 
-    def testFind(self):
+    def testFind(self) -> None:
         """Test Repository.Find finds repo from subdir."""
         repo = repo_util.Repository.Find(self.repo_root_subdir)
         self.assertEqual(repo.root, self.repo_root)
 
-    def testFindNothing(self):
+    def testFindNothing(self) -> None:
         """Test Repository.Find finds nothing from non-repo dir."""
         self.assertIsNone(repo_util.Repository.Find(self.empty_root_subdir))
 
-    def testMustFind(self):
+    def testMustFind(self) -> None:
         """Test Repository.MustFind finds repo from subdir."""
         repo = repo_util.Repository.MustFind(self.repo_root_subdir)
         self.assertEqual(repo.root, self.repo_root)
 
-    def testMustFindNothing(self):
+    def testMustFindNothing(self) -> None:
         """Test Repository.MustFind fails from non-repo dir."""
         with self.assertRaises(repo_util.NotInRepoError):
             repo_util.Repository.MustFind(self.empty_root_subdir)
@@ -153,7 +153,7 @@ class RepositoryCommandMethodTest(cros_test_lib.RunCommandTempDirTestCase):
 
     # Testing _Run: pylint: disable=protected-access
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.root = os.path.join(self.tempdir, "root")
         self.repo_dir = os.path.join(self.root, ".repo")
         self.subdir = os.path.join(self.root, "sub", "dir")
@@ -161,7 +161,7 @@ class RepositoryCommandMethodTest(cros_test_lib.RunCommandTempDirTestCase):
         os.makedirs(self.subdir)
         self.repo = repo_util.Repository(self.root)
 
-    def AssertRepoCalled(self, repo_args, **kwargs):
+    def AssertRepoCalled(self, repo_args, **kwargs) -> None:
         kwargs.setdefault("cwd", self.root)
         kwargs.setdefault("capture_output", False)
         kwargs.setdefault("debug_level", logging.DEBUG)
@@ -170,12 +170,12 @@ class RepositoryCommandMethodTest(cros_test_lib.RunCommandTempDirTestCase):
             ["python3", RepoCmdPath(self.root)] + repo_args, **kwargs
         )
 
-    def AddRepoResult(self, repo_args, **kwargs):
+    def AddRepoResult(self, repo_args, **kwargs) -> None:
         self.rc.AddCmdResult(
             ["python3", RepoCmdPath(self.root)] + repo_args, **kwargs
         )
 
-    def testAssertRepoCalled(self):
+    def testAssertRepoCalled(self) -> None:
         """Test that AddRepoResult test helper works."""
         self.repo._Run(["subcmd", "arg1"])
         with self.assertRaises(AssertionError):
@@ -186,27 +186,27 @@ class RepositoryCommandMethodTest(cros_test_lib.RunCommandTempDirTestCase):
             self.AssertRepoCalled(["subcmd", "arg1"], cwd="other_dir")
         self.AssertRepoCalled(["subcmd", "arg1"])
 
-    def testRun(self):
+    def testRun(self) -> None:
         """Test Repository._Run repo_cmd."""
         self.repo._Run(["subcmd", "arg"])
         self.AssertRepoCalled(["subcmd", "arg"])
 
-    def testRunSubDirCwd(self):
+    def testRunSubDirCwd(self) -> None:
         """Test Repository._Run cwd."""
         self.repo._Run(["subcmd"], cwd=self.subdir)
         self.AssertRepoCalled(["subcmd"], cwd=self.subdir)
 
-    def testRunBadCwd(self):
+    def testRunBadCwd(self) -> None:
         """Test Repository._Run fails on cwd outside of repo."""
         with self.assertRaises(repo_util.NotInRepoError):
             self.repo._Run(["subcmd"], cwd=self.tempdir)
 
-    def testSyncSimple(self):
+    def testSyncSimple(self) -> None:
         """Test Repository.Sync simple call."""
         self.repo.Sync()
         self.AssertRepoCalled(["sync"])
 
-    def testSyncComplex(self):
+    def testSyncComplex(self) -> None:
         """Test Repository.Sync complex call."""
         manifest_path = os.path.join(self.tempdir, "other", "manifest.xml")
         osutils.Touch(manifest_path, makedirs=True)
@@ -233,12 +233,12 @@ class RepositoryCommandMethodTest(cros_test_lib.RunCommandTempDirTestCase):
             cwd=self.subdir,
         )
 
-    def testStartBranchSimple(self):
+    def testStartBranchSimple(self) -> None:
         """Test Repository.StartBranch simple call."""
         self.repo.StartBranch("my-branch")
         self.AssertRepoCalled(["start", "my-branch", "--all"])
 
-    def testStartBranchComplex(self):
+    def testStartBranchComplex(self) -> None:
         """Test Repository.StartBranch complex call."""
         self.repo.StartBranch(
             "my-branch", projects=["foo", "bar"], cwd=self.subdir
@@ -247,7 +247,7 @@ class RepositoryCommandMethodTest(cros_test_lib.RunCommandTempDirTestCase):
             ["start", "my-branch", "foo", "bar"], cwd=self.subdir
         )
 
-    def testListSimple(self):
+    def testListSimple(self) -> None:
         """Test Repository.List simple call."""
         stdout = "src/project : my/project\nsrc/ugly : path : other/project\n"
         self.AddRepoResult(["list"], stdout=stdout)
@@ -263,7 +263,7 @@ class RepositoryCommandMethodTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testListComplex(self):
+    def testListComplex(self) -> None:
         """Test Repository.List complex call."""
         self.repo.List(["project1", "project2"], cwd=self.subdir)
         self.AssertRepoCalled(
@@ -272,7 +272,7 @@ class RepositoryCommandMethodTest(cros_test_lib.RunCommandTempDirTestCase):
             capture_output=True,
         )
 
-    def testListProjectNotFound(self):
+    def testListProjectNotFound(self) -> None:
         """Test Repository.List fails when given a nonexistant project."""
         self.AddRepoResult(
             ["list", "foobar"],
@@ -282,19 +282,19 @@ class RepositoryCommandMethodTest(cros_test_lib.RunCommandTempDirTestCase):
         with self.assertRaises(repo_util.ProjectNotFoundError):
             self.repo.List(["foobar"])
 
-    def testManifest(self):
+    def testManifest(self) -> None:
         """Test Repository.Manifest."""
         stdout = "<manifest></manifest>"
         self.AddRepoResult(["manifest"], stdout=stdout)
         manifest = self.repo.Manifest()
         self.assertIsNotNone(manifest)
 
-    def testCopy(self):
+    def testCopy(self) -> None:
         """Test Repository.Copy."""
         copy_root = os.path.join(self.tempdir, "copy")
         os.mkdir(copy_root)
 
-        def mkdirDestRepo(*_args, **_kwargs):
+        def mkdirDestRepo(*_args, **_kwargs) -> None:
             os.mkdir(os.path.join(copy_root, ".repo"))
 
         stdout = "src/p1 : p1\nother : other/project\n"
@@ -361,12 +361,12 @@ class RepositoryIntegrationTest(cros_test_lib.TempDirTestCase):
 
     tests = []
 
-    def runTest(self):
+    def runTest(self) -> None:
         for test in self.tests:
             test(self)
 
     @tests.append
-    def testInitialize(self):
+    def testInitialize(self) -> None:
         """Test Repository.Initialize creates a .repo dir."""
         self.root = os.path.join(self.tempdir, "root")
         os.mkdir(self.root)
@@ -381,20 +381,20 @@ class RepositoryIntegrationTest(cros_test_lib.TempDirTestCase):
         self.assertExists(os.path.join(self.root, ".repo"))
 
     @tests.append
-    def testSync(self):
+    def testSync(self) -> None:
         """Test Repository.Sync creates a project checkout dir."""
         self.repo.Sync([self.PROJECT], current_branch=True)
         self.project_path = os.path.join(self.root, self.PROJECT_DIR)
         self.assertExists(self.project_path)
 
     @tests.append
-    def testMustFind(self):
+    def testMustFind(self) -> None:
         """Test Repository.MustFind finds the Repository from a subdir."""
         repo = repo_util.Repository.MustFind(self.project_path)
         self.assertEqual(repo.root, self.root)
 
     @tests.append
-    def testList(self):
+    def testList(self) -> None:
         """Test Repository.List returns correct ProjectInfo."""
         projects = self.repo.List([self.PROJECT])
         self.assertEqual(
@@ -403,21 +403,21 @@ class RepositoryIntegrationTest(cros_test_lib.TempDirTestCase):
         )
 
     @tests.append
-    def testStartBranch(self):
+    def testStartBranch(self) -> None:
         """Test Repository.StartBranch creates a git branch."""
         self.repo.StartBranch("my-branch")
         project_branch = git.GetCurrentBranch(self.project_path)
         self.assertEqual(project_branch, "my-branch")
 
     @tests.append
-    def testManifest(self):
+    def testManifest(self) -> None:
         """Test Repository.Manifest includes project."""
         manifest = self.repo.Manifest()
         project = manifest.GetUniqueProject(self.PROJECT)
         self.assertEqual(project.path, self.PROJECT_DIR)
 
     @tests.append
-    def testCopy(self):
+    def testCopy(self) -> None:
         """Test Repository.Copy creates a working copy."""
         copy_root = os.path.join(self.tempdir, "copy")
         os.mkdir(copy_root)

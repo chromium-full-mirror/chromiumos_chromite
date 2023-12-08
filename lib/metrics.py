@@ -72,7 +72,7 @@ class ProxyMetric:
     def __getattr__(self, method_name):
         """Redirects all method calls to the MESSAGE_QUEUE."""
 
-        def enqueue(*args, **kwargs):
+        def enqueue(*args, **kwargs) -> None:
             if not _FlushingProcessClosed():
                 try:
                     MESSAGE_QUEUE.put_nowait(
@@ -129,7 +129,7 @@ def _Indirect(fn):
 class MockMetric:
     """Mock metric object, to be returned if ts_mon is not set up."""
 
-    def _mock_method(self, *args, **kwargs):
+    def _mock_method(self, *args, **kwargs) -> None:
         pass
 
     def __getattr__(self, _):
@@ -893,7 +893,7 @@ class RuntimeBreakdownTimer:
         self._outer_t0 = _GetSystemClock()
         return self
 
-    def __exit__(self, _type, _value, _traceback):
+    def __exit__(self, _type, _value, _traceback) -> None:
         self._RecordTotalTime()
 
         outer_timer = CumulativeSecondsDistribution(
@@ -1004,7 +1004,7 @@ class RuntimeBreakdownTimer:
         bucket_width = 100 / self.PERCENT_BUCKET_COUNT
         return sum(x % bucket_width for x in reported)
 
-    def _RecordTotalTime(self):
+    def _RecordTotalTime(self) -> None:
         self._total_time_s = _GetSystemClock() - self._outer_t0
         # TODO(ayatane): Handle backward clock jumps.  See _GetSystemClock.
         self._total_time_s = max(0, self._total_time_s)
@@ -1021,7 +1021,7 @@ def _GetSystemClock():
     return time.time()
 
 
-def Flush(reset_after=()):
+def Flush(reset_after=()) -> None:
     """Flushes metrics, but warns on transient errors.
 
     Args:

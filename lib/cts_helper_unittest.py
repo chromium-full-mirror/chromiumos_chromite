@@ -14,7 +14,7 @@ from chromite.lib import osutils
 class CtsHelperTestCase(cros_test_lib.MockTestCase):
     """Tests for functions that do not interact with the file system."""
 
-    def testIsCtsTest(self):
+    def testIsCtsTest(self) -> None:
         self.assertTrue(cts_helper.isCtsTest("cheets_CTS_N.arm.all"))
         self.assertTrue(cts_helper.isCtsTest("cheets_CTS_N.x86.all"))
         self.assertTrue(cts_helper.isCtsTest("cheets_GTS_N.all"))
@@ -22,7 +22,7 @@ class CtsHelperTestCase(cros_test_lib.MockTestCase):
         self.assertFalse(cts_helper.isCtsTest("cheets_GTS"))
         self.assertFalse(cts_helper.isCtsTest("cheets_CTS"))
 
-    def testGetXMLPattern(self):
+    def testGetXMLPattern(self) -> None:
         self.assertEqual(
             "test_result.xml", cts_helper.getXMLPattern("cheets_CTS_P.arm.all")
         )
@@ -34,7 +34,7 @@ class CtsHelperTestCase(cros_test_lib.MockTestCase):
 class UnmockedTests(cros_test_lib.TempDirTestCase):
     """Tests for functions which interact with the file system."""
 
-    def testGetApfeFiles(self):
+    def testGetApfeFiles(self) -> None:
         results_path = os.path.join(self.tempdir, "tmp")
         os.makedirs(results_path)
 
@@ -61,7 +61,7 @@ class UnmockedTests(cros_test_lib.TempDirTestCase):
             set([file1, file2]),
         )
 
-    def testGetXMLGZFiles1(self):
+    def testGetXMLGZFiles1(self) -> None:
         results_path = os.path.join(self.tempdir, "tmp")
         os.makedirs(results_path)
 

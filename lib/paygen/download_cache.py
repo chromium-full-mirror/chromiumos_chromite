@@ -29,7 +29,7 @@ class RetriesExhaustedError(Exception):
     """Raised when we make too many attempts to download the same file."""
 
 
-def _DefaultFetchFunc(uri, cache_file):
+def _DefaultFetchFunc(uri, cache_file) -> None:
     """The default fetch function.
 
     This simply downloads the uri into the cache file using urilib
@@ -87,7 +87,7 @@ class DownloadCache:
 
         self._SetupCache()
 
-    def _SetupCache(self):
+    def _SetupCache(self) -> None:
         """Ensure that our cache contains only files/directories we expect."""
         try:
             osutils.SafeMakedirs(self._cache_dir)
@@ -183,7 +183,7 @@ class DownloadCache:
         )
         return lock.lock(shared)
 
-    def Purge(self, max_age=None, cache_size=None):
+    def Purge(self, max_age=None, cache_size=None) -> None:
         """Attempts to clean up the cache contents.
 
         Is a no-op if cache lock is not acquirable.
@@ -350,7 +350,7 @@ class DownloadCache:
 
         raise RetriesExhaustedError(uri)
 
-    def GetFileCopy(self, uri, filepath):
+    def GetFileCopy(self, uri, filepath) -> None:
         """Copy a cache file into your file (downloading as needed).
 
         Copy the file into your specified filename (creating or overriding). It
@@ -373,5 +373,5 @@ class DownloadCache:
     def __enter__(self):
         return self
 
-    def __exit__(self, _type, _value, _traceback):
+    def __exit__(self, _type, _value, _traceback) -> None:
         self.Purge()

@@ -41,7 +41,7 @@ def ConstructFailureMessages(build_config):
 class BuilderStatusLibTests(cros_test_lib.MockTestCase):
     """Tests for builder_status_lib."""
 
-    def testGetSlavesAbortedBySelfDestructedMaster(self):
+    def testGetSlavesAbortedBySelfDestructedMaster(self) -> None:
         """Test GetSlavesAbortedBySelfDestructedMaster with aborted slaves."""
         db = fake_cidb.FakeCIDBConnection()
         bs = buildstore.FakeBuildStore(db)
@@ -106,10 +106,10 @@ class BuilderStatusLibTests(cros_test_lib.MockTestCase):
 class BuilderStatusManagerTest(cros_test_lib.MockTestCase):
     """Tests for BuilderStatusManager."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.db = fake_cidb.FakeCIDBConnection()
 
-    def testCreateBuildFailureMessageWithMessages(self):
+    def testCreateBuildFailureMessageWithMessages(self) -> None:
         """Test CreateBuildFailureMessage with stage failure messages."""
         overlays = constants.PRIVATE_OVERLAYS
         dashboard_url = "http://fake_dashboard_url"
@@ -126,7 +126,7 @@ class BuilderStatusManagerTest(cros_test_lib.MockTestCase):
         self.assertTrue(build_msg.internal)
         self.assertEqual(build_msg.builder, slave)
 
-    def testCreateBuildFailureMessageWithoutMessages(self):
+    def testCreateBuildFailureMessageWithoutMessages(self) -> None:
         """Test CreateBuildFailureMessage without stage failure messages."""
         overlays = constants.PUBLIC_OVERLAYS
         dashboard_url = "http://fake_dashboard_url"
@@ -142,7 +142,7 @@ class BuilderStatusManagerTest(cros_test_lib.MockTestCase):
         self.assertFalse(build_msg.internal)
         self.assertEqual(build_msg.builder, slave)
 
-    def testCreateBuildFailureMessageWhenCanceled(self):
+    def testCreateBuildFailureMessageWhenCanceled(self) -> None:
         """Test CreateBuildFailureMessage with no stage failure and canceled"""
         overlays = constants.PRIVATE_OVERLAYS
         dashboard_url = "http://fake_dashboard_url"
@@ -164,7 +164,7 @@ class BuilderStatusManagerTest(cros_test_lib.MockTestCase):
         self.assertFalse("cbuildbot failed" in build_msg.message_summary)
         self.assertEqual(build_msg.builder, slave)
 
-    def testCreateBuildFailureMessageSupersedesCancellation(self):
+    def testCreateBuildFailureMessageSupersedesCancellation(self) -> None:
         """Test CreateBuildFailureMessage with a stage failure when canceled"""
         overlays = constants.PRIVATE_OVERLAYS
         dashboard_url = "http://fake_dashboard_url"

@@ -242,7 +242,7 @@ def collect_metrics(functor):
     return wrapper
 
 
-def append_metrics_log(timestamp, name, op, arg=None):
+def append_metrics_log(timestamp, name, op, arg=None) -> None:
     """Handle appending a list of terms to the metrics log.
 
     If the environment does not specify a metrics log, then skip silently.
@@ -308,7 +308,7 @@ def timed(name):
     return decorator
 
 
-def event(name):
+def event(name) -> None:
     """Emit a counter event.
 
     Args:

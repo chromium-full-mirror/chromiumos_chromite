@@ -45,7 +45,7 @@ class Loas:
             weeks=10
         )
 
-    def Check(self):
+    def Check(self) -> None:
         logging.debug("Checking LOAS credentials for %s", self.user)
         cmd = ["runloas", "/usr/bin/loas_check"]
 
@@ -61,7 +61,7 @@ class Loas:
         except cros_build_lib.RunCommandError as e:
             raise LoasError("%s\n%s" % (e.msg, loas_error))
 
-    def Status(self):
+    def Status(self) -> None:
         # Only bother checking once a day.  Our certs are valid in the
         # range of weeks, so there's no need to constantly do this.
         if datetime.date.today() < self.last_notification + datetime.timedelta(

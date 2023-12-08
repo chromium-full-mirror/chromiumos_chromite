@@ -284,7 +284,7 @@ class DiskLayout:
 
     def _ApplyLayoutOverrides(
         self, layout_to_override: Dict[Any, Any], layout: Dict[Any, Any]
-    ):
+    ) -> None:
         """Applies |layout| overrides on to |layout_to_override|.
 
         First add missing partition from layout to layout_to_override.
@@ -799,7 +799,7 @@ class DiskLayout:
         label: str,
         operator: str,
         operand: str,
-    ):
+    ) -> None:
         """Applies an adjustment to a partition specified by label.
 
         Args:
@@ -1180,7 +1180,7 @@ class DiskLayout:
         else:
             return 0
 
-    def _DumpLayout(self, image_type: str):
+    def _DumpLayout(self, image_type: str) -> None:
         """Prints out a human readable disk layout in on-disk order.
 
         Args:
@@ -1225,7 +1225,7 @@ class DiskLayout:
                 partition.get("features", []),
             )
 
-    def DoDebugOutput(self, image_type: str):
+    def DoDebugOutput(self, image_type: str) -> None:
         """Prints out a human readable disk layout in on-disk order.
 
         Args:
@@ -1399,7 +1399,9 @@ class DiskLayout:
         size += reserved_erase_blocks * erase_block_size
         return size
 
-    def WriteLayoutFunction(self, slines: str, func: str, image_type: str):
+    def WriteLayoutFunction(
+        self, slines: str, func: str, image_type: str
+    ) -> None:
         """Writes a shell script function to write out a given partition table.
 
         Args:
@@ -1600,7 +1602,7 @@ class DiskLayout:
 
     def WritePartitionSizesFunction(
         self, slines: str, func: str, image_type: str, data: Dict[Any, Any]
-    ):
+    ) -> None:
         """Writes the partition size variable that can be extracted by a caller.
 
         Args:
@@ -1670,7 +1672,7 @@ class DiskLayout:
         image_type: str,
         sfilename: Union[str, os.PathLike],
         vfilename: Union[str, os.PathLike],
-    ):
+    ) -> None:
         """Writes shell script with functions for 'base' and requested layouts.
 
         Args:
@@ -1704,7 +1706,7 @@ class DiskLayout:
             partition = self._getPartitionByLabel(partitions, "ROOT-A")
             f.write("ROOTFS_PARTITION_SIZE=%s\n" % (partition["bytes"],))
 
-    def CheckRootfsPartitionsMatch(self, partitions: Dict[Any, Any]):
+    def CheckRootfsPartitionsMatch(self, partitions: Dict[Any, Any]) -> None:
         """Checks that rootfs partitions are substitutable with each other.
 
         This function asserts that either all rootfs partitions are in the same
@@ -1744,7 +1746,7 @@ class DiskLayout:
                         % (reserved_erase_blocks, new_reserved_erase_blocks)
                     )
 
-    def CheckReservedEraseBlocks(self, partitions: Dict[Any, Any]):
+    def CheckReservedEraseBlocks(self, partitions: Dict[Any, Any]) -> None:
         """Checks that the reserved_erase_blocks in each partition is good.
 
         This function checks that a reasonable value was given for the reserved
@@ -1828,7 +1830,7 @@ class DiskLayout:
                         % (probability, partition["label"])
                     )
 
-    def CheckSimpleNandProperties(self, partitions: Dict[Any, Any]):
+    def CheckSimpleNandProperties(self, partitions: Dict[Any, Any]) -> None:
         """Checks that NAND partitions are erase-block-aligned and not expand.
 
         Args:
@@ -1855,7 +1857,7 @@ class DiskLayout:
                     "expand partitions may not be used with raw NAND"
                 )
 
-    def CheckTotalSize(self, partitions: Dict[Any, Any]):
+    def CheckTotalSize(self, partitions: Dict[Any, Any]) -> None:
         """Checks that the sum size of all partitions fits within the device.
 
         Args:
@@ -1879,7 +1881,7 @@ class DiskLayout:
                 "capacity = %d, total=%d" % (capacity, total)
             )
 
-    def Validate(self, image_type: str):
+    def Validate(self, image_type: str) -> None:
         """Validates a layout file.
 
         Args:

@@ -25,7 +25,7 @@ from chromite.lib import osutils
 class RunCommandErrorStrTest(cros_test_lib.TestCase):
     """Test that RunCommandError __str__ works as expected."""
 
-    def testNonUTF8Characters(self):
+    def testNonUTF8Characters(self) -> None:
         """Test that non-UTF8 characters do not kill __str__"""
         result = cros_build_lib.run(["ls", "/does/not/exist"], check=False)
         rce = cros_build_lib.RunCommandError("\x81", result)
@@ -35,10 +35,10 @@ class RunCommandErrorStrTest(cros_test_lib.TestCase):
 class CmdToStrTest(cros_test_lib.TestCase):
     """Test the CmdToStr function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.differ = difflib.Differ()
 
-    def _assertEqual(self, func, test_input, test_output, result):
+    def _assertEqual(self, func, test_input, test_output, result) -> None:
         """Like assertEqual but with built-in diff support."""
         msg = "Expected %s to translate %r to %r, but got %r" % (
             func,
@@ -48,7 +48,7 @@ class CmdToStrTest(cros_test_lib.TestCase):
         )
         self.assertEqual(test_output, result, msg)
 
-    def _testData(self, functor, tests, check_type=True):
+    def _testData(self, functor, tests, check_type=True) -> None:
         """Process an iterable of test data."""
         for test_output, test_input in tests:
             result = functor(test_input)
@@ -59,7 +59,7 @@ class CmdToStrTest(cros_test_lib.TestCase):
                 # will include a "u" prefix and that is not good for logging.
                 self.assertEqual(type(test_output), str)
 
-    def testShellQuote(self):
+    def testShellQuote(self) -> None:
         """Basic ShellQuote tests."""
         # Tuples of (expected output string, input data).
         tests_quote = (
@@ -104,13 +104,13 @@ class CmdToStrTest(cros_test_lib.TestCase):
         self._testData(aux, [(x, x) for x, _ in tests_quote], False)
         self._testData(aux, [(x, x) for _, x in tests_quote], False)
 
-    def testShellQuoteOjbects(self):
+    def testShellQuoteOjbects(self) -> None:
         """Test objects passed to ShellQuote."""
         self.assertEqual("/", cros_build_lib.ShellQuote(Path("/")))
         self.assertEqual("None", cros_build_lib.ShellQuote(None))
         self.assertNotEqual("", cros_build_lib.ShellQuote)
 
-    def testCmdToStr(self):
+    def testCmdToStr(self) -> None:
         # Dict of expected output strings to input lists.
         tests = (
             (r"a b", ["a", "b"]),
@@ -127,7 +127,7 @@ class CmdToStrTest(cros_test_lib.TestCase):
 class TestCalledProcessError(cros_test_lib.TestCase):
     """Test CalledProcessError API."""
 
-    def testOutputStdout(self):
+    def testOutputStdout(self) -> None:
         """Make sure .output is removed and .stdout works."""
         e = cros_build_lib.CalledProcessError(
             0, ["true"], stdout="STDOUT", stderr="STDERR"
@@ -148,12 +148,12 @@ class TestCalledProcessError(cros_test_lib.TestCase):
 class TestRunCommandNoMock(cros_test_lib.TestCase):
     """Class that tests run by not mocking subprocess.Popen"""
 
-    def testErrorCodeNotRaisesError(self):
+    def testErrorCodeNotRaisesError(self) -> None:
         """Don't raise exception when command returns non-zero exit code."""
         result = cros_build_lib.run(["ls", "/does/not/exist"], check=False)
         self.assertTrue(result.returncode != 0)
 
-    def testMissingCommandRaisesError(self):
+    def testMissingCommandRaisesError(self) -> None:
         """Raise error when command is not found."""
         self.assertRaises(
             cros_build_lib.RunCommandError,
@@ -168,7 +168,7 @@ class TestRunCommandNoMock(cros_test_lib.TestCase):
             check=False,
         )
 
-    def testDryRun(self):
+    def testDryRun(self) -> None:
         """Verify dryrun doesn't run the real command."""
         # Check exit & output when not captured.
         result = cros_build_lib.run(["false"], dryrun=True)
@@ -200,7 +200,7 @@ class TestRunCommandNoMock(cros_test_lib.TestCase):
         self.assertEqual(b"", result.stdout)
         self.assertEqual(None, result.stderr)
 
-    def testInputBytes(self):
+    def testInputBytes(self) -> None:
         """Verify input argument when it is bytes."""
         for data in (b"", b"foo", b"bar\nhigh"):
             result = cros_build_lib.run(
@@ -208,7 +208,7 @@ class TestRunCommandNoMock(cros_test_lib.TestCase):
             )
             self.assertEqual(result.stdout, data)
 
-    def testInputBytesEncoding(self):
+    def testInputBytesEncoding(self) -> None:
         """Verify bytes input argument when encoding is set."""
         for data in (b"", b"foo", b"bar\nhigh"):
             result = cros_build_lib.run(
@@ -216,7 +216,7 @@ class TestRunCommandNoMock(cros_test_lib.TestCase):
             )
             self.assertEqual(result.stdout, data.decode("utf-8"))
 
-    def testInputString(self):
+    def testInputString(self) -> None:
         """Verify input argument when it is a string."""
         for data in ("", "foo", "bar\nhigh"):
             result = cros_build_lib.run(
@@ -224,7 +224,7 @@ class TestRunCommandNoMock(cros_test_lib.TestCase):
             )
             self.assertEqual(result.stdout, data.encode("utf-8"))
 
-    def testInputStringEncoding(self):
+    def testInputStringEncoding(self) -> None:
         """Verify bytes input argument when encoding is set."""
         for data in ("", "foo", "bar\nhigh"):
             result = cros_build_lib.run(
@@ -232,7 +232,7 @@ class TestRunCommandNoMock(cros_test_lib.TestCase):
             )
             self.assertEqual(result.stdout, data)
 
-    def testInputFileObject(self):
+    def testInputFileObject(self) -> None:
         """Verify input argument when it is a file object."""
         result = cros_build_lib.run(
             ["cat"],
@@ -249,7 +249,7 @@ class TestRunCommandNoMock(cros_test_lib.TestCase):
                 result.stdout, osutils.ReadFile(__file__, mode="rb")
             )
 
-    def testInputFileDescriptor(self):
+    def testInputFileDescriptor(self) -> None:
         """Verify input argument when it is a file descriptor."""
         with open("/dev/null", encoding="utf-8") as f:
             result = cros_build_lib.run(
@@ -265,14 +265,14 @@ class TestRunCommandNoMock(cros_test_lib.TestCase):
                 result.stdout, osutils.ReadFile(__file__, mode="rb")
             )
 
-    def testMixedEncodingCommand(self):
+    def testMixedEncodingCommand(self) -> None:
         """Verify cmd can mix bytes & strings."""
         result = cros_build_lib.run(
             [b"echo", "hi", "ß"], capture_output=True, encoding="utf-8"
         )
         self.assertEqual(result.stdout, "hi ß\n")
 
-    def testEncodingBinaryOutput(self):
+    def testEncodingBinaryOutput(self) -> None:
         """Verify encoding=None output handling."""
         result = cros_build_lib.run(
             b"echo o\xff ut; echo e\xff rr >&2", shell=True, capture_output=True
@@ -280,14 +280,14 @@ class TestRunCommandNoMock(cros_test_lib.TestCase):
         self.assertEqual(result.stdout, b"o\xff ut\n")
         self.assertEqual(result.stderr, b"e\xff rr\n")
 
-    def testEncodingUtf8Output(self):
+    def testEncodingUtf8Output(self) -> None:
         """Verify encoding='utf-8' output handling."""
         result = cros_build_lib.run(
             ["echo", "ß"], capture_output=True, encoding="utf-8"
         )
         self.assertEqual(result.stdout, "ß\n")
 
-    def testEncodingStrictInvalidUtf8Output(self):
+    def testEncodingStrictInvalidUtf8Output(self) -> None:
         """Verify encoding='utf-8' output with invalid content."""
         with self.assertRaises(UnicodeDecodeError):
             cros_build_lib.run(
@@ -301,7 +301,7 @@ class TestRunCommandNoMock(cros_test_lib.TestCase):
                 errors="strict",
             )
 
-    def testEncodingReplaceInvalidUtf8Output(self):
+    def testEncodingReplaceInvalidUtf8Output(self) -> None:
         """Verify invalid content's encoding='utf-8' errors='replace' output."""
         result = cros_build_lib.run(
             ["echo", b"S\xffE"],
@@ -311,7 +311,7 @@ class TestRunCommandNoMock(cros_test_lib.TestCase):
         )
         self.assertEqual(result.stdout, "S\ufffdE\n")
 
-    def testCommandArgsValidTypes(self):
+    def testCommandArgsValidTypes(self) -> None:
         """Verify command args can be of known types."""
         # Support bytes, strings, and Path objects.
         result = cros_build_lib.run(
@@ -319,12 +319,12 @@ class TestRunCommandNoMock(cros_test_lib.TestCase):
         )
         self.assertEqual(result.stdout, b"bytes path\n")
 
-    def testCommandArgsInvalidTypes(self):
+    def testCommandArgsInvalidTypes(self) -> None:
         """Verify command args with invalid types are rejected."""
         with self.assertRaises(TypeError):
             cros_build_lib.run(["echo", 1234], capture_output=True)
 
-    def testExecutable(self):
+    def testExecutable(self) -> None:
         """Verify executable arg is handled correctly."""
         # This should run the echo program.
         result = cros_build_lib.run(
@@ -361,7 +361,7 @@ def _ForceLoggingLevel(functor):
 class TestRunCommand(cros_test_lib.MockTestCase):
     """Tests of run functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # These ENV variables affect run behavior, hide them.
         self._old_envs = {
             e: os.environ.pop(e)
@@ -387,7 +387,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         self.signal_mock = self.PatchObject(signal, "signal")
         self.getsignal_mock = self.PatchObject(signal, "getsignal")
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # Restore hidden ENVs.
         os.environ.update(self._old_envs)
 
@@ -489,7 +489,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
                 kwargs[key], pkwargs[key], msg="kwargs[%s] mismatch" % key
             )
 
-    def _AssertCrEqual(self, expected, actual):
+    def _AssertCrEqual(self, expected, actual) -> None:
         """Helper method to compare two CompletedProcess objects.
 
         This is needed since assertEqual does not know how to compare two
@@ -505,7 +505,9 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         self.assertEqual(expected.returncode, actual.returncode)
 
     @_ForceLoggingLevel
-    def _TestCmd(self, cmd, real_cmd, sp_kv=None, rc_kv=None, sudo=False):
+    def _TestCmd(
+        self, cmd, real_cmd, sp_kv=None, rc_kv=None, sudo=False
+    ) -> None:
         """Factor out common setup logic for testing run().
 
         Args:
@@ -576,7 +578,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
 
         self._AssertCrEqual(expected_result, actual_result)
 
-    def testReturnCodeZeroWithArrayCmd(self, ignore_sigint=False):
+    def testReturnCodeZeroWithArrayCmd(self, ignore_sigint=False) -> None:
         """--enter_chroot=False and --cmd is an array of strings.
 
         Parameterized so this can also be used by some other tests w/ alternate
@@ -591,11 +593,11 @@ class TestRunCommand(cros_test_lib.MockTestCase):
             cmd_list, cmd_list, rc_kv=dict(ignore_sigint=ignore_sigint)
         )
 
-    def testSignalRestoreNormalCase(self):
+    def testSignalRestoreNormalCase(self) -> None:
         """Test run() properly sets/restores sigint.  Normal case."""
         self.testReturnCodeZeroWithArrayCmd(ignore_sigint=True)
 
-    def testReturnCodeZeroWithArrayCmdEnterChroot(self):
+    def testReturnCodeZeroWithArrayCmdEnterChroot(self) -> None:
         """--enter_chroot=True and --cmd is an array of strings."""
         self.proc_mock.returncode = 0
         cmd_list = ["foo", "bar", "roger"]
@@ -605,7 +607,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         self._TestCmd(cmd_list, real_cmd, rc_kv=dict(enter_chroot=True))
 
     @_ForceLoggingLevel
-    def testCommandFailureRaisesError(self, ignore_sigint=False):
+    def testCommandFailureRaisesError(self, ignore_sigint=False) -> None:
         """Verify error raised by communicate() is caught.
 
         Parameterized so this can also be used by some other tests w/ alternate
@@ -631,7 +633,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
     @_ForceLoggingLevel
     def testSubprocessCommunicateExceptionRaisesError(
         self, ignore_sigint=False
-    ):
+    ) -> None:
         """Verify error raised by communicate() is caught.
 
         Parameterized so this can also be used by some other tests w/ alternate
@@ -647,11 +649,11 @@ class TestRunCommand(cros_test_lib.MockTestCase):
                 ValueError, cros_build_lib.run, cmd, ignore_sigint=ignore_sigint
             )
 
-    def testSignalRestoreExceptionCase(self):
+    def testSignalRestoreExceptionCase(self) -> None:
         """Test run() properly sets/restores sigint.  Exception case."""
         self.testSubprocessCommunicateExceptionRaisesError(ignore_sigint=True)
 
-    def testEnvWorks(self):
+    def testEnvWorks(self) -> None:
         """Test run(..., env=xyz) works."""
         # We'll put this bogus environment together, just to make sure
         # subprocess.Popen gets passed it.
@@ -668,7 +670,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
             cmd_list, cmd_list, sp_kv=dict(env=sp_env), rc_kv=dict(env=rc_env)
         )
 
-    def testExtraEnvOnlyWorks(self):
+    def testExtraEnvOnlyWorks(self) -> None:
         """Test run(..., extra_env=xyz) works."""
         # We'll put this bogus environment together, just to make sure
         # subprocess.Popen gets passed it.
@@ -693,7 +695,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
             rc_kv=dict(extra_env=extra_env),
         )
 
-    def testExtraEnvTooWorks(self):
+    def testExtraEnvTooWorks(self) -> None:
         """Test run(..., env=xy, extra_env=z) works."""
         # We'll put this bogus environment together, just to make sure
         # subprocess.Popen gets passed it.
@@ -722,7 +724,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
-    def testChrootExtraEnvWorks(self, _inchroot_mock):
+    def testChrootExtraEnvWorks(self, _inchroot_mock) -> None:
         """Test run(..., enter_chroot=True, env=xy, extra_env=z) works."""
         # We'll put this bogus environment together, just to make sure
         # subprocess.Popen gets passed it.
@@ -748,7 +750,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
             rc_kv=dict(env=env, extra_env=extra_env, enter_chroot=True),
         )
 
-    def testExceptionEquality(self):
+    def testExceptionEquality(self) -> None:
         """Verify equality methods for RunCommandError"""
 
         c1 = cros_build_lib.CompletedProcess(["ls", "arg"], returncode=1)
@@ -765,21 +767,21 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         self.assertNotEqual(e1, e_diff_cmd)
         self.assertNotEqual(e1, e_diff_code)
 
-    def testSudoRunCommand(self):
+    def testSudoRunCommand(self) -> None:
         """Test sudo_run(...) works."""
         cmd_list = ["foo", "bar", "roger"]
         sudo_list = ["sudo", "--"] + cmd_list
         self.proc_mock.returncode = 0
         self._TestCmd(cmd_list, sudo_list, sudo=True)
 
-    def testSudoRunCommandShell(self):
+    def testSudoRunCommandShell(self) -> None:
         """Test sudo_run(..., shell=True) works."""
         cmd = "foo bar roger"
         sudo_list = ["sudo", "--", "/bin/bash", "-c", cmd]
         self.proc_mock.returncode = 0
         self._TestCmd(cmd, sudo_list, sudo=True, rc_kv=dict(shell=True))
 
-    def testSudoRunCommandEnv(self):
+    def testSudoRunCommandEnv(self) -> None:
         """Test sudo_run(..., extra_env=z) works."""
         cmd_list = ["foo", "bar", "roger"]
         sudo_list = ["sudo", "shucky=ducky", "--"] + cmd_list
@@ -789,7 +791,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
             cmd_list, sudo_list, sudo=True, rc_kv=dict(extra_env=extra_env)
         )
 
-    def testSudoRunCommandUser(self):
+    def testSudoRunCommandUser(self) -> None:
         """Test sudo_run(..., user='...') works."""
         cmd_list = ["foo", "bar", "roger"]
         sudo_list = ["sudo", "-u", "MMMMMonster", "--"] + cmd_list
@@ -798,7 +800,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
             cmd_list, sudo_list, sudo=True, rc_kv=dict(user="MMMMMonster")
         )
 
-    def testSudoRunCommandUserShell(self):
+    def testSudoRunCommandUserShell(self) -> None:
         """Test sudo_run(..., user='...', shell=True) works."""
         cmd = "foo bar roger"
         sudo_list = ["sudo", "-u", "MMMMMonster", "--", "/bin/bash", "-c", cmd]
@@ -810,7 +812,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
             rc_kv=dict(user="MMMMMonster", shell=True),
         )
 
-    def testInputBytes(self):
+    def testInputBytes(self) -> None:
         """Test that we can always pass non-UTF-8 bytes as input."""
         cmd_list = ["foo", "bar", "roger"]
         bytes_input = b"\xff"
@@ -823,7 +825,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         )
         self.assertEqual(self.stdin, bytes_input)
 
-    def testInputString(self):
+    def testInputString(self) -> None:
         """Test that we encode UTF-8 strings passed on input."""
         cmd_list = ["foo", "bar", "roger"]
         unicode_input = "💩"
@@ -836,7 +838,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         )
         self.assertEqual(self.stdin, unicode_input.encode("utf-8"))
 
-    def testInputStringNoEncoding(self):
+    def testInputStringNoEncoding(self) -> None:
         """Verify we encode UTF-8 input strings w/out passing encoding."""
         cmd_list = ["foo", "bar", "roger"]
         unicode_input = "💩"
@@ -858,7 +860,7 @@ class TestRunCommandOutput(
     """Tests of run output options."""
 
     @_ForceLoggingLevel
-    def testLogStdoutToFile(self):
+    def testLogStdoutToFile(self) -> None:
         log = os.path.join(self.tempdir, "output")
         ret = cros_build_lib.run(["echo", "monkeys"], stdout=log)
         self.assertEqual(osutils.ReadFile(log), "monkeys\n")
@@ -884,7 +886,7 @@ class TestRunCommandOutput(
         self.assertEqual(osutils.ReadFile(log), "monkeys4\nmonkeys5\n")
 
     @_ForceLoggingLevel
-    def testLogStderrToFile(self):
+    def testLogStderrToFile(self) -> None:
         log = os.path.join(self.tempdir, "output")
         ret = cros_build_lib.run(["sh", "-c", "echo monkeys >&2"], stderr=log)
         self.assertEqual(osutils.ReadFile(log), "monkeys\n")
@@ -892,7 +894,7 @@ class TestRunCommandOutput(
         self.assertIs(ret.stderr, None)
 
     @_ForceLoggingLevel
-    def testLogStdoutToFileWithOrWithoutAppend(self):
+    def testLogStdoutToFileWithOrWithoutAppend(self) -> None:
         log = os.path.join(self.tempdir, "output")
         ret = cros_build_lib.run(["echo", "monkeys"], stdout=log)
         self.assertEqual(osutils.ReadFile(log), "monkeys\n")
@@ -913,7 +915,7 @@ class TestRunCommandOutput(
         self.assertIs(ret.stdout, None)
         self.assertIs(ret.stderr, None)
 
-    def testOutputPath(self):
+    def testOutputPath(self) -> None:
         """Check stdout=/stderr= works with Path objects."""
         stdout = self.tempdir / "stdout"
         stderr = self.tempdir / "stderr"
@@ -925,7 +927,7 @@ class TestRunCommandOutput(
         self.assertEqual(stdout.read_bytes(), b"out\n")
         self.assertEqual(stderr.read_bytes(), b"err\n")
 
-    def testOutputFileHandle(self):
+    def testOutputFileHandle(self) -> None:
         """Verify writing to existing file handles."""
         stdout = os.path.join(self.tempdir, "stdout")
         stderr = os.path.join(self.tempdir, "stderr")
@@ -942,7 +944,7 @@ class TestRunCommandOutput(
     # TODO(crbug.com/1072139): Re-enable this test and migrate away from using
     #                          OutputCapturer once this module is Python 3 only.
     @cros_test_lib.pytestmark_skip
-    def testRunCommandAtNoticeLevel(self):
+    def testRunCommandAtNoticeLevel(self) -> None:
         """Ensure that run prints output when mute_output is False."""
         # Needed by cros_sdk and brillo/cros chroot.
         with self.OutputCapturer():
@@ -954,7 +956,7 @@ class TestRunCommandOutput(
             )
         self.AssertOutputContainsLine("foo")
 
-    def testRunCommandRedirectStdoutStderrOnCommandError(self):
+    def testRunCommandRedirectStdoutStderrOnCommandError(self) -> None:
         """Tests that stderr is captured when run raises."""
         with self.assertRaises(cros_build_lib.RunCommandError) as cm:
             cros_build_lib.run(["cat", "/"], stderr=True)
@@ -974,7 +976,7 @@ class TestRunCommandOutput(
         return output
 
     @_ForceLoggingLevel
-    def testLogOutput(self):
+    def testLogOutput(self) -> None:
         """Normal log_output, stdout followed by stderr."""
         cmd = "echo Greece; echo Italy >&2; echo Spain"
         log_output = (
@@ -991,7 +993,7 @@ class TestRunCommandOutput(
 class HelperMethodSimpleTests(cros_test_lib.OutputTestCase):
     """Tests for various helper methods without using mocks."""
 
-    def testUserDateTime(self):
+    def testUserDateTime(self) -> None:
         """Test with a raw time value."""
         expected = "Mon, 16 Jun 1980 05:03:20 -0700 (PDT)"
         with cros_test_lib.SetTimeZone("US/Pacific"):
@@ -1000,7 +1002,7 @@ class HelperMethodSimpleTests(cros_test_lib.OutputTestCase):
                 cros_build_lib.UserDateTimeFormat(timeval=timeval), expected
             )
 
-    def testUserDateTimeDateTime(self):
+    def testUserDateTimeDateTime(self) -> None:
         """Test with a datetime object."""
         expected = "Mon, 16 Jun 1980 00:00:00 -0700 (PDT)"
         with cros_test_lib.SetTimeZone("US/Pacific"):
@@ -1009,7 +1011,7 @@ class HelperMethodSimpleTests(cros_test_lib.OutputTestCase):
                 cros_build_lib.UserDateTimeFormat(timeval=timeval), expected
             )
 
-    def testUserDateTimeDateTimeInWinter(self):
+    def testUserDateTimeDateTimeInWinter(self) -> None:
         """Test that we correctly switch from PDT to PST."""
         expected = "Wed, 16 Jan 1980 00:00:00 -0800 (PST)"
         with cros_test_lib.SetTimeZone("US/Pacific"):
@@ -1018,7 +1020,7 @@ class HelperMethodSimpleTests(cros_test_lib.OutputTestCase):
                 cros_build_lib.UserDateTimeFormat(timeval=timeval), expected
             )
 
-    def testUserDateTimeDateTimeInEST(self):
+    def testUserDateTimeDateTimeInEST(self) -> None:
         """Test that we correctly switch from PDT to EST."""
         expected = "Wed, 16 Jan 1980 00:00:00 -0500 (EST)"
         with cros_test_lib.SetTimeZone("US/Eastern"):
@@ -1027,23 +1029,23 @@ class HelperMethodSimpleTests(cros_test_lib.OutputTestCase):
                 cros_build_lib.UserDateTimeFormat(timeval=timeval), expected
             )
 
-    def testUserDateTimeCurrentTime(self):
+    def testUserDateTimeCurrentTime(self) -> None:
         """Test that we can get the current time."""
         cros_build_lib.UserDateTimeFormat()
 
-    def testParseUserDateTimeFormat(self):
+    def testParseUserDateTimeFormat(self) -> None:
         stringtime = cros_build_lib.UserDateTimeFormat(100000.0)
         self.assertEqual(
             cros_build_lib.ParseUserDateTimeFormat(stringtime), 100000.0
         )
 
-    def testGetRandomString(self):
+    def testGetRandomString(self) -> None:
         """Verify it looks valid."""
         data = cros_build_lib.GetRandomString()
         self.assertRegex(data, r"^[a-z0-9]+$")
         self.assertEqual(32, len(data))
 
-    def testMachineDetails(self):
+    def testMachineDetails(self) -> None:
         """Verify we don't crash."""
         contents = cros_build_lib.MachineDetails()
         self.assertNotEqual(contents, "")
@@ -1053,7 +1055,7 @@ class HelperMethodSimpleTests(cros_test_lib.OutputTestCase):
 class TestInput(cros_test_lib.MockOutputTestCase):
     """Tests of input gathering functionality."""
 
-    def testBooleanPrompt(self):
+    def testBooleanPrompt(self) -> None:
         """Verify BooleanPrompt() full behavior."""
         m = self.PatchObject(builtins, "input")
 
@@ -1073,7 +1075,7 @@ class TestInput(cros_test_lib.MockOutputTestCase):
         m.return_value = "n"
         self.assertFalse(cros_build_lib.BooleanPrompt())
 
-    def testBooleanShellValue(self):
+    def testBooleanShellValue(self) -> None:
         """Verify BooleanShellValue() inputs work as expected"""
         for v in (None,):
             self.assertTrue(cros_build_lib.BooleanShellValue(v, True))
@@ -1114,7 +1116,7 @@ class TestInput(cros_test_lib.MockOutputTestCase):
             self.assertFalse(cros_build_lib.BooleanShellValue(v, True))
             self.assertFalse(cros_build_lib.BooleanShellValue(v, False))
 
-    def testGetChoiceLists(self):
+    def testGetChoiceLists(self) -> None:
         """Verify GetChoice behavior w/lists."""
         m = self.PatchObject(builtins, "input")
 
@@ -1122,7 +1124,7 @@ class TestInput(cros_test_lib.MockOutputTestCase):
         ret = cros_build_lib.GetChoice("title", ["a", "b", "c"])
         self.assertEqual(ret, 1)
 
-    def testGetChoiceGenerator(self):
+    def testGetChoiceGenerator(self) -> None:
         """Verify GetChoice behavior w/generators."""
         m = self.PatchObject(builtins, "input")
 
@@ -1130,7 +1132,7 @@ class TestInput(cros_test_lib.MockOutputTestCase):
         ret = cros_build_lib.GetChoice("title", list(range(3)))
         self.assertEqual(ret, 2)
 
-    def testGetChoiceWindow(self):
+    def testGetChoiceWindow(self) -> None:
         """Verify GetChoice behavior w/group_size set."""
         m = self.PatchObject(builtins, "input")
 
@@ -1152,7 +1154,7 @@ class TestInput(cros_test_lib.MockOutputTestCase):
 class Test_iflatten_instance(cros_test_lib.TestCase):
     """Test iflatten_instance function."""
 
-    def test_it(self):
+    def test_it(self) -> None:
         f = lambda x, **kwargs: list(
             cros_build_lib.iflatten_instance(x, **kwargs)
         )
@@ -1172,16 +1174,16 @@ class Test_iflatten_instance(cros_test_lib.TestCase):
 class TestAssertRootUserCheck(cros_test_lib.MockTestCase):
     """Tests root/Non-root user functionality for a root user."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.geteuid_mock = self.PatchObject(os, "geteuid", return_value=0)
 
-    def testAssertNonRootUserForRoot(self):
+    def testAssertNonRootUserForRoot(self) -> None:
         """Verify AssertNonRootUser raises an exception"""
         self.assertRaises(
             cros_build_lib.DieSystemExit, cros_build_lib.AssertNonRootUser
         )
 
-    def testAssertRootUserForRoot(self):
+    def testAssertRootUserForRoot(self) -> None:
         """Verify AssertRootUser doesn't raise an exception"""
         cros_build_lib.AssertRootUser()
 
@@ -1189,14 +1191,14 @@ class TestAssertRootUserCheck(cros_test_lib.MockTestCase):
 class TestAssertNonRootUserCheck(cros_test_lib.MockTestCase):
     """Tests root/Non-root user functionality for a non-root user."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.geteuid_mock = self.PatchObject(os, "geteuid", return_value=20)
 
-    def testAssertNonRootUserforNonRoot(self):
+    def testAssertNonRootUserforNonRoot(self) -> None:
         """Verify AssertNonRootUser doesn't raise an exception"""
         cros_build_lib.AssertNonRootUser()
 
-    def testAssertRootUserforNonRoot(self):
+    def testAssertRootUserforNonRoot(self) -> None:
         """Verify AssertRootUser raises an exception"""
         self.assertRaises(
             cros_build_lib.DieSystemExit, cros_build_lib.AssertRootUser
@@ -1206,7 +1208,7 @@ class TestAssertNonRootUserCheck(cros_test_lib.MockTestCase):
 class TarballTests(cros_test_lib.TempDirTestCase):
     """Test tarball handling functions."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Create files/dirs needed for tar test."""
         self.tarball_path = os.path.join(self.tempdir, "test.tar.xz")
         self.inputDir = os.path.join(self.tempdir, "inputs")
@@ -1228,19 +1230,19 @@ class TarballTests(cros_test_lib.TempDirTestCase):
         for i in self.inputs:
             osutils.WriteFile(os.path.join(self.inputDir, i), i, makedirs=True)
 
-    def testCreateSuccess(self):
+    def testCreateSuccess(self) -> None:
         """Create a tarfile."""
         cros_build_lib.CreateTarball(
             self.tarball_path, self.inputDir, inputs=self.inputs
         )
 
-    def testCreateSuccessWithDirs(self):
+    def testCreateSuccessWithDirs(self) -> None:
         """Create a tarfile."""
         cros_build_lib.CreateTarball(
             self.tarball_path, self.inputDir, inputs=self.inputsWithDirs
         )
 
-    def testCreateSuccessWithTooManyFiles(self):
+    def testCreateSuccessWithTooManyFiles(self) -> None:
         """Test a tarfile creation with -T /dev/stdin."""
         # pylint: disable=protected-access
         num_inputs = cros_build_lib._THRESHOLD_TO_USE_T_FOR_TAR + 1
@@ -1252,7 +1254,7 @@ class TarballTests(cros_test_lib.TempDirTestCase):
             self.tarball_path, largeInputDir, inputs=inputs
         )
 
-    def testCreateExtractSuccessWithNoCompressionProgram(self):
+    def testCreateExtractSuccessWithNoCompressionProgram(self) -> None:
         """Create a tarfile without any compression, then extract it."""
         path = os.path.join(self.tempdir, "test.tar")
         cros_build_lib.CreateTarball(path, self.inputDir, inputs=self.inputs)
@@ -1265,7 +1267,7 @@ class TarballTests(cros_test_lib.TempDirTestCase):
         )
         cros_build_lib.ExtractTarball(path, self.tempdir)
 
-    def testCreateExtractSuccessWithCompressionProgram(self):
+    def testCreateExtractSuccessWithCompressionProgram(self) -> None:
         """Create a tarfile with compression, then extract it."""
         tar_files = [
             "test.tar.gz",
@@ -1292,7 +1294,7 @@ class TarballTests(cros_test_lib.TempDirTestCase):
             )
             cros_test_lib.VerifyTarball(tar_file_path, dir_structure)
 
-    def testExtractFailureWithMissingFile(self):
+    def testExtractFailureWithMissingFile(self) -> None:
         """Verify that stderr from tar is printed if in encounters an error."""
         tarball = "a-tarball-which-does-not-exist.tar.gz"
 
@@ -1302,7 +1304,7 @@ class TarballTests(cros_test_lib.TempDirTestCase):
             # Check to see that tar's error message is printed in the exception.
             self.assertIn("No such file or directory", e.args[0])
 
-    def test_IsTarball(self):
+    def test_IsTarball(self) -> None:
         """Test IsTarball helper function."""
         self.assertTrue(cros_build_lib.IsTarball("file.tar"))
         self.assertTrue(cros_build_lib.IsTarball("file.tar.bz2"))
@@ -1322,10 +1324,10 @@ class FailedCreateTarballExceptionTests(
 ):
     """Tests exception handling for CreateTarball."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.inputDir = os.path.join(self.tempdir, "BadInputDirectory")
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Verify tarball creation when cwd and target dir exist."""
         target_dir = os.path.join(self.tempdir, "target_dir")
         target_file = os.path.join(target_dir, "stuff.tar")
@@ -1338,7 +1340,7 @@ class FailedCreateTarballExceptionTests(
         target_contents = os.listdir(target_dir)
         self.assertEqual(target_contents, ["stuff.tar"])
 
-    def testFailureBadTarget(self):
+    def testFailureBadTarget(self) -> None:
         """Verify expected error when target does not exist."""
         target_dir = os.path.join(self.tempdir, "target_dir")
         target_file = os.path.join(target_dir, "stuff.tar")
@@ -1349,7 +1351,7 @@ class FailedCreateTarballExceptionTests(
                 cros_build_lib.CreateTarball(target_file, working_dir)
             self.AssertLogsContain(logs, "CreateTarball failed creating")
 
-    def testFailureBadWorkingDir(self):
+    def testFailureBadWorkingDir(self) -> None:
         """Verify expected error when cwd does not exist."""
         target_dir = os.path.join(self.tempdir, "target_dir")
         osutils.SafeMakedirs(target_dir)
@@ -1365,7 +1367,7 @@ class FailedCreateTarballExceptionTests(
 class FailedCreateTarballTests(cros_test_lib.RunCommandTestCase):
     """Tests special case error handling for CreateTarball."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Mock run mock."""
         # Each test can change this value as needed.  Each element is the return
         # code in the CompletedProcess for subsequent calls to run().
@@ -1379,21 +1381,21 @@ class FailedCreateTarballTests(cros_test_lib.RunCommandTestCase):
 
         self.rc.SetDefaultCmdResult(side_effect=Result)
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """CreateTarball works the first time."""
         self.tarResults = [0]
         cros_build_lib.CreateTarball("foo", "bar", inputs=["a", "b"])
 
         self.assertEqual(self.rc.call_count, 1)
 
-    def testFailedOnceSoft(self):
+    def testFailedOnceSoft(self) -> None:
         """Force a single retry for CreateTarball."""
         self.tarResults = [1, 0]
         cros_build_lib.CreateTarball("foo", "bar", inputs=["a", "b"], timeout=0)
 
         self.assertEqual(self.rc.call_count, 2)
 
-    def testFailedOnceHard(self):
+    def testFailedOnceHard(self) -> None:
         """Test unrecoverable error."""
         self.tarResults = [2]
         with self.assertRaises(cros_build_lib.RunCommandError) as cm:
@@ -1402,7 +1404,7 @@ class FailedCreateTarballTests(cros_test_lib.RunCommandTestCase):
         self.assertEqual(self.rc.call_count, 1)
         self.assertEqual(cm.exception.args[1].returncode, 2)
 
-    def testFailedThriceSoft(self):
+    def testFailedThriceSoft(self) -> None:
         """Exhaust retries for recoverable errors."""
         self.tarResults = [1, 1, 1]
         with self.assertRaises(cros_build_lib.RunCommandError) as cm:
@@ -1419,7 +1421,7 @@ class ClearShadowLocksTests(
 ):
     """Tests shadowlock files are removed from the given sysroot."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         D = cros_test_lib.Directory
         file_layout = (
             D(
@@ -1437,7 +1439,7 @@ class ClearShadowLocksTests(
         )
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, file_layout)
 
-    def testClearShadowLocksSuccess(self):
+    def testClearShadowLocksSuccess(self) -> None:
         cros_build_lib.ClearShadowLocks(self.tempdir)
 
         self.assertTrue(os.path.exists(f"{self.tempdir}/etc/test.lock"))
@@ -1448,7 +1450,7 @@ class ClearShadowLocksTests(
         self.assertFalse(os.path.exists(f"{self.tempdir}/etc/shadow.lockfile"))
         self.assertFalse(os.path.exists(f"{self.tempdir}/etc/gshadow.lock"))
 
-    def testClearShadowLocksPathDoesNotExist(self):
+    def testClearShadowLocksPathDoesNotExist(self) -> None:
         with cros_test_lib.LoggingCapturer() as logs:
             cros_build_lib.ClearShadowLocks(Path("fake/path/does/not/exist"))
 

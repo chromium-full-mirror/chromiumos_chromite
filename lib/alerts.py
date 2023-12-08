@@ -34,7 +34,7 @@ from chromite.lib import retry_util
 class MailServer:
     """Base class for servers."""
 
-    def Send(self, message):
+    def Send(self, message) -> None:
         """Send the message.
 
         Override by sub-classes.
@@ -216,7 +216,7 @@ class SmtpServer(MailServer):
             True if the email was sent, else False.
         """
 
-        def _Send():
+        def _Send() -> None:
             smtp_client = smtplib.SMTP(self._smtp_server)
             recipients = [s.strip() for s in message["To"].split(",")]
             smtp_client.sendmail(
@@ -298,7 +298,7 @@ def SendEmail(
     message="",
     attachment=None,
     extra_fields=None,
-):
+) -> None:
     """Send an e-mail job notification with the given message in the body.
 
     Args:
@@ -327,7 +327,7 @@ def SendEmailLog(
     inc_trace=True,
     log=None,
     extra_fields=None,
-):
+) -> None:
     """Send an e-mail with a stack trace and log snippets.
 
     Args:

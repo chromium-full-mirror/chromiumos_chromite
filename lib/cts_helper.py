@@ -113,7 +113,7 @@ def _is_test_collector(package):
 
 def uploadFiles(
     dir_entry, build, apfe_id, job_id, package, uploader, *args, **kwargs
-):
+) -> None:
     """Upload CTS/GTS tests result to gs buckets.
 
     Args:

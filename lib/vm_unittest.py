@@ -31,7 +31,7 @@ pytestmark = cros_test_lib.pytestmark_inside_only
 class VMTester(cros_test_lib.RunCommandTempDirTestCase):
     """Test vm.VM."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Common set up method for all tests."""
         # Pick a port that is valid, but we can't bind normally, and is unlikely
         # to be used in general.
@@ -87,7 +87,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
                 return True
         return False
 
-    def testStart(self):
+    def testStart(self) -> None:
         self._vm.Start()
         self.assertCommandContains([self._vm.qemu_path])
         self.assertCommandContains(
@@ -144,7 +144,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandContains(["-enable-kvm"])
 
     @mock.patch("chromite.lib.device.Device.WaitForBoot")
-    def testStartRetriesSuccess(self, mock_wait):
+    def testStartRetriesSuccess(self, mock_wait) -> None:
         """Start() returns normally if WaitForBoot fails transiently once."""
         mock_wait.side_effect = (
             device.DeviceError("error"),
@@ -153,7 +153,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         self._vm.Start()
 
     @mock.patch("chromite.lib.device.Device.WaitForBoot")
-    def testStartRetriesFailure(self, mock_wait):
+    def testStartRetriesFailure(self, mock_wait) -> None:
         """Start() raises a DeviceError if WaitForBoot fails all attempts."""
         mock_wait.side_effect = (
             device.DeviceError("error"),
@@ -161,7 +161,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertRaises(device.DeviceError, self._vm.Start)
 
-    def testStartWithVMX(self):
+    def testStartWithVMX(self) -> None:
         """Verify vmx is enabled if the host supports nested virtualization."""
         osutils.WriteFile(self.nested_kvm_file, "1")
         self._vm.Start()
@@ -172,14 +172,14 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
             ]
         )
 
-    def testStop(self):
+    def testStop(self) -> None:
         pid = "12345"
         self.assertEqual(self._vm.pidfile, self.TempVMPath("kvm.pid"))
         osutils.WriteFile(self._vm.pidfile, pid)
         self._vm.Stop()
         self.assertCommandContains(["kill", "-9", pid])
 
-    def testBuiltVMImagePath(self):
+    def testBuiltVMImagePath(self) -> None:
         """Verify locally built VM image path is picked up by vm.VM."""
         self._vm.image_path = None
         expected_vm_image_path = os.path.join(
@@ -197,7 +197,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
             self.FindPathInArgs(self.rc.call_args_list, expected_vm_image_path)
         )
 
-    def testSDKVMImagePath(self):
+    def testSDKVMImagePath(self) -> None:
         """Verify vm.VM picks up the downloaded VM in the SDK."""
         self._vm.image_path = None
         vm_image_dir = cros_test_lib.FakeSDKCache(
@@ -219,18 +219,18 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
             self.FindPathInArgs(self.rc.call_args_list, expected_vm_image_path)
         )
 
-    def testVMImageNotFound(self):
+    def testVMImageNotFound(self) -> None:
         """Verify VMError is raised when a fake board image cannot be found."""
         self._vm.image_path = None
         self._vm.board = "fake_board_name"
         self.assertRaises(vm.VMError, self._vm.Start)
 
-    def testVMImageDoesNotExist(self):
+    def testVMImageDoesNotExist(self) -> None:
         """Verify that VMError is raised when image path is not real."""
         self._vm.image_path = "/fake/path/to/the/vm/image"
         self.assertRaises(vm.VMError, self._vm.Start)
 
-    def testAppendBinFile(self):
+    def testAppendBinFile(self) -> None:
         """Verify bin file appended when image-path points to a directory."""
         self._vm.image_path = self.tempdir
         self._vm.Start()
@@ -238,7 +238,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
             self._vm.image_path, self.TempFilePath(constants.TEST_IMAGE_BIN)
         )
 
-    def testChrootQemuPath(self):
+    def testChrootQemuPath(self) -> None:
         """Verify that QEMU in the chroot is picked up by vm.VM."""
         if cros_build_lib.IsInsideChroot():
             self._vm._SetQemuPath()
@@ -248,7 +248,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
                 in self._vm.qemu_path
             )
 
-    def testSDKQemuPath(self):
+    def testSDKQemuPath(self) -> None:
         """Verify vm.VM picks up the downloaded QEMU in the SDK."""
         self._vm.qemu_path = None
         qemu_dir_path = cros_chrome_sdk.SDKFetcher.QEMU_BIN_PATH
@@ -262,7 +262,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(self._vm.qemu_path, qemu_path)
 
     @mock.patch("chromite.lib.vm.VM._CheckQemuMinVersion")
-    def testSystemQemuPath(self, check_min_version_mock):
+    def testSystemQemuPath(self, check_min_version_mock) -> None:
         """Verify that QEMU in the system is picked up by vm.VM."""
         # Skip the SDK Cache.
         os.environ[cros_chrome_sdk.SDKFetcher.SDK_VERSION_ENV] = "None"
@@ -284,12 +284,12 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
 
         self.assertEqual(self._vm.qemu_path, qemu_path)
 
-    def testInvalidQemuBiosPath(self):
+    def testInvalidQemuBiosPath(self) -> None:
         """Verify that VMError is raised for nonexistent qemu bios path."""
         self._vm.qemu_bios_path = "/invalid/qemu/bios/path/"
         self.assertRaises(vm.VMError, self._vm.Start)
 
-    def testCreateQcow2Image(self):
+    def testCreateQcow2Image(self) -> None:
         """Tests that a qcow2 image is created with --copy-on-write."""
         self._vm.copy_on_write = True
         initial_img_path = self._vm.image_path
@@ -318,19 +318,19 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
 
     @mock.patch("os.path.isfile", return_value=False)
     @mock.patch("chromite.lib.osutils.Which", return_value=None)
-    def testQemuNotFound(self, which_mock, is_file_mock):
+    def testQemuNotFound(self, which_mock, is_file_mock) -> None:
         """Verify that VMError is raised when qemu path cannot be set."""
         self.assertRaises(vm.VMError, self._vm._SetQemuPath)
         which_mock.assert_called()
         is_file_mock.assert_called()
 
-    def testQemuImageNotFound(self):
+    def testQemuImageNotFound(self) -> None:
         """Veryify that VMError is raised for nonexistent qemu image path."""
         self._vm.copy_on_write = True
         self._vm.qemu_img_path = "/invalid/qemu/img/path/"
         self.assertRaises(vm.VMError, self._vm._SetQemuPath)
 
-    def testRmVMDir(self):
+    def testRmVMDir(self) -> None:
         """Verify that the vm directory is removed after calling RmVMDir."""
         self.assertExists(self._vm.vm_dir)
         self._vm.use_sudo = False
@@ -338,14 +338,14 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         self.assertNotExists(self._vm.vm_dir)
 
     @mock.patch("chromite.lib.osutils.SafeMakedirs", return_value=False)
-    def testCreateVMDirError(self, make_dir_mock):
+    def testCreateVMDirError(self, make_dir_mock) -> None:
         """Verify an error is raised when vm_dir is not a valid directory."""
         self._vm.vm_dir = "/not/a/valid/dir"
         self.assertRaises(AssertionError, self._vm._CreateVMDir)
         make_dir_mock.assert_called()
 
     @mock.patch("chromite.lib.osutils.SafeMakedirs", return_value=False)
-    def testCreateVMDirLinkError(self, make_dir_mock):
+    def testCreateVMDirLinkError(self, make_dir_mock) -> None:
         """Verify that an error is raised when vm_dir is a symbolic link."""
         # Create the symlink.
         symlink = self.TempFilePath("symlink")
@@ -357,19 +357,19 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
 
     @mock.patch("chromite.lib.osutils.SafeMakedirs", return_value=False)
     @mock.patch("os.getuid")
-    def testCreateVMDirStatError(self, getuid_mock, make_dir_mock):
+    def testCreateVMDirStatError(self, getuid_mock, make_dir_mock) -> None:
         """Verify an error is raised  when user does not own the vm dir."""
         self.assertRaises(AssertionError, self._vm._CreateVMDir)
         getuid_mock.assert_called()
         make_dir_mock.assert_called()
 
-    def testQemuVersionError(self):
+    def testQemuVersionError(self) -> None:
         """Verify VMError is raised without an expected QEMU version number."""
         version_str = "Fake Version String"
         self.rc.AddCmdResult(partial_mock.In("--version"), stdout=version_str)
         self.assertRaises(vm.VMError, self._vm._SetQemuPath)
 
-    def testQemuVersion(self):
+    def testQemuVersion(self) -> None:
         """Verify that the correct QEMU version is identified."""
         version_str = (
             "QEMU emulator version 2.8.0, Copyright (c) "
@@ -380,7 +380,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual("2.8.0", self._vm.QemuVersion())
         self.assertCommandContains([self._vm.qemu_path, "--version"])
 
-    def testCheckQemuError(self):
+    def testCheckQemuError(self) -> None:
         """Verify that VMError is raised when the QEMU version is too old."""
         version_str = (
             "QEMU emulator version 2.5.0, Copyright (c) "
@@ -389,20 +389,20 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         self.rc.AddCmdResult(partial_mock.In("--version"), stdout=version_str)
         self.assertRaises(vm.VMError, self._vm._SetQemuPath)
 
-    def testRunError(self):
+    def testRunError(self) -> None:
         """Verify that VMError is raised when no action is specified."""
         self._vm.start = False
         self._vm.stop = False
         self._vm.cmd = None
         self.assertRaises(vm.VMError, self._vm.Run)
 
-    def testIsRunningError(self):
+    def testIsRunningError(self) -> None:
         """Verify that VMError is raised when VM is not running."""
         self._vm.cmd = ["fake_command", "--test_cmd"]
         self.assertRaises(vm.VMError, self._vm.Run)
 
     @mock.patch("chromite.lib.vm.VM.IsRunning", return_value=True)
-    def testRunRemoteCmd(self, is_running_mock):
+    def testRunRemoteCmd(self, is_running_mock) -> None:
         """Tests that the VM runs with a specific command."""
         self._vm.cmd = ["fake_command", "--test_cmd"]
         self._vm.Run()
@@ -419,22 +419,22 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         )
         is_running_mock.assert_called()
 
-    def testGetVMPidDir(self):
+    def testGetVMPidDir(self) -> None:
         """Verify that isRunning is False with a nonexistent directory."""
         self._vm.vm_dir = "fake/directory"
         self.assertFalse(self._vm.IsRunning())
 
-    def testGetVMPidFile(self):
+    def testGetVMPidFile(self) -> None:
         """Verify that isRunning is False with a nonexistent pid file."""
         self._vm.pidfile = "fake/pid/file"
         self.assertFalse(self._vm.IsRunning())
 
-    def testPidString(self):
+    def testPidString(self) -> None:
         """Verify that isRunning is False if the pid is not an integer."""
         osutils.WriteFile(self._vm.pidfile, "fake_pid")
         self.assertFalse(self._vm.IsRunning())
 
-    def testGetVMPid(self):
+    def testGetVMPid(self) -> None:
         """Verify that a proper pid number kills the VM process."""
         # Using this process's pid to fake the VM's pid.
         pid = str(os.getpid())
@@ -443,14 +443,14 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         self._vm.Stop()
         self.assertCommandContains(["kill", "-9", pid])
 
-    def testBiosPath(self):
+    def testBiosPath(self) -> None:
         """Verify QEMU bios path."""
         self._vm.qemu_bios_path = self.TempFilePath("qemu/bios/path")
         osutils.SafeMakedirs(self._vm.qemu_bios_path)
         self._vm.Start()
         self.assertCommandContains(["-L", self._vm.qemu_bios_path])
 
-    def testQemuHost(self):
+    def testQemuHost(self) -> None:
         """Verify QEMU host forwarding."""
         self._vm.ssh_port = 1028
         self._vm.qemu_hostfwd = ["tcp:127.0.0.1:1024-:22"]
@@ -463,19 +463,19 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
             ]
         )
 
-    def testQemuArgs(self):
+    def testQemuArgs(self) -> None:
         """Verify QEMU arguments."""
         self._vm.qemu_args = ["-portrait", "-full-screen", "-no-reboot"]
         self._vm.Start()
         self.assertCommandContains(["-portrait", "-full-screen", "-no-reboot"])
 
-    def testNoDisplay(self):
+    def testNoDisplay(self) -> None:
         """Check the command call's arguments when there is no display."""
         self._vm.display = False
         self._vm.Start()
         self.assertCommandContains(["-display", "none"])
 
-    def testWaitForSSHPort(self):
+    def testWaitForSSHPort(self) -> None:
         """Verify VM correctly waits on the SSH port if it is busy."""
         # Assigning an unused port to the VM SSH Port.
         self._vm.ssh_port = remote_access.GetUnusedPort()
@@ -504,7 +504,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         "chromite.lib.remote_access.RemoteDevice.GetRunningPids",
         return_value=[],
     )
-    def testWaitForProcsError(self, pid_mocker):
+    def testWaitForProcsError(self, pid_mocker) -> None:
         """Verify an error is raised when no chrome processes are running."""
         # Look for retry messages in output.
         with cros_test_lib.LoggingCapturer(log_level=logging.INFO) as logger:
@@ -525,7 +525,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         "chromite.lib.remote_access.RemoteDevice.GetRunningPids",
         return_value=[756, 905, 1065, 1092, 1096, 1171, 1180, 1181],
     )
-    def testWaitForProcs(self, pid_mocker):
+    def testWaitForProcs(self, pid_mocker) -> None:
         """Verify VM waits for chrome processes to launch."""
         # Check the log output for expected chrome pids.
         with cros_test_lib.LoggingCapturer(log_level=logging.INFO) as logger:
@@ -539,7 +539,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
     @mock.patch("chromite.lib.vm.VM._WaitForProcs")
     @mock.patch("chromite.lib.device.Device.WaitForBoot")
     @mock.patch("chromite.lib.vm.VM.Start")
-    def testWaitForBoot(self, start_mock, boot_mock, procs_mock):
+    def testWaitForBoot(self, start_mock, boot_mock, procs_mock) -> None:
         """Verify we wait for the VM to boot up under different conditions."""
         # Testing with an existing VM directory and hardware emulation.
         self._vm.vm_dir = self.TempFilePath("vm_dir")
@@ -563,7 +563,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         procs_mock.assert_called()
 
     @mock.patch("fcntl.fcntl")
-    def testSaveVMImageOnShutdownBasic(self, fcntl_mock):
+    def testSaveVMImageOnShutdownBasic(self, fcntl_mock) -> None:
         # mock.mock_open only seems to properly mock out read, not readline, so
         # do it ourselves.
         def readline_impl():
@@ -605,7 +605,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
     @mock.patch("time.sleep")
     def testSaveVMImageOnShutdownTimeout(
         self, sleep_mock, time_mock, fcntl_mock
-    ):
+    ) -> None:
         def time_impl():
             time_impl.count += 1
             if time_impl.count <= 2:

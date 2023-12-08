@@ -33,7 +33,7 @@ class PRPCClientTestCase(test_case.TestCase):
             "localhost", test_prpc_pb2.TestServiceDescription
         )
 
-    def test_generated_methods(self):
+    def test_generated_methods(self) -> None:
         expected_methods = {
             "Give",
             "Take",
@@ -51,7 +51,7 @@ class PRPCClientTestCase(test_case.TestCase):
             m.return_value = res.SerializeToString()
             yield
 
-    def test_request(self):
+    def test_request(self) -> None:
         with self.mocked_request():
             req = test_pb2.GiveRequest(m=1)
             self.make_test_client().Give(req)
@@ -70,36 +70,36 @@ class PRPCClientTestCase(test_case.TestCase):
                 max_attempts=4,
             )
 
-    def give_creds(self, creds):
+    def give_creds(self, creds) -> None:
         self.make_test_client().Give(test_pb2.GiveRequest(), credentials=creds)
 
-    def test_request_credentials_service_account(self):
+    def test_request_credentials_service_account(self) -> None:
         with self.mocked_request():
             self.give_creds(prpc_client.include_auth())
             _, kwargs = net.request.call_args
             self.assertEqual(kwargs["include_auth"], True)
 
-    def test_request_credentials_service_account_key(self):
+    def test_request_credentials_service_account_key(self) -> None:
         with self.mocked_request():
             self.give_creds(prpc_client.include_auth())
             _, kwargs = net.request.call_args
             self.assertEqual(kwargs["include_auth"], True)
 
-    def test_request_timeout(self):
+    def test_request_timeout(self) -> None:
         with self.mocked_request():
             self.make_test_client().Give(test_pb2.GiveRequest(), timeout=20)
             _, kwargs = net.request.call_args
             self.assertEqual(kwargs["deadline"], 20)
             self.assertEqual(kwargs["headers"]["X-Prpc-Timeout"], "20S")
 
-    def test_response_ok(self):
+    def test_response_ok(self) -> None:
         expected = test_pb2.TakeResponse(k=1)
         with self.mocked_request(res=expected):
             actual = self.make_test_client().Take(empty_pb2.Empty())
             self.assertEqual(actual, expected)
 
     @mock.patch("chromite.lib.luci.net.request", autospec=True)
-    def test_response_protocol_error(self, request):
+    def test_response_protocol_error(self, request) -> None:
         request.side_effect = net.NotFoundError(
             msg="not found",
             status_code=404,
@@ -112,7 +112,7 @@ class PRPCClientTestCase(test_case.TestCase):
             self.make_test_client().Take(empty_pb2.Empty())
 
     @mock.patch("chromite.lib.luci.net.request", autospec=True)
-    def test_response_rpc_error(self, request):
+    def test_response_rpc_error(self, request) -> None:
         request.side_effect = net.NotFoundError(
             msg="not found",
             status_code=404,

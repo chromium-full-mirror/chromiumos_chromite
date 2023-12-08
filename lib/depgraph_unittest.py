@@ -223,7 +223,7 @@ def _get_raw_build_target_depgraph(*_args, **_kwargs):
     return depgraph.DepgraphResult(deps_tree, bdeps_tree, ["virtual/sysroot-1"])
 
 
-def test_get_sdk_dependency_graph(monkeypatch):
+def test_get_sdk_dependency_graph(monkeypatch) -> None:
     """Test the SDK depgraph is built correctly."""
     monkeypatch.setattr(
         depgraph, "_get_raw_sdk_depgraph", _get_raw_sdk_depgraph
@@ -240,7 +240,7 @@ def test_get_sdk_dependency_graph(monkeypatch):
     assert graph.sysroot_path == "/"
 
 
-def test_get_sysroot_dependency_graph(monkeypatch):
+def test_get_sysroot_dependency_graph(monkeypatch) -> None:
     """Test the sysroot depgraph is built correctly."""
     monkeypatch.setattr(
         depgraph, "_get_raw_sysroot_depgraph", _get_raw_sysroot_depgraph
@@ -265,7 +265,7 @@ def test_get_sysroot_dependency_graph(monkeypatch):
     )
 
 
-def test_get_build_target_dependency_graph(monkeypatch):
+def test_get_build_target_dependency_graph(monkeypatch) -> None:
     """Test the build target depgraph is built correctly."""
     monkeypatch.setattr(
         depgraph,

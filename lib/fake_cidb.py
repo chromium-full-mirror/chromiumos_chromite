@@ -35,7 +35,7 @@ class FakeCIDBConnection:
             if k in cidb.CIDBConnection.BUILD_STATUS_KEYS
         }
 
-    def SetTime(self, fake_time):
+    def SetTime(self, fake_time) -> None:
         """Sets a fake time to be retrieved by GetTime.
 
         Args:
@@ -168,7 +168,7 @@ class FakeCIDBConnection:
         self.buildStageTable[build_stage_id] = row
         return build_stage_id
 
-    def InsertBoardPerBuild(self, build_id, board):
+    def InsertBoardPerBuild(self, build_id, board) -> None:
         # TODO(akeshet): Fill this placeholder.
         pass
 
@@ -241,7 +241,7 @@ class FakeCIDBConnection:
 
         return messages
 
-    def StartBuildStage(self, build_stage_id):
+    def StartBuildStage(self, build_stage_id) -> None:
         if build_stage_id > len(self.buildStageTable):
             return
 
@@ -249,7 +249,7 @@ class FakeCIDBConnection:
             "status"
         ] = constants.BUILDER_STATUS_INFLIGHT
 
-    def WaitBuildStage(self, build_stage_id):
+    def WaitBuildStage(self, build_stage_id) -> None:
         if build_stage_id > len(self.buildStageTable):
             return
 
@@ -257,7 +257,7 @@ class FakeCIDBConnection:
             "status"
         ] = constants.BUILDER_STATUS_WAITING
 
-    def FinishBuildStage(self, build_stage_id, status):
+    def FinishBuildStage(self, build_stage_id, status) -> None:
         if build_stage_id > len(self.buildStageTable):
             return
 
@@ -455,7 +455,9 @@ class FakeCIDBConnection:
 
         return stage_failures
 
-    def UpdateBoardPerBuildMetadata(self, build_id, board, board_metadata):
+    def UpdateBoardPerBuildMetadata(
+        self, build_id, board, board_metadata
+    ) -> None:
         """Update the given board-per-build metadata.
 
         This function is not being tested. A function stub to spare a

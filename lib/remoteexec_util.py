@@ -103,7 +103,7 @@ class Remoteexec:
             remoteexec_cmd.append("--shutdown")
         cros_build_lib.run(remoteexec_cmd)
 
-    def Start(self):
+    def Start(self) -> None:
         """Start RemoteExec.
 
         Run the command to start the remoteexec.
@@ -113,7 +113,7 @@ class Remoteexec:
         """
         self._RunRemoteExec()
 
-    def Stop(self):
+    def Stop(self) -> None:
         """Shutdown RemoteExec.
 
         Run the command to shutdown the remoteexec.

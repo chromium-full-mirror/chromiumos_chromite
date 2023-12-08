@@ -22,7 +22,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
 
     # pylint: disable=protected-access
 
-    def testIsCIDBClientMissing(self):
+    def testIsCIDBClientMissing(self) -> None:
         """Tests _IsCIDBClientMissing function."""
         # Test CIDB needed and client missing.
         bs = BuildStore(_read_from_bb=False, _write_to_cidb=True)
@@ -45,7 +45,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         bs = BuildStore(_read_from_bb=True, _write_to_cidb=False)
         self.assertEqual(bs._IsCIDBClientMissing(), False)
 
-    def testIsBuildbucketClientMissing(self):
+    def testIsBuildbucketClientMissing(self) -> None:
         """Tests _IsBuildbucketClientMissing function."""
         # Test Buildbucket needed and client missing.
         bs = BuildStore(_read_from_bb=True, _write_to_bb=True)
@@ -68,7 +68,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         bs = BuildStore(_read_from_bb=False, _write_to_bb=False)
         self.assertEqual(bs._IsBuildbucketClientMissing(), False)
 
-    def testInitializeClientsWithCIDBSetup(self):
+    def testInitializeClientsWithCIDBSetup(self) -> None:
         """Tests InitializeClients with mock CIDB."""
 
         class StubCIDBConnection:
@@ -89,7 +89,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         self.assertEqual(bs.cidb_conn, mock_cidb)
         self.assertEqual(result, True)
 
-    def testInitializeClientsWithoutCIDBSetup(self):
+    def testInitializeClientsWithoutCIDBSetup(self) -> None:
         """Tests InitializeClients with mock CIDB."""
 
         self.PatchObject(
@@ -98,7 +98,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         bs = BuildStore()
         self.assertEqual(bs.InitializeClients(), False)
 
-    def testInitializeClientsWhenCIDBIsNotNeeded(self):
+    def testInitializeClientsWhenCIDBIsNotNeeded(self) -> None:
         """Test InitializeClients without CIDB requirement."""
         bs = BuildStore(_read_from_bb=True, _write_to_cidb=False)
         bs.cidb_conn = None
@@ -108,7 +108,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         # Does not raise exception.
         self.assertEqual(bs.InitializeClients(), True)
 
-    def testInitializeClientsWithBuildbucketSetup(self):
+    def testInitializeClientsWithBuildbucketSetup(self) -> None:
         """Tests InitializeClients with mock Buildbucket."""
         bs = BuildStore()
         self.PatchObject(bs, "_IsCIDBClientMissing", return_value=False)
@@ -116,14 +116,14 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         self.assertIsInstance(bs.bb_client, buildbucket_v2.BuildbucketV2)
         self.assertEqual(result, True)
 
-    def testInitializeClientsWhenBuildbucketIsNotNeeded(self):
+    def testInitializeClientsWhenBuildbucketIsNotNeeded(self) -> None:
         """Test InitializeClients without Buildbucket requirement."""
         bs = BuildStore(_read_from_bb=False, _write_to_bb=False)
         self.PatchObject(BuildStore, "_IsCIDBClientMissing", return_value=False)
         # Does not raise exception.
         self.assertEqual(bs.InitializeClients(), True)
 
-    def testInsertBuild(self):
+    def testInsertBuild(self) -> None:
         """Tests the redirect for InsertBuild function."""
         self.PatchObject(BuildStore, "InitializeClients", return_value=True)
         # Test CIDB redirect.
@@ -169,7 +169,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         )
         self.assertEqual(build_id, 0)
 
-    def testGetKilledChildBuilds(self):
+    def testGetKilledChildBuilds(self) -> None:
         """Tests the redirect for GetKilledChildBuilds function."""
         init = self.PatchObject(
             BuildStore, "InitializeClients", return_value=True
@@ -203,7 +203,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         with self.assertRaises(buildstore.BuildStoreException):
             bs.GetKilledChildBuilds(build_identifier)
 
-    def testInsertBuildMessage(self):
+    def testInsertBuildMessage(self) -> None:
         """Tests the redirect for InsertBuildMessage function."""
         init = self.PatchObject(
             BuildStore, "InitializeClients", return_value=True
@@ -232,7 +232,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         with self.assertRaises(buildstore.BuildStoreException):
             bs.InsertBuildMessage(1234, message_value=[8921795536486453568])
 
-    def testGetBuildHistory(self):
+    def testGetBuildHistory(self) -> None:
         """Tests the redirect for GetBuildHistory function."""
         init = self.PatchObject(
             BuildStore, "InitializeClients", return_value=True
@@ -268,7 +268,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         with self.assertRaises(buildstore.BuildStoreException):
             bs.GetBuildHistory(build_config, num_results)
 
-    def testInsertBuildStage(self):
+    def testInsertBuildStage(self) -> None:
         """Tests the redirect for InsertBuildStage function."""
         init = self.PatchObject(
             BuildStore, "InitializeClients", return_value=True
@@ -294,7 +294,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         with self.assertRaises(buildstore.BuildStoreException):
             bs.InsertBuildStage(constants.MOCK_BUILD_ID, "stage_name")
 
-    def testGetSlaveStatuses(self):
+    def testGetSlaveStatuses(self) -> None:
         """Tests the redirect for GetSlaveStatuses function."""
         init = self.PatchObject(
             BuildStore, "InitializeClients", return_value=True
@@ -323,7 +323,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         with self.assertRaises(buildstore.BuildStoreException):
             bs.GetSlaveStatuses(1234)
 
-    def testStartBuildStage(self):
+    def testStartBuildStage(self) -> None:
         """Tests the redirect for StartBuildStage function."""
         init = self.PatchObject(
             BuildStore, "InitializeClients", return_value=True
@@ -341,7 +341,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         with self.assertRaises(buildstore.BuildStoreException):
             bs.StartBuildStage(constants.MOCK_BUILD_ID)
 
-    def testWaitBuildStage(self):
+    def testWaitBuildStage(self) -> None:
         """Tests the redirect for WaitBuildStage function."""
         init = self.PatchObject(
             BuildStore, "InitializeClients", return_value=True
@@ -359,7 +359,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         with self.assertRaises(buildstore.BuildStoreException):
             bs.WaitBuildStage(constants.MOCK_BUILD_ID)
 
-    def testFinishBuildStage(self):
+    def testFinishBuildStage(self) -> None:
         """Tests the redirect for FinishBuildStage function."""
         init = self.PatchObject(
             BuildStore, "InitializeClients", return_value=True
@@ -379,7 +379,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         with self.assertRaises(buildstore.BuildStoreException):
             bs.FinishBuildStage(constants.MOCK_BUILD_ID, "status")
 
-    def testUpdateLuciNotifyProperties(self):
+    def testUpdateLuciNotifyProperties(self) -> None:
         """Tests the redirect for the UpdateLuciNotifyProperties function."""
         init = self.PatchObject(
             BuildStore, "InitializeClients", return_value=True
@@ -393,7 +393,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         )
         init.return_value = False
 
-    def testFinishBuild(self):
+    def testFinishBuild(self) -> None:
         """Tests the redirect for FinishBuild function."""
         init = self.PatchObject(
             BuildStore, "InitializeClients", return_value=True
@@ -433,7 +433,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
                 strict=strict,
             )
 
-    def testFinishChildConfig(self):
+    def testFinishChildConfig(self) -> None:
         """Tests the redirect for FinishChildConfig function."""
         init = self.PatchObject(
             BuildStore, "InitializeClients", return_value=True
@@ -455,7 +455,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
                 constants.MOCK_BUILD_ID, child_config, status=status
             )
 
-    def testInsertBoardPerBuildWithoutMetadata(self):
+    def testInsertBoardPerBuildWithoutMetadata(self) -> None:
         """Tests InsertBoardPerBuild function when metadata isn't available."""
         self.PatchObject(BuildStore, "InitializeClients", return_value=True)
         bs = BuildStore(_write_to_cidb=True, _write_to_bb=True)
@@ -471,7 +471,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
             board=board
         )
 
-    def testInsertBoardPerBuildWithMetadata(self):
+    def testInsertBoardPerBuildWithMetadata(self) -> None:
         """Tests the InsertBoardPerBuild function when metadata is available."""
         self.PatchObject(BuildStore, "InitializeClients", return_value=True)
         bs = BuildStore(_write_to_cidb=True, _write_to_bb=True)
@@ -493,7 +493,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
             ec_firmware_version=fake_metadata["ec-firmware-version"],
         )
 
-    def testInsertBoardPerBuildWithoutRequisiteClients(self):
+    def testInsertBoardPerBuildWithoutRequisiteClients(self) -> None:
         """Tests the redirect for InsertBoardPerBuild function."""
         self.PatchObject(BuildStore, "InitializeClients", return_value=False)
         build_id = 1234
@@ -502,7 +502,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         with self.assertRaises(buildstore.BuildStoreException):
             bs.InsertBoardPerBuild(build_id, board)
 
-    def testUpdateMetadata(self):
+    def testUpdateMetadata(self) -> None:
         """Tests the redirect for UpdateMetadata function."""
         init = self.PatchObject(
             BuildStore, "InitializeClients", return_value=True
@@ -525,7 +525,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         with self.assertRaises(buildstore.BuildStoreException):
             bs.UpdateMetadata(constants.MOCK_BUILD_ID, fake_metadata)
 
-    def testGetBuildsFailures(self):
+    def testGetBuildsFailures(self) -> None:
         """Tests the redirect for GetBuildsFailures function."""
         # pylint: disable=protected-access
         init = self.PatchObject(
@@ -561,7 +561,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         with self.assertRaises(buildstore.BuildStoreException):
             bs.GetBuildsFailures(buildbucket_ids=buildbucket_ids)
 
-    def testGetBuildsStages(self):
+    def testGetBuildsStages(self) -> None:
         """Tests the redirect for GetBuildsStages function."""
         init = self.PatchObject(
             BuildStore, "InitializeClients", return_value=True
@@ -586,7 +586,7 @@ class TestBuildStore(cros_test_lib.MockTestCase):
         with self.assertRaises(buildstore.BuildStoreException):
             bs.GetBuildsStages(buildbucket_ids=buildbucket_ids)
 
-    def testGetBuildStatuses(self):
+    def testGetBuildStatuses(self) -> None:
         """Tests the redirect for GetBuildStatuses function."""
         init = self.PatchObject(
             BuildStore, "InitializeClients", return_value=True

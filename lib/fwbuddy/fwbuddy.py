@@ -517,7 +517,7 @@ class FwBuddy:
             "firmware_name": self.fw_image.firmware_name,
         }
 
-    def export_firmware_image(self, chip: str, directory: str):
+    def export_firmware_image(self, chip: str, directory: str) -> None:
         """Locates the firmware image for the chip and copies it to directory
 
         Args:

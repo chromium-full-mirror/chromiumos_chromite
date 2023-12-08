@@ -11,13 +11,13 @@ from chromite.lib import uri_lib
 class ShortenUriTests(cros_test_lib.TestCase):
     """Tests for ShortenUri."""
 
-    def testNoMatches(self):
+    def testNoMatches(self) -> None:
         """Unknown URIs/strings should be left alone"""
         TESTS = ("words",)
         for test in TESTS:
             self.assertEqual(test, uri_lib.ShortenUri(test))
 
-    def testOmitScheme(self):
+    def testOmitScheme(self) -> None:
         """Check we strip off the scheme"""
         self.assertEqual(
             "crrev.com/c/123",
@@ -28,7 +28,7 @@ class ShortenUriTests(cros_test_lib.TestCase):
             uri_lib.ShortenUri("https://crosreview.com/123", omit_scheme=True),
         )
 
-    def testGobUris(self):
+    def testGobUris(self) -> None:
         """Check GoB URIs using crrev.com"""
         HOST_MAPS = (
             ("chromium", "c"),
@@ -75,7 +75,7 @@ class ShortenUriTests(cros_test_lib.TestCase):
                     exp_uri = "https://crrev.com/%s/%s" % (crrev_part, exp_part)
                 self.assertEqual(exp_uri, uri_lib.ShortenUri(input_uri))
 
-    def testCrosReview(self):
+    def testCrosReview(self) -> None:
         """Check old review URIs"""
         TESTS = (
             ("https://crrev.com/c/123", "https://crosreview.com/123"),
@@ -84,7 +84,7 @@ class ShortenUriTests(cros_test_lib.TestCase):
         for exp, uri in TESTS:
             self.assertEqual(exp, uri_lib.ShortenUri(uri))
 
-    def testRietveld(self):
+    def testRietveld(self) -> None:
         """Check rietveld URIs"""
         TESTS = (
             ("https://crrev.com/123", "https://codereview.chromium.org/123"),
@@ -92,7 +92,7 @@ class ShortenUriTests(cros_test_lib.TestCase):
         for exp, uri in TESTS:
             self.assertEqual(exp, uri_lib.ShortenUri(uri))
 
-    def testBuganizerUris(self):
+    def testBuganizerUris(self) -> None:
         """Check buganizer URIs"""
         TESTS = (
             "b.corp.google.com/issue?id=123",
@@ -104,7 +104,7 @@ class ShortenUriTests(cros_test_lib.TestCase):
         for test in TESTS:
             self.assertEqual("http://b/123", uri_lib.ShortenUri(test))
 
-    def testChromiumUris(self):
+    def testChromiumUris(self) -> None:
         """Check Chromium bug URIs"""
         TESTS = (
             (
@@ -128,7 +128,7 @@ class ShortenUriTests(cros_test_lib.TestCase):
         for exp, uri in TESTS:
             self.assertEqual(exp, uri_lib.ShortenUri(uri))
 
-    def testGutsUris(self):
+    def testGutsUris(self) -> None:
         """Check GUTS URIs"""
         TESTS = (
             ("http://t/123", "https://gutsv3.corp.google.com/#ticket/123"),
@@ -145,20 +145,20 @@ class ShortenUriTests(cros_test_lib.TestCase):
 class ConstructUrlTests(cros_test_lib.TestCase):
     """Tests functions that create URLs."""
 
-    def testConstructMiloBuildURL(self):
+    def testConstructMiloBuildURL(self) -> None:
         """Tests generating Milo build URIs."""
         actual = uri_lib.ConstructMiloBuildUri("bbid")
         expected = "https://ci.chromium.org/b/bbid"
 
         self.assertEqual(actual, expected)
 
-    def testConstructDashboardUrl(self):
+    def testConstructDashboardUrl(self) -> None:
         """Test generating dashboard URIs."""
         actual = uri_lib.ConstructDashboardUri("main", "builder", 123)
         expected = "https://luci-milo.appspot.com/buildbot/main/builder/123"
         self.assertEqual(actual, expected)
 
-    def testConstructLogDogUri(self):
+    def testConstructLogDogUri(self) -> None:
         """Test generating LogDog URIs."""
         actual = uri_lib.ConstructLogDogUri(123, "stage")
         expected = (
@@ -168,7 +168,7 @@ class ConstructUrlTests(cros_test_lib.TestCase):
         )
         self.assertEqual(actual, expected)
 
-    def testConstructViceroyBuildDetailsUri(self):
+    def testConstructViceroyBuildDetailsUri(self) -> None:
         """Test generating Viceroy build details URIs."""
         actual = uri_lib.ConstructViceroyBuildDetailsUri(123)
         expected = (

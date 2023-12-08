@@ -78,7 +78,7 @@ class DutControl:
         cmd_fragment: List[str],
         verbose: bool = False,
         dryrun: bool = False,
-    ):
+    ) -> None:
         """Run a dut_control command.
 
         Args:
@@ -95,7 +95,7 @@ class DutControl:
         cmd_fragments: List[List[str]],
         verbose: bool = False,
         dryrun: bool = False,
-    ):
+    ) -> None:
         """Run multiple dut_control commands in the order given.
 
         Args:

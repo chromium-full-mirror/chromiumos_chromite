@@ -25,10 +25,10 @@ LOCK_NOT_ACQUIRED = 6
 class LockingTest(cros_test_lib.TempDirTestCase):
     """Test the Locking class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.lock_file = os.path.join(self.tempdir, "lockfile")
 
-    def _HelperSingleLockTest(self, blocking, shared, locktype):
+    def _HelperSingleLockTest(self, blocking, shared, locktype) -> None:
         """Helper method to run a basic test with/without blocking/sharing."""
         self.assertNotExists(self.lock_file)
 
@@ -52,7 +52,7 @@ class LockingTest(cros_test_lib.TempDirTestCase):
 
     def _HelperInsideProcess(
         self, blocking, shared, locktype=locking.LOCKF, blocking_timeout=None
-    ):
+    ) -> None:
         """Helper method that runs a basic test with/without blocking."""
         try:
             lock = locking.FileLock(
@@ -89,7 +89,7 @@ class LockingTest(cros_test_lib.TempDirTestCase):
 
     def _HelperWithProcess(
         self, expected, blocking=False, shared=False, locktype=locking.LOCKF
-    ):
+    ) -> None:
         """Create a process and invoke _HelperInsideProcess in it."""
         p = multiprocessing.Process(
             target=self._HelperInsideProcess, args=(blocking, shared, locktype)
@@ -98,7 +98,7 @@ class LockingTest(cros_test_lib.TempDirTestCase):
         p.join()
         self.assertEqual(p.exitcode, expected)
 
-    def testSingleLock(self):
+    def testSingleLock(self) -> None:
         """Just test getting releasing a lock with options."""
         arg_list = [
             [True, False],  # blocking
@@ -108,7 +108,7 @@ class LockingTest(cros_test_lib.TempDirTestCase):
         for args in itertools.product(*arg_list):
             self._HelperSingleLockTest(*args)
 
-    def testDoubleLockWithFlock(self):
+    def testDoubleLockWithFlock(self) -> None:
         """Tests that double locks do block with flock."""
         lock1 = locking.FileLock(
             self.lock_file, blocking=False, locktype=locking.FLOCK
@@ -132,7 +132,7 @@ class LockingTest(cros_test_lib.TempDirTestCase):
         self.assertFalse(lock1.IsLocked())
         self.assertFalse(lock2.IsLocked())
 
-    def testDoubleLockTimeoutWithFlock(self):
+    def testDoubleLockTimeoutWithFlock(self) -> None:
         """Tests that double locking the same lock times out."""
         lock1 = locking.FileLock(
             self.lock_file,
@@ -158,7 +158,7 @@ class LockingTest(cros_test_lib.TempDirTestCase):
             self.assertRaises(timeout_util.TimeoutError, lock2.write_lock)
             self.assertTrue(lock1.IsLocked())
 
-    def testDoubleLockWithLockf(self):
+    def testDoubleLockWithLockf(self) -> None:
         """Tests that double locks don't block with lockf."""
         lock1 = locking.FileLock(
             self.lock_file, blocking=False, locktype=locking.LOCKF
@@ -178,7 +178,7 @@ class LockingTest(cros_test_lib.TempDirTestCase):
         self.assertFalse(lock1.IsLocked())
         self.assertFalse(lock2.IsLocked())
 
-    def testContextMgr(self):
+    def testContextMgr(self) -> None:
         """Make sure we behave properly with 'with'."""
         # Create an instance, and use it in a with.
         prelock = locking.FileLock(self.lock_file)
@@ -198,7 +198,7 @@ class LockingTest(cros_test_lib.TempDirTestCase):
 
         self._HelperWithProcess(expected=LOCK_ACQUIRED)
 
-    def testAcquireBeforeWith(self):
+    def testAcquireBeforeWith(self) -> None:
         """Sometimes you want to grab a lock and then return it into 'with'."""
         lock = locking.FileLock(self.lock_file, blocking=False)
 
@@ -210,7 +210,7 @@ class LockingTest(cros_test_lib.TempDirTestCase):
 
         self._HelperWithProcess(expected=LOCK_ACQUIRED)
 
-    def testSingleProcessLock(self):
+    def testSingleProcessLock(self) -> None:
         """Test grabbing the same lock in processes with no conflicts."""
         arg_list = [
             [LOCK_ACQUIRED],
@@ -221,7 +221,7 @@ class LockingTest(cros_test_lib.TempDirTestCase):
         for args in itertools.product(*arg_list):
             self._HelperWithProcess(*args)
 
-    def testNonBlockingConflicts(self):
+    def testNonBlockingConflicts(self) -> None:
         """Test that we get a lock conflict for non-blocking locks."""
         with locking.FileLock(self.lock_file).write_lock():
             self._HelperWithProcess(expected=LOCK_NOT_ACQUIRED)
@@ -231,7 +231,7 @@ class LockingTest(cros_test_lib.TempDirTestCase):
         # Can grab it after it's released.
         self._HelperWithProcess(expected=LOCK_ACQUIRED)
 
-    def testSharedLocks(self):
+    def testSharedLocks(self) -> None:
         """Test lock conflict for blocking locks."""
         # Intial lock is NOT shared.
         with locking.FileLock(self.lock_file).write_lock():
@@ -242,7 +242,7 @@ class LockingTest(cros_test_lib.TempDirTestCase):
             self._HelperWithProcess(expected=LOCK_ACQUIRED, shared=True)
             self._HelperWithProcess(expected=LOCK_NOT_ACQUIRED, shared=False)
 
-    def testBlockingConflicts(self):
+    def testBlockingConflicts(self) -> None:
         """Test lock conflict for blocking locks."""
         # Intial lock is blocking, exclusive.
         with locking.FileLock(self.lock_file, blocking=True).write_lock():
@@ -285,7 +285,7 @@ class LockingTest(cros_test_lib.TempDirTestCase):
 class PortableLinkLockTest(cros_test_lib.TempDirTestCase):
     """Test locking.PortableLinkLock class."""
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Looks for leaked files from the locking process."""
         leaked_files = os.listdir(self.tempdir)
         self.assertFalse(
@@ -293,7 +293,7 @@ class PortableLinkLockTest(cros_test_lib.TempDirTestCase):
             "Found unexpected leaked files from locking: %r" % leaked_files,
         )
 
-    def testLockExclusivity(self):
+    def testLockExclusivity(self) -> None:
         """Test that when we have a lock, someone else can't grab it."""
         lock_path = os.path.join(self.tempdir, "locked_file")
         with locking.PortableLinkLock(lock_path, max_retry=0):
@@ -303,7 +303,7 @@ class PortableLinkLockTest(cros_test_lib.TempDirTestCase):
                 ):
                     self.fail("We acquired a lock twice?")
 
-    def testCanUnlock(self):
+    def testCanUnlock(self) -> None:
         """Test that we release locks correctly."""
         lock_path = os.path.join(self.tempdir, "locked_file")
         with locking.PortableLinkLock(lock_path, max_retry=0):
@@ -315,7 +315,7 @@ class PortableLinkLockTest(cros_test_lib.TempDirTestCase):
 class PipeLockTest(cros_test_lib.TestCase):
     """Test locking.PipeLock class."""
 
-    def testFdLeakage(self):
+    def testFdLeakage(self) -> None:
         """Make sure we don't leak any fds."""
         fds_before = os.listdir("/proc/self/fd/")
         lock = locking.PipeLock()
@@ -325,7 +325,7 @@ class PipeLockTest(cros_test_lib.TestCase):
         fds_finished = os.listdir("/proc/self/fd/")
         self.assertEqual(fds_before, fds_finished)
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         """Test we can Wait/Post."""
         # If this fails, we'd just hang :).
         with timeout_util.Timeout(30):
@@ -336,7 +336,7 @@ class PipeLockTest(cros_test_lib.TestCase):
             lock.Wait()
             del lock
 
-    def testParallel(self):
+    def testParallel(self) -> None:
         """Test interprocesses actually sync."""
         write_lock = locking.PipeLock()
         read_lock = locking.PipeLock()
@@ -375,6 +375,6 @@ class PipeLockTest(cros_test_lib.TestCase):
                 status = os.waitpid(pid, 0)[1]
                 self.assertEqual(process_util.GetExitStatus(status), 0)
 
-    def testParallelMany(self):
+    def testParallelMany(self) -> None:
         """Same as testParallel, but with many more processes for stressing."""
         parallel.RunParallelSteps([self.testParallel] * 40)

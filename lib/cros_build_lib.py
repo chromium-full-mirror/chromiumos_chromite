@@ -273,7 +273,7 @@ class CalledProcessError(subprocess.CalledProcessError):
         return self._stdout
 
     @stdout.setter
-    def stdout(self, value):
+    def stdout(self, value) -> None:
         """Override parent's usage of .output"""
         self._stdout = value
 
@@ -467,7 +467,7 @@ def sudo_run(
 
 def _KillChildProcess(
     proc, int_timeout, kill_timeout, cmd, original_handler, signum, frame
-):
+) -> None:
     """Used as a signal handler by run.
 
     This is internal to run.  No other code should use this.
@@ -526,7 +526,7 @@ class _Popen(subprocess.Popen):
 
     # Pylint seems to be buggy with the send_signal signature detection.
     # pylint: disable=arguments-renamed
-    def send_signal(self, sig):
+    def send_signal(self, sig) -> None:
         if self.returncode is not None:
             # The original implementation in Popen would allow signaling
             # whatever process now occupies this pid, even if the Popen object

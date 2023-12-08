@@ -54,7 +54,7 @@ class ErrorParser(html.parser.HTMLParser):
         self.in_div = False
         self.err_data = ""
 
-    def handle_starttag(self, tag, attrs):
+    def handle_starttag(self, tag, attrs) -> None:
         tag_id = [x[1] for x in attrs if x[0] == "id"]
         if tag == "div" and tag_id and tag_id[0] == "af-error-container":
             self.in_div = True
@@ -69,18 +69,18 @@ class ErrorParser(html.parser.HTMLParser):
                 self.err_data += "\n"
                 return
 
-    def handle_endtag(self, tag):
+    def handle_endtag(self, tag) -> None:
         if tag == "div":
             self.in_div = False
 
-    def handle_data(self, data):
+    def handle_data(self, data) -> None:
         if self.in_div:
             self.err_data += data.replace("\n", "")
 
     def ParsedDiv(self):
         return self.err_data.strip()
 
-    def error(self, message):
+    def error(self, message) -> None:
         # Pylint correctly flags a missing abstract method, but the error is in
         # Python itself.  We can delete this method once we move to Python
         # 3.10+. https://bugs.python.org/issue31844
@@ -584,7 +584,7 @@ def GetRelatedChanges(host, change, revision=None) -> Optional[Dict[str, Any]]:
     return FetchUrlJson(host, path)
 
 
-def GetChangeReviewers(host, change):
+def GetChangeReviewers(host, change) -> None:
     """Get information about all reviewers attached to a change.
 
     Args:
@@ -682,7 +682,7 @@ def RestoreChange(host, change, msg=""):
     return FetchUrlJson(host, path, reqtype="POST", body=body, ignore_404=False)
 
 
-def Delete(host, change):
+def Delete(host, change) -> None:
     """Delete a gerrit change."""
     path = _GetChangePath(change)
     FetchUrl(host, path, reqtype="DELETE", expect=204, ignore_404=False)
@@ -744,7 +744,7 @@ def CheckChange(host, change, sha1=None):
     )
 
 
-def MarkPrivate(host, change):
+def MarkPrivate(host, change) -> None:
     """Marks the given CL as private.
 
     Args:
@@ -765,7 +765,7 @@ def MarkPrivate(host, change):
         )
 
 
-def MarkNotPrivate(host, change):
+def MarkNotPrivate(host, change) -> None:
     """Sets the private bit on given CL to False.
 
     Args:
@@ -852,7 +852,7 @@ def RemoveAttentionSet(
     remove: Tuple[str, ...],
     reason: str,
     notify: str = "",
-):
+) -> None:
     """Remove users from the attention set of a change."""
     if not remove:
         return
@@ -894,7 +894,7 @@ def AddReviewers(host, change, add=None, notify=None):
     return jmsg
 
 
-def RemoveReviewers(host, change, remove=None, notify=None):
+def RemoveReviewers(host, change, remove=None, notify=None) -> None:
     """Remove reviewers from a change."""
     if not remove:
         return
@@ -920,7 +920,7 @@ def SetReview(
     remove_reviewers=None,
     ready=None,
     wip=None,
-):
+) -> None:
     """Set labels and/or add a message to a code review."""
     if revision is None:
         revision = "current"
@@ -994,7 +994,7 @@ def SetHashtags(host, change, add, remove):
 
 def ResetReviewLabels(
     host, change, label, value="0", revision=None, message=None, notify=None
-):
+) -> None:
     """Reset the value of a given label for all reviewers on a change."""
     if revision is None:
         revision = "current"

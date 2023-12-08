@@ -19,7 +19,7 @@ from chromite.utils import pformat
 
 def _ValidateFileReplicationRule(
     rule: replication_config_pb2.FileReplicationRule,
-):
+) -> None:
     """Raises an error if a FileReplicationRule is invalid.
 
     For example, checks that if REPLICATION_TYPE_FILTER, destination_fields
@@ -79,7 +79,7 @@ def _ValidateFileReplicationRule(
 def _ApplyStringReplacementRules(
     destination_path: str,
     rules: List[replication_config_pb2.StringReplacementRule],
-):
+) -> None:
     """Read the file at destination path, apply rules, and write a new file.
 
     Args:
@@ -99,7 +99,9 @@ def _ApplyStringReplacementRules(
     osutils.WriteFile(destination_path, dst_data)
 
 
-def Replicate(replication_config: replication_config_pb2.ReplicationConfig):
+def Replicate(
+    replication_config: replication_config_pb2.ReplicationConfig,
+) -> None:
     """Run the replication described in replication_config.
 
     Args:

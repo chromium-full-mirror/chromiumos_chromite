@@ -12,7 +12,7 @@ import shutil
 from chromite.lib import osutils
 
 
-def Copy(src_path, dest_path):
+def Copy(src_path, dest_path) -> None:
     """Copy one path to another.
 
     Automatically create the directory for dest_path, if necessary.
@@ -69,7 +69,9 @@ def ShaSums(file_path):
     return sha1_hex, sha256_hex
 
 
-def CopyFileSegment(in_file, in_mode, in_len, out_file, out_mode, in_seek=0):
+def CopyFileSegment(
+    in_file, in_mode, in_len, out_file, out_mode, in_seek=0
+) -> None:
     """Simulates a `dd` operation with seeks.
 
     Args:

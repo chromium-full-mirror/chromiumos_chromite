@@ -18,7 +18,7 @@ Dir = cros_test_lib.Directory
 class CopyTest(cros_test_lib.TempDirTestCase):
     """Unittests for chrome_util Copy."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.src_base = os.path.join(self.tempdir, "src_base")
         self.dest_base = os.path.join(self.tempdir, "dest_base")
         os.mkdir(self.src_base)
@@ -27,7 +27,7 @@ class CopyTest(cros_test_lib.TempDirTestCase):
 
     def _CopyAndVerify(
         self, path, src_struct, dest_struct, error=None, sloppy=False
-    ):
+    ) -> None:
         cros_test_lib.CreateOnDiskHierarchy(self.src_base, src_struct)
         if error:
             self.assertRaises(
@@ -61,14 +61,14 @@ class FileCopyTest(CopyTest):
     MATCH_NOTHING_GLOB = "match_nothing"
     BAD_ELEMENTS = ["wont match1", "wont match2"]
 
-    def testSurfaceCopy(self):
+    def testSurfaceCopy(self) -> None:
         """Copying an element from the root."""
         src_struct = self.ELEMENTS_SRC
         dest_struct = [self.ELEMENT_SRC]
         path = chrome_util.Path(self.ELEMENT_SRC_NAME)
         self._CopyAndVerify(path, src_struct, dest_struct)
 
-    def testSurfaceRename(self):
+    def testSurfaceRename(self) -> None:
         """Renaming of an element from the root."""
         src_struct = self.ELEMENTS_SRC
         dest_struct = [self.ELEMENT_DEST]
@@ -77,7 +77,7 @@ class FileCopyTest(CopyTest):
         )
         self._CopyAndVerify(path, src_struct, dest_struct)
 
-    def testOneLevelDeepCopy(self):
+    def testOneLevelDeepCopy(self) -> None:
         """Copying an element inside a directory."""
         src_struct = [Dir(self.DIR_SRC_NAME, self.ELEMENTS_SRC)]
         dest_struct = [Dir(self.DIR_SRC_NAME, [self.ELEMENT_SRC])]
@@ -86,7 +86,7 @@ class FileCopyTest(CopyTest):
         )
         self._CopyAndVerify(path, src_struct, dest_struct)
 
-    def testOneLevelDeepRename(self):
+    def testOneLevelDeepRename(self) -> None:
         """Renaming of an element inside a directory."""
         src_struct = [Dir(self.DIR_SRC_NAME, self.ELEMENTS_SRC)]
         dest_struct = [Dir(self.DIR_SRC_NAME, [self.ELEMENT_DEST])]
@@ -97,7 +97,7 @@ class FileCopyTest(CopyTest):
         )
         self._CopyAndVerify(path, src_struct, dest_struct)
 
-    def testOneLevelDeepDirRename(self):
+    def testOneLevelDeepDirRename(self) -> None:
         """Renaming of an element and its containing directory."""
         src_struct = [Dir(self.DIR_SRC_NAME, self.ELEMENTS_SRC)]
         dest_struct = [Dir(self.DIR_DEST_NAME, [self.ELEMENT_DEST])]
@@ -108,7 +108,7 @@ class FileCopyTest(CopyTest):
         )
         self._CopyAndVerify(path, src_struct, dest_struct)
 
-    def testSingleGlob(self):
+    def testSingleGlob(self) -> None:
         """Glob matching one element."""
         src_struct = dest_struct = [Dir(self.DIR_SRC_NAME, [self.ELEMENT_SRC])]
         path = chrome_util.Path(
@@ -116,7 +116,7 @@ class FileCopyTest(CopyTest):
         )
         self._CopyAndVerify(path, src_struct, dest_struct)
 
-    def testSingleGlobToDirectory(self):
+    def testSingleGlobToDirectory(self) -> None:
         """Glob matching one element and dest directory provided."""
         src_struct = [Dir(self.DIR_SRC_NAME, [self.ELEMENT_SRC])]
         dest_struct = [Dir(self.DIR_DEST_NAME, [self.ELEMENT_SRC])]
@@ -126,7 +126,7 @@ class FileCopyTest(CopyTest):
         )
         self._CopyAndVerify(path, src_struct, dest_struct)
 
-    def testMultiGlob(self):
+    def testMultiGlob(self) -> None:
         """Glob matching one file and dest directory provided."""
         src_struct = [Dir(self.DIR_SRC_NAME, self.ELEMENTS_SRC)]
         dest_struct = [Dir(self.DIR_SRC_NAME, self.ELEMENTS_DEST)]
@@ -136,7 +136,7 @@ class FileCopyTest(CopyTest):
         )
         self._CopyAndVerify(path, src_struct, dest_struct)
 
-    def testMultiGlobToDirectory(self):
+    def testMultiGlobToDirectory(self) -> None:
         """Glob matching multiple elements and dest directory provided."""
         src_struct = [Dir(self.DIR_SRC_NAME, self.ELEMENTS_SRC)]
         dest_struct = [Dir(self.DIR_DEST_NAME, self.ELEMENTS_DEST)]
@@ -146,7 +146,7 @@ class FileCopyTest(CopyTest):
         )
         self._CopyAndVerify(path, src_struct, dest_struct)
 
-    def testGlobReturnsMultipleError(self):
+    def testGlobReturnsMultipleError(self) -> None:
         """Glob returns multiple results but dest does not end with '/'."""
         src_struct = self.ELEMENTS_SRC
         path = chrome_util.Path(self.ELEMENTS_GLOB, dest=self.DIR_DEST_NAME)
@@ -154,7 +154,7 @@ class FileCopyTest(CopyTest):
             path, src_struct, None, error=chrome_util.MultipleMatchError
         )
 
-    def testNoElementError(self):
+    def testNoElementError(self) -> None:
         """A path that is not optional cannot be found."""
         src_struct = self.BAD_ELEMENTS
         path = chrome_util.Path(self.ELEMENT_SRC_NAME)
@@ -162,13 +162,13 @@ class FileCopyTest(CopyTest):
             path, src_struct, [], error=chrome_util.MissingPathError
         )
 
-    def testNoElementSloppy(self):
+    def testNoElementSloppy(self) -> None:
         """No error raised when a required path cannot be found with --sloppy"""
         src_struct = self.BAD_ELEMENTS
         path = chrome_util.Path(self.ELEMENT_SRC_NAME)
         self._CopyAndVerify(path, src_struct, [], sloppy=True)
 
-    def testNoGlobError(self):
+    def testNoGlobError(self) -> None:
         """A glob that is not optional matches nothing."""
         src_struct = self.ELEMENTS_SRC
         path = chrome_util.Path(self.MATCH_NOTHING_GLOB)
@@ -176,7 +176,7 @@ class FileCopyTest(CopyTest):
             path, src_struct, [], error=chrome_util.MissingPathError
         )
 
-    def testNonDirError(self):
+    def testNonDirError(self) -> None:
         """Test case where a file pattern matches a directory."""
         src_struct = ["file1/"]
         dest_struct = []
@@ -185,14 +185,14 @@ class FileCopyTest(CopyTest):
             path, src_struct, dest_struct, error=chrome_util.MustNotBeDirError
         )
 
-    def testElementOptional(self):
+    def testElementOptional(self) -> None:
         """A path cannot be found but is optional."""
         src_struct = self.BAD_ELEMENTS
         dest_struct = []
         path = chrome_util.Path(self.ELEMENT_SRC_NAME, optional=True)
         self._CopyAndVerify(path, src_struct, dest_struct)
 
-    def testOptionalGlob(self):
+    def testOptionalGlob(self) -> None:
         """A glob matches nothing but is optional."""
         src_struct = self.ELEMENTS_SRC
         dest_struct = []
@@ -205,7 +205,7 @@ class SloppyFileCopyTest(FileCopyTest):
 
     def _CopyAndVerify(
         self, path, src_struct, dest_struct, error=None, sloppy=True
-    ):
+    ) -> None:
         if error is chrome_util.MissingPathError:
             error = None
         # pylint: disable=protected-access
@@ -249,7 +249,7 @@ class SloppyDirCopyTest(SloppyFileCopyTest, DirCopyTest):
 class ProcessVersionFileTest(cros_test_lib.TempDirTestCase):
     """Tests ProcessVersionFile()"""
 
-    def testBasicFile(self):
+    def testBasicFile(self) -> None:
         osutils.SafeMakedirs(os.path.join(self.tempdir, "chrome"))
         contents = """
 MAJOR=123

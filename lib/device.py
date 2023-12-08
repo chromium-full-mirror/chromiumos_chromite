@@ -43,7 +43,7 @@ class Device:
         self.log_level = getattr(opts, "log_level", None)
         self.InitRemote()
 
-    def InitRemote(self, connect_timeout=SSH_CONNECT_TIMEOUT):
+    def InitRemote(self, connect_timeout=SSH_CONNECT_TIMEOUT) -> None:
         """Initialize remote access."""
         self.remote = remote_access.ChromiumOSDevice(
             self.device,
@@ -59,7 +59,7 @@ class Device:
         if self.ssh_port:
             self.device_addr += ":%d" % self.ssh_port
 
-    def WaitForBoot(self, max_retry=10, sleep=5):
+    def WaitForBoot(self, max_retry=10, sleep=5) -> None:
         """Wait for the device to boot up.
 
         Wait for the ssh connection to become active.

@@ -54,7 +54,7 @@ class CrOSTesterBase(cros_test_lib.RunCommandTempDirTestCase):
         self.rc.AddCmdResult(partial_mock.In("--version"), stdout=version_str)
         return tester
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Common set up method for all tests."""
         self._tester = self.createTester()
 
@@ -66,7 +66,7 @@ class CrOSTesterBase(cros_test_lib.RunCommandTempDirTestCase):
 class CrOSTester(CrOSTesterBase):
     """Tests miscellaneous utility methods"""
 
-    def testStartVM(self):
+    def testStartVM(self) -> None:
         """Verify that a new VM is started before running tests."""
         self._tester.start_vm = True
         self._tester.Run()
@@ -79,7 +79,7 @@ class CrOSTester(CrOSTesterBase):
             ["ssh", "-p", "9222", "root@localhost", "--", "true"]
         )
 
-    def testStartVMCustomPort(self):
+    def testStartVMCustomPort(self) -> None:
         """Verify that a custom SSH port is supported for tests."""
         self._tester = self.createTester(opts=["--ssh-port=12345"])
         self._tester.start_vm = True
@@ -89,7 +89,7 @@ class CrOSTester(CrOSTesterBase):
             ["ssh", "-p", "12345", "root@localhost", "--", "true"]
         )
 
-    def testFlash(self):
+    def testFlash(self) -> None:
         """Tests flash command."""
         # Verify that specifying the board gets the latest canary.
         self._tester.flash = True
@@ -120,7 +120,7 @@ class CrOSTester(CrOSTesterBase):
             ]
         )
 
-    def testFlashChromeCheckout(self):
+    def testFlashChromeCheckout(self) -> None:
         """Tests flash command in a Chrome checkout."""
         # Create a fake gclient checkout to fool path_util.DetermineCheckout().
         chrome_root = os.path.join(self.tempdir, "chrome_root")
@@ -160,7 +160,7 @@ class CrOSTester(CrOSTesterBase):
             ]
         )
 
-    def testFlashSkip(self):
+    def testFlashSkip(self) -> None:
         """Tests flash command is skipped when not needed for ash-chrome."""
         self._tester.flash = True
         self._tester._device.board = "octopus"
@@ -179,7 +179,7 @@ class CrOSTester(CrOSTesterBase):
             expected=False,
         )
 
-    def testAlwaysFlashForLacros(self):
+    def testAlwaysFlashForLacros(self) -> None:
         """Tests flash command is always executed for lacros-chrome tests."""
         self._tester.deploy_lacros = True
         self._tester.lacros_launcher_script = self.TempFilePath("launcher.py")
@@ -201,7 +201,7 @@ class CrOSTester(CrOSTesterBase):
             ]
         )
 
-    def testDeployAshChrome(self):
+    def testDeployAshChrome(self) -> None:
         """Tests basic deploy ash-chrome command."""
         self._tester.deploy = True
         self._tester.build_dir = self.TempFilePath("out_amd64-generic/Release")
@@ -223,7 +223,7 @@ class CrOSTester(CrOSTesterBase):
             ]
         )
 
-    def testDeployLacrosChrome(self):
+    def testDeployLacrosChrome(self) -> None:
         """Tests basic deploy lacros-chrome command."""
         self._tester.deploy_lacros = True
         self._tester.lacros_launcher_script = self.TempFilePath("launcher.py")
@@ -253,7 +253,7 @@ class CrOSTester(CrOSTesterBase):
             )
             mock_deploy.assert_called_once()
 
-    def testDeployAshAndLacrosChrome(self):
+    def testDeployAshAndLacrosChrome(self) -> None:
         """Tests basic deploy ash and lacros-chrome command."""
         self._tester.deploy = True
         self._tester.deploy_lacros = True
@@ -303,7 +303,7 @@ class CrOSTester(CrOSTesterBase):
             )
             mock_deploy.assert_called_once()
 
-    def testDeployChromeWithArgs(self):
+    def testDeployChromeWithArgs(self) -> None:
         """Tests deploy ash-chrome command with additional arguments."""
         self._tester.deploy = True
         self._tester.build_dir = self.TempFilePath("out_amd64-generic/Release")
@@ -312,7 +312,7 @@ class CrOSTester(CrOSTesterBase):
         self._tester.Run()
         self.assertCommandContains(["--nostrip", "--mount"])
 
-    def testFetchResults(self):
+    def testFetchResults(self) -> None:
         """Verify that results files/directories are copied from the DUT."""
         self._tester.results_src = [
             "/tmp/results/cmd_results",
@@ -331,7 +331,7 @@ class CrOSTester(CrOSTesterBase):
                 ]
             )
 
-    def testFileList(self):
+    def testFileList(self) -> None:
         """Verify that FileList returns the correct files."""
         # Ensure FileList returns files when files_from is None.
         files = ["/tmp/filename1", "/tmp/filename2"]
@@ -351,7 +351,7 @@ class CrOSTesterMiscTests(CrOSTesterBase):
     """Tests miscellaneous test cases."""
 
     @mock.patch("chromite.lib.vm.VM.IsRunning", return_value=True)
-    def testBasic(self, isrunning_mock):
+    def testBasic(self, isrunning_mock) -> None:
         """Tests basic functionality."""
         self._tester.Run()
         isrunning_mock.assert_called()
@@ -367,7 +367,7 @@ class CrOSTesterMiscTests(CrOSTesterBase):
             ]
         )
 
-    def testCatapult(self):
+    def testCatapult(self) -> None:
         """Verify catapult test command."""
         self._tester.catapult_tests = ["testAddResults"]
         self._tester.Run()
@@ -383,7 +383,7 @@ class CrOSTesterMiscTests(CrOSTesterBase):
             ]
         )
 
-    def testCatapultAsGuest(self):
+    def testCatapultAsGuest(self) -> None:
         """Verify that we use the correct browser in guest mode."""
         self._tester.catapult_tests = ["testAddResults"]
         self._tester.guest = True
@@ -400,7 +400,7 @@ class CrOSTesterMiscTests(CrOSTesterBase):
             ]
         )
 
-    def testRunDeviceCmd(self):
+    def testRunDeviceCmd(self) -> None:
         """Verify a run device cmd call."""
         self._tester.remote_cmd = True
         self._tester.files = [self.TempFilePath("crypto_unittests")]
@@ -431,7 +431,7 @@ class CrOSTesterMiscTests(CrOSTesterBase):
         # Ensure target directory is removed at the end of the test.
         self.assertCommandContains(["rm", "-rf", "/usr/local/cros_test"])
 
-    def testRunDeviceCmdWithSetCwd(self):
+    def testRunDeviceCmdWithSetCwd(self) -> None:
         """Verify a run device command call when giving a cwd."""
         self._tester.remote_cmd = True
         self._tester.cwd = "/usr/local/autotest"
@@ -444,7 +444,7 @@ class CrOSTesterMiscTests(CrOSTesterBase):
             "cd /usr/local/autotest && ./bin/vm_sanity.py"
         )
 
-    def testRunDeviceCmdWithoutSrcFiles(self):
+    def testRunDeviceCmdWithoutSrcFiles(self) -> None:
         """Verify running a remote command when src files are not specified.
 
         The remote command should not change the working directory or create a
@@ -466,7 +466,7 @@ class CrOSTesterMiscTests(CrOSTesterBase):
         )
         self.assertCommandContains(["rm", "-rf"], expected=False)
 
-    def testRunDeviceCmdWithNoClean(self):
+    def testRunDeviceCmdWithNoClean(self) -> None:
         """Verify a run device command call with --no-clean."""
         self._tester = self.createTester(opts=["--no-clean"])
 
@@ -484,7 +484,7 @@ class CrOSTesterMiscTests(CrOSTesterBase):
             ["rm", "-rf", "/usr/local/cros_test"], expected=False
         )
 
-    def testHostCmd(self):
+    def testHostCmd(self) -> None:
         """Verify running a host command."""
         self._tester.host_cmd = True
         self._tester.build_dir = "/some/chromium/dir"
@@ -506,7 +506,7 @@ class CrOSTesterMiscTests(CrOSTesterBase):
 class CrOSTesterAutotest(CrOSTesterBase):
     """Tests autotest test cases."""
 
-    def testBasicAutotest(self):
+    def testBasicAutotest(self) -> None:
         """Tests a simple autotest call."""
         self._tester.autotest = ["accessibility_Sanity"]
         self._tester.Run()
@@ -528,7 +528,7 @@ class CrOSTesterAutotest(CrOSTesterBase):
             ]
         )
 
-    def testAutotestWithArgs(self):
+    def testAutotestWithArgs(self) -> None:
         """Tests an autotest call with attributes."""
         self._tester.autotest = ["accessibility_Sanity"]
         self._tester.results_dir = "test_results"
@@ -573,7 +573,7 @@ class CrOSTesterAutotest(CrOSTesterBase):
         )
 
     @mock.patch("chromite.lib.cros_build_lib.IsInsideChroot", return_value=True)
-    def testInsideChrootAutotest(self, _check_inside_chroot_mock):
+    def testInsideChrootAutotest(self, _check_inside_chroot_mock) -> None:
         """Tests running an autotest from within the chroot."""
         # Checks that mock version has been called.
         # TODO(crbug/1065172): Invalid assertion that had previously been
@@ -598,7 +598,7 @@ class CrOSTesterAutotest(CrOSTesterBase):
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
-    def testOutsideChrootAutotest(self, _check_inside_chroot_mock):
+    def testOutsideChrootAutotest(self, _check_inside_chroot_mock) -> None:
         """Tests running an autotest from outside the chroot."""
         # Checks that mock version has been called.
         # TODO(crbug/1065172): Invalid assertion that had previously been
@@ -623,7 +623,7 @@ class CrOSTesterAutotest(CrOSTesterBase):
 class CrOSTesterTast(CrOSTesterBase):
     """Tests tast test cases."""
 
-    def testSingleBaseTastTest(self):
+    def testSingleBaseTastTest(self) -> None:
         """Verify running a single tast test."""
         self._tester.tast = ["ui.ChromeLogin"]
         self._tester.Run()
@@ -639,7 +639,7 @@ class CrOSTesterTast(CrOSTesterBase):
             ]
         )
 
-    def testExpressionBaseTastTest(self):
+    def testExpressionBaseTastTest(self) -> None:
         """Verify running a set of tast tests with an expression."""
         self._tester.tast = [
             '(("dep:chrome" || "dep:android") && !flaky && !disabled)'
@@ -657,7 +657,7 @@ class CrOSTesterTast(CrOSTesterBase):
             ]
         )
 
-    def testTastTestWithVars(self):
+    def testTastTestWithVars(self) -> None:
         """Verify running tast tests with vars specified."""
         self._tester.tast = ["ui.ChromeLogin"]
         self._tester.tast_vars = ["key=value"]
@@ -677,7 +677,7 @@ class CrOSTesterTast(CrOSTesterBase):
         )
 
     @mock.patch("chromite.lib.cros_build_lib.IsInsideChroot")
-    def testTastTestWithOtherArgs(self, check_inside_chroot_mock):
+    def testTastTestWithOtherArgs(self, check_inside_chroot_mock) -> None:
         """Verify running a single tast test with various arguments."""
         self._tester.tast = ["ui.ChromeLogin"]
         self._tester.test_timeout = 100
@@ -711,7 +711,7 @@ class CrOSTesterTast(CrOSTesterBase):
             ]
         )
 
-    def testTastTestSDK(self):
+    def testTastTestSDK(self) -> None:
         """Verify running tast tests from the SimpleChrome SDK."""
         self._tester.tast = ["ui.ChromeLogin"]
         self._tester._device.private_key = "/tmp/.ssh/testing_rsa"
@@ -740,7 +740,7 @@ class CrOSTesterTast(CrOSTesterBase):
 class CrOSTesterChromeTest(CrOSTesterBase):
     """Tests chrome test test cases."""
 
-    def SetUpChromeTest(self, test_exe, test_label, test_args=None):
+    def SetUpChromeTest(self, test_exe, test_label, test_args=None) -> None:
         """Sets configurations necessary for running a chrome test.
 
         Args:
@@ -798,7 +798,7 @@ class CrOSTesterChromeTest(CrOSTesterBase):
 
     def CheckChromeTestCommands(
         self, test_exe, test_label, build_dir, test_args=None
-    ):
+    ) -> None:
         """Checks to see that chrome test commands ran properly.
 
         Args:
@@ -848,7 +848,7 @@ class CrOSTesterChromeTest(CrOSTesterBase):
             ]
         )
 
-    def testChromeTestRsync(self):
+    def testChromeTestRsync(self) -> None:
         """Verify build/deploy and chrome test commands using rsync to copy."""
         test_exe = "crypto_unittests"
         test_label = "//crypto:" + test_exe
@@ -870,7 +870,7 @@ class CrOSTesterChromeTest(CrOSTesterBase):
     @mock.patch(
         "chromite.lib.remote_access.RemoteDevice.HasRsync", return_value=False
     )
-    def testChromeTestSCP(self, rsync_mock):
+    def testChromeTestSCP(self, rsync_mock) -> None:
         """Verify build/deploy and chrome test commands using scp to copy."""
         test_exe = "crypto_unittests"
         test_label = "//crypto:" + test_exe
@@ -890,7 +890,7 @@ class CrOSTesterChromeTest(CrOSTesterBase):
         )
         rsync_mock.assert_called()
 
-    def testChromeTestExeArg(self):
+    def testChromeTestExeArg(self) -> None:
         """Verify build/deploy and chrome test commands with a test arg."""
         test_exe = "crypto_unittests"
         test_label = "//crypto:" + test_exe
@@ -905,7 +905,7 @@ class CrOSTesterChromeTest(CrOSTesterBase):
 class CrOSTesterParser(CrOSTesterBase):
     """Tests parser test cases."""
 
-    def CheckParserError(self, args, error_msg):
+    def CheckParserError(self, args, error_msg) -> None:
         """Checks that parser error is raised.
 
         Args:
@@ -922,11 +922,11 @@ class CrOSTesterParser(CrOSTesterBase):
                 cros_test.ParseCommandLine(args)
         self.assertIn(error_msg, output.GetStderr())
 
-    def testParserErrorChromeTest(self):
+    def testParserErrorChromeTest(self) -> None:
         """Verify we get a parser error for --chrome-test with no args."""
         self.CheckParserError("--chrome-test", "--chrome-test")
 
-    def testParserSetsBuildDir(self):
+    def testParserSetsBuildDir(self) -> None:
         """Verify that the build directory is set when not specified."""
         test_dir = self.TempFilePath(
             "out_amd64-generic/Release/crypto_unittests"
@@ -937,7 +937,7 @@ class CrOSTesterParser(CrOSTesterBase):
         ).build_dir
         self.assertEqual(build_dir, os.path.dirname(test_dir))
 
-    def testParserErrorBuild(self):
+    def testParserErrorBuild(self) -> None:
         """Verify parser errors for building/deploying Chrome."""
         # Parser error if no build directory is specified.
         self.CheckParserError("--build", "--build-dir")
@@ -946,7 +946,7 @@ class CrOSTesterParser(CrOSTesterBase):
             ["--deploy", "--build-dir", "/not/a/directory"], "not a directory"
         )
 
-    def testParserErrorResultsSrc(self):
+    def testParserErrorResultsSrc(self) -> None:
         """Verify parser errors for results src/dest directories."""
         # Parser error if --results-src is not absolute.
         self.CheckParserError(["--results-src", "tmp/results"], "absolute")
@@ -966,7 +966,7 @@ class CrOSTesterParser(CrOSTesterBase):
             "existing file",
         )
 
-    def testParserErrorCommands(self):
+    def testParserErrorCommands(self) -> None:
         """Verify we get parser errors when using certain commands."""
         # Parser error if no test command is provided.
         self.CheckParserError("--remote-cmd", "specify test command")
@@ -980,7 +980,7 @@ class CrOSTesterParser(CrOSTesterBase):
         # Parser error when additional args don't start with --.
         self.CheckParserError(["--host-cmd", "tast", "run"], "must start with")
 
-    def testParserErrorCWD(self):
+    def testParserErrorCWD(self) -> None:
         """Verify we get parser errors when specifying the cwd."""
         # Parser error if the cwd refers to a parent path.
         self.CheckParserError(
@@ -992,7 +992,7 @@ class CrOSTesterParser(CrOSTesterBase):
             ["--cwd", "tmp/cwd"], "cwd must be an absolute path"
         )
 
-    def testParserErrorFiles(self):
+    def testParserErrorFiles(self) -> None:
         """Verify we get parser errors with --files."""
         # Parser error when both --files and --files-from are specified.
         self.CheckParserError(
@@ -1016,7 +1016,7 @@ class CrOSTesterParser(CrOSTesterBase):
         # Parser error when a non-existent file is passed to --files.
         self.CheckParserError(["--files", "fake/file"], "does not exist")
 
-    def testParserErrorTast(self):
+    def testParserErrorTast(self) -> None:
         """Verify we get parser errors with Tast-specific args."""
         # Parser error when specifying vars with non-tast tests.
         self.CheckParserError(
@@ -1064,7 +1064,7 @@ class CrOSTesterParser(CrOSTesterBase):
             "--tast-retries is only applicable to Tast tests.",
         )
 
-    def testParserErrorLacros(self):
+    def testParserErrorLacros(self) -> None:
         """Verify parser errors for deploying/running lacros-chrome tests."""
         build_dir = self.TempFilePath("out/Lacros")
         osutils.SafeMakedirs(build_dir)

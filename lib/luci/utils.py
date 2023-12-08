@@ -194,7 +194,7 @@ def to_units(number):
     return "%d" % number
 
 
-def validate_root_service_url(url):
+def validate_root_service_url(url) -> None:
     """Raises ValueError if the URL doesn't look like https://<host>."""
     schemes = ("https", "http")
     parsed = urllib.parse.urlparse(url)
@@ -296,7 +296,7 @@ class _Cache:
 
         return self.value
 
-    def clear(self):
+    def clear(self) -> None:
         """Clears stored cached value."""
         with self.lock:
             self.value = None
@@ -330,7 +330,7 @@ def cache_with_expiration(expiration_sec):
     return decorator
 
 
-def clear_cache(func):
+def clear_cache(func) -> None:
     """Given a function decorated with @cache, resets cached value."""
     func.__parent_cache__.clear()
 

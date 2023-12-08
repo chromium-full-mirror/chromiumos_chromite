@@ -354,7 +354,7 @@ class BuildStore:
         message_subtype=MESSAGE_SUBTYPE_SELF_DESTRUCTION,
         message_value=None,
         board=None,
-    ):
+    ) -> None:
         """Insert a build message into database.
 
         Args:
@@ -383,7 +383,7 @@ class BuildStore:
                 killed_child_builds=message_value
             )
 
-    def UpdateLuciNotifyProperties(self, email_notify=None):
+    def UpdateLuciNotifyProperties(self, email_notify=None) -> None:
         """Update the buildbucket build with luci-notify specific properties.
 
         Args:
@@ -406,7 +406,7 @@ class BuildStore:
         summary=None,
         metadata_url=None,
         strict=True,
-    ):
+    ) -> None:
         """Update the given build row, marking it as finished.
 
         This should be called once per build, as the last update to the build.
@@ -445,7 +445,7 @@ class BuildStore:
                 metadata_url=metadata_url
             )
 
-    def FinishChildConfig(self, build_id, child_config, status=None):
+    def FinishChildConfig(self, build_id, child_config, status=None) -> None:
         """Marks the given child config as finished with |status|.
 
         This should be called before FinishBuild, on all child configs that
@@ -507,7 +507,7 @@ class BuildStore:
         if self._write_to_cidb:
             return self.cidb_conn.FinishBuildStage(build_stage_id, status)
 
-    def InsertBoardPerBuild(self, build_id, board, board_metadata=None):
+    def InsertBoardPerBuild(self, build_id, board, board_metadata=None) -> None:
         """Inserts board-per-build into the database.
 
         This function redirects both InsertBoardPerBuild and
@@ -789,7 +789,7 @@ class FakeBuildStore:
         message_subtype=MESSAGE_SUBTYPE_SELF_DESTRUCTION,
         message_value=None,
         board=None,
-    ):
+    ) -> None:
         for buildbucket_id in message_value:
             self.fake_cidb.InsertBuildMessage(
                 build_id,
@@ -799,7 +799,7 @@ class FakeBuildStore:
                 board=board,
             )
 
-    def UpdateLuciNotifyProperties(self, email_notify=None):
+    def UpdateLuciNotifyProperties(self, email_notify=None) -> None:
         return
 
     def FinishBuild(
@@ -809,7 +809,7 @@ class FakeBuildStore:
         summary=None,
         metadata_url=None,
         strict=True,
-    ):
+    ) -> None:
         return
 
     def StartBuildStage(self, build_stage_id):
@@ -821,10 +821,10 @@ class FakeBuildStore:
     def FinishBuildStage(self, build_stage_id, status):
         return build_stage_id
 
-    def InsertBoardPerBuild(self, build_id, board, board_metadata=None):
+    def InsertBoardPerBuild(self, build_id, board, board_metadata=None) -> None:
         pass
 
-    def UpdateMetadata(self, build_id, metadata):
+    def UpdateMetadata(self, build_id, metadata) -> None:
         return
 
     def GetBuildsFailures(self, buildbucket_ids=None):

@@ -26,7 +26,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
     """Test utils methods."""
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         """Class setup to run system polling quickly in semaphore tests."""
         utils.MemoryConsumptionSemaphore.SYSTEM_POLLING_INTERVAL_SECONDS = 0
 
@@ -41,7 +41,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
             """Init the clock."""
             self._now = 0.0
 
-        def add_time(self, n):
+        def add_time(self, n) -> None:
             """Add some amount of time."""
             self._now += n
 
@@ -49,7 +49,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         """Mock the system's available memory, used to override /proc."""
         return lambda: how_much
 
-    def testRestrictedAttrDictHashing(self):
+    def testRestrictedAttrDictHashing(self) -> None:
         """Tests that RestrictedAttrDict hashing works in various cases."""
         # Temporary variables for sanity.
         self.assertEqual(
@@ -63,7 +63,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         self.assertEqual(hash(a), hash(b))
         self.assertEqual(a, b)
 
-    def testRestrictedAttrDictHashingDerivedClasses(self):
+    def testRestrictedAttrDictHashingDerivedClasses(self) -> None:
         """Tests that RestrictedAttrDict hashing works in derived classes."""
 
         class A(utils.RestrictedAttrDict):
@@ -82,7 +82,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         self.assertNotEqual(hash(a), hash(b))
         self.assertNotEqual(a, b)
 
-    def testRestrictedAttrDictHashingDerivedClassesUnorderedSlots(self):
+    def testRestrictedAttrDictHashingDerivedClassesUnorderedSlots(self) -> None:
         """Tests that RestrictedAttrDict hashing works
 
         ... in derived classes with unordered slots.
@@ -106,7 +106,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
 
     def testRestrictedAttrDictHashingDerivedClassesUnorderedInitialization(
         self,
-    ):
+    ) -> None:
         """Tests that RestrictedAttrDict hashing works
 
         ... in derived class with unordered slots initialization.
@@ -122,7 +122,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         self.assertEqual(hash(a1), hash(a2))
         self.assertEqual(a1, a2)
 
-    def testRestrictedAttrDictHashingDerivedClassesDataStructures(self):
+    def testRestrictedAttrDictHashingDerivedClassesDataStructures(self) -> None:
         """Tests that RestrictedAttrDict hashing works
 
         ... in derived class with data structures.
@@ -143,7 +143,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         self.assertNotEqual(hash(a3), hash(a4))
         self.assertNotEqual(a3, a4)
 
-    def testListdirFullpath(self):
+    def testListdirFullpath(self) -> None:
         file_a = os.path.join(self.tempdir, "a")
         file_b = os.path.join(self.tempdir, "b")
 
@@ -154,7 +154,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
             sorted(utils.ListdirFullpath(self.tempdir)), [file_a, file_b]
         )
 
-    def testReadLsbRelease(self):
+    def testReadLsbRelease(self) -> None:
         """Tests that we correctly read the lsb release file."""
         path = os.path.join(self.tempdir, "etc", "lsb-release")
         osutils.WriteFile(path, "key=value\nfoo=bar\n", makedirs=True)
@@ -163,7 +163,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
             utils.ReadLsbRelease(self.tempdir), {"key": "value", "foo": "bar"}
         )
 
-    def testReadMinorVersion(self):
+    def testReadMinorVersion(self) -> None:
         """Tests that we correctly read the update_engine.conf file."""
         path = os.path.join(self.tempdir, "etc", "update_engine.conf")
         osutils.WriteFile(
@@ -172,7 +172,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
 
         self.assertEqual(utils.ReadMinorVersion(self.tempdir), "6")
 
-    def testMassiveMemoryConsumptionSemaphore(self):
+    def testMassiveMemoryConsumptionSemaphore(self) -> None:
         """Tests that we block on not having enough memory."""
         # You should never get 2**64 bytes.
         _semaphore = utils.MemoryConsumptionSemaphore(
@@ -186,7 +186,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
             _semaphore.acquire(ACQUIRE_SHOULD_BLOCK_TIMEOUT).result, False
         )
 
-    def testNoMemoryConsumptionSemaphore(self):
+    def testNoMemoryConsumptionSemaphore(self) -> None:
         """Tests that you can acquire a very little amount of memory."""
         # You should always get one byte.
         _semaphore = utils.MemoryConsumptionSemaphore(
@@ -199,7 +199,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         self.assertEqual(_semaphore.acquire(ACQUIRE_TIMEOUT).result, True)
         _semaphore.release()
 
-    def testTotalMaxMemoryConsumptionSemaphore(self):
+    def testTotalMaxMemoryConsumptionSemaphore(self) -> None:
         """Tests that the total_max is respected."""
         _semaphore = utils.MemoryConsumptionSemaphore(
             system_available_buffer_bytes=0,
@@ -218,7 +218,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         # Nope, you're now over max.
         self.assertEqual(_semaphore.acquire(1).result, False)
 
-    def testQuiesceMemoryConsumptionSemaphore(self):
+    def testQuiesceMemoryConsumptionSemaphore(self) -> None:
         """Tests that you wait for memory utilization to settle (quiesce)."""
         # All you want is two bytes.
         _semaphore = utils.MemoryConsumptionSemaphore(
@@ -242,7 +242,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         self.assertEqual(_semaphore.acquire(ACQUIRE_TIMEOUT).result, True)
         _semaphore.release()
 
-    def testUncheckedMemoryConsumptionSemaphore(self):
+    def testUncheckedMemoryConsumptionSemaphore(self) -> None:
         """Tests that some acquires work unchecked."""
         # You should never get 2**64 bytes (i wish...).
         _semaphore = utils.MemoryConsumptionSemaphore(
@@ -259,7 +259,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         self.assertEqual(_semaphore.acquire(ACQUIRE_TIMEOUT).result, True)
         _semaphore.release()
 
-    def testQuiescenceUnblocksMemoryConsumptionSemaphore(self):
+    def testQuiescenceUnblocksMemoryConsumptionSemaphore(self) -> None:
         """Test that after a period of time you unblock (due to quiescence)."""
         _semaphore = utils.MemoryConsumptionSemaphore(
             system_available_buffer_bytes=1,
@@ -288,7 +288,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         # Why 1.8? Because the clock isn't monotonic and we don't want to flake.
         self.assertGreaterEqual(end_time - start_time, 1.8)
 
-    def testThreadedMemoryConsumptionSemaphore(self):
+    def testThreadedMemoryConsumptionSemaphore(self) -> None:
         """Test many threads simultaneously using the Semaphore."""
         initial_memory = 6
         # These are lists so we can write nonlocal.
@@ -301,12 +301,12 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         # Currently executes in 1.6 seconds a 2 x Xeon Gold 6154 CPUs
         get_and_releases = 50
 
-        def sub_mem():
+        def sub_mem() -> None:
             with lock:
                 mem_avail[0] = mem_avail[0] - 1
                 self.assertGreaterEqual(mem_avail[0], 0)
 
-        def add_mem():
+        def add_mem() -> None:
             with lock:
                 mem_avail[0] = mem_avail[0] + 1
                 self.assertGreaterEqual(mem_avail[0], 0)
@@ -325,7 +325,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         )
         _semaphore._get_system_available = get_mem
 
-        def hammer_semaphore():
+        def hammer_semaphore() -> None:
             for _ in range(get_and_releases):
                 while not _semaphore.acquire(0.1).result:
                     continue
@@ -361,7 +361,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         self.assertEqual(initial_memory, get_mem())
         self.assertEqual(good_thread_exits[0], test_threads)
 
-    def testMultiProcessedMemoryConsumptionSemaphore(self):
+    def testMultiProcessedMemoryConsumptionSemaphore(self) -> None:
         """Test many processes simultaneously using the Semaphore."""
         initial_memory = 6
 
@@ -372,12 +372,12 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         # Currently executes in 10 seconds a 2 x Xeon Gold 6154 CPUs.
         get_and_releases = 25
 
-        def sub_mem():
+        def sub_mem() -> None:
             with mem_avail.get_lock():
                 mem_avail.value -= 1
                 self.assertGreaterEqual(mem_avail.value, 0)
 
-        def add_mem():
+        def add_mem() -> None:
             with mem_avail.get_lock():
                 mem_avail.value += 1
                 self.assertLessEqual(mem_avail.value, 6)
@@ -396,7 +396,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
 
         _semaphore._get_system_available = get_mem
 
-        def hammer_semaphore():
+        def hammer_semaphore() -> None:
             for _ in range(get_and_releases):
                 while not _semaphore.acquire(0.1).result:
                     continue

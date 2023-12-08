@@ -173,7 +173,7 @@ def GetUnusedPort(
             s.close()
 
 
-def RunCommandFuncWrapper(func, msg, *args, **kwargs):
+def RunCommandFuncWrapper(func, msg, *args, **kwargs) -> None:
     """Wraps a function that invokes cros_build_lib.run.
 
     If the command failed, logs warning |msg| if check is not set;
@@ -239,7 +239,7 @@ def CompileSSHConnectSettings(**kwargs):
     return ["-o%s=%s" % (k, v) for k, v in settings.items() if v is not None]
 
 
-def RemoveKnownHost(host, known_hosts_path=KNOWN_HOSTS_PATH):
+def RemoveKnownHost(host, known_hosts_path=KNOWN_HOSTS_PATH) -> None:
     """Removes |host| from a known_hosts file.
 
     `ssh-keygen -R` doesn't work on bind mounted files as they can only
@@ -527,7 +527,7 @@ class RemoteAccess:
 
         return RemoteAccess._mockable_popen(ssh_cmd)
 
-    def _GetBootId(self, rebooting=False):
+    def _GetBootId(self, rebooting=False) -> None:
         """Obtains unique boot session identifier.
 
         If rebooting is True, uses a SSH connection with a short timeout,
@@ -619,7 +619,7 @@ class RemoteAccess:
             return False
         return True
 
-    def RemoteReboot(self, timeout_sec=REBOOT_MAX_WAIT):
+    def RemoteReboot(self, timeout_sec=REBOOT_MAX_WAIT) -> None:
         """Reboot the remote device."""
         logging.info("Rebooting %s...", self.remote_host)
         old_boot_id = self._GetBootId()
@@ -852,7 +852,7 @@ class RemoteDeviceHandler:
         """Return the temporary directory."""
         return self.device
 
-    def __exit__(self, _type, _value, _traceback):
+    def __exit__(self, _type, _value, _traceback) -> None:
         """Cleans up the device."""
         self.device.Cleanup()
 
@@ -868,7 +868,7 @@ class ChromiumOSDeviceHandler:
         """Return the temporary directory."""
         return self.device
 
-    def __exit__(self, _type, _value, _traceback):
+    def __exit__(self, _type, _value, _traceback) -> None:
         """Cleans up the device."""
         self.device.Cleanup()
 
@@ -971,7 +971,7 @@ class RemoteDevice:
             self._Connect()
         return self._agent
 
-    def _Connect(self):
+    def _Connect(self) -> None:
         """Sets up the SSH connection and internal state."""
         self._agent = RemoteAccess(
             self.hostname,
@@ -1058,7 +1058,7 @@ class RemoteDevice:
             == "1"
         )
 
-    def RegisterCleanupCmd(self, cmd, **kwargs):
+    def RegisterCleanupCmd(self, cmd, **kwargs) -> None:
         """Register a cleanup command to be run on the device in Cleanup().
 
         Args:
@@ -1068,7 +1068,7 @@ class RemoteDevice:
         """
         self.cleanup_cmds.append((cmd, kwargs))
 
-    def Cleanup(self):
+    def Cleanup(self) -> None:
         """Remove work/temp dirs and run all registered cleanup commands."""
         for cmd, kwargs in self.cleanup_cmds:
             # We want to run through all cleanup commands even if there are
@@ -1084,7 +1084,7 @@ class RemoteDevice:
 
         self.tempdir.Cleanup()
 
-    def _CopyToDeviceInParallel(self, src, dest):
+    def _CopyToDeviceInParallel(self, src, dest) -> None:
         """Chop source file in chunks, send them to destination in parallel.
 
         Transfer chunks of file in parallel and assemble in destination if the
@@ -1318,7 +1318,9 @@ class RemoteDevice:
             raise CatFileError('Failed to read file "%s" on the device' % path)
         return result.stdout
 
-    def DeletePath(self, path, relative_to_work_dir=False, recursive=False):
+    def DeletePath(
+        self, path, relative_to_work_dir=False, recursive=False
+    ) -> None:
         """Deletes a path on the remote device.
 
         Args:
@@ -1643,7 +1645,7 @@ class ChromiumOSDevice(RemoteDevice):
         """The current root device path."""
         return self.run(["rootdev", "-s"], capture_output=True).stdout.strip()
 
-    def _RemountRootfsAsWritable(self):
+    def _RemountRootfsAsWritable(self) -> None:
         """Attempts to Remount the root partition."""
         logging.info("Remounting '/' with rw...")
         self.run(self.MOUNT_ROOTFS_RW_CMD, check=False, remote_sudo=True)
@@ -1661,7 +1663,7 @@ class ChromiumOSDevice(RemoteDevice):
 
         return False
 
-    def DisableRootfsVerification(self, timeout_sec=REBOOT_MAX_WAIT):
+    def DisableRootfsVerification(self, timeout_sec=REBOOT_MAX_WAIT) -> None:
         """Disables device rootfs verification."""
         logging.info("Disabling rootfs verification on device...")
         self.run(
@@ -1700,12 +1702,12 @@ class ChromiumOSDevice(RemoteDevice):
 
         return not self._RootfsIsReadOnly()
 
-    def ClearTpmOwner(self):
+    def ClearTpmOwner(self) -> None:
         """Clears the TPM owner flag."""
         logging.info("Clearing TPM owner.")
         self.run(["crossystem", "clear_tpm_owner_request=1"])
 
-    def BootstrapDevTools(self):
+    def BootstrapDevTools(self) -> None:
         """Installs basic dev tools, including Portage (emerge command).
 
         This also invalidates HasProgramInPath cache because some programs may

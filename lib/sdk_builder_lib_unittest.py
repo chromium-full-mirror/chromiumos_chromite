@@ -15,14 +15,14 @@ from chromite.lib import sdk_builder_lib
 class BuildSdkTarballTest(cros_test_lib.MockTempDirTestCase):
     """Tests for BuildSdkTarball."""
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         cleaned_paths = set()
         tarball_path = [None]
 
-        def _mock_cleanup(path: Path):
+        def _mock_cleanup(path: Path) -> None:
             cleaned_paths.add(path)
 
-        def _mock_tar(tarball: Path, sdk: Path):
+        def _mock_tar(tarball: Path, sdk: Path) -> None:
             self.assertIn(sdk, cleaned_paths)
             tarball_path[0] = tarball
 
@@ -48,7 +48,7 @@ class BuildSdkTarballTest(cros_test_lib.MockTempDirTestCase):
 class CleanupMakeConfBoardSetupTest(cros_test_lib.MockTestCase):
     """Tests for CleanupMakeConfBoardSetup."""
 
-    def testRemovesRootAndPkgConfig(self):
+    def testRemovesRootAndPkgConfig(self) -> None:
         BEFORE = """\
 BOARD_OVERLAY="/mnt/host/source/src/private-overlays/chromeos-overlay"
 BOARD_USE="amd64-host"
@@ -74,7 +74,7 @@ PORTDIR_OVERLAY="/mnt/host/source/src/third_party/eclass-overlay"
 class CreateTarballForSdkTest(cros_test_lib.TempDirTestCase):
     """Tests for CreateTarballForSdk."""
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test CreateTarballForSdk.
 
         Test that CreateTarballForSdk packages up the expected files with
@@ -116,7 +116,7 @@ class CreateTarballForSdkTest(cros_test_lib.TempDirTestCase):
         self.assertFalse((t / "usr/lib/debug/libxyz.so.dwp").exists())
 
 
-def test_os_release(tmp_path_cleanup_sudo):
+def test_os_release(tmp_path_cleanup_sudo) -> None:
     output_path = tmp_path_cleanup_sudo / "os-release"
     version_info = chromeos_version.VersionInfo(
         version_string="12345.67.0",

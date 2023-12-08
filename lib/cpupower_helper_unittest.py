@@ -19,7 +19,7 @@ class TestCpuGovernorSwitch(
 ):
     """Tests the CPU Governor switch context"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         D = cros_test_lib.Directory
         config_dir_name = chromite_config.DIR.name
         cpu_policy_files = (
@@ -67,7 +67,7 @@ class TestCpuGovernorSwitch(
         self.power_cmd = cpupower_helper._CPUPOWER_CMD + ["powersave"]
         self.ondemand_cmd = cpupower_helper._CPUPOWER_CMD + ["ondemand"]
 
-    def testCpuPerfSwitchSticky(self):
+    def testCpuPerfSwitchSticky(self) -> None:
         """This tests ondemand governor as default with sticky."""
         self.WriteTempFile(self.cpu0_scaling_gov, "ondemand")
         self.WriteTempFile(self.cpu1_scaling_gov, "ondemand")
@@ -79,7 +79,7 @@ class TestCpuGovernorSwitch(
             self.config_file, cpupower_helper._AUTO_SET_GOV_CONTENT
         )
 
-    def testCpuPerfSwitchOndemand(self):
+    def testCpuPerfSwitchOndemand(self) -> None:
         """This tests ondemand governor as default and no sticky."""
         self.WriteTempFile(self.cpu0_scaling_gov, "ondemand")
         self.WriteTempFile(self.cpu1_scaling_gov, "ondemand")
@@ -90,7 +90,7 @@ class TestCpuGovernorSwitch(
         self.assertCommandContains(self.ondemand_cmd)
         self.assertNotExists(self.config_file)
 
-    def testCpuPerfSwitchPowersave(self):
+    def testCpuPerfSwitchPowersave(self) -> None:
         """This tests powersave governor as default and no sticky."""
         with cpupower_helper.ModifyCpuGovernor(
             perf_governor=True, sticky=False
@@ -99,7 +99,7 @@ class TestCpuGovernorSwitch(
         self.assertCommandContains(self.power_cmd)
         self.assertNotExists(self.config_file)
 
-    def testCpuPerfNoSwitchPerformance(self):
+    def testCpuPerfNoSwitchPerformance(self) -> None:
         """This tests performance governor as default."""
         self.WriteTempFile(self.cpu0_scaling_gov, "performance")
         self.WriteTempFile(self.cpu1_scaling_gov, "performance")
@@ -110,7 +110,7 @@ class TestCpuGovernorSwitch(
         self.assertNotExists(self.config_file)
         self.assertFalse(self.rc.called)
 
-    def testCpuPerfNoSwitch(self):
+    def testCpuPerfNoSwitch(self) -> None:
         """This tests powersave governor as default and no config file."""
         with cros_test_lib.LoggingCapturer() as logs:
             with cpupower_helper.ModifyCpuGovernor(
@@ -124,7 +124,7 @@ class TestCpuGovernorSwitch(
             self.assertNotExists(self.config_file)
             self.assertFalse(self.rc.called)
 
-    def testCpuPerfSwitchWithConfig(self):
+    def testCpuPerfSwitchWithConfig(self) -> None:
         """This tests powersave governor as default and with config file."""
         # pylint: disable=protected-access
         self.WriteTempFile(
@@ -139,7 +139,7 @@ class TestCpuGovernorSwitch(
             self.config_file, cpupower_helper._AUTO_SET_GOV_CONTENT
         )
 
-    def testCpuPerfMultipleGovernor(self):
+    def testCpuPerfMultipleGovernor(self) -> None:
         """This tests multiple governors as default."""
         self.WriteTempFile(self.cpu0_scaling_gov, "powersave")
         self.WriteTempFile(self.cpu1_scaling_gov, "ondemand")
@@ -151,7 +151,7 @@ class TestCpuGovernorSwitch(
             self.config_file, cpupower_helper._AUTO_SET_GOV_CONTENT
         )
 
-    def testCpuPerfRemove(self):
+    def testCpuPerfRemove(self) -> None:
         """This tests Perf governor sticky remove."""
         # pylint: disable=protected-access
         self.WriteTempFile(
@@ -164,7 +164,7 @@ class TestCpuGovernorSwitch(
         self.assertNotExists(self.config_file)
         self.assertFalse(self.rc.called)
 
-    def testCpuPerfNotSupported(self):
+    def testCpuPerfNotSupported(self) -> None:
         """This tests Perf governor is not supported case."""
         self.WriteTempFile(self.cpu0_available_gov, "powersave ondemand")
         with cpupower_helper.ModifyCpuGovernor(perf_governor=True, sticky=True):
@@ -175,7 +175,7 @@ class TestCpuGovernorSwitch(
             self.config_file, cpupower_helper._AUTO_SET_GOV_CONTENT
         )
 
-    def testCpuPerfRunException(self):
+    def testCpuPerfRunException(self) -> None:
         """This tests Perf governor switch with run command Exception."""
         self.rc.AddCmdResult(partial_mock.In("cpupower"), returncode=1)
         with cros_test_lib.LoggingCapturer() as logs:
@@ -199,7 +199,7 @@ class TestNoCpuGovernors(
 ):
     """Tests when there are no CPU governors."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         D = cros_test_lib.Directory
         config_dir_name = chromite_config.DIR.name
         cpu_policy_files = (D(config_dir_name, ()),)
@@ -212,7 +212,7 @@ class TestNoCpuGovernors(
             self.PatchObject(chromite_config, cfg_name, cfg_dir / cfg_file)
         self.PatchObject(cpupower_helper, "_CPU_PATH", new=self.tempdir / "cpu")
 
-    def testNoCpuGovernorFile(self):
+    def testNoCpuGovernorFile(self) -> None:
         """Test when the scaling governor path file does not exist."""
         with cros_test_lib.LoggingCapturer() as logs:
             with cpupower_helper.ModifyCpuGovernor(

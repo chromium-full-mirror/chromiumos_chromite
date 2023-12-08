@@ -80,7 +80,7 @@ class GerritHelper:
         # We should get rid of remotes altogether and just use the host.
         return cls(host, site_params.GOB_REMOTES.get(gob, gob), **kwargs)
 
-    def SetPrivate(self, change, private, dryrun=False):
+    def SetPrivate(self, change, private, dryrun=False) -> None:
         """Sets the private bit on the given CL.
 
         Args:
@@ -107,7 +107,7 @@ class GerritHelper:
         dryrun: bool = False,
         notify: str = "ALL",
         message: str = "gerrit CLI",
-    ):
+    ) -> None:
         """Modify the attention set of a gerrit change.
 
         Args:
@@ -142,7 +142,7 @@ class GerritHelper:
 
     def SetReviewers(
         self, change, add=(), remove=(), dryrun=False, notify="ALL"
-    ):
+    ) -> None:
         """Modify the list of reviewers on a gerrit change.
 
         Args:
@@ -165,7 +165,7 @@ class GerritHelper:
                     self.host, change, remove, notify=notify
                 )
 
-    def SetWorkInProgress(self, change, wip, msg="", dryrun=False):
+    def SetWorkInProgress(self, change, wip, msg="", dryrun=False) -> None:
         """Sets the work in progress bit on the given CL.
 
         Args:
@@ -562,7 +562,7 @@ class GerritHelper:
         ready=None,
         wip=None,
         dryrun=False,
-    ):
+    ) -> None:
         """Update the review labels on a gerrit change.
 
         Args:
@@ -618,7 +618,7 @@ class GerritHelper:
             wip=wip,
         )
 
-    def SetTopic(self, change, topic, dryrun=False):
+    def SetTopic(self, change, topic, dryrun=False) -> None:
         """Update the topic on a gerrit change.
 
         Args:
@@ -633,7 +633,7 @@ class GerritHelper:
             return
         gob_util.SetTopic(self.host, self._to_changenum(change), topic=topic)
 
-    def SetHashtags(self, change, add, remove, dryrun=False):
+    def SetHashtags(self, change, add, remove, dryrun=False) -> None:
         """Add/Remove hashtags for a gerrit change.
 
         Args:
@@ -651,7 +651,7 @@ class GerritHelper:
             self.host, self._to_changenum(change), add=add, remove=remove
         )
 
-    def RemoveReady(self, change, dryrun=False):
+    def RemoveReady(self, change, dryrun=False) -> None:
         """Set the 'Commit-Queue' label on a |change| to '0'."""
         if dryrun:
             logging.info("Would have reset Commit-Queue label for %s", change)
@@ -663,7 +663,7 @@ class GerritHelper:
             notify="OWNER",
         )
 
-    def SubmitChange(self, change, dryrun=False, notify=None):
+    def SubmitChange(self, change, dryrun=False, notify=None) -> None:
         """Land (merge) a gerrit change using the JSON API."""
         if dryrun:
             logging.info("Would have submitted change %s", change)
@@ -676,7 +676,7 @@ class GerritHelper:
             self.host, self._to_changenum(change), revision=rev, notify=notify
         )
 
-    def AbandonChange(self, change, msg="", dryrun=False, notify=None):
+    def AbandonChange(self, change, msg="", dryrun=False, notify=None) -> None:
         """Mark a gerrit change as 'Abandoned'."""
         if dryrun:
             logging.info("Would have abandoned change %s", change)
@@ -685,14 +685,14 @@ class GerritHelper:
             self.host, self._to_changenum(change), msg=msg, notify=notify
         )
 
-    def RestoreChange(self, change, dryrun=False):
+    def RestoreChange(self, change, dryrun=False) -> None:
         """Re-activate a previously abandoned gerrit change."""
         if dryrun:
             logging.info("Would have restored change %s", change)
             return
         gob_util.RestoreChange(self.host, self._to_changenum(change))
 
-    def Delete(self, change, dryrun=False):
+    def Delete(self, change, dryrun=False) -> None:
         """Delete a gerrit change."""
         if dryrun:
             logging.info("Would have deleted change %s", change)

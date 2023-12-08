@@ -110,7 +110,7 @@ class LoopbackPartitions:
 
         self._InitGpt()
 
-    def _InitGpt(self):
+    def _InitGpt(self) -> None:
         """Initialize the GPT info.
 
         This is a separate function for test mocking purposes.
@@ -148,7 +148,7 @@ class LoopbackPartitions:
 
         return dev
 
-    def Attach(self):
+    def Attach(self) -> None:
         """Initialize the loopback device.
 
         This is a separate function for test mocking purposes.
@@ -203,12 +203,12 @@ class LoopbackPartitions:
 
         return (major, minor)
 
-    def DeletePartitions(self):
+    def DeletePartitions(self) -> None:
         """Clear out existing registered partitions."""
         self._DeletePartitions(self.path)
 
     @classmethod
-    def _DeletePartitions(cls, path: Union[str, os.PathLike]):
+    def _DeletePartitions(cls, path: Union[str, os.PathLike]) -> None:
         """Clear out existing registered partitions."""
         major, minor = cls._CheckNodeIsLoopback(path)
 
@@ -272,12 +272,12 @@ class LoopbackPartitions:
                     "%s: timeout waiting for device node to be cleaned up", path
                 )
 
-    def AddPartitions(self):
+    def AddPartitions(self) -> None:
         """Update registered partitions using parsed GPT."""
         self._AddPartitions(self.path, self._gpt_table)
 
     @classmethod
-    def _AddPartitions(cls, path: Union[str, os.PathLike], gpt_table):
+    def _AddPartitions(cls, path: Union[str, os.PathLike], gpt_table) -> None:
         """Update registered partitions using parsed GPT."""
         major, minor = cls._CheckNodeIsLoopback(path)
 
@@ -392,7 +392,7 @@ class LoopbackPartitions:
                 raise KeyError(repr(part_id))
         return ret
 
-    def Unmount(self, part_ids):
+    def Unmount(self, part_ids) -> None:
         """Mount the given part_ids in subdirectories of the given destination.
 
         Args:
@@ -421,7 +421,7 @@ class LoopbackPartitions:
         dev = self.GetPartitionDevName(part_id)
         return IsExt2Image(dev, offset=offset)
 
-    def EnableRwMount(self, part_id, offset=0):
+    def EnableRwMount(self, part_id, offset=0) -> None:
         """Enable RW mounts of the specified partition."""
         dev = self.GetPartitionDevName(part_id)
         if not self._IsExt2(part_id, offset):
@@ -448,7 +448,7 @@ class LoopbackPartitions:
             stderr=True,
         )
 
-    def DisableRwMount(self, part_id, offset=0):
+    def DisableRwMount(self, part_id, offset=0) -> None:
         """Disable RW mounts of the specified partition."""
         dev = self.GetPartitionDevName(part_id)
         if not self._IsExt2(part_id, offset):
@@ -499,7 +499,7 @@ class LoopbackPartitions:
 
         return dest_number
 
-    def _Unmount(self, part):
+    def _Unmount(self, part) -> None:
         """Unmount a partition that was mounted by _Mount."""
         dest_number, _ = self._GetMountPointAndSymlink(part)
         # Due to crosbug/358933, the RmDir call might fail. So we skip the
@@ -527,7 +527,7 @@ class LoopbackPartitions:
 
         return True
 
-    def close(self):
+    def close(self) -> None:
         if self.dev:
             for part in list(self._mounted):
                 self._Unmount(part)
@@ -570,16 +570,16 @@ class LoopbackPartitions:
             self.Mount(self.part_ids, self.mount_opts)
         return self
 
-    def __exit__(self, exc_type, exc, tb):
+    def __exit__(self, exc_type, exc, tb) -> None:
         if self.delete:
             self.close()
 
-    def __del__(self):
+    def __del__(self) -> None:
         if self.delete:
             self.close()
 
 
-def WriteLsbRelease(sysroot, fields):
+def WriteLsbRelease(sysroot, fields) -> None:
     """Writes out the /etc/lsb-release file into the given sysroot.
 
     Args:
@@ -839,7 +839,7 @@ class SecurityTestConfig:
         else:
             return True
 
-    def _VbootCheckout(self):
+    def _VbootCheckout(self) -> None:
         """Clone the vboot reference repo and checkout the vboot stable hash."""
         if not os.path.exists(self.directory):
             raise SecurityConfigDirectoryError("The directory does not exist.")

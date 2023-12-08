@@ -315,7 +315,7 @@ class GSContext:
     )
 
     @classmethod
-    def InitializeCache(cls, cache_dir=None, cache_user=None):
+    def InitializeCache(cls, cache_dir=None, cache_user=None) -> None:
         """Setup the gsutil cache if needed."""
         if cls._DEFAULT_GSUTIL_BIN is not None:
             return
@@ -624,7 +624,7 @@ wheel: <
 
         return self._gsutil_version
 
-    def _CheckFile(self, errmsg, afile):
+    def _CheckFile(self, errmsg, afile) -> None:
         """Pre-flight check for valid inputs.
 
         Args:
@@ -663,7 +663,7 @@ wheel: <
 
         return True
 
-    def _ConfigureBotoConfig(self):
+    def _ConfigureBotoConfig(self) -> None:
         """Make sure we can access protected bits in GS."""
         print("Configuring gsutil. **Please use your @google.com account.**")
         try:
@@ -682,7 +682,7 @@ wheel: <
                 os.remove(self.boto_file)
                 raise GSContextException("GS config could not be set up.")
 
-    def _InitBoto(self):
+    def _InitBoto(self) -> None:
         if not self._TestGSLs():
             self._ConfigureBotoConfig()
 
@@ -1000,7 +1000,7 @@ wheel: <
         version=None,
         parallel=False,
         **kwargs,
-    ):
+    ) -> None:
         """Run a gsutil command, suppressing output, and setting retry/sleep.
 
         Args:
@@ -1195,7 +1195,7 @@ wheel: <
                 )
                 raise
 
-    def CreateWithContents(self, gs_uri, contents, **kwargs):
+    def CreateWithContents(self, gs_uri, contents, **kwargs) -> None:
         """Creates the specified file with specified contents.
 
         Args:
@@ -1336,7 +1336,7 @@ wheel: <
         cmd = ["mv", "--", src_path, dest_path]
         return self.DoCommand(cmd, **kwargs)
 
-    def SetACL(self, path, acl=None, **kwargs):
+    def SetACL(self, path, acl=None, **kwargs) -> None:
         """Set access on a file already in google storage.
 
         Args:
@@ -1361,7 +1361,7 @@ wheel: <
 
     def ChangeACL(
         self, upload_url, acl_args_file=None, acl_args=None, **kwargs
-    ):
+    ) -> None:
         """Change access on a file already in google storage with "acl ch".
 
         Args:
@@ -1422,7 +1422,9 @@ wheel: <
 
         return True
 
-    def Remove(self, path, recursive=False, ignore_missing=False, **kwargs):
+    def Remove(
+        self, path, recursive=False, ignore_missing=False, **kwargs
+    ) -> None:
         """Remove the specified file.
 
         Args:
@@ -1555,7 +1557,7 @@ wheel: <
         """
         return GSCounter(self, path)
 
-    def WaitForGsPaths(self, paths, timeout, period=10):
+    def WaitForGsPaths(self, paths, timeout, period=10) -> None:
         """Wait until a list of files exist in GS.
 
         Args:
@@ -1570,7 +1572,7 @@ wheel: <
         # context.
         pending_paths = paths[:]
 
-        def _CheckForExistence():
+        def _CheckForExistence() -> None:
             pending_paths[:] = [x for x in pending_paths if not self.Exists(x)]
 
         def _Retry(_return_value):

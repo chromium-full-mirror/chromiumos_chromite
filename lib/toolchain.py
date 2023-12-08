@@ -170,7 +170,9 @@ def GetArchForTarget(target):
     return key_value_store.LoadData(ret.stdout).get("arch")
 
 
-def InstallToolchain(sysroot, toolchain=None, force=False, configure=True):
+def InstallToolchain(
+    sysroot, toolchain=None, force=False, configure=True
+) -> None:
     """Simplified entry point for the toolchain installation process."""
     if not cros_build_lib.IsInsideChroot():
         # Build the command to run inside the chroot instead.
@@ -224,7 +226,7 @@ class ToolchainInstaller:
         self.cbuild = cbuild
         self.pkgdir = pkgdir
 
-    def Install(self, sysroot, board_chost=None):
+    def Install(self, sysroot, board_chost=None) -> None:
         """Toolchain installation process.
 
         Install most recent glibc version in the sysroot.
@@ -273,7 +275,7 @@ class ToolchainInstaller:
 
     def _InstallLibc(
         self, sysroot: "sysroot_lib.Sysroot", tc_info: "ToolchainInfo"
-    ):
+    ) -> None:
         """Install the libc package to the sysroot.
 
         Args:
@@ -318,7 +320,7 @@ class ToolchainInstaller:
 
     def _ExtractLibc(
         self, sysroot: "sysroot_lib.Sysroot", board_chost: str, libc_path: str
-    ):
+    ) -> None:
         """Extract the libc archive to the sysroot.
 
         Args:
@@ -401,14 +403,14 @@ class ToolchainInstaller:
         """Check if the toolchain installation needs to be run."""
         return self.force or not tc_info.LibcVersionsMatch(sysroot)
 
-    def _WriteConfigs(self, sysroot, tc_info):
+    def _WriteConfigs(self, sysroot, tc_info) -> None:
         """Write out config updates."""
         if self.configure:
             sysroot.SetCachedField("LIBC_VERSION", tc_info.libc_version)
             sysroot.SetCachedField("LIBCXX_VERSION", tc_info.libcxx_version)
             sysroot.SetCachedField("LIBGCC_VERSION", tc_info.libgcc_version)
 
-    def _UpdateProvided(self, sysroot, tc_info):
+    def _UpdateProvided(self, sysroot, tc_info) -> None:
         """Write the package.provided file."""
         if self.configure:
             content = "\n".join(tc_info.sdk_cpfs)

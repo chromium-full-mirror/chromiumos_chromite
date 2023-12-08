@@ -41,10 +41,10 @@ class HackTimeoutSyncManager(SyncManager):
     """
 
     @staticmethod
-    def _finalize_manager(process, *args, **kwargs):
+    def _finalize_manager(process, *args, **kwargs) -> None:
         """Shutdown the manager process."""
 
-        def _join(functor, *args, **kwargs):
+        def _join(functor, *args, **kwargs) -> None:
             timeout = kwargs.get("timeout")
             if not timeout is None and timeout < 1:
                 kwargs["timeout"] = 1
@@ -55,7 +55,7 @@ class HackTimeoutSyncManager(SyncManager):
         SyncManager._finalize_manager(process, *args, **kwargs)
 
 
-def IgnoreSigintAndSigterm():
+def IgnoreSigintAndSigterm() -> None:
     """Ignores any future SIGINTs and SIGTERMs."""
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
@@ -214,7 +214,7 @@ class _BackgroundTask(multiprocessing.Process):
         self._task_args = task_args if task_args else ()
         self._task_kwargs = task_kwargs if task_kwargs else {}
 
-    def _WaitForStartup(self):
+    def _WaitForStartup(self) -> None:
         # TODO(davidjames): Use python-2.7 syntax to simplify this.
         self._started.wait(self.STARTUP_TIMEOUT)
         msg = "Process failed to start in %d seconds" % self.STARTUP_TIMEOUT
@@ -301,7 +301,7 @@ class _BackgroundTask(multiprocessing.Process):
             encoding="utf-8",
         )
 
-    def Kill(self, sig, log_level, first=False):
+    def Kill(self, sig, log_level, first=False) -> None:
         """Kill process with signal, ignoring if the process is dead.
 
         Args:
@@ -340,7 +340,7 @@ class _BackgroundTask(multiprocessing.Process):
             if ex.errno != errno.ESRCH:
                 raise
 
-    def Cleanup(self, silent=False):
+    def Cleanup(self, silent=False) -> None:
         """Wait for a process to exit."""
         if os.getpid() != self._parent_pid or self._output is None:
             return
@@ -495,7 +495,7 @@ class _BackgroundTask(multiprocessing.Process):
         self._parent_pid = os.getpid()
         return multiprocessing.Process.start(self)
 
-    def run(self):
+    def run(self) -> None:
         """Run the list of steps."""
         if self._semaphore is not None:
             self._semaphore.acquire()
@@ -517,7 +517,7 @@ class _BackgroundTask(multiprocessing.Process):
         """Internal method for running the list of steps."""
 
         # Register a handler for a signal that is rarely used.
-        def trigger_bt(_sig_num, frame):
+        def trigger_bt(_sig_num, frame) -> None:
             logging.error(
                 "pre-kill notification (SIGXCPU); traceback:\n%s",
                 "".join(traceback.format_stack(frame)),
@@ -569,7 +569,7 @@ class _BackgroundTask(multiprocessing.Process):
         return errors
 
     @classmethod
-    def _KillChildren(cls, bg_tasks, log_level=logging.WARNING):
+    def _KillChildren(cls, bg_tasks, log_level=logging.WARNING) -> None:
         """Kill a deque of background tasks.
 
         This is needed to prevent hangs in the case where child processes refuse
@@ -680,7 +680,9 @@ class _BackgroundTask(multiprocessing.Process):
                     raise BackgroundFailure(exc_infos=errors)
 
     @staticmethod
-    def TaskRunner(queue, task, onexit=None, task_args=None, task_kwargs=None):
+    def TaskRunner(
+        queue, task, onexit=None, task_args=None, task_kwargs=None
+    ) -> None:
         """Run task(*input) for each input in the queue.
 
         Returns when it encounters an _AllTasksComplete object on the queue.
@@ -773,7 +775,7 @@ def RunParallelSteps(
         the return values of the steps.
     """
 
-    def ReturnWrapper(queue, fn):
+    def ReturnWrapper(queue, fn) -> None:
         """Put the return value of |fn| into |queue|."""
         queue.put(fn())
 

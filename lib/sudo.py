@@ -71,7 +71,7 @@ class SudoKeepAlive(cros_build_lib.PrimaryPidContextManager):
             needed -= set(existing.split(":"))
         return ":".join(needed)
 
-    def _enter(self):
+    def _enter(self) -> None:
         if osutils.IsRootUser():
             cros_build_lib.Die("This script cannot be run as root.")
 
@@ -134,7 +134,7 @@ class SudoKeepAlive(cros_build_lib.PrimaryPidContextManager):
             "; ".join(cmds),
         )
 
-        def ignore_sigint():
+        def ignore_sigint() -> None:
             # We don't want our sudo process shutdown till we shut it down;
             # since it's part of the session group it however gets SIGINT.
             # Thus suppress it (which bash then inherits).
@@ -153,7 +153,7 @@ class SudoKeepAlive(cros_build_lib.PrimaryPidContextManager):
         self._existing_keepalive_value = os.environ.get("CROS_SUDO_KEEP_ALIVE")
         os.environ["CROS_SUDO_KEEP_ALIVE"] = start_for_tty
 
-    def _exit(self, exc_type, exc, exc_tb):
+    def _exit(self, exc_type, exc, exc_tb) -> None:
         if self._proc is None:
             return
 
@@ -170,7 +170,7 @@ class SudoKeepAlive(cros_build_lib.PrimaryPidContextManager):
             os.environ.pop("CROS_SUDO_KEEP_ALIVE", None)
 
 
-def SetFileContents(path, value, cwd=None):
+def SetFileContents(path, value, cwd=None) -> None:
     """Set a given filepath contents w/ the passed in value."""
     cros_build_lib.sudo_run(
         ["tee", path], stdout=True, print_cmd=False, input=value, cwd=cwd

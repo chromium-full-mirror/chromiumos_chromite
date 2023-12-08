@@ -23,7 +23,7 @@ def mock_now(test, now, seconds):
 class TestCase(auto_stub.TestCase):
     """Support class to enable more unit testing."""
 
-    def set_up(self):
+    def set_up(self) -> None:
         """Initializes the commonly used stubs.
 
         Using init_all_stubs() costs ~10ms more to run all the tests so only
@@ -32,7 +32,7 @@ class TestCase(auto_stub.TestCase):
         """
         super().setUp()
 
-    def tear_down(self):
+    def tear_down(self) -> None:
         super().tearDown()
 
     def mock_now(self, now, seconds=0):

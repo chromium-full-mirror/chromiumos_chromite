@@ -65,7 +65,7 @@ class LocalSqlServerTestCase(cros_test_lib.TempDirTestCase):
         # only guaranteed to hold inside the chroot.
         cros_build_lib.AssertInsideChroot()
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Launch mysqld in a clean temp directory."""
 
         self._mysqld_dir = os.path.join(self.tempdir, "mysqld_dir")
@@ -134,7 +134,7 @@ class LocalSqlServerTestCase(cros_test_lib.TempDirTestCase):
             )
             raise
 
-    def _ShutdownMysqld(self):
+    def _ShutdownMysqld(self) -> None:
         """Cleanup mysqld and our mysqld data directory."""
         if self._mysqld_runner is None:
             return
@@ -156,7 +156,7 @@ class LocalSqlServerTestCase(cros_test_lib.TempDirTestCase):
         else:
             self._CleanupMysqld()
 
-    def _CleanupMysqld(self, failure=None):
+    def _CleanupMysqld(self, failure=None) -> None:
         if self._mysqld_runner is None:
             return
 
@@ -290,7 +290,7 @@ class SchemaDumpTest(CIDBIntegrationTest):
         ]
         return "\n".join(lines)
 
-    def testDump(self):
+    def testDump(self) -> None:
         """Ensure generated file is up to date."""
         DUMP_FILE = constants.CHROMITE_DIR / "cidb" / "schema.dump"
 
@@ -314,11 +314,11 @@ class SchemaDumpTest(CIDBIntegrationTest):
 class CIDBMigrationsTest(CIDBIntegrationTest):
     """Test that all migrations apply correctly."""
 
-    def testMigrations(self):
+    def testMigrations(self) -> None:
         """Test that all migrations apply in bulk correctly."""
         self._PrepareFreshDatabase()
 
-    def testIncrementalMigrations(self):
+    def testIncrementalMigrations(self) -> None:
         """Test that all migrations apply incrementally correctly."""
         db = self._PrepareFreshDatabase(0)
         migrations = db._GetMigrationScripts()
@@ -327,7 +327,7 @@ class CIDBMigrationsTest(CIDBIntegrationTest):
         for i in range(1, max_version + 1):
             db.ApplySchemaMigrations(i)
 
-    def testWaterfallMigration(self):
+    def testWaterfallMigration(self) -> None:
         """Verify migrating waterfall from enum to varchar preserves value."""
         self.skipTest("Skipped obsolete waterfall migration test.")
         # This test no longer runs. It was used only to confirm the correctness
@@ -345,12 +345,12 @@ class CIDBMigrationsTest(CIDBIntegrationTest):
 class CIDBAPITest(CIDBIntegrationTest):
     """Tests of the CIDB API."""
 
-    def testGetTime(self):
+    def testGetTime(self) -> None:
         db = self._PrepareFreshDatabase(1)
         current_db_time = db.GetTime()
         self.assertEqual(type(current_db_time), datetime.datetime)
 
-    def testGetBuildStatusKeys(self):
+    def testGetBuildStatusKeys(self) -> None:
         db = self._PrepareFreshDatabase()
         build_id = db.InsertBuild(
             "builder_name", 1, "build_config", "bot_hostname"
@@ -359,7 +359,7 @@ class CIDBAPITest(CIDBIntegrationTest):
         for k in db.BUILD_STATUS_KEYS:
             self.assertIn(k, build_status)
 
-    def testBuildMessages(self):
+    def testBuildMessages(self) -> None:
         db = self._PrepareFreshDatabase(65)
         self.assertEqual([], db.GetBuildMessages(1))
         master_build_id = db.InsertBuild(
@@ -454,12 +454,12 @@ def GetTestDataSeries(test_data_path):
 class DataSeries0Test(CIDBIntegrationTest):
     """Simulate a set of 630 master/slave CQ builds."""
 
-    def testCQWithSchema56(self):
+    def testCQWithSchema56(self) -> None:
         """Run the CQ test with schema version 65."""
         db = self._PrepareFreshDatabase(65)
         self._runCQTest(db)
 
-    def _runCQTest(self, db):
+    def _runCQTest(self, db) -> None:
         """Simulate a set of 630 master/slave CQ builds.
 
         Note: This test takes about 2.5 minutes to populate its 630 builds
@@ -557,7 +557,7 @@ class DataSeries0Test(CIDBIntegrationTest):
         # Check the sort order.
         self.assertEqual(sorted(build_ids, reverse=True), build_ids)
 
-    def _last_updated_time_checks(self, db):
+    def _last_updated_time_checks(self, db) -> None:
         """Sanity checks on the last_updated column."""
         # We should have a diversity of last_updated times. Since the timestamp
         # resolution is only 1 second, and we have lots of parallelism in the
@@ -590,7 +590,7 @@ class DataSeries0Test(CIDBIntegrationTest):
             ids_by_last_updated.index(1), ids_by_last_updated.index(2)
         )
 
-    def _start_and_finish_time_checks(self, db):
+    def _start_and_finish_time_checks(self, db) -> None:
         """Quick checks that correct data was recorded, and can be retrieved."""
         max_start_time = (
             db._GetEngine()
@@ -630,7 +630,7 @@ class DataSeries0Test(CIDBIntegrationTest):
 class BuildStagesAndFailureTest(CIDBIntegrationTest):
     """Test buildStageTable functionality."""
 
-    def runTest(self):
+    def runTest(self) -> None:
         """Test basic buildStageTable and failureTable functionality."""
         self._PrepareDatabase()
 
@@ -673,7 +673,7 @@ class BuildStagesAndFailureTest(CIDBIntegrationTest):
 class BuildTableTest(CIDBIntegrationTest):
     """Test buildTable functionality not tested by the DataSeries tests."""
 
-    def testBuildbucketId(self):
+    def testBuildbucketId(self) -> None:
         """Test InsertBuild with buildbucket_id."""
         self._PrepareDatabase()
         bot_db = self.LocalCIDBConnection(self.CIDB_USER_BOT)
@@ -698,7 +698,7 @@ class BuildTableTest(CIDBIntegrationTest):
             build_status = build_status[0]
         self.assertEqual(build_status["id"], build_id)
 
-    def testFinishBuild(self):
+    def testFinishBuild(self) -> None:
         """Test FinishBuild."""
         self._PrepareDatabase()
         bot_db = self.LocalCIDBConnection(self.CIDB_USER_BOT)
@@ -761,7 +761,7 @@ class BuildTableTest(CIDBIntegrationTest):
             (x["build_config"], x["buildbucket_id"]) for x in slave_statuses
         ]
 
-    def testGetSlaveStatus(self):
+    def testGetSlaveStatus(self) -> None:
         """Test GetSlaveStatus."""
         self._PrepareDatabase()
         bot_db = self.LocalCIDBConnection(self.CIDB_USER_BOT)
@@ -829,7 +829,7 @@ class BuildTableTest(CIDBIntegrationTest):
         )
         return bot_db.UpdateMetadata(build_id, metadata)
 
-    def testBuildHistory(self):
+    def testBuildHistory(self) -> None:
         """Test Get operations on build history."""
         self._PrepareDatabase()
         bot_db = self.LocalCIDBConnection(self.CIDB_USER_BOT)
@@ -852,7 +852,7 @@ class BuildTableTest(CIDBIntegrationTest):
 class DataSeries1Test(CIDBIntegrationTest):
     """Simulate a single set of canary builds."""
 
-    def runTest(self):
+    def runTest(self) -> None:
         """Simulate a single set of canary builds with database schema v56."""
         metadatas = GetTestDataSeries(SERIES_1_TEST_DATA_PATH)
         self.assertEqual(
@@ -966,7 +966,7 @@ def _SimulateBuildStart(db, metadata, master_build_id=None, important=None):
     return build_id
 
 
-def main(_argv):
+def main(_argv) -> None:
     # TODO(akeshet): Allow command line args to specify alternate CIDB instance
     # for testing.
     cros_test_lib.main(module=__name__)

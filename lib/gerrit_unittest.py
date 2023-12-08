@@ -101,7 +101,7 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
             project_prefix=project_prefix,
         )
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Sets up the gerrit instances in a class-specific temp dir."""
         self.saved_params = {}
         os.environ["HOME"] = self.tempdir
@@ -173,7 +173,7 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
 
         site_params.update(self.patched_params)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # Restore the 'patched' site parameters.
         site_params = config_lib.GetSiteParams()
         site_params.update(self.saved_params)
@@ -330,27 +330,27 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
         return (sha1, change_id)
 
     @staticmethod
-    def _UploadChange(clone_path, branch="main", remote="origin"):
+    def _UploadChange(clone_path, branch="main", remote="origin") -> None:
         cros_build_lib.dbg_run(
             ["git", "push", remote, "HEAD:refs/for/%s" % branch],
             cwd=clone_path,
             capture_output=True,
         )
 
-    def uploadChange(self, clone_path, branch="main", remote="origin"):
+    def uploadChange(self, clone_path, branch="main", remote="origin") -> None:
         """Create a gerrit CL from the HEAD of a git checkout."""
         clone_path = os.path.join(self.tempdir, clone_path)
         self._UploadChange(clone_path, branch, remote)
 
     @staticmethod
-    def _PushBranch(clone_path, branch="main"):
+    def _PushBranch(clone_path, branch="main") -> None:
         cros_build_lib.dbg_run(
             ["git", "push", "origin", "HEAD:refs/heads/%s" % branch],
             cwd=clone_path,
             capture_output=True,
         )
 
-    def pushBranch(self, clone_path, branch="main"):
+    def pushBranch(self, clone_path, branch="main") -> None:
         """Push a branch directly to gerrit, bypassing code review."""
         clone_path = os.path.join(self.tempdir, clone_path)
         self._PushBranch(clone_path, branch)
@@ -361,7 +361,7 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
         email="test-user@test.org",
         password=None,
         groups=None,
-    ):
+    ) -> None:
         """Create a new user account on gerrit."""
         username = urllib.parse.quote(email.partition("@")[0])
         path = "accounts/%s" % username
@@ -414,7 +414,7 @@ class GerritHelperTest(GerritTestCase):
         self.assertEqual(gpatch.revision, revision)
         return gpatch
 
-    def testSimpleQuery(self):
+    def testSimpleQuery(self) -> None:
         """Create and query one independent and three dependent changes."""
         project = self.createProject("testProject")
         clone_path = self.cloneProject(project)
@@ -446,7 +446,7 @@ class GerritHelperTest(GerritTestCase):
         self.assertEqual(change.sha1, head_sha1)
 
     @mock.patch.object(gerrit.GerritHelper, "_GERRIT_MAX_QUERY_RETURN", 2)
-    def testGerritQueryTruncation(self):
+    def testGerritQueryTruncation(self) -> None:
         """Verify that we detect gerrit truncating our query, and handle it."""
         project = self.createProject("testProject")
         clone_path = self.cloneProject(project)
@@ -467,7 +467,7 @@ class GerritHelperTest(GerritTestCase):
         changes = helper.Query(project=project)
         self.assertEqual(len(changes), num_changes)
 
-    def testIsChangeCommitted(self):
+    def testIsChangeCommitted(self) -> None:
         """Tests that we can parse a json to check if a change is committed."""
         project = self.createProject("testProject")
         clone_path = self.cloneProject(project)
@@ -480,7 +480,7 @@ class GerritHelperTest(GerritTestCase):
         gpatch = self.createPatch(clone_path, project)
         self.assertFalse(helper.IsChangeCommitted(gpatch.gerrit_number))
 
-    def testGetLatestSHA1ForBranch(self):
+    def testGetLatestSHA1ForBranch(self) -> None:
         """Verify we can query the tip-of-tree commit in a git repository."""
         project = self.createProject("testProject")
         clone_path = self.cloneProject(project)
@@ -499,7 +499,7 @@ class GerritHelperTest(GerritTestCase):
             testbranch_sha1,
         )
 
-    def testChangeEdit(self):
+    def testChangeEdit(self) -> None:
         """Verify CreateChange & ChangeEdit can create CLs with changes."""
         project = self.createProject("testProject")
         # Gerrit returns "Destination branch does not exist" errors if we don't
@@ -526,7 +526,7 @@ class GerritHelperTest(GerritTestCase):
         #           accounts can't run the tests correctly. ;)
         return ["dborowitz@google.com", "jrn@google.com"]
 
-    def testSetAttentionSet(self):
+    def testSetAttentionSet(self) -> None:
         """Verify that we can set the attention set on a CL."""
         project = self.createProject("testProject")
         clone_path = self.cloneProject(project)
@@ -545,7 +545,7 @@ class GerritHelperTest(GerritTestCase):
         self.assertEqual(len(attention), 1)
         self.assertEqual(attention[0]["account"]["email"], emails[1])
 
-    def testSetReviewers(self):
+    def testSetReviewers(self) -> None:
         """Verify that we can set reviewers on a CL."""
         project = self.createProject("testProject")
         clone_path = self.cloneProject(project)
@@ -563,7 +563,7 @@ class GerritHelperTest(GerritTestCase):
         self.assertEqual(len(reviewers), 1)
         self.assertEqual(reviewers[0]["email"], emails[1])
 
-    def testPatchNotFound(self):
+    def testPatchNotFound(self) -> None:
         """Test case where ChangeID isn't found on the server."""
         changeids = ["I" + ("deadbeef" * 5), "I" + ("beadface" * 5)]
         self.assertRaises(
@@ -585,7 +585,7 @@ class GerritHelperTest(GerritTestCase):
             ["*" + num for num in gerrit_numbers],
         )
 
-    def testVagueQuery(self):
+    def testVagueQuery(self) -> None:
         """Verify GerritHelper complains if an ID matches multiple changes."""
         project = self.createProject("testProject")
         clone_path = self.cloneProject(project)
@@ -605,7 +605,7 @@ class GerritHelperTest(GerritTestCase):
             gerrit.GerritException, gerrit.GetGerritPatchInfo, [changeid]
         )
 
-    def testQueries(self):
+    def testQueries(self) -> None:
         """Verify assorted query operations."""
         project = self.createProject("testProject")
         clone_path = self.cloneProject(project)
@@ -672,7 +672,7 @@ class GerritHelperTest(GerritTestCase):
         self.assertEqual(patch_info[0].gerrit_number, gpatch.gerrit_number)
         self.assertEqual(patch_info[0].remote, site_params.INTERNAL_REMOTE)
 
-    def testSubmitOutdatedCommit(self):
+    def testSubmitOutdatedCommit(self) -> None:
         """Tests that we can parse a json to check if a change is committed."""
         project = self.createProject("testProject")
         clone_path = self.cloneProject(project, "p1")
@@ -698,7 +698,7 @@ class GerritHelperTest(GerritTestCase):
         helper.SubmitChange(gpatch2)
         helper.IsChangeCommitted(gpatch2.gerrit_number)
 
-    def testResetReviewLabels(self):
+    def testResetReviewLabels(self) -> None:
         """Tests that we can remove a code review label."""
         project = self.createProject("testProject")
         helper = self._GetHelper()
@@ -712,7 +712,7 @@ class GerritHelperTest(GerritTestCase):
             notify="OWNER",
         )
 
-    def testApprovalTime(self):
+    def testApprovalTime(self) -> None:
         """Approval timestamp should be reset when a new patchset is created."""
         # Create a change.
         project = self.createProject("testProject")
@@ -745,7 +745,7 @@ class GerritParserTest(cros_test_lib.TestCase):
     def _GetHelper(self, remote=config_lib.GetSiteParams().EXTERNAL_REMOTE):
         return gerrit.GetGerritHelper(remote)
 
-    def testGetChangeFromStdoutPass(self):
+    def testGetChangeFromStdoutPass(self) -> None:
         """Verify the proper change number is returned from the git stdout."""
         stdout = (
             "remote:\nremote:\nremote:   "
@@ -776,7 +776,7 @@ class GerritParserTest(cros_test_lib.TestCase):
         changenum = self._GetHelper()._get_changenumber_from_stdout(stdout)
         self.assertEqual(changenum, "123")
 
-    def testGetChangeFromStdoutFail(self):
+    def testGetChangeFromStdoutFail(self) -> None:
         """Verify the function returns None when an improper stdout is given."""
 
         # Fails because remote is not at the start of the text.
@@ -802,7 +802,7 @@ class DirectGerritHelperTest(cros_test_lib.TestCase):
     # A big list of real changes.
     CHANGES = ["235893", "*189165", "231790", "*190026", "231647", "234645"]
 
-    def testMultipleChangeDetail(self):
+    def testMultipleChangeDetail(self) -> None:
         """Test ordering of results in GetMultipleChangeDetail"""
         changes = [x for x in self.CHANGES if not x.startswith("*")]
         helper = gerrit.GetCrosExternal()
@@ -812,7 +812,7 @@ class DirectGerritHelperTest(cros_test_lib.TestCase):
         gerrit_numbers = [str(x["_number"]) for x in results]
         self.assertEqual(changes, gerrit_numbers)
 
-    def testQueryMultipleCurrentPatchset(self):
+    def testQueryMultipleCurrentPatchset(self) -> None:
         """Test ordering of results in QueryMultipleCurrentPatchset"""
         changes = [x for x in self.CHANGES if not x.startswith("*")]
         helper = gerrit.GetCrosExternal()
@@ -820,7 +820,7 @@ class DirectGerritHelperTest(cros_test_lib.TestCase):
         self.assertEqual(changes, [x.gerrit_number for _, x in results])
         self.assertEqual(changes, [x for x, _ in results])
 
-    def testGetGerritPatchInfo(self):
+    def testGetGerritPatchInfo(self) -> None:
         """Test ordering of results in GetGerritPatchInfo"""
         # Swizzle from our old syntax to the new syntax.
         changes = []

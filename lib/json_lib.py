@@ -11,7 +11,7 @@ from typing import Optional, Union
 from chromite.lib import osutils
 
 
-def AssertIsInstance(instance, expected_type, description):
+def AssertIsInstance(instance, expected_type, description) -> None:
     """Raise an error if |instance| is not of |expected_type|.
 
     Args:

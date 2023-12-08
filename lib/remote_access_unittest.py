@@ -21,17 +21,17 @@ from chromite.lib import remote_access
 class TestNormalizePort(cros_test_lib.TestCase):
     """Verifies we normalize port."""
 
-    def testNormalizePortStrOK(self):
+    def testNormalizePortStrOK(self) -> None:
         """Tests that string will be converted to integer."""
         self.assertEqual(remote_access.NormalizePort("123"), 123)
 
-    def testNormalizePortStrNotOK(self):
+    def testNormalizePortStrNotOK(self) -> None:
         """Tests that error is raised if port is string and str_ok=False."""
         self.assertRaises(
             ValueError, remote_access.NormalizePort, "123", str_ok=False
         )
 
-    def testNormalizePortOutOfRange(self):
+    def testNormalizePortOutOfRange(self) -> None:
         """Tests that error is raised when port is out of range."""
         self.assertRaises(ValueError, remote_access.NormalizePort, "-1")
         self.assertRaises(ValueError, remote_access.NormalizePort, 99999)
@@ -54,7 +54,7 @@ class TestRemoveKnownHost(cros_test_lib.MockTempDirTestCase):
         "UfFmwNi0qfk3vV6vKRVDEZD68+ix6gjKpicY5upA/9P\n"
     )
 
-    def testRemoveKnownHostDefaultFile(self):
+    def testRemoveKnownHostDefaultFile(self) -> None:
         """Tests RemoveKnownHost() on the default known_hosts file.
 
         `ssh-keygen -R` on its own fails when run from within the chroot
@@ -65,14 +65,14 @@ class TestRemoveKnownHost(cros_test_lib.MockTempDirTestCase):
         # known_hosts file always exists in the chroot due to the bind mount.
         remote_access.RemoveKnownHost(self._HOST)
 
-    def testRemoveKnownHostCustomFile(self):
+    def testRemoveKnownHostCustomFile(self) -> None:
         """Tests RemoveKnownHost() on a custom known_hosts file."""
         path = os.path.join(self.tempdir, "known_hosts")
         osutils.WriteFile(path, self._HOST_KEY)
         remote_access.RemoveKnownHost(self._HOST, known_hosts_path=path)
         self.assertEqual(osutils.ReadFile(path), "")
 
-    def testRemoveKnownHostNonexistentFile(self):
+    def testRemoveKnownHostNonexistentFile(self) -> None:
         """Tests RemoveKnownHost() on a nonexistent known_hosts file."""
         path = os.path.join(self.tempdir, "known_hosts")
         remote_access.RemoveKnownHost(self._HOST, known_hosts_path=path)
@@ -81,7 +81,7 @@ class TestRemoveKnownHost(cros_test_lib.MockTempDirTestCase):
 class TestCompileSSHConnectSettings(cros_test_lib.TestCase):
     """Verifies CompileSSHConnectSettings()."""
 
-    def testCustomSettingIncluded(self):
+    def testCustomSettingIncluded(self) -> None:
         """Tests that a custom setting will be included in the output."""
         self.assertIn(
             "-oNumberOfPasswordPrompts=100",
@@ -90,7 +90,7 @@ class TestCompileSSHConnectSettings(cros_test_lib.TestCase):
             ),
         )
 
-    def testNoneSettingOmitted(self):
+    def testNoneSettingOmitted(self) -> None:
         """Verify a None value will omit a default setting from the output."""
         self.assertIn("-oProtocol=2", remote_access.CompileSSHConnectSettings())
         self.assertNotIn(
@@ -167,17 +167,17 @@ class RemoteDeviceMock(partial_mock.PartialMock):
 class CreateTunnelTest(cros_test_lib.MockTempDirTestCase):
     """Base class with popen mocked for RemoteAccess.CreateTunnel() tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.popen_mock = self.StartPatcher(CreateTunnelPopenMock())
         self.host = remote_access.RemoteAccess("foon", self.tempdir)
 
-    def testDefault(self):
+    def testDefault(self) -> None:
         """Test default behavior."""
         plain_result = self.host.CreateTunnel().args
         self.assertNotIn("-R", plain_result)
         self.assertNotIn("-L", plain_result)
 
-    def testLocal(self):
+    def testLocal(self) -> None:
         """Test behavior of to_local parameter."""
         for spec, expected_output in (
             (
@@ -197,7 +197,7 @@ class CreateTunnelTest(cros_test_lib.MockTempDirTestCase):
             result = self.host.CreateTunnel(to_local=[spec]).args
             self.assertEqual(result[result.index("-L") + 1], expected_output)
 
-    def testRemote(self):
+    def testRemote(self) -> None:
         """Test behavior of to_remote parameter."""
         for spec, expected_output in (
             (
@@ -217,7 +217,7 @@ class CreateTunnelTest(cros_test_lib.MockTempDirTestCase):
             result = self.host.CreateTunnel(to_remote=[spec]).args
             self.assertEqual(result[result.index("-R") + 1], expected_output)
 
-    def testInvalid(self):
+    def testInvalid(self) -> None:
         """Test behavior of invalid parameters."""
         for kwargs in (
             {"to_local": ""},
@@ -233,7 +233,7 @@ class CreateTunnelTest(cros_test_lib.MockTempDirTestCase):
 class RemoteAccessTest(cros_test_lib.MockTempDirTestCase):
     """Base class with RemoteSh mocked out for testing RemoteAccess."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rsh_mock = self.StartPatcher(RemoteShMock())
         self.host = remote_access.RemoteAccess("foon", self.tempdir)
 
@@ -246,7 +246,7 @@ class RemoteShTest(RemoteAccessTest):
     OUTPUT = "witty"
     ERROR = "error"
 
-    def assertRemoteShRaises(self, **kwargs):
+    def assertRemoteShRaises(self, **kwargs) -> None:
         """Asserts that RunCommandError is raised when running TEST_CMD."""
         self.assertRaises(
             cros_build_lib.RunCommandError,
@@ -255,7 +255,7 @@ class RemoteShTest(RemoteAccessTest):
             **kwargs,
         )
 
-    def assertRemoteShRaisesSSHConnectionError(self, **kwargs):
+    def assertRemoteShRaisesSSHConnectionError(self, **kwargs) -> None:
         """Asserts that SSHConnectionError is raised when running TEST_CMD."""
         self.assertRaises(
             remote_access.SSHConnectionError,
@@ -266,13 +266,13 @@ class RemoteShTest(RemoteAccessTest):
 
     def SetRemoteShResult(
         self, returncode=RETURN_CODE, stdout=OUTPUT, stderr=ERROR
-    ):
+    ) -> None:
         """Sets the RemoteSh command results."""
         self.rsh_mock.AddCmdResult(
             self.TEST_CMD, returncode=returncode, stdout=stdout, stderr=stderr
         )
 
-    def testNormal(self):
+    def testNormal(self) -> None:
         """Test normal functionality."""
         self.SetRemoteShResult()
         result = self.host.RemoteSh(self.TEST_CMD)
@@ -280,14 +280,14 @@ class RemoteShTest(RemoteAccessTest):
         self.assertEqual(result.stdout.strip(), self.OUTPUT)
         self.assertEqual(result.stderr.strip(), self.ERROR)
 
-    def testShell(self):
+    def testShell(self) -> None:
         """Test normal functionality with shell=True."""
         test_cmd = "ls && pwd"
         self.rsh_mock.AddCmdResult(test_cmd, returncode=0)
         result = self.host.RemoteSh(test_cmd, shell=True)
         self.assertTrue(result.cmd[-1].endswith("'%s'" % test_cmd))
 
-    def testRemoteCmdFailure(self):
+    def testRemoteCmdFailure(self) -> None:
         """Test failure in remote cmd."""
         self.SetRemoteShResult(returncode=1)
         self.assertRemoteShRaises()
@@ -295,7 +295,7 @@ class RemoteShTest(RemoteAccessTest):
         self.host.RemoteSh(self.TEST_CMD, check=False)
         self.host.RemoteSh(self.TEST_CMD, ssh_error_ok=True, check=False)
 
-    def testSshFailure(self):
+    def testSshFailure(self) -> None:
         """Test failure in ssh command."""
         self.SetRemoteShResult(returncode=remote_access.SSH_ERROR_CODE)
         self.assertRemoteShRaisesSSHConnectionError()
@@ -303,14 +303,14 @@ class RemoteShTest(RemoteAccessTest):
         self.host.RemoteSh(self.TEST_CMD, ssh_error_ok=True)
         self.host.RemoteSh(self.TEST_CMD, ssh_error_ok=True, check=False)
 
-    def testEnvLcMessagesSet(self):
+    def testEnvLcMessagesSet(self) -> None:
         """Test that LC_MESSAGES is set to 'C' for an SSH command."""
         self.SetRemoteShResult()
         result = self.host.RemoteSh(self.TEST_CMD)
         rc_kwargs = result.rc_mock.call_args_list[-1][1]
         self.assertEqual(rc_kwargs["extra_env"]["LC_MESSAGES"], "C")
 
-    def testEnvLcMessagesOverride(self):
+    def testEnvLcMessagesOverride(self) -> None:
         """Test that LC_MESSAGES is overridden to 'C' for an SSH command."""
         self.SetRemoteShResult()
         result = self.host.RemoteSh(
@@ -326,7 +326,7 @@ class CheckIfRebootedTest(RemoteAccessTest):
     _OLD_BOOT_ID = "1234"
     _NEW_BOOT_ID = "5678"
 
-    def _SetCheckRebootResult(self, returncode=0, stdout="", stderr=""):
+    def _SetCheckRebootResult(self, returncode=0, stdout="", stderr="") -> None:
         """Sets the result object fields to mock a specific ssh command.
 
         The command is the one used to fetch the boot ID (cat /proc/sys/...)
@@ -338,22 +338,22 @@ class CheckIfRebootedTest(RemoteAccessTest):
             stderr=stderr,
         )
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test the case of successful reboot."""
         self._SetCheckRebootResult(returncode=0, stdout=self._NEW_BOOT_ID)
         self.assertTrue(self.host.CheckIfRebooted(self._OLD_BOOT_ID))
 
-    def testFailure(self):
+    def testFailure(self) -> None:
         """Test case of failed reboot (boot ID did not change)."""
         self._SetCheckRebootResult(0, stdout=self._OLD_BOOT_ID)
         self.assertFalse(self.host.CheckIfRebooted(self._OLD_BOOT_ID))
 
-    def testSshFailure(self):
+    def testSshFailure(self) -> None:
         """Test case of reboot pending (ssh failed)."""
         self._SetCheckRebootResult(returncode=remote_access.SSH_ERROR_CODE)
         self.assertFalse(self.host.CheckIfRebooted(self._OLD_BOOT_ID))
 
-    def testInvalidErrorCode(self):
+    def testInvalidErrorCode(self) -> None:
         """Test case of bad error code returned."""
         self._SetCheckRebootResult(returncode=2)
         self.assertRaises(
@@ -364,18 +364,18 @@ class CheckIfRebootedTest(RemoteAccessTest):
 class RemoteDeviceTest(cros_test_lib.MockTestCase):
     """Tests for RemoteDevice class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rsh_mock = self.StartPatcher(RemoteShMock())
         self.pingable_mock = self.PatchObject(
             remote_access.RemoteDevice, "Pingable", return_value=True
         )
 
-    def _SetupRemoteTempDir(self):
+    def _SetupRemoteTempDir(self) -> None:
         """Mock out the calls needed for a remote tempdir."""
         self.rsh_mock.AddCmdResult(partial_mock.In("mktemp"))
         self.rsh_mock.AddCmdResult(partial_mock.In("rm"))
 
-    def testCommands(self):
+    def testCommands(self) -> None:
         """Tests simple run() usage."""
         command = ["echo", "foo"]
         expected_output = "foo"
@@ -387,7 +387,7 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
                 expected_output, device.run(["echo", "foo"]).stdout
             )
 
-    def testCommandsExtraEnv(self):
+    def testCommandsExtraEnv(self) -> None:
         """Tests simple RunCommand() usage with extra_env arg."""
         self._SetupRemoteTempDir()
 
@@ -407,7 +407,7 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
                 ).stdout,
             )
 
-    def testRunCommandShortCmdline(self):
+    def testRunCommandShortCmdline(self) -> None:
         """Verify short command lines execute env settings directly."""
         with remote_access.RemoteDeviceHandler(remote_access.TEST_IP) as device:
             self.PatchObject(
@@ -418,7 +418,7 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
             self.rsh_mock.AddCmdResult(partial_mock.In("runit"))
             device.run(["runit"], extra_env={"VAR": "val"})
 
-    def testRunCommandLongCmdline(self):
+    def testRunCommandLongCmdline(self) -> None:
         """Verify long command lines execute env settings via script."""
         with remote_access.RemoteDeviceHandler(remote_access.TEST_IP) as device:
             self._SetupRemoteTempDir()
@@ -429,14 +429,14 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
             # the remote side (the shell script to run indirectly).
             self.assertEqual(m.call_count, 1)
 
-    def testRunPathlib(self):
+    def testRunPathlib(self) -> None:
         """Test pathlib usage in commands."""
         with remote_access.RemoteDeviceHandler(remote_access.TEST_IP) as device:
             self.rsh_mock.AddCmdResult(["ls", Path("/")], returncode=0)
             result = device.run(["ls", Path("/")])
             self.assertEqual(result.cmd[-2:], ["ls", "/"])
 
-    def testRunPathlibEnv(self):
+    def testRunPathlibEnv(self) -> None:
         """Test pathlib usage in commands w/custom env."""
         with remote_access.RemoteDeviceHandler(remote_access.TEST_IP) as device:
             self.rsh_mock.AddCmdResult(
@@ -445,7 +445,7 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
             result = device.run(["ls", Path("/")], extra_env={"FOO": "bar"})
             self.assertEqual(result.cmd[-2:], ["ls", "/"])
 
-    def testNoDeviceBaseDir(self):
+    def testNoDeviceBaseDir(self) -> None:
         """Tests base_dir=None."""
         command = ["echo", "foo"]
         expected_output = "foo"
@@ -458,7 +458,7 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
                 expected_output, device.run(["echo", "foo"]).stdout
             )
 
-    def testDelayedRemoteDirs(self):
+    def testDelayedRemoteDirs(self) -> None:
         """Tests the delayed creation of base_dir/work_dir."""
         with remote_access.RemoteDeviceHandler(
             remote_access.TEST_IP, base_dir="/f"
@@ -476,7 +476,7 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
 
         self.assertEqual(self.rsh_mock.call_count, 2)
 
-    def testSELinuxAvailable(self):
+    def testSELinuxAvailable(self) -> None:
         """Test IsSELinuxAvailable() and IsSELinuxEnforced() when available."""
         self.rsh_mock.AddCmdResult(
             partial_mock.ListRegex("which restorecon"), returncode=0
@@ -501,7 +501,7 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
             self.assertEqual(device.IsSELinuxAvailable(), True)
             self.assertEqual(device.IsSELinuxEnforced(), False)
 
-    def testSELinuxUnavailable(self):
+    def testSELinuxUnavailable(self) -> None:
         """Test IsSELinux{Available|Enforced}() when unavailable."""
         self.rsh_mock.AddCmdResult(
             partial_mock.ListRegex("which restorecon"), returncode=0
@@ -513,7 +513,7 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
             self.assertEqual(device.IsSELinuxAvailable(), False)
             self.assertEqual(device.IsSELinuxEnforced(), False)
 
-    def testGetDecompressor(self):
+    def testGetDecompressor(self) -> None:
         """Test correct decompressor is returned."""
         self.rsh_mock.AddCmdResult(partial_mock.In("xz"), returncode=0)
         self.rsh_mock.AddCmdResult(partial_mock.In("bzip2"), returncode=0)
@@ -544,7 +544,7 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
             with self.assertRaises(ValueError):
                 device.GetDecompressor("foo")
 
-    def testGetDecompressorFails(self):
+    def testGetDecompressorFails(self) -> None:
         """Tests decompressor program not found."""
         self.rsh_mock.AddCmdResult(partial_mock.In("xz"), returncode=1)
         with remote_access.RemoteDeviceHandler(remote_access.TEST_IP) as device:
@@ -555,12 +555,12 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
 class ChromiumOSDeviceTest(cros_test_lib.MockTestCase):
     """Tests for ChromiumOSDevice class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rsh_mock = self.StartPatcher(RemoteShMock())
         self.rsh_mock.AddCmdResult(partial_mock.In("${PATH}"), stdout="")
         self.path_env = "PATH=%s:" % remote_access.DEV_BIN_PATHS
 
-    def testRun(self):
+    def testRun(self) -> None:
         """Tests simple run() usage."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -585,7 +585,7 @@ class ChromiumOSDeviceTest(cros_test_lib.MockTestCase):
             self.rsh_mock.AddCmdResult("echo foo", stdout="foo")
             self.assertEqual("foo", device.run("echo foo", shell=True).stdout)
 
-    def test_root_dev(self):
+    def test_root_dev(self) -> None:
         """Tests getting the path to the current root device."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -595,7 +595,7 @@ class ChromiumOSDeviceTest(cros_test_lib.MockTestCase):
             )
             self.assertEqual(device.root_dev, "/dev/foop5")
 
-    def testClearTpmOwner(self):
+    def testClearTpmOwner(self) -> None:
         """Test clearing the TPM owner."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -609,11 +609,11 @@ class ChromiumOSDeviceTest(cros_test_lib.MockTestCase):
 class ScpTest(cros_test_lib.MockTempDirTestCase):
     """Tests for RemoteAccess.Scp"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock = cros_test_lib.RunCommandMock()
         self.mock.AddCmdResult(partial_mock.Ignore())
 
-    def testHostname(self):
+    def testHostname(self) -> None:
         host = remote_access.RemoteAccess("chromium.org", self.tempdir)
 
         with self.mock:
@@ -621,7 +621,7 @@ class ScpTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertIn("root@chromium.org:/tmp/remote", result.cmd)
 
-    def testIpV4(self):
+    def testIpV4(self) -> None:
         host = remote_access.RemoteAccess("127.0.0.1", self.tempdir)
 
         with self.mock:
@@ -629,7 +629,7 @@ class ScpTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertIn("root@127.0.0.1:/tmp/remote", result.cmd)
 
-    def testIpV6ToLocal(self):
+    def testIpV6ToLocal(self) -> None:
         host = remote_access.RemoteAccess("::1", self.tempdir)
 
         with self.mock:
@@ -637,7 +637,7 @@ class ScpTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertIn("root@[::1]:/tmp/remote", result.cmd)
 
-    def testIpV6FromRemote(self):
+    def testIpV6FromRemote(self) -> None:
         host = remote_access.RemoteAccess("::1", self.tempdir)
 
         with self.mock:

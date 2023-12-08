@@ -15,7 +15,7 @@ from chromite.lib import osutils
 class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
     """Test stacked JSON loading functions."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.layout_json = os.path.join(self.tempdir, "test_layout.json")
         self.parent_layout_json = os.path.join(
             self.tempdir, "test_layout_parent.json"
@@ -48,7 +48,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
             }
           }"""
 
-    def testJSONComments(self):
+    def testJSONComments(self) -> None:
         """Test that we ignore comments in JSON in lines starting with #."""
         osutils.WriteFile(
             self.layout_json,
@@ -76,7 +76,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
             },
         )
 
-    def testJSONCommentsLimitations(self):
+    def testJSONCommentsLimitations(self) -> None:
         """Test that we can't parse inline comments in JSON.
 
         If we ever enable this, we need to change the README.disk_layout
@@ -96,7 +96,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
             self.layout_json,
         )
 
-    def testPartitionOrderPreserved(self):
+    def testPartitionOrderPreserved(self) -> None:
         """Test the order of the partitions is the same as in the parent."""
         osutils.WriteFile(self.parent_layout_json, self.parent_layout_content)
 
@@ -141,7 +141,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
             parent_layout._disk_layout_config, layout._disk_layout_config
         )
 
-    def testJSONEmptyParent(self):
+    def testJSONEmptyParent(self) -> None:
         """Test that absence of layout section in parent is supported."""
         osutils.WriteFile(self.parent_layout_json, "{}")
         osutils.WriteFile(
@@ -165,7 +165,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
         )
         disk_layout.DiskLayout(self.layout_json)
 
-    def testJSONEmptyLayout(self):
+    def testJSONEmptyLayout(self) -> None:
         """Test that absence of layout section in child is supported."""
         osutils.WriteFile(self.parent_layout_json, self.parent_layout_content)
 
@@ -184,7 +184,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
             parent_layout._disk_layout_config, layout._disk_layout_config
         )
 
-    def testJSONrequiredFields(self):
+    def testJSONrequiredFields(self) -> None:
         """Test required fields."""
         # Need Metadata field.
         osutils.WriteFile(self.layout_json, "{}")
@@ -241,7 +241,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
         ):
             disk_layout.DiskLayout(self.layout_json)
 
-    def testJSONPartitionRequiredFields(self):
+    def testJSONPartitionRequiredFields(self) -> None:
         """Test partition required fields."""
         # Need partition type.
         osutils.WriteFile(
@@ -313,7 +313,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
         ):
             disk_layout.DiskLayout(self.layout_json)
 
-    def testJSONFileSystemFields(self):
+    def testJSONFileSystemFields(self) -> None:
         """Test filesystem fields."""
         # fs_size > fs_size_min size.
         osutils.WriteFile(
@@ -378,7 +378,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
         ):
             disk_layout.DiskLayout(self.layout_json)
 
-    def testPartitionOrderPreservedWithBase(self):
+    def testPartitionOrderPreservedWithBase(self) -> None:
         """Test the order of the partitions is the same as in the parent."""
         osutils.WriteFile(
             self.parent_layout_json,
@@ -439,7 +439,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
             parent_layout._disk_layout_config, layout._disk_layout_config
         )
 
-    def testGetTableTotalsSizeIsAccurate(self):
+    def testGetTableTotalsSizeIsAccurate(self) -> None:
         """Test primary_entry_array_lba results in an accurate block count."""
         test_params = (
             # block_size, primary_entry_array_padding_bytes (in blocks),
@@ -486,7 +486,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
                 + disk_layout.SECONDARY_GPT_BYTES,
             )
 
-    def testMultipleParents(self):
+    def testMultipleParents(self) -> None:
         """Test that multiple inheritance works."""
         osutils.WriteFile(
             self.parent_layout_json,
@@ -612,7 +612,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
             },
         )
 
-    def testGapPartitionsAreIncluded(self):
+    def testGapPartitionsAreIncluded(self) -> None:
         """Test empty partitions (gaps) can be included in the child layout."""
         osutils.WriteFile(
             self.layout_json,
@@ -675,7 +675,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
             },
         )
 
-    def testPartitionOrderShouldMatch(self):
+    def testPartitionOrderShouldMatch(self) -> None:
         """Test the partition order in parent and child layouts must match."""
         osutils.WriteFile(
             self.layout_json,
@@ -698,7 +698,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
         with self.assertRaises(disk_layout.ConflictingPartitionOrderError):
             disk_layout.DiskLayout(self.layout_json)
 
-    def testOnlySharedPartitionsOrderMatters(self):
+    def testOnlySharedPartitionsOrderMatters(self) -> None:
         """Test that only the order of the partition in both layouts matters."""
         osutils.WriteFile(
             self.layout_json,
@@ -792,7 +792,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
             },
         )
 
-    def testFileSystemSizeMustBePositive(self):
+    def testFileSystemSizeMustBePositive(self) -> None:
         """Test that zero or negative file system size will raise exception."""
         osutils.WriteFile(
             self.layout_json,
@@ -818,7 +818,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
         ):
             disk_layout.DiskLayout(self.layout_json)
 
-    def testFileSystemSizeLargerThanPartition(self):
+    def testFileSystemSizeLargerThanPartition(self) -> None:
         """Test that file system size must not be greater than partition."""
         osutils.WriteFile(
             self.layout_json,
@@ -845,7 +845,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
         ):
             disk_layout.DiskLayout(self.layout_json)
 
-    def testFileSystemSizeNotMultipleBlocks(self):
+    def testFileSystemSizeNotMultipleBlocks(self) -> None:
         """Test file system size must be multiples of file system blocks."""
         osutils.WriteFile(
             self.layout_json,
@@ -872,7 +872,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
         ):
             disk_layout.DiskLayout(self.layout_json)
 
-    def testFileSystemSizeForUbiWithNoPageSize(self):
+    def testFileSystemSizeForUbiWithNoPageSize(self) -> None:
         """Test that "page_size" must be present to calculate UBI fs size."""
         osutils.WriteFile(
             self.layout_json,
@@ -900,7 +900,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
         ):
             disk_layout.DiskLayout(self.layout_json)
 
-    def testFileSystemSizeForUbiWithNoEraseBlockSize(self):
+    def testFileSystemSizeForUbiWithNoEraseBlockSize(self) -> None:
         """Test "erase_block_size" must be present to calculate UBI fs size."""
         osutils.WriteFile(
             self.layout_json,
@@ -932,7 +932,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
         ):
             disk_layout.DiskLayout(self.layout_json)
 
-    def testFileSystemSizeForUbiIsNotMultipleOfUbiEraseBlockSize(self):
+    def testFileSystemSizeForUbiIsNotMultipleOfUbiEraseBlockSize(self) -> None:
         """Test that we raise when fs_size is not multiple of eraseblocks."""
         osutils.WriteFile(
             self.layout_json,
@@ -966,7 +966,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
         ):
             disk_layout.DiskLayout(self.layout_json)
 
-    def testFileSystemSizeForUbiIsMultipleOfUbiEraseBlockSize(self):
+    def testFileSystemSizeForUbiIsMultipleOfUbiEraseBlockSize(self) -> None:
         """Test everything is okay when fs_size is multiple of eraseblocks."""
         osutils.WriteFile(
             self.layout_json,
@@ -1034,7 +1034,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
 class UtilityTest(cros_test_lib.MockTestCase):
     """Test various utility functions in disk_layout.py."""
 
-    def testParseHumanNumber(self):
+    def testParseHumanNumber(self) -> None:
         """Test that ParseHumanNumber is correct."""
         test_cases = [
             ("1", 1),
@@ -1058,7 +1058,7 @@ class UtilityTest(cros_test_lib.MockTestCase):
         for inp, exp in test_cases:
             self.assertEqual(disk_layout.ParseHumanNumber(inp), exp)
 
-    def testParseHumanNumberInvalid(self):
+    def testParseHumanNumberInvalid(self) -> None:
         """Test that ParseHumanNumber raises exception for invalid input."""
         test_cases = ["10uB", "30 BT", "40 Tg", "TiB", "-GB"]
 
@@ -1066,7 +1066,7 @@ class UtilityTest(cros_test_lib.MockTestCase):
             with self.assertRaises(disk_layout.InvalidAdjustmentError):
                 disk_layout.ParseHumanNumber(inp)
 
-    def testProduceHumanNumber(self):
+    def testProduceHumanNumber(self) -> None:
         """Test that ProduceHumanNumber is correct."""
         test_cases = [
             ("1", 1),
@@ -1083,7 +1083,7 @@ class UtilityTest(cros_test_lib.MockTestCase):
         for exp, inp in test_cases:
             self.assertEqual(disk_layout.ProduceHumanNumber(inp), exp)
 
-    def testGetScriptShell(self):
+    def testGetScriptShell(self) -> None:
         """Verify GetScriptShell works."""
         data = disk_layout.GetScriptShell()
         self.assertIn("#!/bin/sh", data)
@@ -1091,7 +1091,7 @@ class UtilityTest(cros_test_lib.MockTestCase):
             str(constants.CHROMITE_DIR / "sdk" / "cgpt_shell.sh"), data
         )
 
-    def testParseProduce(self):
+    def testParseProduce(self) -> None:
         """Test ParseHumanNumber(ProduceHumanNumber()) yields same value."""
         test_cases = [
             1,
@@ -1113,7 +1113,7 @@ class UtilityTest(cros_test_lib.MockTestCase):
                 n,
             )
 
-    def testParseRelativeNumber(self):
+    def testParseRelativeNumber(self) -> None:
         """Verify ParseRelativeNumber()."""
         test_cases = [
             ((1000, "90%"), 900),

@@ -18,16 +18,16 @@ from chromite.lib import results_lib
 class _StubLock:
     """A Stub clone of RLock that does nothing."""
 
-    def acquire(self, blocking=1):
+    def acquire(self, blocking=1) -> None:
         pass
 
-    def release(self):
+    def release(self) -> None:
         pass
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         pass
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         pass
 
 

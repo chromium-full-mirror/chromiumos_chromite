@@ -34,14 +34,14 @@ qlen 1000
        valid_lft 2592000sec preferred_lft 604800sec
 """
 
-    def testGetIPv4AddressParseResult(self):
+    def testGetIPv4AddressParseResult(self) -> None:
         """Verifies we can parse the output and get correct IP address."""
         self.rc.AddCmdResult(
             partial_mock.In("ip"), stdout=self.IP_GLOBAL_OUTPUT
         )
         self.assertEqual(dev_server_wrapper.GetIPv4Address(), "111.11.11.111")
 
-    def testGetIPv4Address(self):
+    def testGetIPv4Address(self) -> None:
         """Tests that correct shell commmand is called."""
         dev_server_wrapper.GetIPv4Address(global_ip=False, dev="eth0")
         self.rc.assertCommandContains(

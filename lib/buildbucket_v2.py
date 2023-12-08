@@ -236,7 +236,7 @@ def GetStringPairValue(content, path, key, default=None):
     return value
 
 
-def UpdateSelfBuildPropertiesNonBlocking(key, value):
+def UpdateSelfBuildPropertiesNonBlocking(key, value) -> None:
     """Updates the build.output.properties with key:value through a service.
 
     Butler is a ChOps service that reads in logs and updates Buildbucket of the
@@ -271,7 +271,7 @@ def UpdateSelfCommonBuildProperties(
     metadata_url=None,
     channels=None,
     email_notify=None,
-):
+) -> None:
     """Update build.output.properties for the current build.
 
     Sends the property values to buildbucket via
@@ -348,7 +348,7 @@ def UpdateSelfCommonBuildProperties(
         UpdateSelfBuildPropertiesNonBlocking("email_notify", email_notify)
 
 
-def UpdateBuildMetadata(metadata):
+def UpdateBuildMetadata(metadata) -> None:
     """Update build.output.properties from a CBuildbotMetadata instance.
 
     The function further uses UpdateSelfCommonBuildProperties and has hence

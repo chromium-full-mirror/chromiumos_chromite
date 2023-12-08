@@ -20,7 +20,7 @@ TEST_CASES_PARSE_BASIC = (
 
 
 @pytest.mark.parametrize("test,exp,reduced", TEST_CASES_PARSE_BASIC)
-def test_parse_basic(test, exp, reduced):
+def test_parse_basic(test, exp, reduced) -> None:
     """Verify basic license parsing."""
     if exp is None:
         exp = test
@@ -46,7 +46,7 @@ TEST_CASES_PARSE_ANY_OF = (
 
 
 @pytest.mark.parametrize("test,exp,reduced", TEST_CASES_PARSE_ANY_OF)
-def test_parse_any_of(test, exp, reduced):
+def test_parse_any_of(test, exp, reduced) -> None:
     """Verify ||() parsing."""
     if exp is None:
         exp = test
@@ -69,7 +69,7 @@ TEST_CASES_PARSE_USE = (
 
 
 @pytest.mark.parametrize("test,flags,reduced", TEST_CASES_PARSE_USE)
-def test_parse_use(test, flags, reduced):
+def test_parse_use(test, flags, reduced) -> None:
     """Verify flag?() parsing."""
     licenses = ebuild_license.parse(test)
     assert str(licenses) == test
@@ -87,14 +87,14 @@ TEST_CASES_PARSE_GROUPS = (
 
 
 @pytest.mark.parametrize("test,flags,reduced", TEST_CASES_PARSE_GROUPS)
-def test_parse_groups(test, flags, reduced):
+def test_parse_groups(test, flags, reduced) -> None:
     """Verify group parsing."""
     licenses = ebuild_license.parse(test)
     assert str(licenses) == test
     assert licenses.reduce(use_flags=flags) == reduced
 
 
-def test_parse_any_of_use():
+def test_parse_any_of_use() -> None:
     """Verify ||(flag?()) parsing."""
     test = "GPL-1 || ( foo? ( || ( BSD BSD-2 ) ) BSD-3 )"
     licenses = ebuild_license.parse(test)
@@ -103,7 +103,7 @@ def test_parse_any_of_use():
     assert licenses.reduce(use_flags={"foo"}) == ["GPL-1", "BSD"]
 
 
-def test_any_of_reduce():
+def test_any_of_reduce() -> None:
     """Verify ||() reduction."""
     test = "GPL-1 || ( BSD-1 foo? ( BSD-2 ) BSD-3 )"
     licenses = ebuild_license.parse(test)
@@ -129,7 +129,7 @@ def test_any_of_reduce():
     assert licenses.reduce(anyof_reduce=pick3) == ["GPL-1", "BSD-3"]
 
 
-def test_invalid_license_name():
+def test_invalid_license_name() -> None:
     """Handle invalid license names."""
     with pytest.raises(pms_dependency.PmsNameError):
         ebuild_license.parse("BSD!!!")
@@ -143,7 +143,7 @@ TEST_CASES_INVALID_SYNTAX = (
 
 
 @pytest.mark.parametrize("test", TEST_CASES_INVALID_SYNTAX)
-def test_invalid_syntax(test):
+def test_invalid_syntax(test) -> None:
     """Handle invalid syntax."""
     with pytest.raises(pms_dependency.PmsSyntaxError):
         ebuild_license.parse(test)

@@ -32,7 +32,7 @@ class StepFailure(Exception):
     # different category.
     EXCEPTION_CATEGORY = constants.EXCEPTION_CATEGORY_UNKNOWN
 
-    def EncodeExtraInfo(self):
+    def EncodeExtraInfo(self) -> None:
         """Encode extra_info into a json string.
 
         Can be overwritten by subclasses.

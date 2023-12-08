@@ -240,7 +240,7 @@ class Qemu:
             osutils.SafeUnlink(temp.name)
             return False
 
-    def Install(self, sysroot=None):
+    def Install(self, sysroot=None) -> None:
         """Install qemu into |sysroot| safely"""
         if sysroot is None:
             sysroot = self.sysroot
@@ -335,7 +335,7 @@ class Qemu:
             b"flags": b"POC",
         }
 
-    def RegisterBinfmt(self):
+    def RegisterBinfmt(self) -> None:
         """Make sure qemu has been registered as a format handler
 
         Prep the binfmt handler. First mount if needed, then unregister any bad

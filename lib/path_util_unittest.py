@@ -28,14 +28,14 @@ CUSTOM_OUT_PATH = Path("/custom/out/path")
 class DetermineCheckoutTest(cros_test_lib.MockTempDirTestCase):
     """Verify functionality for figuring out what checkout we're in."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc_mock = cros_test_lib.RunCommandMock()
         self.StartPatcher(self.rc_mock)
         self.rc_mock.SetDefaultCmdResult()
 
     def RunTest(
         self, dir_struct, cwd, expected_root, expected_type, expected_src
-    ):
+    ) -> None:
         """Run a test with specific parameters and expected results."""
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, dir_struct)
         cwd = os.path.join(self.tempdir, cwd)
@@ -51,7 +51,7 @@ class DetermineCheckoutTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(checkout_info.type, expected_type)
         self.assertEqual(checkout_info.chrome_src_dir, full_src)
 
-    def testGclientRepo(self):
+    def testGclientRepo(self) -> None:
         """Recognizes a GClient repo checkout."""
         dir_struct = [
             "a/.gclient",
@@ -80,7 +80,7 @@ class DetermineCheckoutTest(cros_test_lib.MockTempDirTestCase):
             dir_struct, "a", "a", path_util.CheckoutType.GCLIENT, "a/src"
         )
 
-    def testGitUnderGclient(self):
+    def testGitUnderGclient(self) -> None:
         """Recognizes a chrome git checkout by gclient."""
         self.rc_mock.AddCmdResult(
             partial_mock.In("config"), stdout=constants.CHROMIUM_GOB_URL
@@ -93,7 +93,7 @@ class DetermineCheckoutTest(cros_test_lib.MockTempDirTestCase):
             dir_struct, "a/src", "a", path_util.CheckoutType.GCLIENT, "a/src"
         )
 
-    def testGitUnderRepo(self):
+    def testGitUnderRepo(self) -> None:
         """Recognizes a chrome git checkout by repo."""
         self.rc_mock.AddCmdResult(
             partial_mock.In("config"), stdout=constants.CHROMIUM_GOB_URL
@@ -104,13 +104,13 @@ class DetermineCheckoutTest(cros_test_lib.MockTempDirTestCase):
         ]
         self.RunTest(dir_struct, "a/b", "a", path_util.CheckoutType.REPO, None)
 
-    def testBadGit1(self):
+    def testBadGit1(self) -> None:
         """.git is not a directory."""
         self.RunTest(
             ["a/.git"], "a", None, path_util.CheckoutType.UNKNOWN, None
         )
 
-    def testBadGit2(self):
+    def testBadGit2(self) -> None:
         """'git config' returns nothing."""
         self.RunTest(
             ["a/.repo/", "a/b/.git/"],
@@ -120,7 +120,7 @@ class DetermineCheckoutTest(cros_test_lib.MockTempDirTestCase):
             None,
         )
 
-    def testBadGit3(self):
+    def testBadGit3(self) -> None:
         """'git config' returns error."""
         self.rc_mock.AddCmdResult(partial_mock.In("config"), returncode=5)
         self.RunTest(
@@ -131,7 +131,7 @@ class DetermineCheckoutTest(cros_test_lib.MockTempDirTestCase):
 class FindCacheDirTest(cros_test_lib.MockTempDirTestCase):
     """Test cache dir specification and finding functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         dir_struct = [
             "repo/.repo/",
             "repo/manifest/",
@@ -145,7 +145,7 @@ class FindCacheDirTest(cros_test_lib.MockTempDirTestCase):
         self.rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
         self.cwd_mock = self.PatchObject(os, "getcwd")
 
-    def testRepoRoot(self):
+    def testRepoRoot(self) -> None:
         """Test when we are inside a repo checkout."""
         self.cwd_mock.return_value = self.repo_root
         self.assertEqual(
@@ -153,7 +153,7 @@ class FindCacheDirTest(cros_test_lib.MockTempDirTestCase):
             os.path.join(self.repo_root, path_util.GENERAL_CACHE_DIR),
         )
 
-    def testGclientRoot(self):
+    def testGclientRoot(self) -> None:
         """Test when we are inside a gclient checkout."""
         self.cwd_mock.return_value = self.gclient_root
         self.assertEqual(
@@ -163,7 +163,7 @@ class FindCacheDirTest(cros_test_lib.MockTempDirTestCase):
             ),
         )
 
-    def testTempdir(self):
+    def testTempdir(self) -> None:
         """Test when we are not in any checkout."""
         self.cwd_mock.return_value = self.nocheckout_root
         self.assertStartsWith(
@@ -174,7 +174,7 @@ class FindCacheDirTest(cros_test_lib.MockTempDirTestCase):
 class TestPathResolver(cros_test_lib.MockTempDirTestCase):
     """Tests of ChrootPathResolver class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(constants, "SOURCE_ROOT", new=FAKE_SOURCE_PATH)
         self.PatchObject(constants, "DEFAULT_OUT_PATH", new=FAKE_OUT_PATH)
         self.PatchObject(
@@ -196,7 +196,9 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
     def FakeCwd(self, base_path):
         return os.path.join(base_path, "somewhere/in/there")
 
-    def SetChrootPath(self, source_path, chroot_path=None, out_path=None):
+    def SetChrootPath(
+        self, source_path, chroot_path=None, out_path=None
+    ) -> None:
         """Set and fake the chroot path."""
         self.chroot_path = chroot_path or os.path.join(
             source_path, constants.DEFAULT_CHROOT_DIR
@@ -206,7 +208,7 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
-    def testSourcePathInChrootInbound(self, _):
+    def testSourcePathInChrootInbound(self, _) -> None:
         """Test regular behavior if chroot_path is inside source_path."""
 
         self.SetChrootPath(constants.SOURCE_ROOT)
@@ -227,7 +229,7 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
         )
 
     @mock.patch("chromite.lib.cros_build_lib.IsInsideChroot", return_value=True)
-    def testInsideChroot(self, _):
+    def testInsideChroot(self, _) -> None:
         """Tests {To,From}Chroot() call from inside the chroot."""
         self.SetChrootPath(constants.SOURCE_ROOT)
         resolver = path_util.ChrootPathResolver()
@@ -254,7 +256,7 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
-    def testOutsideChrootInbound(self, _):
+    def testOutsideChrootInbound(self, _) -> None:
         """Tests ToChroot() calls from outside the chroot."""
         for source_path, source_from_path_repo in itertools.product(
             (None, CUSTOM_SOURCE_PATH), (False, True)
@@ -342,7 +344,7 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
-    def testOutsideCustomChrootInbound(self, _):
+    def testOutsideCustomChrootInbound(self, _) -> None:
         """Tests ToChroot() calls from outside a custom chroot."""
 
         self.SetChrootPath(
@@ -371,7 +373,7 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
-    def testOutsideChrootOutbound(self, _):
+    def testOutsideChrootOutbound(self, _) -> None:
         """Tests FromChroot() calls from outside the chroot."""
         self.PatchObject(
             os, "getcwd", return_value=self.FakeCwd(FAKE_SOURCE_PATH)
@@ -426,7 +428,7 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
-    def testOutsideCustomChrootOutbound(self, _):
+    def testOutsideCustomChrootOutbound(self, _) -> None:
         """Tests FromChroot() calls from outside the chroot."""
         self.PatchObject(
             os, "getcwd", return_value=self.FakeCwd(FAKE_SOURCE_PATH)
@@ -488,7 +490,7 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
-    def testCurrentDir(self, _):
+    def testCurrentDir(self, _) -> None:
         """Tests chroot translation with the current dir."""
         # Current directory is "out" directory.
         self.SetChrootPath(
@@ -527,7 +529,7 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
-    def testOutsideChrootOutdir(self, _):
+    def testOutsideChrootOutdir(self, _) -> None:
         """Tests {To,From}Chroot() call from outside chroot with an out_dir."""
         self.SetChrootPath(constants.SOURCE_ROOT)
         resolver = path_util.ChrootPathResolver()
@@ -640,7 +642,7 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
-    def testBySourcePath(self, _):
+    def testBySourcePath(self, _) -> None:
         """Provide only source_path=, and derive chroot/ and out/."""
         source_path = CUSTOM_SOURCE_PATH
         resolver = path_util.ChrootPathResolver(
@@ -670,7 +672,7 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
-    def testSymlinkedPath(self, _):
+    def testSymlinkedPath(self, _) -> None:
         """Resolve a symlinked path."""
         original_realpath = os.path.realpath
         self.PatchObject(
@@ -706,7 +708,7 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
-    def testNonDefaultChrootPathInsideSourcePath(self, _):
+    def testNonDefaultChrootPathInsideSourcePath(self, _) -> None:
         """Test custom chroot behavior if chroot_path is inside source_path."""
 
         source_path = constants.SOURCE_ROOT
@@ -732,7 +734,7 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
         )
 
 
-def test_normalize_paths_to_source_root_collapsing_sub_paths():
+def test_normalize_paths_to_source_root_collapsing_sub_paths() -> None:
     """Test normalize removes sub paths."""
     actual_paths = path_util.normalize_paths_to_source_root(
         [
@@ -756,7 +758,9 @@ def test_normalize_paths_to_source_root_collapsing_sub_paths():
     assert set(actual_paths) == expected_paths
 
 
-def test_normalize_paths_to_source_root_formatting_directory_paths(tmp_path):
+def test_normalize_paths_to_source_root_formatting_directory_paths(
+    tmp_path,
+) -> None:
     """Test normalize correctly handles /path/to/file and /path/to/dir/."""
     foo_dir = tmp_path / "foo"
     foo_dir.mkdir()
@@ -785,7 +789,7 @@ def test_normalize_paths_to_source_root_formatting_directory_paths(tmp_path):
     assert actual_paths == expected_paths
 
 
-def test_expand_directories_in_git(tmp_path):
+def test_expand_directories_in_git(tmp_path) -> None:
     """Test ExpandDirectories when given a dir in a git repo."""
     files_in_dir = [Path("foo.txt"), Path("bar.txt")]
 
@@ -799,7 +803,7 @@ def test_expand_directories_in_git(tmp_path):
     ls_files.assert_called_once_with(files=[tmp_path], untracked=True)
 
 
-def test_expand_directories_not_git(tmp_path):
+def test_expand_directories_not_git(tmp_path) -> None:
     """Test ExpandDirectories when given a dir outside a git repo."""
     subdir = tmp_path / "subdir"
     subdir.mkdir()
@@ -813,7 +817,7 @@ def test_expand_directories_not_git(tmp_path):
     assert result == set(files_in_dir)
 
 
-def test_expand_directories_file(tmp_path):
+def test_expand_directories_file(tmp_path) -> None:
     """Test ExpandDirectories when given a regular file."""
     file_path = tmp_path / "foo.txt"
     osutils.Touch(file_path)

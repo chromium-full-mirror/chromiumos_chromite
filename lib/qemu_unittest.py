@@ -16,7 +16,7 @@ from chromite.lib import qemu
 class QemuTests(cros_test_lib.TestCase):
     """Verify Qemu logic works"""
 
-    def testArchDetect(self):
+    def testArchDetect(self) -> None:
         """Verify we correctly probe each arch"""
         test_dir = os.path.join(
             os.path.realpath(os.path.dirname(__file__)), "datafiles"
@@ -40,7 +40,7 @@ class QemuTests(cros_test_lib.TestCase):
             else:
                 self.assertEqual(arch, exp_arch)
 
-    def testArmRegisterStr(self):
+    def testArmRegisterStr(self) -> None:
         """Make sure the register string is exact.
 
         We don't check every arch, just one to make sure the general logic is
@@ -57,7 +57,7 @@ class QemuTests(cros_test_lib.TestCase):
             exp, qemu.Qemu.GetRegisterBinfmtStr("arm", "foo", "/pfx")
         )
 
-    def testRegisterStrLengths(self):
+    def testRegisterStrLengths(self) -> None:
         """Verify the binfmt register string doesn't exceed kernel limits"""
         # pylint: disable=protected-access
         for arch in qemu.Qemu._MAGIC_MASK.keys():
@@ -71,11 +71,11 @@ class QemuTests(cros_test_lib.TestCase):
                 " %i: %r" % (arch, len(register), register),
             )
 
-    def testFullInterpPath(self):
+    def testFullInterpPath(self) -> None:
         """Sanity check for the interp helper."""
         self.assertNotEqual("", qemu.Qemu.GetFullInterpPath("foo"))
 
-    def testInstall(self):
+    def testInstall(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             src = "/usr/bin/qemu-arm"
             dst_dir = os.path.join(tmpdir, "build", "bin")

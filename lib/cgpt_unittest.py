@@ -76,12 +76,12 @@ class TestDisk(cros_test_lib.RunCommandTestCase):
         self.rc.SetDefaultCmdResult(stdout=CGPT_SHOW_OUTPUT)
         return cgpt.Disk.FromImage("foo")
 
-    def testDiskFromImageEmpty(self):
+    def testDiskFromImageEmpty(self) -> None:
         """Test ReadGpt when cgpt doesn't return an expected list."""
         with self.assertRaises(cgpt.Error):
             cgpt.Disk.FromImage("foo")
 
-    def testDiskFromImage(self):
+    def testDiskFromImage(self) -> None:
         """Test ReadGpt with mock cgpt output."""
         which_mock = self.PatchObject(
             osutils, "Which", return_value="/path/foo"
@@ -112,7 +112,7 @@ class TestDisk(cros_test_lib.RunCommandTestCase):
             ),
         )
 
-    def testDiskFromImageCgptMissing(self):
+    def testDiskFromImageCgptMissing(self) -> None:
         """Test ReadGpt with mock cgpt output when cpgt is missing."""
         which_mock = self.PatchObject(osutils, "Which", return_value=None)
         to_chroot_path_mock = self.PatchObject(
@@ -146,7 +146,7 @@ class TestDisk(cros_test_lib.RunCommandTestCase):
             ),
         )
 
-    def testGetPartitionByLabel(self):
+    def testGetPartitionByLabel(self) -> None:
         """Test that mocked disk has all expected partitions."""
         disk = self.getMockDisk()
 
@@ -164,21 +164,21 @@ class TestDisk(cros_test_lib.RunCommandTestCase):
         ):
             self.assertEqual(disk.GetPartitionByLabel(label).part_num, part_num)
 
-    def testGetPartitionByLabelMultipleLabels(self):
+    def testGetPartitionByLabelMultipleLabels(self) -> None:
         """Test MultiplePartitionLabel raised on duplicate label 'reserved'."""
         disk = self.getMockDisk()
 
         with self.assertRaises(cgpt.MultiplePartitionLabel):
             disk.GetPartitionByLabel("reserved")
 
-    def testGetPartitionByLabelMissingKey(self):
+    def testGetPartitionByLabelMissingKey(self) -> None:
         """Test KeyError is raised on a non-existent label."""
         disk = self.getMockDisk()
 
         with self.assertRaises(KeyError):
             disk.GetPartitionByLabel("bar")
 
-    def testGetPartitionsByTypeGuid(self):
+    def testGetPartitionsByTypeGuid(self) -> None:
         """Test that mocked disk has all expected partitions."""
         disk = self.getMockDisk()
 
@@ -192,7 +192,7 @@ class TestDisk(cros_test_lib.RunCommandTestCase):
             [9],
         )
 
-    def testGetPartitionsByTypeGuidMulti(self):
+    def testGetPartitionsByTypeGuidMulti(self) -> None:
         """Test that mocked disk has all expected partitions."""
         disk = self.getMockDisk()
 

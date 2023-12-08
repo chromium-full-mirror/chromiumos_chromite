@@ -12,7 +12,7 @@ from chromite.lib import osutils
 class JsonHelpersTest(cros_test_lib.MockTestCase):
     """Tests for chromite.lib.json_lib."""
 
-    def testAssertIsInstance(self):
+    def testAssertIsInstance(self) -> None:
         """Test that AssertIsInstance is correct."""
         self.assertRaises(
             ValueError, json_lib.AssertIsInstance, tuple(), list, "a bad value"
@@ -27,7 +27,7 @@ class JsonHelpersTest(cros_test_lib.MockTestCase):
         json_lib.AssertIsInstance(True, bool, "good value")
         json_lib.AssertIsInstance({"foo": 2}, dict, "good value")
 
-    def testGetValueOfType(self):
+    def testGetValueOfType(self) -> None:
         """Test that GetValueOfType is correct."""
         self.assertRaises(
             ValueError,
@@ -57,7 +57,7 @@ class JsonHelpersTest(cros_test_lib.MockTestCase):
             json_lib.GetValueOfType({"key": 1}, "key", int, "good value"), 1
         )
 
-    def testPopValueOfType(self):
+    def testPopValueOfType(self) -> None:
         """Test that PopValueOfType is correct."""
         input_dict = {"key": "value"}
         self.assertEqual(
@@ -68,7 +68,7 @@ class JsonHelpersTest(cros_test_lib.MockTestCase):
         )
         self.assertFalse(input_dict)
 
-    def testParseJsonFileWithComments(self):
+    def testParseJsonFileWithComments(self) -> None:
         """Test that we can parse a JSON file with comments."""
         JSON_WITH_COMMENTS = """
         {
@@ -90,7 +90,7 @@ class JsonHelpersTest(cros_test_lib.MockTestCase):
             ValueError, json_lib.ParseJsonFileWithComments, "fake path"
         )
 
-    def testGetNestedDictValue(self):
+    def testGetNestedDictValue(self) -> None:
         """Test that GetNestedDictValue is correct."""
         NESTED_DICT = {
             "lv1.1": {"lv2.1": {"value": "1.1"}, "lv2.2": {"value": "1.2"}},

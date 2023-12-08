@@ -11,7 +11,7 @@ from chromite.lib import osutils
 from chromite.lib import protofiles_lib
 
 
-def test_uprev_success(tmp_path: Path):
+def test_uprev_success(tmp_path: Path) -> None:
     cros_path = tmp_path
     cros_src_path = cros_path / "src"
     package_path = (

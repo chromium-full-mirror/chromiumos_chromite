@@ -18,14 +18,14 @@ from chromite.test import portage_testables
 class BuildTargetTest(cros_test_lib.TempDirTestCase):
     """BuildTarget tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.sysroot = os.path.join(self.tempdir, "sysroot")
         self.sysroot_denormalized = os.path.join(
             self.tempdir, "dne", "..", "sysroot"
         )
         osutils.SafeMakedirs(self.sysroot)
 
-    def testEqual(self):
+    def testEqual(self) -> None:
         """Sanity check for __eq__ method."""
         bt1 = BuildTarget("board", profile="base")
         bt2 = BuildTarget("board", profile="base")
@@ -35,34 +35,34 @@ class BuildTargetTest(cros_test_lib.TempDirTestCase):
         self.assertNotEqual(bt1, bt3)
         self.assertNotEqual(bt1, bt4)
 
-    def testHostTarget(self):
+    def testHostTarget(self) -> None:
         """Test host target with empty name."""
         target = BuildTarget("")
         self.assertTrue(target.is_host())
 
-    def testNormalRoot(self):
+    def testNormalRoot(self) -> None:
         """Test normalized sysroot path."""
         target = BuildTarget("board", build_root=self.sysroot)
         self.assertEqual(self.sysroot, target.root)
         self.assertFalse(target.is_host())
 
-    def testDenormalizedRoot(self):
+    def testDenormalizedRoot(self) -> None:
         """Test a non-normal sysroot path."""
         target = BuildTarget("board", build_root=self.sysroot_denormalized)
         self.assertEqual(self.sysroot, target.root)
 
-    def testDefaultRoot(self):
+    def testDefaultRoot(self) -> None:
         """Test the default sysroot path."""
         target = BuildTarget("board")
         self.assertEqual("/build/board", target.root)
 
-    def testFullPath(self):
+    def testFullPath(self) -> None:
         """Test full_path functionality."""
         build_target = BuildTarget("board")
         result = build_target.full_path("some/path")
         self.assertEqual(result, "/build/board/some/path")
 
-    def testFullPathWithExtraArgs(self):
+    def testFullPathWithExtraArgs(self) -> None:
         """Test full_path functionality with extra args passed."""
         build_target = BuildTarget("board")
         path1 = "some/path"
@@ -71,7 +71,7 @@ class BuildTargetTest(cros_test_lib.TempDirTestCase):
 
 
 @pytest.mark.parametrize(["public"], [(True,), (False,), (None,)])
-def test_find_overlays_public(tmp_path, monkeypatch, public):
+def test_find_overlays_public(tmp_path, monkeypatch, public) -> None:
     """Test find_overlays() called on a public target."""
     build_target = BuildTarget("board", public=public)
 

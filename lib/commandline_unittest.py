@@ -28,7 +28,7 @@ from chromite.utils import gs_urls_util
 class TestShutDownException(cros_test_lib.TestCase):
     """Test that ShutDownException can be pickled."""
 
-    def testShutDownException(self):
+    def testShutDownException(self) -> None:
         """Test that ShutDownException can be pickled."""
         # pylint: disable=protected-access
         ex = commandline._ShutDownException(signal.SIGTERM, "Received SIGTERM")
@@ -40,7 +40,7 @@ class TestShutDownException(cros_test_lib.TestCase):
 class TimedeltaTest(cros_test_lib.TestCase):
     """Test type=timedelta is supported correctly."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Create a parser for testing."""
         self.parser = commandline.ArgumentParser()
         self.parser.add_argument(
@@ -49,17 +49,17 @@ class TimedeltaTest(cros_test_lib.TestCase):
             help="Some timedelta help message.",
         )
 
-    def testInvalidTimedelta(self):
+    def testInvalidTimedelta(self) -> None:
         """Test invalid timedelta values. (invalid)"""
         with self.assertRaises(SystemExit):
             self.parser.parse_args(["--timedelta", "foobar"])
 
-    def testNegativeTimedelta(self):
+    def testNegativeTimedelta(self) -> None:
         """Test negative integer timedelta values. (invalid)"""
         with self.assertRaises(SystemExit):
             self.parser.parse_args(["--timedelta", "-1"])
 
-    def testPositiveTimedelta(self):
+    def testPositiveTimedelta(self) -> None:
         """Test positive integer timedelta values. (valid)"""
         opts = self.parser.parse_args(["--timedelta", "1"])
         self.assertEqual(opts.timedelta, datetime.timedelta(seconds=1))
@@ -83,28 +83,28 @@ class GSPathTest(cros_test_lib.OutputTestCase):
         )
         return parser.parse_args(argv)
 
-    def _RunGSPathTestCase(self, raw, parsed):
+    def _RunGSPathTestCase(self, raw, parsed) -> None:
         options = self._ParseCommandLine(["--gs-path", raw])
         self.assertEqual(options.gs_path, parsed)
 
-    def testNoGSPathCorrectionNeeded(self):
+    def testNoGSPathCorrectionNeeded(self) -> None:
         """Test case where GS path correction is not needed."""
         gs_path = "%s/%s" % (gs_urls_util.BASE_GS_URL, self.GS_REL_PATH)
         self._RunGSPathTestCase(gs_path, gs_path)
 
-    def testTrailingSlashRemoval(self):
+    def testTrailingSlashRemoval(self) -> None:
         """Test case where GS path ends with /."""
         gs_path = "%s/%s/" % (gs_urls_util.BASE_GS_URL, self.GS_REL_PATH)
         self._RunGSPathTestCase(gs_path, gs_path.rstrip("/"))
 
-    def testDuplicateSlashesRemoved(self):
+    def testDuplicateSlashesRemoved(self) -> None:
         """Test case where GS path contains many / in a row."""
         self._RunGSPathTestCase(
             "%s/a/dir/with//////////slashes" % gs_urls_util.BASE_GS_URL,
             "%s/a/dir/with/slashes" % gs_urls_util.BASE_GS_URL,
         )
 
-    def testRelativePathsRemoved(self):
+    def testRelativePathsRemoved(self) -> None:
         """Test case where GS path contain /../ logic."""
         self._RunGSPathTestCase(
             "%s/a/dir/up/here/.././../now/down/there"
@@ -112,14 +112,14 @@ class GSPathTest(cros_test_lib.OutputTestCase):
             "%s/a/dir/now/down/there" % gs_urls_util.BASE_GS_URL,
         )
 
-    def testCorrectionNeeded(self):
+    def testCorrectionNeeded(self) -> None:
         """Test case where GS path correction is needed."""
         self._RunGSPathTestCase(
             "%s/%s/" % (gs_urls_util.PRIVATE_BASE_HTTPS_URL, self.GS_REL_PATH),
             "%s/%s" % (gs_urls_util.BASE_GS_URL, self.GS_REL_PATH),
         )
 
-    def testInvalidPath(self):
+    def testInvalidPath(self) -> None:
         """Path cannot be normalized."""
         with self.OutputCapturer():
             self.assertRaises2(
@@ -142,11 +142,11 @@ class BoolTest(cros_test_lib.TestCase):
         )
         return parser.parse_args(argv)
 
-    def _RunBoolTestCase(self, enable, expected):
+    def _RunBoolTestCase(self, enable, expected) -> None:
         options = self._ParseCommandLine(["--enable", enable])
         self.assertEqual(options.enable, expected)
 
-    def testBoolTrue(self):
+    def testBoolTrue(self) -> None:
         """Test case setting the value to true."""
         self._RunBoolTestCase("True", True)
         self._RunBoolTestCase("1", True)
@@ -154,7 +154,7 @@ class BoolTest(cros_test_lib.TestCase):
         self._RunBoolTestCase("yes", True)
         self._RunBoolTestCase("TrUe", True)
 
-    def testBoolFalse(self):
+    def testBoolFalse(self) -> None:
         """Test case setting the value to false."""
         self._RunBoolTestCase("False", False)
         self._RunBoolTestCase("0", False)
@@ -166,7 +166,7 @@ class BoolTest(cros_test_lib.TestCase):
 class StandardBoolTest(cros_test_lib.TestCase):
     """Test add_bool_argument functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.parser = commandline.ArgumentParser()
         # Use names "DT" (default-true), "DF" (default-false), and "DN"
         # (default-None). Abbreviated because the test is hard to read if
@@ -183,12 +183,12 @@ class StandardBoolTest(cros_test_lib.TestCase):
 
         return invoke
 
-    def testNormalUsage(self):
+    def testNormalUsage(self) -> None:
         """Test end-to-end usage with 2 args with different defaults."""
 
         def verify(
             argv: List[str], dt: bool, df: bool, dn: Optional[bool] = None
-        ):
+        ) -> None:
             options = self.parser.parse_args(argv)
             self.assertEqual(options.dt_var, dt)
             self.assertEqual(options.df_var, df)
@@ -207,7 +207,7 @@ class StandardBoolTest(cros_test_lib.TestCase):
         verify(["--dn-var"], dt=True, df=False, dn=True)
         verify(["--no-dn-var"], dt=True, df=False, dn=False)
 
-    def testHelpStrings(self):
+    def testHelpStrings(self) -> None:
         """Test help strings are set correctly."""
         help_string = self.parser.format_help()
         self.assertIn("Yes DT (DEFAULT)\n", help_string)
@@ -218,25 +218,25 @@ class StandardBoolTest(cros_test_lib.TestCase):
         self.assertIn("Yes DN\n", help_string)
         self.assertIn("No DN\n", help_string)
 
-    def testNoPrefixRaises(self):
+    def testNoPrefixRaises(self) -> None:
         """Ensure flags that are not prefixed with `--` raise ValueError."""
         self.assertRaises(ValueError, self.add_flag("-f"))
         self.assertRaises(ValueError, self.add_flag("f"))
         self.add_flag("--f")()  # OK.
 
-    def testUnderscoreRaises(self):
+    def testUnderscoreRaises(self) -> None:
         """Ensure flags incorrectly using snake_case raise ValueError."""
         self.assertRaises(ValueError, self.add_flag("--my_flag"))
         self.add_flag("--my-flag")()  # OK.
 
-    def testTypeEqualsBoolRaises(self):
+    def testTypeEqualsBoolRaises(self) -> None:
         """Ensure unquoted `type=bool` is rejected by regular add_argument."""
         with self.assertRaises(ValueError) as context:
             self.parser.add_argument("--verbose", type=bool)
         self.assertIn("Use `add_bool_argument()`", str(context.exception))
 
 
-def test_add_bool_argument_in_group():
+def test_add_bool_argument_in_group() -> None:
     """Test using add_bool_argument in an argument group."""
     parser = commandline.ArgumentParser()
     group = parser.add_argument_group()
@@ -250,7 +250,7 @@ def test_add_bool_argument_in_group():
     assert not opts.default_true
 
 
-def test_add_bool_argument_in_mutually_exclusive_group():
+def test_add_bool_argument_in_mutually_exclusive_group() -> None:
     """Test using add_bool_argument in a mutually exclusive argument group."""
     parser = commandline.ArgumentParser()
     group = parser.add_mutually_exclusive_group()
@@ -284,7 +284,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         port: Optional[int] = None,
         path: Optional[str] = None,
         serial: Optional[str] = None,
-    ):
+    ) -> None:
         """Checks that parsing a device input gives the expected result.
 
         Args:
@@ -308,7 +308,9 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         self.assertEqual(device.path, path)
         self.assertEqual(device.serial_number, serial)
 
-    def _CheckDeviceParseFails(self, device_input, schemes=_ALL_SCHEMES):
+    def _CheckDeviceParseFails(
+        self, device_input, schemes=_ALL_SCHEMES
+    ) -> None:
         """Checks that parsing a device input fails.
 
         Args:
@@ -320,11 +322,11 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         with self.OutputCapturer():
             self.assertRaises2(SystemExit, parser.parse_args, [device_input])
 
-    def testNoDevice(self):
+    def testNoDevice(self) -> None:
         """Verify that an empty device specification fails."""
         self._CheckDeviceParseFails("")
 
-    def testScpAndFileScheme(self):
+    def testScpAndFileScheme(self) -> None:
         """Test scp and file scheme device specification."""
         self._CheckDeviceParse(
             "192.168.1.200:/tmp_dest",
@@ -360,7 +362,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             path="../tmp_src",
         )
 
-    def testScpSchemeCombination(self):
+    def testScpSchemeCombination(self) -> None:
         """Test scp scheme with valid/invalid scheme combination."""
         self._CheckDeviceParse(
             "192.168.1.200:/tmp_dest",
@@ -376,15 +378,15 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             ],
         )
 
-    def testSshScheme(self):
+    def testSshScheme(self) -> None:
         """Verify that SSH scheme-only device specification fails."""
         self._CheckDeviceParseFails("ssh://")
 
-    def testInvalidSshScheme(self):
+    def testInvalidSshScheme(self) -> None:
         """Verify that invalid ssh specification fails."""
         self._CheckDeviceParseFails("sssssh://localhost:22")
 
-    def testSshHostname(self):
+    def testSshHostname(self) -> None:
         """Test SSH hostname-only device specification."""
         self._CheckDeviceParse(
             "192.168.1.200",
@@ -392,7 +394,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             hostname="192.168.1.200",
         )
 
-    def testSshHostnamePort(self):
+    def testSshHostnamePort(self) -> None:
         """Test SSH hostname and port device specification."""
         self._CheckDeviceParse(
             "192.168.1.200:9999",
@@ -401,7 +403,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             port=9999,
         )
 
-    def testSshUsernameHostname(self):
+    def testSshUsernameHostname(self) -> None:
         """Test SSH username and hostname device specification."""
         self._CheckDeviceParse(
             "me@foo_host",
@@ -410,7 +412,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             hostname="foo_host",
         )
 
-    def testSshUsernameHostnamePort(self):
+    def testSshUsernameHostnamePort(self) -> None:
         """Test SSH username, hostname, and port device specification."""
         self._CheckDeviceParse(
             "me@foo_host:4500",
@@ -420,7 +422,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             port=4500,
         )
 
-    def testSshSchemeUsernameHostnamePort(self):
+    def testSshSchemeUsernameHostnamePort(self) -> None:
         """Test SSH, username, hostname, and port device specification."""
         self._CheckDeviceParse(
             "ssh://me@foo_host:4500",
@@ -430,7 +432,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             port=4500,
         )
 
-    def testSshIpv6NoBrackets(self):
+    def testSshIpv6NoBrackets(self) -> None:
         """Test SSH with IPv6 address, no brackets.
 
         Should fail with user-friendly message.
@@ -439,7 +441,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             self._CheckDeviceParseFails("ssh://::1:2222")
             assert logcap.LogsContain("To write an IPv6 address")
 
-    def testSshIpv6WithBrackets(self):
+    def testSshIpv6WithBrackets(self) -> None:
         """Test SSH with an IPv6 address, all proper with the brackets."""
         self._CheckDeviceParse(
             "ssh://[::1]:2222",
@@ -448,13 +450,13 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             port=2222,
         )
 
-    def testEmptyServoScheme(self):
+    def testEmptyServoScheme(self) -> None:
         """Test empty servo scheme."""
         # Everything should be None so the underlying programs (e.g.
         # dut-control) can use their defaults.
         self._CheckDeviceParseFails("servo:")
 
-    def testServoPort(self):
+    def testServoPort(self) -> None:
         """Test valid servo port values."""
         self._CheckDeviceParse(
             "servo:port", scheme=commandline.DeviceScheme.SERVO, port=None
@@ -473,7 +475,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             port=65535,
         )
 
-    def testInvalidServoPort(self):
+    def testInvalidServoPort(self) -> None:
         """Invalid port provided."""
         self._CheckDeviceParseFails("servo:port:0")
         self._CheckDeviceParseFails("servo:port:65536")
@@ -481,7 +483,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         self._CheckDeviceParseFails("servo:port:C1234567890")
         self._CheckDeviceParseFails("servo:port:123456-12345")
 
-    def testServoSerialNumber(self):
+    def testServoSerialNumber(self) -> None:
         """Test servo serial number."""
         # Some known serial number formats.
         self._CheckDeviceParse(
@@ -501,15 +503,15 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             serial="12345",
         )
 
-    def testInvalidServoSerialNumber(self):
+    def testInvalidServoSerialNumber(self) -> None:
         """Invalid serial number value provided."""
         self._CheckDeviceParseFails("servo:serial:")
 
-    def testUsbScheme(self):
+    def testUsbScheme(self) -> None:
         """Test USB scheme-only device specification."""
         self._CheckDeviceParse("usb://", scheme=commandline.DeviceScheme.USB)
 
-    def testUsbSchemePath(self):
+    def testUsbSchemePath(self) -> None:
         """Test USB scheme and path device specification."""
         self._CheckDeviceParse(
             "usb://path/to/my/device",
@@ -517,11 +519,11 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             path="path/to/my/device",
         )
 
-    def testFileScheme(self):
+    def testFileScheme(self) -> None:
         """Verify that file scheme-only device specification fails."""
         self._CheckDeviceParseFails("file://")
 
-    def testFileSchemePath(self):
+    def testFileSchemePath(self) -> None:
         """Test file scheme and path device specification."""
         self._CheckDeviceParse(
             "file://foo/bar",
@@ -529,7 +531,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             path="foo/bar",
         )
 
-    def testAbsolutePath(self):
+    def testAbsolutePath(self) -> None:
         """Verify that an absolute path defaults to file scheme."""
         self._CheckDeviceParse(
             "/path/to/my/device",
@@ -537,7 +539,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             path="/path/to/my/device",
         )
 
-    def testUnsupportedScheme(self):
+    def testUnsupportedScheme(self) -> None:
         """Verify that an unsupported scheme fails."""
         self._CheckDeviceParseFails(
             "ssh://192.168.1.200", schemes=commandline.DeviceScheme.USB
@@ -550,11 +552,11 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             ],
         )
 
-    def testUnknownScheme(self):
+    def testUnknownScheme(self) -> None:
         """Verify that an unknown scheme fails."""
         self._CheckDeviceParseFails("ftp://192.168.1.200")
 
-    def testSchemeCaseInsensitive(self):
+    def testSchemeCaseInsensitive(self) -> None:
         """Verify that schemes are case-insensitive."""
         self._CheckDeviceParse(
             "SSH://foo_host",
@@ -566,7 +568,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
 class AppendOptionTest(cros_test_lib.TestCase):
     """Verify append_option/append_option_value actions."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Create a standard parser for the tests."""
         self.parser = commandline.ArgumentParser()
         self.parser.add_argument("--flag", action="append_option")
@@ -578,7 +580,7 @@ class AppendOptionTest(cros_test_lib.TestCase):
             "-y", "--shared_value", dest="shared", action="append_option_value"
         )
 
-    def testNone(self):
+    def testNone(self) -> None:
         """Test results when no arguments are passed in."""
         result = self.parser.parse_args([])
         self.assertGreaterEqual(
@@ -586,7 +588,7 @@ class AppendOptionTest(cros_test_lib.TestCase):
             {"flag": None, "value": None, "shared": None}.items(),
         )
 
-    def testSingles(self):
+    def testSingles(self) -> None:
         """Test results when no argument is used more than once."""
         result = self.parser.parse_args(
             [
@@ -608,7 +610,7 @@ class AppendOptionTest(cros_test_lib.TestCase):
             }.items(),
         )
 
-    def testMultiples(self):
+    def testMultiples(self) -> None:
         """Test results when no arguments are used more than once."""
         result = self.parser.parse_args(
             [
@@ -655,12 +657,12 @@ class Size(enum.Enum):
 class EnumActionTest(cros_test_lib.TestCase):
     """Verify action="enum" functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Create a parser to use for tests."""
         self.parser = commandline.ArgumentParser()
         self.parser.add_argument("--size", action="enum", enum=Size)
 
-    def testParseValid(self):
+    def testParseValid(self) -> None:
         """Test the usual, valid inputs."""
         opts = self.parser.parse_args(["--size", "small"])
         self.assertEqual(opts.size, Size.SMALL)
@@ -671,13 +673,13 @@ class EnumActionTest(cros_test_lib.TestCase):
         opts = self.parser.parse_args(["--size", "large"])
         self.assertEqual(opts.size, Size.LARGE)
 
-    def testParseInvalidCase(self):
+    def testParseInvalidCase(self) -> None:
         """Test the enum given in all uppercase (should be lowercase)."""
         with self.assertRaises(SystemExit) as e:
             self.parser.parse_args(["--size", "SMALL"])
             self.assertNotEqual(e.status, 0)
 
-    def testParseInvalid(self):
+    def testParseInvalid(self) -> None:
         """Test when something else completely unexpected is given."""
         with self.assertRaises(SystemExit) as e:
             self.parser.parse_args(["--size", "extra_medium"])
@@ -687,7 +689,7 @@ class EnumActionTest(cros_test_lib.TestCase):
 class SplitExtendActionTest(cros_test_lib.TestCase):
     """Verify _SplitExtendAction/split_extend action."""
 
-    def _CheckArgs(self, cliargs, expected):
+    def _CheckArgs(self, cliargs, expected) -> None:
         """Check |cliargs| produces |expected|."""
         parser = commandline.ArgumentParser()
         parser.add_argument("-x", action="split_extend", default=[])
@@ -696,7 +698,7 @@ class SplitExtendActionTest(cros_test_lib.TestCase):
         )
         self.assertEqual(opts.x, expected)
 
-    def testDefaultNone(self):
+    def testDefaultNone(self) -> None:
         """Verify default=None works."""
         parser = commandline.ArgumentParser()
         parser.add_argument("-x", action="split_extend", default=None)
@@ -710,27 +712,27 @@ class SplitExtendActionTest(cros_test_lib.TestCase):
         opts = parser.parse_args(["-x", "f"])
         self.assertEqual(opts.x, ["f"])
 
-    def testNoArgs(self):
+    def testNoArgs(self) -> None:
         """This is more of a confidence check for resting state."""
         self._CheckArgs([], [])
 
-    def testEmptyArg(self):
+    def testEmptyArg(self) -> None:
         """Make sure '' produces nothing."""
         self._CheckArgs(["", ""], [])
 
-    def testEmptyWhitespaceArg(self):
+    def testEmptyWhitespaceArg(self) -> None:
         """Make sure whitespace produces nothing."""
         self._CheckArgs([" ", "\t", "  \t   "], [])
 
-    def testSingleSingleArg(self):
+    def testSingleSingleArg(self) -> None:
         """Verify splitting one arg works."""
         self._CheckArgs(["a"], ["a"])
 
-    def testMultipleSingleArg(self):
+    def testMultipleSingleArg(self) -> None:
         """Verify splitting one arg works."""
         self._CheckArgs(["a b  c\td "], ["a", "b", "c", "d"])
 
-    def testMultipleMultipleArgs(self):
+    def testMultipleMultipleArgs(self) -> None:
         """Verify splitting multiple args works."""
         self._CheckArgs(["a b  c", "", "x", " k "], ["a", "b", "c", "x", "k"])
 
@@ -740,7 +742,7 @@ class CacheTest(cros_test_lib.MockTempDirTestCase):
 
     CACHE_DIR = "/fake/cache/dir"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(commandline.ArgumentParser, "ConfigureCacheDir")
         dir_struct = [
             "repo/.repo/",
@@ -750,20 +752,22 @@ class CacheTest(cros_test_lib.MockTempDirTestCase):
         self.cwd_mock = self.PatchObject(os, "getcwd")
         self.parser = commandline.ArgumentParser(caching=True)
 
-    def _CheckCall(self, cwd_retval, args_to_parse, expected, assert_func):
+    def _CheckCall(
+        self, cwd_retval, args_to_parse, expected, assert_func
+    ) -> None:
         self.cwd_mock.return_value = cwd_retval
         self.parser.parse_args(args_to_parse)
         cache_dir_mock = self.parser.ConfigureCacheDir
         self.assertEqual(1, cache_dir_mock.call_count)
         assert_func(cache_dir_mock.call_args[0][0], expected)
 
-    def testRepoRootNoOverride(self):
+    def testRepoRootNoOverride(self) -> None:
         """Test default cache location when in a repo checkout."""
         self._CheckCall(
             self.repo_root, [], self.repo_root, self.assertStartsWith
         )
 
-    def testRepoRootWithOverride(self):
+    def testRepoRootWithOverride(self) -> None:
         """User provided cache location overrides repo checkout default."""
         self._CheckCall(
             self.repo_root,
@@ -776,13 +780,13 @@ class CacheTest(cros_test_lib.MockTempDirTestCase):
 class PathFilterTest(cros_test_lib.TestCase):
     """Test path filter with --exclude, --include."""
 
-    def testFilter(self):
+    def testFilter(self) -> None:
         """Tests basic filtering."""
         parser = commandline.ArgumentParser(filter=True)
         options = parser.parse_args(["--include=a.out", "--exclude=*.out"])
         self.assertEqual(options.filter.filter(["a.out", "b.out"]), ["a.out"])
 
-    def testFilterWithoutOptions(self):
+    def testFilterWithoutOptions(self) -> None:
         """Tests filtering when no flags are passed."""
         parser = commandline.ArgumentParser(filter=True)
         options = parser.parse_args([])
@@ -858,7 +862,7 @@ class ParseArgsTest(cros_test_lib.TestCase):
 
         return parser
 
-    def _TestParser(self, parser):
+    def _TestParser(self, parser) -> None:
         """Test the given parser with a prepared argv."""
         argv = ["-x", "--bbb", "Bobby", "-c", "Connor", "foobar"]
 
@@ -894,13 +898,13 @@ class ParseArgsTest(cros_test_lib.TestCase):
         )
         self.assertEqual("Arick", options.aaa)
 
-    def testFilterParser(self):
+    def testFilterParser(self) -> None:
         self._TestParser(self._CreateOptionParser(commandline.FilteringParser))
 
-    def testArgumentParser(self):
+    def testArgumentParser(self) -> None:
         self._TestParser(self._CreateArgumentParser(commandline.ArgumentParser))
 
-    def testDisableCommonLogging(self):
+    def testDisableCommonLogging(self) -> None:
         """Verify we can elide common logging options."""
         parser = commandline.ArgumentParser(logging=False)
 
@@ -913,7 +917,7 @@ class ParseArgsTest(cros_test_lib.TestCase):
         parser.add_argument("--log-level")
         parser.add_argument("--nocolor")
 
-    def testCommonBaseDefaults(self):
+    def testCommonBaseDefaults(self) -> None:
         """Make sure common options work with just a base parser."""
         parser = commandline.ArgumentParser(
             logging=True, default_log_level="info"
@@ -929,7 +933,7 @@ class ParseArgsTest(cros_test_lib.TestCase):
         self.assertEqual(opts.log_level, "notice")
         self.assertEqual(opts.color, False)
 
-    def testCommonBaseAndSubDefaults(self):
+    def testCommonBaseAndSubDefaults(self) -> None:
         """Make sure common options work between base & sub parsers."""
         parser = commandline.ArgumentParser(
             logging=True, default_log_level="info"
@@ -958,7 +962,7 @@ class ParseArgsTest(cros_test_lib.TestCase):
 class ScriptWrapperMainTest(cros_test_lib.MockTestCase):
     """Test the behavior of the ScriptWrapperMain function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(sys, "exit")
         self.lastTargetFound = None
 
@@ -968,7 +972,7 @@ class ScriptWrapperMainTest(cros_test_lib.MockTestCase):
     # script. Let's pick something specifically invalid just in case we do.
     CHROOT_ARGS = ["--some-option", "foo"]
 
-    def testRestartInChrootPreserveArgs(self):
+    def testRestartInChrootPreserveArgs(self) -> None:
         """Verify args to ScriptWrapperMain are passed through to chroot."""
         # Setup Mocks/Fakes
         rc = self.StartPatcher(cros_test_lib.RunCommandMock())
@@ -977,7 +981,7 @@ class ScriptWrapperMainTest(cros_test_lib.MockTestCase):
         def findTarget(target):
             """ScriptWrapperMain needs a function to find a function to run."""
 
-            def raiseChrootRequiredError(args):
+            def raiseChrootRequiredError(args) -> None:
                 raise commandline.ChrootRequiredError(args)
 
             self.lastTargetFound = target
@@ -991,7 +995,7 @@ class ScriptWrapperMainTest(cros_test_lib.MockTestCase):
         rc.assertCommandContains(self.CMD_ARGS)
         self.assertEqual("/cmd", self.lastTargetFound)
 
-    def testRestartInChrootWithChrootArgs(self):
+    def testRestartInChrootWithChrootArgs(self) -> None:
         """Verify args and chroot args from exception are used."""
         # Setup Mocks/Fakes
         rc = self.StartPatcher(cros_test_lib.RunCommandMock())
@@ -1000,7 +1004,7 @@ class ScriptWrapperMainTest(cros_test_lib.MockTestCase):
         def findTarget(_):
             """ScriptWrapperMain needs a function to find a function to run."""
 
-            def raiseChrootRequiredError(_args):
+            def raiseChrootRequiredError(_args) -> None:
                 raise commandline.ChrootRequiredError(
                     self.CMD_ARGS, self.CHROOT_ARGS
                 )
@@ -1019,7 +1023,7 @@ class ScriptWrapperMainTest(cros_test_lib.MockTestCase):
 class TestRunInsideChroot(cros_test_lib.MockTestCase):
     """Test commandline.RunInsideChroot()."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.orig_argv = sys.argv
         sys.argv = ["/cmd", "arg1", "arg2"]
 
@@ -1044,7 +1048,7 @@ class TestRunInsideChroot(cros_test_lib.MockTestCase):
 
         self.PatchObject(self.cmd, "TranslateToChrootArgv", _inside_args_patch)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         sys.argv = self.orig_argv
 
     def _VerifyRunInsideChroot(
@@ -1053,7 +1057,7 @@ class TestRunInsideChroot(cros_test_lib.MockTestCase):
         expected_chroot_args=None,
         log_level_args=None,
         **kwargs,
-    ):
+    ) -> None:
         """Run RunInsideChroot, and verify it raises with expected values.
 
         Args:
@@ -1080,18 +1084,18 @@ class TestRunInsideChroot(cros_test_lib.MockTestCase):
         self.assertEqual(expected_cmd, cm.exception.cmd)
         self.assertEqual(expected_chroot_args, cm.exception.chroot_args)
 
-    def testRunInsideChroot(self):
+    def testRunInsideChroot(self) -> None:
         """Test we can restart inside the chroot."""
         self.mock_inside_chroot.return_value = False
         self._VerifyRunInsideChroot(["/inside/cmd", "arg1", "arg2"])
 
-    def testRunInsideChrootWithoutCommand(self):
+    def testRunInsideChrootWithoutCommand(self) -> None:
         """Verify RunInsideChroot can get by without the |command| parameter."""
         self.mock_inside_chroot.return_value = False
         self.cmd = None
         self._VerifyRunInsideChroot(["/inside/cmd", "arg1", "arg2"])
 
-    def testRunInsideChrootLogLevel(self):
+    def testRunInsideChrootLogLevel(self) -> None:
         """Test chroot restart with properly inherited log-level."""
         self.cmd.options.log_level = "notice"
         self.mock_inside_chroot.return_value = False
@@ -1100,14 +1104,14 @@ class TestRunInsideChroot(cros_test_lib.MockTestCase):
             log_level_args=["--log-level", "notice"],
         )
 
-    def testRunInsideChrootAlreadyInside(self):
+    def testRunInsideChrootAlreadyInside(self) -> None:
         """Test we don't restart inside the chroot if we are already there."""
         self.mock_inside_chroot.return_value = True
 
         # Since we are in the chroot, it should return, doing nothing.
         commandline.RunInsideChroot(self.cmd)
 
-    def testTranslateToChrootArgv(self):
+    def testTranslateToChrootArgv(self) -> None:
         """Test we can restart inside the chroot."""
         self.mock_inside_chroot.return_value = False
         sys.argv.append("arg3")
@@ -1117,24 +1121,24 @@ class TestRunInsideChroot(cros_test_lib.MockTestCase):
 class TestRunAsRootUser(cros_test_lib.MockTestCase):
     """Test commandline.RunAsRootUser()."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.is_root_user_mock = self.PatchObject(
             osutils, "IsRootUser", return_value=True
         )
         self.execvp_mock = self.PatchObject(os, "execvp")
 
-    def testInvalidInput(self):
+    def testInvalidInput(self) -> None:
         """Test an error is raised when no command is given."""
         with self.assertRaises(ValueError):
             commandline.RunAsRootUser([])
 
-    def testRootUser(self):
+    def testRootUser(self) -> None:
         """Test that the function returns when is root user."""
         commandline.RunAsRootUser(["test_cmd"])
 
         self.execvp_mock.assert_not_called()
 
-    def testPreserveEnv(self):
+    def testPreserveEnv(self) -> None:
         """Test that the environment is preserved."""
         self.is_root_user_mock.return_value = False
 
@@ -1152,7 +1156,7 @@ class TestRunAsRootUser(cros_test_lib.MockTestCase):
             ],
         )
 
-    def testCommandCreation(self):
+    def testCommandCreation(self) -> None:
         """Test that the command is created with the appropriate envvars."""
         self.is_root_user_mock.return_value = False
 
@@ -1173,7 +1177,7 @@ class TestRunAsRootUser(cros_test_lib.MockTestCase):
 class DeprecatedActionTest(cros_test_lib.MockTestCase):
     """Test the _DeprecatedAction integration."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.warning_patch = self.PatchObject(logging, "warning")
 
         # Setup arguments for a handful of actions.
@@ -1221,7 +1225,7 @@ class DeprecatedActionTest(cros_test_lib.MockTestCase):
         self.dep_store_expected = "b"
         self.dep_append_expected = [3, 4]
 
-    def testNonDeprecatedParsing(self):
+    def testNonDeprecatedParsing(self) -> None:
         """Test normal parsing is not affected."""
         opts = self.argument_parser.parse_args(self.not_deprecated)
 
@@ -1235,7 +1239,7 @@ class DeprecatedActionTest(cros_test_lib.MockTestCase):
         self.assertFalse(opts.dep_store_true)
         self.assertIsNone(opts.dep_append)
 
-    def testDeprecatedParsing(self):
+    def testDeprecatedParsing(self) -> None:
         """Test deprecated parsing logs the warning but parses normally."""
         opts = self.argument_parser.parse_args(self.deprecated)
 
@@ -1249,7 +1253,7 @@ class DeprecatedActionTest(cros_test_lib.MockTestCase):
         self.assertTrue(opts.dep_store_true)
         self.assertEqual(self.dep_append_expected, opts.dep_append)
 
-    def testMixedParsing(self):
+    def testMixedParsing(self) -> None:
         """Test parsing a mix of arguments."""
         opts = self.argument_parser.parse_args(self.mixed)
 
@@ -1267,7 +1271,7 @@ class DeprecatedActionTest(cros_test_lib.MockTestCase):
 class PathExistsTest(cros_test_lib.TempDirTestCase):
     """Test type=path_exists, dir_exists, and file_exists functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         cros_test_lib.CreateOnDiskHierarchy(
             self.tempdir,
             (
@@ -1297,18 +1301,18 @@ class PathExistsTest(cros_test_lib.TempDirTestCase):
         parser.add_argument("--file", type="file_exists")
         return parser.parse_args(["--file", str(path)])
 
-    def testExistingPath(self):
+    def testExistingPath(self) -> None:
         """Test that the path exists."""
         options = self._ParsePathExists(self.file_path)
         self.assertEqual(options.path, self.file_path)
 
-    def testExistingSymlinkPath(self):
+    def testExistingSymlinkPath(self) -> None:
         """Test that a path with symlink exists."""
         options = self._ParsePathExists(self.link_path)
         self.assertEqual(options.path, self.file_path)
         self.assertNotEqual(options.path, self.link_path)
 
-    def testMultipleExistingPaths(self):
+    def testMultipleExistingPaths(self) -> None:
         """Test that action='append' can be used with type='path_exists'."""
         parser = commandline.ArgumentParser()
         parser.add_argument("--path", action="append", type="path_exists")
@@ -1325,37 +1329,37 @@ class PathExistsTest(cros_test_lib.TempDirTestCase):
         self.assertEqual(len(options.path), 3)
         self.assertIn(self.file_path, options.path)
 
-    def testExistingFile(self):
+    def testExistingFile(self) -> None:
         """Test that the path exists and is a file."""
         options = self._ParseFileExists(self.file_path)
         self.assertEqual(options.file, self.file_path)
 
-    def testExistingDirectory(self):
+    def testExistingDirectory(self) -> None:
         """Test that the path exists and is a directory."""
         options = self._ParseDirectoryExists(self.dir_path)
         self.assertEqual(options.dir, self.dir_path)
 
-    def testNonExistingPath(self):
+    def testNonExistingPath(self) -> None:
         """Test that an error occurs when the path does not exist."""
         self.assertRaises2(SystemExit, self._ParsePathExists, "no/such/path")
 
-    def testNonExistingDirectory(self):
+    def testNonExistingDirectory(self) -> None:
         """Test that an error occurs when a directory path does not exist."""
         self.assertRaises2(
             SystemExit, self._ParseDirectoryExists, "no/such/directory/"
         )
 
-    def testNonExistingFile(self):
+    def testNonExistingFile(self) -> None:
         """Test that an error occurs when a file path does not exist."""
         self.assertRaises2(SystemExit, self._ParseFileExists, "no/such/file")
 
-    def testExistingPathIsNotDirectory(self):
+    def testExistingPathIsNotDirectory(self) -> None:
         """Verify an error occurs when an existing path is not a directory."""
         self.assertRaises2(
             SystemExit, self._ParseDirectoryExists, self.file_path
         )
 
-    def testExistingPathIsNotFile(self):
+    def testExistingPathIsNotFile(self) -> None:
         """Test that an error occurs when an existing path is not a file."""
         self.assertRaises2(SystemExit, self._ParseFileExists, self.dir_path)
 
@@ -1363,14 +1367,14 @@ class PathExistsTest(cros_test_lib.TempDirTestCase):
 class DryRunTests(cros_test_lib.TestCase):
     """Check --dry-run integration."""
 
-    def testNoDryRun(self):
+    def testNoDryRun(self) -> None:
         """Do not include --dry-run by default."""
         parser = commandline.ArgumentParser()
         opts = parser.parse_args([])
         self.assertFalse(hasattr(opts, "dryrun"))
         self.assertRaises2(SystemExit, parser.parse_args, ["--dry-run"])
 
-    def testDryRun(self):
+    def testDryRun(self) -> None:
         """Verify --dry-run is included when requested."""
         parser = commandline.ArgumentParser(dryrun=True)
         opts = parser.parse_args([])

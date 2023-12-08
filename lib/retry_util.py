@@ -59,7 +59,7 @@ class _RetryDelayStrategy:
         self._backoff_factor = backoff_factor
         self._jitter = jitter
 
-    def Sleep(self, attempt):
+    def Sleep(self, attempt) -> None:
         """Sleep to delay the current retry."""
         assert attempt >= 1, "Expect attempt is always positive: %s" % attempt
         if self._backoff_factor > 1:

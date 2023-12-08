@@ -77,7 +77,7 @@ class RestrictedAttrDict(dict):
         """Inequality of the class."""
         return not self.__eq__(other)
 
-    def __setattr__(self, name, val):
+    def __setattr__(self, name, val) -> None:
         """Setting an attribute, actually sets a dictionary value."""
         if name not in self._slots:
             raise AttributeError(
@@ -94,7 +94,7 @@ class RestrictedAttrDict(dict):
             )
         return self[name]
 
-    def __setitem__(self, name, val):
+    def __setitem__(self, name, val) -> None:
         """Restrict which keys can be stored in this dictionary."""
         if name not in self._slots:
             raise KeyError(name)
@@ -121,7 +121,7 @@ class RestrictedAttrDict(dict):
         elems = ["%s%s%r" % (s, equal, self[s]) for s in slots]
         return delim.join(elems)
 
-    def _clear_if_default(self, key, default):
+    def _clear_if_default(self, key, default) -> None:
         """Helper for constructors.
 
         If they key value is set to the default value, set it to None.
@@ -247,17 +247,17 @@ class MemoryConsumptionSemaphore:
         else:
             return True
 
-    def _inc_within(self):
+    def _inc_within(self) -> None:
         """Inc the lock."""
         with self._lock:
             self._n_within.value += 1
 
-    def _dec_within(self):
+    def _dec_within(self) -> None:
         """Dec the lock."""
         with self._lock:
             self._n_within.value -= 1
 
-    def _set_timer(self):
+    def _set_timer(self) -> None:
         """Set a time in the future to unblock after."""
         with self._lock:
             self._timer_future.value = max(
@@ -335,6 +335,6 @@ class MemoryConsumptionSemaphore:
             "Timed out (due to quiescence, " "total max, or avail memory)",
         )
 
-    def release(self):
+    def release(self) -> None:
         """Releases a single acquire."""
         self._dec_within()

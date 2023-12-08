@@ -91,7 +91,7 @@ class CacheReference:
         """Returns on-disk path to the cached item."""
         return self._cache.GetKeyPath(self.key)
 
-    def Acquire(self):
+    def Acquire(self) -> None:
         """Prepare the cache reference for operation.
 
         This must be called (either explicitly or through entering a 'with'
@@ -106,7 +106,7 @@ class CacheReference:
         self.acquired = True
         self._lock.__enter__()
 
-    def Release(self):
+    def Release(self) -> None:
         """Release the cache reference. Causes any held locks to be released."""
         if not self.acquired:
             raise AssertionError(
@@ -121,23 +121,23 @@ class CacheReference:
         self.Acquire()
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args) -> None:
         self.Release()
 
-    def _ReadLock(self):
+    def _ReadLock(self) -> None:
         self._lock.read_lock()
         self.read_locked = True
 
     @WriteLock
-    def _Assign(self, path):
+    def _Assign(self, path) -> None:
         self._cache._Insert(self.key, path)
 
     @WriteLock
-    def _AssignText(self, text):
+    def _AssignText(self, text) -> None:
         self._cache._InsertText(self.key, text)
 
     @WriteLock
-    def _Remove(self):
+    def _Remove(self) -> None:
         self._cache._Remove(self.key)
         osutils.SafeUnlink(self._lock.path)
         osutils.SafeUnlink(self._entry_lock.path)
@@ -146,12 +146,12 @@ class CacheReference:
         return self._cache._KeyExists(self.key)
 
     @EntryLock
-    def Assign(self, path):
+    def Assign(self, path) -> None:
         """Insert a file or a directory into the cache at the referenced key."""
         self._Assign(path)
 
     @EntryLock
-    def AssignText(self, text):
+    def AssignText(self, text) -> None:
         """Create a file containing |text| and assign it to the key.
 
         Args:
@@ -160,7 +160,7 @@ class CacheReference:
         self._AssignText(text)
 
     @EntryLock
-    def Remove(self):
+    def Remove(self) -> None:
         """Removes the entry from the cache."""
         self._Remove()
 
@@ -178,7 +178,7 @@ class CacheReference:
         return False
 
     @EntryLock
-    def SetDefault(self, default_path, lock=False):
+    def SetDefault(self, default_path, lock=False) -> None:
         """Assigns default_path if the entry doesn't exist.
 
         Args:
@@ -240,7 +240,7 @@ class DiskCache:
     def _TempDirContext(self):
         return osutils.TempDir(base_dir=self.staging_dir)
 
-    def _Insert(self, key, path):
+    def _Insert(self, key, path) -> None:
         """Insert a file or a directory into the cache at a given key."""
         self._Remove(key)
         key_path = self.GetKeyPath(key)
@@ -249,14 +249,14 @@ class DiskCache:
         )
         shutil.move(path, key_path)
 
-    def _InsertText(self, key, text):
+    def _InsertText(self, key, text) -> None:
         """Inserts a file containing |text| into the cache."""
         with self._TempDirContext() as tempdir:
             file_path = os.path.join(tempdir, "tempfile")
             osutils.WriteFile(file_path, text)
             self._Insert(key, file_path)
 
-    def _Remove(self, key):
+    def _Remove(self, key) -> None:
         """Remove a key from the cache."""
         if self._KeyExists(key):
             with self._TempDirContext() as tempdir:
@@ -323,7 +323,7 @@ class RemoteCache(DiskCache):
         *,
         hash_sha1: Optional[str] = None,
         mode: Optional[int] = None,
-    ):
+    ) -> None:
         """Fetch a remote file.
 
         Args:
@@ -356,7 +356,7 @@ class RemoteCache(DiskCache):
         if mode is not None:
             osutils.Chmod(local_path, mode)
 
-    def _Insert(self, key, url):  # pylint: disable=arguments-renamed
+    def _Insert(self, key, url) -> None:  # pylint: disable=arguments-renamed
         """Insert a remote file into the cache."""
         o = urllib.parse.urlparse(url)
         if o.scheme in ("file", ""):
@@ -370,7 +370,7 @@ class RemoteCache(DiskCache):
             DiskCache._Insert(self, key, local_path.name)
 
 
-def Untar(path, cwd, sudo=False):
+def Untar(path, cwd, sudo=False) -> None:
     """Untar a tarball."""
     functor = cros_build_lib.sudo_run if sudo else cros_build_lib.run
     comp = cros_build_lib.CompressionDetectType(path)
@@ -393,7 +393,9 @@ def Untar(path, cwd, sudo=False):
 class TarballCache(RemoteCache):
     """Supports caching of extracted tarball contents."""
 
-    def _Insert(self, key, tarball_path):  # pylint: disable=arguments-renamed
+    def _Insert(
+        self, key, tarball_path
+    ) -> None:  # pylint: disable=arguments-renamed
         """Insert a tarball and its extracted contents into the cache.
 
         Download the tarball first if a URL is provided as tarball_path.

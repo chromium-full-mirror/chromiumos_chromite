@@ -72,7 +72,7 @@ class RequestBuildHelperTestsBase(cros_test_lib.MockTestCase):
 class RequestBuildHelperTestsMock(RequestBuildHelperTestsBase):
     """Perform real buildbucket requests against a fake instance."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # This mocks out the class, then creates a return_value for a function
         # on instances of it. We do this instead of just mocking out the
         # function to ensure not real network requests are made in other parts
@@ -82,7 +82,7 @@ class RequestBuildHelperTestsMock(RequestBuildHelperTestsBase):
             id=12345,
         )
 
-    def testMinCreateRequestBody(self):
+    def testMinCreateRequestBody(self) -> None:
         """Verify our request body with min options."""
         job = self._CreateJobMin()
 
@@ -113,7 +113,7 @@ class RequestBuildHelperTestsMock(RequestBuildHelperTestsBase):
             body["tags"],
         )
 
-    def testMaxRequestBody(self):
+    def testMaxRequestBody(self) -> None:
         """Verify our request body with max options."""
         job = self._CreateJobMax()
 
@@ -186,7 +186,7 @@ class RequestBuildHelperTestsMock(RequestBuildHelperTestsBase):
             body["properties"],
         )
 
-    def testUnknownRequestBody(self):
+    def testUnknownRequestBody(self) -> None:
         """Verify our request body with max options."""
         job = self._CreateJobUnknown()
         body = job.CreateBuildRequest()
@@ -229,7 +229,7 @@ class RequestBuildHelperTestsMock(RequestBuildHelperTestsBase):
         )
         self.assertEqual(body["properties"], test_properties)
 
-    def testLogGeneration(self):
+    def testLogGeneration(self) -> None:
         """Validate an import log message."""
         sb = request_build.ScheduledBuild(
             "bucket", "buildbucket_id", "build_config", "url", "created_ts"
@@ -260,7 +260,7 @@ class RequestBuildHelperTestsNetork(RequestBuildHelperTestsBase):
         expected_bucket,
         expected_tags,
         expected_properties,
-    ):
+    ) -> None:
         """Verify the contents of a push to the TEST buildbucket instance.
 
         Args:
@@ -278,7 +278,7 @@ class RequestBuildHelperTestsNetork(RequestBuildHelperTestsBase):
         self.assertCountEqual(request.properties, expected_properties)
 
     @cros_test_lib.pytestmark_network_test
-    def testMinTestBucket(self):
+    def testMinTestBucket(self) -> None:
         """Talk to a test buildbucket instance with min job settings."""
         job = self._CreateJobMin()
         request = job.CreateBuildRequest()
@@ -316,7 +316,7 @@ class RequestBuildHelperTestsNetork(RequestBuildHelperTestsBase):
         )
 
     @cros_test_lib.pytestmark_network_test
-    def testMaxTestBucket(self):
+    def testMaxTestBucket(self) -> None:
         """Talk to a test buildbucket instance with max job settings."""
         job = self._CreateJobMax()
         request = job.CreateBuildRequest()

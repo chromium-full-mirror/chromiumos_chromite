@@ -65,7 +65,7 @@ class FileTypeDecoder:
         self._mime = magic.open(magic.MIME_TYPE)
         self._mime.load()
 
-    def __del__(self):
+    def __del__(self) -> None:
         self._mime.close()
 
     def GetType(self, rel_path, st=None, elf=None):

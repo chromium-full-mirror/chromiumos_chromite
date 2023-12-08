@@ -20,7 +20,7 @@ from chromite.lib.paygen import urilib
 class TestUrilib(cros_test_lib.MockTempDirTestCase):
     """Test urilib module."""
 
-    def testExtractProtocol(self):
+    def testExtractProtocol(self) -> None:
         tests = {
             "gs": ["gs://", "gs://foo", "gs://foo/bar"],
             "abc": ["abc://", "abc://foo", "abc://foo/bar"],
@@ -33,7 +33,7 @@ class TestUrilib(cros_test_lib.MockTempDirTestCase):
             for uri in tests[protocol]:
                 self.assertEqual(protocol, urilib.ExtractProtocol(uri))
 
-    def testGetUriType(self):
+    def testGetUriType(self) -> None:
         tests = {
             "gs": ["gs://", "gs://foo", "gs://foo/bar"],
             "abc": ["abc://", "abc://foo", "abc://foo/bar"],
@@ -47,7 +47,7 @@ class TestUrilib(cros_test_lib.MockTempDirTestCase):
                 self.assertEqual(uri_type, urilib.GetUriType(uri))
 
     @cros_test_lib.pytestmark_network_test
-    def testURLRetrieve(self):
+    def testURLRetrieve(self) -> None:
         good_url = (
             "https://codereview.chromium.org/download/issue11731004_1_2.diff"
         )
@@ -90,7 +90,7 @@ index %s..%s 100644
 
         self.assertRaises(IOError, urilib.URLRetrieve, good_url, bad_local_path)
 
-    def testCopy(self):
+    def testCopy(self) -> None:
         gs_path = "gs://bucket/some/path"
         local_path = "/some/local/path"
         http_path = "http://host.domain/some/path"
@@ -125,7 +125,7 @@ index %s..%s 100644
             urilib.NotSupportedBetweenTypes, urilib.Copy, local_path, http_path
         )
 
-    def testGetPathExcludingProtocol(self):
+    def testGetPathExcludingProtocol(self) -> None:
         """Tests GetPathExcludingProtocol."""
         self.assertEqual(
             urilib.GetPathExcludingProtocol("foo-file"), "foo-file"

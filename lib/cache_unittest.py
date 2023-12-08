@@ -26,7 +26,7 @@ class CacheReferenceTest(cros_test_lib.TestCase):
 
     # pylint: disable=protected-access
 
-    def setUp(self):
+    def setUp(self) -> None:
         # These are the funcs CacheReference expects the cache object to have.
         spec = (
             "GetKeyPath",
@@ -41,7 +41,7 @@ class CacheReferenceTest(cros_test_lib.TestCase):
         self.lock.path = "some/path"
         self.cache._LockForKey.return_value = self.lock
 
-    def testContext(self):
+    def testContext(self) -> None:
         """Verify we can use it as a context manager."""
         # We should set the acquire member and grab/release the lock.
         ref = cache.CacheReference(self.cache, "key")
@@ -55,7 +55,7 @@ class CacheReferenceTest(cros_test_lib.TestCase):
         self.assertFalse(ref.acquired)
         self.assertTrue(self.lock.__exit__.called)
 
-    def testPath(self):
+    def testPath(self) -> None:
         """Verify we get a file path for the ref."""
         self.cache.GetKeyPath.return_value = "/foo/bar"
 
@@ -64,7 +64,7 @@ class CacheReferenceTest(cros_test_lib.TestCase):
 
         self.cache.GetKeyPath.assert_called_once_with("key")
 
-    def testLocking(self):
+    def testLocking(self) -> None:
         """Verify Acquire & Release work as expected."""
         ref = cache.CacheReference(self.cache, "key")
 
@@ -81,44 +81,44 @@ class CacheReferenceTest(cros_test_lib.TestCase):
         self.assertEqual(ref.Release(), None)
         self.assertFalse(ref.acquired)
 
-    def testExists(self):
+    def testExists(self) -> None:
         """Verify Exists works when the entry is not in the cache."""
         ref = cache.CacheReference(self.cache, "key")
         self.cache._KeyExists.return_value = False
         self.assertFalse(ref.Exists())
 
-    def testExistsMissing(self):
+    def testExistsMissing(self) -> None:
         """Verify Exists works when the entry is in the cache."""
         ref = cache.CacheReference(self.cache, "key")
         self.cache._KeyExists.return_value = True
         self.assertTrue(ref.Exists())
 
-    def testAssign(self):
+    def testAssign(self) -> None:
         """Verify Assign works as expected."""
         ref = cache.CacheReference(self.cache, "key")
         ref.Assign("/foo")
         self.cache._Insert.assert_called_once_with("key", "/foo")
 
-    def testAssignText(self):
+    def testAssignText(self) -> None:
         """Verify AssignText works as expected."""
         ref = cache.CacheReference(self.cache, "key")
         ref.AssignText("text!")
         self.cache._InsertText.assert_called_once_with("key", "text!")
 
-    def testRemove(self):
+    def testRemove(self) -> None:
         """Verify Remove works as expected."""
         ref = cache.CacheReference(self.cache, "key")
         ref.Remove()
         self.cache._Remove.assert_called_once_with("key")
 
-    def testSetDefault(self):
+    def testSetDefault(self) -> None:
         """Verify SetDefault works when the entry is not in the cache."""
         ref = cache.CacheReference(self.cache, "key")
         self.cache._KeyExists.return_value = False
         ref.SetDefault("/foo")
         self.cache._Insert.assert_called_once_with("key", "/foo")
 
-    def testSetDefaultExists(self):
+    def testSetDefaultExists(self) -> None:
         """Verify SetDefault works when the entry is in the cache."""
         ref = cache.CacheReference(self.cache, "key")
         self.cache._KeyExists.return_value = True
@@ -129,10 +129,10 @@ class CacheReferenceTest(cros_test_lib.TestCase):
 class CacheTestCase(cros_test_lib.MockTempDirTestCase):
     """Tests for any type of Cache object."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.gs_mock = self.StartPatcher(gs_unittest.GSContextMock())
 
-    def _testAssign(self):
+    def _testAssign(self) -> None:
         """Verify we can assign a file to the cache and get it back out."""
         key = ("foo", "bar")
         data = r"text!\nthere"
@@ -150,7 +150,7 @@ class CacheTestCase(cros_test_lib.MockTempDirTestCase):
             self.assertTrue(ref.Exists())
             self.assertEqual(osutils.ReadFile(ref.path), data)
 
-    def _testAssignData(self):
+    def _testAssignData(self) -> None:
         """Verify we can assign data to the cache and get it back out."""
         key = ("foo", "bar")
         data = r"text!\nthere"
@@ -165,7 +165,7 @@ class CacheTestCase(cros_test_lib.MockTempDirTestCase):
             self.assertTrue(ref.Exists())
             self.assertEqual(osutils.ReadFile(ref.path), data)
 
-    def _testRemove(self):
+    def _testRemove(self) -> None:
         """Verify we can remove entries from the cache."""
         key = ("foo", "bar")
         data = r"text!\nthere"
@@ -181,14 +181,14 @@ class CacheTestCase(cros_test_lib.MockTempDirTestCase):
 class DiskCacheTest(CacheTestCase):
     """Tests for DiskCache."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.cache = cache.DiskCache(self.tempdir)
 
     testAssign = CacheTestCase._testAssign
     testAssignData = CacheTestCase._testAssignData
     testRemove = CacheTestCase._testRemove
 
-    def testListKeys(self):
+    def testListKeys(self) -> None:
         """Verifies that ListKeys() returns any items present in the cache."""
         osutils.Touch(os.path.join(self.tempdir, "file1"))
         cache.CacheReference(self.cache, ("key1",)).Assign(
@@ -204,7 +204,7 @@ class DiskCacheTest(CacheTestCase):
         self.assertIn(("key1",), keys)
         self.assertIn(("key2",), keys)
 
-    def testDeleteStale(self):
+    def testDeleteStale(self) -> None:
         """Verify DeleteStale removes a sufficiently old item in the cache."""
         osutils.Touch(os.path.join(self.tempdir, "file1"))
         cache_ref = cache.CacheReference(self.cache, ("key1",))
@@ -238,14 +238,14 @@ class DiskCacheTest(CacheTestCase):
 class RemoteCacheTest(CacheTestCase):
     """Tests for RemoteCache."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.cache = cache.RemoteCache(self.tempdir)
 
     testAssign = CacheTestCase._testAssign
     testAssignData = CacheTestCase._testAssignData
     testRemove = CacheTestCase._testRemove
 
-    def testFetchFile(self):
+    def testFetchFile(self) -> None:
         """Verify we handle file:// URLs."""
         key = ("file", "foo")
         data = "daaaaata"
@@ -260,10 +260,10 @@ class RemoteCacheTest(CacheTestCase):
             self.assertTrue(ref.Exists())
             self.assertEqual(osutils.ReadFile(ref.path), data)
 
-    def testFetchNonGs(self):
+    def testFetchNonGs(self) -> None:
         """Verify we fetch remote URLs and save the result."""
 
-        def _Fetch(*args, **_kwargs):
+        def _Fetch(*args, **_kwargs) -> None:
             # Probably shouldn't assume this ordering, but best way for now.
             cmd = args[0]
             local_path = cmd[-1]
@@ -280,11 +280,11 @@ class RemoteCacheTest(CacheTestCase):
                 ref.Assign(url)
                 self.assertTrue(ref.Exists())
 
-    def testFetchGs(self):
+    def testFetchGs(self) -> None:
         """Verify we fetch from Google Storage and save the result."""
 
         # pylint: disable=unused-argument
-        def _Fetch(_ctx, cmd, **kwargs):
+        def _Fetch(_ctx, cmd, **kwargs) -> None:
             # Touch file we tried to copy too.
             osutils.Touch(cmd[-1])
 
@@ -300,7 +300,7 @@ class RemoteCacheTest(CacheTestCase):
             ref.Assign(url)
             self.assertTrue(ref.Exists())
 
-    def testFetchFileSha1(self):
+    def testFetchFileSha1(self) -> None:
         """Verify we validate hash_sha1 when passed."""
         # pylint: disable=protected-access
 
@@ -320,7 +320,7 @@ class RemoteCacheTest(CacheTestCase):
         with self.assertRaises(cache.Error):
             self.cache._Fetch(url, local_path, hash_sha1="12345")
 
-    def testFetchFileMode(self):
+    def testFetchFileMode(self) -> None:
         """Verify changing the file mode."""
         # pylint: disable=protected-access
 
@@ -338,7 +338,7 @@ class RemoteCacheTest(CacheTestCase):
 class TarballCacheTest(CacheTestCase):
     """Tests for TarballCache."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.cache = cache.RemoteCache(self.tempdir)
 
     testAssign = CacheTestCase._testAssign
@@ -350,7 +350,7 @@ class UntarTest(cros_test_lib.RunCommandTestCase):
     """Tests cache.Untar()."""
 
     @mock.patch("chromite.lib.cros_build_lib.CompressionDetectType")
-    def testNoneCompression(self, mock_compression_type):
+    def testNoneCompression(self, mock_compression_type) -> None:
         """Tests Untar with an uncompressed tarball."""
         mock_compression_type.return_value = cros_build_lib.CompressionType.NONE
         cache.Untar("/some/tarball.tar.gz", "/")
@@ -358,7 +358,9 @@ class UntarTest(cros_test_lib.RunCommandTestCase):
 
     @mock.patch("chromite.lib.cros_build_lib.CompressionDetectType")
     @mock.patch("chromite.lib.cros_build_lib.FindCompressor")
-    def testCompression(self, mock_find_compressor, mock_compression_type):
+    def testCompression(
+        self, mock_find_compressor, mock_compression_type
+    ) -> None:
         """Tests Untar with a compressed tarball."""
         mock_compression_type.return_value = "some-compression"
         mock_find_compressor.return_value = "/bin/custom/xz"
@@ -371,7 +373,7 @@ class UntarTest(cros_test_lib.RunCommandTestCase):
     @mock.patch("chromite.lib.cros_build_lib.FindCompressor")
     def testPbzip2Compression(
         self, mock_find_compressor, mock_compression_type
-    ):
+    ) -> None:
         """Tests decompressing a tarball using pbzip2."""
         mock_compression_type.return_value = "some-compression"
         mock_find_compressor.return_value = "/bin/custom/pbzip2"
@@ -390,7 +392,7 @@ class UntarTest(cros_test_lib.RunCommandTestCase):
 class Sha1FileTest(cros_test_lib.TestCase):
     """Test the Sha1File function."""
 
-    def testEmpty(self):
+    def testEmpty(self) -> None:
         """Test Sha1File on a empty file."""
         self.assertEqual(
             cache.Sha1File("/dev/null"),
@@ -398,7 +400,7 @@ class Sha1FileTest(cros_test_lib.TestCase):
             "da39a3ee5e6b4b0d3255bfef95601890afd80709",
         )
 
-    def testLargeFile(self):
+    def testLargeFile(self) -> None:
         """Test Sha1File on a file that is greater than 4069 bytes."""
         expected_sha1 = hashlib.sha1(
             osutils.ReadFile(__file__, "rb")

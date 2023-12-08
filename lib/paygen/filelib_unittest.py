@@ -38,7 +38,7 @@ class TestFileLib(cros_test_lib.TempDirTestCase):
         hash64 = base64.b64encode(hashbytes)
         return hash64.rstrip().decode("utf-8")
 
-    def testShaSums(self):
+    def testShaSums(self) -> None:
         file_path = os.path.abspath(__file__)
         expected_sha1 = self._ShaSum("sha1sum", file_path)
         expected_sha256 = self._ShaSum("sha256sum", file_path)
@@ -46,7 +46,7 @@ class TestFileLib(cros_test_lib.TempDirTestCase):
         self.assertEqual(expected_sha1, sha1)
         self.assertEqual(expected_sha256, sha256)
 
-    def testCopyIntoExistingDir(self):
+    def testCopyIntoExistingDir(self) -> None:
         """Copy a file into a dir that exists."""
         path1 = os.path.join(self.tempdir, "path1")
         subdir = os.path.join(self.tempdir, "subdir")
@@ -58,7 +58,7 @@ class TestFileLib(cros_test_lib.TempDirTestCase):
         filelib.Copy(path1, path2)
         self.assertExists(path2)
 
-    def testCopyIntoNewDir(self):
+    def testCopyIntoNewDir(self) -> None:
         """Copy a file into a dir that does not yet exist."""
         path1 = os.path.join(self.tempdir, "path1")
         subdir = os.path.join(self.tempdir, "subdir")
@@ -69,7 +69,7 @@ class TestFileLib(cros_test_lib.TempDirTestCase):
         filelib.Copy(path1, path2)
         self.assertExists(path2)
 
-    def testCopyRelative(self):
+    def testCopyRelative(self) -> None:
         """Copy a file using relative destination."""
         path1 = os.path.join(self.tempdir, "path1")
         path2 = os.path.join(self.tempdir, "path2")
@@ -81,7 +81,7 @@ class TestFileLib(cros_test_lib.TempDirTestCase):
         filelib.Copy(path1, relative_path)
         self.assertExists(path2)
 
-    def testCopyFileSegment(self):
+    def testCopyFileSegment(self) -> None:
         """Test copying on a simple file segment."""
         a = os.path.join(self.tempdir, "a.txt")
         osutils.WriteFile(a, b"7\xee9", mode="wb")

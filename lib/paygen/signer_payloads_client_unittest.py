@@ -42,7 +42,7 @@ class SignerPayloadsClientGoogleStorageTest(
         signer_payloads_client.DELAY_CHECKING_FOR_SIGNER_RESULTS_SECONDS
     )
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup for tests, and store off some standard expected values."""
         self.hash_names = ["1.payload.hash", "2.payload.hash", "3.payload.hash"]
 
@@ -54,7 +54,7 @@ class SignerPayloadsClientGoogleStorageTest(
         # Some tests depend on this timeout. Make it smaller, then restore.
         signer_payloads_client.DELAY_CHECKING_FOR_SIGNER_RESULTS_SECONDS = 0.01
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Teardown after tests, and restore values test might adjust."""
         # Some tests modify this timeout. Restore the original value.
         signer_payloads_client.DELAY_CHECKING_FOR_SIGNER_RESULTS_SECONDS = (
@@ -78,7 +78,7 @@ class SignerPayloadsClientGoogleStorageTest(
         )
         return client
 
-    def testUris(self):
+    def testUris(self) -> None:
         """Test that the URIs on the client are correct."""
 
         client = self.createStandardClient()
@@ -91,7 +91,7 @@ class SignerPayloadsClientGoogleStorageTest(
             client.archive_uri, expected_build_uri + "/payload.hash.tar.bz2"
         )
 
-    def testWorkDir(self):
+    def testWorkDir(self) -> None:
         """Test that the work_dir is generated/passed correctly."""
         client = self.createStandardClient()
         self.assertIsNotNone(client._work_dir)
@@ -103,7 +103,7 @@ class SignerPayloadsClientGoogleStorageTest(
         )
         self.assertEqual(client._work_dir, "/foo-dir")
 
-    def testCleanSignerFilesByKeyset(self):
+    def testCleanSignerFilesByKeyset(self) -> None:
         """Test the keyset specific cleanup works as expected."""
 
         hashes = ("hash-1", "hash-2")
@@ -150,7 +150,7 @@ class SignerPayloadsClientGoogleStorageTest(
         for uri in expected_removals:
             self.gs_mock.assertCommandContains(["rm", uri])
 
-    def testCleanSignerFiles(self):
+    def testCleanSignerFiles(self) -> None:
         """Test that GS cleanup works as expected."""
 
         hashes = ("hash-1", "hash-2")
@@ -214,7 +214,7 @@ class SignerPayloadsClientGoogleStorageTest(
 
         self.gs_mock.assertCommandContains(["rm", signing_dir])
 
-    def testCreateInstructionsUri(self):
+    def testCreateInstructionsUri(self) -> None:
         """Test that the expected instructions URI is correct."""
 
         client = self.createStandardClient()
@@ -227,7 +227,7 @@ class SignerPayloadsClientGoogleStorageTest(
 
         self.assertEqual(signature_uri, expected_signature_uri)
 
-    def testCreateHashNames(self):
+    def testCreateHashNames(self) -> None:
         """Test that the expected hash names are generated."""
 
         client = self.createStandardClient()
@@ -238,7 +238,7 @@ class SignerPayloadsClientGoogleStorageTest(
 
         self.assertEqual(hash_names, expected_hash_names)
 
-    def testCreateSignatureURIs(self):
+    def testCreateSignatureURIs(self) -> None:
         """Test that the expected signature URIs are generated."""
 
         client = self.createStandardClient()
@@ -255,7 +255,7 @@ class SignerPayloadsClientGoogleStorageTest(
 
         self.assertEqual(signature_uris, expected_signature_uris)
 
-    def testCreateArchive(self):
+    def testCreateArchive(self) -> None:
         """Test that we can correctly archive up hash values for the signer."""
 
         client = self.createStandardClient()
@@ -296,7 +296,7 @@ class SignerPayloadsClientGoogleStorageTest(
             if tmp_dir:
                 shutil.rmtree(tmp_dir)
 
-    def testCreateInstructions(self):
+    def testCreateInstructions(self) -> None:
         """Test that we can correctly create signer instructions."""
 
         client = self.createStandardClient()
@@ -330,7 +330,7 @@ versionrev = foo-version
 
         self.assertEqual(instructions, expected_instructions)
 
-    def testSignerRequestUri(self):
+    def testSignerRequestUri(self) -> None:
         """Test that we can create signer request URI."""
 
         client = self.createStandardClient()
@@ -346,7 +346,7 @@ versionrev = foo-version
 
         self.assertEqual(signer_request_uri, expected)
 
-    def testWaitForSignaturesInstant(self):
+    def testWaitForSignaturesInstant(self) -> None:
         """Test that we can correctly wait for a list of URIs to be created."""
         uris = ["foo", "bar", "is"]
 
@@ -360,7 +360,7 @@ versionrev = foo-version
         # Make sure it really looked for every URL listed.
         self.assertEqual(exists.call_args_list, [mock.call(u) for u in uris])
 
-    def testWaitForSignaturesNever(self):
+    def testWaitForSignaturesNever(self) -> None:
         """Test that we can correctly timeout waiting for a list of URIs."""
         uris = ["foo", "bar", "is"]
 
@@ -375,7 +375,7 @@ versionrev = foo-version
 class SignerPayloadsClientIntegrationTest(cros_test_lib.MockTempDirTestCase):
     """Test suite integration with live signer servers."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # This is in the real production chromeos-releases, but the listed
         # build has never, and will never exist.
         self.client = signer_payloads_client.SignerPayloadsClientGoogleStorage(
@@ -389,10 +389,10 @@ class SignerPayloadsClientIntegrationTest(cros_test_lib.MockTempDirTestCase):
             work_dir=self.tempdir,
         )
 
-    def testDownloadSignatures(self):
+    def testDownloadSignatures(self) -> None:
         """Test that we can correctly download a list of URIs."""
 
-        def fake_copy(uri, sig):
+        def fake_copy(uri, sig) -> None:
             """Just write the uri address to the content of the file."""
             osutils.WriteFile(sig, uri, mode="wb")
 
@@ -406,7 +406,7 @@ class SignerPayloadsClientIntegrationTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(downloads, uris)
 
     @cros_test_lib.pytestmark_network_test
-    def testGetHashSignatures(self):
+    def testGetHashSignatures(self) -> None:
         """Integration test that talks to the real signer with test hashes."""
         ctx = gs.GSContext()
 
@@ -480,7 +480,7 @@ class SignerPayloadsClientIntegrationTest(cros_test_lib.MockTempDirTestCase):
             ctx.Remove(clean_uri, ignore_missing=True)
 
     @cros_test_lib.pytestmark_network_test
-    def testGetHashSignaturesDuplicates(self):
+    def testGetHashSignaturesDuplicates(self) -> None:
         """Integration test with real signer with duplicate test hashes."""
         ctx = gs.GSContext()
 
@@ -539,7 +539,7 @@ class SignerPayloadsClientIntegrationTest(cros_test_lib.MockTempDirTestCase):
 class UnofficialPayloadSignerTest(cros_test_lib.TempDirTestCase):
     """Test suit for testing unofficial local payload signer."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # UnofficialSignerPayloadsClient need a temporary directory inside
         # chroot so cros_test_lib.TempDirTestCase will not work if we run this
         # unittest outside the chroot.
@@ -553,16 +553,16 @@ class UnofficialPayloadSignerTest(cros_test_lib.TempDirTestCase):
             work_dir=self._temp_dir,
         )
 
-    def cleanUp(self):
+    def cleanUp(self) -> None:
         shutil.rmtree(self._temp_dir)
 
-    def testExtractPublicKey(self):
+    def testExtractPublicKey(self) -> None:
         """Tests the correct command is run to extract the public key."""
         with tempfile.NamedTemporaryFile() as public_key:
             self._client.ExtractPublicKey(public_key.name)
             self.assertIn(b"BEGIN PUBLIC KEY", public_key.read())
 
-    def testGetHashSignatures(self):
+    def testGetHashSignatures(self) -> None:
         """Tests we correctly sign given hashes."""
         hashes = (b"0" * 32, b"1" * 32)
         keyset = "foo-keys"
@@ -595,7 +595,7 @@ class UnofficialPayloadSignerTest(cros_test_lib.TempDirTestCase):
 class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
     """Test suite for the class LocalSignerPayloadsClient."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup for tests, and store off some standard expected values."""
         self._docker_image = (
             "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
@@ -616,12 +616,12 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
         )
         return client
 
-    def testWorkDir(self):
+    def testWorkDir(self) -> None:
         """Test that the work_dir is generated/passed correctly."""
         client = self.createStandardClient()
         self.assertIsNotNone(client._work_dir)
 
-    def testCreateArchive(self):
+    def testCreateArchive(self) -> None:
         """Test that we can correctly archive up hash values for the signer."""
 
         client = self.createStandardClient()
@@ -660,7 +660,7 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
             if tmp_dir:
                 shutil.rmtree(tmp_dir)
 
-    def testReadSignatures(self):
+    def testReadSignatures(self) -> None:
         client = self.createStandardClient()
 
         keysets = ["keyseta", "keysetb"]
@@ -707,7 +707,7 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
     @mock.patch.object(image, "SignImage")
     def testGetHashSignaturesMockSignImage(
         self, mock_sign_image: mock.MagicMock
-    ):
+    ) -> None:
         client = self.createStandardClient()
 
         expected_signature_files = [

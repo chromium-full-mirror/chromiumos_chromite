@@ -286,7 +286,7 @@ class Goma:
 
         return result
 
-    def _AddCommonExtraEnv(self, result):
+    def _AddCommonExtraEnv(self, result) -> None:
         """Sets extra env vars to use goma common to in / out chroot."""
         if self.goma_approach:
             result[
@@ -299,21 +299,21 @@ class Goma:
                 else "false"
             )
 
-    def _RunGomaCtl(self, command):
+    def _RunGomaCtl(self, command) -> None:
         goma_ctl = self.linux_goma_dir / "goma_ctl.py"
         cros_build_lib.run(
             ["python3", goma_ctl, command], extra_env=self.GetExtraEnv()
         )
 
-    def Start(self):
+    def Start(self) -> None:
         """Starts goma compiler proxy."""
         self._RunGomaCtl("start")
 
-    def Restart(self):
+    def Restart(self) -> None:
         """Restarts goma compiler proxy."""
         self._RunGomaCtl("restart")
 
-    def Stop(self):
+    def Stop(self) -> None:
         """Stops goma compiler proxy."""
         self._RunGomaCtl("stop")
 

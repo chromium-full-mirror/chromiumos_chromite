@@ -20,7 +20,7 @@ from chromite.lib import retry_util
 class TestRetries(cros_test_lib.MockTempDirTestCase):
     """Tests of GenericRetry and relatives."""
 
-    def testWithRetrySuccess(self):
+    def testWithRetrySuccess(self) -> None:
         """Test basic retry success case."""
 
         @retry_util.WithRetry(max_retry=3)
@@ -29,7 +29,7 @@ class TestRetries(cros_test_lib.MockTempDirTestCase):
 
         self.assertEqual(10, _run())
 
-    def testWithRetrySuccessAfterRetry(self):
+    def testWithRetrySuccessAfterRetry(self) -> None:
         """Test basic retry success case, but failed at least once."""
         counter = itertools.count()
 
@@ -43,17 +43,17 @@ class TestRetries(cros_test_lib.MockTempDirTestCase):
 
         self.assertEqual(10, _run())
 
-    def testWithRetryFail(self):
+    def testWithRetryFail(self) -> None:
         """Test basic retry fail case."""
 
         @retry_util.WithRetry(max_retry=3)
-        def _run():
+        def _run() -> None:
             raise Exception("Retry fail")
 
         with self.assertRaisesRegex(Exception, "Retry fail"):
             _run()
 
-    def testGenericRetry(self):
+    def testGenericRetry(self) -> None:
         """Test basic semantics of retry and success recording."""
         source = functools.partial(next, iter(range(5)))
 
@@ -101,10 +101,10 @@ class TestRetries(cros_test_lib.MockTempDirTestCase):
             )
         self.assertEqual(callback_args, [(0, False)])
 
-    def testGenericRetryBadArgs(self):
+    def testGenericRetryBadArgs(self) -> None:
         """Test bad retry related arguments to GenericRetry raise ValueError."""
 
-        def _AlwaysRaise():
+        def _AlwaysRaise() -> None:
             raise Exception("Not a ValueError")
 
         # |max_retry| must be non-negative number.
@@ -121,14 +121,14 @@ class TestRetries(cros_test_lib.MockTempDirTestCase):
         with self.assertRaises(ValueError):
             retry_util.GenericRetry(lambda _: True, 3, _AlwaysRaise, sleep=-1)
 
-    def testRaisedException(self):
+    def testRaisedException(self) -> None:
         """Test which exception gets raised by repeated failure."""
 
         def _GetTestMain():
             """Get func that fails once with ValueError, then AssertionError."""
             source = itertools.count()
 
-            def _TestMain():
+            def _TestMain() -> None:
                 if next(source) == 0:
                     raise ValueError()
                 else:
@@ -150,10 +150,10 @@ class TestRetries(cros_test_lib.MockTempDirTestCase):
     class CheckException(Exception):
         """Exception thrown from the below function."""
 
-    def _RaiseCheckException(self, *_):
+    def _RaiseCheckException(self, *_) -> None:
         raise TestRetries.CheckException()
 
-    def testStatustCallbackExceptionForSuccess(self):
+    def testStatustCallbackExceptionForSuccess(self) -> None:
         """Exception from |status_callback| should be raised even on success."""
         with self.assertRaises(TestRetries.CheckException):
             retry_util.GenericRetry(
@@ -163,11 +163,11 @@ class TestRetries(cros_test_lib.MockTempDirTestCase):
                 status_callback=self._RaiseCheckException,
             )
 
-    def testStatusCallbackExceptionForRetry(self):
+    def testStatusCallbackExceptionForRetry(self) -> None:
         """Exception from |status_callback| should stop retry."""
         counter = [0]  # Counter to track how many times _functor is called.
 
-        def _TestMain():
+        def _TestMain() -> None:
             counter[0] += 1
             raise Exception()  # Let it fail.
 
@@ -181,7 +181,7 @@ class TestRetries(cros_test_lib.MockTempDirTestCase):
         # Do not expect retry in case |status_callback| raises an exception.
         self.assertEqual(counter[0], 1)
 
-    def testRetryExceptionBadArgs(self):
+    def testRetryExceptionBadArgs(self) -> None:
         """Verify we reject non-classes or tuples of classes"""
         with self.assertRaises(TypeError):
             retry_util.RetryException("", 3, map)
@@ -192,7 +192,7 @@ class TestRetries(cros_test_lib.MockTempDirTestCase):
         with self.assertRaises(TypeError):
             retry_util.RetryException([None], 3, map)
 
-    def testRetryException(self):
+    def testRetryException(self) -> None:
         """Verify we retry only when certain exceptions get thrown"""
         source = functools.partial(next, iter(range(6)))
 
@@ -214,11 +214,11 @@ class TestRetries(cros_test_lib.MockTempDirTestCase):
         with self.assertRaises(StopIteration):
             retry_util.RetryException(ValueError, 3, _TestMain)
 
-    def testRetryWithBackoff(self):
+    def testRetryWithBackoff(self) -> None:
         sleep_history = []
         self.PatchObject(time, "sleep", new=sleep_history.append)
 
-        def _AlwaysFail():
+        def _AlwaysFail() -> None:
             raise ValueError()
 
         with self.assertRaises(ValueError):
@@ -228,7 +228,7 @@ class TestRetries(cros_test_lib.MockTempDirTestCase):
 
         self.assertEqual(sleep_history, [1, 2, 4, 8, 16])
 
-    def testBasicRetry(self):
+    def testBasicRetry(self) -> None:
         path = os.path.join(self.tempdir, "script")
         paths = {
             "stop": os.path.join(self.tempdir, "stop"),
@@ -246,12 +246,12 @@ class TestRetries(cros_test_lib.MockTempDirTestCase):
 
         os.chmod(path, 0o755)
 
-        def _SetupCounters(start, stop):
+        def _SetupCounters(start, stop) -> None:
             sleep_mock.reset_mock()
             osutils.WriteFile(paths["store"], str(start))
             osutils.WriteFile(paths["stop"], str(stop))
 
-        def _AssertCounters(sleep, sleep_cnt):
+        def _AssertCounters(sleep, sleep_cnt) -> None:
             calls = [
                 mock.call(float(sleep * (x + 1))) for x in range(sleep_cnt)
             ]

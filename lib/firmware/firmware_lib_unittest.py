@@ -26,7 +26,7 @@ from chromite.lib.firmware import servo_lib
 class CleanTest(cros_test_lib.RunCommandTestCase):
     """Tests for cleaning up firmware artifacts and dependencies."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.pkgs = [
             "pkg1",
             "pkg2",
@@ -34,7 +34,7 @@ class CleanTest(cros_test_lib.RunCommandTestCase):
             "chromeos-config-bsp",
         ]
 
-    def test_clean(self):
+    def test_clean(self) -> None:
         """Smoke check for the clean command (ideal case)."""
         fw_config = mock.MagicMock(
             build_workon_packages=None, build_packages=("pkg3", "pkg4")
@@ -55,7 +55,7 @@ class CleanTest(cros_test_lib.RunCommandTestCase):
             dryrun=False,
         )
 
-    def test_nonexistent_board_clean(self):
+    def test_nonexistent_board_clean(self) -> None:
         """Verifies exception thrown when target board was not configured."""
         self.rc.AddCmdResult(
             partial_mock.In("qfile-schrodinger"),
@@ -68,7 +68,7 @@ class CleanTest(cros_test_lib.RunCommandTestCase):
 class FlashTest(cros_test_lib.RunCommandTestCase):
     """Tests for flashing firmware."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.build_target = build_target_lib.BuildTarget("amd64-generic")
         self.flashrom = False
         self.verbose = False
@@ -79,7 +79,7 @@ class FlashTest(cros_test_lib.RunCommandTestCase):
         self.servo_port = "9999"
         self.passthrough_args = None
 
-    def test_servo_args(self):
+    def test_servo_args(self) -> None:
         """Sanity check for the clean command (ideal case)."""
 
         def get_servo_side_effect() -> servo_lib.Servo:
@@ -146,7 +146,7 @@ class FlashTest(cros_test_lib.RunCommandTestCase):
         )
         get_servo_mock.assert_any_call()
 
-    def test_ssh_args(self):
+    def test_ssh_args(self) -> None:
         """Sanity check for the clean command (ideal case)."""
         with tempfile.NamedTemporaryFile() as image_file:
             firmware_lib._deploy_ssh(
@@ -212,14 +212,14 @@ class FlashTest(cros_test_lib.RunCommandTestCase):
 class ReadTest(cros_test_lib.RunCommandTestCase):
     """Tests for reading firmware."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.verbose = False
         self.dryrun = False
         self.ssh_ip = "1.2.3.4"
         self.ssh_port = "22"
         self.region_to_read = ""
 
-    def test_ssh_args(self):
+    def test_ssh_args(self) -> None:
         """Sanity check for the clean command (ideal case)."""
         with tempfile.NamedTemporaryFile() as image_file:
             firmware_lib.ssh_read(

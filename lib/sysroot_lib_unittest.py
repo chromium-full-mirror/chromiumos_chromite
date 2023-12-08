@@ -23,7 +23,7 @@ from chromite.utils import os_util
 class SysrootLibTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for sysroot_lib.py"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup the test environment."""
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         # Fake being root to avoid running all filesystem commands with
@@ -87,7 +87,7 @@ class SysrootLibTest(cros_test_lib.MockTempDirTestCase):
 
         return board_values, portdir_values
 
-    def testGetStandardField(self):
+    def testGetStandardField(self) -> None:
         """Tests that standard field can be fetched correctly."""
         self.sysroot.WriteConfig('FOO="bar"')
         self.assertEqual("bar", self.sysroot.GetStandardField("FOO"))
@@ -100,7 +100,7 @@ baz
         self.sysroot.WriteConfig('TEST="%s"' % multiline)
         self.assertEqual(multiline, self.sysroot.GetStandardField("TEST"))
 
-    def testReadWriteCache(self):
+    def testReadWriteCache(self) -> None:
         """Tests that we can write and read to the cache."""
         # If a field is not defined we get None.
         self.assertEqual(None, self.sysroot.GetCachedField("foo"))
@@ -118,7 +118,7 @@ baz
         self.sysroot.SetCachedField("hello", None)
         self.assertEqual(None, self.sysroot.GetCachedField("hello"))
 
-    def testErrorOnBadCachedValue(self):
+    def testErrorOnBadCachedValue(self) -> None:
         """Tests that we detect bad value for the sysroot cache."""
         forbidden = [
             'hello"bonjour',
@@ -131,7 +131,7 @@ baz
             with self.assertRaises(ValueError):
                 self.sysroot.SetCachedField("FOO", value)
 
-    def testGenerateConfigNoToolchainRaisesError(self):
+    def testGenerateConfigNoToolchainRaisesError(self) -> None:
         """Tests _GenerateConfig() with no toolchain raises an error."""
         self.PatchObject(
             toolchain, "FilterToolchains", autospec=True, return_value={}
@@ -143,26 +143,26 @@ baz
                 {}, ["foo_overlay"], ["foo_overlay"], "", use_internal=False
             )
 
-    def testExists(self):
+    def testExists(self) -> None:
         """Tests the Exists method."""
         self.assertTrue(self.sysroot.Exists())
 
         dne_sysroot = sysroot_lib.Sysroot(os.path.join(self.tempdir, "DNE"))
         self.assertFalse(dne_sysroot.Exists())
 
-    def testExistsInChroot(self):
+    def testExistsInChroot(self) -> None:
         """Test the Exists method with a chroot."""
         chroot = chroot_lib.Chroot(self.tempdir, out_path=self.tempdir / "out")
         self.assertTrue(self.relative_sysroot.Exists(chroot=chroot))
 
-    def testEquals(self):
+    def testEquals(self) -> None:
         """Basic checks for the __eq__ methods."""
         sysroot1 = sysroot_lib.Sysroot(self.tempdir)
         sysroot2 = sysroot_lib.Sysroot(self.tempdir)
         self.assertEqual(sysroot1, sysroot2)
         self.assertNotEqual(sysroot1, None)
 
-    def testProfileName(self):
+    def testProfileName(self) -> None:
         """Test the profile_name property when a value is set."""
         profile = "foo"
         self.sysroot.SetCachedField(
@@ -170,11 +170,11 @@ baz
         )
         self.assertEqual(profile, self.sysroot.profile_name)
 
-    def testProfileNameDefault(self):
+    def testProfileNameDefault(self) -> None:
         """Test the profile_name property when no value is set."""
         self.assertEqual(sysroot_lib.DEFAULT_PROFILE, self.sysroot.profile_name)
 
-    def testBoardOverlay(self):
+    def testBoardOverlay(self) -> None:
         """Test the board_overlay property."""
         board_overlays, _portdir_overlays = self._writeOverlays()
 
@@ -182,7 +182,7 @@ baz
             sorted(board_overlays), sorted(self.sysroot.board_overlay)
         )
 
-    def testBuildTargetOverlays(self):
+    def testBuildTargetOverlays(self) -> None:
         """Tests for populated _build_target_overlay[s]."""
         private = "/path/to/overlay-x-private"
         expected = ["/path/to/overlay-x", private]
@@ -199,7 +199,7 @@ baz
             str(self.sysroot.build_target_overlay).endswith(private)
         )
 
-    def testNoBuildTargetOverlay(self):
+    def testNoBuildTargetOverlay(self) -> None:
         """Test for no standard build target overlay."""
         self._writeOverlays(["/path/to/chromeos-overlay", "/path/to/chipset-x"])
 
@@ -207,7 +207,7 @@ baz
         self.assertEqual(0, len(self.sysroot._build_target_overlays))
         self.assertIsNone(self.sysroot.build_target_overlay)
 
-    def testChipset(self):
+    def testChipset(self) -> None:
         """Test for extracting a valid chipset."""
         expected = "foo"
         chipsets = [
@@ -219,20 +219,20 @@ baz
 
         self.assertEqual(expected, self.sysroot.chipset)
 
-    def testNoChipset(self):
+    def testNoChipset(self) -> None:
         """Test for handling no retrievable chipset value."""
         self._writeOverlays(
             ["/path/to/chromeos-overlay", "/path/to/overlay-board"]
         )
         self.assertIsNone(self.sysroot.chipset)
 
-    def testOverlays(self):
+    def testOverlays(self) -> None:
         """Test the overlays property."""
         _board_overlays, portdir_overlays = self._writeOverlays()
 
         self.assertEqual(portdir_overlays, self.sysroot.portdir_overlay)
 
-    def testGetOverlays(self):
+    def testGetOverlays(self) -> None:
         """Test the get_overlays function."""
         board_overlays, portdir_overlays = self._writeOverlays()
 
@@ -244,7 +244,7 @@ baz
             portdir_overlays, [str(x) for x in self.sysroot.get_overlays()]
         )
 
-    def testGetOverlaysRelative(self):
+    def testGetOverlaysRelative(self) -> None:
         portdir_overlays = [
             constants.CHROMIUMOS_OVERLAY_DIR,
             constants.PORTAGE_STABLE_OVERLAY_DIR,
@@ -260,7 +260,7 @@ baz
 class ProfileTest(cros_test_lib.TestCase):
     """Tests for Profile."""
 
-    def testEquality(self):
+    def testEquality(self) -> None:
         """Test that equality functions work."""
         profile = sysroot_lib.Profile("profile")
         self.assertEqual(profile, sysroot_lib.Profile("profile"))
@@ -274,7 +274,7 @@ class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
 
     # pylint: disable=protected-access
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup the test environment."""
         # Fake being root to avoid running all filesystem commands with
         # sudo_run.
@@ -294,7 +294,7 @@ class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
 
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, filesystem)
 
-    def testInstallMakeConf(self):
+    def testInstallMakeConf(self) -> None:
         """Test make.conf installation."""
         self.PatchObject(
             sysroot_lib,
@@ -307,7 +307,7 @@ class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
         filepath = os.path.join(self.tempdir, sysroot_lib._MAKE_CONF)
         self.assertExists(filepath)
 
-    def testInstallMakeConfBoard(self):
+    def testInstallMakeConfBoard(self) -> None:
         """Test make.conf.board installation."""
         self.PatchObject(
             self.sysroot, "GenerateBoardMakeConf", return_value="#foo"
@@ -323,7 +323,7 @@ class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
         self.assertExists(filepath)
         self.assertFileContents(filepath, content)
 
-    def testInstallMakeConfBoardSetup(self):
+    def testInstallMakeConfBoardSetup(self) -> None:
         """Test make.conf.board_setup installation."""
         self.PatchObject(
             self.sysroot, "GenerateBoardSetupConfig", return_value="#foo"
@@ -339,7 +339,7 @@ class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
         self.assertExists(filepath)
         self.assertFileContents(filepath, content)
 
-    def testInstallMakeConfUser(self):
+    def testInstallMakeConfUser(self) -> None:
         """Test make.conf.user installation."""
         self.PatchObject(
             sysroot_lib,
@@ -356,7 +356,7 @@ class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
 class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for GenerateBinhostConf method in sysroot_lib.py"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self.PatchObject(os_util, "is_root_user", return_value=True)
@@ -402,14 +402,14 @@ class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):
             line for line in lines if line != "" and not line.startswith("#")
         ]
 
-    def testFullBinhost(self):
+    def testFullBinhost(self) -> None:
         config = self.sysroot.GenerateBinhostConf(source_root=self.tempdir)
 
         lines = self._removeCommentAndEmptyLines(config.splitlines())
         self.assertEqual(len(lines), 1)
         self.assertTrue('PORTAGE_BINHOST="$FULL_BINHOST"' in lines)
 
-    def testCqBinhost(self):
+    def testCqBinhost(self) -> None:
         content = 'CQ_BINHOST="gs://bar/bar"'
         osutils.WriteFile(
             self.external_cq_binhost_file_path, content, makedirs=True
@@ -428,7 +428,7 @@ class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):
             lines[2], 'PORTAGE_BINHOST="$PORTAGE_BINHOST $CQ_BINHOST"'
         )
 
-    def testPostsubmitBinhost(self):
+    def testPostsubmitBinhost(self) -> None:
         content = 'POSTSUBMIT_BINHOST="gs://bar/bar"'
         osutils.WriteFile(
             self.internal_postsubmit_binhost_file_path, content, makedirs=True
@@ -445,7 +445,7 @@ class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):
             lines[2], 'PORTAGE_BINHOST="$PORTAGE_BINHOST $POSTSUBMIT_BINHOST"'
         )
 
-    def testAllBinhost(self):
+    def testAllBinhost(self) -> None:
         content = 'CQ_BINHOST="gs://bar/bar"'
         osutils.WriteFile(
             self.external_cq_binhost_file_path, content, makedirs=True
@@ -478,7 +478,7 @@ class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):
             lines[4], 'PORTAGE_BINHOST="$PORTAGE_BINHOST $POSTSUBMIT_BINHOST"'
         )
 
-    def testAllBinhostWithCqBinhosts(self):
+    def testAllBinhostWithCqBinhosts(self) -> None:
         content = 'CQ_BINHOST="gs://bar/bar"'
         osutils.WriteFile(
             self.external_cq_binhost_file_path, content, makedirs=True
@@ -529,7 +529,7 @@ class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):
 class SysrootLibToolchainUpdateTest(cros_test_lib.RunCommandTempDirTestCase):
     """Sysroot.ToolchanUpdate tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup the test environment."""
         # Fake being root to avoid running commands with sudo_run.
         self.PatchObject(os_util, "is_root_user", return_value=True)
@@ -537,7 +537,7 @@ class SysrootLibToolchainUpdateTest(cros_test_lib.RunCommandTempDirTestCase):
         self.sysroot = sysroot_lib.Sysroot(self.tempdir)
         self.emerge = constants.CHROMITE_BIN_DIR / "parallel_emerge"
 
-    def testDefaultUpdateToolchain(self):
+    def testDefaultUpdateToolchain(self) -> None:
         """Test the default path."""
         self.PatchObject(toolchain, "InstallToolchain")
 
@@ -546,7 +546,7 @@ class SysrootLibToolchainUpdateTest(cros_test_lib.RunCommandTempDirTestCase):
             [self.emerge, "--board=board", "--getbinpkg", "--usepkg"]
         )
 
-    def testNoLocalInitUpdateToolchain(self):
+    def testNoLocalInitUpdateToolchain(self) -> None:
         """Test the nousepkg and not local case."""
         self.PatchObject(toolchain, "InstallToolchain")
 
@@ -554,7 +554,7 @@ class SysrootLibToolchainUpdateTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandContains(["--getbinpkg", "--usepkg"], expected=False)
         self.assertCommandContains([self.emerge, "--board=board"])
 
-    def testReUpdateToolchain(self):
+    def testReUpdateToolchain(self) -> None:
         """Test behavior when not running for the first time."""
         self.PatchObject(toolchain, "InstallToolchain")
 
@@ -564,7 +564,7 @@ class SysrootLibToolchainUpdateTest(cros_test_lib.RunCommandTempDirTestCase):
         self.sysroot.UpdateToolchain("board")
         self.assertCommandContains([self.emerge], expected=False)
 
-    def testInstallToolchainError(self):
+    def testInstallToolchainError(self) -> None:
         """Test error handling from the libc install."""
         failed = ["cat/pkg", "cat/pkg2"]
         failed_pkgs = [package_info.parse(pkg) for pkg in failed]
@@ -584,7 +584,7 @@ class SysrootLibToolchainUpdateTest(cros_test_lib.RunCommandTempDirTestCase):
         else:
             self.fail("Expected an exception.")
 
-    def testEmergeError(self):
+    def testEmergeError(self) -> None:
         """Test the emerge error handling."""
         self.PatchObject(toolchain, "InstallToolchain")
         # pylint: disable=protected-access
@@ -599,7 +599,7 @@ class SysrootLibToolchainUpdateTest(cros_test_lib.RunCommandTempDirTestCase):
             self.sysroot.UpdateToolchain("board", local_init=True)
 
 
-def test_get_sdk_provided_packages(simple_sysroot):
+def test_get_sdk_provided_packages(simple_sysroot) -> None:
     pkg_provided = simple_sysroot.path / "etc/portage/profile/package.provided"
     content = """
 foo/bar-2-r3

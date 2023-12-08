@@ -15,7 +15,7 @@ from chromite.lib import failures_lib
 class StepFailureTests(cros_test_lib.TestCase):
     """Tests for StepFailure."""
 
-    def testConvertToStageFailureMessage(self):
+    def testConvertToStageFailureMessage(self) -> None:
         """Test ConvertToStageFailureMessage."""
         failure = failures_lib.StepFailure("step failure message")
         stage_failure_msg = failure.ConvertToStageFailureMessage(
@@ -40,7 +40,7 @@ class CompoundFailureTest(cros_test_lib.TestCase):
 
         return exc_infos
 
-    def testHasEmptyList(self):
+    def testHasEmptyList(self) -> None:
         """Tests the HasEmptyList method."""
         self.assertTrue(failures_lib.CompoundFailure().HasEmptyList())
         exc_infos = self._CreateExceptInfos(KeyError)
@@ -48,7 +48,7 @@ class CompoundFailureTest(cros_test_lib.TestCase):
             failures_lib.CompoundFailure(exc_infos=exc_infos).HasEmptyList()
         )
 
-    def testHasAndMatchesFailureType(self):
+    def testHasAndMatchesFailureType(self) -> None:
         """Tests the HasFailureType and the MatchesFailureType methods."""
         # Create a CompoundFailure instance with mixed types of exceptions.
         exc_infos = self._CreateExceptInfos(KeyError)
@@ -67,7 +67,7 @@ class CompoundFailureTest(cros_test_lib.TestCase):
         self.assertTrue(exc.MatchesFailureType(KeyError))
         self.assertFalse(exc.MatchesFailureType(ValueError))
 
-    def testHasFatalFailure(self):
+    def testHasFatalFailure(self) -> None:
         """Tests the HasFatalFailure method."""
         exc_infos = self._CreateExceptInfos(KeyError)
         exc_infos.extend(self._CreateExceptInfos(ValueError))
@@ -81,7 +81,7 @@ class CompoundFailureTest(cros_test_lib.TestCase):
         exc = failures_lib.CompoundFailure()
         self.assertFalse(exc.HasFatalFailure())
 
-    def testMessageContainsAllInfo(self):
+    def testMessageContainsAllInfo(self) -> None:
         """Tests that by default, all information is included in the message."""
         exc_infos = self._CreateExceptInfos(
             KeyError, message="bar1", traceback="foo1"
@@ -99,7 +99,7 @@ class CompoundFailureTest(cros_test_lib.TestCase):
         self.assertIn("foo1", str(exc))
         self.assertIn("foo2", str(exc))
 
-    def testConvertToStageFailureMessage(self):
+    def testConvertToStageFailureMessage(self) -> None:
         """Test ConvertToStageFailureMessage."""
         exc_infos = self._CreateExceptInfos(
             KeyError, message="bar1", traceback="foo1"
@@ -153,18 +153,18 @@ class SetFailureTypeTest(cros_test_lib.TestCase):
         """
 
         @failures_lib.SetFailureType(set_type)
-        def f():
+        def f() -> None:
             raise raise_type(*args, **kwargs)
 
         return f
 
-    def testAssertionFailOnIllegalExceptionType(self):
+    def testAssertionFailOnIllegalExceptionType(self) -> None:
         """Assertion should fail if the pre-set type is not allowed ."""
         self.assertRaises(
             AssertionError, self._GetFunction, ValueError, self.FooException
         )
 
-    def testReraiseAsNewException(self):
+    def testReraiseAsNewException(self) -> None:
         """Tests that the pre-set exception type is raised correctly."""
         try:
             self._GetFunction(
@@ -178,7 +178,7 @@ class SetFailureTypeTest(cros_test_lib.TestCase):
             self.assertEqual(e.exc_infos[0].type, self.FooException)
             self.assertIsInstance(e.exc_infos[0].traceback, str)
 
-    def testReraiseACompoundFailure(self):
+    def testReraiseACompoundFailure(self) -> None:
         """Tests that the list of ExceptInfo objects are copied over."""
         tb1 = "Stub traceback1"
         tb2 = "Stub traceback2"
@@ -206,7 +206,7 @@ class SetFailureTypeTest(cros_test_lib.TestCase):
             self.assertFalse(tb1 in e.ToSummaryString())
             self.assertFalse(tb2 in e.ToSummaryString())
 
-    def testReraiseACompoundFailureWithEmptyList(self):
+    def testReraiseACompoundFailureWithEmptyList(self) -> None:
         """Tests that a CompoundFailure with empty list is handled correctly."""
         try:
             self._GetFunction(
@@ -216,14 +216,14 @@ class SetFailureTypeTest(cros_test_lib.TestCase):
             self.assertIsInstance(e, self.SubparLunch)
             self.assertEqual(e.exc_infos[0].type, self.TacoNotTasty)
 
-    def testReraiseOriginalException(self):
+    def testReraiseOriginalException(self) -> None:
         """Tests that the original exception is re-raised."""
         # NoGuacamole is a subclass of TacoNotTasty, so the wrapper has no
         # effect on it.
         f = self._GetFunction(self.TacoNotTasty, self.NoGuacamole)
         self.assertRaises(self.NoGuacamole, f)
 
-    def testPassArgsToWrappedFunctor(self):
+    def testPassArgsToWrappedFunctor(self) -> None:
         """Tests that we can pass arguments to the functor."""
 
         @failures_lib.SetFailureType(self.TacoNotTasty)
@@ -243,7 +243,7 @@ class SetFailureTypeTest(cros_test_lib.TestCase):
 class ExceptInfoTest(cros_test_lib.TestCase):
     """Tests the namedtuple class ExceptInfo."""
 
-    def testConvertToExceptInfo(self):
+    def testConvertToExceptInfo(self) -> None:
         """Tests converting an exception to an ExceptInfo object."""
         traceback = "Stub traceback"
         message = "Taco is not a valid option!"
@@ -259,7 +259,7 @@ class ExceptInfoTest(cros_test_lib.TestCase):
 class FailureTypeListTests(cros_test_lib.TestCase):
     """Tests for failure type lists."""
 
-    def testFailureTypeList(self):
+    def testFailureTypeList(self) -> None:
         """Verify current failure names are already added to the type lists."""
         self.assertTrue(
             failures_lib.BuildScriptFailure.__name__
@@ -274,7 +274,7 @@ class FailureTypeListTests(cros_test_lib.TestCase):
 class GetStageFailureMessageFromExceptionTests(cros_test_lib.TestCase):
     """Tests for GetStageFailureMessageFromException"""
 
-    def testGetStageFailureMessageFromExceptionOnStepFailure(self):
+    def testGetStageFailureMessageFromExceptionOnStepFailure(self) -> None:
         """Test GetStageFailureMessageFromException on StepFailure."""
         exc = failures_lib.StepFailure("step failure message")
         msg = failures_lib.GetStageFailureMessageFromException(
@@ -286,7 +286,7 @@ class GetStageFailureMessageFromExceptionTests(cros_test_lib.TestCase):
         self.assertEqual(msg.exception_type, "StepFailure")
         self.assertEqual(msg.exception_category, "unknown")
 
-    def testGetStageFailureMessageFromExceptionOnException(self):
+    def testGetStageFailureMessageFromExceptionOnException(self) -> None:
         """Test GetStageFailureMessageFromException on regular exception."""
         exc = ValueError("Invalid valure.")
         msg = failures_lib.GetStageFailureMessageFromException(
@@ -302,7 +302,7 @@ class GetStageFailureMessageFromExceptionTests(cros_test_lib.TestCase):
 class BuildFailuresForFindit(cros_test_lib.TestCase):
     """Test cases for exporting build failures for Findit integration."""
 
-    def testBuildFailuresJson(self):
+    def testBuildFailuresJson(self) -> None:
         error = cros_build_lib.RunCommandError("run cmd error")
         failed_packages = ["sys-apps/mosys", "chromeos-base/cryptohome"]
         build_failure = failures_lib.PackageBuildFailure(

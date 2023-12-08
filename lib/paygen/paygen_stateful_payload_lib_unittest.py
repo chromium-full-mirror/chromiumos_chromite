@@ -17,7 +17,7 @@ from chromite.lib.paygen import paygen_stateful_payload_lib
 class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests generating correct stateful payload."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.image = image_lib_unittest.LoopbackPartitionsMock(
             "outfile", self.tempdir
         )
@@ -25,7 +25,7 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             image_lib, "LoopbackPartitions", return_value=self.image
         )
 
-    def testGenerateStatefulPayload(self):
+    def testGenerateStatefulPayload(self) -> None:
         """Test correct arguments propagated to tar call."""
 
         self.PatchObject(
@@ -56,7 +56,7 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testGenerateStatefulPayloadWhenDirsMissing(self):
+    def testGenerateStatefulPayloadWhenDirsMissing(self) -> None:
         """Test correct arguments propagated to tar call."""
 
         self.PatchObject(
@@ -87,7 +87,7 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testGenerateStatefulPayloadIntoFileDescriptor(self):
+    def testGenerateStatefulPayloadIntoFileDescriptor(self) -> None:
         """Test correct arguments propagated to tar call."""
 
         self.PatchObject(

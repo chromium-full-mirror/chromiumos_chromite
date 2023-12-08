@@ -15,7 +15,7 @@ from chromite.lib import partial_mock
 class TestLoas(cros_test_lib.MockTestCase):
     """General tests for the LOAS module"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
         self.email_mock = self.PatchObject(alerts, "SendEmail")
 
@@ -23,17 +23,17 @@ class TestLoas(cros_test_lib.MockTestCase):
         self.email = "some@email.com"
         self.loas = loas.Loas(self.user, self.email)
 
-    def testCheckSuccess(self):
+    def testCheckSuccess(self) -> None:
         """Verify Check() behavior when loas_check passes."""
         self.rc_mock.AddCmdResult(partial_mock.In("runloas"), returncode=0)
         self.loas.Check()
 
-    def testCheckError(self):
+    def testCheckError(self) -> None:
         """Verify Check() behavior when loas_check fails."""
         self.rc_mock.AddCmdResult(partial_mock.In("runloas"), returncode=1)
         self.assertRaises(loas.LoasError, self.loas.Check)
 
-    def testStatusError(self):
+    def testStatusError(self) -> None:
         """Verify that errors from gcertstatus result in an e-mail."""
         self.rc_mock.AddCmdResult(
             partial_mock.In("gcertstatus"),
@@ -43,7 +43,7 @@ class TestLoas(cros_test_lib.MockTestCase):
         self.loas.Status()
         self.assertEqual(self.email_mock.call_count, 1)
 
-    def testStatusUpToDate(self):
+    def testStatusUpToDate(self) -> None:
         """Verify that up-to-date certs delay further checks for a while."""
         self.rc_mock.AddCmdResult(
             partial_mock.In("gcertstatus"),
@@ -59,7 +59,7 @@ class TestLoas(cros_test_lib.MockTestCase):
         self.loas.Status()
         self.assertEqual(self.rc_mock.call_count, 1)
 
-    def testStatusExpiresSoon(self):
+    def testStatusExpiresSoon(self) -> None:
         """Verify that expiring certs generate e-mails once a day."""
         self.rc_mock.AddCmdResult(
             partial_mock.In("gcertstatus"),

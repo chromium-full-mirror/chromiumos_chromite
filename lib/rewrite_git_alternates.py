@@ -30,7 +30,7 @@ def _FilterNonExistentProjects(project_dir, projects):
             yield project
 
 
-def _CleanAlternates(projects, alt_root):
+def _CleanAlternates(projects, alt_root) -> None:
     alt_root = os.path.normpath(alt_root)
 
     projects = set(projects)
@@ -52,7 +52,7 @@ def _CleanAlternates(projects, alt_root):
                     os.unlink(os.path.join(abs_root, filename))
 
 
-def _UpdateAlternatesDir(alternates_root, reference_maps, projects):
+def _UpdateAlternatesDir(alternates_root, reference_maps, projects) -> None:
     is_mirror = {}
     for reference in reference_maps:
         base = os.path.join(reference, ".repo", "manifests.git")
@@ -83,7 +83,7 @@ def _UpdateAlternatesDir(alternates_root, reference_maps, projects):
         osutils.WriteFile(alt_path, "%s\n" % ("\n".join(paths),), atomic=True)
 
 
-def _UpdateGitAlternates(proj_root, projects):
+def _UpdateGitAlternates(proj_root, projects) -> None:
     for project in projects:
         alt_path = os.path.join(
             proj_root, project, "objects", "info", "alternates"
@@ -175,7 +175,7 @@ class Failed(Exception):
     """Exception used to fail out for a bad environment."""
 
 
-def _RebuildRepoCheckout(target_root, reference_map, alternates_dir):
+def _RebuildRepoCheckout(target_root, reference_map, alternates_dir) -> None:
     repo_root = os.path.join(target_root, ".repo")
     proj_root = os.path.join(repo_root, "project-objects")
 
@@ -295,7 +295,7 @@ def get_parser():
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     """The main func!"""
     parser = get_parser()
     opts = parser.parse_args(argv)

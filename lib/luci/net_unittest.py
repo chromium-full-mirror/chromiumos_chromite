@@ -22,7 +22,7 @@ test_env.setup_test_env()
 class NetTest(test_case.TestCase):
     """Tests for Net."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         def GetAccessToken(
@@ -55,7 +55,7 @@ class NetTest(test_case.TestCase):
         self.mock(net, "httprequest", mocked)
         return calls
 
-    def test_request_works(self):
+    def test_request_works(self) -> None:
         self.mock_httplib2(
             [
                 (
@@ -84,7 +84,7 @@ class NetTest(test_case.TestCase):
         )
         self.assertEqual("response body", response)
 
-    def test_retries_transient_errors(self):
+    def test_retries_transient_errors(self) -> None:
         self.mock_httplib2(
             [
                 ({"uri": "http://localhost/123"}, httplib2.HttpLib2Error()),
@@ -121,7 +121,7 @@ class NetTest(test_case.TestCase):
         response = net.request("http://localhost/123", max_attempts=4)
         self.assertEqual("response body", response)
 
-    def test_gives_up_retrying(self):
+    def test_gives_up_retrying(self) -> None:
         self.mock_httplib2(
             [
                 (
@@ -151,7 +151,7 @@ class NetTest(test_case.TestCase):
         with self.assertRaises(net.Error):
             net.request("http://localhost/123", max_attempts=2)
 
-    def test_404(self):
+    def test_404(self) -> None:
         self.mock_httplib2(
             [
                 (
@@ -168,7 +168,7 @@ class NetTest(test_case.TestCase):
         with self.assertRaises(net.NotFoundError):
             net.request("http://localhost/123")
 
-    def test_crappy_cloud_endpoints_404_is_retried(self):
+    def test_crappy_cloud_endpoints_404_is_retried(self) -> None:
         self.mock_httplib2(
             [
                 (
@@ -189,7 +189,7 @@ class NetTest(test_case.TestCase):
         response = net.request("http://localhost/_ah/api/blah")
         self.assertEqual("response body", response)
 
-    def test_legitimate_cloud_endpoints_404_is_not_retried(self):
+    def test_legitimate_cloud_endpoints_404_is_not_retried(self) -> None:
         self.mock_httplib2(
             [
                 (
@@ -210,7 +210,7 @@ class NetTest(test_case.TestCase):
         with self.assertRaises(net.NotFoundError):
             net.request("http://localhost/_ah/api/blah")
 
-    def test_401(self):
+    def test_401(self) -> None:
         self.mock_httplib2(
             [
                 (
@@ -227,7 +227,7 @@ class NetTest(test_case.TestCase):
         with self.assertRaises(net.AuthError):
             net.request("http://localhost/123")
 
-    def test_403(self):
+    def test_403(self) -> None:
         self.mock_httplib2(
             [
                 (

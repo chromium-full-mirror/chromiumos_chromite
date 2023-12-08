@@ -97,13 +97,13 @@ def is_outside_chroot() -> bool:
     return not is_inside_chroot()
 
 
-def assert_inside_chroot(name: Optional[str] = None):
+def assert_inside_chroot(name: Optional[str] = None) -> None:
     """Die if we are outside the chroot"""
     name = name or Path(sys.argv[0]).name
     assert is_inside_chroot(), f"{name}: please run inside the chroot"
 
 
-def assert_outside_chroot(name: Optional[str] = None):
+def assert_outside_chroot(name: Optional[str] = None) -> None:
     """Die if we are inside the chroot"""
     name = name or Path(sys.argv[0]).name
     assert is_outside_chroot(), f"{name}: please run outside the chroot"
@@ -265,7 +265,7 @@ def IsChrootReady(chroot):
     return version is not None and version > 0
 
 
-def MountChrootPaths(chroot: chroot_lib.Chroot):
+def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
     """Setup all the mounts for the |chroot|.
 
     NB: This assumes running in a unique mount namespace.  If it is running in
@@ -443,7 +443,7 @@ def CleanupChrootMount(
     buildroot: Optional[Union[Path, str]] = None,
     delete: bool = False,
     delete_out: bool = True,
-):
+) -> None:
     """Unmounts a chroot and cleans up attached devices.
 
     This function attempts to perform all the cleanup steps even if the chroot
@@ -492,7 +492,9 @@ def CleanupChrootMount(
                 osutils.RmDir(chroot.out_path, ignore_missing=True, sudo=True)
 
 
-def MigrateStatePaths(chroot: chroot_lib.Chroot, lock: locking.FileLock):
+def MigrateStatePaths(
+    chroot: chroot_lib.Chroot, lock: locking.FileLock
+) -> None:
     """Migrate chroot state paths.
 
     Moves directory contents from old stateful-chroot locations to new "output
@@ -500,7 +502,7 @@ def MigrateStatePaths(chroot: chroot_lib.Chroot, lock: locking.FileLock):
     out_path.
     """
 
-    def _move_path(src: Path, dst: Path):
+    def _move_path(src: Path, dst: Path) -> None:
         # Move (and merge) contents from |src| to |dst|, similar to
         # osutils.MoveDirContents(). We don't use osutils, because it doesn't
         # reliably handle ownership metadata, due to behaviors within shutil as
@@ -584,7 +586,7 @@ Do not remove this directory.
         )
 
 
-def RunChrootVersionHooks(version_file=None, hooks_dir=None):
+def RunChrootVersionHooks(version_file=None, hooks_dir=None) -> None:
     """Run the chroot version hooks to bring the chroot up to date."""
     if not cros_build_lib.IsInsideChroot():
         command = ["run_chroot_version_hooks"]
@@ -594,7 +596,7 @@ def RunChrootVersionHooks(version_file=None, hooks_dir=None):
         chroot.ApplyUpdates()
 
 
-def InitLatestVersion(version_file=None, hooks_dir=None):
+def InitLatestVersion(version_file=None, hooks_dir=None) -> None:
     """Initialize the chroot version to the latest version."""
     if not cros_build_lib.IsInsideChroot():
         # Run the command in the chroot.
@@ -677,7 +679,7 @@ class ChrootUpdater:
 
         return self._version
 
-    def SetVersion(self, version):
+    def SetVersion(self, version) -> None:
         """Set and store the chroot version."""
         self._version = version
         osutils.WriteFile(self._version_file, str(version), sudo=True)
@@ -695,7 +697,7 @@ class ChrootUpdater:
         except (Error, IOError):
             return False
 
-    def ApplyUpdates(self):
+    def ApplyUpdates(self) -> None:
         """Apply all necessary updates to the chroot."""
         if self.GetVersion() > self.latest_version:
             raise InvalidChrootVersionError(
@@ -819,7 +821,7 @@ class ChrootCreator:
         self.sdk_tarball = sdk_tarball
 
     @metrics_lib.timed("cros_sdk_lib.ChrootCreator._make_chroot")
-    def _make_chroot(self):
+    def _make_chroot(self) -> None:
         """Create the chroot."""
         cmd = [
             self.MAKE_CHROOT,
@@ -836,7 +838,7 @@ class ChrootCreator:
         except cros_build_lib.RunCommandError as e:
             cros_build_lib.Die("Creating chroot failed!\n%s", e)
 
-    def init_timezone(self):
+    def init_timezone(self) -> None:
         """Setup the timezone info inside the chroot."""
         tz_path = Path("etc/localtime")
         host_tz = "/" / tz_path
@@ -855,7 +857,7 @@ class ChrootCreator:
         user: Optional[str] = None,
         uid: Optional[int] = None,
         gid: Optional[int] = None,
-    ):
+    ) -> None:
         """Setup the current user inside the chroot.
 
         The user account name & id are synced with the active account outside of
@@ -911,7 +913,7 @@ class ChrootCreator:
         groups: Optional[Set[str]] = None,
         group: Optional[str] = None,
         gid: Optional[int] = None,
-    ):
+    ) -> None:
         """Setup the current user's groups inside the chroot.
 
         This will create the user's primary group and add them to a bunch of
@@ -965,7 +967,7 @@ class ChrootCreator:
         lines.insert(0, line)
         path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
-    def init_user_home(self, home: Path, uid: int, gid: int):
+    def init_user_home(self, home: Path, uid: int, gid: int) -> None:
         """Initialize the user's /home dir."""
         shutil.copytree(self.chroot.full_path("/etc/skel"), home)
 
@@ -982,7 +984,7 @@ class ChrootCreator:
 
         osutils.Chown(home, user=uid, group=gid, recursive=True)
 
-    def init_filesystem_basic(self):
+    def init_filesystem_basic(self) -> None:
         """Setup various dirs & simple config files."""
         # Create mount point directories. NB: we don't want to translate them
         # via chroot.full_path(), because that would map to, e.g., the source
@@ -996,7 +998,7 @@ class ChrootCreator:
                 mode=0o755, parents=True, exist_ok=True
             )
 
-    def init_etc(self, user: Optional[str] = None):
+    def init_etc(self, user: Optional[str] = None) -> None:
         """Setup the /etc paths."""
         if user is None:
             user = os.getenv("SUDO_USER")
@@ -1044,7 +1046,7 @@ PORTAGE_USERNAME="{user}"
         bash_completion_d.mkdir(mode=0o755, parents=True, exist_ok=True)
         (bash_completion_d / "cros").symlink_to(f"{_BASH_COMPLETION_DIR}/cros")
 
-    def init_var(self):
+    def init_var(self) -> None:
         """Handle /var contents from SDK tarball."""
         for chroot_path, out_path in (
             ("var/cache", "sdk/cache"),
@@ -1076,7 +1078,7 @@ PORTAGE_USERNAME="{user}"
             recursive=True,
         )
 
-    def print_success_summary(self):
+    def print_success_summary(self) -> None:
         """Show a summary of the chroot to the user."""
         chroot_opt = ""
         if Path(constants.DEFAULT_CHROOT_PATH) != Path(self.chroot.path):
@@ -1104,7 +1106,7 @@ $ cros_sdk --delete%s
         uid: Optional[int] = None,
         group: Optional[str] = None,
         gid: Optional[int] = None,
-    ):
+    ) -> None:
         """Create the chroot.
 
         Args:
@@ -1139,7 +1141,7 @@ $ cros_sdk --delete%s
 
 
 @metrics_lib.timed("cros_sdk_lib.CreateChroot")
-def CreateChroot(*args, **kwargs):
+def CreateChroot(*args, **kwargs) -> None:
     """Convenience method."""
     ChrootCreator(*args, **kwargs).run()
 
@@ -1321,7 +1323,7 @@ class _ChrootWritable:
         self._chroot_path = path
         self._needs_remount = False
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         # This context manager doesn't make sense outside the chroot.
         assert IsChrootReady(self._chroot_path)
 
@@ -1333,7 +1335,7 @@ class _ChrootWritable:
         if self._needs_remount:
             self._remount(read_only=self._want_read_only)
 
-    def __exit__(self, _type, _value, _traceback):
+    def __exit__(self, _type, _value, _traceback) -> None:
         if self._needs_remount:
             # Path mounts may change (e.g., pivot_root on chroot entry), which
             # means the path mount looks different by the time we exit. Just

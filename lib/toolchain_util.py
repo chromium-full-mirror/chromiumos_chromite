@@ -949,7 +949,7 @@ class _CommonPrepareBundle:
 
     def _MergeAFDOProfiles(
         self, profile_list, output_profile, use_extbinary=False
-    ):
+    ) -> None:
         """Merges the given profile list.
 
         This is ultimately derived from afdo.py, but runs OUTSIDE of the chroot.
@@ -995,7 +995,7 @@ class _CommonPrepareBundle:
         remove=False,
         reduce_functions=None,
         extbinary=False,
-    ):
+    ) -> None:
         """Process the AFDO profile with different editings.
 
         In this function, we will convert an AFDO profile into textual version,
@@ -1282,7 +1282,7 @@ class _CommonPrepareBundle:
         result_basename = os.path.basename(profile_to_upload_path)
         return result_basename
 
-    def _CleanupArtifactDirectory(self, src_dir):
+    def _CleanupArtifactDirectory(self, src_dir) -> None:
         """Cleanup a directory before build so we can safely use the artifacts.
 
         Args:
@@ -1458,7 +1458,7 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
             key="ChromeAFDOProfileForAndroidLinux",
         )
 
-    def _PrepareVerifiedChromeBenchmarkAfdoFile(self):
+    def _PrepareVerifiedChromeBenchmarkAfdoFile(self) -> None:
         """Unused: see _PrepareVerifiedReleaseAfdoFile."""
         raise PrepareForBuildHandlerError(
             "Unexpected artifact type %s." % self.artifact_name
@@ -1468,7 +1468,7 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
         """See _PrepareUnverifiedChromeBenchmarkPerfFile."""
         return PrepareForBuildReturn.POINTLESS
 
-    def _PrepareUnverifiedKernelCwpAfdoFile(self):
+    def _PrepareUnverifiedKernelCwpAfdoFile(self) -> None:
         """Unused: CWP is from elsewhere."""
         raise PrepareForBuildHandlerError(
             "Unexpected artifact type %s." % self.artifact_name
@@ -1544,13 +1544,13 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
             )
         return ret
 
-    def _PrepareUnverifiedChromeCwpAfdoFile(self):
+    def _PrepareUnverifiedChromeCwpAfdoFile(self) -> None:
         """Unused: CWP is from elsewhere."""
         raise PrepareForBuildHandlerError(
             "Unexpected artifact type %s." % self.artifact_name
         )
 
-    def _PrepareVerifiedChromeCwpAfdoFile(self):
+    def _PrepareVerifiedChromeCwpAfdoFile(self) -> None:
         """Unused: see _PrepareVerifiedReleaseAfdoFile."""
         raise PrepareForBuildHandlerError(
             "Unexpected artifact type %s." % self.artifact_name
@@ -1903,13 +1903,13 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         files.append(merged_profile_compressed)
         return files
 
-    def _BundleVerifiedChromeBenchmarkAfdoFile(self):
+    def _BundleVerifiedChromeBenchmarkAfdoFile(self) -> None:
         """Unused: see _BundleVerifiedReleaseAfdoFile."""
         raise BundleArtifactsHandlerError(
             "Unexpected artifact type %s." % self.artifact_name
         )
 
-    def _BundleUnverifiedKernelCwpAfdoFile(self):
+    def _BundleUnverifiedKernelCwpAfdoFile(self) -> None:
         """Unused: this artifact comes from CWP."""
         raise BundleArtifactsHandlerError(
             "Unexpected artifact type %s." % self.artifact_name
@@ -1949,13 +1949,13 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         shutil.copy2(profile_path, verified_profile)
         return [verified_profile]
 
-    def _BundleUnverifiedChromeCwpAfdoFile(self):
+    def _BundleUnverifiedChromeCwpAfdoFile(self) -> None:
         """Unused: this artifact comes from CWP."""
         raise BundleArtifactsHandlerError(
             "Unexpected artifact type %s." % self.artifact_name
         )
 
-    def _BundleVerifiedChromeCwpAfdoFile(self):
+    def _BundleVerifiedChromeCwpAfdoFile(self) -> None:
         """Unused: see _BundleVerifiedReleaseAfdoFile."""
         raise BundleArtifactsHandlerError(
             "Unexpected artifact type %s." % self.artifact_name

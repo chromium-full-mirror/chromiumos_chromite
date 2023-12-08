@@ -16,7 +16,7 @@ from chromite.lib import build_query
 # pylint: disable=unused-argument
 
 
-def test_query_overlays(fake_build_query_overlays):
+def test_query_overlays(fake_build_query_overlays) -> None:
     """Test listing all overlays."""
     overlays = {x.name: x for x in build_query.Overlay.find_all()}
     assert overlays["baseboard-fake"].board_name is None
@@ -29,7 +29,7 @@ def test_query_overlays(fake_build_query_overlays):
     assert overlays["fake-private"].is_private is True
 
 
-def test_query_profiles(fake_build_query_overlays):
+def test_query_profiles(fake_build_query_overlays) -> None:
     """Test listing all profiles."""
     profiles = list(build_query.Profile.find_all())
     assert profiles[0].overlay.name == "baseboard-fake"
@@ -46,7 +46,7 @@ def test_query_profiles(fake_build_query_overlays):
     assert profiles[3].parents == [profiles[2], profiles[1]]
 
 
-def test_query_boards(fake_build_query_overlays):
+def test_query_boards(fake_build_query_overlays) -> None:
     """Test listing all boards."""
     board = (
         build_query.Query(build_query.Board)
@@ -63,7 +63,7 @@ def test_query_boards(fake_build_query_overlays):
     )
 
 
-def test_query_ebuilds(fake_build_query_overlays):
+def test_query_ebuilds(fake_build_query_overlays) -> None:
     """Test listing all ebuilds."""
     ebuilds = list(build_query.Ebuild.find_all())
     found_packages = {str(ebuild) for ebuild in ebuilds}
@@ -86,7 +86,7 @@ def test_query_ebuilds(fake_build_query_overlays):
         ("faux", True),
     ],
 )
-def test_is_variant(fake_build_query_overlays, board_name, is_variant):
+def test_is_variant(fake_build_query_overlays, board_name, is_variant) -> None:
     """Test the is_variant property of boards."""
     board = (
         build_query.Query(build_query.Board)
@@ -133,7 +133,7 @@ def test_is_variant(fake_build_query_overlays, board_name, is_variant):
 )
 def test_ebuild_stability(
     fake_build_query_overlays, cpvr, arch, expected_stability
-):
+) -> None:
     """Test the ebuild stability evaluator."""
     ebuild = (
         build_query.Query(build_query.Ebuild)
@@ -143,7 +143,7 @@ def test_ebuild_stability(
     assert ebuild.get_stability(arch) == expected_stability
 
 
-def test_make_conf_vars(fake_build_query_overlays):
+def test_make_conf_vars(fake_build_query_overlays) -> None:
     """Test reading make.conf variables from an overlay."""
     overlay = (
         build_query.Query(build_query.Overlay)
@@ -156,7 +156,7 @@ def test_make_conf_vars(fake_build_query_overlays):
     }
 
 
-def test_overlay_parents(fake_build_query_overlays):
+def test_overlay_parents(fake_build_query_overlays) -> None:
     overlays = {x.name: x for x in build_query.Overlay.find_all()}
     assert list(overlays["baseboard-fake-private"].parents) == [
         overlays["portage-stable"],
@@ -166,7 +166,7 @@ def test_overlay_parents(fake_build_query_overlays):
     ]
 
 
-def test_use_flags(fake_build_query_overlays):
+def test_use_flags(fake_build_query_overlays) -> None:
     """Test getting the USE flags on a board."""
     board = (
         build_query.Query(build_query.Board)
@@ -187,7 +187,7 @@ def test_use_flags(fake_build_query_overlays):
     }
 
 
-def test_use_flags_set(fake_build_query_overlays):
+def test_use_flags_set(fake_build_query_overlays) -> None:
     """Test querying the flags set by a profile."""
     overlay = (
         build_query.Query(build_query.Overlay)
@@ -205,7 +205,7 @@ def test_use_flags_set(fake_build_query_overlays):
     }
 
 
-def test_use_flags_unset(fake_build_query_overlays):
+def test_use_flags_unset(fake_build_query_overlays) -> None:
     """Test querying the flags unset by a profile."""
     overlay = (
         build_query.Query(build_query.Overlay)
@@ -220,7 +220,7 @@ def test_use_flags_unset(fake_build_query_overlays):
     }
 
 
-def test_masked_use_flags(fake_build_query_overlays):
+def test_masked_use_flags(fake_build_query_overlays) -> None:
     """Test getting the masked_use_flags on a profile."""
     board = (
         build_query.Query(build_query.Board)
@@ -230,19 +230,19 @@ def test_masked_use_flags(fake_build_query_overlays):
     assert board.top_level_profile.masked_use_flags == {"masked"}
 
 
-def test_board_get(fake_build_query_overlays):
+def test_board_get(fake_build_query_overlays) -> None:
     """Test Board.get() convenience classmethod."""
     board = build_query.Board.get("fake")
     assert board.name == "fake"
 
 
-def test_board_get_fail(fake_build_query_overlays):
+def test_board_get_fail(fake_build_query_overlays) -> None:
     """Test Board.get() convenience classmethod on a bad board name."""
     with pytest.raises(ValueError):
         build_query.Board.get("notfake")
 
 
-def test_query_one(fake_build_query_overlays):
+def test_query_one(fake_build_query_overlays) -> None:
     """Test .one() on a query which yields one result."""
     board = (
         build_query.Query(build_query.Board)
@@ -252,7 +252,7 @@ def test_query_one(fake_build_query_overlays):
     assert board.name == "fake"
 
 
-def test_query_one_fail_zero(fake_build_query_overlays):
+def test_query_one_fail_zero(fake_build_query_overlays) -> None:
     """Test .one() on a query which yields zero results fails."""
     with pytest.raises(StopIteration):
         build_query.Query(build_query.Board).filter(
@@ -260,13 +260,13 @@ def test_query_one_fail_zero(fake_build_query_overlays):
         ).one()
 
 
-def test_query_one_fail_multiple(fake_build_query_overlays):
+def test_query_one_fail_multiple(fake_build_query_overlays) -> None:
     """Test .one() on a query which yields multiple results fails."""
     with pytest.raises(ValueError):
         build_query.Query(build_query.Ebuild).one()
 
 
-def test_query_one_or_none(fake_build_query_overlays):
+def test_query_one_or_none(fake_build_query_overlays) -> None:
     """Test .one_or_none() on a query which yields no results returns None."""
     board = (
         build_query.Query(build_query.Board)
@@ -276,7 +276,7 @@ def test_query_one_or_none(fake_build_query_overlays):
     assert not board
 
 
-def test_query_all(fake_build_query_overlays):
+def test_query_all(fake_build_query_overlays) -> None:
     """Test .all() on a query."""
     boards = build_query.Query(build_query.Board).all()
     assert boards == [
@@ -286,7 +286,7 @@ def test_query_all(fake_build_query_overlays):
     ]
 
 
-def test_resolve_incremental_variable(fake_build_query_overlays):
+def test_resolve_incremental_variable(fake_build_query_overlays) -> None:
     """Test correctness Profile.resolve_incremental_variable."""
     board = (
         build_query.Query(build_query.Board)

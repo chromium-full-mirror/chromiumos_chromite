@@ -39,7 +39,7 @@ def retry(ExceptionToCheck, timeout_min=1.0, delay_sec=3, denylist=None):
     def deco_retry(func):
         random.seed()
 
-        def delay():
+        def delay() -> None:
             """'Jitter' the delay, up to 50% in either direction."""
             random_delay = random.uniform(0.5 * delay_sec, 1.5 * delay_sec)
             logging.info("Retrying in %f seconds...", random_delay)

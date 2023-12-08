@@ -58,7 +58,7 @@ def _inProcessGetFile(uri_tempdir):
 class DownloadCachePickleTest(cros_test_lib.TempDirTestCase):
     """Test pickle/unpickle the download cache."""
 
-    def testPickleUnpickle(self):
+    def testPickleUnpickle(self) -> None:
         cache = download_cache.DownloadCache(self.tempdir)
         pickle_path = os.path.join(self.tempdir, "cache.pickle")
 
@@ -77,12 +77,12 @@ class FetchFuncTest(cros_test_lib.TempDirTestCase):
     stub_uri = "stub URI"
     stub_uri2 = "stub URI 2"
 
-    def testFetchFunc(self):
+    def testFetchFunc(self) -> None:
         """Test getting files with a custome fetch function."""
 
         call_count = [0]
 
-        def stubFetchFunction(uri, cache_file):
+        def stubFetchFunction(uri, cache_file) -> None:
             """Write the uri into the file to have verifiable content"""
             call_count[0] += 1
             osutils.WriteFile(cache_file, uri)
@@ -119,14 +119,14 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
     hash_a = "591430f83b55355d9233babd172baea5"
     hash_b = "22317eb6cccea8c87f960c45ecec3478"
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Use a subdir specifically for the cache so we can use the tempdir for
         # other things (including tempfiles by gsutil/etc...).
         self.cache_dir = os.path.join(self.tempdir, "unittest-cache")
 
         self.ctx = gs.GSContext()
 
-    def _verifyFileContents(self, cache, uri):
+    def _verifyFileContents(self, cache, uri) -> None:
         """Test helper to make sure a cached file contains correct contents."""
 
         # Fetch it
@@ -142,7 +142,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
         self.assertTrue(cache_file.startswith(self.cache_dir))
         self.assertExists(cache_file)
 
-    def _validateCacheContents(self, cache, expected_contents):
+    def _validateCacheContents(self, cache, expected_contents) -> None:
         """Test helper to make sure the cache holds what we expect."""
 
         expected_contents = set(expected_contents)
@@ -161,7 +161,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
         # The lock directory should contain no files not in the file_dir.
         self.assertTrue(lock_dir_contents.issubset(file_dir_contents))
 
-    def testCacheFileNames(self):
+    def testCacheFileNames(self) -> None:
         """Ensure that some of the files we create have the expected names."""
         cache = download_cache.DownloadCache(self.cache_dir)
 
@@ -189,13 +189,13 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
         with cache._CacheFileLock(expected_cache) as cache_file_lock:
             self.assertEqual(cache_file_lock.path, expected_lock)
 
-    def testSetupCacheClean(self):
+    def testSetupCacheClean(self) -> None:
         """Test _SetupCache with a clean directory."""
         # Create a cache, and see if it has expected contents.
         cache = download_cache.DownloadCache(self.cache_dir)
         self._validateCacheContents(cache, ())
 
-    def testSetupCacheDirty(self):
+    def testSetupCacheDirty(self) -> None:
         """Test _SetupCache with a dirty directory."""
         # Create some unexpected directories.
         for make_dir in ["foo/bar/stuff", "bar"]:
@@ -210,7 +210,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
         self._validateCacheContents(cache, ())
 
     @cros_test_lib.pytestmark_network_test
-    def testGetFileObject(self):
+    def testGetFileObject(self) -> None:
         """Just create a download cache, and GetFile on it."""
 
         cache = download_cache.DownloadCache(self.cache_dir)
@@ -246,7 +246,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
         )
 
     @cros_test_lib.pytestmark_network_test
-    def testGetFileCopy(self):
+    def testGetFileCopy(self) -> None:
         """Just create a download cache, and GetFileCopy from it."""
 
         file_a = os.path.join(self.tempdir, "foo")
@@ -273,7 +273,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
         self.assertEqual(contents_a, contents_b)
 
     @cros_test_lib.pytestmark_network_test
-    def testPurgeLogic(self):
+    def testPurgeLogic(self) -> None:
         cache = download_cache.DownloadCache(self.cache_dir)
 
         cache.GetFileObject(self.uri_a).close()
@@ -300,7 +300,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
         self._validateCacheContents(cache, (self.hash_b,))
 
     @cros_test_lib.pytestmark_network_test
-    def testContextMgr(self):
+    def testContextMgr(self) -> None:
         """Make sure we behave properly with 'with'."""
 
         # Create an instance, and use it in a with
@@ -319,7 +319,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
         self._validateCacheContents(cache, ())
 
     @cros_test_lib.pytestmark_network_test
-    def testThreadedDownloads(self):
+    def testThreadedDownloads(self) -> None:
         """Spin off multiple processes and fetch a file.
 
         Ensure the process locking allows the file to be downloaded exactly
@@ -341,7 +341,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
             self.assertEqual(results, [False] * 19 + [True])
 
     @cros_test_lib.pytestmark_network_test
-    def testThreadedGetFile(self):
+    def testThreadedGetFile(self) -> None:
         """Spin off multiple processes and call GetFile.
 
         Ensure all processes complete, and return the same local file.
@@ -365,7 +365,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
             self.assertEqual(results, expected)
 
     @cros_test_lib.pytestmark_network_test
-    def testThreadedGetFileMultiple(self):
+    def testThreadedGetFileMultiple(self) -> None:
         """Spin off multiple processes and call GetFile with multiple uris.
 
         Ensure all processes complete, and return the right local file.
@@ -396,7 +396,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
             self.assertEqual(results, expected)
 
     @cros_test_lib.pytestmark_network_test
-    def testThreadedGetFileMultiplePurge(self):
+    def testThreadedGetFileMultiplePurge(self) -> None:
         """Do fetches and purges in a multiprocess environment.
 
         Ensure all processes complete, and return the right local file.

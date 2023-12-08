@@ -89,7 +89,7 @@ PreconditionException: 412 Precondition Failed"""
         partial_mock.PartialCmdMock.__init__(self, create_tempdir=True)
         self.raw_gs_cmds = []
 
-    def _SetGSUtilUrl(self):
+    def _SetGSUtilUrl(self) -> None:
         tempfile = os.path.join(self.tempdir, "tempfile")
         osutils.WriteFile(tempfile, "some content")
         gsutil_path = os.path.join(self.tempdir, gs.GSContext.GSUTIL_TAR)
@@ -101,7 +101,7 @@ PreconditionException: 412 Precondition Failed"""
         )
         self.GSUTIL_URL = "file://%s" % gsutil_path
 
-    def PreStart(self):
+    def PreStart(self) -> None:
         os.environ.pop("BOTO_CONFIG", None)
         # Set it here for now, instead of mocking out Cached() directly because
         # python-mock has a bug with mocking out class methods with
@@ -109,7 +109,7 @@ PreconditionException: 412 Precondition Failed"""
         # TODO(rcui): Change this when this is fixed in PartialMock.
         self._SetGSUtilUrl()
 
-    def InitializeCache(self, *_args, **_kwargs):
+    def InitializeCache(self, *_args, **_kwargs) -> None:
         self._DEFAULT_GSUTIL_BIN = "gsutil"
 
     def DoCommand(self, inst, gsutil_cmd, **kwargs):
@@ -137,7 +137,7 @@ PreconditionException: 412 Precondition Failed"""
 class AbstractGSContextTest(cros_test_lib.MockTempDirTestCase):
     """Base class for GSContext tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.gs_mock = self.StartPatcher(GSContextMock())
         self.gs_mock.SetDefaultCmdResult()
         self.ctx = gs.GSContext()
@@ -149,7 +149,7 @@ class VersionTest(AbstractGSContextTest):
     LOCAL_PATH = "/tmp/file"
     GIVEN_REMOTE = EXPECTED_REMOTE = "gs://test/path/file"
 
-    def testGetVersionStdout(self):
+    def testGetVersionStdout(self) -> None:
         """Simple gsutil_version fetch test from stdout."""
         self.gs_mock.AddCmdResult(
             partial_mock.In("version"),
@@ -158,7 +158,7 @@ class VersionTest(AbstractGSContextTest):
         )
         self.assertEqual("3.35", self.ctx.gsutil_version)
 
-    def testGetVersionStderr(self):
+    def testGetVersionStderr(self) -> None:
         """Simple gsutil_version fetch test from stderr."""
         self.gs_mock.AddCmdResult(
             partial_mock.In("version"),
@@ -167,13 +167,13 @@ class VersionTest(AbstractGSContextTest):
         )
         self.assertEqual("3.36", self.ctx.gsutil_version)
 
-    def testGetVersionCached(self):
+    def testGetVersionCached(self) -> None:
         """Simple gsutil_version fetch test from cache."""
         # pylint: disable=protected-access
         self.ctx._gsutil_version = "3.37"
         self.assertEqual("3.37", self.ctx.gsutil_version)
 
-    def testGetVersionNewFormat(self):
+    def testGetVersionNewFormat(self) -> None:
         """Simple gsutil_version fetch test for new gsutil output format."""
         self.gs_mock.AddCmdResult(
             partial_mock.In("version"),
@@ -182,7 +182,7 @@ class VersionTest(AbstractGSContextTest):
         )
         self.assertEqual("4.5", self.ctx.gsutil_version)
 
-    def testGetVersionBadOutput(self):
+    def testGetVersionBadOutput(self) -> None:
         """Simple gsutil_version fetch test from cache."""
         self.gs_mock.AddCmdResult(
             partial_mock.In("version"), returncode=0, stdout="gobblety gook\n"
@@ -205,7 +205,7 @@ class GetSizeTest(AbstractGSContextTest):
             ctx = self.ctx
         return self._GetSize(ctx, self.GETSIZE_PATH, **kwargs)
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Simple test."""
         self.gs_mock.AddCmdResult(
             ["stat", "--", self.GETSIZE_PATH], stdout=StatTest.STAT_OUTPUT
@@ -217,7 +217,7 @@ class UnmockedGetSizeTest(cros_test_lib.TempDirTestCase):
     """Tests GetSize functionality w/out mocks."""
 
     @cros_test_lib.pytestmark_network_test
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Simple test."""
         ctx = gs.GSContext()
 
@@ -228,7 +228,7 @@ class UnmockedGetSizeTest(cros_test_lib.TempDirTestCase):
             ctx.Copy(local_file, tempuri)
             self.assertEqual(ctx.GetSize(tempuri), 5)
 
-    def testLocal(self):
+    def testLocal(self) -> None:
         """Test local files."""
         ctx = gs.GSContext()
         f = os.path.join(self.tempdir, "f")
@@ -243,7 +243,7 @@ class UnmockedGetSizeTest(cros_test_lib.TempDirTestCase):
 class GetCreationTimeTest(AbstractGSContextTest):
     """Test GetCreationTime functionality."""
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Simple test."""
         self.gs_mock.AddCmdResult(
             ["stat", "--", GS_PACKAGES_PATH], stdout=STAT_OUTPUT_NOW
@@ -253,7 +253,7 @@ class GetCreationTimeTest(AbstractGSContextTest):
         self.gs_mock.assertCommandContains(["stat", "--", GS_PACKAGES_PATH])
         self.assertEqual(result, NOW_DATETIME)
 
-    def testURlNoExist(self):
+    def testURlNoExist(self) -> None:
         self.gs_mock.AddCmdResult(
             ["stat", "--", GS_PACKAGES_WRONG_PATH],
             stderr=STAT_OUTPUT_ERR,
@@ -272,7 +272,7 @@ class UnMockedGetCreationTimeTest(cros_test_lib.TempDirTestCase):
     """Test GetCreationTime functionality without mocks."""
 
     @cros_test_lib.pytestmark_network_test
-    def testGetCreationTime(self):
+    def testGetCreationTime(self) -> None:
         """Test getting the creation time of a file."""
         ctx = gs.GSContext()
         with gs.TemporaryURL("testGetCreationTime") as url:
@@ -304,7 +304,7 @@ class GetCreationTimeSinceTest(AbstractGSContextTest):
         Metageneration:   1
       """
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Simple test."""
         self.gs_mock.AddCmdResult(
             ["stat", "--", GS_PACKAGES_PATH], stdout=self.STAT_OUTPUT_OLDER
@@ -314,7 +314,7 @@ class GetCreationTimeSinceTest(AbstractGSContextTest):
         self.gs_mock.assertCommandContains(["stat", "--", GS_PACKAGES_PATH])
         self.assertEqual(result.days, 10)
 
-    def testURlNoExist(self):
+    def testURlNoExist(self) -> None:
         self.gs_mock.AddCmdResult(
             ["stat", "--", GS_PACKAGES_WRONG_PATH],
             stderr=STAT_OUTPUT_ERR,
@@ -329,7 +329,7 @@ class UnMockedGetCreationTimeSinceTest(cros_test_lib.TempDirTestCase):
     """Test GetCreationTimeSince functionality without mocks."""
 
     @cros_test_lib.pytestmark_network_test
-    def testGetCreationTimeSince(self):
+    def testGetCreationTimeSince(self) -> None:
         """Test getting the creation time of a file."""
         ctx = gs.GSContext()
         with gs.TemporaryURL("testGetCreationTime") as url:
@@ -410,7 +410,7 @@ class LSTest(AbstractGSContextTest):
             ctx = self.ctx
         return self._List(ctx, self.LS_PATH, **kwargs)
 
-    def testBasicLS(self):
+    def testBasicLS(self) -> None:
         """Simple LS test."""
         self.gs_mock.SetDefaultCmdResult(stdout=self.LS_OUTPUT)
         result = self.LS()
@@ -418,7 +418,7 @@ class LSTest(AbstractGSContextTest):
 
         self.assertEqual(self.LS_OUTPUT_LINES, result)
 
-    def testBasicList(self):
+    def testBasicList(self) -> None:
         """Simple List test."""
         self.gs_mock.SetDefaultCmdResult(stdout=self.DETAILED_LS_OUTPUT)
         result = self.List(details=True)
@@ -430,7 +430,7 @@ class LSTest(AbstractGSContextTest):
 class UnmockedLSTest(cros_test_lib.TempDirTestCase):
     """Tests LS/List functionality w/out mocks."""
 
-    def testLocalPaths(self):
+    def testLocalPaths(self) -> None:
         """Tests listing local paths."""
         ctx = gs.GSContext()
 
@@ -449,7 +449,7 @@ class UnmockedLSTest(cros_test_lib.TempDirTestCase):
         self.assertEqual(files, found)
 
     @cros_test_lib.pytestmark_network_test
-    def testRemotePath(self):
+    def testRemotePath(self) -> None:
         """Tests listing remote paths."""
         ctx = gs.GSContext()
 
@@ -510,7 +510,7 @@ class CopyTest(AbstractGSContextTest, cros_test_lib.TempDirTestCase):
     GIVEN_REMOTE = EXPECTED_REMOTE = "gs://test/path/file"
     ACL = "public-read"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.local_path = os.path.join(self.tempdir, "file")
         osutils.WriteFile(self.local_path, "")
 
@@ -522,36 +522,36 @@ class CopyTest(AbstractGSContextTest, cros_test_lib.TempDirTestCase):
             ctx = self.ctx
         return self._Copy(ctx, self.local_path, self.GIVEN_REMOTE, **kwargs)
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Simple copy test."""
         self.Copy()
         self.gs_mock.assertCommandContains(
             ["cp", "--", self.local_path, self.EXPECTED_REMOTE]
         )
 
-    def testWithACL(self):
+    def testWithACL(self) -> None:
         """ACL specified during init."""
         ctx = gs.GSContext(acl=self.ACL)
         self.Copy(ctx=ctx)
         self.gs_mock.assertCommandContains(["cp", "-a", self.ACL])
 
-    def testWithACL2(self):
+    def testWithACL2(self) -> None:
         """ACL specified during invocation."""
         self.Copy(acl=self.ACL)
         self.gs_mock.assertCommandContains(["cp", "-a", self.ACL])
 
-    def testWithACL3(self):
+    def testWithACL3(self) -> None:
         """ACL specified during invocation that overrides init."""
         ctx = gs.GSContext(acl=self.ACL)
         self.Copy(ctx=ctx, acl=self.ACL)
         self.gs_mock.assertCommandContains(["cp", "-a", self.ACL])
 
-    def testRunCommandError(self):
+    def testRunCommandError(self) -> None:
         """Test RunCommandError is propagated."""
         self.gs_mock.AddCmdResult(partial_mock.In("cp"), returncode=1)
         self.assertRaises(cros_build_lib.RunCommandError, self.Copy)
 
-    def testGSContextPreconditionFailed(self):
+    def testGSContextPreconditionFailed(self) -> None:
         """GSContextPreconditionFailed is raised properly."""
         self.gs_mock.AddCmdResult(
             partial_mock.In("cp"),
@@ -560,25 +560,25 @@ class CopyTest(AbstractGSContextTest, cros_test_lib.TempDirTestCase):
         )
         self.assertRaises(gs.GSContextPreconditionFailed, self.Copy)
 
-    def testNonRecursive(self):
+    def testNonRecursive(self) -> None:
         """Test non-recursive copy."""
         self.Copy(recursive=False)
         self.gs_mock.assertCommandContains(["-r"], expected=False)
 
-    def testRecursive(self):
+    def testRecursive(self) -> None:
         """Test recursive copy."""
         self.Copy(recursive=True)
         self.gs_mock.assertCommandContains(["-r"], expected=False)
         self._Copy(self.ctx, self.tempdir, self.GIVEN_REMOTE, recursive=True)
         self.gs_mock.assertCommandContains(["cp", "-r"])
 
-    def testCompress(self):
+    def testCompress(self) -> None:
         """Test auto_compress behavior."""
         path = os.path.join(self.tempdir, "ok.txt")
         self._Copy(self.ctx, path, self.GIVEN_REMOTE, auto_compress=True)
         self.gs_mock.assertCommandContains(["-Z"], expected=True)
 
-    def testGeneration(self):
+    def testGeneration(self) -> None:
         """Test generation return value."""
         exp_gen = 1413571271901000
         stderr = (
@@ -594,7 +594,7 @@ class CopyTest(AbstractGSContextTest, cros_test_lib.TempDirTestCase):
         gen = self.Copy()
         self.assertEqual(gen, exp_gen)
 
-    def testGeneration404(self):
+    def testGeneration404(self) -> None:
         """Test behavior when we get weird output."""
         stderr = (
             # This is a bit verbose, but it's from real output, so should be
@@ -625,7 +625,7 @@ class UnmockedCopyTest(cros_test_lib.TempDirTestCase):
     """Tests Copy functionality w/out mocks."""
 
     @cros_test_lib.pytestmark_network_test
-    def testNormal(self):
+    def testNormal(self) -> None:
         """Test normal upload/download behavior."""
         ctx = gs.GSContext()
 
@@ -657,7 +657,7 @@ class UnmockedCopyTest(cros_test_lib.TempDirTestCase):
             self.assertEqual(content, new_content)
 
     @cros_test_lib.pytestmark_network_test
-    def testCompress(self):
+    def testCompress(self) -> None:
         """Test auto_compress behavior."""
         ctx = gs.GSContext()
 
@@ -693,7 +693,7 @@ class UnmockedCopyTest(cros_test_lib.TempDirTestCase):
             self.assertEqual(content, new_content)
 
     @cros_test_lib.pytestmark_network_test
-    def testVersion(self):
+    def testVersion(self) -> None:
         """Test version (generation) behavior."""
         ctx = gs.GSContext()
 
@@ -742,11 +742,11 @@ class CopyIntoTest(CopyTest):
 class RemoveTest(AbstractGSContextTest):
     """Tests GSContext.Remove() functionality."""
 
-    def testNormal(self):
+    def testNormal(self) -> None:
         """Test normal remove behavior."""
         self.assertEqual(self.ctx.Remove("gs://foo/bar"), None)
 
-    def testMissing(self):
+    def testMissing(self) -> None:
         """Test behavior w/missing files."""
         self.gs_mock.AddCmdResult(
             ["rm", "--", "gs://foo/bar"],
@@ -757,12 +757,12 @@ class RemoveTest(AbstractGSContextTest):
         # This one should not throw an exception.
         self.ctx.Remove("gs://foo/bar", ignore_missing=True)
 
-    def testRecursive(self):
+    def testRecursive(self) -> None:
         """Verify we pass down -R in recursive mode."""
         self.ctx.Remove("gs://foo/bar", recursive=True)
         self.gs_mock.assertCommandContains(["rm", "-R"])
 
-    def testMultiple(self):
+    def testMultiple(self) -> None:
         """Test handling of multiple paths."""
         self.ctx.Remove(["gs://foo/bar", "gs://fat/cow"], recursive=True)
         self.gs_mock.assertCommandContains(
@@ -774,7 +774,7 @@ class UnmockedRemoveTest(cros_test_lib.TestCase):
     """Tests Remove functionality w/out mocks."""
 
     @cros_test_lib.pytestmark_network_test
-    def testNormal(self):
+    def testNormal(self) -> None:
         """Test normal remove behavior."""
         ctx = gs.GSContext()
         with gs.TemporaryURL("chromite.rm") as tempuri:
@@ -782,7 +782,7 @@ class UnmockedRemoveTest(cros_test_lib.TestCase):
             self.assertEqual(ctx.Remove(tempuri), None)
 
     @cros_test_lib.pytestmark_network_test
-    def testMissing(self):
+    def testMissing(self) -> None:
         """Test behavior w/missing files."""
         ctx = gs.GSContext()
         with gs.TemporaryURL("chromite.rm") as tempuri:
@@ -791,7 +791,7 @@ class UnmockedRemoveTest(cros_test_lib.TestCase):
             ctx.Remove(tempuri, ignore_missing=True)
 
     @cros_test_lib.pytestmark_network_test
-    def testRecursive(self):
+    def testRecursive(self) -> None:
         """Verify recursive mode works."""
         files = ("a", "b/c", "d/e/ffff")
         ctx = gs.GSContext()
@@ -803,7 +803,7 @@ class UnmockedRemoveTest(cros_test_lib.TestCase):
                 self.assertFalse(ctx.Exists(os.path.join(tempuri, p)))
 
     @cros_test_lib.pytestmark_network_test
-    def testMultiple(self):
+    def testMultiple(self) -> None:
         """Test handling of multiple paths."""
         files = ("a", "b/c", "d/e/ffff")
         ctx = gs.GSContext()
@@ -815,7 +815,7 @@ class UnmockedRemoveTest(cros_test_lib.TestCase):
                 self.assertFalse(ctx.Exists(os.path.join(tempuri, p)))
 
     @cros_test_lib.pytestmark_network_test
-    def testGeneration(self):
+    def testGeneration(self) -> None:
         """Test conditional remove behavior."""
         ctx = gs.GSContext()
         with gs.TemporaryURL("chromite.rm") as tempuri:
@@ -837,7 +837,7 @@ class MoveTest(AbstractGSContextTest, cros_test_lib.TempDirTestCase):
 
     GIVEN_REMOTE = EXPECTED_REMOTE = "gs://test/path/file"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.local_path = os.path.join(self.tempdir, "file")
         osutils.WriteFile(self.local_path, "")
 
@@ -849,7 +849,7 @@ class MoveTest(AbstractGSContextTest, cros_test_lib.TempDirTestCase):
             ctx = self.ctx
         return self._Move(ctx, self.local_path, self.GIVEN_REMOTE, **kwargs)
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Simple move test."""
         self.Move()
         self.gs_mock.assertCommandContains(
@@ -860,7 +860,7 @@ class MoveTest(AbstractGSContextTest, cros_test_lib.TempDirTestCase):
 class GSContextInitTest(cros_test_lib.MockTempDirTestCase):
     """Tests GSContext.__init__() functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         os.environ.pop("BOTO_CONFIG", None)
         self.bad_path = os.path.join(self.tempdir, "nonexistent")
 
@@ -871,7 +871,7 @@ class GSContextInitTest(cros_test_lib.MockTempDirTestCase):
         self.StartPatcher(PatchGS("DEFAULT_BOTO_FILE", new=self.boto_file))
         self.StartPatcher(PatchGS("_DEFAULT_GSUTIL_BIN", new=self.gsutil_bin))
 
-    def testInitGsutilBin(self):
+    def testInitGsutilBin(self) -> None:
         """Test we use the given gsutil binary, erroring where appropriate."""
         # pylint: disable=protected-access
         gs.GSContext._CRCMOD_METHOD = "missing"
@@ -890,13 +890,13 @@ class GSContextInitTest(cros_test_lib.MockTempDirTestCase):
 
         gs.GSContext._CRCMOD_METHOD = None
 
-    def testBadGSUtilBin(self):
+    def testBadGSUtilBin(self) -> None:
         """Test exception thrown for bad gsutil paths."""
         self.assertRaises(
             gs.GSContextException, gs.GSContext, gsutil_bin=self.bad_path
         )
 
-    def testInitBotoFileEnv(self):
+    def testInitBotoFileEnv(self) -> None:
         """Test boto file environment is set correctly."""
         # We use gsutil_bin as a file that already exists and is not the
         # default.
@@ -909,7 +909,7 @@ class GSContextInitTest(cros_test_lib.MockTempDirTestCase):
             gs.GSContext(boto_file=self.bad_path).boto_file, self.bad_path
         )
 
-    def testInitBotoFileEnvError(self):
+    def testInitBotoFileEnvError(self) -> None:
         """Boto file through env var error."""
         self.assertEqual(gs.GSContext().boto_file, self.boto_file)
         # Check env usage next; no need to cleanup, teardown handles it,
@@ -917,32 +917,32 @@ class GSContextInitTest(cros_test_lib.MockTempDirTestCase):
         os.environ["BOTO_CONFIG"] = self.bad_path
         self.assertEqual(gs.GSContext().boto_file, self.bad_path)
 
-    def testInitBotoFileError(self):
+    def testInitBotoFileError(self) -> None:
         """Test bad boto file."""
         self.assertEqual(
             gs.GSContext(boto_file=self.bad_path).boto_file, self.bad_path
         )
 
-    def testDoNotUseDefaultBotoFileIfItDoesNotExist(self):
+    def testDoNotUseDefaultBotoFileIfItDoesNotExist(self) -> None:
         """Do not set boto file if the default path does not exist."""
         if "BOTO_CONFIG" in os.environ:
             del os.environ["BOTO_CONFIG"]
         gs.GSContext.DEFAULT_BOTO_FILE = "foo/bar/doesnotexist"
         self.assertEqual(gs.GSContext().boto_file, None)
 
-    def testInitAclFile(self):
+    def testInitAclFile(self) -> None:
         """Test ACL selection logic in __init__."""
         self.assertEqual(gs.GSContext().acl, None)
         self.assertEqual(gs.GSContext(acl=self.acl_file).acl, self.acl_file)
 
-    def _testHTTPProxySettings(self, d):
+    def _testHTTPProxySettings(self, d) -> None:
         flags = gs.GSContext().gsutil_flags
         for key in d:
             flag = "Boto:%s=%s" % (key, d[key])
             error_msg = "%s not in %s" % (flag, " ".join(flags))
             self.assertTrue(flag in flags, error_msg)
 
-    def testHTTPProxy(self):
+    def testHTTPProxy(self) -> None:
         """Test we set http proxy correctly."""
         d = {
             "proxy": "fooserver",
@@ -958,7 +958,7 @@ class GSContextInitTest(cros_test_lib.MockTempDirTestCase):
         )
         self._testHTTPProxySettings(d)
 
-    def testHTTPProxyNoPort(self):
+    def testHTTPProxyNoPort(self) -> None:
         """Test we accept http proxy without port number."""
         d = {
             "proxy": "fooserver",
@@ -972,7 +972,7 @@ class GSContextInitTest(cros_test_lib.MockTempDirTestCase):
         )
         self._testHTTPProxySettings(d)
 
-    def testHTTPProxyNoUserPasswd(self):
+    def testHTTPProxyNoUserPasswd(self) -> None:
         """Test we accept http proxy without user and password."""
         d = {"proxy": "fooserver", "proxy_port": "8080"}
         os.environ["http_proxy"] = "http://%s:%s/" % (
@@ -981,7 +981,7 @@ class GSContextInitTest(cros_test_lib.MockTempDirTestCase):
         )
         self._testHTTPProxySettings(d)
 
-    def testHTTPProxyNoPasswd(self):
+    def testHTTPProxyNoPasswd(self) -> None:
         """Test we accept http proxy without password."""
         d = {
             "proxy": "fooserver",
@@ -1007,7 +1007,7 @@ class GSDoCommandTest(cros_test_lib.TestCase):
     original run).
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.ctx = gs.GSContext()
 
     def _testDoCommand(
@@ -1018,7 +1018,7 @@ class GSDoCommandTest(cros_test_lib.TestCase):
         sleep=None,
         version=None,
         recursive=False,
-    ):
+    ) -> None:
         if retries is None:
             retries = ctx.DEFAULT_RETRIES
         if sleep is None:
@@ -1050,22 +1050,22 @@ class GSDoCommandTest(cros_test_lib.TestCase):
                 extra_env=mock.ANY,
             )
 
-    def testDoCommandDefault(self):
+    def testDoCommandDefault(self) -> None:
         """Verify the internal DoCommand function works correctly."""
         self._testDoCommand(self.ctx)
 
-    def testDoCommandCustom(self):
+    def testDoCommandCustom(self) -> None:
         """Test that retries and sleep parameters are honored."""
         ctx = gs.GSContext(retries=4, sleep=1)
         self._testDoCommand(ctx, retries=4, sleep=1)
 
-    def testVersion(self):
+    def testVersion(self) -> None:
         """Test that the version field expands into the header."""
         self._testDoCommand(
             self.ctx, version=3, headers=["-h", "x-goog-if-generation-match:3"]
         )
 
-    def testDoCommandRecursiveCopy(self):
+    def testDoCommandRecursiveCopy(self) -> None:
         """Test that recursive copy command is honored."""
         self._testDoCommand(self.ctx, recursive=True)
 
@@ -1091,7 +1091,7 @@ class GSRetryFilterTest(cros_test_lib.TestCase):
     )
     RETURN_CODE = 3
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.ctx = gs.GSContext()
         self.ctx.DEFAULT_GSUTIL_TRACKER_DIR = self.GSUTIL_TRACKER_DIR
 
@@ -1101,19 +1101,19 @@ class GSRetryFilterTest(cros_test_lib.TestCase):
         )
         return cros_build_lib.RunCommandError("blah", result)
 
-    def assertNoSuchKey(self, error_msg):
+    def assertNoSuchKey(self, error_msg) -> None:
         cmd = ["gsutil", "ls", self.REMOTE_PATH]
         e = self._getException(cmd, error_msg)
         self.assertRaises(gs.GSNoSuchKey, self.ctx._RetryFilter, e)
 
-    def assertPreconditionFailed(self, error_msg):
+    def assertPreconditionFailed(self, error_msg) -> None:
         cmd = ["gsutil", "ls", self.REMOTE_PATH]
         e = self._getException(cmd, error_msg)
         self.assertRaises(
             gs.GSContextPreconditionFailed, self.ctx._RetryFilter, e
         )
 
-    def testRetryOnlyFlakyErrors(self):
+    def testRetryOnlyFlakyErrors(self) -> None:
         """Test that we retry only flaky errors."""
         cmd = ["gsutil", "ls", self.REMOTE_PATH]
         e = self._getException(cmd, "ServiceException: 503")
@@ -1122,7 +1122,7 @@ class GSRetryFilterTest(cros_test_lib.TestCase):
         e = self._getException(cmd, "UnknownException: 603")
         self.assertFalse(self.ctx._RetryFilter(e))
 
-    def testRaiseGSErrors(self):
+    def testRaiseGSErrors(self) -> None:
         """Test that we raise appropriate exceptions."""
         self.assertNoSuchKey("CommandException: No URLs matched.")
         self.assertNoSuchKey("NotFoundException: 404")
@@ -1135,7 +1135,7 @@ class GSRetryFilterTest(cros_test_lib.TestCase):
     @mock.patch("os.path.exists")
     def testRemoveUploadTrackerFile(
         self, exists_mock, readfile_mock, unlink_mock
-    ):
+    ) -> None:
         """Test removal of tracker files for resumable upload failures."""
         cmd = ["gsutil", "cp", self.LOCAL_PATH, self.REMOTE_PATH]
         e = self._getException(cmd, self.ctx.RESUMABLE_UPLOAD_ERROR)
@@ -1152,7 +1152,7 @@ class GSRetryFilterTest(cros_test_lib.TestCase):
     @mock.patch("os.path.exists")
     def testRemoveDownloadTrackerFile(
         self, exists_mock, readfile_mock, unlink_mock
-    ):
+    ) -> None:
         """Test removal of tracker files for resumable download failures."""
         cmd = ["gsutil", "cp", self.REMOTE_PATH, self.LOCAL_PATH]
         e = self._getException(cmd, self.ctx.RESUMABLE_DOWNLOAD_ERROR)
@@ -1164,7 +1164,7 @@ class GSRetryFilterTest(cros_test_lib.TestCase):
         )
         unlink_mock.assert_called_once_with(tracker_file_path)
 
-    def testRemoveTrackerFileOnlyForCP(self):
+    def testRemoveTrackerFileOnlyForCP(self) -> None:
         """Test that we remove tracker files only for 'gsutil cp'."""
         cmd = ["gsutil", "ls", self.REMOTE_PATH]
         e = self._getException(cmd, self.ctx.RESUMABLE_DOWNLOAD_ERROR)
@@ -1173,7 +1173,7 @@ class GSRetryFilterTest(cros_test_lib.TestCase):
             self.ctx._RetryFilter(e)
             self.assertFalse(self.ctx.GetTrackerFilenames.called)
 
-    def testNoRemoveTrackerFileOnOtherErrors(self):
+    def testNoRemoveTrackerFileOnOtherErrors(self) -> None:
         """Verify we do not attempt to delete tracker files for other errors."""
         cmd = ["gsutil", "cp", self.REMOTE_PATH, self.LOCAL_PATH]
         e = self._getException(cmd, "One or more URLs matched no objects")
@@ -1182,7 +1182,7 @@ class GSRetryFilterTest(cros_test_lib.TestCase):
             self.assertRaises(gs.GSNoSuchKey, self.ctx._RetryFilter, e)
             self.assertFalse(self.ctx.GetTrackerFilenames.called)
 
-    def testRetryTransient(self):
+    def testRetryTransient(self) -> None:
         """Verify retry behavior when hitting b/11762375"""
         error = (
             "Removing gs://foo/bar/monkey...\n"
@@ -1193,7 +1193,7 @@ class GSRetryFilterTest(cros_test_lib.TestCase):
         e = self._getException(["gsutil", "rm", "gs://foo/bar/monkey"], error)
         self.assertEqual(self.ctx._RetryFilter(e), True)
 
-    def testRetrySSLEOF(self):
+    def testRetrySSLEOF(self) -> None:
         """Verify retry behavior on EOF in violation of SSL protocol."""
         error = (
             "ssl.SSLError: [Errno 8] _ssl.c:510: EOF occurred in violation of"
@@ -1204,7 +1204,7 @@ class GSRetryFilterTest(cros_test_lib.TestCase):
         )
         self.assertEqual(self.ctx._RetryFilter(e), True)
 
-    def testRetrySSLTimeout(self):
+    def testRetrySSLTimeout(self) -> None:
         """Verify retry behavior when read operation timed out."""
         error = "ssl.SSLError: ('The read operation timed out',)"
         e = self._getException(
@@ -1212,7 +1212,7 @@ class GSRetryFilterTest(cros_test_lib.TestCase):
         )
         self.assertEqual(self.ctx._RetryFilter(e), True)
 
-    def testRetrySSLHandshakeTimeout(self):
+    def testRetrySSLHandshakeTimeout(self) -> None:
         """Verify retry behavior when handshake operation timed out."""
         error = "ssl.SSLError: _ssl.c:495: The handshake operation timed out"
         e = self._getException(
@@ -1220,7 +1220,7 @@ class GSRetryFilterTest(cros_test_lib.TestCase):
         )
         self.assertEqual(self.ctx._RetryFilter(e), True)
 
-    def testRetryAccessDeniedException(self):
+    def testRetryAccessDeniedException(self) -> None:
         """Verify retry behavior on transient AccessDeniedException."""
         error = (
             "AccessDeniedException: 403 XXX@gmail.com does not have "
@@ -1272,7 +1272,7 @@ class GSContextTest(AbstractGSContextTest):
         ),
     ]
 
-    def testTemporaryUrl(self):
+    def testTemporaryUrl(self) -> None:
         """Just verify the url helper generates valid URLs."""
         with gs.TemporaryURL("mock") as url:
             base = url[0 : len(constants.TRASH_BUCKET)]
@@ -1282,18 +1282,18 @@ class GSContextTest(AbstractGSContextTest):
             used_chars = set(url[len(base) + 1 :])
             self.assertEqual(used_chars - valid_chars, set())
 
-    def testSetAclError(self):
+    def testSetAclError(self) -> None:
         """Ensure SetACL blows up if the acl isn't specified."""
         self.assertRaises(gs.GSContextException, self.ctx.SetACL, "gs://abc/3")
 
-    def testSetDefaultAcl(self):
+    def testSetDefaultAcl(self) -> None:
         """Test default ACL behavior."""
         self.ctx.SetACL("gs://abc/1", "monkeys")
         self.gs_mock.assertCommandContains(
             ["acl", "set", "--", "monkeys", "gs://abc/1"]
         )
 
-    def testSetAcl(self):
+    def testSetAcl(self) -> None:
         """Base ACL setting functionality."""
         ctx = gs.GSContext(acl="/my/file/acl")
         ctx.SetACL("gs://abc/1")
@@ -1301,7 +1301,7 @@ class GSContextTest(AbstractGSContextTest):
             ["acl", "set", "/my/file/acl", "gs://abc/1"]
         )
 
-    def testSetAclMultiple(self):
+    def testSetAclMultiple(self) -> None:
         """Test multiple paths at once."""
         ctx = gs.GSContext(acl="/my/file/acl")
         ctx.SetACL(["gs://abc/1", "gs://abc/2"])
@@ -1309,7 +1309,7 @@ class GSContextTest(AbstractGSContextTest):
             ["acl", "set", "--", "/my/file/acl", "gs://abc/1", "gs://abc/2"]
         )
 
-    def testChangeAcl(self):
+    def testChangeAcl(self) -> None:
         """Test changing an ACL."""
         basic_file = """
 -g foo:READ
@@ -1375,7 +1375,7 @@ class GSContextTest(AbstractGSContextTest):
         with self.assertRaises(gs.GSContextException):
             ctx.ChangeACL("gs://abc/1")
 
-    def testIncrement(self):
+    def testIncrement(self) -> None:
         """Test ability to atomically increment a counter."""
         ctx = gs.GSContext()
 
@@ -1384,7 +1384,7 @@ class GSContextTest(AbstractGSContextTest):
 
         self.gs_mock.assertCommandContains(["cp", "gs://abc/1"])
 
-    def testGetGeneration(self):
+    def testGetGeneration(self) -> None:
         """Test ability to get the generation of a file."""
         self.gs_mock.AddCmdResult(
             ["stat", "--", "gs://abc/1"], stdout=StatTest.STAT_OUTPUT
@@ -1393,31 +1393,31 @@ class GSContextTest(AbstractGSContextTest):
         ctx.GetGeneration("gs://abc/1")
         self.gs_mock.assertCommandContains(["stat", "--", "gs://abc/1"])
 
-    def testCreateCached(self):
+    def testCreateCached(self) -> None:
         """Test that the function runs through."""
         gs.GSContext(cache_dir=self.tempdir)
 
-    def testReuseCached(self):
+    def testReuseCached(self) -> None:
         """Test that second fetch is a cache hit."""
         gs.GSContext(cache_dir=self.tempdir)
         gs.GSUTIL_URL = None
         gs.GSContext(cache_dir=self.tempdir)
 
-    def testUnknownError(self):
+    def testUnknownError(self) -> None:
         """Verify when gsutil fails in an unknown way, we do the right thing."""
         self.gs_mock.AddCmdResult(["cat", "/asdf"], returncode=1)
 
         ctx = gs.GSContext()
         self.assertRaises(gs.GSCommandError, ctx.DoCommand, ["cat", "/asdf"])
 
-    def testWaitForGsPathsAllPresent(self):
+    def testWaitForGsPathsAllPresent(self) -> None:
         """Test for waiting when all paths exist already."""
         ctx = gs.GSContext()
 
         with mock.patch.object(ctx, "Exists", return_value=True):
             ctx.WaitForGsPaths(["/path1", "/path2"], 20)
 
-    def testWaitForGsPathsDelayedSuccess(self):
+    def testWaitForGsPathsDelayedSuccess(self) -> None:
         """Test for waiting, but not all paths exist so we timeout."""
         ctx = gs.GSContext()
 
@@ -1426,7 +1426,7 @@ class GSContextTest(AbstractGSContextTest):
         with mock.patch.object(ctx, "Exists", side_effect=exists):
             ctx.WaitForGsPaths(["/path1", "/path2"], 20, period=0.02)
 
-    def testWaitForGsPathsTimeout(self):
+    def testWaitForGsPathsTimeout(self) -> None:
         """Test for waiting, but not all paths exist so we timeout."""
         ctx = gs.GSContext()
 
@@ -1440,25 +1440,25 @@ class GSContextTest(AbstractGSContextTest):
                 period=0.02,
             )
 
-    def testParallelFalse(self):
+    def testParallelFalse(self) -> None:
         """Tests that "-m" is not used by default."""
         ctx = gs.GSContext()
         ctx.Copy("-", "gs://abc/1")
         self.assertFalse(any("-m" in cmd for cmd in self.gs_mock.raw_gs_cmds))
 
-    def testParallelTrue(self):
+    def testParallelTrue(self) -> None:
         """Tests that "-m" is used when you pass parallel=True."""
         ctx = gs.GSContext()
         ctx.Copy("gs://abc/1", "gs://abc/2", parallel=True)
         self.assertTrue(all("-m" in cmd for cmd in self.gs_mock.raw_gs_cmds))
 
-    def testNoParallelOpWithStdin(self):
+    def testNoParallelOpWithStdin(self) -> None:
         """Tests that "-m" is not used when we pipe the input."""
         ctx = gs.GSContext()
         ctx.Copy("gs://abc/1", "gs://abc/2", input="foo", parallel=True)
         self.assertFalse(any("-m" in cmd for cmd in self.gs_mock.raw_gs_cmds))
 
-    def testGetGsNamesWithWait(self):
+    def testGetGsNamesWithWait(self) -> None:
         """Test that we get the target artifact that is available."""
         pattern = "*_full_*"
 
@@ -1473,7 +1473,7 @@ class GSContextTest(AbstractGSContextTest):
         result = ctx.GetGsNamesWithWait(pattern, self.URL, period=1, timeout=0)
         self.assertEqual([self.FILE_NAME], result)
 
-    def testGetGsNamesWithWaitWithDirectStat(self):
+    def testGetGsNamesWithWaitWithDirectStat(self) -> None:
         """Verify direct stat an artifact whose name is fully spelled out."""
         pattern = self.FILE_NAME
 
@@ -1488,7 +1488,7 @@ class GSContextTest(AbstractGSContextTest):
             )
             self.assertEqual([self.FILE_NAME], result)
 
-    def testGetGsNamesWithWaitWithRetry(self):
+    def testGetGsNamesWithWaitWithRetry(self) -> None:
         """Test that we can poll until all target artifacts are available."""
         pattern = "*_full_*"
 
@@ -1504,7 +1504,7 @@ class GSContextTest(AbstractGSContextTest):
             )
             self.assertEqual([self.FILE_NAME], result)
 
-    def testGetGsNamesWithWaitTimeout(self):
+    def testGetGsNamesWithWaitTimeout(self) -> None:
         """Test that we can poll until all target artifacts are available."""
         pattern = "*_full_*"
 
@@ -1522,7 +1522,7 @@ class UnmockedGSContextTest(cros_test_lib.TempDirTestCase):
     """Tests for GSContext that go over the network."""
 
     @cros_test_lib.pytestmark_network_test
-    def testIncrement(self):
+    def testIncrement(self) -> None:
         ctx = gs.GSContext()
         with gs.TemporaryURL("testIncrement") as url:
             counter = ctx.Counter(url)
@@ -1532,7 +1532,7 @@ class UnmockedGSContextTest(cros_test_lib.TempDirTestCase):
                 self.assertEqual(i, counter.Get())
 
     @cros_test_lib.pytestmark_network_test
-    def testGetGsNamesWithWait(self):
+    def testGetGsNamesWithWait(self) -> None:
         """Tests getting files from remote paths."""
         file_name = "chromeos_R17-1413.0.0-a1_x86-mario_full_dev.bin"
         pattern = "*_full_*"
@@ -1623,7 +1623,7 @@ class StatTest(AbstractGSContextTest):
         b"Retrying request, attempt #1...\nNo URLs matched gs://abc/1"
     )
 
-    def testStat(self):
+    def testStat(self) -> None:
         """Test ability to get the generation of a file."""
         self.gs_mock.AddCmdResult(
             ["stat", "--", "gs://abc/1"], stdout=self.STAT_OUTPUT
@@ -1643,7 +1643,7 @@ class StatTest(AbstractGSContextTest):
         self.assertEqual(result.generation, 1408776800850000)
         self.assertEqual(result.metageneration, 1)
 
-    def testStatOlderOutput(self):
+    def testStatOlderOutput(self) -> None:
         """Test ability to get the generation of a file."""
         self.gs_mock.AddCmdResult(
             ["stat", "--", "gs://abc/1"], stdout=self.STAT_OUTPUT_OLDER
@@ -1663,7 +1663,7 @@ class StatTest(AbstractGSContextTest):
         self.assertEqual(result.generation, 1408776800850000)
         self.assertEqual(result.metageneration, 1)
 
-    def testStatNoMD5(self):
+    def testStatNoMD5(self) -> None:
         """Make sure GSContext works without an MD5."""
         self.gs_mock.AddCmdResult(
             ["stat", "--", "gs://abc/1"], stdout=self.STAT_OUTPUT_NO_MD5
@@ -1683,7 +1683,7 @@ class StatTest(AbstractGSContextTest):
         self.assertEqual(result.generation, 1408776800850000)
         self.assertEqual(result.metageneration, 1)
 
-    def testStatNoExist(self):
+    def testStatNoExist(self) -> None:
         """Test ability to get the generation of a file."""
         self.gs_mock.AddCmdResult(
             ["stat", "--", "gs://abc/1"],
@@ -1694,7 +1694,7 @@ class StatTest(AbstractGSContextTest):
         self.assertRaises(gs.GSNoSuchKey, ctx.Stat, "gs://abc/1")
         self.gs_mock.assertCommandContains(["stat", "--", "gs://abc/1"])
 
-    def testStatRetryNoExist(self):
+    def testStatRetryNoExist(self) -> None:
         """Test ability to get the generation of a file."""
         self.gs_mock.AddCmdResult(
             ["stat", "--", "gs://abc/1"],
@@ -1710,7 +1710,7 @@ class UnmockedStatTest(cros_test_lib.TempDirTestCase):
     """Tests Stat functionality w/out mocks."""
 
     @cros_test_lib.pytestmark_network_test
-    def testStat(self):
+    def testStat(self) -> None:
         """Test ability to get the generation of a file."""
         ctx = gs.GSContext()
         with gs.TemporaryURL("testStat") as url:
@@ -1734,14 +1734,14 @@ class UnmockedStatTest(cros_test_lib.TempDirTestCase):
         self.assertEqual(result.metageneration, 1)
 
     @cros_test_lib.pytestmark_network_test
-    def testMissing(self):
+    def testMissing(self) -> None:
         """Test exceptions when the file doesn't exist."""
         ctx = gs.GSContext()
         with gs.TemporaryURL("testStat") as url:
             self.assertRaises(gs.GSNoSuchKey, ctx.Stat, url)
             self.assertFalse(ctx.Exists(url))
 
-    def testExists(self):
+    def testExists(self) -> None:
         """Test Exists behavior with local files."""
         ctx = gs.GSContext()
         f = os.path.join(self.tempdir, "f")
@@ -1755,7 +1755,7 @@ class UnmockedStatTest(cros_test_lib.TempDirTestCase):
 class CatTest(cros_test_lib.TempDirTestCase):
     """Tests GSContext.Copy() functionality."""
 
-    def testLocalFile(self):
+    def testLocalFile(self) -> None:
         """Tests catting a local file."""
         ctx = gs.GSContext()
         filename = os.path.join(self.tempdir, "myfile")
@@ -1764,13 +1764,13 @@ class CatTest(cros_test_lib.TempDirTestCase):
         self.assertEqual(content, ctx.Cat(filename, encoding="utf-8"))
         self.assertEqual(content.encode("utf-8"), ctx.Cat(filename))
 
-    def testLocalMissingFile(self):
+    def testLocalMissingFile(self) -> None:
         """Tests catting a missing local file."""
         ctx = gs.GSContext()
         with self.assertRaises(gs.GSNoSuchKey):
             ctx.Cat(os.path.join(self.tempdir, "does/not/exist"))
 
-    def testLocalForbiddenFile(self):
+    def testLocalForbiddenFile(self) -> None:
         """Tests catting a local file that we don't have access to."""
         ctx = gs.GSContext()
         filename = os.path.join(self.tempdir, "myfile")
@@ -1781,7 +1781,7 @@ class CatTest(cros_test_lib.TempDirTestCase):
             ctx.Cat(filename)
 
     @cros_test_lib.pytestmark_network_test
-    def testNetworkFile(self):
+    def testNetworkFile(self) -> None:
         """Tests catting a GS file."""
         ctx = gs.GSContext()
         filename = os.path.join(self.tempdir, "myfile")
@@ -1793,7 +1793,7 @@ class CatTest(cros_test_lib.TempDirTestCase):
             self.assertEqual(content, ctx.Cat(tempuri, encoding="utf-8"))
 
     @cros_test_lib.pytestmark_network_test
-    def testNetworkMissingFile(self):
+    def testNetworkMissingFile(self) -> None:
         """Tests catting a missing GS file."""
         ctx = gs.GSContext()
         with gs.TemporaryURL("chromite.cat") as tempuri:
@@ -1801,7 +1801,7 @@ class CatTest(cros_test_lib.TempDirTestCase):
                 ctx.Cat(tempuri)
 
     @cros_test_lib.pytestmark_network_test
-    def testStreamingRemoteFile(self):
+    def testStreamingRemoteFile(self) -> None:
         """Test streaming a remote file."""
         ctx = gs.GSContext()
         with gs.TemporaryURL("chromite.cat") as url:
@@ -1823,92 +1823,92 @@ class CatTest(cros_test_lib.TempDirTestCase):
 class DryRunTest(cros_test_lib.RunCommandTestCase):
     """Verify dry_run works for all of GSContext."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.ctx = gs.GSContext(dry_run=True)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # Verify we don't try to call gsutil at all.
         for call_args in self.rc.call_args_list:
             self.assertNotIn("gsutil", call_args[0][0])
 
-    def testCat(self):
+    def testCat(self) -> None:
         """Test Cat in dry_run mode."""
         self.assertEqual(self.ctx.Cat("gs://foo/bar"), b"")
         self.assertEqual(self.ctx.Cat("gs://foo/bar", encoding="utf-8"), "")
 
-    def testChangeACL(self):
+    def testChangeACL(self) -> None:
         """Test ChangeACL in dry_run mode."""
         self.assertEqual(
             self.ctx.ChangeACL("gs://foo/bar", acl_args_file="/dev/null"), None
         )
 
-    def testCopy(self):
+    def testCopy(self) -> None:
         """Test Copy in dry_run mode."""
         self.ctx.Copy("/dev/null", "gs://foo/bar")
         self.ctx.Copy("gs://foo/bar", "/dev/null")
 
-    def testCreateWithContents(self):
+    def testCreateWithContents(self) -> None:
         """Test Copy in dry_run mode."""
         self.ctx.CreateWithContents("gs://foo/bar", "My Little Content(tm)")
 
-    def testCopyInto(self):
+    def testCopyInto(self) -> None:
         """Test CopyInto in dry_run mode."""
         self.ctx.CopyInto("/dev/null", "gs://foo/bar")
 
-    def testDoCommand(self):
+    def testDoCommand(self) -> None:
         """Test DoCommand in dry_run mode."""
         self.ctx.DoCommand(["a-bad-command"])
 
-    def testExists(self):
+    def testExists(self) -> None:
         """Test Exists in dry_run mode."""
         self.assertEqual(self.ctx.Exists("gs://foo/bar"), True)
 
-    def testGetGeneration(self):
+    def testGetGeneration(self) -> None:
         """Test GetGeneration in dry_run mode."""
         self.assertEqual(self.ctx.GetGeneration("gs://foo/bar"), (0, 0))
 
-    def testGetSize(self):
+    def testGetSize(self) -> None:
         """Test GetSize in dry_run mode."""
         self.assertEqual(self.ctx.GetSize("gs://foo/bar"), 0)
 
-    def testGetTrackerFilenames(self):
+    def testGetTrackerFilenames(self) -> None:
         """Test GetTrackerFilenames in dry_run mode."""
         self.ctx.GetTrackerFilenames("foo")
 
-    def testLS(self):
+    def testLS(self) -> None:
         """Test LS in dry_run mode."""
         self.assertEqual(self.ctx.LS("gs://foo/bar"), [])
 
-    def testList(self):
+    def testList(self) -> None:
         """Test List in dry_run mode."""
         self.assertEqual(self.ctx.List("gs://foo/bar"), [])
 
-    def testMove(self):
+    def testMove(self) -> None:
         """Test Move in dry_run mode."""
         self.ctx.Move("gs://foo/bar", "gs://foo/bar2")
 
-    def testRemove(self):
+    def testRemove(self) -> None:
         """Test Remove in dry_run mode."""
         self.ctx.Remove("gs://foo/bar")
 
-    def testSetACL(self):
+    def testSetACL(self) -> None:
         """Test SetACL in dry_run mode."""
         self.assertEqual(self.ctx.SetACL("gs://foo/bar", "bad-acl"), None)
 
-    def testStat(self):
+    def testStat(self) -> None:
         """Test Stat in dry_run mode."""
         result = self.ctx.Stat("gs://foo/bar")
         self.assertEqual(result.content_length, 0)
         self.assertNotEqual(result.creation_time, None)
 
-    def testStreamingCat(self):
+    def testStreamingCat(self) -> None:
         """Test StreamingCat in dry_run mode."""
         result = self.ctx.StreamingCat("gs://foo/bar")
         self.assertEqual(next(result), "")
         with self.assertRaises(StopIteration):
             next(result)
 
-    def testVersion(self):
+    def testVersion(self) -> None:
         """Test gsutil_version in dry_run mode."""
         self.assertEqual(self.ctx.gsutil_version, gs.GSContext.GSUTIL_VERSION)
 
@@ -1932,48 +1932,48 @@ detail=Authorization."""
 "GSResponseError: status=400, code=MissingSecurityHeader, reason=Bad Request,
 detail=A nonempty x-goog-project-id header is required for this request."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.boto_file = os.path.join(self.tempdir, "boto_file")
         self.ctx = gs.GSContext(boto_file=self.boto_file)
         self.auth_cmd = ["ls", gs.AUTHENTICATION_BUCKET]
 
-    def testGSLsSkippableError(self):
+    def testGSLsSkippableError(self) -> None:
         """Benign GS error."""
         self.gs_mock.AddCmdResult(
             self.auth_cmd, returncode=1, stderr=self.GS_LS_BENIGN
         )
         self.assertTrue(self.ctx._TestGSLs())
 
-    def testGSLsAuthorizationError1(self):
+    def testGSLsAuthorizationError1(self) -> None:
         """GS authorization error 1."""
         self.gs_mock.AddCmdResult(
             self.auth_cmd, returncode=1, stderr=self.GS_LS_ERROR
         )
         self.assertFalse(self.ctx._TestGSLs())
 
-    def testGSLsAuthorizationErrorNoStderrCapture(self):
+    def testGSLsAuthorizationErrorNoStderrCapture(self) -> None:
         """GS authorization error when not capturing stderr"""
         self.gs_mock.AddCmdResult(self.auth_cmd, returncode=1, stderr="")
         self.assertFalse(self.ctx._TestGSLs(stderr=False))
 
-    def testGSLsError2(self):
+    def testGSLsError2(self) -> None:
         """GS authorization error 2."""
         self.gs_mock.AddCmdResult(
             self.auth_cmd, returncode=1, stderr=self.GS_LS_ERROR2
         )
         self.assertFalse(self.ctx._TestGSLs())
 
-    def _WriteBotoFile(self, contents, *_args, **_kwargs):
+    def _WriteBotoFile(self, contents, *_args, **_kwargs) -> None:
         osutils.WriteFile(self.ctx.boto_file, contents)
 
-    def testInitGSLsFailButSuccess(self):
+    def testInitGSLsFailButSuccess(self) -> None:
         """Invalid GS Config, but we config properly."""
         self.gs_mock.AddCmdResult(
             self.auth_cmd, returncode=1, stderr=self.GS_LS_ERROR
         )
         self.ctx._InitBoto()
 
-    def _AddLsConfigResult(self, side_effect=None):
+    def _AddLsConfigResult(self, side_effect=None) -> None:
         self.gs_mock.AddCmdResult(
             self.auth_cmd, returncode=1, stderr=self.GS_LS_ERROR
         )
@@ -1981,14 +1981,14 @@ detail=A nonempty x-goog-project-id header is required for this request."""
             ["config"], returncode=1, side_effect=side_effect
         )
 
-    def testGSLsFailAndConfigError(self):
+    def testGSLsFailAndConfigError(self) -> None:
         """Invalid GS Config, and we fail to config."""
         self._AddLsConfigResult(
             side_effect=functools.partial(self._WriteBotoFile, "monkeys")
         )
         self.assertRaises(cros_build_lib.RunCommandError, self.ctx._InitBoto)
 
-    def testGSLsFailAndEmptyConfigFile(self):
+    def testGSLsFailAndEmptyConfigFile(self) -> None:
         """Invalid GS Config, and we raise error on empty config file."""
         self._AddLsConfigResult(
             side_effect=functools.partial(self._WriteBotoFile, "")
@@ -2002,7 +2002,7 @@ class GSCounterTest(AbstractGSContextTest):
     COUNTER_URI = "gs://foo/mock/counter"
     INITIAL_VALUE = 100
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.counter = gs.GSCounter(self.ctx, self.COUNTER_URI)
         self.cat_mock = self.PatchObject(self.ctx, "Cat")
         self.gen_mock = self.PatchObject(
@@ -2010,47 +2010,47 @@ class GSCounterTest(AbstractGSContextTest):
         )
         self._SetCounter(self.INITIAL_VALUE)
 
-    def _SetCounter(self, value):
+    def _SetCounter(self, value) -> None:
         """Set the test counter to |value|."""
         self.cat_mock.return_value = str(value)
 
-    def testGetInitial(self):
+    def testGetInitial(self) -> None:
         """Test Get when the counter doesn't exist."""
         self.cat_mock.side_effect = gs.GSNoSuchKey
         self.assertEqual(self.counter.Get(), 0)
 
-    def testGet(self):
+    def testGet(self) -> None:
         """Basic Get() test."""
         self.assertEqual(self.counter.Get(), self.INITIAL_VALUE)
 
-    def testIncrement(self):
+    def testIncrement(self) -> None:
         """Basic Increment() test."""
         self.assertEqual(self.counter.Increment(), self.INITIAL_VALUE + 1)
 
-    def testDecrement(self):
+    def testDecrement(self) -> None:
         """Basic Decrement() test."""
         self.assertEqual(self.counter.Decrement(), self.INITIAL_VALUE - 1)
 
-    def testReset(self):
+    def testReset(self) -> None:
         """Basic Reset() test."""
         self.assertEqual(self.counter.Reset(), 0)
 
-    def testStreakIncrement(self):
+    def testStreakIncrement(self) -> None:
         """Basic StreakIncrement() test."""
         self._SetCounter(10)
         self.assertEqual(self.counter.StreakIncrement(), 11)
 
-    def testStreakIncrementReset(self):
+    def testStreakIncrementReset(self) -> None:
         """Test StreakIncrement() when the counter is negative."""
         self._SetCounter(-10)
         self.assertEqual(self.counter.StreakIncrement(), 1)
 
-    def testStreakDecrement(self):
+    def testStreakDecrement(self) -> None:
         """Basic StreakDecrement() test."""
         self._SetCounter(-10)
         self.assertEqual(self.counter.StreakDecrement(), -11)
 
-    def testStreakDecrementReset(self):
+    def testStreakDecrementReset(self) -> None:
         """Test StreakDecrement() when the counter is positive."""
         self._SetCounter(10)
         self.assertEqual(self.counter.StreakDecrement(), -1)
@@ -2067,39 +2067,39 @@ class UnmockedGSCounterTest(cros_test_lib.TestCase):
             yield gs.GSCounter(ctx, tempuri)
 
     @staticmethod
-    def _SetCounter(counter, value):
+    def _SetCounter(counter, value) -> None:
         """Set the test counter to |value|."""
         counter.AtomicCounterOperation(value, lambda x: value)
 
     @cros_test_lib.pytestmark_network_test
-    def testGetInitial(self):
+    def testGetInitial(self) -> None:
         """Test Get when the counter doesn't exist."""
         with self._Counter() as counter:
             self.assertEqual(counter.Get(), 0)
 
     @cros_test_lib.pytestmark_network_test
-    def testGet(self):
+    def testGet(self) -> None:
         """Basic Get() test."""
         with self._Counter() as counter:
             self._SetCounter(counter, 100)
             self.assertEqual(counter.Get(), 100)
 
     @cros_test_lib.pytestmark_network_test
-    def testIncrement(self):
+    def testIncrement(self) -> None:
         """Basic Increment() test."""
         with self._Counter() as counter:
             self._SetCounter(counter, 100)
             self.assertEqual(counter.Increment(), 101)
 
     @cros_test_lib.pytestmark_network_test
-    def testDecrement(self):
+    def testDecrement(self) -> None:
         """Basic Decrement() test."""
         with self._Counter() as counter:
             self._SetCounter(counter, 100)
             self.assertEqual(counter.Decrement(), 99)
 
     @cros_test_lib.pytestmark_network_test
-    def testReset(self):
+    def testReset(self) -> None:
         """Basic Reset() test."""
         with self._Counter() as counter:
             self._SetCounter(counter, 100)
@@ -2107,28 +2107,28 @@ class UnmockedGSCounterTest(cros_test_lib.TestCase):
             self.assertEqual(counter.Get(), 0)
 
     @cros_test_lib.pytestmark_network_test
-    def testStreakIncrement(self):
+    def testStreakIncrement(self) -> None:
         """Basic StreakIncrement() test."""
         with self._Counter() as counter:
             self._SetCounter(counter, 100)
             self.assertEqual(counter.StreakIncrement(), 101)
 
     @cros_test_lib.pytestmark_network_test
-    def testStreakIncrementReset(self):
+    def testStreakIncrementReset(self) -> None:
         """Test StreakIncrement() when the counter is negative."""
         with self._Counter() as counter:
             self._SetCounter(counter, -100)
             self.assertEqual(counter.StreakIncrement(), 1)
 
     @cros_test_lib.pytestmark_network_test
-    def testStreakDecrement(self):
+    def testStreakDecrement(self) -> None:
         """Basic StreakDecrement() test."""
         with self._Counter() as counter:
             self._SetCounter(counter, -100)
             self.assertEqual(counter.StreakDecrement(), -101)
 
     @cros_test_lib.pytestmark_network_test
-    def testStreakDecrementReset(self):
+    def testStreakDecrementReset(self) -> None:
         """Test StreakDecrement() when the counter is positive."""
         with self._Counter() as counter:
             self._SetCounter(counter, 100)

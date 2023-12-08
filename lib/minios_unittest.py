@@ -22,7 +22,7 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
         image_lib.PartitionInfo(10, 512 * 4, 512 * 8, "fs", "MINIOS-B"),
     )
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Sets up common objects for testing."""
         self.image = image_lib_unittest.LoopbackPartitionsMock("foo-image")
         self.PatchObject(
@@ -38,7 +38,7 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         os.environ["USE"] = ""
 
-    def testCreateMiniOsKernelImage(self):
+    def testCreateMiniOsKernelImage(self) -> None:
         """Tests CreateMiniOsKernelImage()."""
         bck_mock = self.PatchObject(
             kernel_builder.Builder, "CreateCustomKernel"
@@ -81,7 +81,7 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
             keyblock="foo-keyblock",
         )
 
-    def testCreateMiniOsKernelImageOverrideUseFlags(self):
+    def testCreateMiniOsKernelImageOverrideUseFlags(self) -> None:
         """Tests CreateMiniOsKernelImage()."""
         os.environ["USE"] = "other_ramfs foo bar"
         bck_mock = self.PatchObject(
@@ -125,7 +125,7 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
             keyblock="foo-keyblock",
         )
 
-    def testCreateMiniOsKernelImageDeveloperMode(self):
+    def testCreateMiniOsKernelImageDeveloperMode(self) -> None:
         """Tests CreateMiniOsKernelImage() with developer mode enabled."""
         bck_mock = self.PatchObject(
             kernel_builder.Builder, "CreateCustomKernel"
@@ -170,7 +170,7 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
             keyblock="foo-keyblock",
         )
 
-    def testCreateMiniOsKernelImageBuildDisabled(self):
+    def testCreateMiniOsKernelImageBuildDisabled(self) -> None:
         """Tests CreateMiniOsKernelImage() with kernel build disabled."""
         bck_mock = self.PatchObject(
             kernel_builder.Builder, "CreateCustomKernel"
@@ -204,7 +204,7 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
             keyblock="foo-keyblock",
         )
 
-    def testInsertMiniOsKernelImage(self):
+    def testInsertMiniOsKernelImage(self) -> None:
         """Tests InsertMiniOsKernelImage()."""
         kernel_path = os.path.join(self.tempdir, minios.MINIOS_KERNEL_IMAGE)
         osutils.WriteFile(kernel_path, "helloworld")
@@ -242,7 +242,7 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
             ["sudo", "--", "dd", f"if={kernel_path}", "of=/foo/dev1", "bs=512"]
         )
 
-    def testInsertMiniOsLargerKernelImage(self):
+    def testInsertMiniOsLargerKernelImage(self) -> None:
         """Tests InsertMiniOsKernelImage()."""
         kernel_path = os.path.join(self.tempdir, minios.MINIOS_KERNEL_IMAGE)
         osutils.WriteFile(kernel_path, "a" * (minios.BLOCK_SIZE + 1))
@@ -280,7 +280,7 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
             ["sudo", "--", "dd", f"if={kernel_path}", "of=/foo/dev1", "bs=512"]
         )
 
-    def testLargeKernelFail(self):
+    def testLargeKernelFail(self) -> None:
         """Tests that larger than partition kernel image should fail."""
         kernel_path = os.path.join(self.tempdir, minios.MINIOS_KERNEL_IMAGE)
         osutils.WriteFile(kernel_path, "\0" * 512 * 5)
@@ -288,7 +288,7 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
         with self.assertRaisesRegex(minios.MiniOsError, "larger than"):
             minios.InsertMiniOsKernelImage("foo-image", kernel_path)
 
-    def testNoMiniOsPartitionFail(self):
+    def testNoMiniOsPartitionFail(self) -> None:
         """Tests fail if no MiniOS partition is found."""
         self.PatchObject(
             self.image, "GetPartitionInfo", side_effect=KeyError("foo")

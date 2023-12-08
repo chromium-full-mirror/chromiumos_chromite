@@ -27,48 +27,48 @@ class FactoryTest(cros_test_lib.TestCase):
     def _allowed_transitions(self, from_setup, to_setup):
         return from_setup == "t3" and to_setup == "t4"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.of = factory.ObjectFactory(self._OBJECT_NAME, self._OBJECT_TYPES)
         self.of2 = factory.ObjectFactory(
             self._OBJECT_NAME, self._OBJECT_TYPES, self._allowed_transitions
         )
 
-    def testGetInstance(self):
+    def testGetInstance(self) -> None:
         self.of.Setup("t0")
         a = self.of.GetInstance()
         self.assertNotEqual(a, self.of.GetInstance())
 
-    def testGetCachedInstance(self):
+    def testGetCachedInstance(self) -> None:
         self.of.Setup("t1")
         a = self.of.GetInstance()
         self.assertEqual(a, self.of.GetInstance())
 
-    def testDuplicateSetupForbidden(self):
+    def testDuplicateSetupForbidden(self) -> None:
         self.of.Setup("t0")
         with self.assertRaises(factory.ObjectFactoryIllegalOperation):
             self.of.Setup("t0")
 
-    def testNotSetup(self):
+    def testNotSetup(self) -> None:
         with self.assertRaises(factory.ObjectFactoryIllegalOperation):
             self.of.GetInstance()
 
-    def testUnknownSetupForbidden(self):
+    def testUnknownSetupForbidden(self) -> None:
         with self.assertRaises(factory.ObjectFactoryIllegalOperation):
             self.of.Setup("unknown setup type")
 
-    def testSetupWithInstanceForbidden(self):
+    def testSetupWithInstanceForbidden(self) -> None:
         with self.assertRaises(factory.ObjectFactoryIllegalOperation):
             self.of.Setup("t0", None)
 
-    def testSetupWithInstanceAllowed(self):
+    def testSetupWithInstanceAllowed(self) -> None:
         self.of.Setup("t4", None)
 
-    def testForbiddenTransition(self):
+    def testForbiddenTransition(self) -> None:
         self.of2.Setup("t0")
         with self.assertRaises(factory.ObjectFactoryIllegalOperation):
             self.of2.Setup("t1")
 
-    def testAllowedTransition(self):
+    def testAllowedTransition(self) -> None:
         self.of2.Setup("t3")
         a = self.of2.GetInstance()
         self.of2.Setup("t4", None)

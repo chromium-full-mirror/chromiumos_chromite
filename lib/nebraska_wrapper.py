@@ -123,7 +123,7 @@ class RemoteNebraskaWrapper(multiprocessing.Process):
         )
         return result.returncode == 0
 
-    def _ReadPortNumber(self):
+    def _ReadPortNumber(self) -> None:
         """Reads the port number from the port file on the remote device."""
         if not self.is_alive():
             raise NebraskaStartupError(
@@ -164,7 +164,7 @@ class RemoteNebraskaWrapper(multiprocessing.Process):
         )
         return result.returncode == 0
 
-    def _WaitUntilStarted(self):
+    def _WaitUntilStarted(self) -> None:
         """Wait until the nebraska has started."""
         if not self._port:
             self._ReadPortNumber()
@@ -183,7 +183,7 @@ class RemoteNebraskaWrapper(multiprocessing.Process):
         )
         logging.info("Started nebraska with pid %s", self._pid)
 
-    def run(self):
+    def run(self) -> None:
         """Launches a nebraska process on the device.
 
         Starts a background nebraska and waits for it to finish.
@@ -220,7 +220,7 @@ class RemoteNebraskaWrapper(multiprocessing.Process):
             logging.error(msg)
             raise NebraskaStartupError(msg)
 
-    def Start(self):
+    def Start(self) -> None:
         """Starts the nebraska process remotely on the remote device."""
         if self.is_alive():
             logging.warning("Nebraska is already running, not running again.")
@@ -229,7 +229,7 @@ class RemoteNebraskaWrapper(multiprocessing.Process):
         self.start()
         self._WaitUntilStarted()
 
-    def Stop(self):
+    def Stop(self) -> None:
         """Stops the nebraska instance if its running.
 
         Kills the nebraska instance with SIGTERM (and SIGKILL if SIGTERM fails).
@@ -303,7 +303,7 @@ class RemoteNebraskaWrapper(multiprocessing.Process):
         output += "--- End output from %s ---" % self._log_file
         return output
 
-    def CollectLogs(self, target_log):
+    def CollectLogs(self, target_log) -> None:
         """Copies the nebraska logs from the device.
 
         Args:
@@ -320,7 +320,7 @@ class RemoteNebraskaWrapper(multiprocessing.Process):
                 str(err),
             )
 
-    def CheckNebraskaCanRun(self):
+    def CheckNebraskaCanRun(self) -> None:
         """Checks to see if we can start nebraska.
 
         If the stateful partition is corrupted, Python or other packages needed

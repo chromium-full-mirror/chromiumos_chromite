@@ -115,15 +115,15 @@ class AccountDatabaseTest(cros_test_lib.MockTestCase):
             self._ParseSpec(spec, db=db)
         return db
 
-    def testParsesEmptyDb(self):
+    def testParsesEmptyDb(self) -> None:
         """Test that we can parse an empty database."""
         self._ParseSpec(json.dumps({}))
 
-    def testParsesDbWithComments(self):
+    def testParsesDbWithComments(self) -> None:
         """Test that we handle comments properly."""
         self._ParseSpec(EMPTY_ACCOUNTS_DB_WITH_COMMENTS)
 
-    def testRejectsUnkownDbKeys(self):
+    def testRejectsUnkownDbKeys(self) -> None:
         """Verify we check the set of keys specified in the account database."""
         self.assertRaises(
             ValueError,
@@ -131,7 +131,7 @@ class AccountDatabaseTest(cros_test_lib.MockTestCase):
             json.dumps({"foo": "This is not a valid field."}),
         )
 
-    def testRejectsBadKeyValues(self):
+    def testRejectsBadKeyValues(self) -> None:
         """Check that typecheck user/group specs."""
         self.assertRaises(
             ValueError,
@@ -144,11 +144,11 @@ class AccountDatabaseTest(cros_test_lib.MockTestCase):
             json.dumps({"groups": "This should be a list"}),
         )
 
-    def testRejectsExtraUserSpecFields(self):
+    def testRejectsExtraUserSpecFields(self) -> None:
         """Test that we check for extra user spec fields."""
         self.assertRaises(ValueError, self._ParseSpec, EXTRA_USER_SPEC_FIELD_DB)
 
-    def testParsesMinimalDb(self):
+    def testParsesMinimalDb(self) -> None:
         """Test that we can parse a basic database."""
         db = self._ParseSpec(MINIMAL_ACCOUNTS_DB)
         self.assertEqual(1, len(list(db.users)))
@@ -158,7 +158,7 @@ class AccountDatabaseTest(cros_test_lib.MockTestCase):
         self.assertEqual(db.users[MINIMAL_DB_USER.name], MINIMAL_DB_USER)
         self.assertEqual(db.groups[MINIMAL_DB_GROUP.name], MINIMAL_DB_GROUP)
 
-    def testComposesDbs(self):
+    def testComposesDbs(self) -> None:
         """Test that we can compose databases from multiple overlays."""
         BASE_ID = 1000
         OVERRIDE_ID = 2000
@@ -228,7 +228,7 @@ class AccountDatabaseTest(cros_test_lib.MockTestCase):
             sorted(db.groups[OVERRIDE_NAME].users),
         )
 
-    def testInstallUser(self):
+    def testInstallUser(self) -> None:
         """Test that we can install a user correctly."""
         db = self._ParseSpec(MINIMAL_ACCOUNTS_DB)
         mock_user_db = mock.MagicMock()
@@ -246,7 +246,7 @@ class AccountDatabaseTest(cros_test_lib.MockTestCase):
             [mock.call.AddUser(installed_user)], mock_user_db.mock_calls
         )
 
-    def testInstallGroup(self):
+    def testInstallGroup(self) -> None:
         """Test that we can install a group correctly."""
         db = self._ParseSpec(MINIMAL_ACCOUNTS_DB)
         mock_user_db = mock.MagicMock()

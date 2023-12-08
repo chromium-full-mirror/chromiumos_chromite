@@ -10,7 +10,7 @@ from chromite.lib import dependency_lib
 from chromite.lib import osutils
 
 
-def test_parse_ebuild_cache_entry_md5_cache(tmp_path):
+def test_parse_ebuild_cache_entry_md5_cache(tmp_path) -> None:
     """Verify parsing eclasses from md5 cache style files."""
     expected = [
         ("autotools", "d0e5375d47f4c809f406eb892e531513"),
@@ -40,7 +40,7 @@ _md5=123456
     assert set(expected) == set(result)
 
 
-def test_parse_ebuild_cache_entry_edb_cache(tmp_path):
+def test_parse_ebuild_cache_entry_edb_cache(tmp_path) -> None:
     """Verify parsing eclasses from edb cache style files."""
     expected = [
         ("eclass1", "abc123"),

@@ -138,7 +138,9 @@ def _DownloadCIPD(instance_sha256):
 class CipdCache(cache.RemoteCache):
     """Supports caching of the CIPD download."""
 
-    def _Fetch(self, url, local_path):  # pylint: disable=arguments-differ
+    def _Fetch(
+        self, url, local_path
+    ) -> None:  # pylint: disable=arguments-differ
         instance_sha256 = urllib.parse.urlparse(url).netloc
         binary = _DownloadCIPD(instance_sha256)
         logging.info(

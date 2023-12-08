@@ -251,7 +251,7 @@ class UserDB:
             'Could not resolve unknown group "%s" to gid.' % groupname
         )
 
-    def AddUser(self, user):
+    def AddUser(self, user) -> None:
         """Atomically add a user to the database.
 
         If a user named |user.user| already exists, this method will simply
@@ -298,7 +298,7 @@ class UserDB:
             print(" - home: %s" % user.home)
             print(" - shell: %s" % user.shell)
 
-    def AddGroup(self, group):
+    def AddGroup(self, group) -> None:
         """Atomically add a group to the database.
 
         If a group named |group.group| already exists, this method will simply

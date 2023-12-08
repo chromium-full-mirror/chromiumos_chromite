@@ -14,7 +14,7 @@ from chromite.lib import dlc_allowlist
 class DlcAllowlistTest(cros_test_lib.TestCase):
     """Tests DlcAllowlist functions."""
 
-    def testIsAllowlisted(self):
+    def testIsAllowlisted(self) -> None:
         """Test the IsAllowlisted function."""
         self.assertTrue(dlc_allowlist.IsAllowlisted("", ("",)))
         self.assertTrue(dlc_allowlist.IsAllowlisted("id", ("id",)))
@@ -25,7 +25,7 @@ class DlcAllowlistTest(cros_test_lib.TestCase):
         self.assertFalse(dlc_allowlist.IsAllowlisted("id", ("notid",)))
         self.assertFalse(dlc_allowlist.IsAllowlisted("id", ("", "notid")))
 
-    def testIsAllowlistedRe(self):
+    def testIsAllowlistedRe(self) -> None:
         """Test the IsAllowlistedRe function."""
 
         def compile_regexes(regexes: Tuple[str]) -> Tuple[Pattern]:
@@ -62,7 +62,7 @@ class DlcAllowlistTest(cros_test_lib.TestCase):
             )
         )
 
-    def testIsPowerwashSafeAllowlisted(self):
+    def testIsPowerwashSafeAllowlisted(self) -> None:
         """Test the IsPowerwashSafeAllowlisted function."""
         self.assertTrue(dlc_allowlist.IsPowerwashSafeAllowlisted("sample-dlc"))
         self.assertTrue(
@@ -81,7 +81,7 @@ class DlcAllowlistTest(cros_test_lib.TestCase):
         self.assertFalse(dlc_allowlist.IsPowerwashSafeAllowlisted(""))
         self.assertFalse(dlc_allowlist.IsPowerwashSafeAllowlisted("scaled-dlc"))
 
-    def testIsFactoryInstallAllowlisted(self):
+    def testIsFactoryInstallAllowlisted(self) -> None:
         """Test the IsFactoryInstallAllowlisted function."""
         self.assertTrue(dlc_allowlist.IsFactoryInstallAllowlisted("sample-dlc"))
         self.assertTrue(

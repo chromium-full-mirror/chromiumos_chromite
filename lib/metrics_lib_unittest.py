@@ -15,7 +15,7 @@ from chromite.lib import metrics_lib
 class MetricsTest(cros_test_lib.MockTestCase):
     """Tests for metrics_lib."""
 
-    def testEndToEnd(self):
+    def testEndToEnd(self) -> None:
         """Test the normal usage pattern, end-to-end."""
         # We should start in a clean, unmeasured state.
         env = os.environ.copy()
@@ -31,7 +31,7 @@ class MetricsTest(cros_test_lib.MockTestCase):
 
             # Create a fake usage site of the metrics.
             @metrics_lib.collect_metrics
-            def measure_things():
+            def measure_things() -> None:
                 # Now, in here, we should have set up this env-var. This is a
                 # bit of invasive white-box testing.
                 self.assertTrue(
@@ -62,7 +62,7 @@ class MetricsTest(cros_test_lib.MockTestCase):
             self.assertEqual(events[2].name, "test.timer")
 
 
-def test_deserialize_timer(monkeypatch):
+def test_deserialize_timer(monkeypatch) -> None:
     """Test timer math and deserialization into proto objects."""
     mock_events = [
         metrics_lib.MetricEvent(
@@ -80,7 +80,7 @@ def test_deserialize_timer(monkeypatch):
     assert result[0].value == 400
 
 
-def test_deserialize_named_event(monkeypatch):
+def test_deserialize_named_event(monkeypatch) -> None:
     """Test deserialization of a named event."""
     mock_events = [
         metrics_lib.MetricEvent(
@@ -95,7 +95,7 @@ def test_deserialize_named_event(monkeypatch):
     assert result[0].timestamp_epoch_millis == 1000
 
 
-def test_deserialize_gauge(monkeypatch):
+def test_deserialize_gauge(monkeypatch) -> None:
     """Test deserialization of a gauge."""
     mock_events = [
         metrics_lib.MetricEvent(1000, "a.gauge", metrics_lib.OP_GAUGE, arg=17),
@@ -109,7 +109,7 @@ def test_deserialize_gauge(monkeypatch):
     assert result[0].value == 17
 
 
-def test_deserialize_counter(monkeypatch):
+def test_deserialize_counter(monkeypatch) -> None:
     """Test deserialization of a counter."""
     mock_events = [
         metrics_lib.MetricEvent(

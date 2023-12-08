@@ -82,7 +82,7 @@ class SignerPayloadsClientGoogleStorage:
             self.signing_base_dir, "payload.hash.tar.bz2"
         )
 
-    def _CleanSignerFilesByKeyset(self, hashes, keyset, timeout=600):
+    def _CleanSignerFilesByKeyset(self, hashes, keyset, timeout=600) -> None:
         """Helper that cleans up GS files associated with a single keyset.
 
         Args:
@@ -121,7 +121,7 @@ class SignerPayloadsClientGoogleStorage:
 
                 time.sleep(DELAY_CHECKING_FOR_SIGNER_RESULTS_SECONDS)
 
-    def _CleanSignerFiles(self, hashes, keysets):
+    def _CleanSignerFiles(self, hashes, keysets) -> None:
         """Helper method that cleans up all GS files associated with a signing.
 
         Safe to call repeatedly.
@@ -188,7 +188,7 @@ class SignerPayloadsClientGoogleStorage:
             result.append(os.path.join(self.signing_base_dir, expanded_name))
         return result
 
-    def _CreateArchive(self, archive_file, hashes, hash_names):
+    def _CreateArchive(self, archive_file, hashes, hash_names) -> None:
         """Take the hash strings and bundle them in the signer request format.
 
         Take the contents of an array of strings, and put them into a specified
@@ -449,7 +449,7 @@ class UnofficialSignerPayloadsClient(SignerPayloadsClientGoogleStorage):
 
         super().__init__(chroot, gspaths.Build(), work_dir)
 
-    def ExtractPublicKey(self, public_key):
+    def ExtractPublicKey(self, public_key) -> None:
         """Extracts the public key from the private key.
 
         This is useful for verifying the payload signed by an unofficial key.

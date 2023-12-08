@@ -25,14 +25,14 @@ Dir = cros_test_lib.Directory
 class CrosTestCaseTest(cros_test_lib.TestCase):
     """Test the cros_test_lib.TestCase."""
 
-    def testAssertStartsWith(self):
+    def testAssertStartsWith(self) -> None:
         s = "abcdef"
         prefix = "abc"
         self.assertStartsWith(s, prefix)
         prefix = "def"
         self.assertRaises(AssertionError, self.assertStartsWith, s, prefix)
 
-    def testAssertEndsWith(self):
+    def testAssertEndsWith(self) -> None:
         s = "abcdef"
         suffix = "abc"
         self.assertRaises(AssertionError, self.assertEndsWith, s, suffix)
@@ -43,7 +43,7 @@ class CrosTestCaseTest(cros_test_lib.TestCase):
 class TruthTableTest(cros_test_lib.TestCase):
     """Test TruthTable functionality."""
 
-    def _TestTableSmoke(self, tt, lines):
+    def _TestTableSmoke(self, tt, lines) -> None:
         """Run the given truth table through basic smoke checks.
 
         Args:
@@ -69,7 +69,7 @@ class TruthTableTest(cros_test_lib.TestCase):
         self.assertRaises(ValueError, tt.GetInputs, -1)
         self.assertRaises(ValueError, tt.GetInputs, len(tt))
 
-    def testTwoDimensions(self):
+    def testTwoDimensions(self) -> None:
         """Test TruthTable behavior for two boolean inputs."""
         tt = cros_test_lib.TruthTable(inputs=[(True, True), (True, False)])
         self.assertEqual(len(tt), pow(2, 2))
@@ -93,7 +93,7 @@ class TruthTableTest(cros_test_lib.TestCase):
 
         self._TestTableSmoke(tt, lines)
 
-    def testFourDimensions(self):
+    def testFourDimensions(self) -> None:
         """Test TruthTable behavior for four boolean inputs."""
         false1 = (True, True, True, False)
         false2 = (True, False, True, False)
@@ -129,10 +129,10 @@ class VerifyTarballTest(cros_test_lib.MockTempDirTestCase):
 
     TARBALL = "fake_tarball"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
 
-    def _MockTarList(self, files):
+    def _MockTarList(self, files) -> None:
         """Mock out tarball content list call.
 
         Args:
@@ -142,14 +142,14 @@ class VerifyTarballTest(cros_test_lib.MockTempDirTestCase):
             partial_mock.ListRegex("tar -tf"), stdout="\n".join(files)
         )
 
-    def testNormPath(self):
+    def testNormPath(self) -> None:
         """Test path normalization."""
         tar_contents = ["./", "./foo/", "./foo/./a", "./foo/./b"]
         dir_struct = [Dir(".", []), Dir("foo", ["a", "b"])]
         self._MockTarList(tar_contents)
         cros_test_lib.VerifyTarball(self.TARBALL, dir_struct)
 
-    def testDuplicate(self):
+    def testDuplicate(self) -> None:
         """Test duplicate detection."""
         tar_contents = ["a", "b", "a"]
         dir_struct = ["a", "b"]
@@ -168,7 +168,7 @@ class MockTestCaseTest(cros_test_lib.TestCase):
     class MyMockTestCase(cros_test_lib.MockTestCase):
         """Helper class for testing MockTestCase."""
 
-        def testIt(self):
+        def testIt(self) -> None:
             pass
 
     class Mockable:
@@ -183,7 +183,7 @@ class MockTestCaseTest(cros_test_lib.TestCase):
             "%s.MockTestCaseTest.Mockable.%s" % (__name__, attr), new=val
         )
 
-    def testPatchRemovalError(self):
+    def testPatchRemovalError(self) -> None:
         """Verify that patch removal during tearDown is robust to Exceptions."""
         tc = self.MyMockTestCase("testIt")
         patcher = self.GetPatcher("TO_BE_MOCKED", -100)
@@ -197,7 +197,7 @@ class MockTestCaseTest(cros_test_lib.TestCase):
         self.assertEqual(self.Mockable.TO_BE_MOCKED2, -200)
         self.assertEqual(self.Mockable.TO_BE_MOCKED3, -300)
 
-        def abort():
+        def abort() -> None:
             raise RuntimeError()
 
         patcher.stop = abort
@@ -211,7 +211,7 @@ class MockTestCaseTest(cros_test_lib.TestCase):
 class TestCaseTest(unittest.TestCase):
     """Tests TestCase functionality."""
 
-    def testTimeout(self):
+    def testTimeout(self) -> None:
         """Test that test cases are interrupted when they are hanging."""
 
         class TimeoutTestCase(cros_test_lib.TestCase):
@@ -219,7 +219,7 @@ class TestCaseTest(unittest.TestCase):
 
             TEST_CASE_TIMEOUT = 1
 
-            def testSleeping(self):
+            def testSleeping(self) -> None:
                 """Sleep for 2 minutes. This should raise a TimeoutError."""
                 time.sleep(2 * 60)
                 raise AssertionError("Test case should have timed out.")
@@ -234,7 +234,7 @@ class OutputTestCaseTest(
 ):
     """Tests OutputTestCase functionality."""
 
-    def testStdoutAndStderr(self):
+    def testStdoutAndStderr(self) -> None:
         """Check capturing stdout and stderr."""
         with self.OutputCapturer():
             print("foo")
@@ -244,7 +244,7 @@ class OutputTestCaseTest(
             "bar", check_stdout=False, check_stderr=True
         )
 
-    def testStdoutReadDuringCapture(self):
+    def testStdoutReadDuringCapture(self) -> None:
         """Check reading stdout mid-capture."""
         with self.OutputCapturer():
             print("foo")
@@ -254,7 +254,7 @@ class OutputTestCaseTest(
         self.AssertOutputContainsLine("foo")
         self.AssertOutputContainsLine("bar")
 
-    def testClearCaptured(self):
+    def testClearCaptured(self) -> None:
         """Check writing data, clearing it, then writing more data."""
         with self.OutputCapturer() as cap:
             print("foo")
@@ -265,7 +265,7 @@ class OutputTestCaseTest(
         self.AssertOutputContainsLine("bar")
 
     @cros_test_lib.pytestmark_skip
-    def testRunCommandCapture(self):
+    def testRunCommandCapture(self) -> None:
         """Check capturing run() subprocess output."""
         with self.OutputCapturer():
             cros_build_lib.run(["sh", "-c", "echo foo; echo bar >&2"])
@@ -274,7 +274,7 @@ class OutputTestCaseTest(
             "bar", check_stdout=False, check_stderr=True
         )
 
-    def testCapturingStdoutAndStderrToFile(self):
+    def testCapturingStdoutAndStderrToFile(self) -> None:
         """Check that OutputCapturer captures to a named file."""
         stdout_path = os.path.join(self.tempdir, "stdout")
         stderr_path = os.path.join(self.tempdir, "stderr")
@@ -297,7 +297,7 @@ class OutputTestCaseTest(
 class RunCommandTestCase(cros_test_lib.RunCommandTestCase):
     """Verify the test case behavior."""
 
-    def testPopenMockEncodingEmptyStrings(self):
+    def testPopenMockEncodingEmptyStrings(self) -> None:
         """Verify automatic encoding in PopenMock works with default output."""
         self.rc.AddCmdResult(["/x"])
         result = cros_build_lib.run(["/x"], capture_output=True)
@@ -309,7 +309,7 @@ class RunCommandTestCase(cros_test_lib.RunCommandTestCase):
         self.assertEqual("", result.stdout)
         self.assertEqual("", result.stderr)
 
-    def testPopenMockBinaryData(self):
+    def testPopenMockBinaryData(self) -> None:
         """Verify our automatic encoding in PopenMock works with bytes."""
         self.rc.AddCmdResult(["/x"], stderr=b"\xff")
         result = cros_build_lib.run(["/x"], capture_output=True)
@@ -318,7 +318,7 @@ class RunCommandTestCase(cros_test_lib.RunCommandTestCase):
         with self.assertRaises(UnicodeDecodeError):
             cros_build_lib.run(["/x"], capture_output=True, encoding="utf-8")
 
-    def testPopenMockMixedData(self):
+    def testPopenMockMixedData(self) -> None:
         """Verify our automatic encoding in PopenMock works with mixed data."""
         self.rc.AddCmdResult(["/x"], stderr=b"abc\x00", stdout="Yes\u20a0")
         result = cros_build_lib.run(["/x"], capture_output=True)
@@ -330,7 +330,7 @@ class RunCommandTestCase(cros_test_lib.RunCommandTestCase):
         self.assertEqual("Yes\u20a0", result.stdout)
         self.assertEqual("abc\x00", result.stderr)
 
-    def testPopenMockCombiningStderr(self):
+    def testPopenMockCombiningStderr(self) -> None:
         """Verify combining stderr into stdout works."""
         self.rc.AddCmdResult(["/x"], stderr="err", stdout="out")
         result = cros_build_lib.run(["/x"], stdout=True, stderr=True)
@@ -342,7 +342,7 @@ class RunCommandTestCase(cros_test_lib.RunCommandTestCase):
         self.assertEqual(None, result.stderr)
         self.assertEqual(b"outerr", result.stdout)
 
-    def testExecutable(self):
+    def testExecutable(self) -> None:
         """Verify executable arg is handled."""
         self.rc.AddCmdResult(["/x"], stderr="err", stdout="out")
         result = cros_build_lib.run(

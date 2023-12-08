@@ -50,7 +50,7 @@ class _NamedAnnotation(Annotation, metaclass=abc.ABCMeta):
     # TODO(b/236161656): Fix.
     # pylint: disable-next=deprecated-decorator
     @abc.abstractproperty
-    def ANNOTATION_NAME(self):
+    def ANNOTATION_NAME(self) -> None:
         raise NotImplementedError()
 
 

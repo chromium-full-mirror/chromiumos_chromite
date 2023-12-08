@@ -26,7 +26,7 @@ class ManifestMock(partial_mock.PartialMock):
     TARGET = "chromite.lib.git.Manifest"
     ATTRS = ("_RunParser",)
 
-    def _RunParser(self, *_args):
+    def _RunParser(self, *_args) -> None:
         pass
 
 
@@ -57,19 +57,19 @@ Change-Id: %s
     PUSH_BRANCH = "fake_branch"
     PUSH_LOCAL = "fake_local_branch"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.fake_git_dir = os.path.join(self.tempdir, "foo/bar")
         self.fake_file = "baz"
         self.fake_path = os.path.join(self.fake_git_dir, self.fake_file)
 
-    def testInit(self):
+    def testInit(self) -> None:
         git.Init(self.fake_path)
 
         # Should have created the git repo directory, if it didn't exist.
         self.assertExists(self.fake_git_dir)
         self.assertCommandContains(["init"])
 
-    def testClone(self):
+    def testClone(self) -> None:
         url = "http://happy/git/repo"
 
         git.Clone(self.fake_git_dir, url)
@@ -78,7 +78,7 @@ Change-Id: %s
         self.assertExists(self.fake_git_dir)
         self.assertCommandContains(["git", "clone", url, self.fake_git_dir])
 
-    def testCloneComplex(self):
+    def testCloneComplex(self) -> None:
         url = "http://happy/git/repo"
         ref = "other/git/repo"
 
@@ -104,7 +104,7 @@ Change-Id: %s
             ]
         )
 
-    def testShallowFetchDefault(self):
+    def testShallowFetchDefault(self) -> None:
         url = "http://happy/git/repo"
 
         git.ShallowFetch(self.fake_git_dir, url)
@@ -121,7 +121,7 @@ Change-Id: %s
         )
         self.assertNotExists(sparse_checkout)
 
-    def testShallowFetchCommit(self):
+    def testShallowFetchCommit(self) -> None:
         url = "http://happy/git/repo"
 
         git.ShallowFetch(
@@ -142,7 +142,7 @@ Change-Id: %s
         )
         self.assertNotExists(sparse_checkout)
 
-    def testShallowFetchSparseCheckout(self):
+    def testShallowFetchSparseCheckout(self) -> None:
         url = "http://happy/git/repo"
 
         sparse_checkout = os.path.join(
@@ -165,11 +165,11 @@ Change-Id: %s
             osutils.ReadFile(sparse_checkout), "dir1/file1\ndir2/file2"
         )
 
-    def testFindGitTopLevel(self):
+    def testFindGitTopLevel(self) -> None:
         git.FindGitTopLevel(self.fake_path)
         self.assertCommandContains(["--show-toplevel"])
 
-    def testGetCurrentBranchOrId_NoBranch(self):
+    def testGetCurrentBranchOrId_NoBranch(self) -> None:
         test_hash = "5" * 40
         self.rc.AddCmdResult(partial_mock.In("symbolic-ref"), returncode=1)
         self.rc.AddCmdResult(
@@ -178,14 +178,14 @@ Change-Id: %s
         self.assertEqual(git.GetCurrentBranchOrId(self.fake_path), test_hash)
         self.assertCommandContains(["rev-parse", "HEAD"])
 
-    def testGetCurrentBranchOrId_OnBranch(self):
+    def testGetCurrentBranchOrId_OnBranch(self) -> None:
         self.rc.AddCmdResult(
             partial_mock.In("symbolic-ref"), stdout="refs/heads/branch\n"
         )
         self.assertEqual(git.GetCurrentBranchOrId(self.fake_path), "branch")
         self.assertCommandContains(["symbolic-ref", "-q", "HEAD"])
 
-    def testLsFiles(self):
+    def testLsFiles(self) -> None:
         files = [".", "somefile.txt"]
         git.LsFiles(cwd=self.fake_path, files=files)
         self.assertCommandContains(["ls-files", "-z"])
@@ -193,7 +193,7 @@ Change-Id: %s
         self.assertCommandContains(["--cached"])
         self.assertCommandContains(["--", *files])
 
-    def testLsTree(self):
+    def testLsTree(self) -> None:
         files = ["exec.sh", "file.txt", "sym"]
         # pylint: disable=line-too-long
         self.rc.AddCmdResult(
@@ -233,33 +233,33 @@ Change-Id: %s
             ],
         )
 
-    def testLsTreeEmptyFileList(self):
+    def testLsTreeEmptyFileList(self) -> None:
         """Tests git.LsTree with the `files` argument being empty."""
         git.LsTree(cwd=self.fake_path, commit="HEAD")
         self.assertCommandContains(["ls-tree", "-r", "-z"])
         self.assertCommandContains(["--", "HEAD"])
         self.assertCommandContains(["HEAD", "--"], expected=False)
 
-    def testAddPath(self):
+    def testAddPath(self) -> None:
         git.AddPath(self.fake_path)
         self.assertCommandContains(["add"])
         self.assertCommandContains([self.fake_file])
 
-    def testRmPath(self):
+    def testRmPath(self) -> None:
         git.RmPath(self.fake_path)
         self.assertCommandContains(["rm"])
         self.assertCommandContains([self.fake_file])
 
-    def testGetObjectAtRev(self):
+    def testGetObjectAtRev(self) -> None:
         git.GetObjectAtRev(self.fake_git_dir, ".", "1234")
         self.assertCommandContains(["show"])
 
-    def testRevertPath(self):
+    def testRevertPath(self) -> None:
         git.RevertPath(self.fake_git_dir, self.fake_file, "1234")
         self.assertCommandContains(["checkout"])
         self.assertCommandContains([self.fake_file])
 
-    def testCommit(self):
+    def testCommit(self) -> None:
         self.rc.AddCmdResult(partial_mock.In("log"), stdout=self.COMMIT_LOG)
         git.Commit(self.fake_git_dir, "bar")
         self.assertCommandContains(["--amend"], expected=False)
@@ -270,7 +270,7 @@ Change-Id: %s
         cid = git.Commit(self.fake_git_dir, "new", allow_empty=True)
         self.assertCommandContains(["--allow-empty"])
 
-    def testUploadCLNormal(self):
+    def testUploadCLNormal(self) -> None:
         git.UploadCL(
             self.fake_git_dir,
             self.PUSH_REMOTE,
@@ -282,7 +282,7 @@ Change-Id: %s
             stdout=None,
         )
 
-    def testUploadCLDraft(self):
+    def testUploadCLDraft(self) -> None:
         git.UploadCL(
             self.fake_git_dir,
             self.PUSH_REMOTE,
@@ -295,7 +295,7 @@ Change-Id: %s
             stdout=None,
         )
 
-    def testUploadCLCaptured(self):
+    def testUploadCLCaptured(self) -> None:
         git.UploadCL(
             self.fake_git_dir,
             self.PUSH_REMOTE,
@@ -309,7 +309,7 @@ Change-Id: %s
             capture_output=True,
         )
 
-    def testGetGitRepoRevision(self):
+    def testGetGitRepoRevision(self) -> None:
         git.GetGitRepoRevision(self.fake_git_dir)
         self.assertCommandContains(["rev-parse", "HEAD"])
         git.GetGitRepoRevision(self.fake_git_dir, branch="branch")
@@ -319,7 +319,7 @@ Change-Id: %s
         git.GetGitRepoRevision(self.fake_git_dir, branch="branch", short=True)
         self.assertCommandContains(["rev-parse", "--short", "branch"])
 
-    def testGetGitGitdir(self):
+    def testGetGitGitdir(self) -> None:
         git.Init(self.fake_git_dir)
         os.makedirs(os.path.join(self.fake_git_dir, ".git", "refs", "heads"))
         os.makedirs(os.path.join(self.fake_git_dir, ".git", "objects"))
@@ -329,7 +329,7 @@ Change-Id: %s
         ret = git.GetGitGitdir(self.fake_git_dir)
         self.assertEqual(ret, os.path.join(self.fake_git_dir, ".git"))
 
-    def testGetGitGitdir_bare(self):
+    def testGetGitGitdir_bare(self) -> None:
         git.Init(self.fake_git_dir)
         os.makedirs(os.path.join(self.fake_git_dir, "refs", "heads"))
         os.makedirs(os.path.join(self.fake_git_dir, "objects"))
@@ -339,17 +339,17 @@ Change-Id: %s
         ret = git.GetGitGitdir(self.fake_git_dir)
         self.assertEqual(ret, self.fake_git_dir)
 
-    def testGetGitGitdir_worktree(self):
+    def testGetGitGitdir_worktree(self) -> None:
         dotgit = os.path.join(self.tempdir, ".git")
         osutils.WriteFile(dotgit, "gitdir: /foo")
         ret = git.GetGitGitdir(self.tempdir)
         self.assertEqual(ret, dotgit)
 
-    def testGetGitGitdir_negative(self):
+    def testGetGitGitdir_negative(self) -> None:
         ret = git.GetGitGitdir(self.tempdir)
         self.assertFalse(ret)
 
-    def testDeleteStaleLocks(self):
+    def testDeleteStaleLocks(self) -> None:
         git.Init(self.fake_git_dir)
         refs_heads = os.path.join(self.fake_git_dir, ".git", "refs", "heads")
         os.makedirs(refs_heads)
@@ -371,7 +371,7 @@ Change-Id: %s
         self.assertExists(other_file)
         self.assertNotExists(fake_lock)
 
-    def testDeleteStaleLocks_bare(self):
+    def testDeleteStaleLocks_bare(self) -> None:
         git.Init(self.fake_git_dir)
         refs_heads = os.path.join(self.fake_git_dir, "refs", "heads")
         os.makedirs(refs_heads)
@@ -389,7 +389,7 @@ Change-Id: %s
         self.assertExists(other_file)
         self.assertNotExists(fake_lock)
 
-    def testGetUrlFromRemoteOutput(self):
+    def testGetUrlFromRemoteOutput(self) -> None:
         """Test that the proper URL is returned from the git remote output."""
         remote_output = (
             "remote:\nremote:\nremote:   "
@@ -422,11 +422,11 @@ Change-Id: %s
 class LogTest(cros_test_lib.RunCommandTestCase):
     """Tests for git.Log"""
 
-    def testNoArgs(self):
+    def testNoArgs(self) -> None:
         git.Log("git/repo/path")
         self.assertCommandContains(["git", "log"], cwd="git/repo/path")
 
-    def testAllArgs(self):
+    def testAllArgs(self) -> None:
         git.Log(
             "git/repo/path",
             format='format:"%cd"',
@@ -461,7 +461,7 @@ class LogTest(cros_test_lib.RunCommandTestCase):
 class ChangeIdTest(cros_test_lib.MockTestCase):
     """Tests for git.GetChangeId function."""
 
-    def testHEAD(self):
+    def testHEAD(self) -> None:
         """Test the parsing of the git.GetChangeId function for HEAD."""
 
         log_output = """
@@ -489,7 +489,7 @@ Change-Id: Ia7b712c42ff83c52c0fb5d88d1ef6c62f49da88d
         changeid = git.GetChangeId("git/repo/path")
         self.assertEqual(changeid, "Ia7b712c42ff83c52c0fb5d88d1ef6c62f49da88d")
 
-    def testSpecificSHA(self):
+    def testSpecificSHA(self) -> None:
         """Test the parsing of git.GetChangeId function for a specific SHA."""
 
         sha = "235511fbd7158c6d02c070944eb59cf47b37fcb5"
@@ -514,7 +514,7 @@ Tested-by: François Degros <fdegros@chromium.org>
         changeid = git.GetChangeId("git/repo/path", sha)
         self.assertEqual(changeid, "Id31c1211f95d7f5c3a94fbe8c028f65d3509f363")
 
-    def testNoChangeId(self):
+    def testNoChangeId(self) -> None:
         """Test git.GetChangeId function if there is no Change-Id."""
 
         log_output = """
@@ -540,7 +540,7 @@ Compare the Change-Id printed by the python code with that shown
         changeid = git.GetChangeId("git/repo/path")
         self.assertIsNone(changeid)
 
-    def testChangeIdInTextCol1(self):
+    def testChangeIdInTextCol1(self) -> None:
         """Test git.GetChangeId when 'Change-Id' is in the text."""
 
         log_output = """
@@ -564,7 +564,7 @@ Change-Id: Ib71696f76dc80f1a76b8e7a73493c6c2668e2c6f
 
         self.assertRaises(ValueError, git.GetChangeId, "git/repo/path")
 
-    def testChangeIdInTextNotCol1(self):
+    def testChangeIdInTextNotCol1(self) -> None:
         """Test git.GetChangeId when 'Change-Id' is in the text."""
 
         log_output = """
@@ -592,7 +592,7 @@ Change-Id: Ib71696f76dc80f1a76b8e7a73493c6c2668e2c6f
 class ProjectCheckoutTest(cros_test_lib.TestCase):
     """Tests for git.ProjectCheckout"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.fake_unversioned_patchable = git.ProjectCheckout(
             dict(
                 name="chromite",
@@ -629,7 +629,7 @@ class ProjectCheckoutTest(cros_test_lib.TestCase):
 class RawDiffTest(cros_test_lib.MockTestCase):
     """Tests for git.RawDiff function."""
 
-    def testRawDiff(self):
+    def testRawDiff(self) -> None:
         """Test the parsing of the git.RawDiff function."""
         # pylint: disable=line-too-long
         diff_output = """
@@ -714,14 +714,14 @@ class RawDiffTest(cros_test_lib.MockTestCase):
             ],
         )
 
-    def testEmptyDiff(self):
+    def testEmptyDiff(self) -> None:
         """Verify an empty diff doesn't crash."""
         result = cros_build_lib.CompletedProcess(stdout="\n")
         self.PatchObject(git, "RunGit", return_value=result)
         entries = git.RawDiff("foo", "bar")
         self.assertEqual([], entries)
 
-    def testMergeDiff(self):
+    def testMergeDiff(self) -> None:
         """Verify a merge diff."""
 
         diff_output = """
@@ -788,7 +788,7 @@ class RawDiffTest(cros_test_lib.MockTestCase):
             ],
         )
 
-    def testMultipleMergeDiff(self):
+    def testMultipleMergeDiff(self) -> None:
         """Verify a merge with more than 2 parents."""
         diff_output = (
             ":::::100644 100644 100644 100644 100644 100644"
@@ -877,11 +877,11 @@ class GitPushTest(cros_test_lib.RunCommandTestCase):
         ),
     )
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.StartPatcher(mock.patch("time.sleep"))
 
     @staticmethod
-    def _RunGitPush():
+    def _RunGitPush() -> None:
         """Runs git.GitPush with some default arguments."""
         git.GitPush(
             "some_repo_path",
@@ -889,7 +889,7 @@ class GitPushTest(cros_test_lib.RunCommandTestCase):
             git.RemoteRef("some-remote", "remote-ref"),
         )
 
-    def testGitPushSimple(self):
+    def testGitPushSimple(self) -> None:
         """Test GitPush with minimal arguments."""
         git.GitPush("git_path", "HEAD", git.RemoteRef("origin", "main"))
         self.assertCommandCalled(
@@ -901,7 +901,7 @@ class GitPushTest(cros_test_lib.RunCommandTestCase):
             encoding="utf-8",
         )
 
-    def testGitPushComplex(self):
+    def testGitPushComplex(self) -> None:
         """Test GitPush with some arguments."""
         git.GitPush(
             "git_path",
@@ -919,7 +919,7 @@ class GitPushTest(cros_test_lib.RunCommandTestCase):
             encoding="utf-8",
         )
 
-    def testNonFFPush(self):
+    def testNonFFPush(self) -> None:
         """Non fast-forward push error propagates to the caller."""
         self.rc.AddCmdResult(
             partial_mock.In("push"),
@@ -928,7 +928,7 @@ class GitPushTest(cros_test_lib.RunCommandTestCase):
         )
         self.assertRaises(cros_build_lib.RunCommandError, self._RunGitPush)
 
-    def testPersistentTransientError(self):
+    def testPersistentTransientError(self) -> None:
         """GitPush fails if transient error occurs multiple times."""
         for error in self.TRANSIENT_ERRORS:
             self.rc.AddCmdResult(
@@ -940,7 +940,7 @@ class GitPushTest(cros_test_lib.RunCommandTestCase):
 class GitIntegrationTest(cros_test_lib.TempDirTestCase):
     """Tests that git library functions work with actual git repos."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.source = os.path.join(self.tempdir, "src")
         git.Init(self.source)
         # Nerf any hooks the OS might have installed on us as they aren't going
@@ -959,13 +959,13 @@ class GitIntegrationTest(cros_test_lib.TempDirTestCase):
         git.Commit(repo, "commit %s" % (cros_build_lib.GetRandomString(),))
         return git.GetGitRepoRevision(repo)
 
-    def testIsReachable(self):
+    def testIsReachable(self) -> None:
         sha1 = self._CommitFile(self.source, "foo", "foo")
         sha2 = self._CommitFile(self.source, "bar", "bar")
         self.assertTrue(git.IsReachable(self.source, sha1, sha2))
         self.assertFalse(git.IsReachable(self.source, sha2, sha1))
 
-    def testDoesCommitExistInRepoWithAmbiguousBranchName(self):
+    def testDoesCommitExistInRepoWithAmbiguousBranchName(self) -> None:
         git.CreateBranch(self.source, "peach", track=True)
         self._CommitFile(self.source, "peach", "Keep me.")
         self.assertTrue(git.DoesCommitExistInRepo(self.source, "peach"))
@@ -974,7 +974,7 @@ class GitIntegrationTest(cros_test_lib.TempDirTestCase):
 class ManifestCheckoutTest(cros_test_lib.TempDirTestCase):
     """Tests for ManifestCheckout functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.manifest_dir = os.path.join(self.tempdir, ".repo", "manifests")
 
         # Initialize a repo instance here.
@@ -1044,7 +1044,7 @@ class ManifestCheckoutTest(cros_test_lib.TempDirTestCase):
 
     # TODO(b/245813531): Re-enable when repo v2.29 is stable.
     @unittest.skip("Skip until staging and prod are on repo v2.29 b/245333797")
-    def testManifestInheritance(self):
+    def testManifestInheritance(self) -> None:
         osutils.WriteFile(
             self.active_manifest,
             """
@@ -1080,14 +1080,14 @@ class ManifestCheckoutTest(cros_test_lib.TempDirTestCase):
 
     # TODO(b/245813531): Re-enable when repo v2.29 is stable.
     @unittest.skip("Skip until staging and prod are on repo v2.29 b/245333797")
-    def testGetManifestsBranch(self):
+    def testGetManifestsBranch(self) -> None:
         # pylint: disable=protected-access
         func = git.ManifestCheckout._GetManifestsBranch
         manifest = self.manifest_dir
         repo_root = self.tempdir
 
         # pylint: disable=unused-argument
-        def reconfig(merge="master", origin="origin"):
+        def reconfig(merge="master", origin="origin") -> None:
             if merge is not None:
                 merge = "refs/heads/%s" % merge
             for key in ("merge", "origin"):
@@ -1110,7 +1110,7 @@ class ManifestCheckoutTest(cros_test_lib.TempDirTestCase):
         self.assertEqual("default", git.GetCurrentBranch(manifest))
         self.assertEqual("master", func(repo_root))
 
-        def assertExcept(message, **kwargs):
+        def assertExcept(message, **kwargs) -> None:
             reconfig(**kwargs)
             self.assertRaises2(
                 OSError,
@@ -1141,7 +1141,7 @@ class ManifestCheckoutTest(cros_test_lib.TempDirTestCase):
 
     # TODO(b/245813531): Renable when repo v2.29 is stable.
     @unittest.skip("Skip until staging and prod are on repo v2.29 b/245333797")
-    def testGitMatchBranchName(self):
+    def testGitMatchBranchName(self) -> None:
         git_repo = os.path.join(self.tempdir, ".repo", "manifests")
 
         branches = git.MatchBranchName(git_repo, "default", namespace="")
@@ -1183,7 +1183,7 @@ class ManifestCheckoutTest(cros_test_lib.TempDirTestCase):
 class ManifestHashTest(cros_test_lib.TestCase):
     """Tests for _GetManifestHash functionality."""
 
-    def testGetManifestHashIgnoreMissing(self):
+    def testGetManifestHashIgnoreMissing(self) -> None:
         # pylint: disable=protected-access
         hash_str = git.Manifest._GetManifestHash(
             "absence_file", ignore_missing=True
@@ -1194,7 +1194,7 @@ class ManifestHashTest(cros_test_lib.TestCase):
 class CommitLogTest(cros_test_lib.RunCommandTestCase):
     """Test for Commit log functionality."""
 
-    def testGetLastCommit(self):
+    def testGetLastCommit(self) -> None:
         sha = "1323ab4efce4f30f7e3e22f9da27a1a57fa82988"
         commit_date = datetime.datetime.now()
         change_id = "Ia66f15d367ddd386f7c8b47b76b58e3b9f749fce"
@@ -1224,7 +1224,7 @@ CommitDate: {commit_date.isoformat()}
 class CommitEntryTest(cros_test_lib.TestCase):
     """Test CommitEntry class."""
 
-    def testParseFullerToParseGitLog(self):
+    def testParseFullerToParseGitLog(self) -> None:
         # pylint: disable=line-too-long
         log_output = """commit 1323ab4efce4f30f7e3e22f9da27a1a57fa82988 (HEAD -> default, origin/main, m/main)
 Author:     Clark Kent <clark.kent@dc.com>
@@ -1261,7 +1261,7 @@ CommitDate: 2023-08-24T17:41:32+00:00
             ],
         )
 
-    def testParseFullerToParseMultipleCommits(self):
+    def testParseFullerToParseMultipleCommits(self) -> None:
         # pylint: disable=line-too-long
         log_output = """commit 1323ab4efce4f30f7e3e22f9da27a1a57fa82988 (HEAD -> default, origin/main, m/main)
 Author:     Clark Kent <clark.kent@dc.com>

@@ -45,7 +45,9 @@ class ObjectFactory:
         self._types = setup_types
         self._allowed_transitions = allowed_transitions
 
-    def Setup(self, setup_type, singleton_instance=_NO_SINGLETON_INSTANCE):
+    def Setup(
+        self, setup_type, singleton_instance=_NO_SINGLETON_INSTANCE
+    ) -> None:
         # Prevent set up to unknown types.
         if setup_type not in self._types:
             raise ObjectFactoryIllegalOperation(
@@ -103,7 +105,7 @@ class ObjectFactory:
             return self._setup_instance
         return self._types[self.setup_type]()
 
-    def _clear_setup(self):
+    def _clear_setup(self) -> None:
         """Clear setup, for testing purposes only."""
         self._setup_type = None
         self._is_setup = False

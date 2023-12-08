@@ -49,7 +49,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
 
     def _MakeFakeEbuild(
         self, overlay, atom, version, is_workon=True, multiline_inherit=False
-    ):
+    ) -> None:
         """Makes fake ebuilds with minimal real content.
 
         Args:
@@ -108,7 +108,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         """
         return self._valid_atoms.get(package, None)
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up a test environment."""
         self._valid_atoms = {}
         self._mock_srcdir = os.path.join(self.tempdir, "src")
@@ -211,7 +211,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             self._sysroot, name, src_root=self._mock_srcdir
         )
 
-    def assertWorkingOn(self, atoms, system=BOARD):
+    def assertWorkingOn(self, atoms, system=BOARD) -> None:
         """Assert that the workon/mask files mention the given atoms.
 
         Args:
@@ -236,14 +236,14 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             self.assertNotExists(workon_path)
             self.assertNotExists(mask_path)
 
-    def testGetWorkonAtomToFailForMissingPackage(self):
+    def testGetWorkonAtomToFailForMissingPackage(self) -> None:
         """Check that package exists."""
         expected_msg = "error looking up package doesnot/exist"
         with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
             helper = self.CreateHelper()
             helper.GetWorkonAtom("doesnot/exist")
 
-    def testGetWorkonAtomToFailForNonWorkonPackage(self):
+    def testGetWorkonAtomToFailForNonWorkonPackage(self) -> None:
         """Check that package is workon."""
         expected_msg = (
             f"run 'cros workon --board {BOARD} start"
@@ -253,7 +253,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             helper = self.CreateHelper()
             helper.GetWorkonAtom(VERSIONED_WORKON_ATOM)
 
-    def testGetWorkonAtomToReturnAtomForPackage(self):
+    def testGetWorkonAtomToReturnAtomForPackage(self) -> None:
         """Return canonical atom for the workon package."""
         helper = self.CreateHelper()
         helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
@@ -261,21 +261,21 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         atom = helper.GetWorkonAtom(WORKON_PACKAGE_NAME)
         self.assertEqual(atom, WORKON_ONLY_ATOM)
 
-    def testInstallShouldFailForHostSysroot(self):
+    def testInstallShouldFailForHostSysroot(self) -> None:
         """Check that the target is not host before install."""
         expected_msg = "cannot run for host. expecting board target."
         with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
             helper = self.CreateHelper(host=True)
             helper.InstallPackage(WORKON_ONLY_ATOM)
 
-    def testInstallShouldFailForMissingPackage(self):
+    def testInstallShouldFailForMissingPackage(self) -> None:
         """Check if the package exists before install."""
         expected_msg = "error looking up package doesnot/exist"
         with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
             helper = self.CreateHelper()
             helper.InstallPackage("doesnot/exist")
 
-    def testInstallShouldFailForNotWorkonPackage(self):
+    def testInstallShouldFailForNotWorkonPackage(self) -> None:
         """Check if the package is workon before install."""
         expected_msg = (
             f"run 'cros workon --board {BOARD} start"
@@ -285,7 +285,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             helper = self.CreateHelper()
             helper.InstallPackage(VERSIONED_WORKON_ATOM)
 
-    def testInstallToRunEmergeForWorkonPackage(self):
+    def testInstallToRunEmergeForWorkonPackage(self) -> None:
         """Install should run the correct emerge."""
         helper = self.CreateHelper()
         helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
@@ -298,21 +298,21 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             [f"emerge-{BOARD}", "--nodeps", WORKON_ONLY_ATOM], print_cmd=True
         )
 
-    def testBuildShouldFailForHostSysroot(self):
+    def testBuildShouldFailForHostSysroot(self) -> None:
         """Check that the target is not host before build."""
         expected_msg = "cannot run for host. expecting board target."
         with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
             helper = self.CreateHelper(host=True)
             helper.BuildPackage(WORKON_ONLY_ATOM)
 
-    def testBuildShouldFailForMissingPackage(self):
+    def testBuildShouldFailForMissingPackage(self) -> None:
         """Check if the package exists before build."""
         expected_msg = "error looking up package doesnot/exist"
         with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
             helper = self.CreateHelper()
             helper.BuildPackage("doesnot/exist")
 
-    def testBuildShouldFailForNotWorkonPackage(self):
+    def testBuildShouldFailForNotWorkonPackage(self) -> None:
         """Check if the package is workon before build."""
         expected_msg = (
             f"run 'cros workon --board {BOARD} start"
@@ -322,7 +322,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             helper = self.CreateHelper()
             helper.BuildPackage(VERSIONED_WORKON_ATOM)
 
-    def testBuildPackageToRunEbuildTestWithClean(self):
+    def testBuildPackageToRunEbuildTestWithClean(self) -> None:
         """Check that build runs clean test."""
         helper = self.CreateHelper()
         helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
@@ -366,7 +366,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertNotExists(tested_marker)
 
-    def testBuildPackageToRunEbuildCompileWithClean(self):
+    def testBuildPackageToRunEbuildCompileWithClean(self) -> None:
         """Check that build runs compile."""
         helper = self.CreateHelper()
         helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
@@ -405,7 +405,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             },
         )
 
-    def testBuildPackageCompileToCleanIfWorkdirIsNotSymlink(self):
+    def testBuildPackageCompileToCleanIfWorkdirIsNotSymlink(self) -> None:
         """Check that compile runs with clean if workdir is not symlink."""
         helper = self.CreateHelper()
         helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
@@ -440,21 +440,21 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             },
         )
 
-    def testScrubShouldFailForHostSysroot(self):
+    def testScrubShouldFailForHostSysroot(self) -> None:
         """Check that the target is not host before scrub."""
         expected_msg = "cannot run for host. expecting board target."
         with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
             helper = self.CreateHelper(host=True)
             helper.ScrubPackage(WORKON_ONLY_ATOM)
 
-    def testScrubShouldFailForMissingPackage(self):
+    def testScrubShouldFailForMissingPackage(self) -> None:
         """Check if the package exists for scrub."""
         expected_msg = "error looking up package doesnot/exist"
         with self.assertRaisesRegex(workon_helper.WorkonError, expected_msg):
             helper = self.CreateHelper()
             helper.ScrubPackage("doesnot/exist")
 
-    def testScrubShouldFailForNotWorkonPackage(self):
+    def testScrubShouldFailForNotWorkonPackage(self) -> None:
         """Check if the package is workon for scrub."""
         expected_msg = (
             f"run 'cros workon --board {BOARD} start"
@@ -464,7 +464,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             helper = self.CreateHelper()
             helper.ScrubPackage(VERSIONED_WORKON_ATOM)
 
-    def testScrubShouldCleanAtomSourceDirectory(self):
+    def testScrubShouldCleanAtomSourceDirectory(self) -> None:
         """Check if the package is workon."""
         helper = self.CreateHelper()
         helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
@@ -478,7 +478,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             ["git", "clean", "-dxf"], cwd=self._mock_srcdir, print_cmd=False
         )
 
-    def testShouldDetectBoardNotSetUp(self):
+    def testShouldDetectBoardNotSetUp(self) -> None:
         """Check that we complain if a board has not been previously setup."""
         with self.assertRaises(workon_helper.WorkonError):
             h = workon_helper.WorkonHelper(
@@ -488,7 +488,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             )
             h.StartWorkingOnPackages(["sys-apps/dbus"])
 
-    def testShouldRegenerateSymlinks(self):
+    def testShouldRegenerateSymlinks(self) -> None:
         """Check that the symlinks are regenerated when using a new sysroot."""
         # pylint: disable=protected-access
         helper = self.CreateHelper()
@@ -512,41 +512,41 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         self.assertExists(workon_link)
         self.assertNotExists(helper._unmasked_symlink)
 
-    def testCanStartSingleAtom(self):
+    def testCanStartSingleAtom(self) -> None:
         """Check that we can mark a single atom as being worked on."""
         helper = self.CreateHelper()
         helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
         self.assertWorkingOn([WORKON_ONLY_ATOM])
 
-    def testCanStartMultipleAtoms(self):
+    def testCanStartMultipleAtoms(self) -> None:
         """Check that we can mark a multiple atoms as being worked on."""
         helper = self.CreateHelper()
         expected_atoms = (WORKON_ONLY_ATOM, VERSIONED_WORKON_ATOM)
         helper.StartWorkingOnPackages(expected_atoms)
         self.assertWorkingOn(expected_atoms)
 
-    def testCanStartAtomsWithAll(self):
+    def testCanStartAtomsWithAll(self) -> None:
         """Check that we can mark all possible workon atoms as started."""
         helper = self.CreateHelper()
         expected_atoms = (WORKON_ONLY_ATOM, VERSIONED_WORKON_ATOM)
         helper.StartWorkingOnPackages([], use_all=True)
         self.assertWorkingOn(expected_atoms)
 
-    def testCanStartAtomsWithWorkonOnly(self):
+    def testCanStartAtomsWithWorkonOnly(self) -> None:
         """Check that we can start atoms that have only a cros-workon ebuild."""
         helper = self.CreateHelper()
         expected_atoms = (WORKON_ONLY_ATOM,)
         helper.StartWorkingOnPackages([], use_workon_only=True)
         self.assertWorkingOn(expected_atoms)
 
-    def testCannotStartAtomTwice(self):
+    def testCannotStartAtomTwice(self) -> None:
         """Check that starting an atom twice has no effect."""
         helper = self.CreateHelper()
         helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
         helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
         self.assertWorkingOn([WORKON_ONLY_ATOM])
 
-    def testCanStopSingleAtom(self):
+    def testCanStopSingleAtom(self) -> None:
         """Check that we can stop a previously started atom."""
         helper = self.CreateHelper()
         helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
@@ -554,7 +554,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         helper.StopWorkingOnPackages([WORKON_ONLY_ATOM])
         self.assertWorkingOn([])
 
-    def testCanStopMultipleAtoms(self):
+    def testCanStopMultipleAtoms(self) -> None:
         """Check that we can stop multiple previously worked on atoms."""
         helper = self.CreateHelper()
         expected_atoms = (WORKON_ONLY_ATOM, VERSIONED_WORKON_ATOM)
@@ -570,7 +570,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         helper.StopWorkingOnPackages(expected_atoms)
         self.assertWorkingOn([])
 
-    def testCanStopAtomsWithAll(self):
+    def testCanStopAtomsWithAll(self) -> None:
         """Check that we can stop all worked on atoms."""
         helper = self.CreateHelper()
         expected_atoms = (WORKON_ONLY_ATOM, VERSIONED_WORKON_ATOM)
@@ -578,7 +578,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         helper.StopWorkingOnPackages([], use_all=True)
         self.assertWorkingOn([])
 
-    def testCanStopAtomsWithWorkonOnly(self):
+    def testCanStopAtomsWithWorkonOnly(self) -> None:
         """Check that we can stop all workon only atoms."""
         helper = self.CreateHelper()
         expected_atoms = (WORKON_ONLY_ATOM, VERSIONED_WORKON_ATOM)
@@ -586,13 +586,13 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         helper.StopWorkingOnPackages([], use_workon_only=True)
         self.assertWorkingOn([VERSIONED_WORKON_ATOM])
 
-    def testShouldDetectUnknownAtom(self):
+    def testShouldDetectUnknownAtom(self) -> None:
         """Check that we reject requests to work on unknown atoms."""
         with self.assertRaises(workon_helper.WorkonError):
             helper = self.CreateHelper()
             helper.StopWorkingOnPackages(["sys-apps/not-a-thing"])
 
-    def testCanListAllWorkedOnAtoms(self):
+    def testCanListAllWorkedOnAtoms(self) -> None:
         """Check that we can list all worked on atoms across boards."""
         helper = self.CreateHelper()
         self.assertEqual(
@@ -611,14 +611,14 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             workon_helper.ListAllWorkedOnAtoms(src_root=self._mock_srcdir),
         )
 
-    def testCanListWorkedOnAtoms(self):
+    def testCanListWorkedOnAtoms(self) -> None:
         """Check that we can list the atoms we're currently working on."""
         helper = self.CreateHelper()
         self.assertEqual(helper.ListAtoms(), [])
         helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
         self.assertEqual(helper.ListAtoms(), [WORKON_ONLY_ATOM])
 
-    def testCanListAtomsWithAll(self):
+    def testCanListAtomsWithAll(self) -> None:
         """Check that we can list all possible atoms to work on."""
         helper = self.CreateHelper()
         self.assertEqual(
@@ -626,14 +626,14 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             sorted([WORKON_ONLY_ATOM, VERSIONED_WORKON_ATOM]),
         )
 
-    def testCanListAtomsWithWorkonOnly(self):
+    def testCanListAtomsWithWorkonOnly(self) -> None:
         """Check that we can list all workon only atoms."""
         helper = self.CreateHelper()
         self.assertEqual(
             helper.ListAtoms(use_workon_only=True), [WORKON_ONLY_ATOM]
         )
 
-    def testCanRunCommand(self):
+    def testCanRunCommand(self) -> None:
         """Test that we can run a command in package source directories."""
         helper = self.CreateHelper()
         file_name = "foo"
@@ -642,7 +642,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         helper.RunCommandInPackages([WORKON_ONLY_ATOM], ["touch", file_name])
         self.assertExists(file_path)
 
-    def testInstalledWorkonAtoms(self):
+    def testInstalledWorkonAtoms(self) -> None:
         """Verify we can list all the cros workon atoms that are installed."""
         helper = self.CreateHelper()
         self.assertEqual(
@@ -653,16 +653,16 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
 class WorkonScopeTest(cros_test_lib.MockTestCase):
     """Tests for chromite.lib.workon_helper.WorkonScope."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up a test environment."""
         self.bt = build_target_lib.BuildTarget(BOARD)
 
         self.workon = []
 
-        def mock_start(pkgs: Iterable[str]):
+        def mock_start(pkgs: Iterable[str]) -> None:
             self.workon = set(self.workon).union(set(pkgs))
 
-        def mock_stop(pkgs: Iterable[str]):
+        def mock_stop(pkgs: Iterable[str]) -> None:
             self.workon = set(self.workon).difference(set(pkgs))
 
         def mock_list():
@@ -682,26 +682,26 @@ class WorkonScopeTest(cros_test_lib.MockTestCase):
             workon_helper.WorkonHelper, "ListAtoms", side_effect=mock_list
         )
 
-    def testCMStartsAndStopsWithNoInitialPackages(self):
+    def testCMStartsAndStopsWithNoInitialPackages(self) -> None:
         """Verify the context manager works with no supplied package list."""
         with workon_helper.WorkonScope(self.bt):
             self.start_patch.assert_not_called()
         self.stop_patch.assert_not_called()
 
-    def testCMStartsAndStopsPackages(self):
+    def testCMStartsAndStopsPackages(self) -> None:
         """Verify the context manager usage starts and stops workon state."""
         with workon_helper.WorkonScope(self.bt, [WORKON_ONLY_ATOM]):
             self.start_patch.assert_called_once_with([WORKON_ONLY_ATOM])
         self.stop_patch.assert_called_once_with([WORKON_ONLY_ATOM])
 
-    def testRetainsExistingWorkons(self):
+    def testRetainsExistingWorkons(self) -> None:
         """Verify the context manager does not stop previously started pkgs."""
         self.workon = [WORKON_ONLY_ATOM]
         with workon_helper.WorkonScope(self.bt, [WORKON_ONLY_ATOM]):
             self.start_patch.assert_called_once_with([WORKON_ONLY_ATOM])
         self.stop_patch.assert_not_called()
 
-    def testStartsStandaloneAtom(self):
+    def testStartsStandaloneAtom(self) -> None:
         """Verify the helper .start() method (non-CM usage) starts workon."""
         helper = workon_helper.WorkonScope(self.bt)
         self.start_patch.assert_not_called()
@@ -709,7 +709,7 @@ class WorkonScopeTest(cros_test_lib.MockTestCase):
         self.start_patch.assert_called_once_with([WORKON_ONLY_ATOM])
         self.stop_patch.assert_not_called()
 
-    def testStopsStandaloneAtom(self):
+    def testStopsStandaloneAtom(self) -> None:
         """Verify the helper .stop() method (non-CM usage) stops workon."""
         helper = workon_helper.WorkonScope(self.bt)
         self.stop_patch.assert_not_called()
@@ -717,7 +717,7 @@ class WorkonScopeTest(cros_test_lib.MockTestCase):
         self.stop_patch.assert_called_once_with([WORKON_ONLY_ATOM])
         self.start_patch.assert_not_called()
 
-    def testRaisesExceptionForNonexistentBoard(self):
+    def testRaisesExceptionForNonexistentBoard(self) -> None:
         """CM usage should perform start & stop, plus raise exception."""
         se = workon_helper.WorkonError()
         self.start_patch = self.PatchObject(
@@ -728,7 +728,7 @@ class WorkonScopeTest(cros_test_lib.MockTestCase):
                 self.start_patch.assert_called_once_with([WORKON_ONLY_ATOM])
             self.stop_patch.assert_called_once_with([WORKON_ONLY_ATOM])
 
-    def testFailedCleanupEmitsLog(self):
+    def testFailedCleanupEmitsLog(self) -> None:
         """Failure in stop() call should emit a critical-level log message."""
         se = workon_helper.WorkonError()
         self.stop_patch = self.PatchObject(
@@ -742,7 +742,7 @@ class WorkonScopeTest(cros_test_lib.MockTestCase):
             " ".join(log_cm.output), "Unable to stop started packages."
         )
 
-    def testManuallyStartedPackageIsStopped(self):
+    def testManuallyStartedPackageIsStopped(self) -> None:
         with workon_helper.WorkonScope(self.bt, [WORKON_ONLY_ATOM]) as helper:
             helper.start([VERSIONED_WORKON_ATOM])
             self.start_patch.assert_any_call([WORKON_ONLY_ATOM])
@@ -751,7 +751,7 @@ class WorkonScopeTest(cros_test_lib.MockTestCase):
             [WORKON_ONLY_ATOM, VERSIONED_WORKON_ATOM]
         )
 
-    def testManuallyStoppedPackageIsRestarted(self):
+    def testManuallyStoppedPackageIsRestarted(self) -> None:
         self.workon = [WORKON_ONLY_ATOM]
         with workon_helper.WorkonScope(self.bt) as helper:
             helper.stop([WORKON_ONLY_ATOM])

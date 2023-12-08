@@ -114,7 +114,7 @@ def _GetLinesFromFile(path, line_prefix, line_suffix):
     return lines
 
 
-def _WriteLinesToFile(path, lines, line_prefix, line_suffix):
+def _WriteLinesToFile(path, lines, line_prefix, line_suffix) -> None:
     """Write a set of lines to a file, adding prefixes, suffixes and newlines.
 
     Args:
@@ -301,7 +301,7 @@ class WorkonHelper:
 
         return self._cached_overlays
 
-    def _SetWorkedOnAtoms(self, atoms):
+    def _SetWorkedOnAtoms(self, atoms) -> None:
         """Sets the unmasked atoms.
 
         This will generate both the unmasked atom list and the masked atoms list
@@ -314,7 +314,7 @@ class WorkonHelper:
         _WriteLinesToFile(self.masked_file_path, atoms, "<", "-9999")
         self._RefreshSymlinks()
 
-    def _RefreshSymlinks(self):
+    def _RefreshSymlinks(self) -> None:
         """Recreates the symlinks.
 
         This will create the symlinks needed:
@@ -653,7 +653,7 @@ class WorkonHelper:
 
         return atoms
 
-    def _AddProjectsToPartialManifests(self, atoms):
+    def _AddProjectsToPartialManifests(self, atoms) -> None:
         """Add projects corresponding to a list of atoms to the local manifest.
 
         If we mark projects as workon that we don't have in our local checkout,
@@ -730,7 +730,7 @@ class WorkonHelper:
         use_all: bool = False,
         use_workon_only: bool = False,
         quiet: bool = False,
-    ):
+    ) -> None:
         """Mark a list of packages as being worked on locally.
 
         Args:
@@ -792,7 +792,7 @@ class WorkonHelper:
         use_all: bool = False,
         use_workon_only: bool = False,
         quiet: bool = False,
-    ):
+    ) -> None:
         """Stop working on a list of pkgs currently marked as locally worked on.
 
         Args:
@@ -873,7 +873,7 @@ class WorkonHelper:
         package: str,
         clean: bool = False,
         test: bool = False,
-    ):
+    ) -> None:
         """Build a workon package.
 
         Args:
@@ -951,7 +951,7 @@ class WorkonHelper:
             },
         )
 
-    def InstallPackage(self, package: str):
+    def InstallPackage(self, package: str) -> None:
         """Install a workon package.
 
         Args:
@@ -966,7 +966,7 @@ class WorkonHelper:
             [f"emerge-{self._system}", "--nodeps", atom], print_cmd=True
         )
 
-    def ScrubPackage(self, package: str):
+    def ScrubPackage(self, package: str) -> None:
         """Scrub a workon package.
 
         Args:
@@ -1036,7 +1036,7 @@ class WorkonHelper:
         result.sort()
         return result
 
-    def RunCommandInAtomSourceDirectory(self, atom, command: List[str]):
+    def RunCommandInAtomSourceDirectory(self, atom, command: List[str]) -> None:
         """Run a command in the source directory of an atom.
 
         Args:
@@ -1056,7 +1056,7 @@ class WorkonHelper:
 
     def RunCommandInPackages(
         self, packages, command: List[str], use_all=False, use_workon_only=False
-    ):
+    ) -> None:
         """Run a command in the source directory of a list of packages.
 
         Args:
@@ -1120,7 +1120,7 @@ class WorkonScope:
         self.stop_packages = sorted(set(after_workon) - set(self.before_workon))
         return self
 
-    def __exit__(self, exc_type, exc_val, tb):
+    def __exit__(self, exc_type, exc_val, tb) -> None:
         """Clean up context manager tasks for starting and stopping packages.
 
         Args:
@@ -1169,14 +1169,14 @@ class WorkonScope:
         else:
             logging.info("No packages needed to be restarted.")
 
-    def _start_packages(self, pkgs: Iterable[str]):
+    def _start_packages(self, pkgs: Iterable[str]) -> None:
         """Wrapper for self.WorkonHelper.StartWorkingOnPackages."""
         self.helper.StartWorkingOnPackages(pkgs)
 
-    def _stop_packages(self, pkgs: Iterable[str]):
+    def _stop_packages(self, pkgs: Iterable[str]) -> None:
         self.helper.StopWorkingOnPackages(pkgs)
 
-    def start(self, pkgs: Iterable[str]):
+    def start(self, pkgs: Iterable[str]) -> None:
         """Helper to allow the context manager to explicitly start packages.
 
         Invocations of this method will track started packages and stop them
@@ -1196,7 +1196,7 @@ class WorkonScope:
                 set(after_workon) - set(self.before_workon)
             )
 
-    def stop(self, pkgs: Iterable[str]):
+    def stop(self, pkgs: Iterable[str]) -> None:
         """Helper to allow the context manager to explicitly stop packages.
 
         If a package is stopped that was marked as workon before entering the

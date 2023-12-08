@@ -503,7 +503,7 @@ class EBuild:
         new_stable_ebuild_path: str,
         variables: Dict,
         make_stable: bool = True,
-    ):
+    ) -> None:
         """Static function that creates a revved stable ebuild.
 
         This function assumes you have already figured out the name of the new
@@ -522,7 +522,9 @@ class EBuild:
         EBuild.UpdateEBuild(new_stable_ebuild_path, variables, make_stable)
 
     @classmethod
-    def CommitChange(cls, message: str, overlay: Union[str, os.PathLike]):
+    def CommitChange(
+        cls, message: str, overlay: Union[str, os.PathLike]
+    ) -> None:
         """Commits current changes in git locally with given commit message.
 
         Args:
@@ -662,7 +664,7 @@ class EBuild:
             has_test and not restrict_tests,
         )
 
-    def _ReadEBuild(self, path):
+    def _ReadEBuild(self, path) -> None:
         """Determine is_workon, is_stable and is_manually_uprevved settings.
 
         These are determined using the static Classify function.
@@ -1120,7 +1122,7 @@ class EBuild:
 
     def RevWorkOnEBuild(
         self, srcroot, manifest, reject_self_repo=True, new_version=None
-    ):
+    ) -> None:
         """Revs a workon ebuild given the git commit hash.
 
         By default, this class overwrites a new ebuild given the normal
@@ -2792,7 +2794,7 @@ def CleanOutdatedBinaryPackages(
     return cros_build_lib.run(cmd)
 
 
-def _CheckHasTest(cp, sysroot, require_workon: bool = False):
+def _CheckHasTest(cp, sysroot, require_workon: bool = False) -> None:
     """Checks if the ebuild for |cp| has tests.
 
     Args:

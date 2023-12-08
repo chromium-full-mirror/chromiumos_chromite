@@ -123,7 +123,7 @@ def WriteFile(
     makedirs=False,
     sudo=False,
     chmod: Optional[int] = None,
-):
+) -> None:
     """Write the given content to disk.
 
     Args:
@@ -297,7 +297,7 @@ def Touch(
     os.utime(path, None)
 
 
-def Chmod(path: Union[Path, str], mode: int, sudo: bool = False):
+def Chmod(path: Union[Path, str], mode: int, sudo: bool = False) -> None:
     """Helper for changing file modes even if we have to elevate to root.
 
     Args:
@@ -326,7 +326,7 @@ def Chown(
     user: Union[str, int],
     group: Optional[Union[str, int]] = None,
     recursive: bool = False,
-):
+) -> None:
     """Simple sudo chown path to a user.
 
     Args:
@@ -465,7 +465,7 @@ def MD5HashFile(path: Union[str, os.PathLike]) -> str:
 
 def SafeSymlink(
     source: Union[Path, str], dest: Union[Path, str], sudo: bool = False
-):
+) -> None:
     """Create a symlink at |dest| pointing to |source|.
 
     This is done atomically by creating the symlink at a temporary file in the
@@ -802,7 +802,7 @@ def MoveDirContents(
         RmDir(from_dir)
 
 
-def RmDir(path, ignore_missing=False, sudo=False):
+def RmDir(path, ignore_missing=False, sudo=False) -> None:
     """Recursively remove a directory.
 
     Args:
@@ -841,7 +841,7 @@ class EmptyDirNonExistentException(BadPathsException):
     """EmptyDir called on a non-existent directory without ignore_missing."""
 
 
-def EmptyDir(path, ignore_missing=False, sudo=False, exclude=()):
+def EmptyDir(path, ignore_missing=False, sudo=False, exclude=()) -> None:
     """Remove all files inside a directory, including subdirs.
 
     Args:
@@ -1071,7 +1071,7 @@ def SetGlobalTempDir(tempdir_value, tempdir_env=None):
     return (old_tempdir_value, old_tempdir_env)
 
 
-def _TempDirSetup(self, prefix="tmp", set_global=False, base_dir=None):
+def _TempDirSetup(self, prefix="tmp", set_global=False, base_dir=None) -> None:
     """Generate a tempdir, modifying the object, and env to use it.
 
     Specifically, if set_global is True, then from this invocation forward,
@@ -1090,7 +1090,7 @@ def _TempDirSetup(self, prefix="tmp", set_global=False, base_dir=None):
         )
 
 
-def _TempDirTearDown(self, force_sudo, delete=True):
+def _TempDirTearDown(self, force_sudo, delete=True) -> None:
     # Note that _TempDirSetup may have failed, resulting in these attributes
     # not being set; this is why we use getattr here (and must).
     tempdir = getattr(self, "tempdir", None)
@@ -1137,11 +1137,11 @@ class TempDir:
         self.tempdir = None
         _TempDirSetup(self, **kwargs)
 
-    def SetSudoRm(self, enable=True):
+    def SetSudoRm(self, enable=True) -> None:
         """Sets |sudo_rm|, which forces us to delete temporary files as root."""
         self.sudo_rm = enable
 
-    def Cleanup(self):
+    def Cleanup(self) -> None:
         """Clean up the temporary directory."""
         if self.tempdir is not None:
             try:
@@ -1153,7 +1153,7 @@ class TempDir:
         """Return the temporary directory."""
         return self.tempdir
 
-    def __exit__(self, exc_type, exc_value, exc_traceback):
+    def __exit__(self, exc_type, exc_value, exc_traceback) -> None:
         try:
             self.Cleanup()
         except Exception:
@@ -1187,7 +1187,7 @@ class TempDir:
                 # If there was not an exception from the context, raise ours.
                 raise
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.Cleanup()
 
     def __str__(self):
@@ -1257,7 +1257,7 @@ def Mount(
     fstype: Union[None, str, bytes, int],
     flags: int,
     data: Union[None, str, bytes, int] = "",
-):
+) -> None:
     """Call the mount(2) func; see the man page for details.
 
     Args:
@@ -1322,7 +1322,7 @@ def MountDir(
     mount_opts=("nodev", "noexec", "nosuid"),
     skip_mtab=False,
     **kwargs,
-):
+) -> None:
     """Mount |src_path| at |dst_path|
 
     Args:
@@ -1359,7 +1359,7 @@ def MountTmpfsDir(
     size="5G",
     mount_opts=("nodev", "noexec", "nosuid"),
     **kwargs,
-):
+) -> None:
     """Mount a tmpfs at |path|
 
     Args:
@@ -1373,7 +1373,7 @@ def MountTmpfsDir(
     MountDir(name, path, fs_type="tmpfs", mount_opts=mount_opts, **kwargs)
 
 
-def UmountDir(path, lazy=True, sudo=True, cleanup=True):
+def UmountDir(path, lazy=True, sudo=True, cleanup=True) -> None:
     """Unmount a previously mounted temp fs mount.
 
     Args:
@@ -1452,7 +1452,7 @@ def UmountTree(
         UmountDir(mount_pt, lazy=lazy, cleanup=cleanup)
 
 
-def SetEnvironment(env):
+def SetEnvironment(env) -> None:
     """Restore the environment variables to that of passed in dictionary."""
     os.environ.clear()
     os.environ.update(env)
@@ -1761,7 +1761,7 @@ class MountOverlayContext:
 
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         UmountDir(self._mount_dir, cleanup=self._cleanup)
         _TempDirTearDown(self, force_sudo=True)
 

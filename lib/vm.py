@@ -223,7 +223,7 @@ class VM(device.Device):
         )
         self.InitRemote(connect_timeout=connect_timeout)
 
-    def _CreateVMDir(self):
+    def _CreateVMDir(self) -> None:
         """Safely create vm_dir."""
         if not osutils.SafeMakedirs(self.vm_dir):
             # For security, ensure that vm_dir is not a symlink, and is owned by
@@ -258,7 +258,7 @@ class VM(device.Device):
         logging.info("qcow2 image created at %s.", cow_image_path)
         return cow_image_path, "qcow2"
 
-    def _RmVMDir(self):
+    def _RmVMDir(self) -> None:
         """Cleanup vm_dir."""
         osutils.RmDir(self.vm_dir, ignore_missing=True, sudo=self.use_sudo)
 
@@ -291,7 +291,7 @@ class VM(device.Device):
             )
         return m.group(1)
 
-    def _CheckQemuMinVersion(self):
+    def _CheckQemuMinVersion(self) -> None:
         """Ensure minimum QEMU version."""
         if self.dryrun:
             return
@@ -304,7 +304,7 @@ class VM(device.Device):
                 % (min_qemu_version, self.QemuVersion())
             )
 
-    def _SetQemuPath(self):
+    def _SetQemuPath(self) -> None:
         """Find a suitable Qemu executable."""
         qemu_exe = "qemu-system-x86_64"
         # Newer CrOS qemu builds provide a standalone version under libexec.
@@ -378,7 +378,7 @@ class VM(device.Device):
                 return vm_image
         return None
 
-    def _SetVMImagePath(self):
+    def _SetVMImagePath(self) -> None:
         """Detect VM image path in SDK and chroot."""
         if not self.image_path:
             self.image_path = (
@@ -398,7 +398,7 @@ class VM(device.Device):
                 raise VMError("VM image does not exist: %s" % self.image_path)
         logging.debug("VM image path: %s", self.image_path)
 
-    def _SetBoard(self):
+    def _SetBoard(self) -> None:
         """Sets the board.
 
         Picks the first non-None board from the user-specified board,
@@ -412,13 +412,13 @@ class VM(device.Device):
         sdk_board_env = os.environ.get(cros_chrome_sdk.SDKFetcher.SDK_BOARD_ENV)
         self.board = cros_build_lib.GetBoard(sdk_board_env, strict=True)
 
-    def _WaitForSSHPort(self, sleep=5):
+    def _WaitForSSHPort(self, sleep=5) -> None:
         """Wait for SSH port to become available."""
 
         class _SSHPortInUseError(Exception):
             """Exception for _CheckSSHPortBusy to throw."""
 
-        def _CheckSSHPortBusy(ssh_port):
+        def _CheckSSHPortBusy(ssh_port) -> None:
             """Check if the SSH port is in use."""
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
@@ -440,7 +440,7 @@ class VM(device.Device):
         except _SSHPortInUseError:
             raise VMError("SSH port %d in use" % self.ssh_port)
 
-    def Run(self):
+    def Run(self) -> None:
         """Perform an action, one of start, stop, or run a command in the VM."""
         if not self.start and not self.stop and not self.cmd:
             raise VMError("Must specify one of start, stop, or cmd.")
@@ -539,7 +539,7 @@ class VM(device.Device):
 
         return qemu_args
 
-    def Start(self, retries=1):
+    def Start(self, retries=1) -> None:
         """Start the VM.
 
         Args:
@@ -621,7 +621,7 @@ class VM(device.Device):
         # Make sure the process actually exists.
         return os.path.isdir("/proc/%i" % pid)
 
-    def SaveVMImageOnShutdown(self, output_dir):
+    def SaveVMImageOnShutdown(self, output_dir) -> None:
         """Take a VM snapshot via savevm and signal to save the VM image later.
 
         Args:
@@ -663,7 +663,7 @@ class VM(device.Device):
             if not success:
                 logging.warning("Timed out trying to take VM snapshot")
 
-    def _KillVM(self):
+    def _KillVM(self) -> None:
         """Kill the VM process."""
         pid = self._GetVMPid()
         if pid:
@@ -673,7 +673,7 @@ class VM(device.Device):
             )
             run(["kill", "-9", str(pid)], check=False, dryrun=self.dryrun)
 
-    def _MaybeCopyVMImage(self):
+    def _MaybeCopyVMImage(self) -> None:
         """Saves the VM image to a location on disk if previously told to."""
         if not self.copy_image_on_shutdown:
             return
@@ -687,7 +687,7 @@ class VM(device.Device):
             ),
         )
 
-    def Stop(self):
+    def Stop(self) -> None:
         """Stop the VM."""
         logging.debug("Stop VM")
 
@@ -696,19 +696,19 @@ class VM(device.Device):
         self._MaybeCopyVMImage()
         self._RmVMDir()
 
-    def _WaitForProcs(self, sleep=2):
+    def _WaitForProcs(self, sleep=2) -> None:
         """Wait for expected processes to launch."""
 
         class _TooFewPidsException(Exception):
             """Exception for _GetRunningPids to throw."""
 
-        def _GetRunningPids(exe, numpids):
+        def _GetRunningPids(exe, numpids) -> None:
             pids = self.remote.GetRunningPids(exe, full_path=False)
             logging.info("%s pids: %s", exe, repr(pids))
             if len(pids) < numpids:
                 raise _TooFewPidsException()
 
-        def _WaitForProc(exe, numpids):
+        def _WaitForProc(exe, numpids) -> None:
             try:
                 retry_util.RetryException(
                     exception=_TooFewPidsException,
@@ -727,7 +727,7 @@ class VM(device.Device):
         # utility-process, 3 renderers.
         _WaitForProc("chrome", 8)
 
-    def WaitForBoot(self, max_retry=3, sleep=5):
+    def WaitForBoot(self, max_retry=3, sleep=5) -> None:
         """Wait for the VM to boot up.
 
         Wait for ssh connection to become active, and wait for all expected

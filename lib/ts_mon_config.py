@@ -141,7 +141,7 @@ def SetupTsMonGlobalState(
         return TrivialContextManager()
 
 
-def _SetupTsMonFromOptions(options, suppress_exception):
+def _SetupTsMonFromOptions(options, suppress_exception) -> None:
     """Sets up ts-mon global state given parsed argparse options.
 
     Args:
@@ -259,7 +259,7 @@ def _CreateTsMonFlushingProcess(options):
             _CleanupMetricsFlushingProcess()
 
 
-def _CleanupMetricsFlushingProcess():
+def _CleanupMetricsFlushingProcess() -> None:
     """Sends sentinal value to flushing process and .joins it."""
     # Now that there is no longer a process to listen to the Queue, re-set it
     # to None so that any future metrics are created within this process.
@@ -325,7 +325,7 @@ class MetricConsumer:
                 signal.SIGHUP, lambda _sig, _stack: self._WaitToFlush()
             )
 
-    def Consume(self):
+    def Consume(self) -> None:
         """Emits metrics from self.message_q, flushing periodically.
 
         The loop is terminated by a None entry on the Queue, which is a friendly
@@ -341,7 +341,7 @@ class MetricConsumer:
         if self.pending:
             self._WaitToFlush()
 
-    def _CallMetric(self, message):
+    def _CallMetric(self, message) -> None:
         """Calls the metric method from |message|, ignoring exceptions."""
         try:
             cls = getattr(metrics, message.metric_name)
@@ -377,7 +377,7 @@ class MetricConsumer:
             except Queue.Empty:
                 pass
 
-    def _WaitToFlush(self):
+    def _WaitToFlush(self) -> None:
         """Sleep until the next time we can call metrics.Flush(), then flush."""
         time_delta = time.time() - self.last_flush
         time.sleep(max(0, FLUSH_INTERVAL - time_delta))

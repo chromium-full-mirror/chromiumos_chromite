@@ -35,28 +35,28 @@ CMDLINE = (
 class KernelArgTest(cros_test_lib.TestCase):
     """Test KernelArg."""
 
-    def testKeyOnly(self):
+    def testKeyOnly(self) -> None:
         """Expands arg-only arg."""
         kv = kernel_cmdline.KernelArg("arg", None)
         self.assertEqual("arg", kv.arg)
         self.assertEqual(None, kv.value)
         self.assertEqual("arg", kv.Format())
 
-    def testKeyEqual(self):
+    def testKeyEqual(self) -> None:
         """Expands arg= arg."""
         kv = kernel_cmdline.KernelArg("arg", "")
         self.assertEqual("arg", kv.arg)
         self.assertEqual("", kv.value)
         self.assertEqual("arg=", kv.Format())
 
-    def testKernelArg(self):
+    def testKernelArg(self) -> None:
         """Expands arg=value arg."""
         kv = kernel_cmdline.KernelArg("arg", "value")
         self.assertEqual("arg", kv.arg)
         self.assertEqual("value", kv.value)
         self.assertEqual("arg=value", kv.Format())
 
-    def testRejectsBadValue(self):
+    def testRejectsBadValue(self) -> None:
         """Rejects non-string values."""
         kv = [kernel_cmdline.KernelArg("b", None)]
         with self.assertRaises(ValueError):
@@ -75,7 +75,7 @@ class KernelArgTest(cros_test_lib.TestCase):
         with self.assertRaises(ValueError):
             kernel_cmdline.KernelArg("a", '"aaaa')
 
-    def testAddsQuotes(self):
+    def testAddsQuotes(self) -> None:
         """Test that init adds double-quotes when needed."""
         kv1 = kernel_cmdline.KernelArg("d", "9 9")
         self.assertEqual("d", kv1.arg)
@@ -89,7 +89,7 @@ class KernelArgTest(cros_test_lib.TestCase):
         self.assertEqual('"a a"', kv2.value)
         self.assertEqual('d="a a"', kv2.Format())
 
-    def testEqual(self):
+    def testEqual(self) -> None:
         """Test __eq__()."""
         kv1 = kernel_cmdline.KernelArg("a", "b")
         kv2 = kernel_cmdline.KernelArg("a", "b")
@@ -101,7 +101,7 @@ class KernelArgTest(cros_test_lib.TestCase):
         self.assertFalse(kv1 == kv4)
         self.assertTrue(kv4 == kv5)
 
-    def testNotEqual(self):
+    def testNotEqual(self) -> None:
         """Test __ne__()."""
         kv1 = kernel_cmdline.KernelArg("a", "b")
         kv2 = kernel_cmdline.KernelArg("a", "b")
@@ -117,7 +117,7 @@ class KernelArgTest(cros_test_lib.TestCase):
 class KernelArgListTest(cros_test_lib.TestCase):
     """Test KernelArgList()."""
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         """Test a simple command line string."""
         expected = [
             kernel_cmdline.KernelArg("a", None),
@@ -136,17 +136,17 @@ class KernelArgListTest(cros_test_lib.TestCase):
         self.assertEqual(len(expected), len(kl))
         self.assertEqual(expected, list(kl))
 
-    def testSetDefaultValue(self):
+    def testSetDefaultValue(self) -> None:
         """Test that we can create an instance with no value given."""
         kl = kernel_cmdline.KernelArgList()
         self.assertEqual([], kl._data)
         self.assertEqual(0, len(kl))
 
-    def testReturnsEmptyList(self):
+    def testReturnsEmptyList(self) -> None:
         """Test that strings with no arguments return an empty list."""
         self.assertEqual([], kernel_cmdline.KernelArgList("  ")._data)
 
-    def testForcesInternalType(self):
+    def testForcesInternalType(self) -> None:
         """Test that the internal type is correctly forced."""
         expected = [
             kernel_cmdline.KernelArg("c", "d"),
@@ -163,7 +163,7 @@ class KernelArgListTest(cros_test_lib.TestCase):
         # Test __iter__().
         self.assertEqual(expected, list(kl))
 
-    def testRejectsInvalidInput(self):
+    def testRejectsInvalidInput(self) -> None:
         """Test that invalid command line strings are rejected."""
         # Non-KernelArg values.
         with self.assertRaises(ValueError):
@@ -179,7 +179,7 @@ class KernelArgListTest(cros_test_lib.TestCase):
         with self.assertRaises(ValueError):
             kernel_cmdline.KernelArgList('a b=" c')
 
-    def testEqual(self):
+    def testEqual(self) -> None:
         """Test __eq__()."""
         kv1 = kernel_cmdline.KernelArgList("a b= c")
         kv2 = kernel_cmdline.KernelArgList("a b= c")
@@ -188,7 +188,7 @@ class KernelArgListTest(cros_test_lib.TestCase):
         self.assertTrue(kv1 == kv2._data)
         self.assertFalse(kv1 == kv3)
 
-    def testNotEqual(self):
+    def testNotEqual(self) -> None:
         """Test __ne__()."""
         kv1 = kernel_cmdline.KernelArgList("a b= c")
         kv2 = kernel_cmdline.KernelArgList("a b= c")
@@ -197,7 +197,7 @@ class KernelArgListTest(cros_test_lib.TestCase):
         self.assertFalse(kv1 != kv2._data)
         self.assertTrue(kv1 != kv3)
 
-    def testAdd(self):
+    def testAdd(self) -> None:
         """Adding two KernelArgLists yields the correct KernelArgList."""
         kv1 = kernel_cmdline.KernelArgList("a b")
         kv2 = kernel_cmdline.KernelArgList("a d")
@@ -205,7 +205,7 @@ class KernelArgListTest(cros_test_lib.TestCase):
         self.assertEqual(type(res), kernel_cmdline.KernelArgList)
         self.assertEqual(res, kernel_cmdline.KernelArgList("a b a d"))
 
-    def testIadd(self):
+    def testIadd(self) -> None:
         """Test that += yields the correct KernelArgList."""
         kv1 = kernel_cmdline.KernelArgList("a b")
         kv2 = kernel_cmdline.KernelArgList("a d")
@@ -213,7 +213,7 @@ class KernelArgListTest(cros_test_lib.TestCase):
         self.assertEqual(type(kv1), kernel_cmdline.KernelArgList)
         self.assertEqual(kv1, kernel_cmdline.KernelArgList("a b a d"))
 
-    def testContains(self):
+    def testContains(self) -> None:
         """Accepts KernelArg."""
         kv1 = kernel_cmdline.KernelArg("a", None)
         kv2 = kernel_cmdline.KernelArg("arg", "value")
@@ -223,14 +223,14 @@ class KernelArgListTest(cros_test_lib.TestCase):
         self.assertTrue(kv2 in kl)
         self.assertFalse(kv3 in kl)
 
-    def testContainsAcceptsString(self):
+    def testContainsAcceptsString(self) -> None:
         """Accepts KernelArg."""
         kl = kernel_cmdline.KernelArgList("a arg=value b c")
         self.assertTrue("a" in kl)
         self.assertTrue("arg" in kl)
         self.assertFalse("z" in kl)
 
-    def testDelitem(self):
+    def testDelitem(self) -> None:
         """Test del."""
         kl = kernel_cmdline.KernelArgList("a b=3 c d e")
         del kl[0]
@@ -239,13 +239,13 @@ class KernelArgListTest(cros_test_lib.TestCase):
             del kl["z"]
         self.assertEqual(kl, kernel_cmdline.KernelArgList("c d e"))
 
-    def testDelslice(self):
+    def testDelslice(self) -> None:
         """Test del."""
         kl = kernel_cmdline.KernelArgList("a b=3 c d e")
         del kl[1:3]
         self.assertEqual(kl, kernel_cmdline.KernelArgList("a d e"))
 
-    def testGetslice(self):
+    def testGetslice(self) -> None:
         """Test that __getslice__ works."""
         kl = kernel_cmdline.KernelArgList("a b c d")
         sl = kl[1:3]
@@ -255,27 +255,27 @@ class KernelArgListTest(cros_test_lib.TestCase):
             kernel_cmdline.KernelArgList("b c"),
         )
 
-    def testGetitemAcceptsInt(self):
+    def testGetitemAcceptsInt(self) -> None:
         """Test that __getitem__ works with an integer index."""
         self.assertEqual(
             kernel_cmdline.KernelArgList("a b=3 c d").__getitem__(1),
             kernel_cmdline.KernelArg("b", "3"),
         )
 
-    def testGetitemAcceptsStr(self):
+    def testGetitemAcceptsStr(self) -> None:
         """Test that __getitem__ works with a str."""
         self.assertEqual(
             kernel_cmdline.KernelArgList("a b=3 c d").__getitem__("b"),
             kernel_cmdline.KernelArg("b", "3"),
         )
 
-    def testGetItemRaisesKeyError(self):
+    def testGetItemRaisesKeyError(self) -> None:
         """Test that __getitem__ raises KeyError on invalid key."""
         kv = kernel_cmdline.KernelArgList("a x y d")
         with self.assertRaises(KeyError):
             kv.__getitem__("z")
 
-    def testSetslice(self):
+    def testSetslice(self) -> None:
         """Test that __setslice__ works."""
         kv = kernel_cmdline.KernelArgList("a x y d")
         # Test setting a slice to a KernelArgList.
@@ -289,28 +289,28 @@ class KernelArgListTest(cros_test_lib.TestCase):
         kv[1:2] = "x y=4"
         self.assertEqual(kernel_cmdline.KernelArgList("a x y=4 c d"), kv)
 
-    def testSetitemAcceptsInt(self):
+    def testSetitemAcceptsInt(self) -> None:
         """Test that __setitem__ works with an integer index."""
         kv = kernel_cmdline.KernelArgList("a b=3 c d")
         new_val = kernel_cmdline.KernelArg("b", "4")
         kv[1] = new_val
         self.assertEqual(kv[1], new_val)
 
-    def testSetitemAcceptsStr(self):
+    def testSetitemAcceptsStr(self) -> None:
         """Test that __setitem__ works with a str."""
         kv = kernel_cmdline.KernelArgList("a b=3 c d")
         new_val = kernel_cmdline.KernelArg("b", "4")
         kv["b"] = new_val
         self.assertEqual(kv[1], new_val)
 
-    def testSetitemAppendsWithNewKeyStr(self):
+    def testSetitemAppendsWithNewKeyStr(self) -> None:
         """Test that __setitem__ appends with a new key (str)."""
         kv = kernel_cmdline.KernelArgList("a b=3 c d")
         new_val = kernel_cmdline.KernelArg("y", "4")
         kv.__setitem__("y", new_val)
         self.assertEqual(kv[4], new_val)
 
-    def testSetitemRejectsBadValues(self):
+    def testSetitemRejectsBadValues(self) -> None:
         """Test that __setitem__ rejects bad values."""
         kv = kernel_cmdline.KernelArgList("a b=3 c d")
         with self.assertRaises(ValueError):
@@ -320,7 +320,7 @@ class KernelArgListTest(cros_test_lib.TestCase):
             # Int is not KernelArg
             kv["foo"] = 1
 
-    def testInsert(self):
+    def testInsert(self) -> None:
         """Test that insert() works."""
         kv = kernel_cmdline.KernelArgList("a b=3 c d")
         kv.insert(1, kernel_cmdline.KernelArg("f", None))
@@ -344,34 +344,34 @@ class KernelArgListTest(cros_test_lib.TestCase):
         with self.assertRaises(ValueError):
             kv.insert("z", expected)
 
-    def testFormat(self):
+    def testFormat(self) -> None:
         """Test that Format works."""
         self.assertEqual(
             "a x= b=c d", kernel_cmdline.KernelArgList("a x= b=c d").Format()
         )
 
-    def testIndex(self):
+    def testIndex(self) -> None:
         """Test that index finds the correct thing."""
         kv = kernel_cmdline.KernelArgList("a b=c d e")
         self.assertEqual(1, kv.index(1))
         self.assertEqual(1, kv.index("b"))
         self.assertEqual(None, kv.index("z"))
 
-    def testget(self):
+    def testget(self) -> None:
         """Test that Get returns the correct value for all key types."""
         kv = kernel_cmdline.KernelArgList("a b=c d e")
         self.assertEqual(kernel_cmdline.KernelArg("d", None), kv.get(2))
         self.assertEqual(kernel_cmdline.KernelArg("d", None), kv.get("d"))
         self.assertEqual("default", kv.get("z", default="default"))
 
-    def testUpdateAcceptsKwargs(self):
+    def testUpdateAcceptsKwargs(self) -> None:
         """Test update() with kwargs."""
         kv1 = kernel_cmdline.KernelArgList("a b c")
         kv1.update(b="f")
         kv2 = kernel_cmdline.KernelArgList("a b=f c")
         self.assertEqual(kv2, kv1)
 
-    def testUpdateAcceptsDict(self):
+    def testUpdateAcceptsDict(self) -> None:
         """Test update() accepts a dict."""
         kl1 = kernel_cmdline.KernelArgList("a=b")
         other = {"arg": "value"}
@@ -379,7 +379,7 @@ class KernelArgListTest(cros_test_lib.TestCase):
         expected = kernel_cmdline.KernelArgList("a=b arg=value")
         self.assertEqual(expected, kl1)
 
-    def testUpdateAcceptsKernelArgList(self):
+    def testUpdateAcceptsKernelArgList(self) -> None:
         """Test update() accepts a KernelArg."""
         kl1 = kernel_cmdline.KernelArgList("a=b")
         kl2 = kernel_cmdline.KernelArgList("arg=value")
@@ -387,13 +387,13 @@ class KernelArgListTest(cros_test_lib.TestCase):
         expected = kernel_cmdline.KernelArgList("a=b arg=value")
         self.assertEqual(expected, kl1)
 
-    def testUpdateAcceptsSetKernelArgUsage(self):
+    def testUpdateAcceptsSetKernelArgUsage(self) -> None:
         kl1 = kernel_cmdline.KernelArgList('a dm="foo baz" b')
         kl1.update({"dm": DM})
         expected = kernel_cmdline.KernelArgList('a dm="%s" b' % DM)
         self.assertEqual(expected, kl1)
 
-    def testUpdateAppends(self):
+    def testUpdateAppends(self) -> None:
         """Test update() appends new arg."""
         kv = kernel_cmdline.KernelArgList("a b c")
         kv.update(kernel_cmdline.KernelArgList("d=99"), e="zz")
@@ -404,7 +404,7 @@ class KernelArgListTest(cros_test_lib.TestCase):
 class CommandLineTest(cros_test_lib.MockTestCase):
     """Test the CommandLine class."""
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         """Test a simple command line string."""
         expected_kern = [
             kernel_cmdline.KernelArg("a", None),
@@ -423,7 +423,7 @@ class CommandLineTest(cros_test_lib.MockTestCase):
         self.assertEqual(cmd.kern_args, expected_kern)
         self.assertEqual(cmd.init_args, expected_init)
 
-    def testEmptyInit(self):
+    def testEmptyInit(self) -> None:
         """Test that 'a --' behaves as expected."""
         expected_kern = [kernel_cmdline.KernelArg("a", None)]
         expected_init = []
@@ -431,7 +431,7 @@ class CommandLineTest(cros_test_lib.MockTestCase):
         self.assertEqual(expected_kern, cmd.kern_args)
         self.assertEqual(expected_init, cmd.init_args)
 
-    def testEmptyKern(self):
+    def testEmptyKern(self) -> None:
         """Test that '-- a' behaves as expected."""
         expected_kern = []
         expected_init = [kernel_cmdline.KernelArg("a", None)]
@@ -439,7 +439,7 @@ class CommandLineTest(cros_test_lib.MockTestCase):
         self.assertEqual(expected_kern, cmd.kern_args)
         self.assertEqual(expected_init, cmd.init_args)
 
-    def testEmptyArg(self):
+    def testEmptyArg(self) -> None:
         """Test that '' behaves as expected."""
         expected_kern = []
         expected_init = []
@@ -447,7 +447,7 @@ class CommandLineTest(cros_test_lib.MockTestCase):
         self.assertEqual(expected_kern, cmd.kern_args)
         self.assertEqual(expected_init, cmd.init_args)
 
-    def testEqual(self):
+    def testEqual(self) -> None:
         """Test that CommandLine equal compare works."""
         # Confirm that != is False, and == is True
         self.assertFalse(
@@ -459,7 +459,7 @@ class CommandLineTest(cros_test_lib.MockTestCase):
             == kernel_cmdline.CommandLine("a b -- d e")
         )
 
-    def testNotEqual(self):
+    def testNotEqual(self) -> None:
         """Test that CommandLine equal compare works."""
         # Confirm that == is False, and != is True
         self.assertFalse(
@@ -471,7 +471,7 @@ class CommandLineTest(cros_test_lib.MockTestCase):
             != kernel_cmdline.CommandLine("a b -- d f")
         )
 
-    def testDashesOnly(self):
+    def testDashesOnly(self) -> None:
         """Test that '--' behaves as expected."""
         expected_kern = []
         expected_init = []
@@ -479,7 +479,7 @@ class CommandLineTest(cros_test_lib.MockTestCase):
         self.assertEqual(expected_kern, cmd.kern_args)
         self.assertEqual(expected_init, cmd.init_args)
 
-    def testExpandsDm(self):
+    def testExpandsDm(self) -> None:
         """Test that we do not expand dm="..."."""
         expected_kern = [
             kernel_cmdline.KernelArg("a", None),
@@ -496,49 +496,49 @@ class CommandLineTest(cros_test_lib.MockTestCase):
         self.assertEqual(expected_kern, cmd.kern_args)
         self.assertEqual(expected_init, cmd.init_args)
 
-    def testGetKernelParameter(self):
+    def testGetKernelParameter(self) -> None:
         """Test GetKernelParameter calls Get."""
         get = self.PatchObject(kernel_cmdline.KernelArgList, "get")
         cmd = kernel_cmdline.CommandLine("a b c b=3")
         cmd.GetKernelParameter(1)
         get.assert_called_once_with(1, default=None)
 
-    def testGetKernelParameterPassesDefault(self):
+    def testGetKernelParameterPassesDefault(self) -> None:
         """Test GetKernelParameter calls Get with default=."""
         get = self.PatchObject(kernel_cmdline.KernelArgList, "get")
         cmd = kernel_cmdline.CommandLine("a b c b=3")
         cmd.GetKernelParameter(1, default=3)
         get.assert_called_once_with(1, default=3)
 
-    def testSetKernelParameter(self):
+    def testSetKernelParameter(self) -> None:
         """Test SetKernelParameter calls update."""
         mock_update = self.PatchObject(kernel_cmdline.KernelArgList, "update")
         cmd = kernel_cmdline.CommandLine("a b c b=3")
         cmd.SetKernelParameter("d", "e")
         mock_update.assert_called_once_with({"d": "e"})
 
-    def testFormat(self):
+    def testFormat(self) -> None:
         """Test that the output is correct."""
         self.assertEqual(CMDLINE, kernel_cmdline.CommandLine(CMDLINE).Format())
 
-    def testGetDmConfig(self):
+    def testGetDmConfig(self) -> None:
         """Test that GetDmConfig returns the DmConfig we expect."""
         cmd = kernel_cmdline.CommandLine(CMDLINE)
         dm = kernel_cmdline.DmConfig(DM)
         self.assertEqual(dm, cmd.GetDmConfig())
 
-    def testGetDmConfigHandlesMissing(self):
+    def testGetDmConfigHandlesMissing(self) -> None:
         """Test that GetDmConfig works with no dm= parameter."""
         cmd = kernel_cmdline.CommandLine("a b")
         self.assertEqual(None, cmd.GetDmConfig())
 
-    def testSetDmConfig(self):
+    def testSetDmConfig(self) -> None:
         """Test that SetDmConfig sets the dm= parameter."""
         cmd = kernel_cmdline.CommandLine("a -- b")
         cmd.SetDmConfig(kernel_cmdline.DmConfig(DM))
         self.assertEqual(kernel_cmdline.KernelArg("dm", DM), cmd.kern_args[1])
 
-    def testSetDmConfigAcceptsNone(self):
+    def testSetDmConfigAcceptsNone(self) -> None:
         """Test that SetDmConfig deletes the dm= parameter when set to None."""
         cmd = kernel_cmdline.CommandLine('a dm="0 vroot none 0" -- b')
         cmd.SetDmConfig(None)
@@ -549,7 +549,7 @@ class CommandLineTest(cros_test_lib.MockTestCase):
 class DmConfigTest(cros_test_lib.TestCase):
     """Test DmConfig."""
 
-    def testParses(self):
+    def testParses(self) -> None:
         """Verify that DmConfig correctly parses the config from DmDevice."""
         device_data = [
             ["vboot uuid ro 1", "0 1 verity arg1 arg2"],
@@ -566,7 +566,7 @@ class DmConfigTest(cros_test_lib.TestCase):
         self.assertEqual(len(device_data), dc.num_devices)
         self.assertEqual(devices, list(dc.devices.values()))
 
-    def testIgnoresQuotes(self):
+    def testIgnoresQuotes(self) -> None:
         """Verify that DmConfig works with quoted string."""
         device_data = [
             ["vboot uuid ro 1", "0 1 verity arg1 arg2"],
@@ -583,7 +583,7 @@ class DmConfigTest(cros_test_lib.TestCase):
         self.assertEqual(len(device_data), dc.num_devices)
         self.assertEqual(devices, list(dc.devices.values()))
 
-    def testFormats(self):
+    def testFormats(self) -> None:
         """Verify that DmConfig recreates its input string."""
         device_data = [
             ["vboot uuid ro 1", "0 1 verity arg1 arg2"],
@@ -599,7 +599,7 @@ class DmConfigTest(cros_test_lib.TestCase):
         dc = kernel_cmdline.DmConfig(dm_config_val)
         self.assertEqual(dm_config_val, dc.Format())
 
-    def testEqual(self):
+    def testEqual(self) -> None:
         """Test that equal instances are equal."""
         arg = "2 v1 u1 f1 1,0 1 t1 a1, v2 u2 f2 2,3 4 t2 a2,5 6 t3 a3"
         dc = kernel_cmdline.DmConfig(arg)
@@ -608,7 +608,7 @@ class DmConfigTest(cros_test_lib.TestCase):
         # Also verify that != is False.
         self.assertFalse(dc != kernel_cmdline.DmConfig(arg))
 
-    def testNotEqual(self):
+    def testNotEqual(self) -> None:
         """Test that unequal instances are unequal."""
         # Start with duplicated instances, and change fields to verify that all
         # the fields matter.
@@ -622,7 +622,7 @@ class DmConfigTest(cros_test_lib.TestCase):
         dc3.devices = []
         self.assertNotEqual(dc1, dc3)
 
-    def testGetVerityArg(self):
+    def testGetVerityArg(self) -> None:
         """Test that GetVerityArg works."""
         arg = ["v1 u1 f1 1", "0 1 verity a1 a2=v2"]
         a1 = kernel_cmdline.KernelArg("a1", None)
@@ -633,7 +633,7 @@ class DmConfigTest(cros_test_lib.TestCase):
         self.assertEqual(None, dd.GetVerityArg("a3", default=None))
         self.assertEqual(a1, dd.GetVerityArg("a3", default=a1))
 
-    def testGetVerityArgMultiLine(self):
+    def testGetVerityArgMultiLine(self) -> None:
         """Test that GetVerityArg works."""
         arg = [
             "v1 u1 f1 3",
@@ -650,7 +650,7 @@ class DmConfigTest(cros_test_lib.TestCase):
         self.assertEqual(None, dd.GetVerityArg("a9", default=None))
         self.assertEqual(a1, dd.GetVerityArg("a9", default=a1))
 
-    def testUpdateVerityArg(self):
+    def testUpdateVerityArg(self) -> None:
         """Test that UpdateVerityArg works."""
         arg = ["v1 u1 f1 1", "0 1 verity a1 a2=v2"]
         dd = kernel_cmdline.DmDevice(arg)
@@ -663,7 +663,7 @@ class DmConfigTest(cros_test_lib.TestCase):
             kernel_cmdline.KernelArg("a3", None), dd.rows[0].args[2]
         )
 
-    def testUpdateVerityArgMultiLine(self):
+    def testUpdateVerityArgMultiLine(self) -> None:
         """Test that UpdateVerityArg works."""
         arg = [
             "v1 u1 f1 3",
@@ -685,7 +685,7 @@ class DmConfigTest(cros_test_lib.TestCase):
 class DmDeviceTest(cros_test_lib.TestCase):
     """Test DmDevice."""
 
-    def testParsesOneLine(self):
+    def testParsesOneLine(self) -> None:
         """Verify that DmDevice correctly handles the results from DmLine."""
         lines = ["vboot none ro 1", "0 1 verity arg"]
         dd = kernel_cmdline.DmDevice(lines)
@@ -695,7 +695,7 @@ class DmDeviceTest(cros_test_lib.TestCase):
         self.assertEqual(1, dd.num_rows)
         self.assertEqual([kernel_cmdline.DmLine("0 1 verity arg")], dd.rows)
 
-    def testParsesMultiLine(self):
+    def testParsesMultiLine(self) -> None:
         """Verify that DmDevice correctly handles multiline device."""
         lines = ["vboot none ro 2", "0 1 verity arg", "9 10 type a2"]
         dd = kernel_cmdline.DmDevice(lines)
@@ -711,7 +711,7 @@ class DmDeviceTest(cros_test_lib.TestCase):
             dd.rows,
         )
 
-    def testParsesIgnoresExcessRows(self):
+    def testParsesIgnoresExcessRows(self) -> None:
         """Verify that DmDevice ignores excess rows."""
         lines = [
             "vboot none ro 2",
@@ -732,7 +732,7 @@ class DmDeviceTest(cros_test_lib.TestCase):
             dd.rows,
         )
 
-    def testEqual(self):
+    def testEqual(self) -> None:
         """Test that equal instances are equal."""
         dd = kernel_cmdline.DmDevice(["v u f 1", "0 1 typ a"])
         self.assertEqual(dd, kernel_cmdline.DmDevice(["v u f 1", "0 1 typ a"]))
@@ -741,7 +741,7 @@ class DmDeviceTest(cros_test_lib.TestCase):
             dd != kernel_cmdline.DmDevice(["v u f 1", "0 1 typ a"])
         )
 
-    def testMultiLineEqual(self):
+    def testMultiLineEqual(self) -> None:
         """Test that equal instances are equal."""
         dd = kernel_cmdline.DmDevice(["v u f 2", "0 1 typ a", "2 3 t b"])
         self.assertEqual(
@@ -751,7 +751,7 @@ class DmDeviceTest(cros_test_lib.TestCase):
             dd != kernel_cmdline.DmDevice(["v u f 2", "0 1 typ a", "2 3 t b"])
         )
 
-    def testNotEqual(self):
+    def testNotEqual(self) -> None:
         """Test that unequal instances are unequal."""
         dd = kernel_cmdline.DmDevice(["v u f 2", "0 1 typ a", "2 3 t b"])
         self.assertNotEqual(dd, "")
@@ -775,7 +775,7 @@ class DmDeviceTest(cros_test_lib.TestCase):
 class DmLineTest(cros_test_lib.TestCase):
     """Test DmLine."""
 
-    def testParses(self):
+    def testParses(self) -> None:
         """Verify that DmLine correctly parses a line, and returns it."""
         text = "0 1 verity a1 a2=v2 a3"
         dl = kernel_cmdline.DmLine(text)
@@ -785,7 +785,7 @@ class DmLineTest(cros_test_lib.TestCase):
         self.assertEqual(kernel_cmdline.KernelArgList("a1 a2=v2 a3"), dl.args)
         self.assertEqual(text, dl.Format())
 
-    def testAllowsWhitespace(self):
+    def testAllowsWhitespace(self) -> None:
         """Verify that leading/trailing whitespace is ignored."""
         text = "0 1 verity a1 a2=v2 a3"
         dl = kernel_cmdline.DmLine(" %s " % text)
@@ -795,13 +795,13 @@ class DmLineTest(cros_test_lib.TestCase):
         self.assertEqual(kernel_cmdline.KernelArgList("a1 a2=v2 a3"), dl.args)
         self.assertEqual(text, dl.Format())
 
-    def testEqual(self):
+    def testEqual(self) -> None:
         """Test that equal instances are equal."""
         dl = kernel_cmdline.DmLine("0 1 verity a1 a2=v2 a3")
         self.assertEqual(dl, kernel_cmdline.DmLine("0 1 verity a1 a2=v2 a3"))
         self.assertFalse(dl != kernel_cmdline.DmLine("0 1 verity a1 a2=v2 a3"))
 
-    def testNotEqual(self):
+    def testNotEqual(self) -> None:
         """Test that unequal instances are unequal."""
         dl = kernel_cmdline.DmLine("0 1 verity a1 a2=v2 a3")
         self.assertNotEqual(dl, "")

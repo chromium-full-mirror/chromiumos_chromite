@@ -41,7 +41,7 @@ _DLC_LOADPIN_FILE_HEADER = "# LOADPIN_TRUSTED_VERITY_ROOT_DIGESTS"
 class DlcArtifactsTest(cros_test_lib.TempDirTestCase):
     """Test dlc_lib DlcArtifacts."""
 
-    def testInit(self):
+    def testInit(self) -> None:
         """Test init and attributes are as expected."""
         image_path = os.path.join(self.tempdir, dlc_lib.DLC_IMAGE)
         osutils.WriteFile(image_path, "0")
@@ -55,7 +55,7 @@ class DlcArtifactsTest(cros_test_lib.TempDirTestCase):
             "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
         )
 
-    def testBadNamingInit(self):
+    def testBadNamingInit(self) -> None:
         """Test that DLC image names are as expected."""
         with self.assertRaises(dlc_lib.Error):
             dlc_lib.DlcArtifacts(
@@ -67,7 +67,7 @@ class DlcArtifactsTest(cros_test_lib.TempDirTestCase):
 class UtilsTest(cros_test_lib.TempDirTestCase):
     """Tests dlc_lib utility functions."""
 
-    def testHashFile(self):
+    def testHashFile(self) -> None:
         """Test the hash of a simple file."""
         file_path = os.path.join(self.tempdir, "f.txt")
         osutils.WriteFile(file_path, "0123")
@@ -78,7 +78,7 @@ class UtilsTest(cros_test_lib.TempDirTestCase):
             "8eba1b75baed65f5d99eafa948899a6a",
         )
 
-    def testValidateDlcIdentifier(self):
+    def testValidateDlcIdentifier(self) -> None:
         """Tests dlc_lib.ValidateDlcIdentifier."""
         dlc_lib.ValidateDlcIdentifier("hello-world")
         dlc_lib.ValidateDlcIdentifier("hello-world2")
@@ -126,7 +126,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
             "use_logical_volume": True,
         }
 
-    def testGetParamsPath(self):
+    def testGetParamsPath(self) -> None:
         """Tests EbuildParams.GetParamsPath"""
         install_root_dir = os.path.join(self.tempdir, "install_root_dir")
 
@@ -175,7 +175,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         scaled=False,
         powerwash_safe=False,
         use_logical_volume=False,
-    ):
+    ) -> None:
         """Tests EbuildParams JSON values"""
         self.assertDictEqual(
             ebuild_params,
@@ -244,7 +244,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         params.StoreDlcParameters(install_root_dir=install_root_dir, sudo=False)
         return params
 
-    def testGetUriPathMissingId(self):
+    def testGetUriPathMissingId(self) -> None:
         """Tests EbuildParams.GetUriPath missing ID"""
         params = self.GenerateParams(os.path.join(self.tempdir, "build_root"))
         params.dlc_id = None
@@ -254,7 +254,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         with self.assertRaises(Exception):
             params.GetUriPath()
 
-    def testGetUriPathMissingPackage(self):
+    def testGetUriPathMissingPackage(self) -> None:
         """Tests EbuildParams.GetUriPath missing package"""
         params = self.GenerateParams(os.path.join(self.tempdir, "build_root"))
         params.dlc_package = None
@@ -264,7 +264,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         with self.assertRaises(Exception):
             params.GetUriPath()
 
-    def testGetUriPathMissingVersion(self):
+    def testGetUriPathMissingVersion(self) -> None:
         """Tests EbuildParams.GetUriPath missing version"""
         params = self.GenerateParams(os.path.join(self.tempdir, "build_root"))
         params.version = None
@@ -274,7 +274,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         with self.assertRaises(Exception):
             params.GetUriPath()
 
-    def testGetUriPath(self):
+    def testGetUriPath(self) -> None:
         """Tests EbuildParams.GetUriPath"""
         params = self.GenerateParams(os.path.join(self.tempdir, "build_root"))
         self.assertEqual(
@@ -288,7 +288,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
             ),
         )
 
-    def testVerifyDlcParametersFactoryInstallable(self):
+    def testVerifyDlcParametersFactoryInstallable(self) -> None:
         """Tests EbuildParams.VerifyDlcParameters"""
         dlc_allowlist_mock = self.PatchObject(
             dlc_allowlist, "IsFactoryInstallAllowlisted", return_value=True
@@ -299,7 +299,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         params.VerifyDlcParameters()
         dlc_allowlist_mock.assert_called_once_with(params.dlc_id)
 
-    def testVerifyDlcParametersNotAllowedToFactoryInstall(self):
+    def testVerifyDlcParametersNotAllowedToFactoryInstall(self) -> None:
         """Tests EbuildParams.VerifyDlcParameters"""
         dlc_allowlist_mock = self.PatchObject(
             dlc_allowlist, "IsFactoryInstallAllowlisted", return_value=False
@@ -311,7 +311,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
             params.VerifyDlcParameters()
         dlc_allowlist_mock.assert_called_once_with(params.dlc_id)
 
-    def testStoreDlcParameters(self):
+    def testStoreDlcParameters(self) -> None:
         """Tests EbuildParams.StoreDlcParameters"""
         sysroot = os.path.join(self.tempdir, "build_root")
         self.GenerateParams(sysroot)
@@ -327,7 +327,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         with open(ebuild_params_path, "rb") as f:
             self.CheckParams(json.load(f))
 
-    def testStoreVaryingDlcParameters(self):
+    def testStoreVaryingDlcParameters(self) -> None:
         """Tests EbuildParams.StoreDlcParameters with non default values"""
         sysroot = os.path.join(self.tempdir, "build_root")
         params = self.GetVaryingEbuildParams()
@@ -344,7 +344,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         with open(ebuild_params_path, "rb") as f:
             self.CheckParams(json.load(f), **params)
 
-    def testLoadDlcParameters(self):
+    def testLoadDlcParameters(self) -> None:
         """Tests EbuildParams.LoadDlcParameters"""
         sysroot = os.path.join(self.tempdir, "build_root")
         self.GenerateParams(sysroot)
@@ -356,7 +356,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         )
         self.CheckParams(ebuild_params_class.__dict__)
 
-    def testLoadVaryingDlcParameters(self):
+    def testLoadVaryingDlcParameters(self) -> None:
         """Tests EbuildParams.LoadDlcParameters"""
         sysroot = os.path.join(self.tempdir, "build_root")
         params = self.GetVaryingEbuildParams()
@@ -376,7 +376,7 @@ class DlcMetadataTest(cros_test_lib.TempDirTestCase):
     # Smaller file_size setting to test creating multiple metadata files.
     _FILE_SIZE = 256
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Create DLC metadata files for test"""
         self._sysroot = os.path.join(self.tempdir, "build_root")
         self._src_dir = os.path.join(self.tempdir, "src_dir")
@@ -393,7 +393,7 @@ class DlcMetadataTest(cros_test_lib.TempDirTestCase):
         ) as metadata:
             metadata.Create(self._dlc_all)
 
-    def MakeSrcMetadata(self, dlc_id: str, extra: dict = None):
+    def MakeSrcMetadata(self, dlc_id: str, extra: dict = None) -> None:
         """Create source metadata files for test.
 
         Args:
@@ -419,7 +419,7 @@ class DlcMetadataTest(cros_test_lib.TempDirTestCase):
             content=src_table,
         )
 
-    def VerifyMetadata(self):
+    def VerifyMetadata(self) -> None:
         """Verifies metadata.
 
         Load and compare to the source metadata file content.
@@ -445,11 +445,11 @@ class DlcMetadataTest(cros_test_lib.TempDirTestCase):
                 self.assertEqual(src_table, dest_table)
                 i += 1
 
-    def testCreateDlcMetadata(self):
+    def testCreateDlcMetadata(self) -> None:
         """Tests creating metadata, and verifies the generated files"""
         self.VerifyMetadata()
 
-    def testAddDlcMetadata(self):
+    def testAddDlcMetadata(self) -> None:
         """Tests adding a metadata"""
         dlc_info = ("dlc-nn", self._src_dir)
         self.MakeSrcMetadata(dlc_info[0])
@@ -461,7 +461,7 @@ class DlcMetadataTest(cros_test_lib.TempDirTestCase):
             metadata.Create(self._dlc_all)
         self.VerifyMetadata()
 
-    def testModifyDlcMetadata(self):
+    def testModifyDlcMetadata(self) -> None:
         """Tests modifying a metadata, and verifies it"""
         dlc_info = ("dlc-n", self._src_dir)
         self.MakeSrcMetadata(dlc_info[0], extra={"modified": True})
@@ -471,7 +471,7 @@ class DlcMetadataTest(cros_test_lib.TempDirTestCase):
             metadata.Create(self._dlc_all)
         self.VerifyMetadata()
 
-    def testRemoveDlcMetadata(self):
+    def testRemoveDlcMetadata(self) -> None:
         """Tests removing a metadata, and verifies it"""
         dlc_info = ("dlc-n", self._src_dir)
         self._dlc_all.remove(dlc_info)
@@ -488,7 +488,7 @@ class DlcGeneratorTest(
 ):
     """Tests DlcGenerator."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.ExpectRootOwnedFiles()
 
     def GetDlcGenerator(self, fs_type=dlc_lib.SQUASHFS_TYPE):
@@ -524,13 +524,13 @@ class DlcGeneratorTest(
             ebuild_params=params, src_dir=src_dir, sysroot=sysroot, board=_BOARD
         )
 
-    def testSquashOwnerships(self):
+    def testSquashOwnerships(self) -> None:
         """Test dlc_lib.SquashOwnershipsTest"""
         self.GetDlcGenerator().SquashOwnerships(self.tempdir)
         self.assertCommandContains(["chown", "-R", "0:0"])
         self.assertCommandContains(["find"])
 
-    def testCreateExt4Image(self):
+    def testCreateExt4Image(self) -> None:
         """Test CreateExt4Image to make sure it runs with valid parameters."""
         copy_dir_mock = self.PatchObject(osutils, "CopyDirContents")
         mount_mock = self.PatchObject(osutils, "MountDir")
@@ -556,7 +556,7 @@ class DlcGeneratorTest(
             partial_mock.HasString("mount_point")
         )
 
-    def testCreateSquashfsImage(self):
+    def testCreateSquashfsImage(self) -> None:
         """Verify creating squashfs commands are run with correct parameters."""
         self.PatchObject(os.path, "getsize", return_value=(_BLOCK_SIZE * 2))
         copy_dir_mock = self.PatchObject(osutils, "CopyDirContents")
@@ -575,7 +575,7 @@ class DlcGeneratorTest(
             symlinks=True,
         )
 
-    def testCreateSquashfsImagePageAlignment(self):
+    def testCreateSquashfsImagePageAlignment(self) -> None:
         """Test that creating squashfs commands are run with page alignment."""
         self.PatchObject(os.path, "getsize", return_value=(_BLOCK_SIZE * 1))
         truncate_mock = self.PatchObject(os, "truncate")
@@ -596,7 +596,7 @@ class DlcGeneratorTest(
             symlinks=True,
         )
 
-    def testCreateSquashfsReproducible(self):
+    def testCreateSquashfsReproducible(self) -> None:
         """Test that squashfs commands are run with reproducible args."""
         self.PatchObject(os.path, "getsize", return_value=(_BLOCK_SIZE * 1))
         truncate_mock = self.PatchObject(os, "truncate")
@@ -629,7 +629,7 @@ class DlcGeneratorTest(
             symlinks=True,
         )
 
-    def testPrepareLsbRelease(self):
+    def testPrepareLsbRelease(self) -> None:
         """Tests that lsb-release is created correctly."""
         generator = self.GetDlcGenerator()
         dlc_dir = os.path.join(self.tempdir, "dlc_dir")
@@ -653,7 +653,7 @@ class DlcGeneratorTest(
             expected_lsb_release,
         )
 
-    def testCollectExtraResources(self):
+    def testCollectExtraResources(self) -> None:
         """Tests that extra resources are collected correctly."""
         generator = self.GetDlcGenerator()
 
@@ -666,7 +666,7 @@ class DlcGeneratorTest(
             "foo-content",
         )
 
-    def testGetImageloaderJsonContent(self):
+    def testGetImageloaderJsonContent(self) -> None:
         """Test that GetImageloaderJsonContent returns correct content."""
         blocks = 100
         content = self.GetDlcGenerator().GetImageloaderJsonContent(
@@ -700,7 +700,7 @@ class DlcGeneratorTest(
             },
         )
 
-    def testLogicalVolumeJson(self):
+    def testLogicalVolumeJson(self) -> None:
         """Test that GetImageloaderJsonContent logical volume value is set."""
         gen = self.GetDlcGenerator()
 
@@ -714,7 +714,7 @@ class DlcGeneratorTest(
             self.assertEqual(content["scaled"], pr[0])
             self.assertEqual(content["use-logical-volume"], pr[0] or pr[1])
 
-    def testVerifyImageSize(self):
+    def testVerifyImageSize(self) -> None:
         """Test that VerifyImageSize throws exception on errors only."""
         # Succeeds since image size is smaller than preallocated size.
         self.PatchObject(
@@ -733,7 +733,7 @@ class DlcGeneratorTest(
             )
             self.GetDlcGenerator().VerifyImageSize()
 
-    def testVerifyImageSizeNearingWarning(self):
+    def testVerifyImageSizeNearingWarning(self) -> None:
         """Test that VerifyImageSize logs the correct nearing warning."""
         # Logs a warning that actual size is near the preallocated size.
         with cros_test_lib.LoggingCapturer() as logs:
@@ -749,7 +749,7 @@ class DlcGeneratorTest(
             self.GetDlcGenerator().VerifyImageSize()
             self.AssertLogsContain(logs, "is nearing the preallocated size")
 
-    def testVerifyImageSizeGrowthWarning(self):
+    def testVerifyImageSizeGrowthWarning(self) -> None:
         """Test that VerifyImageSize logs the correct growth warning."""
         # Logs a warning that actual size is significantly less than the
         # preallocated size.
@@ -768,7 +768,7 @@ class DlcGeneratorTest(
                 logs, "is significantly less than the preallocated size"
             )
 
-    def testGetOptimalImageBlockSize(self):
+    def testGetOptimalImageBlockSize(self) -> None:
         """Test that GetOptimalImageBlockSize returns the valid block size."""
         dlc_generator = self.GetDlcGenerator()
         self.assertEqual(dlc_generator.GetOptimalImageBlockSize(0), 0)
@@ -779,7 +779,7 @@ class DlcGeneratorTest(
         )
 
     @mock.patch.object(cros_build_lib, "run", side_effect=cros_build_lib.run)
-    def testGenerateVerityRandomSalting(self, run_mock):
+    def testGenerateVerityRandomSalting(self, run_mock) -> None:
         """Test GenerateVerity is salting correctly"""
         gen = self.GetDlcGenerator()
         osutils.WriteFile(
@@ -804,7 +804,7 @@ class DlcGeneratorTest(
         )
 
     @mock.patch.object(cros_build_lib, "run", side_effect=cros_build_lib.run)
-    def testGenerateVerityReproducibleSalting(self, run_mock):
+    def testGenerateVerityReproducibleSalting(self, run_mock) -> None:
         """Test GenerateVerity is reproducibly salting correctly"""
         gen = self.GetDlcGenerator()
         osutils.WriteFile(
@@ -833,11 +833,11 @@ class DlcGeneratorTest(
 class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
     """Tests functions that generate the final DLC images."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup FinalizeDlcsTest."""
         self.ExpectRootOwnedFiles()
 
-    def testInstallDlcImagesFactoryInstallDisallowed(self):
+    def testInstallDlcImagesFactoryInstallDisallowed(self) -> None:
         """Verify InstallDlcImages validity checks build packaged parameters."""
         sysroot = os.path.join(self.tempdir, "sysroot")
         params = dlc_lib.EbuildParams(
@@ -867,7 +867,7 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
             "DLC=id is not allowed to be factory installed.",
         )
 
-    def testInstallDlcImagesPowerwashSafeDisallowed(self):
+    def testInstallDlcImagesPowerwashSafeDisallowed(self) -> None:
         """Verify InstallDlcImages sanity checks powerwash safe parameter."""
         sysroot = os.path.join(self.tempdir, "sysroot")
         params = dlc_lib.EbuildParams(
@@ -897,7 +897,7 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
             "DLC=id is not allowed to be powerwash safe.",
         )
 
-    def testInstallDlcImagesLegacy(self):
+    def testInstallDlcImagesLegacy(self) -> None:
         """Verify InstallDlcImages copies all legacy DLCs correctly."""
         sysroot = os.path.join(self.tempdir, "sysroot")
         osutils.WriteFile(
@@ -924,7 +924,7 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
             os.path.join(output, _ID, dlc_lib.DLC_PACKAGE, dlc_lib.DLC_IMAGE)
         )
 
-    def testInstallDlcImagesScaled(self):
+    def testInstallDlcImagesScaled(self) -> None:
         """Verifies InstallDlcImages copies all scaled DLCs correctly."""
         sysroot = os.path.join(self.tempdir, "sysroot")
         osutils.WriteFile(
@@ -953,7 +953,7 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
             os.path.join(output, _ID, dlc_lib.DLC_PACKAGE, dlc_lib.DLC_IMAGE)
         )
 
-    def testInstallDlcImagesAll(self):
+    def testInstallDlcImagesAll(self) -> None:
         """Verifies InstallDlcImages copies all types of DLCs correctly."""
         sysroot = os.path.join(self.tempdir, "sysroot")
         for p, _id in (
@@ -985,7 +985,7 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
             )
         )
 
-    def testInstallDlcImagesNoDlc(self):
+    def testInstallDlcImagesNoDlc(self) -> None:
         copy_contents_mock = self.PatchObject(osutils, "CopyDirContents")
         sysroot = os.path.join(self.tempdir, "sysroot")
         output = os.path.join(self.tempdir, "output")
@@ -994,7 +994,7 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
         )
         copy_contents_mock.assert_not_called()
 
-    def testInstallDlcImagesWithPreloadAllowed(self):
+    def testInstallDlcImagesWithPreloadAllowed(self) -> None:
         package_nums = 2
         preload_allowed_json = '{"preload-allowed": true}'
         sysroot = os.path.join(self.tempdir, "sysroot")
@@ -1033,7 +1033,7 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
                 )
             )
 
-    def testInstallDlcImagesWithPreloadNotAllowed(self):
+    def testInstallDlcImagesWithPreloadNotAllowed(self) -> None:
         package_nums = 2
         preload_not_allowed_json = '{"preload-allowed": false}'
         sysroot = os.path.join(self.tempdir, "sysroot")
@@ -1072,7 +1072,7 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
                 )
             )
 
-    def testInstallDlcImagesTrustedVerityDigests(self):
+    def testInstallDlcImagesTrustedVerityDigests(self) -> None:
         """Tests InstallDlcImages to verify verity digests are written."""
         sysroot = self.tempdir / "sysroot"
         osutils.WriteFile(
@@ -1118,7 +1118,7 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
             f"{_DLC_LOADPIN_FILE_HEADER}\n{root_hexdigest}\n",
         )
 
-    def testInstallDlcImagesMultiDlcTrustedVerityDigests(self):
+    def testInstallDlcImagesMultiDlcTrustedVerityDigests(self) -> None:
         """Verifies InstallDlcImages writes multiple verity digests."""
         sysroot = self.tempdir / "sysroot"
         osutils.WriteFile(
@@ -1223,7 +1223,7 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
             f"{root_hexdigest1}\n{root_hexdigest2}\n",
         )
 
-    def testInstallDlcImagesWithArtifactsMeta(self):
+    def testInstallDlcImagesWithArtifactsMeta(self) -> None:
         """Verifies InstallDlcImages with artifacts meta DLC(s)."""
         sysroot = self.tempdir / "sysroot"
 
@@ -1304,7 +1304,9 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
 class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
     """Tests dlc_lib powerwash safety related functions."""
 
-    def constructDlc(self, dlc_id: str, rootfs: str, powerwash_safe: bool):
+    def constructDlc(
+        self, dlc_id: str, rootfs: str, powerwash_safe: bool
+    ) -> None:
         """Constructs the DLC in given rootfs
 
         Args:
@@ -1321,7 +1323,7 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
         ) as fp:
             json.dump({dlc_lib.POWERWASH_SAFE_KEY: powerwash_safe}, fp)
 
-    def testMissingMeta(self):
+    def testMissingMeta(self) -> None:
         """Test missing meta rootfs for UniquePowerwashSafeDlcsInRootfs."""
         with self.assertRaises(dlc_lib.Error) as e:
             dlc_lib.UniquePowerwashSafeDlcsInRootfs(self.tempdir)
@@ -1331,7 +1333,7 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
             f"{os.path.join(self.tempdir, dlc_lib.DLC_META_DIR)}",
         )
 
-    def testEmpty(self):
+    def testEmpty(self) -> None:
         """Test empty meta rootfs for UniquePowerwashSafeDlcsInRootfs."""
         osutils.SafeMakedirs(os.path.join(self.tempdir, dlc_lib.DLC_META_DIR))
         self.assertEqual(
@@ -1339,7 +1341,7 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
             set(),
         )
 
-    def testInvalidDlc(self):
+    def testInvalidDlc(self) -> None:
         """Test invalid DLC in rootfs for unique set."""
         self.constructDlc("-foo", self.tempdir, True)
         with self.assertRaises(dlc_lib.Error) as e:
@@ -1351,7 +1353,7 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
             "Must only use alphanumeric and - (dash).",
         )
 
-    def testPowerwashSafeDlc(self):
+    def testPowerwashSafeDlc(self) -> None:
         """Test rootfs with powerwash safe DLC for unique set"""
         self.constructDlc("foo", self.tempdir, True)
         self.assertEqual(
@@ -1359,7 +1361,7 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
             {"foo"},
         )
 
-    def testPowerwashSafeDlcs(self):
+    def testPowerwashSafeDlcs(self) -> None:
         """Test rootfs with powerwash safe DLCs for unique set."""
         self.constructDlc("foo", self.tempdir, True)
         self.constructDlc("bar", self.tempdir, True)
@@ -1368,7 +1370,7 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
             {"foo", "bar"},
         )
 
-    def testNoPowerwashSafeDlcs(self):
+    def testNoPowerwashSafeDlcs(self) -> None:
         """Test rootfs with no powerwash safe DLCs for unique set."""
         self.constructDlc("foo", self.tempdir, False)
         self.constructDlc("bar", self.tempdir, False)
@@ -1377,7 +1379,7 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
             set(),
         )
 
-    def testMixedPowerwashSafeDlcs(self):
+    def testMixedPowerwashSafeDlcs(self) -> None:
         """Test rootfs with mixed powerwash safe DLCs for unique set."""
         self.constructDlc("foo", self.tempdir, True)
         self.constructDlc("bar", self.tempdir, False)
@@ -1386,7 +1388,7 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
             {"foo"},
         )
 
-    def testCreationOfPowerwashSafeFileInEmptyMetaRootfs(self):
+    def testCreationOfPowerwashSafeFileInEmptyMetaRootfs(self) -> None:
         """Test empty rootfs for powerwash safe file creation."""
         osutils.SafeMakedirs(os.path.join(self.tempdir, dlc_lib.DLC_META_DIR))
         dlc_lib.CreatePowerwashSafeFileInRootfs(self.tempdir)
@@ -1402,7 +1404,7 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
             "",
         )
 
-    def testCreationOfPowerwashSafeFileInRootfsWithDlc(self):
+    def testCreationOfPowerwashSafeFileInRootfsWithDlc(self) -> None:
         """Test rootfs with powerwash safe DLC for meta file creation."""
         self.constructDlc("foo", self.tempdir, True)
         dlc_lib.CreatePowerwashSafeFileInRootfs(self.tempdir)
@@ -1418,7 +1420,7 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
             "foo",
         )
 
-    def testCreationOfPowerwashSafeFileInRootfsWithMixedDlc(self):
+    def testCreationOfPowerwashSafeFileInRootfsWithMixedDlc(self) -> None:
         """Test rootfs with mixed powerwash safe DLC for meta file creation."""
         self.constructDlc("hello", self.tempdir, True)
         self.constructDlc("there", self.tempdir, False)
@@ -1443,7 +1445,7 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
 @pytest.mark.parametrize("bd_artifacts_meta", (True, False))
 def test_install_dlc_images_duplicate_ids_sanity_check(
     tmp_path, bd: bool, bd_scaled: bool, bd_artifacts_meta: bool
-):
+) -> None:
     """Verify InstallDlcImages sanity checks duplicate DLC IDs.
 
     Args:

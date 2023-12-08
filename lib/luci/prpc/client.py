@@ -207,7 +207,7 @@ class Client:
         for method_desc in desc.method:
             self._generate_rpc_method(method_desc)
 
-    def _generate_rpc_method(self, method_desc):
+    def _generate_rpc_method(self, method_desc) -> None:
         sym_db = symbol_database.Default()
         response_py_type = sym_db.GetSymbol(method_desc.output_type[1:])
         assert response_py_type, "response type for %s.%s not found" % (

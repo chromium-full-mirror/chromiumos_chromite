@@ -39,7 +39,7 @@ CLONE_NEWUSER = 0x10000000
 CLONE_NEWUTS = 0x04000000
 
 
-def SetNS(fd, nstype):
+def SetNS(fd, nstype) -> None:
     """Binding to the Linux setns system call. See setns(2) for details.
 
     Args:
@@ -63,7 +63,7 @@ def SetNS(fd, nstype):
             fp.close()
 
 
-def Unshare(flags):
+def Unshare(flags) -> None:
     """Binding to the Linux unshare system call. See unshare(2) for details.
 
     Args:
@@ -106,7 +106,7 @@ def _ReapChildren(pid: int, uid: Optional[int], gid: Optional[int]) -> None:
                 raise
 
 
-def _SafeTcSetPgrp(fd, pgrp):
+def _SafeTcSetPgrp(fd, pgrp) -> None:
     """Set |pgrp| as the controller of the tty |fd|."""
     try:
         curr_pgrp = os.tcgetpgrp(fd)
@@ -122,10 +122,10 @@ def _SafeTcSetPgrp(fd, pgrp):
         os.tcsetpgrp(fd, pgrp)
 
 
-def _ForwardToChildPid(pid, signal_to_forward):
+def _ForwardToChildPid(pid, signal_to_forward) -> None:
     """Setup a signal handler that forwards the given signal to |pid|."""
 
-    def _ForwardingHandler(signum, _frame):
+    def _ForwardingHandler(signum, _frame) -> None:
         try:
             os.kill(pid, signum)
         except ProcessLookupError:
@@ -279,7 +279,7 @@ def CreatePidNs(uid: Optional[int] = None, gid: Optional[int] = None) -> None:
     return first_pid
 
 
-def CreateNetNs():
+def CreateNetNs() -> None:
     """Start a new net namespace
 
     We will bring up the loopback interface, but that is all.

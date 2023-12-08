@@ -41,7 +41,7 @@ class ToolchainList:
         for overlay_path in overlays:
             self._AddToolchainsFromOverlayDir(overlay_path)
 
-    def _AddToolchainsFromOverlayDir(self, overlay_dir):
+    def _AddToolchainsFromOverlayDir(self, overlay_dir) -> None:
         """Add toolchains to |self| from the given overlay.
 
         Does not include overlays that this overlay depends on.
@@ -79,7 +79,7 @@ class ToolchainList:
         if default_target:
             self._auto_default_toolchain = default_target
 
-    def _AddToolchain(self, target, setting_overrides=None):
+    def _AddToolchain(self, target, setting_overrides=None) -> None:
         """Add a toolchain to |self|.
 
         Args:

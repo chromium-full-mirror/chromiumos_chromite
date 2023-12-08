@@ -123,7 +123,7 @@ class DepGraphGenerator:
 
         return emerge_args
 
-    def Initialize(self, args):
+    def Initialize(self, args) -> None:
         """Initializer. Parses arguments and sets up portage state."""
         # We never want to see color output as it confuses parsing.
         emerge_args = ["--color=n"]
@@ -262,7 +262,7 @@ class DepGraphGenerator:
         if "--usepkg" in opts:
             emerge.trees[root]["bintree"].populate("--getbinpkg" in opts)
 
-    def CreateDepgraph(self, emerge, packages):
+    def CreateDepgraph(self, emerge, packages) -> None:
         """Create an emerge depgraph object."""
         # Setup emerge options.
         emerge_opts = emerge.opts.copy()
@@ -459,7 +459,7 @@ class DepGraphGenerator:
 
         return deps_tree, deps_info, bdeps_tree
 
-    def PrintTree(self, deps, depth=""):
+    def PrintTree(self, deps, depth="") -> None:
         """Print the deps we have seen in the emerge output.
 
         Args:
@@ -495,7 +495,7 @@ class DepGraphGenerator:
         #            "merge", "nomerge", or "uninstall"
         deps_map = {}
 
-        def ReverseTree(packages):
+        def ReverseTree(packages) -> None:
             """Convert tree to digraph.
 
             Take the tree of package -> requirements and reverse it to a digraph
@@ -599,7 +599,7 @@ class DepGraphGenerator:
                 traversal of the graph that shows the cycle.
             """
 
-            def FindCyclesAtNode(pkg, cycles, unresolved, resolved):
+            def FindCyclesAtNode(pkg, cycles, unresolved, resolved) -> None:
                 """Find cycles in cyclic dependencies starting at |pkg|.
 
                 Args:
@@ -639,7 +639,7 @@ class DepGraphGenerator:
                 FindCyclesAtNode(pkg, cycles, unresolved, resolved)
             return cycles
 
-        def RemoveUnusedPackages():
+        def RemoveUnusedPackages() -> None:
             """Remove installed packages, propagating dependencies."""
             # Schedule packages that aren't on the install list for removal
             rm_pkgs = set(deps_map.keys()) - set(deps_info.keys())
@@ -662,7 +662,7 @@ class DepGraphGenerator:
                     target_needs.pop(target, None)
                 del deps_map[pkg]
 
-        def PrintCycleBreak(basedep, dep, mycycle):
+        def PrintCycleBreak(basedep, dep, mycycle) -> None:
             """Print details about a cycle that we are planning on breaking.
 
             We are breaking a cycle where dep needs basedep. mycycle is an
@@ -691,7 +691,7 @@ class DepGraphGenerator:
                     depinfo = depinfo + ", deleting"
                 print("  %s -> %s (%s)" % (pkg1, pkg2, depinfo))
 
-        def SanitizeTree():
+        def SanitizeTree() -> None:
             """Remove circular dependencies.
 
             We prune all dependencies involved in cycles that go against the
@@ -720,7 +720,7 @@ class DepGraphGenerator:
                     "Tree sanitized in %dm%.1fs" % (seconds // 60, seconds % 60)
                 )
 
-        def FindRecursiveProvides(pkg, seen):
+        def FindRecursiveProvides(pkg, seen) -> None:
             """Find all nodes that require a particular package.
 
             Assumes that graph is acyclic.
@@ -749,7 +749,7 @@ class DepGraphGenerator:
             FindRecursiveProvides(pkg, seen)
         return deps_map
 
-    def PrintInstallPlan(self, deps_map):
+    def PrintInstallPlan(self, deps_map) -> None:
         """Print an emerge-style install plan.
 
         The install plan lists what packages we're installing, in order.
@@ -890,7 +890,7 @@ class EmergeData:
         self.trees = None
 
 
-def PrintDepsMap(deps_map):
+def PrintDepsMap(deps_map) -> None:
     """Print dependency graph, for each package list it's prerequisites."""
     for i in sorted(deps_map):
         print("%s: (%s) needs" % (i, deps_map[i]["action"]))

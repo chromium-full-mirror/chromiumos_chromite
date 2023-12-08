@@ -372,7 +372,7 @@ class SlaveBuilderStatus:
             )
         )
 
-    def _InitSlaveInfo(self):
+    def _InitSlaveInfo(self) -> None:
         """Init slave info incl. buildbucket info, cidb info and failures."""
         scheduled_buildbucket_info_dict = buildbucket_v2.GetBuildInfoDict(
             self.metadata, exclude_experimental=self.exclude_experimental

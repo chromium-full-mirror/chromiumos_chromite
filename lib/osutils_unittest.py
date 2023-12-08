@@ -30,7 +30,7 @@ from chromite.utils import libc
 class TestOsutils(cros_test_lib.TempDirTestCase):
     """General unittests for the osutils module."""
 
-    def testIsSubPath(self):
+    def testIsSubPath(self) -> None:
         self.assertTrue(osutils.IsSubPath("/a", "/"))
         self.assertTrue(osutils.IsSubPath("/", "/"))
 
@@ -45,7 +45,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         self.assertFalse(osutils.IsSubPath("/ab", "/a/b"))
         self.assertFalse(osutils.IsSubPath("/a/bcde", "/a/b"))
 
-    def testAllocateNewFile(self):
+    def testAllocateNewFile(self) -> None:
         """Verify we can allocate a file of a certain length."""
         filename = self.tempdir / "foo"
         size = 1234
@@ -54,7 +54,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         self.assertExists(filename)
         self.assertEqual(size, os.path.getsize(filename))
 
-    def testAllocateExistingFile(self):
+    def testAllocateExistingFile(self) -> None:
         """Verify we can allocate an existing file of a certain length."""
         file = self.tempdir / "foo"
         file.write_text("abcd", encoding="utf-8")
@@ -66,28 +66,28 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         # Content should be reset.
         self.assertEqual(osutils.ReadFile(file, "rb", size=4), b"\0\0\0\0")
 
-    def testReadWriteFile(self):
+    def testReadWriteFile(self) -> None:
         """Verify we can write data to a file, and then read it back."""
         filename = os.path.join(self.tempdir, "foo")
         data = "alsdkfjasldkfjaskdlfjasdf"
         self.assertIsNone(osutils.WriteFile(filename, data))
         self.assertEqual(osutils.ReadFile(filename), data)
 
-    def testReadWritePath(self):
+    def testReadWritePath(self) -> None:
         """Verify we can write data to a Path, and then read it back."""
         filename = self.tempdir / "foo"
         data = "alsdkfjasldkfjaskdlfjasdf"
         self.assertIsNone(osutils.WriteFile(filename, data))
         self.assertEqual(osutils.ReadFile(filename), data)
 
-    def testReadBinary(self):
+    def testReadBinary(self) -> None:
         """Verify we can read data as binary."""
         filename = os.path.join(self.tempdir, "foo")
         data = b"alsdkfjasldkfjaskdlfjasdf"
         self.assertIsNone(osutils.WriteFile(filename, data, mode="wb"))
         self.assertEqual(osutils.ReadFile(filename, mode="rb"), data)
 
-    def testReadSize(self):
+    def testReadSize(self) -> None:
         """Verify we can read partial data."""
         filename = self.tempdir / "foo"
         data = b"alsdkfjasldkfjaskdlfjasdf"
@@ -95,7 +95,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         self.assertEqual(osutils.ReadFile(filename, mode="rb", size=3), b"als")
         self.assertEqual(osutils.ReadFile(filename, mode="r", size=3), "als")
 
-    def testReadSeek(self):
+    def testReadSeek(self) -> None:
         """Verify we can read data from the middle."""
         filename = self.tempdir / "foo"
         data = b"alsdkfjasldkfjaskdlfjasdf"
@@ -108,7 +108,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
             osutils.ReadFile(filename, mode="r", seek=3), sdata[3:]
         )
 
-    def testReadSeekSize(self):
+    def testReadSeekSize(self) -> None:
         """Verify we can read partial data from the middle."""
         filename = self.tempdir / "foo"
         data = b"alsdkfjasldkfjaskdlfjasdf"
@@ -120,35 +120,35 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
             osutils.ReadFile(filename, mode="r", seek=3, size=3), "dkf"
         )
 
-    def testWriteFileStringIter(self):
+    def testWriteFileStringIter(self) -> None:
         """Verify that we can write an iterable of strings."""
         filename = os.path.join(self.tempdir, "foo")
         data = ["a", "cd", "ef"]
         self.assertIsNone(osutils.WriteFile(filename, data))
         self.assertEqual(osutils.ReadFile(filename), "".join(data))
 
-    def testWriteFileBytesIter(self):
+    def testWriteFileBytesIter(self) -> None:
         """Verify that we can write an iterable of bytes."""
         filename = os.path.join(self.tempdir, "foo")
         data = [b"ab", b"cd", b"ef"]
         self.assertIsNone(osutils.WriteFile(filename, data, mode="wb"))
         self.assertEqual(osutils.ReadFile(filename, mode="rb"), b"".join(data))
 
-    def testReadBytes(self):
+    def testReadBytes(self) -> None:
         """Verify we can read data as binary via ReadBytes."""
         filename = os.path.join(self.tempdir, "foo")
         data = b"0123456789"
         self.assertIsNone(osutils.WriteFile(filename, data, mode="wb"))
         self.assertEqual(osutils.ReadBytes(filename, 7 - 3, 3), b"3456")
 
-    def testReadText(self):
+    def testReadText(self) -> None:
         """Verify we can read data as text via ReadText."""
         filename = os.path.join(self.tempdir, "foo")
         data = b"0123456789"
         self.assertIsNone(osutils.WriteFile(filename, data, mode="wb"))
         self.assertEqual(osutils.ReadText(filename, 7 - 3, 3), "3456")
 
-    def testReadSudo(self):
+    def testReadSudo(self) -> None:
         """Verify we can read data as root (in a world-readable dir)."""
         # First read a non-root file.
         filename = self.tempdir / "foo"
@@ -194,7 +194,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
                 data[3:6],
             )
 
-    def testReadSudoSubdir(self):
+    def testReadSudoSubdir(self) -> None:
         """Verify we can read data as root in a subdir."""
         data = b"alsdkfjasldkfjaskdlfjasdf"
         sdata = data.decode("utf-8")
@@ -218,7 +218,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
                 osutils.ReadFile(filename, mode="rb", sudo=True), data
             )
 
-    def testSudoWrite(self):
+    def testSudoWrite(self) -> None:
         """Verify that we can write a file as sudo."""
         with osutils.TempDir(sudo_rm=True) as tempdir:
             root_owned_dir = Path(tempdir) / "foo"
@@ -239,14 +239,14 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
                 self.assertEqual(0, os.stat(path_to_test).st_uid)
                 osutils.SafeUnlink(path_to_test, sudo=True)
 
-    def testSudoWriteAppendNew(self):
+    def testSudoWriteAppendNew(self) -> None:
         """Verify that we can write a new file as sudo when appending."""
         with osutils.TempDir(sudo_rm=True) as tempdir:
             path = os.path.join(tempdir, "foo")
             osutils.WriteFile(path, "two", mode="a", sudo=True)
             self.assertEqual("two", osutils.ReadFile(path))
 
-    def testSudoWriteAppendExisting(self):
+    def testSudoWriteAppendExisting(self) -> None:
         """Verify that we can write a file as sudo when appending."""
         with osutils.TempDir(sudo_rm=True) as tempdir:
             path = os.path.join(tempdir, "foo")
@@ -255,10 +255,10 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
             osutils.WriteFile(path, "two", mode="a", sudo=True)
             self.assertEqual("onetwo", osutils.ReadFile(path))
 
-    def testSudoReadNoTrunc(self):
+    def testSudoReadNoTrunc(self) -> None:
         """Verify that we can write a new file as sudo when r+."""
 
-        def testit(path, sudo):
+        def testit(path, sudo) -> None:
             osutils.WriteFile(path, "two")
             self.assertEqual("two", osutils.ReadFile(path))
             osutils.WriteFile(path, "X", mode="r+", sudo=sudo)
@@ -273,19 +273,19 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
             path = os.path.join(tempdir, "foo")
             testit(path, True)
 
-    def testReadFileNonExistent(self):
+    def testReadFileNonExistent(self) -> None:
         """Verify what happens if you ReadFile a file that isn't there."""
         filename = os.path.join(self.tempdir, "bogus")
         with self.assertRaises(IOError):
             osutils.ReadFile(filename)
 
-    def testWriteChmod(self):
+    def testWriteChmod(self) -> None:
         """Verify writing files with perms works."""
 
         def getmode(path):
             return os.stat(path).st_mode & 0o7777
 
-        def assertMode(path, mode):
+        def assertMode(path, mode) -> None:
             self.assertEqual(getmode(path), mode)
 
         for path in (os.path.join(self.tempdir, "file"), self.tempdir / "file"):
@@ -306,7 +306,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
 
             osutils.SafeUnlink(path, sudo=True)
 
-    def testSafeSymlink(self):
+    def testSafeSymlink(self) -> None:
         """Test that we can create symlinks."""
         with osutils.TempDir(sudo_rm=True) as tempdir:
             file_a = os.path.join(tempdir, "a")
@@ -351,10 +351,10 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
             osutils.SafeSymlink(Path(file_b), Path(root_link), sudo=True)
             self.assertEqual("b", osutils.ReadFile(root_link))
 
-    def testSafeUnlink(self):
+    def testSafeUnlink(self) -> None:
         """Test unlinking files work (existing or not)."""
 
-        def f(sudo=False, as_path=False):
+        def f(sudo=False, as_path=False) -> None:
             with osutils.TempDir(sudo_rm=sudo) as dirname:
                 path = os.path.join(dirname, "foon")
                 if as_path:
@@ -376,7 +376,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         f(False, True)
         f(True, True)
 
-    def testSafeUnlinkSudoInaccessible(self):
+    def testSafeUnlinkSudoInaccessible(self) -> None:
         """Test unlinking files work in a dir only root can read."""
         with osutils.TempDir(sudo_rm=True) as dirname:
             path = os.path.join(dirname, "exists")
@@ -389,7 +389,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
             os.chmod(dirname, 0o700)
             self.assertNotExists(path)
 
-    def testSafeMakedirs(self):
+    def testSafeMakedirs(self) -> None:
         """Test creating directory trees work (existing or not)."""
         path = os.path.join(self.tempdir, "a", "b", "c", "d", "e")
         self.assertTrue(osutils.SafeMakedirs(path))
@@ -397,7 +397,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         self.assertFalse(osutils.SafeMakedirs(path))
         self.assertExists(path)
 
-    def testSafeMakedirsWithPathObject(self):
+    def testSafeMakedirsWithPathObject(self) -> None:
         """Test creating directory trees work (existing or not) on |Path|s."""
         path = self.tempdir / "a" / "b" / "c" / "d" / "e"
         self.assertTrue(osutils.SafeMakedirs(path))
@@ -405,7 +405,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         self.assertFalse(osutils.SafeMakedirs(path))
         self.assertExists(path)
 
-    def testSafeMakedirsMode(self):
+    def testSafeMakedirsMode(self) -> None:
         """Test that mode is honored."""
         path = os.path.join(self.tempdir, "a", "b", "c", "d", "e")
         self.assertTrue(osutils.SafeMakedirs(path, mode=0o775))
@@ -417,7 +417,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         self.assertFalse(osutils.SafeMakedirs(path, 0o755))
         self.assertEqual(0o777, stat.S_IMODE(os.stat(path).st_mode))
 
-    def testSafeMakedirs_error(self):
+    def testSafeMakedirs_error(self) -> None:
         """Check error paths."""
         with self.assertRaises(OSError):
             osutils.SafeMakedirs("/foo/bar/cow/moo/wee")
@@ -429,7 +429,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
             )
         self.assertRaises(OSError, osutils.SafeMakedirs, "")
 
-    def testSafeMakedirsSudo(self):
+    def testSafeMakedirsSudo(self) -> None:
         """Test creating directory trees work as root (existing or not)."""
         self.ExpectRootOwnedFiles()
         path = os.path.join(self.tempdir, "a", "b", "c", "d", "e")
@@ -439,7 +439,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         self.assertExists(path)
         self.assertEqual(os.stat(path).st_uid, 0)
 
-    def testSafeMakedirsNoSudoRootOwnedDirs(self):
+    def testSafeMakedirsNoSudoRootOwnedDirs(self) -> None:
         """Test that we can recover some root owned directories."""
         self.ExpectRootOwnedFiles()
         root_owned_prefix = os.path.join(self.tempdir, "root_owned_prefix")
@@ -460,7 +460,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         self.assertTrue(osutils.SafeMakedirsNonRoot(non_root_dir))
         self.assertNotEqual(os.stat(non_root_dir).st_uid, 0)
 
-    def testRmDir(self):
+    def testRmDir(self) -> None:
         """Test that removing dirs work."""
         main_path = os.path.join(self.tempdir, "a", "b", "c", "d", "e")
         paths_to_test = [main_path, Path(main_path)]
@@ -476,7 +476,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
             osutils.RmDir(path)
             self.assertNotExists(path)
 
-    def testRmDirSudo(self):
+    def testRmDirSudo(self) -> None:
         """Test that removing dirs via sudo works."""
         subpath = os.path.join(self.tempdir, "a")
         main_path = os.path.join(subpath, "b", "c", "d", "e")
@@ -493,7 +493,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
                 sudo=True,
             )
 
-    def testTouchFile(self):
+    def testTouchFile(self) -> None:
         """Test that we can touch files."""
         path = os.path.join(self.tempdir, "touchit")
         self.assertNotExists(path)
@@ -501,7 +501,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         self.assertExists(path)
         self.assertEqual(os.path.getsize(path), 0)
 
-    def testTouchReadOnlyFile(self):
+    def testTouchReadOnlyFile(self) -> None:
         """Test that we can touch read-only files that we own."""
         path = self.tempdir / "touchit"
         nowish = time.time() - 60
@@ -513,7 +513,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         osutils.Touch(path)
         assert os.path.getmtime(path) >= nowish
 
-    def testTouchFileSubDir(self):
+    def testTouchFileSubDir(self) -> None:
         """Test that we can touch files in non-existent subdirs."""
         path = os.path.join(self.tempdir, "a", "b", "c", "touchit")
         self.assertNotExists(os.path.dirname(path))
@@ -521,7 +521,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         self.assertExists(path)
         self.assertEqual(os.path.getsize(path), 0)
 
-    def testChmod(self):
+    def testChmod(self) -> None:
         """Test Chmod."""
 
         def getmode(path):
@@ -544,7 +544,7 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
 
         self.assertRaises(OSError, osutils.Chmod, path, 0o600)
 
-    def testChown(self):
+    def testChown(self) -> None:
         """Test chown."""
 
         # Helpers to get the user and group name of the given path's owner.
@@ -610,17 +610,17 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
 class TestEmptyDir(cros_test_lib.TempDirTestCase):
     """Test osutils.EmptyDir."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.subdir = os.path.join(self.tempdir, "a")
         self.nestedfile = os.path.join(self.subdir, "b", "c", "d", "e")
         self.topfile = os.path.join(self.tempdir, "file")
 
-    def testEmptyDir(self):
+    def testEmptyDir(self) -> None:
         """Empty an empty directory."""
         osutils.EmptyDir(self.tempdir)
         osutils.EmptyDir(self.tempdir, ignore_missing=True, sudo=True)
 
-    def testNonExistentDir(self):
+    def testNonExistentDir(self) -> None:
         """Non-existent directory."""
         # Ignore_missing=False
         with self.assertRaises(osutils.EmptyDirNonExistentException):
@@ -629,7 +629,7 @@ class TestEmptyDir(cros_test_lib.TempDirTestCase):
         # Ignore missing=True
         osutils.EmptyDir(self.subdir, ignore_missing=True)
 
-    def testEmptyWithContentsMinFlags(self):
+    def testEmptyWithContentsMinFlags(self) -> None:
         """Test ability to empty actual directory contents."""
         osutils.Touch(self.nestedfile, makedirs=True)
         osutils.Touch(self.topfile, makedirs=True)
@@ -640,7 +640,7 @@ class TestEmptyDir(cros_test_lib.TempDirTestCase):
         self.assertNotExists(self.subdir)
         self.assertNotExists(self.topfile)
 
-    def testEmptyWithContentsMaxFlags(self):
+    def testEmptyWithContentsMaxFlags(self) -> None:
         """Test ability to empty actual directory contents."""
         osutils.Touch(self.nestedfile, makedirs=True)
         osutils.Touch(self.topfile, makedirs=True)
@@ -651,7 +651,7 @@ class TestEmptyDir(cros_test_lib.TempDirTestCase):
         self.assertNotExists(self.subdir)
         self.assertNotExists(self.topfile)
 
-    def testEmptyWithRootOwnedContents(self):
+    def testEmptyWithRootOwnedContents(self) -> None:
         """Test handling of root owned sub directories."""
         # Root owned contents.
         osutils.SafeMakedirs(self.nestedfile, sudo=True)
@@ -666,7 +666,7 @@ class TestEmptyDir(cros_test_lib.TempDirTestCase):
         self.assertExists(self.tempdir)
         self.assertNotExists(self.subdir)
 
-    def testExclude(self):
+    def testExclude(self) -> None:
         """Test ability to empty actual directory contents.
 
         Also ensure that the excludes argument can really be just an iterable.
@@ -703,7 +703,7 @@ class TestEmptyDir(cros_test_lib.TempDirTestCase):
 class TestProcess(cros_test_lib.RunCommandTestCase):
     """Tests for osutils.IsChildProcess."""
 
-    def testIsChildProcess(self):
+    def testIsChildProcess(self) -> None:
         """Test IsChildProcess with no name."""
         mock_pstree_output = "a(1)-+-b(2)\n\t|-c(3)\n\t|-foo(4)-bar(5)"
         self.rc.AddCmdResult(partial_mock.Ignore(), stdout=mock_pstree_output)
@@ -727,7 +727,7 @@ class TempDirTests(cros_test_lib.TestCase):
     class HelperExceptionInner(Exception):
         """Exception for tests to raise to test exception handling."""
 
-    def testBasicSuccessEmpty(self):
+    def testBasicSuccessEmpty(self) -> None:
         """Test we create and cleanup an empty tempdir."""
         with osutils.TempDir(prefix=self.PREFIX) as td:
             tempdir = td
@@ -738,7 +738,7 @@ class TempDirTests(cros_test_lib.TestCase):
         # Show the temp directory no longer exists.
         self.assertNotExists(tempdir)
 
-    def testBasicSuccessNotEmpty(self):
+    def testBasicSuccessNotEmpty(self) -> None:
         """Test we cleanup tempdir with stuff in it."""
         with osutils.TempDir(prefix=self.PREFIX) as td:
             tempdir = td
@@ -757,7 +757,7 @@ class TempDirTests(cros_test_lib.TestCase):
         # Show the temp directory no longer exists.
         self.assertNotExists(tempdir)
 
-    def testErrorCleanup(self):
+    def testErrorCleanup(self) -> None:
         """Test we cleanup, even if an exception is raised."""
         try:
             with osutils.TempDir(prefix=self.PREFIX) as td:
@@ -769,7 +769,7 @@ class TempDirTests(cros_test_lib.TestCase):
         # Show the temp directory no longer exists.
         self.assertNotExists(tempdir)
 
-    def testCleanupExceptionContextException(self):
+    def testCleanupExceptionContextException(self) -> None:
         """Test an exception during cleanup if the context DID raise."""
         was_raised = False
         tempdir_obj = osutils.TempDir(prefix=self.PREFIX)
@@ -796,7 +796,7 @@ class TempDirTests(cros_test_lib.TestCase):
         # Cleanup the dir leaked by our mock exception.
         os.rmdir(tempdir)
 
-    def testCleanupExceptionNoContextException(self):
+    def testCleanupExceptionNoContextException(self) -> None:
         """Test an exception during cleanup if the context did NOT raise."""
         was_raised = False
         tempdir_obj = osutils.TempDir(prefix=self.PREFIX)
@@ -822,7 +822,7 @@ class TempDirTests(cros_test_lib.TestCase):
         # Cleanup the dir leaked by our mock exception.
         os.rmdir(tempdir)
 
-    def testSkipCleanup(self):
+    def testSkipCleanup(self) -> None:
         """Test that we leave behind tempdirs when requested."""
         tempdir_obj = osutils.TempDir(prefix=self.PREFIX, delete=False)
         tempdir = tempdir_obj.tempdir
@@ -834,7 +834,7 @@ class TempDirTests(cros_test_lib.TestCase):
         # Now really cleanup the directory leaked by the test.
         os.rmdir(tempdir)
 
-    def testSkipCleanupGlobal(self):
+    def testSkipCleanupGlobal(self) -> None:
         """Test that we reset global tempdir as expected even with skip."""
         with osutils.TempDir(prefix=self.PREFIX, set_global=True) as tempdir:
             tempdir_before = tempfile.gettempdir()
@@ -855,7 +855,7 @@ class TempDirTests(cros_test_lib.TestCase):
 class MountTests(cros_test_lib.TestCase):
     """Unittests for osutils mounting and umounting helpers."""
 
-    def testMountTmpfsDir(self):
+    def testMountTmpfsDir(self) -> None:
         """Verify mounting a tmpfs works"""
         cleaned = False
         with osutils.TempDir(prefix="chromite.test.osutils") as tempdir:
@@ -878,7 +878,7 @@ class MountTests(cros_test_lib.TestCase):
                         ["umount", "-lf", tempdir], check=False
                     )
 
-    def testUnmountTree(self):
+    def testUnmountTree(self) -> None:
         with osutils.TempDir(prefix="chromite.test.osutils") as tempdir:
             # Mount the dir and verify it worked.
             st_before = os.stat(tempdir)
@@ -904,31 +904,31 @@ class MountTests(cros_test_lib.TestCase):
 class IteratePathsTest(cros_test_lib.TestCase):
     """Test iterating through all segments of a path."""
 
-    def testType(self):
+    def testType(self) -> None:
         """Check that return value is an iterator."""
         self.assertIsInstance(
             osutils.IteratePaths("/"), collections.abc.Iterator
         )
 
-    def testRoot(self):
+    def testRoot(self) -> None:
         """Test iterating from root directory."""
         inp = "/"
         exp = [Path("/")]
         self.assertEqual(list(osutils.IteratePaths(inp)), exp)
 
-    def testOneDir(self):
+    def testOneDir(self) -> None:
         """Test iterating from a directory in a root directory."""
         inp = "/abc"
         exp = [Path("/"), Path("/abc")]
         self.assertEqual(list(osutils.IteratePaths(inp)), exp)
 
-    def testTwoDirs(self):
+    def testTwoDirs(self) -> None:
         """Test iterating two dirs down."""
         inp = "/abc/def"
         exp = [Path("/"), Path("/abc"), Path("/abc/def")]
         self.assertEqual(list(osutils.IteratePaths(inp)), exp)
 
-    def testNormalize(self):
+    def testNormalize(self) -> None:
         """Test argument being normalized."""
         cases = [
             ("//", [Path("/")]),
@@ -943,7 +943,7 @@ class IteratePathsTest(cros_test_lib.TestCase):
 class IteratePathParentsTest(cros_test_lib.TestCase):
     """Test parent directory iteration functionality."""
 
-    def _RunForPath(self, path, expected):
+    def _RunForPath(self, path, expected) -> None:
         result_components = []
         for p in osutils.IteratePathParents(path):
             result_components.append(os.path.basename(p))
@@ -952,7 +952,7 @@ class IteratePathParentsTest(cros_test_lib.TestCase):
         if expected is not None:
             self.assertEqual(expected, result_components)
 
-    def testIt(self):
+    def testIt(self) -> None:
         """Run the test vectors."""
         vectors = {
             "/": [""],
@@ -975,31 +975,31 @@ class FindInPathParentsTest(cros_test_lib.TempDirTestCase):
 
     START_PATH = os.path.join("a", "b", "c")
 
-    def setUp(self):
+    def setUp(self) -> None:
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, self.DIR_STRUCT)
 
-    def testFoundStr(self):
+    def testFoundStr(self) -> None:
         """Target (str) is found."""
         found = osutils.FindInPathParents(
             ".repo", os.path.join(self.tempdir, self.START_PATH)
         )
         self.assertEqual(found, os.path.join(self.tempdir, "a", ".repo"))
 
-    def testFoundPath(self):
+    def testFoundPath(self) -> None:
         """Target (Path) is found."""
         found = osutils.FindInPathParents(
             ".repo", self.tempdir / self.START_PATH
         )
         self.assertEqual(found, self.tempdir / "a" / ".repo")
 
-    def testNotFoundStr(self):
+    def testNotFoundStr(self) -> None:
         """Target is not found."""
         found = osutils.FindInPathParents(
             "does.not/exist", os.path.join(self.tempdir, self.START_PATH)
         )
         self.assertIsNone(found)
 
-    def testNotFoundPath(self):
+    def testNotFoundPath(self) -> None:
         """Target is not found."""
         found = osutils.FindInPathParents(
             "does.not/exist", self.tempdir / self.START_PATH
@@ -1035,19 +1035,19 @@ declare -x ENVM="gentil
 mechant"
 """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.env_file = os.path.join(self.tempdir, "environment")
         self.env_file_multiline = os.path.join(self.tempdir, "multiline")
         osutils.WriteFile(self.env_file, self.ENV)
         osutils.WriteFile(self.env_file_multiline, self.ENV_MULTILINE)
 
-    def testAllowList(self):
+    def testAllowList(self) -> None:
         env_dict = osutils.SourceEnvironment(
             self.env_file, ("ENV1", "ENV3", "ENV5", "ENV6")
         )
         self.assertEqual(env_dict, self.ENV_ALLOWLIST)
 
-    def testArrays(self):
+    def testArrays(self) -> None:
         env_dict = osutils.SourceEnvironment(self.env_file, ("ENVA",))
         self.assertEqual(env_dict, {"ENVA": "a b c,d,e 1234 %"})
 
@@ -1078,7 +1078,7 @@ NAME="sdc1" RM="1" TYPE="part" SIZE="1G" HOTPLUG="0"
 NAME="sdc2" RM="1" TYPE="part" SIZE="6.4G" HOTPLUG="0"
 """
 
-    def testListBlockDevices(self):
+    def testListBlockDevices(self) -> None:
         """Tests that we can list all block devices correctly."""
         self.rc.AddCmdResult(partial_mock.Ignore(), stdout=self.FULL_OUTPUT)
         devices = osutils.ListBlockDevices()
@@ -1093,7 +1093,7 @@ NAME="sdc2" RM="1" TYPE="part" SIZE="6.4G" HOTPLUG="0"
         self.assertEqual(devices[3].SIZE, "7.4G")
         self.assertEqual(devices[3].HOTPLUG, "1")
 
-    def testGetDeviceSize(self):
+    def testGetDeviceSize(self) -> None:
         """Tests that we can get the size of a device."""
         self.rc.AddCmdResult(partial_mock.Ignore(), stdout=self.PARTIAL_OUTPUT)
         self.assertEqual(osutils.GetDeviceSize("/dev/sdc"), "7.4G")
@@ -1102,7 +1102,7 @@ NAME="sdc2" RM="1" TYPE="part" SIZE="6.4G" HOTPLUG="0"
 class ChdirTests(cros_test_lib.MockTempDirTestCase):
     """Tests for ChdirContext."""
 
-    def testChdir(self):
+    def testChdir(self) -> None:
         current_dir = Path.cwd()
         self.assertNotEqual(self.tempdir, current_dir)
         with osutils.ChdirContext(self.tempdir):
@@ -1113,7 +1113,7 @@ class ChdirTests(cros_test_lib.MockTempDirTestCase):
 class MountOverlayTest(cros_test_lib.MockTempDirTestCase):
     """Tests MountOverlayContext."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.upperdir = os.path.join(self.tempdir, "first_level", "upperdir")
         self.lowerdir = os.path.join(self.tempdir, "lowerdir")
         self.mergeddir = os.path.join(self.tempdir, "mergeddir")
@@ -1121,7 +1121,7 @@ class MountOverlayTest(cros_test_lib.MockTempDirTestCase):
         for path in [self.upperdir, self.lowerdir, self.mergeddir]:
             osutils.Touch(path, makedirs=True)
 
-    def testMountWriteUnmountRead(self):
+    def testMountWriteUnmountRead(self) -> None:
         mount_call = self.PatchObject(osutils, "MountDir")
         umount_call = self.PatchObject(osutils, "UmountDir")
         for cleanup in (True, False):
@@ -1142,10 +1142,10 @@ class MountOverlayTest(cros_test_lib.MockTempDirTestCase):
                 )
             umount_call.assert_any_call(self.mergeddir, cleanup=cleanup)
 
-    def testMountFailFallback(self):
+    def testMountFailFallback(self) -> None:
         """Verify mount failure with overlay fs_type falls back to overlayfs."""
 
-        def _FailOverlay(*_args, **kwargs):
+        def _FailOverlay(*_args, **kwargs) -> None:
             if kwargs["fs_type"] == "overlay":
                 raise cros_build_lib.RunCommandError(
                     "Phony failure",
@@ -1184,7 +1184,7 @@ class MountOverlayTest(cros_test_lib.MockTempDirTestCase):
                 )
             umount_call.assert_any_call(self.mergeddir, cleanup=cleanup)
 
-    def testNoValidWorkdirFallback(self):
+    def testNoValidWorkdirFallback(self) -> None:
         """Test that we fallback to overlayfs when no valid workdir is found."""
 
         def _FailFileSystemCheck(_path1, _path2):
@@ -1216,7 +1216,7 @@ class MountOverlayTest(cros_test_lib.MockTempDirTestCase):
 class IterateMountPointsTests(cros_test_lib.MockTempDirTestCase):
     """Test for IterateMountPoints function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.proc_mount = os.path.join(self.tempdir, "mounts")
         osutils.WriteFile(
             self.proc_mount,
@@ -1232,7 +1232,7 @@ tmpfs /mnt/\134 tmpfs ro 0 0
 """,
         )
 
-    def testOkay(self):
+    def testOkay(self) -> None:
         """Test IterateMountPoints() with some basic entries."""
         r = list(osutils.IterateMountPoints(self.proc_mount))
         assert len(r) == 9
@@ -1241,14 +1241,14 @@ tmpfs /mnt/\134 tmpfs ro 0 0
         assert r[2].filesystem == "vfat"
         assert r[3].options == "ro,relatime"
 
-    def testEscape(self):
+    def testEscape(self) -> None:
         """Test IterateMountPoints() with some escaped characters."""
         r = list(osutils.IterateMountPoints(self.proc_mount))
         assert r[4].source == "weird system"
         assert r[5].destination == "/mnt/spaced dir"
         assert r[6].destination == "/mnt/\\"
 
-    def testIsMounted(self):
+    def testIsMounted(self) -> None:
         """Test IsMounted() on a variety of mtab entries."""
         self.PatchObject(osutils.IsMounted, "__defaults__", (self.proc_mount,))
 
@@ -1264,7 +1264,7 @@ tmpfs /mnt/\134 tmpfs ro 0 0
         assert not osutils.IsMounted("dir")
         assert not osutils.IsMounted("")
 
-    def testIsMountedReadOnly(self):
+    def testIsMountedReadOnly(self) -> None:
         """Test IsMountedReadOnly() on a variety of mtab entries."""
         self.PatchObject(
             osutils.IsMountedReadOnly, "__defaults__", (self.proc_mount,)
@@ -1282,7 +1282,7 @@ tmpfs /mnt/\134 tmpfs ro 0 0
         assert not osutils.IsMountedReadOnly("dir")
         assert not osutils.IsMountedReadOnly("")
 
-    def testIsMountedReadonlyEmpty(self):
+    def testIsMountedReadonlyEmpty(self) -> None:
         """Test IsMountedReadOnly() on an empty mtab."""
         mounts = self.tempdir / "empty"
         mounts.touch()
@@ -1294,37 +1294,37 @@ tmpfs /mnt/\134 tmpfs ro 0 0
 class ResolveSymlinkInRootTest(cros_test_lib.TempDirTestCase):
     """Tests for ResolveSymlinkInRoot."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Create symlinks in tempdir so they are cleaned up automatically.
         os.chdir(self.tempdir)
 
-    def testRelativeLink(self):
+    def testRelativeLink(self) -> None:
         os.symlink("target", "link")
         self.assertEqual(
             osutils.ResolveSymlinkInRoot("link", "/root"), "target"
         )
 
-    def testRelativeLinkPath(self):
+    def testRelativeLinkPath(self) -> None:
         """Verify Path objects work."""
         os.symlink("target", "link")
         self.assertEqual(
             osutils.ResolveSymlinkInRoot(Path("link"), Path("/root")), "target"
         )
 
-    def testAbsoluteLink(self):
+    def testAbsoluteLink(self) -> None:
         os.symlink("/target", "link")
         self.assertEqual(
             osutils.ResolveSymlinkInRoot("link", "/root"), "/root/target"
         )
 
-    def testRecursion(self):
+    def testRecursion(self) -> None:
         os.symlink("target", "link1")
         os.symlink("link1", "link2")
         self.assertEqual(
             osutils.ResolveSymlinkInRoot("link2", "/root"), "target"
         )
 
-    def testRecursionWithAbsoluteLink(self):
+    def testRecursionWithAbsoluteLink(self) -> None:
         os.symlink("target", "link1")
         os.symlink("/link1", "link2")
         self.assertEqual(osutils.ResolveSymlinkInRoot("link2", "."), "./target")
@@ -1333,7 +1333,7 @@ class ResolveSymlinkInRootTest(cros_test_lib.TempDirTestCase):
 class ResolveSymlinkTest(cros_test_lib.TempDirTestCase):
     """Tests for ResolveSymlink."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.file_path = self.tempdir / "file"
         self.dir_path = self.tempdir / "directory"
         osutils.Touch(self.file_path)
@@ -1350,7 +1350,7 @@ class ResolveSymlinkTest(cros_test_lib.TempDirTestCase):
         self.abs_dir_symlink = self.tempdir / "abs_dir_symlink"
         self.rel_dir_symlink = self.tempdir / "rel_dir_symlink"
 
-    def testAbsoluteResolution(self):
+    def testAbsoluteResolution(self) -> None:
         """Test absolute path resolutions using Path objects."""
         self.assertEqual(
             self.file_path, osutils.ResolveSymlink(self.abs_file_symlink)
@@ -1359,7 +1359,7 @@ class ResolveSymlinkTest(cros_test_lib.TempDirTestCase):
             self.dir_path, osutils.ResolveSymlink(self.abs_dir_symlink)
         )
 
-    def testAbsoluteResolutionStr(self):
+    def testAbsoluteResolutionStr(self) -> None:
         """Test absolute path resolutions using strings."""
         self.assertEqual(
             str(self.file_path),
@@ -1370,7 +1370,7 @@ class ResolveSymlinkTest(cros_test_lib.TempDirTestCase):
             osutils.ResolveSymlink(str(self.abs_dir_symlink)),
         )
 
-    def testRelativeResolution(self):
+    def testRelativeResolution(self) -> None:
         """Test relative path resolutions using Path objects."""
         self.assertEqual(
             self.file_path, osutils.ResolveSymlink(self.rel_file_symlink)
@@ -1379,7 +1379,7 @@ class ResolveSymlinkTest(cros_test_lib.TempDirTestCase):
             self.dir_path, osutils.ResolveSymlink(self.rel_dir_symlink)
         )
 
-    def testRelativeResolutionStr(self):
+    def testRelativeResolutionStr(self) -> None:
         """Test relative path resolutions using strings."""
         self.assertEqual(
             str(self.file_path),
@@ -1394,14 +1394,14 @@ class ResolveSymlinkTest(cros_test_lib.TempDirTestCase):
 class IsInsideVmTest(cros_test_lib.MockTempDirTestCase):
     """Test osutils.IsInsideVmTest function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.model_file = os.path.join(self.tempdir, "sda", "device", "model")
         osutils.SafeMakedirs(os.path.dirname(self.model_file))
         self.mock_glob = self.PatchObject(
             glob, "glob", return_value=[self.model_file]
         )
 
-    def testIsInsideVm(self):
+    def testIsInsideVm(self) -> None:
         osutils.WriteFile(self.model_file, "VBOX")
         self.assertTrue(osutils.IsInsideVm())
         self.assertEqual(
@@ -1411,7 +1411,7 @@ class IsInsideVmTest(cros_test_lib.MockTempDirTestCase):
         osutils.WriteFile(self.model_file, "VMware")
         self.assertTrue(osutils.IsInsideVm())
 
-    def testIsNotInsideVm(self):
+    def testIsNotInsideVm(self) -> None:
         osutils.WriteFile(self.model_file, "ST1000DM000-1CH1")
         self.assertFalse(osutils.IsInsideVm())
 
@@ -1419,16 +1419,16 @@ class IsInsideVmTest(cros_test_lib.MockTempDirTestCase):
 class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
     """Test MoveDirContents."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.from_dir = self.tempdir / "from"
         self.to_dir = self.tempdir / "to"
         osutils.SafeMakedirs(self.from_dir)
         osutils.SafeMakedirs(self.to_dir)
 
-    def _crossdevice_rename(self, src, dst):
+    def _crossdevice_rename(self, src, dst) -> None:
         raise OSError(errno.EXDEV, "fake cross-device rename failure")
 
-    def testMoveEmptyDir(self):
+    def testMoveEmptyDir(self) -> None:
         """Move empty from directory."""
         osutils.MoveDirContents(self.from_dir, self.to_dir)
         self.assertExists(self.from_dir)
@@ -1438,7 +1438,7 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
         self.assertNotExists(self.from_dir)
         self.assertListEqual(os.listdir(self.to_dir), [])
 
-    def testMoveFiles(self):
+    def testMoveFiles(self) -> None:
         """Move files from source to destination."""
         osutils.WriteFile(self.from_dir / "a.txt", "aaa")
         osutils.WriteFile(self.from_dir / "b.txt", "bbb")
@@ -1453,7 +1453,7 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
         self.assertNotExists(self.from_dir / "b.txt")
         self.assertNotExists(self.from_dir / ".hidden")
 
-    def testMoveFilesAndDelete(self):
+    def testMoveFilesAndDelete(self) -> None:
         """Move files from source to destination and delete source."""
         osutils.WriteFile(self.from_dir / "a.txt", "aaa")
         osutils.WriteFile(self.from_dir / "b.txt", "bbb")
@@ -1462,7 +1462,7 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
         )
         self.assertNotExists(self.from_dir)
 
-    def testNonEmptyDestination(self):
+    def testNonEmptyDestination(self) -> None:
         """Move files from source to destination, which has contents."""
         osutils.WriteFile(self.to_dir / "a.txt", "aaa")
         osutils.WriteFile(self.to_dir / "b.txt", "bbb")
@@ -1470,7 +1470,7 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
             osutils.MoveDirContents(self.from_dir, self.to_dir)
         osutils.MoveDirContents(self.from_dir, self.to_dir, allow_nonempty=True)
 
-    def testMoveDir(self):
+    def testMoveDir(self) -> None:
         """Move files and directory from source to destination."""
         osutils.WriteFile(self.from_dir / "a.txt", "aaa")
         osutils.SafeMakedirs(self.from_dir / "b")
@@ -1482,7 +1482,7 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
         self.assertExists(self.from_dir)
         self.assertNotExists(self.from_dir / "b" / "b.txt")
 
-    def testSymlink(self):
+    def testSymlink(self) -> None:
         """Move symlink from source to destination."""
         osutils.WriteFile(self.tempdir / "a.txt", "aaa")
         (self.from_dir / "sym.txt").symlink_to(self.tempdir / "a.txt")
@@ -1492,7 +1492,7 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
             os.readlink(self.to_dir / "sym.txt"), str(self.tempdir / "a.txt")
         )
 
-    def testSymlinkTargetDoesntExist(self):
+    def testSymlinkTargetDoesntExist(self) -> None:
         """Move symlink from source to destination when target doesn't exist."""
         (self.from_dir / "sym.txt").symlink_to(self.tempdir / "a.txt")
         self.assertNotExists(self.tempdir / "a.txt")
@@ -1505,7 +1505,7 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
             os.readlink(self.to_dir / "sym.txt"), str(self.tempdir / "a.txt")
         )
 
-    def testSymlinkTargetDoesntExistCrossDevice(self):
+    def testSymlinkTargetDoesntExistCrossDevice(self) -> None:
         """Move symlink from source to destination, cross-device.
 
         Cover a few cases when we can't do easy os.rename(), such as when
@@ -1529,7 +1529,7 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
             str(self.tempdir / "a.txt"),
         )
 
-    def testMoveDirCrossDevice(self):
+    def testMoveDirCrossDevice(self) -> None:
         """Move dir across filesystem boundaries."""
         # Mock os.rename() to fail, so shutil will fall back to copy
         # operations.
@@ -1546,7 +1546,7 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
         self.assertNotExists(self.from_dir / "b" / "a.txt")
         self.assertNotExists(self.from_dir / "b" / "b.txt")
 
-    def testOverWriteFiles(self):
+    def testOverWriteFiles(self) -> None:
         """Move files with same name from source to destination."""
         # test dotfiles in top and multiple level directories.
         D = cros_test_lib.Directory
@@ -1579,7 +1579,7 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
         self.assertTrue((self.to_dir / "b").is_dir())
         self.assertExists(self.to_dir / "b" / "b.txt")
 
-    def testOverlaidDirs(self):
+    def testOverlaidDirs(self) -> None:
         """Move files with overlapping directories."""
         D = cros_test_lib.Directory
         src_layout = (
@@ -1598,7 +1598,7 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
         self.assertExists(self.to_dir / "a" / "bar.txt")
         self.assertExists(self.to_dir / "b")
 
-    def testSameDirectory(self):
+    def testSameDirectory(self) -> None:
         """Test source and destination directory are the same."""
         osutils.MoveDirContents(self.from_dir, self.from_dir)
         self.assertExists(self.from_dir)
@@ -1607,7 +1607,7 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
         )
         self.assertExists(self.from_dir)
 
-    def testMissingDirectory(self):
+    def testMissingDirectory(self) -> None:
         """Test source and destination directory missing case."""
         osutils.RmDir(self.from_dir)
         with self.assertRaises(osutils.BadPathsException):
@@ -1621,7 +1621,7 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
 class CopyDirContentsTestCase(cros_test_lib.TempDirTestCase):
     """Test CopyDirContents."""
 
-    def testCopyEmptyDir(self):
+    def testCopyEmptyDir(self) -> None:
         """Copy "empty" contents from a dir."""
         in_dir = os.path.join(self.tempdir, "input")
         out_dir = os.path.join(self.tempdir, "output")
@@ -1629,7 +1629,7 @@ class CopyDirContentsTestCase(cros_test_lib.TempDirTestCase):
         osutils.SafeMakedirsNonRoot(out_dir)
         osutils.CopyDirContents(in_dir, out_dir)
 
-    def testCopyFiles(self):
+    def testCopyFiles(self) -> None:
         """Copy from a dir that contains files."""
         in_dir = os.path.join(self.tempdir, "input")
         out_dir = os.path.join(self.tempdir, "output")
@@ -1645,7 +1645,7 @@ class CopyDirContentsTestCase(cros_test_lib.TempDirTestCase):
             osutils.ReadFile(os.path.join(out_dir, "b.txt")).strip(), "bbb"
         )
 
-    def testCopyTree(self):
+    def testCopyTree(self) -> None:
         """Copy from a dir that contains files."""
         in_dir = os.path.join(self.tempdir, "input")
         out_dir = os.path.join(self.tempdir, "output")
@@ -1658,7 +1658,7 @@ class CopyDirContentsTestCase(cros_test_lib.TempDirTestCase):
             osutils.ReadFile(os.path.join(out_dir, "a", "b.txt")).strip(), "bbb"
         )
 
-    def testSourceDirDoesNotExistRaises(self):
+    def testSourceDirDoesNotExistRaises(self) -> None:
         """Coping from a non-existent source dir raises."""
         in_dir = os.path.join(self.tempdir, "input")
         out_dir = os.path.join(self.tempdir, "output")
@@ -1666,7 +1666,7 @@ class CopyDirContentsTestCase(cros_test_lib.TempDirTestCase):
         with self.assertRaises(osutils.BadPathsException):
             osutils.CopyDirContents(in_dir, out_dir)
 
-    def testDestinationDirDoesNotExistRaises(self):
+    def testDestinationDirDoesNotExistRaises(self) -> None:
         """Coping to a non-existent destination dir raises."""
         in_dir = os.path.join(self.tempdir, "input")
         out_dir = os.path.join(self.tempdir, "output")
@@ -1674,7 +1674,7 @@ class CopyDirContentsTestCase(cros_test_lib.TempDirTestCase):
         with self.assertRaises(osutils.BadPathsException):
             osutils.CopyDirContents(in_dir, out_dir)
 
-    def testDestinationDirNonEmptyRaises(self):
+    def testDestinationDirNonEmptyRaises(self) -> None:
         """Coping to a non-empty destination dir raises."""
         in_dir = os.path.join(self.tempdir, "input")
         out_dir = os.path.join(self.tempdir, "output")
@@ -1684,7 +1684,7 @@ class CopyDirContentsTestCase(cros_test_lib.TempDirTestCase):
         with self.assertRaises(osutils.BadPathsException):
             osutils.CopyDirContents(in_dir, out_dir)
 
-    def testDestinationDirNonEmptyAllowNonEmptySet(self):
+    def testDestinationDirNonEmptyAllowNonEmptySet(self) -> None:
         """Copying to a non-empty destination with allow_nonempty succeeds."""
         in_dir = os.path.join(self.tempdir, "input")
         out_dir = os.path.join(self.tempdir, "output")
@@ -1693,7 +1693,7 @@ class CopyDirContentsTestCase(cros_test_lib.TempDirTestCase):
         osutils.SafeMakedirsNonRoot(os.path.join(out_dir, "blah"))
         osutils.CopyDirContents(in_dir, out_dir, allow_nonempty=True)
 
-    def testCopyingSymlinks(self):
+    def testCopyingSymlinks(self) -> None:
         in_dir = os.path.join(self.tempdir, "input")
         in_dir_link = os.path.join(in_dir, "link")
         in_dir_symlinks_dir = os.path.join(in_dir, "holding_symlink")
@@ -1719,7 +1719,7 @@ class CopyDirContentsTestCase(cros_test_lib.TempDirTestCase):
         self.assertTrue(os.path.islink(out_dir_link))
         self.assertTrue(os.path.islink(out_dir_symlinks_dir_link))
 
-    def testNotCopyingSymlinks(self):
+    def testNotCopyingSymlinks(self) -> None:
         # Create temporary to symlink against.
         tmp_file = os.path.join(self.tempdir, "a.txt")
         osutils.WriteFile(tmp_file, "aaa")
@@ -1760,7 +1760,7 @@ class CopyDirContentsTestCase(cros_test_lib.TempDirTestCase):
             )
         )
 
-    def testCopyingSymlinksAndFilesWithPathArgs(self):
+    def testCopyingSymlinksAndFilesWithPathArgs(self) -> None:
         """Copying given |Path| arguments works properly for symlinks+files."""
         in_dir = self.tempdir / "input"
         osutils.SafeMakedirs(in_dir)
@@ -1779,7 +1779,7 @@ class CopyDirContentsTestCase(cros_test_lib.TempDirTestCase):
         out_tmp_file_link = out_dir / tmp_file_link.name
         self.assertEqual(Path(os.readlink(out_tmp_file_link)), tmp_file)
 
-    def testCopyingSubDirWithPathArgs(self):
+    def testCopyingSubDirWithPathArgs(self) -> None:
         """Copying given |Path| arguments works properly for subdirectories."""
         in_dir = self.tempdir / "input"
         osutils.SafeMakedirs(in_dir)
@@ -1800,7 +1800,7 @@ class CopyDirContentsTestCase(cros_test_lib.TempDirTestCase):
 class WhichTests(cros_test_lib.TempDirTestCase):
     """Test Which."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.prog_path = os.path.join(self.tempdir, "prog")
         osutils.Touch(self.prog_path, mode=0o755)
         self.text_path = os.path.join(self.tempdir, "text")
@@ -1809,7 +1809,7 @@ class WhichTests(cros_test_lib.TempDirTestCase):
         # A random path for us to validate.
         os.environ["PATH"] = "/:%s" % (self.tempdir,)
 
-    def testPath(self):
+    def testPath(self) -> None:
         """Check $PATH/path handling."""
         self.assertEqual(self.prog_path, osutils.Which("prog"))
 
@@ -1820,7 +1820,7 @@ class WhichTests(cros_test_lib.TempDirTestCase):
             self.prog_path, osutils.Which("prog", path=self.tempdir)
         )
 
-    def testMode(self):
+    def testMode(self) -> None:
         """Check mode handling."""
         self.assertEqual(self.prog_path, osutils.Which("prog"))
         self.assertEqual(self.prog_path, osutils.Which("prog", mode=os.X_OK))
@@ -1829,7 +1829,7 @@ class WhichTests(cros_test_lib.TempDirTestCase):
         self.assertEqual(None, osutils.Which("text", mode=os.X_OK))
         self.assertEqual(self.text_path, osutils.Which("text", mode=os.F_OK))
 
-    def testRoot(self):
+    def testRoot(self) -> None:
         """Check root handling."""
         self.assertEqual(None, osutils.Which("prog", root="/........."))
         self.assertEqual(
@@ -1853,7 +1853,7 @@ class UmaskTests(cros_test_lib.TestCase):
         assert m is not None
         return int(m.group(1), 8)
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Verify umask is saved & restored."""
         os.umask(0o222)
         with osutils.UmaskContext(0o123) as old:
@@ -1865,33 +1865,33 @@ class UmaskTests(cros_test_lib.TestCase):
 class TestSyncStorage(cros_test_lib.TestCase):
     """Test sync_storage helper."""
 
-    def testNoArgs(self):
+    def testNoArgs(self) -> None:
         """Verify default behavior."""
         assert osutils.sync_storage()
 
-    def testSudo(self):
+    def testSudo(self) -> None:
         """Verify sudo behavior."""
         assert osutils.sync_storage(sudo=True)
         assert osutils.sync_storage(Path.cwd(), sudo=True)
 
-    def testPath(self):
+    def testPath(self) -> None:
         """Verify with path."""
         assert osutils.sync_storage(Path.cwd())
 
-    def testMissingPath(self):
+    def testMissingPath(self) -> None:
         """Verify with path that doesn't work."""
         assert not osutils.sync_storage("alskdjfalskdjflasjdflasjdf")
 
-    def testPathData(self):
+    def testPathData(self) -> None:
         """Verify syncing path data."""
         assert osutils.sync_storage(".", data_only=True)
 
-    def testPathDataNoPath(self):
+    def testPathDataNoPath(self) -> None:
         """Verify syncing data w/out path."""
         with self.assertRaises(ValueError):
             osutils.sync_storage(data_only=True)
 
-    def testPathFilesystem(self):
+    def testPathFilesystem(self) -> None:
         """Verify syncing path filesystem."""
         assert osutils.sync_storage(".", filesystem=True)
 
@@ -1899,23 +1899,23 @@ class TestSyncStorage(cros_test_lib.TestCase):
 class TestMockCmdSyncStorage(cros_test_lib.RunCommandTestCase):
     """Test sync_storage helper with a mock run command."""
 
-    def testSync(self):
+    def testSync(self) -> None:
         """Verify basic `sync` call."""
         assert osutils.sync_storage()
         assert osutils.sync_storage(sudo=True)
         self.assertEqual(self.rc.call_count, 0)
 
-    def testSyncData(self):
+    def testSyncData(self) -> None:
         """Verify basic `sync` call."""
         assert osutils.sync_storage(".", data_only=True, sudo=True)
         self.rc.assertCommandContains(["sync", "--data", "."])
 
-    def testSyncFilesystem(self):
+    def testSyncFilesystem(self) -> None:
         """Verify basic `sync` call."""
         assert osutils.sync_storage(".", filesystem=True, sudo=True)
         self.rc.assertCommandContains(["sync", "--file-system", "."])
 
-    def testSyncFile(self):
+    def testSyncFile(self) -> None:
         """Verify basic `sync` call."""
         assert osutils.sync_storage(".", sudo=True)
         self.rc.assertCommandContains(["sync", "."])
@@ -1924,28 +1924,28 @@ class TestMockCmdSyncStorage(cros_test_lib.RunCommandTestCase):
 class TestMockSyncStorage(cros_test_lib.TestCase):
     """Test sync_storage helper with a mock C library."""
 
-    def testSync(self):
+    def testSync(self) -> None:
         """Verify we call libc.sync()."""
         m = mock.MagicMock()
         with mock.patch.object(libc, "GetLibc", return_value=m):
             osutils.sync_storage()
         m.sync.assert_called_once()
 
-    def testFDataSync(self):
+    def testFDataSync(self) -> None:
         """Verify we call libc.fdatasync()."""
         m = mock.MagicMock()
         with mock.patch.object(libc, "GetLibc", return_value=m):
             osutils.sync_storage(".", data_only=True)
         m.fdatasync.assert_called_once()
 
-    def testSyncfs(self):
+    def testSyncfs(self) -> None:
         """Verify we call libc.syncfs()."""
         m = mock.MagicMock()
         with mock.patch.object(libc, "GetLibc", return_value=m):
             osutils.sync_storage(".", filesystem=True)
         m.syncfs.assert_called_once()
 
-    def testFsync(self):
+    def testFsync(self) -> None:
         """Verify we call libc.fsync()."""
         m = mock.MagicMock()
         with mock.patch.object(libc, "GetLibc", return_value=m):

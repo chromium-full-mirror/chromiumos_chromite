@@ -14,34 +14,34 @@ from chromite.lib import cros_test_lib
 class AuthTest(cros_test_lib.RunCommandTestCase):
     """Test cases for methods in auth."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(time, "sleep")
         self.PatchObject(auth, "GetLuciAuth", return_value="luci-auth")
         self.PatchObject(
             auth, "GetLuciGitCreds", return_value="git-credential-luci"
         )
 
-    def testLoginFailed(self):
+    def testLoginFailed(self) -> None:
         """Test Login failing."""
         self.rc.AddCmdResult(["luci-auth", "login"], stderr="", returncode=1)
         self.assertRaises(auth.AccessTokenError, auth.Login)
 
-    def testLoginPassed(self):
+    def testLoginPassed(self) -> None:
         """Test Login working."""
         self.rc.AddCmdResult(["luci-auth", "login"], stdout="")
         self.assertIsNone(auth.Login())
 
-    def testTokenFailed(self):
+    def testTokenFailed(self) -> None:
         """Test Token failing."""
         self.rc.AddCmdResult(["luci-auth", "token"], stderr="", returncode=1)
         self.assertRaises(auth.AccessTokenError, auth.Token)
 
-    def testTokenPassed(self):
+    def testTokenPassed(self) -> None:
         """Test Token working."""
         self.rc.AddCmdResult(["luci-auth", "token"], stdout="token")
         self.assertEqual(auth.Token(), "token")
 
-    def testTokenAndLoginIfNeed(self):
+    def testTokenAndLoginIfNeed(self) -> None:
         """Test TokenAndLoginIfNeed."""
         # pylint: disable=protected-access
         sc_json = "/tmp/service_account.json"
@@ -83,7 +83,7 @@ class AuthTest(cros_test_lib.RunCommandTestCase):
         mock_token.assert_called_once_with(service_account_json=sc_json)
         mock_login.assert_called_once_with(service_account_json=sc_json)
 
-    def testGetAccessToken(self):
+    def testGetAccessToken(self) -> None:
         """Test GetAccessToken."""
         mock_login = self.PatchObject(auth, "Login", return_value=None)
         mock_token = self.PatchObject(
@@ -99,14 +99,14 @@ class AuthTest(cros_test_lib.RunCommandTestCase):
         self.assertEqual(mock_login.call_count, auth.RETRY_GET_ACCESS_TOKEN + 1)
         self.assertEqual(mock_token.call_count, auth.RETRY_GET_ACCESS_TOKEN + 1)
 
-    def testGitCredsFailed(self):
+    def testGitCredsFailed(self) -> None:
         """Test git-credential-luci failing."""
         self.rc.AddCmdResult(
             ["git-credential-luci", "get"], stderr="", returncode=1
         )
         self.assertRaises(auth.AccessTokenError, auth.GitCreds)
 
-    def testGitCredsPassed(self):
+    def testGitCredsPassed(self) -> None:
         """Test git-credential-luci working."""
         stdout = "\n".join(
             [
@@ -117,7 +117,7 @@ class AuthTest(cros_test_lib.RunCommandTestCase):
         self.rc.AddCmdResult(["git-credential-luci", "get"], stdout=stdout)
         self.assertEqual(auth.GitCreds(), "some-git-password")
 
-    def testGitCredsNoPassword(self):
+    def testGitCredsNoPassword(self) -> None:
         """Test git-credential-luci returning unknown output."""
         stdout = "\n".join(
             [
@@ -132,7 +132,7 @@ class AuthTest(cros_test_lib.RunCommandTestCase):
 class AuthorizedHttp(cros_test_lib.MockTestCase):
     """Test cases for AuthorizedHttp."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_http = mock.Mock()
         self.mock_resp = mock.Mock()
         self.mock_get_token = self.PatchObject(
@@ -140,7 +140,7 @@ class AuthorizedHttp(cros_test_lib.MockTestCase):
         )
         self.account_json = "service_account_json"
 
-    def testAuthorize(self):
+    def testAuthorize(self) -> None:
         self.mock_resp.status = 200
         self.mock_http.request.return_value = self.mock_resp, "content"
 
@@ -159,7 +159,7 @@ class AuthorizedHttp(cros_test_lib.MockTestCase):
             service_account_json=self.account_json
         )
 
-    def testAuthorize2(self):
+    def testAuthorize2(self) -> None:
         self.mock_resp.status = 401
         self.mock_http.request.return_value = self.mock_resp, "content"
 
@@ -178,7 +178,7 @@ class AuthorizedHttp(cros_test_lib.MockTestCase):
             service_account_json=self.account_json, force_token_renew=True
         )
 
-    def testAuthorize3(self):
+    def testAuthorize3(self) -> None:
         self.mock_resp.status = 500
         self.mock_http.request.return_value = self.mock_resp, "content"
 

@@ -117,14 +117,14 @@ class EnforcedCleanupSection(cros_build_lib.PrimaryPidContextManager):
         self._lock.write_lock()
         return self
 
-    def _KillWatchdog(self):
+    def _KillWatchdog(self) -> None:
         """Kill the child watchdog cleanly."""
         if self._watchdog_alive:
             self._write_pipe.send_bytes(b"\n")
             self._lock.unlock()
             self._lock.close()
 
-    def _exit(self, exc_type, exc, exc_tb):
+    def _exit(self, exc_type, exc, exc_tb) -> None:
         if self._is_child:
             # All cleanup code that would've run, has ran.
             # Hard exit to bypass any further code execution.

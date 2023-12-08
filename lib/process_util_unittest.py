@@ -31,31 +31,31 @@ def _SpawnChild(exit_code=None, kill_signal=None):
 class GetExitStatusTests(cros_test_lib.TestCase):
     """Tests for GetExitStatus()"""
 
-    def testExitNormal(self):
+    def testExitNormal(self) -> None:
         """Verify normal exits get decoded."""
         status = _SpawnChild(exit_code=0)
         ret = process_util.GetExitStatus(status)
         self.assertEqual(ret, 0)
 
-    def testExitError(self):
+    def testExitError(self) -> None:
         """Verify error exits (>0 && <128) get decoded."""
         status = _SpawnChild(exit_code=10)
         ret = process_util.GetExitStatus(status)
         self.assertEqual(ret, 10)
 
-    def testExitWeird(self):
+    def testExitWeird(self) -> None:
         """Verify weird exits (>=128) get decoded."""
         status = _SpawnChild(exit_code=150)
         ret = process_util.GetExitStatus(status)
         self.assertEqual(ret, 150)
 
-    def testSIGUSR1(self):
+    def testSIGUSR1(self) -> None:
         """Verify normal kill signals get decoded."""
         status = _SpawnChild(kill_signal=signal.SIGUSR1)
         ret = process_util.GetExitStatus(status)
         self.assertEqual(ret, 128 + signal.SIGUSR1)
 
-    def testSIGKILL(self):
+    def testSIGKILL(self) -> None:
         """Verify harsh signals get decoded."""
         status = _SpawnChild(kill_signal=signal.SIGKILL)
         ret = process_util.GetExitStatus(status)
@@ -65,7 +65,7 @@ class GetExitStatusTests(cros_test_lib.TestCase):
 class ExitAsStatusTests(cros_test_lib.TestCase):
     """Tests for ExitAsStatus()"""
 
-    def _Tester(self, exit_code=None, kill_signal=None):
+    def _Tester(self, exit_code=None, kill_signal=None) -> None:
         """Helper func for testing ExitAsStatus()
 
         Create a child to mimic the grandchild.
@@ -95,22 +95,22 @@ class ExitAsStatusTests(cros_test_lib.TestCase):
             self.assertTrue(os.WIFSIGNALED(status))
             self.assertEqual(os.WTERMSIG(status), kill_signal)
 
-    def testExitNormal(self):
+    def testExitNormal(self) -> None:
         """Verify normal exits get decoded."""
         self._Tester(exit_code=0)
 
-    def testExitError(self):
+    def testExitError(self) -> None:
         """Verify error exits (>0 && <128) get decoded."""
         self._Tester(exit_code=10)
 
-    def testExitWeird(self):
+    def testExitWeird(self) -> None:
         """Verify weird exits (>=128) get decoded."""
         self._Tester(exit_code=150)
 
-    def testSIGUSR1(self):
+    def testSIGUSR1(self) -> None:
         """Verify normal kill signals get decoded."""
         self._Tester(kill_signal=signal.SIGUSR1)
 
-    def testSIGKILL(self):
+    def testSIGKILL(self) -> None:
         """Verify harsh signals get decoded."""
         self._Tester(kill_signal=signal.SIGKILL)

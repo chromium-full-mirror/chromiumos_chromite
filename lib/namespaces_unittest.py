@@ -19,7 +19,7 @@ from chromite.utils import os_util
 class SetNSTests(cros_test_lib.TestCase):
     """Tests for SetNS()"""
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Simple functionality test."""
         NS_PATH = "/proc/self/ns/mnt"
         if not os.path.exists(NS_PATH):
@@ -38,7 +38,7 @@ class SetNSTests(cros_test_lib.TestCase):
 class UnshareTests(cros_test_lib.TestCase):
     """Tests for Unshare()"""
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Simple functionality test."""
         try:
             namespaces.Unshare(namespaces.CLONE_NEWNS)
@@ -52,7 +52,7 @@ class UnshareTests(cros_test_lib.TestCase):
 class UnshareCGroupsTests(cros_test_lib.TestCase):
     """Tests for Unshare() of CGroups"""
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Simple functionality test."""
         try:
             namespaces.Unshare(namespaces.CLONE_NEWCGROUP)
@@ -71,7 +71,7 @@ class UnshareCGroupsTests(cros_test_lib.TestCase):
 class SimpleUnshareCgroupsTests(cros_test_lib.MockTestCase):
     """Tests for SimpleUnshare with cgroups."""
 
-    def testSimpleUnshare(self):
+    def testSimpleUnshare(self) -> None:
         """Simple functionality test."""
         unshare_mock = self.PatchObject(namespaces, "Unshare")
         namespaces.SimpleUnshare(
@@ -88,7 +88,7 @@ class SimpleUnshareCgroupsTests(cros_test_lib.MockTestCase):
 class CreateUserNsTests(cros_test_lib.TestCase):
     """Tests for CreateUserNs()"""
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Simple functionality test."""
         # Since entering namespaces will modify the state of the current
         # process, fork in advance.
@@ -118,7 +118,7 @@ class CreateUserNsTests(cros_test_lib.TestCase):
 class ReExecuteWithNamespaceTests(cros_test_lib.MockTestCase):
     """Tests for ReExecuteWithNamespace()."""
 
-    def testReExecuteWithNamespace(self):
+    def testReExecuteWithNamespace(self) -> None:
         """Verify SimpleUnshare is called and the non-root user is restored."""
         run_as_root_user_mock = self.PatchObject(commandline, "RunAsRootUser")
         simple_unshare_mock = self.PatchObject(namespaces, "SimpleUnshare")
@@ -130,7 +130,7 @@ class ReExecuteWithNamespaceTests(cros_test_lib.MockTestCase):
         simple_unshare_mock.assert_called_once_with(net=True, pid=True)
         switch_mock.assert_called_once_with(clear_saved_id=False)
 
-    def testClearSavedId(self):
+    def testClearSavedId(self) -> None:
         """Verify clear_saved_id works."""
         run_as_root_user_mock = self.PatchObject(commandline, "RunAsRootUser")
         simple_unshare_mock = self.PatchObject(namespaces, "SimpleUnshare")
@@ -148,7 +148,7 @@ class ReExecuteWithNamespaceTests(cros_test_lib.MockTestCase):
 class UseNetworkSandboxTests(cros_test_lib.MockTestCase):
     """Tests for the use_network_sandbox() context manager."""
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Test context manager's baseline success case."""
         self.PatchObject(commandline, "RunAsRootUser")
         set_ns_mock = self.PatchObject(namespaces, "SetNS")
@@ -165,7 +165,7 @@ class UseNetworkSandboxTests(cros_test_lib.MockTestCase):
         os_setresgid_mock.assert_called_with(0, 0, -1)
         set_ns_mock.assert_called_once()
 
-    def testRaisedExceptionStillRestoresNetNS(self):
+    def testRaisedExceptionStillRestoresNetNS(self) -> None:
         """Test context manager cleanup if client code raises exception."""
         self.PatchObject(commandline, "RunAsRootUser")
         set_ns_mock = self.PatchObject(namespaces, "SetNS")
@@ -186,7 +186,7 @@ class UseNetworkSandboxTests(cros_test_lib.MockTestCase):
         os_setresgid_mock.assert_called_with(0, 0, -1)
         set_ns_mock.assert_called_once()
 
-    def testNetworkRestorationFails(self):
+    def testNetworkRestorationFails(self) -> None:
         """Test exception behavior of finally block in context manager."""
         self.PatchObject(commandline, "RunAsRootUser")
         set_ns_mock = self.PatchObject(namespaces, "SetNS", side_effect=OSError)
@@ -202,7 +202,7 @@ class UseNetworkSandboxTests(cros_test_lib.MockTestCase):
         os_setresgid_mock.assert_called_with(0, 0, -1)
         set_ns_mock.assert_called_once()
 
-    def testSimpleUnshareFails(self):
+    def testSimpleUnshareFails(self) -> None:
         """Test failure behavior of context manager's re-exec call."""
         self.PatchObject(commandline, "RunAsRootUser")
         set_ns_mock = self.PatchObject(namespaces, "SetNS")
@@ -221,14 +221,14 @@ class UseNetworkSandboxTests(cros_test_lib.MockTestCase):
         os_setresgid_mock.assert_called_with(0, 0, -1)
         set_ns_mock.assert_called_once()
 
-    def testNetworkFileOpenFails(self):
+    def testNetworkFileOpenFails(self) -> None:
         """Test failure behavior of context manager's early call to open()."""
         self.PatchObject(commandline, "RunAsRootUser")
         set_ns_mock = self.PatchObject(namespaces, "SetNS")
         simple_unshare_mock = self.PatchObject(namespaces, "SimpleUnshare")
         switch_mock = self.PatchObject(os_util, "switch_to_sudo_user")
 
-        def mock_open(file, *args, **kwargs):
+        def mock_open(file, *args, **kwargs) -> None:
             if file == "/proc/self/ns/net":
                 raise OSError
             else:

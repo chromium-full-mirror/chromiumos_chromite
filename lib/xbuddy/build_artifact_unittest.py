@@ -258,22 +258,22 @@ _TEST_GOLO_ARCHIVE_IMAGE_ZIPFILE_CONTENT = [
 class BuildArtifactTest(cros_test_lib.MockTestCase):
     """Test different BuildArtifact operations."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.work_dir = tempfile.mkdtemp("build_artifact_unittest")
         self.dl = downloader.GoogleStorageDownloader(
             self.work_dir, _TEST_GOLO_ARCHIVE, _TEST_GOLO_BUILD_ID
         )
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         shutil.rmtree(self.work_dir)
 
-    def _CheckMarker(self, marker_file, installed_files):
+    def _CheckMarker(self, marker_file, installed_files) -> None:
         with open(
             os.path.join(self.work_dir, marker_file), encoding="utf-8"
         ) as f:
             self.assertEqual(installed_files, f.read().splitlines())
 
-    def testBundledArtifactTypes(self):
+    def testBundledArtifactTypes(self) -> None:
         """Verify all known bundled artifacts are either zip or tar files."""
         known_names = ["zip", ".tgz", ".tar", "tar.bz2", "tar.xz", "tar.gz"]
         for d in itertools.chain(
@@ -285,7 +285,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
                 )
 
     @cros_test_lib.pytestmark_network_test
-    def testProcessBuildArtifact(self):
+    def testProcessBuildArtifact(self) -> None:
         """Processes a real tarball from GSUtil and stages it."""
         artifact = build_artifact.Artifact(
             build_artifact.TEST_SUITES_FILE, self.work_dir, _VERSION
@@ -302,7 +302,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
         self._CheckMarker(artifact.marker_name, artifact.installed_files)
 
     @cros_test_lib.pytestmark_network_test
-    def testProcessTarball(self):
+    def testProcessTarball(self) -> None:
         """Downloads a real tarball and untars it."""
         artifact = build_artifact.BundledArtifact(
             build_artifact.TEST_SUITES_FILE, self.work_dir, _VERSION
@@ -324,7 +324,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
         self._CheckMarker(artifact.marker_name, artifact.installed_files)
 
     @cros_test_lib.pytestmark_network_test
-    def testProcessTarballWithFile(self):
+    def testProcessTarballWithFile(self) -> None:
         """Downloads a real tarball and only untars one file from it."""
         file_to_download = "autotest/test_suites/control.provision"
         artifact = build_artifact.BundledArtifact(
@@ -349,7 +349,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
     @mock.patch.object(downloader.GoogleStorageDownloader, "Wait")
     def testDownloadAutotest(
         self, wait_mock, fetch_mock, update_name_mock, extract_mock
-    ):
+    ) -> None:
         """Downloads a real autotest tarball for test."""
         artifact = build_artifact.AutotestTarball(
             build_artifact.AUTOTEST_FILE,
@@ -390,7 +390,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
         )
 
     @cros_test_lib.pytestmark_network_test
-    def testStatefulPayloadArtifact(self):
+    def testStatefulPayloadArtifact(self) -> None:
         """Tests downloading the stateful payload."""
         factory = build_artifact.ChromeOSArtifactFactory(
             self.work_dir, [artifact_info.STATEFUL_PAYLOAD], [], _VERSION
@@ -409,7 +409,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
         self._CheckMarker(artifact.marker_name, artifact.installed_files)
 
     @cros_test_lib.pytestmark_network_test
-    def testAUFullPayloadArtifact(self):
+    def testAUFullPayloadArtifact(self) -> None:
         """Tests downloading the full update payload."""
         factory = build_artifact.ChromeOSArtifactFactory(
             self.work_dir, [artifact_info.FULL_PAYLOAD], [], _VERSION
@@ -432,7 +432,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
         self._CheckMarker(artifact.marker_name, artifact.installed_files)
 
     @cros_test_lib.pytestmark_network_test
-    def testAUDeltaPayloadArtifact(self):
+    def testAUDeltaPayloadArtifact(self) -> None:
         """Tests downloading the delta update payload."""
         factory = build_artifact.ChromeOSArtifactFactory(
             self.work_dir, [artifact_info.DELTA_PAYLOAD], [], _VERSION
@@ -455,7 +455,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
         self._CheckMarker(artifact.marker_name, artifact.installed_files)
 
     @cros_test_lib.pytestmark_network_test
-    def testImageUnzip(self):
+    def testImageUnzip(self) -> None:
         """Downloads and stages a zip file and extracts a test image."""
         files_to_extract = ["chromiumos_test_image.bin"]
         artifact = build_artifact.BundledArtifact(
@@ -475,7 +475,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
         self._CheckMarker(artifact.marker_name, artifact.installed_files)
 
     @cros_test_lib.pytestmark_network_test
-    def testImageUnzipWithExcludes(self):
+    def testImageUnzipWithExcludes(self) -> None:
         """Downloads and stages a zip file while excluding all large files."""
         artifact = build_artifact.BundledArtifact(
             build_artifact.IMAGE_FILE,
@@ -496,7 +496,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
         self._CheckMarker(artifact.marker_name, artifact.installed_files)
 
     @cros_test_lib.pytestmark_network_test
-    def testArtifactFactory(self):
+    def testArtifactFactory(self) -> None:
         """Tests that BuildArtifact works for both named and file artifacts."""
         name_artifact = "test_suites"  # This file is in every real GS dir.
         file_artifact = "metadata.json"  # This file is in every real GS dir.
@@ -536,7 +536,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
             artifacts[1].marker_name, artifacts[1].installed_files
         )
 
-    def testProcessBuildArtifactWithException(self):
+    def testProcessBuildArtifactWithException(self) -> None:
         """Test processing a non-existing artifact from GSUtil."""
         gs_mock = self.StartPatcher(gs_unittest.GSContextMock())
         gs_mock.SetDefaultCmdResult()
@@ -560,7 +560,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
         )
 
     @cros_test_lib.pytestmark_network_test
-    def testArtifactStaged(self):
+    def testArtifactStaged(self) -> None:
         """Tests the artifact staging verification logic."""
         artifact = build_artifact.BundledArtifact(
             build_artifact.TEST_SUITES_FILE, self.work_dir, _VERSION
@@ -585,7 +585,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
         self.assertNotExists(os.path.join(self.work_dir, artifact.marker_name))
 
     @cros_test_lib.pytestmark_network_test
-    def testStagedFiles(self):
+    def testStagedFiles(self) -> None:
         """Tests getting the staged files."""
         files_to_extract = ["config.txt", "boot_images/vmlinuz"]
         artifact = build_artifact.BundledArtifact(

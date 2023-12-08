@@ -102,10 +102,10 @@ class _Lock(cros_build_lib.PrimaryPidContextManager):
             )
         return self._fd
 
-    def _GetFd(self):
+    def _GetFd(self) -> None:
         raise NotImplementedError(self, "_GetFd")
 
-    def _enforce_lock(self, flags, message):
+    def _enforce_lock(self, flags, message) -> None:
         # Try nonblocking first, if it fails, display the context/message,
         # and then wait on the lock.
         try:
@@ -207,7 +207,7 @@ class _Lock(cros_build_lib.PrimaryPidContextManager):
         self._enforce_lock(fcntl.LOCK_EX, message)
         return self
 
-    def unlock(self):
+    def unlock(self) -> None:
         """Release any locks held.  Noop if no locks are held.
 
         Raises:
@@ -216,10 +216,10 @@ class _Lock(cros_build_lib.PrimaryPidContextManager):
         if self._fd is not None:
             self.locking_mechanism(self._fd, fcntl.LOCK_UN)
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.close()
 
-    def close(self):
+    def close(self) -> None:
         """Release the underlying lock and close the fd."""
         if self._fd is not None:
             self.unlock()
@@ -234,7 +234,7 @@ class _Lock(cros_build_lib.PrimaryPidContextManager):
         self.fd
         return self
 
-    def _exit(self, exc_type, exc, exc_tb):
+    def _exit(self, exc_type, exc, exc_tb) -> None:
         try:
             self.unlock()
         finally:
@@ -377,7 +377,7 @@ class PortableLinkLock:
 
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         try:
             if self._target_path:
                 osutils.SafeUnlink(self._target_path)
@@ -411,7 +411,7 @@ class PipeLock:
         """
         return os.read(self.read_fd, size)
 
-    def Post(self, data=b"!"):
+    def Post(self, data=b"!") -> None:
         """Write |data| to the pipe.
 
         Args:
@@ -420,6 +420,6 @@ class PipeLock:
         """
         os.write(self.write_fd, data)
 
-    def __del__(self):
+    def __del__(self) -> None:
         os.close(self.read_fd)
         os.close(self.write_fd)

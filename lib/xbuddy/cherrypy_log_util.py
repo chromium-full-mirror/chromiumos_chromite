@@ -20,7 +20,7 @@ class Loggable:
 
     _CAMELCASE_RE = re.compile("(?<=.)([A-Z])")
 
-    def _Log(self, message, *args):
+    def _Log(self, message, *args) -> None:
         LogWithTag(
             self._CAMELCASE_RE.sub(r"_\1", self.__class__.__name__).upper(),
             message,
@@ -28,7 +28,7 @@ class Loggable:
         )
 
 
-def LogWithTag(tag, message, *args):
+def LogWithTag(tag, message, *args) -> None:
     # CherryPy log doesn't seem to take any optional args, so we just handle
     # args by formatting them into message.
     if cherrypy:
@@ -37,7 +37,7 @@ def LogWithTag(tag, message, *args):
         logging.info(message, *args)
 
 
-def UpdateConfig(configs):
+def UpdateConfig(configs) -> None:
     """Updates the cherrypy config.
 
     Args:

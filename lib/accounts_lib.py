@@ -58,7 +58,7 @@ class AccountDatabase:
         self.groups = {}
         self.users = {}
 
-    def AddAccountsFromDatabase(self, account_db_path):
+    def AddAccountsFromDatabase(self, account_db_path) -> None:
         """Add accounts from the database at |account_db_path| to self.
 
         Overrides previously loaded accounts.
@@ -97,7 +97,7 @@ class AccountDatabase:
             )
             self._AddGroup(group)
 
-    def _AddUser(self, user_spec):
+    def _AddUser(self, user_spec) -> None:
         """Add a user to this account database based on |user_spec|.
 
         Args:
@@ -170,7 +170,7 @@ class AccountDatabase:
             is_defunct=is_defunct,
         )
 
-    def _AddGroup(self, group_spec):
+    def _AddGroup(self, group_spec) -> None:
         """Add a group to this account database based on |group_spec|.
 
         Args:
@@ -236,7 +236,7 @@ class AccountDatabase:
         shell=None,
         homedir=None,
         primary_group=None,
-    ):
+    ) -> None:
         """Install a user in |sysroot_user_db|.
 
         Args:
@@ -257,7 +257,9 @@ class AccountDatabase:
                 'Refusing to install defunct user: "%s"' % username
             )
 
-        def RaiseIfNotCompatible(user_specified, db_specified, fieldname):
+        def RaiseIfNotCompatible(
+            user_specified, db_specified, fieldname
+        ) -> None:
             if user_specified is not None and user_specified != db_specified:
                 raise ValueError(
                     "Accounts database %s (%s) for user %s differs from "
@@ -293,7 +295,7 @@ class AccountDatabase:
         )
         sysroot_user_db.AddUser(installable_user)
 
-    def InstallGroup(self, groupname, sysroot_user_db, gid=None):
+    def InstallGroup(self, groupname, sysroot_user_db, gid=None) -> None:
         """Install a group in |sysroot_user_db|.
 
         Args:

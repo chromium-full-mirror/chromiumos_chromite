@@ -175,7 +175,7 @@ class KernelArgList(
         else:
             return item in self._data
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         """Delete |key| from the list.
 
         If |key| is a string, it refers to the first occurrence of |key| as an
@@ -213,7 +213,7 @@ class KernelArgList(
             raise KeyError(key)
         return self._data[idx]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         """Set |key| to |value|.
 
         If |key| is a string, it refers to the first occurrence of |key| as an
@@ -273,7 +273,7 @@ class KernelArgList(
                 return idx
         return None
 
-    def insert(self, index, obj):  # pylint: disable=arguments-renamed
+    def insert(self, index, obj) -> None:  # pylint: disable=arguments-renamed
         """Insert |obj| before |index|.
 
         Args:
@@ -294,7 +294,9 @@ class KernelArgList(
                 raise KeyError(key)
         self._data.insert(index, obj)
 
-    def update(self, other=None, **kwargs):  # pylint: disable=arguments-differ
+    def update(
+        self, other=None, **kwargs
+    ) -> None:  # pylint: disable=arguments-differ
         """Update the list.
 
         Set elements of the list.  Depending on the type of |other|, one of the
@@ -393,7 +395,7 @@ class CommandLine:
         """
         return self.kern_args.get(what, default=default)
 
-    def SetKernelParameter(self, key, value):
+    def SetKernelParameter(self, key, value) -> None:
         """Set a kernel argument.
 
         Args:
@@ -409,7 +411,7 @@ class CommandLine:
             return DmConfig(dm_kv.value)
         return None
 
-    def SetDmConfig(self, dm_config):
+    def SetDmConfig(self, dm_config) -> None:
         """Set the dm= argument to a DmConfig.
 
         Args:
@@ -532,7 +534,7 @@ class DmDevice:
                 return row.args.get(key, default=default)
         return default
 
-    def UpdateVerityArg(self, key, value):
+    def UpdateVerityArg(self, key, value) -> None:
         """Update any |key| arg in any 'verity' config line to the new value.
 
         If no verity lines contain |key|, then add it to all of them.

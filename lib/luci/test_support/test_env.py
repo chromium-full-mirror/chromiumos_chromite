@@ -16,7 +16,7 @@ ROOT_DIR = os.path.dirname(
 _INITIALIZED = False
 
 
-def setup_test_env():
+def setup_test_env() -> None:
     """Sets up test environment."""
     global _INITIALIZED  # pylint: disable=global-statement
     if _INITIALIZED:

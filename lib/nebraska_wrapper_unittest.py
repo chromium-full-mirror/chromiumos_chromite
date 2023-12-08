@@ -23,7 +23,7 @@ from chromite.lib import timeout_util
 class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
     """A class for testing RemoteNebraskaWrapper."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Sets up the objects needed for testing."""
         remote_device_mock = self.PatchObject(remote_access, "RemoteDevice")
         self._nebraska = nebraska_wrapper.RemoteNebraskaWrapper(
@@ -47,7 +47,7 @@ class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
             side_effect=side_effect,
         )
 
-    def testIsReady(self):
+    def testIsReady(self) -> None:
         """Tests IsReady."""
         # If the running thread is not started, an exception should be raised.
         with self.assertRaises(nebraska_wrapper.NebraskaStartupError):
@@ -67,7 +67,7 @@ class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
             check=False,
         )
 
-    def test_ReadPortNumber(self):
+    def test_ReadPortNumber(self) -> None:
         """Tests ReadPortNumber."""
         # If the running thread is not started, we can't get the port file.
         with self.assertRaises(nebraska_wrapper.NebraskaStartupError):
@@ -93,7 +93,7 @@ class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertEqual(self._nebraska._port, 10)
 
-    def test_PortFileExists(self):
+    def test_PortFileExists(self) -> None:
         """Tests _PortFileExists."""
 
         # Now check the correct command is run to get the port.
@@ -107,7 +107,7 @@ class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
         run_command_mock = self._PatchRemoteCommand(return_code=1)
         self.assertFalse(self._nebraska._PortFileExists())
 
-    def test_WaitUntilStarted(self):
+    def test_WaitUntilStarted(self) -> None:
         """Tests _WaitUntilStarted."""
         _read_port_number_mock = self.PatchObject(
             nebraska_wrapper.RemoteNebraskaWrapper, "_ReadPortNumber"
@@ -134,7 +134,7 @@ class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
             ["cat", "/run/nebraska/pid"], capture_output=True
         )
 
-    def testPrintLog(self):
+    def testPrintLog(self) -> None:
         """Tests PrintLog."""
         run_command_mock = self._PatchRemoteCommand(
             stdout="helloworld", return_code=1
@@ -149,7 +149,7 @@ class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
         log = self._nebraska.PrintLog()
         self.assertTrue("blah blah" in log)
 
-    def testStart(self):
+    def testStart(self) -> None:
         """Tests Start."""
         # Since the run() function runs in a different thread, its exception
         # doesn't get raised on this thread, so we call the run() directly
@@ -170,7 +170,7 @@ class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
             stderr=subprocess.STDOUT,
         )
 
-    def testGetURL(self):
+    def testGetURL(self) -> None:
         """Tests different configurations of the GetURL function."""
         self._nebraska._port = 10
         self.assertEqual(self._nebraska.GetURL(ip="ip"), "http://ip:10/update/")
@@ -184,7 +184,7 @@ class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
             "http://127.0.0.1:11/update/?no_update=True",
         )
 
-    def testGetNebraskaSrcLocal(self):
+    def testGetNebraskaSrcLocal(self) -> None:
         """Tests GetNebraskaSrcFile local copy."""
         self.assertEqual(
             path_util.DetermineCheckout().type, path_util.CheckoutType.REPO
@@ -217,7 +217,7 @@ class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
         ),
     )
     @mock.patch.object(gob_util, "FetchUrl", return_value="")
-    def testGetNebraskaSrcDownloadURL(self, fetch_mock, _):
+    def testGetNebraskaSrcDownloadURL(self, fetch_mock, _) -> None:
         """Tests GetNebraskaSrcFile download url."""
         download_dir = os.path.join(self.tempdir, "download")
         osutils.SafeMakedirs(download_dir)
@@ -236,7 +236,7 @@ class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
             path_util.CheckoutType.GCLIENT, None, None
         ),
     )
-    def testGetNebraskaSrcDownload(self, _):
+    def testGetNebraskaSrcDownload(self, _) -> None:
         """Verifies GetNebraskaSrcFile downloaded copy."""
         # nebraska.py from src repo. This test only works in cros repo.
         src_file = os.path.abspath(

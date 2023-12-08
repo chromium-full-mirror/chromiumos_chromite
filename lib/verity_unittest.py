@@ -14,7 +14,7 @@ from chromite.lib import verity
 class VerityTest(cros_test_lib.TempDirTestCase):
     """Tests verity functions."""
 
-    def testExtractRootHexDigest(self):
+    def testExtractRootHexDigest(self) -> None:
         """Test the extraction of root hexdigest from dm-verity table."""
         table = os.path.join(self.tempdir, "table")
         root_hexdigest = (
@@ -29,7 +29,7 @@ class VerityTest(cros_test_lib.TempDirTestCase):
         )
         self.assertEqual(verity.ExtractRootHexdigest(table), root_hexdigest)
 
-    def testExtractBadRootHexDigest(self):
+    def testExtractBadRootHexDigest(self) -> None:
         """Test the bad extraction of root hexdigest from dm-verityt table."""
         table = os.path.join(self.tempdir, "table")
         osutils.WriteFile(table, "")

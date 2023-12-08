@@ -16,7 +16,7 @@ from chromite.lib.luci import utils
 class TestTimeParsingFunctions(cros_test_lib.MockTestCase):
     """Test time parsing functions in luci/utils.py."""
 
-    def testTimestampToDatetime(self):
+    def testTimestampToDatetime(self) -> None:
         # Test None input.
         self.assertIsNone(utils.TimestampToDatetime(None))
         # Test empty input.
@@ -28,7 +28,7 @@ class TestTimeParsingFunctions(cros_test_lib.MockTestCase):
         self.assertIsNotNone(formatted_time)
         self.assertIsInstance(formatted_time, datetime)
 
-    def testDateToTimestamp(self):
+    def testDateToTimestamp(self) -> None:
         result = utils.DatetimeToTimestamp(date(2019, 4, 15))
         self.assertEqual(result.seconds, 1555286400)
         result = utils.DatetimeToTimestamp(date(2019, 4, 15), end_of_day=True)

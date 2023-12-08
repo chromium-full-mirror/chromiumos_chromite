@@ -16,13 +16,13 @@ class TestGclientWriteConfigFile(cros_test_lib.RunCommandTempDirTestCase):
 
     _TEST_CWD = "/work/chrome"
 
-    def setUp(self):
+    def setUp(self) -> None:
         valid_dirs = ["/exists", "/b/git-cache"]
         self.PatchObject(
             os.path, "exists", side_effect=lambda d: d in valid_dirs
         )
 
-    def _AssertGclientConfigSpec(self, expected_spec):
+    def _AssertGclientConfigSpec(self, expected_spec) -> None:
         self.rc.assertCommandContains(
             ("gclient", "config", "--spec", expected_spec), cwd=self._TEST_CWD
         )
@@ -32,7 +32,7 @@ class TestGclientWriteConfigFile(cros_test_lib.RunCommandTempDirTestCase):
         osutils.WriteFile(template_path, template_content)
         return template_path
 
-    def testChromiumSpec(self):
+    def testChromiumSpec(self) -> None:
         """Test WriteConfigFile with chromium checkout and no revision."""
         gclient.WriteConfigFile("gclient", self._TEST_CWD, False, None)
         self._AssertGclientConfigSpec(
@@ -46,7 +46,7 @@ cache_dir = '/b/git-cache'
 """
         )
 
-    def testChromiumSpecCustomCache(self):
+    def testChromiumSpecCustomCache(self) -> None:
         """Test WriteConfigFile with chromium checkout and no revision."""
         gclient.WriteConfigFile(
             "gclient", self._TEST_CWD, False, None, git_cache_dir="/exists"
@@ -62,7 +62,7 @@ cache_dir = '/exists'
 """
         )
 
-    def testChromiumSpecCustomInvalidCacheDir(self):
+    def testChromiumSpecCustomInvalidCacheDir(self) -> None:
         """Test WriteConfigFile with chromium checkout and no revision."""
         gclient.WriteConfigFile(
             "gclient",
@@ -82,7 +82,7 @@ cache_dir = '/tmp/git-cache'
 """
         )
 
-    def testChromiumSpecNotUseCache(self):
+    def testChromiumSpecNotUseCache(self) -> None:
         """Test WriteConfigFile with chromium checkout and no revision."""
         gclient.WriteConfigFile(
             "gclient", self._TEST_CWD, False, None, use_cache=False
@@ -97,7 +97,7 @@ target_os = ['chromeos']
 """
         )
 
-    def testChromeSpec(self):
+    def testChromeSpec(self) -> None:
         """Test WriteConfigFile with chrome checkout and no revision."""
         gclient.WriteConfigFile("gclient", self._TEST_CWD, True, None)
         self._AssertGclientConfigSpec(
@@ -112,7 +112,7 @@ cache_dir = '/b/git-cache'
 """
         )
 
-    def testChromiumSpecWithGitHash(self):
+    def testChromiumSpecWithGitHash(self) -> None:
         """Test WriteConfigFile with chromium checkout at a given revision."""
         gclient.WriteConfigFile(
             "gclient",
@@ -132,7 +132,7 @@ cache_dir = '/b/git-cache'
         # pylint: enable=line-too-long
         self._AssertGclientConfigSpec(spec)
 
-    def testChromeSpecWithGitHash(self):
+    def testChromeSpecWithGitHash(self) -> None:
         """Test WriteConfigFile with chrome checkout at a given git revision."""
         gclient.WriteConfigFile(
             "gclient",
@@ -153,7 +153,7 @@ cache_dir = '/b/git-cache'
         # pylint: enable=line-too-long
         self._AssertGclientConfigSpec(spec)
 
-    def testChromiumSpecWithGitHead(self):
+    def testChromiumSpecWithGitHead(self) -> None:
         """Test WriteConfigFile with chromium checkout at a given revision."""
         gclient.WriteConfigFile("gclient", self._TEST_CWD, False, "HEAD")
         # pylint: disable=line-too-long
@@ -168,7 +168,7 @@ cache_dir = '/b/git-cache'
         # pylint: enable=line-too-long
         self._AssertGclientConfigSpec(spec)
 
-    def testChromeSpecWithGitHead(self):
+    def testChromeSpecWithGitHead(self) -> None:
         """Test WriteConfigFile with chrome checkout at a given git revision."""
         gclient.WriteConfigFile("gclient", self._TEST_CWD, True, "HEAD")
         # pylint: disable=line-too-long
@@ -184,7 +184,7 @@ cache_dir = '/b/git-cache'
         # pylint: enable=line-too-long
         self._AssertGclientConfigSpec(spec)
 
-    def testChromeSpecWithGitHashNoManaged(self):
+    def testChromeSpecWithGitHashNoManaged(self) -> None:
         """Like testChromeSpecWithGitHash() but with "managed" sets to False."""
         gclient.WriteConfigFile(
             "gclient",
@@ -204,7 +204,7 @@ cache_dir = '/b/git-cache'
 """
         self._AssertGclientConfigSpec(spec)
 
-    def testChromeSpecWithReleaseTag(self):
+    def testChromeSpecWithReleaseTag(self) -> None:
         """Test WriteConfigFile with chrome checkout at a given release tag."""
         gclient.WriteConfigFile("gclient", self._TEST_CWD, True, "45.0.2431.1")
         self._AssertGclientConfigSpec(
@@ -220,7 +220,7 @@ cache_dir = '/b/git-cache'
 """
         )
 
-    def testChromiumSpecWithReleaseTag(self):
+    def testChromiumSpecWithReleaseTag(self) -> None:
         """Test WriteConfigFile with chromium checkout at a given tag."""
         gclient.WriteConfigFile("gclient", self._TEST_CWD, False, "41.0.2270.0")
         self._AssertGclientConfigSpec(
@@ -234,7 +234,7 @@ cache_dir = '/b/git-cache'
 """
         )
 
-    def testChromeSpecWithReleaseTagDepsGit(self):
+    def testChromeSpecWithReleaseTagDepsGit(self) -> None:
         """Test WriteConfigFile with chrome checkout at a given release tag."""
         gclient.WriteConfigFile("gclient", self._TEST_CWD, True, "41.0.2270.0")
         self._AssertGclientConfigSpec(
@@ -250,7 +250,7 @@ cache_dir = '/b/git-cache'
 """
         )
 
-    def testChromeSpecDepsResolution(self):
+    def testChromeSpecDepsResolution(self) -> None:
         """Test BuildspecUsesDepsGit at release thresholds."""
         for rev, uses_deps_git in (
             ("41.0.2270.0", True),
@@ -263,7 +263,7 @@ cache_dir = '/b/git-cache'
         ):
             self.assertEqual(gclient.BuildspecUsesDepsGit(rev), uses_deps_git)
 
-    def testChromeSpecWithGclientTemplate(self):
+    def testChromeSpecWithGclientTemplate(self) -> None:
         """Test WriteConfigFile with chrome checkout with a gclient template."""
         template_path = self._CreateGclientTemplate(
             """solutions = [
@@ -300,7 +300,7 @@ cache_dir = '/b/git-cache'
         # pylint: enable=line-too-long
         self._AssertGclientConfigSpec(spec)
 
-    def testChromeSpecWithReleaseTagAfter90(self):
+    def testChromeSpecWithReleaseTagAfter90(self) -> None:
         """Test WriteConfigFile with chrome checkout at a given release tag."""
         gclient.WriteConfigFile("gclient", self._TEST_CWD, True, "91.0.2431.1")
         self._AssertGclientConfigSpec(
@@ -315,7 +315,7 @@ cache_dir = '/b/git-cache'
 """
         )
 
-    def testChromeSpecWithReleaseTagPublicAfter90(self):
+    def testChromeSpecWithReleaseTagPublicAfter90(self) -> None:
         """Test WriteConfigFile with chrome checkout at a given release tag."""
         gclient.WriteConfigFile("gclient", self._TEST_CWD, False, "91.0.2431.1")
         self._AssertGclientConfigSpec(
@@ -333,24 +333,24 @@ cache_dir = '/b/git-cache'
 class GclientWrappersTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests for small gclient wrappers"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.fake_gclient = os.path.join(self.tempdir, "gclient")
         self.cwd = self.tempdir
 
-    def testRevert(self):
+    def testRevert(self) -> None:
         gclient.Revert(self.fake_gclient, self.cwd)
         self.assertCommandCalled(
             [self.fake_gclient, "revert", "--nohooks"], cwd=self.cwd
         )
 
-    def testSync(self):
+    def testSync(self) -> None:
         """Test gclient.Sync() without optional arguments."""
         gclient.Sync(self.fake_gclient, self.cwd)
         self.assertCommandCalled(
             [self.fake_gclient, "sync", "--nohooks", "--verbose"], cwd=self.cwd
         )
 
-    def testSyncWithOptions(self):
+    def testSyncWithOptions(self) -> None:
         """Test gclient.Sync() with optional arguments."""
         gclient.Sync(self.fake_gclient, self.cwd, reset=True)
         self.assertCommandCalled(
@@ -369,7 +369,7 @@ class GclientWrappersTest(cros_test_lib.RunCommandTempDirTestCase):
         gclient.Sync(self.fake_gclient, self.cwd, nohooks=False, verbose=False)
         self.assertCommandCalled([self.fake_gclient, "sync"], cwd=self.cwd)
 
-    def testSyncWithRunArgs(self):
+    def testSyncWithRunArgs(self) -> None:
         """Test gclient.Sync() with run_args.
 
         run_args is an optional argument for run kwargs.

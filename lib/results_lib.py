@@ -20,14 +20,14 @@ def _GetCheckpointFile(buildroot):
     return os.path.join(buildroot, ".completed_stages")
 
 
-def WriteCheckpoint(buildroot):
+def WriteCheckpoint(buildroot) -> None:
     """Drops a completed stages file with current state."""
     completed_stages_file = _GetCheckpointFile(buildroot)
     with open(completed_stages_file, "w+", encoding="utf-8") as save_file:
         Results.SaveCompletedStages(save_file)
 
 
-def LoadCheckpoint(buildroot):
+def LoadCheckpoint(buildroot) -> None:
     """Restore completed stage info from checkpoint file."""
     completed_stages_file = _GetCheckpointFile(buildroot)
     if not os.path.exists(completed_stages_file):
@@ -87,7 +87,7 @@ class _Results:
 
         self.start_time = datetime.datetime.now()
 
-    def Clear(self):
+    def Clear(self) -> None:
         """Clear existing stage results."""
         self.__init__()
 
@@ -169,7 +169,7 @@ class _Results:
 
     def _RecordStageFailureMessage(
         self, name, exception, prefix=None, build_stage_id=None
-    ):
+    ) -> None:
         self._failure_message_results.append(
             failures_lib.GetStageFailureMessageFromException(
                 name, build_stage_id, exception, stage_prefix_name=prefix
@@ -185,7 +185,7 @@ class _Results:
         board="",
         time=0,
         build_stage_id=None,
-    ):
+    ) -> None:
         """Store off an additional stage result.
 
         Args:
@@ -235,14 +235,14 @@ class _Results:
         """
         return self._previous
 
-    def SaveCompletedStages(self, out):
+    def SaveCompletedStages(self, out) -> None:
         """Save the successfully completed stages to the provided file |out|."""
         for entry in self._results_log:
             if entry.result != self.SUCCESS:
                 break
             out.write(self.SPLIT_TOKEN.join(str(x) for x in entry) + "\n")
 
-    def RestoreCompletedStages(self, out):
+    def RestoreCompletedStages(self, out) -> None:
         """Load the successfully completed stages from |out|."""
         # Read the file, and strip off the newlines.
         for line in out:
@@ -275,7 +275,7 @@ class _Results:
                 tracebacks.append(traceback)
         return tracebacks
 
-    def Report(self, out, current_version=None):
+    def Report(self, out, current_version=None) -> None:
         """Generate a user-friendly text display of the result data.
 
         Args:

@@ -218,7 +218,7 @@ class DevServerWrapper(multiprocessing.Process):
         self._pid = None
 
     @classmethod
-    def DownloadFile(cls, url, dest):
+    def DownloadFile(cls, url, dest) -> None:
         """Download the file from the URL to a local path."""
         if os.path.isdir(dest):
             dest = os.path.join(dest, os.path.basename(url))
@@ -266,7 +266,7 @@ class DevServerWrapper(multiprocessing.Process):
                 raise DevServerConnectionError(e)
 
     @classmethod
-    def CreateStaticDirectory(cls, static_dir=DEFAULT_STATIC_DIR):
+    def CreateStaticDirectory(cls, static_dir=DEFAULT_STATIC_DIR) -> None:
         """Creates |static_dir|.
 
         Args:
@@ -275,7 +275,7 @@ class DevServerWrapper(multiprocessing.Process):
         osutils.SafeMakedirsNonRoot(static_dir)
 
     @classmethod
-    def WipeStaticDirectory(cls, static_dir=DEFAULT_STATIC_DIR):
+    def WipeStaticDirectory(cls, static_dir=DEFAULT_STATIC_DIR) -> None:
         """Cleans up |static_dir|.
 
         Args:
@@ -284,7 +284,7 @@ class DevServerWrapper(multiprocessing.Process):
         logging.info("Clearing cache directory %s", static_dir)
         osutils.RmDir(static_dir, ignore_missing=True, sudo=True)
 
-    def _ReadPortNumber(self):
+    def _ReadPortNumber(self) -> None:
         """Read port number from file."""
         if not self.is_alive():
             raise DevServerStartupError(
@@ -334,7 +334,7 @@ class DevServerWrapper(multiprocessing.Process):
         # Pid file was passed into the chroot.
         return osutils.ReadFile(self._pid_file).rstrip()
 
-    def _WaitUntilStarted(self):
+    def _WaitUntilStarted(self) -> None:
         """Wait until the devserver has started."""
         if not self.port:
             self._ReadPortNumber()
@@ -347,7 +347,7 @@ class DevServerWrapper(multiprocessing.Process):
             self.terminate()
             raise DevServerStartupError("Devserver did not start")
 
-    def run(self):
+    def run(self) -> None:
         """Start devserver in a separate process and waits for it to finish."""
         # Truncate the log file if it already exists.
         if os.path.exists(self.log_file):
@@ -407,7 +407,7 @@ class DevServerWrapper(multiprocessing.Process):
             )
             logging.error(msg)
 
-    def Start(self):
+    def Start(self) -> None:
         """Starts a background devserver and waits for it to start.
 
         Starts a background devserver and waits for it to start. Will only
@@ -417,7 +417,7 @@ class DevServerWrapper(multiprocessing.Process):
         self._WaitUntilStarted()
         self._pid = self._GetPID()
 
-    def Stop(self):
+    def Stop(self) -> None:
         """Kill the devserver instance.
 
         Uses SIGTERM, and then SIGKILL if SIGTERM fails.
@@ -441,7 +441,7 @@ class DevServerWrapper(multiprocessing.Process):
             except cros_build_lib.RunCommandError as e:
                 raise DevServerStopError("Unable to stop devserver: %s" % e)
 
-    def PrintLog(self):
+    def PrintLog(self) -> None:
         """Print devserver output to stdout."""
         print(self.TailLog(num_lines="+1"))
 

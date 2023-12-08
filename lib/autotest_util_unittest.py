@@ -21,7 +21,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
 
     # pylint: disable=protected-access
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self._buildroot = os.path.join(self.tempdir, "buildroot")
@@ -45,7 +45,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
             self.basedir, self.tempdir, self.chroot
         )
 
-    def testBuildAutotestPackagesTarball(self):
+    def testBuildAutotestPackagesTarball(self) -> None:
         """Tests that generating the autotest packages tarball is correct."""
         tar_mock = self.PatchObject(self.builder, "_BuildTarball")
         tar_path = os.path.join(self.tempdir, self.builder._PACKAGES_ARCHIVE)
@@ -56,7 +56,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
             ["autotest/packages"], tar_path, compressed=False
         )
 
-    def testBuildAutotestTestSuitesTarball(self):
+    def testBuildAutotestTestSuitesTarball(self) -> None:
         """Tests that generating the autotest packages tarball is correct."""
         tar_mock = self.PatchObject(self.builder, "_BuildTarball")
         tar_path = os.path.join(self.tempdir, self.builder._TEST_SUITES_ARCHIVE)
@@ -65,7 +65,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
 
         tar_mock.assert_called_once_with(["autotest/test_suites"], tar_path)
 
-    def testBuildAutotestControlFilesTarball(self):
+    def testBuildAutotestControlFilesTarball(self) -> None:
         """Verify generating the autotest control files tarball is correct."""
         control_file_list = [
             "autotest/client/site_tests/testA/control",
@@ -86,7 +86,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
             control_file_list, tar_path, compressed=False
         )
 
-    def testBuildAutotestServerPackageTarball(self):
+    def testBuildAutotestServerPackageTarball(self) -> None:
         """Verify generating the autotest server package tarball is correct."""
         file_list = [
             "autotest/server/site_tests/testA/control",
@@ -127,7 +127,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
             expected_files, tar_path, extra_args=mock.ANY, check=False
         )
 
-    def testBuildAutotestTarball(self):
+    def testBuildAutotestTarball(self) -> None:
         """Tests that generating the autotest tarball is correct."""
         tar_mock = self.PatchObject(self.builder, "_BuildTarball")
         tar_path = os.path.join(self.tempdir, self.builder._AUTOTEST_ARCHIVE)

@@ -409,12 +409,12 @@ class PatchCache:
         self._dict = {}
         self.Inject(*initial)
 
-    def Inject(self, *args):
+    def Inject(self, *args) -> None:
         """Inject a sequence of changes into this cache."""
         for change in args:
             self.InjectCustomKeys(change.LookupAliases(), change)
 
-    def InjectCustomKeys(self, keys, change):
+    def InjectCustomKeys(self, keys, change) -> None:
         """Inject a change w/ a list of keys. Generally you want Inject instead.
 
         Args:
@@ -433,7 +433,7 @@ class PatchCache:
             raise ValueError("Value %r isn't a string" % (value,))
         return [value]
 
-    def Remove(self, *args):
+    def Remove(self, *args) -> None:
         """Remove a change from this cache."""
         for change in args:
             for alias in self._GetAliases(change):
@@ -700,7 +700,7 @@ class PatchQuery:
         # applicable. All other attributes are strictly external format.
         self._SetID()
 
-    def _SetFullChangeID(self):
+    def _SetFullChangeID(self) -> None:
         """Set the unique full Change-ID if possible."""
         if (
             self.project is not None
@@ -713,7 +713,7 @@ class PatchQuery:
                 self.change_id,
             )
 
-    def _SetID(self, override_value=None):
+    def _SetID(self, override_value=None) -> None:
         """Set the unique ID to be used internally, if possible."""
         if override_value is not None:
             self.id = override_value
@@ -906,7 +906,7 @@ class GitRepoPatch(PatchQuery):
         return self._commit_message
 
     @commit_message.setter
-    def commit_message(self, value):
+    def commit_message(self, value) -> None:
         self._commit_message = self._AddFooters(value) if value else value
 
     @property
@@ -1122,7 +1122,7 @@ class GitRepoPatch(PatchQuery):
         lines = lines.stdout.splitlines()
         return dict(line.split("\t", 1)[::-1] for line in lines)
 
-    def _AmendCommitMessage(self, git_repo):
+    def _AmendCommitMessage(self, git_repo) -> None:
         """Amend the commit and update our sha1 with the new commit."""
         git.RunGit(git_repo, ["commit", "--amend", "-m", self.commit_message])
         self.sha1 = ParseSHA1(
@@ -1130,7 +1130,9 @@ class GitRepoPatch(PatchQuery):
         )
 
     # pylint: disable=unused-argument
-    def Merge(self, git_repo, trivial=False, inflight=False, leave_dirty=False):
+    def Merge(
+        self, git_repo, trivial=False, inflight=False, leave_dirty=False
+    ) -> None:
         """Attempts to merge the given rev into branch.
 
         Note: This method is intended to present the same interface as
@@ -1167,7 +1169,7 @@ class GitRepoPatch(PatchQuery):
 
     def CherryPick(
         self, git_repo, trivial=False, inflight=False, leave_dirty=False
-    ):
+    ) -> None:
         """Attempts to cherry-pick the given rev into branch.
 
         Args:
@@ -1311,7 +1313,7 @@ class GitRepoPatch(PatchQuery):
 
     def _ApplyHelper(
         self, git_repo, upstream, trivial, inflight, use_merge=False
-    ):
+    ) -> None:
         via = "merge" if use_merge else "cherry-pick"
         logging.info("Applying via %s.", via)
 
@@ -1341,7 +1343,7 @@ class GitRepoPatch(PatchQuery):
                 )
 
     # pylint: disable=protected-access
-    def _ValidateMergeCommit(self, git_repo, upstream, parents):
+    def _ValidateMergeCommit(self, git_repo, upstream, parents) -> None:
         """If this patch is a merge commit, validate that it meets restrictions.
 
         Args:
@@ -1404,7 +1406,7 @@ class GitRepoPatch(PatchQuery):
             sha1=sha1,
         )
 
-    def ApplyAgainstManifest(self, manifest, trivial=False):
+    def ApplyAgainstManifest(self, manifest, trivial=False) -> None:
         """Applies the patch against the specified manifest.
 
         Args:
@@ -1494,7 +1496,7 @@ class GitRepoPatch(PatchQuery):
 
         return ParseChangeID(change_id_match)
 
-    def _FindEbuildConflicts(self, git_repo, upstream, inflight=False):
+    def _FindEbuildConflicts(self, git_repo, upstream, inflight=False) -> None:
         """Verify that there are no ebuild conflicts in the given |git_repo|.
 
         When an ebuild is uprevved, git treats the uprev as a "delete" and an
@@ -1989,7 +1991,7 @@ class GerritFetchOnlyPatch(GitRepoPatch):
             commit_message=attr_dict.get(ATTR_COMMIT_MESSAGE),
         )
 
-    def _EnsureId(self, commit_message):
+    def _EnsureId(self, commit_message) -> None:
         """Ensure we have a usable Change-Id
 
         Validate what we received from gerrit against what the commit message

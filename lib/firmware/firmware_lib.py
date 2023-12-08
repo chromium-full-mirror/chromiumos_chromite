@@ -51,7 +51,7 @@ def deploy(
     dryrun: bool = False,
     flash_contents: Optional[str] = None,
     passthrough_args: Iterable[str] = tuple(),
-):
+) -> None:
     """Deploy an AP FW image to a device.
 
     Args:
@@ -109,7 +109,7 @@ def _deploy_servo(
     dryrun: bool,
     flash_contents: Optional[str] = None,
     passthrough_args: Iterable[str] = tuple(),
-):
+) -> None:
     """Deploy to a servo connection.
 
     Args:
@@ -199,7 +199,7 @@ def _deploy_ssh(
     port: int,
     dryrun: bool,
     passthrough_args: Iterable[str] = tuple(),
-):
+) -> None:
     """Deploy to a servo connection.
 
     Args:
@@ -365,7 +365,7 @@ def build(
     build_target: build_target_lib.BuildTarget,
     fw_name: Optional[str] = None,
     dry_run: bool = False,
-):
+) -> None:
     """Build the AP Firmware.
 
     Args:
@@ -546,7 +546,9 @@ def _build_read_ssh_cmds(
     return scp_cmd, flash_cmd
 
 
-def clean(build_target: build_target_lib.BuildTarget, dry_run: bool = False):
+def clean(
+    build_target: build_target_lib.BuildTarget, dry_run: bool = False
+) -> None:
     """Cleans packages and dependencies related to a specified target.
 
     After running the command, the user's environment should be able to

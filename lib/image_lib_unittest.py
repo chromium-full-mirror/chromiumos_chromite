@@ -66,11 +66,11 @@ class LoopbackPartitionsMock(image_lib.LoopbackPartitions):
         self.enable_rw_called = set()
         self.disable_rw_called = set()
 
-    def _InitGpt(self):
+    def _InitGpt(self) -> None:
         """Initialize the GPT info."""
         self._gpt_table = LOOP_PARTITION_INFO
 
-    def Attach(self):
+    def Attach(self) -> None:
         """Initialize the loopback device."""
         self.dev = LOOP_DEV
         if not self.destination:
@@ -79,11 +79,11 @@ class LoopbackPartitionsMock(image_lib.LoopbackPartitions):
             p.number: "%sp%s" % (self.dev, p.number) for p in self._gpt_table
         }
 
-    def EnableRwMount(self, part_id, offset=0):
+    def EnableRwMount(self, part_id, offset=0) -> None:
         """Stub out enable rw mount."""
         self.enable_rw_called.add((part_id, offset))
 
-    def DisableRwMount(self, part_id, offset=0):
+    def DisableRwMount(self, part_id, offset=0) -> None:
         """Stub out disable rw mount."""
         self.disable_rw_called.add((part_id, offset))
 
@@ -94,18 +94,18 @@ class LoopbackPartitionsMock(image_lib.LoopbackPartitions):
         self._mounted.add(part)
         return dest_number
 
-    def _Unmount(self, part):
+    def _Unmount(self, part) -> None:
         """Stub out unmount operations."""
         self._mounted.remove(part)
 
-    def close(self):
+    def close(self) -> None:
         pass
 
 
 class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
     """Test the loopback partitions class"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc_mock = cros_test_lib.RunCommandMock()
         self.StartPatcher(self.rc_mock)
         self.rc_mock.SetDefaultCmdResult()
@@ -137,7 +137,7 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
         # do all the setup directly instead of falling back to our sudo helper.
         self.PatchObject(os_util, "is_root_user", return_value=True)
 
-    def testContextManager(self):
+    def testContextManager(self) -> None:
         """Test using the loopback class as a context manager."""
         with image_lib.LoopbackPartitions(FAKE_PATH) as lb:
             self.rc_mock.assertCommandContains(
@@ -152,7 +152,7 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
         self.delpart_mock.assert_called_once()
         self.detach_mock.assert_called_once()
 
-    def testContextManagerWithMounts(self):
+    def testContextManagerWithMounts(self) -> None:
         """Test using the loopback class as a context manager with mounts."""
         syml = self.PatchObject(osutils, "SafeSymlink")
         part_ids = (1, "ROOT-A")
@@ -188,7 +188,7 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
         self.delpart_mock.assert_called_once()
         self.detach_mock.assert_called_once()
 
-    def testManual(self):
+    def testManual(self) -> None:
         """Test using the loopback class closed manually."""
         lb = image_lib.LoopbackPartitions(FAKE_PATH)
         lb.Attach()
@@ -205,7 +205,7 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
         self.delpart_mock.assert_called_once()
         self.detach_mock.assert_called_once()
 
-    def gcFunc(self):
+    def gcFunc(self) -> None:
         """Isolates a local variable so it'll be garbage collected."""
         lb = image_lib.LoopbackPartitions(FAKE_PATH)
         lb.Attach()
@@ -219,7 +219,7 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(lb.parts, LOOP_PARTS_DICT)
         self.assertEqual(lb._gpt_table, LOOP_PARTITION_INFO)
 
-    def testGarbageCollected(self):
+    def testGarbageCollected(self) -> None:
         """Test using the loopback class closed by garbage collection."""
         self.gcFunc()
         # Force garbage collection in case python didn't already clean up the
@@ -228,7 +228,7 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
         self.delpart_mock.assert_called_once()
         self.detach_mock.assert_called_once()
 
-    def testMountUnmount(self):
+    def testMountUnmount(self) -> None:
         """Test Mount() and Unmount() entry points."""
         lb = image_lib.LoopbackPartitions(FAKE_PATH, destination=self.tempdir)
         lb.Attach()
@@ -301,7 +301,7 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
                 sleep=1,
             )
 
-    def testMountingMountedPartReturnsName(self):
+    def testMountingMountedPartReturnsName(self) -> None:
         """Verify Mount returns the directory name even when already mounted."""
         lb = image_lib.LoopbackPartitions(FAKE_PATH, destination=self.tempdir)
         lb.Attach()
@@ -312,7 +312,7 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(dirname, lb._Mount(lb._gpt_table[0], ("ro",)))
         lb.close()
 
-    def testRemountCallsMount(self):
+    def testRemountCallsMount(self) -> None:
         """Verify Mount returns the directory name even when already mounted."""
         lb = image_lib.LoopbackPartitions(FAKE_PATH, destination=self.tempdir)
         lb.Attach()
@@ -345,7 +345,7 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
         )
         lb.close()
 
-    def testGetPartitionDevName(self):
+    def testGetPartitionDevName(self) -> None:
         """Test GetPartitionDevName()."""
         lb = image_lib.LoopbackPartitions(FAKE_PATH)
         lb.Attach()
@@ -361,7 +361,7 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
                 )
         lb.close()
 
-    def test_GetMountPointAndSymlink(self):
+    def test_GetMountPointAndSymlink(self) -> None:
         """Test _GetMountPointAndSymlink()."""
         lb = image_lib.LoopbackPartitions(FAKE_PATH, destination=self.tempdir)
         lb.Attach()
@@ -373,7 +373,7 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
             self.assertEqual(expected, list(lb._GetMountPointAndSymlink(part)))
         lb.close()
 
-    def testIsExt2OnVarious(self):
+    def testIsExt2OnVarious(self) -> None:
         """Test _IsExt2 works with the various partition types."""
         # STATE, ROOT-A, and OEM generally have ext2 filesystems.
         FS_PARTITIONS = (1, 3, 8)
@@ -399,13 +399,13 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
 class LsbUtilsTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests the various LSB utilities."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Patch osutils.IsRootUser() to pretend running as root, so
         # reading/writing the lsb-release file doesn't require escalated
         # privileges and the test can clean itself up correctly.
         self.PatchObject(os_util, "is_root_user", return_value=True)
 
-    def testWriteLsbRelease(self):
+    def testWriteLsbRelease(self) -> None:
         """Tests writing out the lsb_release file using WriteLsbRelease(..)."""
         fields = collections.OrderedDict(
             (
@@ -429,7 +429,7 @@ class LsbUtilsTest(cros_test_lib.RunCommandTempDirTestCase):
             ]
         )
 
-    def testOverwriteLsbRelease(self):
+    def testOverwriteLsbRelease(self) -> None:
         """Tests overwriting the lsb_release file using WriteLsbRelease(..)."""
         lsb_release_file = os.path.join(self.tempdir, "etc", "lsb-release")
 
@@ -473,7 +473,7 @@ class LsbUtilsTest(cros_test_lib.RunCommandTempDirTestCase):
 class BuildImagePathTest(cros_test_lib.MockTempDirTestCase):
     """BuildImagePath tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.board = "board"
         self.board_dir = os.path.join(self.tempdir, self.board)
 
@@ -486,7 +486,7 @@ class BuildImagePathTest(cros_test_lib.MockTempDirTestCase):
 
         self.full_path = os.path.join(self.tempdir, "full_path_image.bin")
 
-    def testBuildImagePath(self):
+    def testBuildImagePath(self) -> None:
         """BuildImagePath tests."""
         self.PatchObject(
             image_lib,
@@ -544,7 +544,7 @@ class SecurityTestConfigTest(cros_test_lib.RunCommandTempDirTestCase):
 
     # pylint: disable=protected-access
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.image = "/path/to/image.bin"
         self.baselines = "/path/to/baselines"
         self.vboot_hash = "abc123"
@@ -552,7 +552,7 @@ class SecurityTestConfigTest(cros_test_lib.RunCommandTempDirTestCase):
             self.image, self.baselines, self.vboot_hash, self.tempdir
         )
 
-    def testVbootCheckout(self):
+    def testVbootCheckout(self) -> None:
         """Test normal flow - clone and checkout."""
         clone_patch = self.PatchObject(git, "Clone")
         self.config._VbootCheckout()
@@ -565,21 +565,21 @@ class SecurityTestConfigTest(cros_test_lib.RunCommandTempDirTestCase):
         self.config._VbootCheckout()
         clone_patch.assert_not_called()
 
-    def testVbootCheckoutError(self):
+    def testVbootCheckoutError(self) -> None:
         """Test exceptions in a git command."""
         rce = cros_build_lib.RunCommandError("error")
         self.PatchObject(git, "Clone", side_effect=rce)
         with self.assertRaises(image_lib.VbootCheckoutError):
             self.config._VbootCheckout()
 
-    def testVbootCheckoutNoDirectory(self):
+    def testVbootCheckoutNoDirectory(self) -> None:
         """Test the error handling when the directory does not exist."""
         # Test directory that does not exist.
         self.config.directory = "/DOES/NOT/EXIST"
         with self.assertRaises(image_lib.SecurityConfigDirectoryError):
             self.config._VbootCheckout()
 
-    def testRunCheck(self):
+    def testRunCheck(self) -> None:
         """RunCheck tests."""
         # No config argument when running check.
         self.config.RunCheck("check1", False)
@@ -672,7 +672,7 @@ EEC571FFB6E1)
      4050879           1          Sec GPT header
 """
 
-    def testCgpt(self):
+    def testCgpt(self) -> None:
         """Tests that we can list all partitions with `cgpt` correctly."""
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
         self.rc.AddCmdResult(partial_mock.Ignore(), stdout=self.SAMPLE_CGPT)
@@ -688,7 +688,7 @@ EEC571FFB6E1)
         self.assertEqual(part_dict["EFI-SYSTEM"].name, "EFI-SYSTEM")
         self.assertEqual(12, len(partitions))
 
-    def testNormalPath(self):
+    def testNormalPath(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self.rc.AddCmdResult(partial_mock.Ignore(), stdout=self.SAMPLE_PARTED)
         partitions = image_lib.GetImageDiskPartitionInfo("_ignored")
@@ -697,7 +697,7 @@ EEC571FFB6E1)
         self.assertEqual(1, part_dict["STATE"].number)
         self.assertEqual(2097152000, part_dict["ROOT-A"].size)
 
-    def testKeyedByNumber(self):
+    def testKeyedByNumber(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self.rc.AddCmdResult(partial_mock.Ignore(), stdout=self.SAMPLE_PARTED)
         partitions = image_lib.GetImageDiskPartitionInfo("_ignored")
@@ -708,7 +708,7 @@ EEC571FFB6E1)
         self.assertEqual("reserved", part_dict[9].name)
         self.assertEqual("reserved", part_dict[10].name)
 
-    def testChangeUnitInsideChroot(self):
+    def testChangeUnitInsideChroot(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
         self.rc.AddCmdResult(partial_mock.Ignore(), stdout=self.SAMPLE_CGPT)
         partitions = image_lib.GetImageDiskPartitionInfo("_ignored")
@@ -720,7 +720,7 @@ EEC571FFB6E1)
 class GetImagesToBuildTests(cros_test_lib.MockTestCase):
     """Tests the GetImagesToBuild function."""
 
-    def testExpectedInput(self):
+    def testExpectedInput(self) -> None:
         """Pass in all expected image types and check expected image names."""
         # TODO(b/236161656): Fix.
         # pylint: disable-next=consider-using-dict-items
@@ -729,12 +729,12 @@ class GetImagesToBuildTests(cros_test_lib.MockTestCase):
             self.assertEqual(len(image), 1)
             self.assertTrue(constants.IMAGE_TYPE_TO_NAME[k] in image)
 
-    def testInvalidInput(self):
+    def testInvalidInput(self) -> None:
         """Pass in an invalid image type and check for ValueError."""
         with self.assertRaises(ValueError):
             image_lib.GetImagesToBuild([constants.IMAGE_TYPE_DEV, "invalid"])
 
-    def testInvalidImageCombination(self):
+    def testInvalidImageCombination(self) -> None:
         """Verify an invalid image type combination raises a ValueError."""
         with self.assertRaises(ValueError):
             image_lib.GetImagesToBuild(
@@ -745,12 +745,12 @@ class GetImagesToBuildTests(cros_test_lib.MockTestCase):
 class GetBuildImageEnvvarTests(cros_test_lib.MockTestCase):
     """Tests the GetBuildImageEnvvars function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.use_flag_mock = self.PatchObject(
             portage_util, "GetBoardUseFlags", return_value=[]
         )
 
-    def testStandardImage(self):
+    def testStandardImage(self) -> None:
         """Test with standard base/dev/test image name."""
         expected_envvar = {
             "INSTALL_MASK": (
@@ -777,7 +777,7 @@ class GetBuildImageEnvvarTests(cros_test_lib.MockTestCase):
             envar = image_lib.GetBuildImageEnvvars(set([image]), "test_board")
             self.assertDictEqual(envar, expected_envvar)
 
-    def testFactoryImage(self):
+    def testFactoryImage(self) -> None:
         """Test with factory image name."""
         expected_envvar = {
             "INSTALL_MASK": (
@@ -817,7 +817,7 @@ class GetBuildImageEnvvarTests(cros_test_lib.MockTestCase):
         )
         self.assertDictEqual(envar, expected_envvar)
 
-    def testChromeOSVersion(self):
+    def testChromeOSVersion(self) -> None:
         """Test ChromeOS version environment variable."""
         version_info = chromeos_version.VersionInfo(
             version_string="1.2.3", chrome_branch="4"
@@ -832,7 +832,7 @@ class GetBuildImageEnvvarTests(cros_test_lib.MockTestCase):
         self.assertEqual(envar["CHROMEOS_PATCH"], "3")
         self.assertEqual(envar["CHROMEOS_VERSION_STRING"], "1.2.3")
 
-    def testBuildAndOutputDir(self):
+    def testBuildAndOutputDir(self) -> None:
         """Test BUILD_DIR and OUTPUT_DIR environment variable."""
         build_dir = "build/dir"
         output_dir = Path("ouput/dir")
@@ -850,7 +850,7 @@ class GetBuildImageEnvvarTests(cros_test_lib.MockTestCase):
 class CreateBuildDirTests(cros_test_lib.MockTempDirTestCase):
     """Test CreateBuildDir."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(
             chromeos_version.VersionInfo,
             "_GetDateTime",
@@ -877,7 +877,7 @@ class CreateBuildDirTests(cros_test_lib.MockTempDirTestCase):
         self.image_dir_date_attempt = f"{self.image_dir_date}-a{self.attempt}"
         self.symlink = "latest"
 
-    def testChromeBranchVersion(self):
+    def testChromeBranchVersion(self) -> None:
         """Test with chrome_branch and version string."""
         build_dir, output_dir, symlink_dir = image_lib.CreateBuildDir(
             self.build_top_dir,
@@ -925,7 +925,7 @@ class CreateBuildDirTests(cros_test_lib.MockTempDirTestCase):
                 self.symlink,
             )
 
-    def testChromeBranchVersionDate(self):
+    def testChromeBranchVersionDate(self) -> None:
         """Test with chrome_branch and version string with date."""
         build_dir, output_dir, symlink_dir = image_lib.CreateBuildDir(
             self.build_top_dir,
@@ -945,7 +945,7 @@ class CreateBuildDirTests(cros_test_lib.MockTempDirTestCase):
         self.assertTrue(symlink_dir.is_symlink())
         self.assertEqual(self.image_dir_date, os.readlink(symlink_dir))
 
-    def testBuildAttempt(self):
+    def testBuildAttempt(self) -> None:
         """Test with chrome_branch, version string and build attempt."""
         build_dir, output_dir, symlink_dir = image_lib.CreateBuildDir(
             self.build_top_dir,
@@ -968,7 +968,7 @@ class CreateBuildDirTests(cros_test_lib.MockTempDirTestCase):
         self.assertTrue(symlink_dir.is_symlink())
         self.assertEqual(self.image_dir_attempt, os.readlink(symlink_dir))
 
-    def testBuildAttemptDate(self):
+    def testBuildAttemptDate(self) -> None:
         """Test with chrome_branch, version string, date, and build attempt."""
         build_dir, output_dir, symlink_dir = image_lib.CreateBuildDir(
             self.build_top_dir,
@@ -991,7 +991,7 @@ class CreateBuildDirTests(cros_test_lib.MockTempDirTestCase):
         self.assertTrue(symlink_dir.is_symlink())
         self.assertEqual(self.image_dir_date_attempt, os.readlink(symlink_dir))
 
-    def testOutputSuffix(self):
+    def testOutputSuffix(self) -> None:
         """Test with output suffix."""
         output_suffix = "test-suffix"
         build_dir, output_dir, symlink_dir = image_lib.CreateBuildDir(
@@ -1049,7 +1049,7 @@ class CreateBuildDirTests(cros_test_lib.MockTempDirTestCase):
             self.image_dir + "-" + output_suffix, os.readlink(symlink_dir)
         )
 
-    def testOutputSuffixWithDate(self):
+    def testOutputSuffixWithDate(self) -> None:
         """Test with output suffix with date."""
         output_suffix = "test-suffix"
         build_dir, output_dir, symlink_dir = image_lib.CreateBuildDir(
@@ -1111,13 +1111,13 @@ class CreateBuildDirTests(cros_test_lib.MockTempDirTestCase):
 class UtilsTests(cros_test_lib.TempDirTestCase):
     """Test simple util funcs."""
 
-    def testIsSquashfsImageFails(self):
+    def testIsSquashfsImageFails(self) -> None:
         """Test SquashFS identification on non-images."""
         image = self.tempdir / "img.squashfs"
         osutils.AllocateFile(image, 1024 * 1024)
         self.assertFalse(image_lib.IsSquashfsImage(image))
 
-    def testIsSquashfsImage(self):
+    def testIsSquashfsImage(self) -> None:
         """Tests we correctly identify a SquashFS image."""
         image = self.tempdir / "img.squashfs"
         root = self.tempdir / "root"
@@ -1127,7 +1127,7 @@ class UtilsTests(cros_test_lib.TempDirTestCase):
         )
         self.assertTrue(image_lib.IsSquashfsImage(image))
 
-    def testIsExt4Image(self):
+    def testIsExt4Image(self) -> None:
         """Tests we correctly identify an Ext4 image."""
         for ver in (2, 3, 4):
             image = self.tempdir / f"rootfs.ext{ver}"

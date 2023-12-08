@@ -54,7 +54,7 @@ def get_ebuilds() -> Callable:
     return mock_return
 
 
-def test_package(monkeypatch, get_ebuilds, simple_parser):
+def test_package(monkeypatch, get_ebuilds, simple_parser) -> None:
     """Test that the package completer returns packages with versions."""
 
     def mock_sysroot(sysroot_path, *_args, **_kwargs):
@@ -72,7 +72,7 @@ def test_package(monkeypatch, get_ebuilds, simple_parser):
     assert packages == expected_packages
 
 
-def test_package_atom(monkeypatch, get_ebuilds, simple_parser):
+def test_package_atom(monkeypatch, get_ebuilds, simple_parser) -> None:
     """Verify the package atom completer returns packages without versions."""
 
     def mock_sysroot(sysroot_path, *_args, **_kwargs):

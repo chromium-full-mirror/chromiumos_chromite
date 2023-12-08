@@ -81,7 +81,7 @@ class ProgressBarOperation:
         winsize = struct.unpack("HHHH", data)
         return _TerminalSize(int(winsize[0]), int(winsize[1]))
 
-    def ProgressBar(self, progress):
+    def ProgressBar(self, progress) -> None:
         """This method creates and displays a progress bar.
 
         If not in a terminal, we do not display a progress bar.
@@ -104,14 +104,14 @@ class ProgressBarOperation:
         sys.stdout.write(text)
         sys.stdout.flush()
 
-    def OpenStdoutStderr(self):
+    def OpenStdoutStderr(self) -> None:
         """Open the stdout and stderr streams."""
         if self._stdout is None and self._stderr is None:
             # pylint: disable=consider-using-with
             self._stdout = open(self._stdout_path, "r", encoding="utf-8")
             self._stderr = open(self._stderr_path, "r", encoding="utf-8")
 
-    def Cleanup(self):
+    def Cleanup(self) -> None:
         """Method to cleanup progress bar.
 
         If progress bar has been printed, then we make sure it displays 100%
@@ -122,7 +122,7 @@ class ProgressBarOperation:
             sys.stdout.write("\n")
             sys.stdout.flush()
 
-    def ParseOutput(self, output=None):
+    def ParseOutput(self, output=None) -> None:
         """Method to parse output and update progress bar.
 
         This method should be overridden to read and parse the lines in _stdout
@@ -153,7 +153,7 @@ class ProgressBarOperation:
         except Queue.Empty:
             return False
 
-    def CaptureOutputInBackground(self, func, *args, **kwargs):
+    def CaptureOutputInBackground(self, func, *args, **kwargs) -> None:
         """Launch func in background and capture its output.
 
         Args:
@@ -177,7 +177,7 @@ class ProgressBarOperation:
             logging.getLogger().setLevel(restore_log_level)
 
     # TODO (ralphnathan): Store PID of spawned process.
-    def Run(self, func, *args, **kwargs):
+    def Run(self, func, *args, **kwargs) -> None:
         """Run func, parse its output, and update the progress bar.
 
         Args:
@@ -249,7 +249,7 @@ class ParallelEmergeOperation(ProgressBarOperation):
         match = re.search(r"Total: (\d+) packages", output)
         return int(match.group(1)) if match else None
 
-    def SetProgressBarMessage(self, msg):
+    def SetProgressBarMessage(self, msg) -> None:
         """Message to be shown before the progress bar is displayed with 0%.
 
         The message is not displayed if the progress bar is not going to be
@@ -370,11 +370,11 @@ class Operation:
 
         self._error_count = 0  # number of error lines we have reported
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Object is about to be destroyed, so finish out output cleanly."""
         self.FinishOutput()
 
-    def FinishOutput(self):
+    def FinishOutput(self) -> None:
         """Finish off any pending output.
 
         This finishes any output line currently in progress and resets the color
@@ -394,7 +394,7 @@ class Operation:
         """
         return self._error_count > 0
 
-    def SetName(self, name):
+    def SetName(self, name) -> None:
         """Set the name of the operation as displayed to the user.
 
         Args:
@@ -402,7 +402,7 @@ class Operation:
         """
         self._name = name
 
-    def _FilterOutputForErrors(self, line, print_error):
+    def _FilterOutputForErrors(self, line, print_error) -> None:
         """Filter a line of output to look for and display errors.
 
         This uses a few regular expression searches to spot common error reports
@@ -421,7 +421,7 @@ class Operation:
                     print(self._color.Color(self._color.RED, line))
                     break
 
-    def _FilterOutputForProgress(self, line):
+    def _FilterOutputForProgress(self, line) -> None:
         """Filter a line of output to look for and display progress information.
 
         This uses a simple regular expression search to spot progress
@@ -437,7 +437,7 @@ class Operation:
             total = int(match.group(2))
             self._Progress(total - pending, total)
 
-    def _Progress(self, upto, total):
+    def _Progress(self, upto, total) -> None:
         """Record and optionally display progress information.
 
         Args:
@@ -463,7 +463,7 @@ class Operation:
                 sys.stdout.write(update_str + (" " * pad) + "\r")
                 self._update_len = len(update_str)
 
-    def _FinishLine(self, display, final=False):
+    def _FinishLine(self, display, final=False) -> None:
         """Finish off the current line and prepare to start a new one.
 
         If a new line is pending from the previous line, then this will be
@@ -498,7 +498,7 @@ class Operation:
 
         self._pending_nl = -1
 
-    def _CheckStreamAndColor(self, stream, display):
+    def _CheckStreamAndColor(self, stream, display) -> None:
         """Check that we're writing to the same stream as last call.
 
         If not, start a new line.
@@ -534,7 +534,9 @@ class Operation:
 
             self._cur_stream = stream
 
-    def _Out(self, stream, text, display, newline=False, do_output_filter=True):
+    def _Out(
+        self, stream, text, display, newline=False, do_output_filter=True
+    ) -> None:
         """Output some text received from a child, or generated internally.
 
         This method is the guts of the Operation class since it understands how
@@ -587,7 +589,7 @@ class Operation:
                 self._FilterOutputForProgress(self._line)
             self._line = ""
 
-    def Output(self, stream, data):
+    def Output(self, stream, data) -> None:
         r"""Handle the output of a block of text from the subprocess.
 
         All subprocess output should be sent through this method. It is split
@@ -619,7 +621,7 @@ class Operation:
         # Flush so that the terminal will receive partial line output (now!)
         sys.stdout.flush()
 
-    def Outline(self, line):
+    def Outline(self, line) -> None:
         r"""Output a line of text to the display.
 
         This outputs text generated internally, such as a warning message or
@@ -632,7 +634,7 @@ class Operation:
         self._Out(None, line, display=True, newline=True)
         self._FinishLine(display=True)
 
-    def Info(self, line):
+    def Info(self, line) -> None:
         r"""Output a line of information text to the display in verbose mode.
 
         Args:
@@ -647,7 +649,7 @@ class Operation:
         )
         self._FinishLine(display=True)
 
-    def Notice(self, line):
+    def Notice(self, line) -> None:
         r"""Output a line of notification text to the display.
 
         Args:
@@ -662,7 +664,7 @@ class Operation:
         )
         self._FinishLine(display=True)
 
-    def Warning(self, line):
+    def Warning(self, line) -> None:
         r"""Output a line of warning text to the display.
 
         Args:
@@ -677,7 +679,7 @@ class Operation:
         )
         self._FinishLine(display=True)
 
-    def Error(self, line):
+    def Error(self, line) -> None:
         r"""Output a line of error text to the display.
 
         Args:
@@ -692,7 +694,7 @@ class Operation:
         )
         self._FinishLine(display=True)
 
-    def Die(self, line):
+    def Die(self, line) -> None:
         r"""Output a line of error text to the display and die.
 
         Args:

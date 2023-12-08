@@ -213,7 +213,7 @@ class DlcArtifacts:
         """String format of this objects fields."""
         return pformat.json(self.__dict__)
 
-    def Upload(self, dry_run: bool):
+    def Upload(self, dry_run: bool) -> None:
         """Uploads based on fields.
 
         Args:
@@ -346,7 +346,7 @@ class EbuildParams:
             )
         )
 
-    def VerifyDlcParameters(self):
+    def VerifyDlcParameters(self) -> None:
         """Verifies certain DLC parameters are valid and allowed.
 
         Raises:
@@ -367,7 +367,7 @@ class EbuildParams:
                 logging.error(err_msg)
                 raise Error(err_msg)
 
-    def StoreDlcParameters(self, install_root_dir: str, sudo: bool):
+    def StoreDlcParameters(self, install_root_dir: str, sudo: bool) -> None:
         """Store DLC parameters defined in the ebuild.
 
         Store DLC parameters defined in the ebuild in a temporary file so they
@@ -486,7 +486,7 @@ class DlcMetadata:
         self.Clear()
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args) -> None:
         """Exit the context"""
 
     def _CompressionSize(self, compressobj, metadata: bytes) -> int:
@@ -507,7 +507,7 @@ class DlcMetadata:
         flushed_size = len(compressobj_copy.flush(zlib.Z_FULL_FLUSH))
         return compress_size + flushed_size
 
-    def Clear(self):
+    def Clear(self) -> None:
         """Clear existing metadata files"""
         for f in self.ListFiles():
             osutils.SafeUnlink(
@@ -515,7 +515,7 @@ class DlcMetadata:
                 self._sudo,
             )
 
-    def Create(self, dlc_list: list):
+    def Create(self, dlc_list: list) -> None:
         """Create DLC metadata from the source manifest and table files.
 
         Args:
@@ -559,7 +559,7 @@ class DlcMetadata:
         self.FlushCompressed(min_id)
         logging.info("Created metadata for %d DLCs", len(dlc_list))
 
-    def FlushCompressed(self, file_id: str):
+    def FlushCompressed(self, file_id: str) -> None:
         """Write the compressed metadata buffer to a file and reset the state.
 
         The metadata file name is the first of ascending DLC IDs added to the
@@ -757,7 +757,7 @@ class DlcGenerator:
             repr({k: str(i) for k, i in self.__dict__.items()}),
         )
 
-    def CopyTempContentsToBuildDir(self):
+    def CopyTempContentsToBuildDir(self) -> None:
         """Copy the temp files to the build directory using sudo."""
         src = self.temp_root.tempdir.rstrip("/") + "/."
         dst = self.sysroot
@@ -768,13 +768,13 @@ class DlcGenerator:
         )
         cros_build_lib.sudo_run(["cp", "-dR", src, dst])
 
-    def CopyArtifactsToOutput(self, output: str):
+    def CopyArtifactsToOutput(self, output: str) -> None:
         """Copy the artifacts to the output directory."""
         files = (self.dest_image, self.meta_dir)
         logging.debug("Copying %s to %s", files, output)
         cros_build_lib.sudo_run(["cp", "-r", *files, output])
 
-    def SquashOwnerships(self, path: str):
+    def SquashOwnerships(self, path: str) -> None:
         """Squash the ownerships & permissions for files.
 
         Args:
@@ -795,7 +795,7 @@ class DlcGenerator:
             ]
         )
 
-    def CreateExt4Image(self):
+    def CreateExt4Image(self) -> None:
         """Create an ext4 image."""
         with osutils.TempDir(prefix="dlc_") as temp_dir:
             mount_point = os.path.join(temp_dir, "mount_point")
@@ -836,7 +836,7 @@ class DlcGenerator:
                 ["/sbin/resize2fs", "-M", self.dest_image], capture_output=True
             )
 
-    def CreateSquashfsImage(self):
+    def CreateSquashfsImage(self) -> None:
         """Create a squashfs image."""
         with osutils.TempDir(prefix="dlc_") as temp_dir:
             squashfs_root = os.path.join(temp_dir, "squashfs-root")
@@ -894,7 +894,7 @@ class DlcGenerator:
             osutils.RmDir(squashfs_root, sudo=True)
             osutils.RmDir(squashfs_out, sudo=True)
 
-    def SetupDlcImageFiles(self, dlc_dir: str):
+    def SetupDlcImageFiles(self, dlc_dir: str) -> None:
         """Prepares the directory dlc_dir with all the files a DLC needs.
 
         Args:
@@ -908,7 +908,7 @@ class DlcGenerator:
         self.CollectExtraResources(dlc_dir)
         self.SquashOwnerships(dlc_dir)
 
-    def PrepareLsbRelease(self, dlc_dir: str):
+    def PrepareLsbRelease(self, dlc_dir: str) -> None:
         """Prepare the file /etc/lsb-release in the DLC module.
 
         This file is used dropping some identification parameters for the DLC.
@@ -959,7 +959,7 @@ class DlcGenerator:
         content = "".join("%s=%s\n" % (k, v) for k, v in fields)
         osutils.WriteFile(lsb_release, content)
 
-    def AddLicensingFile(self, dlc_dir: str):
+    def AddLicensingFile(self, dlc_dir: str) -> None:
         """Add the licensing file for this DLC.
 
         Args:
@@ -994,7 +994,7 @@ class DlcGenerator:
                 "LICENSE text is empty. Skipping LICENSE file creation."
             )
 
-    def CollectExtraResources(self, dlc_dir: str):
+    def CollectExtraResources(self, dlc_dir: str) -> None:
         """Collect the extra resources needed by the DLC module.
 
         Look at the documentation around _EXTRA_RESOURCES.
@@ -1012,7 +1012,7 @@ class DlcGenerator:
             osutils.SafeMakedirs(os.path.dirname(target_path))
             shutil.copyfile(source_path, target_path)
 
-    def CreateImage(self):
+    def CreateImage(self) -> None:
         """Create the image and copy the DLC files to it."""
         logging.debug("Creating the DLC image.")
         if self.ebuild_params.fs_type == EXT4_TYPE:
@@ -1024,7 +1024,7 @@ class DlcGenerator:
                 "Wrong fs type: %s used:" % self.ebuild_params.fs_type
             )
 
-    def VerifyImageSize(self):
+    def VerifyImageSize(self) -> None:
         """Verify the image can fit to the reserved file."""
         logging.debug("Verifying the DLC image size.")
         image_bytes = os.path.getsize(self.dest_image)
@@ -1121,7 +1121,7 @@ class DlcGenerator:
             "powerwash-safe": self.ebuild_params.powerwash_safe,
         }
 
-    def GenerateVerity(self, salt: Optional[str] = None):
+    def GenerateVerity(self, salt: Optional[str] = None) -> None:
         """Generate verity parameters and hashes for the image.
 
         Args:
@@ -1173,7 +1173,7 @@ class DlcGenerator:
                 imageloader_json_content, fp=self.dest_imageloader_json
             )
 
-    def GenerateDLC(self):
+    def GenerateDLC(self) -> None:
         """Generate a DLC artifact."""
         # Create directories.
         osutils.SafeMakedirs(self.image_dir)
@@ -1384,7 +1384,7 @@ def InstallDlcImages(
     rootfs: str = None,
     stateful: str = None,
     src_dir: str = None,
-):
+) -> None:
     """Copies all DLC image files into the images directory.
 
     Copies the DLC image files in the given build directory into the given DLC
@@ -1746,7 +1746,7 @@ def InstallDlcImages(
     logging.debug("Done installing DLCs.")
 
 
-def ValidateDlcIdentifier(name):
+def ValidateDlcIdentifier(name) -> None:
     """Validates the DLC identifiers like ID and package names.
 
     The name specifications are:

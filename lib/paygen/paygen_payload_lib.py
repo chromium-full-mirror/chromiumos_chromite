@@ -146,7 +146,7 @@ class PaygenSigner:
         self._signer = None
         self._Initialize()
 
-    def _Initialize(self):
+    def _Initialize(self) -> None:
         """Initializes based on which bucket the payload is supposed to go."""
         if self.local_signing:
             logging.info("Using local signer (prototype).")
@@ -521,7 +521,7 @@ class PaygenPayload:
                     e,
                 )
 
-    def _CheckEitherImageIsMissingMiniOSPayload(self):
+    def _CheckEitherImageIsMissingMiniOSPayload(self) -> None:
         """Determines whether the source or target image has no miniOS parts.
 
         If this is a full payload, then there is no src image. In that case,
@@ -540,7 +540,7 @@ class PaygenPayload:
         if self.payload.src_image:
             self._CheckImageHasMiniOSPartition(self.src_image_file)
 
-    def _CheckImageHasMiniOSPartition(self, image_file):
+    def _CheckImageHasMiniOSPartition(self, image_file) -> None:
         """Checks whether the given image has a miniOS partition.
 
         Args:
@@ -657,7 +657,7 @@ class PaygenPayload:
         else:
             raise Error("Invalid image type %s" % tgt_image_type)
 
-    def _GetPartitionFiles(self, partition_names: List[str]):
+    def _GetPartitionFiles(self, partition_names: List[str]) -> None:
         """Creates the target and source file paths for each partition.
 
         Args:
@@ -672,7 +672,7 @@ class PaygenPayload:
             for name in partition_names
         )
 
-    def _RunGeneratorCmd(self, cmd, squawk_wrap=False):
+    def _RunGeneratorCmd(self, cmd, squawk_wrap=False) -> None:
         """Wrapper for run (maybe in chroot).
 
         Run the given command, inside the chroot if we have one.
@@ -694,7 +694,7 @@ class PaygenPayload:
         response_queue = collections.deque()
 
         # The later thread's start() function.
-        def _inner_run(cmd, response_queue):
+        def _inner_run(cmd, response_queue) -> None:
             try:
                 # Run the command.
                 result = self.chroot.run(
@@ -766,7 +766,7 @@ class PaygenPayload:
         val = dict_obj.get(key) or default
         return "%s=%s" % (flag, str(val))
 
-    def _PrepareImage(self, image, image_file):
+    def _PrepareImage(self, image, image_file) -> None:
         """Download and prepare an image for delta generation.
 
         Preparation includes downloading, extracting and converting the image
@@ -832,7 +832,7 @@ class PaygenPayload:
             logging.info("Removing %s", download_file)
             os.remove(download_file)
 
-    def _GeneratePostinstConfig(self, run_postinst: bool):
+    def _GeneratePostinstConfig(self, run_postinst: bool) -> None:
         """Generates the postinstall config file
 
         This file is used in update engine's major version 2.
@@ -847,7 +847,7 @@ class PaygenPayload:
             "RUN_POSTINSTALL_root=%s\n" % ("true" if run_postinst else "false"),
         )
 
-    def _GenerateUnsignedPayload(self, payload_file: str):
+    def _GenerateUnsignedPayload(self, payload_file: str) -> None:
         """Generate the unsigned delta into payload_file."""
         # Note that the command run here requires sudo access.
         logging.info("Generating unsigned payload as %s", payload_file)
@@ -916,7 +916,7 @@ class PaygenPayload:
                 osutils.ReadFile(metadata_hash_file.name, mode="rb"),
             )
 
-    def _GenerateSignerResultsError(self, format_str: str, *args):
+    def _GenerateSignerResultsError(self, format_str: str, *args) -> None:
         """Helper for reporting errors with signer results."""
         msg = format_str % args
         logging.error(msg)
@@ -1056,7 +1056,7 @@ class PaygenPayload:
 
     def _StoreMetadataSignatures(
         self, metadata_signature_file: str, signatures: List[bytes]
-    ):
+    ) -> None:
         """Store metadata signatures related to the payload.
 
         Our current format for saving metadata signatures only supports a single
@@ -1166,7 +1166,7 @@ class PaygenPayload:
         payload_file: str,
         metadata_signatures: List[bytes],
         appid: str,
-    ):
+    ) -> None:
         """Generate the payload description json file.
 
         Args:
@@ -1202,7 +1202,7 @@ class PaygenPayload:
         # Convert to Json & write out the results.
         pformat.json(props_map, fp=description_file, compact=True)
 
-    def _StoreLog(self, log: str):
+    def _StoreLog(self, log: str) -> None:
         """Store any log related to the payload.
 
         Write out the log to a known file name. Mostly in its own function
@@ -1416,7 +1416,7 @@ class PaygenPayload:
         payload_file_name: str,
         metadata_signature_file_name: str,
         payload_info: payload_pb2.UnsignedPayload,
-    ):
+    ) -> None:
         """Checks the integrity of the generated payload.
 
         Args:
@@ -1710,7 +1710,7 @@ def GenerateUpdatePayload(
             return []
 
 
-def GenerateUpdatePayloadPropertiesFile(payload, output=None):
+def GenerateUpdatePayloadPropertiesFile(payload, output=None) -> None:
     """Generates the update payload's properties file.
 
     Args:

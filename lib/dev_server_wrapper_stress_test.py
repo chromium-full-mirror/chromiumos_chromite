@@ -16,7 +16,7 @@ from chromite.lib import dev_server_wrapper
 _ITERATIONS = 10000
 
 
-def main(_argv):
+def main(_argv) -> None:
     logging.getLogger().setLevel(logging.DEBUG)
     for i in range(_ITERATIONS):
         print(f"Iteration {i}")

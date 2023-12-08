@@ -22,7 +22,7 @@ if cros_build_lib.IsInsideChroot():
 class ChrootUtilTest(cros_test_lib.RunCommandTempDirTestCase):
     """Test class for the chroot_util functions."""
 
-    def testEmerge(self):
+    def testEmerge(self) -> None:
         """Tests correct invocation of emerge."""
         packages = ["foo-app/bar", "sys-baz/clap"]
         self.PatchObject(
@@ -87,7 +87,7 @@ class ChrootUtilTest(cros_test_lib.RunCommandTempDirTestCase):
             self.assertEqual(bool(jobs), "--jobs=%d" % jobs in cmd)
             self.assertEqual(debug_output, "--show-output" in cmd)
 
-    def testRunUnittests(self):
+    def testRunUnittests(self) -> None:
         """Tests running unit tests invoking emerge with provided flags"""
 
         self.PatchObject(os_util, "is_root_user", return_value=True)

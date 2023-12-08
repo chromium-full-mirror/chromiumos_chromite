@@ -28,7 +28,7 @@ class CommonUtilError(Exception):
     """Exception classes used by this module."""
 
 
-def MkDirP(directory):
+def MkDirP(directory) -> None:
     """Thread-safely create a directory like mkdir -p.
 
     If the directory already exists, call chown on the directory and its
@@ -262,13 +262,13 @@ def GetFileSha256(file_path):
     ).decode("utf-8")
 
 
-def CopyFile(source, dest):
+def CopyFile(source, dest) -> None:
     """Copies a file from |source| to |dest|."""
     logging.debug("Copy File %s -> %s", source, dest)
     shutil.copy(source, dest)
 
 
-def SymlinkFile(target, link):
+def SymlinkFile(target, link) -> None:
     """Atomically creates or replaces the symlink |link| pointing to |target|.
 
     If the specified |link| file already exists it is replaced with the new link

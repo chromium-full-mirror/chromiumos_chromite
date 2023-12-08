@@ -35,7 +35,7 @@ Attempt = collections.namedtuple("Attempt", ("time", "exception"))
 _STATS_COLLECTION = None
 
 
-def SetupStats():
+def SetupStats() -> None:
     """Prepare a given category to collect stats.
 
     This must be called BEFORE any new processes that might read or write to
@@ -93,7 +93,7 @@ def CategoryStats(category):
     return success, failure, retry
 
 
-def ReportCategoryStats(out, category):
+def ReportCategoryStats(out, category) -> None:
     """Dump stats reports for a given category.
 
     Args:
@@ -115,7 +115,7 @@ def ReportCategoryStats(out, category):
     out.write(line)
 
 
-def ReportStats(out):
+def ReportStats(out) -> None:
     """Dump stats reports for a given category.
 
     Args:

@@ -26,7 +26,7 @@ from chromite.lib import osutils
 class VersionHookTestCase(cros_test_lib.TempDirTestCase):
     """Class to set up tests that use the version hooks."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Build set of expected scripts.
         self.ExpectRootOwnedFiles()
         D = cros_test_lib.Directory
@@ -61,7 +61,7 @@ class VersionHookTestCase(cros_test_lib.TempDirTestCase):
 class TestGetFileSystemDebug(cros_test_lib.RunCommandTestCase):
     """Tests GetFileSystemDebug functionality."""
 
-    def testNoPs(self):
+    def testNoPs(self) -> None:
         """Verify with run_ps=False."""
         self.rc.AddCmdResult(
             ["sudo", "--", "fuser", "/some/path"], stdout="fuser_output"
@@ -76,7 +76,7 @@ class TestGetFileSystemDebug(cros_test_lib.RunCommandTestCase):
         self.assertEqual(file_system_debug_tuple.lsof, "lsof_output")
         self.assertIsNone(file_system_debug_tuple.ps)
 
-    def testWithPs(self):
+    def testWithPs(self) -> None:
         """Verify with run_ps=False."""
         self.rc.AddCmdResult(
             ["sudo", "--", "fuser", "/some/path"], stdout="fuser_output"
@@ -96,7 +96,7 @@ class TestGetFileSystemDebug(cros_test_lib.RunCommandTestCase):
 class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
     """Tests MigrateStatePaths functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         chroot_path = self.tempdir / "chroot"
@@ -126,10 +126,10 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
             ),
         )
 
-    def _crossdevice_rename(self, src, dst):
+    def _crossdevice_rename(self, src, dst) -> None:
         raise OSError(errno.EXDEV, "fake cross-device rename failure")
 
-    def testOldPathsExist(self):
+    def testOldPathsExist(self) -> None:
         for src, dst in self.state_path_map:
             osutils.SafeMakedirsNonRoot(src / "foo")
 
@@ -140,7 +140,7 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
             self.assertExists(src / "README")
             self.assertExists(dst / "foo")
 
-    def testOnlyReadmeExists(self):
+    def testOnlyReadmeExists(self) -> None:
         for src, dst in self.state_path_map:
             osutils.SafeMakedirsNonRoot(src)
             osutils.Touch(src / "README")
@@ -151,7 +151,7 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
             self.assertExists(src / "README")
             self.assertNotExists(dst / "README")
 
-    def testBothPathsExist(self):
+    def testBothPathsExist(self) -> None:
         for src, dst in self.state_path_map:
             osutils.SafeMakedirsNonRoot(src / "foo")
             osutils.Touch(src / "foo" / "bar")
@@ -166,7 +166,7 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
             self.assertExists(dst / "foo" / "bar")
             self.assertExists(dst / "foo" / "baz")
 
-    def testCrossDevice(self):
+    def testCrossDevice(self) -> None:
         """Verify we can migrate state across filesystem boundaries.
 
         Check for retention of ownership, mode too, since we
@@ -200,7 +200,7 @@ class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
 class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
     """Tests MountChrootPaths functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         chroot_path = self.tempdir / "chroot"
@@ -221,7 +221,7 @@ class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
 
         self.mount_mock = self.PatchObject(osutils, "Mount")
 
-    def testMounts(self):
+    def testMounts(self) -> None:
         cros_sdk_lib.MountChrootPaths(self.chroot)
 
         self.mount_mock.assert_has_calls(
@@ -314,7 +314,7 @@ class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
             any_order=True,
         )
 
-    def testPasswdExists(self):
+    def testPasswdExists(self) -> None:
         """If out/ already has passwd contents, we should still mount OK."""
         osutils.WriteFile(
             self.chroot.out_path / "sdk" / "passwd",
@@ -353,7 +353,7 @@ class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
             any_order=True,
         )
 
-    def testTmpPermissions(self):
+    def testTmpPermissions(self) -> None:
         cros_sdk_lib.MountChrootPaths(self.chroot)
 
         self.assertEqual(
@@ -364,7 +364,7 @@ class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
 class TestGetChrootVersion(cros_test_lib.MockTestCase):
     """Tests GetChrootVersion functionality."""
 
-    def testNoChroot(self):
+    def testNoChroot(self) -> None:
         """Verify we don't blow up when there is no chroot yet."""
         self.PatchObject(
             cros_sdk_lib.ChrootUpdater, "GetVersion", side_effect=IOError()
@@ -375,7 +375,7 @@ class TestGetChrootVersion(cros_test_lib.MockTestCase):
 class TestChrootVersionValid(VersionHookTestCase):
     """Test valid chroot version method."""
 
-    def testLowerVersionValid(self):
+    def testLowerVersionValid(self) -> None:
         """Lower versions are considered valid."""
         osutils.WriteFile(
             self.version_file, str(self.latest_version - 1), sudo=True
@@ -384,7 +384,7 @@ class TestChrootVersionValid(VersionHookTestCase):
             cros_sdk_lib.IsChrootVersionValid(self.chroot_path, self.hooks_dir)
         )
 
-    def testLatestVersionValid(self):
+    def testLatestVersionValid(self) -> None:
         """Test latest version."""
         osutils.WriteFile(
             self.version_file, str(self.latest_version), sudo=True
@@ -393,7 +393,7 @@ class TestChrootVersionValid(VersionHookTestCase):
             cros_sdk_lib.IsChrootVersionValid(self.chroot_path, self.hooks_dir)
         )
 
-    def testInvalidVersion(self):
+    def testInvalidVersion(self) -> None:
         """Test version higher than latest."""
         osutils.WriteFile(
             self.version_file, str(self.latest_version + 1), sudo=True
@@ -406,7 +406,7 @@ class TestChrootVersionValid(VersionHookTestCase):
 class TestLatestChrootVersion(VersionHookTestCase):
     """LatestChrootVersion tests."""
 
-    def testLatest(self):
+    def testLatest(self) -> None:
         """Test latest version."""
         self.assertEqual(
             self.latest_version,
@@ -417,7 +417,7 @@ class TestLatestChrootVersion(VersionHookTestCase):
 class TestEarliestChrootVersion(VersionHookTestCase):
     """EarliestChrootVersion tests."""
 
-    def testEarliest(self):
+    def testEarliest(self) -> None:
         """Test earliest version."""
         self.assertEqual(
             self.earliest_version,
@@ -428,20 +428,20 @@ class TestEarliestChrootVersion(VersionHookTestCase):
 class TestIsChrootReady(cros_test_lib.MockTestCase):
     """Tests IsChrootReady functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.version_mock = self.PatchObject(cros_sdk_lib, "GetChrootVersion")
 
-    def testMissing(self):
+    def testMissing(self) -> None:
         """Check behavior w/out a chroot."""
         self.version_mock.return_value = None
         self.assertFalse(cros_sdk_lib.IsChrootReady("/"))
 
-    def testNotSetup(self):
+    def testNotSetup(self) -> None:
         """Check behavior w/an existing uninitialized chroot."""
         self.version_mock.return_value = 0
         self.assertFalse(cros_sdk_lib.IsChrootReady("/"))
 
-    def testUpToDate(self):
+    def testUpToDate(self) -> None:
         """Check behavior w/a valid chroot."""
         self.version_mock.return_value = 123
         self.assertTrue(cros_sdk_lib.IsChrootReady("/"))
@@ -450,7 +450,7 @@ class TestIsChrootReady(cros_test_lib.MockTestCase):
 class TestCleanupChrootMount(cros_test_lib.MockTempDirTestCase):
     """Tests the CleanupChrootMount function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self.chroot = chroot_lib.Chroot(
@@ -460,21 +460,21 @@ class TestCleanupChrootMount(cros_test_lib.MockTempDirTestCase):
         osutils.SafeMakedirsNonRoot(self.chroot.path)
         osutils.SafeMakedirsNonRoot(self.chroot.out_path)
 
-    def testCleanup(self):
+    def testCleanup(self) -> None:
         m = self.PatchObject(osutils, "UmountTree")
 
         cros_sdk_lib.CleanupChrootMount(self.chroot, None)
 
         m.assert_called_with(self.chroot.path)
 
-    def testCleanupByBuildroot(self):
+    def testCleanupByBuildroot(self) -> None:
         m = self.PatchObject(osutils, "UmountTree")
 
         cros_sdk_lib.CleanupChrootMount(None, self.tempdir)
 
         m.assert_called_with(self.chroot.path)
 
-    def testCleanupWithDelete(self):
+    def testCleanupWithDelete(self) -> None:
         m = self.PatchObject(osutils, "UmountTree")
         m2 = self.PatchObject(osutils, "RmDir")
 
@@ -484,7 +484,7 @@ class TestCleanupChrootMount(cros_test_lib.MockTempDirTestCase):
         m2.assert_any_call(self.chroot.path, ignore_missing=True, sudo=True)
         m2.assert_any_call(self.chroot.out_path, ignore_missing=True, sudo=True)
 
-    def testCleanupNoDeleteOut(self):
+    def testCleanupNoDeleteOut(self) -> None:
         m = self.PatchObject(osutils, "UmountTree")
         m2 = self.PatchObject(osutils, "RmDir")
 
@@ -499,12 +499,12 @@ class TestCleanupChrootMount(cros_test_lib.MockTempDirTestCase):
 class ChrootUpdaterTest(cros_test_lib.MockTestCase, VersionHookTestCase):
     """ChrootUpdater tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.chroot = cros_sdk_lib.ChrootUpdater(
             version_file=self.version_file, hooks_dir=self.hooks_dir
         )
 
-    def testVersion(self):
+    def testVersion(self) -> None:
         """Test the version property logic."""
         # Testing default value.
         self.assertEqual(0, self.chroot.GetVersion())
@@ -521,23 +521,23 @@ class ChrootUpdaterTest(cros_test_lib.MockTestCase, VersionHookTestCase):
         osutils.WriteFile(self.version_file, "10", sudo=True)
         self.assertEqual(5, self.chroot.GetVersion())
 
-    def testInvalidVersion(self):
+    def testInvalidVersion(self) -> None:
         """Test invalid version file contents."""
         osutils.WriteFile(self.version_file, "invalid", sudo=True)
         with self.assertRaises(cros_sdk_lib.InvalidChrootVersionError):
             self.chroot.GetVersion()
 
-    def testMissingFileVersion(self):
+    def testMissingFileVersion(self) -> None:
         """Test missing version file."""
         osutils.SafeUnlink(self.version_file, sudo=True)
         with self.assertRaises(cros_sdk_lib.UninitializedChrootError):
             self.chroot.GetVersion()
 
-    def testLatestVersion(self):
+    def testLatestVersion(self) -> None:
         """Test the latest_version property/_LatestScriptsVersion method."""
         self.assertEqual(self.latest_version, self.chroot.latest_version)
 
-    def testGetChrootUpdates(self):
+    def testGetChrootUpdates(self) -> None:
         """Test GetChrootUpdates."""
         # Test the deprecated error conditions.
         for version in self.deprecated_versions:
@@ -545,7 +545,7 @@ class ChrootUpdaterTest(cros_test_lib.MockTestCase, VersionHookTestCase):
             with self.assertRaises(cros_sdk_lib.ChrootDeprecatedError):
                 self.chroot.GetChrootUpdates()
 
-    def testMultipleUpdateFiles(self):
+    def testMultipleUpdateFiles(self) -> None:
         """Test handling of multiple files existing for a single version."""
         # When the version would be run.
         osutils.WriteFile(os.path.join(self.hooks_dir, "10_duplicate"), "")
@@ -559,7 +559,7 @@ class ChrootUpdaterTest(cros_test_lib.MockTestCase, VersionHookTestCase):
         with self.assertRaises(cros_sdk_lib.VersionHasMultipleHooksError):
             self.chroot.GetChrootUpdates()
 
-    def testApplyUpdates(self):
+    def testApplyUpdates(self) -> None:
         """Test ApplyUpdates."""
         rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
         rc_mock.SetDefaultCmdResult()
@@ -568,14 +568,14 @@ class ChrootUpdaterTest(cros_test_lib.MockTestCase, VersionHookTestCase):
             self.chroot.ApplyUpdates()
             self.assertEqual(self.latest_version, self.chroot.GetVersion())
 
-    def testApplyInvalidUpdates(self):
+    def testApplyInvalidUpdates(self) -> None:
         """Test the invalid version conditions for ApplyUpdates."""
         for version in self.invalid_versions:
             self.chroot.SetVersion(version)
             with self.assertRaises(cros_sdk_lib.InvalidChrootVersionError):
                 self.chroot.ApplyUpdates()
 
-    def testIsInitialized(self):
+    def testIsInitialized(self) -> None:
         """Test IsInitialized conditions."""
         self.chroot.SetVersion(0)
         self.assertFalse(self.chroot.IsInitialized())
@@ -605,7 +605,7 @@ class ChrootUpdaterTest(cros_test_lib.MockTestCase, VersionHookTestCase):
 class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
     """ChrootCreator tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self.chroot = chroot_lib.Chroot(
@@ -661,7 +661,7 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         osutils.Touch(tar_dir / self.creater.DEFAULT_TZ, makedirs=True)
         cros_build_lib.CreateTarball(self.sdk_tarball, tar_dir)
 
-    def testMakeChroot(self):
+    def testMakeChroot(self) -> None:
         """Verify make_chroot invocation."""
         with cros_test_lib.RunCommandMock() as rc_mock:
             rc_mock.SetDefaultCmdResult()
@@ -678,7 +678,7 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
                 ]
             )
 
-    def testRun(self):
+    def testRun(self) -> None:
         """Verify run works."""
         TEST_USER = "a-test-user"
         TEST_UID = 20100908
@@ -762,7 +762,7 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
             self.chroot.out_path / "sdk" / "cache" / "edb" / "counter"
         )
 
-    def testExistingCompatGroup(self):
+    def testExistingCompatGroup(self) -> None:
         """Verify running with an existing, but matching, group works."""
         TEST_USER = "a-test-user"
         TEST_UID = 20100908
@@ -780,7 +780,7 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
 class ChrootEnterorTests(cros_test_lib.MockTempDirTestCase):
     """ChrootEnteror tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         chroot_path = self.tempdir / "chroot"
         self.chroot = chroot_lib.Chroot(
             path=chroot_path, cache_dir=self.tempdir / "cache_dir"
@@ -801,17 +801,17 @@ class ChrootEnterorTests(cros_test_lib.MockTempDirTestCase):
             self.sysctl_vm_max_map_count,
         )
 
-    def testRun(self):
+    def testRun(self) -> None:
         """Verify run works."""
         with self.PatchObject(cros_build_lib, "dbg_run"):
             self.enteror.run()
 
-    def testHelperRun(self):
+    def testHelperRun(self) -> None:
         """Verify helper run API works."""
         with self.PatchObject(cros_build_lib, "dbg_run"):
             cros_sdk_lib.EnterChroot(self.chroot)
 
-    def test_setup_vm_max_map_count(self):
+    def test_setup_vm_max_map_count(self) -> None:
         """Verify _setup_vm_max_map_count works."""
         self.sysctl_vm_max_map_count.write_text("1024", encoding="utf-8")
         self.enteror._setup_vm_max_map_count()
@@ -836,7 +836,7 @@ def _with_chroot_version_file(monkeypatch, tmp_path: Path):
     yield chroot_version_file
 
 
-def test_inside_chroot_checks_inside_chroot(chroot_version_file: Path):
+def test_inside_chroot_checks_inside_chroot(chroot_version_file: Path) -> None:
     """Test {is|assert}_inside_chroot inside the chroot."""
     chroot_version_file.write_text("123", encoding="utf-8")
 
@@ -844,7 +844,7 @@ def test_inside_chroot_checks_inside_chroot(chroot_version_file: Path):
     cros_sdk_lib.assert_inside_chroot()
 
 
-def test_outside_chroot_checks_inside_chroot(chroot_version_file: Path):
+def test_outside_chroot_checks_inside_chroot(chroot_version_file: Path) -> None:
     """Test {is|assert}_outside_chroot inside the chroot."""
     chroot_version_file.write_text("123", encoding="utf-8")
 
@@ -853,7 +853,7 @@ def test_outside_chroot_checks_inside_chroot(chroot_version_file: Path):
         cros_sdk_lib.assert_outside_chroot()
 
 
-def test_inside_chroot_checks_outside_chroot(chroot_version_file: Path):
+def test_inside_chroot_checks_outside_chroot(chroot_version_file: Path) -> None:
     """Test {is|assert}_inside_chroot outside the chroot."""
     assert not chroot_version_file.exists()
 
@@ -862,7 +862,9 @@ def test_inside_chroot_checks_outside_chroot(chroot_version_file: Path):
         cros_sdk_lib.assert_inside_chroot()
 
 
-def test_outside_chroot_checks_outside_chroot(chroot_version_file: Path):
+def test_outside_chroot_checks_outside_chroot(
+    chroot_version_file: Path,
+) -> None:
     """Test {is|assert}_outside_chroot outside the chroot."""
     assert not chroot_version_file.exists()
 
@@ -870,47 +872,55 @@ def test_outside_chroot_checks_outside_chroot(chroot_version_file: Path):
     cros_sdk_lib.assert_outside_chroot()
 
 
-def test_require_inside_decorator_inside_chroot(chroot_version_file: Path):
+def test_require_inside_decorator_inside_chroot(
+    chroot_version_file: Path,
+) -> None:
     """Test require_inside_chroot decorator inside the chroot."""
     chroot_version_file.write_text("123", encoding="utf-8")
 
     @cros_sdk_lib.require_inside_chroot("Runs")
-    def inside():
+    def inside() -> None:
         pass
 
     inside()
 
 
-def test_require_outside_decorator_inside_chroot(chroot_version_file: Path):
+def test_require_outside_decorator_inside_chroot(
+    chroot_version_file: Path,
+) -> None:
     """Test require_outside_chroot decorator inside the chroot."""
     chroot_version_file.write_text("123", encoding="utf-8")
 
     @cros_sdk_lib.require_outside_chroot("Raises assertion")
-    def outside():
+    def outside() -> None:
         pass
 
     with pytest.raises(AssertionError):
         outside()
 
 
-def test_require_inside_decorator_outside_chroot(chroot_version_file: Path):
+def test_require_inside_decorator_outside_chroot(
+    chroot_version_file: Path,
+) -> None:
     """Test require_inside_chroot decorator outside the chroot."""
     assert not chroot_version_file.exists()
 
     @cros_sdk_lib.require_inside_chroot("Raises assertion")
-    def inside():
+    def inside() -> None:
         pass
 
     with pytest.raises(AssertionError):
         inside()
 
 
-def test_require_outside_decorator_outside_chroot(chroot_version_file: Path):
+def test_require_outside_decorator_outside_chroot(
+    chroot_version_file: Path,
+) -> None:
     """Test require_outside_chroot decorator inside the chroot."""
     assert not chroot_version_file.exists()
 
     @cros_sdk_lib.require_outside_chroot("Runs")
-    def outside():
+    def outside() -> None:
         pass
 
     outside()
@@ -919,7 +929,7 @@ def test_require_outside_decorator_outside_chroot(chroot_version_file: Path):
 class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
     """Tests for ChrootReadWrite and ChrootReadOnly context managers."""
 
-    def fake_mount(self, _source, target, _fstype, flags, _data=""):
+    def fake_mount(self, _source, target, _fstype, flags, _data="") -> None:
         if target in self.ro_map:
             ro = flags & osutils.MS_RDONLY != 0
             self.ro_map[target] = ro
@@ -930,13 +940,13 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
     def fake_is_mounted_readonly(self, target):
         return self.ro_map.get(target, False)
 
-    def fake_run_mount(self, *args, **_kwargs):
+    def fake_run_mount(self, *args, **_kwargs) -> None:
         mount_options = args[0][4]
         mount_point = args[0][5]
         ro = "rw" not in mount_options.split(",")
         self.ro_map[mount_point] = ro
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.ro_map = {}
 
         self.mount_mock = self.PatchObject(
@@ -956,7 +966,7 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
             side_effect=self.fake_run_mount,
         )
 
-    def testReadWrite_BadMount(self):
+    def testReadWrite_BadMount(self) -> None:
         """Test with a path that's not mounted."""
         assert not osutils.IsMounted("/some/path")
 
@@ -966,7 +976,7 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
 
         self.mount_mock.assert_not_called()
 
-    def testReadWrite_RenamedMount(self):
+    def testReadWrite_RenamedMount(self) -> None:
         """Test with a path that's modified within the context manager."""
         self.ro_map["/path/to/chroot"] = True
         self.PatchObject(cros_sdk_lib, "IsChrootReady", return_value=True)
@@ -993,7 +1003,7 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
         assert osutils.IsMounted("/")
         assert not osutils.IsMountedReadOnly("/")
 
-    def testReadWrite_WritableRoot(self):
+    def testReadWrite_WritableRoot(self) -> None:
         """Read-write context when root is already writable."""
         self.ro_map["/"] = False
         assert osutils.IsMounted("/")
@@ -1005,7 +1015,7 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
         assert not osutils.IsMountedReadOnly("/")
         self.mount_mock.assert_not_called()
 
-    def testReadWrite_ReadonlyRoot(self):
+    def testReadWrite_ReadonlyRoot(self) -> None:
         """Read-write context when root is read-only."""
         self.ro_map["/"] = True
         assert osutils.IsMounted("/")
@@ -1025,7 +1035,7 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
             ),
         ]
 
-    def testReadWrite_Stacked(self):
+    def testReadWrite_Stacked(self) -> None:
         """Stacked read/write on a writable root."""
         self.ro_map["/"] = False
         assert osutils.IsMounted("/")
@@ -1039,7 +1049,7 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
         assert not osutils.IsMountedReadOnly("/")
         self.mount_mock.assert_not_called()
 
-    def testReadWrite_StackedReadOnly(self):
+    def testReadWrite_StackedReadOnly(self) -> None:
         """Stacked read/write on a read-only root."""
         self.ro_map["/"] = True
         assert osutils.IsMounted("/")
@@ -1053,7 +1063,7 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
         assert osutils.IsMountedReadOnly("/")
         assert self.mount_mock.call_count == 2
 
-    def testReadOnly_BadMount(self):
+    def testReadOnly_BadMount(self) -> None:
         """Test with a path that's not mounted."""
         assert not osutils.IsMounted("/some/path")
 
@@ -1063,7 +1073,7 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
 
         self.mount_mock.assert_not_called()
 
-    def testReadOnly_ReadOnlyRoot(self):
+    def testReadOnly_ReadOnlyRoot(self) -> None:
         """Read-only context when root is already read-only."""
         self.ro_map["/"] = True
         assert osutils.IsMounted("/")
@@ -1075,7 +1085,7 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
         assert osutils.IsMountedReadOnly("/")
         self.mount_mock.assert_not_called()
 
-    def testReadOnly_WritableRoot(self):
+    def testReadOnly_WritableRoot(self) -> None:
         """Read-only context when root is read/write."""
         self.ro_map["/"] = False
         assert osutils.IsMounted("/")
@@ -1100,7 +1110,7 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
             ),
         ]
 
-    def testReadOnly_Stacked(self):
+    def testReadOnly_Stacked(self) -> None:
         """Stacked read-only on a read-only root."""
         self.ro_map["/"] = True
         assert osutils.IsMounted("/")
@@ -1114,7 +1124,7 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
         assert osutils.IsMountedReadOnly("/")
         self.mount_mock.assert_not_called()
 
-    def testReadOnly_StackedWritable(self):
+    def testReadOnly_StackedWritable(self) -> None:
         """Stacked read-only on a writable root."""
         self.ro_map["/"] = False
         assert osutils.IsMounted("/")
@@ -1128,7 +1138,7 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
         assert not osutils.IsMountedReadOnly("/")
         assert self.mount_mock.call_count == 2
 
-    def testStacked_WriteRead(self):
+    def testStacked_WriteRead(self) -> None:
         """Stacked writable and read-only."""
         self.ro_map["/"] = True
         assert osutils.IsMounted("/")
@@ -1143,7 +1153,7 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
         assert osutils.IsMountedReadOnly("/")
         assert self.mount_mock.call_count == 4
 
-    def testStacked_ReadWrite(self):
+    def testStacked_ReadWrite(self) -> None:
         """Stacked read-only and writable."""
         self.ro_map["/"] = False
         assert osutils.IsMounted("/")
@@ -1158,10 +1168,10 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
         assert not osutils.IsMountedReadOnly("/")
         assert self.mount_mock.call_count == 4
 
-    def testNonRoot(self):
+    def testNonRoot(self) -> None:
         """Test the non-root flow."""
 
-        def non_root_mount(self, *args):
+        def non_root_mount(self, *args) -> None:
             raise PermissionError("Fake Mount permission failure")
 
         self.PatchObject(osutils, "Mount", side_effect=non_root_mount)

@@ -18,10 +18,10 @@ class _BoardAndDirectoryMixin:
     _board = None
     _result_dir = None
 
-    def SetBoard(self, board):
+    def SetBoard(self, board) -> None:
         self._board = board
 
-    def SetResultDir(self, result_dir):
+    def SetResultDir(self, result_dir) -> None:
         self._result_dir = result_dir
 
 

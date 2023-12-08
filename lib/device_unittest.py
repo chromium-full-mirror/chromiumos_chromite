@@ -20,12 +20,12 @@ from chromite.lib import vm
 class DeviceTester(cros_test_lib.RunCommandTestCase):
     """Test device.Device."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Common set up method for all tests."""
         opts = device.Device.GetParser().parse_args(["--device", "190.0.2.130"])
         self._device = device.Device(opts)
 
-    def CreateDevice(self, device_name, should_start_vm):
+    def CreateDevice(self, device_name, should_start_vm) -> None:
         """Creates a device.
 
         Args:
@@ -39,7 +39,7 @@ class DeviceTester(cros_test_lib.RunCommandTestCase):
         )
         self.assertEqual(isinstance(created_device, vm.VM), should_start_vm)
 
-    def testWaitForBoot(self):
+    def testWaitForBoot(self) -> None:
         self._device.WaitForBoot()
         # Verify that ssh command is called with all the right configurations.
         self.assertCommandContains(["ssh", "root@190.0.2.130", "--", "true"])
@@ -48,7 +48,7 @@ class DeviceTester(cros_test_lib.RunCommandTestCase):
         "chromite.lib.cros_build_lib.run",
         side_effect=remote_access.SSHConnectionError(),
     )
-    def testWaitForBootTimeOut(self, boot_mock):
+    def testWaitForBootTimeOut(self, boot_mock) -> None:
         """Verify exception is raised when the device takes to0 long to boot."""
         self.assertRaises(device.DeviceError, self._device.WaitForBoot, sleep=0)
         boot_mock.assert_called()
@@ -57,12 +57,12 @@ class DeviceTester(cros_test_lib.RunCommandTestCase):
         "chromite.lib.device.Device.run",
         return_value=cros_build_lib.CompletedProcess(returncode=1),
     )
-    def testWaitForBootReturnCode(self, boot_mock):
+    def testWaitForBootReturnCode(self, boot_mock) -> None:
         """Verify an exception is raised when the returncode is not 0."""
         self.assertRaises(device.DeviceError, self._device.WaitForBoot)
         boot_mock.assert_called()
 
-    def testRemoteCmd(self):
+    def testRemoteCmd(self) -> None:
         """Verify remote command runs correctly with default arguments."""
         self._device.run(["/usr/local/autotest/bin/vm_sanity"])
         self.assertCommandContains(["/usr/local/autotest/bin/vm_sanity"])
@@ -70,7 +70,7 @@ class DeviceTester(cros_test_lib.RunCommandTestCase):
             stdout=True, stderr=subprocess.STDOUT, log_output=True
         )
 
-    def testRemoteCmdStream(self):
+    def testRemoteCmdStream(self) -> None:
         """Verify remote command for streaming output."""
         self._device.run(
             ["/usr/local/autotest/bin/vm_sanity"], stream_output=True
@@ -80,7 +80,7 @@ class DeviceTester(cros_test_lib.RunCommandTestCase):
             stderr=subprocess.STDOUT, log_output=True, expected=False
         )
 
-    def testCreate(self):
+    def testCreate(self) -> None:
         """Verify Device/VM creation."""
         # Verify a VM is created when no IP is specified.
         self.CreateDevice(None, True)

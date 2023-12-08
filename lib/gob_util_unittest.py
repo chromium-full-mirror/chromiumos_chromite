@@ -55,18 +55,18 @@ class GobTest(cros_test_lib.MockTestCase):
 
     UTF8_DATA = b"That\xe2\x80\x99s an error. That\xe2\x80\x99s all we know."
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(gob_util, "CreateHttpReq", autospec=False)
         self.conn = self.PatchObject(urllib.request, "urlopen")
 
-    def testUtf8Response(self):
+    def testUtf8Response(self) -> None:
         """Handle gerrit responses w/UTF8 in them."""
         self.conn.return_value.__enter__.return_value = FakeHTTPResponse(
             body=self.UTF8_DATA
         )
         gob_util.FetchUrl("", "")
 
-    def testUtf8Response502(self):
+    def testUtf8Response502(self) -> None:
         self.conn.return_value.__enter__.return_value = FakeHTTPResponse(
             body=self.UTF8_DATA, status=502
         )
@@ -74,13 +74,13 @@ class GobTest(cros_test_lib.MockTestCase):
         with self.assertRaises(gob_util.InternalGOBError):
             gob_util.FetchUrl("", "")
 
-    def testConnectionTimeout(self):
+    def testConnectionTimeout(self) -> None:
         """Exercise the timeout process."""
         # To finish the test quickly, we need to shorten the timeout.
         self.PatchObject(gob_util, "REQUEST_TIMEOUT_SECONDS", 1)
 
         # Setup a 'hanging' network connection.
-        def simulateHang(*_args, **_kwargs):
+        def simulateHang(*_args, **_kwargs) -> None:
             time.sleep(30)
             self.fail("Would hang forever.")
 
@@ -90,7 +90,7 @@ class GobTest(cros_test_lib.MockTestCase):
         with self.assertRaises(timeout_util.TimeoutError):
             gob_util.FetchUrl("", "")
 
-    def testHtmlParser(self):
+    def testHtmlParser(self) -> None:
         """Verify that GOB error message is parsed properly."""
         html_data = """
 <!DOCTYPE html>
@@ -117,7 +117,7 @@ Too bad..."""
         ep.close()
         self.assertEqual(expected_parsed_data, ep.ParsedDiv())
 
-    def testCreateChange(self):
+    def testCreateChange(self) -> None:
         body = json.dumps({"change_num": 123456}).encode()
         xss_protection_prefix = b")]}'\n"
         body = xss_protection_prefix + body
@@ -137,7 +137,7 @@ Too bad..."""
         )
         self.assertEqual(change_json["change_num"], 123456)
 
-    def testChangeEdit(self):
+    def testChangeEdit(self) -> None:
         self.conn.return_value.__enter__.return_value = FakeHTTPResponse(
             body={}, status=204
         )
@@ -145,13 +145,13 @@ Too bad..."""
             "some.git.url", 123456, "some/file/path", "some file contents"
         )
 
-    def testPublishChangeEdit(self):
+    def testPublishChangeEdit(self) -> None:
         self.conn.return_value.__enter__.return_value = FakeHTTPResponse(
             body={}, status=204
         )
         gob_util.PublishChangeEdit("some.git.url", 123456)
 
-    def testGetFileContents(self):
+    def testGetFileContents(self) -> None:
         expected_contents = "some file contents"
         body = base64.b64encode(expected_contents.encode())
         self.conn.return_value.__enter__.return_value = FakeHTTPResponse(
@@ -164,7 +164,7 @@ Too bad..."""
         contents = gob_util.GetFileContents("some.git.url", "some/file/path")
         self.assertEqual(contents, expected_contents)
 
-    def testGetFileContentsFromGerrit(self):
+    def testGetFileContentsFromGerrit(self) -> None:
         """Test for GetFileContentsFromGerrit()"""
 
         expected_contents = "some file contents"
@@ -177,7 +177,7 @@ Too bad..."""
         )
         self.assertEqual(contents, expected_contents)
 
-    def testGetChangeMergeable(self):
+    def testGetChangeMergeable(self) -> None:
         """Test for GetChangeMergeable()"""
 
         mergeable_info = {"mergeable": True}
@@ -190,7 +190,7 @@ Too bad..."""
         result = gob_util.GetChangeMergeable("some.git.url", "100000")
         self.assertEqual(result, mergeable_info)
 
-    def testRebase(self):
+    def testRebase(self) -> None:
         """Test for Rebase()"""
 
         change_info = {}
@@ -207,7 +207,7 @@ Too bad..."""
 class GetCookieTests(cros_test_lib.TestCase):
     """Unittests for GetCookies()"""
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         with tempfile.NamedTemporaryFile(mode="w+") as f:
             f.write(".googlesource.com\tTRUE\t/f\tTRUE\t2147483647\to\tfoo=bar")
             f.flush()
@@ -225,19 +225,19 @@ class GetCookieTests(cros_test_lib.TestCase):
 class NetworkGobTest(cros_test_lib.TestCase):
     """Unittests that talk to real Gerrit."""
 
-    def test200(self):
+    def test200(self) -> None:
         """Test successful loading of change."""
         gob_util.FetchUrlJson(
             config_lib.GetSiteParams().EXTERNAL_GOB_HOST,
             "changes/227254/detail",
         )
 
-    def test404(self):
+    def test404(self) -> None:
         gob_util.FetchUrlJson(
             config_lib.GetSiteParams().EXTERNAL_GOB_HOST, "foo/bar/baz"
         )
 
-    def test404Exception(self):
+    def test404Exception(self) -> None:
         with self.assertRaises(gob_util.GOBError) as ex:
             gob_util.FetchUrlJson(
                 config_lib.GetSiteParams().EXTERNAL_GOB_HOST,

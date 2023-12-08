@@ -30,7 +30,7 @@ class BuildFailureMessageTests(cros_test_lib.MockTestCase):
             message_summary, failure_messages, internal, reason, builder
         )
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._patch_factory = patch_unittest.MockPatchFactory()
 
     def _GetBuildFailureMessageWithMixedMsgs(self):
@@ -43,13 +43,13 @@ class BuildFailureMessageTests(cros_test_lib.MockTestCase):
 
         return build_failure
 
-    def testBuildFailureMessageToStr(self):
+    def testBuildFailureMessageToStr(self) -> None:
         """Test BuildFailureMessageToStr."""
         build_failure = self._GetBuildFailureMessageWithMixedMsgs()
 
         self.assertIsNotNone(build_failure.BuildFailureMessageToStr())
 
-    def testMatchesExceptionCategoriesOnMixedFailuresReturnsFalse(self):
+    def testMatchesExceptionCategoriesOnMixedFailuresReturnsFalse(self) -> None:
         """Test MatchesExceptionCategories on mixed failures returns False."""
         build_failure = self._GetBuildFailureMessageWithMixedMsgs()
 
@@ -59,7 +59,7 @@ class BuildFailureMessageTests(cros_test_lib.MockTestCase):
             )
         )
 
-    def testMatchesExceptionCategoriesOnBuildFailuresReturnsTrue(self):
+    def testMatchesExceptionCategoriesOnBuildFailuresReturnsTrue(self) -> None:
         """Test MatchesExceptionCategories on build failures returns True."""
         failure_messages = [
             failure_message_helper.GetBuildScriptFailureMessage(),
@@ -75,7 +75,9 @@ class BuildFailureMessageTests(cros_test_lib.MockTestCase):
             )
         )
 
-    def testMatchesExceptionCategoriesOnCompoundFailuresReturnsTrue(self):
+    def testMatchesExceptionCategoriesOnCompoundFailuresReturnsTrue(
+        self,
+    ) -> None:
         """Test MatchesExceptionCategories on CompoundFailures returns True."""
         f_1 = failure_message_helper.GetBuildScriptFailureMessage(
             failure_id=1, outer_failure_id=3
@@ -100,7 +102,9 @@ class BuildFailureMessageTests(cros_test_lib.MockTestCase):
             )
         )
 
-    def testMatchesExceptionCategoriesOnCompoundFailuresReturnsFalse(self):
+    def testMatchesExceptionCategoriesOnCompoundFailuresReturnsFalse(
+        self,
+    ) -> None:
         """Test MatchesExceptionCategories on CompoundFailures returns False."""
         f_1 = failure_message_helper.GetStageFailureMessage(
             failure_id=1, outer_failure_id=3
@@ -125,7 +129,7 @@ class BuildFailureMessageTests(cros_test_lib.MockTestCase):
             )
         )
 
-    def testHasExceptionCategoriesOnMixedFailures(self):
+    def testHasExceptionCategoriesOnMixedFailures(self) -> None:
         """Test HasExceptionCategories on mixed failures."""
         build_failure = self._GetBuildFailureMessageWithMixedMsgs()
 
@@ -150,7 +154,7 @@ class BuildFailureMessageTests(cros_test_lib.MockTestCase):
             )
         )
 
-    def tesHasExceptionCategoriesOnCompoundFailures(self):
+    def tesHasExceptionCategoriesOnCompoundFailures(self) -> None:
         """Test HasExceptionCategories on CompoundFailures."""
         f_1 = failure_message_helper.GetBuildScriptFailureMessage(
             failure_id=1, outer_failure_id=3

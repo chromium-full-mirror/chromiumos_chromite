@@ -171,7 +171,7 @@ class PackageNode:
         """Get the node name, a unique identifier for the package itself."""
         return self.cpvr
 
-    def add_dependency(self, dependency: "PackageNode"):
+    def add_dependency(self, dependency: "PackageNode") -> None:
         """Add a package as a dependency of this node.
 
         Also registers this package as a reverse dependency of the other.
@@ -179,7 +179,7 @@ class PackageNode:
         self._deps.add(dependency)
         dependency.add_reverse_dependency(self)
 
-    def add_reverse_dependency(self, dependency: "PackageNode"):
+    def add_reverse_dependency(self, dependency: "PackageNode") -> None:
         """Add a reverse dependency.
 
         This method is not generally meant to be used directly. Use
@@ -380,7 +380,7 @@ class DependencyGraph:
         """Size of the depgraph."""
         return self._len
 
-    def _add_node(self, node: PackageNode):
+    def _add_node(self, node: PackageNode) -> None:
         """Add a package and its dependencies to the graph."""
         if node.root in self._pkg_dict[node.name]:
             if self._pkg_dict[node.name][node.root] == node:

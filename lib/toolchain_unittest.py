@@ -59,7 +59,7 @@ EXPECTED_TOOLCHAINS = {
 class ToolchainTest(cros_test_lib.MockTempDirTestCase):
     """Tests for lib.toolchain."""
 
-    def testArchForToolchain(self):
+    def testArchForToolchain(self) -> None:
         """Tests that we correctly parse crossdev's output."""
         rc_mock = cros_test_lib.RunCommandMock()
 
@@ -78,7 +78,7 @@ target=foo
             self.assertEqual("amd64", toolchain.GetArchForTarget("fake_target"))
 
     @mock.patch("chromite.lib.toolchain.portage_util.FindOverlays")
-    def testReadsBoardToolchains(self, find_overlays_mock):
+    def testReadsBoardToolchains(self, find_overlays_mock) -> None:
         """Verify we correctly parse toolchain configs for an overlay stack."""
         # Create some fake overlays and put toolchain confs in a subset of them.
         overlays = [
@@ -100,7 +100,7 @@ target=foo
 class ToolchainInfoTest(cros_test_lib.MockTestCase):
     """Tests for the ToolchainInfo class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.gcc_cpv = package_info.parse("sys-devel/gcc-1.2")
         self.libc_cpv = package_info.parse("sys-libs/glibc-3.4.5")
         self.go_cpv = package_info.parse("dev-lang/go-6.7-r8")
@@ -110,7 +110,7 @@ class ToolchainInfoTest(cros_test_lib.MockTestCase):
         self.matching_toolchain = toolchain.ToolchainInfo("tc", "tc")
         self.not_matching_toolchain = toolchain.ToolchainInfo("tc", "dtc")
 
-    def testVersion(self):
+    def testVersion(self) -> None:
         """Test the version fetching functionality."""
         self.PatchObject(
             self.matching_toolchain, "_get_pkg", return_value=self.gcc_cpv
@@ -137,7 +137,7 @@ class ToolchainInfoTest(cros_test_lib.MockTestCase):
         )
         self.assertEqual("7.8-r9", self.matching_toolchain.libgcc_version)
 
-    def testCpv(self):
+    def testCpv(self) -> None:
         """Test the CPV version functionality."""
         self.PatchObject(
             self.matching_toolchain, "_get_pkg", return_value=self.gcc_cpv
@@ -168,7 +168,7 @@ class ToolchainInfoTest(cros_test_lib.MockTestCase):
             self.libgcc_cpv.cpvr, self.matching_toolchain.libgcc_cpf
         )
 
-    def testCP(self):
+    def testCP(self) -> None:
         """Test the GetCP method."""
         # pylint: disable=protected-access
         # Use wrong CPV instances to make sure it's not using them since _GetCP
@@ -247,7 +247,7 @@ class ToolchainInfoTest(cros_test_lib.MockTestCase):
 class ToolchainInstallerTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests for the toolchain installer class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Setup the temp filesystem matching the expected layout.
         D = cros_test_lib.Directory
         filesystem = (
@@ -341,7 +341,7 @@ class ToolchainInstallerTest(cros_test_lib.RunCommandTempDirTestCase):
         # Avoid sudo password prompt for _WriteConfigs.
         self.PatchObject(os_util, "is_root_user", return_value=True)
 
-    def testUpdateProvided(self):
+    def testUpdateProvided(self) -> None:
         """Test the updates to the package.provided file."""
         path = os.path.join(
             self.sysroot.path, "etc/portage/profile/package.provided"
@@ -391,7 +391,7 @@ class ToolchainInstallerTest(cros_test_lib.RunCommandTempDirTestCase):
 
         self.assertEqual([], expected)
 
-    def testWriteConfig(self):
+    def testWriteConfig(self) -> None:
         """Test the sysroot configs are updated correctly."""
         # This test is safe to run all the real commands.
         self.rc.stop()
@@ -399,7 +399,7 @@ class ToolchainInstallerTest(cros_test_lib.RunCommandTempDirTestCase):
         self.updater._WriteConfigs(self.sysroot, self.go_toolchain)
         self.assertEqual("3.4.5", self.sysroot.GetCachedField("LIBC_VERSION"))
 
-    def testInstallLibcFailures(self):
+    def testInstallLibcFailures(self) -> None:
         """Test the installer error handling."""
         # Test error thrown during toolchain installation.
         # We want a ToolchainInstallError with the glibc info set.
@@ -421,7 +421,7 @@ class ToolchainInstallerTest(cros_test_lib.RunCommandTempDirTestCase):
         else:
             self.fail("_InstallLibc should have thrown an error.")
 
-    def testExtractLibcFailures(self):
+    def testExtractLibcFailures(self) -> None:
         """Test the installer error handling."""
         # Test error thrown during cross toolchain installation.
         # This is the error we're testing for, but _InstallLibc catches and

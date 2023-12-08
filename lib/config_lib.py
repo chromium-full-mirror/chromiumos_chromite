@@ -283,7 +283,7 @@ class BuildConfig(AttrDict):
         """
         return self.deepcopy().apply(*args, **kwargs)
 
-    def AddSlave(self, slave):
+    def AddSlave(self, slave) -> None:
         """Assign slave config(s) to a build master.
 
         A helper for adding slave configs to a master config.
@@ -294,7 +294,7 @@ class BuildConfig(AttrDict):
         self.slave_configs.append(slave.name)
         self.slave_configs.sort()
 
-    def AddSlaves(self, slaves):
+    def AddSlaves(self, slaves) -> None:
         """Assign slave config(s) to a build master.
 
         A helper for adding slave configs to a master config.
@@ -890,7 +890,7 @@ class SiteConfig(dict):
         self[name] = result
         return result
 
-    def AddWithoutTemplate(self, name, *args, **kwargs):
+    def AddWithoutTemplate(self, name, *args, **kwargs) -> None:
         """Add config containing only explicitly listed values (no defaults)."""
         self.Add(name, None, *args, **kwargs)
 
@@ -1036,7 +1036,7 @@ class SiteConfig(dict):
 
         return PrettyJsonDict(config_dict)
 
-    def SaveConfigToFile(self, config_file):
+    def SaveConfigToFile(self, config_file) -> None:
         """Save this Config to a Json file.
 
         Args:

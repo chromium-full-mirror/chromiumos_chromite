@@ -14,13 +14,13 @@ from chromite.lib import kernel_builder
 class BuilderTest(cros_test_lib.RunCommandTestCase):
     """Test Builder."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Sets up common objects for testing."""
         self._kb = kernel_builder.Builder(
             "foo-board", "foo-tmp", "foo-root", "777"
         )
 
-    def testCreateCustomKernel(self):
+    def testCreateCustomKernel(self) -> None:
         """Tests CreateCustomKernel()."""
         self.PatchObject(os.environ, "get", return_value="z")
         self.rc.AddCmdResult(
@@ -67,7 +67,7 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
             extra_env=extra_env,
         )
 
-    def testCreateCustomKernelOverrideUseFlag(self):
+    def testCreateCustomKernelOverrideUseFlag(self) -> None:
         """Tests CreateCustomKernel()."""
         self.rc.AddCmdResult(
             [
@@ -113,7 +113,7 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
             extra_env=extra_env,
         )
 
-    def testCreateKernelImageDefaultArgs(self):
+    def testCreateKernelImageDefaultArgs(self) -> None:
         """Tests CreateKernelImage() with default arguments."""
         self.rc.AddCmdResult(
             ["portageq-foo-board", "envvar", "ARCH"], stdout="foo-arch"
@@ -138,7 +138,7 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
             enter_chroot=True,
         )
 
-    def testCreateKernelImageWithArgs(self):
+    def testCreateKernelImageWithArgs(self) -> None:
         """Tests CreateKernelImage() with default arguments."""
         self.rc.AddCmdResult(
             ["portageq-foo-board", "envvar", "ARCH"], stdout="foo-arch"

@@ -20,7 +20,7 @@ MOCK_GROUP_CONTENTS = "root:x:0:"
 class UserDBTest(cros_test_lib.MockTempDirTestCase):
     """Tests for chromite.lib.user_db."""
 
-    def _SetupDatabases(self, passwd_contents, group_contents):
+    def _SetupDatabases(self, passwd_contents, group_contents) -> None:
         osutils.WriteFile(
             os.path.join(self.tempdir, "etc", "passwd"),
             passwd_contents,
@@ -32,33 +32,33 @@ class UserDBTest(cros_test_lib.MockTempDirTestCase):
             makedirs=True,
         )
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up a test environment."""
         self._SetupDatabases(MOCK_PASSWD_CONTENTS, MOCK_GROUP_CONTENTS)
         self._user_db = user_db.UserDB(self.tempdir)
         self.PatchObject(os_util, "is_root_user", return_value=True)
 
-    def testAcceptsKnownUser(self):
+    def testAcceptsKnownUser(self) -> None:
         """Check that we do appropriate things with valid users."""
         self.assertTrue(self._user_db.UserExists("root"))
         self.assertEqual(0, self._user_db.ResolveUsername("root"))
 
-    def testAcceptsKnownGroup(self):
+    def testAcceptsKnownGroup(self) -> None:
         """Check that we do appropriate things with valid groups."""
         self.assertTrue(self._user_db.GroupExists("root"))
         self.assertEqual(0, self._user_db.ResolveGroupname("root"))
 
-    def testRejectsUnknownUser(self):
+    def testRejectsUnknownUser(self) -> None:
         """Check that we do appropriate things with invalid users."""
         self.assertFalse(self._user_db.UserExists("foot"))
         self.assertRaises(ValueError, self._user_db.ResolveUsername, "foot")
 
-    def testRejectsUnknownGroup(self):
+    def testRejectsUnknownGroup(self) -> None:
         """Check that we do appropriate things with invalid groups."""
         self.assertFalse(self._user_db.GroupExists("wheel"))
         self.assertRaises(ValueError, self._user_db.ResolveGroupname, "wheel")
 
-    def testToleratesMalformedLines(self):
+    def testToleratesMalformedLines(self) -> None:
         """Check that skip over invalid lines in databases."""
         bad_user_contents = "\n".join(
             [
@@ -88,7 +88,7 @@ class UserDBTest(cros_test_lib.MockTempDirTestCase):
         self.assertFalse(db.UserExists("root"))
         self.assertFalse(db.GroupExists("root"))
 
-    def testCanAddUser(self):
+    def testCanAddUser(self) -> None:
         """Test that we can correctly add a user to a database."""
         new_user = user_db.User(
             user="foo",
@@ -107,7 +107,7 @@ class UserDBTest(cros_test_lib.MockTempDirTestCase):
         new_db = user_db.UserDB(self.tempdir)
         self.assertTrue(new_db.UserExists(new_user.user))
 
-    def testCanAddGroup(self):
+    def testCanAddGroup(self) -> None:
         """Test that we can correctly add a group to a database."""
         new_group = user_db.Group(group="foo", password="!", gid=1000, users=[])
         self.assertFalse(self._user_db.GroupExists(new_group.group))

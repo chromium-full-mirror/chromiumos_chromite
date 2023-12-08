@@ -87,7 +87,7 @@ class VersionInfo:
     def _GetDateTime(self):
         return datetime.now().strftime(self.DATE_TIME_FORMAT)
 
-    def _LoadFromFile(self):
+    def _LoadFromFile(self) -> None:
         """Read the version file and set the version components"""
         with open(self.version_file, "r", encoding="utf-8") as version_fh:
             for line in version_fh:
@@ -215,7 +215,7 @@ class VersionInfo:
 
         return self.VersionString()
 
-    def UpdateVersionFile(self, message, dry_run, push_to=None):
+    def UpdateVersionFile(self, message, dry_run, push_to=None) -> None:
         """Update the version file with our current version.
 
         Args:

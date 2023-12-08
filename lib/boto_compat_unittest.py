@@ -15,7 +15,7 @@ from chromite.lib import osutils
 class FixBotoCertsTest(cros_test_lib.TempDirTestCase):
     """Tests FixBotoCerts functionality."""
 
-    def testCaFix(self):
+    def testCaFix(self) -> None:
         os.environ["BOTO_CONFIG"] = os.path.join(self.tempdir, "fake")
         with boto_compat.FixBotoCerts(strict=True):
             boto_config = os.environ["BOTO_CONFIG"]
@@ -29,7 +29,7 @@ class FixBotoCertsTest(cros_test_lib.TempDirTestCase):
 
         self.assertNotExists(boto_config)
 
-    def testMergeBotoConfig(self):
+    def testMergeBotoConfig(self) -> None:
         boto_config = os.path.join(self.tempdir, "boto.cfg")
         osutils.WriteFile(boto_config, "[S]\nk = v")
         os.environ["BOTO_CONFIG"] = boto_config
@@ -42,7 +42,7 @@ class FixBotoCertsTest(cros_test_lib.TempDirTestCase):
 
         self.assertEqual(os.environ["BOTO_CONFIG"], boto_config)
 
-    def testMergeBotoPath(self):
+    def testMergeBotoPath(self) -> None:
         cfgfile1 = os.path.join(self.tempdir, "boto1.cfg")
         osutils.WriteFile(cfgfile1, "[S]\nk = v\nk2 = v1")
         cfgfile2 = os.path.join(self.tempdir, "boto2.cfg")
@@ -58,7 +58,7 @@ class FixBotoCertsTest(cros_test_lib.TempDirTestCase):
 
         self.assertEqual(os.environ["BOTO_PATH"], boto_path)
 
-    def testActivateFalse(self):
+    def testActivateFalse(self) -> None:
         os.environ.pop("BOTO_CONFIG", None)
         with boto_compat.FixBotoCerts(strict=True, activate=False):
             self.assertNotIn("BOTO_CONFIG", os.environ)

@@ -87,43 +87,43 @@ S: '/build/grunt/tmp/portage/app-vim/gentoo-syntax-20181023/work/gentoo-syntax-2
 class ElogTest(cros_test_lib.TestCase):
     """Unit tests for summary.log parser"""
 
-    def testSingleSectionHeaderRegex(self):
+    def testSingleSectionHeaderRegex(self) -> None:
         match = elog.SECTION_HEADER.search(SAMPLE_LOG)
         self.assertEqual(
             "sys-libs/libcxx-8.0_pre349610-r1", match.group("package")
         )
 
-    def testMultipleSectionHeaderRegex(self):
+    def testMultipleSectionHeaderRegex(self) -> None:
         match = elog.SECTION_HEADER.search(SAMPLE_LOG)
         match2 = elog.SECTION_HEADER.search(SAMPLE_LOG[match.end() :])
         self.assertEqual(
             "app-vim/gentoo-syntax-20181023", match2.group("package")
         )
 
-    def testLogEntryRegex(self):
+    def testLogEntryRegex(self) -> None:
         match = elog.LOG_ENTRY.search(SAMPLE_LOG)
         self.assertEqual("LOG", match.group("level"))
         self.assertEqual("postinst", match.group("phase"))
 
-    def testMultipleLogEntryRegex(self):
+    def testMultipleLogEntryRegex(self) -> None:
         match = elog.LOG_ENTRY.search(SAMPLE_LOG)
         match2 = elog.LOG_ENTRY.search(SAMPLE_LOG[match.end() :])
         self.assertEqual("WARN", match2.group("level"))
         self.assertEqual("prepare", match2.group("phase"))
 
-    def testNoPackageFailuresInSampleLog(self):
+    def testNoPackageFailuresInSampleLog(self) -> None:
         pkglog = elog.SummaryLog.parse_from_string(SAMPLE_LOG)
         self.assertFalse(pkglog.has_failed_packages())
 
-    def testPackageFailureExistsInFailingLog(self):
+    def testPackageFailureExistsInFailingLog(self) -> None:
         pkglog = elog.SummaryLog.parse_from_string(SAMPLE_FAILING_LOG)
         self.assertTrue(pkglog.has_failed_packages())
 
-    def testWhichPackageFailsInFailingLog(self):
+    def testWhichPackageFailsInFailingLog(self) -> None:
         pkglog = elog.SummaryLog.parse_from_string(SAMPLE_FAILING_LOG)
         self.assertEqual(["app-vim/gentoo-syntax"], pkglog.failed_packages())
 
-    def testPackageWarningsDetectedInSampleLogs(self):
+    def testPackageWarningsDetectedInSampleLogs(self) -> None:
         pkglog1 = elog.SummaryLog.parse_from_string(SAMPLE_LOG)
         self.assertTrue(pkglog1.has_warned_packages())
         pkglog2 = elog.SummaryLog.parse_from_string(SAMPLE_FAILING_LOG)

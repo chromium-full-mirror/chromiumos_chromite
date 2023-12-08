@@ -17,7 +17,7 @@ from chromite.lib.paygen import partition_lib
 class PartitionLibTest(cros_test_lib.MockTempDirTestCase):
     """Test partition_lib functions with no mocks by default."""
 
-    def testTruncate(self):
+    def testTruncate(self) -> None:
         """Test truncating on extraction."""
         root = self.tempdir / "root.bin"
 
@@ -39,7 +39,7 @@ class PartitionLibTest(cros_test_lib.MockTempDirTestCase):
         partition_lib.ExtractRoot(None, root)
         self.assertEqual(root.stat().st_size, 1024 * 1024)
 
-    def testExt2FileSystemSize(self):
+    def testExt2FileSystemSize(self) -> None:
         """Test getting filesystem size on a simple output."""
         root = self.tempdir / "root.bin"
         osutils.AllocateFile(root, 1024 * 1024)
@@ -53,7 +53,7 @@ class PartitionLibTest(cros_test_lib.MockTempDirTestCase):
 class PartitionLibMockTest(cros_test_lib.RunCommandTempDirTestCase):
     """Test partition_lib functions with run() mocked."""
 
-    def testExtractPartition(self):
+    def testExtractPartition(self) -> None:
         """Tests extraction on a simple image."""
         part_a_bin = "0123"
         part_b_bin = "4567"
@@ -74,7 +74,7 @@ class PartitionLibMockTest(cros_test_lib.RunCommandTempDirTestCase):
         partition_lib.ExtractPartition(image, "PART-A", part_a)
         self.assertEqual(osutils.ReadFile(part_a), part_a_bin)
 
-    def testIsGptImage(self):
+    def testIsGptImage(self) -> None:
         """Tests we correctly identify an Gpt image."""
         # Tests correct arguments are passed and Gpt image is correctly
         # identified.
@@ -90,7 +90,7 @@ class PartitionLibMockTest(cros_test_lib.RunCommandTempDirTestCase):
         part_info_mock.return_value = []
         self.assertFalse(partition_lib.IsGptImage(image))
 
-    def testLookupImageType(self):
+    def testLookupImageType(self) -> None:
         """Tests we correctly identify different image types."""
         image = "/foo/image"
         is_gpt = self.PatchObject(partition_lib, "IsGptImage")
@@ -117,7 +117,7 @@ class PartitionLibMockTest(cros_test_lib.RunCommandTempDirTestCase):
         is_ext2.return_value = False
         self.assertIsNone(partition_lib.LookupImageType(image))
 
-    def testHasMiniOSPartitions(self):
+    def testHasMiniOSPartitions(self) -> None:
         """Tests we correctly identify miniOS supported images."""
         image = "/foo/image"
 

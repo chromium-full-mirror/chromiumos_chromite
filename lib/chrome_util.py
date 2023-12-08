@@ -144,11 +144,11 @@ class Copier:
         self.exe_mode = exe_mode
 
     @staticmethod
-    def Log(src, dest, directory):
+    def Log(src, dest, directory) -> None:
         sep = " [d] -> " if directory else " -> "
         logging.debug("%s %s %s", src, sep, dest)
 
-    def _CopyFile(self, src, dest, path):
+    def _CopyFile(self, src, dest, path) -> None:
         """Perform the copy.
 
         Args:
@@ -502,7 +502,7 @@ _COPY_PATHS_MAP = {
 }
 
 
-def _FixPermissions(dest_base):
+def _FixPermissions(dest_base) -> None:
     """Last minute permission fixes."""
     cros_build_lib.dbg_run(["chmod", "-R", "a+r", dest_base])
     cros_build_lib.dbg_run(
@@ -674,7 +674,7 @@ def StageChromeFromBuildDir(
     staging_flags=None,
     strip_flags=None,
     copy_paths=_COPY_PATHS_CHROME,
-):
+) -> None:
     """Populates a staging directory with necessary build artifacts.
 
     If |gn_args| or |staging_flags| are set, then we decide what to stage

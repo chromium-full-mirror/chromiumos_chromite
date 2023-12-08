@@ -14,7 +14,7 @@ from chromite.lib import signing
 class GetDefaultVbootStableHashTest(cros_test_lib.TempDirTestCase):
     """GetDefaultVbootStableHash tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         D = cros_test_lib.Directory
         filesystem = (D("configs", ("cros_common.config",)),)
 
@@ -27,12 +27,12 @@ class GetDefaultVbootStableHashTest(cros_test_lib.TempDirTestCase):
         content = "[signer]\nvboot_stable_hash = %s" % self.hash
         osutils.WriteFile(self.config_file, content)
 
-    def testValidConfigRead(self):
+    def testValidConfigRead(self) -> None:
         """Test successful read from valid file."""
         result = signing.GetDefaultVbootStableHash(config_file=self.config_file)
         self.assertEqual(self.hash, result)
 
-    def testInvalidConfigRead(self):
+    def testInvalidConfigRead(self) -> None:
         """Test reading non-existent file and no option."""
         # No file.
         self.assertIsNone(

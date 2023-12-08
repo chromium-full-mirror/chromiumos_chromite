@@ -22,7 +22,7 @@ from chromite.lib import path_util
 class CIPDTest(cros_test_lib.MockTestCase):
     """Tests for chromite.lib.cipd"""
 
-    def testDownloadCIPD(self):
+    def testDownloadCIPD(self) -> None:
         MockHttp = self.PatchObject(httplib2, "Http")
         first_body = b")]}'\n" + json.dumps(
             {
@@ -60,19 +60,19 @@ class CIPDTest(cros_test_lib.MockTestCase):
 class CipdCacheTest(cros_test_lib.MockTempDirTestCase):
     """Tests for CipdCache helper."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.download_mock = self.PatchObject(
             cipd, "_DownloadCIPD", return_value=b"data"
         )
 
-    def testFetch(self):
+    def testFetch(self) -> None:
         """Check CipdCache._Fetch behavior."""
         cache = cipd.CipdCache(self.tempdir)
         ref = cache.Lookup(("1234",))
         ref.SetDefault("cipd://1234")
         self.assertEqual("data", osutils.ReadFile(ref.path))
 
-    def testGetCIPDFromCache(self):
+    def testGetCIPDFromCache(self) -> None:
         """Check GetCIPDFromCache behavior."""
         self.PatchObject(path_util, "GetCacheDir", return_value=self.tempdir)
         path = cipd.GetCIPDFromCache()

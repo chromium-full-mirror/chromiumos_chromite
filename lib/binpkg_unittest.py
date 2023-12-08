@@ -26,7 +26,7 @@ DEBUG_SYMBOLS: yes
 class FetchTarballsTest(cros_test_lib.MockTempDirTestCase):
     """Tests for GSContext that go over the network."""
 
-    def testFetchFakePackages(self):
+    def testFetchFakePackages(self) -> None:
         """Pretend to fetch binary packages."""
         gs_mock = self.StartPatcher(gs_unittest.GSContextMock())
         gs_mock.SetDefaultCmdResult()
@@ -42,7 +42,7 @@ PATH boo/baz.tbz2
         binpkg.FetchTarballs([uri], self.tempdir)
 
     @cros_test_lib.pytestmark_network_test
-    def testFetchRealPackages(self):
+    def testFetchRealPackages(self) -> None:
         """Actually fetch a real binhost from the network."""
         # pylint: disable=line-too-long
         uri = "gs://chromeos-prebuilt/board/lumpy/paladin-R37-5905.0.0-rc2/packages"
@@ -53,7 +53,7 @@ PATH boo/baz.tbz2
 class DebugSymbolsTest(cros_test_lib.TempDirTestCase):
     """Tests for the debug symbols handling in binpkg."""
 
-    def testDebugSymbolsDetected(self):
+    def testDebugSymbolsDetected(self) -> None:
         """When generating the Packages file, DEBUG_SYMBOLS is updated."""
         osutils.WriteFile(
             os.path.join(
@@ -77,7 +77,7 @@ class DebugSymbolsTest(cros_test_lib.TempDirTestCase):
 class PackageIndexTest(cros_test_lib.TempDirTestCase):
     """Package index tests."""
 
-    def testReadWrite(self):
+    def testReadWrite(self) -> None:
         """Sanity check that the read and write method work properly."""
         packages1 = os.path.join(self.tempdir, "Packages1")
         packages2 = os.path.join(self.tempdir, "Packages2")
@@ -136,7 +136,7 @@ class PackageIndexInfoTest(cros_test_lib.TestCase):
             location=location,
         )
 
-    def testEquality(self):
+    def testEquality(self) -> None:
         """Test that equality checks work."""
         info = self._make_instance("SHA5", 5, "target", "profile", "LOCATION")
         self.assertEqual(

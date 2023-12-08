@@ -12,7 +12,7 @@ from chromite.lib import remoteexec_lib
 class TestLogArchiver(cros_test_lib.RunCommandTempDirTestCase):
     """Tests for remoteexec_lib."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.src_dir = self.tempdir / "src_dir"
         self.dest_dir = self.tempdir / "dest_dir"
 
@@ -22,14 +22,14 @@ class TestLogArchiver(cros_test_lib.RunCommandTempDirTestCase):
         self.archiver = remoteexec_lib.LogsArchiver(self.dest_dir)
         self.archiver.src_dir_for_testing = self.src_dir
 
-    def _create_file(self, package_name: str, filename: str):
+    def _create_file(self, package_name: str, filename: str) -> None:
         osutils.WriteFile(
             self.src_dir / f"reclient-{package_name}" / filename,
             f"Package: {package_name}\nFile: {filename}",
             makedirs=True,
         )
 
-    def testArchiveFiles(self):
+    def testArchiveFiles(self) -> None:
         """Test LogArchiver.Archive() method."""
         self._create_file("chromeos-chrome", "test.INFO.log")
         self._create_file("chromeos-chrome", "test.INFO")

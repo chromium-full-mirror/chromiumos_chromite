@@ -209,7 +209,7 @@ def WriteConfigFile(
     use_cache=True,
     managed=True,
     git_cache_dir=None,
-):
+) -> None:
     """Initialize the specified directory as a gclient checkout.
 
     For gclient documentation, see:
@@ -244,7 +244,7 @@ def WriteConfigFile(
     cros_build_lib.run(cmd, cwd=cwd)
 
 
-def Revert(gclient, cwd):
+def Revert(gclient, cwd) -> None:
     """Revert all local changes.
 
     Args:

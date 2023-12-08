@@ -76,7 +76,7 @@ def create_sysroot_tarball(
 
 def sysroot_tarball_setup_checks(
     packages: Iterable[str], board_build_dir: Path
-):
+) -> None:
     """Check that we can bundle the necessary packages for a sysroot.
 
     Args:
@@ -121,7 +121,7 @@ def create_dut_sysroot(
     device: remote_access.ChromiumOSDevice,
     sysroot_tarball: Path,
     sysroot_device_path: Path,
-):
+) -> None:
     """Create a sysroot on a device using a sysroot tarball.
 
     Args:
@@ -183,12 +183,12 @@ def _sysroot_mount_context(
     if sysroot_device_path == Path("/"):
         raise ValueError("sysroot_device_path should never be the root dir")
 
-    def _mount(flags, dirname: str):
+    def _mount(flags, dirname: str) -> None:
         mount_target = str(sysroot_device_path / dirname)
         device.mkdir(mount_target)
         device.run(["mount"] + flags + [f"/{dirname}", mount_target])
 
-    def _umount(dirname: str):
+    def _umount(dirname: str) -> None:
         mount_target = str(sysroot_device_path / dirname)
         # Lazily umount, because the mounts may be busy.
         device.run(["umount", "-l", mount_target])
@@ -207,7 +207,7 @@ def run_fuzzer_executable(
     sysroot_device_path: Path,
     sysroot_fuzzer_path: Path,
     libfuzzer_options: Optional[Dict[str, Any]] = None,
-):
+) -> None:
     """Run a fuzzer on a device with an already set-up sysroot.
 
     Args:

@@ -11,7 +11,7 @@ from chromite.lib.paygen import gspaths
 class GsPathsDataTest(cros_test_lib.TestCase):
     """Tests for structs defined in GsPaths."""
 
-    def testBuild(self):
+    def testBuild(self) -> None:
         default_input = {
             "channel": "foo-channel",
             "board": "board-name",
@@ -111,7 +111,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
         )
     )
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Shared attributes (signed + unsigned images).
         self.bucket = "crt"
         self.channel = "foo-channel"
@@ -208,19 +208,19 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
 
         return self._Populate(template, **kwargs)
 
-    def testBuildUri(self):
+    def testBuildUri(self) -> None:
         self.assertEqual(
             gspaths.ChromeosReleases.BuildUri(self.build),
             self._PopulateGsPath(self._GS_BUILD_PATH_TEMPLATE),
         )
 
-    def testBuildPayloadsUri(self):
+    def testBuildPayloadsUri(self) -> None:
         self.assertEqual(
             gspaths.ChromeosReleases.BuildPayloadsUri(self.build),
             self._PopulateGsPath(self._GS_PAYLOADS_PATH_TEMPLATE),
         )
 
-    def testBuildPayloadsSigningUri(self):
+    def testBuildPayloadsSigningUri(self) -> None:
         self.assertEqual(
             gspaths.ChromeosReleases.BuildPayloadsSigningUri(self.build),
             self._PopulateGsPath(self._GS_PAYLOADS_SIGNING_PATH_TEMPLATE),
@@ -235,7 +235,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
             ),
         )
 
-    def testImageName(self):
+    def testImageName(self) -> None:
         self.assertEqual(
             gspaths.ChromeosReleases.ImageName(
                 self.channel,
@@ -247,10 +247,10 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
             self._Populate(self._IMAGE_NAME_TEMPLATE),
         )
 
-    def testDLCImageName(self):
+    def testDLCImageName(self) -> None:
         self.assertEqual(gspaths.ChromeosReleases.DLCImageName(), "dlc.img")
 
-    def testDLCImageUri(self):
+    def testDLCImageUri(self) -> None:
         self.assertEqual(
             gspaths.ChromeosReleases.DLCImageUri(
                 self.build, "termina-dlc", "package", "dlc.img"
@@ -259,7 +259,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
             "dlc.img",
         )
 
-    def testUnsignedImageArchiveName(self):
+    def testUnsignedImageArchiveName(self) -> None:
         self.assertEqual(
             gspaths.ChromeosReleases.UnsignedImageArchiveName(
                 self.board,
@@ -270,7 +270,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
             self._Populate(self._UNSIGNED_IMAGE_ARCHIVE_NAME_TEMPLATE),
         )
 
-    def testImageUri(self):
+    def testImageUri(self) -> None:
         self.assertEqual(
             gspaths.ChromeosReleases.ImageUri(
                 self.build, self.key, self.signed_image_type
@@ -278,7 +278,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
             self._Populate(self._GS_IMAGE_PATH_TEMPLATE),
         )
 
-    def testUnsignedImageUri(self):
+    def testUnsignedImageUri(self) -> None:
         self.assertEqual(
             gspaths.ChromeosReleases.UnsignedImageUri(
                 self.build, self.milestone, self.unsigned_image_type
@@ -293,7 +293,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
             (version_part[0], str(int(version_part[2]) + inc_amount))
         )
 
-    def testParseImageUri(self):
+    def testParseImageUri(self) -> None:
         npo_version = self._IncrementVersion(self.version)
         npo_channel = "nplusone-channel"
 
@@ -395,7 +395,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
         )
         self.assertEqual(bad_minios_image, None)
 
-    def testParseDLCImageUri(self):
+    def testParseDLCImageUri(self) -> None:
         image_uri = (
             "gs://chromeos-releases/foo-channel/board-name/1.2.3/dlc/"
             "%s/%s/%s"
@@ -415,7 +415,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
         )
         self.assertEqual(dlc_image, expected_dlc_image)
 
-    def testDLCImageString(self):
+    def testDLCImageString(self) -> None:
         dlc_image_str = ("%s/%s/%s") % (
             self.dlc_id,
             self.dlc_package,
@@ -434,7 +434,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
         )
         self.assertEqual(str(dlc_image), dlc_image_str)
 
-    def testParseUnsignedImageUri(self):
+    def testParseUnsignedImageUri(self) -> None:
         attr_dict = dict(self.unsigned_image_archive_attrs)
         attr_dict["uri"] = uri = (
             self._GS_UNSIGNED_IMAGE_ARCHIVE_PATH_TEMPLATE % attr_dict
@@ -471,7 +471,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
         self.assertEqual(minios_image, expected_minios)
         self.assertTrue(expected_str in str(image))
 
-    def testPayloadNamePreset(self):
+    def testPayloadNamePreset(self) -> None:
         full = gspaths.ChromeosReleases.PayloadName(
             channel=self.channel,
             board=self.board,
@@ -519,7 +519,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
             self._Populate(self._UNSIGNED_DELTA_PAYLOAD_NAME_TEMPLATE),
         )
 
-    def testPayloadNameRandom(self):
+    def testPayloadNameRandom(self) -> None:
         full = gspaths.ChromeosReleases.PayloadName(
             channel=self.channel,
             board=self.board,
@@ -552,7 +552,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
             ),
         )
 
-    def testPayloadDLC(self):
+    def testPayloadDLC(self) -> None:
         full = gspaths.ChromeosReleases.DLCPayloadName(
             channel=self.channel,
             board=self.board,
@@ -571,7 +571,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
             ),
         )
 
-    def testPayloadMiniOS(self):
+    def testPayloadMiniOS(self) -> None:
         full = gspaths.ChromeosReleases.MiniOSPayloadName(
             channel=self.channel,
             board=self.board,
@@ -596,7 +596,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
             delta, self._Populate(self._DELTA_MINIOS_PAYLOAD_NAME_TEMPLATE)
         )
 
-    def testPayloadUri(self):
+    def testPayloadUri(self) -> None:
         test_random_channel = "test_random_channel"
         test_max_version = "4.5.6"
         test_min_version = "0.12.1.0"
@@ -680,7 +680,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
             ),
         )
 
-    def testParsePayloadUri(self):
+    def testParsePayloadUri(self) -> None:
         """Test gsutils.ChromeosReleases.ParsePayloadUri()."""
 
         image_version = "1.2.4"
@@ -767,7 +767,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
             ),
         )
 
-    def testBuildValuesFromUri(self):
+    def testBuildValuesFromUri(self) -> None:
         """Tests BuildValuesFromUri"""
 
         exp = (
@@ -805,7 +805,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
 class GsPathsTest(cros_test_lib.TestCase):
     """Test general gspaths utilities."""
 
-    def testVersionKey(self):
+    def testVersionKey(self) -> None:
         """Test VersionKey, especially for new-style versus old-style."""
 
         values = [
@@ -842,7 +842,7 @@ class GsPathsTest(cros_test_lib.TestCase):
         self.assertEqual(sorted_values, expected_values)
         self.assertEqual(reverse_sorted_values, expected_values)
 
-    def testVersionGreater(self):
+    def testVersionGreater(self) -> None:
         """Test VersionGreater, especially for new-style versus old-style."""
 
         self.assertTrue(gspaths.VersionGreater("1.2.3", "1.2.2"))
@@ -873,13 +873,13 @@ class GsPathsTest(cros_test_lib.TestCase):
         self.assertFalse(gspaths.VersionGreater("1.2.3.4", "1.2.3"))
         self.assertFalse(gspaths.VersionGreater("0.1.2.3", "1.2.3"))
 
-    def testIsImage(self):
+    def testIsImage(self) -> None:
         a = float(3.14)
         self.assertFalse(gspaths.IsImage(a))
         b = gspaths.Image()
         self.assertTrue(gspaths.IsImage(b))
 
-    def testIsUnsignedImageArchive(self):
+    def testIsUnsignedImageArchive(self) -> None:
         a = float(3.14)
         self.assertFalse(gspaths.IsUnsignedImageArchive(a))
         b = gspaths.UnsignedImageArchive()
@@ -889,7 +889,7 @@ class GsPathsTest(cros_test_lib.TestCase):
 class ImageTest(cros_test_lib.TestCase):
     """Test Image class implementation."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.build = gspaths.Build(
             bucket="crt",
             channel="foo-channel",
@@ -897,11 +897,11 @@ class ImageTest(cros_test_lib.TestCase):
             version="1.2.3",
         )
 
-    def testImage_DefaultImageType(self):
+    def testImage_DefaultImageType(self) -> None:
         default_image = gspaths.Image(build=self.build)
         self.assertEqual("recovery", default_image.image_type)
 
-    def testImage_CustomImageType(self):
+    def testImage_CustomImageType(self) -> None:
         custom_image_type = "base"
         custom_image = gspaths.Image(
             build=self.build, image_type=custom_image_type

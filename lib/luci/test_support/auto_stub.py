@@ -28,7 +28,7 @@ class AutoStubMixIn:
         setattr(obj, member, mock)
         return old_value
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Restore all the mocked members."""
         if self._saved:
             for obj, items in self._saved.items():
@@ -58,10 +58,10 @@ class SimpleMock:
         self.calls = []
         return calls
 
-    def check_calls(self, expected):
+    def check_calls(self, expected) -> None:
         self.assertEqual(expected, self.pop_calls())
 
-    def _register_call(self, *args, **kwargs):
+    def _register_call(self, *args, **kwargs) -> None:
         """Registers the name of the caller function."""
         caller_name = kwargs.pop("caller_name", None) or inspect.stack()[1][3]
         str_args = ", ".join(repr(arg) for arg in args)
@@ -75,7 +75,7 @@ class SimpleMock:
 class TestCase(unittest.TestCase, AutoStubMixIn):
     """Adds self.mock() and self.has_failed() to a TestCase."""
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         AutoStubMixIn.tearDown(self)
         unittest.TestCase.tearDown(self)
 

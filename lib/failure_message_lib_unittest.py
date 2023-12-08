@@ -103,7 +103,7 @@ class StageFailureHelper:
 class StageFailureTests(cros_test_lib.TestCase):
     """Tests for StageFailure."""
 
-    def testGetStageFailureFromMessage(self):
+    def testGetStageFailureFromMessage(self) -> None:
         """Test GetStageFailureFromMessage."""
         failure_message = FailureMessageHelper.GetStageFailureMessage()
         stage_failure = (
@@ -273,13 +273,13 @@ class FailureMessageHelper:
 class StageFailureMessageTests(cros_test_lib.TestCase):
     """Tests for StageFailureMessage."""
 
-    def testDecodeExtraInfoWithNoneExtraInfo(self):
+    def testDecodeExtraInfoWithNoneExtraInfo(self) -> None:
         """Test _DecodeExtraInfo with None extra_info."""
         failure_message = FailureMessageHelper.GetStageFailureMessage()
 
         self.assertEqual(failure_message.extra_info, {})
 
-    def testDecodeExtraInfoWithNoneValidExtraInfo(self):
+    def testDecodeExtraInfoWithNoneValidExtraInfo(self) -> None:
         """Test _DecodeExtraInfo with valid extra_info."""
         failure_message = FailureMessageHelper.GetStageFailureMessage(
             extra_info=DEFAULT_BUILD_SCRIPT_FAILURE_EXTRA_INFO
@@ -289,7 +289,7 @@ class StageFailureMessageTests(cros_test_lib.TestCase):
             failure_message.extra_info["shortname"], "security_test_image"
         )
 
-    def testDecodeExtraInfoWithNoneInvalidExtraInfo(self):
+    def testDecodeExtraInfoWithNoneInvalidExtraInfo(self) -> None:
         """Test _DecodeExtraInfo with invalid extra_info."""
         failure_message = FailureMessageHelper.GetStageFailureMessage(
             extra_info='{"shortname": "security_test_image"'
@@ -297,7 +297,7 @@ class StageFailureMessageTests(cros_test_lib.TestCase):
 
         self.assertEqual(failure_message.extra_info, {})
 
-    def testExtractStagePrefixName(self):
+    def testExtractStagePrefixName(self) -> None:
         """Test _ExtractStagePrefixName."""
         prefix_name_map = {
             "HWTest [bvt-arc]": "HWTest",
@@ -318,7 +318,7 @@ class StageFailureMessageTests(cros_test_lib.TestCase):
 class BuildScriptFailureMessageTests(cros_test_lib.TestCase):
     """Tests for BuildScriptFailureMessage."""
 
-    def testGetShortname(self):
+    def testGetShortname(self) -> None:
         """Test GetShortname."""
         failure_message = FailureMessageHelper.GetBuildScriptFailureMessage()
 
@@ -328,13 +328,13 @@ class BuildScriptFailureMessageTests(cros_test_lib.TestCase):
 class PackageBuildFailureMessageTests(cros_test_lib.TestCase):
     """Tests for PackageBuildFailureMessage."""
 
-    def testGetShortname(self):
+    def testGetShortname(self) -> None:
         """Test GetShortname."""
         failure_message = FailureMessageHelper.GetPackageBuildFailureMessage()
 
         self.assertEqual(failure_message.GetShortname(), "build_image")
 
-    def testGetFailedPackages(self):
+    def testGetFailedPackages(self) -> None:
         """Test GetFailedPackages."""
         failure_message = FailureMessageHelper.GetPackageBuildFailureMessage()
 
@@ -347,7 +347,7 @@ class PackageBuildFailureMessageTests(cros_test_lib.TestCase):
 class CompoundFailureMessageTests(cros_test_lib.TestCase):
     """Tests for CompoundFailureMessage."""
 
-    def testGetCompoundFailureMessage(self):
+    def testGetCompoundFailureMessage(self) -> None:
         """Test GetCompoundFailureMessage."""
         failure_message = FailureMessageHelper.GetPackageBuildFailureMessage()
         new_failure_message = (
@@ -357,7 +357,7 @@ class CompoundFailureMessageTests(cros_test_lib.TestCase):
         )
         self.assertEqual(new_failure_message.inner_failures, [])
 
-    def testHasEmptyList(self):
+    def testHasEmptyList(self) -> None:
         """Test HasEmptyList."""
         failure_message = FailureMessageHelper.GetCompoundFailureMessage()
         self.assertTrue(failure_message.HasEmptyList())
@@ -367,7 +367,7 @@ class CompoundFailureMessageTests(cros_test_lib.TestCase):
         )
         self.assertFalse(failure_message.HasEmptyList())
 
-    def testHasExceptionCategories(self):
+    def testHasExceptionCategories(self) -> None:
         """Test HasExceptionCategories."""
         failure_message = FailureMessageHelper.GetCompoundFailureMessage()
         self.assertFalse(
@@ -398,7 +398,7 @@ class CompoundFailureMessageTests(cros_test_lib.TestCase):
             )
         )
 
-    def testMatchesExceptionCategories(self):
+    def testMatchesExceptionCategories(self) -> None:
         """Test MatchesExceptionCategories."""
         failure_message = FailureMessageHelper.GetCompoundFailureMessage()
         self.assertFalse(
@@ -447,7 +447,7 @@ class CompoundFailureMessageTests(cros_test_lib.TestCase):
 class FailureMessageManagerTests(cros_test_lib.TestCase):
     """Tests for FailureMessageManager."""
 
-    def testCreateMessageForBuildScriptFailureMessage(self):
+    def testCreateMessageForBuildScriptFailureMessage(self) -> None:
         """Test CreateMessage for BuildScriptFailureMessage."""
         stage_failure = StageFailureHelper.GetStageFailure(
             1,
@@ -469,7 +469,7 @@ class FailureMessageManagerTests(cros_test_lib.TestCase):
             failure_message, failure_message_lib.BuildScriptFailureMessage
         )
 
-    def testCreateMessageForPackageBuildFailureMessage(self):
+    def testCreateMessageForPackageBuildFailureMessage(self) -> None:
         """Test CreateMessage for PackageBuildFailureMessage."""
         stage_failure = StageFailureHelper.GetStageFailure(
             1,
@@ -491,7 +491,7 @@ class FailureMessageManagerTests(cros_test_lib.TestCase):
             failure_message, failure_message_lib.PackageBuildFailureMessage
         )
 
-    def testCreateMessageForStageFailureMessage(self):
+    def testCreateMessageForStageFailureMessage(self) -> None:
         """Test CreateMessage for StageFailureMessage."""
         stage_failure = StageFailureHelper.GetStageFailure(
             1, 1, None, "TestFailure", "exception msg", "build", None, "VMTest"
@@ -506,7 +506,7 @@ class FailureMessageManagerTests(cros_test_lib.TestCase):
             failure_message, failure_message_lib.StageFailureMessage
         )
 
-    def testReconstructMessagesOnMixedMsgs(self):
+    def testReconstructMessagesOnMixedMsgs(self) -> None:
         """Test ReconstructMessages on mixed messages."""
         failures = FailureMessageHelper.GetBuildFailureMessageWithMixedMsgs()
 
@@ -523,7 +523,7 @@ class FailureMessageManagerTests(cros_test_lib.TestCase):
                 inner_failure_ids = [n_f.failure_id for n_f in inner_failures]
                 self.assertCountEqual([1, 2, 3], inner_failure_ids)
 
-    def testReconstructMessagesOnEmptyMsgs(self):
+    def testReconstructMessagesOnEmptyMsgs(self) -> None:
         """Test ReconstructMessages on empty messages."""
         failures = (
             failure_message_lib.FailureMessageManager.ReconstructMessages([])
@@ -531,7 +531,7 @@ class FailureMessageManagerTests(cros_test_lib.TestCase):
 
         self.assertEqual(failures, [])
 
-    def testConstructStageFailureMessagesOnNonCompoundFailures(self):
+    def testConstructStageFailureMessagesOnNonCompoundFailures(self) -> None:
         """Test ConstructStageFailureMessages on non-compound failures."""
         entry_1 = StageFailureHelper.GetStageFailure(failure_id=1)
         entry_2 = StageFailureHelper.GetStageFailure(failure_id=2)
@@ -548,7 +548,7 @@ class FailureMessageManagerTests(cros_test_lib.TestCase):
         failure_ids = [f.failure_id for f in failures]
         self.assertCountEqual(failure_ids, [1, 2, 3])
 
-    def testConstructStageFailureMessagesOnCompoundFailures(self):
+    def testConstructStageFailureMessagesOnCompoundFailures(self) -> None:
         """Test ConstructStageFailureMessages on compound failures."""
         entry_1 = StageFailureHelper.GetStageFailure(failure_id=1)
         entry_2 = StageFailureHelper.GetStageFailure(

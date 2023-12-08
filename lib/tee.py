@@ -32,7 +32,7 @@ class ToldToDie(Exception):
         Exception.__init__(self, f"We received signal {signum}")
 
 
-def _TeeProcessSignalHandler(signum, _frame):
+def _TeeProcessSignalHandler(signum, _frame) -> None:
     """TeeProcess custom signal handler.
 
     This is used to decide whether to kill our parent.
@@ -40,7 +40,7 @@ def _TeeProcessSignalHandler(signum, _frame):
     raise ToldToDie(signum)
 
 
-def _output(line, output_files, complain):
+def _output(line, output_files, complain) -> None:
     """Print line to output_files.
 
     Args:
@@ -73,7 +73,7 @@ def _output(line, output_files, complain):
                 _output(warning, output_files, False)
 
 
-def _tee(input_fd, output_files, complain):
+def _tee(input_fd, output_files, complain) -> None:
     """Read data from |input_fd| and write to |output_files|."""
     while True:
         # We need to use os.read() directly because it will return to us when
@@ -112,7 +112,7 @@ class _TeeProcess(multiprocessing.Process):
         self.master_pid = master_pid
         multiprocessing.Process.__init__(self)
 
-    def _CloseUnnecessaryFds(self):
+    def _CloseUnnecessaryFds(self) -> None:
         # For python2 we were relying on subprocess.MAXFD but that does not
         # exist in python3. However, the calculation below is how it was being
         # computed.
@@ -136,7 +136,7 @@ class _TeeProcess(multiprocessing.Process):
                 fd = current_low
             fd += 1
 
-    def run(self):
+    def run(self) -> None:
         """Main function for tee subprocess."""
         failed = True
         input_fd = None
@@ -206,7 +206,7 @@ class Tee(cros_build_lib.PrimaryPidContextManager):
         self._old_stderr_fd = None
         self._tee = None
 
-    def start(self):
+    def start(self) -> None:
         """Start tee-ing all stdout and stderr output to the file."""
         # Flush and save old file descriptors.
         sys.stdout.flush()
@@ -236,7 +236,7 @@ class Tee(cros_build_lib.PrimaryPidContextManager):
         os.dup2(writer_pipe, sys.stderr.fileno())
         os.close(writer_pipe)
 
-    def stop(self):
+    def stop(self) -> None:
         """Restore old stdout/stderr handles and wait for tee proc to exit."""
         # Close unbuffered std[out|err] file objects, as well as the tee's
         # stdin.
@@ -254,10 +254,10 @@ class Tee(cros_build_lib.PrimaryPidContextManager):
         os.close(self._old_stderr_fd)
         self._tee.join()
 
-    def _enter(self):
+    def _enter(self) -> None:
         self.start()
 
-    def _exit(self, exc_type, exc, exc_tb):
+    def _exit(self, exc_type, exc, exc_tb) -> None:
         try:
             self.stop()
         finally:
