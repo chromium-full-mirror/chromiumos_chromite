@@ -67,7 +67,7 @@ Quoting can be tricky; the rules are the same as with ssh:
         self.command = None
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Adds a parser."""
         super(cls, ShellCommand).AddParser(parser)
         cls.AddDeviceArgument(parser, positional=True)
@@ -95,7 +95,7 @@ Quoting can be tricky; the rules are the same as with ssh:
             help="(optional) Command to execute on the device.",
         )
 
-    def _ReadOptions(self):
+    def _ReadOptions(self) -> None:
         """Processes options and set variables."""
         self.ssh_hostname = self.options.device.hostname
         self.ssh_username = self.options.device.username

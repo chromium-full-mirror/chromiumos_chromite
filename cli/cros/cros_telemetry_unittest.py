@@ -26,7 +26,7 @@ class MockTelemetryCommand(command_unittest.MockCommand):
 class TelemetryCommandTest(cros_test_lib.MockTempDirTestCase):
     """Test class for our TelemetryCommand class."""
 
-    def testEnableTelemetry(self):
+    def testEnableTelemetry(self) -> None:
         """Test that telemetry is marked as enabled in cfg."""
 
         file = self.tempdir / "telemetry.cfg"
@@ -42,7 +42,7 @@ class TelemetryCommandTest(cros_test_lib.MockTempDirTestCase):
         self.assertTrue(cfg.trace_config.enabled)
         self.assertEqual("USER", cfg.trace_config.enabled_reason)
 
-    def testDisableTelemetry(self):
+    def testDisableTelemetry(self) -> None:
         """Test that telemetry is marked as disabled in cfg."""
 
         file = self.tempdir / "telemetry.cfg"

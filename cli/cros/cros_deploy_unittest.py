@@ -36,14 +36,14 @@ class CrosDeployTest(
     DEVICE = remote_access.TEST_IP
     PACKAGES = ["foo", "bar"]
 
-    def SetupCommandMock(self, cmd_args):
+    def SetupCommandMock(self, cmd_args) -> None:
         """Setup comand mock."""
         self.cmd_mock = MockDeployCommand(
             cmd_args, base_args=["--cache-dir", str(self.tempdir)]
         )
         self.StartPatcher(self.cmd_mock)
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Patches objects."""
         self.cmd_mock = None
         self.deploy_mock = self.PatchObject(deploy, "Deploy", autospec=True)
@@ -51,7 +51,7 @@ class CrosDeployTest(
             commandline, "RunInsideChroot", autospec=True
         )
 
-    def VerifyDeployParameters(self, device, packages, **kwargs):
+    def VerifyDeployParameters(self, device, packages, **kwargs) -> None:
         """Verifies the arguments passed to Deployer.Run().
 
         This function helps verify that command line specifications are
@@ -87,14 +87,14 @@ class CrosDeployTest(
         expected_kwargs.update(kwargs)
         self.assertDictEqual(expected_kwargs, deploy_kwargs)
 
-    def testDefaults(self):
+    def testDefaults(self) -> None:
         """Tests `cros deploy` default values."""
         self.SetupCommandMock([self.DEVICE] + self.PACKAGES)
         self.cmd_mock.inst.Run()
         self.assertTrue(self.run_inside_chroot_mock.called)
         self.VerifyDeployParameters(self.DEVICE, self.PACKAGES)
 
-    def testDeployError(self):
+    def testDeployError(self) -> None:
         """Tests that DeployErrors are passed through."""
         with self.OutputCapturer():
             self.SetupCommandMock([self.DEVICE] + self.PACKAGES)

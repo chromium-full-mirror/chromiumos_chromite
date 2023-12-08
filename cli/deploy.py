@@ -107,7 +107,7 @@ class BrilloDeployOperation(operation.ProgressBarOperation):
         self._total = len(self._events)
         self._completed = 0
 
-    def ParseOutput(self, output=None):
+    def ParseOutput(self, output=None) -> None:
         """Parse the output of brillo deploy to update a progress bar."""
         stdout = self._stdout.read()
         stderr = self._stderr.read()
@@ -1409,7 +1409,7 @@ def _DeployDLCImage(
     board: str,
     dlc_id: str,
     dlc_package: str,
-):
+) -> None:
     """Deploy (install and mount) a DLC image.
 
     Args:

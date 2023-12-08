@@ -46,7 +46,7 @@ Examples:
 """
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Add parser arguments."""
         super(FwgetCommand, cls).AddParser(parser)
         parser.add_argument(
@@ -70,7 +70,7 @@ Examples:
             ),
         )
 
-    def Run(self):
+    def Run(self) -> None:
         """Downloads the firmware archive and extract its contents to path"""
         # Exits early if chip is defined, but not supported
         chip = (

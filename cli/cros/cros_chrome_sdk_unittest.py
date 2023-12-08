@@ -50,7 +50,7 @@ class MockChromeSDKCommand(command_unittest.MockCommand):
 class ParserTest(cros_test_lib.MockTempDirTestCase):
     """Test the parser."""
 
-    def testNormal(self):
+    def testNormal(self) -> None:
         """Tests that our example parser works normally."""
         with MockChromeSDKCommand(
             ["--board", SDKFetcherMock.BOARD],
@@ -61,7 +61,7 @@ class ParserTest(cros_test_lib.MockTempDirTestCase):
                 bootstrap.inst.options.cache_dir, str(self.tempdir)
             )
 
-    def testVersion(self):
+    def testVersion(self) -> None:
         """Tests that a platform version is allowed."""
         VERSION = "1234.0.0"
         with MockChromeSDKCommand(
@@ -69,7 +69,7 @@ class ParserTest(cros_test_lib.MockTempDirTestCase):
         ) as parser:
             self.assertEqual(parser.inst.options.version, VERSION)
 
-    def testFullVersion(self):
+    def testFullVersion(self) -> None:
         """Tests that a full version is allowed."""
         FULL_VERSION = "R56-1234.0.0"
         with MockChromeSDKCommand(
@@ -78,7 +78,7 @@ class ParserTest(cros_test_lib.MockTempDirTestCase):
             self.assertEqual(parser.inst.options.version, FULL_VERSION)
 
 
-def _GSCopyMock(_self, path, dest, **_kwargs):
+def _GSCopyMock(_self, path, dest, **_kwargs) -> None:
     """Used to simulate a GS Copy operation."""
     with osutils.TempDir() as tempdir:
         local_path = os.path.join(tempdir, os.path.basename(path))
@@ -176,7 +176,7 @@ class SDKFetcherMock(partial_mock.PartialMock):
         self.tarball_fetch_lock = threading.Lock()
 
     @_DependencyMockCtx
-    def _target__init__(self, inst, *args, **kwargs):
+    def _target__init__(self, inst, *args, **kwargs) -> None:
         self.backup["__init__"](inst, *args, **kwargs)
         if not inst.cache_base.startswith("/tmp"):
             raise AssertionError(
@@ -271,7 +271,7 @@ class RunThroughTest(
 
     def SetupCommandMock(
         self, many_boards=False, extra_args=None, default_cache_dir=False
-    ):
+    ) -> None:
         cmd_args = ["--chrome-src", self.chrome_src_dir, "true"]
         if many_boards:
             cmd_args += [
@@ -301,7 +301,7 @@ class RunThroughTest(
             return copy.deepcopy(self.FAKE_ENV)
         return {}
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc_mock = cros_test_lib.RunCommandMock()
         self.rc_mock.SetDefaultCmdResult()
         self.StartPatcher(self.rc_mock)
@@ -342,7 +342,7 @@ class RunThroughTest(
     def cache(self):
         return self.cmd_mock.inst.sdk.tarball_cache
 
-    def testIt(self):
+    def testIt(self) -> None:
         """Test a runthrough of the script."""
         self.PatchObject(
             cros_chrome_sdk.ChromeSDKCommand, "_GomaDir", side_effect=["XXXX"]
@@ -352,7 +352,7 @@ class RunThroughTest(
             self.cmd_mock.inst.Run()
             self.AssertLogsContain(logs, "Goma:", inverted=True)
 
-    def testManyBoards(self):
+    def testManyBoards(self) -> None:
         """Test a runthrough when multiple boards are specified via --boards."""
         self.SetupCommandMock(many_boards=True)
         self.cmd_mock.inst.ProcessOptions(
@@ -370,7 +370,7 @@ class RunThroughTest(
             )
             self.assertNotExists(board_crostoolchain_arg_file)
 
-    def testManyBoardsLacros(self):
+    def testManyBoardsLacros(self) -> None:
         """Test a runthrough when multiple boards are specified via --boards."""
         self.SetupCommandMock(
             many_boards=True, extra_args=["--is-lacros", "--version=1234.0.0"]
@@ -398,7 +398,7 @@ class RunThroughTest(
             with open(board_crostoolchain_arg_file, encoding="utf-8") as f:
                 self.assertIn('cros_sdk_version = "5678.0.0"', f.read())
 
-    def testManyBoardsBrokenArgs(self):
+    def testManyBoardsBrokenArgs(self) -> None:
         """Tests that malformed args.gn files will be fixed in --boards."""
         self.SetupCommandMock(many_boards=True)
         for board in SDKFetcherMock.BOARDS:
@@ -418,7 +418,7 @@ class RunThroughTest(
             )
             self.assertTrue(osutils.ReadFile(gn_args_file).startswith("import"))
 
-    def testErrorCodePassthrough(self):
+    def testErrorCodePassthrough(self) -> None:
         """Test that error codes are passed through."""
         self.SetupCommandMock()
         with cros_test_lib.LoggingCapturer():
@@ -428,7 +428,7 @@ class RunThroughTest(
             returncode = self.cmd_mock.inst.Run()
             self.assertEqual(returncode, 5)
 
-    def testEmptyMetadata(self):
+    def testEmptyMetadata(self) -> None:
         """Tests the use of build_report.json when metadata.json is empty."""
         sdk_dir = os.path.join(self.tempdir, "sdk_dir")
         osutils.SafeMakedirs(sdk_dir)
@@ -441,7 +441,7 @@ class RunThroughTest(
         with cros_test_lib.LoggingCapturer():
             self.cmd_mock.inst.Run()
 
-    def testLocalSDKPath(self):
+    def testLocalSDKPath(self) -> None:
         """Fetch components from a local --sdk-path."""
         sdk_dir = os.path.join(self.tempdir, "sdk_dir")
         osutils.SafeMakedirs(sdk_dir)
@@ -457,7 +457,7 @@ class RunThroughTest(
         with cros_test_lib.LoggingCapturer():
             self.cmd_mock.inst.Run()
 
-    def testGomaError(self):
+    def testGomaError(self) -> None:
         """We print an error message when GomaError is raised."""
         self.SetupCommandMock()
         with cros_test_lib.LoggingCapturer() as logs:
@@ -469,7 +469,7 @@ class RunThroughTest(
             self.cmd_mock.inst.Run()
             self.AssertLogsContain(logs, "Goma:")
 
-    def testSpecificComponent(self):
+    def testSpecificComponent(self) -> None:
         """Verify SDKFetcher.Prepare() handles |components| param properly."""
         sdk = cros_chrome_sdk.SDKFetcher(
             os.path.join(self.tempdir), SDKFetcherMock.BOARD
@@ -488,7 +488,7 @@ class RunThroughTest(
                 return True
         return False
 
-    def testGomaInPath(self):
+    def testGomaInPath(self) -> None:
         """Verify that we do indeed add Goma to the PATH."""
         self.PatchObject(
             cros_chrome_sdk.ChromeSDKCommand, "_GomaDir", side_effect=["XXXX"]
@@ -498,14 +498,14 @@ class RunThroughTest(
 
         self.assertIn("use_goma = true", self.cmd_mock.env["GN_ARGS"])
 
-    def testNoGoma(self):
+    def testNoGoma(self) -> None:
         """Verify that we do not add Goma to the PATH."""
         self.SetupCommandMock(extra_args=["--nogoma"])
         self.cmd_mock.inst.Run()
 
         self.assertIn("use_goma = false", self.cmd_mock.env["GN_ARGS"])
 
-    def testUseRBE(self):
+    def testUseRBE(self) -> None:
         """Verify that we do not add Goma to the PATH."""
         self.SetupCommandMock(extra_args=["--use-remoteexec"])
         self.cmd_mock.inst.Run()
@@ -525,7 +525,7 @@ class RunThroughTest(
             self.cmd_mock.env["GN_ARGS"],
         )
 
-    def testUseRBELacros(self):
+    def testUseRBELacros(self) -> None:
         """Verify that we do not add Goma to the PATH."""
         self.SetupCommandMock(
             extra_args=["--use-remoteexec", "--is-lacros", "--version=1234.0.0"]
@@ -553,7 +553,7 @@ class RunThroughTest(
             self.cmd_mock.env["GN_ARGS"],
         )
 
-    def testGnArgsStalenessCheckNoMatch(self):
+    def testGnArgsStalenessCheckNoMatch(self) -> None:
         """Verifies the GN args are checked for staleness with a mismatch."""
         with cros_test_lib.LoggingCapturer() as logs:
             out_dir = "out_%s" % SDKFetcherMock.BOARD
@@ -570,7 +570,7 @@ class RunThroughTest(
 
             self.AssertLogsContain(logs, "Stale args.gn file")
 
-    def testGnArgsStalenessCheckMatch(self):
+    def testGnArgsStalenessCheckMatch(self) -> None:
         """Verifies the GN args are checked for staleness with a match."""
         with cros_test_lib.LoggingCapturer() as logs:
             self.SetupCommandMock()
@@ -590,7 +590,7 @@ class RunThroughTest(
 
             self.AssertLogsContain(logs, "Stale args.gn file", inverted=True)
 
-    def testGnArgsStalenessExtraArgs(self):
+    def testGnArgsStalenessExtraArgs(self) -> None:
         """Verifies the GN extra args regenerate gn."""
         with cros_test_lib.LoggingCapturer() as logs:
             self.SetupCommandMock(
@@ -615,7 +615,7 @@ class RunThroughTest(
 
             self.AssertLogsContain(logs, "Stale args.gn file", inverted=True)
 
-    def testChromiumOutDirSet(self):
+    def testChromiumOutDirSet(self) -> None:
         """Verify that CHROMIUM_OUT_DIR is set."""
         self.SetupCommandMock()
         self.cmd_mock.inst.Run()
@@ -627,7 +627,7 @@ class RunThroughTest(
         self.assertEqual(out_dir, self.cmd_mock.env["CHROMIUM_OUT_DIR"])
 
     @mock.patch("chromite.lib.gclient.LoadGclientFile")
-    def testInternalGclientSpec(self, mock_gclient_load):
+    def testInternalGclientSpec(self, mock_gclient_load) -> None:
         """Verify the SDK exits with an error if the gclient spec is wrong."""
         self.SetupCommandMock(extra_args=["--internal"])
 
@@ -654,7 +654,7 @@ class RunThroughTest(
         ]
         self.cmd_mock.inst.Run()
 
-    def testClearSDKCache(self):
+    def testClearSDKCache(self) -> None:
         """Verifies cache directories are removed with --clear-sdk-cache."""
         # Ensure we have checkout type GCLIENT.
         self.PatchObject(os, "getcwd", return_value=self.chrome_root)
@@ -669,7 +669,7 @@ class RunThroughTest(
         self.cmd_mock.inst.Run()
         self.assertExists(chrome_cache)
 
-    def testSeabiosDownload(self):
+    def testSeabiosDownload(self) -> None:
         """Verify _CreateSeabiosFWSymlinks.
 
         Create qemu/seabios directory structure with expected symlinks,
@@ -688,14 +688,14 @@ class RunThroughTest(
         for share_dir in ["qemu", "seabios", "seavgabios"]:
             os.makedirs(os.path.join(qemu_share, share_dir))
 
-        def _CreateLink(share, bios_dir, bios):
+        def _CreateLink(share, bios_dir, bios) -> None:
             src_file = os.path.join(share, bios_dir, bios)
             dest_file = os.path.join(share, "qemu", bios)
             osutils.Touch(src_file, makedirs=True)
             rel_path = os.path.relpath(src_file, os.path.dirname(dest_file))
             os.symlink(rel_path, dest_file)
 
-        def _VerifyLinks(broken):
+        def _VerifyLinks(broken) -> None:
             """Verfies that the links are |broken|."""
             qemu_share_dir = os.path.join(qemu_share, "qemu")
             for link in os.listdir(qemu_share_dir):
@@ -730,7 +730,7 @@ class RunThroughTest(
         self.cmd_mock.inst.Run()
         _VerifyLinks(broken=False)
 
-    def testSymlinkCache(self):
+    def testSymlinkCache(self) -> None:
         """Verify the symlink cache contains valid tarball cache links."""
         self.SetupCommandMock()
         self.cmd_mock.inst.Run()
@@ -760,7 +760,7 @@ class RunThroughTest(
         self.assertEqual(os.path.realpath(toolchain_link), toolchain_dir)
         self.assertEqual(os.path.realpath(sysroot_link), sysroot_dir)
 
-    def testSymlinkCacheToolchainOverride(self):
+    def testSymlinkCacheToolchainOverride(self) -> None:
         """Ensures that the SDK picks up an overridden component."""
         sdk = cros_chrome_sdk.SDKFetcher(
             os.path.join(self.tempdir), SDKFetcherMock.BOARD
@@ -819,7 +819,7 @@ class GomaTest(
 ):
     """Test Goma setup functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc_mock = cros_test_lib.RunCommandMock()
         self.rc_mock.SetDefaultCmdResult()
         self.StartPatcher(self.rc_mock)
@@ -830,33 +830,33 @@ class GomaTest(
         )
         self.StartPatcher(self.cmd_mock)
 
-    def VerifyGomaError(self):
+    def VerifyGomaError(self) -> None:
         self.assertRaises(
             cros_chrome_sdk.GomaError, self.cmd_mock.inst._SetupGoma
         )
 
-    def testNoGomaPort(self):
+    def testNoGomaPort(self) -> None:
         """We print an error when gomacc is not returning a port."""
         self.rc_mock.AddCmdResult(
             cros_chrome_sdk.ChromeSDKCommand.GOMACC_PORT_CMD
         )
         self.VerifyGomaError()
 
-    def testGomaccError(self):
+    def testGomaccError(self) -> None:
         """We print an error when gomacc exits with nonzero returncode."""
         self.rc_mock.AddCmdResult(
             cros_chrome_sdk.ChromeSDKCommand.GOMACC_PORT_CMD, returncode=1
         )
         self.VerifyGomaError()
 
-    def testSetupError(self):
+    def testSetupError(self) -> None:
         """We print an error when we can't fetch Goma."""
         self.rc_mock.AddCmdResult(
             cros_chrome_sdk.ChromeSDKCommand.GOMACC_PORT_CMD, returncode=1
         )
         self.VerifyGomaError()
 
-    def testGomaStart(self):
+    def testGomaStart(self) -> None:
         """Test that we start Goma if it's not already started."""
         # Duplicate return values.
         self.PatchObject(
@@ -893,7 +893,7 @@ class VersionTest(
     CAT_ERROR = "CommandException: No URLs matched %s" % VERSION_BASE
     LS_ERROR = "CommandException: One or more URLs matched no objects."
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.sdk_mock = self.StartPatcher(
             SDKFetcherMock(external_mocks=[self.gs_mock])
         )
@@ -903,7 +903,7 @@ class VersionTest(
             os.path.join(self.tempdir, "cache"), self.BOARD
         )
 
-    def testUpdateDefaultChromeVersion(self):
+    def testUpdateDefaultChromeVersion(self) -> None:
         """We pick up the right LKGM version from the Chrome tree."""
         dir_struct = ["gclient_root/.gclient"]
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, dir_struct)
@@ -920,7 +920,7 @@ class VersionTest(
         self.sdk.UpdateDefaultVersion()
         self.assertEqual(self.sdk.GetDefaultVersion(), self.VERSION)
 
-    def testFullVersionFromFullVersion(self):
+    def testFullVersionFromFullVersion(self) -> None:
         """Test that a fully specified version is allowed."""
         self.sdk_mock.UnMockAttr("GetFullVersion")
         self.gs_mock.AddCmdResult(
@@ -931,10 +931,10 @@ class VersionTest(
             self.FULL_VERSION, self.sdk.GetFullVersion(self.FULL_VERSION)
         )
 
-    def testFullVersionCaching(self):
+    def testFullVersionCaching(self) -> None:
         """Test full version calculation and caching."""
 
-        def RaiseException(*_args, **_kwargs):
+        def RaiseException(*_args, **_kwargs) -> None:
             raise Exception("boom")
 
         self.sdk_mock.UnMockAttr("GetFullVersion")
@@ -964,7 +964,7 @@ class VersionTest(
             self.FULL_VERSION + "2", self.sdk.GetFullVersion(self.VERSION)
         )
 
-    def testNoLatestVersion(self):
+    def testNoLatestVersion(self) -> None:
         """We raise an exception when there is no recent latest version."""
         self.sdk_mock.UnMockAttr("GetFullVersion")
         self.gs_mock.AddCmdResult(
@@ -983,13 +983,13 @@ class VersionTest(
             cros_chrome_sdk.MissingSDK, self.sdk.GetFullVersion, self.VERSION
         )
 
-    def testDefaultEnvBadBoard(self):
+    def testDefaultEnvBadBoard(self) -> None:
         """Verify skips version in the environment if board doesn't match."""
         os.environ[cros_chrome_sdk.SDKFetcher.SDK_VERSION_ENV] = self.VERSION
         self.assertNotEqual(self.VERSION, self.sdk_mock.VERSION)
         self.assertEqual(self.sdk.GetDefaultVersion(), None)
 
-    def testDefaultEnvGoodBoard(self):
+    def testDefaultEnvGoodBoard(self) -> None:
         """We use the version in the environment if board matches."""
         sdk_version_env = cros_chrome_sdk.SDKFetcher.SDK_VERSION_ENV
         os.environ[sdk_version_env] = self.VERSION
@@ -1002,7 +1002,7 @@ class PathVerifyTest(
 ):
     """Tests user_rc PATH validation and warnings."""
 
-    def testPathVerifyWarnings(self):
+    def testPathVerifyWarnings(self) -> None:
         """Test the user rc PATH verification codepath."""
 
         def SourceEnvironmentMock(*_args, **_kwargs):
@@ -1037,7 +1037,7 @@ class ClearOldItemsTest(
 ):
     """Tests SDKFetcher.ClearOldItems() behavior."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Sets up a temporary symlink & tarball cache."""
         self.gs_mock = self.StartPatcher(gs_unittest.GSContextMock())
         self.gs_mock.SetDefaultCmdResult()
@@ -1046,7 +1046,7 @@ class ClearOldItemsTest(
             self.tempdir, "", use_external_config=True
         )
 
-    def testBrokenSymlinkCleared(self):
+    def testBrokenSymlinkCleared(self) -> None:
         """Adds a broken symlink and ensures it gets removed."""
         osutils.Touch(os.path.join(self.tempdir, "some-file"))
         valid_link_ref = self.sdk_fetcher.symlink_cache.Lookup(

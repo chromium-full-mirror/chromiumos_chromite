@@ -127,7 +127,7 @@ _TOOL_MAP = collections.OrderedDict(
 )
 
 
-def _BreakoutDataByTool(map_to_return, path):
+def _BreakoutDataByTool(map_to_return, path) -> None:
     """Maps a tool method to the content of the |path|."""
     # Detect by content of the file itself.
     try:

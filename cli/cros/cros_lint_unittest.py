@@ -20,7 +20,7 @@ from chromite.scripts import cros
 # pylint: disable=protected-access
 
 
-def test_breakout_files_by_tool():
+def test_breakout_files_by_tool() -> None:
     """Check extension<->tool mapping."""
     assert not cros_lint._BreakoutFilesByTool([])
     assert not cros_lint._BreakoutFilesByTool([Path("foo"), Path("blah.xxx")])
@@ -33,7 +33,7 @@ def test_breakout_files_by_tool():
     assert value == [Path("foo.md")]
 
 
-def test_breakout_files_by_tool_order():
+def test_breakout_files_by_tool_order() -> None:
     """Verify we prefer names over extensions."""
     tool_map = cros_lint._BreakoutFilesByTool([Path("OWNERS.css")])
     items = list(tool_map.items())
@@ -45,7 +45,7 @@ def test_breakout_files_by_tool_order():
     cros_lint._TOOL_MAP,
     {frozenset({"dir/foo.ZZZ"}): (mock.sentinel.tool,)},
 )
-def test_breakout_files_full_paths():
+def test_breakout_files_full_paths() -> None:
     """Verify we match files in named subdirs."""
     source_files = sorted(
         Path(x)
@@ -67,7 +67,7 @@ def test_breakout_files_full_paths():
 class LintCommandTest(cros_test_lib.TestCase):
     """Test class for our LintCommand class."""
 
-    def testOutputArgument(self):
+    def testOutputArgument(self) -> None:
         """Tests that the --output argument mapping for cpplint is complete."""
         self.assertEqual(
             set(cros_lint.LintCommand.OUTPUT_FORMATS),
@@ -78,21 +78,21 @@ class LintCommandTest(cros_test_lib.TestCase):
 class JsonTest(cros_test_lib.TempDirTestCase):
     """Tests for _JsonLintFile."""
 
-    def testValid(self):
+    def testValid(self) -> None:
         """Verify valid json file is accepted."""
         path = os.path.join(self.tempdir, "x.json")
         osutils.WriteFile(path, "{}\n")
         ret = cros_lint._JsonLintFile(path, None, None, False, "")
         self.assertEqual(ret.returncode, 0)
 
-    def testInvalid(self):
+    def testInvalid(self) -> None:
         """Verify invalid json file is rejected."""
         path = os.path.join(self.tempdir, "x.json")
         osutils.WriteFile(path, "{")
         ret = cros_lint._JsonLintFile(path, None, None, False, "")
         self.assertEqual(ret.returncode, 1)
 
-    def testUnicodeBom(self):
+    def testUnicodeBom(self) -> None:
         """Verify we skip the Unicode BOM."""
         path = os.path.join(self.tempdir, "x.json")
         osutils.WriteFile(path, b"\xef\xbb\xbf{}\n", mode="wb")
@@ -100,7 +100,7 @@ class JsonTest(cros_test_lib.TempDirTestCase):
         self.assertEqual(ret.returncode, 0)
 
 
-def test_non_exec(tmp_path):
+def test_non_exec(tmp_path) -> None:
     """Tests for _NonExecLintFile."""
     # Ignore dirs.
     ret = cros_lint._NonExecLintFile(tmp_path, False, False, False, "")
@@ -133,7 +133,7 @@ def test_non_exec(tmp_path):
     assert ret.returncode == 0
 
 
-def test_cpplint(tmp_path):
+def test_cpplint(tmp_path) -> None:
     """Tests for _CpplintFile."""
     path = tmp_path / "test.cc"
 
@@ -173,13 +173,13 @@ def breakout_files_fixture() -> object:
         yield breakout_files
 
 
-def test_no_files(breakout_files):
+def test_no_files(breakout_files) -> None:
     """Test to ensure passing no files is not an error."""
     assert _call_cros_lint([]) == 0
     assert not breakout_files.called
 
 
-def test_expand_dir(tmp_path, breakout_files):
+def test_expand_dir(tmp_path, breakout_files) -> None:
     """Test the CLI expands directories when given one."""
     files = [tmp_path / "foo.txt", tmp_path / "bar.txt"]
     for file in files:

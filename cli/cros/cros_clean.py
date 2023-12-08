@@ -35,7 +35,7 @@ class CleanCommand(command.CliCommand):
     use_dryrun_options = True
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Add parser arguments."""
         super(CleanCommand, cls).AddParser(parser)
 
@@ -162,7 +162,7 @@ class CleanCommand(command.CliCommand):
         command.CliCommand.__init__(self, options)
 
     @classmethod
-    def ProcessOptions(cls, parser, options):
+    def ProcessOptions(cls, parser, options) -> None:
         """Post process options."""
         # If no option is set, default to "--safe".
         if not (
@@ -201,7 +201,7 @@ class CleanCommand(command.CliCommand):
             options.workdirs = True
 
     @timer.timed("Cros Clean", logging.debug)
-    def Run(self):
+    def Run(self) -> None:
         """Perform the cros clean command."""
         chroot = chroot_lib.Chroot(
             self.options.sdk_path, out_path=Path(self.options.out_path)
@@ -224,12 +224,12 @@ class CleanCommand(command.CliCommand):
             total_size += size
             return pformat.size(size)
 
-        def _LogClean(path):
+        def _LogClean(path) -> None:
             if not os.path.exists(path):
                 return
             logging.notice("would have cleaned: %s (%s)", path, _GetSize(path))
 
-        def Clean(path, ignore_mount=False):
+        def Clean(path, ignore_mount=False) -> None:
             """Helper wrapper for the dry-run checks"""
             if ignore_mount and os.path.ismount(path):
                 logging.debug("Ignoring bind mounted dir: %s", path)
@@ -238,12 +238,12 @@ class CleanCommand(command.CliCommand):
             else:
                 osutils.RmDir(path, ignore_missing=True, sudo=True)
 
-        def _LogEmpty(path):
+        def _LogEmpty(path) -> None:
             if not os.path.exists(path):
                 return
             logging.notice("would have emptied: %s (%s)", path, _GetSize(path))
 
-        def Empty(path, ignore_mount=False):
+        def Empty(path, ignore_mount=False) -> None:
             """Helper wrapper for the dry-run checks"""
             if ignore_mount and os.path.ismount(path):
                 logging.debug("Ignoring bind mounted dir: %s", path)

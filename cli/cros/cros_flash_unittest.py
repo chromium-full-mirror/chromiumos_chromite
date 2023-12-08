@@ -36,19 +36,19 @@ class CrosFlashTest(
     IMAGE = "/path/to/image"
     DEVICE = remote_access.TEST_IP
 
-    def SetupCommandMock(self, cmd_args):
+    def SetupCommandMock(self, cmd_args) -> None:
         """Setup comand mock."""
         self.cmd_mock = MockFlashCommand(
             cmd_args, base_args=["--cache-dir", str(self.tempdir)]
         )
         self.StartPatcher(self.cmd_mock)
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Patches objects."""
         self.cmd_mock = None
         self.flash_mock = self.PatchObject(flash, "Flash", autospec=True)
 
-    def VerifyFlashParameters(self, device, image, **kwargs):
+    def VerifyFlashParameters(self, device, image, **kwargs) -> None:
         """Verifies the arguments passed to flash.Flash().
 
         This function helps verify that command line specifications are
@@ -90,20 +90,20 @@ class CrosFlashTest(
         expected_kwargs.update(kwargs)
         self.assertDictEqual(expected_kwargs, flash_kwargs)
 
-    def testDefaults(self):
+    def testDefaults(self) -> None:
         """Tests `cros flash` default values."""
         self.SetupCommandMock([self.DEVICE, self.IMAGE])
         self.cmd_mock.inst.Run()
         self.VerifyFlashParameters(self.DEVICE, self.IMAGE)
 
-    def testDoesNotEnterChroot(self):
+    def testDoesNotEnterChroot(self) -> None:
         """Test that cros flash doesn't enter the chroot."""
         self.SetupCommandMock([self.DEVICE, self.IMAGE])
         enter_chroot = self.PatchObject(commandline, "RunInsideChroot")
         self.cmd_mock.inst.Run()
         self.assertFalse(enter_chroot.called)
 
-    def testFlashError(self):
+    def testFlashError(self) -> None:
         """Tests that FlashErrors are passed through."""
         with self.OutputCapturer():
             self.SetupCommandMock([self.DEVICE, self.IMAGE])

@@ -140,7 +140,7 @@ class CliCommand:
         self.options = options
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Add arguments for this command to the parser."""
         parser.set_defaults(command_class=cls)
 
@@ -155,7 +155,7 @@ class CliCommand:
     @classmethod
     def AddDeviceArgument(
         cls, parser, schemes=commandline.DeviceScheme.SSH, positional=False
-    ):
+    ) -> None:
         """Add a device argument to the parser.
 
         This standardizes the help message across all subcommands.
@@ -197,7 +197,7 @@ class CliCommand:
                 help=" ".join(help_strings),
             )
 
-    def Run(self):
+    def Run(self) -> None:
         """The command to run."""
         raise NotImplementedError()
 

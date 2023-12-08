@@ -29,7 +29,7 @@ def _call_cros_format(args: List[str]) -> int:
     return cros.main(["format"] + args)
 
 
-def test_breakout_files_by_tool():
+def test_breakout_files_by_tool() -> None:
     """Check extension<->tool mapping."""
     assert not cros_format._BreakoutFilesByTool([])
     assert not cros_format._BreakoutFilesByTool([Path("foo"), Path("blah.xxx")])
@@ -44,7 +44,7 @@ def test_breakout_files_by_tool():
     assert value == [Path("foo.md")]
 
 
-def test_breakout_files_by_tool_order():
+def test_breakout_files_by_tool_order() -> None:
     """Verify we prefer names over extensions."""
     tool_map = cros_format._BreakoutFilesByTool([Path("OWNERS.css")])
     items = list(tool_map.items())
@@ -58,7 +58,7 @@ def test_breakout_files_by_tool_order():
     cros_format._TOOL_MAP,
     {frozenset({"dir/foo.ZZZ"}): (mock.sentinel.tool,)},
 )
-def test_breakout_files_full_paths():
+def test_breakout_files_full_paths() -> None:
     """Verify we match files in named subdirs."""
     source_files = sorted(
         Path(x)
@@ -77,26 +77,26 @@ def test_breakout_files_full_paths():
     assert sorted(items[0][1]) == source_files
 
 
-def test_cli_no_files(caplog):
+def test_cli_no_files(caplog) -> None:
     """Check cros format handling with no files."""
     assert _call_cros_format([]) == 0
     assert "No files found to process." in caplog.text
 
 
-def test_cli_no_matched_files(caplog):
+def test_cli_no_matched_files(caplog) -> None:
     """Check cros format handling with no matched files."""
     assert _call_cros_format(["foo"]) == 0
     assert "No files support formatting." in caplog.text
 
 
-def test_cli_one_file(tmp_path):
+def test_cli_one_file(tmp_path) -> None:
     """Check behavior with one file."""
     file = tmp_path / "foo.txt"
     osutils.Touch(file)
     assert _call_cros_format([str(file)]) == 0
 
 
-def test_cli_dir(tmp_path):
+def test_cli_dir(tmp_path) -> None:
     """Test the CLI expands directories when given one."""
     files = [tmp_path / "foo.txt", tmp_path / "bar.txt"]
     for file in files:
@@ -104,7 +104,7 @@ def test_cli_dir(tmp_path):
     assert _call_cros_format([str(tmp_path)]) == 0
 
 
-def test_cli_many_files(tmp_path):
+def test_cli_many_files(tmp_path) -> None:
     """Check behavior with many files."""
     files = []
     for n in range(0, 10):
@@ -114,7 +114,7 @@ def test_cli_many_files(tmp_path):
     assert _call_cros_format(files) == 0
 
 
-def test_diff_file(tmp_path):
+def test_diff_file(tmp_path) -> None:
     """Check behavior with --diff file."""
     file = tmp_path / "foo.txt"
     file.write_text(" ", encoding="utf-8")
@@ -122,7 +122,7 @@ def test_diff_file(tmp_path):
     assert " " == file.read_text(encoding="utf-8")
 
 
-def test_check_file(tmp_path):
+def test_check_file(tmp_path) -> None:
     """Check behavior with --check file."""
     file = tmp_path / "foo.txt"
     file.write_text(" ", encoding="utf-8")
@@ -131,7 +131,7 @@ def test_check_file(tmp_path):
         assert " " == file.read_text(encoding="utf-8")
 
 
-def check_multiple_files(tmp_path, contents, expected_ret):
+def check_multiple_files(tmp_path, contents, expected_ret) -> None:
     """Helper to check behavior with --check with multiple files."""
     files = []
     for i, content in enumerate(contents):
@@ -142,17 +142,17 @@ def check_multiple_files(tmp_path, contents, expected_ret):
         assert _call_cros_format([arg, *files]) == expected_ret
 
 
-def test_check_multiple_files_with_first_broken(tmp_path):
+def test_check_multiple_files_with_first_broken(tmp_path) -> None:
     """Check --check fails when the first supplied file is broken."""
     check_multiple_files(tmp_path, [" ", ""], 1)
 
 
-def test_check_multiple_files_with_last_broken(tmp_path):
+def test_check_multiple_files_with_last_broken(tmp_path) -> None:
     """Check --check fails when the last supplied file is broken."""
     check_multiple_files(tmp_path, ["", " "], 1)
 
 
-def test_stdout_file(tmp_path):
+def test_stdout_file(tmp_path) -> None:
     """Check behavior with --stdout file."""
     file = tmp_path / "foo.txt"
     file.write_text(" ", encoding="utf-8")
@@ -160,7 +160,7 @@ def test_stdout_file(tmp_path):
     assert " " == file.read_text(encoding="utf-8")
 
 
-def test_inplace_file(tmp_path):
+def test_inplace_file(tmp_path) -> None:
     """Check behavior with --inplace file."""
     file = tmp_path / "foo.txt"
     file.write_text(" ", encoding="utf-8")
@@ -168,34 +168,34 @@ def test_inplace_file(tmp_path):
     assert "" == file.read_text(encoding="utf-8")
 
 
-def test_missing_file(tmp_path):
+def test_missing_file(tmp_path) -> None:
     """Check behavior with missing files."""
     file = tmp_path / "foo.py"
     assert _call_cros_format([str(file)]) == 1
 
 
-def test_unicode_error(tmp_path):
+def test_unicode_error(tmp_path) -> None:
     """Check binary files don't crash."""
     file = tmp_path / "foo.txt"
     file.write_bytes(b"\xff")
     assert _call_cros_format([str(file)]) == 1
 
 
-def test_parse_error_json(tmp_path):
+def test_parse_error_json(tmp_path) -> None:
     """Check JSON parsing errors don't crash."""
     file = tmp_path / "foo.json"
     file.write_bytes(b"{")
     assert _call_cros_format([str(file)]) == 1
 
 
-def test_parse_error_python(tmp_path):
+def test_parse_error_python(tmp_path) -> None:
     """Check Python parsing errors don't crash."""
     file = tmp_path / "foo.py"
     file.write_bytes(b"'")
     assert _call_cros_format([str(file)]) == 1
 
 
-def test_parse_error_xml(tmp_path):
+def test_parse_error_xml(tmp_path) -> None:
     """Check XML parsing errors don't crash."""
     file = tmp_path / "foo.xml"
     file.write_bytes(b"<")

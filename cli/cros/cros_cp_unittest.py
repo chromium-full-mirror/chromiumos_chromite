@@ -26,14 +26,14 @@ class CpTest(cros_test_lib.MockTempDirTestCase):
 
     DEVICE_IP = remote_access.TEST_IP
 
-    def SetupCommandMock(self, cmd_args):
+    def SetupCommandMock(self, cmd_args) -> None:
         """Setup command mock."""
         self.cmd_mock = MockCpCommand(
             cmd_args, base_args=["--cache-dir", str(self.tempdir)]
         )
         self.StartPatcher(self.cmd_mock)
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Patches objects."""
         self.cmd_mock = None
         self.mock_device = self.PatchObject(
@@ -42,7 +42,7 @@ class CpTest(cros_test_lib.MockTempDirTestCase):
         self.mock_device.hostname = self.DEVICE_IP
         self.mock_device.port = self.DEVICE_IP
 
-    def testScp(self):
+    def testScp(self) -> None:
         """Tests a command _StartCp to copy file from local to remote.
 
         Examples:
@@ -54,7 +54,7 @@ class CpTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(self.cmd_mock.inst.src[0].path, "/tmp_src")
         self.assertEqual(self.cmd_mock.inst.dest.path, "/tmp_dest")
 
-    def testScpToLocal(self):
+    def testScpToLocal(self) -> None:
         """Tests a command _StartCp to copy file from remote to local.
 
         Examples:
@@ -71,7 +71,7 @@ class CpTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(self.cmd_mock.inst.src[0].path, "/tmp_src")
         self.assertEqual(self.cmd_mock.inst.dest.path, "/tmp_dest")
 
-    def testRsync(self):
+    def testRsync(self) -> None:
         """Tests a command _StartCp for Rsync.
 
         Examples:

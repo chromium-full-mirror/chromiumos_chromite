@@ -60,7 +60,7 @@ def _ParseArguments(argv):
     return parser.parse_args(argv)
 
 
-def main(argv):
+def main(argv) -> None:
     """Main function of the script."""
     options = _ParseArguments(argv)
     options.Freeze()

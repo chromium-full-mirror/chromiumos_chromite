@@ -128,7 +128,7 @@ class DeviceImager:
         self._inactive_state = None
         self._delta = delta
 
-    def Run(self):
+    def Run(self) -> None:
         """Update the device with image of specific version."""
         self._LocateImage()
         logging.notice(
@@ -149,7 +149,7 @@ class DeviceImager:
         # DeviceImagerOperation will look for this log.
         logging.info("DeviceImager completed.")
 
-    def _Run(self):
+    def _Run(self) -> None:
         """Runs the various operations to install the image on device."""
         # TODO(b/228389041): Switch to delta compression if self._delta is True
 
@@ -168,7 +168,7 @@ class DeviceImager:
             self._Reboot()
             self._VerifyBootExpectations()
 
-    def _LocateImage(self):
+    def _LocateImage(self) -> None:
         """Locates the path to the final image(s) that need to be installed.
 
         If the paths is local, the image should be the Chromium OS GPT image
@@ -277,7 +277,7 @@ class DeviceImager:
         else:
             raise Error(f"Invalid minios partition number {minios_num}")
 
-    def _InstallPartitions(self):
+    def _InstallPartitions(self) -> None:
         """The main method that installs the partitions of a Chrome OS device.
 
         It uses parallelism to install the partitions as fast as possible.
@@ -355,7 +355,7 @@ class DeviceImager:
             parallel.RunParallelSteps(x.Revert for x in updaters)
             raise
 
-    def _Reboot(self):
+    def _Reboot(self) -> None:
         """Reboots the device."""
         try:
             self._device.Reboot(
@@ -370,7 +370,7 @@ class DeviceImager:
         except Exception as e:
             raise Error(f"Failed to reboot to the device with error: {e}")
 
-    def _VerifyBootExpectations(self):
+    def _VerifyBootExpectations(self) -> None:
         """Verify that we fully booted into the expected kernel state."""
         # Discover the newly active kernel.
         _, root_num = self._SplitDevPath(self._device.root_dev)
@@ -404,7 +404,7 @@ class ReaderBase(threading.Thread):
         self._pipe_target = None
         self._pipe_source = None
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Destructor.
 
         Make sure to clean up any named pipes we might have created.
@@ -428,7 +428,7 @@ class ReaderBase(threading.Thread):
         self.start()
         return self
 
-    def __exit__(self, *args, **kwargs):
+    def __exit__(self, *args, **kwargs) -> None:
         """Exits the context manager."""
         self.join()
 
@@ -440,7 +440,7 @@ class ReaderBase(threading.Thread):
         """
         return self._pipe_source
 
-    def _CloseSource(self):
+    def _CloseSource(self) -> None:
         """Closes the source pipe.
 
         Sub-classes should use this function to close the pipe after they are
@@ -457,7 +457,7 @@ class ReaderBase(threading.Thread):
         """
         return self._pipe_target
 
-    def CloseTarget(self):
+    def CloseTarget(self) -> None:
         """Closes the target pipe.
 
         Users of this class should use this function to close the pipe after
@@ -508,7 +508,7 @@ class PartialFileReader(ReaderBase):
         self._length = length
         self._compression_command = compression_command
 
-    def run(self):
+    def run(self) -> None:
         """Runs the reading and compression."""
         data = osutils.ReadFile(
             self._image, mode="rb", size=self._length, seek=self._offset
@@ -533,7 +533,7 @@ class GsFileCopier(ReaderBase):
         super().__init__(use_named_pipes=True)
         self._image = image
 
-    def run(self):
+    def run(self) -> None:
         """Runs the download and write into the output pipe."""
         try:
             if gs_urls_util.PathIsGs(self._image):
@@ -568,7 +568,7 @@ class PartitionUpdaterBase:
         self._target = target
         self._finished = False
 
-    def Run(self):
+    def Run(self) -> None:
         """The main function that does the partition update job."""
         with timer.Timer() as t:
             try:
@@ -579,7 +579,7 @@ class PartitionUpdaterBase:
         logging.debug("Completed %s in %s", self.__class__.__name__, t)
 
     @abc.abstractmethod
-    def _Run(self):
+    def _Run(self) -> None:
         """The method that need to be implemented by sub-classes."""
         raise NotImplementedError("Sub-classes need to implement this.")
 
@@ -588,7 +588,7 @@ class PartitionUpdaterBase:
         return self._finished
 
     @abc.abstractmethod
-    def Revert(self):
+    def Revert(self) -> None:
         """Reverts the partition update.
 
         Subclasses need to implement this function to provide revert capability.
@@ -599,7 +599,7 @@ class PartitionUpdaterBase:
 class RawPartitionUpdater(PartitionUpdaterBase):
     """A class to update a raw partition on a Chromium OS device."""
 
-    def _Run(self):
+    def _Run(self) -> None:
         """The function that does the job of kernel partition update."""
         if self._image_type == ImageType.FULL:
             self._CopyPartitionFromImage(self._GetPartitionName())
@@ -608,14 +608,14 @@ class RawPartitionUpdater(PartitionUpdaterBase):
         else:
             raise ValueError(f"Invalid image type {self._image_type}")
 
-    def _GetPartitionName(self):
+    def _GetPartitionName(self) -> None:
         """Returns the name of the partition in a Chromium OS GPT layout.
 
         Subclasses should override this function to return correct name.
         """
         raise NotImplementedError("Subclasses need to implement this.")
 
-    def _CopyPartitionFromImage(self, part_name: str):
+    def _CopyPartitionFromImage(self, part_name: str) -> None:
         """Updates the device's partition from a local Chromium OS image.
 
         Args:
@@ -684,7 +684,7 @@ class RawPartitionUpdater(PartitionUpdaterBase):
 
         return int(part_info.start), int(part_info.size)
 
-    def _GetRemotePartitionName(self):
+    def _GetRemotePartitionName(self) -> None:
         """Returns the name of the quick-provision partition file.
 
         Subclasses should override this function to return correct name.
@@ -706,7 +706,7 @@ class RawPartitionUpdater(PartitionUpdaterBase):
         """
         return offset, length
 
-    def _RedirectPartition(self, file_name: str):
+    def _RedirectPartition(self, file_name: str) -> None:
         """Downloads the partition from a remote path and writes it into target.
 
         Args:
@@ -739,7 +739,7 @@ class KernelUpdater(RawPartitionUpdater):
         """See RawPartitionUpdater._GetRemotePartitionName()."""
         return constants.QUICK_PROVISION_PAYLOAD_KERNEL
 
-    def Revert(self):
+    def Revert(self) -> None:
         """Reverts the kernel partition update."""
         # There is nothing to do for reverting kernel partition.
 
@@ -767,7 +767,7 @@ class RootfsUpdater(RawPartitionUpdater):
         """See RawPartitionUpdater._GetRemotePartitionName()."""
         return constants.QUICK_PROVISION_PAYLOAD_ROOTFS
 
-    def _Run(self):
+    def _Run(self) -> None:
         """The function that does the job of rootfs partition update."""
         with ProgressWatcher(self._device, self._target):
             super()._Run()
@@ -791,7 +791,7 @@ class RootfsUpdater(RawPartitionUpdater):
                 fp.close()
                 return offset, partition_lib.Ext2FileSystemSize(fp.name)
 
-    def _RunPostInst(self, on_target: bool = True):
+    def _RunPostInst(self, on_target: bool = True) -> None:
         """Runs the postinst process in the root partition.
 
         Args:
@@ -828,7 +828,7 @@ class RootfsUpdater(RawPartitionUpdater):
             if on_target:
                 self._device.run(["umount", postinst_dir])
 
-    def Revert(self):
+    def Revert(self) -> None:
         """Reverts the root update install."""
         logging.info("Reverting the rootfs partition update.")
         if self._ran_postinst:
@@ -858,7 +858,7 @@ class MiniOSUpdater(RawPartitionUpdater):
         """See RawPartitionUpdater._GetRemotePartitionName()."""
         return constants.QUICK_PROVISION_PAYLOAD_MINIOS
 
-    def _Run(self):
+    def _Run(self) -> None:
         """The function that does the job of rootfs partition update."""
         if self._image_type == ImageType.FULL:
             if self._MiniOSPartitionsExistInImage():
@@ -889,12 +889,12 @@ class MiniOSUpdater(RawPartitionUpdater):
 
         self._RunPostInstall()
 
-    def _RunPostInstall(self):
+    def _RunPostInstall(self) -> None:
         """The function will change the priority of the miniOS partitions."""
         self._FlipMiniOSPriority()
         self._ran_postinst = True
 
-    def Revert(self):
+    def Revert(self) -> None:
         """Reverts the miniOS partition update."""
         if self._ran_postinst:
             self._FlipMiniOSPriority()
@@ -904,12 +904,12 @@ class MiniOSUpdater(RawPartitionUpdater):
             ["crossystem", constants.MINIOS_PRIORITY]
         ).stdout
 
-    def _SetMiniOSPriority(self, priority: str):
+    def _SetMiniOSPriority(self, priority: str) -> None:
         self._device.run(
             ["crossystem", f"{constants.MINIOS_PRIORITY}={priority}"]
         )
 
-    def _FlipMiniOSPriority(self):
+    def _FlipMiniOSPriority(self) -> None:
         inactive_minios_priority = (
             "B" if self._GetMiniOSPriority() == "A" else "A"
         )
@@ -947,7 +947,7 @@ class StatefulPayloadGenerator(ReaderBase):
         super().__init__()
         self._image = image
 
-    def run(self):
+    def run(self) -> None:
         """Generates the stateful update and writes it into the output pipe."""
         try:
             paygen_stateful_payload_lib.GenerateStatefulPayload(
@@ -970,7 +970,7 @@ class StatefulUpdater(PartitionUpdaterBase):
         super().__init__(*args)
         self._clobber_stateful = clobber_stateful
 
-    def _Run(self):
+    def _Run(self) -> None:
         """Read/Download the stateful updates and write it into the device."""
         if self._image_type == ImageType.FULL:
             generator_cls = StatefulPayloadGenerator
@@ -997,7 +997,7 @@ class StatefulUpdater(PartitionUpdaterBase):
             finally:
                 generator.CloseTarget()
 
-    def Revert(self):
+    def Revert(self) -> None:
         """Reverts the stateful partition update."""
         logging.info("Reverting the stateful update.")
         stateful_updater.StatefulUpdater(self._device).Reset()
@@ -1024,7 +1024,7 @@ class ProgressWatcher(threading.Thread):
         self.start()
         return self
 
-    def __exit__(self, *args, **kwargs):
+    def __exit__(self, *args, **kwargs) -> None:
         """Exists the thread."""
         self._exit = True
         self.join()
@@ -1032,7 +1032,7 @@ class ProgressWatcher(threading.Thread):
     def _ShouldExit(self):
         return self._exit
 
-    def run(self):
+    def run(self) -> None:
         """Monitors the progress of the target root partitions' update.
 
         This is done by periodically, reading the fd position of the process
@@ -1090,7 +1090,7 @@ class DeviceImagerOperation(operation.ProgressBarOperation):
 
         self._progress = 0.0
 
-    def ParseOutput(self, output=None):
+    def ParseOutput(self, output=None) -> None:
         """Override function to parse the output and provide progress.
 
         Args:

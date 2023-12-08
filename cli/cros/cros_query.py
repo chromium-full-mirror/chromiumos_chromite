@@ -132,7 +132,7 @@ def compile_formatter(arg: str) -> Callable[[build_query.QueryTarget], str]:
 def tree_result(
     result: build_query.QueryTarget,
     fmt: Callable[[build_query.QueryTarget], str],
-):
+) -> None:
     """Output a tree of the result.
 
     Args:
@@ -140,7 +140,7 @@ def tree_result(
         fmt: The formatter function to use.
     """
 
-    def _rec(item, prefix, indent):
+    def _rec(item, prefix, indent) -> None:
         # If the child is not of the result type, we cannot use the
         # user-provided format string, as it's specific to the output result's
         # type.
@@ -248,7 +248,7 @@ Show all ebuilds which inherit python-r1 and have EAPI <= 6:
 
         return parser
 
-    def Run(self):
+    def Run(self) -> None:
         query = build_query.Query(
             self.options.query_target,
             board=self.options.board,

@@ -23,26 +23,26 @@ _COMMAND_NAME = "superAwesomeCommandOfFunness"
 class TestCommand(command.CliCommand):
     """A fake command."""
 
-    def Run(self):
+    def Run(self) -> None:
         print("Just testing")
 
 
 class TestCommandTest(cros_test_lib.MockTestCase):
     """This test class tests that Commands method."""
 
-    def testParserSetsCommandClass(self):
+    def testParserSetsCommandClass(self) -> None:
         """Tests that our parser sets command_class correctly."""
         my_parser = argparse.ArgumentParser()
         command.CliCommand.AddParser(my_parser)
         ns = my_parser.parse_args([])
         self.assertEqual(ns.command_class, command.CliCommand)
 
-    def testCommandDecorator(self):
+    def testCommandDecorator(self) -> None:
         """Tests that our decorator correctly adds TestCommand to _commands."""
         # Note this exposes an implementation detail of _commands.
         self.assertEqual(command._commands[_COMMAND_NAME], TestCommand)
 
-    def testBadUseOfCommandDecorator(self):
+    def testBadUseOfCommandDecorator(self) -> None:
         """Tests that our decorator correctly rejects bad test commands."""
         try:
             # pylint: disable=unused-variable
@@ -55,14 +55,14 @@ class TestCommandTest(cros_test_lib.MockTestCase):
         else:
             self.fail("Invalid command was accepted by @command_decorator")
 
-    def testAddDeviceArgument(self):
+    def testAddDeviceArgument(self) -> None:
         """Tests CliCommand.AddDeviceArgument()."""
         parser = argparse.ArgumentParser()
         command.CliCommand.AddDeviceArgument(parser, positional=True)
         # Device should be a positional argument.
         parser.parse_args(["device"])
 
-    def testAddNamedDeviceArgument(self):
+    def testAddNamedDeviceArgument(self) -> None:
         """Tests CliCommand.AddDeviceArgument()."""
         parser = argparse.ArgumentParser()
         command.CliCommand.AddDeviceArgument(parser, positional=False)
@@ -105,7 +105,7 @@ class MockCommand(partial_mock.PartialMock):
 class CommandTest(cros_test_lib.MockTestCase):
     """This test class tests that we can load modules correctly."""
 
-    def testFindModules(self):
+    def testFindModules(self) -> None:
         """Tests that we can return modules correctly when mocking out glob."""
         fake_command_file = "cros_command_test.py"
         filtered_file = "cros_command_unittest.py"
@@ -116,7 +116,7 @@ class CommandTest(cros_test_lib.MockTestCase):
 
         self.assertEqual(command.ListCommands(), {"command-test"})
 
-    def testLoadCommands(self):
+    def testLoadCommands(self) -> None:
         """Tests import commands correctly."""
         fake_module = "cros_command_test"
         module_path = "chromite.cli.cros.%s" % fake_module
@@ -132,7 +132,7 @@ class CommandTest(cros_test_lib.MockTestCase):
 
         load_mock.assert_called_with(module_path)
 
-    def testListCrosCommands(self):
+    def testListCrosCommands(self) -> None:
         """Tests we get a correct `cros` list back."""
         cros_commands = command.ListCommands()
         # Pick some commands that are likely to not go away.

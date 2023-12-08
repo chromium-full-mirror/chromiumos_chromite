@@ -13,7 +13,7 @@ from chromite.lib import build_query
 from chromite.lib import commandline
 
 
-def test_compile_filter():
+def test_compile_filter() -> None:
     """Test the compile_filter function."""
     board_foo = build_query.Board("foo")
     board_bar = build_query.Board("bar")
@@ -22,7 +22,7 @@ def test_compile_filter():
     assert not flt(board_bar)
 
 
-def test_filter_globals():
+def test_filter_globals() -> None:
     """Test compiled filters have access to a limited set of globals."""
     board_foo = build_query.Board("foo")
     board_bar = build_query.Board("bar")
@@ -78,7 +78,7 @@ MALTEER_PRIVATE = FakeProfile(
 )
 
 
-def test_tree(capsys):
+def test_tree(capsys) -> None:
     """Test the tree_result functionality."""
     cros_query.tree_result(MALTEER_PRIVATE, str)
     captured = capsys.readouterr()
@@ -108,7 +108,7 @@ def _run_cros_query(args):
     return cmd.Run()
 
 
-def test_query_profiles(capsys, monkeypatch):
+def test_query_profiles(capsys, monkeypatch) -> None:
     """Test querying profiles with a filter."""
     monkeypatch.setattr(cros_query, "QUERY_TARGETS", {"profiles": FakeProfile})
     _run_cros_query(["profiles", "-f", "'malteer' in overlay.name"])
@@ -124,7 +124,7 @@ malteer-private:base
     )
 
 
-def test_query_profiles_alt_format(capsys, monkeypatch):
+def test_query_profiles_alt_format(capsys, monkeypatch) -> None:
     """Test querying profiles with -o formatting argument."""
     monkeypatch.setattr(cros_query, "QUERY_TARGETS", {"profiles": FakeProfile})
     _run_cros_query(
@@ -148,7 +148,7 @@ malteer-private base ohea
     )
 
 
-def test_query_bad_positional():
+def test_query_bad_positional() -> None:
     """Test a bad positional arg."""
     # argparse should gracefully catch this, instead of throwing some other
     # exception.

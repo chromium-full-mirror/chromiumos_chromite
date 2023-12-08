@@ -35,7 +35,7 @@ For help, run `cros try help` (with no hyphens).
 """
 
     @classmethod
-    def AddParser(cls, parser: argparse.ArgumentParser):
+    def AddParser(cls, parser: argparse.ArgumentParser) -> None:
         """Capture all CLI args to forward to the go bin."""
         super().AddParser(parser)
         parser.add_argument(

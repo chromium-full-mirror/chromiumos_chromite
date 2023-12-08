@@ -112,7 +112,7 @@ def _PylintrcConfig(config_file, section, opts):
         name = section
         options = opts
 
-        def set_current_module(self, config_file):
+        def set_current_module(self, config_file) -> None:
             """Ignore - read_config_file() invokes this for stats."""
 
     cfg = ConfigReader(config_file=config_file)
@@ -444,7 +444,7 @@ class DocStringChecker(pylint.checkers.BaseChecker):
             self._indent_string = cfg.option_value("indent-string")
         self._indent_len = len(self._indent_string)
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node) -> None:
         """Verify function docstrings"""
         if node.doc:
             lines = node.doc.split("\n")
@@ -459,7 +459,7 @@ class DocStringChecker(pylint.checkers.BaseChecker):
             # This is what C0111 already does for us, so ignore.
             pass
 
-    def visit_module(self, node):
+    def visit_module(self, node) -> None:
         """Verify module docstrings"""
         if not node.doc:
             # pylint's missing-module-docstring handles this for us.
@@ -467,7 +467,7 @@ class DocStringChecker(pylint.checkers.BaseChecker):
 
         self._check_common(node)
 
-    def visit_classdef(self, node):
+    def visit_classdef(self, node) -> None:
         """Verify class docstrings"""
         if not node.doc:
             # pylint's missing-class-docstring handles this for us.
@@ -487,7 +487,7 @@ class DocStringChecker(pylint.checkers.BaseChecker):
         else:
             return node.col_offset + self._indent_len
 
-    def _check_common(self, node, lines=None):
+    def _check_common(self, node, lines=None) -> None:
         """Common checks we enforce on all docstrings"""
         if lines is None:
             lines = node.doc.split("\n")
@@ -501,7 +501,7 @@ class DocStringChecker(pylint.checkers.BaseChecker):
         for f in funcs:
             f(node, lines)
 
-    def _check_first_line(self, node, lines):
+    def _check_first_line(self, node, lines) -> None:
         """Make sure first line is a short summary by itself"""
         if lines[0] == "":
             self.add_message("C9009", node=node, line=node.fromlineno)
@@ -512,12 +512,12 @@ class DocStringChecker(pylint.checkers.BaseChecker):
         if lines[0].startswith('"'):
             self.add_message("C9018", node=node, line=node.fromlineno)
 
-    def _check_second_line_blank(self, node, lines):
+    def _check_second_line_blank(self, node, lines) -> None:
         """Make sure the second line is blank"""
         if len(lines) > 1 and lines[1] != "":
             self.add_message("C9014", node=node, line=node.fromlineno)
 
-    def _check_whitespace(self, node, lines):
+    def _check_whitespace(self, node, lines) -> None:
         """Verify whitespace is correct"""
         # Make sure first line doesn't have leading whitespace.
         if lines[0].lstrip() != lines[0]:
@@ -554,7 +554,7 @@ class DocStringChecker(pylint.checkers.BaseChecker):
                 "C9003", node=node, line=node.fromlineno, args=margs
             )
 
-    def _check_last_line(self, node, lines):
+    def _check_last_line(self, node, lines) -> None:
         """Make sure last line is all by itself"""
         if len(lines) > 1:
             indent = self._docstring_indent(node)
@@ -727,7 +727,9 @@ class DocStringChecker(pylint.checkers.BaseChecker):
 
         return sections
 
-    def _check_section_lines(self, node, lines, sections, valid_sections):
+    def _check_section_lines(
+        self, node, lines, sections, valid_sections
+    ) -> None:
         """Verify each section (e.g. Args/Returns/etc...) is correct"""
         indent_len = self._docstring_indent(node)
 
@@ -820,7 +822,7 @@ class DocStringChecker(pylint.checkers.BaseChecker):
                     args=first_item_margs,
                 )
 
-    def _check_all_args_in_doc(self, node, _lines, sections):
+    def _check_all_args_in_doc(self, node, _lines, sections) -> None:
         """All function arguments are mentioned in doc"""
         if not hasattr(node, "args"):
             return
@@ -932,7 +934,7 @@ class DocStringChecker(pylint.checkers.BaseChecker):
                 "C9011", node=node, line=node.fromlineno, args=margs
             )
 
-    def _check_func_signature(self, node):
+    def _check_func_signature(self, node) -> None:
         """Require *args to be named args, and **kwargs kwargs"""
         vararg = node.args.vararg
         if vararg and vararg != "args" and vararg != "_args":
@@ -995,7 +997,7 @@ class SourceChecker(pylint.checkers.BaseChecker):
         rb"^[ \t\v]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+)"
     )
 
-    def visit_module(self, node):
+    def visit_module(self, node) -> None:
         """Called when the whole file has been read"""
         with node.stream() as stream:
             st = None
@@ -1008,7 +1010,7 @@ class SourceChecker(pylint.checkers.BaseChecker):
             self._check_module_name(node)
             self._check_backslashes(node, stream)
 
-    def _check_shebang(self, _node, stream, st):
+    def _check_shebang(self, _node, stream, st) -> None:
         """Verify the shebang is version specific"""
         stream.seek(0)
 
@@ -1034,7 +1036,7 @@ class SourceChecker(pylint.checkers.BaseChecker):
         ):
             self.add_message("R9200")
 
-    def _check_encoding(self, stream):
+    def _check_encoding(self, stream) -> None:
         """Verify the file has no -*- coding: utf-8 -*- cookie.
 
         In CrOS, all files should be utf-8, which is the Python 3 default.
@@ -1055,14 +1057,14 @@ class SourceChecker(pylint.checkers.BaseChecker):
         if self._ENCODING_RE.match(encoding):
             self.add_message("R9205")
 
-    def _check_module_name(self, node):
+    def _check_module_name(self, node) -> None:
         """Make sure the module name is correct"""
         # Catch various typos.
         name = node.name.rsplit(".", 2)[-1]
         if name.rsplit("_", 2)[-1] in ("unittests",):
             self.add_message("R9203")
 
-    def _check_backslashes(self, _node, stream):
+    def _check_backslashes(self, _node, stream) -> None:
         """Make sure we use () for line continuations, not backslashes"""
         stream.seek(0)
         # This is a rough heuristic by nature: try and flag common uses, but not
@@ -1091,7 +1093,7 @@ class CommentChecker(pylint.checkers.BaseTokenChecker):
         ),
     }
 
-    def _visit_comment(self, lineno, comment):
+    def _visit_comment(self, lineno, comment) -> None:
         """Process |comment| at |lineno|."""
         if comment == "#":
             # Ignore standalone comments for spacing.
@@ -1105,7 +1107,7 @@ class CommentChecker(pylint.checkers.BaseTokenChecker):
         if not comment.lstrip("#").startswith(" "):
             self.add_message("R9250", line=lineno, args={"comment": comment})
 
-    def process_tokens(self, tokens):
+    def process_tokens(self, tokens) -> None:
         """Process tokens and look for comments."""
         for tok_type, token, (start_row, _), _, _ in tokens:
             if tok_type == tokenize.COMMENT:
@@ -1166,7 +1168,7 @@ class ModuleOnlyImportsChecker(pylint.checkers.BaseChecker):
         }
     )
 
-    def visit_importfrom(self, node: astroid.nodes.ImportFrom):
+    def visit_importfrom(self, node: astroid.nodes.ImportFrom) -> None:
         """Visit an import node."""
         try:
             imported = node.do_import_module()
@@ -1199,7 +1201,7 @@ class ModuleOnlyImportsChecker(pylint.checkers.BaseChecker):
                 )
 
 
-def register(linter):
+def register(linter) -> None:
     """pylint will call this func to register all our checkers"""
     # Walk all the classes in this module and register ours.
     this_module = sys.modules[__name__]

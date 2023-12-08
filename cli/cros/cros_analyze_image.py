@@ -164,7 +164,7 @@ def write_sizes(
     human_readable: bool,
     output_format: str,
     output_path: typing.Union[str, typing.TextIO],
-):
+) -> None:
     """Writes the sizes in CSV format.
 
     Args:
@@ -209,7 +209,7 @@ class AnalyzeImageCommand(command.CliCommand):
     """Analyze cros images listing large directory and file sizes."""
 
     @classmethod
-    def ProcessOptions(cls, parser, options):
+    def ProcessOptions(cls, parser, options) -> None:
         """Post process options."""
         if options.image:
             return
@@ -217,7 +217,7 @@ class AnalyzeImageCommand(command.CliCommand):
         if not options.board or not options.version:
             parser.error("--image or (--board and --version) required")
 
-    def Run(self):
+    def Run(self) -> None:
         """Perform the command."""
         # Get the sudo password immediately.
         cros_build_lib.sudo_run(["echo"])
@@ -258,7 +258,7 @@ class AnalyzeImageCommand(command.CliCommand):
         )
 
     @classmethod
-    def AddParser(cls, parser: commandline.ArgumentParser):
+    def AddParser(cls, parser: commandline.ArgumentParser) -> None:
         """Add parser arguments."""
         super(AnalyzeImageCommand, cls).AddParser(parser)
 

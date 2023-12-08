@@ -34,7 +34,7 @@ class CommandError(Error):
     """Raised when error occurs during a command test."""
 
 
-def _PrintCommandLog(command, content):
+def _PrintCommandLog(command, content) -> None:
     """Print out the log |content| for |command|."""
     if content:
         logging.info(
@@ -52,7 +52,7 @@ def test_command_decorator(command_name):
     def Decorator(test_function):
         """Inner decorator that actually wraps the function."""
 
-        def Wrapper(command_test):
+        def Wrapper(command_test) -> None:
             """Wrapper for the test function."""
             command = cros_build_lib.CmdToStr(
                 command_test.BuildCommand(command_name)
@@ -90,7 +90,9 @@ class CommandVMTest:
         self.port = None
         self.device_addr = None
 
-    def BuildCommand(self, command, device=None, pos_args=None, opt_args=None):
+    def BuildCommand(
+        self, command, device=None, pos_args=None, opt_args=None
+    ) -> None:
         """Builds a CLI command.
 
         Args:
@@ -101,7 +103,7 @@ class CommandVMTest:
         """
         raise NotImplementedError()
 
-    def SetUp(self):
+    def SetUp(self) -> None:
         """Creates and starts the VM instance for testing."""
         self.port = remote_access.GetUnusedPort()
         self.device_addr = "ssh://%s:%d" % (remote_access.LOCALHOST, self.port)
@@ -118,7 +120,7 @@ class CommandVMTest:
         ]
         cros_build_lib.run(vm_cmd, cwd=constants.CHROMITE_BIN_DIR)
 
-    def TearDown(self):
+    def TearDown(self) -> None:
         """Stops the VM instance after testing."""
         if not self.port:
             return
@@ -129,7 +131,7 @@ class CommandVMTest:
         )
 
     @test_command_decorator("shell")
-    def TestShell(self):
+    def TestShell(self) -> None:
         """Tests the shell command."""
         # The path and content of a temporary file for testing shell command.
         path = "/tmp/shell-test"
@@ -171,7 +173,7 @@ class CommandVMTest:
             raise CommandError(result.stderr)
 
     @test_command_decorator("debug")
-    def TestDebug(self):
+    def TestDebug(self) -> None:
         """Tests the debug command."""
         logging.info("Test to start and debug a new process on the VM device.")
         exe_path = "/bin/bash"
@@ -210,7 +212,7 @@ class CommandVMTest:
                 raise CommandError(result.stderr)
 
     @test_command_decorator("flash")
-    def TestFlash(self):
+    def TestFlash(self) -> None:
         """Tests the flash command."""
         # We explicitly disable reboot after the update because VMs sometimes do
         # not come back after reboot. The flash command does not need to verify
@@ -229,7 +231,7 @@ class CommandVMTest:
             raise CommandError(result.stderr)
 
     @test_command_decorator("deploy")
-    def TestDeploy(self):
+    def TestDeploy(self) -> None:
         """Tests the deploy command."""
         packages = ["dev-python/cherrypy", "app-portage/portage-utils"]
         # Set the installation root to /usr/local so that the command does not
@@ -290,14 +292,14 @@ class CommandVMTest:
                 )
                 raise CommandError()
 
-    def RunTests(self):
+    def RunTests(self) -> None:
         """Calls the test functions."""
         self.TestShell()
         # TestDebug broken (crbug.com/863122)
         self.TestFlash()
         self.TestDeploy()
 
-    def Run(self):
+    def Run(self) -> None:
         """Runs the tests."""
         try:
             self.SetUp()

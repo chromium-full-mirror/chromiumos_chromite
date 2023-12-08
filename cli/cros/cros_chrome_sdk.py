@@ -42,7 +42,7 @@ COMMAND_NAME = "chrome-sdk"
 CUSTOM_VERSION = "custom"
 
 
-def Log(*args, **kwargs):
+def Log(*args, **kwargs) -> None:
     """Conditional logging.
 
     Args:
@@ -222,7 +222,7 @@ class SDKFetcher:
             return False
         return True
 
-    def _InstallZstdFromCipd(self):
+    def _InstallZstdFromCipd(self) -> None:
         """Install zstd from cipd if the system doesn't have it."""
         if osutils.Which("zstd"):
             return
@@ -241,7 +241,7 @@ class SDKFetcher:
 
         os.environ["PATH"] += f":{ref.path}"
 
-    def _InstallSquashfsFromCipd(self):
+    def _InstallSquashfsFromCipd(self) -> None:
         """Install mksquahsfs from cipd if the system doesn't have it."""
         if osutils.Which("mksquashfs"):
             return
@@ -263,7 +263,7 @@ class SDKFetcher:
 
         os.environ["PATH"] += f":{ref.path}"
 
-    def _UpdateTarball(self, key, url, ref):
+    def _UpdateTarball(self, key, url, ref) -> None:
         """Worker function to fetch a tarball.
 
         Args:
@@ -289,7 +289,7 @@ class SDKFetcher:
                 else:
                     raise
 
-    def _UpdateCacheSymlink(self, ref, source_path):
+    def _UpdateCacheSymlink(self, ref, source_path) -> None:
         """Adds a symlink to the cache pointing at the given source.
 
         Args:
@@ -470,7 +470,7 @@ class SDKFetcher:
         return None
 
     @classmethod
-    def FixCachePermissions(cls, cache_dir):
+    def FixCachePermissions(cls, cache_dir) -> None:
         """Fixes directories in the cache that are read-only.
 
         crrev.com/c/3905759 added read-only directories into the sysroot that
@@ -488,7 +488,7 @@ class SDKFetcher:
                     os.chmod(dir_path, os.stat(dir_path).st_mode | stat.S_IWUSR)
 
     @classmethod
-    def ClearOldItems(cls, cache_dir, max_age_days=14):
+    def ClearOldItems(cls, cache_dir, max_age_days=14) -> None:
         """Removes old items from the tarball cache older than max_age_days.
 
         Inspects the entire cache, not just a single board's items.
@@ -596,7 +596,7 @@ class SDKFetcher:
                 return ref.path
         return None
 
-    def _FinalizePackages(self, version):
+    def _FinalizePackages(self, version) -> None:
         """Finalize downloaded packages.
 
         Fix broken seabios symlinks in the qemu package.
@@ -606,7 +606,7 @@ class SDKFetcher:
         """
         self._CreateSeabiosFWSymlinks(version)
 
-    def _CreateSeabiosFWSymlinks(self, version):
+    def _CreateSeabiosFWSymlinks(self, version) -> None:
         """Create Seabios firmware symlinks.
 
         tarballs/<board>+<version>+app-emulation/qemu/usr/share/qemu/ has a
@@ -664,7 +664,7 @@ class SDKFetcher:
             else:
                 return None
 
-    def _SetDefaultVersion(self, version):
+    def _SetDefaultVersion(self, version) -> None:
         """Set the new default version."""
         with self.misc_cache.Lookup((self.board, "latest")) as ref:
             ref.AssignText(version)
@@ -988,7 +988,7 @@ class ChromeSDKCommand(command.CliCommand):
         return version
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         super(ChromeSDKCommand, cls).AddParser(parser)
         parser.add_argument(
             "--board", required=False, help="The board SDK to use."
@@ -1211,7 +1211,7 @@ class ChromeSDKCommand(command.CliCommand):
         )
 
     @classmethod
-    def ProcessOptions(cls, parser, options):
+    def ProcessOptions(cls, parser, options) -> None:
         """Post process options."""
         if bool(options.board) == bool(options.boards):
             parser.error("Must specify either one of --board or --boards.")
@@ -1277,7 +1277,7 @@ class ChromeSDKCommand(command.CliCommand):
         ps1_prefix = ChromeSDKCommand._PS1Prefix(board, version, chroot)
         return "%s %s" % (ps1_prefix, current_ps1)
 
-    def _SaveSharedGnArgs(self, gn_args, board):
+    def _SaveSharedGnArgs(self, gn_args, board) -> None:
         """Saves the new gn args data to the shared location."""
         shared_dir = os.path.join(self.options.chrome_src, self._BUILD_ARGS_DIR)
         if not self.options.is_lacros:
@@ -1320,7 +1320,9 @@ class ChromeSDKCommand(command.CliCommand):
                 file_path, gn_helpers.ToGNString(toolchain_gn_args)
             )
 
-    def _UpdateGnArgsIfStale(self, out_dir, build_label, gn_args, board):
+    def _UpdateGnArgsIfStale(
+        self, out_dir, build_label, gn_args, board
+    ) -> None:
         """Runs 'gn gen' if gn args are stale or logs a warning."""
         build_dir = os.path.join(out_dir, build_label)
         gn_args_file_path = os.path.join(
@@ -1390,7 +1392,7 @@ class ChromeSDKCommand(command.CliCommand):
         self._LogArgsDiff(old_gn_args, new_gn_args)
         return True
 
-    def _LogArgsDiff(self, cur_args, new_args):
+    def _LogArgsDiff(self, cur_args, new_args) -> None:
         """Logs the differences between |cur_args| and |new_args|."""
         cur_keys = set(cur_args.keys())
         new_keys = set(new_args.keys())
@@ -1407,7 +1409,7 @@ class ChromeSDKCommand(command.CliCommand):
             if v_cur != v_new:
                 logging.info("MISMATCHED ARG: %s: %s != %s", k, v_cur, v_new)
 
-    def _SetupTCEnvironment(self, options, env):
+    def _SetupTCEnvironment(self, options, env) -> None:
         """Sets up toolchain-related environment variables."""
         chrome_clang_path = os.path.join(
             options.chrome_src, self._CHROME_CLANG_DIR
@@ -1758,7 +1760,7 @@ class ChromeSDKCommand(command.CliCommand):
         return env
 
     @staticmethod
-    def _VerifyGoma(user_rc):
+    def _VerifyGoma(user_rc) -> None:
         """Verify that the user has no goma installations set up in user_rc.
 
         If the user does have a goma installation set up, verify that it's for
@@ -1777,7 +1779,7 @@ class ChromeSDKCommand(command.CliCommand):
             )
 
     @staticmethod
-    def _VerifyChromiteBin(user_rc):
+    def _VerifyChromiteBin(user_rc) -> None:
         """Verify that the user has not set a chromite bin/ dir in user_rc.
 
         Args:

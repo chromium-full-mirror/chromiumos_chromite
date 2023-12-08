@@ -79,7 +79,7 @@ Note: When flashing a signed image, ssh connection to the device will be lost
     DEFAULT_REBOOT_TIMEOUT = datetime.timedelta(seconds=300)
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Add parser arguments."""
         super(FlashCommand, cls).AddParser(parser)
         cls.AddDeviceArgument(
@@ -273,7 +273,7 @@ Note: When flashing a signed image, ssh connection to the device will be lost
         logging.notice("CrOS SDK version: %s", full_version)
         return full_version
 
-    def _Flash(self):
+    def _Flash(self) -> None:
         """Perform the cros flash command."""
         try:
             with timer.Timer() as t:
@@ -310,7 +310,7 @@ Note: When flashing a signed image, ssh connection to the device will be lost
             )
             raise
 
-    def Run(self):
+    def Run(self) -> None:
         """Run the cros flash command inside sudo wrappers."""
         # In most (all?) cases, "cros flash" requires sudo.  Ensure that sudo
         # is cached here ahead of everything, because

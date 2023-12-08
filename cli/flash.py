@@ -59,7 +59,7 @@ class UsbImagerOperation(operation.ProgressBarOperation):
             # If dd isn't still running, then we assume that it is finished.
             return -1
 
-    def _PingDD(self, dd_pid):
+    def _PingDD(self, dd_pid) -> None:
         """Send USR1 signal to dd to get status update."""
         try:
             cmd = ["kill", "-USR1", str(dd_pid)]
@@ -68,7 +68,7 @@ class UsbImagerOperation(operation.ProgressBarOperation):
             # Here we assume that dd finished in the background.
             return
 
-    def ParseOutput(self, output=None):
+    def ParseOutput(self, output=None) -> None:
         """Parse the output of dd to update progress bar."""
         dd_pid = self._GetDDPid()
         if dd_pid == -1:
@@ -207,7 +207,7 @@ class USBImager:
 
         return devices[idx]
 
-    def CopyImageToDevice(self, image, device):
+    def CopyImageToDevice(self, image, device) -> None:
         """Copies |image| to the removable |device|.
 
         Args:
@@ -282,7 +282,7 @@ class USBImager:
         logging.info("Using image %s", image_path)
         return image_path
 
-    def Run(self):
+    def Run(self) -> None:
         """Image the removable device."""
         devices = self.ListAllRemovableDevices()
 
@@ -335,7 +335,7 @@ class USBImager:
 class FileImager(USBImager):
     """Copy image to the target path."""
 
-    def Run(self):
+    def Run(self) -> None:
         """Copy the image to the path specified by self.device."""
         if not os.path.isdir(os.path.dirname(self.device)):
             raise FlashError(
@@ -379,7 +379,7 @@ def Flash(
     clear_tpm_owner=False,
     delta=False,
     reboot_timeout=None,
-):
+) -> None:
     """Flashes a device, USB drive, or file with an image.
 
     This provides functionality common to `cros flash` and `brillo flash`

@@ -35,13 +35,13 @@ def GetFdPath(fd):
 class DeviceImagerTest(cros_test_lib.MockTestCase):
     """Tests DeviceImager class methods."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Sets up the class by creating proper mocks."""
         self.rsh_mock = self.StartPatcher(remote_access_unittest.RemoteShMock())
         self.rsh_mock.AddCmdResult(partial_mock.In("${PATH}"), stdout="")
         self.path_env = "PATH=%s:" % remote_access.DEV_BIN_PATHS
 
-    def test_LocateImageLocalFile(self):
+    def test_LocateImageLocalFile(self) -> None:
         """Tests getting the path to local image."""
         with tempfile.NamedTemporaryFile() as fp:
             di = device_imager.DeviceImager(None, fp.name)
@@ -49,7 +49,7 @@ class DeviceImagerTest(cros_test_lib.MockTestCase):
             self.assertEqual(di._image, fp.name)
             self.assertEqual(di._image_type, device_imager.ImageType.FULL)
 
-    def test_LocateImageDir(self):
+    def test_LocateImageDir(self) -> None:
         """Tests failing on a given directory as a path."""
         di = device_imager.DeviceImager(None, "/tmp")
         with self.assertRaises(ValueError):
@@ -65,7 +65,7 @@ class DeviceImagerTest(cros_test_lib.MockTestCase):
         new_callable=mock.PropertyMock,
     )
     # pylint: disable=unused-argument
-    def test_LocateImageXBuddyRemote(self, _, board_mock):
+    def test_LocateImageXBuddyRemote(self, _, board_mock) -> None:
         """Tests getting remote xBuddy image path."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -89,7 +89,7 @@ class DeviceImagerTest(cros_test_lib.MockTestCase):
         new_callable=mock.PropertyMock,
     )
     # pylint: disable=unused-argument
-    def test_LocateImageXBuddyLocal(self, _, board_mock):
+    def test_LocateImageXBuddyLocal(self, _, board_mock) -> None:
         """Tests getting local xBuddy image path."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -99,7 +99,7 @@ class DeviceImagerTest(cros_test_lib.MockTestCase):
             self.assertEqual(di._image, "path/to/file")
             self.assertEqual(di._image_type, device_imager.ImageType.FULL)
 
-    def test_SplitDevPath(self):
+    def test_SplitDevPath(self) -> None:
         """Tests splitting a device path into prefix and partition number."""
 
         di = device_imager.DeviceImager(None, None)
@@ -111,7 +111,7 @@ class DeviceImagerTest(cros_test_lib.MockTestCase):
         with self.assertRaises(device_imager.Error):
             di._SplitDevPath("/foo/p3p")
 
-    def test_GetKernelState(self):
+    def test_GetKernelState(self) -> None:
         """Tests getting the current active and inactive kernel states."""
         di = device_imager.DeviceImager(None, None)
         self.assertEqual(
@@ -132,7 +132,7 @@ class DeviceImagerTest(cros_test_lib.MockTestCase):
         return_value="/dev/foop3",
         new_callable=mock.PropertyMock,
     )
-    def test_VerifyBootExpectations(self, _):
+    def test_VerifyBootExpectations(self, _) -> None:
         """Tests verifying the boot expectations after reboot."""
 
         with remote_access.ChromiumOSDeviceHandler(
@@ -148,7 +148,7 @@ class DeviceImagerTest(cros_test_lib.MockTestCase):
         return_value="/dev/foop3",
         new_callable=mock.PropertyMock,
     )
-    def test_VerifyBootExpectationsFails(self, _):
+    def test_VerifyBootExpectationsFails(self, _) -> None:
         """Tests failure of boot expectations."""
 
         with remote_access.ChromiumOSDeviceHandler(
@@ -163,7 +163,7 @@ class DeviceImagerTest(cros_test_lib.MockTestCase):
 class TestReaderBase(cros_test_lib.MockTestCase):
     """Test ReaderBase class"""
 
-    def testNamedPipe(self):
+    def testNamedPipe(self) -> None:
         """Tests initializing the class with named pipe."""
         with device_imager.ReaderBase(use_named_pipes=True) as r:
             self.assertIsInstance(r.Target(), str)
@@ -177,7 +177,7 @@ class TestReaderBase(cros_test_lib.MockTestCase):
         r.CloseTarget()
         self.assertNotExists(r.Target())
 
-    def testFdPipe(self):
+    def testFdPipe(self) -> None:
         """Tests initializing the class with normal file descriptor pipes."""
         with device_imager.ReaderBase() as r:
             self.assertIsInstance(r.Target(), int)
@@ -209,7 +209,7 @@ class TestReaderBase(cros_test_lib.MockTestCase):
             self.assertNotEqual(old_path, new_path)
             raise OSError("Fake the context manager.")
 
-    def testFdPipeCommunicate(self):
+    def testFdPipeCommunicate(self) -> None:
         """Tests that file descriptors pipe can actually communicate."""
         with device_imager.ReaderBase() as r:
             with os.fdopen(r._Source(), "w") as fp:
@@ -223,7 +223,7 @@ class PartialFileReaderTest(cros_test_lib.TempDirTestCase):
     """Tests PartialFileReader class."""
 
     @mock.patch.object(os, "close", side_effect=os.close)
-    def testRunCat(self, os_close_mock):
+    def testRunCat(self, os_close_mock) -> None:
         """Tests the main run() function with cat."""
         # Create a data file to read.  Pick a stride that doesn't repeat at the
         # same offsets that we're reading.
@@ -245,7 +245,7 @@ class PartialFileReaderTest(cros_test_lib.TempDirTestCase):
         os_close_mock.assert_called_with(pfr._Source())
 
     @mock.patch.object(os, "close", side_effect=os.close)
-    def testRunShrinker(self, os_close_mock):
+    def testRunShrinker(self, os_close_mock) -> None:
         """Tests the main run() function with a "compressor"."""
         # Create a data file to read.  Pick a stride that doesn't repeat at the
         # same offsets that we're reading.
@@ -272,7 +272,7 @@ class GsFileCopierTest(cros_test_lib.TestCase):
     """Tests GsFileCopier class."""
 
     @mock.patch.object(gs.GSContext, "Copy")
-    def testRun(self, copy_mock):
+    def testRun(self, copy_mock) -> None:
         """Tests the run() function."""
         image = "gs://path/to/image"
         with device_imager.GsFileCopier(image) as gfc:
@@ -284,21 +284,21 @@ class GsFileCopierTest(cros_test_lib.TestCase):
 class PartitionUpdaterBaseTest(cros_test_lib.TestCase):
     """Tests PartitionUpdaterBase class"""
 
-    def testRunNotImplemented(self):
+    def testRunNotImplemented(self) -> None:
         """Tests running the main Run() function is not implemented."""
         # We just want to make sure the _Run() function is not implemented here.
         pub = device_imager.PartitionUpdaterBase(None, None, None, None)
         with self.assertRaises(NotImplementedError):
             pub.Run()
 
-    def testRevertNotImplemented(self):
+    def testRevertNotImplemented(self) -> None:
         """Tests running the Revert() function is not implemented."""
         pub = device_imager.PartitionUpdaterBase(None, None, None, None)
         with self.assertRaises(NotImplementedError):
             pub.Revert()
 
     @mock.patch.object(device_imager.PartitionUpdaterBase, "_Run")
-    def testIsFinished(self, _):
+    def testIsFinished(self, _) -> None:
         """Tests IsFinished() function."""
         pub = device_imager.PartitionUpdaterBase(None, None, None, None)
         self.assertFalse(pub.IsFinished())
@@ -309,7 +309,7 @@ class PartitionUpdaterBaseTest(cros_test_lib.TestCase):
 class RawPartitionUpdaterTest(cros_test_lib.MockTempDirTestCase):
     """Tests RawPartitionUpdater class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Sets up the class by creating proper mocks."""
         self.rsh_mock = self.StartPatcher(remote_access_unittest.RemoteShMock())
         self.rsh_mock.AddCmdResult(partial_mock.In("${PATH}"), stdout="")
@@ -327,7 +327,7 @@ class RawPartitionUpdaterTest(cros_test_lib.MockTempDirTestCase):
     )
     @mock.patch.object(device_imager.PartialFileReader, "CloseTarget")
     @mock.patch.object(device_imager.PartialFileReader, "run")
-    def test_RunFullImage(self, run_mock, close_mock, _, name_mock):
+    def test_RunFullImage(self, run_mock, close_mock, _, name_mock) -> None:
         """Test main Run() function for full image.
 
         This function should parts of the source image and write it into the
@@ -355,7 +355,7 @@ class RawPartitionUpdaterTest(cros_test_lib.MockTempDirTestCase):
             close_mock.assert_called()
             name_mock.assert_called()
 
-    def test_RunRemoteImage(self):
+    def test_RunRemoteImage(self) -> None:
         """Test main Run() function for remote images."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -385,12 +385,12 @@ class RawPartitionUpdaterTest(cros_test_lib.MockTempDirTestCase):
 class KernelUpdaterTest(cros_test_lib.MockTempDirTestCase):
     """Tests KernelUpdater class."""
 
-    def test_GetPartitionName(self):
+    def test_GetPartitionName(self) -> None:
         """Tests the name of the partitions."""
         ku = device_imager.KernelUpdater(None, None, None, None)
         self.assertEqual(constants.PART_KERN_B, ku._GetPartitionName())
 
-    def test_GetRemotePartitionName(self):
+    def test_GetRemotePartitionName(self) -> None:
         """Tests the name of the partitions."""
         ku = device_imager.KernelUpdater(None, None, None, None)
         self.assertEqual(
@@ -402,12 +402,12 @@ class KernelUpdaterTest(cros_test_lib.MockTempDirTestCase):
 class MiniOSUpdaterTest(cros_test_lib.MockTempDirTestCase):
     """Tests MiniOSUpdater class."""
 
-    def test_GetPartitionName(self):
+    def test_GetPartitionName(self) -> None:
         """Tests the name of the partitions."""
         u = device_imager.MiniOSUpdater(*([None] * 4))
         self.assertEqual(constants.PART_MINIOS_A, u._GetPartitionName())
 
-    def test_GetRemotePartitionName(self):
+    def test_GetRemotePartitionName(self) -> None:
         """Tests the name of the partitions."""
         u = device_imager.MiniOSUpdater(*([None] * 4))
         self.assertEqual(
@@ -422,7 +422,9 @@ class MiniOSUpdaterTest(cros_test_lib.MockTempDirTestCase):
         return_value=True,
     )
     @mock.patch.object(device_imager.MiniOSUpdater, "_RunPostInstall")
-    def test_Run(self, postinstall_mock, partitions_exist_mock, copy_mock):
+    def test_Run(
+        self, postinstall_mock, partitions_exist_mock, copy_mock
+    ) -> None:
         """Test main Run() function."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -444,7 +446,7 @@ class MiniOSUpdaterTest(cros_test_lib.MockTempDirTestCase):
         "_MiniOSPartitionsExistInImage",
         return_value=False,
     )
-    def test_RunMissingMiniOS(self, partitions_exist_mock, copy_mock):
+    def test_RunMissingMiniOS(self, partitions_exist_mock, copy_mock) -> None:
         """Test main Run() function with missing miniOS partitions on image."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -469,7 +471,7 @@ class MiniOSUpdaterTest(cros_test_lib.MockTempDirTestCase):
         partitions_exist_mock,
         redirect_mock,
         post_install_mock,
-    ):
+    ) -> None:
         """Test main Run() function with missing miniOS remote payloads."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -500,7 +502,7 @@ class MiniOSUpdaterTest(cros_test_lib.MockTempDirTestCase):
         partitions_exist_mock,
         redirect_mock,
         post_install_mock,
-    ):
+    ) -> None:
         """Test main Run() function with missing miniOS remote payloads."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -529,7 +531,7 @@ class MiniOSUpdaterTest(cros_test_lib.MockTempDirTestCase):
         partitions_exist_mock,
         redirect_mock,
         post_install_mock,
-    ):
+    ) -> None:
         """Test main Run() function with missing miniOS remote payloads."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -547,7 +549,7 @@ class MiniOSUpdaterTest(cros_test_lib.MockTempDirTestCase):
             gs_context_mock.assert_called()
 
     @mock.patch.object(device_imager.MiniOSUpdater, "_FlipMiniOSPriority")
-    def test_RunPostInstall(self, flip_mock):
+    def test_RunPostInstall(self, flip_mock) -> None:
         """Test _RunPostInstall() function."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -562,7 +564,7 @@ class MiniOSUpdaterTest(cros_test_lib.MockTempDirTestCase):
             flip_mock.assert_called_with()
 
     @mock.patch.object(device_imager.MiniOSUpdater, "_FlipMiniOSPriority")
-    def test_Revert(self, flip_mock):
+    def test_Revert(self, flip_mock) -> None:
         """Test Revert() function."""
         u = device_imager.MiniOSUpdater(
             None, "foo-image", device_imager.ImageType.FULL, "/dev/mmcblk0p10"
@@ -581,7 +583,7 @@ class MiniOSUpdaterTest(cros_test_lib.MockTempDirTestCase):
         device_imager.MiniOSUpdater, "_GetMiniOSPriority", return_value="A"
     )
     @mock.patch.object(device_imager.MiniOSUpdater, "_SetMiniOSPriority")
-    def test_FlipMiniOSPriority(self, set_mock, get_mock):
+    def test_FlipMiniOSPriority(self, set_mock, get_mock) -> None:
         """Test _FlipMiniOSPriority() function."""
         device_imager.MiniOSUpdater(
             None, "foo-image", device_imager.ImageType.FULL, "/dev/mmcblk0p10"
@@ -594,18 +596,18 @@ class MiniOSUpdaterTest(cros_test_lib.MockTempDirTestCase):
 class RootfsUpdaterTest(cros_test_lib.MockTestCase):
     """Tests RootfsUpdater class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Sets up the class by creating proper mocks."""
         self.rsh_mock = self.StartPatcher(remote_access_unittest.RemoteShMock())
         self.rsh_mock.AddCmdResult(partial_mock.In("${PATH}"), stdout="")
         self.path_env = "PATH=%s:" % remote_access.DEV_BIN_PATHS
 
-    def test_GetPartitionName(self):
+    def test_GetPartitionName(self) -> None:
         """Tests the name of the partitions."""
         ru = device_imager.RootfsUpdater(None, None, None, None, None)
         self.assertEqual(constants.PART_ROOT_A, ru._GetPartitionName())
 
-    def test_GetRemotePartitionName(self):
+    def test_GetRemotePartitionName(self) -> None:
         """Tests the name of the partitions."""
         ru = device_imager.RootfsUpdater(None, None, None, None, None)
         self.assertEqual(
@@ -616,7 +618,7 @@ class RootfsUpdaterTest(cros_test_lib.MockTestCase):
     @mock.patch.object(device_imager.ProgressWatcher, "run")
     @mock.patch.object(device_imager.RootfsUpdater, "_RunPostInst")
     @mock.patch.object(device_imager.RootfsUpdater, "_CopyPartitionFromImage")
-    def test_Run(self, copy_mock, postinst_mock, pw_mock):
+    def test_Run(self, copy_mock, postinst_mock, pw_mock) -> None:
         """Test main Run() function.
 
         This function should parts of the source image and write it into the
@@ -637,7 +639,7 @@ class RootfsUpdaterTest(cros_test_lib.MockTestCase):
             postinst_mock.assert_called_with()
             pw_mock.assert_called()
 
-    def test_RunPostInstOnTarget(self):
+    def test_RunPostInstOnTarget(self) -> None:
         """Test _RunPostInst() function."""
         target = "/dev/mmcblk0p3"
         with remote_access.ChromiumOSDeviceHandler(
@@ -665,7 +667,7 @@ class RootfsUpdaterTest(cros_test_lib.MockTestCase):
                 target,
             )._RunPostInst()
 
-    def test_RunPostInstOnCurrentRoot(self):
+    def test_RunPostInstOnCurrentRoot(self) -> None:
         """Test _RunPostInst() on current root; used for reverting an update."""
         root_dev = "/dev/mmcblk0p5"
         self.rsh_mock.AddCmdResult([self.path_env, "/postinst", root_dev])
@@ -682,7 +684,7 @@ class RootfsUpdaterTest(cros_test_lib.MockTestCase):
             )._RunPostInst(on_target=False)
 
     @mock.patch.object(device_imager.RootfsUpdater, "_RunPostInst")
-    def testRevert(self, postinst_mock):
+    def testRevert(self, postinst_mock) -> None:
         """Tests Revert() function."""
         ru = device_imager.RootfsUpdater(None, None, None, None, None)
 
@@ -699,7 +701,7 @@ class StatefulPayloadGeneratorTest(cros_test_lib.TestCase):
 
     @mock.patch.object(paygen_stateful_payload_lib, "GenerateStatefulPayload")
     @mock.patch.object(os, "close", side_effect=os.close)
-    def testRun(self, os_close_mock, paygen_mock):
+    def testRun(self, os_close_mock, paygen_mock) -> None:
         """Tests run() function."""
         image = "/foo/image"
         with device_imager.StatefulPayloadGenerator(image) as spg:
@@ -714,7 +716,7 @@ class StatefulUpdaterTest(cros_test_lib.TestCase):
 
     @mock.patch.object(paygen_stateful_payload_lib, "GenerateStatefulPayload")
     @mock.patch.object(stateful_updater.StatefulUpdater, "Update")
-    def test_RunFullImage(self, update_mock, paygen_mock):
+    def test_RunFullImage(self, update_mock, paygen_mock) -> None:
         """Test main Run() function for full image."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -729,7 +731,7 @@ class StatefulUpdaterTest(cros_test_lib.TestCase):
 
     @mock.patch.object(gs.GSContext, "Copy")
     @mock.patch.object(stateful_updater.StatefulUpdater, "Update")
-    def test_RunRemoteImage(self, update_mock, copy_mock):
+    def test_RunRemoteImage(self, update_mock, copy_mock) -> None:
         """Test main Run() function for remote images."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP
@@ -749,7 +751,7 @@ class StatefulUpdaterTest(cros_test_lib.TestCase):
             )
 
     @mock.patch.object(stateful_updater.StatefulUpdater, "Reset")
-    def testRevert(self, reset_mock):
+    def testRevert(self, reset_mock) -> None:
         """Tests Revert() function."""
         su = device_imager.StatefulUpdater(False, None, None, None, None)
 
@@ -760,7 +762,7 @@ class StatefulUpdaterTest(cros_test_lib.TestCase):
 class ProgressWatcherTest(cros_test_lib.MockTestCase):
     """Tests ProgressWatcher class"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Sets up the class by creating proper mocks."""
         self.rsh_mock = self.StartPatcher(remote_access_unittest.RemoteShMock())
         self.rsh_mock.AddCmdResult(partial_mock.In("${PATH}"), stdout="")
@@ -773,7 +775,7 @@ class ProgressWatcherTest(cros_test_lib.MockTestCase):
         side_effect=[False, False, True],
     )
     # pylint: disable=unused-argument
-    def testRun(self, exit_mock, _):
+    def testRun(self, exit_mock, _) -> None:
         """Tests the run() function."""
         with remote_access.ChromiumOSDeviceHandler(
             remote_access.TEST_IP

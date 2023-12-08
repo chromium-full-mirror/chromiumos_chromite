@@ -22,7 +22,7 @@ class UnmountCommandBase(command.CliCommand):
     """
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Add parser arguments."""
         super().AddParser(parser)
 
@@ -41,11 +41,11 @@ class UnmountCommandBase(command.CliCommand):
         )
 
     @classmethod
-    def ProcessOptions(cls, parser, options):
+    def ProcessOptions(cls, parser, options) -> None:
         """Post process options."""
         options.paths = [Path(x).expanduser() for x in options.paths]
 
-    def Run(self):
+    def Run(self) -> None:
         """Perform the cros mount command."""
         for path in self.options.paths:
             if not path.exists():

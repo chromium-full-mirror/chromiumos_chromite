@@ -54,7 +54,7 @@ class AnalyzerCommand(ABC, command.CliCommand):
     use_filter_options = True
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         super().AddParser(parser)
         if cls.can_modify_files:
             parser.add_argument(

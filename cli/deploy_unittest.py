@@ -70,10 +70,10 @@ class ChromiumOSDeviceFake:
     def IsSELinuxEnforced(self):
         return True
 
-    def mkdir(self, _path):
+    def mkdir(self, _path) -> None:
         return None
 
-    def run(self, cmd, **_kwargs):
+    def run(self, cmd, **_kwargs) -> None:
         if cmd in self.cmd_disallowed:
             raise cros_build_lib.RunCommandError("Command disallowed")
         else:
@@ -108,7 +108,7 @@ class ChromiumOSDeviceHandlerFake:
     def agent(self):
         return self._agent
 
-    def __exit__(self, _type, _value, _traceback):
+    def __exit__(self, _type, _value, _traceback) -> None:
         pass
 
     def __enter__(self):
@@ -122,7 +122,7 @@ class BrilloDeployOperationFake(deploy.BrilloDeployOperation):
         super().__init__(emerge)
         self._queue = queue
 
-    def ParseOutput(self, output=None):
+    def ParseOutput(self, output=None) -> None:
         super().ParseOutput(output)
         self._queue.put("advance")
 
@@ -205,7 +205,7 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
         ("foo/app5-3.0.7-r3", "0", "", "1413309336", "/", "cros-debug"),
     ]
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Patch imported modules."""
         self.PatchObject(cros_build_lib, "GetChoice", return_value=0)
         self.device = ChromiumOSDeviceHandlerFake()
@@ -215,7 +215,7 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
             deploy, "_ConfirmUpdateDespiteWarnings", return_value=True
         )
 
-    def SetupVartree(self, vartree_pkgs):
+    def SetupVartree(self, vartree_pkgs) -> None:
         self.PatchObject(
             self.scanner,
             "_get_portage_interpreter",
@@ -223,13 +223,13 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
         )
         self.device.agent.remote_sh_output = json.dumps(vartree_pkgs)
 
-    def SetupBintree(self, bintree_pkgs):
+    def SetupBintree(self, bintree_pkgs) -> None:
         bintree = PortageTreeFake(DbApiFake(bintree_pkgs))
         build_root = os.path.join(self._BUILD_ROOT, "")
         portage_db = {build_root: {"bintree": bintree}}
         self.PatchObject(portage, "create_trees", return_value=portage_db)
 
-    def ValidatePkgs(self, actual, expected, constraints=None):
+    def ValidatePkgs(self, actual, expected, constraints=None) -> None:
         # Containing exactly the same packages.
         self.assertEqual(sorted(expected), sorted(actual))
         # Packages appear in the right order.
@@ -237,7 +237,7 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
             for needs, needed in constraints:
                 self.assertGreater(actual.index(needs), actual.index(needed))
 
-    def testRunUpdatedVersion(self):
+    def testRunUpdatedVersion(self) -> None:
         self.SetupVartree(self._VARTREE)
         app1 = "foo/app1-1.2.5-r4"
         self.SetupBintree(
@@ -263,7 +263,7 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
         self.assertTrue(app1 in pkgs_root)
         self.assertEqual(pkgs_root[app1], "/usr/local/")
 
-    def testRunUpdatedVersionWithUseMismatch(self):
+    def testRunUpdatedVersionWithUseMismatch(self) -> None:
         self.SetupVartree(self._VARTREE)
         app1 = "foo/app1-1.2.5-r4"
         # Setup the bintree with packages that don't have USE=cros-debug.
@@ -288,7 +288,7 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
                 matching_logs, "Failed to detect USE flag mismatch."
             )
 
-    def testRunUpdatedBuildTime(self):
+    def testRunUpdatedBuildTime(self) -> None:
         self.SetupVartree(self._VARTREE)
         app1 = "foo/app1-1.2.3-r4"
         self.SetupBintree(
@@ -311,7 +311,7 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
         self.ValidatePkgs(listed, [app1])
         self.assertEqual(num_updates, 1)
 
-    def testRunExistingDepUpdated(self):
+    def testRunExistingDepUpdated(self) -> None:
         self.SetupVartree(self._VARTREE)
         app1 = "foo/app1-1.2.5-r2"
         app2 = "foo/app2-4.5.8-r3"
@@ -338,7 +338,7 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
         self.assertTrue(app2 in pkgs_root)
         self.assertEqual(pkgs_root[app2], "/")
 
-    def testRunMissingDepUpdated(self):
+    def testRunMissingDepUpdated(self) -> None:
         self.SetupVartree(self._VARTREE)
         app1 = "foo/app1-1.2.5-r2"
         app6 = "foo/app6-1.0.0-r1"
@@ -363,7 +363,7 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
         self.ValidatePkgs(listed, [app1])
         self.assertEqual(num_updates, 1)
 
-    def testRunExistingRevDepUpdated(self):
+    def testRunExistingRevDepUpdated(self) -> None:
         self.SetupVartree(self._VARTREE)
         app1 = "foo/app1-1.2.5-r2"
         app4 = "foo/app4-2.0.1-r3"
@@ -395,7 +395,7 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
         self.ValidatePkgs(listed, [app1])
         self.assertEqual(num_updates, 2)
 
-    def testRunMissingRevDepNotUpdated(self):
+    def testRunMissingRevDepNotUpdated(self) -> None:
         self.SetupVartree(self._VARTREE)
         app1 = "foo/app1-1.2.5-r2"
         app6 = "foo/app6-1.0.0-r1"
@@ -419,7 +419,7 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
         self.ValidatePkgs(listed, [app1])
         self.assertEqual(num_updates, 1)
 
-    def testRunTransitiveDepsUpdated(self):
+    def testRunTransitiveDepsUpdated(self) -> None:
         self.SetupVartree(self._VARTREE)
         app1 = "foo/app1-1.2.5-r2"
         app2 = "foo/app2-4.5.8-r3"
@@ -458,7 +458,7 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
         self.ValidatePkgs(listed, [app1])
         self.assertEqual(num_updates, 4)
 
-    def testRunDisjunctiveDepsExistingUpdated(self):
+    def testRunDisjunctiveDepsExistingUpdated(self) -> None:
         self.SetupVartree(self._VARTREE)
         app1 = "foo/app1-1.2.5-r2"
         self.SetupBintree(
@@ -481,7 +481,7 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
         self.ValidatePkgs(listed, [app1])
         self.assertEqual(num_updates, 1)
 
-    def testRunDisjunctiveDepsDefaultUpdated(self):
+    def testRunDisjunctiveDepsDefaultUpdated(self) -> None:
         self.SetupVartree(self._VARTREE)
         app1 = "foo/app1-1.2.5-r2"
         app7 = "foo/app7-1.0.0-r1"
@@ -505,7 +505,7 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
         self.ValidatePkgs(listed, [app1])
         self.assertEqual(num_updates, 1)
 
-    def test_get_portage_interpreter(self):
+    def test_get_portage_interpreter(self) -> None:
         """Test getting the portage interpreter from the device."""
         self.device.agent.remote_sh_output = """\
 /usr/lib/python-exec/python3.6/emerge
@@ -529,7 +529,7 @@ class TestDeploy(
             "/path/to/%s.tbz2" % cpv.pv: paths_root[cpv.cpf] for cpv in cpvs
         }
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Fake being root to avoid running filesystem commands with sudo_run.
         self.PatchObject(os_util, "is_root_user", return_value=True)
         self._sysroot = os.path.join(self.tempdir, "sysroot")
@@ -560,7 +560,7 @@ class TestDeploy(
         # make.conf needs to exist to correctly read back config.
         unittest_lib.create_stub_make_conf(self._sysroot)
 
-    def testDeployEmerge(self):
+    def testDeployEmerge(self) -> None:
         """Test that deploy._Emerge is called for each package."""
 
         _BINPKG = "/path/to/bar-1.2.5.tbz2"
@@ -607,7 +607,7 @@ class TestDeploy(
         )
         self.assertEqual(self.unmerge.call_count, 0)
 
-    def testDeployEmergeDLC(self):
+    def testDeployEmergeDLC(self) -> None:
         """Test that deploy._Emerge installs images for DLC packages."""
         packages = ["some/foodlc-1.0", "some/bardlc-2.0"]
         cpvs = ["some/foodlc-1.0", "some/bardlc-2.0"]
@@ -630,7 +630,7 @@ class TestDeploy(
         )
         self.assertTrue(["restart", "dlcservice"] in self.device.device.cmds)
 
-    def testDeployEmergeDLCFallback(self):
+    def testDeployEmergeDLCFallback(self) -> None:
         """Test that deploy._Emerge installs images for DLC packages."""
         packages = ["some/foodlc-1.0", "some/bardlc-2.0"]
         cpvs = ["some/foodlc-1.0", "some/bardlc-2.0"]
@@ -653,7 +653,7 @@ class TestDeploy(
         self.assertFalse(deploy_cmd in self.device.device.cmds)
         self.assertTrue(["restart", "dlcservice"] in self.device.device.cmds)
 
-    def testDeployDLCLoadPinMissingDeviceDigests(self):
+    def testDeployDLCLoadPinMissingDeviceDigests(self) -> None:
         """Test that _DeployDLCLoadPin works with missing device digests."""
         osutils.WriteFile(
             self.tempdir
@@ -673,7 +673,7 @@ class TestDeploy(
             in d.copy_store.splitlines()
         )
 
-    def testDeployDLCLoadPinFeedNewDigests(self):
+    def testDeployDLCLoadPinFeedNewDigests(self) -> None:
         """Test that _DeployDLCLoadPin works with digest format file."""
         osutils.WriteFile(
             self.tempdir
@@ -694,7 +694,7 @@ class TestDeploy(
             in d.copy_store.splitlines()
         )
 
-    def testDeployEmergeSELinux(self):
+    def testDeployEmergeSELinux(self) -> None:
         """Test deploy progress when the device has SELinux"""
 
         _BINPKG = "/path/to/bar-1.2.5.tbz2"
@@ -761,7 +761,7 @@ class TestDeploy(
             + [["setenforce", "1"]],
         )
 
-    def testDeployUnmerge(self):
+    def testDeployUnmerge(self) -> None:
         """Test that deploy._Unmerge is called for each package."""
         packages = ["foo", "bar", "foobar", "foodlc"]
         self.package_scanner.return_value = PackageScannerFake(
@@ -799,7 +799,7 @@ class TestDeploy(
             ],
         )
 
-    def testDeployMergeWithProgressBar(self):
+    def testDeployMergeWithProgressBar(self) -> None:
         """Test that BrilloDeployOperation.Run() is called for merge."""
         packages = ["foo", "bar", "foobar"]
         self.package_scanner.return_value = PackageScannerFake(
@@ -822,7 +822,7 @@ class TestDeploy(
         # Check that BrilloDeployOperation.Run was called.
         self.assertTrue(run.called)
 
-    def testDeployUnmergeWithProgressBar(self):
+    def testDeployUnmergeWithProgressBar(self) -> None:
         """Test that BrilloDeployOperation.Run() is called for unmerge."""
         packages = ["foo", "bar", "foobar"]
         self.package_scanner.return_value = PackageScannerFake(
@@ -847,10 +847,10 @@ class TestDeploy(
         # Check that BrilloDeployOperation.Run was called.
         self.assertTrue(run.called)
 
-    def testBrilloDeployMergeOperation(self):
+    def testBrilloDeployMergeOperation(self) -> None:
         """Test that BrilloDeployOperation works for merge."""
 
-        def func(queue):
+        def func(queue) -> None:
             for event in op.MERGE_EVENTS:
                 queue.get()
                 print(event)
@@ -866,10 +866,10 @@ class TestDeploy(
         # Check that the progress bar prints correctly.
         self.AssertProgressBarAllEvents(len(op.MERGE_EVENTS))
 
-    def testBrilloDeployUnmergeOperation(self):
+    def testBrilloDeployUnmergeOperation(self) -> None:
         """Test that BrilloDeployOperation works for unmerge."""
 
-        def func(queue):
+        def func(queue) -> None:
             for event in op.UNMERGE_EVENTS:
                 queue.get()
                 print(event)

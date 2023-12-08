@@ -204,7 +204,7 @@ class BuildImageCommand(command.CliCommand):
     """Build a ChromiumOS image."""
 
     @classmethod
-    def AddParser(cls, parser: commandline.ArgumentParser):
+    def AddParser(cls, parser: commandline.ArgumentParser) -> None:
         """Build the parser.
 
         Args:
@@ -402,7 +402,7 @@ class BuildImageCommand(command.CliCommand):
         )
 
     @classmethod
-    def ProcessOptions(cls, parser, options):
+    def ProcessOptions(cls, parser, options) -> None:
         """Post-process options prior to freeze."""
 
         # If the opts.board is not set, then it means the user hasn't specified

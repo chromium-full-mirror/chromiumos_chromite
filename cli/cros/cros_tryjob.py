@@ -58,7 +58,7 @@ def ConfigsToPrint(site_config, production, build_config_fragments):
     return configs
 
 
-def PrintKnownConfigs(site_config, production, build_config_fragments):
+def PrintKnownConfigs(site_config, production, build_config_fragments) -> None:
     """Print a list of known buildbot configs.
 
     Args:
@@ -333,7 +333,7 @@ def PushLocalPatches(local_patches, user_email, dryrun=False):
 
 def RunRemote(
     site_config, options, patch_pool, infra_testing=False, production=False
-):
+) -> None:
     """Schedule remote tryjobs."""
     logging.info(
         "Scheduling remote tryjob(s): %s", ", ".join(options.build_configs)
@@ -383,7 +383,7 @@ def RunRemote(
             print(f"{constants.CHROMEOS_MILO_HOST}{r.id}")
 
 
-def VerifyOptions(options, site_config):
+def VerifyOptions(options, site_config) -> None:
     """Verify that our command line options make sense.
 
     Args:
@@ -541,7 +541,7 @@ List Examples:
 """
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Adds a parser."""
         super(cls, TryjobCommand).AddParser(parser)
         parser.add_argument(
@@ -785,7 +785,7 @@ List Examples:
         )
 
     @classmethod
-    def ProcessOptions(cls, parser, options):
+    def ProcessOptions(cls, parser, options) -> None:
         """Post process options."""
         if options.where == CBUILDBOT:
             options.buildroot = options.buildroot or os.path.join(

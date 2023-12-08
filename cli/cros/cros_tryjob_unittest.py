@@ -25,7 +25,7 @@ class MockTryjobCommand(command_unittest.MockCommand):
 class TryjobTest(cros_test_lib.MockTestCase):
     """Base class for Tryjob command tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.cmd_mock = None
 
     def SetupCommandMock(self, cmd_args):
@@ -39,10 +39,10 @@ class TryjobTest(cros_test_lib.MockTestCase):
 class TryjobTestPrintKnownConfigs(TryjobTest):
     """Test the PrintKnownConfigs function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.site_config = config_lib.GetConfig()
 
-    def testConfigsToPrintAllIncluded(self):
+    def testConfigsToPrintAllIncluded(self) -> None:
         """Test we can generate results for --list."""
         tryjob_configs = cros_tryjob.ConfigsToPrint(
             self.site_config, production=False, build_config_fragments=[]
@@ -56,7 +56,7 @@ class TryjobTestPrintKnownConfigs(TryjobTest):
             len(self.site_config), len(tryjob_configs) + len(release_configs)
         )
 
-    def testConfigsToPrintFiltered(self):
+    def testConfigsToPrintFiltered(self) -> None:
         """Test ConfigsToPrint filters correctly."""
         tryjob_configs = cros_tryjob.ConfigsToPrint(
             self.site_config, production=False, build_config_fragments=[]
@@ -92,7 +92,7 @@ class TryjobTestPrintKnownConfigs(TryjobTest):
 
         self.assertLess(len(board_tryjob_configs), len(tryjob_configs))
 
-    def testListTryjobs(self):
+    def testListTryjobs(self) -> None:
         """Test we can generate results for --list."""
         with outcap.OutputCapturer() as output:
             cros_tryjob.PrintKnownConfigs(
@@ -103,7 +103,7 @@ class TryjobTestPrintKnownConfigs(TryjobTest):
         self.assertGreater(len(output.GetStdoutLines()), 100)
         self.assertEqual("", output.GetStderr())
 
-    def testListProduction(self):
+    def testListProduction(self) -> None:
         """Test we can generate results for --production --list."""
         with outcap.OutputCapturer() as output:
             cros_tryjob.PrintKnownConfigs(
@@ -114,7 +114,7 @@ class TryjobTestPrintKnownConfigs(TryjobTest):
         self.assertGreater(len(output.GetStdoutLines()), 100)
         self.assertEqual("", output.GetStderr())
 
-    def testListTryjobsEmpty(self):
+    def testListTryjobsEmpty(self) -> None:
         """Test we can generate ~empty results for failed --list search."""
         with outcap.OutputCapturer() as output:
             cros_tryjob.PrintKnownConfigs(
@@ -131,7 +131,7 @@ class TryjobTestPrintKnownConfigs(TryjobTest):
 class TryjobTestParsing(TryjobTest):
     """Test cros try command line parsing."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.expected = {
             "where": cros_tryjob.REMOTE,
             "buildroot": None,
@@ -146,13 +146,13 @@ class TryjobTestParsing(TryjobTest):
             "build_configs": ["amd64-generic-full-tryjob"],
         }
 
-    def testMinimalParsing(self):
+    def testMinimalParsing(self) -> None:
         """Tests flow for an interactive session."""
         self.SetupCommandMock(["amd64-generic-full-tryjob"])
         options = self.cmd_mock.inst.options
         self.assertGreaterEqual(vars(options).items(), self.expected.items())
 
-    def testComplexParsingRemote(self):
+    def testComplexParsingRemote(self) -> None:
         """Tests flow for an interactive session."""
         self.SetupCommandMock(
             [
@@ -217,7 +217,7 @@ class TryjobTestParsing(TryjobTest):
         )
         self.assertGreaterEqual(vars(options).items(), self.expected.items())
 
-    def testComplexParsingLocal(self):
+    def testComplexParsingLocal(self) -> None:
         """Tests flow for an interactive session."""
         self.SetupCommandMock(
             [
@@ -285,7 +285,7 @@ class TryjobTestParsing(TryjobTest):
         )
         self.assertGreaterEqual(vars(options).items(), self.expected.items())
 
-    def testComplexParsingCbuildbot(self):
+    def testComplexParsingCbuildbot(self) -> None:
         """Tests flow for an interactive session."""
         self.SetupCommandMock(
             [
@@ -351,7 +351,7 @@ class TryjobTestParsing(TryjobTest):
         )
         self.assertGreaterEqual(vars(options).items(), self.expected.items())
 
-    def testPayloadsParsing(self):
+    def testPayloadsParsing(self) -> None:
         """Tests flow for an interactive session."""
         self.SetupCommandMock(
             ["--version", "9795.0.0", "--channel", "canary", "eve-payloads"]
@@ -370,7 +370,7 @@ class TryjobTestParsing(TryjobTest):
 class TryjobTestProcessOptions(TryjobTest):
     """Test cros_tryjob.TryjobCommand.ProcessOptions."""
 
-    def testRemote(self):
+    def testRemote(self) -> None:
         """Test default remote buildroot."""
         self.SetupCommandMock(["config"])
         options = self.cmd_mock.inst.options
@@ -380,7 +380,7 @@ class TryjobTestProcessOptions(TryjobTest):
         self.assertIsNone(options.buildroot)
         self.assertIsNone(options.git_cache_dir)
 
-    def testLocalDefault(self):
+    def testLocalDefault(self) -> None:
         """Test default local buildroot."""
         self.SetupCommandMock(["--local", "config"])
         options = self.cmd_mock.inst.options
@@ -390,7 +390,7 @@ class TryjobTestProcessOptions(TryjobTest):
         self.assertTrue(options.buildroot.endswith("/tryjob"))
         self.assertTrue(options.git_cache_dir.endswith("/tryjob/.git_cache"))
 
-    def testLocalExplicit(self):
+    def testLocalExplicit(self) -> None:
         """Test explicit local buildroot."""
         self.SetupCommandMock(
             [
@@ -409,7 +409,7 @@ class TryjobTestProcessOptions(TryjobTest):
         self.assertEqual(options.buildroot, "/buildroot")
         self.assertEqual(options.git_cache_dir, "/git-cache")
 
-    def testCbuildbotDefault(self):
+    def testCbuildbotDefault(self) -> None:
         """Test default cbuildbot buildroot."""
         self.SetupCommandMock(["--cbuildbot", "config"])
         options = self.cmd_mock.inst.options
@@ -419,7 +419,7 @@ class TryjobTestProcessOptions(TryjobTest):
         self.assertTrue(options.buildroot.endswith("/cbuild"))
         self.assertTrue(options.git_cache_dir.endswith("/cbuild/.git_cache"))
 
-    def testCbuildbotExplicit(self):
+    def testCbuildbotExplicit(self) -> None:
         """Test explicit cbuildbot buildroot."""
         self.SetupCommandMock(
             [
@@ -446,7 +446,7 @@ class PromptException(Exception):
 class TryjobTestVerifyOptions(TryjobTest):
     """Test cros_tryjob.VerifyOptions."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.site_config = config_lib.GetConfig()
 
         # Raise an exception instead of blocking the test on a prompt.
@@ -454,7 +454,7 @@ class TryjobTestVerifyOptions(TryjobTest):
             cros_build_lib, "BooleanPrompt", side_effect=PromptException
         )
 
-    def testEmpty(self):
+    def testEmpty(self) -> None:
         """Test option verification with no options."""
         self.SetupCommandMock([])
 
@@ -464,7 +464,7 @@ class TryjobTestVerifyOptions(TryjobTest):
             )
         self.assertEqual(cm.exception.code, 1)
 
-    def testMinimal(self):
+    def testMinimal(self) -> None:
         """Test option verification with simplest normal options."""
         self.SetupCommandMock(
             [
@@ -479,7 +479,7 @@ class TryjobTestVerifyOptions(TryjobTest):
 
         self.assertIsNone(self.cmd_mock.inst.options.buildroot)
 
-    def testMinimalLocal(self):
+    def testMinimalLocal(self) -> None:
         """Test option verification with simplest normal options."""
         self.SetupCommandMock(
             [
@@ -493,7 +493,7 @@ class TryjobTestVerifyOptions(TryjobTest):
         )
         cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
-    def testMinimalCbuildbot(self):
+    def testMinimalCbuildbot(self) -> None:
         """Test option verification with simplest normal options."""
         self.SetupCommandMock(
             [
@@ -505,7 +505,7 @@ class TryjobTestVerifyOptions(TryjobTest):
         )
         cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
-    def testComplexLocalTryjob(self):
+    def testComplexLocalTryjob(self) -> None:
         """Test option verification with complex mix of options."""
         self.SetupCommandMock(
             [
@@ -544,7 +544,7 @@ class TryjobTestVerifyOptions(TryjobTest):
         )
         cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
-    def testComplexCbuildbot(self):
+    def testComplexCbuildbot(self) -> None:
         """Test option verification with complex mix of options."""
         self.SetupCommandMock(
             [
@@ -581,7 +581,7 @@ class TryjobTestVerifyOptions(TryjobTest):
         )
         cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
-    def testComplexRemoteTryjob(self):
+    def testComplexRemoteTryjob(self) -> None:
         """Test option verification with complex mix of options."""
         self.SetupCommandMock(
             [
@@ -618,7 +618,7 @@ class TryjobTestVerifyOptions(TryjobTest):
         )
         cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
-    def testList(self):
+    def testList(self) -> None:
         """Test option verification with config list behavior."""
         self.SetupCommandMock(
             [
@@ -633,7 +633,7 @@ class TryjobTestVerifyOptions(TryjobTest):
                 )
         self.assertEqual(cm.exception.code, 0)
 
-    def testListProduction(self):
+    def testListProduction(self) -> None:
         """Test option verification with config list behavior."""
         self.SetupCommandMock(
             [
@@ -649,7 +649,7 @@ class TryjobTestVerifyOptions(TryjobTest):
                 )
         self.assertEqual(cm.exception.code, 0)
 
-    def testProduction(self):
+    def testProduction(self) -> None:
         """Test option verification with production/no patches."""
         self.SetupCommandMock(
             [
@@ -663,7 +663,7 @@ class TryjobTestVerifyOptions(TryjobTest):
 
         cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
-    def testUnknownConfig(self):
+    def testUnknownConfig(self) -> None:
         """Test option verification with production configs on branches."""
 
         # We have no way of knowing if the config is production or not on a
@@ -675,7 +675,7 @@ class TryjobTestVerifyOptions(TryjobTest):
                 self.cmd_mock.inst.options, self.site_config
             )
 
-    def testBranchUnknownConfig(self):
+    def testBranchUnknownConfig(self) -> None:
         """Test option verification with production configs on branches."""
 
         # We have no way of knowing if the config is production or not on a
@@ -696,7 +696,7 @@ class TryjobTestVerifyOptions(TryjobTest):
 
         cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
-    def testBranchProductionUnknownConfig(self):
+    def testBranchProductionUnknownConfig(self) -> None:
         """Test option verification with production configs on branches."""
 
         # We have no way of knowing if the config is production or not on a
@@ -707,7 +707,7 @@ class TryjobTestVerifyOptions(TryjobTest):
 
         cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
-    def testBranchProductionConfigTryjob(self):
+    def testBranchProductionConfigTryjob(self) -> None:
         """Test option verification with production configs on branches."""
 
         # We have no way of knowing if the config is production or not on a
@@ -728,7 +728,7 @@ class TryjobTestVerifyOptions(TryjobTest):
 
         cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
-    def testProductionPatches(self):
+    def testProductionPatches(self) -> None:
         """Test option verification with production/patches."""
         self.SetupCommandMock(
             [
@@ -750,7 +750,7 @@ class TryjobTestVerifyOptions(TryjobTest):
             )
         self.assertEqual(cm.exception.code, 1)
 
-    def testRemoteTryjobProductionConfig(self):
+    def testRemoteTryjobProductionConfig(self) -> None:
         """Test option verification remote tryjob w/production config."""
         self.SetupCommandMock(["amd64-generic-full-tryjob", "eve-release"])
 
@@ -760,7 +760,7 @@ class TryjobTestVerifyOptions(TryjobTest):
             )
         self.assertEqual(cm.exception.code, 1)
 
-    def testLocalTryjobProductionConfig(self):
+    def testLocalTryjobProductionConfig(self) -> None:
         """Test option verification local tryjob w/production config."""
         self.SetupCommandMock(["--local", "eve-release"])
 
@@ -770,13 +770,13 @@ class TryjobTestVerifyOptions(TryjobTest):
             )
         self.assertEqual(cm.exception.code, 1)
 
-    def testRemoteTryjobBranchProductionConfig(self):
+    def testRemoteTryjobBranchProductionConfig(self) -> None:
         """Test a tryjob on a branch for a production config w/confirm."""
         self.SetupCommandMock(["--yes", "--branch", "foo", "eve-release"])
 
         cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
-    def testRemoteProductionBranchProductionConfig(self):
+    def testRemoteProductionBranchProductionConfig(self) -> None:
         """Test a production job on a branch for a prod config wo/confirm."""
         self.SetupCommandMock(
             ["--production", "--branch", "foo", "eve-release"]
@@ -784,7 +784,7 @@ class TryjobTestVerifyOptions(TryjobTest):
 
         cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
-    def testUnknownBuildYes(self):
+    def testUnknownBuildYes(self) -> None:
         """Test option using yes to force accepting an unknown config."""
         self.SetupCommandMock(
             [
@@ -798,14 +798,14 @@ class TryjobTestVerifyOptions(TryjobTest):
         )
         cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
-    def testNoPatchesYes(self):
+    def testNoPatchesYes(self) -> None:
         """Test option using yes to force an unknown config, no patches."""
         self.SetupCommandMock(
             ["--yes", "-b", "release-R107-15117.B", "unknown-config"]
         )
         cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
-    def testUnsupportedReleaseBranch(self):
+    def testUnsupportedReleaseBranch(self) -> None:
         """Test that the tool fails for an unsupported release branch."""
         self.SetupCommandMock(["--branch", "release-R108-15183.B"])
 
@@ -814,7 +814,7 @@ class TryjobTestVerifyOptions(TryjobTest):
                 self.cmd_mock.inst.options, self.site_config
             )
 
-    def test108Release(self):
+    def test108Release(self) -> None:
         """Test that the tool fails for an unsupported release branch."""
         self.SetupCommandMock(
             ["--branch", "release-R108-15183.B", "eve-release-tryjob"]
@@ -825,7 +825,7 @@ class TryjobTestVerifyOptions(TryjobTest):
                 self.cmd_mock.inst.options, self.site_config
             )
 
-    def test108NonRelease(self):
+    def test108NonRelease(self) -> None:
         """Test that the tool fails for an unsupported release branch."""
         # We have no way of knowing if the config is production or not on a
         # branch, so don't prompt at all
@@ -840,7 +840,7 @@ class TryjobTestVerifyOptions(TryjobTest):
 
         cros_tryjob.VerifyOptions(self.cmd_mock.inst.options, self.site_config)
 
-    def testUnsupportedStabilizeBranch(self):
+    def testUnsupportedStabilizeBranch(self) -> None:
         """Test that the tool fails for an unsupported stabilize branch."""
         self.SetupCommandMock(["--branch", "stabilize-15183.14.B"])
 
@@ -849,7 +849,7 @@ class TryjobTestVerifyOptions(TryjobTest):
                 self.cmd_mock.inst.options, self.site_config
             )
 
-    def testUnsupportedFirmwareBranch(self):
+    def testUnsupportedFirmwareBranch(self) -> None:
         """Test that the tool fails for an unsupported firmware branch."""
         self.SetupCommandMock(["--branch", "firmware-corsola-15194.B"])
 
@@ -858,7 +858,7 @@ class TryjobTestVerifyOptions(TryjobTest):
                 self.cmd_mock.inst.options, self.site_config
             )
 
-    def testUnsupportedToT(self):
+    def testUnsupportedToT(self) -> None:
         """Test that the tool fails for ToT."""
         self.SetupCommandMock(["--branch", "main"])
 
@@ -882,7 +882,7 @@ class TryjobTestCbuildbotArgs(TryjobTest):
         args_out = cros_tryjob.CbuildbotArgs(options)
         return args_out
 
-    def testCbuildbotArgsMinimal(self):
+    def testCbuildbotArgsMinimal(self) -> None:
         args_in = ["foo-build"]
 
         args_out = self.helperOptionsToCbuildbotArgs(args_in)
@@ -896,7 +896,7 @@ class TryjobTestCbuildbotArgs(TryjobTest):
             ],
         )
 
-    def testCbuildbotArgsSimpleRemote(self):
+    def testCbuildbotArgsSimpleRemote(self) -> None:
         args_in = ["-g", "123", "foo-build"]
 
         args_out = self.helperOptionsToCbuildbotArgs(args_in)
@@ -912,7 +912,7 @@ class TryjobTestCbuildbotArgs(TryjobTest):
             ],
         )
 
-    def testCbuildbotArgsSimpleInfraTesting(self):
+    def testCbuildbotArgsSimpleInfraTesting(self) -> None:
         args_in = ["--infra-testing", "-g", "123", "foo-build"]
 
         args_out = self.helperOptionsToCbuildbotArgs(args_in)
@@ -928,7 +928,7 @@ class TryjobTestCbuildbotArgs(TryjobTest):
             ],
         )
 
-    def testCbuildbotArgsSimpleLocal(self):
+    def testCbuildbotArgsSimpleLocal(self) -> None:
         args_in = [
             "--local",
             "-g",
@@ -955,7 +955,7 @@ class TryjobTestCbuildbotArgs(TryjobTest):
             ],
         )
 
-    def testCbuildbotArgsComplexRemote(self):
+    def testCbuildbotArgsComplexRemote(self) -> None:
         args_in = [
             "--yes",
             "--latest-toolchain",
@@ -1018,7 +1018,7 @@ class TryjobTestCbuildbotArgs(TryjobTest):
             ],
         )
 
-    def testCbuildbotArgsComplexLocal(self):
+    def testCbuildbotArgsComplexLocal(self) -> None:
         args_in = [
             "--local",
             "--yes",
@@ -1089,7 +1089,7 @@ class TryjobTestCbuildbotArgs(TryjobTest):
             ],
         )
 
-    def testCbuildbotArgsComplexCbuildbot(self):
+    def testCbuildbotArgsComplexCbuildbot(self) -> None:
         args_in = [
             "--cbuildbot",
             "--yes",
@@ -1161,7 +1161,7 @@ class TryjobTestCbuildbotArgs(TryjobTest):
             ],
         )
 
-    def testCbuildbotArgsProductionRemote(self):
+    def testCbuildbotArgsProductionRemote(self) -> None:
         args_in = [
             "--production",
             "foo-build",
@@ -1178,7 +1178,7 @@ class TryjobTestCbuildbotArgs(TryjobTest):
             ],
         )
 
-    def testCbuildbotArgsProductionLocal(self):
+    def testCbuildbotArgsProductionLocal(self) -> None:
         args_in = [
             "--local",
             "--production",
@@ -1212,18 +1212,18 @@ class TryjobTestDisplayLabel(TryjobTest):
         config_name = options.build_configs[-1]
         return cros_tryjob.DisplayLabel(site_config, options, config_name)
 
-    def testMainTryjob(self):
+    def testMainTryjob(self) -> None:
         label = self.FindLabel(["amd64-generic-full-tryjob"])
         self.assertEqual(label, "tryjob")
 
-    def testMainUnknown(self):
+    def testMainUnknown(self) -> None:
         label = self.FindLabel(["bogus-config"])
         self.assertEqual(label, "tryjob")
 
-    def testMainKnownProduction(self):
+    def testMainKnownProduction(self) -> None:
         label = self.FindLabel(["--production", "amd64-generic-full"])
         self.assertEqual(label, "production_tryjob")
 
-    def testMainUnknownProduction(self):
+    def testMainUnknownProduction(self) -> None:
         label = self.FindLabel(["--production", "bogus-config"])
         self.assertEqual(label, "production_tryjob")

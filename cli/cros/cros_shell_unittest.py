@@ -34,14 +34,14 @@ class ShellTest(cros_test_lib.MockTempDirTestCase):
 
     DEVICE_IP = remote_access.TEST_IP
 
-    def SetupCommandMock(self, cmd_args):
+    def SetupCommandMock(self, cmd_args) -> None:
         """Sets up the `cros shell` command mock."""
         self.cmd_mock = MockShellCommand(
             cmd_args, base_args=["--cache-dir", str(self.tempdir)]
         )
         self.StartPatcher(self.cmd_mock)
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Patches objects."""
         self.cmd_mock = None
 
@@ -61,7 +61,7 @@ class ShellTest(cros_test_lib.MockTempDirTestCase):
         self.mock_run_command = self.mock_device.run
         self.mock_run_command.return_value = cros_build_lib.CompletedProcess()
 
-    def testSshInteractive(self):
+    def testSshInteractive(self) -> None:
         """Tests flow for an interactive session.
 
         User should not be prompted for input, and SSH should be attempted
@@ -75,7 +75,7 @@ class ShellTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(self.mock_run_command.call_args[0][0], [])
         self.assertFalse(self.mock_prompt.called)
 
-    def testSshNonInteractiveSingleArg(self):
+    def testSshNonInteractiveSingleArg(self) -> None:
         """Tests a non-interactive command as a single argument.
 
         Examples:
@@ -86,7 +86,7 @@ class ShellTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertEqual(self.mock_run_command.call_args[0][0], ["ls -l /etc"])
 
-    def testSshNonInteractiveMultipleArgs(self):
+    def testSshNonInteractiveMultipleArgs(self) -> None:
         """Tests a non-interactive command as multiple arguments with "--".
 
         Examples:
@@ -99,14 +99,14 @@ class ShellTest(cros_test_lib.MockTempDirTestCase):
             self.mock_run_command.call_args[0][0], ["ls", "-l", "/etc"]
         )
 
-    def testSshReturnValue(self):
+    def testSshReturnValue(self) -> None:
         """Tests that `cros shell` returns the exit code of run()."""
         self.SetupCommandMock([self.DEVICE_IP])
         self.mock_run_command.return_value.returncode = 42
 
         self.assertEqual(self.cmd_mock.inst.Run(), 42)
 
-    def testSshKeyChangeOK(self):
+    def testSshKeyChangeOK(self) -> None:
         """Tests a host SSH key changing but the user giving it the OK.
 
         User should be prompted, SSH should be attempted twice, and host
@@ -129,7 +129,7 @@ class ShellTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(self.mock_run_command.call_count, 2)
         self.assertTrue(self.mock_remove_known_host.called)
 
-    def testSshKeyChangeAbort(self):
+    def testSshKeyChangeAbort(self) -> None:
         """Tests a host SSH key changing and the user canceling.
 
         User should be prompted, but SSH should only be attempted once, and
@@ -146,7 +146,7 @@ class ShellTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(self.mock_run_command.call_count, 1)
         self.assertFalse(self.mock_remove_known_host.called)
 
-    def testSshConnectError(self):
+    def testSshConnectError(self) -> None:
         """Tests an SSH error other than a host key mismatch.
 
         User should not be prompted, SSH should only be attempted once, and

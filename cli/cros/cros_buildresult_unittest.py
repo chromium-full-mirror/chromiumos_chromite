@@ -36,7 +36,7 @@ class MockBuildresultCommand(command_unittest.MockCommand):
 class BuildresultTest(cros_test_lib.MockTestCase):
     """Base class for buildresult command tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.cmd_mock = None
 
     def SetupCommandMock(self, cmd_args):
@@ -50,7 +50,7 @@ class BuildresultTest(cros_test_lib.MockTestCase):
 class BuildresultReportTest(BuildresultTest):
     """Test the report generation functions."""
 
-    def testReport(self):
+    def testReport(self) -> None:
         result = cros_buildresult.Report([FAKE_BUILD_STATUS])
         expected = """buildbucket_id: buildbucket_value
 status: pass
@@ -65,7 +65,7 @@ stages:
 
         self.assertEqual(expected, result)
 
-    def testReportJson(self):
+    def testReportJson(self) -> None:
         result = cros_buildresult.ReportJson([FAKE_BUILD_STATUS])
         expected = {
             "buildbucket_value": {

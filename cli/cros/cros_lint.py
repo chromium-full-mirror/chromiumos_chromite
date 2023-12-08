@@ -491,7 +491,7 @@ def _PortageLayoutConfLintFile(
     return result
 
 
-def _BreakoutDataByTool(map_to_return, path):
+def _BreakoutDataByTool(map_to_return, path) -> None:
     """Maps a tool method to the content of the |path|."""
     # Detect by content of the file itself.
     try:
@@ -700,7 +700,7 @@ NB: Not all linters work with `--commit` yet.
     OUTPUT_FORMATS = ("default", "colorized", "msvs", "parseable")
 
     @classmethod
-    def AddParser(cls, parser: commandline.ArgumentParser):
+    def AddParser(cls, parser: commandline.ArgumentParser) -> None:
         super().AddParser(parser)
         parser.add_argument(
             "--output",

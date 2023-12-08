@@ -439,7 +439,7 @@ class BuildPackagesCommand(command.CliCommand):
         cls,
         parser: commandline.ArgumentParser,
         options: commandline.ArgumentNamespace,
-    ):
+    ) -> None:
         if not options.board:
             # Not supplied and no default set.
             parser.error("--board is required")
@@ -493,7 +493,7 @@ class BuildPackagesCommand(command.CliCommand):
         )
 
     @timer.timed("Elapsed time (cros build-packages)")
-    def Run(self):
+    def Run(self) -> None:
         commandline.RunInsideChroot()
 
         chromite_config.initialize()
@@ -515,7 +515,7 @@ class BuildPackagesCommand(command.CliCommand):
 
 
 @tracer.start_as_current_span("cli.cros.cros_build_packages.build_packages")
-def build_packages(opts: commandline.ArgumentNamespace):
+def build_packages(opts: commandline.ArgumentNamespace) -> None:
     span = trace.get_current_span()
 
     build_target = build_target_lib.BuildTarget(

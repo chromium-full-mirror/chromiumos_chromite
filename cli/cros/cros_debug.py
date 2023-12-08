@@ -54,7 +54,7 @@ To debug a process by its pid:
         self.gdb_cmd = None
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Add parser arguments."""
         super(cls, DebugCommand).AddParser(parser)
         cls.AddDeviceArgument(parser, positional=True)
@@ -90,7 +90,7 @@ To debug a process by its pid:
         )
 
     @classmethod
-    def ProcessOptions(cls, parser, options):
+    def ProcessOptions(cls, parser, options) -> None:
         """Post process options."""
         if not (options.pid or options.exe):
             parser.error(
@@ -103,7 +103,7 @@ To debug a process by its pid:
         if not options.exe.startswith("/"):
             parser.error("--exe must have a full pathname.")
 
-    def _ListProcesses(self, device, pids):
+    def _ListProcesses(self, device, pids) -> None:
         """Print out information of the processes in |pids|."""
         if not pids:
             logging.info(
@@ -134,7 +134,7 @@ To debug a process by its pid:
                 self.ssh_hostname,
             )
 
-    def _DebugNewProcess(self):
+    def _DebugNewProcess(self) -> None:
         """Start a new process on the target device and attach gdb to it."""
         logging.info(
             "Ready to start and debug %s on device %s",
@@ -143,14 +143,14 @@ To debug a process by its pid:
         )
         cros_build_lib.run(self.gdb_cmd + ["--remote_file", self.exe])
 
-    def _DebugRunningProcess(self, pid):
+    def _DebugRunningProcess(self, pid) -> None:
         """Start gdb and attach it to the remote running process with |pid|."""
         logging.info(
             "Ready to debug process %d on device %s", pid, self.ssh_hostname
         )
         cros_build_lib.run(self.gdb_cmd + ["--pid", str(pid)])
 
-    def _ReadOptions(self):
+    def _ReadOptions(self) -> None:
         """Process options and set variables."""
         if self.options.device:
             self.ssh_hostname = self.options.device.hostname
@@ -161,7 +161,7 @@ To debug a process by its pid:
         self.exe = self.options.exe
         self.pid = self.options.pid
 
-    def Run(self):
+    def Run(self) -> None:
         """Run cros debug."""
         commandline.RunInsideChroot(self)
         self._ReadOptions()

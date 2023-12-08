@@ -42,7 +42,7 @@ Examples:
         self.dest = None
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Adds a parser."""
         super(cls, CpCommand).AddParser(parser)
         # TODO(b:271334340): Need to implement for stdin/stdout as input/output.
@@ -78,12 +78,12 @@ Examples:
         )
 
     @classmethod
-    def ProcessOptions(cls, parser, options):
+    def ProcessOptions(cls, parser, options) -> None:
         """Post process options."""
         if len(options.device) < 2:
             parser.error("Need at least 2 args, src and dest")
 
-    def _ReadOptions(self):
+    def _ReadOptions(self) -> None:
         """Processes options and set variables."""
         self.src = self.options.device[0:-1]
         self.dest = self.options.device[-1]

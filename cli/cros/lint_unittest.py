@@ -22,7 +22,7 @@ from chromite.lib import osutils
 class DocStringSectionDetailsTest(cros_test_lib.TestCase):
     """Basic DocStringSectionDetails class tests."""
 
-    def testInit(self):
+    def testInit(self) -> None:
         """Verify constructor behavior."""
         s = lint.DocStringSectionDetails()
         self.assertEqual(None, s.name)
@@ -38,17 +38,17 @@ class DocStringSectionDetailsTest(cros_test_lib.TestCase):
         self.assertEqual(["    foo: Yes."], s.lines)
         self.assertEqual(2, s.lineno)
 
-    def testStr(self):
+    def testStr(self) -> None:
         """Sanity check __str__."""
         s = lint.DocStringSectionDetails()
         self.assertNotEqual(None, str(s))
 
-    def testRepr(self):
+    def testRepr(self) -> None:
         """Sanity check __repr__."""
         s = lint.DocStringSectionDetails()
         self.assertNotEqual(None, repr(s))
 
-    def testEqual(self):
+    def testEqual(self) -> None:
         """Sanity check __eq__."""
         s1 = lint.DocStringSectionDetails()
         s2 = lint.DocStringSectionDetails()
@@ -69,11 +69,11 @@ class DocStringSectionDetailsTest(cros_test_lib.TestCase):
 class PylintrcConfigTest(cros_test_lib.TempDirTestCase):
     """Basic _PylintrcConfig tests."""
 
-    def testEmptySettings(self):
+    def testEmptySettings(self) -> None:
         """Check default empty names behavior."""
         lint._PylintrcConfig("/dev/null", "", ())
 
-    def testDefaultValue(self):
+    def testDefaultValue(self) -> None:
         """Check we can read a default."""
         cfg_file = os.path.join(self.tempdir, "pylintrc")
         osutils.WriteFile(cfg_file, '[sect]\nkey = "  "\n')
@@ -150,7 +150,7 @@ class CheckerTestCase(cros_test_lib.TestCase):
 
     def add_message(
         self, msg_id, node=None, line=None, col_offset=None, args=None
-    ):
+    ) -> None:
         """Capture lint checks"""
         # We include node.doc here explicitly so the pretty assert message
         # inclues it in the output automatically.
@@ -162,19 +162,21 @@ class CheckerTestCase(cros_test_lib.TestCase):
             args = args.copy()
         self.results.append((msg_id, doc, line, args, col_offset))
 
-    def setUp(self):
+    def setUp(self) -> None:
         assert hasattr(self, "CHECKER"), "TestCase must set CHECKER"
 
         self.results = []
         self.checker = self.CHECKER()
         self.checker.add_message = self.add_message
 
-    def assertLintPassed(self, msg="Checks failed"):
+    def assertLintPassed(self, msg="Checks failed") -> None:
         """Assert that no lint results have been queued."""
         msg += "\nChecks failed: %s" % ([x[0] for x in self.results],)
         self.assertEqual(self.results, [], msg=msg)
 
-    def assertLintFailed(self, msg="Checks incorrectly passed", expected=()):
+    def assertLintFailed(
+        self, msg="Checks incorrectly passed", expected=()
+    ) -> None:
         """Assert that failed results matching |expected| have been queued."""
         if expected:
             self.assertEqual(list(expected), [x[0] for x in self.results])
@@ -446,7 +448,7 @@ class DocStringCheckerTest(CheckerTestCase):
 
     CHECKER = lint.DocStringChecker
 
-    def testGood_visit_functiondef(self):
+    def testGood_visit_functiondef(self) -> None:
         """Allow known good docstrings"""
         for dc in self.GOOD_FUNC_DOCSTRINGS:
             self.results = []
@@ -456,7 +458,7 @@ class DocStringCheckerTest(CheckerTestCase):
                 msg='docstring was not accepted:\n"""%s"""' % dc
             )
 
-    def testBad_visit_functiondef(self):
+    def testBad_visit_functiondef(self) -> None:
         """Reject known bad docstrings"""
         for dc in self.BAD_FUNC_DOCSTRINGS:
             self.results = []
@@ -466,14 +468,14 @@ class DocStringCheckerTest(CheckerTestCase):
                 msg='docstring was not rejected:\n"""%s"""' % dc
             )
 
-    def testSmoke_visit_module(self):
+    def testSmoke_visit_module(self) -> None:
         """Smoke test for modules"""
         self.checker.visit_module(TestNode(doc="foo"))
         self.assertLintPassed()
         self.checker.visit_module(TestNode(doc="", path="/foo/__init__.py"))
         self.assertLintPassed()
 
-    def testGood_visit_classdef(self):
+    def testGood_visit_classdef(self) -> None:
         """Allow known good docstrings"""
         for dc in self.GOOD_CLASS_DOCSTRINGS:
             self.results = []
@@ -483,7 +485,7 @@ class DocStringCheckerTest(CheckerTestCase):
                 msg='docstring was not accepted:\n"""%s"""' % dc
             )
 
-    def testBad_visit_classdef(self):
+    def testBad_visit_classdef(self) -> None:
         """Reject known bad docstrings"""
         for dc in self.BAD_CLASS_DOCSTRINGS:
             self.results = []
@@ -493,11 +495,11 @@ class DocStringCheckerTest(CheckerTestCase):
                 msg='docstring was not rejected:\n"""%s"""' % dc
             )
 
-    def testSmoke_visit_classdef(self):
+    def testSmoke_visit_classdef(self) -> None:
         """Smoke test for classes"""
         self.checker.visit_classdef(TestNode(doc="bar"))
 
-    def testGood_check_first_line(self):
+    def testGood_check_first_line(self) -> None:
         """Verify _check_first_line accepts good inputs"""
         docstrings = ("Some string",)
         for dc in docstrings:
@@ -508,7 +510,7 @@ class DocStringCheckerTest(CheckerTestCase):
                 msg='docstring was not accepted:\n"""%s"""' % dc
             )
 
-    def testBad_check_first_line(self):
+    def testBad_check_first_line(self) -> None:
         """Verify _check_first_line rejects bad inputs"""
         docstrings = ("\nSome string\n",)
         for dc in docstrings:
@@ -517,7 +519,7 @@ class DocStringCheckerTest(CheckerTestCase):
             self.checker._check_first_line(node, node.lines)
             self.assertLintFailed(expected=("C9009",))
 
-    def testGood_check_second_line_blank(self):
+    def testGood_check_second_line_blank(self) -> None:
         """Verify _check_second_line_blank accepts good inputs"""
         docstrings = (
             "Some string\n\nThis is the third line",
@@ -531,7 +533,7 @@ class DocStringCheckerTest(CheckerTestCase):
                 msg='docstring was not accepted:\n"""%s"""' % dc
             )
 
-    def testBad_check_second_line_blank(self):
+    def testBad_check_second_line_blank(self) -> None:
         """Verify _check_second_line_blank rejects bad inputs"""
         docstrings = ("Some string\nnonempty secondline",)
         for dc in docstrings:
@@ -540,7 +542,7 @@ class DocStringCheckerTest(CheckerTestCase):
             self.checker._check_second_line_blank(node, node.lines)
             self.assertLintFailed(expected=("C9014",))
 
-    def testGoodFuncVarKwArg(self):
+    def testGoodFuncVarKwArg(self) -> None:
         """Check valid inputs for *args and **kwargs"""
         for vararg in (None, "args", "_args"):
             for kwarg in (None, "kwargs", "_kwargs"):
@@ -549,7 +551,7 @@ class DocStringCheckerTest(CheckerTestCase):
                 self.checker._check_func_signature(node)
                 self.assertLintPassed()
 
-    def testMisnamedFuncVarKwArg(self):
+    def testMisnamedFuncVarKwArg(self) -> None:
         """Reject anything but *args and **kwargs"""
         for vararg in ("arg", "params", "kwargs", "_moo"):
             self.results = []
@@ -718,7 +720,7 @@ class DocStringCheckerTest(CheckerTestCase):
             self.checker._check_all_args_in_doc(node, node.lines, sections)
             self.assertLintFailed()
 
-    def test_parse_docstring_sections(self):
+    def test_parse_docstring_sections(self) -> None:
         """Check docstrings are parsed."""
         datasets = (
             (
@@ -774,7 +776,7 @@ class DocStringCheckerTest(CheckerTestCase):
             sections = self.checker._parse_docstring_sections(node, node.lines)
             self.assertEqual(expected, sections)
 
-    def test_check_docstring_section_indent(self):
+    def test_check_docstring_section_indent(self) -> None:
         """Check docstring diags are as expected."""
         # The offset of the below docstrings, in columns.
         col_offset = 10
@@ -909,7 +911,7 @@ class SourceCheckerTest(CheckerTestCase):
 
     CHECKER = lint.SourceChecker
 
-    def _testShebang(self, shebangs, exp, mode):
+    def _testShebang(self, shebangs, exp, mode) -> None:
         """Helper for shebang tests"""
         for shebang in shebangs:
             self.results = []
@@ -923,7 +925,7 @@ class SourceCheckerTest(CheckerTestCase):
             else:
                 self.assertLintFailed(msg=msg, expected=exp)
 
-    def testBadShebang(self):
+    def testBadShebang(self) -> None:
         """Verify _check_shebang rejects bad shebangs"""
         shebangs = (
             b"#!/usr/bin/python\n",
@@ -933,7 +935,7 @@ class SourceCheckerTest(CheckerTestCase):
         )
         self._testShebang(shebangs, ("R9200",), 0o755)
 
-    def testGoodShebangNoExec(self):
+    def testGoodShebangNoExec(self) -> None:
         """Verify _check_shebang rejects shebangs on non-exec files"""
         shebangs = (
             b"#!/usr/bin/env python\n",
@@ -944,7 +946,7 @@ class SourceCheckerTest(CheckerTestCase):
         )
         self._testShebang(shebangs, ("R9202",), 0o644)
 
-    def testGoodShebang(self):
+    def testGoodShebang(self) -> None:
         """Verify _check_shebang accepts good shebangs"""
         shebangs = (
             b"#!/usr/bin/env python\n",
@@ -956,7 +958,7 @@ class SourceCheckerTest(CheckerTestCase):
         )
         self._testShebang(shebangs, (), 0o755)
 
-    def testEmptyFileNoEncoding(self):
+    def testEmptyFileNoEncoding(self) -> None:
         """_check_encoding should ignore 0 byte files"""
         self.results = []
         stream = io.BytesIO(b"")
@@ -974,7 +976,7 @@ class SourceCheckerTest(CheckerTestCase):
             self.checker._check_encoding(stream)
             self.assertLintFailed(expected=("R9205",))
 
-    def testGoodUnittestName(self):
+    def testGoodUnittestName(self) -> None:
         """Verify _check_module_name accepts good unittest names"""
         module_names = ("lint_unittest",)
         for name in module_names:
@@ -983,7 +985,7 @@ class SourceCheckerTest(CheckerTestCase):
             self.checker._check_module_name(node)
             self.assertLintPassed()
 
-    def testBadUnittestName(self):
+    def testBadUnittestName(self) -> None:
         """Verify _check_module_name rejects bad unittest names"""
         module_names = ("lint_unittests",)
         for name in module_names:
@@ -992,7 +994,7 @@ class SourceCheckerTest(CheckerTestCase):
             self.checker._check_module_name(node)
             self.assertLintFailed(expected=("R9203",))
 
-    def testAcceptableBackslashes(self):
+    def testAcceptableBackslashes(self) -> None:
         """Verify _check_backslashes allows certain backslash usage"""
         snippets = (
             # With context manager.
@@ -1021,7 +1023,7 @@ class SourceCheckerTest(CheckerTestCase):
             self.checker._check_backslashes(node, stream)
             self.assertLintPassed()
 
-    def testBadBackslashes(self):
+    def testBadBackslashes(self) -> None:
         """Verify _check_backslashes rejects bad backslash usage"""
         snippets = (
             # kwarg in a function call.
@@ -1069,7 +1071,7 @@ class CommentCheckerTest(CheckerTestCase):
 
     CHECKER = lint.CommentChecker
 
-    def testGoodComments(self):
+    def testGoodComments(self) -> None:
         """Verify we accept good comments."""
         GOOD_COMMENTS = (
             "# Blah.",
@@ -1083,13 +1085,13 @@ class CommentCheckerTest(CheckerTestCase):
             self.checker._visit_comment(0, comment)
             self.assertLintPassed()
 
-    def testIgnoreShebangs(self):
+    def testIgnoreShebangs(self) -> None:
         """Verify we ignore shebangs."""
         self.results = []
         self.checker._visit_comment(1, "#!/usr/bin/env python3")
         self.assertLintPassed()
 
-    def testBadCommentsSpace(self):
+    def testBadCommentsSpace(self) -> None:
         """Verify we reject comments missing leading space."""
         BAD_COMMENTS = (
             "#Blah.",
@@ -1135,7 +1137,7 @@ class ImportCheckerTest(CheckerTestCase):
                 return (member, [item])
 
             # pylint: disable-next=unused-argument
-            def import_module(self, name, relative_only):
+            def import_module(self, name, relative_only) -> None:
                 if is_submodule:
                     return
                 raise astroid.AstroidImportError()
@@ -1151,32 +1153,32 @@ class ImportCheckerTest(CheckerTestCase):
         self.results = []
         self.checker.visit_importfrom(node)
 
-    def testGoodImportNoMembers(self):
+    def testGoodImportNoMembers(self) -> None:
         """Verify we accept `import os`."""
         self.checkImport("os", [])
         self.assertLintPassed()
 
-    def testGoodImportMember(self):
+    def testGoodImportMember(self) -> None:
         """Verify we accept `from pylint import config`."""
         self.checkImport("pylint", ["config"], member_is_module=True)
         self.assertLintPassed()
 
-    def testExcludedImport(self):
+    def testExcludedImport(self) -> None:
         """Verify we accept `from typing import List`"""
         self.checkImport("typing", ["List"])
         self.assertLintPassed()
 
-    def testMemberLookupFailure(self):
+    def testMemberLookupFailure(self) -> None:
         """Verify a member that fails lookup is treated as a module."""
         self.checkImport("unittest", ["mock"], fail_lookup=True)
         self.assertLintPassed()
 
-    def testSubmodule(self):
+    def testSubmodule(self) -> None:
         """Verify we accept submodules."""
         self.checkImport("utils.telemetry", ["config"], is_submodule=True)
         self.assertLintPassed()
 
-    def testBadImport(self):
+    def testBadImport(self) -> None:
         """Verify we reject `from unittest.mock import patch`"""
         self.checkImport("unittest.mock", ["patch"], member_is_module=False)
         self.assertLintFailed(expected=("R9170",))
@@ -1199,7 +1201,7 @@ class EncodingCheckerTest(CheckerTestCase):
         node.doc = code
         return node
 
-    def _check_tests(self, tests, passes):
+    def _check_tests(self, tests, passes) -> None:
         """Helper to run all the test cases."""
         for test in tests:
             node = self._make_pathlib_node(test)
@@ -1210,7 +1212,7 @@ class EncodingCheckerTest(CheckerTestCase):
             else:
                 self.assertLintFailed()
 
-    def testNonConst(self):
+    def testNonConst(self) -> None:
         """Check we don't crash on non-const inputs.
 
         We can't detect the errors because pylint doesn't maintain enough state.
@@ -1229,7 +1231,7 @@ class EncodingCheckerTest(CheckerTestCase):
             True,
         )
 
-    def testOpenGood(self):
+    def testOpenGood(self) -> None:
         """Verify we accept good open() encoding."""
         self._check_tests(
             (
@@ -1245,7 +1247,7 @@ class EncodingCheckerTest(CheckerTestCase):
             True,
         )
 
-    def testOpenBad(self):
+    def testOpenBad(self) -> None:
         """Verify we reject bad open() encoding."""
         self._check_tests(
             (
@@ -1265,7 +1267,7 @@ class EncodingCheckerTest(CheckerTestCase):
             False,
         )
 
-    def testGzipOpenGood(self):
+    def testGzipOpenGood(self) -> None:
         """Verify we accept good gzip.open() encoding."""
         self._check_tests(
             (
@@ -1284,7 +1286,7 @@ class EncodingCheckerTest(CheckerTestCase):
             True,
         )
 
-    def testGzipOpenBad(self):
+    def testGzipOpenBad(self) -> None:
         """Verify we reject bad gzip.open() encoding."""
         self._check_tests(
             (
@@ -1303,7 +1305,7 @@ class EncodingCheckerTest(CheckerTestCase):
             False,
         )
 
-    def testPathlibOpenGood(self):
+    def testPathlibOpenGood(self) -> None:
         """Verify we accept good Pathlib.Path.open() encoding."""
         self._check_tests(
             (
@@ -1319,7 +1321,7 @@ class EncodingCheckerTest(CheckerTestCase):
             True,
         )
 
-    def testPathlibOpenBad(self):
+    def testPathlibOpenBad(self) -> None:
         """Verify we reject bad Pathlib.Path.open() encoding."""
         self._check_tests(
             (
@@ -1339,7 +1341,7 @@ class EncodingCheckerTest(CheckerTestCase):
             False,
         )
 
-    def testPathlibReadTextGood(self):
+    def testPathlibReadTextGood(self) -> None:
         """Verify we accept good Pathlib.Path.read_text() encoding."""
         self._check_tests(
             (
@@ -1350,7 +1352,7 @@ class EncodingCheckerTest(CheckerTestCase):
             True,
         )
 
-    def testPathlibReadTextBad(self):
+    def testPathlibReadTextBad(self) -> None:
         """Verify we reject bad Pathlib.Path.read_text() encoding."""
         self._check_tests(
             (
@@ -1364,7 +1366,7 @@ class EncodingCheckerTest(CheckerTestCase):
             False,
         )
 
-    def testPathlibWriteTextGood(self):
+    def testPathlibWriteTextGood(self) -> None:
         """Verify we accept good Pathlib.Path.write_text() encoding."""
         self._check_tests(
             (
@@ -1375,7 +1377,7 @@ class EncodingCheckerTest(CheckerTestCase):
             True,
         )
 
-    def testPathlibWriteTextBad(self):
+    def testPathlibWriteTextBad(self) -> None:
         """Verify we reject bad Pathlib.Path.write_text() encoding."""
         self._check_tests(
             (
@@ -1407,7 +1409,7 @@ class MonkeypatchCheckerTest(CheckerTestCase):
             node.doc = code
             yield node
 
-    def _check_tests(self, tests, passes):
+    def _check_tests(self, tests, passes) -> None:
         """Helper to run all the test cases."""
         for test in tests:
             for node in self._make_nodes(test):
@@ -1418,7 +1420,7 @@ class MonkeypatchCheckerTest(CheckerTestCase):
                 else:
                     self.assertLintFailed()
 
-    def testBadCalls(self):
+    def testBadCalls(self) -> None:
         """Don't crash when the API is used incorrectly."""
         self._check_tests(
             (
@@ -1430,7 +1432,7 @@ class MonkeypatchCheckerTest(CheckerTestCase):
             True,
         )
 
-    def testCrosBuildLibRun(self):
+    def testCrosBuildLibRun(self) -> None:
         """Reject cros_build_lib.run usage."""
         self._check_tests(
             (
@@ -1442,7 +1444,7 @@ class MonkeypatchCheckerTest(CheckerTestCase):
             False,
         )
 
-    def testCrosBuildLibSudoRun(self):
+    def testCrosBuildLibSudoRun(self) -> None:
         """Reject cros_build_lib.sudo_run usage."""
         self._check_tests(
             (

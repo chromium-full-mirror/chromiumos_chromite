@@ -47,7 +47,7 @@ class APCommand(command.CliCommand):
     EPILOG = "Use `cros ${subcommand} --help` to see command-specific help."
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Add AP specific subcommands and options."""
         super(APCommand, cls).AddParser(parser)
         subparsers = parser.add_subparsers(
@@ -67,7 +67,7 @@ class APCommand(command.CliCommand):
             subcommand_class.AddParser(sub_parser)
 
     @classmethod
-    def ProcessOptions(cls, parser, options):
+    def ProcessOptions(cls, parser, options) -> None:
         """Post process options."""
         sub_class = SUBCOMMANDS[options.ap_command]
         sub_class.ProcessOptions(parser, options)
@@ -90,7 +90,7 @@ class BuildSubcommand(command.CliCommand):
         )
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Adds AP Build specific CLI arguments to parser."""
         parser.add_argument(
             "-b",
@@ -115,7 +115,7 @@ To build the AP Firmware only for foo-variant:
   cros ap build -b foo --fw-name foo-variant
 """
 
-    def Run(self):
+    def Run(self) -> None:
         commandline.RunInsideChroot(self)
 
         try:
@@ -133,14 +133,14 @@ class ReadSubcommand(command.CliCommand):
     """Read the AP Firmware from a device."""
 
     @classmethod
-    def ProcessOptions(cls, parser, options):
+    def ProcessOptions(cls, parser, options) -> None:
         """Post process options."""
         if options.device is None:
             parser.error("Specify device using --device argument.")
         options.output_path = Path(options.output)
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Adds AP Read specific CLI arguments to parser."""
         cls.AddDeviceArgument(
             parser,
@@ -177,7 +177,7 @@ To read a specific region from DUT via SERVO on default port(9999):
   cros ap read -b volteer -r region -o /tmp/volteer-image.bin -d servo:port
 """
 
-    def Run(self):
+    def Run(self) -> None:
         if not cros_build_lib.IsInsideChroot():
             logging.notice(
                 "Command will run in chroot, "
@@ -243,7 +243,7 @@ class FlashSubcommand(command.CliCommand):
     """Update the AP Firmware on a device."""
 
     @classmethod
-    def ProcessOptions(cls, parser, options):
+    def ProcessOptions(cls, parser, options) -> None:
         """Post process options."""
         if not os.path.exists(options.image):
             parser.error(
@@ -258,7 +258,7 @@ class FlashSubcommand(command.CliCommand):
             )
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Adds AP Flash specific CLI arguments to parser."""
         cls.AddDeviceArgument(
             parser,
@@ -319,7 +319,7 @@ e.g.:
   cros ap flash -b zork -i /path/to/image.bin -d ssh://1.1.1.1 -- --force
 """
 
-    def Run(self):
+    def Run(self) -> None:
         commandline.RunInsideChroot(self)
 
         passthrough_args = self.options.extra_options
@@ -353,7 +353,7 @@ class CleanSubcommand(command.CliCommand):
         )
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Adds AP Clean specific CLI arguments to parser."""
         parser.add_argument(
             "-b",
@@ -367,7 +367,7 @@ This command removes firmware-related packages, including everything in
 `/build/${build_target}/firmware`.
 """
 
-    def Run(self):
+    def Run(self) -> None:
         if not cros_build_lib.IsInsideChroot():
             logging.notice(
                 "Command will run in chroot, "

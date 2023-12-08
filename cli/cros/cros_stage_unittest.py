@@ -14,7 +14,7 @@ pytestmark = cros_test_lib.pytestmark_inside_only
 class GSURLRegexHelperTest(cros_test_lib.TestCase):
     """Test class for the GSURLRegexHelper function."""
 
-    def testCorrectInputs(self):
+    def testCorrectInputs(self) -> None:
         """Ensure expected inputs work."""
         gsurls = [
             (
@@ -40,7 +40,7 @@ class GSURLRegexHelperTest(cros_test_lib.TestCase):
             self.assertEqual(match.group("board"), board)
             self.assertEqual(match.group("build_name"), build)
 
-    def testBadInputs(self):
+    def testBadInputs(self) -> None:
         """Ensure unexpected inputs don't work."""
         gsurls = [
             "gs://chromeos-image-archive/",

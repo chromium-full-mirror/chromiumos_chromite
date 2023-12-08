@@ -40,7 +40,7 @@ For more information of cros build usage:
     use_dryrun_options = True
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Add a parser."""
         super(cls, DeployCommand).AddParser(parser)
         cls.AddDeviceArgument(parser, positional=True)
@@ -129,7 +129,7 @@ For more information of cros build usage:
             help="Install reverse dependencies. Implies --deep.",
         )
 
-    def Run(self):
+    def Run(self) -> None:
         """Run cros deploy."""
         commandline.RunInsideChroot(self)
         with timer.Timer() as t:

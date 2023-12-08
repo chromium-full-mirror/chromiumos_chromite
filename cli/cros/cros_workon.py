@@ -142,7 +142,7 @@ Examples:
         return parser
 
     @classmethod
-    def ProcessOptions(cls, parser, options):
+    def ProcessOptions(cls, parser, options) -> None:
         """Post process options."""
         if options.build_target_name:
             options.build_target = build_target_lib.BuildTarget(

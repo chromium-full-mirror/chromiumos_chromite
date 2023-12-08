@@ -16,7 +16,7 @@ class TelemetryCommand(command.CliCommand):
     """Manage telemetry related options."""
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         super(cls, TelemetryCommand).AddParser(parser)
         actions = parser.add_mutually_exclusive_group(required=True)
         actions.add_argument(
@@ -52,7 +52,7 @@ class TelemetryCommand(command.CliCommand):
         )
 
     @staticmethod
-    def _show_telemetry(cfg: config.Config):
+    def _show_telemetry(cfg: config.Config) -> None:
         if cfg.trace_config.has_enabled():
             print(f"{config.ENABLED_KEY} = {cfg.trace_config.enabled}")
             print(
@@ -64,7 +64,7 @@ class TelemetryCommand(command.CliCommand):
         else:
             print(f"notice_countdown = {cfg.root_config.notice_countdown}")
 
-    def Run(self):
+    def Run(self) -> None:
         """Run cros telemetry."""
         chromite_config.initialize()
         cfg = config.Config(chromite_config.TELEMETRY_CONFIG)

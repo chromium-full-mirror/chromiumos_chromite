@@ -32,17 +32,17 @@ class USBImagerMock(partial_mock.PartialCmdMock):
     def __init__(self):
         partial_mock.PartialCmdMock.__init__(self)
 
-    def CopyImageToDevice(self, _inst, *_args, **_kwargs):
+    def CopyImageToDevice(self, _inst, *_args, **_kwargs) -> None:
         """Mock out CopyImageToDevice."""
 
-    def ChooseRemovableDevice(self, _inst, *_args, **_kwargs):
+    def ChooseRemovableDevice(self, _inst, *_args, **_kwargs) -> None:
         """Mock out ChooseRemovableDevice."""
 
     def ListAllRemovableDevices(self, _inst, *_args, **_kwargs):
         """Mock out ListAllRemovableDevices."""
         return ["foo", "taco", "milk"]
 
-    def GetRemovableDeviceDescription(self, _inst, *_args, **_kwargs):
+    def GetRemovableDeviceDescription(self, _inst, *_args, **_kwargs) -> None:
         """Mock out GetRemovableDeviceDescription."""
 
 
@@ -57,7 +57,7 @@ class USBImagerTest(cros_test_lib.MockTempDirTestCase):
             scheme=commandline.DeviceScheme.USB, path=path
         )
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Patches objects."""
         self.usb_mock = USBImagerMock()
         self.imager_mock = self.StartPatcher(self.usb_mock)
@@ -76,7 +76,7 @@ class USBImagerTest(cros_test_lib.MockTempDirTestCase):
         )
         self.PatchObject(osutils, "GetDeviceSize", return_value=200)
 
-    def testLocalImagePathCopy(self):
+    def testLocalImagePathCopy(self) -> None:
         """Tests that imaging methods are called correctly."""
         with mock.patch("os.path.isfile", return_value=True):
             flash.Flash(self.Device("/dev/foo"), self.IMAGE)
@@ -84,7 +84,7 @@ class USBImagerTest(cros_test_lib.MockTempDirTestCase):
                 self.imager_mock.patched["CopyImageToDevice"].called
             )
 
-    def testLocalBadImagePath(self):
+    def testLocalBadImagePath(self) -> None:
         """Tests that using an image not having the magic bytes has prompt."""
         self.isgpt_mock.return_value = False
         with mock.patch("os.path.isfile", return_value=True):
@@ -95,7 +95,7 @@ class USBImagerTest(cros_test_lib.MockTempDirTestCase):
                 flash.Flash(self.Device("/dev/foo"), self.IMAGE)
                 self.assertTrue(mock_prompt.called)
 
-    def testNonLocalImagePath(self):
+    def testNonLocalImagePath(self) -> None:
         """Tests that we try to get the image path using xbuddy."""
         with mock.patch.object(
             dev_server_wrapper,
@@ -107,26 +107,26 @@ class USBImagerTest(cros_test_lib.MockTempDirTestCase):
                     flash.Flash(self.Device("/dev/foo"), self.IMAGE)
                     self.assertTrue(mock_xbuddy.called)
 
-    def testConfirmNonRemovableDevice(self):
+    def testConfirmNonRemovableDevice(self) -> None:
         """Tests that we ask user to confirm if the device is not removable."""
         with mock.patch.object(cros_build_lib, "BooleanPrompt") as mock_prompt:
             flash.Flash(self.Device("/dev/stub"), self.IMAGE)
             self.assertTrue(mock_prompt.called)
 
-    def testSkipPromptNonRemovableDevice(self):
+    def testSkipPromptNonRemovableDevice(self) -> None:
         """Tests that we skip the prompt for non-removable with --yes."""
         with mock.patch.object(cros_build_lib, "BooleanPrompt") as mock_prompt:
             flash.Flash(self.Device("/dev/stub"), self.IMAGE, yes=True)
             self.assertFalse(mock_prompt.called)
 
-    def testChooseRemovableDevice(self):
+    def testChooseRemovableDevice(self) -> None:
         """Tests that we ask user to choose a device if none is given."""
         flash.Flash(self.Device(""), self.IMAGE)
         self.assertTrue(
             self.imager_mock.patched["ChooseRemovableDevice"].called
         )
 
-    def testInsufficientRemovableDeviceStorage(self):
+    def testInsufficientRemovableDeviceStorage(self) -> None:
         self.PatchObject(osutils, "GetDeviceSize", return_value=100)
         with self.assertRaises(flash.FlashError):
             flash.Flash(self.Device(""), self.IMAGE)
@@ -137,12 +137,12 @@ class UsbImagerOperationTest(cros_test_lib.RunCommandTestCase):
 
     # pylint: disable=protected-access
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(
             flash.UsbImagerOperation, "__init__", return_value=None
         )
 
-    def testUsbImagerOperationCalled(self):
+    def testUsbImagerOperationCalled(self) -> None:
         """Test flash.UsbImagerOperation is called when log level <= NOTICE."""
         expected_cmd = [
             "dd",
@@ -169,7 +169,7 @@ class UsbImagerOperationTest(cros_test_lib.RunCommandTestCase):
             update_period=0.5,
         )
 
-    def testSudoRunCommandCalled(self):
+    def testSudoRunCommandCalled(self) -> None:
         """Test that sudo_run is called when log level > NOTICE."""
         expected_cmd = [
             "sudo",
@@ -193,7 +193,7 @@ class UsbImagerOperationTest(cros_test_lib.RunCommandTestCase):
             expected_cmd, debug_level=logging.NOTICE, print_cmd=False
         )
 
-    def testPingDD(self):
+    def testPingDD(self) -> None:
         """Test that UsbImagerOperation._PingDD() sends the correct signal."""
         expected_cmd = ["sudo", "--", "kill", "-USR1", "5"]
         op = flash.UsbImagerOperation("foo")
@@ -202,7 +202,7 @@ class UsbImagerOperationTest(cros_test_lib.RunCommandTestCase):
         # Check that sudo_run was called correctly.
         self.rc.assertCommandCalled(expected_cmd, print_cmd=False)
 
-    def testGetDDPidFound(self):
+    def testGetDDPidFound(self) -> None:
         """Check that the expected pid is returned for _GetDDPid()."""
         expected_pid = 5
         op = flash.UsbImagerOperation("foo")
@@ -216,7 +216,7 @@ class UsbImagerOperationTest(cros_test_lib.RunCommandTestCase):
         # Check that the correct pid was returned.
         self.assertEqual(pid, expected_pid)
 
-    def testGetDDPidNotFound(self):
+    def testGetDDPidNotFound(self) -> None:
         """Check -1 is returned for _GetDDPid() if the pids aren't valid."""
         expected_pid = -1
         op = flash.UsbImagerOperation("foo")
@@ -232,7 +232,7 @@ class UsbImagerOperationTest(cros_test_lib.RunCommandTestCase):
 class FlashUtilTest(cros_test_lib.MockTempDirTestCase):
     """Tests the helpers from cli.flash."""
 
-    def testChooseImage(self):
+    def testChooseImage(self) -> None:
         """Tests that we can detect a GPT image."""
         # pylint: disable=protected-access
 
@@ -262,7 +262,7 @@ class FlashUtilTest(cros_test_lib.MockTempDirTestCase):
                     file_c, flash._ChooseImageFromDirectory(self.tempdir)
                 )
 
-    def testIsFilePathGPTDiskImage(self):
+    def testIsFilePathGPTDiskImage(self) -> None:
         """Tests the GPT image probing."""
         # pylint: disable=protected-access
 

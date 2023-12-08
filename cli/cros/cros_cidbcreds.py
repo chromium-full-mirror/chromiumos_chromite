@@ -19,7 +19,7 @@ PROD_REPLICA_CIDB_READONLY_BUCKET = (
 )
 
 
-def GetCIDBCreds(cidb_dir):
+def GetCIDBCreds(cidb_dir) -> None:
     """Download CIDB creds from google storage to local cidb diretory."""
     ctx = gs.GSContext(init_boto=True)
     ctx.Copy(PROD_REPLICA_CIDB_READONLY_BUCKET + "*", cidb_dir)
@@ -82,7 +82,7 @@ class CidbCredsCommand(command.CliCommand):
         )
         return parser
 
-    def Run(self):
+    def Run(self) -> None:
         """Run cros cidbcreds."""
         cidb_dir = CheckAndGetCIDBCreds(
             force_update=self.options.force_update, folder=self.options.folder

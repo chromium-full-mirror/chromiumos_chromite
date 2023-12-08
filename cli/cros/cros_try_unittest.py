@@ -28,7 +28,7 @@ class StringStartsWith(str):
 class TryCommandTest(cros_test_lib.RunCommandTestCase):
     """Test the TryCommand class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Create patches."""
         self._cipd_install_patch = self.PatchObject(
             cipd, "InstallPackage", return_value=MOCK_TRY_DIR
@@ -41,7 +41,7 @@ class TryCommandTest(cros_test_lib.RunCommandTestCase):
         """Simulate running the `cros try` command with the specified args."""
         return cros.main(["try"] + try_args)
 
-    def testArgsForwarding(self):
+    def testArgsForwarding(self) -> None:
         """Test that calling `cros try` forwards args to the try binary."""
         self.runCrosTry(["release", "-staging"])
         self.rc.assertCommandCalled(
@@ -52,13 +52,13 @@ class TryCommandTest(cros_test_lib.RunCommandTestCase):
             extra_env=self._extra_env,
         )
 
-    def testExitCode(self):
+    def testExitCode(self) -> None:
         """Test that `cros try` returns the try binary's exit code."""
         self.rc.AddCmdResult([str(MOCK_TRY_BIN), "invalid-cmd"], returncode=128)
         actual_retcode = self.runCrosTry(["invalid-cmd"])
         self.assertEqual(actual_retcode, 128)
 
-    def testDoubleDashes(self):
+    def testDoubleDashes(self) -> None:
         """Unit tests for _ModifyFlagsToDoubleDashes."""
         # pylint: disable=protected-access
         for in_str, expected_out in (
@@ -72,7 +72,7 @@ class TryCommandTest(cros_test_lib.RunCommandTestCase):
             actual_out = cros_try._ModifyFlagsToDoubleDashes(in_str)
             self.assertEqual(actual_out, expected_out)
 
-    def testTryVersion(self):
+    def testTryVersion(self) -> None:
         """Test the default/overridden try version."""
         self.runCrosTry(["release"])
         self._cipd_install_patch.assert_called_with(

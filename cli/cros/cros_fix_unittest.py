@@ -16,7 +16,7 @@ from chromite.scripts import cros
 class FixCommandTestCase(cros_test_lib.TestCase):
     """Utils for testing the fix subcommand."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Set up default options for tests to play with for running cros fix.
         self._parser = cros.GetOptions("fix")
         self.options = self.parse_args([])
@@ -28,7 +28,7 @@ class FixCommandTestCase(cros_test_lib.TestCase):
 class FixCommandTempDirTests(FixCommandTestCase, cros_test_lib.TempDirTestCase):
     """Tests that use real files."""
 
-    def testCliOneFile(self):
+    def testCliOneFile(self) -> None:
         """Check behavior with one file."""
         file = self.tempdir / "foo.txt"
         osutils.Touch(file)

@@ -90,7 +90,7 @@ NOTES:
 """
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         """Add parser arguments."""
         super(StageCommand, cls).AddParser(parser)
         parser.add_argument(
@@ -224,7 +224,7 @@ NOTES:
             board=self.board, build=match.group("build_name")
         )
 
-    def _DownloadPayloads(self, tempdir):
+    def _DownloadPayloads(self, tempdir) -> None:
         """Download from GS the update payloads we require.
 
         Args:
@@ -236,7 +236,7 @@ NOTES:
         )
         gs_context.Copy(os.path.join(self.options.image, "*_full*"), tempdir)
 
-    def _GeneratePayloads(self, tempdir):
+    def _GeneratePayloads(self, tempdir) -> None:
         """Generate the update payloads we require.
 
         Args:
@@ -251,7 +251,7 @@ NOTES:
             self.options.image, tempdir
         )
 
-    def _GenerateTestBits(self, tempdir):
+    def _GenerateTestBits(self, tempdir) -> None:
         """Generate and transfer to the Moblab the test bits we require.
 
         Args:
@@ -261,7 +261,7 @@ NOTES:
         cwd = os.path.join(build_root, BOARD_BUILD_DIR)
         commands.BuildAutotestTarballsForHWTest(build_root, cwd, tempdir)
 
-    def _StageOnMoblab(self, tempdir):
+    def _StageOnMoblab(self, tempdir) -> None:
         """Stage the generated payloads and test bits on a moblab device.
 
         Args:
@@ -305,7 +305,7 @@ NOTES:
 
             device.run(["rm", "-rf", self.stage_directory])
 
-    def _StageOnGS(self, tempdir):
+    def _StageOnGS(self, tempdir) -> None:
         """Stage the generated payloads and test bits into a GS bucket.
 
         Args:
@@ -323,7 +323,7 @@ NOTES:
             "Image is staged in Google Storage as %s", self.staged_image_name
         )
 
-    def Run(self):
+    def Run(self) -> None:
         """Perform the cros stage command."""
         logging.info(
             "Attempting to stage: %s as Image: %s at Location: %s",

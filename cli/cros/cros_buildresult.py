@@ -172,7 +172,7 @@ Note:
 """
 
     @classmethod
-    def AddParser(cls, parser):
+    def AddParser(cls, parser) -> None:
         super(cls, BuildResultCommand).AddParser(parser)
 
         # What build do we report on?

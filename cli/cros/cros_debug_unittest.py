@@ -22,13 +22,13 @@ class MockDebugCommand(command_unittest.MockCommand):
     COMMAND = "debug"
     ATTRS = ("_ListProcesses", "_DebugNewProcess", "_DebugRunningProcess")
 
-    def _ListProcesses(self, _inst, *_args, **_kwargs):
+    def _ListProcesses(self, _inst, *_args, **_kwargs) -> None:
         """Mock out _ListProcesses."""
 
-    def _DebugNewProcess(self, _inst, *_args, **_kwargs):
+    def _DebugNewProcess(self, _inst, *_args, **_kwargs) -> None:
         """Mock out _DebugNewProcess."""
 
-    def _DebugRunningProcess(self, _inst, *_args, **_kwargs):
+    def _DebugRunningProcess(self, _inst, *_args, **_kwargs) -> None:
         """Mock out _DebugRunningProcess."""
 
 
@@ -39,21 +39,21 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
     EXE = "/path/to/exe"
     PID = "1"
 
-    def SetupCommandMock(self, cmd_args):
+    def SetupCommandMock(self, cmd_args) -> None:
         """Set up command mock."""
         self.cmd_mock = MockDebugCommand(
             cmd_args, base_args=["--cache-dir", str(self.tempdir)]
         )
         self.StartPatcher(self.cmd_mock)
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Patches objects."""
         self.cmd_mock = None
         self.device_mock = self.PatchObject(
             remote_access, "ChromiumOSDevice"
         ).return_value
 
-    def testMissingExeAndPid(self):
+    def testMissingExeAndPid(self) -> None:
         """Test that command fails when --exe and --pid are not provided."""
         self.SetupCommandMock([self.DEVICE])
         self.assertRaises(
@@ -63,7 +63,7 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
             self.cmd_mock.inst.options,
         )
 
-    def testListDisallowedWithPid(self):
+    def testListDisallowedWithPid(self) -> None:
         """Test that --list is disallowed when --pid is used."""
         self.SetupCommandMock([self.DEVICE, "--list", "--pid", self.PID])
         self.assertRaises(
@@ -73,7 +73,7 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
             self.cmd_mock.inst.options,
         )
 
-    def testExeDisallowedWithPid(self):
+    def testExeDisallowedWithPid(self) -> None:
         """Test that --exe is disallowed when --pid is used."""
         self.SetupCommandMock(
             [self.DEVICE, "--exe", self.EXE, "--pid", self.PID]
@@ -85,7 +85,7 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
             self.cmd_mock.inst.options,
         )
 
-    def testExeMustBeFullPath(self):
+    def testExeMustBeFullPath(self) -> None:
         """Test that --exe only takes full path as a valid argument."""
         self.SetupCommandMock([self.DEVICE, "--exe", "bash"])
         self.assertRaises(
@@ -95,7 +95,7 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
             self.cmd_mock.inst.options,
         )
 
-    def testDebugProcessWithPid(self):
+    def testDebugProcessWithPid(self) -> None:
         """Test that methods are called correctly when pid is provided."""
         self.SetupCommandMock([self.DEVICE, "--pid", self.PID])
         self.cmd_mock.inst.Run()
@@ -103,7 +103,7 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
         self.assertFalse(self.cmd_mock.patched["_DebugNewProcess"].called)
         self.assertTrue(self.cmd_mock.patched["_DebugRunningProcess"].called)
 
-    def testListProcesses(self):
+    def testListProcesses(self) -> None:
         """Test that methods are called correctly for listing processes."""
         self.SetupCommandMock([self.DEVICE, "--exe", self.EXE, "--list"])
         self.cmd_mock.inst.Run()
@@ -111,7 +111,7 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
         self.assertFalse(self.cmd_mock.patched["_DebugNewProcess"].called)
         self.assertFalse(self.cmd_mock.patched["_DebugRunningProcess"].called)
 
-    def testNoRunningProcess(self):
+    def testNoRunningProcess(self) -> None:
         """Test command starts a new process to debug if no process running."""
         self.SetupCommandMock([self.DEVICE, "--exe", self.EXE])
         self.PatchObject(self.device_mock, "GetRunningPids", return_value=[])
@@ -120,7 +120,7 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
         self.assertTrue(self.cmd_mock.patched["_DebugNewProcess"].called)
         self.assertFalse(self.cmd_mock.patched["_DebugRunningProcess"].called)
 
-    def testDebugNewProcess(self):
+    def testDebugNewProcess(self) -> None:
         """Test that user can select zero to start a new process to debug."""
         self.SetupCommandMock([self.DEVICE, "--exe", self.EXE])
         self.PatchObject(self.device_mock, "GetRunningPids", return_value=["1"])
@@ -133,7 +133,7 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
         self.assertTrue(self.cmd_mock.patched["_DebugNewProcess"].called)
         self.assertFalse(self.cmd_mock.patched["_DebugRunningProcess"].called)
 
-    def testDebugRunningProcess(self):
+    def testDebugRunningProcess(self) -> None:
         """Test that user can select none-zero to debug a running process."""
         self.SetupCommandMock([self.DEVICE, "--exe", self.EXE])
         self.PatchObject(self.device_mock, "GetRunningPids", return_value=["1"])
