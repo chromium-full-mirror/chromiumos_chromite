@@ -435,6 +435,8 @@ ENV_PASSTHRU = (
     "CROS_SUDO_KEEP_ALIVE",
     SHARED_CACHE_ENVVAR,
     PARALLEL_EMERGE_STATUS_FILE_ENVVAR,
+    # If the user doesn't want bytecode written, don't.
+    "PYTHONDONTWRITEBYTECODE",
     # Maintaining a duplicate here to avoid performance penalty associated with
     # importing `chromite.utils.telemetry.trace` package.
     "traceparent",
