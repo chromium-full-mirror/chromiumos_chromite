@@ -921,8 +921,8 @@ def main(argv) -> None:
                 "Deleting" if options.delete_out_dir else "Keeping",
                 chroot.out_path,
             )
-            cros_sdk_lib.CleanupChrootMount(
-                chroot, delete=True, delete_out=options.delete_out_dir
+            cros_sdk_lib.CleanupChroot(
+                chroot, delete_out=options.delete_out_dir
             )
 
     # Enter a new set of namespaces.  Everything after here cannot directly

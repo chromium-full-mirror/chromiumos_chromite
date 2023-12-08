@@ -447,8 +447,8 @@ class TestIsChrootReady(cros_test_lib.MockTestCase):
         self.assertTrue(cros_sdk_lib.IsChrootReady("/"))
 
 
-class TestCleanupChrootMount(cros_test_lib.MockTempDirTestCase):
-    """Tests the CleanupChrootMount function."""
+class TestCleanupChroot(cros_test_lib.MockTempDirTestCase):
+    """Tests the CleanupChroot function."""
 
     def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
@@ -461,39 +461,19 @@ class TestCleanupChrootMount(cros_test_lib.MockTempDirTestCase):
         osutils.SafeMakedirsNonRoot(self.chroot.out_path)
 
     def testCleanup(self) -> None:
-        m = self.PatchObject(osutils, "UmountTree")
+        m = self.PatchObject(osutils, "RmDir")
 
-        cros_sdk_lib.CleanupChrootMount(self.chroot, None)
+        cros_sdk_lib.CleanupChroot(self.chroot)
 
-        m.assert_called_with(self.chroot.path)
-
-    def testCleanupByBuildroot(self) -> None:
-        m = self.PatchObject(osutils, "UmountTree")
-
-        cros_sdk_lib.CleanupChrootMount(None, self.tempdir)
-
-        m.assert_called_with(self.chroot.path)
-
-    def testCleanupWithDelete(self) -> None:
-        m = self.PatchObject(osutils, "UmountTree")
-        m2 = self.PatchObject(osutils, "RmDir")
-
-        cros_sdk_lib.CleanupChrootMount(self.chroot, None, delete=True)
-
-        m.assert_called_with(self.chroot.path)
-        m2.assert_any_call(self.chroot.path, ignore_missing=True, sudo=True)
-        m2.assert_any_call(self.chroot.out_path, ignore_missing=True, sudo=True)
+        m.assert_any_call(self.chroot.path, ignore_missing=True, sudo=True)
+        m.assert_any_call(self.chroot.out_path, ignore_missing=True, sudo=True)
 
     def testCleanupNoDeleteOut(self) -> None:
-        m = self.PatchObject(osutils, "UmountTree")
-        m2 = self.PatchObject(osutils, "RmDir")
+        m = self.PatchObject(osutils, "RmDir")
 
-        cros_sdk_lib.CleanupChrootMount(
-            self.chroot, None, delete=True, delete_out=False
-        )
+        cros_sdk_lib.CleanupChroot(self.chroot, delete_out=False)
 
-        m.assert_called_with(self.chroot.path)
-        m2.assert_called_with(self.chroot.path, ignore_missing=True, sudo=True)
+        m.assert_called_with(self.chroot.path, ignore_missing=True, sudo=True)
 
 
 class ChrootUpdaterTest(cros_test_lib.MockTestCase, VersionHookTestCase):

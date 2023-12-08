@@ -438,58 +438,21 @@ def GetFileSystemDebug(path: str, run_ps: bool = True) -> FileSystemDebugInfo:
 
 # Raise an exception if cleanup takes more than 10 minutes.
 @timeout_util.TimeoutDecorator(600)
-def CleanupChrootMount(
-    chroot: Optional[chroot_lib.Chroot] = None,
-    buildroot: Optional[Union[Path, str]] = None,
-    delete: bool = False,
+def CleanupChroot(
+    chroot: chroot_lib.Chroot,
     delete_out: bool = True,
 ) -> None:
-    """Unmounts a chroot and cleans up attached devices.
-
-    This function attempts to perform all the cleanup steps even if the chroot
-    directory isn't present.  This ensures that a partially destroyed chroot
-    can still be cleaned up.  This function does not remove the actual chroot
-    directory or its content.
+    """Deletes a chroot, and possibly its output directory.
 
     Args:
-        chroot: Full path to the chroot to examine, or None to find it relative
-            to |buildroot|.
-        buildroot: Ignored if |chroot| is set.  If |chroot| is None, find the
-            chroot relative to |buildroot|.
-        delete: Delete chroot contents after cleaning up.  If |delete| is False,
-            the chroot contents will still be present and can be immediately
-            re-mounted without recreating a fresh chroot.
-        delete_out: Whether to also delete the chroot output directory. Only
-            applies if |delete| is True.
+        chroot: The chroot to examine.
+        delete_out: Whether to also delete the chroot output directory.
     """
-    if chroot is None and buildroot is None:
-        raise ValueError("need either |chroot| or |buildroot| to search")
-    if chroot is None:
-        chroot = chroot_lib.Chroot(
-            path=os.path.join(buildroot, constants.DEFAULT_CHROOT_DIR),
-            out_path=buildroot / constants.DEFAULT_OUT_DIR,
-        )
-
-    try:
-        with metrics_lib.timer("cros_sdk_lib.CleanupChrootMount.UmountTree"):
-            osutils.UmountTree(chroot.path)
-    except cros_build_lib.RunCommandError as e:
-        # TODO(lamontjones): Dump some information to help find the process
-        #   still inside the chroot, causing crbug.com/923432.  In the end, this
-        #   is likely to become fuser -k.
-        fs_debug = GetFileSystemDebug(chroot.path, run_ps=True)
-        raise Error(
-            "Umount failed: %s.\nfuser output=%s\nlsof output=%s\nps "
-            "output=%s\n"
-            % (e.stderr, fs_debug.fuser, fs_debug.lsof, fs_debug.ps)
-        )
-
-    if delete:
-        with metrics_lib.timer("cros_sdk_lib.CleanupChrootMount.RmDir.Chroot"):
-            osutils.RmDir(chroot.path, ignore_missing=True, sudo=True)
-        if delete_out:
-            with metrics_lib.timer("cros_sdk_lib.CleanupChrootMount.RmDir.out"):
-                osutils.RmDir(chroot.out_path, ignore_missing=True, sudo=True)
+    with metrics_lib.timer("cros_sdk_lib.CleanupChroot.RmDir.Chroot"):
+        osutils.RmDir(chroot.path, ignore_missing=True, sudo=True)
+    if delete_out:
+        with metrics_lib.timer("cros_sdk_lib.CleanupChroot.RmDir.out"):
+            osutils.RmDir(chroot.out_path, ignore_missing=True, sudo=True)
 
 
 def MigrateStatePaths(

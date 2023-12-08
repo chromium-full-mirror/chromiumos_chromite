@@ -71,9 +71,8 @@ class CleanUpStage(generic_stages.BuilderStage):
         if os.path.exists(chroot.path):
             # At this stage, it's not safe to run the cros_sdk inside the
             # buildroot itself because we haven't sync'd yet, and the version of
-            # the chromite in there might be broken. Since we've already
-            # unmounted everything in there, we can just remove it using rm -rf.
-            cros_sdk_lib.CleanupChrootMount(chroot, delete=True)
+            # the chromite in there might be broken. Just remove it.
+            cros_sdk_lib.CleanupChroot(chroot)
 
     def _DeleteArchivedTrybotImages(self) -> None:
         """Clear all previous archive images to save space."""
@@ -126,7 +125,7 @@ class CleanUpStage(generic_stages.BuilderStage):
             out_path=workspace / constants.DEFAULT_OUT_DIR,
         )
         if os.path.exists(chroot.path):
-            cros_sdk_lib.CleanupChrootMount(chroot, delete=True)
+            cros_sdk_lib.CleanupChroot(chroot)
 
         logging.info("Remove all workspace files except .repo.")
         repository.ClearBuildRoot(workspace, [".repo"])
@@ -260,12 +259,6 @@ class CleanUpStage(generic_stages.BuilderStage):
                     )
                 delete_chroot = True
 
-        # Clean mount points first to be safe about deleting.
-        chroot = chroot_lib.Chroot(
-            path=self._build_root / Path(constants.DEFAULT_CHROOT_DIR),
-            out_path=self._build_root / constants.DEFAULT_OUT_DIR,
-        )
-        cros_sdk_lib.CleanupChrootMount(chroot=chroot)
         logging.info("Build root path: %s", self._build_root)
         if not os.path.ismount(self._build_root):
             osutils.UmountTree(self._build_root)

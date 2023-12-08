@@ -32,7 +32,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
 from chromite.lib import metrics
 from chromite.lib import osutils
-from chromite.lib import timeout_util
 from chromite.lib import ts_mon_config
 from chromite.scripts import cbuildbot
 
@@ -55,7 +54,6 @@ METRIC_CBUILDBOT_INSTANCE = METRIC_PREFIX + "cbuildbot_instance_durations"
 METRIC_CLOBBER = METRIC_PREFIX + "clobber"
 METRIC_BRANCH_CLEANUP = METRIC_PREFIX + "branch_cleanup"
 METRIC_DISTFILES_CLEANUP = METRIC_PREFIX + "distfiles_cleanup"
-METRIC_CHROOT_CLEANUP = METRIC_PREFIX + "chroot_cleanup"
 
 # Builder state
 BUILDER_STATE_FILENAME = ".cbuildbot_build_state.json"
@@ -313,7 +311,7 @@ def CleanBuildRoot(
                 out_path=root / constants.DEFAULT_OUT_DIR,
             )
             if os.path.exists(chroot.path):
-                cros_sdk_lib.CleanupChrootMount(chroot, delete=True)
+                cros_sdk_lib.CleanupChroot(chroot)
             osutils.RmDir(root, ignore_missing=True, sudo=True)
             osutils.RmDir(cache_dir, ignore_missing=True, sudo=True)
         else:
@@ -336,7 +334,7 @@ def CleanBuildRoot(
                     out_path=repo.directory / constants.DEFAULT_OUT_DIR,
                 )
                 if os.path.exists(chroot.path):
-                    cros_sdk_lib.CleanupChrootMount(chroot, delete=True)
+                    cros_sdk_lib.CleanupChroot(chroot)
 
                 logging.info("Remove Chrome checkout.")
                 osutils.RmDir(
@@ -507,42 +505,6 @@ def Cbuildbot(buildroot, depot_tools_path, argv):
     return result.returncode
 
 
-@StageDecorator
-def CleanupChroot(buildroot) -> None:
-    """Unmount/cleanup an image-based chroot without deleting the backing image.
-
-    Args:
-        buildroot: Directory containing the chroot to be cleaned up.
-    """
-    chroot = chroot_lib.Chroot(
-        path=buildroot / Path(constants.DEFAULT_CHROOT_DIR),
-        out_path=buildroot / constants.DEFAULT_OUT_DIR,
-    )
-    logging.info("Cleaning up chroot at %s", chroot.path)
-    if os.path.exists(chroot.path):
-        try:
-            cros_sdk_lib.CleanupChrootMount(chroot, delete=False)
-        except timeout_util.TimeoutError:
-            logging.exception("Cleaning up chroot timed out")
-            # Dump debug info to help https://crbug.com/1000034.
-            cros_build_lib.run(["mount"], check=True)
-            cros_build_lib.run(["uname", "-a"], check=True)
-            cros_build_lib.sudo_run(["losetup", "-a"], check=True)
-            cros_build_lib.run(["dmesg"], check=True)
-            logging.warning(
-                "Assuming the bot is going to reboot, so ignoring this "
-                "failure; see https://crbug.com/1000034"
-            )
-
-    # NB: We ignore errors at this point because this stage runs last.  If the
-    # chroot failed to unmount, we're going to reboot the system once we're
-    # done, and that will implicitly take care of cleaning things up.  If the
-    # bots stop rebooting after every run, we'll need to make this fatal all the
-    # time.
-    #
-    # TODO(crbug.com/1000034): This should be fatal all the time.
-
-
 def ConfigureGlobalEnvironment() -> None:
     """Setup process wide environmental changes."""
     # Set umask to 022 so files created by buildbot are readable.
@@ -655,9 +617,6 @@ def _main(options, argv):
                 else constants.BUILDER_STATUS_FAILED
             )
             SetLastBuildState(root, build_state)
-
-            with metrics.SecondsTimer(METRIC_CHROOT_CLEANUP):
-                CleanupChroot(buildroot)
 
             return result
 

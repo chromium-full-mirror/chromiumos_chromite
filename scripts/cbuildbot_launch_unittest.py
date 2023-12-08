@@ -17,7 +17,6 @@ from chromite.lib import constants
 from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
-from chromite.lib import timeout_util
 from chromite.scripts import cbuildbot_launch
 
 
@@ -195,9 +194,6 @@ class RunTests(cros_test_lib.RunCommandTestCase):
         mock_checkout = self.PatchObject(
             cbuildbot_launch, "InitialCheckout", autospec=True
         )
-        mock_cleanup_chroot = self.PatchObject(
-            cbuildbot_launch, "CleanupChroot", autospec=True
-        )
         mock_set_last_build_state = self.PatchObject(
             cbuildbot_launch, "SetLastBuildState", autospec=True
         )
@@ -275,9 +271,6 @@ class RunTests(cros_test_lib.RunCommandTestCase):
             [mock.call("/root", expected_build_state)],
         )
 
-        # Ensure we clean the chroot, as expected.
-        mock_cleanup_chroot.assert_called_once_with("/root/repository")
-
     def testMainMax(self) -> None:
         """Test a larger set of command line options."""
         self.PatchObject(osutils, "SafeMakedirs", autospec=True)
@@ -316,9 +309,6 @@ class RunTests(cros_test_lib.RunCommandTestCase):
         )
         mock_checkout = self.PatchObject(
             cbuildbot_launch, "InitialCheckout", autospec=True
-        )
-        mock_cleanup_chroot = self.PatchObject(
-            cbuildbot_launch, "CleanupChroot", autospec=True
         )
         mock_set_last_build_state = self.PatchObject(
             cbuildbot_launch, "SetLastBuildState", autospec=True
@@ -429,9 +419,6 @@ class RunTests(cros_test_lib.RunCommandTestCase):
             mock_set_last_build_state.mock_calls,
             [mock.call("/root", final_state)],
         )
-
-        # Ensure we clean the chroot, as expected.
-        mock_cleanup_chroot.assert_called_once_with("/root/repository")
 
 
 class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
@@ -550,7 +537,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         )
         self.populateBuildroot(previous_build_state=old_build_state.to_json())
         self.mock_repo.branch = "branchB"
-        m = self.PatchObject(cros_sdk_lib, "CleanupChrootMount")
+        m = self.PatchObject(cros_sdk_lib, "CleanupChroot")
 
         build_state = build_summary.BuildSummary(
             status=constants.BUILDER_STATUS_INFLIGHT,
@@ -576,7 +563,6 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
                 path=self.buildroot / Path(constants.DEFAULT_CHROOT_DIR),
                 out_path=self.buildroot / constants.DEFAULT_OUT_DIR,
             ),
-            delete=True,
         )
 
     def testBuildrootBranchMatch(self) -> None:
@@ -931,30 +917,3 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         new_state.from_json(saved_state)
 
         self.assertEqual(old_state, new_state)
-
-    def testCleanupChrootNoChroot(self) -> None:
-        """Check CleanupChroot without a chroot."""
-        self.StartPatcher(cros_test_lib.RunCommandMock())
-        with mock.patch.object(cros_sdk_lib, "CleanupChrootMount"):
-            cbuildbot_launch.CleanupChroot(self.buildroot)
-
-    def testCleanupChrootNormal(self) -> None:
-        """Check normal CleanupChroot."""
-        osutils.SafeMakedirs(self.chroot)
-        osutils.Touch(self.chroot + ".img")
-        self.StartPatcher(cros_test_lib.RunCommandMock())
-        with mock.patch.object(cros_sdk_lib, "CleanupChrootMount"):
-            cbuildbot_launch.CleanupChroot(self.buildroot)
-
-    def testCleanupChrootTimeout(self) -> None:
-        """Check timeouts in CleanupChroot."""
-        osutils.SafeMakedirs(self.chroot)
-        osutils.Touch(self.chroot + ".img")
-        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
-        rc_mock.SetDefaultCmdResult()
-        with mock.patch.object(
-            cros_sdk_lib,
-            "CleanupChrootMount",
-            side_effect=timeout_util.TimeoutError,
-        ):
-            cbuildbot_launch.CleanupChroot(self.buildroot)
