@@ -14,7 +14,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 
 
-def main(argv):
+def main(argv) -> None:
     # Parse arguments to respect log levels.
     commandline.ArgumentParser().parse_args(argv)
 

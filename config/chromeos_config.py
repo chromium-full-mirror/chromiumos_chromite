@@ -164,7 +164,7 @@ def DefaultSettings():
     return defaults
 
 
-def GeneralTemplates(site_config):
+def GeneralTemplates(site_config) -> None:
     """Defines templates that are shared between categories of builders.
 
     Args:
@@ -385,7 +385,7 @@ def UpdateBoardConfigs(board_configs, boards, *args, **kwargs):
     return result
 
 
-def FullBuilders(site_config, boards_dict, ge_build_config):
+def FullBuilders(site_config, boards_dict, ge_build_config) -> None:
     """Create all full builders.
 
     Args:
@@ -450,7 +450,7 @@ def FullBuilders(site_config, boards_dict, ge_build_config):
     )
 
 
-def FactoryBuilders(site_config, _boards_dict, _ge_build_config):
+def FactoryBuilders(site_config, _boards_dict, _ge_build_config) -> None:
     """Create all factory build configs.
 
     Args:
@@ -582,7 +582,7 @@ def FactoryBuilders(site_config, _boards_dict, _ge_build_config):
             branch_master.AddSlave(child)
 
 
-def ReleaseBuilders(site_config, boards_dict, ge_build_config):
+def ReleaseBuilders(site_config, boards_dict, ge_build_config) -> None:
     """Create all release builders.
 
     Args:
@@ -613,7 +613,7 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
     ### Master release configs.
     master_config = _CreateMasterConfig("master-release")
 
-    def _AssignToMaster(config):
+    def _AssignToMaster(config) -> None:
         """Add |config| as a slave config to the appropriate master config."""
         # Default to chromeos master release builder.
         master_config.AddSlave(config)
@@ -739,7 +739,7 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
 
         return config_values
 
-    def _AdjustUngroupedReleaseConfigs(builder_ungrouped_dict):
+    def _AdjustUngroupedReleaseConfigs(builder_ungrouped_dict) -> None:
         """Adjust for ungrouped release boards"""
         for builder in builder_ungrouped_dict:
             for board in builder_ungrouped_dict[builder]:
@@ -751,7 +751,7 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
                 )
                 _AssignToMaster(site_config[config_name])
 
-    def _AdjustGroupedReleaseConfigs(builder_group_dict):
+    def _AdjustGroupedReleaseConfigs(builder_group_dict) -> None:
         """Adjust leader and follower configs for grouped boards"""
         for builder in builder_group_dict:
             for group in builder_group_dict[builder]:
@@ -780,7 +780,7 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config):
                     _AssignToMaster(site_config[config_name])
 
 
-def SpecialtyBuilders(site_config):
+def SpecialtyBuilders(site_config) -> None:
     """Add a variety of specialized builders or tryjobs.
 
     Args:
@@ -861,7 +861,7 @@ def SpecialtyBuilders(site_config):
     )
 
 
-def TryjobMirrors(site_config):
+def TryjobMirrors(site_config) -> None:
     """Create tryjob specialized variants of every build config.
 
     This creates a new 'tryjob' config for every existing config, unless the

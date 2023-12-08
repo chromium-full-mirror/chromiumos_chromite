@@ -25,7 +25,7 @@ from chromite.lib import osutils
 class ChromeosConfigTestBase(cros_test_lib.TestCase):
     """Base class for tests of chromeos_config.."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.site_config = chromeos_config.GetConfig()
 
     def isReleaseBranch(self):
@@ -36,7 +36,7 @@ class ChromeosConfigTestBase(cros_test_lib.TestCase):
 class ConfigDumpTest(ChromeosConfigTestBase):
     """Tests related to config_dump.json & chromeos_config.py"""
 
-    def testDump(self):
+    def testDump(self) -> None:
         """Ensure generated files are up to date."""
         # config_dump.json
         new_dump = self.site_config.SaveConfigToString()
@@ -86,7 +86,7 @@ class ConfigDumpTest(ChromeosConfigTestBase):
                 "config/refresh_generated_files"
             )
 
-    def testSaveLoadReload(self):
+    def testSaveLoadReload(self) -> None:
         """Make sure that loading and reloading the config is a no-op."""
         site_config_str = self.site_config.SaveConfigToString()
         loaded = config_lib.LoadConfigFromString(site_config_str)
@@ -107,7 +107,7 @@ class ConfigDumpTest(ChromeosConfigTestBase):
         loaded2_str = loaded2.SaveConfigToString()
         self.assertEqual(loaded_str, loaded2_str)
 
-    def testFullDump(self):
+    def testFullDump(self) -> None:
         """Make sure we can dump long content without crashing."""
         # Note: This test takes ~ 1 second to run.
         self.site_config.DumpExpandedConfigToString()
@@ -120,12 +120,12 @@ class FindConfigsForBoardTest(cros_test_lib.TestCase):
     here to help make lib/ hermetic and not depend on chromite/cbuildbot.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.config = chromeos_config.GetConfig()
 
     def _CheckFullConfig(
         self, board, external_expected=None, internal_expected=None
-    ):
+    ) -> None:
         """Check FindFullConfigsForBoard has expected results.
 
         Args:
@@ -134,7 +134,7 @@ class FindConfigsForBoardTest(cros_test_lib.TestCase):
             internal_expected: Expected config name (singular) to be found.
         """
 
-        def check_expected(l, expected):
+        def check_expected(l, expected) -> None:
             if expected is not None:
                 self.assertTrue(expected in [v["name"] for v in l])
 
@@ -145,31 +145,31 @@ class FindConfigsForBoardTest(cros_test_lib.TestCase):
         check_expected(external, external_expected)
         check_expected(internal, internal_expected)
 
-    def _CheckCanonicalConfig(self, board, ending):
+    def _CheckCanonicalConfig(self, board, ending) -> None:
         self.assertEqual(
             "-".join((board, ending)),
             self.config.FindCanonicalConfigForBoard(board)["name"],
         )
 
-    def testExternal(self):
+    def testExternal(self) -> None:
         """Test finding of a full builder."""
         self._CheckFullConfig(
             "amd64-generic", external_expected="amd64-generic-full"
         )
 
-    def testInternal(self):
+    def testInternal(self) -> None:
         """Test finding of a release builder."""
         self._CheckFullConfig("eve", internal_expected="eve-release")
 
-    def testExternalCanonicalResolution(self):
+    def testExternalCanonicalResolution(self) -> None:
         """Test an external canonical config."""
         self._CheckCanonicalConfig("amd64-generic", "full")
 
-    def testAFDOCanonicalResolution(self):
+    def testAFDOCanonicalResolution(self) -> None:
         """Test prefer non-AFDO over AFDO builder."""
         self._CheckCanonicalConfig("eve", "release")
 
-    def testOneFullConfigPerBoard(self):
+    def testOneFullConfigPerBoard(self) -> None:
         """There is at most one 'full' config for a board."""
 
         # Verifies the number of external 'full' and internal 'release' build
@@ -178,7 +178,7 @@ class FindConfigsForBoardTest(cros_test_lib.TestCase):
         # also be caught if the new suffix was added to
         # config_lib.CONFIG_TYPE_DUMP_ORDER (see testNonOverlappingConfigTypes),
         # but that's not guaranteed to happen.
-        def AtMostNumConfigs(board, label, configs, number):
+        def AtMostNumConfigs(board, label, configs, number) -> None:
             if len(configs) > number:
                 self.fail(
                     "Found more than one %s config for %s: %r"
@@ -202,7 +202,7 @@ class FindConfigsForBoardTest(cros_test_lib.TestCase):
 class ConfigClassTest(ChromeosConfigTestBase):
     """Tests of the config class itself."""
 
-    def testAppendUseflags(self):
+    def testAppendUseflags(self) -> None:
         base_config = config_lib.BuildConfig(useflags=[])
         inherited_config_1 = base_config.derive(
             useflags=config_lib.append_useflags(["foo", "bar", "-baz"])
@@ -240,7 +240,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
         ge_build_config = config_lib.LoadGEBuildConfigFromFile()
         return chromeos_config.GetBoardTypeToBoardsDict(ge_build_config)
 
-    def testConfigsKeysMismatch(self):
+    def testConfigsKeysMismatch(self) -> None:
         """Verify that all configs contain exactly the default keys.
 
         This checks for mispelled keys, or keys that are somehow removed.
@@ -267,12 +267,12 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 ),
             )
 
-    def testConfigsHaveName(self):
+    def testConfigsHaveName(self) -> None:
         """Configs must have names set."""
         for build_name, config in self.site_config.items():
             self.assertTrue(build_name == config["name"])
 
-    def testConfigsHaveValidDisplayLabel(self):
+    def testConfigsHaveValidDisplayLabel(self) -> None:
         """Configs must have names set."""
         for build_name, config in self.site_config.items():
             self.assertIn(
@@ -282,7 +282,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 % (config.display_label, build_name),
             )
 
-    def testConfigsHaveValidLuciBuilder(self):
+    def testConfigsHaveValidLuciBuilder(self) -> None:
         """Configs must have names set."""
         for build_name, config in self.site_config.items():
             self.assertIn(
@@ -292,7 +292,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 % (config.luci_builder, build_name),
             )
 
-    def testMasterSlaveConfigsExist(self):
+    def testMasterSlaveConfigsExist(self) -> None:
         """Configs listing slave configs, must list valid configs."""
         for config in self.site_config.values():
             if config.master:
@@ -307,7 +307,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
             else:
                 self.assertIsNone(config.slave_configs)
 
-    def testMasterSlaveConfigsSorted(self):
+    def testMasterSlaveConfigsSorted(self) -> None:
         """Configs listing slave configs, must list valid configs."""
         for config in self.site_config.values():
             if config.slave_configs is not None:
@@ -315,7 +315,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
 
                 self.assertEqual(config.slave_configs, expected)
 
-    def testOnlySlaveConfigsNotImportant(self):
+    def testOnlySlaveConfigsNotImportant(self) -> None:
         """Configs listing slave configs, must list valid configs."""
         all_slaves = self.findAllSlaveBuilds()
 
@@ -325,7 +325,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 "%s is not marked important, but is not a slave." % config.name,
             )
 
-    def testConfigUseflags(self):
+    def testConfigUseflags(self) -> None:
         """Useflags must be lists.
 
         Strings are interpreted as arrays of characters for this, which is not
@@ -340,7 +340,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     "Config %s: useflags should be a list." % build_name,
                 )
 
-    def testBoards(self):
+    def testBoards(self) -> None:
         """Verify 'boards' is explicitly set for every config."""
         for build_name, config in self.site_config.items():
             self.assertIsInstance(
@@ -354,7 +354,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 "Config %s has duplicate boards." % build_name,
             )
 
-    def testOverlaySettings(self):
+    def testOverlaySettings(self) -> None:
         """Verify overlays and push_overlays have legal values."""
         for build_name, config in self.site_config.items():
             overlays = config["overlays"]
@@ -386,7 +386,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 ),
             )
 
-    def testOverlayMaster(self):
+    def testOverlayMaster(self) -> None:
         """Verify that only one master is pushing uprevs for each overlay."""
         masters = {}
         for build_name, config in self.site_config.items():
@@ -412,7 +412,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
         if "both" in masters:
             self.assertEqual(len(masters), 1, "Found too many masters.")
 
-    def testChromeRev(self):
+    def testChromeRev(self) -> None:
         """Verify chrome_rev has an expected value"""
         for build_name, config in self.site_config.items():
             self.assertTrue(
@@ -431,7 +431,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     "Config %s: has chrome_rev but is not a PFQ." % build_name,
                 )
 
-    def testBuildType(self):
+    def testBuildType(self) -> None:
         """Verifies that all configs use valid build types."""
         for build_name, config in self.site_config.items():
             # For builders that have explicit classes, this check doesn't make
@@ -444,7 +444,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 "Config %s: has unexpected build_type value." % build_name,
             )
 
-    def testValidUnifiedMasterConfig(self):
+    def testValidUnifiedMasterConfig(self) -> None:
         """Make sure any unified master configurations are valid."""
         for build_name, config in self.site_config.items():
             error = "Unified config for %s has invalid values" % build_name
@@ -459,7 +459,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                         config["overlays"], constants.PUBLIC_OVERLAYS, error
                     )
 
-    def testGetSlaves(self):
+    def testGetSlaves(self) -> None:
         """Make sure every master has a valid list of slaves"""
         for build_name, config in self.site_config.items():
             if config.master:
@@ -478,7 +478,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
         # Get a list of all active Paladins.
         return [self.site_config[n] for n in master_config.slave_configs]
 
-    def testGetSlavesOnTrybot(self):
+    def testGetSlavesOnTrybot(self) -> None:
         """Make sure every master has a valid list of slaves"""
         mock_options = mock.Mock()
         mock_options.remote_trybot = True
@@ -489,7 +489,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 )
                 self.assertEqual([], configs)
 
-    def testFactoryFirmwareValidity(self):
+    def testFactoryFirmwareValidity(self) -> None:
         """Ensures that firmware/factory branches have at least 1 valid name."""
         tracking_branch = git.GetChromiteTrackingBranch()
         for branch in ["firmware", "factory"]:
@@ -530,14 +530,14 @@ class CBuildBotTest(ChromeosConfigTestBase):
 
         return False
 
-    def testValidPrebuilts(self):
+    def testValidPrebuilts(self) -> None:
         """Verify all builders have valid prebuilt values."""
         for build_name, config in self.site_config.items():
             msg = "Config %s: has unexpected prebuilts value." % build_name
             valid_values = (False, constants.PRIVATE, constants.PUBLIC)
             self.assertTrue(config["prebuilts"] in valid_values, msg)
 
-    def testBuildPackagesForRecoveryImage(self):
+    def testBuildPackagesForRecoveryImage(self) -> None:
         """Tests that we build the packages required for recovery image."""
         for build_name, config in self.site_config.items():
             if "recovery" in config.images:
@@ -552,7 +552,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     "for creating the recovery image" % build_name,
                 )
 
-    def testBuildBaseImageForRecoveryImage(self):
+    def testBuildBaseImageForRecoveryImage(self) -> None:
         """Tests that we build the packages required for recovery image."""
         for build_name, config in self.site_config.items():
             if "recovery" in config.images:
@@ -563,7 +563,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     "building the recovery image" % build_name,
                 )
 
-    def testExternalConfigsDoNotUseInternalFeatures(self):
+    def testExternalConfigsDoNotUseInternalFeatures(self) -> None:
         """External configs should not use chrome_internal, or official.xml."""
         msg = (
             "%s is not internal, so should not use chrome_internal, or an "
@@ -580,7 +580,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     msg % build_name,
                 )
 
-    def testNoShadowedUseflags(self):
+    def testNoShadowedUseflags(self) -> None:
         """Configs should not have both useflags x and -x."""
         msg = "%s contains useflag %s and -%s."
         for build_name, config in self.site_config.items():
@@ -592,7 +592,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                         msg % (build_name, flag, flag),
                     )
 
-    def testCheckBuilderClass(self):
+    def testCheckBuilderClass(self) -> None:
         """Verify builder_class_name is a valid value."""
         for build_name, config in self.site_config.items():
             builder_class_name = config["builder_class_name"]
@@ -605,7 +605,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 msg="config %s has a broken builder_class_name" % build_name,
             )
 
-    def testDistinctBoardSets(self):
+    def testDistinctBoardSets(self) -> None:
         """Verify that distinct board sets are distinct."""
         boards_dict = self._GetBoardTypeToBoardsDict()
         # Every board should be in exactly one of the distinct board sets.
@@ -625,7 +625,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                     "%s in distinct_board_sets but not in all_boards" % board
                 )
 
-    def testCanaryBuildTimeouts(self):
+    def testCanaryBuildTimeouts(self) -> None:
         """Verify we get the expected timeout values."""
         msg = "%s doesn't have expected timout: (%s != %s)"
         for build_name, config in self.site_config.items():
@@ -639,7 +639,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 msg % (build_name, config.build_timeout, expected),
             )
 
-    def testBuildTimeouts(self):
+    def testBuildTimeouts(self) -> None:
         """Verify that timeout values are sensible."""
         for build_name, config in self.site_config.items():
             # Chrome infra has a hard limit of 24h.
@@ -650,7 +650,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 % (build_name, config.build_timeout),
             )
 
-    def testLuciScheduler(self):
+    def testLuciScheduler(self) -> None:
         """LUCI Scheduler entries only work for swarming builds."""
         for config in self.site_config.values():
             if config.schedule is not None:
@@ -688,7 +688,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
 class TemplateTest(ChromeosConfigTestBase):
     """Tests for templates."""
 
-    def testConfigNamesMatchTemplate(self):
+    def testConfigNamesMatchTemplate(self) -> None:
         """Test that all configs have names that match their templates."""
         for name, config in self.site_config.items():
             # Tryjob configs should be tested based on what they are mirrored
@@ -720,7 +720,7 @@ class TemplateTest(ChromeosConfigTestBase):
 class BoardConfigsTest(ChromeosConfigTestBase):
     """Tests for the per-board templates."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         ge_build_config = config_lib.LoadGEBuildConfigFromFile()
         boards_dict = chromeos_config.GetBoardTypeToBoardsDict(ge_build_config)
 
@@ -734,12 +734,12 @@ class BoardConfigsTest(ChromeosConfigTestBase):
             )
         )
 
-    def testBoardConfigsSuperset(self):
+    def testBoardConfigsSuperset(self) -> None:
         """Ensure all external boards are listed as internal, also."""
         for board in self.external_board_configs:
             self.assertIn(board, self.internal_board_configs)
 
-    def testUpdateBoardConfigs(self):
+    def testUpdateBoardConfigs(self) -> None:
         """Test UpdateBoardConfigs."""
         pre_test = copy.deepcopy(self.internal_board_configs)
         update_boards = list(pre_test)[2:5]
