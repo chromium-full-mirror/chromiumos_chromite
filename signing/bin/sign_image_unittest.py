@@ -12,13 +12,13 @@ from chromite.signing.image_signing import imagefile
 class TestMain(cros_test_lib.RunCommandTestCase):
     """Test sign_image."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc.SetDefaultCmdResult()
         self.infile = "/path/to/image.bin"
         self.outfile = "/path/to/output.bin"
         self.sign_mock = self.PatchObject(imagefile, "SignImage")
 
-    def testSsd(self):
+    def testSsd(self) -> None:
         """Signs image_type=SSD."""
         self.assertEqual(
             0,
@@ -39,7 +39,7 @@ class TestMain(cros_test_lib.RunCommandTestCase):
             "SSD", self.infile, self.outfile, 2, "/keydir", ""
         )
 
-    def testBase(self):
+    def testBase(self) -> None:
         """Signs image_type=base."""
         self.assertEqual(
             0,
@@ -60,7 +60,7 @@ class TestMain(cros_test_lib.RunCommandTestCase):
             "SSD", self.infile, self.outfile, 2, "/keydir", ""
         )
 
-    def testUsb(self):
+    def testUsb(self) -> None:
         """Signs image_type=usb."""
         self.assertEqual(
             0,
@@ -81,7 +81,7 @@ class TestMain(cros_test_lib.RunCommandTestCase):
             "USB", self.infile, self.outfile, 2, "/keydir", ""
         )
 
-    def testRecovery(self):
+    def testRecovery(self) -> None:
         """Signs image_type=recovery."""
         self.assertEqual(
             0,
@@ -102,7 +102,7 @@ class TestMain(cros_test_lib.RunCommandTestCase):
             "recovery", self.infile, self.outfile, 4, "/keydir", "recovery_"
         )
 
-    def testFactory(self):
+    def testFactory(self) -> None:
         """Signs image_type=factory."""
         self.assertEqual(
             0,
@@ -128,7 +128,7 @@ class TestMain(cros_test_lib.RunCommandTestCase):
             "installer_",
         )
 
-    def testInstall(self):
+    def testInstall(self) -> None:
         """Signs image_type=install."""
         self.assertEqual(
             0,
@@ -154,7 +154,7 @@ class TestMain(cros_test_lib.RunCommandTestCase):
             "installer_",
         )
 
-    def testBadType(self):
+    def testBadType(self) -> None:
         """Fails with bad image_type."""
         with self.assertRaises(SystemExit):
             sign_image.main(
@@ -171,7 +171,7 @@ class TestMain(cros_test_lib.RunCommandTestCase):
             )
         self.assertEqual(0, self.sign_mock.call_count)
 
-    def testRejectsVersionFile(self):
+    def testRejectsVersionFile(self) -> None:
         """Rejects obsolete --version-file."""
         with self.assertRaises(SystemExit):
             sign_image.main(

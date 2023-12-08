@@ -19,7 +19,7 @@ from chromite.signing.lib import keys_unittest
 from chromite.signing.lib import signer_unittest
 
 
-def MockDumpFmap(rc, ec_ro=True):
+def MockDumpFmap(rc, ec_ro=True) -> None:
     """Add futility dump_fmap mock for bios.bin and ec.bin."""
     bios_output = textwrap.dedent(
         """
@@ -85,10 +85,10 @@ def MockDumpFmap(rc, ec_ro=True):
     )
 
 
-def MockBiosSigner(rc):
+def MockBiosSigner(rc) -> None:
     """Add Bios Signing Mocks to |rc|."""
 
-    def _copy_firmware(cmd, *_args, **_kwargs):
+    def _copy_firmware(cmd, *_args, **_kwargs) -> None:
         """Copy file_in to file_out, if file_in exists."""
         file_in = cmd[-2]
         file_out = cmd[-1]
@@ -101,7 +101,7 @@ def MockBiosSigner(rc):
     )
 
 
-def MockECSigner(rc, ec_ro=True):
+def MockECSigner(rc, ec_ro=True) -> None:
     """Add EC Signing Mocks to |rc|.
 
     Args:
@@ -115,12 +115,12 @@ def MockECSigner(rc, ec_ro=True):
     MockDumpFmap(rc, ec_ro=ec_ro)
 
 
-def MockGBBSigner(rc):
+def MockGBBSigner(rc) -> None:
     """Add GBB Signer Mock commands to |rc|"""
     rc.AddCmdResult(partial_mock.ListRegex("futility gbb"))
 
 
-def MockFirmwareSigner(rc):
+def MockFirmwareSigner(rc) -> None:
     """Add mocks to |rc| for Firmware signing."""
     keys_unittest.MockVbutilKey(rc)
     MockBiosSigner(rc)
@@ -131,10 +131,10 @@ def MockFirmwareSigner(rc):
 class TestBiosSigner(cros_test_lib.RunCommandTempDirTestCase):
     """Test BiosSigner."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         MockBiosSigner(self.rc)
 
-    def testGetCmdArgs(self):
+    def testGetCmdArgs(self) -> None:
         bs = firmware.BiosSigner()
         ks = signer_unittest.KeysetFromSigner(bs, self.tempdir)
 
@@ -162,7 +162,7 @@ class TestBiosSigner(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testGetCmdArgsWithDevKeys(self):
+    def testGetCmdArgsWithDevKeys(self) -> None:
         bs = firmware.BiosSigner()
         ks = signer_unittest.KeysetFromSigner(bs, self.tempdir)
 
@@ -191,7 +191,7 @@ class TestBiosSigner(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testGetCmdArgsWithPreamble(self):
+    def testGetCmdArgsWithPreamble(self) -> None:
         bs = firmware.BiosSigner(preamble_flags=1)
         ks = signer_unittest.KeysetFromSigner(bs, self.tempdir)
 
@@ -203,7 +203,7 @@ class TestBiosSigner(cros_test_lib.RunCommandTempDirTestCase):
         self.assertIn("--flags", args)
         self.assertEqual(args[args.index("--flags") + 1], "1")
 
-    def testGetCmdArgsWithSig(self):
+    def testGetCmdArgsWithSig(self) -> None:
         loem_dir = os.path.join(self.tempdir, "loem1", "keyset")
         loem_id = "loem1"
 
@@ -242,7 +242,7 @@ class TestBiosSigner(cros_test_lib.RunCommandTempDirTestCase):
 class TestECSigner(cros_test_lib.RunCommandTempDirTestCase):
     """Test ECSigner."""
 
-    def testIsROSignedRW(self):
+    def testIsROSignedRW(self) -> None:
         MockECSigner(self.rc, ec_ro=False)
         ec_signer = firmware.ECSigner()
         ec_bin = os.path.join(self.tempdir, "ec.bin")
@@ -251,14 +251,14 @@ class TestECSigner(cros_test_lib.RunCommandTempDirTestCase):
 
         self.assertCommandContains(["futility", "dump_fmap", "-p", ec_bin])
 
-    def testIsROSignedRO(self):
+    def testIsROSignedRO(self) -> None:
         MockECSigner(self.rc)
         ec_signer = firmware.ECSigner()
         ec_bin = os.path.join(self.tempdir, "ec.bin")
 
         self.assertTrue(ec_signer.IsROSigned(ec_bin))
 
-    def testSign(self):
+    def testSign(self) -> None:
         MockECSigner(self.rc, ec_ro=False)
         ec_signer = firmware.ECSigner()
         ks = signer_unittest.KeysetFromSigner(ec_signer, self.tempdir)
@@ -288,10 +288,10 @@ class TestECSigner(cros_test_lib.RunCommandTempDirTestCase):
 class TestFirmwareSigner(cros_test_lib.RunCommandTempDirTestCase):
     """Test FirmwareSigner."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         MockFirmwareSigner(self.rc)
 
-    def testSignOneSimple(self):
+    def testSignOneSimple(self) -> None:
         fs = firmware.FirmwareSigner()
         ks = signer_unittest.KeysetFromSigner(fs, self.tempdir)
 
@@ -303,7 +303,7 @@ class TestFirmwareSigner(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandContains(["futility", "sign", "--type", "bios"])
         self.assertCommandContains(["futility", "gbb"])
 
-    def testSignOneWithEC(self):
+    def testSignOneWithEC(self) -> None:
         fs = firmware.FirmwareSigner()
         keyset_dir = os.path.join(self.tempdir, "keyset")
         ks = keys_unittest.KeysetMock(keyset_dir)
@@ -319,7 +319,7 @@ class TestFirmwareSigner(cros_test_lib.RunCommandTempDirTestCase):
             ["futility", "sign", "--type", "rwsig", ec_path]
         )
 
-    def testSignOneWithLoem(self):
+    def testSignOneWithLoem(self) -> None:
         fs = firmware.FirmwareSigner()
         keyset_dir = os.path.join(self.tempdir, "keyset")
         ks = keys_unittest.KeysetMock(keyset_dir)
@@ -346,7 +346,7 @@ class TestFirmwareSigner(cros_test_lib.RunCommandTempDirTestCase):
             ]
         )
 
-    def testSignWithSignerConfig(self):
+    def testSignWithSignerConfig(self) -> None:
         fs = firmware.FirmwareSigner()
         keyset_dir = os.path.join(self.tempdir, "keyset")
         ks = keys_unittest.KeysetMock(keyset_dir)
@@ -368,7 +368,7 @@ class TestFirmwareSigner(cros_test_lib.RunCommandTempDirTestCase):
             )
             self.assertCommandContains(["futility", "sign", bios_path])
 
-    def testSignWithNoSignerConfigUnified(self):
+    def testSignWithNoSignerConfigUnified(self) -> None:
         """Test signing unified builds with no signer_config.csv provided."""
         fs = firmware.FirmwareSigner()
         keyset_dir = os.path.join(self.tempdir, "keyset")
@@ -391,7 +391,7 @@ class TestFirmwareSigner(cros_test_lib.RunCommandTempDirTestCase):
         self.assertExists(os.path.join(shellball_dir, "keyset.loem1"))
         self.assertExists(os.path.join(shellball_dir, "keyset.loem2"))
 
-    def testSignWithNoSignerConfigNonUnified(self):
+    def testSignWithNoSignerConfigNonUnified(self) -> None:
         """Test signing non-unified build with no signer_config.csv provided."""
         fs = firmware.FirmwareSigner()
         keyset_dir = os.path.join(self.tempdir, "keyset")
@@ -417,10 +417,10 @@ class TestFirmwareSigner(cros_test_lib.RunCommandTempDirTestCase):
 class TestGBBSigner(cros_test_lib.RunCommandTempDirTestCase):
     """Test GBBSigner."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         MockGBBSigner(self.rc)
 
-    def testGetFutilityArgs(self):
+    def testGetFutilityArgs(self) -> None:
         gb_signer = firmware.GBBSigner()
         ks = signer_unittest.KeysetFromSigner(gb_signer, self.tempdir)
 
@@ -444,19 +444,19 @@ class ShellballTest(cros_test_lib.RunCommandTempDirTestCase):
     """Verify that shellball is being called with correct arguments."""
 
     @staticmethod
-    def CmdMock(rc):
+    def CmdMock(rc) -> None:
         """Add mock commands to |rc|"""
         rc.AddCmdResult(partial_mock.ListRegex(".* --sb_extract .*"))
         rc.AddCmdResult(partial_mock.ListRegex(".* --sb_repack .*"))
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup simple Shellball instance for mock testing."""
         ShellballTest.CmdMock(self.rc)
         self.sb1name = os.path.join(self.tempdir, "fooball")
         osutils.Touch(self.sb1name)
         self.sb1 = firmware.Shellball(self.sb1name)
 
-    def testExtractCall(self):
+    def testExtractCall(self) -> None:
         """Test arguments for image extract."""
         out_dir = "bar"
         expected_args = ["--sb_extract", out_dir]
@@ -464,7 +464,7 @@ class ShellballTest(cros_test_lib.RunCommandTempDirTestCase):
         self.sb1.Extract(out_dir)
         self.assertCommandContains(expected_args)
 
-    def testRepackCall(self):
+    def testRepackCall(self) -> None:
         """Test arguments for image repack."""
         from_dir = "bar"
         expected_args = ["--sb_repack", from_dir]
@@ -472,7 +472,7 @@ class ShellballTest(cros_test_lib.RunCommandTempDirTestCase):
         self.sb1.Repack(from_dir)
         self.assertCommandContains(expected_args)
 
-    def testContextManager(self):
+    def testContextManager(self) -> None:
         with self.sb1 as sb_dir:
             self.assertExists(sb_dir)
             self.assertCommandContains(["--sb_extract"])
@@ -519,14 +519,14 @@ class SignerConfigsFromCSVTest(cros_test_lib.TestCase):
         csv_file.seek(0)
         return csv_file
 
-    def testMissingRow(self):
+    def testMissingRow(self) -> None:
         fields = SignerConfigsFromCSVTest.BOARDS[:-1]
         csv_file = SignerConfigsFromCSVTest.CreateCSV(fields=fields)
 
         with self.assertRaises(csv.Error):
             firmware.SignerConfigsFromCSV(csv_file)
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         orig_boards = SignerConfigsFromCSVTest.CreateBoardDicts()
         csv_file = SignerConfigsFromCSVTest.CreateCSV(board_dict=orig_boards)
 
@@ -538,10 +538,10 @@ class SignerConfigsFromCSVTest(cros_test_lib.TestCase):
 class TestWriteSignerNotes(cros_test_lib.RunCommandTempDirTestCase):
     """Test WriteSignerNotes function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         keys_unittest.MockVbutilKey(self.rc)
 
-    def testSingleKey(self):
+    def testSingleKey(self) -> None:
         """Test function's output with fixed sha1sum."""
         recovery_key = keys.KeyPair("recovery_key", self.tempdir)
         root_key = keys.KeyPair("root_key", self.tempdir)
@@ -563,7 +563,7 @@ class TestWriteSignerNotes(cros_test_lib.RunCommandTempDirTestCase):
             expected_output, version_signer.getvalue().splitlines()
         )
 
-    def testLoemKeys(self):
+    def testLoemKeys(self) -> None:
         """Test function's output with multiple loem keys."""
         recovery_key = keys.KeyPair("recovery_key", self.tempdir)
         root_keys = {

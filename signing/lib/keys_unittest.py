@@ -18,7 +18,7 @@ MOCK_SHA1SUM = "e2c1c92d7d7aa7dfed5e8375edd30b7ae52b7450"
 # pylint: disable=protected-access
 
 
-def MockVbutilKey(rc, sha1sum=MOCK_SHA1SUM):
+def MockVbutilKey(rc, sha1sum=MOCK_SHA1SUM) -> None:
     """Adds vbutil_key mocks to |rc|"""
 
     cmd_output = textwrap.dedent(
@@ -98,7 +98,7 @@ class KeysetMock(keys.Keyset):
     # keys.Keyset(), if it ever becomes the thing that creates a keyset
     # directory. Today, we only read the keyset from the directory, we do not
     # update it.
-    def WriteIniFile(self):
+    def WriteIniFile(self) -> None:
         """Writes alias to file"""
         if self.ROOT_OF_TRUST_NAMES:
             lines = ["[loem]"]
@@ -109,7 +109,7 @@ class KeysetMock(keys.Keyset):
             contents = "\n".join(lines) + "\n"
             osutils.WriteFile(os.path.join(self.key_dir, "loem.ini"), contents)
 
-    def CreateStubKeys(self):
+    def CreateStubKeys(self) -> None:
         """Creates stub keys from stored keys."""
         for key in self.keys.values():
             CreateStubKeys(key)
@@ -121,78 +121,78 @@ class KeysetMock(keys.Keyset):
 class TestKeyPair(cros_test_lib.RunCommandTempDirTestCase):
     """Test KeyPair class."""
 
-    def testInitSimple(self):
+    def testInitSimple(self) -> None:
         """Test init with minimal arguments."""
         k1 = keys.KeyPair("key1", self.tempdir)
         self.assertEqual(k1.name, "key1")
         self.assertEqual(k1.version, 1)
         self.assertEqual(k1.keydir, self.tempdir)
 
-    def testRejectsEmptyName(self):
+    def testRejectsEmptyName(self) -> None:
         with self.assertRaises(ValueError):
             keys.KeyPair("", self.tempdir)
 
-    def testRejectsNameWithSlash(self):
+    def testRejectsNameWithSlash(self) -> None:
         with self.assertRaises(ValueError):
             keys.KeyPair("/foo", self.tempdir)
         with self.assertRaises(ValueError):
             keys.KeyPair("foo/bar", self.tempdir)
 
-    def testRejectsLeadingDot(self):
+    def testRejectsLeadingDot(self) -> None:
         with self.assertRaises(ValueError):
             keys.KeyPair(".foo", self.tempdir)
 
-    def testCoercesVersionToInt(self):
+    def testCoercesVersionToInt(self) -> None:
         k1 = keys.KeyPair("key1", self.tempdir, version="1")
         self.assertEqual(k1.name, "key1")
         self.assertEqual(k1.version, 1)
         self.assertEqual(k1.keydir, self.tempdir)
 
-    def testAssertsValueErrorOnNonNumericVersion(self):
+    def testAssertsValueErrorOnNonNumericVersion(self) -> None:
         with self.assertRaises(ValueError):
             keys.KeyPair("key1", self.tempdir, version="blah")
 
-    def testAssertsValueErrorOnEmptyStringVersion(self):
+    def testAssertsValueErrorOnEmptyStringVersion(self) -> None:
         with self.assertRaises(ValueError):
             keys.KeyPair("key1", self.tempdir, version="")
 
-    def testPrivateKey(self):
+    def testPrivateKey(self) -> None:
         k1 = keys.KeyPair("key1", self.tempdir)
         self.assertEqual(
             k1.private, os.path.join(self.tempdir, "key1" + ".vbprivk")
         )
 
-    def testPublicKey(self):
+    def testPublicKey(self) -> None:
         k1 = keys.KeyPair("key1", self.tempdir)
         self.assertEqual(
             k1.public, os.path.join(self.tempdir, "key1" + ".vbpubk")
         )
 
-    def testKeyblock(self):
+    def testKeyblock(self) -> None:
         k1 = keys.KeyPair("key1", self.tempdir)
         self.assertEqual(
             k1.keyblock, os.path.join(self.tempdir, "key1" + ".keyblock")
         )
 
-    def testKeyblockWithSuffix(self):
+    def testKeyblockWithSuffix(self) -> None:
         k1 = keys.KeyPair("key1_data_key", self.tempdir)
         self.assertEqual(
             k1.keyblock, os.path.join(self.tempdir, "key1" + ".keyblock")
         )
 
-    def testInitWithVersion(self):
+    def testInitWithVersion(self) -> None:
         """Test init with version kwarg."""
         k_ver = keys.KeyPair("k_ver", self.tempdir, version=2)
         self.assertEqual(k_ver.version, 2)
 
-    def testInitWithPubExt(self):
+    def testInitWithPubExt(self) -> None:
         """Test init with pub_ext kwarg."""
         k_ext = keys.KeyPair("k_ext", self.tempdir, pub_ext=".vbpubk2")
         self.assertEqual(
             k_ext.public, os.path.join(self.tempdir, "k_ext.vbpubk2")
         )
 
-    def testInitWithPrivExt(self):
+    def testInitWithPrivExt(self) -> None:
         """Test init with priv_ext kwarg."""
         k_ext = keys.KeyPair("k_ext", self.tempdir, priv_ext=".vbprik2")
         self.assertEqual(
@@ -202,17 +202,17 @@ class TestKeyPair(cros_test_lib.RunCommandTempDirTestCase):
             k_ext.public, os.path.join(self.tempdir, "k_ext.vbpubk2")
         )
 
-    def testRejectsInvalidPubExt(self):
+    def testRejectsInvalidPubExt(self) -> None:
         """Test init with bad pub_ext argument."""
         with self.assertRaises(ValueError):
             keys.KeyPair("foo", self.tempdir, pub_ext=".bar")
 
-    def testRejectsInvalidPrivExt(self):
+    def testRejectsInvalidPrivExt(self) -> None:
         """Test init with bad priv_ext argument."""
         with self.assertRaises(ValueError):
             keys.KeyPair("foo", self.tempdir, priv_ext=".bar")
 
-    def testSetsPubExtCorrectly(self):
+    def testSetsPubExtCorrectly(self) -> None:
         """Test init sets pub_ext correctly based on priv_ext argument."""
         k1 = keys.KeyPair("k1", self.tempdir, priv_ext=".vbprivk")
         k2 = keys.KeyPair("k2", self.tempdir, priv_ext=".vbprik2")
@@ -221,18 +221,18 @@ class TestKeyPair(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(k1.public, "%s/k1.vbpubk" % self.tempdir)
         self.assertEqual(k2.public, "%s/k2.vbpubk2" % self.tempdir)
 
-    def testCmpSame(self):
+    def testCmpSame(self) -> None:
         k1 = keys.KeyPair("key1", self.tempdir)
         k2 = keys.KeyPair("key1", self.tempdir)
         self.assertEqual(k1, k1)
         self.assertEqual(k1, k2)
 
-    def testCmpDiff(self):
+    def testCmpDiff(self) -> None:
         k1 = keys.KeyPair("key1", self.tempdir)
         k2 = keys.KeyPair("key2", self.tempdir)
         self.assertNotEqual(k1, k2)
 
-    def testParsePrivateKeyFilenameReturnsValues(self):
+    def testParsePrivateKeyFilenameReturnsValues(self) -> None:
         """Make sure that we return the correct name/ext."""
         v1 = keys.KeyPair.ParsePrivateKeyFilename("foo.vbprivk")
         self.assertEqual("foo", v1.group("name"))
@@ -241,35 +241,35 @@ class TestKeyPair(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual("bar", v2.group("name"))
         self.assertEqual(".vbprik2", v2.group("ext"))
 
-    def testParsePrivateKeyFilenameReturnsNone(self):
+    def testParsePrivateKeyFilenameReturnsNone(self) -> None:
         """Non-private key filenames return None"""
         self.assertEqual(
             None, keys.KeyPair.ParsePrivateKeyFilename("foo.vbpubk")
         )
 
-    def testParsePrivateKeyFilenameStripsDir(self):
+    def testParsePrivateKeyFilenameStripsDir(self) -> None:
         """Leading directories in the path are ignored."""
         name = keys.KeyPair.ParsePrivateKeyFilename(
             "/path/to/foo.vbprivk"
         ).group("name")
         self.assertEqual("foo", name)
 
-    def testExistsEmpty(self):
+    def testExistsEmpty(self) -> None:
         self.assertFalse(keys.KeyPair("key1", self.tempdir).Exists())
 
-    def testExistEmptyRequirePublic(self):
+    def testExistEmptyRequirePublic(self) -> None:
         k1 = keys.KeyPair("key1", self.tempdir)
         self.assertFalse(k1.Exists(require_public=True))
 
-    def testExistEmptyRequirePrivate(self):
+    def testExistEmptyRequirePrivate(self) -> None:
         k1 = keys.KeyPair("key1", self.tempdir)
         self.assertFalse(k1.Exists(require_private=True))
 
-    def testExistEmptyRequirePublicRequirePrivate(self):
+    def testExistEmptyRequirePublicRequirePrivate(self) -> None:
         k1 = keys.KeyPair("key1", self.tempdir)
         self.assertFalse(k1.Exists(require_private=True, require_public=True))
 
-    def testExistWithPublicKey(self):
+    def testExistWithPublicKey(self) -> None:
         k1 = keys.KeyPair("key1", self.tempdir)
 
         CreateStubPublic(k1)
@@ -277,7 +277,7 @@ class TestKeyPair(cros_test_lib.RunCommandTempDirTestCase):
         self.assertTrue(k1.Exists(require_public=True))
         self.assertFalse(k1.Exists(require_private=True))
 
-    def testExistsWithPrivateKey(self):
+    def testExistsWithPrivateKey(self) -> None:
         k1 = keys.KeyPair("key1", self.tempdir)
 
         CreateStubPrivateKey(k1)
@@ -285,7 +285,7 @@ class TestKeyPair(cros_test_lib.RunCommandTempDirTestCase):
         self.assertTrue(k1.Exists(require_private=True))
         self.assertFalse(k1.Exists(require_public=True))
 
-    def testExistsWithBothKeys(self):
+    def testExistsWithBothKeys(self) -> None:
         """Exists() works correctly when private/public are both required."""
         k1 = keys.KeyPair("key1", self.tempdir)
 
@@ -296,23 +296,23 @@ class TestKeyPair(cros_test_lib.RunCommandTempDirTestCase):
         self.assertTrue(k1.Exists(require_public=True))
         self.assertTrue(k1.Exists(require_private=True, require_public=True))
 
-    def testKeyblockExistsMissing(self):
+    def testKeyblockExistsMissing(self) -> None:
         k1 = keys.KeyPair("key1", self.tempdir)
         self.assertFalse(k1.KeyblockExists())
 
-    def testKeyblockExists(self):
+    def testKeyblockExists(self) -> None:
         k1 = keys.KeyPair("key1", self.tempdir)
         CreateStubKeyblock(k1)
         self.assertTrue(k1.KeyblockExists())
 
-    def testGetSha1sumEmpty(self):
+    def testGetSha1sumEmpty(self) -> None:
         """Test GetSha1sum with bad cmd output."""
         k1 = keys.KeyPair("key1", self.tempdir)
 
         with self.assertRaises(keys.SignerKeyError):
             k1.GetSHA1sum()
 
-    def testGetSha1sumMockCmd(self):
+    def testGetSha1sumMockCmd(self) -> None:
         """Test GetSha1sum with mock cmd output."""
         MockVbutilKey(self.rc)
         k1 = keys.KeyPair("firmware_data_key", self.tempdir)
@@ -347,7 +347,7 @@ class TestKeyVersions(cros_test_lib.TempDirTestCase):
         osutils.WriteFile(kv_path, contents)
         return kv_path
 
-    def testInitReturnsDefaultButDoesNotCreateFile(self):
+    def testInitReturnsDefaultButDoesNotCreateFile(self) -> None:
         kv_path = os.path.join(self.tempdir, "key.versions")
         kv = keys.KeyVersions(kv_path)
         self.assertNotExists(kv_path)
@@ -361,19 +361,19 @@ class TestKeyVersions(cros_test_lib.TempDirTestCase):
         self.assertEqual(False, kv.saved)
         self.assertDictEqual(expected, kv._versions)
 
-    def testInitReadsFile(self):
+    def testInitReadsFile(self) -> None:
         kv_path = self._CreateVersionsFile(self.expected)
         kv = keys.KeyVersions(kv_path)
         self.assertDictEqual(self.expected, kv._versions)
         self.assertEqual(True, kv.saved)
 
-    def testInitErrorOnBadFileContents(self):
+    def testInitErrorOnBadFileContents(self) -> None:
         kv_path = self._CreateVersionsFile({})
         osutils.WriteFile(kv_path, "firmware_version=bogus\n")
         with self.assertRaises(ValueError):
             keys.KeyVersions(kv_path)
 
-    def testKeyNameTransformsName(self):
+    def testKeyNameTransformsName(self) -> None:
         kv_path = self._CreateVersionsFile({})
         kv = keys.KeyVersions(kv_path)
         self.assertEqual("firmware_version", kv._KeyName("firmware_data_key"))
@@ -382,7 +382,7 @@ class TestKeyVersions(cros_test_lib.TempDirTestCase):
         )
         self.assertEqual("firmware_version", kv._KeyName("firmware_version"))
 
-    def testKeyNameIsIdempotent(self):
+    def testKeyNameIsIdempotent(self) -> None:
         kv_path = self._CreateVersionsFile({})
         kv = keys.KeyVersions(kv_path)
         self.assertEqual("B_version", kv._KeyName(kv._KeyName("B_data_key")))
@@ -391,7 +391,7 @@ class TestKeyVersions(cros_test_lib.TempDirTestCase):
         )
         self.assertEqual("B_version", kv._KeyName(kv._KeyName("B_version")))
 
-    def testKeyNameCorrectlyAppends_version(self):
+    def testKeyNameCorrectlyAppends_version(self) -> None:
         """Does not append _version if there is a key with the name already."""
         kv_path = self._CreateVersionsFile({})
         kv = keys.KeyVersions(kv_path)
@@ -401,25 +401,25 @@ class TestKeyVersions(cros_test_lib.TempDirTestCase):
         self.assertEqual("bar", kv._KeyName("bar"))
         self.assertEqual("baz_version", kv._KeyName("baz"))
 
-    def testGetReturnsValue(self):
+    def testGetReturnsValue(self) -> None:
         kv_path = self._CreateVersionsFile(self.expected)
         kv = keys.KeyVersions(kv_path)
         self.assertEqual(
             self.expected["firmware_version"], kv.Get("firmware_data_key")
         )
 
-    def testGetReturnsNoneForUnknown(self):
+    def testGetReturnsNoneForUnknown(self) -> None:
         kv_path = self._CreateVersionsFile(self.expected)
         kv = keys.KeyVersions(kv_path)
         self.assertEqual(None, kv.Get("invalid"))
 
-    def testSetSetsValue(self):
+    def testSetSetsValue(self) -> None:
         kv_path = self._CreateVersionsFile({})
         kv = keys.KeyVersions(kv_path)
         kv.Set("firmware_data_key", 10)
         self.assertEqual(10, kv._versions["firmware_version"])
 
-    def testSetMarksDirty(self):
+    def testSetMarksDirty(self) -> None:
         kv_path = self._CreateVersionsFile({})
         kv = keys.KeyVersions(kv_path)
         self.assertEqual(True, kv.saved)
@@ -427,7 +427,7 @@ class TestKeyVersions(cros_test_lib.TempDirTestCase):
         self.assertEqual(10, kv._versions["firmware_version"])
         self.assertEqual(False, kv.saved)
 
-    def testSetDoesNotSave(self):
+    def testSetDoesNotSave(self) -> None:
         kv_path = self._CreateVersionsFile(self.expected)
         kv = keys.KeyVersions(kv_path)
         kv.Set("firmware_data_key", 10)
@@ -436,21 +436,21 @@ class TestKeyVersions(cros_test_lib.TempDirTestCase):
             self.expected["firmware_version"], kv2._versions["firmware_version"]
         )
 
-    def testIncrementIncrementsAndMarksDirty(self):
+    def testIncrementIncrementsAndMarksDirty(self) -> None:
         kv_path = self._CreateVersionsFile({"firmware_version": 30})
         kv = keys.KeyVersions(kv_path)
         kv.Increment("firmware_data_key")
         self.assertEqual(31, kv._versions["firmware_version"])
         self.assertEqual(False, kv.saved)
 
-    def testIncrementRaisesOnOverflow(self):
+    def testIncrementRaisesOnOverflow(self) -> None:
         kv_path = self._CreateVersionsFile({"firmware_version": 0xFFFF})
         kv = keys.KeyVersions(kv_path)
         with self.assertRaises(keys.VersionOverflowError):
             kv.Increment("firmware_data_key")
         self.assertEqual(0xFFFF, kv._versions["firmware_version"])
 
-    def testIncrementDoesNotSave(self):
+    def testIncrementDoesNotSave(self) -> None:
         kv_path = self._CreateVersionsFile(self.expected)
         kv = keys.KeyVersions(kv_path)
         kv.Increment("firmware_data_key")
@@ -459,7 +459,7 @@ class TestKeyVersions(cros_test_lib.TempDirTestCase):
             self.expected["firmware_version"], kv2._versions["firmware_version"]
         )
 
-    def testSaveSaves(self):
+    def testSaveSaves(self) -> None:
         kv_path = self._CreateVersionsFile(self.expected)
         kv = keys.KeyVersions(kv_path)
         kv.Increment("firmware_data_key")
@@ -483,21 +483,21 @@ class TestKeyset(cros_test_lib.TempDirTestCase):
 
         return kc
 
-    def testInit(self):
+    def testInit(self) -> None:
         ks = keys.Keyset()
         self.assertIsInstance(ks.keys, dict)
         self.assertIsInstance(ks._root_of_trust_keys, dict)
         self.assertIsInstance(ks.root_of_trust_map, dict)
         self.assertEqual(ks.name, "unknown")
 
-    def testInitWithEmptyDir(self):
+    def testInitWithEmptyDir(self) -> None:
         """Call Keyset() with an uncreated directory."""
         ks = keys.Keyset(self.tempdir)
         self.assertIsInstance(ks, keys.Keyset)
         self.assertIsInstance(ks._root_of_trust_keys, dict)
         self.assertIsInstance(ks.root_of_trust_map, dict)
 
-    def testInitWithPopulatedDirectory(self):
+    def testInitWithPopulatedDirectory(self) -> None:
         """Keyset() loads a populated keyset directory correctly."""
         contents = "name=testname\n"
         osutils.WriteFile(os.path.join(self.tempdir, "key.versions"), contents)
@@ -520,12 +520,12 @@ class TestKeyset(cros_test_lib.TempDirTestCase):
         )
         self.assertEqual(ks0, ks1)
 
-    def testEqSame(self):
+    def testEqSame(self) -> None:
         kc1 = self._get_keyset()
         kc2 = self._get_keyset()
         self.assertEqual(kc1, kc2)
 
-    def testEqDiffrent(self):
+    def testEqDiffrent(self) -> None:
         kc1 = self._get_keyset()
         kc2 = self._get_keyset()
 
@@ -534,20 +534,20 @@ class TestKeyset(cros_test_lib.TempDirTestCase):
 
         self.assertFalse(kc1 == kc2)
 
-    def testAddKey(self):
+    def testAddKey(self) -> None:
         ks0 = keys.Keyset()
         key0 = keys.KeyPair("key0", self.tempdir)
         ks0.AddKey(key0)
         self.assertEqual(ks0.keys["key0"], key0)
 
-    def testAddRootOfTrustKey(self):
+    def testAddRootOfTrustKey(self) -> None:
         k9 = keys.KeyPair("root_key.loem9", self.tempdir)
         ks0 = self._get_keyset()
         ks0.AddRootOfTrustKey("root_key", "loem9", k9)
 
         self.assertEqual(ks0._root_of_trust_keys["loem9"]["root_key"], k9)
 
-    def testGetRootOfTrustKeysWithLoemIni(self):
+    def testGetRootOfTrustKeysWithLoemIni(self) -> None:
         ks0 = self._get_keyset()
         expected_keys = ks0.GetRootOfTrustKeys("root_key")
         expected = {
@@ -558,18 +558,18 @@ class TestKeyset(cros_test_lib.TempDirTestCase):
         }
         self.assertDictEqual(expected, expected_keys)
 
-    def testGetRootOfTrustKeysWithoutLoemIni(self):
+    def testGetRootOfTrustKeysWithoutLoemIni(self) -> None:
         ks0 = self._get_keyset(has_loem_ini=False)
         expected_keys = ks0.GetRootOfTrustKeys("root_key")
         self.assertDictEqual({"root_key": ks0.keys["root_key"]}, expected_keys)
 
-    def testGetBuildKeysetMissmatch(self):
+    def testGetBuildKeysetMissmatch(self) -> None:
         ks0 = self._get_keyset()
 
         with self.assertRaises(keys.SignerRootOfTrustKeyMissingError):
             ks0.GetBuildKeyset("foo")
 
-    def testGetBuildKeyset(self):
+    def testGetBuildKeyset(self) -> None:
         ks0 = self._get_keyset()
         ks1 = ks0.GetBuildKeyset("ACME")
 
@@ -585,7 +585,7 @@ class TestKeyset(cros_test_lib.TempDirTestCase):
         self.assertEqual(expected_keys, actual_keys)
         self.assertEqual(ks1._root_of_trust_keys, {})
 
-    def testGetBuildKeysetWithAliasSucceeds(self):
+    def testGetBuildKeysetWithAliasSucceeds(self) -> None:
         ks0 = self._get_keyset()
         ks1 = ks0.GetBuildKeyset("loem3")
         self.assertEqual(
@@ -599,12 +599,12 @@ class TestKeyset(cros_test_lib.TempDirTestCase):
             ks0._root_of_trust_keys["loem3"]["root_key"], ks1.keys["root_key"]
         )
 
-    def testGetBuildKeysetWithMissingName(self):
+    def testGetBuildKeysetWithMissingName(self) -> None:
         ks0 = self._get_keyset()
         with self.assertRaises(keys.SignerRootOfTrustKeyMissingError):
             ks0.GetBuildKeyset("loem99")
 
-    def testPrune(self):
+    def testPrune(self) -> None:
         ks0 = self._get_keyset()
         key_keep = set(["key1", "key3"])
 
@@ -620,13 +620,13 @@ class TestKeyset(cros_test_lib.TempDirTestCase):
                 key_name, key_keep, msg="Only keys in key_keep should exists"
             )
 
-    def testKeyExistsMissing(self):
+    def testKeyExistsMissing(self) -> None:
         ks0 = self._get_keyset()
 
         self.assertFalse(ks0.KeyExists("foo"), msg="'foo' should not exist")
         self.assertFalse(ks0.KeyExists("key1"), msg="'key1' should not exist")
 
-    def testKeyExistsPublicAndPrivate(self):
+    def testKeyExistsPublicAndPrivate(self) -> None:
         ks0 = self._get_keyset()
         CreateStubKeys(ks0.keys["key1"])
         self.assertTrue(ks0.KeyExists("key1"), msg="key1 should exist")
@@ -643,7 +643,7 @@ class TestKeyset(cros_test_lib.TempDirTestCase):
             msg="key1 keys should exist",
         )
 
-    def testKeyExistsPrivate(self):
+    def testKeyExistsPrivate(self) -> None:
         ks0 = self._get_keyset()
         CreateStubPrivateKey(ks0.keys["key2"])
         self.assertTrue(
@@ -658,7 +658,7 @@ class TestKeyset(cros_test_lib.TempDirTestCase):
             msg="Shouldn't pass with only private key",
         )
 
-    def testKeyExistsPublic(self):
+    def testKeyExistsPublic(self) -> None:
         ks0 = self._get_keyset()
         CreateStubPublic(ks0.keys["key3"])
         self.assertTrue(
@@ -673,33 +673,33 @@ class TestKeyset(cros_test_lib.TempDirTestCase):
             msg="Shouldn't pass with only public key",
         )
 
-    def testKeyblockExistsMissing(self):
+    def testKeyblockExistsMissing(self) -> None:
         ks0 = self._get_keyset()
         self.assertFalse(ks0.KeyExists("foo"), msg="'foo' should not exist")
         self.assertFalse(ks0.KeyExists("key1"), msg="'key1' not created yet")
 
-    def testKeyblockExists(self):
+    def testKeyblockExists(self) -> None:
         ks0 = self._get_keyset()
         CreateStubKeyblock(ks0.keys["key1"])
         self.assertTrue(ks0.KeyblockExists("key1"), msg="'key1' should exist")
 
 
-def CreateStubPublic(key):
+def CreateStubPublic(key) -> None:
     """Create empty public key file for given key."""
     osutils.Touch(key.public, makedirs=True)
 
 
-def CreateStubPrivateKey(key):
+def CreateStubPrivateKey(key) -> None:
     """Create empty private key for given key."""
     osutils.Touch(key.private, makedirs=True)
 
 
-def CreateStubKeyblock(key):
+def CreateStubKeyblock(key) -> None:
     """Create empty keyblock file for given key."""
     osutils.Touch(key.keyblock, makedirs=True)
 
 
-def CreateStubKeys(key):
+def CreateStubKeys(key) -> None:
     """Create empty key files for given key (or root_of_trust_keys if exist)."""
     CreateStubPublic(key)
     CreateStubPrivateKey(key)

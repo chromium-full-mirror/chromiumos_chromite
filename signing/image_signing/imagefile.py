@@ -70,7 +70,7 @@ def GetKernelConfig(loop_kern, check=True):
     return ret.stdout.strip()
 
 
-def _GetKernelCmdLine(loop_kern, check=True):
+def _GetKernelCmdLine(loop_kern, check=True) -> None:
     """Get the kernel commandline for |loop_kern|.
 
     Args:
@@ -95,7 +95,7 @@ def SignImage(
     keydir,
     keyA_prefix="",
     vboot_path=None,
-):
+) -> None:
     """Sign the image file.
 
     A Chromium OS image file (INPUT) always contains 2 partitions (kernel A &
@@ -163,7 +163,7 @@ def SignImage(
     logging.info("Signed %s image written to %s", image_type, output_file)
 
 
-def SignAndroidImage(rootfs_dir, keyset, vboot_path=None):
+def SignAndroidImage(rootfs_dir, keyset, vboot_path=None) -> None:
     """If there is an android image, sign it."""
     system_img = os.path.join(
         rootfs_dir, "opt/google/containers/android/system.raw.img"
@@ -195,7 +195,7 @@ def SignAndroidImage(rootfs_dir, keyset, vboot_path=None):
     )
 
 
-def SignUefiBinaries(image, rootfs_dir, keyset, vboot_path=None):
+def SignUefiBinaries(image, rootfs_dir, keyset, vboot_path=None) -> None:
     """Sign UEFI binaries if appropriate."""
     # If there are no uefi keys in the keyset, we're done.
     uefi_keydir = os.path.join(keyset.key_dir, "uefi")
@@ -317,13 +317,13 @@ class CalculateRootfsHash:
         self.calculated_kernel_cmdline = self.cmd_line
         self.hashtree_filename = self._file.name
 
-    def __del__(self):
+    def __del__(self) -> None:
         if getattr(self, "_file", None):
             os.unlink(self._file.name)
             del self._file
 
 
-def ClearResignFlag(image):
+def ClearResignFlag(image) -> None:
     """Remove any /root/.need_to_be_signed file from the rootfs.
 
     Args:
@@ -338,7 +338,7 @@ def ClearResignFlag(image):
     image.Unmount(("ROOT-A",))
 
 
-def UpdateRootfsHash(image, loop_kern, keyset, keyA_prefix):
+def UpdateRootfsHash(image, loop_kern, keyset, keyA_prefix) -> None:
     """Update the root filesystem hash.
 
     Args:
@@ -409,7 +409,7 @@ def UpdateRootfsHash(image, loop_kern, keyset, keyA_prefix):
         _UpdateKernelConfig(loop_kern, new_cmd_line, key)
 
 
-def _UpdateKernelConfig(loop_kern, cmdline, key):
+def _UpdateKernelConfig(loop_kern, cmdline, key) -> None:
     """Update the kernel config for |loop_kern|.
 
     Args:
@@ -440,7 +440,7 @@ def _UpdateKernelConfig(loop_kern, cmdline, key):
         )
 
 
-def UpdateStatefulPartitionVblock(image, keyset):
+def UpdateStatefulPartitionVblock(image, keyset) -> None:
     """Update the SSD install-able vblock file on stateful partition.
 
     This is deprecated because all new images should have a SSD boot-able kernel
@@ -482,7 +482,7 @@ def UpdateStatefulPartitionVblock(image, keyset):
         image.Unmount(("STATE",))
 
 
-def UpdateRecoveryKernelHash(image, keyset):
+def UpdateRecoveryKernelHash(image, keyset) -> None:
     """Update the recovery kernel hash."""
     loop_kernA = image.GetPartitionDevName("KERN-A")
     loop_kernB = image.GetPartitionDevName("KERN-B")
@@ -502,7 +502,7 @@ def UpdateRecoveryKernelHash(image, keyset):
     _UpdateKernelConfig(loop_kernA, kernA_cmd, recovery_key)
 
 
-def UpdateLegacyBootloader(image, loop_kern):
+def UpdateLegacyBootloader(image, loop_kern) -> None:
     """Update the legacy bootloader templates in EFI partition."""
     try:
         uefi_dir = image.Mount(("EFI-SYSTEM",))[0]
@@ -555,7 +555,7 @@ def UpdateLegacyBootloader(image, loop_kern):
             raise SignImageError("Updating bootloader configs failed")
 
 
-def DumpConfig(image_file):
+def DumpConfig(image_file) -> None:
     """Dump kernel config for both kernels.
 
     This implements the necessary logic for bin/dump_config, which is intended

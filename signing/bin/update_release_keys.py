@@ -64,11 +64,11 @@ class KeyringData:
         else:
             return default
 
-    def WriteRepoYaml(self):
+    def WriteRepoYaml(self) -> None:
         """Write repo.yaml."""
         self._WriteConfig(self.contents_yaml, self.keysets)
 
-    def _WriteConfig(self, filename, config):
+    def _WriteConfig(self, filename, config) -> None:
         """Write the config
 
         Args:
@@ -191,7 +191,7 @@ def DiscoverKeysets(keysets_dir):
     return sorted(ret.items())
 
 
-def main(argv):
+def main(argv) -> None:
     """Import the keys."""
     options = ParseArgs(argv)
     # Always prepend the prefix directory.

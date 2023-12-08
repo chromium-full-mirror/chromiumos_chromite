@@ -90,7 +90,7 @@ class ECSigner(signer.BaseSigner):
 
         return b"KEY_RO" in fmap.stdout
 
-    def Sign(self, keyset, input_name, output_name):
+    def Sign(self, keyset, input_name, output_name) -> None:
         """Sign EC image
 
         Args:
@@ -198,7 +198,7 @@ class FirmwareSigner(signer.BaseSigner):
         model_name="",
         key_id="",
         keyset_out_dir="keyset",
-    ):
+    ) -> None:
         """Perform one signing based on the given args.
 
         Args:
@@ -243,7 +243,7 @@ class FirmwareSigner(signer.BaseSigner):
 
             GBBSigner().Sign(keyset, temp_fw.name, bios_path)
 
-    def Sign(self, keyset, input_name, output_name):
+    def Sign(self, keyset, input_name, output_name) -> None:
         """Sign Firmware shellball.
 
         Signing is based on if 'signer_config.csv', then all rows defined in
@@ -325,7 +325,7 @@ class Shellball:
         self.Extract(self._extract_dir.tempdir)
         return self._extract_dir.tempdir
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         """Repack shellball and delete temp directory."""
         try:
             if exc_type is None:
@@ -336,7 +336,7 @@ class Shellball:
                 # Always clear up temp directory
                 self._extract_dir.Cleanup()
 
-    def Extract(self, out_dir):
+    def Extract(self, out_dir) -> None:
         """Extract self to given directory, raises ExtractFail on fail"""
         try:
             self._Run("--sb_extract", out_dir)
@@ -345,7 +345,7 @@ class Shellball:
             logging.error("Extracting firmware shellball failed")
             raise ShellballExtractError(err.msg)
 
-    def Repack(self, src_dir):
+    def Repack(self, src_dir) -> None:
         """Repack shellball with |src_dir|, raises RepackFailed on fail.
 
         Only supports shellballs that honor '--sb_repack' which should include
@@ -370,7 +370,7 @@ class Shellball:
                 if os.path.exists(tmp_file.name):
                     os.remove(tmp_file.name)
 
-    def _Run(self, *args):
+    def _Run(self, *args) -> None:
         """Execute shellball with given arguments."""
         cmd = [os.path.realpath(self.filename)]
         cmd += args
@@ -388,7 +388,7 @@ def _MountImagePartition(
     makedirs=True,
     mount_opts=("ro",),
     skip_mtab=False,
-):
+) -> None:
     """Mount a |partition| from |image_file| to |destination|.
 
     If there is a GPT table (GetImageDiskPartitionInfo), it will be used for
@@ -436,7 +436,7 @@ def _MountImagePartition(
     )
 
 
-def ResignImageFirmware(image_file, keyset):
+def ResignImageFirmware(image_file, keyset) -> None:
     """Resign the given firmware image.
 
     Args:
@@ -493,7 +493,7 @@ def SignerConfigsFromCSV(signer_config_file):
     return list(csv_reader)
 
 
-def WriteSignerNotes(keyset, outfile):
+def WriteSignerNotes(keyset, outfile) -> None:
     """Writes signer notes (a.k.a. VERSION.signer) to file.
 
     Args:

@@ -12,7 +12,7 @@ from chromite.signing.image_signing import imagefile
 class TestMain(cros_test_lib.RunCommandTestCase):
     """Test main() function."""
 
-    def testDumpConfig(self):
+    def testDumpConfig(self) -> None:
         """Test dump_config."""
         self.rc.SetDefaultCmdResult()
         dc = self.PatchObject(imagefile, "DumpConfig")

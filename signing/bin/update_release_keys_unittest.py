@@ -22,7 +22,7 @@ from chromite.signing.bin import update_release_keys
 class TestImportKeyset(cros_test_lib.MockTempDirTestCase):
     """Tests for ImportKeyset."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.prod = os.path.join(self.tempdir, "prod")
         os.makedirs(os.path.join(self.prod, "keys"))
         self.base = os.path.join(self.prod, "v2-keys")
@@ -49,7 +49,7 @@ class TestImportKeyset(cros_test_lib.MockTempDirTestCase):
         self.logwarning = self.PatchObject(logging, "warning")
         self.logerror = self.PatchObject(logging, "error")
 
-    def test_ImportKeys(self):
+    def test_ImportKeys(self) -> None:
         """Test normal case."""
         data = sorted(
             (
@@ -80,7 +80,7 @@ class TestImportKeyset(cros_test_lib.MockTempDirTestCase):
         self.assertDictEqual(expected_keysets, kd.keysets)
         self.assertEqual(expected_calls, self.wc.call_args_list)
 
-    def test_ImportKeysChecksExists(self):
+    def test_ImportKeysChecksExists(self) -> None:
         """Test that existing configs are properly handled."""
         kd = self.keydata
         osutils.WriteFile(
@@ -98,7 +98,7 @@ class TestImportKeyset(cros_test_lib.MockTempDirTestCase):
         self.assertEqual({"metadata-version": 0}, kd.keysets)
         self.logdebug.assert_called_once()
 
-    def test_ImportKeysUpdatesExisting(self):
+    def test_ImportKeysUpdatesExisting(self) -> None:
         """Test that existing configs are properly handled."""
         kd = self.keydata
         conf_file = os.path.join(kd.configs, "foo-mp.yaml")
@@ -112,7 +112,7 @@ class TestImportKeyset(cros_test_lib.MockTempDirTestCase):
 class TestRepoYaml(cros_test_lib.MockTempDirTestCase):
     """Tests for Read/Write RepoYaml."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.prod = os.path.join(self.tempdir, "prod")
         os.makedirs(os.path.join(self.prod, "keys"))
         self.base = os.path.join(self.prod, "v2-keys")
@@ -129,7 +129,7 @@ class TestRepoYaml(cros_test_lib.MockTempDirTestCase):
         self.argv = ["-d", self.base]
         self.logerror = self.PatchObject(logging, "error")
 
-    def test_ReadsRepoYaml(self):
+    def test_ReadsRepoYaml(self) -> None:
         """Test missing file case."""
         osutils.WriteFile(
             os.path.join(self.base, "contents.yaml"),
@@ -143,7 +143,7 @@ class TestRepoYaml(cros_test_lib.MockTempDirTestCase):
             {"metadata-version": 0, "mp-keysets": ["foo-mp"]}, kd.keysets
         )
 
-    def test_ReadMissingRepoYaml(self):
+    def test_ReadMissingRepoYaml(self) -> None:
         """Test missing file case."""
         options = update_release_keys.ParseArgs(self.argv)
         kd = update_release_keys.KeyringData(
@@ -151,7 +151,7 @@ class TestRepoYaml(cros_test_lib.MockTempDirTestCase):
         )
         self.assertDictEqual({"metadata-version": 0}, kd.keysets)
 
-    def test_ReadAssertsProperly(self):
+    def test_ReadAssertsProperly(self) -> None:
         """Test bad file case."""
         osutils.WriteFile(os.path.join(self.base, "contents.yaml"), "\n")
         options = update_release_keys.ParseArgs(self.argv)
@@ -176,7 +176,7 @@ class TestRepoYaml(cros_test_lib.MockTempDirTestCase):
             self.config,
         )
 
-    def test_WriteRepoYaml(self):
+    def test_WriteRepoYaml(self) -> None:
         """Test WriteRepoYaml and _WriteConfig."""
         options = update_release_keys.ParseArgs(self.argv)
         kd = update_release_keys.KeyringData(

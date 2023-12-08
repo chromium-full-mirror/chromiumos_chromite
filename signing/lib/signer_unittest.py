@@ -42,7 +42,7 @@ class TestSignerConfig(cros_test_lib.TestCase):
             output_files=output_files,
         )
 
-    def testToIniDictSimple(self):
+    def testToIniDictSimple(self) -> None:
         self.assertDictEqual(
             self.GetSignerConfig().ToIniDict(),
             {
@@ -62,7 +62,7 @@ class TestSignerConfig(cros_test_lib.TestCase):
             },
         )
 
-    def testReadIniFile(self):
+    def testReadIniFile(self) -> None:
         initial_sc = self.GetSignerConfig()
 
         # Create INI file from initial SignerConfig
@@ -81,13 +81,13 @@ class TestSignerConfig(cros_test_lib.TestCase):
 
         self.assertEqual(initial_sc, read_sc)
 
-    def testGetFilePairsSimple(self):
+    def testGetFilePairsSimple(self) -> None:
         in_files = "foo.bar"
         out_files = "foo.out.bar"
         sc = self.GetSignerConfig(input_files=in_files, output_files=out_files)
         self.assertListEqual(sc.GetFilePairs(), [(in_files, out_files)])
 
-    def testGetFilePairsSimpleMultiple(self):
+    def testGetFilePairsSimpleMultiple(self) -> None:
         in_files = ("foo.bin", "bar.bin")
         out_files = ("foo.out.bin", "bar.out.bin")
         sc = self.GetSignerConfig(input_files=in_files, output_files=out_files)
@@ -96,12 +96,12 @@ class TestSignerConfig(cros_test_lib.TestCase):
             [("foo.bin", "foo.out.bin"), ("bar.bin", "bar.out.bin")],
         )
 
-    def testGetFilePairsSimpleTemplate(self):
+    def testGetFilePairsSimpleTemplate(self) -> None:
         in_files = "foo.bar"
         sc = self.GetSignerConfig(input_files=in_files)
         self.assertListEqual(sc.GetFilePairs(), [(in_files, "foo-1.2.3.4.bin")])
 
-    def testGetFilePairsDefault(self):
+    def testGetFilePairsDefault(self) -> None:
         in_file = "foo.bar"
         out_file = (
             "chromeos_1.2.3.4_link_update_payload_dev-channel_link-mp.bin"
@@ -109,7 +109,7 @@ class TestSignerConfig(cros_test_lib.TestCase):
         sc = self.GetSignerConfig(input_files=in_file, output_files=())
         self.assertListEqual(sc.GetFilePairs(), [(in_file, out_file)])
 
-    def testGetFilePairsMultipleInput(self):
+    def testGetFilePairsMultipleInput(self) -> None:
         in_files = ("foo.bin", "bar.bin")
         sc = self.GetSignerConfig(input_files=in_files)
         self.assertListEqual(
@@ -117,13 +117,13 @@ class TestSignerConfig(cros_test_lib.TestCase):
             [("foo.bin", "foo-1.2.3.4.bin"), ("bar.bin", "bar-1.2.3.4.bin")],
         )
 
-    def testGetFilePairsMultipleInputDefaultTemp(self):
+    def testGetFilePairsMultipleInputDefaultTemp(self) -> None:
         in_files = ("foo.bin", "bar.bin")
         sc = self.GetSignerConfig(input_files=in_files, output_files=())
         with self.assertRaises(signer.SignerOutputTemplateError):
             sc.GetFilePairs()
 
-    def testFillTemplate(self):
+    def testFillTemplate(self) -> None:
         sc = self.GetSignerConfig()
 
         in_file = "/tmp/foo.bar"
@@ -171,53 +171,53 @@ class MockBaseSigner(signer.BaseSigner):
 class TestSigner(cros_test_lib.TempDirTestCase):
     """Test Signer."""
 
-    def testSign(self):
+    def testSign(self) -> None:
         ks = keys.Keyset()
         s = signer.BaseSigner()
         with self.assertRaises(NotImplementedError):
             s.Sign(ks, "input", "output")
 
-    def testCheck(self):
+    def testCheck(self) -> None:
         ks = keys.Keyset()
         s = signer.BaseSigner()
         self.assertTrue(s.CheckKeyset(ks))
 
-    def testCheckRequiredKeysMissing(self):
+    def testCheckRequiredKeysMissing(self) -> None:
         ks_empty = keys.Keyset()
         s0 = MockBaseSigner(required_keys=["key1"])
         self.assertFalse(s0.CheckKeyset(ks_empty))
 
-    def testCheckRequiredKeys(self):
+    def testCheckRequiredKeys(self) -> None:
         s0 = MockBaseSigner(required_keys=["key1"])
         ks0 = KeysetFromSigner(s0, self.tempdir)
         self.assertTrue(s0.CheckKeyset(ks0))
 
-    def testCheckRequiredPublicKeysMissing(self):
+    def testCheckRequiredPublicKeysMissing(self) -> None:
         ks_empty = keys.Keyset()
         s0 = MockBaseSigner(required_keys_public=["key1"])
         self.assertFalse(s0.CheckKeyset(ks_empty))
 
-    def testCheckRequiredPublicKeys(self):
+    def testCheckRequiredPublicKeys(self) -> None:
         s0 = MockBaseSigner(required_keys_public=["key1"])
         ks0 = KeysetFromSigner(s0, self.tempdir)
         self.assertTrue(s0.CheckKeyset(ks0))
 
-    def testCheckRequiredPrivateKeysMissing(self):
+    def testCheckRequiredPrivateKeysMissing(self) -> None:
         ks_empty = keys.Keyset()
         s0 = MockBaseSigner(required_keys_private=["key1"])
         self.assertFalse(s0.CheckKeyset(ks_empty))
 
-    def testCheckRequiredPrivateKeys(self):
+    def testCheckRequiredPrivateKeys(self) -> None:
         s0 = MockBaseSigner(required_keys_private=["key1"])
         ks0 = KeysetFromSigner(s0, self.tempdir)
         self.assertTrue(s0.CheckKeyset(ks0))
 
-    def testCheckRequiredKeyblocksEmpty(self):
+    def testCheckRequiredKeyblocksEmpty(self) -> None:
         ks_empty = keys.Keyset()
         s0 = MockBaseSigner(required_keyblocks=["key1"])
         self.assertFalse(s0.CheckKeyset(ks_empty))
 
-    def testCheckRequiredKeyblocks(self):
+    def testCheckRequiredKeyblocks(self) -> None:
         s0 = MockBaseSigner(required_keyblocks=["key1"])
         ks0 = KeysetFromSigner(s0, self.tempdir)
         self.assertTrue(s0.CheckKeyset(ks0))
@@ -270,12 +270,12 @@ class MockFutilitySigner(signer.FutilitySigner):
 class TestFutilitySigner(cros_test_lib.RunCommandTempDirTestCase):
     """Test Futility Signer."""
 
-    def testSign(self):
+    def testSign(self) -> None:
         keyset = keys.Keyset()
         fs = signer.FutilitySigner()
         self.assertRaises(NotImplementedError, fs.Sign, keyset, "stub", "stub")
 
-    def testSignWithMock(self):
+    def testSignWithMock(self) -> None:
         foo_key = keys.KeyPair("foo", self.tempdir)
         keys_unittest.CreateStubKeys(foo_key)
 
@@ -286,12 +286,12 @@ class TestFutilitySigner(cros_test_lib.RunCommandTempDirTestCase):
         fsm.Sign(keyset, "foo", "bar")
         self.assertCommandContains(["foo", "bar"])
 
-    def testSignWithMockMissingKey(self):
+    def testSignWithMockMissingKey(self) -> None:
         keyset = keys.Keyset()
         fsm = MockFutilitySigner()
         self.assertFalse(fsm.Sign(keyset, "foo", "bar"))
 
-    def testGetCmdArgs(self):
+    def testGetCmdArgs(self) -> None:
         keyset = keys.Keyset()
         fs = signer.FutilitySigner()
         self.assertRaises(
@@ -302,13 +302,13 @@ class TestFutilitySigner(cros_test_lib.RunCommandTempDirTestCase):
 class TestFutilityFunction(cros_test_lib.RunCommandTestCase):
     """Test Futility command."""
 
-    def testCommand(self):
+    def testCommand(self) -> None:
         self.assertTrue(
             signer.RunFutility([]), msg="Futility should pass w/ mock"
         )
         self.assertCommandContains(["futility"])
 
-    def testCommandWithArgs(self):
+    def testCommandWithArgs(self) -> None:
         args = ["--privkey", "foo.priv2"]
         signer.RunFutility(args)
         self.assertCommandContains(args)

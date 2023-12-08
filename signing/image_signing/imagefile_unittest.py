@@ -45,7 +45,7 @@ class CalculateRootfsHashMock(imagefile.CalculateRootfsHash):
             self.calculated_kernel_cmdline = "CALCULATED KERNEL CONFIG"
         self.hashtree_filename = self._file.name
 
-    def __del__(self):
+    def __del__(self) -> None:
         osutils.SafeUnlink(self._file.name)
 
 
@@ -76,27 +76,27 @@ SAMPLE_VERITY_OUTPUT = (
 class TestPathForVbootSigningScripts(cros_test_lib.MockTestCase):
     """Tests for _PathForVbootSigningScripts"""
 
-    def testDefault(self):
+    def testDefault(self) -> None:
         """Test default value for path works."""
         path = imagefile._PathForVbootSigningScripts()
         # TODO(b/236161656): Fix.
         # pylint: disable-next=use-maxsplit-arg
         self.assertEqual(DEFAULT_VB_PATH, path["PATH"].split(":")[0])
 
-    def testPathPassed(self):
+    def testPathPassed(self) -> None:
         """Test that passed path is used."""
         path = imagefile._PathForVbootSigningScripts(path="F/G")
         # TODO(b/236161656): Fix.
         # pylint: disable-next=use-maxsplit-arg
         self.assertEqual("F/G", path["PATH"].split(":")[0])
 
-    def testDefaultPathAlreadyPresent(self):
+    def testDefaultPathAlreadyPresent(self) -> None:
         """Test no change when path is already present."""
         os.environ["PATH"] += ":" + DEFAULT_VB_PATH
         path = imagefile._PathForVbootSigningScripts()
         self.assertEqual(os.environ["PATH"], path["PATH"])
 
-    def testPathAlreadyPresent(self):
+    def testPathAlreadyPresent(self) -> None:
         """Test no change when path is already present."""
         value = os.environ["PATH"].split(":")
         path = imagefile._PathForVbootSigningScripts(path=value[1])
@@ -106,7 +106,7 @@ class TestPathForVbootSigningScripts(cros_test_lib.MockTestCase):
 class TestGetKernelConfig(cros_test_lib.RunCommandTestCase):
     """Tests for GetKernelConfig."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc.SetDefaultCmdResult()
         self.rc.AddCmdResult(partial_mock.In("/dev/loop9999p3"), returncode=1)
         self.rc.AddCmdResult(
@@ -114,7 +114,7 @@ class TestGetKernelConfig(cros_test_lib.RunCommandTestCase):
             stdout=SAMPLE_KERNEL_CONFIG,
         )
 
-    def testCallsDumpKernelConfig(self):
+    def testCallsDumpKernelConfig(self) -> None:
         """Verify that it calls dump_kernel_config correctly."""
         ret = imagefile.GetKernelConfig("/dev/loop9999p4")
         expected_rc = [
@@ -130,7 +130,7 @@ class TestGetKernelConfig(cros_test_lib.RunCommandTestCase):
         self.assertIsInstance(ret, str)
         self.assertEqual(SAMPLE_KERNEL_CONFIG.strip(), ret)
 
-    def testCallsPassesCheck(self):
+    def testCallsPassesCheck(self) -> None:
         """Verify that it passes check."""
         ret = imagefile.GetKernelConfig("/dev/loop9999p4", check=555)
         expected_rc = [
@@ -146,7 +146,7 @@ class TestGetKernelConfig(cros_test_lib.RunCommandTestCase):
         self.assertIsInstance(ret, str)
         self.assertEqual(SAMPLE_KERNEL_CONFIG.strip(), ret)
 
-    def testCallsHandlesErrorCode(self):
+    def testCallsHandlesErrorCode(self) -> None:
         """Verify that it handles errors."""
         with self.assertRaises(cros_build_lib.RunCommandError):
             imagefile.GetKernelConfig("/dev/loop9999p3")
@@ -157,7 +157,7 @@ class TestGetKernelConfig(cros_test_lib.RunCommandTestCase):
 class TestGetKernelCmdLine(cros_test_lib.MockTestCase):
     """Tests for _GetKernelCmdLine."""
 
-    def testCallsGetKernelConfig(self):
+    def testCallsGetKernelConfig(self) -> None:
         """Verify that it calls GetKernelConfig correctly."""
         gkc = self.PatchObject(
             imagefile,
@@ -169,7 +169,7 @@ class TestGetKernelCmdLine(cros_test_lib.MockTestCase):
         self.assertIsInstance(ret, kernel_cmdline.CommandLine)
         self.assertEqual(SAMPLE_KERNEL_CONFIG.strip(), ret.Format())
 
-    def testCallsPassesErrorCodeOk(self):
+    def testCallsPassesErrorCodeOk(self) -> None:
         """Verify that it passes check."""
         gkc = self.PatchObject(
             imagefile,
@@ -181,7 +181,7 @@ class TestGetKernelCmdLine(cros_test_lib.MockTestCase):
         self.assertIsInstance(ret, kernel_cmdline.CommandLine)
         self.assertEqual(SAMPLE_KERNEL_CONFIG.strip(), ret.Format())
 
-    def testCallsHandlesNone(self):
+    def testCallsHandlesNone(self) -> None:
         """Verify that it handles errors."""
         self.PatchObject(imagefile, "GetKernelConfig", return_value=None)
         ret = imagefile._GetKernelCmdLine("/dev/loop9999p3", check=False)
@@ -191,7 +191,7 @@ class TestGetKernelCmdLine(cros_test_lib.MockTestCase):
 class TestSignImage(cros_test_lib.RunCommandTempDirTestCase):
     """Test SignImage()."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc.SetDefaultCmdResult()
         self.image = image_lib_unittest.LoopbackPartitionsMock(
             "outfile", self.tempdir
@@ -215,7 +215,7 @@ class TestSignImage(cros_test_lib.RunCommandTempDirTestCase):
             return_value={"PATH": "path"},
         )
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         """Test that USB case works, and strips boot."""
         imagefile.SignImage("USB", "infile", "outfile", 2, "/keydir")
         self.android_mock.assert_called_once()
@@ -245,7 +245,7 @@ class TestSignImage(cros_test_lib.RunCommandTempDirTestCase):
             self.image, rootfs_dir, keyset, vboot_path=None
         )
 
-    def testNoStripOnNonFactrory(self):
+    def testNoStripOnNonFactrory(self) -> None:
         """Verify that strip is not called on factory installs."""
         imagefile.SignImage(
             "factory_install", "infile", "outfile", 2, "/keydir"
@@ -258,7 +258,7 @@ class TestSignImage(cros_test_lib.RunCommandTempDirTestCase):
             self.rc.call_args_list,
         )
 
-    def testNoStripOnLegacy(self):
+    def testNoStripOnLegacy(self) -> None:
         """Verify that strip is not called for legacy."""
         self.rc.AddCmdResult(
             ["sudo", "--", "dump_kernel_config", "/dev/loop9999p2"],
@@ -273,7 +273,7 @@ class TestSignImage(cros_test_lib.RunCommandTempDirTestCase):
             self.rc.call_args_list,
         )
 
-    def testNoStripOnEFI(self):
+    def testNoStripOnEFI(self) -> None:
         """Verify that strip is not called for EFI."""
         self.rc.AddCmdResult(
             ["sudo", "--", "dump_kernel_config", "/dev/loop9999p2"],
@@ -292,7 +292,7 @@ class TestSignImage(cros_test_lib.RunCommandTempDirTestCase):
 class TestSignAndroidImage(cros_test_lib.RunCommandTempDirTestCase):
     """Test SignAndroidImage function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.keytempdir = osutils.TempDir()
         self.keyset = keys.Keyset(self.keytempdir.tempdir)
         self.info_mock = self.PatchObject(logging, "info")
@@ -305,7 +305,7 @@ class TestSignAndroidImage(cros_test_lib.RunCommandTempDirTestCase):
             return_value={"PATH": "path"},
         )
 
-    def testNoImage(self):
+    def testNoImage(self) -> None:
         """Test with no Android image."""
         exists_mock = self.PatchObject(os.path, "exists", return_value=False)
         imagefile.SignAndroidImage(self.tempdir, self.keyset)
@@ -319,7 +319,7 @@ class TestSignAndroidImage(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertEqual(0, self.rc.call_count)
 
-    def testNoVersion(self):
+    def testNoVersion(self) -> None:
         """Test: have Android image, but no ARC_VERSION info."""
         exists_mock = self.PatchObject(os.path, "exists", return_value=True)
         self.PatchObject(key_value_store, "LoadFile", return_value={})
@@ -336,7 +336,7 @@ class TestSignAndroidImage(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(0, self.info_mock.call_count)
         self.assertEqual(0, self.rc.call_count)
 
-    def testTriesToSign(self):
+    def testTriesToSign(self) -> None:
         """Test: have Android image, and Android version."""
         exists_mock = self.PatchObject(os.path, "exists", return_value=True)
         self.PatchObject(
@@ -371,7 +371,7 @@ class TestSignAndroidImage(cros_test_lib.RunCommandTempDirTestCase):
 class TestSignUefiBinaries(cros_test_lib.RunCommandTempDirTestCase):
     """Test SignUefiBinaries function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.keytempdir = osutils.TempDir()
         self.keyset = keys.Keyset(self.keytempdir.tempdir)
         self.info_mock = self.PatchObject(logging, "info")
@@ -387,7 +387,7 @@ class TestSignUefiBinaries(cros_test_lib.RunCommandTempDirTestCase):
             return_value={"PATH": "path"},
         )
 
-    def testUefiKeydir(self):
+    def testUefiKeydir(self) -> None:
         """Test with no uefi keys."""
         isdir_mock = self.PatchObject(os.path, "isdir", return_value=False)
         imagefile.SignUefiBinaries(self.image, self.tempdir, self.keyset)
@@ -398,7 +398,7 @@ class TestSignUefiBinaries(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertEqual(0, self.rc.call_count)
 
-    def testNoEfiPartition(self):
+    def testNoEfiPartition(self) -> None:
         """Test: have uefi keys, but no EFI-SYSTEM partition."""
         isdir_mock = self.PatchObject(os.path, "isdir", return_value=True)
         self.PatchObject(
@@ -412,7 +412,7 @@ class TestSignUefiBinaries(cros_test_lib.RunCommandTempDirTestCase):
         self.info_mock.assert_called_once_with("No EFI-SYSTEM partition found.")
         self.assertEqual(0, self.rc.call_count)
 
-    def testSigns(self):
+    def testSigns(self) -> None:
         """Test with uefi keys and EFI-SYSTEM partition."""
         isdir_mock = self.PatchObject(os.path, "isdir", return_value=True)
         imagefile.SignUefiBinaries(self.image, self.tempdir, self.keyset)
@@ -444,7 +444,7 @@ class TestSignUefiBinaries(cros_test_lib.RunCommandTempDirTestCase):
 class TestCalculateRootfsHash(cros_test_lib.RunCommandTempDirTestCase):
     """Test CalculateRootfsHash function and its supporting functions."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc.SetDefaultCmdResult()
         self.image = image_lib_unittest.LoopbackPartitionsMock(
             "outfile", self.tempdir
@@ -454,7 +454,7 @@ class TestCalculateRootfsHash(cros_test_lib.RunCommandTempDirTestCase):
             image_lib, "LoopbackPartitions", return_value=self.image
         )
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         """Test the simple case for CalculateRootfsHash."""
         self.rc.AddCmdResult(
             partial_mock.In("verity"), stdout=SAMPLE_VERITY_OUTPUT
@@ -509,7 +509,7 @@ class TestCalculateRootfsHash(cros_test_lib.RunCommandTempDirTestCase):
             rootfs_hash.calculated_kernel_cmdline.Format(),
         )
 
-    def testTempfileDeletedOnDelete(self):
+    def testTempfileDeletedOnDelete(self) -> None:
         """Test that the tempfile is deleted only when the object is deleted."""
         self.rc.AddCmdResult(
             partial_mock.In("verity"), stdout=SAMPLE_VERITY_OUTPUT
@@ -530,7 +530,7 @@ class TestCalculateRootfsHash(cros_test_lib.RunCommandTempDirTestCase):
         # more than once which is how the code is written.
         del rootfs_hash
 
-    def testSaltOptional(self):
+    def testSaltOptional(self) -> None:
         """Test that salt= is properly optional."""
         self.rc.AddCmdResult(
             partial_mock.In("verity"),
@@ -582,13 +582,13 @@ class TestCalculateRootfsHash(cros_test_lib.RunCommandTempDirTestCase):
 class TestClearResignFlag(cros_test_lib.MockTempDirTestCase):
     """Test ClearResignFlag function and its supporting functions."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.image = image_lib_unittest.LoopbackPartitionsMock(
             "outfile", self.tempdir
         )
         self.image.Attach()
 
-    def testUnlinksFile(self):
+    def testUnlinksFile(self) -> None:
         self.PatchObject(os.path, "exists", return_value=True)
         unlink_mock = self.PatchObject(osutils, "SafeUnlink")
         imagefile.ClearResignFlag(self.image)
@@ -603,7 +603,7 @@ class TestClearResignFlag(cros_test_lib.MockTempDirTestCase):
 class TestUpdateRootfsHash(cros_test_lib.RunCommandTempDirTestCase):
     """Test UpdateRootfsHash function and its supporting functions."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc.SetDefaultCmdResult()
         self.rc.AddCmdResult(
             partial_mock.InOrder(["dump_kernel_config", "/dev/loop9999p2"]),
@@ -624,7 +624,7 @@ class TestUpdateRootfsHash(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.ukc = self.PatchObject(imagefile, "_UpdateKernelConfig")
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         """Test the normal path"""
         self.rc.AddCmdResult(
             partial_mock.InOrder(["dump_kernel_config", "/dev/loop9999p4"]),
@@ -666,7 +666,7 @@ class TestUpdateRootfsHash(cros_test_lib.RunCommandTempDirTestCase):
         ]
         self.assertEqual(expected_calls, self.ukc.call_args_list)
 
-    def testMissingKernB(self):
+    def testMissingKernB(self) -> None:
         """Test the path where KERN-B fails to dump config"""
         self.keyset.keys["keyA_kernel_data_key"] = keys.KeyPair(
             "keyA_kernel_data_key", self.keytempdir.tempdir
@@ -705,7 +705,7 @@ class TestUpdateRootfsHash(cros_test_lib.RunCommandTempDirTestCase):
 class TestUpdateKernelConfig(cros_test_lib.RunCommandTestCase):
     """Test _UpdateKernelConfig."""
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         self.rc.SetDefaultCmdResult()
         loop_kern = "/dev/loop9999p2"
         cmd_line = kernel_cmdline.CommandLine(SAMPLE_KERNEL_CONFIG)
@@ -735,7 +735,7 @@ class TestUpdateKernelConfig(cros_test_lib.RunCommandTestCase):
 class TestUpdateStatefulVblock(cros_test_lib.RunCommandTempDirTestCase):
     """Test UpdateStatefulPartitionVblock function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc.SetDefaultCmdResult()
         self.rc.AddCmdResult(
             partial_mock.InOrder(["dump_kernel_config", "/dev/loop9999p2"]),
@@ -748,7 +748,7 @@ class TestUpdateStatefulVblock(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.image.Attach()
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         """Test the normal path"""
         kernel_key = keys.KeyPair("kernel_data_key", self.keytempdir.tempdir)
         self.keyset.keys["kernel_data_key"] = kernel_key
@@ -790,7 +790,7 @@ class TestUpdateStatefulVblock(cros_test_lib.RunCommandTempDirTestCase):
             ]
         )
 
-    def testNoKernB(self):
+    def testNoKernB(self) -> None:
         """Test the normal path"""
         kernel_key = keys.KeyPair("kernel_data_key", self.keytempdir.tempdir)
         self.keyset.keys["kernel_data_key"] = kernel_key
@@ -836,7 +836,7 @@ class TestUpdateStatefulVblock(cros_test_lib.RunCommandTempDirTestCase):
 class TestUpdateRecoveryKernelHash(cros_test_lib.RunCommandTempDirTestCase):
     """Test UpdateRecoveryKernelHash function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc.SetDefaultCmdResult()
         self.expected_sha1sum = "5" * 40
         self.rc.AddCmdResult(
@@ -851,7 +851,7 @@ class TestUpdateRecoveryKernelHash(cros_test_lib.RunCommandTempDirTestCase):
         self.image.Attach()
         self.ukc = self.PatchObject(imagefile, "_UpdateKernelConfig")
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         """Test the normal path"""
         self.rc.AddCmdResult(
             partial_mock.InOrder(["dump_kernel_config", "/dev/loop9999p2"]),
@@ -878,7 +878,7 @@ class TestUpdateRecoveryKernelHash(cros_test_lib.RunCommandTempDirTestCase):
             "/dev/loop9999p2", kernel_cmdline.CommandLine(new_cmdline), recovery
         )
 
-    def testNoKernBHash(self):
+    def testNoKernBHash(self) -> None:
         """Test no KERN-B hash case."""
         self.rc.AddCmdResult(
             partial_mock.InOrder(["dump_kernel_config", "/dev/loop9999p2"]),
@@ -906,7 +906,7 @@ class TestUpdateRecoveryKernelHash(cros_test_lib.RunCommandTempDirTestCase):
 class TestUpdateLegacyBootloader(cros_test_lib.RunCommandTempDirTestCase):
     """Test UpdateLegacyBootloader function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc.SetDefaultCmdResult()
         self.rc.AddCmdResult(
             partial_mock.InOrder(["dump_kernel_config", "/dev/loop9999p2"]),
@@ -943,7 +943,7 @@ class TestUpdateLegacyBootloader(cros_test_lib.RunCommandTempDirTestCase):
             "sys_other": sys_other,
         }
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         """Test the normal path"""
         uefi = self._CreateCfgFiles(True, True)
         imagefile.UpdateLegacyBootloader(self.image, "/dev/loop9999p2")
@@ -974,7 +974,7 @@ class TestUpdateLegacyBootloader(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertEqual({"check": False}, sed_command[1])
 
-    def testNoSyslinux(self):
+    def testNoSyslinux(self) -> None:
         """Test with no syslinux/."""
         uefi = self._CreateCfgFiles(False, True)
         imagefile.UpdateLegacyBootloader(self.image, "/dev/loop9999p2")
@@ -1005,7 +1005,7 @@ class TestUpdateLegacyBootloader(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertEqual({"check": False}, sed_command[1])
 
-    def testNoGrubCfg(self):
+    def testNoGrubCfg(self) -> None:
         """Test with no efi/boot/grub.cfg."""
         uefi = self._CreateCfgFiles(True, False)
         imagefile.UpdateLegacyBootloader(self.image, "/dev/loop9999p2")
@@ -1036,7 +1036,7 @@ class TestUpdateLegacyBootloader(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertEqual({"check": False}, sed_command[1])
 
-    def testNoSyslinuxSedFails(self):
+    def testNoSyslinuxSedFails(self) -> None:
         """Test no syslinux/"""
         uefi = self._CreateCfgFiles(False, True)
         self.rc.AddCmdResult(partial_mock.In("sed"), returncode=1)
@@ -1069,7 +1069,7 @@ class TestUpdateLegacyBootloader(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertEqual({"check": False}, sed_command[1])
 
-    def testNoGrubCfgSedFails(self):
+    def testNoGrubCfgSedFails(self) -> None:
         """Test the normal path"""
         uefi = self._CreateCfgFiles(True, False)
         self.rc.AddCmdResult(partial_mock.In("sed"), returncode=1)
@@ -1102,7 +1102,7 @@ class TestUpdateLegacyBootloader(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertEqual({"check": False}, sed_command[1])
 
-    def testNoKernelConfig(self):
+    def testNoKernelConfig(self) -> None:
         """Test the normal path"""
         with self.assertRaises(imagefile.SignImageError) as e:
             imagefile.UpdateLegacyBootloader(self.image, "/dev/loop9999p4")
@@ -1120,7 +1120,7 @@ class TestUpdateLegacyBootloader(cros_test_lib.RunCommandTempDirTestCase):
 class TestDumpConfig(cros_test_lib.MockTestCase):
     """Test DumpConfig() function."""
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         """Test the normal case."""
         image = image_lib_unittest.LoopbackPartitionsMock("outfile")
         image.Attach()

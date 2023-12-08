@@ -114,7 +114,7 @@ class SignerInstructionConfig:
 
         return {"general": general_dict, "insns": insns_dict}
 
-    def ReadIniFile(self, fd):
+    def ReadIniFile(self, fd) -> None:
         """Reads given file descriptor into configuration"""
         config = configparser.ConfigParser(self.ToIniDict())
         config.read_file(fd)
@@ -226,7 +226,7 @@ class BaseSigner:
 
         return True
 
-    def Sign(self, keyset, input_name, output_name):
+    def Sign(self, keyset, input_name, output_name) -> None:
         """Sign given input to output. Raises SigningFailedError on error"""
         raise NotImplementedError
 
@@ -234,11 +234,11 @@ class BaseSigner:
 class FutilitySigner(BaseSigner):
     """Base class for signers that use futility command."""
 
-    def GetFutilityArgs(self, keyset, input_name, output_name):
+    def GetFutilityArgs(self, keyset, input_name, output_name) -> None:
         """Return list of arguments to use with futility."""
         raise NotImplementedError
 
-    def Sign(self, keyset, input_name, output_name):
+    def Sign(self, keyset, input_name, output_name) -> None:
         if self.CheckKeyset(keyset):
             if not RunFutility(
                 self.GetFutilityArgs(keyset, input_name, output_name)

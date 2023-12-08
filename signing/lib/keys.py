@@ -241,7 +241,7 @@ class KeyVersions:
         """Get a key's version, return default if unknown."""
         return self._versions.get(self._KeyName(key), default)
 
-    def Set(self, key, version):
+    def Set(self, key, version) -> None:
         """Set a key's version.  Caller is responsible for calling Save()."""
         key = self._KeyName(key)
         # If it converts to an int, we want the int.
@@ -274,7 +274,7 @@ class KeyVersions:
         return self._versions[key]
         # Caller is responsible for calling Save()
 
-    def Save(self):
+    def Save(self) -> None:
         """Save KeyVersions to disk if needed."""
         if self.saved:
             return
@@ -393,7 +393,7 @@ class Keyset:
             and self.keys == other.keys
         )
 
-    def Prune(self):
+    def Prune(self) -> None:
         """Check that all keys exists, else remove them."""
         for k in list(self.keys):
             if not self.keys[k].Exists():
@@ -403,7 +403,7 @@ class Keyset:
                 if not self._root_of_trust_keys[root_of_trust][k].Exists():
                     self._root_of_trust_keys[root_of_trust].pop(k)
 
-    def AddKey(self, key):
+    def AddKey(self, key) -> None:
         """Add key to Keyset.
 
         Args:
@@ -424,7 +424,7 @@ class Keyset:
                 return
         self.keys[key.name] = key
 
-    def AddRootOfTrustKey(self, key_name, root_of_trust_alias, key):
+    def AddRootOfTrustKey(self, key_name, root_of_trust_alias, key) -> None:
         """Attach the root_of_trust-specific key to the base key."""
         # _root_of_trust_keys['loem2']['root_key'] = KeyPair(
         #   'root_key.loem2', ...)
