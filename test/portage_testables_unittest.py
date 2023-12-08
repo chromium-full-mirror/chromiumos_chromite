@@ -17,7 +17,7 @@ _OVERLAY_STACK_PARAMS = list(range(1, len(cr.test.Overlay.HIERARCHY_NAMES) + 1))
 
 
 @pytest.mark.parametrize("height", _OVERLAY_STACK_PARAMS)
-def test_overlay_stack_parents(height, overlay_stack):
+def test_overlay_stack_parents(height, overlay_stack) -> None:
     """Test that overlays have the correct parents set."""
     overlays = list(overlay_stack(height))
 
@@ -28,7 +28,7 @@ def test_overlay_stack_parents(height, overlay_stack):
 
 
 @pytest.mark.parametrize("height", _OVERLAY_STACK_PARAMS)
-def test_overlay_stack_names(height, overlay_stack):
+def test_overlay_stack_names(height, overlay_stack) -> None:
     """Test that generated overlays have the expected names."""
     overlays = overlay_stack(height)
 
@@ -45,7 +45,7 @@ def minimal_sysroot(overlay_stack, tmp_path_factory):
     return overlay, cr.test.Sysroot(path, base, overlays=[overlay])
 
 
-def test_emerge_against_fake_sysroot(minimal_sysroot):
+def test_emerge_against_fake_sysroot(minimal_sysroot) -> None:
     """Test that a basic `emerge` operation works against a test sysroot."""
     overlay, sysroot = minimal_sysroot
     pkg1 = cr.test.Package("foo", "bar")

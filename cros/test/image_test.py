@@ -47,11 +47,11 @@ class LocaltimeTest(image_test_lib.ImageTestCase):
     test can access rootfs via ROOT_A constant.
     """
 
-    def TestLocaltimeIsSymlink(self):
+    def TestLocaltimeIsSymlink(self) -> None:
         localtime_path = os.path.join(image_test_lib.ROOT_A, "etc", "localtime")
         self.assertTrue(os.path.islink(localtime_path))
 
-    def TestLocaltimeLinkIsCorrect(self):
+    def TestLocaltimeLinkIsCorrect(self) -> None:
         localtime_path = os.path.join(image_test_lib.ROOT_A, "etc", "localtime")
         self.assertEqual(
             "/var/lib/timezone/localtime", os.readlink(localtime_path)
@@ -103,14 +103,14 @@ class BlockedTest(image_test_lib.ImageTestCase):
 
     BLOCKED_DIRS = ("/usr/share/locale",)
 
-    def TestBlockedDirectories(self):
+    def TestBlockedDirectories(self) -> None:
         for path in self.BLOCKED_DIRS:
             full_path = os.path.join(image_test_lib.ROOT_A, path.lstrip(os.sep))
             self.assertFalse(
                 os.path.isdir(full_path), "Directory %s is not allowed." % path
             )
 
-    def TestBlockedFileTypes(self):
+    def TestBlockedFileTypes(self) -> None:
         """Fail if there are files of prohibited types (e.g. C++ source code).
 
         The allow list has higher precedence than the block list.
@@ -167,7 +167,7 @@ class BlockedTest(image_test_lib.ImageTestCase):
 
         self.assertFalse(failures, "\n".join(failures))
 
-    def TestBlockedPackages(self):
+    def TestBlockedPackages(self) -> None:
         """Fail if any blocked packages are installed."""
         for package in self.BLOCKED_PACKAGES:
             self.assertFalse(
@@ -176,7 +176,7 @@ class BlockedTest(image_test_lib.ImageTestCase):
                 )
             )
 
-    def TestBlockedFiles(self):
+    def TestBlockedFiles(self) -> None:
         """Fail if any blocked files exist."""
         for path in self.BLOCKED_FILES:
             full_path = os.path.join(image_test_lib.ROOT_A, path.lstrip(os.sep))
@@ -185,7 +185,7 @@ class BlockedTest(image_test_lib.ImageTestCase):
                 "Path exists but should not: %s" % full_path,
             )
 
-    def TestValidInterpreter(self):
+    def TestValidInterpreter(self) -> None:
         """Fail if a script's interpreter is not found, or not executable.
 
         A script interpreter is anything after the #! sign, up to the end of
@@ -239,14 +239,14 @@ class BlockedTest(image_test_lib.ImageTestCase):
 class LinkageTest(image_test_lib.ImageTestCase):
     """Verify that all binaries and libraries have proper linkage."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         osutils.MountDir(
             os.path.join(image_test_lib.STATEFUL, "var_overlay"),
             os.path.join(image_test_lib.ROOT_A, "var"),
             mount_opts=("bind",),
         )
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         osutils.UmountDir(
             os.path.join(image_test_lib.ROOT_A, "var"),
             cleanup=False,
@@ -262,7 +262,7 @@ class LinkageTest(image_test_lib.ImageTestCase):
             logging.info("Package is not available: %s", package_name)
         return has_version
 
-    def TestLinkage(self):
+    def TestLinkage(self) -> None:
         """Find main executable binaries and check their linkage."""
         binaries = [
             "bin/sed",
@@ -358,7 +358,7 @@ class LinkageTest(image_test_lib.ImageTestCase):
 class FileSystemMetaDataTest(image_test_lib.ImageTestCase):
     """A test class to gather file system stats such as free inodes, blocks."""
 
-    def TestStats(self):
+    def TestStats(self) -> None:
         """Collect inodes and blocks usage."""
         # Find the loopback device that was mounted to ROOT_A.
         loop_device = None
@@ -436,7 +436,7 @@ class FileSystemMetaDataTest(image_test_lib.ImageTestCase):
 class SymbolsTest(image_test_lib.ImageTestCase):
     """Tests related to symbols in ELF files."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Mapping of file name --> 2-tuple (import, export).
         self._known_symtabs = {}
 
@@ -461,7 +461,7 @@ class SymbolsTest(image_test_lib.ImageTestCase):
         self._known_symtabs[file_name] = imp, exp
         return imp, exp
 
-    def TestImportedSymbolsAreAvailable(self):
+    def TestImportedSymbolsAreAvailable(self) -> None:
         """Ensure all ELF files' imported symbols are available in ROOT-A.
 
         In this test, we find all imported symbols and exported symbols from all
@@ -784,7 +784,7 @@ class UserGroupTest(image_test_lib.ImageTestCase):
 
         return d
 
-    def _CheckFile(self, basename):
+    def _CheckFile(self, basename) -> None:
         """Validates the passwd or group file."""
         match_func = getattr(self, "_match_%s" % basename)
         validate_func = getattr(self, "_validate_%s" % basename)
@@ -816,11 +816,11 @@ class UserGroupTest(image_test_lib.ImageTestCase):
 
         self.assertTrue(success)
 
-    def TestUsers(self):
+    def TestUsers(self) -> None:
         """Enforces known user IDs."""
         self._CheckFile("passwd")
 
-    def TestGroups(self):
+    def TestGroups(self) -> None:
         """Enforces known group IDs."""
         self._CheckFile("group")
 
@@ -831,7 +831,7 @@ class CroshTest(image_test_lib.ImageTestCase):
     # Base directory for crosh code.
     CROSH_DIR = "usr/share/crosh"
 
-    def TestUnknownModules(self):
+    def TestUnknownModules(self) -> None:
         """Only permit known crosh modules on the system."""
         # Do *not* add modules to this list until they've been reviewed by
         # security or someone in the crosh/OWNERS list.  Insecure code here can
@@ -918,7 +918,7 @@ class SymlinkTest(image_test_lib.ImageTestCase):
         # Reject everything else.
         return False
 
-    def TestCheckSymlinkTargets(self):
+    def TestCheckSymlinkTargets(self) -> None:
         """Make sure the targets of all symlinks are 'valid'."""
         failures = []
         for root, _, files in os.walk(image_test_lib.ROOT_A):
@@ -959,7 +959,7 @@ class SymlinkTest(image_test_lib.ImageTestCase):
 class PermissionTest(image_test_lib.ImageTestCase):
     """Verify file permissions."""
 
-    def TestNoExecutableInFirmwareFolder(self):
+    def TestNoExecutableInFirmwareFolder(self) -> None:
         """Ensure all files in ROOT-A/lib/firmware are not executable.
 
         Files under ROOT-A/lib/firmware will be allowed in
@@ -1085,7 +1085,7 @@ class IntelWifiTest(image_test_lib.ImageTestCase):
         )
         return [os.path.basename(x) for x in glob.glob(pathname)]
 
-    def TestIwlwifiFirmwareAndKernelMatch(self):
+    def TestIwlwifiFirmwareAndKernelMatch(self) -> None:
         """Ensure that the firmware files are supported by the kernel.
 
         The iwlwifi firmware files expected by the driver must be present in
@@ -1138,7 +1138,7 @@ class IntelWifiTest(image_test_lib.ImageTestCase):
 class DBusServiceTest(image_test_lib.ImageTestCase):
     """Verify installed D-Bus service file contents."""
 
-    def TestDelegationToUpstart(self):
+    def TestDelegationToUpstart(self) -> None:
         """Check D-Bus service files for delegation to Upstart.
 
         crbug.com/1025914: To prevent D-Bus activated services from running
@@ -1209,7 +1209,7 @@ class TmpfilesdTest(image_test_lib.ImageTestCase):
             for conf in tmpfiles_d.glob("*.conf"):
                 yield from self._parse(conf)
 
-    def TestAccounts(self):
+    def TestAccounts(self) -> None:
         """Make sure every user & group actually exist.
 
         If the accounts don't exist at runtime, tmpfiles.d likes to blow up.
@@ -1258,7 +1258,7 @@ class FactoryScriptTest(image_test_lib.ImageTestCase):
         constants.SOURCE_ROOT, "src/platform/factory/bin/finalize_bundle"
     )
 
-    def TestFinalizeBundle_ExtractFirmwareInfo(self):
+    def TestFinalizeBundle_ExtractFirmwareInfo(self) -> None:
         root = Path(image_test_lib.ROOT_A)
 
         # Skip the test for:

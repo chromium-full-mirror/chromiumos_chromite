@@ -10,7 +10,7 @@ import sys
 USE_PYTHON3 = True
 
 
-def CheckChangeOnUpload(_input_api, _output_api):
+def CheckChangeOnUpload(_input_api, _output_api) -> None:
     print(
         "ERROR: CrOS repos use `repo upload`, not `git cl upload`.",
         file=sys.stderr,

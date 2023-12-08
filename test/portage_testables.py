@@ -102,7 +102,7 @@ class Overlay:
 
         return ebuild_path.is_file()
 
-    def _write_layout_conf(self):
+    def _write_layout_conf(self) -> None:
         """Write the layout.conf as part of this Overlay's initialization."""
         layout_conf_path = self.path / "metadata" / "layout.conf"
         parent_names = " ".join(m.name for m in self.parent_overlays or [])
@@ -118,12 +118,12 @@ class Overlay:
 
         osutils.WriteFile(layout_conf_path, _dict_to_conf(conf), makedirs=True)
 
-    def _write_make_conf(self):
+    def _write_make_conf(self) -> None:
         """Write the make.conf as a part of this Overlay's initialization."""
         make_conf_path = self.path / "make.conf"
         osutils.WriteFile(make_conf_path, _dict_to_ebuild(self.make_conf))
 
-    def add_package(self, pkg):
+    def add_package(self, pkg) -> None:
         """Add a package to this overlay.
 
         Adds the package to the Overlay object's internal storage and writes the
@@ -140,7 +140,7 @@ class Overlay:
                 makedirs=True,
             )
 
-    def _write_ebuild(self, pkg: "Package"):
+    def _write_ebuild(self, pkg: "Package") -> None:
         """Write a Package object out to an ebuild file in this Overlay."""
         ebuild_path = (
             self.path
@@ -223,7 +223,7 @@ class Overlay:
 
         return prof
 
-    def _write_profile(self, profile):
+    def _write_profile(self, profile) -> None:
         """Write a Profile object out to this Overlay's directory."""
         osutils.WriteFile(
             self.path / "profiles" / profile.path / "make.defaults",

@@ -39,7 +39,7 @@ from chromite.test.portage_fixtures import *
 
 
 @pytest.fixture(scope="class", autouse=True)
-def mock_cidb_connection():
+def mock_cidb_connection() -> None:
     """Ensure that the CIDB connection factory is initialized as a mock.
 
     Unit tests should never connect to any live instances of CIDB and this
@@ -71,7 +71,7 @@ def assert_no_zombies():
 
 
 @pytest.fixture(scope="class", autouse=True)
-def clear_retry_stats_manager():
+def clear_retry_stats_manager() -> None:
     """Reset the global state of the stats manager before every test.
 
     Without this fixture many tests fail due to this global value being set and
@@ -116,7 +116,7 @@ def singleton_manager(monkeypatch):
 
 
 @pytest.fixture
-def legacy_capture_output(request, capfd):
+def legacy_capture_output(request, capfd) -> None:
     """Adds the `capfd` fixture to TestCase-style test classes.
 
     This fixture should only be used on cros_test_lib.TestCase test classes,
@@ -135,7 +135,7 @@ def legacy_capture_output(request, capfd):
 
 
 @pytest.fixture
-def testcase_caplog(request, caplog):
+def testcase_caplog(request, caplog) -> None:
     """Adds the `caplog` fixture to TestCase-style test classes.
 
     This fixture should only be used on cros_test_lib.TestCase test classes,
@@ -154,7 +154,7 @@ def testcase_caplog(request, caplog):
 
 
 @pytest.fixture
-def testcase_monkeypatch(request, monkeypatch):
+def testcase_monkeypatch(request, monkeypatch) -> None:
     """Adds the `monkeypatch` fixture to TestCase-style test classes.
 
     This fixture should only be used on cros_test_lib.TestCase test classes,
@@ -193,7 +193,7 @@ def pytest_assertrepr_compare(op, left, right):
         )
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser) -> None:
     """Adds additional options to the default pytest CLI args."""
     parser.addoption(
         "--no-chroot",
@@ -203,7 +203,7 @@ def pytest_addoption(parser):
     )
 
 
-def pytest_collection_modifyitems(config, items):
+def pytest_collection_modifyitems(config, items) -> None:
     """Modifies the list of test items pytest has collected.
 
     See the following link for full documentation on pytest collection hooks:
@@ -226,7 +226,7 @@ def run_mock():
 
 
 @pytest.fixture(scope="session", autouse=True)
-def _check_network_test(request):
+def _check_network_test(request) -> None:
     """Detect whether the test uses network_test marker.
 
     This can be helpful for code to detect when network traffic is attempted but
@@ -255,6 +255,6 @@ def tmp_path_cleanup_sudo(tmp_path):
 
 
 @pytest.fixture
-def outside_sdk(monkeypatch):
+def outside_sdk(monkeypatch) -> None:
     """Fixture to make it look like the test is running outside the SDK."""
     monkeypatch.setattr(cros_build_lib, "IsInsideChroot", lambda: False)
