@@ -15,7 +15,7 @@ from chromite.lib import cros_build_lib
 from chromite.licensing import licenses_lib
 
 
-def main(args):
+def main(args) -> None:
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--builddir",

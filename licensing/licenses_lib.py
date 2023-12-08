@@ -472,7 +472,7 @@ class PackageInfo:
 
         return license_read
 
-    def _ExtractLicenses(self, src_dir, need_copyright_attribution):
+    def _ExtractLicenses(self, src_dir, need_copyright_attribution) -> None:
         """Scrounge for text licenses in the source of package we'll unpack.
 
         This is only called if we couldn't get usable licenses from the ebuild,
@@ -680,7 +680,7 @@ to assign.  Once you've found it, copy the entire license file to:
 
         return path
 
-    def GetLicenses(self, build_info_dir, src_dir):
+    def GetLicenses(self, build_info_dir, src_dir) -> None:
         """Populate the license related fields.
 
         Fields populated:
@@ -819,7 +819,7 @@ to assign.  Once you've found it, copy the entire license file to:
                 "Didn't find usable licenses for %s" % self.fullnamerev
             )
 
-    def SaveLicenseDump(self, save_file):
+    def SaveLicenseDump(self, save_file) -> None:
         """Save PackageInfo contents for loading later.
 
         This is used to cache license results between the emerge hook phase and
@@ -836,7 +836,7 @@ to assign.  Once you've found it, copy the entire license file to:
             dump[key] = value
         osutils.WriteFile(save_file, json.dumps(dump), makedirs=True)
 
-    def AssertCorrectness(self, build_info_dir, ebuild_path):
+    def AssertCorrectness(self, build_info_dir, ebuild_path) -> None:
         """AssertCorrectness runs various correctness checks on the package.
 
         Args:
@@ -853,7 +853,7 @@ to assign.  Once you've found it, copy the entire license file to:
         if ebuild_path is not None:
             self._AssertVirtualIsMetapackage(build_info_dir, ebuild_path)
 
-    def _AssertMetapackageNoContent(self, build_info_dir):
+    def _AssertMetapackageNoContent(self, build_info_dir) -> None:
         """Ensures metapackages do not install files.
 
         Args:
@@ -875,7 +875,7 @@ to assign.  Once you've found it, copy the entire license file to:
                     % (self.fullnamerev, content_list)
                 )
 
-    def _AssertVirtualIsMetapackage(self, build_info_dir, ebuild_path):
+    def _AssertVirtualIsMetapackage(self, build_info_dir, ebuild_path) -> None:
         """Ensures that virtual pkgs are metapackages.
 
         Args:
@@ -950,7 +950,7 @@ def _GetLicenseDirectories(
         return stock + custom
 
 
-def _CheckForKnownBadLicenses(cpf, licenses):
+def _CheckForKnownBadLicenses(cpf, licenses) -> None:
     """Make sure all the |licenses| are ones we allow.
 
     We have a bunch of licenses we don't want people to use, but some packages
@@ -1102,7 +1102,7 @@ class Licensing:
     def sorted_licenses(self):
         return sorted(self.licenses, key=lambda x: x.lower())
 
-    def _LoadLicenseDump(self, pkg):
+    def _LoadLicenseDump(self, pkg) -> None:
         save_file = pkg.license_dump_path
         logging.debug("Getting license from %s for %s", save_file, pkg.name)
         with open(save_file, "rb") as fp:
@@ -1116,13 +1116,13 @@ class Licensing:
         """Return list of packages using a given license."""
         return self.licenses[license_name]
 
-    def LoadPackageInfo(self):
+    def LoadPackageInfo(self) -> None:
         """Populate basic package info for all packages from their ebuild."""
         for package_name in self._package_fullnames:
             pkg = PackageInfo(self.sysroot, package_name)
             self.packages[package_name] = pkg
 
-    def ProcessPackageLicenses(self):
+    def ProcessPackageLicenses(self) -> None:
         """Iterate through all packages provided and gather their licenses.
 
         GetLicenses will scrape licenses from the code and/or gather stock
@@ -1190,7 +1190,9 @@ class Licensing:
 
             _CheckForKnownBadLicenses(pkg.fullnamerev, pkg.license_names)
 
-    def AddExtraPkg(self, fullnamerev, homepages, license_names, license_texts):
+    def AddExtraPkg(
+        self, fullnamerev, homepages, license_names, license_texts
+    ) -> None:
         """Allow adding pre-created virtual packages.
 
         GetLicenses will not work on them, so add them after having run
@@ -1463,7 +1465,7 @@ after fixing the license."""
         os_version: Optional[str] = None,
         milestone_version: Optional[str] = None,
         compress_output=False,
-    ):
+    ) -> None:
         """Generate the combined html license file.
 
         Args:
@@ -1744,7 +1746,9 @@ def _BuildInfo(build_info_path, filename):
     return bi
 
 
-def HookPackageProcess(pkg_build_path: str, sysroot: Optional[str] = "/"):
+def HookPackageProcess(
+    pkg_build_path: str, sysroot: Optional[str] = "/"
+) -> None:
     """Different entry point to populate a packageinfo.
 
     This is called instead of LoadPackageInfo when called by a package build.

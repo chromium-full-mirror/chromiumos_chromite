@@ -23,7 +23,7 @@ class LicenseLibTest(cros_test_lib.TempDirTestCase):
     LICENSE_PUBLIC = "Gentoo Package Stock"
     LICENSE_CUSTOM = "Custom"
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Sets up the filesystem for the tests."""
 
         # Licenses for testing:
@@ -348,7 +348,7 @@ obj /file bd1b4ffa168f50b0d45571dae51eefc7 1611355468""",
                     content,
                 )
 
-    def testGetLicenseTypesFromEbuild(self):
+    def testGetLicenseTypesFromEbuild(self) -> None:
         """Tests the fetched license from ebuilds are correct."""
         ebuild_content = self.ebuilds["ftl-pkg"]["content"]
         overlay_path = os.sep.join(
@@ -361,7 +361,7 @@ obj /file bd1b4ffa168f50b0d45571dae51eefc7 1611355468""",
         expected = ["FTL"]
         self.assertEqual(expected, sorted(result))
 
-    def testGetLicenseTypeFromEbuildTainted(self):
+    def testGetLicenseTypeFromEbuildTainted(self) -> None:
         """Tests the fetched tainted license from ebuilds is correct."""
         ebuild_content = self.ebuilds["ttl-pkg"]["content"]
         overlay_path = os.sep.join(
@@ -374,7 +374,7 @@ obj /file bd1b4ffa168f50b0d45571dae51eefc7 1611355468""",
         expected = [licenses_lib.TAINTED]
         self.assertEqual(expected, sorted(result))
 
-    def testFindLicenseType(self):
+    def testFindLicenseType(self) -> None:
         """Tests the type for licenses are correctly identified.
 
         e.g. gentoo vs custom.
@@ -412,7 +412,7 @@ obj /file bd1b4ffa168f50b0d45571dae51eefc7 1611355468""",
             )
             self.assertEqual(lic["type"], result)
 
-    def testReadSharedLicense(self):
+    def testReadSharedLicense(self) -> None:
         """Tests the license text is correctly fetched."""
         # Doesn't exist.
         self.assertRaises(
@@ -486,14 +486,14 @@ libraries/Cabal/license-list-data/licenses-3.6.json
             EXPECTED_LICENSES.splitlines(),
         )
 
-    def testReadUnknownEncodedFile(self):
+    def testReadUnknownEncodedFile(self) -> None:
         """Validate the fix for crbug.com/654894."""
         bad_license = os.path.join(self.tempdir, "license.rtf")
         osutils.WriteFile(bad_license, "Foo\x00Bar")
         result = licenses_lib.ReadUnknownEncodedFile(bad_license)
         self.assertEqual(result, "FooBar")
 
-    def testDeprecatedLicenses(self):
+    def testDeprecatedLicenses(self) -> None:
         """Verify deprecated license checks."""
         # These are known bad packages.
         licenses_lib._CheckForKnownBadLicenses(
@@ -510,7 +510,7 @@ libraries/Cabal/license-list-data/licenses-3.6.json
                 "sys-apps/portage-123", {"GPL-2", "Google-TOS"}
             )
 
-    def testHookPackageProcess(self):
+    def testHookPackageProcess(self) -> None:
         build_infos_path = os.path.join(self.tempdir, "build_infos")
         for pkg, build_info in self.build_infos.items():
             if build_info["expected_exception"]:
@@ -524,7 +524,7 @@ libraries/Cabal/license-list-data/licenses-3.6.json
                 )
 
     @mock.patch("chromite.lib.cros_build_lib.run")
-    def testListInstalledPackages(self, run_mock):
+    def testListInstalledPackages(self, run_mock) -> None:
         result = "[ U ] test to /build/test_dir\n[ U ] test2 to /build/test_dir"
         run_mock.return_value = cros_build_lib.CompletedProcess(
             args=[], returncode=0, stdout=result
@@ -544,7 +544,7 @@ libraries/Cabal/license-list-data/licenses-3.6.json
             licenses_lib.ListInstalledPackages(""), ["test", "test2"]
         )
 
-    def testBannedLicenses(self):
+    def testBannedLicenses(self) -> None:
         """Verify banned license checks."""
         # These are somewhat redundant, but we want to be overly cautious.
         # All of these have been used in Gentoo at some point.
@@ -578,7 +578,7 @@ libraries/Cabal/license-list-data/licenses-3.6.json
                     "sys-libs/db-18", {"GPL-2", lic}
                 )
 
-    def testYamlToJson(self):
+    def testYamlToJson(self) -> None:
         """Verify the migration logic."""
         yaml_file = self.tempdir / "foo.yaml"
         yaml_file.write_text(

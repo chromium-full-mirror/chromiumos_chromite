@@ -161,7 +161,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def main(args):
+def main(args) -> None:
     parser = get_parser()
     opts = parser.parse_args(args)
 
