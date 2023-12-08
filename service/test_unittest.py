@@ -43,12 +43,12 @@ class PartialDict:
 class BuildTargetUnitTestResultTest(cros_test_lib.TestCase):
     """BuildTargetUnitTestResult tests."""
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test success case."""
         result = test.BuildTargetUnitTestResult(0, None)
         self.assertTrue(result.success)
 
-    def testPackageFailure(self):
+    def testPackageFailure(self) -> None:
         """Test packages failed."""
         # Supposed to be CPVs, but not actually necessary at the moment.
         packages = ["a", "b"]
@@ -59,7 +59,7 @@ class BuildTargetUnitTestResultTest(cros_test_lib.TestCase):
         result = test.BuildTargetUnitTestResult(0, packages)
         self.assertFalse(result.success)
 
-    def testScriptFailure(self):
+    def testScriptFailure(self) -> None:
         """Test non-package failure."""
         # Should have a non-zero return code when packages fail.
         result = test.BuildTargetUnitTestResult(1, None)
@@ -69,11 +69,11 @@ class BuildTargetUnitTestResultTest(cros_test_lib.TestCase):
 class BuildTargetUnitTestTest(cros_test_lib.RunCommandTempDirTestCase):
     """BuildTargetUnitTest tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.board = "board"
         self.build_target = build_target_lib.BuildTarget(self.board)
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test simple success case."""
         result = test.BuildTargetUnitTest(self.build_target)
 
@@ -82,7 +82,7 @@ class BuildTargetUnitTestTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertTrue(result.success)
 
-    def testHost(self):
+    def testHost(self) -> None:
         """Test host target."""
         host_build_target = build_target_lib.BuildTarget("")
         result = test.BuildTargetUnitTest(host_build_target)
@@ -90,33 +90,33 @@ class BuildTargetUnitTestTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandContains(["cros_run_unit_tests", "--host"])
         self.assertTrue(result.success)
 
-    def testPackages(self):
+    def testPackages(self) -> None:
         """Test the packages argument."""
         packages = ["foo/bar", "cat/pkg"]
         test.BuildTargetUnitTest(self.build_target, packages=packages)
         self.assertCommandContains(["--packages", "foo/bar cat/pkg"])
 
-    def testBlocklist(self):
+    def testBlocklist(self) -> None:
         """Test the blocklist argument."""
         blocklist = ["foo/bar", "cat/pkg"]
         test.BuildTargetUnitTest(self.build_target, blocklist=blocklist)
         self.assertCommandContains(["--skip-packages", "foo/bar cat/pkg"])
 
-    def testTestablePackagesOptional(self):
+    def testTestablePackagesOptional(self) -> None:
         """Test the testable packages optional argument."""
         test.BuildTargetUnitTest(
             self.build_target, testable_packages_optional=True
         )
         self.assertCommandContains(["--no-testable-packages-ok"])
 
-    def testFilterOnlyCrosWorkon(self):
+    def testFilterOnlyCrosWorkon(self) -> None:
         """Test the filter packages argument."""
         test.BuildTargetUnitTest(
             self.build_target, filter_only_cros_workon=True
         )
         self.assertCommandContains(["--filter-only-cros-workon"])
 
-    def testFailure(self):
+    def testFailure(self) -> None:
         """Test non-zero return code and failed package handling."""
         packages = ["foo/bar", "cat/pkg"]
         pkgs = [package_info.parse(p) for p in packages]
@@ -132,7 +132,7 @@ class BuildTargetUnitTestTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(expected_rc, result.return_code)
         self.assertCountEqual(pkgs, result.failed_pkgs)
 
-    def testRustCodeCoverage(self):
+    def testRustCodeCoverage(self) -> None:
         """Test adding use flags for rust code coverage when requested."""
         self.PatchObject(os, "environ", new={})
         result = test.BuildTargetUnitTest(
@@ -145,7 +145,7 @@ class BuildTargetUnitTestTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertTrue(result.success)
 
-    def testCodeCoverage(self):
+    def testCodeCoverage(self) -> None:
         """Test adding use flags for coverage when requested."""
         self.PatchObject(os, "environ", new={})
         result = test.BuildTargetUnitTest(self.build_target, code_coverage=True)
@@ -156,7 +156,7 @@ class BuildTargetUnitTestTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertTrue(result.success)
 
-    def testCodeCoverageExistingFlags(self):
+    def testCodeCoverageExistingFlags(self) -> None:
         """Test adding use flags for coverage when existing flags."""
         self.PatchObject(os, "environ", new={"USE": "foo bar"})
         result = test.BuildTargetUnitTest(
@@ -169,7 +169,7 @@ class BuildTargetUnitTestTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertTrue(result.success)
 
-    def testCodeCoverageExistingCoverageFlag(self):
+    def testCodeCoverageExistingCoverageFlag(self) -> None:
         """Test adding use flags for coverage when already has coverage flag."""
         self.PatchObject(
             os, "environ", new={"USE": "coverage bar rust-coverage"}
@@ -188,14 +188,14 @@ class BuildTargetUnitTestTest(cros_test_lib.RunCommandTempDirTestCase):
 class DebugInfoTestTest(cros_test_lib.RunCommandTestCase):
     """DebugInfoTest tests."""
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test command success."""
         self.assertTrue(test.DebugInfoTest("/sysroot/path"))
         self.assertCommandContains(
             ["debug_info_test", "/sysroot/path/usr/lib/debug"]
         )
 
-    def testFailure(self):
+    def testFailure(self) -> None:
         """Test command failure."""
         self.rc.SetDefaultCmdResult(returncode=1)
         self.assertFalse(test.DebugInfoTest("/sysroot/path"))
@@ -204,7 +204,7 @@ class DebugInfoTestTest(cros_test_lib.RunCommandTestCase):
 class SimpleChromeWorkflowTestTest(cros_test_lib.MockTempDirTestCase):
     """Unit tests for SimpleChromeWorkflowTest."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.chrome_root = "/path/to/chrome/root"
         self.sysroot_path = "/chroot/path/sysroot/path"
         self.build_target = "board"
@@ -222,7 +222,7 @@ class SimpleChromeWorkflowTestTest(cros_test_lib.MockTempDirTestCase):
         )
         self.PatchObject(shutil, "copy2")
 
-    def testSimpleChromeWorkflowTest(self):
+    def testSimpleChromeWorkflowTest(self) -> None:
         goma_test_dir = os.path.join(self.tempdir, "goma_test_dir")
         chromeos_goma_dir = os.path.join(self.tempdir, "chromeos_goma_dir")
         goma_config = common_pb2.GomaConfig(
@@ -314,7 +314,7 @@ class SimpleChromeWorkflowTestTest(cros_test_lib.MockTempDirTestCase):
 class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):
     """bundle_e2e_code_coverage Tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up the class for tests."""
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
@@ -338,14 +338,14 @@ class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):
         osutils.SafeMakedirs(self.chroot.full_path(sysroot_path))
         self.sysroot = sysroot_lib.Sysroot(sysroot_path)
 
-    def test_bundle_e2e_code_coverage_returns_none(self):
+    def test_bundle_e2e_code_coverage_returns_none(self) -> None:
         """Verify bundle_e2e_code_coverage returns None for no e2e artifact."""
         path = test.bundle_e2e_code_coverage(
             self.chroot, self.sysroot, self.output_dir.as_posix()
         )
         self.assertIsNone(path)
 
-    def test_bundle_e2e_code_coverage_throws_exception(self):
+    def test_bundle_e2e_code_coverage_throws_exception(self) -> None:
         """Verify bundle_e2e_code_coverage throws exception."""
         self.PatchObject(
             cros_build_lib,
@@ -359,7 +359,7 @@ class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):
                 self.chroot, self.sysroot, self.output_dir
             )
 
-    def test_bundle_e2e_code_coverage_invalid_json(self):
+    def test_bundle_e2e_code_coverage_invalid_json(self) -> None:
         """Verify bundle_e2e_code_coverage returns none for invalid JSON."""
         json_file = self.cov_dir / "coverage.json"
         json_file.write_text("invalid_json", encoding="utf-8")
@@ -368,7 +368,7 @@ class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertIsNone(path)
 
-    def test_bundle_e2e_code_coverage_returns_tarball(self):
+    def test_bundle_e2e_code_coverage_returns_tarball(self) -> None:
         """Verify that we can create tarball in bundle_e2e_code_coverage."""
         create_tarball_result = cros_build_lib.CompletedProcess(returncode=0)
         self.PatchObject(
@@ -397,7 +397,7 @@ class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):
 class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
     """BundleCodeCoverageLlvmJson Tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up the class for tests."""
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
@@ -414,7 +414,7 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
         self.output_dir = os.path.join(self.tempdir, "output")
 
-    def testGatherCodeCoverageLlvmJsonFileIsCalled1Time(self):
+    def testGatherCodeCoverageLlvmJsonFileIsCalled1Time(self) -> None:
         """Verify GatherCodeCoverageLlvmJsonFile is called on each file."""
         GatherCodeCoverageLlvmJsonFile_mock = self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=None
@@ -425,7 +425,9 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
         GatherCodeCoverageLlvmJsonFile_mock.assert_called_once()
 
-    def testReturnNoneWhenGatherCodeCoverageLlvmJsonFileReturnsNone(self):
+    def testReturnNoneWhenGatherCodeCoverageLlvmJsonFileReturnsNone(
+        self,
+    ) -> None:
         """Test returns None when no coverage files were found."""
         self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=None
@@ -436,7 +438,7 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertIsNone(result)
 
-    def testCreateTarballIsCalled1Time(self):
+    def testCreateTarballIsCalled1Time(self) -> None:
         """Test that CreateTarball is called once."""
         gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
@@ -467,7 +469,7 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
         CreateTarball_mock.assert_called_once()
 
-    def testGenerateZeroCoverageLlvmCalled1Time(self):
+    def testGenerateZeroCoverageLlvmCalled1Time(self) -> None:
         """Test that GenerateZeroCoverageLlvm is called once."""
         gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
@@ -499,7 +501,7 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
         GenerateZeroCoverageLlvm_mock.assert_called_once()
 
-    def testShouldReturnNoneWhenCreateTarballFails(self):
+    def testShouldReturnNoneWhenCreateTarballFails(self) -> None:
         """Test that None is returned when CreateTarball fails."""
         gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
@@ -516,7 +518,7 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertIsNone(result)
 
-    def testShouldReturnPathToTarballOnSuccess(self):
+    def testShouldReturnPathToTarballOnSuccess(self) -> None:
         """Test that the path to the tarball is returned on success."""
         gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
@@ -557,7 +559,7 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
     """BundleCodeCoverageRustLlvmJson Tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up the class for tests."""
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
@@ -574,7 +576,7 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
         self.output_dir = os.path.join(self.tempdir, "output")
 
-    def testGatherCodeCoverageLlvmJsonFileIsCalled1Time(self):
+    def testGatherCodeCoverageLlvmJsonFileIsCalled1Time(self) -> None:
         """Verify GatherCodeCoverageLlvmJsonFile is called on each file."""
         GatherCodeCoverageLlvmJsonFile_mock = self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=None
@@ -585,7 +587,9 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
         GatherCodeCoverageLlvmJsonFile_mock.assert_called_once()
 
-    def testReturnNoneWhenGatherCodeCoverageLlvmJsonFileReturnsNone(self):
+    def testReturnNoneWhenGatherCodeCoverageLlvmJsonFileReturnsNone(
+        self,
+    ) -> None:
         """Test returns None when no coverage files were found."""
         self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=None
@@ -596,7 +600,7 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertIsNone(result)
 
-    def testCreateTarballIsCalled1Time(self):
+    def testCreateTarballIsCalled1Time(self) -> None:
         """Test that CreateTarball is called once."""
         gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
@@ -627,7 +631,7 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
         CreateTarball_mock.assert_called_once()
 
-    def testGenerateZeroCoverageLlvmCalled1Time(self):
+    def testGenerateZeroCoverageLlvmCalled1Time(self) -> None:
         """Test that GenerateZeroCoverageLlvm is called once."""
         gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
@@ -659,7 +663,7 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
         GenerateZeroCoverageLlvm_mock.assert_called_once()
 
-    def testShouldReturnNoneWhenCreateTarballFails(self):
+    def testShouldReturnNoneWhenCreateTarballFails(self) -> None:
         """Test that None is returned when CreateTarball fails."""
         gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
@@ -676,7 +680,7 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertIsNone(result)
 
-    def testShouldReturnPathToTarballOnSuccess(self):
+    def testShouldReturnPathToTarballOnSuccess(self) -> None:
         """Test that the path to the tarball is returned on success."""
         gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
@@ -732,14 +736,14 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
             }
         )
 
-    def writeCodeCoverageLlvm(self, filename, content: str = None):
+    def writeCodeCoverageLlvm(self, filename, content: str = None) -> None:
         """Helper to write a code coverage file."""
         if content is None:
             content = self.getCodeCoverageLlvmContents(["a.txt"])
 
         osutils.WriteFile(filename, content=content, mode="w", makedirs=True)
 
-    def testJoinedFilePathsMatchesNumFilesProcessed(self):
+    def testJoinedFilePathsMatchesNumFilesProcessed(self) -> None:
         """Test that all coverage files are found."""
         input_dir = os.path.join(self.tempdir, "input")
         self.writeCodeCoverageLlvm(os.path.join(input_dir, "a/coverage.json"))
@@ -757,7 +761,7 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
         all_files = coverage_json["data"][0]["files"]
         self.assertEqual(len(all_files), 4)
 
-    def testCallsGetLlvmJsonCoverageDataIfValidForEachFile(self):
+    def testCallsGetLlvmJsonCoverageDataIfValidForEachFile(self) -> None:
         """Test that GetLlvmJsonCoverageDataIfValid is called on each file."""
         get_llvm_json_coverage_data_if_valid_mock = self.PatchObject(
             code_coverage_util,
@@ -782,7 +786,7 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
             get_llvm_json_coverage_data_if_valid_mock.call_count, 4
         )
 
-    def testWritesCombinedFileToOutputDir(self):
+    def testWritesCombinedFileToOutputDir(self) -> None:
         """Test all contents of valid files are combined into the output."""
 
         input_dir = os.path.join(self.tempdir, "input")
@@ -813,7 +817,7 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
             1, len([x for x in all_files if x["filename"] == "/firmware/c.txt"])
         )
 
-    def testShouldEmptyCoverageIfPathDoesNotExists(self):
+    def testShouldEmptyCoverageIfPathDoesNotExists(self) -> None:
         """Test empty coverage returned when path does not exist."""
 
         coverage_json = test.GatherCodeCoverageLlvmJsonFile("/invalid/path")
@@ -824,7 +828,7 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
 class GatherCodeCoverageGolangTests(cros_test_lib.MockTempDirTestCase):
     """GatherCodeCoverageGolang Tests."""
 
-    def writeCodeCoverageGolang(self, filename):
+    def writeCodeCoverageGolang(self, filename) -> None:
         """Helper to write a code coverage file."""
         osutils.WriteFile(
             filename,
@@ -833,7 +837,7 @@ class GatherCodeCoverageGolangTests(cros_test_lib.MockTempDirTestCase):
             makedirs=True,
         )
 
-    def testJoinedFilePathsMatchesNumFilesProcessed(self):
+    def testJoinedFilePathsMatchesNumFilesProcessed(self) -> None:
         """Test that all coverage files are found."""
         input_dir = os.path.join(self.tempdir, "input")
         self.writeCodeCoverageGolang(
@@ -852,7 +856,7 @@ class GatherCodeCoverageGolangTests(cros_test_lib.MockTempDirTestCase):
         coverage_data = test.GatherCodeCoverageGolang(input_dir)
         self.assertEqual(len(coverage_data), 4)
 
-    def testShouldEmptyCoverageIfPathDoesNotExists(self):
+    def testShouldEmptyCoverageIfPathDoesNotExists(self) -> None:
         """Test empty list returned when path does not exist."""
 
         coverage_data = test.GatherCodeCoverageGolang("/invalid/path")
@@ -867,7 +871,7 @@ class FindMetadataTestCase(cros_test_lib.MockTestCase):
     chroot_path = Path("/usr/chroot")
     out_path = Path("/usr/out")
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self.sysroot = sysroot_lib.Sysroot(self.sysroot_path)
         self.chroot = chroot_lib.Chroot(
@@ -875,7 +879,7 @@ class FindMetadataTestCase(cros_test_lib.MockTestCase):
         )
         self.PatchObject(cros_build_lib, "AssertOutsideChroot")
 
-    def testFindAllMetadataFiles(self):
+    def testFindAllMetadataFiles(self) -> None:
         """Test case for Sysroot.FindAllMetadataFiles."""
         expected = [
             self.chroot.full_path(f)
@@ -894,7 +898,7 @@ class FindMetadataTestCase(cros_test_lib.MockTestCase):
 class BundleHwqualTarballTest(cros_test_lib.MockTempDirTestCase):
     """BundleHwqualTarball tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         # Create the chroot and sysroot instances.
         self.chroot_path = self.tempdir / "chroot_dir"
@@ -912,7 +916,7 @@ class BundleHwqualTarballTest(cros_test_lib.MockTempDirTestCase):
         self.output_dir = os.path.join(self.tempdir, "output_dir")
         osutils.SafeMakedirs(self.output_dir)
 
-    def testNoArchiveDir(self):
+    def testNoArchiveDir(self) -> None:
         """Test a run when the archive dir does not exist."""
         self.assertIsNone(
             test.BundleHwqualTarball(
@@ -920,7 +924,7 @@ class BundleHwqualTarballTest(cros_test_lib.MockTempDirTestCase):
             )
         )
 
-    def testAutotestUtilFailure(self):
+    def testAutotestUtilFailure(self) -> None:
         """Test a run when autotest_util fails to bundle autotest."""
         archive_dir = self.chroot.full_path(
             self.sysroot.path, constants.AUTOTEST_BUILD_PATH
@@ -936,7 +940,7 @@ class BundleHwqualTarballTest(cros_test_lib.MockTempDirTestCase):
             )
         )
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test a successful multiple version run."""
         archive_dir = self.chroot.full_path(
             self.sysroot.path, constants.AUTOTEST_BUILD_PATH

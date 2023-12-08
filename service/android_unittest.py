@@ -28,14 +28,14 @@ _STAT_OUTPUT = """%s:
 """
 
 
-def _RaiseGSNoSuchKey(*_args, **_kwargs):
+def _RaiseGSNoSuchKey(*_args, **_kwargs) -> None:
     raise gs.GSNoSuchKey("file does not exist")
 
 
 class ArtifactsConfigTest(cros_test_lib.TestCase):
     """Tests to ensure artifacts configs are properly written."""
 
-    def testAllTargetsAreConfigured(self):
+    def testAllTargetsAreConfigured(self) -> None:
         """Ensure artifact patterns are configured for all pkgs and targets."""
         self.assertSetEqual(
             set(android.ARTIFACTS_TO_COPY),
@@ -59,12 +59,12 @@ class ArtifactsConfigTest(cros_test_lib.TestCase):
 class GetAndroidBranchForPackageTest(cros_test_lib.TestCase):
     """Tests for GetAndroidBranchForPackage."""
 
-    def testAllPackagesAreMapped(self):
+    def testAllPackagesAreMapped(self) -> None:
         """Ensure all possible Android packages are mapped to valid branches."""
         for package in android.GetAllAndroidPackages():
             android.GetAndroidBranchForPackage(package)
 
-    def testRaisesOnUnknownPackage(self):
+    def testRaisesOnUnknownPackage(self) -> None:
         """Ensure passing an unknown package raises an exception."""
         with self.assertRaises(ValueError):
             android.GetAndroidBranchForPackage("not-an-android-package")
@@ -73,12 +73,12 @@ class GetAndroidBranchForPackageTest(cros_test_lib.TestCase):
 class GetAndroidEbuildTargetsForPackageTest(cros_test_lib.TestCase):
     """Tests for GetAndroidEbuildTargetsForPackage."""
 
-    def testAllPackagesAreMapped(self):
+    def testAllPackagesAreMapped(self) -> None:
         """Ensure all possible Android packages are mapped."""
         for package in android.GetAllAndroidPackages():
             android.GetAndroidEbuildTargetsForPackage(package)
 
-    def testRaisesOnUnknownPackage(self):
+    def testRaisesOnUnknownPackage(self) -> None:
         """Ensure passing an unknown package raises an exception."""
         with self.assertRaises(ValueError):
             android.GetAndroidEbuildTargetsForPackage("not-an-android-package")
@@ -87,7 +87,7 @@ class GetAndroidEbuildTargetsForPackageTest(cros_test_lib.TestCase):
 class MockAndroidBuildArtifactsTest(cros_test_lib.MockTempDirTestCase):
     """Tests using a mocked GS bucket containing Android build artifacts."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup vars and create mock dir."""
         self.android_package = "android-package"
         self.mock_android_dir = os.path.join(self.tempdir, "android-package")
@@ -124,7 +124,7 @@ class MockAndroidBuildArtifactsTest(cros_test_lib.MockTempDirTestCase):
 
     def setupMockTarget(
         self, branch: str, target: str, versions: Dict[str, bool]
-    ):
+    ) -> None:
         """Mocks GS responses for one build target.
 
         Mocks GS responses for the following paths:
@@ -153,7 +153,7 @@ class MockAndroidBuildArtifactsTest(cros_test_lib.MockTempDirTestCase):
         for version, valid in versions.items():
             self.mockOneTargetVersion(branch, target, version, valid)
 
-    def mockOneTargetVersion(self, branch, target, version, valid):
+    def mockOneTargetVersion(self, branch, target, version, valid) -> None:
         """Mock GS responses for one (target, version). See setupMockTarget."""
 
         src_url = f"{self.bucket_url}/{branch}-linux-{target}/{version}"
@@ -236,7 +236,7 @@ class MockAndroidBuildArtifactsTest(cros_test_lib.MockTempDirTestCase):
                 ["acl", "ch"] + acls[target].split() + [dst_file]
             )
 
-    def testIsBuildIdValid_success(self):
+    def testIsBuildIdValid_success(self) -> None:
         """Test IsBuildIdValid with a valid build."""
         self.setupMockTarget("android-branch", "apps", {"1000": True})
         self.setupMockTarget("android-branch", "target_arm", {"1000": True})
@@ -254,7 +254,7 @@ class MockAndroidBuildArtifactsTest(cros_test_lib.MockTempDirTestCase):
             },
         )
 
-    def testIsBuildIdValid_partialExist(self):
+    def testIsBuildIdValid_partialExist(self) -> None:
         """Test IsBuildIdValid with a partially populated build."""
         self.setupMockTarget("android-branch", "apps", {"1000": False})
         self.setupMockTarget("android-branch", "target_arm", {"1000": True})
@@ -268,7 +268,7 @@ class MockAndroidBuildArtifactsTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertIsNone(subpaths)
 
-    def testIsBuildIdValid_notExist(self):
+    def testIsBuildIdValid_notExist(self) -> None:
         """Test IsBuildIdValid with a nonexistent build."""
         self.setupMockTarget("android-branch", "apps", {"1000": False})
         self.setupMockTarget("android-branch", "target_arm", {"1000": False})
@@ -282,7 +282,7 @@ class MockAndroidBuildArtifactsTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertIsNone(subpaths)
 
-    def testGetLatestBuild_basic(self):
+    def testGetLatestBuild_basic(self) -> None:
         """Test determination of latest build from gs bucket."""
         # - build 900 is valid (all targets are populated)
         # - build 1000 is valid
@@ -316,7 +316,7 @@ class MockAndroidBuildArtifactsTest(cros_test_lib.MockTempDirTestCase):
             },
         )
 
-    def testGetLatestBuild_defaultBranch(self):
+    def testGetLatestBuild_defaultBranch(self) -> None:
         """Test if default branch is used when no branch is specified."""
         self.setupMockTarget("default-branch", "apps", {"1000": True})
         self.setupMockTarget("default-branch", "target_arm", {"1000": True})
@@ -341,7 +341,7 @@ class MockAndroidBuildArtifactsTest(cros_test_lib.MockTempDirTestCase):
             },
         )
 
-    def testCopyToArcBucket(self):
+    def testCopyToArcBucket(self) -> None:
         """Test copying of images to ARC bucket."""
         self.setupMockTarget("android-branch", "apps", {"1000": True})
         self.setupMockTarget("android-branch", "target_arm", {"1000": True})
@@ -365,7 +365,7 @@ class MockAndroidBuildArtifactsTest(cros_test_lib.MockTempDirTestCase):
 class LKGBTest(cros_test_lib.TempDirTestCase):
     """Tests ReadLKGB/WriteLKGB."""
 
-    def testWriteReadLGKB(self):
+    def testWriteReadLGKB(self) -> None:
         android_package_dir = self.tempdir
         build_id = "build-id"
 
@@ -375,13 +375,13 @@ class LKGBTest(cros_test_lib.TempDirTestCase):
             android.ReadLKGB(android_package_dir)["build_id"], build_id
         )
 
-    def testReadLKGBMissing(self):
+    def testReadLKGBMissing(self) -> None:
         android_package_dir = self.tempdir
 
         with self.assertRaises(android.MissingLKGBError):
             android.ReadLKGB(android_package_dir)
 
-    def testReadLKGBNotJSON(self):
+    def testReadLKGBNotJSON(self) -> None:
         android_package_dir = self.tempdir
         (android_package_dir / "LKGB.json").write_text(
             "not-a-json-file", encoding="utf-8"
@@ -390,7 +390,7 @@ class LKGBTest(cros_test_lib.TempDirTestCase):
         with self.assertRaises(android.InvalidLKGBError):
             android.ReadLKGB(android_package_dir)
 
-    def testReadLKGBMissingBuildID(self):
+    def testReadLKGBMissingBuildID(self) -> None:
         android_package_dir = self.tempdir
         (android_package_dir / "LKGB.json").write_text(
             '{"not_build_id": "foo"}', encoding="utf-8"
@@ -399,7 +399,7 @@ class LKGBTest(cros_test_lib.TempDirTestCase):
         with self.assertRaises(android.InvalidLKGBError):
             android.ReadLKGB(android_package_dir)
 
-    def testReadLKGBDiscardUnusedFields(self):
+    def testReadLKGBDiscardUnusedFields(self) -> None:
         android_package_dir = self.tempdir
         (android_package_dir / "LKGB.json").write_text(
             """{
@@ -425,7 +425,7 @@ class LKGBTest(cros_test_lib.TempDirTestCase):
 class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
     """Tests runtime artifacts functions."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.android_package = "android-package"
         self.android_branch = "android-branch"
         self.runtime_artifacts_bucket_url = "gs://r"
@@ -433,7 +433,7 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
 
         self.gs_mock = self.StartPatcher(gs_unittest.GSContextMock())
 
-    def setupMockRuntimeDataBuild(self, android_version):
+    def setupMockRuntimeDataBuild(self, android_version) -> None:
         """Helper to mock a build for runtime data."""
 
         _ARCHS = ("arm", "arm64", "arm64only", "x86", "x86_64", "x64only")
@@ -480,7 +480,7 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
                         ["stat", "--", path], side_effect=_RaiseGSNoSuchKey
                     )
 
-    def setupMockRuntimeArtifactsPin(self, pin_version):
+    def setupMockRuntimeArtifactsPin(self, pin_version) -> None:
         """Helper to mock a runtime artifacts pin on GS."""
         pin_paths = [
             (
@@ -503,7 +503,7 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
                     ["stat", "--", pin_path], side_effect=_RaiseGSNoSuchKey
                 )
 
-    def testFindDataCollectorArtifacts(self):
+    def testFindDataCollectorArtifacts(self) -> None:
         android_version = "100"
         # Mock by default runtime artifacts are not found.
         self.setupMockRuntimeDataBuild(android_version)
@@ -643,7 +643,7 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
             },
         )
 
-    def testFindDataCollectorArtifactsNotExist(self):
+    def testFindDataCollectorArtifactsNotExist(self) -> None:
         android_version = "100"
         # Mock by default runtime artifacts are not found.
         self.setupMockRuntimeDataBuild(android_version)
@@ -685,7 +685,7 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
 
         self.assertDictEqual(variables, {})
 
-    def testFindRuntimeArtifactsPin(self):
+    def testFindRuntimeArtifactsPin(self) -> None:
         self.setupMockRuntimeArtifactsPin("pin-version")
 
         pin_version = android.FindRuntimeArtifactsPin(
@@ -695,7 +695,7 @@ class RuntimeArtifactsTest(cros_test_lib.MockTestCase):
         )
         self.assertEqual(pin_version, "pin-version")
 
-    def testFindRuntimeArtifactsPinNotExist(self):
+    def testFindRuntimeArtifactsPinNotExist(self) -> None:
         self.setupMockRuntimeArtifactsPin(None)
 
         pin_version = android.FindRuntimeArtifactsPin(

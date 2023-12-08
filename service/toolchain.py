@@ -142,7 +142,7 @@ class BuildLinter:
         if validate:
             self.validate_sysroot()
 
-    def validate_sysroot(self):
+    def validate_sysroot(self) -> None:
         """Assert that the sysroot provided is valid.
 
         This is done by verifying <sysroot>/etc/make.conf.board_setup exists.

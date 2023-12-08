@@ -15,7 +15,7 @@ from chromite.lib.parser import package_info
 from chromite.service import observability
 
 
-def test_parse_package_name__full_with_mmpe():
+def test_parse_package_name__full_with_mmpe() -> None:
     """Test version parsing for 4-part version number with no suffix."""
     lacros_pkg_info = package_info.parse(
         "chromeos-base/chromeos-lacros-104.0.5083.0-r1"
@@ -42,7 +42,7 @@ def test_parse_package_name__full_with_mmpe():
     assert lacros_identifier.package_name.package_name == "chromeos-lacros"
 
 
-def test_parse_package_name__full_with_mmp():
+def test_parse_package_name__full_with_mmp() -> None:
     """Test version parsing for standard 3-part version number."""
     py_pkg_info = package_info.parse("dev-lang/python-3.6.15-r2")
     py_identifier = observability.parse_package_name(py_pkg_info)
@@ -59,7 +59,7 @@ def test_parse_package_name__full_with_mmp():
     assert py_identifier.package_name.package_name == "python"
 
 
-def test_parse_package_name__full_with_suffix():
+def test_parse_package_name__full_with_suffix() -> None:
     """Test version parsing for 2-part version number with suffix included."""
     fake_pkg_info = package_info.parse("cat/test-pkg-1.1b_alpha3")
     fake_identifier = observability.parse_package_name(fake_pkg_info)
@@ -182,7 +182,7 @@ def convert_pkg_dict_to_package_identifier(pkgs: Dict[str, List[str]]):
     return expected_packages
 
 
-def test_get_package_details_for_partition__rootfs(tmp_path):
+def test_get_package_details_for_partition__rootfs(tmp_path) -> None:
     """Test PortageDB reads & size calculation for standard (rootfs) db."""
     pkgs = {
         "dev-lang": ["python-3.6.15-r2", "rust-1.58.1-r1"],
@@ -207,7 +207,7 @@ def test_get_package_details_for_partition__rootfs(tmp_path):
         assert result[expected][1] == _FAKE_EXPECTED_PACKAGE_DISK_USAGE
 
 
-def test_get_package_details_for_partition__stateful(tmp_path):
+def test_get_package_details_for_partition__stateful(tmp_path) -> None:
     """Test PortageDB reads & size calculation for non-standard db."""
     pkgs = {
         "dev-lang": ["python-3.6.15-r2", "rust-1.58.1-r1"],
@@ -235,7 +235,7 @@ def test_get_package_details_for_partition__stateful(tmp_path):
         assert result[expected][1] == _FAKE_EXPECTED_PACKAGE_DISK_USAGE
 
 
-def test_get_package_details_for_partition__bad_install_path(tmp_path):
+def test_get_package_details_for_partition__bad_install_path(tmp_path) -> None:
     """Test PortageDB read failure mode for an invalid package install path."""
     pkgs = {
         "dev-lang": ["python-3.6.15-r2", "rust-1.58.1-r1"],
@@ -266,7 +266,7 @@ def test_get_package_details_for_partition__bad_install_path(tmp_path):
         assert result[expected] == (0, 0)
 
 
-def test_get_installed_package_data__bad_image_type(tmp_path, caplog):
+def test_get_installed_package_data__bad_image_type(tmp_path, caplog) -> None:
     """Ensure unsupported image types are not mounted and crawled for pkgs."""
     result = observability.get_installed_package_data(
         constants.IMAGE_TYPE_FACTORY, tmp_path / "chromiumos_factory_image.bin"

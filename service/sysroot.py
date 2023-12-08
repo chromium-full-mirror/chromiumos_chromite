@@ -1140,7 +1140,7 @@ def _BazelBuild(
     target_name: str,
     bazel_lite: bool,
     extra_env: Dict[str, str],
-):
+) -> None:
     """Build packages with Bazel.
 
     Args:

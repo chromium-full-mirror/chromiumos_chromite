@@ -21,13 +21,13 @@ from chromite.service import relevancy
 
 
 @pytest.fixture
-def source_root_is_tmp(monkeypatch, tmp_path):
+def source_root_is_tmp(monkeypatch, tmp_path) -> None:
     """Patch SOURCE_ROOT to tmp_path."""
     monkeypatch.setattr(constants, "SOURCE_ROOT", tmp_path)
 
 
 @pytest.fixture
-def mock_source_info(monkeypatch, tmp_path):
+def mock_source_info(monkeypatch, tmp_path) -> None:
     """Mock out the source_info property on ebuilds to a constant."""
     fake_source_info = portage_util.SourceInfo(
         projects=["chromiumos/platform/fake"],
@@ -89,7 +89,7 @@ def test_relevancy(
     fake_build_query_overlays,
     source_root_is_tmp,
     mock_source_info,
-):
+) -> None:
     """Test a variety of relevancy checks."""
     build_target = build_target_lib.BuildTarget(board, public=False)
     relevant_targets = list(

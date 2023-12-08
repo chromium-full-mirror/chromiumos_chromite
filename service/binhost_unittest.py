@@ -42,12 +42,12 @@ class GetPrebuiltAclArgsTest(cros_test_lib.MockTempDirTestCase):
 -g group2:READ
 """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.build_target = build_target_lib.BuildTarget("board")
         self.acl_file = os.path.join(self.tempdir, "googlestorage_acl.txt")
         osutils.WriteFile(self.acl_file, self._ACL_FILE)
 
-    def testParse(self):
+    def testParse(self) -> None:
         """Test parsing a valid file."""
         self.PatchObject(
             portage_util, "FindOverlayFile", return_value=self.acl_file
@@ -63,7 +63,7 @@ class GetPrebuiltAclArgsTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertCountEqual(expected_acls, acls)
 
-    def testNoFile(self):
+    def testNoFile(self) -> None:
         """Test no file handling."""
         self.PatchObject(portage_util, "FindOverlayFile", return_value=None)
 
@@ -74,7 +74,7 @@ class GetPrebuiltAclArgsTest(cros_test_lib.MockTempDirTestCase):
 class SetBinhostTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for SetBinhost."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(constants, "SOURCE_ROOT", new=self.tempdir)
 
         self.public_conf_dir = os.path.join(
@@ -87,10 +87,10 @@ class SetBinhostTest(cros_test_lib.MockTempDirTestCase):
         )
         osutils.SafeMakedirs(self.private_conf_dir)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         osutils.EmptyDir(self.tempdir)
 
-    def testSetBinhostPublic(self):
+    def testSetBinhostPublic(self) -> None:
         """SetBinhost returns correct public path and updates conf file."""
         actual = binhost.SetBinhost(
             "coral", "BINHOST_KEY", "gs://prebuilts", private=False
@@ -101,7 +101,7 @@ class SetBinhostTest(cros_test_lib.MockTempDirTestCase):
             osutils.ReadFile(actual), 'BINHOST_KEY="gs://prebuilts"'
         )
 
-    def testSetBinhostPrivate(self):
+    def testSetBinhostPrivate(self) -> None:
         """SetBinhost returns correct private path and updates conf file."""
         actual = binhost.SetBinhost("coral", "BINHOST_KEY", "gs://prebuilts")
         expected = os.path.join(self.private_conf_dir, "coral-BINHOST_KEY.conf")
@@ -110,7 +110,7 @@ class SetBinhostTest(cros_test_lib.MockTempDirTestCase):
             osutils.ReadFile(actual), 'BINHOST_KEY="gs://prebuilts"'
         )
 
-    def testSetBinhostEmptyConf(self):
+    def testSetBinhostEmptyConf(self) -> None:
         """SetBinhost rejects existing but empty conf files."""
         conf_path = os.path.join(
             self.private_conf_dir, "multi-BINHOST_KEY.conf"
@@ -119,7 +119,7 @@ class SetBinhostTest(cros_test_lib.MockTempDirTestCase):
         with self.assertRaises(ValueError):
             binhost.SetBinhost("multi", "BINHOST_KEY", "gs://blah")
 
-    def testSetBinhostMultilineConf(self):
+    def testSetBinhostMultilineConf(self) -> None:
         """SetBinhost rejects existing multiline conf files."""
         conf_path = os.path.join(
             self.private_conf_dir, "multi-BINHOST_KEY.conf"
@@ -128,21 +128,21 @@ class SetBinhostTest(cros_test_lib.MockTempDirTestCase):
         with self.assertRaises(ValueError):
             binhost.SetBinhost("multi", "BINHOST_KEY", "gs://blah")
 
-    def testSetBinhhostBadConfLine(self):
+    def testSetBinhhostBadConfLine(self) -> None:
         """SetBinhost rejects existing conf files with malformed lines."""
         conf_path = os.path.join(self.private_conf_dir, "bad-BINHOST_KEY.conf")
         osutils.WriteFile(conf_path, "bad line")
         with self.assertRaises(ValueError):
             binhost.SetBinhost("bad", "BINHOST_KEY", "gs://blah")
 
-    def testSetBinhostMismatchedKey(self):
+    def testSetBinhostMismatchedKey(self) -> None:
         """SetBinhost rejects existing conf files with a mismatched key."""
         conf_path = os.path.join(self.private_conf_dir, "bad-key-GOOD_KEY.conf")
         osutils.WriteFile(conf_path, 'BAD_KEY="https://foo.bar"')
         with self.assertRaises(KeyError):
             binhost.SetBinhost("bad-key", "GOOD_KEY", "gs://blah")
 
-    def testSetBinhostMaxURIsIncrease(self):
+    def testSetBinhostMaxURIsIncrease(self) -> None:
         """SetBinhost appends uri in BINHOST conf file."""
         binhost.SetBinhost("coral", "BINHOST_KEY", "gs://prebuilts", max_uris=1)
         actual = binhost.SetBinhost(
@@ -153,7 +153,7 @@ class SetBinhostTest(cros_test_lib.MockTempDirTestCase):
             'BINHOST_KEY="gs://prebuilts gs://prebuilts2"',
         )
 
-    def testSetBinhostMaxURIsRemoveOldest(self):
+    def testSetBinhostMaxURIsRemoveOldest(self) -> None:
         """Setbinhost appends only maximum # uris and removes in FIFO order."""
         binhost.SetBinhost(
             "coral", "BINHOST_KEY", "gs://prebuilts1", max_uris=1
@@ -179,7 +179,7 @@ class SetBinhostTest(cros_test_lib.MockTempDirTestCase):
             osutils.ReadFile(actual), 'BINHOST_KEY="gs://prebuilts5"'
         )
 
-    def testSetBinhostInvalidMaxUris(self):
+    def testSetBinhostInvalidMaxUris(self) -> None:
         """SetBinhost rejects invalid max_uris"""
         with self.assertRaises(binhost.InvalidMaxUris):
             binhost.SetBinhost(
@@ -194,7 +194,7 @@ class SetBinhostTest(cros_test_lib.MockTempDirTestCase):
                 "coral", "BINHOST_KEY", "gs://prebuilts", max_uris=None
             )
 
-    def testSetBinhostForHost(self):
+    def testSetBinhostForHost(self) -> None:
         """SetBinhost returns host path and sets the binhost."""
         binhost.SetBinhost(
             "amd64-generic",
@@ -217,7 +217,7 @@ class SetBinhostTest(cros_test_lib.MockTempDirTestCase):
 class GetBinhostConfPathTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for GetBinhostConfPath."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(constants, "SOURCE_ROOT", new=self.tempdir)
 
         self.public_conf_dir = (
@@ -227,13 +227,13 @@ class GetBinhostConfPathTest(cros_test_lib.MockTempDirTestCase):
             Path(self.tempdir) / constants.PRIVATE_BINHOST_CONF_DIR / "target"
         )
 
-    def testGetBinhostConfPathPublic(self):
+    def testGetBinhostConfPathPublic(self) -> None:
         """GetBinhostConfPath returns correct public conf path."""
         expected = self.public_conf_dir / "coral-BINHOST_KEY.conf"
         actual = binhost.GetBinhostConfPath("coral", "BINHOST_KEY", False)
         self.assertEqual(actual, expected)
 
-    def testGetBinhostConfPathPrivate(self):
+    def testGetBinhostConfPathPrivate(self) -> None:
         """GetBinhostConfPath returns correct private conf path."""
         expected = self.private_conf_dir / "coral-BINHOST_KEY.conf"
         actual = binhost.GetBinhostConfPath("coral", "BINHOST_KEY", True)
@@ -243,7 +243,7 @@ class GetBinhostConfPathTest(cros_test_lib.MockTempDirTestCase):
 class GetPrebuiltsRootTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for GetPrebuiltsRoot."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self.PatchObject(constants, "SOURCE_ROOT", new=self.tempdir)
@@ -259,14 +259,14 @@ class GetPrebuiltsRootTest(cros_test_lib.MockTempDirTestCase):
         self.root = self.chroot.full_path(self.sysroot.JoinPath("packages"))
         osutils.SafeMakedirs(self.root)
 
-    def testGetPrebuiltsRoot(self):
+    def testGetPrebuiltsRoot(self) -> None:
         """GetPrebuiltsRoot returns correct root for given build target."""
         actual = binhost.GetPrebuiltsRoot(
             self.chroot, self.sysroot, self.build_target
         )
         self.assertEqual(actual, self.root)
 
-    def testGetPrebuiltsBadTarget(self):
+    def testGetPrebuiltsBadTarget(self) -> None:
         """GetPrebuiltsRoot dies on missing root (target probably not built.)"""
         with self.assertRaises(binhost.EmptyPrebuiltsRoot):
             binhost.GetPrebuiltsRoot(
@@ -279,12 +279,12 @@ class GetPrebuiltsRootTest(cros_test_lib.MockTempDirTestCase):
 class GetPrebuiltsFilesTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for GetPrebuiltsFiles."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(constants, "SOURCE_ROOT", new=str(self.tempdir))
         self.root = self.tempdir / "chroot/build/target/packages"
         osutils.SafeMakedirs(self.root)
 
-    def testGetPrebuiltsFiles(self):
+    def testGetPrebuiltsFiles(self) -> None:
         """GetPrebuiltsFiles returns all archives for all packages."""
         packages_content = """\
 ARCH: amd64
@@ -308,7 +308,7 @@ CPV: package/prebuilt_b
         expected = ["package/prebuilt_a.tbz2", "package/prebuilt_b.tbz2"]
         self.assertEqual(actual, expected)
 
-    def testGetPrebuiltsFilesWithDebugSymbols(self):
+    def testGetPrebuiltsFilesWithDebugSymbols(self) -> None:
         """GetPrebuiltsFiles returns debug symbols archive if set in index."""
         packages_content = """\
 ARCH: amd64
@@ -333,7 +333,7 @@ DEBUG_SYMBOLS: yes
         expected = ["package/prebuilt.tbz2", "package/prebuilt.debug.tbz2"]
         self.assertEqual(actual, expected)
 
-    def testGetPrebuiltsFilesBadFile(self):
+    def testGetPrebuiltsFilesBadFile(self) -> None:
         """GetPrebuiltsFiles dies if archive file does not exist."""
         packages_content = """\
 ARCH: amd64
@@ -346,7 +346,7 @@ CPV: package/prebuilt
         with self.assertRaises(LookupError):
             binhost.GetPrebuiltsFiles(self.root)
 
-    def testPrebuiltsDeduplication(self):
+    def testPrebuiltsDeduplication(self) -> None:
         """GetPrebuiltsFiles returns all archives for all packages."""
         now = int(time.time())
         # As of time of writing it checks for no older than 2 weeks. We just
@@ -409,19 +409,19 @@ PATH: old_binhost/category/package_a.tbz2
 class UpdatePackageIndexTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for UpdatePackageIndex."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(constants, "SOURCE_ROOT", new=self.tempdir)
         self.root = os.path.join(self.tempdir, "chroot/build/target/packages")
         osutils.SafeMakedirs(self.root)
 
-    def testAbsoluteUploadPath(self):
+    def testAbsoluteUploadPath(self) -> None:
         """Test UpdatePackageIndex raises an error for absolute paths."""
         with self.assertRaises(AssertionError):
             binhost.UpdatePackageIndex(
                 self.root, "gs://chromeos-prebuilt", "/target"
             )
 
-    def testUpdatePackageIndex(self):
+    def testUpdatePackageIndex(self) -> None:
         """UpdatePackageIndex writes updated file to disk."""
         packages_content = """\
 ARCH: amd64
@@ -452,7 +452,7 @@ CPV: package/prebuilt
 class GetHostBinhostsTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for GetHostBinhosts."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.portageq_envvar_mock = self.PatchObject(
             portage_util, "PortageqEnvvar"
         )
@@ -461,7 +461,7 @@ class GetHostBinhostsTest(cros_test_lib.MockTempDirTestCase):
             self.tempdir / "host" / "amd64-generic-POSTSUBMIT_BINHOST.conf"
         )
 
-    def testReadAndParseBinhosts(self):
+    def testReadAndParseBinhosts(self) -> None:
         """Tests that binhosts are parsed from the BINHOST.conf file."""
         self.portageq_envvar_mock.return_value = None
         binhost_conf_file_content = """\
@@ -477,7 +477,7 @@ POSTSUBMIT_BINHOST="gs://binhost1 gs://binhost2"
 
         self.assertEqual(binhosts, ["gs://binhost1", "gs://binhost2"])
 
-    def testIncorrectKey(self):
+    def testIncorrectKey(self) -> None:
         """Tests when the BINHOST.conf does not contain the correct key."""
         self.portageq_envvar_mock.return_value = "gs://binhost1"
         binhost_conf_file_content = """\
@@ -493,7 +493,7 @@ WRONG_KEY="gs://binhost1 gs://binhost2"
 
         self.assertEqual(binhosts, ["gs://binhost1"])
 
-    def testMissingFile(self):
+    def testMissingFile(self) -> None:
         """Tests when the BINHOST.conf does not exist."""
         self.portageq_envvar_mock.return_value = "gs://binhost1"
 
@@ -505,7 +505,7 @@ WRONG_KEY="gs://binhost1 gs://binhost2"
 class RegenBuildCacheTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for RegenBuildCache."""
 
-    def testCallsRegenPortageCache(self):
+    def testCallsRegenPortageCache(self) -> None:
         """Test that overlays=None works."""
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
@@ -527,7 +527,7 @@ class RegenBuildCacheTest(cros_test_lib.MockTempDirTestCase):
 class ReadDevInstallPackageFileTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for ReadDevInstallPackageFile."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.root = os.path.join(
             self.tempdir, "chroot/build/target/build/dev-install/"
         )
@@ -541,7 +541,7 @@ virtual/acl-0-r1
 """
         osutils.WriteFile(self.packages_file, package_file_content)
 
-    def testReadDevInstallPackageFile(self):
+    def testReadDevInstallPackageFile(self) -> None:
         """Test that parsing valid file works."""
         packages = binhost.ReadDevInstallPackageFile(self.packages_file)
         expected_packages = [
@@ -556,7 +556,7 @@ virtual/acl-0-r1
 class CreateDevInstallPackageFileTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for CreateDevInstallPackageFile."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(constants, "SOURCE_ROOT", new=self.tempdir)
         self.root = os.path.join(self.tempdir, "chroot/build/target/packages")
         osutils.SafeMakedirs(self.root)
@@ -585,7 +585,7 @@ virtual/python-enum34-1
         osutils.SafeMakedirs(self.upload_dir)
         self.upload_packages_file = os.path.join(self.upload_dir, "Packages")
 
-    def testCreateFilteredPackageIndex(self):
+    def testCreateFilteredPackageIndex(self) -> None:
         """CreateDevInstallPackageFile writes updated file to disk."""
         binhost.CreateFilteredPackageIndex(
             self.root,
@@ -614,7 +614,7 @@ virtual/python-enum34-1
 class CreateChromePackageIndexTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for CreateChromePackageIndex."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self.chroot = chroot_lib.Chroot(
@@ -682,7 +682,7 @@ CPV: package/exclude-2
             return_value=self.fake_packages,
         )
 
-    def testCreateChromePackageIndex(self):
+    def testCreateChromePackageIndex(self) -> None:
         """CreateChromePackageIndex writes updated file to disk."""
         actual_packages = binhost.CreateChromePackageIndex(
             self.chroot,
@@ -735,7 +735,7 @@ class LookupBinhostsTest(
 ):
     """Unittests for lookup_binhosts."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.find_repo_mock = self.PatchObject(repo_util.Repository, "MustFind")
         self.has_remote_mock = (
             self.find_repo_mock.return_value.Manifest.return_value.HasRemote
@@ -745,7 +745,7 @@ class LookupBinhostsTest(
             constants, "SOURCE_ROOT", new=self.tempdir
         )
 
-    def testInternalSuccess(self):
+    def testInternalSuccess(self) -> None:
         """Test basic internal success case."""
         self.has_remote_mock.side_effect = (False, True)
         self.git_log_mock.side_effect = (
@@ -767,7 +767,7 @@ class LookupBinhostsTest(
         )
         self.assertEqual([], result.external)
 
-    def testExternalSuccess(self):
+    def testExternalSuccess(self) -> None:
         """Test basic external success case."""
         self.has_remote_mock.side_effect = (True, False)
         self.git_log_mock.side_effect = (
@@ -789,7 +789,7 @@ class LookupBinhostsTest(
         )
         self.assertEqual([], result.internal)
 
-    def testGetSnapshotShasRepoError(self):
+    def testGetSnapshotShasRepoError(self) -> None:
         """Test repo error when getting snapshot SHAs."""
         with cros_test_lib.LoggingCapturer() as logs:
             self.find_repo_mock.side_effect = repo_util.NotInRepoError()
@@ -800,7 +800,7 @@ class LookupBinhostsTest(
             self.assertEqual([], result.external)
             self.assertEqual([], result.internal)
 
-    def testGetSnapshotShasGitError(self):
+    def testGetSnapshotShasGitError(self) -> None:
         """Test git error when getting snapshot SHAs."""
         with cros_test_lib.LoggingCapturer() as logs:
             self.git_log_mock.side_effect = cros_build_lib.RunCommandError(
@@ -829,6 +829,6 @@ class LookupBinhostsTest(
         ),
     ],
 )
-def test_convert_gs_upload_uri(uri, expected):
+def test_convert_gs_upload_uri(uri, expected) -> None:
     """Ensure we're converting gs:// URIs to https:// in an expected way."""
     assert binhost.ConvertGsUploadUri(uri) == expected

@@ -207,7 +207,7 @@ class BuildResult:
         return self._failed_packages
 
     @failed_packages.setter
-    def failed_packages(self, packages: Union[Iterable[str], None]):
+    def failed_packages(self, packages: Union[Iterable[str], None]) -> None:
         """Set the failed packages."""
         self._failed_packages = [package_info.parse(x) for x in packages or []]
 
@@ -238,7 +238,7 @@ class BuildResult:
         """
         return self.return_code == 0 and not self.failed_packages
 
-    def add_image(self, image_type: str, image_path: Path):
+    def add_image(self, image_type: str, image_path: Path) -> None:
         """Add an image to the result.
 
         Record the image path by the image name, and remove the image type from
@@ -954,7 +954,7 @@ def create_stripped_packages_tar(
 def create_netboot_kernel(
     board: str,
     output_dir: str,
-):
+) -> None:
     """Build netboot kernel artifacts in output_dir.
 
     Args:

@@ -37,7 +37,7 @@ from chromite.utils import os_util
 class SetupBoardRunConfigTest(cros_test_lib.TestCase):
     """Tests for the SetupBoardRunConfig class."""
 
-    def testGetUpdateChrootArgs(self):
+    def testGetUpdateChrootArgs(self) -> None:
         """Test the update chroot args conversion method."""
         # False/0/None tests.
         instance = sysroot.SetupBoardRunConfig(
@@ -64,10 +64,10 @@ class SetupBoardRunConfigTest(cros_test_lib.TestCase):
 class SetupBoardTest(cros_test_lib.MockTestCase):
     """Tests for SetupBoard."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
 
-    def testFullRun(self):
+    def testFullRun(self) -> None:
         """Test a regular full run.
 
         This method just checks that it's trying to create the sysroot and
@@ -84,7 +84,7 @@ class SetupBoardTest(cros_test_lib.MockTestCase):
         create_mock.assert_called_once()
         install_toolchain_mock.assert_called_once()
 
-    def testRegenConfigs(self):
+    def testRegenConfigs(self) -> None:
         """Test the regen configs install prevention."""
         target_sysroot = sysroot_lib.Sysroot("/build/board")
         create_mock = self.PatchObject(
@@ -106,7 +106,7 @@ class SetupBoardTest(cros_test_lib.MockTestCase):
 class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
     """Create function tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Avoid sudo password prompt for config writing.
         self.PatchObject(os_util, "is_root_user", return_value=True)
 
@@ -134,7 +134,7 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
         # Create the sysroot.
         osutils.SafeMakedirs(self.sysroot_path)
 
-    def testUpdateChroot(self):
+    def testUpdateChroot(self) -> None:
         """Test the update_chroot related handling."""
         # Prevent it from doing anything else for this test.
         self.PatchObject(sysroot, "_CreateSysrootSkeleton")
@@ -169,7 +169,7 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
 
         self.assertCommandContains([script_loc])
 
-    def test_update_chroot_failure(self):
+    def test_update_chroot_failure(self) -> None:
         """Test failure handling when update chroot fails."""
         failed_pkgs = [
             package_info.parse("foo/bar-1.2-r3"),
@@ -188,7 +188,7 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
                 sorted(failed_pkgs), sorted(e.failed_packages)
             )
 
-    def testForce(self):
+    def testForce(self) -> None:
         """Test the force flag."""
         # Prevent it from doing anything else for this test.
         self.PatchObject(sysroot, "_CreateSysrootSkeleton")
@@ -214,7 +214,7 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
 class CreateSimpleChromeSysrootTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests for CreateSimpleChromeSysroot."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.source_root = os.path.join(self.tempdir, "source_root")
         osutils.SafeMakedirs(self.source_root)
         self.PatchObject(constants, "SOURCE_ROOT", new=self.source_root)
@@ -236,7 +236,7 @@ class CreateSimpleChromeSysrootTest(cros_test_lib.RunCommandTempDirTestCase):
         # Create the tmp dir.
         osutils.SafeMakedirs(self.chroot.tmp)
 
-    def testCreateSimpleChromeSysroot(self):
+    def testCreateSimpleChromeSysroot(self) -> None:
         # Mock the artifact copy.
         tar_dest = os.path.join(self.output_dir, constants.CHROME_SYSROOT_TAR)
         self.PatchObject(shutil, "copy", return_value=tar_dest)
@@ -268,7 +268,7 @@ class CreateSimpleChromeSysrootTest(cros_test_lib.RunCommandTempDirTestCase):
 class CreateFuzzerSysrootTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests for CreateFuzzerSysroot."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.source_root = os.path.join(self.tempdir, "source_root")
         osutils.SafeMakedirs(self.source_root)
         self.PatchObject(constants, "SOURCE_ROOT", new=self.source_root)
@@ -290,7 +290,7 @@ class CreateFuzzerSysrootTest(cros_test_lib.RunCommandTempDirTestCase):
         # Create the tmp dir.
         osutils.SafeMakedirs(self.chroot.tmp)
 
-    def testCreateFuzzerSysroot(self):
+    def testCreateFuzzerSysroot(self) -> None:
         """Test the CreateFuzzerSysroot function under normal operation."""
         # Mock the artifact copy.
         tar_dest = os.path.join(self.output_dir, constants.CHROME_SYSROOT_TAR)
@@ -322,7 +322,7 @@ class CreateFuzzerSysrootTest(cros_test_lib.RunCommandTempDirTestCase):
 class ArchiveChromeEbuildEnvTest(cros_test_lib.MockTempDirTestCase):
     """ArchiveChromeEbuildEnv tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Create the chroot and sysroot instances.
         self.chroot_path = os.path.join(self.tempdir, "chroot_dir")
         self.out_path = self.tempdir / "out_dir"
@@ -363,7 +363,7 @@ class ArchiveChromeEbuildEnvTest(cros_test_lib.MockTempDirTestCase):
         cros_build_lib.run(["bzip2", env_file])
         self.env_bz2 = "%s.bz2" % env_file
 
-    def _CreateChromeDir(self, path: str, populate: bool = True):
+    def _CreateChromeDir(self, path: str, populate: bool = True) -> None:
         """Setup a chrome package directory.
 
         Args:
@@ -374,7 +374,7 @@ class ArchiveChromeEbuildEnvTest(cros_test_lib.MockTempDirTestCase):
         if populate:
             shutil.copy(self.env_bz2, path)
 
-    def testSingleChromeVersion(self):
+    def testSingleChromeVersion(self) -> None:
         """Test a successful single-version run."""
         self._CreateChromeDir(self.chrome_v1_dir)
 
@@ -385,7 +385,7 @@ class ArchiveChromeEbuildEnvTest(cros_test_lib.MockTempDirTestCase):
         self.assertStartsWith(created, self.output_dir)
         cros_test_lib.VerifyTarball(created, self.expected_archive_contents)
 
-    def testMultipleChromeVersions(self):
+    def testMultipleChromeVersions(self) -> None:
         """Test a successful multiple version run."""
         # Create both directories, but don't populate the v1 dir so it'll hit an
         # error if the wrong one is used.
@@ -399,7 +399,7 @@ class ArchiveChromeEbuildEnvTest(cros_test_lib.MockTempDirTestCase):
         self.assertStartsWith(created, self.output_dir)
         cros_test_lib.VerifyTarball(created, self.expected_archive_contents)
 
-    def testNoChrome(self):
+    def testNoChrome(self) -> None:
         """Test no version of chrome present."""
         self.assertIsNone(
             sysroot.CreateChromeEbuildEnv(
@@ -411,10 +411,10 @@ class ArchiveChromeEbuildEnvTest(cros_test_lib.MockTempDirTestCase):
 class GenerateArchiveTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests for GenerateArchive."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.chroot_path = os.path.join(self.tempdir, "chroot_dir")
 
-    def testCreateSimpleChromeSysroot(self):
+    def testCreateSimpleChromeSysroot(self) -> None:
         # A board for which we will create a simple chrome sysroot.
         target = "board"
         pkg_list = ["virtual/target-fuzzers"]
@@ -440,7 +440,7 @@ class GenerateArchiveTest(cros_test_lib.RunCommandTempDirTestCase):
 class InstallToolchainTest(cros_test_lib.MockTempDirTestCase):
     """Tests for InstallToolchain."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
         # A board we have a sysroot for already.
         self.board = "board"
@@ -462,7 +462,7 @@ class InstallToolchainTest(cros_test_lib.MockTempDirTestCase):
 
         osutils.SafeMakedirs(self.sysroot_path)
 
-    def testNoSysroot(self):
+    def testNoSysroot(self) -> None:
         """Test handling of no sysroot."""
         with self.assertRaises(ValueError):
             sysroot.InstallToolchain(
@@ -471,7 +471,7 @@ class InstallToolchainTest(cros_test_lib.MockTempDirTestCase):
                 sysroot.SetupBoardRunConfig(),
             )
 
-    def testLocalBuild(self):
+    def testLocalBuild(self) -> None:
         """Test the local build logic."""
         update_patch = self.PatchObject(self.sysroot, "UpdateToolchain")
 
@@ -498,7 +498,7 @@ class BuildPackagesRunConfigTest(
 ):
     """Tests for the BuildPackagesRunConfig."""
 
-    def testGetBuildPackagesExtraEnv(self):
+    def testGetBuildPackagesExtraEnv(self) -> None:
         """Test the `cros build-packages` extra env."""
         # Test the default config.
         instance = sysroot.BuildPackagesRunConfig()
@@ -516,7 +516,7 @@ class BuildPackagesRunConfigTest(
 
         self.assertEqual(extra_env.get("USE"), instance.GetUseFlags())
 
-    def testGetPackages(self):
+    def testGetPackages(self) -> None:
         """Test getting packages for the config."""
         # Test the default config.
         instance = sysroot.BuildPackagesRunConfig()
@@ -537,7 +537,7 @@ class BuildPackagesRunConfigTest(
 
         self.assertEqual(packages, test_packages)
 
-    def testGetForceLocalBuildPackages(self):
+    def testGetForceLocalBuildPackages(self) -> None:
         """Test getting force local build packages for the config."""
         test_sysroot_path = "/sysroot/path"
         test_sysroot = sysroot_lib.Sysroot(test_sysroot_path)
@@ -614,7 +614,7 @@ class BuildPackagesRunConfigTest(
                 inverted=True,
             )
 
-    def testGetEmergeFlags(self):
+    def testGetEmergeFlags(self) -> None:
         """Test building the emerge flags."""
         # Test the default config.
         instance = sysroot.BuildPackagesRunConfig()
@@ -656,7 +656,7 @@ class BuildPackagesTest(
 ):
     """Test BuildPackages function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Currently just used to keep the parallel emerge status file from being
         # created in the chroot. This probably isn't strictly necessary, but
         # since we can otherwise run this test without a chroot existing at all
@@ -699,7 +699,7 @@ class BuildPackagesTest(
         )
         self.PatchObject(gs.GSContext, "InitializeCache")
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test successful run."""
         config = sysroot.BuildPackagesRunConfig()
         self.PatchObject(
@@ -738,7 +738,7 @@ class BuildPackagesTest(
             self.AssertLogsContain(logs, "Cleaning stale binpkgs.")
             self.AssertLogsContain(logs, "Merging board packages now.")
 
-    def testLogBinhostAgeThresholds(self):
+    def testLogBinhostAgeThresholds(self) -> None:
         """Test the log output from _LogBinhostAge with different thresholds."""
         config = sysroot.BuildPackagesRunConfig()
 
@@ -769,7 +769,7 @@ class BuildPackagesTest(
                 "PORTAGE_BINHOST gs://fake/binhost was created 31 days ago.",
             )
 
-    def testLogBinHostAgeUrls(self):
+    def testLogBinHostAgeUrls(self) -> None:
         """Test the log output from _LogBinhostAge with different binhosts."""
         config = sysroot.BuildPackagesRunConfig()
 
@@ -801,7 +801,7 @@ class BuildPackagesTest(
                 "Error getting the binhost age",
             )
 
-    def testPackageIndexes(self):
+    def testPackageIndexes(self) -> None:
         """Test that package_indexes are passed to portage."""
         pkg_indexes = [
             binpkg.PackageIndexInfo(
@@ -828,14 +828,14 @@ class BuildPackagesTest(
             ["PORTAGE_BINHOST=gs://fake/binhost gs://AAAA gs://BBBB"]
         )
 
-    def testEcleanBinpkgs(self):
+    def testEcleanBinpkgs(self) -> None:
         """Test that eclean is called with the expected packages."""
 
         def assert_file_contents(
             sysroot_path: Union[str, os.PathLike],
             deep: bool,
             exclusion_file: Optional[Union[str, os.PathLike]] = None,
-        ):
+        ) -> None:
             if exclusion_file:
                 contents = osutils.ReadFile(exclusion_file)
                 self.assertEqual("cross-dev/package", contents)
@@ -853,7 +853,7 @@ class BuildPackagesTest(
 
         sysroot.BuildPackages(self.target, self.sysroot, config)
 
-    def testInstallDebugSymbols(self):
+    def testInstallDebugSymbols(self) -> None:
         """Test cros_install_debug_syms is called with the expected args."""
         config = sysroot.BuildPackagesRunConfig(install_debug_symbols=True)
 
@@ -869,7 +869,7 @@ class BuildPackagesTest(
             )
             self.AssertLogsContain(logs, "Fetching the debug symbols.")
 
-    def testPackageFailure(self):
+    def testPackageFailure(self) -> None:
         """Test package failure handling."""
         failed = ["cat/pkg", "foo/bar"]
         cpvs = [package_info.SplitCPV(p, strict=False) for p in failed]
@@ -900,7 +900,7 @@ some junk
 STACK CFI 1234
 """
 
-    def createSymbolFile(self, filename, content=FAT_CONTENT, size=0):
+    def createSymbolFile(self, filename, content=FAT_CONTENT, size=0) -> None:
         """Create a symbol file using content with minimum size."""
         osutils.SafeMakedirs(os.path.dirname(filename))
 
@@ -911,7 +911,7 @@ STACK CFI 1234
             f.seek(0)
             f.write(content.encode("utf-8"))
 
-    def test_ListOutputOfGatherSymbolFiles(self):
+    def test_ListOutputOfGatherSymbolFiles(self) -> None:
         """Mimic how the controller materializes output of GatherSymbolFiles."""
         # Create directory with some symbol files.
         tar_tmp_dir = os.path.join(self.tempdir, "tar_tmp")
@@ -930,7 +930,7 @@ STACK CFI 1234
         )
         self.assertEqual(len(symbol_files), 4)
 
-    def test_GatherSymbolFiles(self):
+    def test_GatherSymbolFiles(self) -> None:
         """Test that files are found and copied."""
         # Create directory with some symbol files.
         tar_tmp_dir = os.path.join(self.tempdir, "tar_tmp")
@@ -998,7 +998,7 @@ STACK CFI 1234
         for display_name in symbol_file_relative_paths:
             self.assertEqual(-1, display_name.find(os.path.sep))
 
-    def test_GatherSymbolTarFiles(self):
+    def test_GatherSymbolTarFiles(self) -> None:
         """Test that symbol files in tar files are extracted."""
         output_dir = os.path.join(self.tempdir, "output")
         osutils.SafeMakedirs(output_dir)
@@ -1078,7 +1078,7 @@ STACK CFI 1234
         for display_name in symbol_file_relative_paths:
             self.assertEqual(-1, display_name.find(os.path.sep))
 
-    def test_GatherSymbolTarFilesWithNonSymFiles(self):
+    def test_GatherSymbolTarFilesWithNonSymFiles(self) -> None:
         """Test that non-symbol files in tar files are not extracted."""
         output_dir = os.path.join(self.tempdir, "output")
         osutils.SafeMakedirs(output_dir)
@@ -1119,7 +1119,7 @@ STACK CFI 1234
             extension = symfile.split(".")[1]
             self.assertEqual(extension, "sym")
 
-    def test_GatherSymbolFileFullFilePaths(self):
+    def test_GatherSymbolFileFullFilePaths(self) -> None:
         """Test full filepaths (.sym and .txt) only gather .sym files."""
         tar_tmp_dir = os.path.join(self.tempdir, "tar_tmp")
         output_dir = os.path.join(self.tempdir, "output")
@@ -1175,11 +1175,11 @@ STACK CFI 1234
 class GenerateBreakpadSymbolsTest(cros_test_lib.RunCommandTempDirTestCase):
     """Base class for testing GenerateBreakpadSymbols."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.chroot_dir = os.path.join(self.tempdir, "chroot_dir")
         osutils.SafeMakedirs(self.chroot_dir)
 
-    def test_generateBreakpadSymbols(self):
+    def test_generateBreakpadSymbols(self) -> None:
         """Verify calling the service layer invokes the script as expected."""
         chroot = chroot_lib.Chroot(self.chroot_dir)
         build_target = build_target_lib.BuildTarget("board")
@@ -1199,7 +1199,7 @@ class GenerateBreakpadSymbolsTest(cros_test_lib.RunCommandTempDirTestCase):
             chroot_args=["--chroot", mock.ANY],
         )
 
-    def test_generateBreakpadSymbolsWithDebug(self):
+    def test_generateBreakpadSymbolsWithDebug(self) -> None:
         """Verify that calling with debug invokes the script as expected."""
         chroot = chroot_lib.Chroot(self.chroot_dir)
         build_target = build_target_lib.BuildTarget("board")
@@ -1220,7 +1220,7 @@ class GenerateBreakpadSymbolsTest(cros_test_lib.RunCommandTempDirTestCase):
             chroot_args=["--chroot", mock.ANY],
         )
 
-    def test_generateBreakpadSymbolsWithIgnoreErrors(self):
+    def test_generateBreakpadSymbolsWithIgnoreErrors(self) -> None:
         """Verify that calling with debug invokes the script as expected."""
         chroot = chroot_lib.Chroot(self.chroot_dir)
         build_target = build_target_lib.BuildTarget("board")
@@ -1241,7 +1241,7 @@ class GenerateBreakpadSymbolsTest(cros_test_lib.RunCommandTempDirTestCase):
             chroot_args=["--chroot", mock.ANY],
         )
 
-    def test_generateBreakpadSymbolsWithIgnoreIgnoreExpectedFiles(self):
+    def test_generateBreakpadSymbolsWithIgnoreIgnoreExpectedFiles(self) -> None:
         """Verify that calling with debug invokes the script as expected."""
         chroot = chroot_lib.Chroot(self.chroot_dir)
         build_target = build_target_lib.BuildTarget("board")
@@ -1269,7 +1269,7 @@ class GenerateBreakpadSymbolsTest(cros_test_lib.RunCommandTempDirTestCase):
 class BundleDebugSymbolsTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for BundleDebugSymbols."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Configure {chroot,out,syroot}_path.
         self.chroot_path = os.path.join(self.tempdir, "chroot_dir")
         self.out_path = self.tempdir / "out_dir"
@@ -1294,7 +1294,7 @@ class BundleDebugSymbolsTest(cros_test_lib.MockTempDirTestCase):
         # Create the tmp dir.
         osutils.SafeMakedirs(self.chroot.tmp)
 
-    def testBundleBreakpadDebugSymbols(self):
+    def testBundleBreakpadDebugSymbols(self) -> None:
         """BundleBreakpadSymbols calls cbuildbot/commands with correct args."""
         # Patch service layer functions.
         generate_breakpad_symbols_patch = self.PatchObject(
@@ -1338,7 +1338,7 @@ class BundleDebugSymbolsTest(cros_test_lib.MockTempDirTestCase):
         self.assertIsNotNone(tar_file)
         self.assertTrue(tar_file.endswith("/output_dir/debug_breakpad.tar.xz"))
 
-    def testBundleDebugSymbols(self):
+    def testBundleDebugSymbols(self) -> None:
         """BundleDebugSymbols calls cbuildbot/commands with correct args."""
         # Patch service layer functions.
         self.PatchObject(os.path, "exists", return_value=True)
@@ -1365,7 +1365,7 @@ class BundleDebugSymbolsTest(cros_test_lib.MockTempDirTestCase):
         self.assertTrue(tar_file.endswith("/output_dir/debug.tgz"))
 
 
-def test_CollectBazelPerformanceArtifacts(monkeypatch, tmp_path):
+def test_CollectBazelPerformanceArtifacts(monkeypatch, tmp_path) -> None:
     """CollectBazelPerformanceArtifacts copies the known set of files."""
     # Configure {chroot,out,syroot}_path.
     tempdir = tmp_path
@@ -1419,13 +1419,13 @@ def test_CollectBazelPerformanceArtifacts(monkeypatch, tmp_path):
 class RemoteExecutionTest(cros_test_lib.MockLoggingTestCase):
     """Unittests for remote execution context manager."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.goma_mock = self.PatchObject(goma_lib, "Goma", autospec=True)
         self.goma_instance = self.goma_mock.return_value
         self.remoteexec_mock = self.PatchObject(remoteexec_util, "Remoteexec")
         self.remoteexec_instance = self.remoteexec_mock.return_value
 
-    def testGomaDir(self):
+    def testGomaDir(self) -> None:
         """Test the case where GOMA env variable is defined."""
         os.environ.update(
             {
@@ -1446,7 +1446,7 @@ class RemoteExecutionTest(cros_test_lib.MockLoggingTestCase):
         self.goma_instance.Stop.assert_called_once()
         self.remoteexec_mock.assert_not_called()
 
-    def testGomaHomeDir(self):
+    def testGomaHomeDir(self) -> None:
         """Test the case where Home Path is used."""
         self.PatchObject(Path, "home", return_value=Path("home"))
 
@@ -1461,7 +1461,7 @@ class RemoteExecutionTest(cros_test_lib.MockLoggingTestCase):
         self.goma_instance.Stop.assert_called_once()
         self.remoteexec_mock.assert_not_called()
 
-    def testGomaException(self):
+    def testGomaException(self) -> None:
         """Test the case where GOMA interface raises exception."""
         self.goma_mock.side_effect = ValueError()
 
@@ -1472,7 +1472,7 @@ class RemoteExecutionTest(cros_test_lib.MockLoggingTestCase):
         self.goma_instance.Stop.assert_not_called()
         self.remoteexec_mock.assert_not_called()
 
-    def testRemoteExec(self):
+    def testRemoteExec(self) -> None:
         """Test the case where remoteexec env variables are defined."""
         os.environ.update(
             {
@@ -1489,14 +1489,14 @@ class RemoteExecutionTest(cros_test_lib.MockLoggingTestCase):
         self.remoteexec_instance.Stop.assert_called_once()
         self.goma_mock.assert_not_called()
 
-    def testRemoteExecNoEnv(self):
+    def testRemoteExecNoEnv(self) -> None:
         """Test the case where remoteexec env variables are not defined."""
         with sysroot.RemoteExecution(use_goma=False, use_remoteexec=True):
             pass
         self.remoteexec_mock.assert_not_called()
         self.goma_mock.assert_not_called()
 
-    def testRemoteExecException(self):
+    def testRemoteExecException(self) -> None:
         """Test the case where remoteexec raises exception."""
         os.environ.update(
             {
@@ -1513,7 +1513,7 @@ class RemoteExecutionTest(cros_test_lib.MockLoggingTestCase):
         self.remoteexec_instance.Stop.assert_not_called()
         self.goma_mock.assert_not_called()
 
-    def testNoRemoteExec(self):
+    def testNoRemoteExec(self) -> None:
         """Test the case where no remoteexec is requested with env variable."""
         os.environ.update(
             {
@@ -1528,7 +1528,7 @@ class RemoteExecutionTest(cros_test_lib.MockLoggingTestCase):
         self.remoteexec_mock.assert_not_called()
         self.goma_mock.assert_not_called()
 
-    def testNoRemoteExecNoEnv(self):
+    def testNoRemoteExecNoEnv(self) -> None:
         """Test case where no remoteexec is requested without env variable."""
         with sysroot.RemoteExecution(use_goma=False, use_remoteexec=False):
             pass
@@ -1539,7 +1539,7 @@ class RemoteExecutionTest(cros_test_lib.MockLoggingTestCase):
 class ArchiveSysrootTest(cros_test_lib.TempDirTestCase):
     """ArchiveSysroot tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         chroot_path = self.tempdir / "chroot"
         self.chroot = chroot_lib.Chroot(path=chroot_path)
         sysroot_path = chroot_path / "build" / "testBoard"
@@ -1549,7 +1549,7 @@ class ArchiveSysrootTest(cros_test_lib.TempDirTestCase):
             cros_test_lib.Directory("test", ["foo.bar"]),
         ]
 
-    def testArchiveSysroot(self):
+    def testArchiveSysroot(self) -> None:
         """Archive a sample folder and verify its contents."""
         cros_test_lib.CreateOnDiskHierarchy(
             self.chroot.full_path(self.sysroot.path), self.dir_structure
@@ -1567,7 +1567,7 @@ class ArchiveSysrootTest(cros_test_lib.TempDirTestCase):
         )
         cros_test_lib.VerifyTarball(archive_file, self.dir_structure)
 
-    def testArchiveSysrootFailure(self):
+    def testArchiveSysrootFailure(self) -> None:
         """Archive a sample folder that doesnt exists."""
         archive_file = sysroot.ArchiveSysroot(
             self.chroot,
@@ -1581,7 +1581,7 @@ class ArchiveSysrootTest(cros_test_lib.TempDirTestCase):
 class ExtractSysrootTest(cros_test_lib.TempDirTestCase):
     """ExtractSysroot tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         chroot_path = self.tempdir / "chroot"
         self.chroot = chroot_lib.Chroot(path=chroot_path)
         self.sysroot_path = chroot_path / "build" / "testBoard"
@@ -1601,7 +1601,7 @@ class ExtractSysrootTest(cros_test_lib.TempDirTestCase):
             "test2",
         ]
 
-    def testExtractSysroot(self):
+    def testExtractSysroot(self) -> None:
         """Extract a simple tar."""
         sysroot_archive = None
         cros_test_lib.CreateOnDiskHierarchy(

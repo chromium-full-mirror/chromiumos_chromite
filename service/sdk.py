@@ -782,7 +782,7 @@ def BuildSdkToolchain(
     cros_build_lib.AssertInsideChroot()
     toolchain_dir = os.path.join("/", constants.SDK_TOOLCHAINS_OUTPUT)
 
-    def _SetupToolchains(flags: List[str], include_extra_env: bool):
+    def _SetupToolchains(flags: List[str], include_extra_env: bool) -> None:
         """Run the cros_setup_toolchains binary."""
         cmd = ["cros_setup_toolchains"] + flags
         cros_build_lib.sudo_run(

@@ -61,7 +61,7 @@ class DependencyTests(cros_test_lib.MockTestCase):
 
         return dependency_graph.DependencyGraph(nodes, sysroot, [virtual])
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.json_deps = {
             "target_board": "deathstar",
             "sysroot_path": "/build/deathstar",
@@ -115,7 +115,7 @@ class DependencyTests(cros_test_lib.MockTestCase):
             },
         }
 
-    def testDeterminePackageRelevanceNotRelevant(self):
+    def testDeterminePackageRelevanceNotRelevant(self) -> None:
         """Test determine_package_relevance with no matching paths."""
         src_paths = ["foo/bar/baz", "foo/bar/b", "foo/bar", "bar/foo"]
         dep_src_paths = ["foo/bar/ba"]
@@ -123,7 +123,7 @@ class DependencyTests(cros_test_lib.MockTestCase):
             dependency.determine_package_relevance(dep_src_paths, src_paths)
         )
 
-    def testDeterminePackageRelevanceExactMatch(self):
+    def testDeterminePackageRelevanceExactMatch(self) -> None:
         """Test determine_package_relevance given an exact match."""
         src_paths = ["foo/bar/baz"]
         dep_src_paths = ["foo/bar/baz"]
@@ -131,7 +131,7 @@ class DependencyTests(cros_test_lib.MockTestCase):
             dependency.determine_package_relevance(dep_src_paths, src_paths)
         )
 
-    def testDeterminePackageRelevanceDirectoryMatch(self):
+    def testDeterminePackageRelevanceDirectoryMatch(self) -> None:
         """Test determine_package_relevance given a directory match."""
         src_paths = ["foo/bar/baz"]
         dep_src_paths = ["foo/bar"]
@@ -139,7 +139,7 @@ class DependencyTests(cros_test_lib.MockTestCase):
             dependency.determine_package_relevance(dep_src_paths, src_paths)
         )
 
-    def testGetDependenciesWithDefaultArgs(self):
+    def testGetDependenciesWithDefaultArgs(self) -> None:
         """Test GetDependencies using the default args."""
         self.PatchObject(
             depgraph,
@@ -157,7 +157,7 @@ class DependencyTests(cros_test_lib.MockTestCase):
         expected_deps = [dep1, dep2, virtual, virtual_depdep, depdep]
         self.assertEqual(set(expected_deps), set(actual_deps))
 
-    def testGetDependenciesWithSrcPaths(self):
+    def testGetDependenciesWithSrcPaths(self) -> None:
         """Test GetDependencies given a list of paths."""
         self.PatchObject(
             depgraph,
@@ -170,7 +170,7 @@ class DependencyTests(cros_test_lib.MockTestCase):
         dep = package_info.parse("cat/dep-1.0.0-r1")
         self.assertCountEqual([dep], actual_deps)
 
-    def testGetDependenciesWithSrcPathsAndReverseDeps(self):
+    def testGetDependenciesWithSrcPathsAndReverseDeps(self) -> None:
         """Test GetDependencies given a list of paths."""
         self.PatchObject(
             depgraph,
@@ -187,7 +187,7 @@ class DependencyTests(cros_test_lib.MockTestCase):
         dep = package_info.parse("cat/dep-1.0.0-r1")
         self.assertEqual({dep, revdep}, actual_deps)
 
-    def testGetDependenciesAffectedPackagesVirtualRedirect(self):
+    def testGetDependenciesAffectedPackagesVirtualRedirect(self) -> None:
         """Test include_affected_pkgs traverses redirection virtuals."""
         self.PatchObject(
             depgraph,
@@ -211,7 +211,7 @@ class DependencyTests(cros_test_lib.MockTestCase):
 
         self.assertEqual(expected, actual_deps)
 
-    def testGetDependenciesAffectedPackagesVirtualParent(self):
+    def testGetDependenciesAffectedPackagesVirtualParent(self) -> None:
         """Test include_affected_pkgs does not include virtual parents."""
         self.PatchObject(
             depgraph,
@@ -230,10 +230,10 @@ class DependencyTests(cros_test_lib.MockTestCase):
         self.assertEqual({dep}, actual_deps)
 
 
-def test_generate_source_path_mapping_sdk(monkeypatch):
+def test_generate_source_path_mapping_sdk(monkeypatch) -> None:
     """Test GenerateSourcePathMapping sdk argument."""
 
-    def gspm_patch(_packages, sysroot_path, board, *_args, **_kwargs):
+    def gspm_patch(_packages, sysroot_path, board, *_args, **_kwargs) -> None:
         assert sysroot_path == "/"
         assert board is None
 
@@ -241,7 +241,7 @@ def test_generate_source_path_mapping_sdk(monkeypatch):
     dependency.GenerateSourcePathMapping(["cat/pkg"], sdk=True)
 
 
-def test_generate_source_path_mapping_sdk_only():
+def test_generate_source_path_mapping_sdk_only() -> None:
     """Test GenerateSourcePathMapping argument handling when setting sdk."""
     # Board.
     with pytest.raises(AssertionError):
@@ -260,10 +260,10 @@ def test_generate_source_path_mapping_sdk_only():
         )
 
 
-def test_generate_source_path_mapping_sdk_sysroot(monkeypatch):
+def test_generate_source_path_mapping_sdk_sysroot(monkeypatch) -> None:
     """Test GenerateSourcePathMapping with the sdk's sysroot."""
 
-    def gspm_patch(_packages, sysroot_path, board, *_args, **_kwargs):
+    def gspm_patch(_packages, sysroot_path, board, *_args, **_kwargs) -> None:
         assert sysroot_path == "/"
         assert board is None
 
@@ -271,10 +271,10 @@ def test_generate_source_path_mapping_sdk_sysroot(monkeypatch):
     dependency.GenerateSourcePathMapping(["cat/pkg"], sysroot_path="/")
 
 
-def test_generate_source_path_mapping_board_sysroot(monkeypatch):
+def test_generate_source_path_mapping_board_sysroot(monkeypatch) -> None:
     """Test GenerateSourcePathMapping with a board's sysroot."""
 
-    def gspm_patch(_packages, sysroot_path, board, *_args, **_kwargs):
+    def gspm_patch(_packages, sysroot_path, board, *_args, **_kwargs) -> None:
         assert sysroot_path == "/build/board"
         assert board == "board"
 
@@ -284,10 +284,10 @@ def test_generate_source_path_mapping_board_sysroot(monkeypatch):
     )
 
 
-def test_generate_source_path_mapping_board(monkeypatch):
+def test_generate_source_path_mapping_board(monkeypatch) -> None:
     """Test GenerateSourcePathMapping with a board."""
 
-    def gspm_patch(_packages, sysroot_path, board, *_args, **_kwargs):
+    def gspm_patch(_packages, sysroot_path, board, *_args, **_kwargs) -> None:
         assert sysroot_path == "/build/board"
         assert board == "board"
 
@@ -295,10 +295,10 @@ def test_generate_source_path_mapping_board(monkeypatch):
     dependency.GenerateSourcePathMapping(["cat/pkg"], board="board")
 
 
-def test_generate_source_path_mapping_board_and_sysroot(monkeypatch):
+def test_generate_source_path_mapping_board_and_sysroot(monkeypatch) -> None:
     """Test GenerateSourcePathMapping with a board and custom sysroot."""
 
-    def gspm_patch(_packages, sysroot_path, board, *_args, **_kwargs):
+    def gspm_patch(_packages, sysroot_path, board, *_args, **_kwargs) -> None:
         assert sysroot_path == "/some/sysroot"
         assert board == "board"
 

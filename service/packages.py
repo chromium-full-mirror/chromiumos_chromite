@@ -119,7 +119,7 @@ NeedsChromeSourceResult = collections.namedtuple(
 )
 
 
-def patch_ebuild_vars(ebuild_path, variables):
+def patch_ebuild_vars(ebuild_path, variables) -> None:
     """Updates variables in ebuild.
 
     Use this function rather than portage_util.EBuild.UpdateEBuild when you
@@ -296,10 +296,10 @@ def uprev_android_lkgb(
     return result
 
 
-def define_uprev_android_lkgb_handlers():
+def define_uprev_android_lkgb_handlers() -> None:
     """Dynamically define uprev handlers for each Android package"""
 
-    def define_handler(android_package):
+    def define_handler(android_package) -> None:
         """Defines the uprev handler for an Android package."""
         full_package_name = "chromeos-base/" + android_package
 

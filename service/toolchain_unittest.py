@@ -39,7 +39,7 @@ class MockBuildLinter(toolchain.BuildLinter):
         )
         self.artifacts_base = os.path.join(self.tempdir, "artifacts")
 
-    def add_artifact(self, artifact: MockArtifact):
+    def add_artifact(self, artifact: MockArtifact) -> None:
         """Adds a mock artifact and writes it to tempdir."""
         tmp_path = os.path.join(
             self.artifacts_base,
@@ -67,7 +67,7 @@ class MockBuildLinter(toolchain.BuildLinter):
 class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
     """Unit tests for Build Linter Class."""
 
-    def testValidateSysroot(self):
+    def testValidateSysroot(self) -> None:
         real_sysroots = ["", "build/foo"]
         fake_sysroots = ["hello/world", "build/bin"]
         nonexistents = ["this_does_not_exist"]
@@ -97,7 +97,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
         self,
         expected_artifacts: List[MockArtifact],
         retrieved_artifact_paths: Dict[Text, List[Text]],
-    ):
+    ) -> None:
         """Asserts that artifact paths match the list of expected results."""
 
         actual_artifacts = []
@@ -116,7 +116,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
                         contents = artifact_file.read()
                     self.assertEqual(contents, artifact.contents)
 
-    def testMockBuildLinter(self):
+    def testMockBuildLinter(self) -> None:
         mbl = MockBuildLinter(self.tempdir, ["pkg_1", "pkg_2", "pkg_3"])
         relevant_artifacts = [
             MockArtifact("linter_1", "pkg_1", "out.txt", "Hello world"),
@@ -138,7 +138,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
 
         self.checkArtifacts(relevant_artifacts, retrieved_artifact_paths)
 
-    def testMockBuildLinterNoPackages(self):
+    def testMockBuildLinterNoPackages(self) -> None:
         mbl = MockBuildLinter(self.tempdir, [])
         relevant_artifacts = [
             MockArtifact("linter_1", "pkg_1", "out.txt", "Hello world"),
@@ -160,7 +160,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
 
         self.checkArtifacts(relevant_artifacts, retrieved_artifact_paths)
 
-    def testFetchFromLintingArtifacts(self):
+    def testFetchFromLintingArtifacts(self) -> None:
         bl = toolchain.BuildLinter(
             [
                 package_info.parse("category0/package0"),
@@ -248,7 +248,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
         no_pkg_results = bl_no_pkg._fetch_from_linting_artifacts("linter1")
         self.assertDictEqual(expected_no_pkg_results, no_pkg_results)
 
-    def testGetBoard(self):
+    def testGetBoard(self) -> None:
         test_data = {
             toolchain.BuildLinter([], "/build/atlas", validate=False): "atlas",
             toolchain.BuildLinter([], "/build/foo", validate=False): "foo",
@@ -260,7 +260,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
             actual = test_bl.get_board()
             self.assertEqual(expected, actual)
 
-    def testGetEbuildCommand(self):
+    def testGetEbuildCommand(self) -> None:
         test_data = {
             toolchain.BuildLinter(
                 [], "/build/atlas", validate=False
@@ -281,7 +281,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
             actual = test_bl.get_ebuild_command()
             self.assertEqual(expected, actual)
 
-    def testGetPackageForArtifactDir(self):
+    def testGetPackageForArtifactDir(self) -> None:
         bl = toolchain.BuildLinter([], "", validate=False)
 
         test_cases = [
@@ -299,7 +299,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
             actual_result = bl._get_package_for_artifact_dir(test_path)
             self.assertEqual(expected_result, actual_result)
 
-    def testFetchTidyLints(self):
+    def testFetchTidyLints(self) -> None:
         mock_calls = 0
         diagnostics = [
             tricium_clang_tidy.TidyDiagnostic("", 0, "lint1", "body1", [], []),
@@ -421,7 +421,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
 
         self.assertCountEqual(lints, expected_findings)
 
-    def testParseIWYUFiles(self):
+    def testParseIWYUFiles(self) -> None:
         mbl = MockBuildLinter(self.tempdir)
 
         artifacts = [
@@ -599,7 +599,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
 class TestEmergeAndUploadLints(cros_test_lib.RunCommandTestCase):
     """Unit tests for emerge_and_upload_lints"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rc.AddCmdResult(
             [
                 "lint_package",
@@ -612,7 +612,7 @@ class TestEmergeAndUploadLints(cros_test_lib.RunCommandTestCase):
         )
 
     @mock.patch.object(toolchain.gs.GSContext, "CreateWithContents")
-    def testEmergeAndUploadLints(self, copy_mock):
+    def testEmergeAndUploadLints(self, copy_mock) -> None:
         used_gs_path = toolchain.emerge_and_upload_lints("atlas", 9999)
         target_gs_path = (
             "gs://chromeos-toolchain-artifacts/code-health/9999/atlas.json"

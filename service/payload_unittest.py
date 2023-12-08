@@ -18,7 +18,7 @@ from chromite.service import payload
 class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
     """Unsigned payload generation tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up a payload test with the Run method mocked."""
         self.PatchObject(
             paygen_payload_lib.PaygenPayload,
@@ -51,7 +51,7 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         )
         osutils.SafeMakedirs(self.chroot.tmp)
 
-    def testUnsigned(self):
+    def testUnsigned(self) -> None:
         """Test the happy path on unsigned images."""
 
         # Image defs.
@@ -74,7 +74,7 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         unsigned_payloads = payload_config.GenerateUnsignedPayload()
         payload_config.FinalizePayload(unsigned_payloads.values())
 
-    def testLocalSigning(self):
+    def testLocalSigning(self) -> None:
         """Test the local signing flow (using unsigned images)."""
 
         # Image defs.
@@ -100,7 +100,7 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         unsigned_payloads = payload_config.GenerateUnsignedPayload()
         payload_config.FinalizePayload(unsigned_payloads.values())
 
-    def testLocalSigningFails(self):
+    def testLocalSigningFails(self) -> None:
         """Test that local signing fails when no docker image is specified."""
 
         # Image defs.
@@ -122,7 +122,7 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
                 use_local_signing=True,
             )
 
-    def testSigned(self):
+    def testSigned(self) -> None:
         """Test the happy path on signed images."""
 
         # Image defs.
@@ -147,7 +147,7 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         unsigned_payloads = payload_config.GenerateUnsignedPayload()
         payload_config.FinalizePayload(unsigned_payloads.values())
 
-    def testFullUpdate(self):
+    def testFullUpdate(self) -> None:
         """Test the happy path on full updates."""
 
         # Image def.
@@ -167,7 +167,7 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         unsigned_payloads = payload_config.GenerateUnsignedPayload()
         payload_config.FinalizePayload(unsigned_payloads.values())
 
-    def testSignedMiniOS(self):
+    def testSignedMiniOS(self) -> None:
         """Test the happy path on signed minios images."""
 
         # Image defs.
@@ -192,7 +192,7 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
         payload_config.FinalizePayload(unsigned_payloads.values())
         self.assertTrue(gspaths.IsMiniOSImage(payload_config.payload.tgt_image))
 
-    def testUnsignedMiniOS(self):
+    def testUnsignedMiniOS(self) -> None:
         """Test the happy path on unsigned minios images."""
 
         # Image defs.

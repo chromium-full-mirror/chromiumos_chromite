@@ -27,7 +27,7 @@ from chromite.service import sdk
 class BuildSdkTarballTest(cros_test_lib.MockTestCase):
     """Tests for BuildSdkTarball function."""
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         builder_lib = self.PatchObject(sdk_builder_lib, "BuildSdkTarball")
         chroot = chroot_lib.Chroot("/test/chroot", out_path="/test/out")
         sdk.BuildSdkTarball(chroot, "FAKE_VERSION")
@@ -40,7 +40,7 @@ class BuildSdkTarballTest(cros_test_lib.MockTestCase):
 class CreateManifestFromSdkTest(cros_test_lib.MockTempDirTestCase):
     """Tests for CreateManifestFromSdk."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up the test case by populating a tempdir for the packages."""
         self._portage_db = portage_util.PortageDB()
         osutils.WriteFile(
@@ -68,7 +68,7 @@ class CreateManifestFromSdkTest(cros_test_lib.MockTempDirTestCase):
             ),
         ]
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test a standard, successful function call."""
         dest_dir = Path("/my_build_root")
         self.PatchObject(
@@ -100,7 +100,7 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
         instance = sdk.CreateArguments(**kwargs)
         return instance.GetArgList()
 
-    def testGetEntryArgList(self):
+    def testGetEntryArgList(self) -> None:
         """Test that GetEntryArgList contains all chroot-y locations."""
 
         # Check the other flags get added when the correct argument passed.
@@ -121,7 +121,7 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
             ).GetEntryArgList(),
         )
 
-    def testGetArgList(self):
+    def testGetArgList(self) -> None:
         """Test the GetArgsList method."""
         # Check the variations of replace.
         self.assertIn("--replace", self._GetArgsList(replace=True))
@@ -165,8 +165,8 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
 class CreateBinhostCLsTest(cros_test_lib.RunCommandTestCase):
     """Tests for CreateBinhostCLs."""
 
-    def testCreateBinhostCLs(self):
-        def fake_run(cmd, *_args, **__kwargs):
+    def testCreateBinhostCLs(self) -> None:
+        def fake_run(cmd, *_args, **__kwargs) -> None:
             i = cmd.index("--output")
             self.assertGreater(len(cmd), i + 1, "no filename after --output")
             name = cmd[i + 1]
@@ -181,7 +181,7 @@ class CreateBinhostCLsTest(cros_test_lib.RunCommandTestCase):
             side_effect=fake_run,
         )
 
-        def mock_rev(filename, _data, report=None, *_args, **_kwargs):
+        def mock_rev(filename, _data, report=None, *_args, **_kwargs) -> None:
             # binpkg.UpdateAndSubmitKeyValueFile() wants the filename to
             # be an absolute path, so fail if it isn't.
             self.assertTrue(os.path.isabs(filename))
@@ -212,26 +212,26 @@ class UpdateArgumentsTest(cros_test_lib.TestCase):
         instance = sdk.UpdateArguments(**kwargs)
         return instance.GetArgList()
 
-    def testBuildSource(self):
+    def testBuildSource(self) -> None:
         """Test the build_source argument."""
         args = self._GetArgList(build_source=True)
         self.assertIn("--nousepkg", args)
         self.assertNotIn("--usepkg", args)
 
-    def testNoBuildSource(self):
+    def testNoBuildSource(self) -> None:
         """Test using binpkgs."""
         args = self._GetArgList(build_source=False)
         self.assertNotIn("--nousepkg", args)
         self.assertIn("--usepkg", args)
 
-    def testToolchainTargets(self):
+    def testToolchainTargets(self) -> None:
         """Test the toolchain boards argument."""
         expected = ["--toolchain_boards", "board1,board2"]
         result = self._GetArgList(toolchain_targets=["board1", "board2"])
         for arg in expected:
             self.assertIn(arg, result)
 
-    def testNoToolchainTargets(self):
+    def testNoToolchainTargets(self) -> None:
         """Test no toolchain boards argument."""
         self.assertEqual(
             ["--usepkg", "--eclean"],
@@ -242,7 +242,7 @@ class UpdateArgumentsTest(cros_test_lib.TestCase):
 class get_latest_version_test(cros_test_lib.MockTestCase):
     """Test case for get_latest_version()."""
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test an ordinary, successful call."""
         expected_latest_version = "1970.01.01.000000"
         file_contents = f'LATEST_SDK="{expected_latest_version}"'.encode()
@@ -255,7 +255,7 @@ class get_latest_version_test(cros_test_lib.MockTestCase):
         self.assertEqual(expected_latest_version, returned_version)
         cat_patch.assert_called_with("gs://chromiumos-sdk/cros-sdk-latest.conf")
 
-    def testInvalidFileContents(self):
+    def testInvalidFileContents(self) -> None:
         """Test a response if the file contents are malformed."""
         file_contents = b"Latest SDK version: 1970.01.01.000000"
         self.PatchObject(gs.GSContext, "Cat", return_value=file_contents)
@@ -268,11 +268,11 @@ class UnmountTest(
 ):
     """Unmount tests."""
 
-    def testUnmountPath(self):
+    def testUnmountPath(self) -> None:
         self.PatchObject(osutils, "UmountTree", return_value=True)
         sdk.UnmountPath("/some/path")
 
-    def testUnmountPathFails(self):
+    def testUnmountPathFails(self) -> None:
         self.PatchObject(
             osutils,
             "UmountTree",
@@ -289,7 +289,7 @@ class UnmountTest(
 class CleanTest(cros_test_lib.RunCommandTestCase):
     """Delete function tests."""
 
-    def testClean(self):
+    def testClean(self) -> None:
         """Test with chroot provided."""
         path = "/some/path"
         out_path = "/some/out"
@@ -304,7 +304,7 @@ class CleanTest(cros_test_lib.RunCommandTestCase):
 class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
     """Create function tests."""
 
-    def testCreate(self):
+    def testCreate(self) -> None:
         """Test the create function builds the command correctly."""
         arguments = sdk.CreateArguments(replace=True)
         arguments.chroot = chroot_lib.Chroot(
@@ -378,28 +378,28 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         return found_ccache_setting
 
-    def testDisablingCcacheWorks(self):
+    def testDisablingCcacheWorks(self) -> None:
         """Ensure we issue a ccache disable command if it's requested."""
         ccache_setting = self.runCreateExtractingCcacheSetting(
             replace=True, ccache_disable=True
         )
         self.assertIn("disable=true", ccache_setting)
 
-    def testCcacheIsReenabledIfDisablingIsntRequested(self):
+    def testCcacheIsReenabledIfDisablingIsntRequested(self) -> None:
         """Ensure we issue a ccache enable command if it's requested."""
         ccache_setting = self.runCreateExtractingCcacheSetting(
             replace=True, ccache_disable=False
         )
         self.assertIn("disable=false", ccache_setting)
 
-    def testCcacheCommandIsIssuedEvenIfNoReplacementHappens(self):
+    def testCcacheCommandIsIssuedEvenIfNoReplacementHappens(self) -> None:
         """Check that Create enables ccache if the chroot isn't remade."""
         ccache_command = self.runCreateExtractingCcacheSetting(
             replace=False, ccache_disable=False
         )
         self.assertIn("disable=false", ccache_command)
 
-    def testCreateInsideFails(self):
+    def testCreateInsideFails(self) -> None:
         """Test Create raises an error when called inside the chroot."""
         # Make sure it fails inside the chroot.
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
@@ -411,7 +411,7 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
 class DeleteTest(cros_test_lib.RunCommandTestCase):
     """Delete function tests."""
 
-    def testDeleteNoChroot(self):
+    def testDeleteNoChroot(self) -> None:
         """Test no chroot provided."""
         sdk.Delete()
         # cros_sdk --delete.
@@ -419,14 +419,14 @@ class DeleteTest(cros_test_lib.RunCommandTestCase):
         # No chroot specified for cros_sdk --delete.
         self.assertCommandContains(["--chroot"], expected=False)
 
-    def testDeleteWithChroot(self):
+    def testDeleteWithChroot(self) -> None:
         """Test with chroot provided."""
         path = "/some/path"
         out_path = "/some/out"
         sdk.Delete(chroot=chroot_lib.Chroot(path, out_path=out_path))
         self.assertCommandContains(["--delete", "--chroot", path])
 
-    def testDeleteWithChrootAndForce(self):
+    def testDeleteWithChrootAndForce(self) -> None:
         """Test with chroot and force provided."""
         path = "/some/path"
         out_path = "/some/out"
@@ -441,13 +441,13 @@ class UpdateTest(
 ):
     """Update function tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Needs to be run inside the chroot right now.
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
         # Don't bother trying to remount root read-write.
         self.PatchObject(osutils, "IsMountedReadOnly", return_value=False)
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test the simple success case."""
         arguments = sdk.UpdateArguments(root=self.tempdir)
         expected_args = ["--arg", "--other", "--with-value", "value"]
@@ -461,7 +461,7 @@ class UpdateTest(
         self.assertCommandContains(expected_args)
         self.assertEqual(expected_version, version)
 
-    def testDepotToolsFailure(self):
+    def testDepotToolsFailure(self) -> None:
         """Test non-zero return code when depot_tools fails."""
         self.rc.AddCmdResult(
             [constants.DEPOT_TOOLS_DIR / "ensure_bootstrap"],
@@ -473,7 +473,7 @@ class UpdateTest(
         self.assertEqual(20, result.return_code)
         self.assertCountEqual([], result.failed_pkgs)
 
-    def testPackageFailure(self):
+    def testPackageFailure(self) -> None:
         """Test non-zero return code and failed package handling."""
         pkgs = [package_info.parse(p) for p in ["foo/bar", "cat/pkg"]]
         self.PatchObject(
@@ -490,7 +490,7 @@ class UpdateTest(
         self.assertEqual(expected_rc, result.return_code)
         self.assertCountEqual(pkgs, result.failed_pkgs)
 
-    def testLoggingPortageBinhosts(self):
+    def testLoggingPortageBinhosts(self) -> None:
         """Test logging portage binhosts."""
         self.PatchObject(
             binhost,
@@ -532,10 +532,10 @@ class BuildSdkToolchainTest(cros_test_lib.RunCommandTestCase):
             for filename in BuildSdkToolchainTest._filenames_to_find
         ]
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
 
-    def test_success(self):
+    def test_success(self) -> None:
         """Check that a standard call performs expected logic.
 
         Look for the following behavior:
@@ -574,7 +574,7 @@ class BuildSdkToolchainTest(cros_test_lib.RunCommandTestCase):
         )
         self.assertEqual(generated_files, self._expected_generated_files)
 
-    def test_success_with_use_flags(self):
+    def test_success_with_use_flags(self) -> None:
         """Check that a standard call with USE flags performs expected logic.
 
         The call to `cros_setup_toolchain --nousepkg` should use the USE flag.
@@ -620,7 +620,7 @@ class BuildSdkToolchainTest(cros_test_lib.RunCommandTestCase):
 class UploadPrebuiltPackagesTest(cros_test_lib.RunCommandTestCase):
     """Test case for sdk.UploadPrebuiltPackages()."""
 
-    def test_runs_script_with_expected_args(self):
+    def test_runs_script_with_expected_args(self) -> None:
         """Check that the expected arguments and values are passed."""
 
         # Arrange
@@ -738,7 +738,7 @@ PKG_INSTALL_MASK="${INSTALL_MASK}"
 source make.conf.host_setup
 """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._write_file_patch = self.PatchObject(osutils, "WriteFile")
 
         def _read_text_response(filepath: str) -> str:
@@ -765,7 +765,7 @@ source make.conf.host_setup
 
         self.PatchObject(osutils, "ReadText", side_effect=_read_text_response)
 
-    def test_noop(self):
+    def test_noop(self) -> None:
         """Test trying to update to the existing version."""
         modified_paths = sdk.uprev_sdk_and_prebuilts(
             "gs://chromeos-prebuilt",
@@ -774,7 +774,7 @@ source make.conf.host_setup
         )
         self.assertEqual(modified_paths, [])
 
-    def test_update(self):
+    def test_update(self) -> None:
         """Test making a genuine update."""
         new_version = "2022.02.02.222222"
         new_tc_path = "path/to/%(target)s/toolchain.tar.xz"

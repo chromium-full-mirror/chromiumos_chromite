@@ -30,7 +30,7 @@ class BuildImageTest(
 ):
     """Build Image tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         osutils.Touch(
             os.path.join(self.tempdir, image.PARALLEL_EMERGE_STATUS_FILE_NAME)
         )
@@ -67,7 +67,7 @@ class BuildImageTest(
         )
         self.MoveDir_mock = self.PatchObject(osutils, "MoveDirContents")
 
-    def testBuildBoardHandling(self):
+    def testBuildBoardHandling(self) -> None:
         """Test the argument handling."""
         # No board should raise an error.
         with self.assertRaises(image.InvalidArgumentError):
@@ -76,7 +76,7 @@ class BuildImageTest(
         with self.assertRaises(image.InvalidArgumentError):
             image.Build("", [constants.IMAGE_TYPE_BASE])
 
-    def testBuildImageTypes(self):
+    def testBuildImageTypes(self) -> None:
         """Test the image type handling."""
         result = image.Build("board", [])
         assert result.all_built and not result.build_run
@@ -105,14 +105,14 @@ class BuildImageTest(
             [constants.IMAGE_TYPE_TO_NAME[constants.IMAGE_TYPE_BASE]]
         )
 
-    def testInvalidBuildImageTypes(self):
+    def testInvalidBuildImageTypes(self) -> None:
         """Test the image type handling with invalid input."""
         build_result = image.Build(
             "board", [constants.IMAGE_TYPE_BASE, constants.FACTORY_IMAGE_BIN]
         )
         self.assertEqual(build_result.return_code, errno.EINVAL)
 
-    def testClearShadowLocks(self):
+    def testClearShadowLocks(self) -> None:
         """Test that stale shadow-utils locks are cleared."""
         clear_shadow_locks_mock = self.PatchObject(
             cros_build_lib, "ClearShadowLocks"
@@ -125,7 +125,7 @@ class BuildImageTest(
             build_target_lib.get_default_sysroot_path(test_board)
         )
 
-    def testBuildDir(self):
+    def testBuildDir(self) -> None:
         """Test the case if build directory exists."""
         config = image.BuildConfig(
             build_root=self.tempdir / "build",
@@ -139,7 +139,7 @@ class BuildImageTest(
         )
         self.assertEqual(build_result.return_code, errno.EEXIST)
 
-    def testDlcCommand(self):
+    def testDlcCommand(self) -> None:
         """Test if DLC installation is called."""
         image.Build("board", [constants.IMAGE_TYPE_DEV], config=self.config)
         self.assertCommandContains(
@@ -154,7 +154,7 @@ class BuildImageTest(
             ]
         )
 
-    def testMoveDir(self):
+    def testMoveDir(self) -> None:
         """Test if MoveDirContents is called."""
         image.Build("board", [constants.IMAGE_TYPE_DEV], config=self.config)
         self.MoveDir_mock.assert_called_once_with(
@@ -164,7 +164,7 @@ class BuildImageTest(
             allow_nonempty=True,
         )
 
-    def testSummary(self):
+    def testSummary(self) -> None:
         """Test if summary text is printed correctly."""
         base_image_path = os.path.relpath(
             self.output_dir / constants.BASE_IMAGE_BIN
@@ -241,7 +241,7 @@ class BuildImageTest(
 class BuildImageCommandTest(cros_test_lib.MockTestCase):
     """BuildConfig tests."""
 
-    def testBuildImageCommand(self):
+    def testBuildImageCommand(self) -> None:
         """GetArguments tests."""
         cmd = image.GetBuildImageCommand(
             image.BuildConfig(), [constants.BASE_IMAGE_BIN], "testBoard"
@@ -366,41 +366,41 @@ class BuildImageCommandTest(cros_test_lib.MockTestCase):
 class CreateVmTest(cros_test_lib.RunCommandTestCase):
     """Create VM tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
 
-    def testNoBoardFails(self):
+    def testNoBoardFails(self) -> None:
         """Should fail when not given a valid board-ish value."""
         with self.assertRaises(AssertionError):
             image.CreateVm("")
 
-    def testBoardArgument(self):
+    def testBoardArgument(self) -> None:
         """Test the board argument."""
         image.CreateVm("board")
         self.assertCommandContains(["--board", "board"])
 
-    def testTestImage(self):
+    def testTestImage(self) -> None:
         """Test the application of the --test_image argument."""
         image.CreateVm("board", is_test=True)
         self.assertCommandContains(["--test_image"])
 
-    def testNonTestImage(self):
+    def testNonTestImage(self) -> None:
         """Test the non-application of the --test_image argument."""
         image.CreateVm("board", is_test=False)
         self.assertCommandContains(["--test_image"], expected=False)
 
-    def testDiskLayout(self):
+    def testDiskLayout(self) -> None:
         """Test the application of the --disk_layout argument."""
         image.CreateVm("board", disk_layout="5000PB")
         self.assertCommandContains(["--disk_layout", "5000PB"])
 
-    def testCommandError(self):
+    def testCommandError(self) -> None:
         """Test handling of an error when running the command."""
         self.rc.SetDefaultCmdResult(returncode=1)
         with self.assertRaises(image.ImageToVmError):
             image.CreateVm("board")
 
-    def testResultPath(self):
+    def testResultPath(self) -> None:
         """Test the path building."""
         self.PatchObject(image_lib, "GetLatestImageLink", return_value="/tmp")
         self.assertEqual(
@@ -412,35 +412,35 @@ class CreateVmTest(cros_test_lib.RunCommandTestCase):
 class CreateGuestVmTest(cros_test_lib.RunCommandTestCase):
     """Create guest VM tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
 
-    def testNoImageDirFails(self):
+    def testNoImageDirFails(self) -> None:
         """Should fail when not given a valid image directory value."""
         with self.assertRaises(AssertionError):
             image.CreateGuestVm(image_dir="")
 
-    def testBaseImage(self):
+    def testBaseImage(self) -> None:
         """Test finding the base-image variant."""
         image.CreateGuestVm(image_dir="/tmp")
         self.assertCommandContains(
             [os.path.join("/tmp", constants.BASE_IMAGE_BIN)]
         )
 
-    def testTestImage(self):
+    def testTestImage(self) -> None:
         """Test finding the test-image variant."""
         image.CreateGuestVm(image_dir="/tmp", is_test=True)
         self.assertCommandContains(
             [os.path.join("/tmp", constants.TEST_IMAGE_BIN)]
         )
 
-    def testCommandError(self):
+    def testCommandError(self) -> None:
         """Test handling of an error when running the command."""
         self.rc.SetDefaultCmdResult(returncode=1)
         with self.assertRaises(image.ImageToVmError):
             image.CreateGuestVm(image_dir="/tmp")
 
-    def testResultPath(self):
+    def testResultPath(self) -> None:
         """Test the path building."""
         self.assertEqual(
             os.path.join("/tmp", constants.BASE_GUEST_VM_DIR),
@@ -451,13 +451,13 @@ class CreateGuestVmTest(cros_test_lib.RunCommandTestCase):
 class CopyBaseToRecoveryTest(cros_test_lib.MockTempDirTestCase):
     """Tests the CopyBaseToRecovery method."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
         self.PatchObject(Path, "exists", return_value=True)
         self.base_image = self.tempdir / constants.BASE_IMAGE_BIN
         self.recovery_image = self.tempdir / constants.RECOVERY_IMAGE_BIN
 
-    def testCopyRecoveryImage(self):
+    def testCopyRecoveryImage(self) -> None:
         self.base_image.touch()
         result = image.CopyBaseToRecovery("board", self.base_image)
 
@@ -467,7 +467,7 @@ class CopyBaseToRecoveryTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertExists(self.recovery_image)
 
-    def testCopyRecoveryImageInvalid(self):
+    def testCopyRecoveryImageInvalid(self) -> None:
         result = image.CopyBaseToRecovery("board", self.base_image)
 
         self.assertNotEqual(result.return_code, 0)
@@ -477,15 +477,15 @@ class CopyBaseToRecoveryTest(cros_test_lib.MockTempDirTestCase):
 class BuildRecoveryTest(cros_test_lib.RunCommandTestCase):
     """Create recovery image tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
 
-    def testNoBoardFails(self):
+    def testNoBoardFails(self) -> None:
         """Should fail when not given a valid board-ish value."""
         with self.assertRaises(image.InvalidArgumentError):
             image.BuildRecoveryImage("")
 
-    def testBoardArgument(self):
+    def testBoardArgument(self) -> None:
         """Test the board argument."""
         image.BuildRecoveryImage("board")
         self.assertCommandContains(["--board", "board"])
@@ -494,7 +494,7 @@ class BuildRecoveryTest(cros_test_lib.RunCommandTestCase):
 class ImageTestTest(cros_test_lib.RunCommandTempDirTestCase):
     """Image Test tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup the filesystem."""
         self.board = "board"
         self.chroot_container = os.path.join(self.tempdir, "outside")
@@ -543,7 +543,7 @@ class ImageTestTest(cros_test_lib.RunCommandTempDirTestCase):
 
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, filesystem)
 
-    def testTestFailsInvalidArguments(self):
+    def testTestFailsInvalidArguments(self) -> None:
         """Test invalid arguments are correctly failed."""
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
@@ -558,7 +558,7 @@ class ImageTestTest(cros_test_lib.RunCommandTempDirTestCase):
         with self.assertRaises(image.ChrootError):
             image.Test(self.board, self.outside_result_dir)
 
-    def testTestInsideChrootAllProvided(self):
+    def testTestInsideChrootAllProvided(self) -> None:
         """Test behavior when inside the chroot and all paths provided."""
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
         image.Test(
@@ -577,7 +577,7 @@ class ImageTestTest(cros_test_lib.RunCommandTempDirTestCase):
             ]
         )
 
-    def testTestInsideChrootNoImageDir(self):
+    def testTestInsideChrootNoImageDir(self) -> None:
         """Test image dir generation inside the chroot."""
         mocked_dir = "/foo/bar"
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
@@ -600,7 +600,7 @@ class ImageTestTest(cros_test_lib.RunCommandTempDirTestCase):
 class TestCreateFactoryImageZip(cros_test_lib.MockTempDirTestCase):
     """Unittests for create_factory_image_zip."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         # Create a chroot_path.
@@ -634,7 +634,7 @@ class TestCreateFactoryImageZip(cros_test_lib.MockTempDirTestCase):
         self.output_dir = os.path.join(self.tempdir, "output_dir")
         osutils.SafeMakedirs(self.output_dir)
 
-    def test(self):
+    def test(self) -> None:
         """create_factory_image_zip calls cbuildbot/commands correctly."""
         version = "1.2.3.4"
         output_file = image.create_factory_image_zip(
@@ -673,7 +673,7 @@ class TestCreateFactoryImageZip(cros_test_lib.MockTempDirTestCase):
 class TestCreateStrippedPackagesTar(cros_test_lib.MockTempDirTestCase):
     """Unittests for create_stripped_packages_tar."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         # Create a chroot_path.
         self.chroot_path = os.path.join(self.tempdir, "chroot_dir")
@@ -691,7 +691,7 @@ class TestCreateStrippedPackagesTar(cros_test_lib.MockTempDirTestCase):
         self.output_dir = os.path.join(self.tempdir, "output_dir")
         osutils.SafeMakedirs(self.output_dir)
 
-    def test(self):
+    def test(self) -> None:
         """Test generation of stripped package tarball using globs."""
         self.PatchObject(
             portage_util,
@@ -751,7 +751,7 @@ class TestCreateStrippedPackagesTar(cros_test_lib.MockTempDirTestCase):
 class TestCreateNetbootKernel(cros_test_lib.MockTempDirTestCase):
     """Unittests for create_netboot_kernel."""
 
-    def test(self):
+    def test(self) -> None:
         """Test netboot kernel creation."""
         board = "atlas"
         image_dir = "/path/to/factory_install/"
@@ -772,7 +772,7 @@ class TestCreateNetbootKernel(cros_test_lib.MockTempDirTestCase):
 class TestCreateImageScriptsArchive(cros_test_lib.MockTempDirTestCase):
     """Unittests for create_image_scripts_archive."""
 
-    def test(self):
+    def test(self) -> None:
         """Test image scripts archive creation."""
         build_target = build_target_lib.BuildTarget(
             "target",
@@ -860,7 +860,7 @@ class TestGenerateDlcArtifactsMetadataList(cros_test_lib.MockTempDirTestCase):
 
     def createDlcArtifacts(
         self, dlc_id: str, uri_prefix_data: str, imageloader_json_data: str
-    ):
+    ) -> None:
         """Creates the DLC artifacts under temporary build root.
 
         Args:
@@ -891,7 +891,7 @@ class TestGenerateDlcArtifactsMetadataList(cros_test_lib.MockTempDirTestCase):
             imageloader_json_data,
         )
 
-    def testGenerateDlcArtifactsMetadataList(self):
+    def testGenerateDlcArtifactsMetadataList(self) -> None:
         self.createDlcArtifacts(
             TestGenerateDlcArtifactsMetadataList.DLC_1_ID,
             "gs://some/uri/prefix/for/dlc-1",
@@ -929,7 +929,9 @@ class TestGenerateDlcArtifactsMetadataList(cros_test_lib.MockTempDirTestCase):
             ),
         )
 
-    def testGenerateDlcArtifactsMetadataListExcludesMissingUriPrefixFile(self):
+    def testGenerateDlcArtifactsMetadataListExcludesMissingUriPrefixFile(
+        self,
+    ) -> None:
         self.createDlcArtifacts(
             TestGenerateDlcArtifactsMetadataList.DLC_1_ID,
             "gs://some/uri/prefix/for/dlc-1",
@@ -952,7 +954,7 @@ class TestGenerateDlcArtifactsMetadataList(cros_test_lib.MockTempDirTestCase):
 
     def testGenerateDlcArtifactsMetadataListExcludesMissingImageloaderJsonFile(
         self,
-    ):
+    ) -> None:
         self.createDlcArtifacts(
             TestGenerateDlcArtifactsMetadataList.DLC_1_ID,
             "gs://some/uri/prefix/for/dlc-1",
@@ -973,7 +975,7 @@ class TestGenerateDlcArtifactsMetadataList(cros_test_lib.MockTempDirTestCase):
             [],
         )
 
-    def testGenerateDlcArtifactsMetadataListExcludesMalformedDlcs(self):
+    def testGenerateDlcArtifactsMetadataListExcludesMalformedDlcs(self) -> None:
         self.createDlcArtifacts(
             TestGenerateDlcArtifactsMetadataList.DLC_1_ID,
             "gs://some/uri/prefix/for/dlc-1",
@@ -999,7 +1001,7 @@ class TestGenerateDlcArtifactsMetadataList(cros_test_lib.MockTempDirTestCase):
 
     def testGenerateDlcArtifactsMetadataListEmptyArtifactsMetadataDirectory(
         self,
-    ):
+    ) -> None:
         self.assertEqual(
             image.generate_dlc_artifacts_metadata_list(self.tempdir), []
         )
@@ -1015,7 +1017,7 @@ class TestCopyDlcImages(cros_test_lib.MockTempDirTestCase):
         dlc_artifact: str = dlc_lib.DLC_IMAGE,
         dlc_build_dir: str = dlc_lib.DLC_BUILD_DIR,
         metadata: bool = True,
-    ):
+    ) -> None:
         """Touches the DLC artifact with the given args.
 
         Args:
@@ -1042,7 +1044,7 @@ class TestCopyDlcImages(cros_test_lib.MockTempDirTestCase):
                 makedirs=True,
             )
 
-    def testOnlyLegacyDLCs(self):
+    def testOnlyLegacyDLCs(self) -> None:
         """Test copy of DLC artifacts for legacy."""
         good_dlc_ids = ("dlc-a", "dlc-b")
         for dlc_id in good_dlc_ids:
@@ -1116,7 +1118,7 @@ class TestCopyDlcImages(cros_test_lib.MockTempDirTestCase):
             )
         )
 
-    def testOnlyScaledDLCs(self):
+    def testOnlyScaledDLCs(self) -> None:
         """Test copy of DLC artifacts for only scaled."""
         good_dlc_ids = ("dlc-a", "dlc-b")
         for dlc_id in good_dlc_ids:
@@ -1198,7 +1200,7 @@ class TestCopyDlcImages(cros_test_lib.MockTempDirTestCase):
             )
         )
 
-    def testAllDLCs(self):
+    def testAllDLCs(self) -> None:
         """Test copy of DLC artifacts of all types."""
         good_dlc_ids = ("dlc-a", "dlc-b")
         for dlc_id in good_dlc_ids:
@@ -1323,7 +1325,7 @@ class TestCopyDlcImages(cros_test_lib.MockTempDirTestCase):
 class TestSignImage(cros_test_lib.MockTempDirTestCase):
     """Unittests for SignImage."""
 
-    def test(self):
+    def test(self) -> None:
         """Test sign image."""
         self.PatchObject(
             osutils.TempDir, "__enter__", return_value=self.tempdir
@@ -1400,7 +1402,7 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
         )
         self.assertEqual(signed_artifacts, expected_signed_artifacts)
 
-    def testMissingEnv(self):
+    def testMissingEnv(self) -> None:
         """Test sign image."""
         self.PatchObject(
             osutils.TempDir, "__enter__", return_value=self.tempdir

@@ -29,7 +29,7 @@ from chromite.service import artifacts
 class BundleAutotestFilesTest(cros_test_lib.MockTempDirTestCase):
     """Test the Bundle Autotest Files function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self.output_dir = os.path.join(self.tempdir, "output_dir")
         self.archive_dir = os.path.join(self.tempdir, "archive_base_dir")
@@ -46,19 +46,19 @@ class BundleAutotestFilesTest(cros_test_lib.MockTempDirTestCase):
         osutils.SafeMakedirs(sysroot_path)
         osutils.SafeMakedirs(self.chroot.tmp)
 
-    def testInvalidOutputDirectory(self):
+    def testInvalidOutputDirectory(self) -> None:
         """Test invalid output directory."""
         with self.assertRaises(AssertionError):
             artifacts.BundleAutotestFiles(self.chroot, self.sysroot, None)
 
-    def testInvalidSysroot(self):
+    def testInvalidSysroot(self) -> None:
         """Test sysroot that does not exist."""
         with self.assertRaises(AssertionError):
             artifacts.BundleAutotestFiles(
                 self.chroot, self.sysroot_dne, self.output_dir
             )
 
-    def testArchiveDirectoryDoesNotExist(self):
+    def testArchiveDirectoryDoesNotExist(self) -> None:
         """Test archive directory that does not exist causes error."""
         self.assertEqual(
             artifacts.BundleAutotestFiles(
@@ -67,7 +67,7 @@ class BundleAutotestFilesTest(cros_test_lib.MockTempDirTestCase):
             {},
         )
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test a successful call handling."""
         ab_path = self.chroot.full_path(
             self.sysroot.path, constants.AUTOTEST_BUILD_PATH
@@ -94,7 +94,7 @@ class BundleAutotestFilesTest(cros_test_lib.MockTempDirTestCase):
 class ArchiveChromeEbuildEnvTest(cros_test_lib.MockTempDirTestCase):
     """ArchiveChromeEbuildEnv tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         # Create the chroot and sysroot instances.
         self.chroot_path = self.tempdir / "chroot_dir"
@@ -137,7 +137,7 @@ class ArchiveChromeEbuildEnvTest(cros_test_lib.MockTempDirTestCase):
         cros_build_lib.run(["bzip2", env_file])
         self.env_bz2 = "%s.bz2" % env_file
 
-    def _CreateChromeDir(self, path: str, populate: bool = True):
+    def _CreateChromeDir(self, path: str, populate: bool = True) -> None:
         """Setup a chrome package directory.
 
         Args:
@@ -148,7 +148,7 @@ class ArchiveChromeEbuildEnvTest(cros_test_lib.MockTempDirTestCase):
         if populate:
             shutil.copy(self.env_bz2, path)
 
-    def testSingleChromeVersion(self):
+    def testSingleChromeVersion(self) -> None:
         """Test a successful single-version run."""
         self._CreateChromeDir(self.chrome_v1_dir)
 
@@ -159,7 +159,7 @@ class ArchiveChromeEbuildEnvTest(cros_test_lib.MockTempDirTestCase):
         self.assertStartsWith(created, self.output_dir)
         cros_test_lib.VerifyTarball(created, self.expected_archive_contents)
 
-    def testMultipleChromeVersions(self):
+    def testMultipleChromeVersions(self) -> None:
         """Test a successful multiple version run."""
         # Create both directories, but don't populate the v1 dir so it'll hit an
         # error if the wrong one is used.
@@ -173,7 +173,7 @@ class ArchiveChromeEbuildEnvTest(cros_test_lib.MockTempDirTestCase):
         self.assertStartsWith(created, self.output_dir)
         cros_test_lib.VerifyTarball(created, self.expected_archive_contents)
 
-    def testNoChrome(self):
+    def testNoChrome(self) -> None:
         """Test no version of chrome present."""
         with self.assertRaises(artifacts.NoFilesError):
             artifacts.ArchiveChromeEbuildEnv(self.sysroot, self.output_dir)
@@ -182,7 +182,7 @@ class ArchiveChromeEbuildEnvTest(cros_test_lib.MockTempDirTestCase):
 class ArchiveImagesTest(cros_test_lib.TempDirTestCase):
     """ArchiveImages tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.image_dir = os.path.join(self.tempdir, "images")
         osutils.SafeMakedirs(self.image_dir)
         self.output_dir = os.path.join(self.tempdir, "output")
@@ -211,14 +211,14 @@ class ArchiveImagesTest(cros_test_lib.TempDirTestCase):
         osutils.Touch(os.path.join(self.image_dir, "foo.txt"))
         osutils.Touch(os.path.join(self.image_dir, "bar"))
 
-    def testNoImages(self):
+    def testNoImages(self) -> None:
         """Test an empty directory handling."""
         artifacts.ArchiveImages(
             self.chroot, self.sysroot, self.tempdir, self.output_dir
         )
         self.assertFalse(os.listdir(self.output_dir))
 
-    def testAllImages(self):
+    def testAllImages(self) -> None:
         """Test each image gets picked up."""
         created = artifacts.ArchiveImages(
             self.chroot, self.sysroot, self.image_dir, self.output_dir
@@ -229,7 +229,7 @@ class ArchiveImagesTest(cros_test_lib.TempDirTestCase):
 class CreateChromeRootTest(cros_test_lib.RunCommandTempDirTestCase):
     """CreateChromeRoot tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         # Create the build target.
@@ -248,7 +248,7 @@ class CreateChromeRootTest(cros_test_lib.RunCommandTempDirTestCase):
         self.output_dir = os.path.join(self.tempdir, "output_dir")
         osutils.SafeMakedirs(self.output_dir)
 
-    def testRunCommandError(self):
+    def testRunCommandError(self) -> None:
         """Test handling when the run command call is not successful."""
         self.rc.SetDefaultCmdResult(
             side_effect=cros_build_lib.RunCommandError("Error")
@@ -259,7 +259,7 @@ class CreateChromeRootTest(cros_test_lib.RunCommandTempDirTestCase):
                 self.chroot, self.build_target, self.output_dir
             )
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test success case."""
         # Separate tempdir for the method itself.
         call_tempdir = os.path.join(self.chroot_tmp, "cgs_call_tempdir")
@@ -295,7 +295,7 @@ class BundleEBuildLogsTarballTest(cros_test_lib.TempDirTestCase):
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
-    def testBundleEBuildLogsTarball(self, _):
+    def testBundleEBuildLogsTarball(self, _) -> None:
         """Verifies that the correct EBuild tar files are bundled."""
         board = "samus"
         # Create chroot object and sysroot object
@@ -344,7 +344,7 @@ class BundleEBuildLogsTarballTest(cros_test_lib.TempDirTestCase):
 class BundleChromeOSConfigTest(cros_test_lib.MockTempDirTestCase):
     """BundleChromeOSConfig tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.board = "samus"
 
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
@@ -357,7 +357,7 @@ class BundleChromeOSConfigTest(cros_test_lib.MockTempDirTestCase):
 
         self.archive_dir = self.tempdir
 
-    def testBundleChromeOSConfig(self):
+    def testBundleChromeOSConfig(self) -> None:
         """Verifies that the correct ChromeOS config file is bundled."""
         # Create parent dir for ChromeOS Config output.
         config_parent_dir = self.chroot.full_path("build")
@@ -407,7 +407,7 @@ class BundleChromeOSConfigTest(cros_test_lib.MockTempDirTestCase):
         ) as f:
             self.assertEqual(test_config_payload, json.load(f))
 
-    def testNoChromeOSConfigFound(self):
+    def testNoChromeOSConfigFound(self) -> None:
         """Verifies None is returned when no ChromeOS config file is found."""
         self.assertIsNone(
             artifacts.BundleChromeOSConfig(
@@ -419,7 +419,7 @@ class BundleChromeOSConfigTest(cros_test_lib.MockTempDirTestCase):
 class BundleVmFilesTest(cros_test_lib.TempDirTestCase):
     """BundleVmFiles tests."""
 
-    def testBundleVmFiles(self):
+    def testBundleVmFiles(self) -> None:
         """Verifies that the correct files are bundled"""
         # Create the chroot instance.
         chroot_path = self.tempdir / "chroot"
@@ -448,7 +448,7 @@ class BundleVmFilesTest(cros_test_lib.TempDirTestCase):
 class BuildFirmwareArchiveTest(cros_test_lib.MockTempDirTestCase):
     """BuildFirmwareArchive tests."""
 
-    def testBuildFirmwareArchive(self):
+    def testBuildFirmwareArchive(self) -> None:
         """Verifies that firmware archiver includes proper files"""
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
@@ -491,7 +491,7 @@ class BuildFirmwareArchiveTest(cros_test_lib.MockTempDirTestCase):
 class BundleFpmcuUnittestsTest(cros_test_lib.MockTempDirTestCase):
     """BundleFpmcuUnittests tests."""
 
-    def testBundleFpmcuUnittests(self):
+    def testBundleFpmcuUnittests(self) -> None:
         """Verifies that the resulting tarball includes proper files"""
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
@@ -524,7 +524,7 @@ class BundleFpmcuUnittestsTest(cros_test_lib.MockTempDirTestCase):
 class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
     """Test cases for the payload generation functions."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.target_image = os.path.join(
             self.tempdir,
             "link/R37-5952.0.2014_06_12_2302-a1/chromiumos_test_image.bin",
@@ -543,14 +543,14 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             self.tempdir / "chroot", out_path=self.tempdir / "out"
         )
 
-    def testExtendBuildPaths(self):
+    def testExtendBuildPaths(self) -> None:
         """Verifies that ExtendBuildPaths adds the correct elements."""
         self.assertEqual(
             ["a.bin", "a.bin.json", "a.bin.log"],
             artifacts.ExtendBinPaths("a.bin"),
         )
 
-    def testGenerateFullTestPayloads(self):
+    def testGenerateFullTestPayloads(self) -> None:
         """Verifies correctly generating full payloads."""
         cros_payload_path = os.path.join(
             self.tempdir,
@@ -591,7 +591,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             ]
         )
 
-    def testGenerateFullTestPayloadsPartial(self):
+    def testGenerateFullTestPayloadsPartial(self) -> None:
         """Verifies partially generating full payloads."""
         cros_payload_path = os.path.join(
             self.tempdir,
@@ -628,7 +628,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             ]
         )
 
-    def testGenerateFullTestPayloadsSkipped(self):
+    def testGenerateFullTestPayloadsSkipped(self) -> None:
         """Verifies skipping generating full payloads."""
         cros_payload_path = os.path.join(
             self.tempdir,
@@ -665,7 +665,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             ]
         )
 
-    def testGenerateDeltaTestPayloads(self):
+    def testGenerateDeltaTestPayloads(self) -> None:
         """Verifies correctly generating delta payloads."""
         cros_payload_path = os.path.join(
             self.tempdir,
@@ -714,7 +714,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             ]
         )
 
-    def testGenerateDeltaTestPayloadsPartial(self):
+    def testGenerateDeltaTestPayloadsPartial(self) -> None:
         """Verifies partially generating delta payloads."""
         cros_payload_path = os.path.join(
             self.tempdir,
@@ -759,7 +759,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             ]
         )
 
-    def testGenerateDeltaTestPayloadsSkipped(self):
+    def testGenerateDeltaTestPayloadsSkipped(self) -> None:
         """Verifies skipping generating delta payloads."""
         cros_payload_path = os.path.join(
             self.tempdir,
@@ -803,7 +803,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             ]
         )
 
-    def testGenerateFullStubDlcTestPayloads(self):
+    def testGenerateFullStubDlcTestPayloads(self) -> None:
         """Verifies correctly generating full payloads for sample-dlc."""
         self.PatchObject(portage_util, "GetBoardUseFlags", return_value=["dlc"])
 
@@ -853,7 +853,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             ]
         )
 
-    def testGenerateFullStubDlcTestPayloadsSkipped(self):
+    def testGenerateFullStubDlcTestPayloadsSkipped(self) -> None:
         """Verifies skipping generating full payloads for sample-dlc."""
         self.PatchObject(portage_util, "GetBoardUseFlags", return_value=["dlc"])
 
@@ -904,7 +904,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             ]
         )
 
-    def testGenerateDeltaStubDlcTestPayloads(self):
+    def testGenerateDeltaStubDlcTestPayloads(self) -> None:
         """Verifies correctly generating delta payloads for sample-dlc."""
         self.PatchObject(portage_util, "GetBoardUseFlags", return_value=["dlc"])
 
@@ -974,7 +974,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             ]
         )
 
-    def testGenerateDeltaStubDlcTestPayloadsSkipped(self):
+    def testGenerateDeltaStubDlcTestPayloadsSkipped(self) -> None:
         """Verifies skipping generating delta payloads for sample-dlc."""
         self.PatchObject(portage_util, "GetBoardUseFlags", return_value=["dlc"])
 
@@ -1044,7 +1044,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             ]
         )
 
-    def testGenerateStatefulTestPayloads(self):
+    def testGenerateStatefulTestPayloads(self) -> None:
         """Verifies correctly generating stateful payloads."""
         paygen_mock = self.PatchObject(
             paygen_stateful_payload_lib, "GenerateStatefulPayload"
@@ -1054,7 +1054,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         )
         paygen_mock.assert_called_once_with(self.target_image, self.tempdir)
 
-    def testGenerateQuickProvisionPayloads(self):
+    def testGenerateQuickProvisionPayloads(self) -> None:
         """Verifies correct files are created for quick_provision script."""
         extract_kernel_mock = self.PatchObject(partition_lib, "ExtractKernel")
         extract_root_mock = self.PatchObject(partition_lib, "ExtractRoot")
@@ -1093,7 +1093,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         ]
         compress_file_mock.assert_has_calls(calls)
 
-    def testGenerateQuickProvisionPayloadsWithMiniOS(self):
+    def testGenerateQuickProvisionPayloadsWithMiniOS(self) -> None:
         """Verifies correct files are created for quick_provision script."""
         extract_kernel_mock = self.PatchObject(partition_lib, "ExtractKernel")
         extract_root_mock = self.PatchObject(partition_lib, "ExtractRoot")
@@ -1140,7 +1140,7 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
 class BundleTastFilesTest(cros_test_lib.MockTempDirTestCase):
     """BundleTastFiles tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self.chroot = chroot_lib.Chroot(
@@ -1152,7 +1152,7 @@ class BundleTastFilesTest(cros_test_lib.MockTempDirTestCase):
 
         osutils.SafeMakedirs(self.output_dir)
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Successfully create a tast tarball.
 
         /build/board/build/{libexec/tast,share/tast}/* ->
@@ -1183,7 +1183,7 @@ class BundleTastFilesTest(cros_test_lib.MockTempDirTestCase):
 class BundleGceTarballTest(cros_test_lib.MockTempDirTestCase):
     """BundleGceTarball tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.output_dir = os.path.join(self.tempdir, "output_dir")
         self.image_dir = os.path.join(self.tempdir, "image_dir")
         osutils.SafeMakedirs(self.output_dir)
@@ -1192,7 +1192,7 @@ class BundleGceTarballTest(cros_test_lib.MockTempDirTestCase):
         self.image_file = os.path.join(self.image_dir, constants.TEST_IMAGE_BIN)
         osutils.Touch(self.image_file)
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         # Prepare tempdir for use by the function as tarball root.
         call_tempdir = os.path.join(self.tempdir, "call_tempdir")
         osutils.SafeMakedirs(call_tempdir)
