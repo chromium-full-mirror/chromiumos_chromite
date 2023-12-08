@@ -81,10 +81,6 @@ _PACKAGE_LIST = List[Optional[str]]
 BACKTRACK_DEFAULT = 10
 
 SYSROOT_ARCHIVE_FILE = "sysroot.tar.zst"
-BAZEL_APPCRYPTNSS_COMMAND_PROFILE_FILE = "/tmp/appcryptnss_command.profile.gz"
-BAZEL_APPCRYPTNSS_EXEC_LOG_FILE = "/tmp/bazel_build_appcryptnss_exec.log"
-BAZEL_CHROMEICU_COMMAND_PROFILE_FILE = "/tmp/chromeicu_command.profile.gz"
-BAZEL_CHROMEICU_EXEC_LOG_FILE = "/tmp/bazel_build_chromeicu_exec.log"
 BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE = "/tmp/allpackages_command.profile.gz"
 BAZEL_ALLPACKAGES_EXEC_LOG_FILE = "/tmp/allpackages_exec.log"
 BAZEL_COMMAND = constants.CHROMITE_BIN_DIR / "bazel"
@@ -1217,43 +1213,6 @@ in
             extra_env=extra_env,
         )
     else:
-        # Generate an exec log for a single package,
-        # to help us debug cache misses. We may eventually
-        # want to account for the possibility that
-        # sys-lib/zlib isn't in packages and so this means
-        # we're doing extra work, but we won't worry
-        # about that for now.
-        cros_build_lib.run(
-            [
-                BAZEL_COMMAND,
-                "build",
-                "--profile=" + BAZEL_APPCRYPTNSS_COMMAND_PROFILE_FILE,
-                "--execution_log_binary_file="
-                + BAZEL_APPCRYPTNSS_EXEC_LOG_FILE,
-                "--execution_log_sort=false",
-                "--keep_going",
-                "@portage//target/app-crypt/nss:package_set",
-            ],
-            extra_env=extra_env,
-        )
-
-        # Generate an exec log for chromeos-base/chrome-icu to help us debug
-        # chromium source tarball generation.
-        # TODO(b/304441605): Remove this after confirming that chromium source
-        # tarball generation is hermetic.
-        cros_build_lib.run(
-            [
-                BAZEL_COMMAND,
-                "build",
-                "--profile=" + BAZEL_CHROMEICU_COMMAND_PROFILE_FILE,
-                "--execution_log_binary_file=" + BAZEL_CHROMEICU_EXEC_LOG_FILE,
-                "--execution_log_sort=false",
-                "--keep_going",
-                "@portage//target/chromeos-base/chrome-icu",
-            ],
-            extra_env=extra_env,
-        )
-
         cros_build_lib.run(
             [
                 constants.SOURCE_ROOT
@@ -1559,10 +1518,6 @@ def CollectBazelPerformanceArtifacts(
         A List of string paths to the output Bazel performance artifacts.
     """
     chroot_raw_artifacts = [
-        BAZEL_APPCRYPTNSS_COMMAND_PROFILE_FILE,
-        BAZEL_APPCRYPTNSS_EXEC_LOG_FILE,
-        BAZEL_CHROMEICU_COMMAND_PROFILE_FILE,
-        BAZEL_CHROMEICU_EXEC_LOG_FILE,
         BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
         BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
     ]

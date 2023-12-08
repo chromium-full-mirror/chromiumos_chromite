@@ -1389,8 +1389,6 @@ def test_CollectBazelPerformanceArtifacts(monkeypatch, tmp_path) -> None:
 
     # Create Bazel performance files for testing
     sysroot_bazel_files = (
-        sysroot.BAZEL_APPCRYPTNSS_COMMAND_PROFILE_FILE,
-        sysroot.BAZEL_APPCRYPTNSS_EXEC_LOG_FILE,
         sysroot.BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
         sysroot.BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
     )
