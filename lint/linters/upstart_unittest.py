@@ -15,7 +15,7 @@ class CheckForRequiredLinesTest(cros_test_lib.TestCase):
         """Create a test set for use with CheckForRequiredLines."""
         return {"one", "two", "three"}
 
-    def testOneNotPresent(self):
+    def testOneNotPresent(self) -> None:
         """Check the case some are present and some are not."""
         self.assertEqual(
             upstart.CheckForRequiredLines(
@@ -27,7 +27,7 @@ two""",
             False,
         )
 
-    def testNonePresent(self):
+    def testNonePresent(self) -> None:
         """Check the case none are present."""
         self.assertEqual(
             upstart.CheckForRequiredLines(
@@ -40,7 +40,7 @@ six""",
             False,
         )
 
-    def testAllPresent(self):
+    def testAllPresent(self) -> None:
         """Check the case all are present."""
         self.assertEqual(
             upstart.CheckForRequiredLines(
@@ -53,7 +53,7 @@ one""",
             True,
         )
 
-    def testPrefix(self):
+    def testPrefix(self) -> None:
         """Check the case one is a prefix match but not a true match."""
         self.assertEqual(
             upstart.CheckForRequiredLines(
@@ -70,11 +70,11 @@ one""",
 class ExtractCommandsTest(cros_test_lib.TestCase):
     """Test the functionality of the command extractor."""
 
-    def testEmpty(self):
+    def testEmpty(self) -> None:
         """Make sure an empty string doesn't break anything."""
         self.assertEqual(list(upstart.ExtractCommands("")), [])
 
-    def testMultipleSingleLineCommands(self):
+    def testMultipleSingleLineCommands(self) -> None:
         """Check that single-line commands are handled as expected."""
         self.assertEqual(
             list(
@@ -94,7 +94,7 @@ end script
             ],
         )
 
-    def testMultilineCommands(self):
+    def testMultilineCommands(self) -> None:
         """Check that multi-line commands are handled as expected."""
         self.assertEqual(
             list(
@@ -128,7 +128,7 @@ end script
             ],
         )
 
-    def testDisable(self):
+    def testDisable(self) -> None:
         """Check that commands with '# croslint: disable' are ignored"""
         self.assertEqual(
             list(

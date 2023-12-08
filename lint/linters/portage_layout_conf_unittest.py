@@ -30,7 +30,7 @@ use-manifests = strict
 """,
     ),
 )
-def test_good(data):
+def test_good(data) -> None:
     """Verify good formats are accepted."""
     assert linters.portage_layout_conf.Data(data) == []
 
@@ -68,14 +68,14 @@ use-manifests = true
         ),
     ),
 )
-def test_bad(data, msg):
+def test_bad(data, msg) -> None:
     """Verify bad formats are rejected."""
     ret = linters.portage_layout_conf.Data(data)
     assert ret
     assert any(msg in x for x in ret)
 
 
-def test_eapis_banned():
+def test_eapis_banned() -> None:
     """Verify eapis-banned works correctly."""
 
     def _get(eapis_banned: Optional[str] = None) -> List[str]:
@@ -100,7 +100,7 @@ def test_eapis_banned():
     assert _get("0 1 2 3 4 5 6 6")
 
 
-def test_masters(monkeypatch):
+def test_masters(monkeypatch) -> None:
     """Verify masters works correctly."""
 
     def _get(
@@ -158,7 +158,7 @@ def test_masters(monkeypatch):
     assert _get("portage-stable chromiumos eclass-overlay foo-private")
 
 
-def test_profile_formats():
+def test_profile_formats() -> None:
     """Verify profile-formats works correctly."""
 
     def _get(profile_formats: Optional[str] = None) -> List[str]:

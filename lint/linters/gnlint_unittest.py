@@ -24,7 +24,9 @@ STUB_ERROR_LOCATION = {
 class LintTestCase(cros_test_lib.TestCase):
     """Helper for running linters."""
 
-    def _CheckLinter(self, functor, inputs, gn_path=None, is_bad_input=True):
+    def _CheckLinter(
+        self, functor, inputs, gn_path=None, is_bad_input=True
+    ) -> None:
         """Make sure |functor| rejects or accepts every input in |inputs|.
 
         When is_bad_input is true, the expected error location in the input
@@ -49,7 +51,7 @@ class LintTestCase(cros_test_lib.TestCase):
 class UtilityTests(cros_test_lib.MockTestCase):
     """Tests for utility funcs."""
 
-    def testMainErrors(self):
+    def testMainErrors(self) -> None:
         """Make sure outputting results doesn't crash."""
         self.PatchObject(
             linters.gnlint,
@@ -66,13 +68,13 @@ class UtilityTests(cros_test_lib.MockTestCase):
 class FilesystemUtilityTests(cros_test_lib.TestCase):
     """Tests for utility funcs that access the filesystem."""
 
-    def testCheckGnFile(self):
+    def testCheckGnFile(self) -> None:
         """Check CheckGnFile tails down correctly."""
         content = "# gn file\n"
         ret = linters.gnlint.CheckGnData(content, Path("asdf.gn"))
         self.assertEqual(ret, [])
 
-    def testGnFileOption(self):
+    def testGnFileOption(self) -> None:
         """Check CheckGnFile processes file options correctly."""
         static_library_with_visibility_flag = (
             'static_library("a") {\n'
@@ -260,7 +262,7 @@ class GnLintTests(LintTestCase):
 
     STUB_DATA = {"type": "BLOCK"}
 
-    def testGnLintLibFlags(self):
+    def testGnLintLibFlags(self) -> None:
         """Verify GnLintLibFlags catches bad inputs."""
 
         self._CheckLinter(
@@ -272,7 +274,7 @@ class GnLintTests(LintTestCase):
             ],
         )
 
-    def testGnLintVisibilityFlags(self):
+    def testGnLintVisibilityFlags(self) -> None:
         """Verify GnLintVisibilityFlags catches bad inputs."""
         self._CheckLinter(
             linters.gnlint.GnLintVisibilityFlags,
@@ -285,7 +287,7 @@ class GnLintTests(LintTestCase):
             ],
         )
 
-    def testGnLintDefineFlags(self):
+    def testGnLintDefineFlags(self) -> None:
         """Verify GnLintDefineFlags catches bad inputs."""
         self._CheckLinter(
             linters.gnlint.GnLintDefineFlags,
@@ -298,7 +300,7 @@ class GnLintTests(LintTestCase):
             ],
         )
 
-    def testGnLintCommonTesting(self):
+    def testGnLintCommonTesting(self) -> None:
         """Verify GnLintCommonTesting catches bad inputs."""
         self._CheckLinter(
             linters.gnlint.GnLintCommonTesting,
@@ -309,7 +311,7 @@ class GnLintTests(LintTestCase):
             ],
         )
 
-    def testGnLintDefines(self):
+    def testGnLintDefines(self) -> None:
         """Verify GnLintDefines catches bad inputs."""
         self._CheckLinter(
             linters.gnlint.GnLintDefines,
@@ -322,7 +324,7 @@ class GnLintTests(LintTestCase):
             ],
         )
 
-    def testGnLintStaticSharedLibMixing(self):
+    def testGnLintStaticSharedLibMixing(self) -> None:
         """Verify GnLintStaticSharedLibMixing catches bad inputs."""
         # static_library("static_pie") {
         #   configs += [ "//common-mk:pie" ]
@@ -551,7 +553,7 @@ class GnLintTests(LintTestCase):
             is_bad_input=False,
         )
 
-    def testGnLintSourceFileNames(self):
+    def testGnLintSourceFileNames(self) -> None:
         """Verify GnLintSourceFileNames catches bad inputs."""
         self._CheckLinter(
             linters.gnlint.GnLintSourceFileNames,
@@ -562,7 +564,7 @@ class GnLintTests(LintTestCase):
             ],
         )
 
-    def testGnLintPkgConfigs(self):
+    def testGnLintPkgConfigs(self) -> None:
         """Verify GnLintPkgConfigs catches bad inputs."""
         self._CheckLinter(
             linters.gnlint.GnLintPkgConfigs,
@@ -572,7 +574,7 @@ class GnLintTests(LintTestCase):
             ],
         )
 
-    def testGnLintOrderingWithinTarget(self):
+    def testGnLintOrderingWithinTarget(self) -> None:
         """Verify GnLintOrderingWithinTarget catches bad inputs."""
         # static_library("my_static_library") {
         #   configs = [ "foo" ]
@@ -702,7 +704,7 @@ class GnLintTests(LintTestCase):
             is_bad_input=False,
         )
 
-    def testGnLintInstallPathAlias(self):
+    def testGnLintInstallPathAlias(self) -> None:
         """Verify GnLintInstallPathAlias catches full path instead of alias."""
         self._CheckLinter(
             linters.gnlint.GnLintInstallPathAlias,
@@ -768,7 +770,7 @@ class GnLintTests(LintTestCase):
             ],
         )
 
-    def testGnLintDepsOtherProjectDirectly(self):
+    def testGnLintDepsOtherProjectDirectly(self) -> None:
         """Verify GnLintDepsOtherProjectDirectly catches bad inputs.
 
         Disallow dependency from other project directly.
@@ -807,7 +809,7 @@ class GnLintTests(LintTestCase):
             gn_path=Path("platform2/camera/BUILD.gn"),
         )
 
-    def testGnLintNoIfDefinedUseVars(self):
+    def testGnLintNoIfDefinedUseVars(self) -> None:
         """Verify GnLintNoIfDefinedUseVars catches bad inputs."""
         self._CheckLinter(
             linters.gnlint.GnLintNoIfDefinedUseVars,
@@ -847,7 +849,7 @@ class GnLintTests(LintTestCase):
             ],
         )
 
-    def testGnLintDepsRelativePath(self):
+    def testGnLintDepsRelativePath(self) -> None:
         """Verify GnLintDepsRelativePath catches bad inputs.
 
         Disallow relative path to depend on other project.

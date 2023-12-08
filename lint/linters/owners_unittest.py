@@ -9,7 +9,7 @@ import pytest
 from chromite.lint.linters import owners
 
 
-def test_missing_file():
+def test_missing_file() -> None:
     """Given a missing file should be OK."""
     assert owners.lint_path("/.....ajlsdkfjalskdfjalskdfasdf")
 
@@ -26,7 +26,7 @@ GOOD_DATA = (
 
 
 @pytest.mark.parametrize("data", GOOD_DATA)
-def test_good_owners(data):
+def test_good_owners(data) -> None:
     """Test good owners files."""
     assert owners.lint_data("pylint", data)
 
@@ -65,6 +65,6 @@ BAD_DATA = (
 
 
 @pytest.mark.parametrize("data", BAD_DATA)
-def test_bad_owners(data):
+def test_bad_owners(data) -> None:
     """Test good owners files."""
     assert not owners.lint_data("pylint", data)

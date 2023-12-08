@@ -121,7 +121,7 @@ def GetNodeValue(node):
     return Unquote(node.get("value"))
 
 
-def WalkGn(functor, node):
+def WalkGn(functor, node) -> None:
     """Walk the token tree under |node|, calling |functor| on each node.
 
     Args:
@@ -206,7 +206,7 @@ def FindAllLiteralAssignments(node, target_variable_names, operators=None):
     """Lists all potential literal assignment to variable."""
     literals = []
 
-    def CheckNode(node):
+    def CheckNode(node) -> None:
         literals.extend(
             ExtractLiteralAssignment(node, target_variable_names, operators)
         )
@@ -228,7 +228,7 @@ def GnLintLibFlags(gndata, _gn_path=""):
         List of detected Issue.
     """
 
-    def CheckNode(node):
+    def CheckNode(node) -> None:
         for n in ExtractLiteralAssignment(node, ["ldflags"]):
             flag = GetNodeValue(n)
             if flag.startswith("-l"):
@@ -258,7 +258,7 @@ def GnLintVisibilityFlags(gndata, _gn_path=""):
         List of detected Issue.
     """
 
-    def CheckNode(node):
+    def CheckNode(node) -> None:
         for n in ExtractLiteralAssignment(
             node, ["cflags", "cflags_c", "cflags_cc"]
         ):
@@ -299,7 +299,7 @@ def GnLintDefineFlags(gndata, _gn_path=""):
         List of detected Issue.
     """
 
-    def CheckNode(node):
+    def CheckNode(node) -> None:
         for n in ExtractLiteralAssignment(
             node, ["cflags", "cflags_c", "cflags_cc"]
         ):
@@ -327,7 +327,7 @@ def GnLintDefines(gndata, _gn_path=""):
         List of detected Issue.
     """
 
-    def CheckNode(node):
+    def CheckNode(node) -> None:
         flags = ExtractLiteralAssignment(node, ["defines"])
         for n in flags:
             flag = GetNodeValue(n)
@@ -376,7 +376,7 @@ def GnLintNoIfDefinedUseVars(gndata, _gn_path=""):
         List of detected Issue.
     """
 
-    def CheckNode(node):
+    def CheckNode(node) -> None:
         if not IsFunctionNode(node):
             return
 
@@ -408,7 +408,7 @@ def GnLintCommonTesting(gndata, _gn_path=""):
         List of detected Issue.
     """
 
-    def CheckNode(node):
+    def CheckNode(node) -> None:
         for n in ExtractLiteralAssignment(node, ["libs"]):
             flag = GetNodeValue(n)
             if flag in ["gmock", "gtest"]:
@@ -456,7 +456,7 @@ def GnLintStaticSharedLibMixing(gndata, _gn_path=""):
     pie_static_libs = []
     shared_lib_deps = {}
 
-    def ProcessFunctionNode(node):
+    def ProcessFunctionNode(node) -> None:
         """Scans content of a function node and memorize if PIC/PIE."""
         if not IsFunctionNode(node):
             return
@@ -555,7 +555,7 @@ def GnLintSourceFileNames(gndata, _gn_path=""):
 
     ret = []
 
-    def CheckNode(node):
+    def CheckNode(node) -> None:
         for n in ExtractLiteralAssignment(node, ["sources"]):
             path = GetNodeValue(n)
             # Enforce xxx_test.cc naming.
@@ -608,7 +608,7 @@ def GnLintPkgConfigs(gndata, _gn_path=""):
     """Use pkg-config files for known libs instead of adding to libs."""
     ret = []
 
-    def CheckNode(node):
+    def CheckNode(node) -> None:
         # detect addition to libraries.
         # ldflags is already detected as errors by GnLintLibFlags.
         for n in ExtractLiteralAssignment(node, ["libs"]):
@@ -643,7 +643,7 @@ def GnLintLibraries(gndata, _gn_path=""):
     """Flag libraries that people shouldn't be using."""
     ret = []
 
-    def CheckNode(node):
+    def CheckNode(node) -> None:
         # detect addition to libraries.
         # ldflags is already detected as errors by GnLintLibFlags.
         for n in ExtractLiteralAssignment(node, ["pkg_deps"]):
@@ -764,10 +764,10 @@ def GnLintOrderingWithinTarget(gndata, _gn_path=""):
                 return i
         return -1
 
-    def CheckFunction(node):
+    def CheckFunction(node) -> None:
         # Detect misordering of identifiers within a target.
 
-        def CheckCondition(node):
+        def CheckCondition(node) -> None:
             # Detect misordering of identifiers in conditionals.
             if not IsConditionNode(node):
                 return
@@ -777,7 +777,7 @@ def GnLintOrderingWithinTarget(gndata, _gn_path=""):
             _condition, block = child
             CheckBlock(block)
 
-        def CheckBlock(node):
+        def CheckBlock(node) -> None:
             # Detect misordering of identifiers in blocks.
             before_step = 0
             for child in node.get("child", []):
@@ -877,7 +877,7 @@ def GnLintInstallPathAlias(gndata, _gn_path=""):
     """Flag aliases that people should be using for install_path."""
     ret = []
 
-    def CheckNode(node):
+    def CheckNode(node) -> None:
         child = node.get("child", [])
         if len(child) != 2:
             return
@@ -921,7 +921,7 @@ def GnLintDepsOtherProjectDirectly(gndata, gn_path):
             .get(name, project_name)
         )
 
-    def CheckNode(node):
+    def CheckNode(node) -> None:
         for n in ExtractLiteralAssignment(node, ["deps"]):
             dep = GetNodeValue(n)
             if (
@@ -958,7 +958,7 @@ def GnLintDepsOtherProjectDirectly(gndata, gn_path):
 def GnLintDepsRelativePath(gndata, _gn_path=""):
     """Packages should not depend on targets using relative paths."""
 
-    def CheckNode(node):
+    def CheckNode(node) -> None:
         for n in ExtractLiteralAssignment(node, ["deps"]):
             dep = GetNodeValue(n)
             if dep.startswith(".."):
