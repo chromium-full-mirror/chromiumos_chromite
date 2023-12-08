@@ -54,7 +54,7 @@ class Builder:
         self.patch_pool = trybot_patch_pool.TrybotPatchPool()
         self._build_image_lock = multiprocessing.Lock()
 
-    def Initialize(self):
+    def Initialize(self) -> None:
         """Runs through the initialization steps of an actual build."""
         if self._run.options.resume:
             results_lib.LoadCheckpoint(self._run.buildroot)
@@ -73,7 +73,7 @@ class Builder:
         builder_run = kwargs.pop("builder_run", self._run)
         return stage(builder_run, self.buildstore, *args, **kwargs)
 
-    def _SetReleaseTag(self):
+    def _SetReleaseTag(self) -> None:
         """Sets run.attrs.release_tag from the manifest manager used in sync.
 
         Must be run after sync stage as syncing enables us to have a release
@@ -108,7 +108,7 @@ class Builder:
         return stage_instance.Run()
 
     @staticmethod
-    def _RunParallelStages(stage_objs):
+    def _RunParallelStages(stage_objs) -> None:
         """Run the specified stages in parallel.
 
         Args:
@@ -134,14 +134,14 @@ class Builder:
 
             raise
 
-    def _RunSyncStage(self, sync_instance):
+    def _RunSyncStage(self, sync_instance) -> None:
         """Run given |sync_instance| stage and be sure attrs.release_tag set."""
         try:
             sync_instance.Run()
         finally:
             self._SetReleaseTag()
 
-    def SetVersionInfo(self):
+    def SetVersionInfo(self) -> None:
         """Sync the builder's version info with the buildbot runtime."""
         self._run.attrs.version_info = self.GetVersionInfo()
 
@@ -154,14 +154,14 @@ class Builder:
         # Placeholder version for non-Chrome OS builds.
         return chromeos_version.VersionInfo("1.0.0")
 
-    def GetSyncInstance(self):
+    def GetSyncInstance(self) -> None:
         """Returns an instance of a SyncStage that should be run.
 
         Subclasses must override this method.
         """
         raise NotImplementedError()
 
-    def GetCompletionInstance(self):
+    def GetCompletionInstance(self) -> None:
         """Returns the MasterSlaveSyncCompletionStage for this build.
 
         Subclasses may override this method.
@@ -171,7 +171,7 @@ class Builder:
         """
         return None
 
-    def RunStages(self):
+    def RunStages(self) -> None:
         """Subclasses must override this method.  Runs the appropriate code."""
         raise NotImplementedError()
 
@@ -248,7 +248,7 @@ class Builder:
             )
             return return_obj.returncode == 0
 
-    def _InitializeTrybotPatchPool(self):
+    def _InitializeTrybotPatchPool(self) -> None:
         """Generate patch pool from patches specified on the command line.
 
         Do this only if we need to patch changes later on.
@@ -406,6 +406,6 @@ class ManifestVersionedBuilder(Builder):
         """Returns an instance of a SyncStage that should be run."""
         return self._GetStageInstance(sync_stages.ManifestVersionedSyncStage)
 
-    def RunStages(self):
+    def RunStages(self) -> None:
         """Subclasses must override this method."""
         raise NotImplementedError()

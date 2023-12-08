@@ -169,7 +169,7 @@ def UploadPrebuilts(
     return _UploadPrebuilts(buildroot=buildroot, **kwargs)
 
 
-def _UploadPrebuilts(buildroot, board, extra_args):
+def _UploadPrebuilts(buildroot, board, extra_args) -> None:
     """Upload prebuilts.
 
     Args:
@@ -242,7 +242,7 @@ class BinhostConfWriter:
 
         return args
 
-    def Perform(self):
+    def Perform(self) -> None:
         """Write and commit *BINHOST.conf files."""
         # Common args we generate for all types of builds.
         generated_args = self._GenerateCommonArgs()

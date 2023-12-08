@@ -34,7 +34,7 @@ from chromite.utils import hostname_util
 from chromite.utils import key_value_store
 
 
-def WriteBasicMetadata(builder_run):
+def WriteBasicMetadata(builder_run) -> None:
     """Writes basic metadata that should be known at start of execution.
 
     This method writes to |build_run|'s metadata instance the basic metadata
@@ -70,7 +70,7 @@ def WriteBasicMetadata(builder_run):
     builder_run.attrs.metadata.UpdateWithDict(metadata)
 
 
-def WriteTagMetadata(builder_run):
+def WriteTagMetadata(builder_run) -> None:
     """Add a 'tags' sub-dict to metadata.
 
     This is a proof of concept for using tags to help find commonality
@@ -140,7 +140,7 @@ def WriteTagMetadata(builder_run):
 
 def _UploadAndLinkGomaLogIfNecessary(
     stage_name, cbb_config_name, goma_dir, goma_tmp_dir
-):
+) -> None:
     """Uploads the logs for goma, if needed.
 
     Also create a link to the visualizer.
@@ -193,7 +193,7 @@ class BuildStartStage(generic_stages.BuilderStage):
         return timeout_seconds if timeout_seconds > 0 else None
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         if self._run.config["doc"]:
             cbuildbot_alerts.PrintBuildbotLink(
                 "Builder documentation", self._run.config["doc"]
@@ -300,7 +300,7 @@ class BuildStartStage(generic_stages.BuilderStage):
         # Write the tag metadata last so that a build_id is available.
         WriteTagMetadata(self._run)
 
-    def HandleSkip(self):
+    def HandleSkip(self) -> None:
         """Ensure that re-executions use the same db instance as initial db."""
         metadata_dict = self._run.attrs.metadata.GetDict()
         if "build_id" in metadata_dict:
@@ -325,7 +325,7 @@ class SlaveFailureSummaryStage(generic_stages.BuilderStage):
     category = constants.CI_INFRA_STAGE
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         if not self._run.config.master:
             logging.info(
                 "This stage is only meaningful for master builds. "
@@ -378,7 +378,7 @@ class BuildReexecutionFinishedStage(
     category = constants.CI_INFRA_STAGE
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         config = self._run.config
         build_root = self._build_root
 
@@ -502,7 +502,7 @@ class ConfigDumpStage(generic_stages.BuilderStage):
     category = constants.CI_INFRA_STAGE
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Dump the running config to info logs."""
         config = self._run.config
         logging.info(
@@ -528,7 +528,7 @@ class ReportStage(
         self._completion_instance = completion_instance
         self._post_completion = False
 
-    def _LinkArtifacts(self, builder_run):
+    def _LinkArtifacts(self, builder_run) -> None:
         """Upload an HTML index and uploaded.json for artifacts.
 
         If there are no artifacts in the archive then do nothing.
@@ -677,7 +677,7 @@ class ReportStage(
             completion_instance,
         )
 
-    def ArchiveResults(self, final_status):
+    def ArchiveResults(self, final_status) -> None:
         """Archive our build results.
 
         Args:
@@ -731,7 +731,7 @@ class ReportStage(
                             upload_urls=upload_urls,
                         )
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Perform the actual work for this stage.
 
         This includes final metadata archival, and update CIDB with our final

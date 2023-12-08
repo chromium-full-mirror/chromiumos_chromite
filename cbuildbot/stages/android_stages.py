@@ -103,7 +103,7 @@ class AndroidMetadataStage(
 
         return (versions, branches, targets)
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         with osutils.ChdirContext(self._build_root):
             (
                 versions,
@@ -152,7 +152,7 @@ class DownloadAndroidDebugSymbolsStage(
 
     category = constants.CI_INFRA_STAGE
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         if not config_lib.IsCanaryType(self._run.config.build_type):
             logging.info("This stage runs only in release builders.")
             return

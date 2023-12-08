@@ -26,7 +26,7 @@ class BuildSpecBuilder(generic_builders.Builder):
             build_root=self._run.options.workspace,
         )
 
-    def RunStages(self):
+    def RunStages(self) -> None:
         """Run the stages."""
 
         if not self._run.options.force_version:
@@ -71,7 +71,7 @@ class FactoryBranchBuilder(generic_builders.Builder):
             build_root=self._run.options.workspace,
         )
 
-    def RunStages(self):
+    def RunStages(self) -> None:
         """Run the stages."""
         assert len(self._run.config.boards) == 1
         board = self._run.config.boards[0]

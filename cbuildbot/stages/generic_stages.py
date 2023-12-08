@@ -34,7 +34,7 @@ from chromite.lib import timeout_util
 from chromite.lib.buildstore import BuildIdentifier
 
 
-def ReportStageFailure(exception, metrics_fields=None):
+def ReportStageFailure(exception, metrics_fields=None) -> None:
     """Reports stage failure to Mornach along with inner exceptions.
 
     Args:
@@ -57,7 +57,7 @@ def ReportStageFailure(exception, metrics_fields=None):
 
 def _InsertFailureToMonarch(
     exception_category=constants.EXCEPTION_CATEGORY_UNKNOWN, metrics_fields=None
-):
+) -> None:
     """Report a single stage failure to Mornach if needed.
 
     Args:
@@ -224,7 +224,7 @@ class BuilderStage:
 
     def _InsertBuildStageInCIDB(
         self, name, board=None, status=constants.BUILDER_STATUS_PLANNED
-    ):
+    ) -> None:
         """Insert a build stage in cidb.
 
         Expected arguments are the same as cidb.InsertBuildStage, except
@@ -239,7 +239,7 @@ class BuilderStage:
 
     def _FinishBuildStageInCIDBAndMonarch(
         self, stage_result, status, elapsed_time_seconds=0
-    ):
+    ) -> None:
         """Mark the stage as finished in cidb.
 
         Args:
@@ -289,7 +289,7 @@ class BuilderStage:
                     stage_result, metrics_fields=failed_metrics_fields
                 )
 
-    def _StartBuildStageInCIDB(self):
+    def _StartBuildStageInCIDB(self) -> None:
         """Mark the stage as inflight in cidb."""
         if (
             self._build_stage_id is not None
@@ -297,7 +297,7 @@ class BuilderStage:
         ):
             self.buildstore.StartBuildStage(self._build_stage_id)
 
-    def _WaitBuildStageInCIDB(self):
+    def _WaitBuildStageInCIDB(self) -> None:
         """Mark the stage as waiting in cidb."""
         if (
             self._build_stage_id is not None
@@ -434,13 +434,13 @@ class BuilderStage:
         else:
             return self.GetBuildFailureMessageFromResults()
 
-    def _Print(self, msg):
+    def _Print(self, msg) -> None:
         """Prints a msg to stderr."""
         sys.stdout.flush()
         print(msg, file=sys.stderr)
         sys.stderr.flush()
 
-    def _PrintLoudly(self, msg):
+    def _PrintLoudly(self, msg) -> None:
         """Prints a msg with loudly."""
 
         border_line = "*" * 60
@@ -517,7 +517,7 @@ class BuilderStage:
             }
         return slave_config_map
 
-    def _BeginStepForBuildbot(self, tag=None):
+    def _BeginStepForBuildbot(self, tag=None) -> None:
         """Called before a stage is performed.
 
         Args:
@@ -533,7 +533,7 @@ class BuilderStage:
             % (self.name, cros_build_lib.UserDateTimeFormat(), self.__doc__)
         )
 
-    def Finish(self):
+    def Finish(self) -> None:
         """Called after a stage has already completed.
 
         Will be called on both success or failure. EXPECTIONS WILL BE LOGGED AND
@@ -555,7 +555,7 @@ class BuilderStage:
         """
         return True
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Run the actual commands needed for this stage.
 
         Subclassed stages must override this function.
@@ -649,11 +649,11 @@ class BuilderStage:
             logging.error("The new exception is:", exc_info=True)
             return self._HandleExceptionAsError(exc_info)
 
-    def HandleSkip(self):
+    def HandleSkip(self) -> None:
         """Run if the stage is skipped."""
         # This is a hook used by some subclasses.
 
-    def _RecordResult(self, *args, **kwargs):
+    def _RecordResult(self, *args, **kwargs) -> None:
         """Record a successful or failed result."""
         results_lib.Results.Record(*args, **kwargs)
 
@@ -666,7 +666,7 @@ class BuilderStage:
             and not getattr(self._run.config, self.config_name)
         )
 
-    def Run(self):
+    def Run(self) -> None:
         """Have the builder execute the stage."""
         skip_stage = self._ShouldSkipStage()
         previous_record = results_lib.Results.PreviouslyCompletedRecord(
@@ -829,14 +829,14 @@ class BoardSpecificBuilderStage(BuilderStage):
 
         super().__init__(builder_run, buildstore, suffix=suffix, **kwargs)
 
-    def _RecordResult(self, *args, **kwargs):
+    def _RecordResult(self, *args, **kwargs) -> None:
         """Record a successful or failed result."""
         kwargs.setdefault("board", self._current_board)
         super()._RecordResult(*args, **kwargs)
 
     def _InsertBuildStageInCIDB(
         self, name, board=None, status=constants.BUILDER_STATUS_PLANNED
-    ):
+    ) -> None:
         """Insert a build stage in cidb."""
         if not board:
             board = self._current_board
@@ -1098,7 +1098,9 @@ class ArchivingStageMixin:
         return urls
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def UploadArtifact(self, path, archive=True, strict=True, prefix=None):
+    def UploadArtifact(
+        self, path, archive=True, strict=True, prefix=None
+    ) -> None:
         """Upload generated artifact to Google Storage.
 
         Args:

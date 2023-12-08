@@ -32,7 +32,7 @@ class UnitTestStageTest(
     BOT_ID = "amd64-generic-full"
     RELEASE_TAG = "ToT.0.0"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.rununittests_mock = self.PatchObject(commands, "RunUnitTests")
         self.uploadartifact_mock = self.PatchObject(
             generic_stages.ArchivingStageMixin, "UploadArtifact"
@@ -50,7 +50,7 @@ class UnitTestStageTest(
             self._run, self.buildstore, self._current_board
         )
 
-    def testFullTests(self):
+    def testFullTests(self) -> None:
         """Tests full unit and cros_au_test_harness tests are run correctly."""
         makedirs_mock = self.PatchObject(osutils, "SafeMakedirs")
 

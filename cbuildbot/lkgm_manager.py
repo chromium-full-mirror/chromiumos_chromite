@@ -102,7 +102,7 @@ class _LKGMCandidateInfo(chromeos_version.VersionInfo):
         return self.VersionString()
 
     # pylint: disable=arguments-differ, signature-differs
-    def UpdateVersionFile(self, *args, **kwargs):
+    def UpdateVersionFile(self, *args, **kwargs) -> None:
         """Update the version file on disk.
 
         For LKGMCandidateInfo there is no version file so this function is a
@@ -197,7 +197,7 @@ class LKGMManager(manifest_version.BuildSpecsManager):
             incr_type=self.incr_type,
         )
 
-    def _WriteXml(self, dom_instance, file_path):
+    def _WriteXml(self, dom_instance, file_path) -> None:
         """Wrapper function to write xml encoded in a proper way.
 
         Args:
@@ -208,7 +208,7 @@ class LKGMManager(manifest_version.BuildSpecsManager):
         with codecs.open(file_path, "w+", "utf-8") as f:
             dom_instance.writexml(f)
 
-    def _AddAndroidVersionToManifest(self, manifest, android_version):
+    def _AddAndroidVersionToManifest(self, manifest, android_version) -> None:
         """Adds Android element with version |android_version| to |manifest|.
 
         The manifest file should contain the Android version to build for
@@ -224,7 +224,7 @@ class LKGMManager(manifest_version.BuildSpecsManager):
         manifest_dom.documentElement.appendChild(android)
         self._WriteXml(manifest_dom, manifest)
 
-    def _AddChromeVersionToManifest(self, manifest, chrome_version):
+    def _AddChromeVersionToManifest(self, manifest, chrome_version) -> None:
         """Adds the chrome element with version |chrome_version| to |manifest|.
 
         The manifest file should contain the Chrome version to build for
@@ -378,7 +378,7 @@ class LKGMManager(manifest_version.BuildSpecsManager):
 
         raise manifest_version.GenerateBuildSpecException(last_error)
 
-    def PromoteCandidate(self, retries=manifest_version.NUM_RETRIES):
+    def PromoteCandidate(self, retries=manifest_version.NUM_RETRIES) -> None:
         """Promotes the current LKGM candidate to be a real versioned LKGM."""
         assert self.current_version, "No current manifest exists."
 
@@ -414,6 +414,6 @@ class LKGMManager(manifest_version.BuildSpecsManager):
 
         raise PromoteCandidateException(last_error)
 
-    def GetLatestPassingSpec(self):
+    def GetLatestPassingSpec(self) -> None:
         """Get the last spec file that passed in the current branch."""
         raise NotImplementedError()

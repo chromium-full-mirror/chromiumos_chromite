@@ -47,7 +47,7 @@ MOCK_BUILD_ID = 162345
 class HelperMethodsTest(cros_test_lib.TempDirTestCase):
     """Test methods associated with methods not in a class."""
 
-    def testCreateSymlink(self):
+    def testCreateSymlink(self) -> None:
         """Tests that we can create symlinks and remove a previous one."""
         srcfile = os.path.join(self.tempdir, "src")
         osutils.Touch(srcfile)
@@ -65,7 +65,7 @@ class HelperMethodsTest(cros_test_lib.TempDirTestCase):
 class ResolveHelpersTest(cros_test_lib.TempDirTestCase):
     """Test the buildspec resolution helper functions."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.mv_path = self.tempdir
 
         self.version = "1.2.3"
@@ -81,7 +81,7 @@ class ResolveHelpersTest(cros_test_lib.TempDirTestCase):
         osutils.Touch(self.resolvedVersionSpec, makedirs=True)
         osutils.Touch(self.resolvedValidSpec, makedirs=True)
 
-    def testResolveBuildspec(self):
+    def testResolveBuildspec(self) -> None:
         """Test ResolveBuildspec."""
         result = manifest_version.ResolveBuildspec(self.mv_path, self.validSpec)
         self.assertEqual(result, self.resolvedValidSpec)
@@ -94,7 +94,7 @@ class ResolveHelpersTest(cros_test_lib.TempDirTestCase):
         with self.assertRaises(manifest_version.BuildSpecsValueError):
             manifest_version.ResolveBuildspec(self.mv_path, self.invalidSpec)
 
-    def testResolveBuildspecVersion(self):
+    def testResolveBuildspecVersion(self) -> None:
         """Test ResolveBuildspecVersion."""
         result = manifest_version.ResolveBuildspecVersion(
             self.mv_path, self.version
@@ -108,7 +108,7 @@ class ResolveHelpersTest(cros_test_lib.TempDirTestCase):
 class FilterManifestTest(cros_test_lib.TempDirTestCase):
     """Test for FilterManifest."""
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         """Basic check of functionality."""
         path = os.path.join(self.tempdir, "input.xml")
         osutils.WriteFile(
@@ -134,7 +134,7 @@ class FilterManifestTest(cros_test_lib.TempDirTestCase):
 class BuildSpecFunctionsTest(cros_test_lib.MockTempDirTestCase):
     """Tests for methods related to publishing buildspecs."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.version_info = chromeos_version.VersionInfo("1.2.3", "11")
 
         self.manifest_versions_int = os.path.join(
@@ -144,12 +144,12 @@ class BuildSpecFunctionsTest(cros_test_lib.MockTempDirTestCase):
             self.tempdir, "manifest_versions_ext"
         )
 
-    def testOfficialBuildSpecPath(self):
+    def testOfficialBuildSpecPath(self) -> None:
         """Test OfficialBuildSpecPath."""
         result = manifest_version.OfficialBuildSpecPath(self.version_info)
         self.assertEqual(result, "buildspecs/11/1.2.3.xml")
 
-    def testPopulateAndPublishBuildSpec(self):
+    def testPopulateAndPublishBuildSpec(self) -> None:
         """Test PopulateAndPublishBuildSpec."""
         commitMock = self.PatchObject(manifest_version, "_CommitAndPush")
 
@@ -189,7 +189,7 @@ class BuildSpecFunctionsTest(cros_test_lib.MockTempDirTestCase):
             ],
         )
 
-    def testPopulateAndPublishBuildSpecIntOnly(self):
+    def testPopulateAndPublishBuildSpecIntOnly(self) -> None:
         """Test PopulateAndPublishBuildSpec (no external manifest versions)."""
         commitMock = self.PatchObject(manifest_version, "_CommitAndPush")
 
@@ -221,7 +221,7 @@ class BuildSpecFunctionsTest(cros_test_lib.MockTempDirTestCase):
 class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
     """Tests for the BuildSpecs manager."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         os.makedirs(os.path.join(self.tempdir, ".repo"))
         self.source_repo = "ssh://source/repo"
         self.manifest_repo = "ssh://manifest/repo"
@@ -265,7 +265,7 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
 
         return manager
 
-    def testPublishManifestCommitMessageWithBuildId(self):
+    def testPublishManifestCommitMessageWithBuildId(self) -> None:
         """Tests that PublishManifest writes a build id."""
         self.manager = self.BuildManager()
         expected_message = (
@@ -287,7 +287,7 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
 
         push_mock.assert_called_once_with(expected_message)
 
-    def testPublishManifestCommitMessageWithNegativeBuildId(self):
+    def testPublishManifestCommitMessageWithNegativeBuildId(self) -> None:
         """Tests that PublishManifest doesn't write a negative build_id"""
         self.manager = self.BuildManager()
         expected_message = "Automatic: Start amd64-generic-release master 1"
@@ -306,7 +306,7 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
 
         push_mock.assert_called_once_with(expected_message)
 
-    def testPublishManifestCommitMessageWithNoneBuildId(self):
+    def testPublishManifestCommitMessageWithNoneBuildId(self) -> None:
         """Tests that PublishManifest doesn't write a non-existant build_id"""
         self.manager = self.BuildManager()
         expected_message = "Automatic: Start amd64-generic-release master 1"
@@ -339,7 +339,7 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
 
         return manifest_paths
 
-    def testInitializeManifestVariablesWithUnprocessedBuild(self):
+    def testInitializeManifestVariablesWithUnprocessedBuild(self) -> None:
         """Test InitializeManifestVariables with unprocessed build."""
         self.manager = self.BuildManager()
         info = chromeos_version.VersionInfo(
@@ -369,7 +369,7 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(self.manager.latest_unprocessed, "1.2.5")
         self.assertIsNone(self.manager._latest_build)
 
-    def testInitializeManifestVariablesWithPassedBuild(self):
+    def testInitializeManifestVariablesWithPassedBuild(self) -> None:
         """Test InitializeManifestVariables with passed build."""
         self.manager = self.BuildManager()
         info = chromeos_version.VersionInfo(
@@ -409,7 +409,7 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
         self.assertIsNone(self.manager.latest_unprocessed)
         self.assertEqual(self.manager._latest_build, latest_builds[0])
 
-    def testLatestSpecFromDir(self):
+    def testLatestSpecFromDir(self) -> None:
         """Tests whether we can get sorted specs correctly from a directory."""
         self.manager = self.BuildManager()
         self.PatchObject(git, "Clone", side_effect=Exception())
@@ -434,7 +434,7 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
         # Should be the latest on the 99.1 branch.
         self.assertEqual(spec, "99.1.10")
 
-    def testGetNextVersionNoIncrement(self):
+    def testGetNextVersionNoIncrement(self) -> None:
         """Tests whether we can get the next version to be built correctly.
 
         Tests without pre-existing version in manifest dir.
@@ -448,7 +448,7 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
         version = self.manager.GetNextVersion(info)
         self.assertEqual(FAKE_VERSION_STRING, version)
 
-    def testGetNextVersionIncrement(self):
+    def testGetNextVersionIncrement(self) -> None:
         """Tests that we create a new version if a previous one exists."""
         self.manager = self.BuildManager()
         self.manager.dry_run = False
@@ -467,7 +467,7 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
             dry_run=False,
         )
 
-    def testGetNextVersionDryRun(self):
+    def testGetNextVersionDryRun(self) -> None:
         """Tests that we reuse a previous version if it is a dryrun."""
         self.manager = self.BuildManager()
         m = self.PatchObject(chromeos_version.VersionInfo, "UpdateVersionFile")
@@ -485,7 +485,7 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
             dry_run=True,
         )
 
-    def testGetNextBuildSpec(self):
+    def testGetNextBuildSpec(self) -> None:
         """End-to-end test of updating the manifest."""
         self.manager = self.BuildManager()
         my_info = chromeos_version.VersionInfo("1.2.3", chrome_branch="4")
@@ -506,13 +506,13 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
         self.manager.GetNextBuildSpec(retries=0)
         self.manager.UpdateStatus({self.build_names[0]: True})
 
-    def testDidLastBuildFailReturnsFalse(self):
+    def testDidLastBuildFailReturnsFalse(self) -> None:
         """Test DidLastBuildFail returns False."""
         self.manager = self.BuildManager()
         self.assertFalse(self.manager.DidLastBuildFail())
 
     # pylint: disable=attribute-defined-outside-init
-    def testDidLastBuildFailReturnsTrue(self):
+    def testDidLastBuildFailReturnsTrue(self) -> None:
         """Test DidLastBuildFailReturns True."""
         self.manager = self.BuildManager()
         self._latest_build = {
@@ -522,12 +522,12 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
         }
         self.assertFalse(self.manager.DidLastBuildFail())
 
-    def testWaitForSlavesToCompleteWithEmptyBuildersArray(self):
+    def testWaitForSlavesToCompleteWithEmptyBuildersArray(self) -> None:
         """Test WaitForSlavesToComplete with an empty builders_array."""
         self.manager = self.BuildManager()
         self.manager.WaitForSlavesToComplete(1, [])
 
-    def testWaitForSlavesToComplete(self):
+    def testWaitForSlavesToComplete(self) -> None:
         """Test WaitForSlavesToComplete."""
         self.PatchObject(build_status.SlaveStatus, "UpdateSlaveStatus")
         self.PatchObject(
@@ -539,7 +539,7 @@ class BuildSpecsManagerTest(cros_test_lib.MockTempDirTestCase):
             ["build_1", "build_2"],
         )
 
-    def testWaitForSlavesToCompleteWithTimeout(self):
+    def testWaitForSlavesToCompleteWithTimeout(self) -> None:
         """Test WaitForSlavesToComplete raises timeout."""
         self.PatchObject(build_status.SlaveStatus, "UpdateSlaveStatus")
         self.PatchObject(

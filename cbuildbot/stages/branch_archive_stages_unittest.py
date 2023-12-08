@@ -32,7 +32,7 @@ class BranchArchiveStageTestBase(
 ):
     """Base class for test suites."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.CreateMockOverlay("board", self.workspace)
 
         self.upload_mock = self.PatchObject(
@@ -59,7 +59,7 @@ class BranchArchiveStageTestBase(
             ),
         )
 
-    def ConstructStage(self):
+    def ConstructStage(self) -> None:
         """Returns an instance of the stage to be tested.
 
         Note: Must be implemented in subclasses.
@@ -72,7 +72,7 @@ class BranchArchiveStageTestBase(
 class FactoryArchiveStageTest(BranchArchiveStageTestBase):
     """Test FactoryArchiveStage."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self.path_resolver = path_util.ChrootPathResolver(
@@ -104,7 +104,7 @@ class FactoryArchiveStageTest(BranchArchiveStageTestBase):
             self._run, self.buildstore, build_root=self.workspace, board="board"
         )
 
-    def testProd(self):
+    def testProd(self) -> None:
         """Tests sync command used by default."""
         self._Prepare(
             "test-factorybranch",
@@ -287,7 +287,7 @@ class FactoryArchiveStageTest(BranchArchiveStageTestBase):
             ],
         )
 
-    def testDebug(self):
+    def testDebug(self) -> None:
         """Tests sync command used by default."""
         self._Prepare(
             "test-factorybranch",

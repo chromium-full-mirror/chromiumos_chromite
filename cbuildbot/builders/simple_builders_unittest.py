@@ -25,7 +25,7 @@ from chromite.scripts import cbuildbot
 class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
     """Tests for the main code paths in simple_builders.SimpleBuilder"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # List of all stages that would have been called as part of this run.
         self.called_stages = []
 
@@ -37,13 +37,13 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         # Simple new function that redirects RunStage to record all stages to be
         # run rather than mock them completely. These can be used in a test to
         # assert something has been called.
-        def run_stage(_class_instance, stage_name, *_args, **_kwargs):
+        def run_stage(_class_instance, stage_name, *_args, **_kwargs) -> None:
             self.called_stages.append(stage_name)
             if stage_name in self.stage_exceptions:
                 raise self.stage_exceptions[stage_name]
 
         # Parallel version.
-        def run_parallel_stages(_class_instance, *_args):
+        def run_parallel_stages(_class_instance, *_args) -> None:
             # Since parallel stages are forked processes, we can't actually
             # update anything here unless we want to do interprocesses comms.
             pass
@@ -68,7 +68,7 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
         # Pylint-1.9 has a false positive on this for some reason.
         self._manager.__enter__()  # pylint: disable=no-value-for-parameter
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # Mimic exiting a 'with' statement.
         self._manager.__exit__(None, None, None)
 
@@ -101,7 +101,7 @@ class SimpleBuilderTest(cros_test_lib.MockTempDirTestCase):
             options, site_config, build_config, self._manager
         )
 
-    def testRunStagesDefaultBuild(self):
+    def testRunStagesDefaultBuild(self) -> None:
         """Verify RunStages for standard board builders"""
         builder_run = self._initConfig("amd64-generic-full")
         builder_run.attrs.chrome_version = "TheChromeVersion"

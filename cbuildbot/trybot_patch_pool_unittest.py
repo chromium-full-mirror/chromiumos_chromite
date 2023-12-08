@@ -16,7 +16,7 @@ class FilterTests(patch_unittest.GitRepoPatchTestCase):
 
     patch_kls = cros_patch.LocalPatch
 
-    def testChromiteFilter(self):
+    def testChromiteFilter(self) -> None:
         """Make sure the chromite filter works"""
         _, _, patch = self._CommonGitSetup()
         patch.project = constants.CHROMITE_PROJECT
@@ -24,7 +24,7 @@ class FilterTests(patch_unittest.GitRepoPatchTestCase):
         patch.project = "foooo"
         self.assertFalse(trybot_patch_pool.ChromiteFilter(patch))
 
-    def testManifestFilters(self):
+    def testManifestFilters(self) -> None:
         """Make sure the manifest filters work"""
         site_params = config_lib.GetSiteParams()
         _, _, patch = self._CommonGitSetup()
@@ -44,7 +44,7 @@ class FilterTests(patch_unittest.GitRepoPatchTestCase):
         self.assertTrue(trybot_patch_pool.IntManifestFilter(patch))
         self.assertTrue(trybot_patch_pool.ManifestFilter(patch))
 
-    def testBranchFilter(self):
+    def testBranchFilter(self) -> None:
         """Make sure the branch filter works"""
         _, _, patch = self._CommonGitSetup()
 

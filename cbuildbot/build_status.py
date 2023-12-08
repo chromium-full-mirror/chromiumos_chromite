@@ -144,7 +144,7 @@ class SlaveStatus:
             if k not in completed_builds
         }
 
-    def _SetStatusBuildsDict(self):
+    def _SetStatusBuildsDict(self) -> None:
         """Set status_buildset_dict by sorting builds into their status set."""
         self.status_buildset_dict = {}
         for build, info in self.new_buildbucket_info_dict.items():
@@ -152,7 +152,7 @@ class SlaveStatus:
                 self.status_buildset_dict.setdefault(info.status, set())
                 self.status_buildset_dict[info.status].add(build)
 
-    def UpdateSlaveStatus(self):
+    def UpdateSlaveStatus(self) -> None:
         # pylint: disable-next=line-too-long
         """Update slave statuses by querying CIDB and Buildbucket(if supported)."""
         logging.info("Updating slave status...")

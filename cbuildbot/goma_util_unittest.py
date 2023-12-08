@@ -22,17 +22,17 @@ from chromite.utils import hostname_util
 class TestGomaLogUploader(cros_test_lib.MockTempDirTestCase):
     """Tests for upload_goma_info."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # cros_build_lib.CreateTarball() function is unit tested. Safe to patch.
         # pylint: disable=unused-argument
-        def _createTarball(tarball_path, *args, **kwargs):
+        def _createTarball(tarball_path, *args, **kwargs) -> None:
             osutils.Touch(tarball_path, makedirs=True)
 
         self.tarball_mock = self.PatchObject(
             cros_build_lib, "CreateTarball", side_effect=_createTarball
         )
 
-    def _CreateLogFile(self, name, timestamp):
+    def _CreateLogFile(self, name, timestamp) -> None:
         path = os.path.join(
             self.tempdir,
             "%s.host.log.INFO.%s"
@@ -42,7 +42,7 @@ class TestGomaLogUploader(cros_test_lib.MockTempDirTestCase):
             path, timestamp.strftime("Log file created at: %Y/%m/%d %H:%M:%S")
         )
 
-    def testUpload(self):
+    def testUpload(self) -> None:
         self._CreateLogFile(
             "compiler_proxy", datetime.datetime(2017, 4, 26, 12, 0, 0)
         )
@@ -120,7 +120,7 @@ class TestGomaLogUploader(cros_test_lib.MockTempDirTestCase):
         )
         self.tarball_mock.assert_called_once()
 
-    def testUploadLuci(self):
+    def testUploadLuci(self) -> None:
         self._CreateLogFile(
             "compiler_proxy", datetime.datetime(2017, 4, 26, 12, 0, 0)
         )
@@ -211,7 +211,7 @@ class TestGomaLogUploader(cros_test_lib.MockTempDirTestCase):
         )
         self.tarball_mock.assert_called_once()
 
-    def testNinjaLogUpload(self):
+    def testNinjaLogUpload(self) -> None:
         self._CreateLogFile(
             "compiler_proxy", datetime.datetime(2017, 8, 21, 12, 0, 0)
         )

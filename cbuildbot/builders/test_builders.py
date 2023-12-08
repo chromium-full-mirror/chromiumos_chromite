@@ -13,21 +13,21 @@ from chromite.cbuildbot.stages import generic_stages
 class SuccessStage(generic_stages.BuilderStage):
     """Build stage declares success!"""
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         logging.info("!!!SuccessStage, FTW!!!")
 
 
 class FailStage(generic_stages.BuilderStage):
     """Build stage always fails."""
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         raise Exception("!!!Oh, no! A Fail Stage!!!")
 
 
 class SucessBuilder(generic_builders.ManifestVersionedBuilder):
     """Very minimal builder that always passes."""
 
-    def RunStages(self):
+    def RunStages(self) -> None:
         """Run a success stage!"""
         self._RunStage(SuccessStage)
 
@@ -35,6 +35,6 @@ class SucessBuilder(generic_builders.ManifestVersionedBuilder):
 class FailBuilder(generic_builders.ManifestVersionedBuilder):
     """Very minimal builder that always fails."""
 
-    def RunStages(self):
+    def RunStages(self) -> None:
         """Run fail stage!"""
         self._RunStage(FailStage)

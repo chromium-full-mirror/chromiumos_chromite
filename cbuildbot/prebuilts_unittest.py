@@ -23,7 +23,7 @@ DEFAULT_CHROME_BRANCH = "27"
 class PrebuiltTest(cros_test_lib.RunCommandTempDirTestCase):
     """Test general cbuildbot command methods."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self._board = "test-board"
@@ -34,7 +34,7 @@ class PrebuiltTest(cros_test_lib.RunCommandTempDirTestCase):
         self._chroot = os.path.join(self._buildroot, "chroot")
         os.makedirs(os.path.join(self._buildroot, ".repo"))
 
-    def testSdkPrebuilts(self):
+    def testSdkPrebuilts(self) -> None:
         """Test UploadPrebuilts for SDK builds."""
         # A magical date for a magical time.
         version = "1994.04.02.000000"
@@ -128,14 +128,14 @@ class BinhostConfWriterTest(
     # Our API here is not great when it comes to kwargs passing.
     def _Prepare(
         self, bot_id=None, **kwargs
-    ):  # pylint: disable=arguments-differ
+    ) -> None:  # pylint: disable=arguments-differ
         super()._Prepare(bot_id, **kwargs)
         self.cmd = os.path.join(
             self.build_root, constants.CHROMITE_BIN_SUBDIR, "upload_prebuilts"
         )
         self._run.options.prebuilts = True
 
-    def _Run(self, build_config):
+    def _Run(self, build_config) -> None:
         """Prepare and run a BinhostConfWriter.
 
         Args:
@@ -145,10 +145,12 @@ class BinhostConfWriterTest(
         confwriter = prebuilts.BinhostConfWriter(self._run)
         confwriter.Perform()
 
-    def ConstructStage(self):
+    def ConstructStage(self) -> None:
         pass
 
-    def _VerifyResults(self, public_slave_boards=(), private_slave_boards=()):
+    def _VerifyResults(
+        self, public_slave_boards=(), private_slave_boards=()
+    ) -> None:
         """Verify that the expected prebuilt commands were run.
 
         Do various assertions on the two RunCommands that were run by stage.

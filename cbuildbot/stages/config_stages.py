@@ -176,7 +176,7 @@ class CheckTemplateStage(generic_stages.BuilderStage):
 
         return template_gs_paths
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         template_gs_paths = self._ListTemplates()
 
         if not template_gs_paths:
@@ -249,7 +249,7 @@ class UpdateConfigStage(generic_stages.BuilderStage):
         self.config_paths = None
         self.ge_config_local_path = None
 
-    def _CheckoutBranch(self):
+    def _CheckoutBranch(self) -> None:
         """Checkout to the corresponding branch in the temp repository.
 
         Raises:
@@ -268,7 +268,7 @@ class UpdateConfigStage(generic_stages.BuilderStage):
                 "Failed to checkout to branch %s." % self.branch
             )
 
-    def _SetupConfigPaths(self):
+    def _SetupConfigPaths(self) -> None:
         """These config files can move based on the branch.
 
         Detect and save off the paths to them for the current path.
@@ -296,7 +296,7 @@ class UpdateConfigStage(generic_stages.BuilderStage):
                 "Failed to find configs in branch %s." % self.branch
             )
 
-    def _DownloadTemplate(self):
+    def _DownloadTemplate(self) -> None:
         """Download the template file from gs."""
         self.ctx.Copy(self.template_gs_path, self.ge_config_local_path)
 
@@ -318,7 +318,7 @@ class UpdateConfigStage(generic_stages.BuilderStage):
         else:
             return False
 
-    def _RunUnitTest(self):
+    def _RunUnitTest(self) -> None:
         """Run chromeos_config_unittest on top of the changes.
 
         Runs either the new pytest style test or old test depending
@@ -340,7 +340,7 @@ class UpdateConfigStage(generic_stages.BuilderStage):
             else:
                 self._RunLegacyUnitTest()
 
-    def _RunLegacyUnitTest(self):
+    def _RunLegacyUnitTest(self) -> None:
         """Run chromeos_config_unittest on top of the changes."""
         logging.debug("Running chromeos_config_unittest")
         test_path = path_util.ToChrootPath(
@@ -353,7 +353,7 @@ class UpdateConfigStage(generic_stages.BuilderStage):
         cmd = ["cros_sdk", "--", test_path, "--update"]
         cros_build_lib.run(cmd, cwd=os.path.dirname(self.chromite_dir))
 
-    def _RunNewUnitTest(self):
+    def _RunNewUnitTest(self) -> None:
         """Run chromeos_config_unittest on top of the changes."""
         logging.info("Updating generated configuration files.")
         refresh_script_path = path_util.ToChrootPath(
@@ -398,7 +398,7 @@ class UpdateConfigStage(generic_stages.BuilderStage):
 
         return config_change_patch
 
-    def _PushCommits(self):
+    def _PushCommits(self) -> None:
         """Commit and push changes to current branch."""
         git.RunGit(
             self.chromite_dir, ["add"] + self.config_paths, print_cmd=True
@@ -425,7 +425,7 @@ Please file a bug via go/cros-infra-bug for further assistance.
         )
         git.PushBranch(self.branch, self.chromite_dir, dryrun=self.dry_run)
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         logging.info(
             "Update configs for branch %s, template gs path %s",
             self.branch,
@@ -467,7 +467,7 @@ class DeployLuciSchedulerStage(generic_stages.BuilderStage):
         self.legacy_project_dir = None
         self.project_dir = None
 
-    def _RunUnitTest(self):
+    def _RunUnitTest(self) -> None:
         """Run chromeos_config_unittest to confirm a clean scheduler config."""
         logging.debug(
             "Running chromeos_config_unittest, to confirm sane state."
@@ -491,7 +491,7 @@ class DeployLuciSchedulerStage(generic_stages.BuilderStage):
         osutils.SafeMakedirs(path)
         return path
 
-    def _CheckoutLuciProject(self):
+    def _CheckoutLuciProject(self) -> None:
         """Checkout the LUCI project config.
 
         Raises:
@@ -507,7 +507,7 @@ class DeployLuciSchedulerStage(generic_stages.BuilderStage):
             self.project_dir,
         )
 
-    def _UpdateLuciProject(self):
+    def _UpdateLuciProject(self) -> None:
         chromite_source_file = (
             constants.CHROMITE_DIR / "config" / "luci-scheduler.cfg"
         )
@@ -564,7 +564,7 @@ class DeployLuciSchedulerStage(generic_stages.BuilderStage):
         git.PushBranch("main", self.project_dir, dryrun=self._run.options.debug)
         cbuildbot_alerts.PrintBuildbotStepText("luci-scheduler.cfg: Updated.")
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Perform the DeployLuciSchedulerStage."""
         logging.info("Update luci_scheduler.cfg at %s:HEAD.", self.PROJECT_URL)
 

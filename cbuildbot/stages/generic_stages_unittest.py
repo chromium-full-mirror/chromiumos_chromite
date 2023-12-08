@@ -55,7 +55,7 @@ class StageTestCase(
     # self._run.attrs.release_tag.
     RELEASE_TAG = None
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Prepare a fake build root in self.tempdir, save at self.build_root.
         self.build_root = os.path.join(self.tempdir, self.BUILDROOT)
         osutils.SafeMakedirs(os.path.join(self.build_root, ".repo"))
@@ -72,7 +72,7 @@ class StageTestCase(
         self._model = None
         self.buildstore = FakeBuildStore()
 
-    def CreateMockOverlay(self, overlay, build_root=None):
+    def CreateMockOverlay(self, overlay, build_root=None) -> None:
         """Helper for creating an overlay in the fake buildroot.
 
         Args:
@@ -108,7 +108,7 @@ class StageTestCase(
         master_build_id=None,
         buildbucket_id=None,
         site_config=None,
-    ):
+    ) -> None:
         """Prepare a BuilderRun at self._run for this test.
 
         This method must allow being called more than once.  Subclasses can
@@ -200,11 +200,11 @@ class StageTestCase(
 
         portage_util._OVERLAY_LIST_CMD = "/bin/true"
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # Mimic exiting with statement for self._manager.
         self._manager.__exit__(None, None, None)
 
-    def AutoPatch(self, to_patch):
+    def AutoPatch(self, to_patch) -> None:
         """Patch a list of objects with autospec=True.
 
         Args:
@@ -214,7 +214,9 @@ class StageTestCase(
         for item in to_patch:
             self.PatchObject(*item, autospec=True)
 
-    def assertRaisesStringifyable(self, exception, functor, *args, **kwargs):
+    def assertRaisesStringifyable(
+        self, exception, functor, *args, **kwargs
+    ) -> None:
         """assertRaises stand-in that also verifies exception is Stringifyable.
 
         This helper is intended to be used anywhere assertRaises can be used,
@@ -254,12 +256,12 @@ class AbstractStageTestCase(StageTestCase):
     default values for testing BuilderStage and its derivatives.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Value which will be populated as the stage runs, so that tests can
         # examine it's state afterwards.
         self.stage = None
 
-    def ConstructStage(self):
+    def ConstructStage(self) -> None:
         """Returns an instance of the stage to be tested.
 
         Note: Must be implemented in subclasses.
@@ -268,7 +270,7 @@ class AbstractStageTestCase(StageTestCase):
             self, "ConstructStage: Implement in your test"
         )
 
-    def RunStage(self, **kwargs):
+    def RunStage(self, **kwargs) -> None:
         """Creates and runs an instance of the stage to be tested.
 
         Note: Requires ConstructStage() to be implemented.
@@ -289,7 +291,7 @@ class AbstractStageTestCase(StageTestCase):
 class BuilderStageTest(AbstractStageTestCase):
     """Tests for BuilderStage class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._Prepare()
         self.mock_cidb = mock.MagicMock()
         self.buildstore = FakeBuildStore(self.mock_cidb)
@@ -297,7 +299,7 @@ class BuilderStageTest(AbstractStageTestCase):
         # Many tests modify the global results_lib.Results instance.
         results_lib.Results.Clear()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         cidb.CIDBConnectionFactory.ClearMock()
 
     def _ConstructStageWithExpectations(self, stage_class):
@@ -344,17 +346,17 @@ class BuilderStageTest(AbstractStageTestCase):
     def ConstructStage(self):
         return self._ConstructStageWithExpectations(generic_stages.BuilderStage)
 
-    def testStageNamePrefixSmoke(self):
+    def testStageNamePrefixSmoke(self) -> None:
         """Basic test for the StageNamePrefix() function."""
         stage = self.ConstructStage()
         self.assertEqual(stage.StageNamePrefix(), "Builder")
 
-    def testGetStageNamesSmoke(self):
+    def testGetStageNamesSmoke(self) -> None:
         """Basic test for the GetStageNames() function."""
         stage = self.ConstructStage()
         self.assertEqual(stage.GetStageNames(), ["Builder"])
 
-    def testConstructDashboardURLSmoke(self):
+    def testConstructDashboardURLSmoke(self) -> None:
         """Basic test for the ConstructDashboardURL() function."""
         stage = self.ConstructStage()
 
@@ -369,14 +371,14 @@ class BuilderStageTest(AbstractStageTestCase):
 
         self.assertEqual(stage.ConstructDashboardURL(stage=stage_name), exp_url)
 
-    def test_PrintSmoke(self):
+    def test_PrintSmoke(self) -> None:
         """Basic test for the _Print() function."""
         stage = self.ConstructStage()
         with self.OutputCapturer():
             stage._Print("hi there")
         self.AssertOutputContainsLine("hi there", check_stderr=True)
 
-    def test_PrintLoudlySmoke(self):
+    def test_PrintLoudlySmoke(self) -> None:
         """Basic test for the _PrintLoudly() function."""
         stage = self.ConstructStage()
         with self.OutputCapturer():
@@ -384,7 +386,7 @@ class BuilderStageTest(AbstractStageTestCase):
         self.AssertOutputContainsLine(r"\*{10}", check_stderr=True)
         self.AssertOutputContainsLine("hi there", check_stderr=True)
 
-    def testRunSmoke(self):
+    def testRunSmoke(self) -> None:
         """Basic passing test for the Run() function."""
         stage = self.ConstructStage()
         with self.OutputCapturer():
@@ -400,7 +402,7 @@ class BuilderStageTest(AbstractStageTestCase):
             output.StopCapturing()
         return output
 
-    def testRunException(self):
+    def testRunException(self) -> None:
         """Verify stage exceptions are handled."""
 
         class TestError(Exception):
@@ -425,7 +427,7 @@ class BuilderStageTest(AbstractStageTestCase):
             DEFAULT_BUILD_STAGE_ID, constants.BUILDER_STATUS_FAILED
         )
 
-    def testRunExitEarlyException(self):
+    def testRunExitEarlyException(self) -> None:
         """Verify stage exit early exceptions are handled."""
 
         class TestError(Exception):
@@ -450,7 +452,7 @@ class BuilderStageTest(AbstractStageTestCase):
             DEFAULT_BUILD_STAGE_ID, constants.BUILDER_STATUS_FAILED
         )
 
-    def testRunWithWaitFailure(self):
+    def testRunWithWaitFailure(self) -> None:
         """Test Run when WaitUntilReady returns False"""
         stage = self.ConstructStage()
         self.PatchObject(
@@ -466,7 +468,7 @@ class BuilderStageTest(AbstractStageTestCase):
         self.assertFalse(self.mock_cidb.StartBuildStage.called)
 
     @osutils.TempFileDecorator
-    def testRunSkipsPreviouslyCompletedStage(self):
+    def testRunSkipsPreviouslyCompletedStage(self) -> None:
         """Tests a stage that has run before is skipped, and marked as such."""
         handle_skip_mock = self.PatchObject(
             generic_stages.BuilderStage, "HandleSkip"
@@ -491,7 +493,7 @@ class BuilderStageTest(AbstractStageTestCase):
         self.assertTrue("[PREVIOUSLY PROCESSED]" in all_out)
         self.assertTrue(handle_skip_mock.called)
 
-    def testHandleExceptionException(self):
+    def testHandleExceptionException(self) -> None:
         """Verify exceptions in HandleException handlers are also handled."""
 
         class TestError(Exception):
@@ -502,10 +504,10 @@ class BuilderStageTest(AbstractStageTestCase):
 
             handled_exceptions = []
 
-            def PerformStage(self):
+            def PerformStage(self) -> None:
                 raise TestError("first fail")
 
-            def _HandleStageException(self, exc_info):
+            def _HandleStageException(self, exc_info) -> None:
                 self.handled_exceptions.append(str(exc_info[1]))
                 raise TestError("nested")
 
@@ -532,19 +534,19 @@ class BuilderStageTest(AbstractStageTestCase):
 class BuilderStageGetBuildFailureMessage(AbstractStageTestCase):
     """Test GetBuildFailureMessage in BuilderStage."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._Prepare()
         self.buildstore = FakeBuildStore()
         # Many tests modify the global results_lib.Results instance.
         results_lib.Results.Clear()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         cidb.CIDBConnectionFactory.ClearMock()
 
     def ConstructStage(self):
         return generic_stages.BuilderStage(self._run, self.buildstore)
 
-    def testGetBuildFailureMessageFromResults(self):
+    def testGetBuildFailureMessageFromResults(self) -> None:
         """Test GetBuildFailureMessageFromResults."""
         ex = failures_lib.StepFailure()
         results_lib.Results.Record("CommitQueueSync", ex)
@@ -556,7 +558,7 @@ class BuilderStageGetBuildFailureMessage(AbstractStageTestCase):
             failure_message_lib.StageFailureMessage,
         )
 
-    def testGetBuildFailureMessageWithoutBuildStore(self):
+    def testGetBuildFailureMessageWithoutBuildStore(self) -> None:
         """Test GetBuildFailureMessage without working BuildStore instance."""
         stage = self.ConstructStage()
         message = "foo"
@@ -572,7 +574,7 @@ class BuilderStageGetBuildFailureMessage(AbstractStageTestCase):
         get_msg_from_cidb.assert_not_called()
         get_msg_from_results.assert_called_once_with()
 
-    def testGetBuildFailureMessageWithBuildStore(self):
+    def testGetBuildFailureMessageWithBuildStore(self) -> None:
         """Test GetBuildFailureMessage with working BuildStore."""
         db = fake_cidb.FakeCIDBConnection()
         cidb.CIDBConnectionFactory.SetupMockCidb(db)
@@ -598,7 +600,7 @@ class BuilderStageGetBuildFailureMessage(AbstractStageTestCase):
         )
         get_msg_from_results.assert_not_called()
 
-    def testMeaningfulMessage(self):
+    def testMeaningfulMessage(self) -> None:
         """Tests that all essential components are in the message."""
         stage = self.ConstructStage()
 
@@ -628,7 +630,7 @@ class BoardSpecificBuilderStageTest(AbstractStageTestCase):
 
     DEFAULT_BOARD_NAME = "my_shiny_test_board"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.buildstore = FakeBuildStore()
         self._Prepare()
 
@@ -637,7 +639,7 @@ class BoardSpecificBuilderStageTest(AbstractStageTestCase):
             self._run, self.buildstore, self.DEFAULT_BOARD_NAME
         )
 
-    def testBuilderNameContainsBoardName(self):
+    def testBuilderNameContainsBoardName(self) -> None:
         self._run.config.grouped = True
         stage = self.ConstructStage()
         self.assertTrue(self.DEFAULT_BOARD_NAME in stage.name)
@@ -661,7 +663,7 @@ class BoardSpecificBuilderStageTest(AbstractStageTestCase):
     #         self.fail(('cbuildbot_stages.%s.config_name "%s" is missing from '
     #                   'cbuildbot_config._settings') % (attr, obj.config_name))
 
-    def testListOfPackagesToBuild(self):
+    def testListOfPackagesToBuild(self) -> None:
         """Test the default list of packages to build."""
         stage = self.ConstructStage()
         packages = stage.GetListOfPackagesToBuild()
@@ -703,10 +705,10 @@ class RunCommandAbstractStageTestCase(
     FULL_BOT_ID = "amd64-generic-full"
     BIN_BOT_ID = "amd64-generic-full"
 
-    def _PrepareFull(self, **kwargs):
+    def _PrepareFull(self, **kwargs) -> None:
         self._Prepare(self.FULL_BOT_ID, **kwargs)
 
-    def _PrepareBin(self, **kwargs):
+    def _PrepareBin(self, **kwargs) -> None:
         self._Prepare(self.BIN_BOT_ID, **kwargs)
 
 
@@ -716,7 +718,7 @@ class ArchivingStageMixinMock(partial_mock.PartialMock):
     TARGET = "chromite.cbuildbot.stages.generic_stages.ArchivingStageMixin"
     ATTRS = ("UploadArtifact",)
 
-    def UploadArtifact(self, *args, **kwargs):
+    def UploadArtifact(self, *args, **kwargs) -> None:
         with mock.patch.object(
             commands, "ArchiveFile", autospec=True, return_value="foo.txt"
         ):
@@ -729,7 +731,7 @@ class ArchivingStageMixinMock(partial_mock.PartialMock):
 class ReportStageFailureTest(cros_test_lib.MockTestCase):
     """Tests for ReportStageFailure."""
 
-    def testReportStageFailure(self):
+    def testReportStageFailure(self) -> None:
         """Test ReportStageFailure."""
 
         class FakeStepFailure(failures_lib.StepFailure):

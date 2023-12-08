@@ -80,7 +80,7 @@ class ManifestVersionedSyncCompletionStage(
         # UpdateStatus.
         self.message = None
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         if not self.success:
             self.message = self.GetBuildFailureMessage()
 
@@ -207,7 +207,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
                 self, exc_info
             )
 
-    def HandleSuccess(self):
+    def HandleSuccess(self) -> None:
         """Handle a successful build.
 
         This function is called whenever the cbuildbot run is successful.
@@ -227,7 +227,9 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
                 # pylint: disable-next=line-too-long
                 sync_stages.MasterSlaveLKGMSyncStage.external_manager.PromoteCandidate()
 
-    def HandleFailure(self, failing, inflight, no_stat, self_destructed):
+    def HandleFailure(
+        self, failing, inflight, no_stat, self_destructed
+    ) -> None:
         """Handle a build failure.
 
         This function is called whenever the cbuildbot run fails.
@@ -284,7 +286,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
                 )
             )
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         super().PerformStage()
 
         builder_statusess_fetcher = self._GetBuilderStatusesFetcher()
@@ -371,7 +373,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         # Fatal if any not_passed_builders remain.
         return bool(not_passed_builders)
 
-    def _PrintBuildMessage(self, text, url=None):
+    def _PrintBuildMessage(self, text, url=None) -> None:
         """Print the build message.
 
         Args:
@@ -383,7 +385,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         else:
             cbuildbot_alerts.PrintBuildbotStepText(text)
 
-    def _AnnotateNoStatBuilders(self, no_stat):
+    def _AnnotateNoStatBuilders(self, no_stat) -> None:
         """Annotate the build statuses fetched from the Buildbucket.
 
         Some builds may fail to upload statuses to GS. If the builds were
@@ -452,7 +454,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         statuses,
         experimental_statuses,
         self_destructed,
-    ):
+    ) -> None:
         """Annotate failing, inflight and no_stat builds with text and links.
 
         Add text and buildbot links to build dashboards for failing builds and
@@ -528,7 +530,9 @@ class CanaryCompletionStage(MasterSlaveSyncCompletionStage):
 
     category = constants.CI_INFRA_STAGE
 
-    def HandleFailure(self, failing, inflight, no_stat, self_destructed):
+    def HandleFailure(
+        self, failing, inflight, no_stat, self_destructed
+    ) -> None:
         """Handle a build failure or timeout in the Canary builders.
 
         Args:
@@ -547,7 +551,7 @@ class CanaryCompletionStage(MasterSlaveSyncCompletionStage):
         if self._run.config.master:
             self.CanaryMasterHandleFailure(failing, inflight, no_stat)
 
-    def SendCanaryFailureAlert(self, failing, inflight, no_stat):
+    def SendCanaryFailureAlert(self, failing, inflight, no_stat) -> None:
         """Send an alert email to summarize canary failures.
 
         Args:
@@ -579,7 +583,7 @@ class CanaryCompletionStage(MasterSlaveSyncCompletionStage):
         msg = "\n\n".join(msgs)
         logging.warning(msg)
 
-    def CanaryMasterHandleFailure(self, failing, inflight, no_stat):
+    def CanaryMasterHandleFailure(self, failing, inflight, no_stat) -> None:
         """Handles the failure by sending out an alert email.
 
         Args:
@@ -614,7 +618,7 @@ class UpdateChromeosLKGMStage(generic_stages.BuilderStage):
 
     category = constants.CI_INFRA_STAGE
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         if not self._build_threshold_successful():
             logging.info(
                 "Insufficient number of successful builders. "
@@ -684,7 +688,7 @@ class PublishUprevChangesStage(generic_stages.BuilderStage):
         self.sync_stage = sync_stage
         self.success = success
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         # Either has to be a master or not have any push overlays.
         assert self._run.config.master
         assert self._run.config.push_overlays

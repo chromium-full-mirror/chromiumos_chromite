@@ -59,7 +59,7 @@ class LockedDefaultDict(collections.defaultdict):
             raise LockedDictAccessException()
         return super().get(key)
 
-    def unlock(self):
+    def unlock(self) -> None:
         self._locked = False
 
 
@@ -67,7 +67,7 @@ topology = LockedDefaultDict()
 topology.update(TOPOLOGY_DEFAULTS)
 
 
-def FetchTopology():
+def FetchTopology() -> None:
     """Update and unlock topology based on constant keyval store."""
     topology.update(TOPOLOGY_DICT)
     topology.unlock()

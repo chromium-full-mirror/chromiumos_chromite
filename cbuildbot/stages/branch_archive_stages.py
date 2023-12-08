@@ -109,7 +109,7 @@ class WorkspaceArchiveBase(
             ]
         return upload_urls
 
-    def UploadBranchArtifact(self, path):
+    def UploadBranchArtifact(self, path) -> None:
         """Upload artifacts to the branch build results."""
         logging.info("UploadBranchArtifact: %s", path)
         with osutils.TempDir(prefix="branch") as tempdir:
@@ -131,7 +131,7 @@ class WorkspaceArchiveBase(
                 logging.info("Branch artifact from: %s", path)
                 gs_context.CopyInto(path, url, parallel=True, recursive=True)
 
-    def PushBoardImage(self):
+    def PushBoardImage(self) -> None:
         """Helper to run push_image against the branch boards artifacts."""
         # This helper script is only available on internal manifests currently.
         if not self._run.config["internal"]:
@@ -157,7 +157,7 @@ class WorkspaceArchiveBase(
             buildroot=self._build_root,
         )
 
-    def CreateBranchMetadataJson(self):
+    def CreateBranchMetadataJson(self) -> None:
         """Create/publish the factory build artifact for the current board."""
         workspace_version_info = self.GetWorkspaceVersionInfo()
 
@@ -205,7 +205,7 @@ class FactoryArchiveStage(WorkspaceArchiveBase):
 
     BRANCH_NAME = "factory"
 
-    def CreateFactoryZip(self):
+    def CreateFactoryZip(self) -> None:
         """Create/publish the firmware build artifact for the current board."""
         logging.info("Create factory_image.zip")
 
@@ -243,7 +243,7 @@ class FactoryArchiveStage(WorkspaceArchiveBase):
 
             self.UploadBranchArtifact(os.path.join(zip_dir, filename))
 
-    def CreateTestImageTar(self):
+    def CreateTestImageTar(self) -> None:
         """Create and upload chromiumos_test_image.tar.xz.
 
         This depends on the WorkspaceBuildImage stage having previously created
@@ -263,7 +263,7 @@ class FactoryArchiveStage(WorkspaceArchiveBase):
 
             self.UploadBranchArtifact(tarball_path)
 
-    def CreateFactoryProjectToolkitsZip(self):
+    def CreateFactoryProjectToolkitsZip(self) -> None:
         """Create/publish the factory project toolkits for the current board."""
         toolkits_src_path = os.path.join(
             path_util.FromChrootPath(
@@ -277,7 +277,7 @@ class FactoryArchiveStage(WorkspaceArchiveBase):
         if os.path.exists(toolkits_src_path):
             self.UploadBranchArtifact(toolkits_src_path)
 
-    def BuildAutotestTarballs(self):
+    def BuildAutotestTarballs(self) -> None:
         """Build the autotest tarballs."""
         with osutils.TempDir(prefix="cbuildbot-autotest") as tempdir:
             cwd = os.path.abspath(
@@ -304,7 +304,7 @@ class FactoryArchiveStage(WorkspaceArchiveBase):
             ):
                 self.UploadBranchArtifact(tarball)
 
-    def BuildTastTarball(self):
+    def BuildTastTarball(self) -> None:
         """Build the tarball containing private Tast test bundles."""
         with osutils.TempDir(prefix="cbuildbot-tast") as tempdir:
             cwd = os.path.abspath(
@@ -325,7 +325,7 @@ class FactoryArchiveStage(WorkspaceArchiveBase):
             if tarball:
                 self.UploadBranchArtifact(tarball)
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Archive and publish the factory build artifacts."""
         logging.info("Factory version: %s", self.branch_version)
         logging.info("Archive build as: %s", self.branch_config)

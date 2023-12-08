@@ -57,7 +57,7 @@ class SimpleBuilder(generic_builders.Builder):
         """Returns the CrOS version info from the chromiumos-overlay."""
         return chromeos_version.VersionInfo.from_repo(self._run.buildroot)
 
-    def _RunDebugSymbolStages(self, builder_run, board):
+    def _RunDebugSymbolStages(self, builder_run, board) -> None:
         """Run debug-related stages for the specified board.
 
         Args:
@@ -76,7 +76,7 @@ class SimpleBuilder(generic_builders.Builder):
 
     def _RunBackgroundStagesForBoardAndMarkAsSuccessful(
         self, builder_run, board
-    ):
+    ) -> None:
         """Run background board-specific stages for the specified board.
 
         After finishing the build, mark it as successful.
@@ -89,7 +89,7 @@ class SimpleBuilder(generic_builders.Builder):
         board_runattrs = builder_run.GetBoardRunAttrs(board)
         board_runattrs.SetParallel("success", True)
 
-    def _RunBackgroundStagesForBoard(self, builder_run, board):
+    def _RunBackgroundStagesForBoard(self, builder_run, board) -> None:
         """Run background board-specific stages for the specified board.
 
         Used by _RunBackgroundStagesForBoardAndMarkAsSuccessful. Callers should
@@ -165,7 +165,7 @@ class SimpleBuilder(generic_builders.Builder):
         """All boards for this builder."""
         return builder_run.config.boards
 
-    def RunSetupBoard(self):
+    def RunSetupBoard(self) -> None:
         """Run the SetupBoard stage for all child configs and boards."""
         for builder_run in [self._run]:
             for board in self.BoardsForSimpleBuilder(builder_run):
@@ -173,7 +173,7 @@ class SimpleBuilder(generic_builders.Builder):
                     build_stages.SetupBoardStage, board, builder_run=builder_run
                 )
 
-    def RunEarlySyncAndSetupStages(self):
+    def RunEarlySyncAndSetupStages(self) -> None:
         """Runs through the early sync and board setup stages."""
         # If there are slave builders, schedule them.
         if self._run.config.slave_configs:
@@ -187,7 +187,7 @@ class SimpleBuilder(generic_builders.Builder):
         self.RunSetupBoard()
         self._RunStage(android_stages.AndroidMetadataStage)
 
-    def RunBuildStages(self):
+    def RunBuildStages(self) -> None:
         """Runs through the stages to perform the build and resulting tests."""
         # Prepare stages to run in background.
         tasks = []
@@ -223,12 +223,12 @@ class SimpleBuilder(generic_builders.Builder):
                 # Kick off our background stages.
                 queue.put([builder_run, board])
 
-    def _RunDefaultTypeBuild(self):
+    def _RunDefaultTypeBuild(self) -> None:
         """Runs through the stages of a non-special-type build."""
         self.RunEarlySyncAndSetupStages()
         self.RunBuildStages()
 
-    def RunStages(self):
+    def RunStages(self) -> None:
         """Runs through build process."""
         self._RunDefaultTypeBuild()
 
@@ -296,7 +296,7 @@ class DistributedBuilder(SimpleBuilder):
         """
         return self._completion_stage
 
-    def Complete(self, was_build_successful, build_finished):
+    def Complete(self, was_build_successful, build_finished) -> None:
         """Completes build by publishing any required information.
 
         Args:
@@ -320,7 +320,7 @@ class DistributedBuilder(SimpleBuilder):
 
     def _Publish(
         self, was_build_successful, build_finished, completion_successful
-    ):
+    ) -> None:
         """Updates and publishes uprevs.
 
         Args:
@@ -365,7 +365,7 @@ class DistributedBuilder(SimpleBuilder):
                 publish,
             )
 
-    def RunStages(self):
+    def RunStages(self) -> None:
         """Runs simple builder logic and publishes information to overlays."""
         was_build_successful = False
         build_finished = False

@@ -280,7 +280,7 @@ class RunAttributes:
         # Translate to the unique attribute name for attr/board/target.
         return RunAttributes.BOARD_ATTR_SEP.join((attr, board, target))
 
-    def SetBoardParallel(self, attr, value, board, target):
+    def SetBoardParallel(self, attr, value, board, target) -> None:
         """Set board-specific parallel run attribute value.
 
         Args:
@@ -303,7 +303,9 @@ class RunAttributes:
         unique_attr = self._GetBoardAttrName(attr, board, target)
         return self.HasParallel(unique_attr)
 
-    def SetBoardParallelDefault(self, attr, default_value, board, target):
+    def SetBoardParallelDefault(
+        self, attr, default_value, board, target
+    ) -> None:
         """Set board-specific parallel run attribute value, if not already set.
 
         Args:
@@ -352,7 +354,7 @@ class RunAttributes:
 
         return queue
 
-    def SetParallel(self, attr, value):
+    def SetParallel(self, attr, value) -> None:
         """Set the given parallel run attribute value.
 
         Called to set the value of any parallel run attribute.  The value is
@@ -401,7 +403,7 @@ class RunAttributes:
         except ParallelAttributeError:
             return False
 
-    def SetParallelDefault(self, attr, default_value):
+    def SetParallelDefault(self, attr, default_value) -> None:
         """Set the given parallel run attribute only if it is not already set.
 
         This leverages HasParallel and SetParallel in a convenient pattern.
@@ -518,7 +520,7 @@ class BoardRunAttributes:
         self._board = board
         self._target = target
 
-    def SetParallel(self, attr, value, *args, **kwargs):
+    def SetParallel(self, attr, value, *args, **kwargs) -> None:
         """Set the value of parallel board attribute |attr| to |value|.
 
         Relay to SetBoardParallel on self._attrs, supplying board and target.
@@ -538,7 +540,7 @@ class BoardRunAttributes:
             attr, self._board, self._target, *args, **kwargs
         )
 
-    def SetParallelDefault(self, attr, default_value, *args, **kwargs):
+    def SetParallelDefault(self, attr, default_value, *args, **kwargs) -> None:
         """Sets parallel board attribute |attr| to |value|, if not set.
 
         Relay to SetBoardParallelDefault on self._attrs, supplying board and

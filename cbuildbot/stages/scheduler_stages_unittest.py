@@ -20,7 +20,7 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
 
     BOT_ID = "master-release"
 
-    def setUp(self):
+    def setUp(self) -> None:
         # pylint: disable=protected-access
         self.PatchObject(
             cbuildbot_run._BuilderRunBase,
@@ -40,7 +40,7 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
             self._run, bs, self.sync_stage
         )
 
-    def testRequestBuild(self):
+    def testRequestBuild(self) -> None:
         config = config_lib.BuildConfig(
             name="child",
             important=True,
@@ -61,7 +61,7 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
             ["--buildbot", "--master-buildbucket-id", "master_bb_0"],
         )
 
-    def testRequestBuildWithSnapshotRev(self):
+    def testRequestBuildWithSnapshotRev(self) -> None:
         config = config_lib.BuildConfig(
             name="child",
             important=True,
@@ -88,7 +88,7 @@ class ScheduleSlavesStageTest(generic_stages_unittest.AbstractStageTestCase):
         ]
         self.assertEqual(request.extra_args, expected_extra_args)
 
-    def testPostSlaveBuildToBuildbucket(self):
+    def testPostSlaveBuildToBuildbucket(self) -> None:
         """Test PostSlaveBuildToBuildbucket on builds with a single board."""
         slave_config = config_lib.BuildConfig(
             name="slave",

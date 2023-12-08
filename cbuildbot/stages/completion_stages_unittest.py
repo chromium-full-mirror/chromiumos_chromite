@@ -30,10 +30,10 @@ class ManifestVersionedSyncCompletionStageTest(
 
     BOT_ID = "eve-release"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.buildstore = FakeBuildStore()
 
-    def testManifestVersionedSyncCompletedSuccess(self):
+    def testManifestVersionedSyncCompletedSuccess(self) -> None:
         """Tests basic ManifestVersionedSyncStageCompleted on success"""
         board_runattrs = self._run.GetBoardRunAttrs("eve")
         board_runattrs.SetParallel("success", True)
@@ -50,7 +50,7 @@ class ManifestVersionedSyncCompletionStageTest(
             message=None, success_map={self.BOT_ID: True}
         )
 
-    def testManifestVersionedSyncCompletedFailure(self):
+    def testManifestVersionedSyncCompletedFailure(self) -> None:
         """Tests basic ManifestVersionedSyncStageCompleted on failure"""
         stage = completion_stages.ManifestVersionedSyncCompletionStage(
             self._run, self.buildstore, self.sync_stage, success=False
@@ -71,14 +71,14 @@ class ManifestVersionedSyncCompletionStageTest(
         )
         get_msg_mock.assert_called_once_with()
 
-    def testManifestVersionedSyncCompletedIncomplete(self):
+    def testManifestVersionedSyncCompletedIncomplete(self) -> None:
         """Basic ManifestVersionedSyncStageCompleted on incomplete build."""
         stage = completion_stages.ManifestVersionedSyncCompletionStage(
             self._run, self.buildstore, self.sync_stage, success=False
         )
         stage.Run()
 
-    def testGetBuilderSuccessMap(self):
+    def testGetBuilderSuccessMap(self) -> None:
         """Tests that the builder success map is properly created."""
         board_runattrs = self._run.GetBoardRunAttrs("eve")
         board_runattrs.SetParallel("success", True)
@@ -96,7 +96,7 @@ class MasterSlaveSyncCompletionStageMockConfigTest(
 
     BOT_ID = "master"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.source_repo = "ssh://source/repo"
         self.manifest_version_url = "fake manifest url"
         self.branch = "master"
@@ -193,7 +193,7 @@ class MasterSlaveSyncCompletionStageMockConfigTest(
         )
         return test_config
 
-    def testGetSlavesForMaster(self):
+    def testGetSlavesForMaster(self) -> None:
         """Tests we get the slaves for a fake unified master configuration."""
         stage = self.ConstructStage()
         p = stage._GetSlaveConfigs()
@@ -209,10 +209,10 @@ class CanaryCompletionStageTest(generic_stages_unittest.AbstractStageTestCase):
 
     # We duplicate __init__ to specify a default for bot_id.
     # pylint: disable=arguments-differ,useless-super-delegation
-    def _Prepare(self, bot_id=BOT_ID, **kwargs):
+    def _Prepare(self, bot_id=BOT_ID, **kwargs) -> None:
         super()._Prepare(bot_id, **kwargs)
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.build_type = constants.CANARY_TYPE
         self._Prepare()
         self.buildstore = FakeBuildStore()
@@ -226,7 +226,7 @@ class CanaryCompletionStageTest(generic_stages_unittest.AbstractStageTestCase):
             self._run, self.buildstore, sync_stage, success=True
         )
 
-    def testGetBuilderStatusesFetcher(self):
+    def testGetBuilderStatusesFetcher(self) -> None:
         """Test GetBuilderStatusesFetcher."""
         mock_fetcher = mock.Mock()
         self.PatchObject(

@@ -12,7 +12,7 @@ from chromite.cbuildbot.stages import config_stages
 class UpdateConfigBuilder(simple_builders.SimpleBuilder):
     """Create config updater builders."""
 
-    def RunStages(self):
+    def RunStages(self) -> None:
         """Run through the stages of a config-updater build."""
         self._RunStage(build_stages.InitSDKStage)
         self._RunStage(config_stages.CheckTemplateStage)
@@ -21,7 +21,7 @@ class UpdateConfigBuilder(simple_builders.SimpleBuilder):
 class LuciSchedulerBuilder(simple_builders.SimpleBuilder):
     """Create config updater builders."""
 
-    def RunStages(self):
+    def RunStages(self) -> None:
         """Run through the stages of a luci-scheduler-updater build."""
         self._RunStage(build_stages.InitSDKStage)
         self._RunStage(config_stages.DeployLuciSchedulerStage)

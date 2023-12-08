@@ -40,7 +40,7 @@ class CleanUpStage(generic_stages.BuilderStage):
     option_name = "clean"
     category = constants.CI_INFRA_STAGE
 
-    def _CleanChroot(self):
+    def _CleanChroot(self) -> None:
         logging.info("Cleaning chroot.")
         path_resolver = path_util.ChrootPathResolver(
             source_path=self._build_root
@@ -62,7 +62,7 @@ class CleanUpStage(generic_stages.BuilderStage):
             )
             osutils.RmDir(d, ignore_missing=True, sudo=True)
 
-    def _DeleteChroot(self):
+    def _DeleteChroot(self) -> None:
         logging.info("Deleting chroot.")
         chroot = chroot_lib.Chroot(
             path=self._build_root / Path(constants.DEFAULT_CHROOT_DIR),
@@ -75,7 +75,7 @@ class CleanUpStage(generic_stages.BuilderStage):
             # unmounted everything in there, we can just remove it using rm -rf.
             cros_sdk_lib.CleanupChrootMount(chroot, delete=True)
 
-    def _DeleteArchivedTrybotImages(self):
+    def _DeleteArchivedTrybotImages(self) -> None:
         """Clear all previous archive images to save space."""
         logging.info("Deleting archived trybot images.")
         for trybot in (False, True):
@@ -84,19 +84,19 @@ class CleanUpStage(generic_stages.BuilderStage):
             )
             osutils.RmDir(archive_root, ignore_missing=True)
 
-    def _DeleteChromeBuildOutput(self):
+    def _DeleteChromeBuildOutput(self) -> None:
         logging.info("Deleting Chrome build output.")
         chrome_src = os.path.join(self._run.options.chrome_root, "src")
         for out_dir in glob.glob(os.path.join(chrome_src, "out_*")):
             osutils.RmDir(out_dir)
 
-    def _BuildRootGitCleanup(self):
+    def _BuildRootGitCleanup(self) -> None:
         logging.info("Cleaning up buildroot git repositories.")
         # Run git gc --auto --prune=all on all repos in CleanUpStage
         repo = self.GetRepoRepository()
         repo.BuildRootGitCleanup(prune_all=True)
 
-    def _DeleteAutotestSitePackages(self):
+    def _DeleteAutotestSitePackages(self) -> None:
         """Clears any previously downloaded site-packages."""
         logging.info("Deleting autotest site packages.")
         site_packages_dir = os.path.join(
@@ -111,11 +111,11 @@ class CleanUpStage(generic_stages.BuilderStage):
         # builders.
         osutils.RmDir(site_packages_dir, ignore_missing=True)
 
-    def _WipeOldOutput(self):
+    def _WipeOldOutput(self) -> None:
         logging.info("Wiping old output.")
         commands.WipeOldOutput(self._build_root)
 
-    def _CleanWorkspace(self):
+    def _CleanWorkspace(self) -> None:
         logging.info("Cleaning up workspace checkout.")
         assert self._run.options.workspace
         workspace = self._run.options.workspace
@@ -228,7 +228,7 @@ class CleanUpStage(generic_stages.BuilderStage):
         return True
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         if (
             not (self._run.options.buildbot or self._run.options.remote_trybot)
             and self._run.options.clobber
@@ -315,7 +315,7 @@ class InitSDKStage(generic_stages.BuilderStage):
         super().__init__(builder_run, buildstore, **kwargs)
         self.force_chroot_replace = chroot_replace
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         chroot_path = os.path.join(
             self._build_root, constants.DEFAULT_CHROOT_DIR
         )
@@ -360,7 +360,7 @@ class UpdateSDKStage(generic_stages.BuilderStage):
     option_name = "build"
     category = constants.CI_INFRA_STAGE
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Do the work of updating the chroot."""
         # Ensure we don't run on SDK builder. https://crbug.com/225509
         assert self._run.config.build_type != constants.CHROOT_BUILDER_TYPE
@@ -383,7 +383,7 @@ class SetupBoardStage(generic_stages.BoardSpecificBuilderStage, InitSDKStage):
     option_name = "build"
     category = constants.CI_INFRA_STAGE
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         chroot_args = None
         if self._run.options.cache_dir:
             chroot_args = ["--cache-dir", self._run.options.cache_dir]
@@ -449,7 +449,7 @@ class BuildPackagesStage(
         if useflags:
             self._portage_extra_env["USE"] = " ".join(useflags)
 
-    def VerifyChromeBinpkg(self, packages):
+    def VerifyChromeBinpkg(self, packages) -> None:
         # Sanity check: If we didn't check out Chrome (and we're running on
         # ToT), we should be building Chrome from a binary package.
         if (
@@ -464,7 +464,7 @@ class BuildPackagesStage(
                 extra_env=self._portage_extra_env,
             )
 
-    def RecordPackagesUnderTest(self):
+    def RecordPackagesUnderTest(self) -> None:
         """Records all packages that may affect the board to BuilderRun."""
         packages = set()
         deps = commands.ExtractBuildDepsGraph(
@@ -536,7 +536,7 @@ class BuildPackagesStage(
         chroot_args = ["--goma_dir", str(goma.chromeos_goma_dir)]
         return chroot_args
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         packages = self.GetListOfPackagesToBuild()
         self.VerifyChromeBinpkg(packages)
         if self._record_packages_under_test:
@@ -673,7 +673,7 @@ class BuildImageStage(BuildPackagesStage):
     config_name = "images"
     category = constants.PRODUCT_OS_STAGE
 
-    def _BuildImages(self):
+    def _BuildImages(self) -> None:
         # We only build base, dev, and test images from this stage.
         images_can_build = set(["base", "dev", "test"])
         images_to_build = set(self._run.config.images).intersection(
@@ -710,7 +710,7 @@ class BuildImageStage(BuildPackagesStage):
 
         self.board_runattrs.SetParallel("images_generated", True)
 
-    def _UpdateBuildImageMetadata(self):
+    def _UpdateBuildImageMetadata(self) -> None:
         """Update the new metadata available to the build image stage."""
         update = {}
         fingerprints = self._FindFingerprints()
@@ -754,7 +754,7 @@ class BuildImageStage(BuildPackagesStage):
         self.board_runattrs.SetParallelDefault("images_generated", False)
         return super()._HandleStageException(exc_info)
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         self._BuildImages()
         self._UpdateBuildImageMetadata()
 
@@ -771,7 +771,7 @@ class UprevStage(generic_stages.BuilderStage):
         if boards is not None:
             self._boards = boards
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         # Perform other uprevs.
         commands.UprevPackages(
             self._build_root,
@@ -787,7 +787,7 @@ class RegenPortageCacheStage(generic_stages.BuilderStage):
     config_name = "push_overlays"
     category = constants.CI_INFRA_STAGE
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         chroot = chroot_lib.Chroot(
             path=self._build_root / Path(constants.DEFAULT_CHROOT_DIR),
             out_path=self._build_root / constants.DEFAULT_OUT_DIR,

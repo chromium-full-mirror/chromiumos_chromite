@@ -76,7 +76,7 @@ def CreateMockSiteConfig():
 class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
     """Tests for the main code paths in simple_builders.SimpleBuilder"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.buildstore = buildstore.FakeBuildStore()
 
         self.buildroot = os.path.join(self.tempdir, "buildroot")
@@ -93,7 +93,7 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
             generic_builders.Builder, "_RunStage"
         )
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # Mimic exiting a 'with' statement.
         self._manager.__exit__(None, None, None)
 
@@ -122,7 +122,7 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
             options, self.site_config, build_config, self._manager
         )
 
-    def testBuildspec(self):
+    def testBuildspec(self) -> None:
         """Verify RunStages for buildspec builder."""
         builder_run = self._InitConfig("buildspec")
         workspace_builders.BuildSpecBuilder(
@@ -147,7 +147,7 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
             ],
         )
 
-    def testBuildspecWithVersion(self):
+    def testBuildspecWithVersion(self) -> None:
         """Verify RunStages for buildspec with --version."""
         builder_run = self._InitConfig(
             "buildspec", extra_argv=["--version", "1.2.3"]
@@ -158,7 +158,7 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertEqual(self.mock_run_stage.call_args_list, [])
 
-    def testBuildspecChild(self):
+    def testBuildspecChild(self) -> None:
         """Verify RunStages for buildspec with child configs."""
         builder_run = self._InitConfig("buildspec-child")
         workspace_builders.BuildSpecBuilder(
@@ -187,7 +187,7 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
             ],
         )
 
-    def testBuildspecChildWithVersion(self):
+    def testBuildspecChildWithVersion(self) -> None:
         """Verify RunStages for buildspec with --version and child configs."""
         builder_run = self._InitConfig(
             "buildspec-child", extra_argv=["--version", "1.2.3"]
@@ -206,7 +206,7 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
             ],
         )
 
-    def testFactoryBranch(self):
+    def testFactoryBranch(self) -> None:
         """Verify RunStages for FactoryBranchBuilder."""
         builder_run = self._InitConfig("test-factorybranch")
         workspace_builders.FactoryBranchBuilder(
@@ -277,7 +277,7 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
             ],
         )
 
-    def testFactoryBranchWithVersion(self):
+    def testFactoryBranchWithVersion(self) -> None:
         """Verify RunStages for FactoryBranchBuilder with --version."""
         builder_run = self._InitConfig(
             "test-factorybranch", extra_argv=["--version", "1.2.3"]
@@ -339,7 +339,7 @@ class BuildspecBuilderTest(cros_test_lib.MockTempDirTestCase):
             ],
         )
 
-    def testFactoryBranchTryjob(self):
+    def testFactoryBranchTryjob(self) -> None:
         """Verify RunStages for FactoryBranchBuilder Tryjob."""
         builder_run = self._InitConfig("test-factorybranch-tryjob")
         workspace_builders.FactoryBranchBuilder(

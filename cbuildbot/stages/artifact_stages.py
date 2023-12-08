@@ -73,7 +73,7 @@ class ArchiveStage(
         self._upload_queue = multiprocessing.Queue()
         self.artifacts = []
 
-    def ArchiveStrippedPackages(self):
+    def ArchiveStrippedPackages(self) -> None:
         """Generate and archive stripped versions of packages requested."""
         tarball = commands.BuildStrippedPackagesTarball(
             self._build_root,
@@ -84,7 +84,7 @@ class ArchiveStage(
         if tarball is not None:
             self._upload_queue.put([tarball])
 
-    def LoadArtifactsList(self, board, image_dir):
+    def LoadArtifactsList(self, board, image_dir) -> None:
         """Load the list of artifacts to upload for this board.
 
         It attempts to load a JSON file, scripts/artifacts.json, from the
@@ -136,7 +136,7 @@ class ArchiveStage(
                     return True
         return False
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         buildroot = self._build_root
         config = self._run.config
         board = self._current_board
@@ -170,14 +170,14 @@ class ArchiveStage(
         #    \- ArchiveImageScripts
         #    \- ArchiveEbuildLogs
 
-        def ArchiveManifest():
+        def ArchiveManifest() -> None:
             """Create manifest.xml snapshot of the built code."""
             output_manifest = os.path.join(archive_path, "manifest.xml")
             cmd = ["repo", "manifest", "-r", "-o", output_manifest]
             cros_build_lib.run(cmd, cwd=buildroot, capture_output=True)
             self._upload_queue.put(["manifest.xml"])
 
-        def BuildAndArchiveFactoryImages():
+        def BuildAndArchiveFactoryImages() -> None:
             """Build and archive the factory zip file.
 
             The factory zip file consists of the factory toolkit and the factory
@@ -224,7 +224,7 @@ class ArchiveStage(
                     [commands.FACTORY_PROJECT_PACKAGE]
                 )
 
-        def ArchiveStandaloneArtifact(artifact_info):
+        def ArchiveStandaloneArtifact(artifact_info) -> None:
             """Build and upload a single archive."""
             if artifact_info["paths"]:
                 logging.info("Running commands.BuildStandaloneArchive")
@@ -233,14 +233,14 @@ class ArchiveStage(
                 ):
                     self._release_upload_queue.put([path])
 
-        def ArchiveStandaloneArtifacts():
+        def ArchiveStandaloneArtifacts() -> None:
             """Build and upload standalone archives for each image."""
             if config["upload_standalone_images"]:
                 parallel.RunTasksInProcessPool(
                     ArchiveStandaloneArtifact, [[x] for x in self.artifacts]
                 )
 
-        def ArchiveEbuildLogs():
+        def ArchiveEbuildLogs() -> None:
             """Tar and archive Ebuild logs.
 
             This includes all the files in /build/$BOARD/tmp/portage/logs.
@@ -252,7 +252,7 @@ class ArchiveStage(
             if tarpath is not None:
                 self._upload_queue.put([tarpath])
 
-        def ArchiveZipFiles():
+        def ArchiveZipFiles() -> None:
             """Build and archive zip files.
 
             This includes:
@@ -263,7 +263,7 @@ class ArchiveStage(
             image_zip = commands.BuildImageZip(archive_path, image_dir)
             self._release_upload_queue.put([image_zip])
 
-        def ArchiveLicenseFile():
+        def ArchiveLicenseFile() -> None:
             """Archive licensing file."""
             filename = "license_credits.html"
             filepath = os.path.join(image_dir, filename)
@@ -271,7 +271,7 @@ class ArchiveStage(
                 shutil.copy(filepath, archive_path)
                 self._release_upload_queue.put([filename])
 
-        def ArchiveFirmwareImages():
+        def ArchiveFirmwareImages() -> None:
             """Archive firmware images built from source if available."""
             logging.info("Running commands.BuildFirmwareArchive")
             archive = commands.BuildFirmwareArchive(
@@ -280,7 +280,7 @@ class ArchiveStage(
             if archive:
                 self._release_upload_queue.put([archive])
 
-        def BuildAndArchiveAllImages():
+        def BuildAndArchiveAllImages() -> None:
             # Generate the recovery image. To conserve loop devices, we try to
             # only run one instance of build_image at a time. TODO(davidjames):
             # Move the image generation out of the archive stage.
@@ -319,7 +319,7 @@ class ArchiveStage(
                 ]
                 parallel.RunParallelSteps(steps)
 
-        def ArchiveImageScripts():
+        def ArchiveImageScripts() -> None:
             """Archive tarball of generated image manipulation scripts."""
             tarball_path = os.path.join(
                 archive_path, constants.IMAGE_SCRIPTS_TAR
@@ -329,7 +329,7 @@ class ArchiveStage(
             cros_build_lib.CreateTarball(tarball_path, image_dir, inputs=files)
             self._upload_queue.put([constants.IMAGE_SCRIPTS_TAR])
 
-        def PushImage():
+        def PushImage() -> None:
             # This helper script is only available on internal manifests
             # currently.
             if not config["internal"]:
@@ -362,7 +362,7 @@ class ArchiveStage(
                 "instruction_urls_per_channel", urls
             )
 
-        def ArchiveReleaseArtifacts():
+        def ArchiveReleaseArtifacts() -> None:
             with self.ArtifactUploader(
                 self._release_upload_queue, archive=False
             ):
@@ -370,7 +370,7 @@ class ArchiveStage(
                 parallel.RunParallelSteps(steps)
             PushImage()
 
-        def BuildAndArchiveArtifacts():
+        def BuildAndArchiveArtifacts() -> None:
             # Run archiving steps in parallel.
             steps = [
                 ArchiveReleaseArtifacts,
@@ -412,7 +412,7 @@ class BuildConfigsExportStage(
     category = constants.CI_INFRA_STAGE
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Generate and upload build configs.
 
         The build config includes config.yaml (for unibuild) and USE flags.
@@ -446,7 +446,7 @@ class DebugSymbolsStage(
     category = constants.PRODUCT_OS_STAGE
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Generate debug symbols and upload debug.tgz."""
         buildroot = self._build_root
         board = self._current_board
@@ -483,7 +483,7 @@ class DebugSymbolsStage(
 
         self.board_runattrs.SetParallel("debug_symbols_completed", True)
 
-    def GenerateDebugTarball(self, upload=True):
+    def GenerateDebugTarball(self, upload=True) -> None:
         """Generate and upload the debug tarball.
 
         Args:
@@ -505,7 +505,7 @@ class DebugSymbolsStage(
         logging.info("Announcing availability of debug tarball now.")
         self.board_runattrs.SetParallel("debug_tarball_generated", True)
 
-    def GenerateDebugBreakpadTarball(self, upload=True):
+    def GenerateDebugBreakpadTarball(self, upload=True) -> None:
         """Generate and upload the debug tarball with only breakpad files.
 
         Args:
@@ -526,7 +526,7 @@ class DebugSymbolsStage(
                 "DebugSymbolsStage dryrun: would have uploaded %s", filename
             )
 
-    def UploadSymbols(self, buildroot, board):
+    def UploadSymbols(self, buildroot, board) -> None:
         """Upload generated debug symbols."""
         failed_name = "failed_upload_symbols.list"
         failed_list = os.path.join(self.archive_path, failed_name)
@@ -563,7 +563,7 @@ class DebugSymbolsStage(
         if not upload_passed:
             raise DebugSymbolsUploadException("Failed to upload all symbols.")
 
-    def _SymbolsNotGenerated(self):
+    def _SymbolsNotGenerated(self) -> None:
         """Tell other stages that our symbols were not generated."""
         self.board_runattrs.SetParallelDefault(
             "breakpad_symbols_generated", False
@@ -657,7 +657,7 @@ class UploadPrebuiltsStage(generic_stages.BoardSpecificBuilderStage):
         return args
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Uploads prebuilts for master and slave builders."""
         prebuilt_type = self._prebuilt_type
         board = self._current_board
@@ -705,7 +705,7 @@ class UploadTestArtifactsStage(
 
     category = constants.CI_INFRA_STAGE
 
-    def BuildAutotestTarballs(self):
+    def BuildAutotestTarballs(self) -> None:
         """Build the autotest tarballs."""
         with osutils.TempDir(prefix="cbuildbot-autotest") as tempdir:
             with self.ArtifactUploader(strict=True) as queue:
@@ -731,7 +731,7 @@ class UploadTestArtifactsStage(
                 ):
                     queue.put([tarball])
 
-    def BuildTastTarball(self):
+    def BuildTastTarball(self) -> None:
         """Build the tarball containing private Tast test bundles."""
         with osutils.TempDir(prefix="cbuildbot-tast") as tempdir:
             cwd = os.path.abspath(
@@ -750,7 +750,7 @@ class UploadTestArtifactsStage(
             if tarball:
                 self.UploadArtifact(tarball)
 
-    def BuildFpmcuUnittestsTarball(self):
+    def BuildFpmcuUnittestsTarball(self) -> None:
         """Build the tarball containing fingerprint MCU on-device unittests."""
         with osutils.TempDir(prefix="cbuildbot-fpmcu-unittests") as tempdir:
             logging.info("Running commands.BuildFpmcuUnittestsArchive")
@@ -760,7 +760,7 @@ class UploadTestArtifactsStage(
             if tarball:
                 self.UploadArtifact(tarball)
 
-    def _GeneratePayloads(self, image_name, **kwargs):
+    def _GeneratePayloads(self, image_name, **kwargs) -> None:
         """Generate and upload payloads for |image_name|.
 
         Args:
@@ -777,7 +777,7 @@ class UploadTestArtifactsStage(
                 for payload in os.listdir(tempdir):
                     queue.put([os.path.join(tempdir, payload)])
 
-    def BuildUpdatePayloads(self):
+    def BuildUpdatePayloads(self) -> None:
         """Archives update payloads when they are ready."""
         # If we are not configured to generate payloads, don't.
         if not (
@@ -805,7 +805,7 @@ class UploadTestArtifactsStage(
         )
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Upload any needed HWTest artifacts."""
         # BuildUpdatePayloads also uploads the payloads to GS.
         steps = [self.BuildUpdatePayloads]

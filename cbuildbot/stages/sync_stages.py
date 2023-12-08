@@ -81,7 +81,7 @@ class PatchChangesStage(generic_stages.BuilderStage):
     def _PatchSeriesFilter(self, series, changes):
         return self._CheckForDuplicatePatches(series, changes)
 
-    def _ApplyPatchSeries(self, series, patch_pool, **kwargs):
+    def _ApplyPatchSeries(self, series, patch_pool, **kwargs) -> None:
         """Applies a patch pool using a patch series."""
         kwargs.setdefault("frozen", False)
         # Honor the given ordering, so that if a gerrit/remote patch
@@ -99,12 +99,12 @@ class PatchChangesStage(generic_stages.BuilderStage):
         if failures:
             self.HandleApplyFailures(failures)
 
-    def HandleApplyFailures(self, failures):
+    def HandleApplyFailures(self, failures) -> None:
         cros_build_lib.Die(
             "Failed applying patches: %s", "\n".join(str(x) for x in failures)
         )
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         class NoisyPatchSeries(patch_series.PatchSeries):
             """Custom PatchSeries: linkify buildbot logs for remote tries."""
 
@@ -234,11 +234,11 @@ class BootstrapStage(PatchChangesStage):
 
         return bool(chromite_pool or manifest_pool)
 
-    def HandleApplyFailures(self, failures):
+    def HandleApplyFailures(self, failures) -> None:
         """Handle the case where patches fail to apply."""
         PatchChangesStage.HandleApplyFailures(self, failures)
 
-    def _PerformStageInTempDir(self):
+    def _PerformStageInTempDir(self) -> None:
         # The plan for the builders is to use master branch to bootstrap other
         # branches. Now, if we wanted to test patches for both the bootstrap
         # code (on master) and the branched chromite (say, R20), we need to
@@ -250,7 +250,7 @@ class BootstrapStage(PatchChangesStage):
         # Filter all requested patches for the branch.
         branch_pool = self.patch_pool.FilterBranch(filter_branch)
 
-        def _clone_and_patch(subdir, project):
+        def _clone_and_patch(subdir, project) -> None:
             """Clone & patch a project."""
             url = "%s/%s" % (constants.EXTERNAL_GOB_URL, project)
             checkout = os.path.join(self.tempdir, subdir)
@@ -303,7 +303,7 @@ class BootstrapStage(PatchChangesStage):
         )
         self.returncode = result_obj.returncode
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         with osutils.TempDir(
             base_dir=self._run.options.bootstrap_dir
         ) as tempdir:
@@ -339,10 +339,10 @@ class SyncStage(generic_stages.BuilderStage):
         else:
             return site_params.MANIFEST_VERSIONS_GOB_URL
 
-    def Initialize(self):
+    def Initialize(self) -> None:
         self._InitializeRepo()
 
-    def _InitializeRepo(self):
+    def _InitializeRepo(self) -> None:
         """Set up the RepoRepository object."""
         self.repo = self.GetRepoRepository()
 
@@ -350,7 +350,7 @@ class SyncStage(generic_stages.BuilderStage):
         """Returns the manifest to use."""
         return self._run.config.manifest
 
-    def ManifestCheckout(self, next_manifest, fetch_all=False):
+    def ManifestCheckout(self, next_manifest, fetch_all=False) -> None:
         """Checks out the repository to the given manifest."""
         self._Print(
             "\n".join(
@@ -377,7 +377,7 @@ class SyncStage(generic_stages.BuilderStage):
             self.repo.FetchAll()
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         self.Initialize()
         with osutils.TempDir() as tempdir:
             # Save off the last manifest.
@@ -430,7 +430,7 @@ class ManifestVersionedSyncStage(SyncStage):
         #    completion, so as to ensure a complete test.
         self._force = self._run.config.master or self._run.options.debug
 
-    def HandleSkip(self):
+    def HandleSkip(self) -> None:
         """Initializes manifest manager to the specified version if skipped."""
         super().HandleSkip()
         if self._run.options.force_version:
@@ -449,7 +449,7 @@ class ManifestVersionedSyncStage(SyncStage):
 
         return "branch"
 
-    def RegisterManifestManager(self, manifest_manager):
+    def RegisterManifestManager(self, manifest_manager) -> None:
         """Save the given manifest manager for later use in this run.
 
         Args:
@@ -459,7 +459,7 @@ class ManifestVersionedSyncStage(SyncStage):
             self.manifest_manager
         ) = manifest_manager
 
-    def Initialize(self):
+    def Initialize(self) -> None:
         """Initializes a manager managing manifests for associated stages."""
 
         dry_run = self._run.options.debug
@@ -488,7 +488,7 @@ class ManifestVersionedSyncStage(SyncStage):
             )
         )
 
-    def _SetAndroidVersionIfApplicable(self, manifest):
+    def _SetAndroidVersionIfApplicable(self, manifest) -> None:
         """If 'android' is in |manifest| write version to the BuilderRun object.
 
         Args:
@@ -515,7 +515,7 @@ class ManifestVersionedSyncStage(SyncStage):
                 "version", {"android": android_version}
             )
 
-    def _SetChromeVersionIfApplicable(self, manifest):
+    def _SetChromeVersionIfApplicable(self, manifest) -> None:
         """If 'chrome' is in |manifest|, write version to the BuilderRun object.
 
         Args:
@@ -607,7 +607,7 @@ class ManifestVersionedSyncStage(SyncStage):
 
         # TODO(davidjames): Remove the wait loop here once we've updated slave
         # builders to only get triggered after the platform version is written.
-        def _PrintRemainingTime(remaining):
+        def _PrintRemainingTime(remaining) -> None:
             logging.info("%s until timeout...", remaining)
 
         def _GetPlatformVersion():
@@ -628,7 +628,7 @@ class ManifestVersionedSyncStage(SyncStage):
             side_effect_func=_PrintRemainingTime,
         )
 
-    def _VerifyMasterId(self, master_id):
+    def _VerifyMasterId(self, master_id) -> None:
         """Verify that our master id is current and valid.
 
         Args:
@@ -651,7 +651,7 @@ class ManifestVersionedSyncStage(SyncStage):
                 )
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         self.Initialize()
 
         self._VerifyMasterId(self._run.options.master_buildbucket_id)
@@ -738,7 +738,7 @@ class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
             buildbucket_client=self.buildbucket_client,
         )
 
-    def Initialize(self):
+    def Initialize(self) -> None:
         """Override: Creates an LKGMManager rather than a ManifestManager."""
         self._InitializeRepo()
         self.RegisterManifestManager(self._GetInitializedManager(self.internal))
@@ -759,7 +759,7 @@ class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
 
         return manifest
 
-    def _VerifyMasterId(self, master_id):
+    def _VerifyMasterId(self, master_id) -> None:
         """Verify that our master id is current and valid."""
         super()._VerifyMasterId(master_id)
         if not self._run.config.master and not master_id:
@@ -808,7 +808,7 @@ class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
         )
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Performs the stage."""
         if (
             self._chrome_rev == constants.CHROME_REV_LATEST

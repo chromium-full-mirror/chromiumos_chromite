@@ -14,14 +14,14 @@ from chromite.lib import cros_test_lib
 class CrosloggingTest(cros_test_lib.OutputTestCase):
     """Test logging works as expected."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.logger = logging.getLogger()
         sh = logging.StreamHandler(sys.stdout)
         self.logger.addHandler(sh)
         # pylint: disable=protected-access
         cbuildbot_alerts._buildbot_markers_enabled = False
 
-    def AssertLogContainsMsg(self, msg, functor, *args, **kwargs):
+    def AssertLogContainsMsg(self, msg, functor, *args, **kwargs) -> None:
         """Asserts that calling functor logs a line that contains msg.
 
         Args:
@@ -33,7 +33,7 @@ class CrosloggingTest(cros_test_lib.OutputTestCase):
             functor()
         self.AssertOutputContainsLine(msg, *args, **kwargs)
 
-    def testNotice(self):
+    def testNotice(self) -> None:
         """Test logging.notice works and is between INFO and WARNING."""
         msg = "notice message"
         self.logger.setLevel(logging.INFO)
@@ -41,7 +41,7 @@ class CrosloggingTest(cros_test_lib.OutputTestCase):
         self.logger.setLevel(logging.WARNING)
         self.AssertLogContainsMsg(msg, lambda: logging.notice(msg), invert=True)
 
-    def testPrintBuildbotFunctionsNoMarker(self):
+    def testPrintBuildbotFunctionsNoMarker(self) -> None:
         # pylint: disable-next=line-too-long
         """PrintBuildbot* without markers should not be recognized by buildbot."""
         self.AssertLogContainsMsg(
@@ -83,7 +83,7 @@ class CrosloggingTest(cros_test_lib.OutputTestCase):
             invert=True,
         )
 
-    def testPrintBuildbotFunctionsWithMarker(self):
+    def testPrintBuildbotFunctionsWithMarker(self) -> None:
         """PrintBuildbot* with markers should be recognized by buildbot."""
         cbuildbot_alerts.EnableBuildbotMarkers()
         self.AssertLogContainsMsg(

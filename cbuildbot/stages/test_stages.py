@@ -42,7 +42,7 @@ class UnitTestStage(
         self.board_runattrs.GetParallel("debug_symbols_completed", timeout=None)
         return True
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         extra_env = {}
         if self._run.config.useflags:
             extra_env["USE"] = " ".join(self._run.config.useflags)

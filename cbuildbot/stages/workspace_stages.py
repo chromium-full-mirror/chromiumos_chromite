@@ -213,7 +213,7 @@ class SyncStage(WorkspaceStageBase):
         self.patch_pool = patch_pool
         self.copy_repo = copy_repo
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Sync stuff!"""
         logging.info("SubWorkspaceSync")
 
@@ -263,7 +263,7 @@ class WorkspaceSyncStage(WorkspaceStageBase):
 
     category = constants.CI_INFRA_STAGE
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Sync all the stuff!"""
         # Select changes to cherry-pick into the build, and filter them into
         # chromite versus branch changes.
@@ -318,7 +318,7 @@ class WorkspaceSyncChromeStage(WorkspaceStageBase):
         return pkg_info.version.partition("_")[0]
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         chrome_version = self.DetermineChromeVersion()
 
         cbuildbot_alerts.PrintBuildbotStepText("tag %s" % chrome_version)
@@ -352,7 +352,7 @@ class WorkspaceUprevStage(WorkspaceStageBase):
         if boards is not None:
             self._boards = boards
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Perform the uprev."""
         commands.UprevPackages(
             self._orig_root,
@@ -367,7 +367,7 @@ class WorkspacePublishStage(WorkspaceStageBase):
 
     config_name = "push_overlays"
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Perform the push."""
         logging.info("Pushing.")
         commands.UprevPush(
@@ -381,7 +381,7 @@ class WorkspacePublishStage(WorkspaceStageBase):
 class WorkspacePublishBuildspecStage(WorkspaceStageBase):
     """Increment the ChromeOS version, and publish a buildspec."""
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Increment ChromeOS version, and publish buildpec."""
         repo = self.GetWorkspaceRepo()
 
@@ -410,7 +410,7 @@ class WorkspacePublishBuildspecStage(WorkspaceStageBase):
 class WorkspaceScheduleChildrenStage(WorkspaceStageBase):
     """Schedule child builds for this buildspec."""
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Schedule child builds for this buildspec."""
         # build_identifier, _ = self._run.GetCIDBHandle()
         # build_id = build_identifier.cidb_id
@@ -470,7 +470,7 @@ class WorkspaceInitSDKStage(WorkspaceStageBase):
 
     category = constants.CI_INFRA_STAGE
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         chroot_path = os.path.join(
             self._build_root, constants.DEFAULT_CHROOT_DIR
         )
@@ -670,7 +670,7 @@ class WorkspaceUpdateSDKStage(WorkspaceStageBase):
     option_name = "build"
     category = constants.CI_INFRA_STAGE
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Do the work of updating the chroot."""
         extra_env = self._portage_extra_env.copy()
         # The thinlto USE flag is fine for later steps, but drop it in the
@@ -697,7 +697,7 @@ class WorkspaceSetupBoardStage(
 
     category = constants.CI_INFRA_STAGE
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         usepkg = self._run.config.usepkg_build_packages
         func = (
             commands.SetupBoard
@@ -723,7 +723,7 @@ class WorkspaceBuildPackagesStage(
 
     category = constants.PRODUCT_OS_STAGE
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         usepkg = (
             self._run.config.usepkg_build_packages
             if self.AfterLimit(BUILD_PACKAGES_PREBUILTS)
@@ -760,7 +760,7 @@ class WorkspaceUnitTestStage(
     # If the unit tests take longer than 120 minutes, abort.
     UNIT_TEST_TIMEOUT = 120 * 60
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         extra_env = {}
         if self._run.config.useflags:
             extra_env["USE"] = " ".join(self._run.config.useflags)
@@ -788,7 +788,7 @@ class WorkspaceBuildImageStage(
     config_name = "images"
     category = constants.PRODUCT_OS_STAGE
 
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         # Collect build_image arguments.
         version = self.GetWorkspaceReleaseTag()
         rootfs_verification = self._run.config.rootfs_verification
@@ -843,7 +843,7 @@ class WorkspaceDebugSymbolsStage(
     category = constants.PRODUCT_OS_STAGE
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         """Generate debug symbols and upload debug.tgz."""
         buildroot = self._build_root
         board = self._current_board
@@ -893,7 +893,7 @@ class WorkspaceDebugSymbolsStage(
         if self._run.config.upload_symbols:
             self.UploadSymbols(buildroot, board)
 
-    def UploadDebugTarball(self):
+    def UploadDebugTarball(self) -> None:
         """Generate and upload the debug tarball."""
         filename = commands.GenerateDebugTarball(
             buildroot=self._build_root,
@@ -905,7 +905,7 @@ class WorkspaceDebugSymbolsStage(
         )
         self.UploadArtifact(filename, archive=False)
 
-    def UploadDebugBreakpadTarball(self):
+    def UploadDebugBreakpadTarball(self) -> None:
         """Generate and upload the debug tarball with only breakpad files."""
         filename = commands.GenerateDebugTarball(
             buildroot=self._build_root,
@@ -917,7 +917,7 @@ class WorkspaceDebugSymbolsStage(
         )
         self.UploadArtifact(filename, archive=False)
 
-    def UploadSymbols(self, buildroot, board):
+    def UploadSymbols(self, buildroot, board) -> None:
         """Upload generated debug symbols."""
         failed_name = "failed_upload_symbols.list"
         failed_list = os.path.join(self.archive_path, failed_name)

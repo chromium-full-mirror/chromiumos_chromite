@@ -41,14 +41,14 @@ CHROME_BRANCH=13
 class LKGMCandidateInfoTest(cros_test_lib.TestCase):
     """Test methods testing methods in _LKGMCandidateInfo class."""
 
-    def testLoadFromString(self):
+    def testLoadFromString(self) -> None:
         """Tests whether we can load from a string."""
         info = lkgm_manager._LKGMCandidateInfo(
             version_string=FAKE_VERSION_STRING, chrome_branch=CHROME_BRANCH
         )
         self.assertEqual(info.VersionString(), FAKE_VERSION_STRING)
 
-    def testIncrementVersionPatch(self):
+    def testIncrementVersionPatch(self) -> None:
         """Tests whether we can increment a lkgm info."""
         info = lkgm_manager._LKGMCandidateInfo(
             version_string=FAKE_VERSION_STRING, chrome_branch=CHROME_BRANCH
@@ -56,7 +56,7 @@ class LKGMCandidateInfoTest(cros_test_lib.TestCase):
         info.IncrementVersion()
         self.assertEqual(info.VersionString(), FAKE_VERSION_STRING_NEXT)
 
-    def testVersionCompare(self):
+    def testVersionCompare(self) -> None:
         """Tests whether our comparision method works."""
         info0 = lkgm_manager._LKGMCandidateInfo("5.2.3-rc100")
         info1 = lkgm_manager._LKGMCandidateInfo("1.2.3-rc1")
@@ -117,7 +117,7 @@ def TemporaryManifest():
 class LKGMManagerTest(cros_test_lib.MockTempDirTestCase):
     """Tests for the BuildSpecs manager."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.manager = None
         self.push_mock = self.PatchObject(git, "CreatePushBranch")
 
@@ -169,7 +169,7 @@ class LKGMManagerTest(cros_test_lib.MockTempDirTestCase):
             self.manager.all_specs_dir, "%s.xml" % info.VersionString()
         )
 
-    def testCreateFromManifest(self):
+    def testCreateFromManifest(self) -> None:
         """Tests that we can create a new candidate from another manifest."""
         self.manager = self._LKGMManager()
         # Let's stub out other LKGMManager calls cause they're already
@@ -224,7 +224,7 @@ class LKGMManagerTest(cros_test_lib.MockTempDirTestCase):
         init_mock.assert_called_once_with(my_info)
         self.push_mock.assert_called_once_with(mock.ANY, mock.ANY, sync=False)
 
-    def testCreateNewCandidateReturnNoneIfNoWorkToDo(self):
+    def testCreateNewCandidateReturnNoneIfNoWorkToDo(self) -> None:
         """Tests that we return nothing if there is nothing to create."""
         self.manager = self._LKGMManager()
         new_manifest = "some_manifest"
@@ -284,7 +284,7 @@ class LKGMManagerTest(cros_test_lib.MockTempDirTestCase):
 
         return exists_mock, link_mock
 
-    def testAddChromeVersionToManifest(self):
+    def testAddChromeVersionToManifest(self) -> None:
         """Tests if we can write the chrome version to the manifest file."""
         self.manager = self._LKGMManager()
         with TemporaryManifest() as f:

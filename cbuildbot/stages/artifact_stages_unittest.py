@@ -39,7 +39,7 @@ class ArchiveStageTest(
     RELEASE_TAG = ""
     VERSION = "3333.1.0"
 
-    def _PatchDependencies(self):
+    def _PatchDependencies(self) -> None:
         """Patch dependencies of ArchiveStage.PerformStage()."""
         to_patch = [
             (parallel, "RunParallelSteps"),
@@ -48,7 +48,7 @@ class ArchiveStageTest(
         ]
         self.AutoPatch(to_patch)
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._PatchDependencies()
 
         self._Prepare()
@@ -57,7 +57,7 @@ class ArchiveStageTest(
     # Our API here is not great when it comes to kwargs passing.
     def _Prepare(
         self, bot_id=None, **kwargs
-    ):  # pylint: disable=arguments-differ
+    ) -> None:  # pylint: disable=arguments-differ
         extra_config = {"upload_symbols": True, "push_image": True}
         super()._Prepare(bot_id, extra_config=extra_config, **kwargs)
 
@@ -67,7 +67,7 @@ class ArchiveStageTest(
             self._run, self.buildstore, self._current_board
         )
 
-    def testArchive(self):
+    def testArchive(self) -> None:
         """Simple did-it-run test."""
         # TODO(davidjames): Test the individual archive steps as well.
         self.RunStage()
@@ -76,7 +76,7 @@ class ArchiveStageTest(
     # that PushImages is not called, but the mock for RunParallelSteps already
     # prevents PushImages from being called, regardless of whether this is a
     # trybot flow.
-    def testNoPushImagesForRemoteTrybot(self):
+    def testNoPushImagesForRemoteTrybot(self) -> None:
         """Test that remote trybot overrides work to disable push images."""
         self._Prepare(
             cmd_args=[
@@ -113,7 +113,7 @@ class UploadPrebuiltsStageTest(
     # Our API here is not great when it comes to kwargs passing.
     def _Prepare(
         self, bot_id=None, **kwargs
-    ):  # pylint: disable=arguments-differ
+    ) -> None:  # pylint: disable=arguments-differ
         super()._Prepare(bot_id, **kwargs)
         self.cmd = os.path.join(
             self.build_root, constants.CHROMITE_BIN_SUBDIR, "upload_prebuilts"
@@ -128,7 +128,7 @@ class UploadPrebuiltsStageTest(
 
     def _VerifyBoardMap(
         self, bot_id, count, board_map, public_args=None, private_args=None
-    ):
+    ) -> None:
         """Verify that the prebuilts are uploaded for the specified bot.
 
         Args:
@@ -161,12 +161,12 @@ class UploadPrebuiltsStageTest(
             "Number of asserts performed does not match (%d remaining)" % count,
         )
 
-    def testFullPrebuiltsUpload(self):
+    def testFullPrebuiltsUpload(self) -> None:
         """Test uploading of full builder prebuilts."""
         self._VerifyBoardMap("amd64-generic-full", 0, {})
         self.assertCommandContains([self.cmd, "--git-sync"])
 
-    def testIncorrectCount(self):
+    def testIncorrectCount(self) -> None:
         """Test that _VerifyBoardMap asserts when the count is wrong."""
         self.assertRaises(
             AssertionError, self._VerifyBoardMap, "amd64-generic-full", 1, {}
@@ -181,7 +181,7 @@ class DebugSymbolsStageTest(
 
     # pylint: disable=protected-access
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.CreateMockOverlay("amd64-generic")
         self.StartPatcher(generic_stages_unittest.ArchivingStageMixinMock())
 
@@ -202,7 +202,7 @@ class DebugSymbolsStageTest(
 
     # Our API here is not great when it comes to kwargs passing.
     # pylint: disable=arguments-differ
-    def _Prepare(self, extra_config=None, **kwargs):
+    def _Prepare(self, extra_config=None, **kwargs) -> None:
         """Prepare this stage for testing."""
         if extra_config is None:
             extra_config = {
@@ -222,7 +222,7 @@ class DebugSymbolsStageTest(
             self._run, self.buildstore, self._current_board
         )
 
-    def assertBoardAttrEqual(self, attr, expected_value):
+    def assertBoardAttrEqual(self, attr, expected_value) -> None:
         """Assert the value of a board run |attr| against |expected_value|."""
         value = self.stage.board_runattrs.GetParallel(attr)
         self.assertEqual(expected_value, value)
@@ -247,7 +247,7 @@ class DebugSymbolsStageTest(
         except Exception:
             return self.stage._HandleStageException(sys.exc_info())
 
-    def testPerformStageWithSymbols(self):
+    def testPerformStageWithSymbols(self) -> None:
         """Smoke test for an PerformStage when debugging is enabled"""
         self._TestPerformStage()
 
@@ -260,7 +260,7 @@ class DebugSymbolsStageTest(
         self.assertBoardAttrEqual("breakpad_symbols_generated", True)
         self.assertBoardAttrEqual("debug_tarball_generated", True)
 
-    def testPerformStageWithAndroidSymbols(self):
+    def testPerformStageWithAndroidSymbols(self) -> None:
         """Smoke test for an PerformStage when Android symbols are available"""
         self._TestPerformStage(create_android_symbols_archive=True)
 
@@ -273,7 +273,7 @@ class DebugSymbolsStageTest(
         self.assertBoardAttrEqual("breakpad_symbols_generated", True)
         self.assertBoardAttrEqual("debug_tarball_generated", True)
 
-    def testPerformStageNoSymbols(self):
+    def testPerformStageNoSymbols(self) -> None:
         """Smoke test for an PerformStage when debugging is disabled"""
         extra_config = {
             "archive_build_debug": False,
@@ -291,7 +291,7 @@ class DebugSymbolsStageTest(
         self.assertBoardAttrEqual("breakpad_symbols_generated", True)
         self.assertBoardAttrEqual("debug_tarball_generated", True)
 
-    def testGenerateCrashStillNotifies(self):
+    def testGenerateCrashStillNotifies(self) -> None:
         """Crashes in symbol generation should still notify external events."""
 
         class TestError(Exception):
@@ -310,7 +310,7 @@ class DebugSymbolsStageTest(
         self.assertBoardAttrEqual("breakpad_symbols_generated", False)
         self.assertBoardAttrEqual("debug_tarball_generated", False)
 
-    def testUploadCrashStillNotifies(self):
+    def testUploadCrashStillNotifies(self) -> None:
         """Crashes in symbol upload should still notify external events."""
         self.upload_mock.side_effect = failures_lib.BuildScriptFailure(
             cros_build_lib.RunCommandError("mew"), "mew"
@@ -321,7 +321,7 @@ class DebugSymbolsStageTest(
         self.assertBoardAttrEqual("breakpad_symbols_generated", True)
         self.assertBoardAttrEqual("debug_tarball_generated", True)
 
-    def testUploadCrashUploadsList(self):
+    def testUploadCrashUploadsList(self) -> None:
         """A crash in symbol upload should still post the failed list file."""
         self.upload_mock.side_effect = failures_lib.BuildScriptFailure(
             cros_build_lib.RunCommandError("mew"), "mew"
@@ -358,7 +358,7 @@ class UploadTestArtifactsStageMock(
         "BuildTastTarball",
     )
 
-    def BuildAutotestTarballs(self, *args, **kwargs):
+    def BuildAutotestTarballs(self, *args, **kwargs) -> None:
         with mock.patch.object(
             commands, "BuildTarball", autospec=True
         ), mock.patch.object(
@@ -369,7 +369,7 @@ class UploadTestArtifactsStageMock(
         ):
             self.backup["BuildAutotestTarballs"](*args, **kwargs)
 
-    def BuildTastTarball(self, *args, **kwargs):
+    def BuildTastTarball(self, *args, **kwargs) -> None:
         with mock.patch.object(commands, "BuildTarball", autospec=True):
             self.backup["BuildTastTarball"](*args, **kwargs)
 
@@ -380,7 +380,7 @@ class UploadTestArtifactsStageTest(
 ):
     """Tests UploadTestArtifactsStage."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._release_tag = None
 
         osutils.SafeMakedirs(os.path.join(self.build_root, "chroot", "tmp"))
@@ -392,7 +392,7 @@ class UploadTestArtifactsStageTest(
             self._run, self.buildstore, self._current_board
         )
 
-    def RunTestsWithBotId(self, bot_id, options_tests=True):
+    def RunTestsWithBotId(self, bot_id, options_tests=True) -> None:
         """Test with the config for the specified bot_id."""
         self._Prepare(bot_id)
         self._run.options.tests = options_tests
@@ -420,6 +420,6 @@ class UploadTestArtifactsStageTest(
                         generate_update_payloads_mock.call_count, 0
                     )
 
-    def testAllConfigs(self):
+    def testAllConfigs(self) -> None:
         """Test all major configurations"""
         self.RunAllConfigs(self.RunTestsWithBotId)

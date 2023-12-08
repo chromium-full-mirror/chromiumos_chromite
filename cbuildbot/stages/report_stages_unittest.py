@@ -41,7 +41,7 @@ from chromite.utils import hostname_util
 class BuildReexecutionStageTest(generic_stages_unittest.AbstractStageTestCase):
     """Tests that BuildReexecutionFinishedStage behaves as expected."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.fake_db = fake_cidb.FakeCIDBConnection()
         self.buildstore = buildstore.FakeBuildStore(self.fake_db)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.fake_db)
@@ -68,10 +68,10 @@ class BuildReexecutionStageTest(generic_stages_unittest.AbstractStageTestCase):
             return_value=["i686-pc-linux-gnu", "arm-none-eabi"],
         )
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         cidb.CIDBConnectionFactory.SetupMockCidb()
 
-    def testPerformStage(self):
+    def testPerformStage(self) -> None:
         """Test that a normal runs completes without error."""
         self.RunStage()
         tags = self._run.attrs.metadata.GetValue(constants.METADATA_TAGS)
@@ -86,13 +86,13 @@ class BuildReexecutionStageTest(generic_stages_unittest.AbstractStageTestCase):
 class ConfigDumpStageTest(generic_stages_unittest.AbstractStageTestCase):
     """Tests that ConfigDumpStage runs without syntax error."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.buildstore = buildstore.FakeBuildStore()
 
     def ConstructStage(self):
         return report_stages.ConfigDumpStage(self._run, self.buildstore)
 
-    def testPerformStage(self):
+    def testPerformStage(self) -> None:
         self._Prepare()
         self.RunStage()
 
@@ -102,14 +102,14 @@ class SlaveFailureSummaryStageTest(
 ):
     """Tests that SlaveFailureSummaryStage behaves as expected."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.db = mock.MagicMock()
         self.buildstore = buildstore.FakeBuildStore(self.db)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.db)
         self._Prepare(build_id=1)
 
     # Our API here is not great when it comes to kwargs passing.
-    def _Prepare(self, **kwargs):  # pylint: disable=arguments-differ
+    def _Prepare(self, **kwargs) -> None:  # pylint: disable=arguments-differ
         """Prepare stage with config['master']=True."""
         super()._Prepare(**kwargs)
         self._run.config["master"] = True
@@ -119,7 +119,7 @@ class SlaveFailureSummaryStageTest(
             self._run, self.buildstore
         )
 
-    def testPerformStage(self):
+    def testPerformStage(self) -> None:
         """Tests that stage runs without syntax errors."""
         fake_failure = (
             failure_message_lib_unittest.StageFailureHelper.CreateStageFailure(
@@ -145,7 +145,7 @@ class SlaveFailureSummaryStageTest(
 class BuildStartStageTest(generic_stages_unittest.AbstractStageTestCase):
     """Tests that BuildStartStage behaves as expected."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.db = fake_cidb.FakeCIDBConnection()
         self.buildstore = buildstore.FakeBuildStore(self.db)
         cidb.CIDBConnectionFactory.SetupMockCidb(self.db)
@@ -160,7 +160,7 @@ class BuildStartStageTest(generic_stages_unittest.AbstractStageTestCase):
 
         self._Prepare(build_id=None, master_build_id=master_build_id)
 
-    def testPerformStage(self):
+    def testPerformStage(self) -> None:
         """Test that a normal run of the stage does a database insert."""
         self.RunStage()
 
@@ -171,21 +171,21 @@ class BuildStartStageTest(generic_stages_unittest.AbstractStageTestCase):
             cidb.CONNECTION_TYPE_MOCK,
         )
 
-    def testSuiteSchedulingEqualsFalse(self):
+    def testSuiteSchedulingEqualsFalse(self) -> None:
         """Test that a run of the stage makes suite_scheduling False."""
         # Test suite_scheduling for **-paladin
         self._Prepare(bot_id="amd64-generic-full")
         self.RunStage()
         self.assertFalse(self._run.attrs.metadata.GetValue("suite_scheduling"))
 
-    def testSuiteSchedulingEqualsTrue(self):
+    def testSuiteSchedulingEqualsTrue(self) -> None:
         """Test that a run of the stage makes suite_scheduling True."""
         # Test suite_scheduling for **-release
         self._Prepare(bot_id="eve-release")
         self.RunStage()
         self.assertTrue(self._run.attrs.metadata.GetValue("suite_scheduling"))
 
-    def testHandleSkipWithInstanceChange(self):
+    def testHandleSkipWithInstanceChange(self) -> None:
         """Test that HandleSkip disables cidb and dies when necessary."""
         # This test verifies that switching to a 'mock' database type once
         # metadata already has an id in 'previous_db_type' will fail.
@@ -203,13 +203,13 @@ class BuildStartStageTest(generic_stages_unittest.AbstractStageTestCase):
         # run.
         cidb.CIDBConnectionFactory.SetupMockCidb()
 
-    def testHandleSkipWithNoDbType(self):
+    def testHandleSkipWithNoDbType(self) -> None:
         """Test that HandleSkip passes when db_type is missing."""
         self._run.attrs.metadata.UpdateWithDict({"build_id": 31337})
         stage = self.ConstructStage()
         stage.HandleSkip()
 
-    def testHandleSkipWithDbType(self):
+    def testHandleSkipWithDbType(self) -> None:
         """Test that HandleSkip passes when db_type is specified."""
         self._run.attrs.metadata.UpdateWithDict(
             {"build_id": 31337, "db_type": cidb.CONNECTION_TYPE_MOCK}
@@ -227,7 +227,7 @@ class AbstractReportStageTestCase(
 ):
     """Base class for testing the Report stage."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         for cmd in (
             (osutils, "WriteFile"),
             (commands, "UploadArchivedFile"),
@@ -265,10 +265,10 @@ class ReportStageTest(AbstractReportStageTestCase):
 
     RELEASE_TAG = ""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_cidb.GetSlaveStatuses = mock.Mock(return_value=None)
 
-    def testCheckResults(self):
+    def testCheckResults(self) -> None:
         """Basic sanity check for results stage functionality"""
         self.CreateMockOverlay("amd64-generic")
 
@@ -341,7 +341,7 @@ class ReportStageTest(AbstractReportStageTestCase):
             for filename in filenames
         ]
 
-    def testDoNotUpdateLATESTMarkersWhenBuildFailed(self):
+    def testDoNotUpdateLATESTMarkersWhenBuildFailed(self) -> None:
         """Check that we do not update the latest markers on failed build."""
         self.PatchObject(report_stages.ReportStage, "_LinkArtifacts")
         self.PatchObject(
@@ -362,7 +362,7 @@ class ReportStageTest(AbstractReportStageTestCase):
         ]
         self.assertEqual(calls, commands.UploadArchivedFile.call_args_list)
 
-    def testWriteBasicMetadata(self):
+    def testWriteBasicMetadata(self) -> None:
         """Test that WriteBasicMetadata writes expected keys correctly."""
         report_stages.WriteBasicMetadata(self._run)
         metadata_dict = self._run.attrs.metadata.GetDict()
@@ -373,7 +373,7 @@ class ReportStageTest(AbstractReportStageTestCase):
         self.assertIn("builder-name", metadata_dict)
         self.assertIn("bot-hostname", metadata_dict)
 
-    def testWriteTagMetadata(self):
+    def testWriteTagMetadata(self) -> None:
         """Test that WriteTagMetadata writes expected keys correctly."""
         self.PatchObject(
             hostname_util, "get_host_name", return_value="cros-wimpy2"
@@ -394,7 +394,7 @@ class ReportStageTest(AbstractReportStageTestCase):
             generic_stages_unittest.DEFAULT_BUILD_NUMBER,
         )
 
-    def testPerformStage(self):
+    def testPerformStage(self) -> None:
         """Test PerformStage."""
         mock_sd = self.PatchObject(metrics, "CumulativeSecondsDistribution")
         self.PatchObject(report_stages.ReportStage, "ArchiveResults")
@@ -413,6 +413,6 @@ class ReportStageNoSyncTest(AbstractReportStageTestCase):
 
     RELEASE_TAG = None
 
-    def testCommitQueueResults(self):
+    def testCommitQueueResults(self) -> None:
         """Check that we can run with a RELEASE_TAG of None."""
         self.RunStage()

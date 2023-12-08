@@ -61,7 +61,9 @@ def _IsLocalPath(url):
     return o.scheme in ("file", "")
 
 
-def CloneWorkingRepo(dest, url, reference, branch=None, single_branch=False):
+def CloneWorkingRepo(
+    dest, url, reference, branch=None, single_branch=False
+) -> None:
     """Clone a git repository with an existing local copy as a reference.
 
     Also copy the hooks into the new repository.
@@ -86,7 +88,7 @@ def CloneWorkingRepo(dest, url, reference, branch=None, single_branch=False):
         shutil.copystat(name, newname)
 
 
-def ClearBuildRoot(buildroot, preserve_paths=()):
+def ClearBuildRoot(buildroot, preserve_paths=()) -> None:
     """Remove all files in the buildroot not preserved.
 
     Args:
@@ -183,7 +185,7 @@ class RepoRepository:
         self._repo_update_needed = True
         self._depth = int(depth) if depth is not None else None
 
-    def _SwitchToLocalManifest(self, local_manifest):
+    def _SwitchToLocalManifest(self, local_manifest) -> None:
         """Reinitializes the repository if the manifest has changed."""
         logging.debug("Moving to manifest defined by %s", local_manifest)
         # TODO: use upstream repo's manifest logic when we bump repo version.
@@ -191,7 +193,7 @@ class RepoRepository:
         os.unlink(manifest_path)
         shutil.copyfile(local_manifest, manifest_path)
 
-    def _RepoSelfupdate(self):
+    def _RepoSelfupdate(self) -> None:
         """Execute repo selfupdate command.
 
         'repo selfupdate' would clean up the .repo/repo dir on certain
@@ -234,7 +236,7 @@ class RepoRepository:
                 ignore_missing=True,
             )
 
-    def _CleanUpRepoManifest(self, directory):
+    def _CleanUpRepoManifest(self, directory) -> None:
         """Clean up the manifest and repo dirs under the '.repo' dir.
 
         Args:
@@ -246,7 +248,7 @@ class RepoRepository:
         ]
         cros_build_lib.sudo_run(["rm", "-rf"] + paths)
 
-    def _RepoInit(self, *args, **kwargs):
+    def _RepoInit(self, *args, **kwargs) -> None:
         """Run 'repo init' and clean up repo manifest on init failures.
 
         Args:
@@ -264,7 +266,7 @@ class RepoRepository:
             self._CleanUpRepoManifest(self.directory)
             raise e
 
-    def CleanStaleLocks(self):
+    def CleanStaleLocks(self) -> None:
         """Clean up stale locks left behind in any git repos.
 
         This might occur if earlier git commands were killed during an
@@ -305,7 +307,7 @@ class RepoRepository:
         repo_obj_store = "%s.git" % os.path.join(project_objects_dir, project)
         return repo_git_store, repo_obj_store
 
-    def BuildRootGitCleanup(self, prune_all=False):
+    def BuildRootGitCleanup(self, prune_all=False) -> None:
         """Put buildroot onto manifest branch.
 
         Delete branches created on last run.
@@ -321,7 +323,7 @@ class RepoRepository:
         lock_path = os.path.join(self.directory, ".clean_lock")
         deleted_objdirs = multiprocessing.Event()
 
-        def RunCleanupCommands(project, path):
+        def RunCleanupCommands(project, path) -> None:
             with locking.FileLock(lock_path, verbose=False).read_lock() as lock:
                 repo_git_store, repo_obj_store = self.CalculateGitRepoLocations(
                     project, path
@@ -391,7 +393,7 @@ class RepoRepository:
         if deleted_objdirs.is_set():
             parallel.RunTasksInProcessPool(RunCleanupCommands, dirs)
 
-    def AssertNotNested(self):
+    def AssertNotNested(self) -> None:
         """Assert that the current repository isn't inside another repository.
 
         Since repo detects it's root by looking for .repo, it can't support
@@ -405,7 +407,7 @@ class RepoRepository:
                     % (self.directory, repo_root)
                 )
 
-    def PreLoad(self, source_repo=None):
+    def PreLoad(self, source_repo=None) -> None:
         """Preinitialize new .repo directory for faster initial sync.
 
         This is a hint that the new .repo directory can be copied from
@@ -435,7 +437,7 @@ class RepoRepository:
 
     def Initialize(
         self, local_manifest=None, manifest_repo_url=None, extra_args=()
-    ):
+    ) -> None:
         """Initializes a repository.
 
         Optionally forces a local manifest.
@@ -511,7 +513,7 @@ class RepoRepository:
         else:
             init_cmd.extend(["--groups", "all"])
 
-        def _StatusCallback(attempt, _):
+        def _StatusCallback(attempt, _) -> None:
             if attempt:
                 metrics.Counter(constants.MON_REPO_INIT_RETRY_COUNT).increment(
                     fields={"manifest_url": self.manifest_repo_url}
@@ -534,7 +536,7 @@ class RepoRepository:
     def _ManifestConfig(self):
         return os.path.join(self.directory, ".repo", "manifests.git", "config")
 
-    def _EnsureMirroring(self, post_sync=False):
+    def _EnsureMirroring(self, post_sync=False) -> None:
         """Ensure git is usable from w/in the chroot if --references is enabled
 
         repo init --references hardcodes the abspath to parent; this pathway
@@ -584,7 +586,7 @@ class RepoRepository:
         ]
         git.RunGit(".", cmd)
 
-    def _CleanUpAndRunCommand(self, *args, **kwargs):
+    def _CleanUpAndRunCommand(self, *args, **kwargs) -> None:
         """Clean up repository and run command.
 
         This is only called in repo network Sync retries.
@@ -603,7 +605,7 @@ class RepoRepository:
 
         cros_build_lib.run(*args, **kwargs)
 
-    def _RepoDebugInfo(self):
+    def _RepoDebugInfo(self) -> None:
         """Display debugging information for the repo binary."""
         logging.info("Repo path: %s", osutils.Which("repo"))
         cmd = [self.repo_cmd, "version"]
@@ -619,7 +621,7 @@ class RepoRepository:
         network_only=False,
         detach=False,
         downgrade_repo: bool = False,
-    ):
+    ) -> None:
         """Sync/update the source.
 
         Changes manifest if specified.
@@ -737,7 +739,7 @@ class RepoRepository:
             logging.error(err_msg)
             raise SrcCheckOutException(err_msg)
 
-    def FetchAll(self, detach=False):
+    def FetchAll(self, detach=False) -> None:
         """Run repo forall -c git fetch --all'.
 
         Args:

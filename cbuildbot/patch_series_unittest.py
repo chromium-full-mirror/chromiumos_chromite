@@ -27,7 +27,7 @@ class MockManifest:
             setattr(self, key, attr)
 
 
-def FakeFetchChangesForRepo(fetched_changes, by_repo, repo):
+def FakeFetchChangesForRepo(fetched_changes, by_repo, repo) -> None:
     """Fake version of the "PatchSeries._FetchChangesForRepo" method.
 
     Thes does nothing to the changes and simply copies them into the output
@@ -53,10 +53,10 @@ class FakePatch(partial_mock.PartialMock):
     build_root = None
     assertEqual = None
 
-    def PreStart(self):
+    def PreStart(self) -> None:
         FakePatch.parents = {}
 
-    def PreStop(self):
+    def PreStop(self) -> None:
         FakePatch.build_root = None
         FakePatch.assertEqual = None
 
@@ -67,7 +67,7 @@ class FakePatch(partial_mock.PartialMock):
         self._assertPath(patch, path)
         return patch.sha1
 
-    def _assertPath(self, patch, path):
+    def _assertPath(self, patch, path) -> None:
         # pylint: disable=not-callable
         self.assertEqual(path, os.path.join(self.build_root, patch.project))
 
@@ -94,7 +94,7 @@ class PatchSeriesTestCase(
     def _ValidateTransactionCall(self, _changes):
         yield
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.StartPatcher(parallel_unittest.ParallelMock())
         self._patch_factory = patch_unittest.MockPatchFactory()
         self.build_root = "fakebuildroot"
@@ -130,7 +130,7 @@ class PatchSeriesTestCase(
 
         return series
 
-    def CheckPatchApply(self, apply_mocks):
+    def CheckPatchApply(self, apply_mocks) -> None:
         for apply_mock in apply_mocks:
             apply_mock.assert_called_once_with(mock.ANY, trivial=False)
             value = apply_mock.call_args[0][0]
@@ -173,7 +173,7 @@ class PatchSeriesTestCase(
 class TestUploadedLocalPatch(PatchSeriesTestCase):
     """Test interaction between uploaded local git patches and PatchSeries."""
 
-    def testFetchChanges(self):
+    def testFetchChanges(self) -> None:
         """Test fetching uploaded local patches."""
         git1, git2, patch1 = self._CommonGitSetup()
         patch2 = self.CommitFile(git1, "monkeys2", "foon2")
@@ -190,11 +190,11 @@ class TestUploadedLocalPatch(PatchSeriesTestCase):
         self.assertEqual(patches[0].id, patch3.id)
         self.assertEqual(patches[1].id, patch4.id)
 
-    def testFetchChangesWithChangeNotInManifest(self):
+    def testFetchChangesWithChangeNotInManifest(self) -> None:
         """test FetchChanges with ChangeNotInManifest."""
 
         # pylint: disable=unused-argument
-        def raiseException(change, **kwargs):
+        def raiseException(change, **kwargs) -> None:
             raise cros_patch.ChangeNotInManifest(change)
 
         patch_1, patch_2 = patches = self.GetPatches(2)

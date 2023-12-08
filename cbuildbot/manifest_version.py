@@ -119,7 +119,7 @@ def ResolveBuildspecVersion(manifest_dir, version):
     raise BuildSpecsValueError("No buildspec for version %s found." % version)
 
 
-def RefreshManifestCheckout(manifest_dir, manifest_repo):
+def RefreshManifestCheckout(manifest_dir, manifest_repo) -> None:
     """Checks out manifest-versions into the manifest directory.
 
     If a repository is already present, it will be cleansed of any local
@@ -150,7 +150,7 @@ def RefreshManifestCheckout(manifest_dir, manifest_repo):
         git.Clone(manifest_dir, manifest_repo)
 
 
-def _PushGitChanges(git_repo, message, dry_run=False, push_to=None):
+def _PushGitChanges(git_repo, message, dry_run=False, push_to=None) -> None:
     """Push the final commit into the git repo.
 
     Args:
@@ -188,7 +188,7 @@ def _PushGitChanges(git_repo, message, dry_run=False, push_to=None):
     git.GitPush(git_repo, PUSH_BRANCH, push_to, skip=dry_run)
 
 
-def CreateSymlink(src_file, dest_file):
+def CreateSymlink(src_file, dest_file) -> None:
     """Creates relative symlink from src to dest with optional removal of file.
 
     More robust symlink creation that creates a relative symlink from src_file
@@ -275,7 +275,7 @@ def PopulateAndPublishBuildSpec(
     manifest_versions_int,
     manifest_versions_ext=None,
     dryrun=True,
-):
+) -> None:
     """Create build spec based on current source checkout.
 
     This assumes that the current checkout is 100% clean, and that local SHAs
@@ -478,7 +478,7 @@ class BuildSpecsManager:
                 [os.path.splitext(m)[0] for m in specs]
             )
 
-    def RefreshManifestCheckout(self):
+    def RefreshManifestCheckout(self) -> None:
         """Checks out manifest versions into the manifest directory."""
         RefreshManifestCheckout(self.manifest_dir, self.manifest_repo)
 
@@ -619,7 +619,7 @@ class BuildSpecsManager:
 
         return version
 
-    def PublishManifest(self, manifest, version, build_id=None):
+    def PublishManifest(self, manifest, version, build_id=None) -> None:
         """Publishes the manifest as the manifest for the version to others.
 
         Args:
@@ -667,7 +667,7 @@ class BuildSpecsManager:
         builders_array,
         timeout=3 * 60,
         ignore_timeout_exception=True,
-    ):
+    ) -> None:
         """Wait for all slaves to complete or timeout.
 
         This method checks the statuses of important builds in |builders_array|,
@@ -694,7 +694,7 @@ class BuildSpecsManager:
 
         start_time = datetime.datetime.now()
 
-        def _PrintRemainingTime(remaining):
+        def _PrintRemainingTime(remaining) -> None:
             logging.info("%s until timeout...", remaining)
 
         slave_status = build_status.SlaveStatus(
@@ -770,7 +770,7 @@ class BuildSpecsManager:
         self.current_version = version
         return self.GetLocalManifest(self.current_version)
 
-    def CheckoutSourceCode(self):
+    def CheckoutSourceCode(self) -> None:
         """Syncs the cros source to the latest git hashes for the branch."""
         self.cros_source.Sync(self.manifest)
 
@@ -838,7 +838,7 @@ class BuildSpecsManager:
         self.RefreshManifestCheckout()
         raise GenerateBuildSpecException(last_error)
 
-    def _SetPassSymlinks(self, success_map):
+    def _SetPassSymlinks(self, success_map) -> None:
         """Marks the buildspec as passed by creating a symlink in passed dir.
 
         Args:
@@ -859,7 +859,7 @@ class BuildSpecsManager:
             logging.debug("Build %s: %s -> %s", status, src_file, dest_file)
             CreateSymlink(src_file, dest_file)
 
-    def PushSpecChanges(self, commit_message):
+    def PushSpecChanges(self, commit_message) -> None:
         """Pushes any changes you have in the manifest directory.
 
         Args:
@@ -882,7 +882,9 @@ class BuildSpecsManager:
             push_to=push_to,
         )
 
-    def UpdateStatus(self, success_map, message=None, retries=NUM_RETRIES):
+    def UpdateStatus(
+        self, success_map, message=None, retries=NUM_RETRIES
+    ) -> None:
         """Updates the status of the build for the current build spec.
 
         Args:

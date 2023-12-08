@@ -37,7 +37,7 @@ class WorkspaceStageBase(
     # Version newer than all "limits" in workspace_stages.
     MODERN_VERSION = "15000.0.0"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.workspace = os.path.join(self.tempdir, "workspace")
         # Make it a 'repo' for chroot path conversions.
         osutils.SafeMakedirs(os.path.join(self.workspace, ".repo"))
@@ -57,13 +57,13 @@ class WorkspaceStageBase(
 
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
-    def SetWorkspaceVersion(self, version, chrome_branch="1"):
+    def SetWorkspaceVersion(self, version, chrome_branch="1") -> None:
         """Change the "version" of the workspace."""
         self.from_repo_mock.return_value = chromeos_version.VersionInfo(
             version, chrome_branch=chrome_branch
         )
 
-    def ConstructStage(self):
+    def ConstructStage(self) -> None:
         """Returns an instance of the stage to be tested.
 
         Note: Must be implemented in subclasses.
@@ -81,7 +81,7 @@ class WorkspaceStageBaseTest(WorkspaceStageBase):
             self._run, self.buildstore, build_root=self.workspace
         )
 
-    def testBuildRoots(self):
+    def testBuildRoots(self) -> None:
         """Tests that various properties are correctly set."""
         self._Prepare(
             "buildspec",
@@ -106,7 +106,7 @@ class WorkspaceStageBaseTest(WorkspaceStageBase):
             self.manifest_versions_int, stage.int_manifest_versions_path
         )
 
-    def testVersionInfo(self):
+    def testVersionInfo(self) -> None:
         """Tests GetWorkspaceVersionInfo."""
         self._Prepare(
             "buildspec",
@@ -124,7 +124,7 @@ class WorkspaceStageBaseTest(WorkspaceStageBase):
             ],
         )
 
-    def testAfterLimit(self):
+    def testAfterLimit(self) -> None:
         """Tests AfterLimit."""
         self._Prepare(
             "buildspec",
@@ -162,7 +162,7 @@ class SyncStageTest(WorkspaceStageBase):
     def ConstructStage(self, **kwargs):  # pylint: disable=arguments-differ
         return workspace_stages.SyncStage(self._run, self.buildstore, **kwargs)
 
-    def testDefaults(self):
+    def testDefaults(self) -> None:
         """Tests sync command used by default."""
         self._Prepare(
             "buildspec",
@@ -184,7 +184,7 @@ class SyncStageTest(WorkspaceStageBase):
             ]
         )
 
-    def testBranch(self):
+    def testBranch(self) -> None:
         """Tests sync command used for branch."""
         self._Prepare(
             "buildspec",
@@ -208,7 +208,7 @@ class SyncStageTest(WorkspaceStageBase):
             ]
         )
 
-    def testVersion(self):
+    def testVersion(self) -> None:
         """Tests sync command used for version."""
         self._Prepare(
             "buildspec",
@@ -232,7 +232,7 @@ class SyncStageTest(WorkspaceStageBase):
             ]
         )
 
-    def testPatches(self):
+    def testPatches(self) -> None:
         """Tests sync command used with patches."""
         self._Prepare(
             "buildspec",
@@ -266,7 +266,7 @@ class SyncStageTest(WorkspaceStageBase):
             ]
         )
 
-    def testMax(self):
+    def testMax(self) -> None:
         """Tests sync command with as many options as possible."""
         self._Prepare(
             "buildspec",
@@ -313,7 +313,7 @@ class SyncStageTest(WorkspaceStageBase):
 class WorkspaceSyncStageTest(WorkspaceStageBase):
     """Test the WorkspaceSyncStage."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.sync_stage_mock = self.PatchObject(workspace_stages, "SyncStage")
 
     def ConstructStage(self):
@@ -325,7 +325,7 @@ class WorkspaceSyncStageTest(WorkspaceStageBase):
         """Extract patch_pool from a mock call, and convert to gerrit int."""
         return [p.gerrit_number_str for p in mock_call[1]["patch_pool"]]
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Test invoking child syncs in standard case."""
         self._Prepare(
             "buildspec",
@@ -371,7 +371,7 @@ class WorkspaceSyncStageTest(WorkspaceStageBase):
         )
 
     # TODO(dgarrett): Enable. Failing in _Prepare, and I don't understand why.
-    def notestPatches(self):
+    def notestPatches(self) -> None:
         """Test invoking child syncs with patches to apply."""
 
         self._Prepare(
@@ -433,7 +433,7 @@ class WorkspaceSyncStageTest(WorkspaceStageBase):
 class WorkspaceSyncChromeStageTest(WorkspaceStageBase):
     """Test the WorkspaceSyncChromeStage."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         pkg_info = package_info.PackageInfo(version="0.0.1")
         self.mock_best_visible = self.PatchObject(
             portage_util, "PortageqBestVisible", return_value=pkg_info
@@ -445,7 +445,7 @@ class WorkspaceSyncChromeStageTest(WorkspaceStageBase):
             self._run, self.buildstore, build_root=self.workspace
         )
 
-    def testNormal(self):
+    def testNormal(self) -> None:
         """Test SyncChrome with normal usage."""
         self._Prepare(
             "test-factorybranch",
@@ -495,7 +495,7 @@ class WorkspaceInitSDKStageTest(WorkspaceStageBase):
             self._run, self.buildstore, build_root=self.workspace
         )
 
-    def testInitSDK(self):
+    def testInitSDK(self) -> None:
         """Test InitSDK old workspace version."""
         self._Prepare(
             "test-factorybranch",
@@ -519,7 +519,7 @@ class WorkspaceInitSDKStageTest(WorkspaceStageBase):
             cwd=self.workspace,
         )
 
-    def testInitSDKWithChrome(self):
+    def testInitSDKWithChrome(self) -> None:
         """Test InitSDK old workspace version."""
         self._Prepare(
             "test-factorybranch",
@@ -598,7 +598,7 @@ class WorkspaceUpdateSDKStageTest(WorkspaceStageBase):
             self._run, self.buildstore, build_root=self.workspace
         )
 
-    def testUpdateSDK(self):
+    def testUpdateSDK(self) -> None:
         """Test UpdateSDK old workspace version."""
         self._Prepare(
             "test-factorybranch",
@@ -620,7 +620,7 @@ class WorkspaceUpdateSDKStageTest(WorkspaceStageBase):
             cwd=self.workspace,
         )
 
-    def testUpdateSDKWithChrome(self):
+    def testUpdateSDKWithChrome(self) -> None:
         """Test UpdateSDK old workspace version."""
         self._Prepare(
             "test-factorybranch",
@@ -652,7 +652,7 @@ class WorkspaceUpdateSDKStageTest(WorkspaceStageBase):
 class WorkspaceSetupBoardStageTest(WorkspaceStageBase):
     """Test the WorkspaceSetupBoardStage."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Prevent the setup_board tempdir path from being translated because it
         # ends up raising an error when that path can't be found in the chroot.
         self.PatchObject(
@@ -667,7 +667,7 @@ class WorkspaceSetupBoardStageTest(WorkspaceStageBase):
             self._run, self.buildstore, build_root=self.workspace, board="board"
         )
 
-    def testSetupBoard(self):
+    def testSetupBoard(self) -> None:
         """Test setup_board old workspace version."""
         self._Prepare(
             "test-factorybranch",
@@ -694,7 +694,7 @@ class WorkspaceSetupBoardStageTest(WorkspaceStageBase):
             cwd=self.workspace,
         )
 
-    def testSetupBoardModern(self):
+    def testSetupBoardModern(self) -> None:
         """Test setup_board modern workspace version."""
         self._Prepare(
             "test-factorybranch",
@@ -722,7 +722,7 @@ class WorkspaceSetupBoardStageTest(WorkspaceStageBase):
             cwd=self.workspace,
         )
 
-    def testSetupBoardWithChrome(self):
+    def testSetupBoardWithChrome(self) -> None:
         """Test setup_board old workspace version."""
         self._Prepare(
             "test-factorybranch",
@@ -756,7 +756,7 @@ class WorkspaceSetupBoardStageTest(WorkspaceStageBase):
             cwd=self.workspace,
         )
 
-    def testSetupBoardWithChromeModern(self):
+    def testSetupBoardWithChromeModern(self) -> None:
         """Test setup_board modern workspace version."""
         self._Prepare(
             "test-factorybranch",
@@ -799,7 +799,7 @@ class WorkspaceBuildPackagesStageTest(WorkspaceStageBase):
             self._run, self.buildstore, build_root=self.workspace, board="board"
         )
 
-    def testFactoryBuildPackages(self):
+    def testFactoryBuildPackages(self) -> None:
         """Test building factory for an old workspace version."""
         self.SetWorkspaceVersion(self.MODERN_VERSION)
 
@@ -841,7 +841,7 @@ class WorkspaceBuildPackagesStageTest(WorkspaceStageBase):
             cwd=self.workspace,
         )
 
-    def testFactoryBuildPackagesLegacy(self):
+    def testFactoryBuildPackagesLegacy(self) -> None:
         """Test building factory for an old workspace version."""
         self._Prepare(
             "test-factorybranch",
@@ -890,7 +890,7 @@ class WorkspaceUnitTestStageTest(WorkspaceStageBase):
             self._run, self.buildstore, build_root=self.workspace, board="board"
         )
 
-    def testFactoryNew(self):
+    def testFactoryNew(self) -> None:
         self.SetWorkspaceVersion(self.MODERN_VERSION)
 
         self._Prepare(
@@ -927,7 +927,7 @@ class WorkspaceBuildImageStageTest(WorkspaceStageBase):
             self._run, self.buildstore, build_root=self.workspace, board="board"
         )
 
-    def testFactoryOld(self):
+    def testFactoryOld(self) -> None:
         self.SetWorkspaceVersion(self.OLD_VERSION)
         self._Prepare(
             "test-factorybranch",
@@ -958,7 +958,7 @@ class WorkspaceBuildImageStageTest(WorkspaceStageBase):
             cwd=self.workspace,
         )
 
-    def testFactoryModern(self):
+    def testFactoryModern(self) -> None:
         self.SetWorkspaceVersion(self.MODERN_VERSION)
         self._Prepare(
             "test-factorybranch",
@@ -996,7 +996,7 @@ class WorkspaceBuildImageStageTest(WorkspaceStageBase):
 class WorkspaceDebugSymbolsStageTest(WorkspaceStageBase):
     """Test the workspace_stages classes."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.tarball_mock = self.PatchObject(
             commands,
             "GenerateDebugTarball",
@@ -1018,7 +1018,7 @@ class WorkspaceDebugSymbolsStageTest(WorkspaceStageBase):
             self._run, self.buildstore, build_root=self.workspace, board="board"
         )
 
-    def testFactory(self):
+    def testFactory(self) -> None:
         """Test with a generic factory build config."""
         self._Prepare(
             "test-factorybranch",

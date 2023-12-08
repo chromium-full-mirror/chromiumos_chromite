@@ -107,7 +107,7 @@ def _PatchWrapException(functor):
     return f
 
 
-def _FetchChangesForRepo(fetched_changes, by_repo, repo):
+def _FetchChangesForRepo(fetched_changes, by_repo, repo) -> None:
     """Fetch the changes for a given `repo`.
 
     Args:
@@ -520,7 +520,7 @@ class PatchSeries:
         gerrit_deps_seen,
         limit_to=None,
         remaining_depth=MAX_PLAN_RECURSION,
-    ):
+    ) -> None:
         """Add a change and its dependencies into a |plan|.
 
         Args:
@@ -589,7 +589,7 @@ class PatchSeries:
             val = self._change_deps_cache[change] = change.GerritDependencies()
         return val
 
-    def InjectCommittedPatches(self, changes):
+    def InjectCommittedPatches(self, changes) -> None:
         """Record that the given patches are already committed.
 
         This is primarily useful for external code to notify this object
@@ -598,7 +598,7 @@ class PatchSeries:
         """
         self._committed_cache.Inject(*changes)
 
-    def InjectLookupCache(self, changes):
+    def InjectLookupCache(self, changes) -> None:
         """Inject into the internal lookup cache the given changes.
 
         Uses |changes| rather than asking gerrit for them for dependencies.
@@ -837,7 +837,7 @@ class PatchSeries:
             raise
 
     @_PatchWrapException
-    def _ApplyChanges(self, _inducing_change, changes):
+    def _ApplyChanges(self, _inducing_change, changes) -> None:
         """Apply a given ordered sequence of changes.
 
         Args:

@@ -33,7 +33,7 @@ class RunBuildScriptTest(cros_test_lib.RunCommandTempDirTestCase):
 
     def _assertRunBuildScript(
         self, in_chroot=False, error=None, raises=None, **kwargs
-    ):
+    ) -> None:
         """Test the RunBuildScript function.
 
         Args:
@@ -44,7 +44,7 @@ class RunBuildScriptTest(cros_test_lib.RunCommandTempDirTestCase):
         """
 
         # Write specified error message to status file.
-        def WriteError(_cmd, extra_env=None, **_kwargs):
+        def WriteError(_cmd, extra_env=None, **_kwargs) -> None:
             if extra_env is not None and error is not None:
                 status_file = extra_env[
                     constants.PARALLEL_EMERGE_STATUS_FILE_ENVVAR
@@ -85,35 +85,35 @@ class RunBuildScriptTest(cros_test_lib.RunCommandTempDirTestCase):
                     buildroot, cmd, enter_chroot=in_chroot, **kwargs
                 )
 
-    def testSuccessOutsideChroot(self):
+    def testSuccessOutsideChroot(self) -> None:
         """Test executing a command outside the chroot."""
         self._assertRunBuildScript()
 
-    def testSuccessInsideChrootWithoutTempdir(self):
+    def testSuccessInsideChrootWithoutTempdir(self) -> None:
         """Test executing a command inside a chroot without a tmp dir."""
         self._assertRunBuildScript(in_chroot=True)
 
-    def testSuccessInsideChrootWithTempdir(self):
+    def testSuccessInsideChrootWithTempdir(self) -> None:
         """Test executing a command inside a chroot with a tmp dir."""
         self._assertRunBuildScript(in_chroot=True, error="")
 
-    def testFailureOutsideChroot(self):
+    def testFailureOutsideChroot(self) -> None:
         """Test a command failure outside the chroot."""
         self._assertRunBuildScript(raises=failures_lib.BuildScriptFailure)
 
-    def testFailureInsideChrootWithoutTempdir(self):
+    def testFailureInsideChrootWithoutTempdir(self) -> None:
         """Test a command failure inside the chroot without a temp directory."""
         self._assertRunBuildScript(
             in_chroot=True, raises=failures_lib.BuildScriptFailure
         )
 
-    def testFailureInsideChrootWithTempdir(self):
+    def testFailureInsideChrootWithTempdir(self) -> None:
         """Test a command failure inside the chroot with a temp directory."""
         self._assertRunBuildScript(
             in_chroot=True, error="", raises=failures_lib.BuildScriptFailure
         )
 
-    def testPackageBuildFailure(self):
+    def testPackageBuildFailure(self) -> None:
         """Test detecting a package build failure."""
         self._assertRunBuildScript(
             in_chroot=True,
@@ -121,7 +121,7 @@ class RunBuildScriptTest(cros_test_lib.RunCommandTempDirTestCase):
             raises=failures_lib.PackageBuildFailure,
         )
 
-    def testSuccessWithSudo(self):
+    def testSuccessWithSudo(self) -> None:
         """Test a command run with sudo."""
         self._assertRunBuildScript(in_chroot=False, sudo=True)
         self._assertRunBuildScript(in_chroot=True, sudo=True)
@@ -137,22 +137,22 @@ class ChromeSDKTest(cros_test_lib.RunCommandTempDirTestCase):
     CMD = ["bar", "baz"]
     CWD = "fooey"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.inst = commands.ChromeSDK(self.CWD, self.BOARD)
 
-    def testRunCommand(self):
+    def testRunCommand(self) -> None:
         """Test that running a command is possible."""
         self.inst.Run(self.CMD)
         self.assertCommandContains([self.BOARD] + self.CMD, cwd=self.CWD)
 
-    def testRunCommandWithRunArgs(self):
+    def testRunCommandWithRunArgs(self) -> None:
         """Test run_args optional argument for run kwargs."""
         self.inst.Run(self.CMD, run_args={"log_output": True})
         self.assertCommandContains(
             [self.BOARD] + self.CMD, cwd=self.CWD, log_output=True
         )
 
-    def testRunCommandKwargs(self):
+    def testRunCommandKwargs(self) -> None:
         """Exercise optional arguments."""
         custom_inst = commands.ChromeSDK(
             self.CWD,
@@ -170,13 +170,13 @@ class ChromeSDKTest(cros_test_lib.RunCommandTempDirTestCase):
             cwd=self.CWD,
         )
 
-    def MockGetDefaultTarget(self):
+    def MockGetDefaultTarget(self) -> None:
         self.rc.AddCmdResult(
             partial_mock.In("qlist-%s" % self.BOARD),
             stdout="%s" % constants.CHROME_CP,
         )
 
-    def testNinjaWithRunArgs(self):
+    def testNinjaWithRunArgs(self) -> None:
         """Test that running ninja with run_args.
 
         run_args is an optional argument for run kwargs.
@@ -194,7 +194,7 @@ class ChromeSDKTest(cros_test_lib.RunCommandTempDirTestCase):
             log_output=True,
         )
 
-    def testNinjaOptions(self):
+    def testNinjaOptions(self) -> None:
         """Test that running ninja with non-default options."""
         self.MockGetDefaultTarget()
         custom_inst = commands.ChromeSDK(self.CWD, self.BOARD, goma=True)
@@ -214,7 +214,7 @@ class ChromeSDKTest(cros_test_lib.RunCommandTempDirTestCase):
 class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
     """Test general cbuildbot command methods."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self._board = "test-board"
@@ -233,7 +233,7 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
             "link/R37-5952.0.2014_06_12_2302-a1/chromiumos_test_image.bin",
         )
 
-    def testUprevPackagesMin(self):
+    def testUprevPackagesMin(self) -> None:
         """See if we can generate minimal cros_mark_as_stable commandline."""
         commands.UprevPackages(
             self._buildroot, [self._board], constants.PUBLIC_OVERLAYS
@@ -251,7 +251,7 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
             ]
         )
 
-    def testUprevPackagesMax(self):
+    def testUprevPackagesMax(self) -> None:
         """See if we can generate the max cros_mark_as_stable commandline."""
         commands.UprevPackages(
             self._buildroot,
@@ -272,7 +272,7 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
             ]
         )
 
-    def testUprevPushMin(self):
+    def testUprevPushMin(self) -> None:
         """See if we can generate minimal cros_mark_as_stable commandline."""
         commands.UprevPush(
             self._buildroot, overlay_type=constants.PUBLIC_OVERLAYS
@@ -288,7 +288,7 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
             ]
         )
 
-    def testUprevPushMax(self):
+    def testUprevPushMax(self) -> None:
         """See if we can generate the max cros_mark_as_stable commandline."""
         commands.UprevPush(
             self._buildroot,
@@ -306,7 +306,7 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
             ]
         )
 
-    def testVerifyBinpkgMissing(self):
+    def testVerifyBinpkgMissing(self) -> None:
         """Test case where binpkg is missing."""
         self.rc.AddCmdResult(
             partial_mock.ListRegex(r"emerge"),
@@ -321,7 +321,7 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
             packages=(),
         )
 
-    def testVerifyBinpkgPresent(self):
+    def testVerifyBinpkgPresent(self) -> None:
         """Test case where binpkg is present."""
         self.rc.AddCmdResult(
             partial_mock.ListRegex(r"emerge"),
@@ -331,13 +331,13 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
             self._buildroot, self._board, constants.CHROME_CP, packages=()
         )
 
-    def testVerifyChromeNotInstalled(self):
+    def testVerifyChromeNotInstalled(self) -> None:
         """Test case where Chrome is not installed at all."""
         commands.VerifyBinpkg(
             self._buildroot, self._board, constants.CHROME_CP, packages=()
         )
 
-    def testBuild(self, default=False, **kwargs):
+    def testBuild(self, default=False, **kwargs) -> None:
         """Base case where Build is called with minimal options."""
         kwargs.setdefault("build_autotest", default)
         kwargs.setdefault("usepkg", default)
@@ -356,7 +356,7 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
             ]
         )
 
-    def testBuildLegacy(self, default=False, **kwargs):
+    def testBuildLegacy(self, default=False, **kwargs) -> None:
         """Base case where legacy Build is called with minimal options."""
         kwargs.setdefault("build_autotest", default)
         kwargs.setdefault("usepkg", default)
@@ -367,7 +367,7 @@ class CBuildBotTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertCommandContains(["./build_packages"])
 
-    def testGetFirmwareVersions(self):
+    def testGetFirmwareVersions(self) -> None:
         # pylint: disable=line-too-long
         self.rc.SetDefaultCmdResult(
             stdout="""
@@ -419,7 +419,7 @@ c98ca54db130886142ad582a58e90ddc *./common.sh
         )
         self.assertEqual(result, versions)
 
-    def testGetFirmwareVersionsMixedImage(self):
+    def testGetFirmwareVersionsMixedImage(self) -> None:
         """Test that can extract the right version from a mixed RO+RW bundle."""
         # pylint: disable=line-too-long
         self.rc.SetDefaultCmdResult(
@@ -483,7 +483,7 @@ ae8cf9fca3165a1c1f12decfd910c4fe *./vpd
         )
         self.assertEqual(result, versions)
 
-    def testGetAllFirmwareVersions(self):
+    def testGetAllFirmwareVersions(self) -> None:
         """Verify that all model firmware versions can be extracted"""
         # pylint: disable=line-too-long
         self.rc.SetDefaultCmdResult(
@@ -623,7 +623,7 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
             ),
         )
 
-    def testGetModels(self):
+    def testGetModels(self) -> None:
         self.rc.SetDefaultCmdResult(stdout="pyro\nreef\nsnappy\n")
         build_bin = os.path.join(
             self._buildroot, constants.DEFAULT_CHROOT_DIR, "usr", "bin"
@@ -634,11 +634,11 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
         result = commands.GetModels(self._buildroot, self._board)
         self.assertEqual(result, ["pyro", "reef", "snappy"])
 
-    def testBuildMaximum(self):
+    def testBuildMaximum(self) -> None:
         """Base case: Build is called with all options (except extra_env)."""
         self.testBuild(default=True)
 
-    def testBuildWithEnv(self):
+    def testBuildWithEnv(self) -> None:
         """Case where Build is called with a custom environment."""
         extra_env = {"A": "Av", "B": "Bv"}
         self.testBuild(extra_env=extra_env)
@@ -653,12 +653,12 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
             extra_env=extra_env,
         )
 
-    def testGenerateBreakpadSymbols(self):
+    def testGenerateBreakpadSymbols(self) -> None:
         """Test GenerateBreakpadSymbols Command."""
         commands.GenerateBreakpadSymbols(self.tempdir, self._board, False)
         self.assertCommandContains(["--board=%s" % self._board])
 
-    def testGenerateAndroidBreakpadSymbols(self):
+    def testGenerateAndroidBreakpadSymbols(self) -> None:
         """Test GenerateAndroidBreakpadSymbols Command."""
         with mock.patch.object(
             path_util, "ToChrootPath", side_effect=lambda s, **kwargs: s
@@ -677,7 +677,7 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
             ]
         )
 
-    def testUploadSymbolsMinimal(self):
+    def testUploadSymbolsMinimal(self) -> None:
         """Test uploading symbols for official builds"""
         commands.UploadSymbols("/buildroot", "MyBoard")
         self.assertCommandContains(
@@ -691,7 +691,7 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
             ]
         )
 
-    def testUploadSymbolsMinimalNoneChromeOS(self):
+    def testUploadSymbolsMinimalNoneChromeOS(self) -> None:
         """Test uploading symbols for official builds"""
         commands.UploadSymbols(
             "/buildroot", breakpad_root="/breakpad", product_name="CoolProduct"
@@ -707,7 +707,7 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
             ]
         )
 
-    def testUploadSymbolsMaximal(self):
+    def testUploadSymbolsMaximal(self) -> None:
         """Test uploading symbols for official builds"""
         commands.UploadSymbols(
             "/buildroot",
@@ -738,18 +738,18 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
             ]
         )
 
-    def testPushImages(self):
+    def testPushImages(self) -> None:
         """Test PushImages Command."""
         m = self.PatchObject(pushimage, "PushImage")
         commands.PushImages(self._board, "gs://foo/R34-1234.0.0", False, None)
         self.assertEqual(m.call_count, 1)
 
-    def testBuildImage(self):
+    def testBuildImage(self) -> None:
         """Test Basic BuildImage Command."""
         commands.BuildImage(self._buildroot, self._board, None)
         self.assertCommandContains(["./build_image"])
 
-    def testCompleteBuildImage(self):
+    def testCompleteBuildImage(self) -> None:
         """Test Complete BuildImage Command."""
         images_to_build = ["bob", "carol", "ted", "alice"]
         commands.BuildImage(
@@ -766,14 +766,14 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
 class GenerateDebugTarballTests(cros_test_lib.MockTempDirTestCase):
     """Tests related to building tarball artifacts."""
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         if cros_build_lib.IsOutsideChroot():
             board_path = os.path.join(os.path.sep, "build", self._board)
             cros_build_lib.sudo_run(
                 ["rm", "-rf", board_path], enter_chroot=True
             )
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._board = "test-board"
         self._buildroot = os.path.join(self.tempdir, "buildroot")
         self._sysroot = self.tempdir / "build" / self._board
@@ -797,7 +797,7 @@ class GenerateDebugTarballTests(cros_test_lib.MockTempDirTestCase):
         if cros_build_lib.IsInsideChroot():
             cros_test_lib.CreateOnDiskHierarchy(self._debug_base, self._files)
 
-    def testGenerateDebugTarballGdb(self):
+    def testGenerateDebugTarballGdb(self) -> None:
         """Test the simplest case."""
 
         # It's non-trivially difficult to make this unit test actually work
@@ -826,7 +826,7 @@ class GenerateDebugTarballTests(cros_test_lib.MockTempDirTestCase):
             ],
         )
 
-    def testGenerateDebugTarballNoGdb(self):
+    def testGenerateDebugTarballNoGdb(self) -> None:
         """Test the simplest case."""
 
         # It's non-trivially difficult to make this unit test actually work
@@ -851,7 +851,7 @@ class GenerateDebugTarballTests(cros_test_lib.MockTempDirTestCase):
 class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
     """Tests related to building tarball artifacts."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self._buildroot = os.path.join(self.tempdir, "buildroot")
@@ -875,7 +875,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
         )
         self._tarball_dir = self.tempdir
 
-    def testBuildAutotestPackagesTarball(self):
+    def testBuildAutotestPackagesTarball(self) -> None:
         """Tests that generating the autotest packages tarball is correct."""
         with mock.patch.object(commands, "BuildTarball") as m:
             commands.BuildAutotestPackagesTarball(
@@ -889,7 +889,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
                 compressed=False,
             )
 
-    def testBuildAutotestControlFilesTarball(self):
+    def testBuildAutotestControlFilesTarball(self) -> None:
         """Tests generating the autotest control files tarball is correct."""
         control_file_list = [
             "autotest/client/site_tests/testA/control",
@@ -909,7 +909,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
                     compressed=False,
                 )
 
-    def testBuildAutotestServerPackageTarball(self):
+    def testBuildAutotestServerPackageTarball(self) -> None:
         """Tests generating the autotest server package tarball is correct."""
         control_file_list = [
             "autotest/server/site_tests/testA/control",
@@ -953,7 +953,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
             check=False,
         )
 
-    def testBuildTastTarball(self):
+    def testBuildTastTarball(self) -> None:
         """Tests that generating the Tast private bundles tarball is correct."""
         expected_tarball = os.path.join(
             self._tarball_dir, "tast_bundles.tar.bz2"
@@ -977,7 +977,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(expected_tarball, tarball)
         patch.assert_called_once_with(chroot, sysroot, self._tarball_dir)
 
-    def testBuildTastTarballNoBundle(self):
+    def testBuildTastTarballNoBundle(self) -> None:
         """Tests the case when Tast private bundles tarball is not generated."""
         self.PatchObject(
             artifacts_service, "BundleTastFiles", return_value=None
@@ -987,7 +987,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertIsNone(tarball)
 
-    def testBuildStrippedPackagesArchive(self):
+    def testBuildStrippedPackagesArchive(self) -> None:
         """Test generation of stripped package tarball using globs."""
         package_globs = ["chromeos-base/chromeos-chrome", "sys-kernel/*kernel*"]
         self.PatchObject(
@@ -1053,10 +1053,10 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
 
     _TEST_BOARD = "board"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
-    def testBuildFirmwareArchive(self):
+    def testBuildFirmwareArchive(self) -> None:
         """Verifies the archiver creates a tarfile with the expected files."""
         # Set of files to tar up
         fw_files = (
@@ -1097,7 +1097,7 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
         # Verify that we get back an archive file using the specified name.
         self.assertEqual(archive_name, returned_archive_name)
 
-    def testBuildFpmcuUnittestsArchive(self):
+    def testBuildFpmcuUnittestsArchive(self) -> None:
         """Verifies that a tarball with the right name is created."""
         unittest_files = (
             "bloonchipper/test_rsa.bin",
@@ -1121,7 +1121,7 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
         """Generate the expected results for testFindFilesWithPattern"""
         return [os.path.join(root, f) for f in files]
 
-    def testFindFilesWithPattern(self):
+    def testFindFilesWithPattern(self) -> None:
         """Verifies FindFilesWithPattern searches and excludes files properly"""
         search_files = (
             "file1",
@@ -1157,7 +1157,7 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
         )
         self.assertEqual(set(find_exclude), set(find_exclude_expected))
 
-    def testGenerateUploadJSON(self):
+    def testGenerateUploadJSON(self) -> None:
         """Verifies GenerateUploadJSON"""
         archive = os.path.join(self.tempdir, "archive")
         osutils.SafeMakedirs(archive)
@@ -1219,7 +1219,7 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
             self.assertEqual(entry["sha1"], sha1)
             self.assertEqual(entry["sha256"], sha256)
 
-    def testGenerateHtmlIndexTuple(self):
+    def testGenerateHtmlIndexTuple(self) -> None:
         """Verifies GenerateHtmlIndex gives us something sane (input: tuple)"""
         index = os.path.join(self.tempdir, "index.html")
         files = (
@@ -1232,7 +1232,7 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
         for f in files:
             self.assertIn(">%s</a>" % f, html)
 
-    def testGenerateHtmlIndexTupleDupe(self):
+    def testGenerateHtmlIndexTupleDupe(self) -> None:
         """Verifies GenerateHtmlIndex gives something unique (input: tuple)"""
         index = os.path.join(self.tempdir, "index.html")
         files = (
@@ -1244,7 +1244,7 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
         html = osutils.ReadFile(index)
         self.assertEqual(html.count(">file1</a>"), 1)
 
-    def testGenerateHtmlIndexTuplePretty(self):
+    def testGenerateHtmlIndexTuplePretty(self) -> None:
         """Verifies GenerateHtmlIndex gives something pretty (input: tuple)"""
         index = os.path.join(self.tempdir, "index.html")
         files = (
@@ -1260,7 +1260,7 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
             self.assertIn('href="%s"' % a[0], html)
             self.assertIn(">%s</a>" % a[1], html)
 
-    def testGenerateHtmlIndexDir(self):
+    def testGenerateHtmlIndexDir(self) -> None:
         """Verifies GenerateHtmlIndex gives us something sane (input: dir)"""
         index = os.path.join(self.tempdir, "index.html")
         files = (
@@ -1277,7 +1277,7 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
         for f in files:
             self.assertIn(">%s</a>" % f, html)
 
-    def testGenerateHtmlIndexFile(self):
+    def testGenerateHtmlIndexFile(self) -> None:
         """Verifies GenerateHtmlIndex gives us something sane (input: file)"""
         index = os.path.join(self.tempdir, "index.html")
         files = (
@@ -1293,7 +1293,7 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
         for f in files:
             self.assertIn(">%s</a>" % f, html)
 
-    def testArchiveGeneration(self):
+    def testArchiveGeneration(self) -> None:
         """Verifies BuildStandaloneImageArchive produces correct archives"""
         image_dir = os.path.join(self.tempdir, "inputs")
         archive_dir = os.path.join(self.tempdir, "outputs")
@@ -1349,7 +1349,7 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(path, ["dlc"])
         self.assertExists(os.path.join(archive_dir, path[0]))
 
-    def testBuildEbuildLogsTarballPositive(self):
+    def testBuildEbuildLogsTarballPositive(self) -> None:
         """Verifies that the ebuild logs archiver builds correct logs"""
         # Names of log files typically found in a build directory.
         log_files = (
@@ -1383,7 +1383,7 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
         # Verify the tarball contents.
         cros_test_lib.VerifyTarball(tarball, tarred_files)
 
-    def testBuildEbuildLogsTarballNegative(self):
+    def testBuildEbuildLogsTarballNegative(self) -> None:
         """Verifies that the Ebuild logs archiver handles wrong inputs"""
         # Names of log files typically found in a build directory.
         log_files = (

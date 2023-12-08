@@ -39,7 +39,7 @@ class CheckTemplateStageTest(generic_stages_unittest.AbstractStageTestCase):
         + "build_config.release-R54-7978.B.json"
     )
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self._Prepare()
         self.PatchObject(repository, "CloneWorkingRepo")
@@ -52,7 +52,7 @@ class CheckTemplateStageTest(generic_stages_unittest.AbstractStageTestCase):
     def ConstructStage(self):
         return config_stages.CheckTemplateStage(self._run, self.buildstore)
 
-    def testListTemplates(self):
+    def testListTemplates(self) -> None:
         """Test _ListTemplates."""
         self.PatchObject(
             config_stages.CheckTemplateStage,
@@ -66,7 +66,7 @@ class CheckTemplateStageTest(generic_stages_unittest.AbstractStageTestCase):
         gs_paths = stage._ListTemplates()
         self.assertCountEqual(gs_paths, ["R_template.json", "template.json"])
 
-    def test_ListTemplatesWithNoSuchKeyError(self):
+    def test_ListTemplatesWithNoSuchKeyError(self) -> None:
         """Test _ListTemplates with NoSuchKeyError."""
         stage = self.ConstructStage()
         stage.ctx = mock.Mock()
@@ -75,7 +75,7 @@ class CheckTemplateStageTest(generic_stages_unittest.AbstractStageTestCase):
         gs_paths = stage._ListTemplates()
         self.assertEqual(gs_paths, [])
 
-    def testBasicPerformStage(self):
+    def testBasicPerformStage(self) -> None:
         """Test basic PerformStage."""
         self.PatchObject(
             config_stages.CheckTemplateStage,
@@ -87,7 +87,7 @@ class CheckTemplateStageTest(generic_stages_unittest.AbstractStageTestCase):
         stage.PerformStage()
         self.assertEqual(self.update_mock.call_count, 2)
 
-    def testSortAndGetReleasePaths(self):
+    def testSortAndGetReleasePaths(self) -> None:
         """Test SortAndGetReleasePaths."""
         stage = self.ConstructStage()
 
@@ -104,7 +104,7 @@ class UpdateConfigStageTest(
 ):
     """Tests for UpdateConfigStage."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self._Prepare()
         self.PatchObject(config_stages.UpdateConfigStage, "_DownloadTemplate")
@@ -147,7 +147,7 @@ class UpdateConfigStageTest(
         stage._SetupConfigPaths()
         return stage
 
-    def testSetupConfigPathsOld(self):
+    def testSetupConfigPathsOld(self) -> None:
         """Test _CreateConfigPatch."""
         template = "build_config.ToT.json"
         stage = self.ConstructStage(template, new_config=False)
@@ -163,7 +163,7 @@ class UpdateConfigStageTest(
         self.assertEqual(stage.config_paths, expected)
         self.assertEqual(stage.ge_config_local_path, expected[0])
 
-    def testSetupConfigPathsNew(self):
+    def testSetupConfigPathsNew(self) -> None:
         """Test _CreateConfigPatch."""
         template = "build_config.ToT.json"
         stage = self.ConstructStage(template, new_config=True)
@@ -177,7 +177,7 @@ class UpdateConfigStageTest(
         self.assertEqual(stage.config_paths, expected)
         self.assertEqual(stage.ge_config_local_path, expected[0])
 
-    def testCreateConfigPatch(self):
+    def testCreateConfigPatch(self) -> None:
         """Test _CreateConfigPatch."""
         template = "build_config.ToT.json"
         stage = self.ConstructStage(template)
@@ -188,7 +188,7 @@ class UpdateConfigStageTest(
                 os.path.basename(config_change_patch), "config_change.patch"
             )
 
-    def testCreateConfigPatchOldPath(self):
+    def testCreateConfigPatchOldPath(self) -> None:
         """Test _CreateConfigPatch."""
         template = "build_config.ToT.json"
         stage = self.ConstructStage(template, new_config=False)
@@ -199,14 +199,14 @@ class UpdateConfigStageTest(
                 os.path.basename(config_change_patch), "config_change.patch"
             )
 
-    def testMainBasic(self):
+    def testMainBasic(self) -> None:
         """Basic test on main branch."""
         template = "build_config.ToT.json"
         stage = self.ConstructStage(template)
         stage.PerformStage()
         self.assertTrue(stage.branch == "main")
 
-    def testReleaseBasic(self):
+    def testReleaseBasic(self) -> None:
         """Basic test on release branch."""
         template = "build_config.release-R50-7978.B.json"
         stage = self.ConstructStage(template)

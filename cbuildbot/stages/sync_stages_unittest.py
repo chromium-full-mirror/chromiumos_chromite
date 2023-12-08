@@ -34,7 +34,7 @@ class BootstrapStageTest(
     BOT_ID = "sync-test-cbuildbot"
     RELEASE_TAG = ""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Pretend API version is always current.
         self.PatchObject(
             commands,
@@ -54,7 +54,7 @@ class BootstrapStageTest(
             self._run, self.buildstore, patch_pool
         )
 
-    def testSimpleBootstrap(self):
+    def testSimpleBootstrap(self) -> None:
         """Verify Bootstrap behavior in a simple case (with a branch)."""
 
         self.RunStage()
@@ -106,7 +106,7 @@ class ManifestVersionedSyncStageTest(
 
     # pylint: disable=abstract-method
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.source_repo = "ssh://source/repo"
         self.manifest_version_url = "fake manifest url"
         self.branch = "master"
@@ -135,7 +135,7 @@ class ManifestVersionedSyncStageTest(
     # Our API here is not great when it comes to kwargs passing.
     def _Prepare(
         self, bot_id=None, **kwargs
-    ):  # pylint: disable=arguments-differ
+    ) -> None:  # pylint: disable=arguments-differ
         super()._Prepare(bot_id, **kwargs)
 
         self._run.config["manifest_version"] = self.manifest_version_url
@@ -145,7 +145,7 @@ class ManifestVersionedSyncStageTest(
         self.sync_stage.manifest_manager = self.manager
         self._run.attrs.manifest_manager = self.manager
 
-    def testManifestVersionedSyncOnePartBranch(self):
+    def testManifestVersionedSyncOnePartBranch(self) -> None:
         """Tests basic ManifestVersionedSyncStage with branch ooga_booga"""
         self.PatchObject(sync_stages.ManifestVersionedSyncStage, "Initialize")
         self.PatchObject(
@@ -184,7 +184,7 @@ class ManifestVersionedSyncStageTest(
 
         self.sync_stage.Run()
 
-    def testInitialize(self):
+    def testInitialize(self) -> None:
         self.PatchObject(sync_stages.SyncStage, "_InitializeRepo")
         self.sync_stage.repo = self.repo
         self.sync_stage.Initialize()

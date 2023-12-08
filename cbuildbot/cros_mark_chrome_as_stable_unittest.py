@@ -15,7 +15,7 @@ from chromite.lib import gob_util
 class CrosMarkChromeAsStableTests(cros_test_lib.MockTestCase):
     """Tests for cros_mark_chrome_as_stable."""
 
-    def testCheckIfChromeRightForOS(self):
+    def testCheckIfChromeRightForOS(self) -> None:
         """Tests if we can find the chromeos build from our mock DEPS."""
         test_data1 = "buildspec_platforms:\n    'chromeos,',\n"
         test_data2 = "buildspec_platforms:\n    'android,',\n"
@@ -28,7 +28,7 @@ class CrosMarkChromeAsStableTests(cros_test_lib.MockTestCase):
         self.assertTrue(expected_deps)
         self.assertFalse(unexpected_deps)
 
-    def testGetLatestRelease(self):
+    def testGetLatestRelease(self) -> None:
         """Tests if we can find the latest release from our mock url data."""
         TEST_HOST = "sores.chromium.org"
         TEST_URL = "phthp://%s/tqs" % TEST_HOST
@@ -65,7 +65,7 @@ class CrosMarkChromeAsStableTests(cros_test_lib.MockTestCase):
         release = cros_mark_chrome_as_stable.GetLatestRelease(TEST_URL)
         self.assertEqual("7.0.224.1", release)
 
-    def testGetLatestStickyRelease(self):
+    def testGetLatestStickyRelease(self) -> None:
         """Test we can find the latest sticky release from our mock url data."""
         TEST_HOST = "sores.chromium.org"
         TEST_URL = "phthp://%s/tqs" % TEST_HOST

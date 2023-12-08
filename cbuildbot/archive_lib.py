@@ -162,7 +162,7 @@ class Archive:
         )
         return os.path.join(buildroot, archive_base)
 
-    def SetupArchivePath(self):
+    def SetupArchivePath(self) -> None:
         """Create a fresh directory for archiving a build."""
         logging.info(
             'Preparing local archive directory at "%s".', self.archive_path
@@ -182,7 +182,9 @@ class Archive:
 
         osutils.SafeMakedirs(self.archive_path)
 
-    def UpdateLatestMarkers(self, manifest_branch, debug, upload_urls=None):
+    def UpdateLatestMarkers(
+        self, manifest_branch, debug, upload_urls=None
+    ) -> None:
         """Update the LATEST markers in GS archive area.
 
         Args:

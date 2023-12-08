@@ -11,17 +11,17 @@ from chromite.lib import cros_test_lib
 class TopologyTest(cros_test_lib.TestCase):
     """Unit test of topology module."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Mutually isolate these tests and make them independent of
         # TOPOLOGY_DEFAULTS
         topology.topology = topology.LockedDefaultDict()
 
-    def testNotFetched(self):
+    def testNotFetched(self) -> None:
         with self.assertRaises(topology.LockedDictAccessException):
             topology.topology.get("/foo")
 
 
-def FakeFetchTopology(keyvals=None):
+def FakeFetchTopology(keyvals=None) -> None:
     """Setup topology without the need for a DB
 
     Args:
@@ -37,21 +37,21 @@ def FakeFetchTopology(keyvals=None):
 class FakeFetchTopologyTest(cros_test_lib.TestCase):
     """Test FakeFetchTopologyunittest helper function"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         _resetTopology()
 
-    def testFakeTopology(self):
+    def testFakeTopology(self) -> None:
         data = {1: "one", 2: "two", 3: "three"}
         FakeFetchTopology(data)
         self.assertGreaterEqual(topology.topology.items(), data.items())
 
-    def testFakeTopologyEmpty(self):
+    def testFakeTopologyEmpty(self) -> None:
         FakeFetchTopology()
         # pylint: disable=protected-access
         self.assertFalse(topology.topology._locked)
 
 
-def _resetTopology():
+def _resetTopology() -> None:
     """Remove effects of unittests on topology"""
     topology.topology = topology.LockedDefaultDict()
     topology.topology.update(topology.TOPOLOGY_DEFAULTS)

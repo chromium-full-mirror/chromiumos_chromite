@@ -19,7 +19,7 @@ from chromite.lib import results_lib
 class BuilderTest(cros_test_lib.MockTestCase):
     """Test cases for Builder."""
 
-    def test_RunParallelStages(self):
+    def test_RunParallelStages(self) -> None:
         """test _RunParallelStages."""
         fake_db = fake_cidb.FakeCIDBConnection()
         build_id = fake_db.InsertBuild(

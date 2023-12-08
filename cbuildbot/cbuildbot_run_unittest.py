@@ -65,14 +65,14 @@ def _ExtendDefaultConfig(**kwargs):
 class ExceptionsTest(cros_test_lib.TestCase):
     """Test that the exceptions in the module are sane."""
 
-    def _TestException(self, err, expected_startswith):
+    def _TestException(self, err, expected_startswith) -> None:
         """Test that str and pickle behavior of |err| are as expected."""
         err2 = pickle.loads(pickle.dumps(err, pickle.HIGHEST_PROTOCOL))
 
         self.assertTrue(str(err).startswith(expected_startswith))
         self.assertEqual(str(err), str(err2))
 
-    def testParallelAttributeError(self):
+    def testParallelAttributeError(self) -> None:
         """Test ParallelAttributeError message and pickle behavior."""
         err1 = cbuildbot_run.ParallelAttributeError("SomeAttr")
         self._TestException(err1, "No such parallel run attribute")
@@ -84,7 +84,7 @@ class ExceptionsTest(cros_test_lib.TestCase):
             err2, "No such board-specific parallel run attribute"
         )
 
-    def testAttrNotPickleableError(self):
+    def testAttrNotPickleableError(self) -> None:
         """Test AttrNotPickleableError message and pickle behavior."""
         err1 = cbuildbot_run.AttrNotPickleableError("SomeAttr", "SomeValue")
         self._TestException(err1, 'Run attribute "SomeAttr" value cannot')
@@ -94,14 +94,14 @@ class ExceptionsTest(cros_test_lib.TestCase):
 class _BuilderRunTestCase(cros_test_lib.MockTestCase):
     """Provide methods for creating BuilderRun."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._manager = parallel.Manager()
 
         # Mimic entering a 'with' statement.
         # Pylint-1.9 has a false positive on this for some reason.
         self._manager.__enter__()  # pylint: disable=no-value-for-parameter
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # Mimic exiting a 'with' statement.
         self._manager.__exit__(None, None, None)
 
@@ -131,7 +131,7 @@ class _BuilderRunTestCase(cros_test_lib.MockTestCase):
 class BuilderRunPickleTest(_BuilderRunTestCase):
     """Make sure BuilderRun objects can be pickled."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.real_config = config_lib.GetConfig()["success-build"]
         self.PatchObject(
             cbuildbot_run._BuilderRunBase,
@@ -139,7 +139,7 @@ class BuilderRunPickleTest(_BuilderRunTestCase):
             return_value=DEFAULT_VERSION,
         )
 
-    def _TestPickle(self, run1):
+    def _TestPickle(self, run1) -> None:
         self.assertEqual(DEFAULT_VERSION, run1.GetVersion())
         run1.attrs.release_tag = "TheReleaseTag"
 
@@ -172,14 +172,14 @@ class BuilderRunPickleTest(_BuilderRunTestCase):
         # And the run objects themselves are different.
         self.assertIsNot(run1, run2)
 
-    def testPickleBuilderRun(self):
+    def testPickleBuilderRun(self) -> None:
         self._TestPickle(self._NewBuilderRun(config=self.real_config))
 
 
 class BuilderRunTest(_BuilderRunTestCase):
     """Test the BuilderRun class."""
 
-    def testInit(self):
+    def testInit(self) -> None:
         with mock.patch.object(
             cbuildbot_run._BuilderRunBase, "GetVersion"
         ) as m:
@@ -206,7 +206,7 @@ class BuilderRunTest(_BuilderRunTestCase):
             self.assertNotEqual(meth1, meth2)
             self.assertIsNot(meth1, meth2)
 
-    def testOptions(self):
+    def testOptions(self) -> None:
         options = _ExtendDefaultOptions(foo=True, bar=10)
         run = self._NewBuilderRun(options=options)
 
@@ -214,7 +214,7 @@ class BuilderRunTest(_BuilderRunTestCase):
         self.assertEqual(10, run.options.__getattr__("bar"))
         self.assertRaises(AttributeError, run.options.__getattr__, "baz")
 
-    def testConfig(self):
+    def testConfig(self) -> None:
         config = _ExtendDefaultConfig(foo=True, bar=10)
         run = self._NewBuilderRun(config=config)
 
@@ -222,7 +222,7 @@ class BuilderRunTest(_BuilderRunTestCase):
         self.assertEqual(10, run.config.__getattr__("bar"))
         self.assertRaises(AttributeError, run.config.__getattr__, "baz")
 
-    def testAttrs(self):
+    def testAttrs(self) -> None:
         run = self._NewBuilderRun()
 
         # manifest_manager is a valid run attribute.  It gives Attribute error
@@ -241,7 +241,7 @@ class BuilderRunTest(_BuilderRunTestCase):
             AttributeError, run.attrs.__setattr__, "foobar", "foo"
         )
 
-    def testArchive(self):
+    def testArchive(self) -> None:
         run = self._NewBuilderRun()
 
         with mock.patch.object(
@@ -277,7 +277,7 @@ class BuilderRunTest(_BuilderRunTestCase):
             )
             self.assertEqual(expected, archive.download_url)
 
-    def testShouldUploadPrebuilts(self):
+    def testShouldUploadPrebuilts(self) -> None:
         # Enabled
         options = _ExtendDefaultOptions(prebuilts=True)
         config = _ExtendDefaultConfig(prebuilts=True)
@@ -296,7 +296,7 @@ class BuilderRunTest(_BuilderRunTestCase):
         run = self._NewBuilderRun(options=options, config=config)
         self.assertFalse(run.ShouldUploadPrebuilts())
 
-    def testShouldPatchAfterSync(self):
+    def testShouldPatchAfterSync(self) -> None:
         # Enabled
         options = _ExtendDefaultOptions(postsync_patch=True)
         config = _ExtendDefaultConfig(postsync_patch=True)
@@ -315,7 +315,7 @@ class BuilderRunTest(_BuilderRunTestCase):
         run = self._NewBuilderRun(options=options, config=config)
         self.assertFalse(run.ShouldPatchAfterSync())
 
-    def testShouldReexecAfterSync(self):
+    def testShouldReexecAfterSync(self) -> None:
         # Normal Execution
         options = _ExtendDefaultOptions(postsync_reexec=True, resume=False)
         config = _ExtendDefaultConfig(postsync_reexec=True)
@@ -346,12 +346,12 @@ class GetVersionTest(_BuilderRunTestCase):
 
     # pylint: disable=protected-access
 
-    def testGetVersionInfoNotSet(self):
+    def testGetVersionInfoNotSet(self) -> None:
         """Verify we throw an error when the version hasn't been set."""
         run = self._NewBuilderRun()
         self.assertRaises(RuntimeError, run.GetVersionInfo)
 
-    def testGetVersionInfo(self):
+    def testGetVersionInfo(self) -> None:
         """Verify we return the right version info value."""
         # Prepare a real BuilderRun object with a version_info tag.
         run = self._NewBuilderRun()
@@ -383,17 +383,17 @@ class GetVersionTest(_BuilderRunTestCase):
 
             return result
 
-    def testGetVersionReleaseTag(self):
+    def testGetVersionReleaseTag(self) -> None:
         result = self._TestGetVersionReleaseTag("RT")
         self.assertEqual("R%s-%s" % (DEFAULT_CHROME_BRANCH, "RT"), result)
 
-    def testGetVersionNoReleaseTag(self):
+    def testGetVersionNoReleaseTag(self) -> None:
         cidb_id = 12345678
         result = self._TestGetVersionReleaseTag(None, cidb_id)
         expected_result = "R%s-%s-b%s" % (DEFAULT_CHROME_BRANCH, "VS", cidb_id)
         self.assertEqual(result, expected_result)
 
-    def testGetVersionNoReleaseTagNoCidb(self):
+    def testGetVersionNoReleaseTagNoCidb(self) -> None:
         result = self._TestGetVersionReleaseTag(None)
         expected_result = "R%s-%s-b%s" % (DEFAULT_CHROME_BRANCH, "VS", 0)
         self.assertEqual(result, expected_result)
@@ -409,7 +409,7 @@ class RunAttributesTest(_BuilderRunTestCase):
     # Any valid board-specific attribute will work here.
     BATTR = "breakpad_symbols_generated"
 
-    def testRegisterBoardTarget(self):
+    def testRegisterBoardTarget(self) -> None:
         """Test behavior of attributes before+after registering board target."""
         ra = self._NewRunAttributes()
 
@@ -428,7 +428,7 @@ class RunAttributesTest(_BuilderRunTestCase):
             ra.HasBoardParallel(self.BATTR, self.BOARD, self.TARGET)
         )
 
-    def testSetGet(self):
+    def testSetGet(self) -> None:
         """Test simple set/get of regular and parallel run attributes."""
         ra = self._NewRunAttributes()
         value = "foobar"
@@ -457,7 +457,7 @@ class RunAttributesTest(_BuilderRunTestCase):
             value, ra.GetBoardParallel(self.BATTR, self.BOARD, self.TARGET)
         )
 
-    def testSetDefault(self):
+    def testSetDefault(self) -> None:
         """Test setting default value of parallel run attributes."""
         ra = self._NewRunAttributes()
         value = "foobar"
@@ -501,7 +501,7 @@ class RunAttributesTest(_BuilderRunTestCase):
             value, ra.GetBoardParallel(self.BATTR, self.BOARD, self.TARGET)
         )
 
-    def testAttributeError(self):
+    def testAttributeError(self) -> None:
         """Test accessing run attributes that do not exist."""
         ra = self._NewRunAttributes()
         value = "foobar"
@@ -547,7 +547,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
             self.value = value
             self.delay = delay
 
-        def Run(self):
+        def Run(self) -> None:
             if self.delay:
                 time.sleep(self.delay)
             self.bra.SetParallel(self.attr, self.value)
@@ -567,7 +567,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
     class _CheckWaitForAttr(_WaitForAttr):
         """Stage-like class to wait for and check attr on BoardRunAttributes."""
 
-        def Run(self):
+        def Run(self) -> None:
             value = self.GetParallel()
             assert (
                 value == self.expected_value
@@ -580,18 +580,18 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
     class _TimeoutWaitForAttr(_WaitForAttr):
         """Stage-like class to timeout wait for attr on BoardRunAttributes."""
 
-        def Run(self):
+        def Run(self) -> None:
             try:
                 self.GetParallel()
                 assert False, "Expected AttrTimeoutError"
             except cbuildbot_run.AttrTimeoutError:
                 pass
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.ra = self._NewRunAttributes()
         self.bra = self.ra.RegisterBoardAttrs(self.BOARD, self.TARGET)
 
-    def _TestParallelSetGet(self, stage_args):
+    def _TestParallelSetGet(self, stage_args) -> None:
         """Helper to run "stages" in parallel, according to |stage_args|.
 
         Args:
@@ -605,7 +605,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
 
         parallel.RunParallelSteps(steps)
 
-    def testParallelSetGetFast(self):
+    def testParallelSetGetFast(self) -> None:
         """Pass the parallel run attribute around with no delay."""
         stage_args = [
             (self._CheckWaitForAttr, self.BATTR, self.VALUE),
@@ -615,7 +615,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
         self.assertRaises(AttributeError, getattr, self.bra, self.BATTR)
         self.assertEqual(self.VALUE, self.bra.GetParallel(self.BATTR))
 
-    def testParallelSetGetSlow(self):
+    def testParallelSetGetSlow(self) -> None:
         """Pass the parallel run attribute around with a delay."""
         stage_args = [
             (self._SetAttr, self.BATTR, self.VALUE, 10),
@@ -624,7 +624,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
         self._TestParallelSetGet(stage_args)
         self.assertEqual(self.VALUE, self.bra.GetParallel(self.BATTR))
 
-    def testParallelSetGetManyGets(self):
+    def testParallelSetGetManyGets(self) -> None:
         """Set parallel run attribute in one stage, access in many stages."""
         stage_args = [
             (self._SetAttr, self.BATTR, self.VALUE, 8),
@@ -636,7 +636,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
         self._TestParallelSetGet(stage_args)
         self.assertEqual(self.VALUE, self.bra.GetParallel(self.BATTR))
 
-    def testParallelSetGetManySets(self):
+    def testParallelSetGetManySets(self) -> None:
         """Set parallel run attribute in many stages, access in one stage."""
         # Three "stages" set the value, with increasing delays.  The stage that
         # checks the value should get the first value set.
@@ -648,7 +648,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
         self._TestParallelSetGet(stage_args)
         self.assertEqual(self.VALUE + "2", self.bra.GetParallel(self.BATTR))
 
-    def testSetGet(self):
+    def testSetGet(self) -> None:
         """Test that board-specific attrs do not work with set/get directly."""
         self.assertRaises(
             AttributeError,
@@ -661,7 +661,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
             AttributeError, getattr, self.bra, "breakpad_symbols_generated"
         )
 
-    def testAccessRegularRunAttr(self):
+    def testAccessRegularRunAttr(self) -> None:
         """Test that regular attributes are not known to BoardRunAttributes."""
         self.assertRaises(AttributeError, getattr, self.bra, "release_tag")
         self.assertRaises(

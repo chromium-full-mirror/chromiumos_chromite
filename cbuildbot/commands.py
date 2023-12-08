@@ -168,7 +168,7 @@ def ValidateClobber(buildroot):
 # =========================== Main Commands ===================================
 
 
-def WipeOldOutput(buildroot):
+def WipeOldOutput(buildroot) -> None:
     """Wipes out build output directory.
 
     Args:
@@ -186,7 +186,7 @@ def MakeChroot(
     chrome_root=None,
     extra_env=None,
     cache_dir=None,
-):
+) -> None:
     """Wrapper around make_chroot."""
     cmd = ["cros_sdk", "--buildbot-log-version"]
     if use_sdk:
@@ -208,7 +208,7 @@ def MakeChroot(
 
 def UpdateChroot(
     buildroot, usepkg, toolchain_boards=None, extra_env=None, chroot_args=None
-):
+) -> None:
     """Wrapper around update_chroot.
 
     Args:
@@ -253,7 +253,7 @@ def SetupBoard(
     profile=None,
     chroot_upgrade=True,
     chroot_args=None,
-):
+) -> None:
     """Wrapper around setup_board.
 
     Args:
@@ -306,7 +306,7 @@ def LegacySetupBoard(
     profile=None,
     chroot_upgrade=True,
     chroot_args=None,
-):
+) -> None:
     """Wrapper around setup_board for the workspace stage only.
 
     This wrapper supports the old version of setup_board, and is only meant to
@@ -362,7 +362,7 @@ def SetupToolchains(
     boards=None,
     output_dir=None,
     **kwargs,
-):
+) -> None:
     """Install or update toolchains.
 
     See cros_setup_toolchains for more documentation about the arguments other
@@ -403,7 +403,7 @@ class MissingBinpkg(failures_lib.StepFailure):
     """Error class for when we are missing an essential binpkg."""
 
 
-def VerifyBinpkg(buildroot, board, pkg, packages, extra_env=None):
+def VerifyBinpkg(buildroot, board, pkg, packages, extra_env=None) -> None:
     """Verify that an appropriate binary package exists for |pkg|.
 
     Using the depgraph from |packages|, check to see if |pkg| would be pulled in
@@ -458,7 +458,7 @@ def Build(
     chroot_args=None,
     run_goma=False,
     disable_revdep_logic=False,
-):
+) -> None:
     """Wrapper around build_packages.
 
     Args:
@@ -532,7 +532,7 @@ def LegacyBuild(
     chroot_args=None,
     run_goma=False,
     disable_revdep_logic=False,
-):
+) -> None:
     """Wrapper around legacy build_packages.
 
     This wrapper supports the old version of build_packages to support old
@@ -804,7 +804,7 @@ def BuildImage(
     rootfs_verification=True,
     extra_env=None,
     chroot_args=None,
-):
+) -> None:
     """Run the script which builds images.
 
     Args:
@@ -855,7 +855,7 @@ def RunUnitTests(
     extra_env=None,
     build_stage=True,
     chroot_args=None,
-):
+) -> None:
     cmd = ["cros_run_unit_tests", "--board=%s" % board, "--jobs=10"]
 
     if not build_stage:
@@ -891,7 +891,7 @@ def ArchiveFile(file_to_archive, archive_dir):
     return filename
 
 
-def UprevPackages(buildroot, boards, overlay_type, workspace=None):
+def UprevPackages(buildroot, boards, overlay_type, workspace=None) -> None:
     """Uprevs non-browser chromium os packages that have changed.
 
     Args:
@@ -918,7 +918,7 @@ def UprevPackages(buildroot, boards, overlay_type, workspace=None):
     RunBuildScript(buildroot, cmd, chromite_cmd=True)
 
 
-def UprevPush(buildroot, overlay_type, dryrun=True, workspace=None):
+def UprevPush(buildroot, overlay_type, dryrun=True, workspace=None) -> None:
     """Pushes uprev changes to the main line.
 
     Args:
@@ -1005,7 +1005,7 @@ def GenerateBuildConfigs(board, config_useflags):
 
 def GenerateBreakpadSymbols(
     buildroot, board, debug, extra_env=None, chroot_args=None
-):
+) -> None:
     """Generate breakpad symbols.
 
     Args:
@@ -1041,7 +1041,7 @@ def GenerateBreakpadSymbols(
 
 def GenerateAndroidBreakpadSymbols(
     buildroot, board, symbols_file, extra_env=None, chroot_args=None
-):
+) -> None:
     """Generate breakpad symbols of Android binaries.
 
     Args:
@@ -1295,7 +1295,7 @@ def GenerateDebugTarballOutsideChroot(
     return os.path.basename(debug_tarball)
 
 
-def GenerateUploadJSON(filepath, archive_path, uploaded):
+def GenerateUploadJSON(filepath, archive_path, uploaded) -> None:
     """Generate upload.json file given a set of filenames.
 
     The JSON is a dictionary keyed by filename, with entries for size, and
@@ -1324,7 +1324,7 @@ def GenerateUploadJSON(filepath, archive_path, uploaded):
     logging.info("GenerateUploadJSON completed in %s.", utcnow() - start)
 
 
-def GenerateHtmlIndex(index, files, title="Index", url_base=None):
+def GenerateHtmlIndex(index, files, title="Index", url_base=None) -> None:
     """Generate a simple index.html file given a set of filenames
 
     Args:
@@ -1381,7 +1381,7 @@ def GenerateHtmlIndex(index, files, title="Index", url_base=None):
 
 
 @failures_lib.SetFailureType(failures_lib.GSUploadFailure)
-def _UploadPathToGS(local_path, upload_urls, debug, timeout, acl=None):
+def _UploadPathToGS(local_path, upload_urls, debug, timeout, acl=None) -> None:
     """Upload |local_path| to Google Storage.
 
     Args:
@@ -1409,7 +1409,7 @@ def UploadArchivedFile(
     update_list=False,
     timeout=2 * 60 * 60,
     acl=None,
-):
+) -> None:
     """Uploads |filename| in |archive_dir| to Google Storage.
 
     Args:
@@ -1444,7 +1444,7 @@ def UploadSymbols(
     product_name=None,
     extra_env=None,
     chroot_args=None,
-):
+) -> None:
     """Upload debug symbols for this build."""
     cmd = ["upload_symbols", "--yes", "--dedupe"]
 
@@ -1550,7 +1550,7 @@ def BuildFactoryInstallImage(buildroot, board, extra_env):
     return alias
 
 
-def MakeNetboot(buildroot, board, image_dir):
+def MakeNetboot(buildroot, board, image_dir) -> None:
     """Build a netboot image.
 
     Args:
@@ -1566,7 +1566,7 @@ def MakeNetboot(buildroot, board, image_dir):
     RunBuildScript(buildroot, cmd, capture_output=True, enter_chroot=True)
 
 
-def BuildRecoveryImage(buildroot, board, image_dir, extra_env):
+def BuildRecoveryImage(buildroot, board, image_dir, extra_env) -> None:
     """Build a recovery image.
 
     Args:
@@ -2044,7 +2044,7 @@ def BuildEbuildLogsTarball(buildroot, board, archive_dir):
 
 def BuildFirmwareArchive(
     buildroot, board, archive_dir, archive_name=constants.FIRMWARE_ARCHIVE_NAME
-):
+) -> None:
     """Build firmware_from_source.tar.bz2 in archive_dir from build root.
 
     Args:
@@ -2202,7 +2202,7 @@ def GeneratePayloads(
     delta=False,
     stateful=False,
     dlc=False,
-):
+) -> None:
     """Generates the payloads for hw testing.
 
     Args:
@@ -2239,7 +2239,7 @@ def SyncChrome(
     revision=None,
     git_cache_dir=None,
     workspace=None,
-):
+) -> None:
     """Sync chrome.
 
     Args:

@@ -15,12 +15,12 @@ from chromite.lib import cros_test_lib
 class ModuleTest(cros_test_lib.MockTempDirTestCase):
     """Module loading related tests"""
 
-    def testGetBuilderClass(self):
+    def testGetBuilderClass(self) -> None:
         """Check behavior when requesting a valid builder."""
         result = builders.GetBuilderClass("simple_builders.SimpleBuilder")
         self.assertEqual(result, simple_builders.SimpleBuilder)
 
-    def testGetBuilderClassError(self):
+    def testGetBuilderClassError(self) -> None:
         """Check behavior when requesting missing builders."""
         self.assertRaises(ValueError, builders.GetBuilderClass, "Foalksdjo")
         self.assertRaises(
@@ -32,7 +32,7 @@ class ModuleTest(cros_test_lib.MockTempDirTestCase):
             "generic_builders.Foalksdjo",
         )
 
-    def testGetBuilderClassConfig(self):
+    def testGetBuilderClassConfig(self) -> None:
         """Check behavior when requesting config builders.
 
         This can't be done with live classes since the site config may or may

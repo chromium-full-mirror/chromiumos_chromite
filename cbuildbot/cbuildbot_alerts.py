@@ -15,13 +15,13 @@ from chromite.lib import buildbot_annotations as _annotations
 _buildbot_markers_enabled = False
 
 
-def EnableBuildbotMarkers():
+def EnableBuildbotMarkers() -> None:
     # pylint: disable=global-statement
     global _buildbot_markers_enabled
     _buildbot_markers_enabled = True
 
 
-def _PrintForBuildbot(handle, annotation_class, *args):
+def _PrintForBuildbot(handle, annotation_class, *args) -> None:
     """Log a line for buildbot.
 
     This function dumps a line to log recognizable by buildbot if
@@ -50,38 +50,38 @@ def _PrintForBuildbot(handle, annotation_class, *args):
     handle.write("\n" + line + "\n")
 
 
-def PrintBuildbotLink(text, url, handle=None):
+def PrintBuildbotLink(text, url, handle=None) -> None:
     """Prints out a link to buildbot."""
     _PrintForBuildbot(handle, _annotations.StepLink, text, url)
 
 
-def PrintKitchenSetBuildProperty(name, data, handle=None):
+def PrintKitchenSetBuildProperty(name, data, handle=None) -> None:
     """Prints out a request to set a build property to a JSON value."""
     _PrintForBuildbot(handle, _annotations.SetBuildProperty, name, data)
 
 
-def PrintKitchenSetEmailNotifyProperty(name, data, handle=None):
+def PrintKitchenSetEmailNotifyProperty(name, data, handle=None) -> None:
     """Prints out a request to set an email_notify build property."""
     _PrintForBuildbot(handle, _annotations.SetEmailNotifyProperty, name, data)
 
 
-def PrintBuildbotStepText(text, handle=None):
+def PrintBuildbotStepText(text, handle=None) -> None:
     """Prints out stage text to buildbot."""
     _PrintForBuildbot(handle, _annotations.StepText, text)
 
 
-def PrintBuildbotStepWarnings(handle=None):
+def PrintBuildbotStepWarnings(handle=None) -> None:
     """Marks a stage as having warnings."""
     PrintBuildbotStepText("[FAILED BUT FORGIVEN]", handle=handle)
     # Warnings not supported by LUCI, so working around until re-added.
     _PrintForBuildbot(handle, _annotations.StepWarnings)
 
 
-def PrintBuildbotStepFailure(handle=None):
+def PrintBuildbotStepFailure(handle=None) -> None:
     """Marks a stage as having failures."""
     _PrintForBuildbot(handle, _annotations.StepFailure)
 
 
-def PrintBuildbotStepName(name, handle=None):
+def PrintBuildbotStepName(name, handle=None) -> None:
     """Marks a step name for buildbot to display."""
     _PrintForBuildbot(handle, _annotations.BuildStep, name)

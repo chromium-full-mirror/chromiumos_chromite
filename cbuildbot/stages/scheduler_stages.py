@@ -117,7 +117,7 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
 
     def ScheduleSlaveBuildsViaBuildbucket(
         self, important_only=False, dryrun=False
-    ):
+    ) -> None:
         """Schedule slave builds by sending PUT requests to Buildbucket.
 
         Args:
@@ -228,7 +228,7 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
         )
 
     @failures_lib.SetFailureType(failures_lib.InfrastructureFailure)
-    def PerformStage(self):
+    def PerformStage(self) -> None:
         self.ScheduleSlaveBuildsViaBuildbucket(
             important_only=False, dryrun=self._run.options.debug
         )

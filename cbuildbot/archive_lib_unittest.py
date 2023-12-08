@@ -84,26 +84,26 @@ class GetBaseUploadURITest(cros_test_lib.TestCase):
     ARCHIVE_BASE = "/tmp/the/archive/base"
     BOT_ID = "TheNewBotId"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.cfg = DEFAULT_CONFIG
 
     def _GetBaseUploadURI(self, *args, **kwargs):
         """Test GetBaseUploadURI with archive_base and no bot_id."""
         return archive_lib.GetBaseUploadURI(self.cfg, *args, **kwargs)
 
-    def testArchiveBase(self):
+    def testArchiveBase(self) -> None:
         expected_result = "%s/%s" % (self.ARCHIVE_BASE, DEFAULT_BOT_NAME)
         result = self._GetBaseUploadURI(archive_base=self.ARCHIVE_BASE)
         self.assertEqual(expected_result, result)
 
-    def testArchiveBaseBotId(self):
+    def testArchiveBaseBotId(self) -> None:
         expected_result = "%s/%s" % (self.ARCHIVE_BASE, self.BOT_ID)
         result = self._GetBaseUploadURI(
             archive_base=self.ARCHIVE_BASE, bot_id=self.BOT_ID
         )
         self.assertEqual(expected_result, result)
 
-    def testBotId(self):
+    def testBotId(self) -> None:
         expected_result = "%s/%s" % (
             config_lib.GetSiteParams().ARCHIVE_URL,
             self.BOT_ID,
@@ -111,7 +111,7 @@ class GetBaseUploadURITest(cros_test_lib.TestCase):
         result = self._GetBaseUploadURI(bot_id=self.BOT_ID)
         self.assertEqual(expected_result, result)
 
-    def testDefaultGSPath(self):
+    def testDefaultGSPath(self) -> None:
         """Test GetBaseUploadURI with default gs_path value in config."""
         self.cfg = _ExtendDefaultConfig(gs_path=config_lib.GS_PATH_DEFAULT)
 
@@ -131,7 +131,7 @@ class GetBaseUploadURITest(cros_test_lib.TestCase):
         result = self._GetBaseUploadURI(bot_id=self.BOT_ID)
         self.assertEqual(expected_result, result)
 
-    def testOverrideGSPath(self):
+    def testOverrideGSPath(self) -> None:
         """Test GetBaseUploadURI with default gs_path value in config."""
         self.cfg = _ExtendDefaultConfig(gs_path="gs://funkytown/foo/bar")
 
@@ -160,15 +160,15 @@ class ArchiveTest(cros_test_lib.TestCase):
             run = _NewBuilderRun(options, config)
             return getattr(run.GetArchive(), attr)
 
-    def testVersion(self):
+    def testVersion(self) -> None:
         value = self._GetAttributeValue("version")
         self.assertEqual(self._VERSION, value)
 
-    def testVersionNotReady(self):
+    def testVersionNotReady(self) -> None:
         run = _NewBuilderRun()
         self.assertRaises(AttributeError, getattr, run, "version")
 
-    def testArchivePathTrybot(self):
+    def testArchivePathTrybot(self) -> None:
         options = _ExtendDefaultOptions(buildbot=False)
         value = self._GetAttributeValue("archive_path", options=options)
         expected_value = "%s/%s/%s/%s" % (
@@ -179,7 +179,7 @@ class ArchiveTest(cros_test_lib.TestCase):
         )
         self.assertEqual(expected_value, value)
 
-    def testArchivePathBuildbot(self):
+    def testArchivePathBuildbot(self) -> None:
         value = self._GetAttributeValue("archive_path")
         expected_value = "%s/%s/%s/%s" % (
             DEFAULT_BUILDROOT,
@@ -189,7 +189,7 @@ class ArchiveTest(cros_test_lib.TestCase):
         )
         self.assertEqual(expected_value, value)
 
-    def testUploadUri(self):
+    def testUploadUri(self) -> None:
         value = self._GetAttributeValue("upload_url")
         expected_value = "%s/%s/%s" % (
             DEFAULT_ARCHIVE_BASE,
@@ -198,7 +198,7 @@ class ArchiveTest(cros_test_lib.TestCase):
         )
         self.assertEqual(expected_value, value)
 
-    def testDownloadURLBuildbot(self):
+    def testDownloadURLBuildbot(self) -> None:
         value = self._GetAttributeValue("download_url")
         expected_value = "%s%s/%s/%s" % (
             gs_urls_util.PRIVATE_BASE_HTTPS_DOWNLOAD_URL,
@@ -208,7 +208,7 @@ class ArchiveTest(cros_test_lib.TestCase):
         )
         self.assertEqual(expected_value, value)
 
-    def testDownloadURLFileBuildbot(self):
+    def testDownloadURLFileBuildbot(self) -> None:
         value = self._GetAttributeValue("download_url_file")
         expected_value = "%s%s/%s/%s" % (
             gs_urls_util.PRIVATE_BASE_HTTPS_URL,
