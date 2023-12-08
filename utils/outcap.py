@@ -8,10 +8,13 @@ Mostly useful for capturing stdout/stderr as directly assigning to those
 variables won't work everywhere.
 """
 
+import io
 import os
 import re
 import sys
 import tempfile
+import types
+from typing import Any, IO, List, Optional, TextIO, Type, Union
 
 
 class _FdCapturer:
@@ -25,7 +28,11 @@ class _FdCapturer:
     the capturer is active.
     """
 
-    def __init__(self, source, output=None):
+    def __init__(
+        self,
+        source: TextIO,
+        output: Optional[Union[str, "os.PathLike[str]"]] = None,
+    ) -> None:
         """Construct the _FdCapturer object.
 
         Does not start capturing until Start() is called.
@@ -37,15 +44,19 @@ class _FdCapturer:
             output: A file name where the captured output is to be stored. If
                 None, then the output will be stored to a temporary file.
         """
-        self._source = source
-        self._captured = ""
-        self._saved_fd = None
-        self._tempfile = None
-        self._capturefile = None
-        self._capturefile_reader = None
-        self._capturefile_name = output
+        self._source: TextIO = source
+        self._captured: str = ""
+        self._saved_fd: Optional[int] = None
+        self._tempfile: Optional[io.TextIOWrapper] = None
+        self._capturefile: Optional[IO[str]] = None
+        self._capturefile_reader: Optional[TextIO] = None
+        self._capturefile_name: Optional[
+            Union[str, "os.PathLike[str]"]
+        ] = output
 
-    def _SafeCreateTempfile(self, tempfile_obj) -> None:
+    # The return type of tempfile.NamedTemporaryFile is tricky to type-hint; see
+    # https://stackoverflow.com/a/64429225.
+    def _SafeCreateTempfile(self, tempfile_obj: Any) -> None:
         """Ensure that the tempfile is created safely.
 
         (1) Stash away a reference to the tempfile.
@@ -67,7 +78,7 @@ class _FdCapturer:
             # Disable pylint from suggesting to use context manager. The open
             # files are closed explicitly in the Stop() function.
             # pylint: disable=consider-using-with
-            tempfile_obj = tempfile.NamedTemporaryFile(delete=False)
+            tempfile_obj = tempfile.NamedTemporaryFile(mode="w", delete=False)
             self._capturefile = tempfile_obj.file
             self._capturefile_name = tempfile_obj.name
             self._capturefile_reader = open(
@@ -103,7 +114,7 @@ class _FdCapturer:
             self._capturefile.close()
             self._capturefile = None
 
-    def GetCaptured(self):
+    def GetCaptured(self) -> str:
         """Return all output captured up to this point.
 
         Can be used while capturing or after Stop() has been called.
@@ -148,7 +159,12 @@ class OutputCapturer:
 
     __slots__ = ["_stdout_capturer", "_stderr_capturer", "_quiet_fail"]
 
-    def __init__(self, stdout_path=None, stderr_path=None, quiet_fail=False):
+    def __init__(
+        self,
+        stdout_path: Optional[str] = None,
+        stderr_path: Optional[str] = None,
+        quiet_fail: bool = False,
+    ) -> None:
         """Initialize OutputCapturer with capture files.
 
         If OutputCapturer is initialized with filenames to capture stdout and
@@ -167,12 +183,20 @@ class OutputCapturer:
         self._stderr_capturer = _FdCapturer(sys.stderr, output=stderr_path)
         self._quiet_fail = quiet_fail
 
-    def __enter__(self):
+    # Annotating function signature with OutputCapturer is not synctactically
+    # correct, so ignoring return type. In Python 3.11+, can use typing.Self
+    # instead.
+    def __enter__(self):  # type: ignore[no-untyped-def]
         # This method is called with entering 'with' block.
         self.StartCapturing()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[types.TracebackType],
+    ) -> None:
         # This method is called when exiting 'with' block.
         self.StopCapturing()
 
@@ -204,15 +228,15 @@ class OutputCapturer:
         self._stdout_capturer.ClearCaptured()
         self._stderr_capturer.ClearCaptured()
 
-    def GetStdout(self):
+    def GetStdout(self) -> str:
         """Return captured stdout so far."""
         return self._stdout_capturer.GetCaptured()
 
-    def GetStderr(self):
+    def GetStderr(self) -> str:
         """Return captured stderr so far."""
         return self._stderr_capturer.GetCaptured()
 
-    def _GetOutputLines(self, output, include_empties):
+    def _GetOutputLines(self, output: str, include_empties: bool) -> List[str]:
         """Split |output| into lines, optionally |include_empties|.
 
         Return array of lines.
@@ -224,14 +248,14 @@ class OutputCapturer:
 
         return lines
 
-    def GetStdoutLines(self, include_empties=True):
+    def GetStdoutLines(self, include_empties: bool = True) -> List[str]:
         """Return captured stdout so far as array of lines.
 
         If |include_empties| is false filter out all empty lines.
         """
         return self._GetOutputLines(self.GetStdout(), include_empties)
 
-    def GetStderrLines(self, include_empties=True):
+    def GetStderrLines(self, include_empties: bool = True) -> List[str]:
         """Return captured stderr so far as array of lines.
 
         If |include_empties| is false filter out all empty lines.
