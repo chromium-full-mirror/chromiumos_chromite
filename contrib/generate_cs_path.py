@@ -46,7 +46,7 @@ class CodeSearch:
     """format returns a url to the code specified"""
 
     @classmethod
-    def format(cls, attrs, opts, checkout_path, relative_path):
+    def format(cls, attrs, opts, checkout_path, relative_path) -> None:
         raise NotImplementedError()
 
 
@@ -182,7 +182,7 @@ def GenerateLink(attrs, opts, checkout_path, relative_path):
     return base.format(attrs, opts, checkout_path, relative_path)
 
 
-def main(argv):
+def main(argv) -> None:
     opts = ParseArguments(argv)
 
     checkout = git.ManifestCheckout.Cached(opts.path)

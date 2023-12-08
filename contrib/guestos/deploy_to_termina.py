@@ -99,7 +99,7 @@ def deploy_into_remote_dlc(
     remote: remote_access.ChromiumOSDeviceHandler,
     transfers: List[FileSet],
     dlc_id: str,
-):
+) -> None:
     """Copies the specified files into a DLC image on hostname."""
     logging.notice("Unpacking DLC")
     remote_dir = remote.work_dir
@@ -204,7 +204,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def main(argv: List[str]):
+def main(argv: List[str]) -> None:
     parser = get_parser()
     opts = parser.parse_args(argv)
 

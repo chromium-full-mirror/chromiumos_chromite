@@ -75,7 +75,7 @@ def CreateRuntimeTree(sysroot: str, pkg_list: str) -> Dict[str, List[str]]:
     return {pkg: deps_tree[pkg]["deps"] for pkg in deps_tree}
 
 
-def main():
+def main() -> None:
     opts = ParseArgs(sys.argv[1:])
     sysroot = opts.sysroot or build_target_lib.get_default_sysroot_path(
         opts.build_target

@@ -433,7 +433,7 @@ def index():
     return flask.render_template("index.html", data=index_data)
 
 
-def setup():
+def setup() -> None:
     """Populates initial templating data from gRPC requests."""
 
     index_data["user"] = os.getlogin()

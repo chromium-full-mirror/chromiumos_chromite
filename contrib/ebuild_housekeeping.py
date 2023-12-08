@@ -16,7 +16,7 @@ from chromite.lib import git
 from chromite.lib.parser import package_info
 
 
-def logging_dryrun(*args, **kwargs):
+def logging_dryrun(*args, **kwargs) -> None:
     """Helper method for logging dryrun statements in a consistent format."""
     logging.info("(dryrun) " + args[0], *args[1:], **kwargs)
 
@@ -492,7 +492,7 @@ def get_parser():
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     """The main entry point for scripts."""
     parser = get_parser()
     opts = parser.parse_args(argv)

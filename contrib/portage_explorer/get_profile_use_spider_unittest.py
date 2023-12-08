@@ -9,7 +9,7 @@ from chromite.contrib.portage_explorer import spider_testables
 from chromite.contrib.portage_explorer import spiderlib
 
 
-def test_execute(monkeypatch, tmp_path):
+def test_execute(monkeypatch, tmp_path) -> None:
     """Test the get_profile_use_spider's execute function.
 
     Ensure that we are only getting the use flags when sourcing a profile's

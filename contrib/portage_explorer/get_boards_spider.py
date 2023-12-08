@@ -35,7 +35,7 @@ def get_board_name(overlay_path: str) -> str:
     return ""
 
 
-def execute(output: spiderlib.SpiderOutput):
+def execute(output: spiderlib.SpiderOutput) -> None:
     """Get the board names from all the overlay paths and add to the output.
 
     Args:

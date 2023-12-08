@@ -37,7 +37,7 @@ def _parse_arguments(argv):
     return opts
 
 
-def main(argv):
+def main(argv) -> None:
     _ = _parse_arguments(argv)
 
     result = cros_build_lib.run(

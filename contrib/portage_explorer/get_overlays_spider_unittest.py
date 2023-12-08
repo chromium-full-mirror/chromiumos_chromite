@@ -11,7 +11,7 @@ from chromite.contrib.portage_explorer import get_overlays_spider
 from chromite.contrib.portage_explorer import spiderlib
 
 
-def test_execute():
+def test_execute() -> None:
     """Test the get_overlays_spider's execute function.
 
     The execute function should get all the overlays, get the correct path for

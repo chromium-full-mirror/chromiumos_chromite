@@ -30,10 +30,10 @@ class PackageNode:
         # List of parent PackageNodes.
         self.rvs_dependencies = []
 
-    def AddDependency(self, dependency: "PackageNode"):
+    def AddDependency(self, dependency: "PackageNode") -> None:
         self.dependencies.append(dependency)
 
-    def AddRvsDependency(self, rvs_dependency: "PackageNode"):
+    def AddRvsDependency(self, rvs_dependency: "PackageNode") -> None:
         self.rvs_dependencies.append(rvs_dependency)
 
     def GetDependencies(self):
@@ -65,7 +65,7 @@ class DepVisualizer:
         for pkg, deps in dep_tree.items():
             self.AddNode(pkg, deps)
 
-    def AddNode(self, pkg_name: str, pkg_dependencies: List[str]):
+    def AddNode(self, pkg_name: str, pkg_dependencies: List[str]) -> None:
         """Add a package and its dependencies to the package dictionary.
 
         Create an instance of PackageNode for both the pkg and its
@@ -95,7 +95,7 @@ class DepVisualizer:
         """
         return (x for x in self.pkg_dict.values() if not x.rvs_dependencies)
 
-    def VisualizeGraph(self, output_name="DepGraph", output_dir="."):
+    def VisualizeGraph(self, output_name="DepGraph", output_dir=".") -> None:
         """Create an HTML file with the visualization of the dependency graph.
 
         Pyvis helps us create an HTML file with all the packages and their
@@ -156,7 +156,7 @@ class DepVisualizer:
         net.write_html(out_file)
         logging.info("Wrote %s.", Path(out_file).resolve())
 
-    def GenerateHistograms(self, build_name: str, path: str):
+    def GenerateHistograms(self, build_name: str, path: str) -> None:
         """Creates 4 histograms with dependency and rvs dependency distribution.
 
         The amount of packages with a certain range of dependencies and
@@ -221,7 +221,7 @@ class DepVisualizer:
 
 def _SaveHistogram(
     data: List[int], bins: List[int], name: str, path: str, color: str
-):
+) -> None:
     """Streamline the process of plotting histograms.
 
     Plots and saves a histogram as a png file.
@@ -251,7 +251,9 @@ def _SaveHistogram(
     plt.clf()
 
 
-def _BfsColoring(net, queue: List[Iterator[PackageNode]], seen_pkgs: Set[str]):
+def _BfsColoring(
+    net, queue: List[Iterator[PackageNode]], seen_pkgs: Set[str]
+) -> None:
     """Coloring the graph in by using BFS.
 
     This function will populate a pyvis.network.Network object and

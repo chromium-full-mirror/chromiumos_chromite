@@ -558,7 +558,7 @@ class CopybotDownstream:
         return 1
 
 
-def main(args):
+def main(args) -> None:
     """Main entry point for CLI."""
     parser = downstream_argparser.generate_copybot_arg_parser()
     opts = parser.parse_args(args)

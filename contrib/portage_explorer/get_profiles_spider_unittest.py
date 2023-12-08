@@ -9,7 +9,7 @@ from chromite.contrib.portage_explorer import spider_testables
 from chromite.contrib.portage_explorer import spiderlib
 
 
-def test_execute(monkeypatch, tmp_path):
+def test_execute(monkeypatch, tmp_path) -> None:
     """Test the get_profiles_spider's execute function.
 
     Ensure the get_profiles_spider is getting all the right profiles and

@@ -80,7 +80,7 @@ class Ebuild:
     use_flags: List[EbuildUse] = dataclasses.field(default_factory=list)
     eclass_inherits: List[str] = dataclasses.field(default_factory=list)
 
-    def add_use_flag(self, flag):
+    def add_use_flag(self, flag) -> None:
         """Parse the use flag for its UseState and add to use_flags."""
         default_enabled = UseState(flag.startswith("+"))
         # Check Gentoo docs, '-' is "pretty much useless"
@@ -107,7 +107,7 @@ class Profile:
     parent_profiles: List[str] = dataclasses.field(default_factory=list)
     use_flags: List[ProfileUse] = dataclasses.field(default_factory=list)
 
-    def set_enabled(self, flag: str, enabled: bool = True):
+    def set_enabled(self, flag: str, enabled: bool = True) -> None:
         """Set the enabled state for a specified use flag in this profile."""
         for use_flag in self.use_flags:
             if use_flag.name == flag:

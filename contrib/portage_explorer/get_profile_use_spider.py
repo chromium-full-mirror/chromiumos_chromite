@@ -9,7 +9,7 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 
 
-def execute(output: spiderlib.SpiderOutput):
+def execute(output: spiderlib.SpiderOutput) -> None:
     """Get use flags set for a profile from its make.defaults.
 
     Get the use flags from a profile's make.defaults and sort them by name.

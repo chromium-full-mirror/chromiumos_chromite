@@ -10,7 +10,7 @@ from chromite.lib import portage_util
 from chromite.lib.parser import package_info
 
 
-def execute(output: spiderlib.SpiderOutput):
+def execute(output: spiderlib.SpiderOutput) -> None:
     """Get all the ebuilds' src_path, version/revision, and package info.
 
     Find all ebuilds within all the overlays and parse it using the package_info

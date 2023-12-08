@@ -64,7 +64,7 @@ def parse_args(argv: List[str]):
     return options
 
 
-def main(argv: List[str]):
+def main(argv: List[str]) -> None:
     commandline.RunInsideChroot()
     opts = parse_args(argv)
     logging.notice(

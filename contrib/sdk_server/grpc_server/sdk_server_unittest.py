@@ -38,10 +38,10 @@ class PopenMock:
 
         self.returncode = returncode
 
-    def communicate(self):
+    def communicate(self) -> None:
         pass
 
-    def clean_up(self):
+    def clean_up(self) -> None:
         self.stdout.close()
         self.stderr.close()
 
@@ -109,7 +109,7 @@ class PopenMock:
 
 
 @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
-def test_workon_info():
+def test_workon_info() -> None:
     """Tests cros_workon_info rpc."""
     chroot = sdk_server_defs_grpc.SdkChroot()
     target = common_pb2.BuildTarget(name="amd64-generic")
@@ -125,7 +125,7 @@ def test_workon_info():
 
 
 @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
-def test_workon_list():
+def test_workon_list() -> None:
     """Tests cros_workon_list rpc."""
     chroot = sdk_server_defs_grpc.SdkChroot()
     target = common_pb2.BuildTarget(name="amd64-generic")
@@ -135,7 +135,7 @@ def test_workon_list():
 
 
 @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
-def test_workon_start():
+def test_workon_start() -> None:
     """Tests cros_workon_start rpc."""
     chroot = sdk_server_defs_grpc.SdkChroot()
     target = common_pb2.BuildTarget(name="amd64-generic")
@@ -150,7 +150,7 @@ def test_workon_start():
 
 
 @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
-def test_workon_stop():
+def test_workon_stop() -> None:
     """Tests cros_workon_stop rpc."""
     chroot = sdk_server_defs_grpc.SdkChroot()
     target = common_pb2.BuildTarget(name="amd64-generic")
@@ -165,7 +165,7 @@ def test_workon_stop():
 
 
 @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
-def test_chroot_info():
+def test_chroot_info() -> None:
     """Tests chroot info rpc."""
     chroot = sdk_server_defs_grpc.SdkChroot()
     request = sdk_server_pb2.ChrootInfoRequest()
@@ -174,7 +174,7 @@ def test_chroot_info():
 
 
 @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
-def test_all_packages():
+def test_all_packages() -> None:
     """Tests all_packages rpc."""
     chroot = sdk_server_defs_grpc.SdkChroot()
     target = common_pb2.BuildTarget(name="amd64-generic")
@@ -184,7 +184,7 @@ def test_all_packages():
 
 
 @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
-def test_repo_status():
+def test_repo_status() -> None:
     """Tests repo_status rpc."""
     chroot = sdk_server_defs_grpc.SdkChroot()
     request = sdk_server_pb2.RepoStatusRequest()
@@ -204,7 +204,7 @@ def test_repo_status():
 # @mock.patch('sdk_server_defs_grpc.AsyncRun')
 # @mock.patch("subprocess.Popen")
 @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
-def test_update_chroot(monkeypatch):
+def test_update_chroot(monkeypatch) -> None:
     """Tests update_chroot rpc."""
     chroot = sdk_server_defs_grpc.SdkChroot()
     monkeypatch.setattr(
@@ -223,7 +223,7 @@ def test_update_chroot(monkeypatch):
 
 
 @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
-def test_query_boards():
+def test_query_boards() -> None:
     """Tests query_boards rpc."""
     chroot = sdk_server_defs_grpc.SdkChroot()
     request = sdk_server_pb2.QueryBoardsRequest()
@@ -232,7 +232,7 @@ def test_query_boards():
 
 
 @pytest.mark.skipif(SKIP, reason=SKIP_REASON)
-def test_current_boards():
+def test_current_boards() -> None:
     """Tests current_boards rpc."""
     chroot = sdk_server_defs_grpc.SdkChroot()
     request = sdk_server_pb2.CurrentBoardsRequest()

@@ -9,7 +9,7 @@ from chromite.contrib.portage_explorer import spider_testables
 from chromite.contrib.portage_explorer import spiderlib
 
 
-def test_execute(monkeypatch, tmp_path):
+def test_execute(monkeypatch, tmp_path) -> None:
     """Test the execute function for the get_eclasses_spider.
 
     Ensure the get_eclasses_spider gets all the eclasses in the overlay's eclass

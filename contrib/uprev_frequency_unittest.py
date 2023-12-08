@@ -16,12 +16,12 @@ from chromite.scripts import cros_mark_as_stable
 class GetDirectoryCommitsTest(cros_test_lib.MockTestCase):
     """Unit tests for get_directory_commits."""
 
-    def testNoOutput(self):
+    def testNoOutput(self) -> None:
         """Test get_directory_commits doesn't explode when log has no output."""
         self.PatchObject(git, "Log", return_value="")
         self.assertFalse(uprev_frequency.get_directory_commits("foo/bar"))
 
-    def testGitLogCalledCorrectly(self):
+    def testGitLogCalledCorrectly(self) -> None:
         """Test get_directory_commits calls git.Log with correct arguments."""
         start_date = datetime.datetime.strptime(
             "1996-01-01", uprev_frequency.DATE_FORMAT
@@ -51,7 +51,7 @@ class GetDirectoryCommitsTest(cros_test_lib.MockTestCase):
             ],
         )
 
-    def testCommitParsing(self):
+    def testCommitParsing(self) -> None:
         """Test get_directory_commits when log outputs commits."""
         log_lines = [
             "abc|123|foo",
@@ -73,11 +73,11 @@ class GetDirectoryCommitsTest(cros_test_lib.MockTestCase):
 class GetUprevCommitsTest(cros_test_lib.TestCase):
     """Unit tests for get_uprev_commits."""
 
-    def testEmptyInput(self):
+    def testEmptyInput(self) -> None:
         """Test get_uprev_commits does not explode on empty list."""
         self.assertFalse(uprev_frequency.get_uprev_commits([]))
 
-    def testMixed(self):
+    def testMixed(self) -> None:
         """Test get_uprev_commits with mixed input."""
         uprev_commit = uprev_frequency.Commit(
             "abc", "123", cros_mark_as_stable.GIT_COMMIT_SUBJECT
@@ -94,7 +94,7 @@ class GetUprevCommitsTest(cros_test_lib.TestCase):
 class GetCommitTimestampsTest(cros_test_lib.TestCase):
     """Unit tests for get_commit_timestamps."""
 
-    def testMalformed(self):
+    def testMalformed(self) -> None:
         """Test get_commit_timestamps explodes on malformed timestamp."""
         self.assertRaises(
             ValueError,
@@ -102,7 +102,7 @@ class GetCommitTimestampsTest(cros_test_lib.TestCase):
             [uprev_frequency.Commit("abc", "bad-timestamp", "foo")],
         )
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Test get_commit_timestamps works with good timestamps."""
         commits = [
             uprev_frequency.Commit("abc", "123", "foo"),
@@ -115,19 +115,19 @@ class GetCommitTimestampsTest(cros_test_lib.TestCase):
 class GetAverageTimestampDeltaDaysTest(cros_test_lib.TestCase):
     """Unit tests for get_average_timestamp_delta_days."""
 
-    def testEmptyInput(self):
+    def testEmptyInput(self) -> None:
         """Test get_average_timestamp_delta_days dies on empty input."""
         self.assertRaises(
             ValueError, uprev_frequency.get_average_timestamp_delta_days, []
         )
 
-    def testOneTimestampInput(self):
+    def testOneTimestampInput(self) -> None:
         """Test get_average_timestamp_delta_days dies on single timestamp."""
         self.assertRaises(
             ValueError, uprev_frequency.get_average_timestamp_delta_days, [1]
         )
 
-    def testMultipleTimestampsInput(self):
+    def testMultipleTimestampsInput(self) -> None:
         """Test get_average_timestamp_delta_days computes correct avg delta."""
         timestamps = [
             1 * uprev_frequency.SECONDS_PER_DAY,

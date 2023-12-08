@@ -133,7 +133,7 @@ class TempMemLogger(logging.Logger):
         self.handler.setTarget(target)
         self.addHandler(self.handler)
 
-    def clean_up(self):
+    def clean_up(self) -> None:
         self.handler.close()
         self.file.close()
 
@@ -290,7 +290,7 @@ class SdkChroot(
         )
         return response
 
-    def _update_chroot_info(self):
+    def _update_chroot_info(self) -> None:
         """Collects general information about the chroot."""
         if Path(self.path).exists():
             self.date_created = time.ctime(os.path.getctime(self.path))

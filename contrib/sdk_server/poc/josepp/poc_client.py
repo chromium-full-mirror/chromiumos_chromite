@@ -14,13 +14,13 @@ from chromite.contrib.sdk_server.poc.josepp import range_pb2_grpc
 from chromite.contrib.sdk_server.poc.josepp import sdk_pb2_grpc
 
 
-def update(stub):
+def update(stub) -> None:
     request = sdk_pb2.UpdateRequest()
     response = stub.Update(request)
     print(response.version.version)
 
 
-def get_range(stub):
+def get_range(stub) -> None:
     request = range_pb2.RangeRequest()
     request.start = 1
     request.stop = 100
@@ -29,7 +29,7 @@ def get_range(stub):
         print(r.value)
 
 
-def run():
+def run() -> None:
     with grpc.insecure_channel("localhost:50051") as channel:
         sdk_stub = sdk_pb2_grpc.SdkServiceStub(channel)
         update(sdk_stub)

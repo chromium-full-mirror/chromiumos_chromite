@@ -9,7 +9,7 @@ from chromite.contrib.portage_explorer import spiderlib
 from chromite.lib import constants
 
 
-def execute(output: spiderlib.SpiderOutput):
+def execute(output: spiderlib.SpiderOutput) -> None:
     """Get all profiles and add to respective overlay and board.
 
     Read all overlays' profiles folder and record the profile's id

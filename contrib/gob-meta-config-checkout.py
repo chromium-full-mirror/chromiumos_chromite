@@ -40,7 +40,7 @@ class GitConfig:
         self.config = configparser.ConfigParser()
         self.read()
 
-    def read(self):
+    def read(self) -> None:
         if self.path.exists():
             self.config.read(self.path)
 
@@ -55,14 +55,14 @@ class GitConfig:
     def get(self, key: str):
         return self.config.get(*self.key_to_section_option(key))
 
-    def set(self, key: str, value: str):
+    def set(self, key: str, value: str) -> None:
         run(["git", "config", key, value], cwd=self.path.parent)
         self.read()
 
     def exists(self, key: str) -> bool:
         return self.config.has_option(*self.key_to_section_option(key))
 
-    def setdefault(self, key: str, value: str):
+    def setdefault(self, key: str, value: str) -> None:
         if not self.exists(key):
             self.set(key, value)
 
@@ -98,7 +98,7 @@ def get_hook_commit_msg(opts: argparse.Namespace) -> Path:
     return commit_msg
 
 
-def create_repo(opts: argparse.Namespace, repo: Path):
+def create_repo(opts: argparse.Namespace, repo: Path) -> None:
     """Initialize |repo|."""
     path = opts.output / repo
     gitdir = path / ".git"
@@ -210,7 +210,7 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     """The main entry point for scripts."""
     parser = get_parser()
     opts = parser.parse_args(argv)

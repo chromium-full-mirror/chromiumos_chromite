@@ -17,7 +17,7 @@ class ZephyrDownstream(copybot_downstream.CopybotDownstream):
     """Class for extending copybot downstreaming class for zephyr."""
 
 
-def main(args):
+def main(args) -> None:
     """Main entry point for CLI."""
     parser = downstream_argparser.generate_copybot_arg_parser("zephyr")
     opts = parser.parse_args(args)

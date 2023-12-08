@@ -99,7 +99,7 @@ class RangeServiceServicer(range_pb2_grpc.RangeServiceServicer):
             yield r
 
 
-def serve():
+def serve() -> None:
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
     # Future method of adding SDK and new chroot-only services to one server

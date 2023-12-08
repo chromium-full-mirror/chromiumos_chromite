@@ -26,14 +26,14 @@ async def serve() -> None:
     server.add_insecure_port("[::]:50051")
     server.start()
 
-    def stop_server():
+    def stop_server() -> None:
         server.stop(5)
 
     atexit.register(stop_server)
     server.wait_for_termination(timeout=None)
 
 
-def run():
+def run() -> None:
     with sudo.SudoKeepAlive():
         asyncio.run(serve())
 

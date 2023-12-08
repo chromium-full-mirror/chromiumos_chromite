@@ -86,7 +86,7 @@ class BuildPackagesProcessor:
 
         self._reset()
 
-    def _reset(self):
+    def _reset(self) -> None:
         self.last_status = None
         self.started = False
         self.done = False
@@ -99,7 +99,7 @@ class BuildPackagesProcessor:
         self.completed = set()
         self.replace_last = False
 
-    def process(self, line):
+    def process(self, line) -> None:
         size = shutil.get_terminal_size((80, 20))
         self.terminal_width = size.columns
         self.terminal_height = size.lines
@@ -115,7 +115,7 @@ class BuildPackagesProcessor:
         elif next_action == NextAction.RESET:
             self._reset()
 
-    def _parse(self, line):
+    def _parse(self, line) -> None:
         if self.done:
             # Just echoing the rest of the output.
             return
@@ -210,7 +210,7 @@ class BuildPackagesProcessor:
                 # Non-matching line, we're done with this block.
                 return NextAction.RESET
 
-    def _clear_last_status(self):
+    def _clear_last_status(self) -> None:
         if not self.last_status:
             return
 
@@ -233,7 +233,7 @@ class BuildPackagesProcessor:
         self.last_status = None
         self.replace_last = False
 
-    def _print_status(self):
+    def _print_status(self) -> None:
         if not self.started or self.done:
             # No status before we started emerging or after we're done.
             return
@@ -298,13 +298,13 @@ class BuildPackagesProcessor:
         self.stream.write("\n".join(status))
         self.last_status = status
 
-    def print_package_times(self):
+    def print_package_times(self) -> None:
         """Print the package time summary."""
         lines = [f"{k} {v}" for k, v in sorted(self.all_package_times.items())]
         print("\n".join(lines))
 
 
-def build_packages_live_output(argv):
+def build_packages_live_output(argv) -> None:
     """Execute build packages and live parse the output."""
     commandline.RunInsideChroot()
 
@@ -331,7 +331,7 @@ def replay_file(f, stream=sys.stdout):
     return bpp
 
 
-def compare(f1, f2):
+def compare(f1, f2) -> None:
     """Differences over 15 seconds in package times between the files."""
     with open(os.devnull, "w", encoding="utf-8") as devnull:
         f1_times = replay_file(f1, stream=devnull).all_package_times
@@ -395,7 +395,7 @@ def parse_args(argv):
     return known, unknown
 
 
-def main(argv):
+def main(argv) -> None:
     known, unknown = parse_args(argv)
 
     if known.build_packages:

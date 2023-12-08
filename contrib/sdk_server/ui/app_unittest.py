@@ -69,7 +69,7 @@ def logGenerator(response):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
-def test_page_loads(client):
+def test_page_loads(client) -> None:
     """Tests basic app loading by checking for title in index head."""
 
     response = client.get("/")
@@ -77,7 +77,7 @@ def test_page_loads(client):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
-def test_chroot_info(client):
+def test_chroot_info(client) -> None:
     """Tests chroot-info parses response correctly."""
 
     chroot_info_response = sdk_server_pb2.ChrootInfoResponse(
@@ -104,7 +104,7 @@ def test_chroot_info(client):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
-def test_workon_start(client):
+def test_workon_start(client) -> None:
     """Tests workon-start runs properly."""
 
     sdk_client.cros_workon_start = mock.MagicMock()
@@ -118,7 +118,7 @@ def test_workon_start(client):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
-def test_workon_stop(client):
+def test_workon_stop(client) -> None:
     """Tests workon-stop runs properly."""
 
     sdk_client.cros_workon_stop = mock.MagicMock()
@@ -132,7 +132,7 @@ def test_workon_stop(client):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
-def test_repo_refresh(client):
+def test_repo_refresh(client) -> None:
     """Tests repo-refresh properly parses repo status text."""
 
     info_text = [
@@ -172,7 +172,7 @@ def test_repo_refresh(client):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
-def test_repo_sync(client):
+def test_repo_sync(client) -> None:
     """Test repo sync is called and streams logs."""
 
     logGen = logGenerator(sdk_server_pb2.RepoSyncResponse)
@@ -189,7 +189,7 @@ def test_repo_sync(client):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
-def test_get_packages_all(client):
+def test_get_packages_all(client) -> None:
     """Tests get-packages properly formats packages/images for all board."""
 
     im1 = image_pb2.Image(path="/path/to/image1", type=2)
@@ -268,7 +268,7 @@ def test_get_packages_all(client):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
-def test_get_packages_with_board(client):
+def test_get_packages_with_board(client) -> None:
     """Tests get-packages works when request contains a board argument."""
 
     sdk_client.current_boards = mock.MagicMock()
@@ -316,7 +316,7 @@ def test_get_packages_with_board(client):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
-def test_update_chroot(client):
+def test_update_chroot(client) -> None:
     """Tests update-chroot properly calls endpoint."""
 
     logGen = logGenerator(sdk_server_pb2.UpdateChrootResponse)
@@ -336,7 +336,7 @@ def test_update_chroot(client):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
-def test_replace_chroot(client):
+def test_replace_chroot(client) -> None:
     """Tests replace-chroot properly calls endpoint."""
 
     logGen = logGenerator(sdk_server_pb2.ReplaceSdkResponse)
@@ -352,7 +352,7 @@ def test_replace_chroot(client):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
-def test_build_packages_no_package(client):
+def test_build_packages_no_package(client) -> None:
     """Tests build-packages properly calls endpoint when given no package."""
 
     logGen = logGenerator(sdk_server_pb2.BuildPackagesResponse)
@@ -377,7 +377,7 @@ def test_build_packages_no_package(client):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
-def test_build_packages_with_package(client):
+def test_build_packages_with_package(client) -> None:
     """Tests build-packages properly calls endpoint when given a package."""
 
     logGen = logGenerator(sdk_server_pb2.BuildPackagesResponse)
@@ -403,7 +403,7 @@ def test_build_packages_with_package(client):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
-def test_build_image(client):
+def test_build_image(client) -> None:
     """Tests build-image properly calls endpoint."""
 
     logGen = logGenerator(sdk_server_pb2.BuildImageResponse)
@@ -427,7 +427,7 @@ def test_build_image(client):
 
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
-def test_custom_endpoint(client):
+def test_custom_endpoint(client) -> None:
     """Tests custom properly calls custom endpoint."""
 
     logGen = logGenerator(sdk_server_pb2.CustomResponse)
@@ -447,7 +447,7 @@ def test_custom_endpoint(client):
 
 @pytest.mark.skipif(importsFailed, reason=SKIP_REASON)
 @parametrize("route", all_routes)
-def test_get_redirect(client, route):
+def test_get_redirect(client, route) -> None:
     """Tests that all routes redirect to index on a GET request."""
 
     response = client.get(route, follow_redirects=True)

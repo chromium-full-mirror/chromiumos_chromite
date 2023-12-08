@@ -83,7 +83,9 @@ DATA = [
 @pytest.mark.parametrize(
     "argv,attrs,checkout_path,relative_path,expected_link", DATA
 )
-def testGenerateLink(argv, attrs, checkout_path, relative_path, expected_link):
+def testGenerateLink(
+    argv, attrs, checkout_path, relative_path, expected_link
+) -> None:
     """Test generating CS links links"""
     opts = generate_cs_path.ParseArguments(argv)
     link = generate_cs_path.GenerateLink(

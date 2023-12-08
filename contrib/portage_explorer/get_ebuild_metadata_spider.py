@@ -9,7 +9,7 @@ from chromite.lib import constants
 from chromite.utils import key_value_store
 
 
-def execute(output: spiderlib.SpiderOutput):
+def execute(output: spiderlib.SpiderOutput) -> None:
     """Get all the ebuild metadata for all the ebuilds.
 
     Get the EAPI, DESCRIPTION, HOMEPAGE, LICENSE, SLOT, SRC_URI, RESTRICT,

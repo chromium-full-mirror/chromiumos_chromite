@@ -29,13 +29,13 @@ def run_app():
     return subprocess.Popen(script)
 
 
-def clean_up():
+def clean_up() -> None:
     for p in PROCESSES:
         p.kill()
     print("cleaned up!")
 
 
-def main(argv):
+def main(argv) -> None:
     atexit.register(clean_up)
     server_proc = run_server()
     PROCESSES.append(server_proc)

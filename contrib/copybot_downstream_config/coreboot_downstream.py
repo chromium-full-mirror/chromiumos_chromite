@@ -60,7 +60,7 @@ class CorebootDownstream(copybot_downstream.CopybotDownstream):
         ]
 
 
-def main(args):
+def main(args) -> None:
     """Main entry point for CLI."""
     parser = downstream_argparser.generate_copybot_arg_parser("coreboot")
     opts = parser.parse_args(args)

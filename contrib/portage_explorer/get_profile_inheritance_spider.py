@@ -8,7 +8,7 @@ from chromite.contrib.portage_explorer import spiderlib
 from chromite.lib import constants
 
 
-def execute(output: spiderlib.SpiderOutput):
+def execute(output: spiderlib.SpiderOutput) -> None:
     """Get the parent profiles from the parent file for each profile.
 
     Read the parent file for each profile, the profile inherits from each of the

@@ -154,7 +154,7 @@ def get_parser():
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     parser = get_parser()
     options = parser.parse_args(argv)
     options.Freeze()

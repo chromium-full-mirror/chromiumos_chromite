@@ -11,7 +11,7 @@ from chromite.lib import constants
 from chromite.lib import portage_util
 
 
-def execute(output: spiderlib.SpiderOutput):
+def execute(output: spiderlib.SpiderOutput) -> None:
     """Get all overlay source paths and names.
 
     Get all the overlay paths and names. Parse the overlays for the path

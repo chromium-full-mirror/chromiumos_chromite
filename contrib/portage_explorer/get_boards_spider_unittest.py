@@ -10,7 +10,7 @@ from chromite.contrib.portage_explorer import get_boards_spider
 from chromite.contrib.portage_explorer import spiderlib
 
 
-def test_get_board_name():
+def test_get_board_name() -> None:
     """Test that get_board_name returns the correct board name."""
     assert get_boards_spider.get_board_name("overlay-brya") == "brya"
     assert get_boards_spider.get_board_name("overlay-elm-private") == "elm"
@@ -18,7 +18,7 @@ def test_get_board_name():
     assert get_boards_spider.get_board_name("baseboard-asuka") == ""
 
 
-def test_execute():
+def test_execute() -> None:
     """Test that execute returns the correct board names and details."""
     with mock.patch(
         "chromite.lib.portage_util.FindOverlays",

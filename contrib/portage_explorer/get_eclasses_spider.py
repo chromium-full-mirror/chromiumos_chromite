@@ -8,7 +8,7 @@ from chromite.contrib.portage_explorer import spiderlib
 from chromite.lib import constants
 
 
-def execute(output: spiderlib.SpiderOutput):
+def execute(output: spiderlib.SpiderOutput) -> None:
     """Get all eclasses sorted by eclass name.
 
     Args:
