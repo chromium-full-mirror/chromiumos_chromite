@@ -13,13 +13,13 @@ from chromite.utils import path_filter
 class PathFilterTest(cros_test_lib.TestCase):
     """Test the PathFilter class."""
 
-    def testDefaultInclude(self):
+    def testDefaultInclude(self) -> None:
         """Files are included when no rules matched."""
         f = path_filter.PathFilter([])
         self.assertTrue(f.match("README.md"))
         self.assertEqual(f.filter(["README.md"]), ["README.md"])
 
-    def testSingleExclude(self):
+    def testSingleExclude(self) -> None:
         """Single rule for extension exclusion."""
         f = path_filter.PathFilter(
             [
@@ -40,7 +40,7 @@ class PathFilterTest(cros_test_lib.TestCase):
             ["a.other"],
         )
 
-    def testExcludeMarkdownFilesOutOfDocsDirectory(self):
+    def testExcludeMarkdownFilesOutOfDocsDirectory(self) -> None:
         """An example with multiple rules."""
         f = path_filter.PathFilter(
             [
@@ -64,7 +64,7 @@ class PathFilterTest(cros_test_lib.TestCase):
             ["docs/README.md"],
         )
 
-    def testExcludeBasenameExact(self):
+    def testExcludeBasenameExact(self) -> None:
         """Exclude an exact path, should only match the full path."""
         f = path_filter.PathFilter(
             [
@@ -91,7 +91,7 @@ class PathFilterTest(cros_test_lib.TestCase):
             ],
         )
 
-    def testExcludeBasenameAnywhere(self):
+    def testExcludeBasenameAnywhere(self) -> None:
         """Exclude a basename anywhere."""
         f = path_filter.PathFilter(
             [
@@ -115,7 +115,7 @@ class PathFilterTest(cros_test_lib.TestCase):
             [],
         )
 
-    def testPathlib(self):
+    def testPathlib(self) -> None:
         """Test handling of pathlib.Path."""
         f = path_filter.PathFilter(
             [

@@ -28,7 +28,7 @@ class MockResponse:
     def __enter__(self):
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args) -> None:
         pass
 
     def read(self):
@@ -38,7 +38,7 @@ class MockResponse:
 tracer = trace.TracerProvider().get_tracer(__name__)
 
 
-def test_anonymizing_filter_to_redact_info_from_msg():
+def test_anonymizing_filter_to_redact_info_from_msg() -> None:
     """Test AnonymizingFilter to apply the passed anonymizer to msg."""
     msg = trace_span_pb2.TraceSpan()
     msg.name = "log-user-user1234"
@@ -50,7 +50,7 @@ def test_anonymizing_filter_to_redact_info_from_msg():
     assert filtered_msg.name == "log-user-<user>"
 
 
-def test_otel_span_translation(monkeypatch):
+def test_otel_span_translation(monkeypatch) -> None:
     """Test ClearcutSpanExporter to translate otel spans to TraceSpan."""
     requests = []
 
@@ -89,7 +89,7 @@ def test_otel_span_translation(monkeypatch):
     assert tspan.end_time_millis == int(span.end_time / 1e6)
 
 
-def test_otel_span_translation_with_anonymization(monkeypatch):
+def test_otel_span_translation_with_anonymization(monkeypatch) -> None:
     """Test ClearcutSpanExporter to anonymize spans to before export."""
     requests = []
 
@@ -124,7 +124,7 @@ def test_otel_span_translation_with_anonymization(monkeypatch):
     assert tspan.attributes["username"] == "<user>"
 
 
-def test_export_to_http_api(monkeypatch):
+def test_export_to_http_api(monkeypatch) -> None:
     """Test ClearcutSpanExporter to export spans over http."""
     requests = []
 
@@ -151,7 +151,7 @@ def test_export_to_http_api(monkeypatch):
     assert timeout == 7
 
 
-def test_export_to_http_api_throttle(monkeypatch):
+def test_export_to_http_api_throttle(monkeypatch) -> None:
     """Test ClearcutSpanExporter to throttle based on prev response."""
     mock_open_times = []
 
@@ -184,7 +184,7 @@ def test_export_to_http_api_throttle(monkeypatch):
     assert (mock_open_times[1] - mock_open_times[0]).total_seconds() > 1
 
 
-def test_export_to_drop_spans_if_wait_more_than_threshold(monkeypatch):
+def test_export_to_drop_spans_if_wait_more_than_threshold(monkeypatch) -> None:
     """Test ClearcutSpanExporter to drop span if wait is more than threshold."""
     mock_open_times = []
 
@@ -213,7 +213,7 @@ def test_export_to_drop_spans_if_wait_more_than_threshold(monkeypatch):
     assert len(mock_open_times) == 1
 
 
-def test_flush_to_clear_export_queue_to_http_api(monkeypatch):
+def test_flush_to_clear_export_queue_to_http_api(monkeypatch) -> None:
     """Test ClearcutSpanExporter to export spans on flush."""
     requests = []
 
@@ -239,7 +239,7 @@ def test_flush_to_clear_export_queue_to_http_api(monkeypatch):
     assert len(requests) == 1
 
 
-def test_shutdown_to_clear_export_queue_to_http_api(monkeypatch):
+def test_shutdown_to_clear_export_queue_to_http_api(monkeypatch) -> None:
     """Test ClearcutSpanExporter to export spans on shutdown."""
     requests = []
 

@@ -9,14 +9,14 @@ import pytest
 from chromite.utils import pms
 
 
-def test_reject_invalid_versions():
+def test_reject_invalid_versions() -> None:
     """Check we reject invalid versions."""
     assert not pms.version_valid("\n1.2")
     assert not pms.version_valid("1.2\n")
     assert not pms.version_valid("1.2\n1.3")
 
 
-def test_versions_eq():
+def test_versions_eq() -> None:
     """Check equal versions compared correctly."""
     assert pms.version_eq("1", "1")
     assert pms.version_eq("1.000", "1.0")
@@ -28,7 +28,7 @@ def test_versions_eq():
     assert pms.version_eq("1.2.3_alpha4-r5", "1.2.3_alpha4-r5")
 
 
-def test_versions_eq_invalid():
+def test_versions_eq_invalid() -> None:
     """Check invalid versions throw correctly."""
     with pytest.raises(ValueError) as e:
         pms.version_eq("1\n", "1")
@@ -39,7 +39,7 @@ def test_versions_eq_invalid():
     assert "Invalid version" in str(e)
 
 
-def test_version_lt():
+def test_version_lt() -> None:
     """Test a variety of unequal versions using LT."""
     # Version varieties.
     assert pms.version_lt("1", "2")
@@ -74,7 +74,7 @@ def test_version_lt():
     assert pms.version_lt("1.0-r5", "1.0-r10")
 
 
-def test_version_gt():
+def test_version_gt() -> None:
     """Test a few of the LT cases in reverse to do a quick GT check."""
     assert pms.version_gt("1.1.1.1", "1.1.1")
     assert pms.version_gt("2.0_p1234", "2.0_pre")

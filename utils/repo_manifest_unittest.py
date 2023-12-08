@@ -59,7 +59,7 @@ def ManifestToString(manifest):
 class XMLTestCase(cros_test_lib.TestCase):
     """Mixin for XML tests."""
 
-    def AssertXMLAlmostEqual(self, xml1, xml2):
+    def AssertXMLAlmostEqual(self, xml1, xml2) -> None:
         """Check that two XML strings are semanitcally equal."""
 
         def Normalize(xml):
@@ -76,21 +76,21 @@ class XMLTestCase(cros_test_lib.TestCase):
 class ManifestTest(cros_test_lib.TempDirTestCase, XMLTestCase):
     """Tests for repo_manifest.Manifest."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.manifest = repo_manifest.Manifest.FromString(MANIFEST_XML)
 
-    def testInitEmpty(self):
+    def testInitEmpty(self) -> None:
         """Test Manifest.__init__ on the emptiest valid input."""
         etree = self.ETreeFromString(MANIFEST_OUTER_XML % "")
         repo_manifest.Manifest(etree)
 
-    def testInitInvalidManifest(self):
+    def testInitInvalidManifest(self) -> None:
         """Test Manifest.__init__ on invalid input."""
         etree = self.ETreeFromString("<foo/>")
         with self.assertRaises(repo_manifest.InvalidManifest):
             repo_manifest.Manifest(etree)
 
-    def testInitUnsupportedFeatures(self):
+    def testInitUnsupportedFeatures(self) -> None:
         """Test Manifest.__init__ on input with unsupported features."""
         for inner_xml in (
             "<project><project/></project>",
@@ -103,7 +103,7 @@ class ManifestTest(cros_test_lib.TempDirTestCase, XMLTestCase):
                 repo_manifest.Manifest(etree)
             repo_manifest.Manifest(etree, allow_unsupported_features=True)
 
-    def testPickle(self):
+    def testPickle(self) -> None:
         """Test Manifest picklability."""
         pickled = pickle.dumps(self.manifest)
         unpickled = pickle.loads(pickled)
@@ -111,7 +111,7 @@ class ManifestTest(cros_test_lib.TempDirTestCase, XMLTestCase):
         with self.assertRaises(repo_manifest.UnsupportedFeature):
             next(unpickled.Includes())
 
-    def testPickleUnsupportedFeatures(self):
+    def testPickleUnsupportedFeatures(self) -> None:
         """Test Manifest picklability when unsupported features are allowed."""
         manifest_xml = MANIFEST_OUTER_XML % INCLUDES_XML
         manifest = repo_manifest.Manifest.FromString(
@@ -122,33 +122,33 @@ class ManifestTest(cros_test_lib.TempDirTestCase, XMLTestCase):
         self.AssertXMLAlmostEqual(ManifestToString(unpickled), manifest_xml)
         self.assertIsNotNone(next(unpickled.Includes()))
 
-    def testFromFile(self):
+    def testFromFile(self) -> None:
         """Test Manifest.FromFile."""
         path = os.path.join(self.tempdir, "manifest.xml")
         osutils.WriteFile(path, MANIFEST_XML)
         manifest = repo_manifest.Manifest.FromFile(path)
         self.assertIsNotNone(manifest.GetUniqueProject("simple/project"))
 
-    def testFromString(self):
+    def testFromString(self) -> None:
         """Test Manifest.FromString."""
         manifest = repo_manifest.Manifest.FromString(MANIFEST_XML)
         self.assertIsNotNone(manifest.GetUniqueProject("simple/project"))
 
-    def testWrite(self):
+    def testWrite(self) -> None:
         """Test Manifest.Write."""
         manifest_data = ManifestToString(self.manifest)
         self.AssertXMLAlmostEqual(MANIFEST_XML, manifest_data)
 
-    def testDefault(self):
+    def testDefault(self) -> None:
         """Test Manifest.Default."""
         self.assertEqual(self.manifest.Default().remote, "simple_remote")
 
-    def testDefaultMissing(self):
+    def testDefaultMissing(self) -> None:
         """Test Manifest.Default with no <default>."""
         manifest = repo_manifest.Manifest.FromString(MANIFEST_OUTER_XML % "")
         self.assertIsNone(manifest.Default().remote)
 
-    def testIncludes(self):
+    def testIncludes(self) -> None:
         manifest = repo_manifest.Manifest.FromString(
             MANIFEST_OUTER_XML % INCLUDES_XML, allow_unsupported_features=True
         )
@@ -157,54 +157,54 @@ class ManifestTest(cros_test_lib.TempDirTestCase, XMLTestCase):
             include_names, ["include.xml", "include_me_too.xml"]
         )
 
-    def testRemotes(self):
+    def testRemotes(self) -> None:
         """Test Manifest.Remotes."""
         remote_names = [x.name for x in self.manifest.Remotes()]
         self.assertCountEqual(remote_names, ["simple_remote", "complex_remote"])
 
-    def testGetRemote(self):
+    def testGetRemote(self) -> None:
         """Test Manifest.GetRemote."""
         remote = self.manifest.GetRemote("simple_remote")
         self.assertEqual(remote.name, "simple_remote")
 
-    def testGetRemoteMissing(self):
+    def testGetRemoteMissing(self) -> None:
         """Test Manifest.GetRemote without named <remote>."""
         with self.assertRaises(ValueError):
             self.manifest.GetRemote("missing")
 
-    def testHasRemote(self):
+    def testHasRemote(self) -> None:
         """Test Manifest.HasRemote."""
         result = self.manifest.HasRemote("simple_remote")
         self.assertEqual(result, True)
 
-    def testHasRemoteMissing(self):
+    def testHasRemoteMissing(self) -> None:
         """Test Manifest.HasRemote without named <remote>."""
         result = self.manifest.HasRemote("missing")
         self.assertEqual(result, False)
 
-    def testProjects(self):
+    def testProjects(self) -> None:
         """Test Manifest.Projects."""
         project_names = [x.name for x in self.manifest.Projects()]
         self.assertCountEqual(
             project_names, ["simple/project", "complex/project"]
         )
 
-    def testGetUniqueProject(self):
+    def testGetUniqueProject(self) -> None:
         """Test Manifest.GetUniqueProject."""
         project = self.manifest.GetUniqueProject("simple/project")
         self.assertEqual(project.name, "simple/project")
 
-    def testGetUniqueProjectBranch(self):
+    def testGetUniqueProjectBranch(self) -> None:
         """Test Manifest.GetUniqueProject with an explicit branch."""
         project = self.manifest.GetUniqueProject("complex/project", "cafe")
         self.assertEqual(project.name, "complex/project")
 
-    def testGetUniqueProjectMissing(self):
+    def testGetUniqueProjectMissing(self) -> None:
         """Test Manifest.GetUniqueProject without named <project>."""
         with self.assertRaises(ValueError):
             self.manifest.GetUniqueProject("missing/project")
 
-    def testGetUniqueProjectMissingBranch(self):
+    def testGetUniqueProjectMissingBranch(self) -> None:
         """Test Manifest.GetUniqueProject with valid project, missing branch."""
         with self.assertRaises(ValueError):
             self.manifest.GetUniqueProject("complex/project", "wrong_branch")
@@ -226,34 +226,34 @@ class ManifestElementTest(XMLTestCase):
 
     XML = '<example name="value"/>'
 
-    def setUp(self):
+    def setUp(self) -> None:
         element = ElementTree.fromstring(self.XML)
         self.example = ManifestElementExample(None, element)
 
-    def testPickle(self):
+    def testPickle(self) -> None:
         """Test _ManifestElement picklability."""
         pickled = pickle.dumps(self.example)
         unpickled = pickle.loads(pickled)
         self.AssertXMLAlmostEqual(repr(unpickled), self.XML)
 
-    def testGetters(self):
+    def testGetters(self) -> None:
         """Test _ManifestElement.__getattr__."""
         self.assertEqual(self.example.name, "value")
         self.assertIsNone(self.example.other_attr)
 
-    def testGettersInvalidAttr(self):
+    def testGettersInvalidAttr(self) -> None:
         """Test _ManifestElement.__getattr__ with invalid attr."""
         with self.assertRaises(AttributeError):
             _ = self.example.invalid
 
-    def testSetters(self):
+    def testSetters(self) -> None:
         """Test _ManifestElement.__setattr__."""
         self.example.name = "new"
         self.example.other_attr = "other"
         EXPECTED = '<example name="new" other-attr="other"/>'
         self.AssertXMLAlmostEqual(repr(self.example), EXPECTED)
 
-    def testDel(self):
+    def testDel(self) -> None:
         """Test _ManifestElement.__delattr__."""
         del self.example.name
         self.assertIsNone(self.example.name)
@@ -262,18 +262,18 @@ class ManifestElementTest(XMLTestCase):
 class RemoteTest(cros_test_lib.TestCase):
     """Tests for repo_manifest.Remote."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.manifest = repo_manifest.Manifest.FromString(MANIFEST_XML)
         self.simple = self.manifest.GetRemote("simple_remote")
         self.complex = self.manifest.GetRemote("complex_remote")
 
-    def testGitName(self):
+    def testGitName(self) -> None:
         self.assertEqual(self.simple.GitName(), "simple_remote")
 
-    def testGitNameAlias(self):
+    def testGitNameAlias(self) -> None:
         self.assertEqual(self.complex.GitName(), "cplx")
 
-    def testPushURL(self):
+    def testPushURL(self) -> None:
         self.assertEqual(self.simple.PushURL(), "http://simple.example.com")
         self.assertEqual(self.complex.PushURL(), "http://example.com/push")
 
@@ -281,31 +281,31 @@ class RemoteTest(cros_test_lib.TestCase):
 class ProjectTest(cros_test_lib.TestCase):
     """Tests for repo_manifest.Project."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.manifest = repo_manifest.Manifest.FromString(MANIFEST_XML)
         self.simple = self.manifest.GetUniqueProject("simple/project")
         self.complex = self.manifest.GetUniqueProject("complex/project")
 
-    def testPath(self):
+    def testPath(self) -> None:
         """Test Project.Path."""
         self.assertEqual(self.simple.Path(), "simple/project")
         self.assertEqual(self.complex.Path(), "src/complex")
 
-    def testRemoteName(self):
+    def testRemoteName(self) -> None:
         """Test Project.RemoteName."""
         self.assertEqual(self.simple.RemoteName(), "simple_remote")
         self.assertEqual(self.complex.RemoteName(), "complex_remote")
 
-    def testRemote(self):
+    def testRemote(self) -> None:
         """Test Project.Remote."""
         self.assertEqual(self.simple.Remote().name, "simple_remote")
 
-    def testRevision(self):
+    def testRevision(self) -> None:
         """Test Project.Revision."""
         self.assertIsNone(self.simple.Revision())
         self.assertEqual(self.complex.Revision(), "cafe")
 
-    def testAnnotations(self):
+    def testAnnotations(self) -> None:
         """Test Project.Annotations."""
         self.assertEqual(self.simple.Annotations(), {})
         self.assertEqual(self.complex.Annotations(), {"branch-mode": "pin"})

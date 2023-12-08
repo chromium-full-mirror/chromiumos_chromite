@@ -17,7 +17,7 @@ DELTA = 1.0
 
 
 @pytest.fixture(autouse=True)
-def time_mock_fixture(monkeypatch):  # type: ignore[no-untyped-def]
+def time_mock_fixture(monkeypatch) -> None:  # type: ignore[no-untyped-def]
     last_t = 0.0
 
     def time_mock() -> float:

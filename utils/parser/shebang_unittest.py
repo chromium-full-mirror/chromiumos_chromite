@@ -11,54 +11,54 @@ from chromite.utils.parser import shebang
 class SplitShebangTest(cros_test_lib.TestCase):
     """Test the SplitShebang function."""
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         """Test a simple case."""
         self.assertEqual(("/bin/sh", ""), shebang.parse("#!/bin/sh"))
 
-    def testWithArguments(self):
+    def testWithArguments(self) -> None:
         """Test a case with arguments."""
         self.assertEqual(
             ("/bin/sh", '-i -c "ls"'),
             shebang.parse('#!/bin/sh  -i -c "ls"'),
         )
 
-    def testWithEndline(self):
+    def testWithEndline(self) -> None:
         """Test a case finished with a newline char."""
         self.assertEqual(("/bin/sh", "-i"), shebang.parse("#!/bin/sh  -i\n"))
 
-    def testMultiLine(self):
+    def testMultiLine(self) -> None:
         """Verify multiline inputs where we only parse the first."""
         self.assertEqual(
             ("/bin/sh", "-i"), shebang.parse("#!/bin/sh  -i\n# My program\n")
         )
 
-    def testWithSpaces(self):
+    def testWithSpaces(self) -> None:
         """Test a case with several spaces in the line."""
         self.assertEqual(
             ("/bin/sh", "-i"), shebang.parse("#!  /bin/sh  -i   \n")
         )
 
-    def testWithArgSpaces(self):
+    def testWithArgSpaces(self) -> None:
         """Test arguments with spaces in them."""
         self.assertEqual(
             ("/bin/sh", "-e -x"), shebang.parse("#!/bin/sh -e -x\n")
         )
 
-    def testValidBytes(self):
+    def testValidBytes(self) -> None:
         """Test bytes inputs."""
         self.assertEqual(("/foo", "-v"), shebang.parse(b"#!/foo -v"))
 
-    def testInvalidBytes(self):
+    def testInvalidBytes(self) -> None:
         """Test bytes input but not valid UTF-8."""
         self.assertRaises(ValueError, shebang.parse, b"#!/fo\xff")
 
-    def testInvalidCases(self):
+    def testInvalidCases(self) -> None:
         """Thes invalid cases."""
         self.assertRaises(ValueError, shebang.parse, "/bin/sh -i")
         self.assertRaises(ValueError, shebang.parse, "#!")
         self.assertRaises(ValueError, shebang.parse, "#!env python")
 
-    def testRealCommand(self):
+    def testRealCommand(self) -> None:
         """Test real_command helper."""
         # If /usr/bin/env has an arg, that's the real command.
         result = shebang.parse("#!/usr/bin/env ls")

@@ -19,11 +19,11 @@ class FrozenAttributesTest(cros_test_lib.TestCase):
 
         SETATTR_OFFSET = 10
 
-        def __setattr__(self, attr, value):
+        def __setattr__(self, attr, value) -> None:
             """Adjust value here to later confirm that this code ran."""
             object.__setattr__(self, attr, self.SETATTR_OFFSET + value)
 
-    def _TestBasics(self, cls):
+    def _TestBasics(self, cls) -> None:
         # pylint: disable=attribute-defined-outside-init
         def _Expected(val):
             return getattr(cls, "SETATTR_OFFSET", 0) + val
@@ -41,7 +41,7 @@ class FrozenAttributesTest(cros_test_lib.TestCase):
         self.assertRaises(attrs_freezer.Error, setattr, obj, "c", 3)
         self.assertFalse(hasattr(obj, "c"))
 
-    def testFrozenByMetaclass(self):
+    def testFrozenByMetaclass(self) -> None:
         """Test attribute freezing with FrozenAttributesClass."""
 
         class StubByMeta(self.StubClass, metaclass=attrs_freezer.Class):

@@ -31,7 +31,7 @@ def initialize(
     config_file: os.PathLike,
     log_traces: bool = False,
     enable: Optional[bool] = None,
-):
+) -> None:
     """Initialize chromite telemetry.
 
     The function accepts a config path and handles the initialization of

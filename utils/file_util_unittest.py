@@ -14,7 +14,7 @@ from chromite.utils import file_util
 class OpenTests(cros_test_lib.TempDirTestCase):
     """Tests for cros_build_lib.Open."""
 
-    def testFile(self):
+    def testFile(self) -> None:
         """Read/write a file by path."""
         path = os.path.join(self.tempdir, "test.txt")
         with file_util.Open(path, mode="w") as fp:
@@ -22,7 +22,7 @@ class OpenTests(cros_test_lib.TempDirTestCase):
         with file_util.Open(path, mode="r") as fp:
             self.assertEqual("foo", fp.read())
 
-    def testHandle(self):
+    def testHandle(self) -> None:
         """Read/write a file by an open handle."""
         path = os.path.join(self.tempdir, "test.txt")
         with open(path, mode="w", encoding="utf-8") as fp:
@@ -32,7 +32,7 @@ class OpenTests(cros_test_lib.TempDirTestCase):
             with file_util.Open(fp) as fp2:
                 self.assertEqual("foo", fp2.read())
 
-    def testPath(self):
+    def testPath(self) -> None:
         """Read/write a file by Path."""
         path = self.tempdir / "test.txt"
         with file_util.Open(path, mode="w") as fp:
@@ -41,7 +41,7 @@ class OpenTests(cros_test_lib.TempDirTestCase):
             self.assertEqual("foo", fp.read())
         self.assertEqual("foo", path.read_text(encoding="utf-8"))
 
-    def testEncoding(self):
+    def testEncoding(self) -> None:
         """Verify we pass kwargs down."""
         path = os.path.join(self.tempdir, "test.txt")
         with file_util.Open(path, mode="w", encoding="utf-8") as fp:

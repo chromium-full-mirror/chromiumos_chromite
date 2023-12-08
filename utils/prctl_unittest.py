@@ -13,7 +13,7 @@ import pytest
 from chromite.utils import prctl
 
 
-def test_prctl_raw():
+def test_prctl_raw() -> None:
     """Check basic functionality with PDEATHSIG option."""
     orig = prctl.get_pdeathsig()
 
@@ -27,7 +27,7 @@ def test_prctl_raw():
     prctl.set_pdeathsig(orig)
 
 
-def test_prctl_error():
+def test_prctl_error() -> None:
     """Check PrctlError handling."""
     e = prctl.PrctlError(prctl.Option.SET_PDEATHSIG, -1)
     assert "SET_PDEATHSIG" in str(e)
@@ -43,7 +43,7 @@ def test_prctl_error():
     assert excinfo.value.prargs == [1000, 0, 0, 0]
 
 
-def test_pdeathsig():
+def test_pdeathsig() -> None:
     """Check pdeathsig helpers."""
     orig = prctl.get_pdeathsig()
     assert prctl.set_pdeathsig(signal.SIGINT) is None
@@ -52,7 +52,7 @@ def test_pdeathsig():
     prctl.set_pdeathsig(orig)
 
 
-def test_name():
+def test_name() -> None:
     """Check (thread) name helpers."""
     assert prctl.set_name("foo") is None
     assert prctl.get_name() == "foo"
@@ -62,7 +62,7 @@ def test_name():
     assert prctl.get_name() == "123456789012345"
 
 
-def test_no_new_privs():
+def test_no_new_privs() -> None:
     """Check no_new_privs helpers."""
     assert prctl.get_no_new_privs() in (0, 1)
 

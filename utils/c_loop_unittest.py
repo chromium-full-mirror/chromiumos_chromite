@@ -11,7 +11,7 @@ import pytest
 from chromite.utils import c_loop
 
 
-def test_non_block():
+def test_non_block() -> None:
     """Test the code against a non-block device."""
     with pytest.raises(OSError) as e:
         c_loop.detach("/dev/null")

@@ -10,7 +10,7 @@ from typing import Dict, List
 
 def _MergeDictWithPathParts(
     path_parts: List[str], source: Dict, destination: Dict
-):
+) -> None:
     """Merges source into destination based on path_parts.
 
     Args:

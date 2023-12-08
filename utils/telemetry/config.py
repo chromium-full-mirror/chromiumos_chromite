@@ -32,21 +32,21 @@ class TraceConfig:
     def __init__(self, config: configparser.ConfigParser):
         self._config = config
 
-    def update(self, enabled: bool, reason: Literal["AUTO", "USER"]):
+    def update(self, enabled: bool, reason: Literal["AUTO", "USER"]) -> None:
         """Update the config."""
         self._config.set(TRACE_SECTION_KEY, ENABLED_KEY, str(enabled))
         self._config.set(TRACE_SECTION_KEY, ENABLED_REASON_KEY, reason)
         if enabled:
             self.gen_id()
 
-    def set_dev(self, enabled: bool):
+    def set_dev(self, enabled: bool) -> None:
         """Set or delete the development flag."""
         if enabled:
             self._config.set(TRACE_SECTION_KEY, KEY_DEV, str(enabled))
         elif KEY_DEV in self._config[TRACE_SECTION_KEY]:
             del self._config[TRACE_SECTION_KEY][KEY_DEV]
 
-    def gen_id(self, regen=False):
+    def gen_id(self, regen=False) -> None:
         """[Re]generate UUIDs."""
         if regen or KEY_USER_UUID not in self._config[TRACE_SECTION_KEY]:
             self._config.set(
@@ -83,7 +83,7 @@ class RootConfig:
     def __init__(self, config):
         self._config = config
 
-    def update(self, notice_countdown: int):
+    def update(self, notice_countdown: int) -> None:
         """Update the config."""
         self._config.set(
             ROOT_SECTION_KEY, NOTICE_COUNTDOWN_KEY, str(notice_countdown)
@@ -113,7 +113,7 @@ class Config:
         self._trace_config = TraceConfig(self._config)
         self._root_config = RootConfig(self._config)
 
-    def flush(self):
+    def flush(self) -> None:
         """Flushes the current config to confi file."""
         with open(self._path, "w", encoding="utf-8") as configfile:
             self._config.write(configfile)

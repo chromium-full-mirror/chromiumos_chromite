@@ -371,7 +371,7 @@ def GatherPathMapping(search_directory: str) -> Optional[List]:
     return result
 
 
-def LogLlvmCoverageJsonInformation(coverage_json: Dict, message: str):
+def LogLlvmCoverageJsonInformation(coverage_json: Dict, message: str) -> None:
     """Log useful information regarding coverage json.
 
     Method to log list of file paths in the coverage json.

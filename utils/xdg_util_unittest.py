@@ -35,13 +35,15 @@ def _as_not_chrome_bot(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def reset_xdg_util_caches():
+def reset_xdg_util_caches() -> None:
     """Reset the various cache state so each test runs fresh."""
     xdg_util._is_chrome_bot.cache_clear()
     xdg_util._get_homedir.cache_clear()
 
 
-def test_chrome_bot_paths(as_chrome_bot):  # pylint: disable=unused-argument
+def test_chrome_bot_paths(
+    as_chrome_bot,
+) -> None:  # pylint: disable=unused-argument
     """Check paths when run as chrome-bot."""
     assert xdg_util._is_chrome_bot()
 
@@ -62,7 +64,9 @@ def test_chrome_bot_paths(as_chrome_bot):  # pylint: disable=unused-argument
 
 
 @mock.patch.multiple(os_util, is_root_user=lambda: False)
-def test_non_root_paths(as_not_chrome_bot):  # pylint: disable=unused-argument
+def test_non_root_paths(
+    as_not_chrome_bot,
+) -> None:  # pylint: disable=unused-argument
     """Check paths when run as non-root user."""
     assert not xdg_util._is_chrome_bot()
 
@@ -85,7 +89,9 @@ def test_non_root_paths(as_not_chrome_bot):  # pylint: disable=unused-argument
 @mock.patch.multiple(
     os_util, is_root_user=lambda: True, non_root_home=lambda: Path("/foo")
 )
-def test_root_paths(as_not_chrome_bot):  # pylint: disable=unused-argument
+def test_root_paths(
+    as_not_chrome_bot,
+) -> None:  # pylint: disable=unused-argument
     """Check paths when run as root user."""
     assert not xdg_util._is_chrome_bot()
     assert xdg_util._get_cache_home() == Path("/foo/.cache")

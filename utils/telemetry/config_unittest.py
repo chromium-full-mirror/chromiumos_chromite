@@ -13,7 +13,7 @@ from chromite.utils.telemetry import config
 class ConfigTest(cros_test_lib.TempDirTestCase):
     """Test Config class."""
 
-    def test_create_missing_config_file(self):
+    def test_create_missing_config_file(self) -> None:
         """Test Config to create missing config file."""
 
         path = self.tempdir / "telemetry.cfg"
@@ -27,7 +27,7 @@ class ConfigTest(cros_test_lib.TempDirTestCase):
         self.assertEqual("AUTO", cfg.trace_config.enabled_reason)
         self.assertEqual(10, cfg.root_config.notice_countdown)
 
-    def test_load_config_file(self):
+    def test_load_config_file(self) -> None:
         """Test Config to load config file."""
 
         path = "telemetry.cfg"
@@ -41,7 +41,7 @@ class ConfigTest(cros_test_lib.TempDirTestCase):
         self.assertTrue(cfg.trace_config.enabled)
         self.assertEqual(3, cfg.root_config.notice_countdown)
 
-    def test_flush_config_file_with_updates(self):
+    def test_flush_config_file_with_updates(self) -> None:
         """Test Config to write the config changes to file."""
 
         path = self.tempdir / "telemetry.cfg"
@@ -72,7 +72,7 @@ class ConfigTest(cros_test_lib.TempDirTestCase):
         )
 
 
-def test_default_trace_config():
+def test_default_trace_config() -> None:
     """Test TraceConfig to load default values."""
     cfg = configparser.ConfigParser()
     cfg[config.TRACE_SECTION_KEY] = {}
@@ -81,7 +81,7 @@ def test_default_trace_config():
     assert not trace_config.has_enabled()
 
 
-def test_trace_config_update():
+def test_trace_config_update() -> None:
     """Test TraceConfig to update values."""
     cfg = configparser.ConfigParser()
     cfg[config.TRACE_SECTION_KEY] = {config.ENABLED_KEY: True}
@@ -91,7 +91,7 @@ def test_trace_config_update():
     assert trace_config.enabled_reason == "AUTO"
 
 
-def test_trace_config():
+def test_trace_config() -> None:
     """Test TraceConfig to instantiate from passed dict."""
     cfg = configparser.ConfigParser()
     cfg[config.TRACE_SECTION_KEY] = {config.ENABLED_KEY: True}
@@ -102,7 +102,7 @@ def test_trace_config():
     assert trace_config.enabled_reason == "AUTO"
 
 
-def test_default_root_config():
+def test_default_root_config() -> None:
     """Test RootConfig to load default values."""
     cfg = configparser.ConfigParser()
     cfg[config.ROOT_SECTION_KEY] = {}
@@ -111,7 +111,7 @@ def test_default_root_config():
     assert root_config.notice_countdown == 10
 
 
-def test_root_config_update():
+def test_root_config_update() -> None:
     """Test RootConfig to update values."""
     cfg = configparser.ConfigParser()
     cfg[config.ROOT_SECTION_KEY] = {config.NOTICE_COUNTDOWN_KEY: True}
@@ -120,7 +120,7 @@ def test_root_config_update():
     assert root_config.notice_countdown == 8
 
 
-def test_root_config():
+def test_root_config() -> None:
     """Test RootConfig to instantiate from passed dict."""
     cfg = configparser.ConfigParser()
     cfg[config.ROOT_SECTION_KEY] = {config.NOTICE_COUNTDOWN_KEY: 9}

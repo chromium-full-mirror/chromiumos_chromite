@@ -45,7 +45,7 @@ class _FdCapturer:
         self._capturefile_reader = None
         self._capturefile_name = output
 
-    def _SafeCreateTempfile(self, tempfile_obj):
+    def _SafeCreateTempfile(self, tempfile_obj) -> None:
         """Ensure that the tempfile is created safely.
 
         (1) Stash away a reference to the tempfile.
@@ -61,7 +61,7 @@ class _FdCapturer:
         self._tempfile = tempfile_obj
         os.unlink(tempfile_obj.name)
 
-    def Start(self):
+    def Start(self) -> None:
         """Begin capturing output."""
         if self._capturefile_name is None:
             # Disable pylint from suggesting to use context manager. The open
@@ -87,7 +87,7 @@ class _FdCapturer:
         self._saved_fd = os.dup(self._source.fileno())
         os.dup2(self._capturefile.fileno(), self._source.fileno())
 
-    def Stop(self):
+    def Stop(self) -> None:
         """Stop capturing output."""
         self.GetCaptured()
         if self._saved_fd is not None:
@@ -113,7 +113,7 @@ class _FdCapturer:
             self._captured += self._capturefile_reader.read()
         return self._captured
 
-    def ClearCaptured(self):
+    def ClearCaptured(self) -> None:
         """Erase all captured output."""
         self.GetCaptured()
         self._captured = ""
@@ -172,7 +172,7 @@ class OutputCapturer:
         self.StartCapturing()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         # This method is called when exiting 'with' block.
         self.StopCapturing()
 
@@ -189,17 +189,17 @@ class OutputCapturer:
             else:
                 print("No captured stderr")
 
-    def StartCapturing(self):
+    def StartCapturing(self) -> None:
         """Begin capturing stdout and stderr."""
         self._stdout_capturer.Start()
         self._stderr_capturer.Start()
 
-    def StopCapturing(self):
+    def StopCapturing(self) -> None:
         """Stop capturing stdout and stderr."""
         self._stdout_capturer.Stop()
         self._stderr_capturer.Stop()
 
-    def ClearCaptured(self):
+    def ClearCaptured(self) -> None:
         """Clear any captured stdout/stderr content."""
         self._stdout_capturer.ClearCaptured()
         self._stderr_capturer.ClearCaptured()

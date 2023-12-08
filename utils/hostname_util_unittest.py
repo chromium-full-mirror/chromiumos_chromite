@@ -11,7 +11,7 @@ from chromite.lib import cros_test_lib
 from chromite.utils import hostname_util
 
 
-def test_google_host_to_be_true_for_valid_hosts(monkeypatch):
+def test_google_host_to_be_true_for_valid_hosts(monkeypatch) -> None:
     """Test that is_google_host returns true for valid host."""
 
     for suffix in hostname_util.GOOGLE_HOSTNAME_SUFFIX:
@@ -23,7 +23,7 @@ def test_google_host_to_be_true_for_valid_hosts(monkeypatch):
         m.assert_called_once_with(fully_qualified=True)
 
 
-def test_google_host_to_be_false_for_invalid_hosts(monkeypatch):
+def test_google_host_to_be_false_for_invalid_hosts(monkeypatch) -> None:
     """Test that is_google_host returns true for invalid host."""
     m = mock.Mock(return_value="some.host.com")
     monkeypatch.setattr(hostname_util, "get_host_name", m)
@@ -35,7 +35,7 @@ def test_google_host_to_be_false_for_invalid_hosts(monkeypatch):
 class TestGetHostname(cros_test_lib.MockTestCase):
     """Tests get_host_name & get_host_domain functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.gethostname_mock = self.PatchObject(
             socket, "gethostname", return_value="m!!n"
         )
@@ -52,28 +52,28 @@ class TestGetHostname(cros_test_lib.MockTestCase):
             ),
         )
 
-    def testget_host_nameNonQualified(self):
+    def testget_host_nameNonQualified(self) -> None:
         """Verify non-qualified behavior"""
         self.assertEqual(hostname_util.get_host_name(), "m!!n")
 
-    def testget_host_nameFullyQualified(self):
+    def testget_host_nameFullyQualified(self) -> None:
         """Verify fully qualified behavior"""
         self.assertEqual(
             hostname_util.get_host_name(fully_qualified=True), "m!!n.google.com"
         )
 
-    def testget_host_nameBadDns(self):
+    def testget_host_nameBadDns(self) -> None:
         """Do not fail when the user's dns is bad"""
         self.gethostbyaddr_mock.side_effect = socket.gaierror(
             "should be caught"
         )
         self.assertEqual(hostname_util.get_host_name(), "m!!n")
 
-    def testget_host_domain(self):
+    def testget_host_domain(self) -> None:
         """Verify basic behavior"""
         self.assertEqual(hostname_util.get_host_domain(), "google.com")
 
-    def testhost_is_ci_builder(self):
+    def testhost_is_ci_builder(self) -> None:
         """Test host_is_ci_builder."""
         fq_hostname_golo = "test.golo.chromium.org"
         fq_hostname_gce_1 = "test.chromeos-bot.internal"

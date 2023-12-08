@@ -69,7 +69,7 @@ def Memoize(f):
     return wrapper
 
 
-def SafeRun(functors, combine_exceptions=False):
+def SafeRun(functors, combine_exceptions=False) -> None:
     """Executes a list of functors, continuing on exceptions.
 
     Args:

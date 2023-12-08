@@ -57,7 +57,7 @@ def mock_read_text(path: os.PathLike, val: str):
     return _mock_read_text
 
 
-def test_process_info_capture():
+def test_process_info_capture() -> None:
     """Test that ProcessDetector captures correct process info."""
     env_var = list(os.environ.keys())[0]
 
@@ -73,7 +73,7 @@ def test_process_info_capture():
     assert attrs[f"process.env.{env_var}"] == os.environ[env_var]
 
 
-def test_system_info_captured(monkeypatch):
+def test_system_info_captured(monkeypatch) -> None:
     """Test that SystemDetector captures the correct system info."""
 
     monkeypatch.setattr(getpass, "getuser", lambda: "someuser")
@@ -96,7 +96,7 @@ def test_system_info_captured(monkeypatch):
     assert attrs[detector.CPU_NAME] == platform.processor()
 
 
-def test_memory_info_class(monkeypatch):
+def test_memory_info_class(monkeypatch) -> None:
     proc_meminfo_contents = """
 SwapTotal: 15 kB
 VmallocTotal: 25 kB
@@ -117,7 +117,9 @@ MemTotal: 35 kB
     assert m.total_virtual_memory == 25 * 1024
 
 
-def test_memory_info_class_warns_on_unexpected_unit(monkeypatch, caplog):
+def test_memory_info_class_warns_on_unexpected_unit(
+    monkeypatch, caplog
+) -> None:
     proc_meminfo_contents = """
 SwapTotal: 15 mB
 VmallocTotal: 25 gB
@@ -141,7 +143,7 @@ MemTotal: 35 tB
     assert m.total_virtual_memory == 25 * 1024
 
 
-def test_memory_info_class_no_units(monkeypatch):
+def test_memory_info_class_no_units(monkeypatch) -> None:
     proc_meminfo_contents = """
 SwapTotal: 15
     """
@@ -158,7 +160,7 @@ SwapTotal: 15
     assert m.total_swap_memory == 15
 
 
-def test_memory_info_class_no_provided_value(monkeypatch, caplog):
+def test_memory_info_class_no_provided_value(monkeypatch, caplog) -> None:
     proc_meminfo_contents = """
 SwapTotal:
     """
@@ -176,7 +178,7 @@ SwapTotal:
     assert "Unexpected /proc/meminfo entry with no label:number" in caplog.text
 
 
-def test_system_info_to_capture_memory_resources(monkeypatch):
+def test_system_info_to_capture_memory_resources(monkeypatch) -> None:
     proc_meminfo_contents = """
 SwapTotal: 15 kB
 VmallocTotal: 25 kB
@@ -198,7 +200,7 @@ MemTotal: 35 kB
     assert attrs[detector.MEMORY_SWAP_TOTAL] == 15 * 1024
 
 
-def test_system_info_to_capture_host_type_bot(monkeypatch):
+def test_system_info_to_capture_host_type_bot(monkeypatch) -> None:
     """Test that SystemDetector captures host type as chromeos-bot."""
 
     monkeypatch.setattr(getpass, "getuser", lambda: "chromeos-bot")
@@ -221,7 +223,7 @@ def test_system_info_to_capture_host_type_bot(monkeypatch):
     assert attrs[detector.CPU_NAME] == platform.processor()
 
 
-def test_system_info_to_capture_host_type_from_dmi(monkeypatch):
+def test_system_info_to_capture_host_type_from_dmi(monkeypatch) -> None:
     """Test that SystemDetector captures dmi product name as host type."""
 
     monkeypatch.setattr(getpass, "getuser", lambda: "someuser")
@@ -242,7 +244,7 @@ def test_system_info_to_capture_host_type_from_dmi(monkeypatch):
     assert attrs[detector.CPU_NAME] == platform.processor()
 
 
-def test_system_info_to_capture_host_type_unknown(monkeypatch):
+def test_system_info_to_capture_host_type_unknown(monkeypatch) -> None:
     """Test that SystemDetector captures host type as UNKNOWN."""
 
     monkeypatch.setattr(Path, "exists", mock_exists(detector.DMI_PATH, False))
@@ -259,7 +261,7 @@ def test_system_info_to_capture_host_type_unknown(monkeypatch):
     assert attrs[detector.CPU_NAME] == platform.processor()
 
 
-def test_sdk_state_to_capture_manifest_info(monkeypatch):
+def test_sdk_state_to_capture_manifest_info(monkeypatch) -> None:
     """Test that Sdk detector captures manifest sync info."""
 
     manifest_mtime = datetime.datetime.now(tz=datetime.timezone.utc)
@@ -287,7 +289,7 @@ def test_sdk_state_to_capture_manifest_info(monkeypatch):
     assert resource["manifest_sync_date"] == manifest_mtime.isoformat()
 
 
-def test_sdk_state_to_capture_empty(monkeypatch):
+def test_sdk_state_to_capture_empty(monkeypatch) -> None:
     """Test that Sdk detector handles None for repo dir."""
 
     monkeypatch.setattr(git, "FindRepoDir", lambda _: None)
@@ -299,7 +301,7 @@ def test_sdk_state_to_capture_empty(monkeypatch):
     assert not resource
 
 
-def test_sdk_state_to_all_workon_atoms(monkeypatch):
+def test_sdk_state_to_all_workon_atoms(monkeypatch) -> None:
     """Test that sdk state detector captures all workon packages."""
 
     workon_atoms = {

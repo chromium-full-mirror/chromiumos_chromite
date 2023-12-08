@@ -18,7 +18,7 @@ def initialize(
     enabled: bool = False,
     log_traces: bool = False,
     development_mode: bool = False,
-):
+) -> None:
     """Initialize opentelemetry tracing.
 
     For most use cases, `telemetry.initialize` should be used since that also
@@ -186,7 +186,7 @@ class NoOpSpan:
     def end(self, end_time: Optional[int] = None) -> None:
         pass
 
-    def get_span_context(self):
+    def get_span_context(self) -> None:
         return None
 
     # pylint: disable=unused-argument

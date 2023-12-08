@@ -18,7 +18,7 @@ from chromite.utils.telemetry import exporter
 
 
 def _spy_add_span_processor(processors):
-    def inner(_self, processor):
+    def inner(_self, processor) -> None:
         processors.append(processor)
 
     return inner
@@ -35,7 +35,9 @@ def _processors(monkeypatch):
     yield processors
 
 
-def test_no_exporter_for_non_google_host(monkeypatch, tmp_path, processors):
+def test_no_exporter_for_non_google_host(
+    monkeypatch, tmp_path, processors
+) -> None:
     """Test initialize to not add exporters on non google host."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: False)
 
@@ -51,7 +53,7 @@ def test_no_exporter_for_non_google_host(monkeypatch, tmp_path, processors):
 
 def test_console_exporter_for_non_google_host_on_debug(
     monkeypatch, tmp_path, processors
-):
+) -> None:
     """Test initialize to print span to console on debug on non google host."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: False)
     config_file = tmp_path / "telemetry.cfg"
@@ -64,7 +66,7 @@ def test_console_exporter_for_non_google_host_on_debug(
 
 def test_console_exporter_for_google_host_on_debug(
     monkeypatch, tmp_path, processors
-):
+) -> None:
     """Test initialize to print span to console on debug."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
     config_file = tmp_path / "telemetry.cfg"
@@ -77,7 +79,7 @@ def test_console_exporter_for_google_host_on_debug(
 
 def test_initialize_to_display_notice_to_user_on_google_host(
     capsys, monkeypatch, tmp_path, processors
-):
+) -> None:
     """Test initialize display notice to user."""
     config_file = tmp_path / "telemetry.cfg"
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
@@ -92,7 +94,7 @@ def test_initialize_to_display_notice_to_user_on_google_host(
 
 def test_initialize_to_display_notice_and_print_spans_to_user_on_google_host(
     capsys, monkeypatch, tmp_path, processors
-):
+) -> None:
     """Test initialize display notice to user and print span on debug."""
     config_file = tmp_path / "telemetry.cfg"
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
@@ -108,7 +110,7 @@ def test_initialize_to_display_notice_and_print_spans_to_user_on_google_host(
 
 def test_initialize_to_update_enabled_on_count_down_complete(
     capsys, monkeypatch, tmp_path, processors
-):
+) -> None:
     """Test initialize auto enable telemetry on countdown complete."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
 
@@ -131,7 +133,7 @@ def test_initialize_to_update_enabled_on_count_down_complete(
 
 def test_initialize_to_skip_notice_when_trace_enabled_is_present(
     capsys, monkeypatch, tmp_path, processors
-):
+) -> None:
     """Test initialize to skip notice on enabled flag present."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
 
@@ -151,7 +153,7 @@ def test_initialize_to_skip_notice_when_trace_enabled_is_present(
 
 def test_initialize_to_enable_telemetry_based_on_optin(
     capsys, monkeypatch, tmp_path, processors
-):
+) -> None:
     """Test initialize enable telemetry based on optin."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
 
@@ -174,7 +176,7 @@ def test_initialize_to_enable_telemetry_based_on_optin(
 
 def test_initialize_to_disable_telemetry_based_on_optin(
     capsys, monkeypatch, tmp_path, processors
-):
+) -> None:
     """Test initialize disable telemetry based on optin."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
 
@@ -192,7 +194,9 @@ def test_initialize_to_disable_telemetry_based_on_optin(
     assert cfg.trace_config.enabled_reason == "USER"
 
 
-def test_initialize_to_set_parent_from_traceparent_env(monkeypatch, tmp_path):
+def test_initialize_to_set_parent_from_traceparent_env(
+    monkeypatch, tmp_path
+) -> None:
     parent = {
         "traceparent": "00-6e9d1daccc58d878b74c78b363ed2cf8-65d3ef7761438b6f-01"
     }
@@ -219,7 +223,7 @@ def test_initialize_to_set_parent_from_traceparent_env(monkeypatch, tmp_path):
 
 def test_initialize_to_skip_notice_if_tracecontext_present_in_env(
     capsys, monkeypatch, tmp_path, processors
-):
+) -> None:
     """Test initialize to skip notice if run with tracecontext."""
     parent = {
         "traceparent": "00-6e9d1daccc58d878b74c78b363ed2cf8-65d3ef7761438b6f-01"

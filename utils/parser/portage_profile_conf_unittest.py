@@ -26,6 +26,6 @@ x11-libs/qt -mysql
         ],
     ],
 )
-def test_parse(contents, expected):
+def test_parse(contents, expected) -> None:
     """Test the parse() function."""
     assert list(portage_profile_conf.parse(contents)) == expected

@@ -41,7 +41,7 @@ class ExceptionWithFailedPackages(Exception):
         self.failed_packages = pkgs
 
 
-def test_chromite_span_to_capture_keyboard_interrupt_as_decorator():
+def test_chromite_span_to_capture_keyboard_interrupt_as_decorator() -> None:
     """Test chromite span can capture KeyboardInterrupt as decorator."""
     exporter = SpanExporterStub()
     provider = otel_trace.ChromiteTracerProvider(trace_sdk.TracerProvider())
@@ -51,7 +51,7 @@ def test_chromite_span_to_capture_keyboard_interrupt_as_decorator():
     tracer = provider.get_tracer(__name__)
 
     @tracer.start_as_current_span("test-span")
-    def test_function():
+    def test_function() -> None:
         raise KeyboardInterrupt()
 
     with contextlib.suppress(KeyboardInterrupt):
@@ -68,7 +68,7 @@ def test_chromite_span_to_capture_keyboard_interrupt_as_decorator():
     assert exporter.spans[0].status.status_code == trace_api.StatusCode.OK
 
 
-def test_chromite_span_to_capture_keyboard_interrupt_in_context():
+def test_chromite_span_to_capture_keyboard_interrupt_in_context() -> None:
     """Test chromite span can capture KeyboardInterrupt in context."""
     exporter = SpanExporterStub()
     provider = otel_trace.ChromiteTracerProvider(trace_sdk.TracerProvider())
@@ -92,7 +92,7 @@ def test_chromite_span_to_capture_keyboard_interrupt_in_context():
     assert exporter.spans[0].status.status_code == trace_api.StatusCode.OK
 
 
-def test_chromite_span_to_capture_failed_packages_in_context():
+def test_chromite_span_to_capture_failed_packages_in_context() -> None:
     """Test chromite span can capture failed_packages in context."""
     exporter = SpanExporterStub()
     provider = otel_trace.ChromiteTracerProvider(trace_sdk.TracerProvider())
@@ -124,7 +124,7 @@ def test_chromite_span_to_capture_failed_packages_in_context():
     )
 
 
-def test_chromite_span_to_capture_failed_packages_as_decorator():
+def test_chromite_span_to_capture_failed_packages_as_decorator() -> None:
     """Test chromite span can capture failed_packages as decorator."""
     exporter = SpanExporterStub()
     provider = otel_trace.ChromiteTracerProvider(trace_sdk.TracerProvider())
@@ -134,7 +134,7 @@ def test_chromite_span_to_capture_failed_packages_as_decorator():
     tracer = provider.get_tracer(__name__)
 
     @tracer.start_as_current_span("test-span")
-    def test_function():
+    def test_function() -> None:
         raise ExceptionWithFailedPackages(
             msg="testing", pkgs=["dev-python/boto"]
         )

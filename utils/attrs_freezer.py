@@ -41,7 +41,7 @@ class Class(type):
         # Replace cls.__setattr__ with the one that honors freezing.
         orig_setattr = newcls.__setattr__
 
-        def SetAttr(obj, name, value):
+        def SetAttr(obj, name, value) -> None:
             """If the object is frozen then abort."""
             # pylint: disable=protected-access
             if getattr(obj, "_frozen", False):
@@ -54,7 +54,7 @@ class Class(type):
         newcls.__setattr__ = SetAttr
 
         # Add new newcls.Freeze method.
-        def Freeze(obj):
+        def Freeze(obj) -> None:
             # pylint: disable=protected-access
             obj._frozen = True
 

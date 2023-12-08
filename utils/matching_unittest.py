@@ -13,7 +13,7 @@ from chromite.utils import matching
 class GetMostLikelyMatchedObjectTest(cros_test_lib.TestCase):
     """GetMostLikelyMatchedObject tests."""
 
-    def testNoSimilar(self):
+    def testNoSimilar(self) -> None:
         """Test no results when no similar items."""
         haystack = ["1234", "5678"]
         needle = "abcd"
@@ -21,7 +21,7 @@ class GetMostLikelyMatchedObjectTest(cros_test_lib.TestCase):
         result = matching.GetMostLikelyMatchedObject(haystack, needle)
         self.assertFalse(result)
 
-    def testSimilar(self):
+    def testSimilar(self) -> None:
         """Test similar items are found."""
         haystack = ["abce", "aecd", "1234"]
         needle = "abcd"
@@ -31,7 +31,7 @@ class GetMostLikelyMatchedObjectTest(cros_test_lib.TestCase):
         )
         self.assertCountEqual(["abce", "aecd"], result)
 
-    def testSimilarThreshold(self):
+    def testSimilarThreshold(self) -> None:
         """Test the threshold is correctly applied."""
         haystack = ["abce", "aecd", "1234"]
         needle = "abcd"
@@ -45,7 +45,7 @@ class GetMostLikelyMatchedObjectTest(cros_test_lib.TestCase):
 class FindFilesMatchingTest(cros_test_lib.TempDirTestCase):
     """FindFilesMatching tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         D = cros_test_lib.Directory
 
         filesystem = (
@@ -78,21 +78,21 @@ class FindFilesMatchingTest(cros_test_lib.TempDirTestCase):
 
         self.excluded = os.path.join(self.tempdir, "path", "excluded")
 
-    def testFindMatching(self):
+    def testFindMatching(self) -> None:
         """Simple find matching."""
         result = matching.FindFilesMatching(
             "*.csv", target=self.tempdir, cwd="/"
         )
         self.assertCountEqual(self.csvs, result)
 
-    def testExcludeDirs(self):
+    def testExcludeDirs(self) -> None:
         """Test the excluded directories works."""
         result = matching.FindFilesMatching(
             "*.txt", target=self.tempdir, cwd="/", exclude_dirs=(self.excluded,)
         )
         self.assertCountEqual(self.txts, result)
 
-    def testCwd(self):
+    def testCwd(self) -> None:
         """Test the paths change relative to the cwd."""
         result = matching.FindFilesMatching(
             "*.csv", target="path", cwd=self.tempdir

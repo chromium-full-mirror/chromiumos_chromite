@@ -13,7 +13,7 @@ from chromite.lib import osutils
 from chromite.utils import c_blkpg
 
 
-def test_non_block():
+def test_non_block() -> None:
     """Test the code against a non-block device."""
     with osutils.OpenContext(".", flags=os.O_RDONLY) as fd:
         with pytest.raises(OSError) as e:

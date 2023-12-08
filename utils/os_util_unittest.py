@@ -28,7 +28,7 @@ def _as_non_root_user(monkeypatch):
 
 
 # pylint: disable=unused-argument
-def test_root_user_checks_as_root_user(as_root_user):
+def test_root_user_checks_as_root_user(as_root_user) -> None:
     """Test is_[non_]root_user as the root user."""
     assert os_util.is_root_user()
     os_util.assert_root_user()
@@ -38,7 +38,7 @@ def test_root_user_checks_as_root_user(as_root_user):
         os_util.assert_non_root_user()
 
 
-def test_root_user_checks_as_non_root_user(as_non_root_user):
+def test_root_user_checks_as_non_root_user(as_non_root_user) -> None:
     """Test is_[non_]root_user as a non-root user."""
     assert os_util.is_non_root_user()
     os_util.assert_non_root_user()
@@ -48,43 +48,43 @@ def test_root_user_checks_as_non_root_user(as_non_root_user):
         os_util.assert_root_user()
 
 
-def test_root_user_decorator_as_root(as_root_user):
+def test_root_user_decorator_as_root(as_root_user) -> None:
     """Success case for require root user decorator."""
 
     @os_util.require_root_user("Passes")
-    def passes():
+    def passes() -> None:
         pass
 
     passes()
 
 
-def test_root_user_decorator_as_non_root(as_non_root_user):
+def test_root_user_decorator_as_non_root(as_non_root_user) -> None:
     """Failure case for require root user decorator."""
 
     @os_util.require_root_user("Fails")
-    def fails():
+    def fails() -> None:
         pytest.fail("Allowed to execute as wrong user.")
 
     with pytest.raises(AssertionError):
         fails()
 
 
-def test_non_root_user_decorator_as_root(as_root_user):
+def test_non_root_user_decorator_as_root(as_root_user) -> None:
     """Failure case for require non-root user decorator."""
 
     @os_util.require_non_root_user("Fails")
-    def fails():
+    def fails() -> None:
         pytest.fail("Allowed to execute as wrong user.")
 
     with pytest.raises(AssertionError):
         fails()
 
 
-def test_non_root_user_decorator_as_non_root(as_non_root_user):
+def test_non_root_user_decorator_as_non_root(as_non_root_user) -> None:
     """Success case for require non-root user decorator."""
 
     @os_util.require_non_root_user("Passes")
-    def passes():
+    def passes() -> None:
         pass
 
     passes()
@@ -102,7 +102,9 @@ def _switch_to_sudo_user_mock():
         yield
 
 
-def test_switch_to_sudo_user_saved(as_root_user, switch_to_sudo_user_mock):
+def test_switch_to_sudo_user_saved(
+    as_root_user, switch_to_sudo_user_mock
+) -> None:
     """Verify we switch state properly."""
     os.environ.update(
         {
@@ -122,7 +124,9 @@ def test_switch_to_sudo_user_saved(as_root_user, switch_to_sudo_user_mock):
     os.setresuid.assert_called_once_with(456, 456, -1)
 
 
-def test_switch_to_sudo_user_cleared(as_root_user, switch_to_sudo_user_mock):
+def test_switch_to_sudo_user_cleared(
+    as_root_user, switch_to_sudo_user_mock
+) -> None:
     """Verify we switch state properly."""
     os.environ.update(
         {
@@ -142,7 +146,9 @@ def test_switch_to_sudo_user_cleared(as_root_user, switch_to_sudo_user_mock):
     os.setresuid.assert_called_once_with(456, 456, 456)
 
 
-def test_non_root_user_home_as_root(as_root_user, monkeypatch, tmp_path: Path):
+def test_non_root_user_home_as_root(
+    as_root_user, monkeypatch, tmp_path: Path
+) -> None:
     """Test non-root-user-home as root user."""
     user = "user"
     user_home = tmp_path / "home" / user
@@ -159,7 +165,9 @@ def test_non_root_user_home_as_root(as_root_user, monkeypatch, tmp_path: Path):
     assert user_home == os_util.non_root_home()
 
 
-def test_non_root_user_home_as_root_not_found(as_root_user, monkeypatch):
+def test_non_root_user_home_as_root_not_found(
+    as_root_user, monkeypatch
+) -> None:
     """Test non-root-user-home as root user when no user found."""
     env = os.environ.copy()
     env.pop("PORTAGE_USERNAME", None)
@@ -170,8 +178,10 @@ def test_non_root_user_home_as_root_not_found(as_root_user, monkeypatch):
         os_util.non_root_home()
 
 
-def test_non_root_user_home_as_root_pwd_error(as_root_user, monkeypatch):
-    def expanduser(self, *_args, **_kwargs):
+def test_non_root_user_home_as_root_pwd_error(
+    as_root_user, monkeypatch
+) -> None:
+    def expanduser(self, *_args, **_kwargs) -> None:
         """expanduser patch."""
         raise RuntimeError("Error")
 
@@ -182,7 +192,7 @@ def test_non_root_user_home_as_root_pwd_error(as_root_user, monkeypatch):
         os_util.non_root_home()
 
 
-def test_get_non_root_user_portage_username(as_root_user, monkeypatch):
+def test_get_non_root_user_portage_username(as_root_user, monkeypatch) -> None:
     """Test get_non_root_user from PORTAGE_USERNAME."""
     user = "portage_username"
     monkeypatch.setenv("PORTAGE_USERNAME", user)
@@ -190,7 +200,7 @@ def test_get_non_root_user_portage_username(as_root_user, monkeypatch):
     assert user == os_util.get_non_root_user()
 
 
-def test_get_non_root_user_sudo_user(as_root_user, monkeypatch):
+def test_get_non_root_user_sudo_user(as_root_user, monkeypatch) -> None:
     """Test get_non_root_user from SUDO_USER."""
     user = "user"
     env = os.environ.copy()
@@ -201,7 +211,7 @@ def test_get_non_root_user_sudo_user(as_root_user, monkeypatch):
     assert user == os_util.get_non_root_user()
 
 
-def test_get_non_root_user_no_user(as_root_user, monkeypatch):
+def test_get_non_root_user_no_user(as_root_user, monkeypatch) -> None:
     """Test get_non_root_user with no user."""
     env = os.environ.copy()
     env.pop("PORTAGE_USERNAME", None)

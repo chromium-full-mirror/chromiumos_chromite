@@ -93,28 +93,28 @@ def extractCovDataForFile(file_name: str, coverage_data: List):
 class GetLlvmJsonCoverageDataIfValidTest(cros_test_lib.TempDirTestCase):
     """Unit tests for GetLlvmJsonCoverageDataIfValid"""
 
-    def testIgnoresIfFileIsNotCoverageJsonFileName(self):
+    def testIgnoresIfFileIsNotCoverageJsonFileName(self) -> None:
         """Verify that files not named coverage.json are ignored."""
         file = self.tempdir / "file.json"
         file.write_text("Test", encoding="utf-8")
         result = code_coverage_util.GetLlvmJsonCoverageDataIfValid(file)
         self.assertIsNone(result)
 
-    def testIgnoresIfNotAFile(self):
+    def testIgnoresIfNotAFile(self) -> None:
         """Verify non-files are ignored."""
         result = code_coverage_util.GetLlvmJsonCoverageDataIfValid(
             Path("coverage.json")
         )
         self.assertIsNone(result)
 
-    def testIgnoresIfFileIsNotValidJson(self):
+    def testIgnoresIfFileIsNotValidJson(self) -> None:
         """Verify files with invalid JSON are ignored."""
         file = self.tempdir / "coverage.json"
         file.write_text("Test", encoding="utf-8")
         result = code_coverage_util.GetLlvmJsonCoverageDataIfValid(file)
         self.assertIsNone(result)
 
-    def testReturnsDataWhenInProperFormat(self):
+    def testReturnsDataWhenInProperFormat(self) -> None:
         """Verify files in the right structure have their contents returned."""
         file = self.tempdir / "coverage.json"
         content = json.dumps(
@@ -132,7 +132,7 @@ class GetLlvmJsonCoverageDataIfValidTest(cros_test_lib.TempDirTestCase):
 class GenerateZeroCoverageLlvmTest(cros_test_lib.TempDirTestCase):
     """Unit tests for GenerateZeroCoverageLlvm"""
 
-    def testGenerateZeroCoverageLlvmSuccess(self):
+    def testGenerateZeroCoverageLlvmSuccess(self) -> None:
         """Verify zero code coverage is being generated for all src files."""
 
         path_to_src_directory = os.path.join(self.tempdir, "src")
@@ -239,7 +239,7 @@ class GenerateZeroCoverageLlvmTest(cros_test_lib.TempDirTestCase):
         )
         self.assertEqual(usecase_1_cov_data[SOURCE], MOCK_ZERO_COVERAGE)
 
-    def testCreateLlvmCoverageJson(self):
+    def testCreateLlvmCoverageJson(self) -> None:
         """Verify that CreateLlvmCoverageJson is returning coverage json."""
 
         coverage_json = code_coverage_util.CreateLlvmCoverageJson(
@@ -249,7 +249,7 @@ class GenerateZeroCoverageLlvmTest(cros_test_lib.TempDirTestCase):
         self.assertEqual("2.0.1", coverage_json["version"])
         self.assertEqual(1, len(coverage_json["data"][0]["files"]))
 
-    def testMergeLLVMCoverageJson1(self):
+    def testMergeLLVMCoverageJson1(self) -> None:
         """Test MergeLLVMCoverageJson when coverage_json_1 is empty."""
         coverage_json_2 = code_coverage_util.CreateLlvmCoverageJson(
             [{"filename": "abc"}]
@@ -259,7 +259,7 @@ class GenerateZeroCoverageLlvmTest(cros_test_lib.TempDirTestCase):
         )
         self.assertEqual(1, len(coverage_json["data"][0]["files"]))
 
-    def testMergeLLVMCoverageJson2(self):
+    def testMergeLLVMCoverageJson2(self) -> None:
         """Test MergeLLVMCoverageJson when coverage_json_2 is empty."""
         coverage_json_1 = code_coverage_util.CreateLlvmCoverageJson(
             [{"filename": "abc"}]
@@ -269,7 +269,7 @@ class GenerateZeroCoverageLlvmTest(cros_test_lib.TempDirTestCase):
         )
         self.assertEqual(1, len(coverage_json["data"][0]["files"]))
 
-    def testMergeLLVMCoverageJson3(self):
+    def testMergeLLVMCoverageJson3(self) -> None:
         """Test MergeLLVMCoverageJson when both are non empty."""
         coverage_json_1 = code_coverage_util.CreateLlvmCoverageJson(
             [{"filename": "abc1"}]
@@ -282,7 +282,7 @@ class GenerateZeroCoverageLlvmTest(cros_test_lib.TempDirTestCase):
         )
         self.assertEqual(2, len(coverage_json["data"][0]["files"]))
 
-    def testExtractFilenames(self):
+    def testExtractFilenames(self) -> None:
         """Verify ExtractFilenames is extracting all file names."""
 
         coverage_json = code_coverage_util.CreateLlvmCoverageJson(
@@ -292,7 +292,7 @@ class GenerateZeroCoverageLlvmTest(cros_test_lib.TempDirTestCase):
         self.assertEqual(2, len(filenames))
         self.assertEqual({"abc1", "abc2"}, set(filenames))
 
-    def testGetLLVMCoverageWithFilesExcluded(self):
+    def testGetLLVMCoverageWithFilesExcluded(self) -> None:
         """Verify GetLLVMCoverageWithFilesExcluded is removing expected files"""
 
         coverage_json = code_coverage_util.CreateLlvmCoverageJson(
@@ -314,7 +314,7 @@ class GenerateZeroCoverageLlvmTest(cros_test_lib.TempDirTestCase):
         self.assertEqual(1, len(filenames))
         self.assertEqual("src_code.cpp", filenames[0])
 
-    def testHeaderFilesExcluded(self):
+    def testHeaderFilesExcluded(self) -> None:
         """Verify that header files are properly excluded"""
 
         path_to_src_directory = os.path.join(self.tempdir, "src")
@@ -384,7 +384,7 @@ class GenerateZeroCoverageLlvmTest(cros_test_lib.TempDirTestCase):
 class CleanLlvmFileNamesTest(cros_test_lib.TempDirTestCase):
     """Unit tests for  CleanLlvmFileNames"""
 
-    def testGatherPathMappingInvalidPathMappingEntry(self):
+    def testGatherPathMappingInvalidPathMappingEntry(self) -> None:
         """Verify thrown exception on invalid path mapping entry"""
 
         with self.assertRaises(Exception) as context:
@@ -398,7 +398,7 @@ class CleanLlvmFileNamesTest(cros_test_lib.TempDirTestCase):
 
         self.assertTrue("Missing required keys" in str(context.exception))
 
-    def testGatherPathMapping(self):
+    def testGatherPathMapping(self) -> None:
         """Verify path mapping is properly read"""
 
         path_mapping_json = {
@@ -431,7 +431,7 @@ class CleanLlvmFileNamesTest(cros_test_lib.TempDirTestCase):
         )
         self.assertEqual("/mnt/host/source/", result2["build_dest_path"])
 
-    def testCleanLlvmFileNamesSuccess(self):
+    def testCleanLlvmFileNamesSuccess(self) -> None:
         """Verify cleaned file paths are correct"""
 
         coverage_json = code_coverage_util.CreateLlvmCoverageJson(

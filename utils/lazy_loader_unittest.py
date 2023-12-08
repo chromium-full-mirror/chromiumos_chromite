@@ -13,7 +13,7 @@ from chromite.utils import lazy_loader
 # pylint: disable=protected-access
 
 
-def test_lazy_load_call():
+def test_lazy_load_call() -> None:
     """Verify we can call functions."""
     mod = lazy_loader.ForFunctions("chromite.lib.osutils")
     # Read this unittest file and make sure the content is correct.
@@ -25,7 +25,7 @@ def test_lazy_load_call():
     assert "\t" not in data
 
 
-def test_pickle():
+def test_pickle() -> None:
     """Test picklability needed for multiprocessing."""
     data = osutils.ReadFile(__file__)
     mod = lazy_loader.ForFunctions("chromite.lib.osutils")

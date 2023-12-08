@@ -16,7 +16,7 @@ from chromite.utils import key_value_store
 class TestKeyValueFiles(cros_test_lib.TempDirTestCase):
     """Tests handling of key/value files."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.contents = """# A comment !@
 A = 1
 AA= 2
@@ -78,29 +78,29 @@ ttt"
         self.conf_path = Path(self.conf_file)
         osutils.WriteFile(self.conf_file, self.contents)
 
-    def _RunAndCompare(self, test_input, multiline):
+    def _RunAndCompare(self, test_input, multiline) -> None:
         result = key_value_store.LoadFile(test_input, multiline=multiline)
         self.assertEqual(self.expected, result)
 
-    def testLoadFilePath(self):
+    def testLoadFilePath(self) -> None:
         """Verify reading a simple file works."""
         self._RunAndCompare(self.conf_file, True)
 
-    def testLoadPath(self):
+    def testLoadPath(self) -> None:
         """Verify reading a simple file Path works."""
         self._RunAndCompare(self.conf_path, True)
 
-    def testLoadData(self):
+    def testLoadData(self) -> None:
         """Verify passing in a string works."""
         result = key_value_store.LoadData(self.contents, multiline=True)
         self.assertEqual(self.expected, result)
 
-    def testLoadFileObject(self):
+    def testLoadFileObject(self) -> None:
         """Verify passing in open file object works."""
         with open(self.conf_file, encoding="utf-8") as f:
             self._RunAndCompare(f, True)
 
-    def testNoMultlineValues(self):
+    def testNoMultlineValues(self) -> None:
         """Verify exception is thrown when multiline is disabled."""
         self.assertRaises(
             ValueError, self._RunAndCompare, self.conf_file, False
@@ -170,7 +170,7 @@ class TestUpdateFile(cros_test_lib.TempDirTestCase):
                 f"File contents:\n{file_contents}"
             )
 
-    def testAddVariableThatDoesNotExist(self):
+    def testAddVariableThatDoesNotExist(self) -> None:
         """Add in a new variable that was no present in the file."""
         self._initialize_file()
         key = "NEW_KEY"
@@ -180,7 +180,7 @@ class TestUpdateFile(cros_test_lib.TempDirTestCase):
         self._check_key_value(key, value)
         print(self.version_file)
 
-    def testUpdateExistingVariable(self):
+    def testUpdateExistingVariable(self) -> None:
         """Test updating a variable that already exists."""
         self._initialize_file()
         binhost_key = "PORTAGE_BINHOST"
@@ -206,7 +206,7 @@ class TestUpdateFile(cros_test_lib.TempDirTestCase):
         # Confirm that unrelated variable does not change.
         self._check_key_value(pkgdir_key, pkgdir_value)
 
-    def testUpdateNonExistentFile(self):
+    def testUpdateNonExistentFile(self) -> None:
         """Test that we can write key/values in files that don't exist yet."""
         self._initialize_file()
         key = "PORTAGE_BINHOST"
@@ -220,7 +220,7 @@ class TestUpdateFile(cros_test_lib.TempDirTestCase):
             if os.path.exists(non_existent_file):
                 os.remove(non_existent_file)
 
-    def testExistingKeyValWithWhitespace(self):
+    def testExistingKeyValWithWhitespace(self) -> None:
         """Test that we can identify a keyval wrapped in whitespace."""
         self._initialize_file()
         key = "KEY_WITH_WHITESPACE"
@@ -228,13 +228,13 @@ class TestUpdateFile(cros_test_lib.TempDirTestCase):
         key_value_store.UpdateKeyInLocalFile(self.version_file, key, new_value)
         self._check_key_value(key, new_value)
 
-    def testUpdateKeysEmptyDict(self):
+    def testUpdateKeysEmptyDict(self) -> None:
         """Test UpdateKeys with an empty input dict."""
         self._initialize_file()
         result = key_value_store.UpdateKeysInLocalFile(self.version_file, {})
         self.assertFalse(result)
 
-    def testUpdateTwoKeysButOnlyOneChange(self):
+    def testUpdateTwoKeysButOnlyOneChange(self) -> None:
         """Test UpdateKeys with multiple key-value pairs but only one change."""
         self._initialize_file()
         d = {
@@ -244,7 +244,7 @@ class TestUpdateFile(cros_test_lib.TempDirTestCase):
         result = key_value_store.UpdateKeysInLocalFile(self.version_file, d)
         self.assertTrue(result)
 
-    def testUpdateTwoKeysButNoChange(self):
+    def testUpdateTwoKeysButNoChange(self) -> None:
         """Test UpdateKeys with multiple key-value pairs but no change."""
         self._initialize_file()
         d = {

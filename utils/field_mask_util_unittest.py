@@ -13,7 +13,7 @@ from chromite.utils import field_mask_util
 class CreateFilteredDictTest(cros_test_lib.TestCase):
     """Unit tests for CreateFilteredDict"""
 
-    def testCreateFilteredDictWithFieldAndSubField(self):
+    def testCreateFilteredDictWithFieldAndSubField(self) -> None:
         """Tests selecting top-level fields and sub-fields."""
         original_dict = {
             "a": {
@@ -54,7 +54,7 @@ class CreateFilteredDictTest(cros_test_lib.TestCase):
         )
         self.assertDictEqual(expected_dict, merged_dict)
 
-    def testCreateFilteredDictWithOverlappingSubFields(self):
+    def testCreateFilteredDictWithOverlappingSubFields(self) -> None:
         """Tests selecting overlapping sub-fields."""
         original_dict = {
             "a": {
@@ -82,7 +82,7 @@ class CreateFilteredDictTest(cros_test_lib.TestCase):
         )
         self.assertDictEqual(expected_dict, merged_dict)
 
-    def testCreateFilteredDictWithEmptyPath(self):
+    def testCreateFilteredDictWithEmptyPath(self) -> None:
         """Tests a FieldMask with the empty string as a path."""
         original_dict = {"a": 1}
 
@@ -91,7 +91,7 @@ class CreateFilteredDictTest(cros_test_lib.TestCase):
         with self.assertRaisesRegex(ValueError, "Field cannot be empty string"):
             field_mask_util.CreateFilteredDict(field_mask, original_dict)
 
-    def testCreateFilteredDictWithInvalidPath(self):
+    def testCreateFilteredDictWithInvalidPath(self) -> None:
         """Tests a FieldMask with an invalid path."""
         original_dict = {"a": 1, "c": 2}
 
@@ -110,7 +110,7 @@ class CreateFilteredDictTest(cros_test_lib.TestCase):
         self.assertTrue(logging_capturer.LogsContain("Field b not found."))
         self.assertDictEqual(expected_dict, merged_dict)
 
-    def testCreateFilteredDictWithLists(self):
+    def testCreateFilteredDictWithLists(self) -> None:
         """Tests selecting fields that are lists."""
         original_dict = {
             "a": [1, 2],
@@ -155,7 +155,7 @@ class CreateFilteredDictTest(cros_test_lib.TestCase):
         )
         self.assertDictEqual(expected_dict, merged_dict)
 
-    def testCreateFilteredDictWithListSubFields(self):
+    def testCreateFilteredDictWithListSubFields(self) -> None:
         """Tests selecting a list that is not the last position in a path."""
         original_dict = {
             "a": [1, 2],
@@ -183,7 +183,7 @@ class CreateFilteredDictTest(cros_test_lib.TestCase):
         ):
             field_mask_util.CreateFilteredDict(field_mask, original_dict)
 
-    def testCreateFilteredDictWithEmptyFieldMask(self):
+    def testCreateFilteredDictWithEmptyFieldMask(self) -> None:
         """Tests a FieldMask with no paths."""
         original_dict = {"a": 1}
 

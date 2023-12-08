@@ -13,13 +13,13 @@ from chromite.utils import memoize
 class SafeRunTest(cros_test_lib.TestCase):
     """Tests SafeRun functionality."""
 
-    def _raise_exception(self, e):
+    def _raise_exception(self, e) -> None:
         raise e
 
-    def testRunsSafely(self):
+    def testRunsSafely(self) -> None:
         """Verify that we are robust to exceptions."""
 
-        def append_val(value):
+        def append_val(value) -> None:
             call_list.append(value)
 
         call_list = []
@@ -33,7 +33,7 @@ class SafeRunTest(cros_test_lib.TestCase):
         self.assertRaises(Exception, memoize.SafeRun, f_list)
         self.assertEqual(call_list, [1, 2])
 
-    def testRaisesFirstException(self):
+    def testRaisesFirstException(self) -> None:
         """Verify we raise the first exception when multiple are encountered."""
 
         class E1(Exception):
@@ -45,7 +45,7 @@ class SafeRunTest(cros_test_lib.TestCase):
         f_list = [functools.partial(self._raise_exception, e) for e in [E1, E2]]
         self.assertRaises(E1, memoize.SafeRun, f_list)
 
-    def testCombinedRaise(self):
+    def testCombinedRaise(self) -> None:
         """Raises a RuntimeError with exceptions combined."""
         f_list = [functools.partial(self._raise_exception, Exception())] * 3
         self.assertRaises(
