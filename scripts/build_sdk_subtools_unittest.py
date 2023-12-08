@@ -52,7 +52,7 @@ def mock_exporter_fixture():
 
 
 @pytest.fixture(autouse=True)
-def build_sdk_subtools_consistency_check():
+def build_sdk_subtools_consistency_check() -> None:
     """Die quickly if the version file is left over in the test SDK.
 
     This can happen if the build API entrypoint was tested on the local machine.

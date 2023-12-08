@@ -103,7 +103,7 @@ def DownloadCrx(ext: str, extension: Dict[str, Any], crxdir: str) -> bool:
     return True
 
 
-def CreateValidationFiles(validationdir, crxdir, identifier):
+def CreateValidationFiles(validationdir, crxdir, identifier) -> None:
     """Create validation files for all extensions in |crxdir|."""
 
     verified_files = []
@@ -128,7 +128,7 @@ def CreateValidationFiles(validationdir, crxdir, identifier):
     logging.info("Hashes created.")
 
 
-def CreateCacheTarball(extensions, outputdir, identifier, tarball):
+def CreateCacheTarball(extensions, outputdir, identifier, tarball) -> None:
     """Cache |extensions| in |outputdir| and pack them in |tarball|."""
 
     crxdir = os.path.join(outputdir, "crx")
@@ -207,7 +207,7 @@ def CreateCacheTarball(extensions, outputdir, identifier, tarball):
     logging.info("Tarball created %s", tarball)
 
 
-def main(argv):
+def main(argv) -> None:
     parser = commandline.ArgumentParser(
         "%%(prog)s [options] <version>\n\n%s" % __doc__, caching=True
     )

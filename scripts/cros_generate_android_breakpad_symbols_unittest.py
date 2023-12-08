@@ -20,7 +20,7 @@ from chromite.scripts import cros_generate_breakpad_symbols
 class AdjustOffsetsTest(cros_test_lib.TestCase):
     """Test breakpad symbol file offset adjustments."""
 
-    def testFinaExpansionOffset(self):
+    def testFinaExpansionOffset(self) -> None:
         """Make sure we get the correct offset."""
         output = """
 INFO: Relocations   : RELA
@@ -38,7 +38,7 @@ INFO: Expansion     : 57344 bytes
         )
         self.assertEqual(result, -57344)
 
-    def testFinaExpansionOffsetNoUnpack(self):
+    def testFinaExpansionOffsetNoUnpack(self) -> None:
         """Make sure we get an offset of zero, if the file wasn't unpacked."""
 
         cmd_result = cros_build_lib.CompletedProcess(
@@ -50,7 +50,7 @@ INFO: Expansion     : 57344 bytes
         )
         self.assertEqual(result, 0)
 
-    def testFinaExpansionOffsetBadOutput(self):
+    def testFinaExpansionOffsetBadOutput(self) -> None:
         """Make sure we get an error without expected output."""
 
         cmd_result = cros_build_lib.CompletedProcess(
@@ -64,7 +64,7 @@ INFO: Expansion     : 57344 bytes
                 cmd_result
             )
 
-    def testAdjustLineSymbolOffset(self):
+    def testAdjustLineSymbolOffset(self) -> None:
         """Test _AdjustLineSymbolOffset."""
 
         offset = 42
@@ -110,7 +110,7 @@ INFO: Expansion     : 57344 bytes
             )
             self.assertEqual(result, expected)
 
-    def testAdjustSymbolOffsetEmpty(self):
+    def testAdjustSymbolOffsetEmpty(self) -> None:
         """Test ability to adjust an empty file."""
         with tempfile.NamedTemporaryFile() as sym_file:
             osutils.WriteFile(sym_file.name, "")
@@ -119,7 +119,7 @@ INFO: Expansion     : 57344 bytes
             )
             self.assertEqual(osutils.ReadFile(sym_file.name), "")
 
-    def testAdjustSymbolOffset(self):
+    def testAdjustSymbolOffset(self) -> None:
         """Test ability to adjust an empty file."""
         unadjusted = """
 MODULE Linux arm64 E3D562057466309CED960047D474EBF00 libssl.so
@@ -171,7 +171,7 @@ STACK CFI dd32 x23: .cfa -288 + ^ x24: .cfa -280 + ^
 class MockTests(cros_test_lib.RunCommandTestCase):
     """Tests that need mocks & RunCommand mocks."""
 
-    def testUnpackGenerateBreakpad(self):
+    def testUnpackGenerateBreakpad(self) -> None:
         """Test UnpackGenerateBreakpad call."""
         output = """
 INFO: Relocations   : RELA

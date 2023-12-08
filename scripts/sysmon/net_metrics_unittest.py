@@ -29,7 +29,7 @@ pytestmark = cros_test_lib.pytestmark_skipif(
 class TestNetMetrics(cros_test_lib.TestCase):
     """Tests for net_metrics."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         patcher = mock.patch(
             "chromite.third_party.infra_libs.ts_mon.common.interface.state."
             "store",
@@ -38,7 +38,7 @@ class TestNetMetrics(cros_test_lib.TestCase):
         self.store = patcher.start()
         self.addCleanup(patcher.stop)
 
-    def test_collect(self):
+    def test_collect(self) -> None:
         with mock.patch(
             "psutil.net_io_counters", autospec=True
         ) as net_io_counters, mock.patch(

@@ -190,7 +190,7 @@ def _SudoCommand():
     return cmd
 
 
-def _ReportMissing(missing):
+def _ReportMissing(missing) -> None:
     """Report missing utilities, then exit.
 
     Args:
@@ -207,7 +207,7 @@ def _ReportMissing(missing):
         )
 
 
-def _ProxySimSetup(options):
+def _ProxySimSetup(options) -> None:
     """Set up proxy simulator, and return only in the child environment.
 
     TODO: Ideally, this should support multiple concurrent invocations of
@@ -411,7 +411,7 @@ def _BuildReExecCommand(argv, opts) -> List[str]:
     return cmd + [sys.executable] + argv
 
 
-def _ReExecuteIfNeeded(argv, opts):
+def _ReExecuteIfNeeded(argv, opts) -> None:
     """Re-execute cros_sdk as root.
 
     Also unshare the mount namespace so as to ensure that processes outside
@@ -779,7 +779,7 @@ def _FinalizeOptions(
                 ro_cfg.unlink()
 
 
-def main(argv):
+def main(argv) -> None:
     # Turn on strict sudo checks.
     cros_build_lib.STRICT_SUDO = True
     conf = key_value_store.LoadFile(

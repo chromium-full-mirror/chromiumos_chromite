@@ -41,7 +41,7 @@ _PROJECTS = ["alchemy", "metallurgy", "fwsdk"]
 _WORKSPACES_DIR = constants.BAZEL_WORKSPACE_ROOT / "bazel" / "workspace_root"
 
 
-def _setup_workspace(project: str):
+def _setup_workspace(project: str) -> None:
     """Setup the Bazel workspace root.
 
     Args:

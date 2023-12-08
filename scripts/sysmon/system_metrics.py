@@ -106,11 +106,11 @@ _python_arch_metric = metrics.StringMetric(
 )
 
 
-def collect_uptime():
+def collect_uptime() -> None:
     _uptime_metric.set(int(time.time() - _BOOT_TIME))
 
 
-def collect_cpu_info():
+def collect_cpu_info() -> None:
     _cpu_count_metric.set(psutil.cpu_count())
 
     times = psutil.cpu_times_percent()
@@ -118,7 +118,7 @@ def collect_cpu_info():
         _cpu_time_metric.set(getattr(times, mode), {"mode": mode})
 
 
-def collect_disk_info(mountpoints=None):
+def collect_disk_info(mountpoints=None) -> None:
     if mountpoints is None:
         mountpoints = [disk.mountpoint for disk in psutil.disk_partitions()]
     for mountpoint in mountpoints:
@@ -127,7 +127,7 @@ def collect_disk_info(mountpoints=None):
     _collect_disk_io_info()
 
 
-def _collect_disk_info_single(mountpoint):
+def _collect_disk_info_single(mountpoint) -> None:
     fields = {"path": mountpoint}
 
     try:
@@ -148,14 +148,14 @@ def _collect_disk_info_single(mountpoint):
         _collect_fs_inode_info(mountpoint)
 
 
-def _collect_fs_inode_info(mountpoint):
+def _collect_fs_inode_info(mountpoint) -> None:
     fields = {"path": mountpoint}
     stats = os.statvfs(mountpoint)
     _inodes_free_metric.set(stats.f_favail, fields=fields)
     _inodes_total_metric.set(stats.f_files, fields=fields)
 
 
-def _collect_disk_io_info():
+def _collect_disk_io_info() -> None:
     try:
         disk_counters = psutil.disk_io_counters(perdisk=True).items()
     except RuntimeError as ex:
@@ -171,7 +171,7 @@ def _collect_disk_io_info():
             _disk_write_metric.set(counters.write_bytes, fields=fields)
 
 
-def collect_mem_info():
+def collect_mem_info() -> None:
     # We don't report mem.used because (due to virtual memory) it is not
     # useful.
     mem = psutil.virtual_memory()
@@ -179,7 +179,7 @@ def collect_mem_info():
     _mem_total_metric.set(mem.total)
 
 
-def collect_load_avg():
+def collect_load_avg() -> None:
     try:
         avg1, avg5, avg15 = os.getloadavg()
     except OSError:
@@ -190,5 +190,5 @@ def collect_load_avg():
         _load_average_metric.set(avg15, fields={"minutes": 15})
 
 
-def collect_unix_time():
+def collect_unix_time() -> None:
     _unix_time_metric.set(int(time.time() * 1000))

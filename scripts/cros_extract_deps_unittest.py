@@ -14,7 +14,7 @@ pytestmark = cros_test_lib.pytestmark_inside_only
 class FlattenDepTreeTest(cros_test_lib.TestCase):
     """Tests for cros_extract_deps.FlattenDepTree."""
 
-    def testFlattenDepTreeSimple(self):
+    def testFlattenDepTreeSimple(self) -> None:
         dep_tree = {
             "deathstar/darthvader-2.3": {
                 "action": "merge",

@@ -32,7 +32,7 @@ from chromite.utils import file_util
 PLATFORM2_PATH = constants.CHROOT_SOURCE_ROOT / "src/platform2"
 
 
-def create_fixes_cl(formatted_fixes: Text, bug: Optional[Text]):
+def create_fixes_cl(formatted_fixes: Text, bug: Optional[Text]) -> None:
     """Make a commit in src/platform2 with all changes."""
     message = (
         "Apply generated linter fixes\n\n"

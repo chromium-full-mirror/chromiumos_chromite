@@ -19,7 +19,7 @@ class VirtualEnvTest(cros_test_lib.TestCase):
 
     # pylint: disable=protected-access
 
-    def testModuleIsFromVenv(self):
+    def testModuleIsFromVenv(self) -> None:
         """Test that we import |six| from the virtualenv."""
         # Note: The |six| module is chosen somewhat arbitrarily, but it happens
         # to be provided inside the chromite virtualenv.
@@ -27,7 +27,7 @@ class VirtualEnvTest(cros_test_lib.TestCase):
         req_path = os.path.dirname(os.path.realpath(six.__file__))
         self.assertIn("/.cache/cros_venv/", req_path)
 
-    def testInsideVenv(self):
+    def testInsideVenv(self) -> None:
         """Test that we are inside a virtualenv."""
         # pylint: disable=protected-access
         self.assertTrue(
@@ -40,7 +40,7 @@ class VirtualEnvTest(cros_test_lib.TestCase):
             )
         )
 
-    def testVenvMarkers(self):
+    def testVenvMarkers(self) -> None:
         """Test that the virtualenv marker functions work."""
         # pylint: disable=protected-access
         test_env = {"PATH": "/bin:/usr/bin"}
@@ -48,7 +48,7 @@ class VirtualEnvTest(cros_test_lib.TestCase):
         new_test_env = virtualenv_wrapper._CreateVenvEnvironment(test_env)
         self.assertTrue(virtualenv_wrapper._IsInsideVenv(new_test_env))
 
-    def testCreateVenvEnvironmentNoSideEffect(self):
+    def testCreateVenvEnvironmentNoSideEffect(self) -> None:
         """Test that _CreateVenvEnvironment doesn't modify input dict."""
         # pylint: disable=protected-access
         test_env = {"PATH": "/bin:/usr/bin"}

@@ -57,7 +57,9 @@ def GetParser():
     class Dev01Action(argparse.Action):
         """Convert --dev01 MMM NNN into an %08x-%08x device_id."""
 
-        def __call__(self, parser, namespace, values, option_string=None):
+        def __call__(
+            self, parser, namespace, values, option_string=None
+        ) -> None:
             if not namespace.dev_ids:
                 namespace.dev_ids = []
             namespace.dev_ids.append("%08x-%08x" % (values[0], values[1]))
@@ -131,7 +133,7 @@ def GetParser():
     return parser
 
 
-def LaunchOne(dryrun, builder, properties):
+def LaunchOne(dryrun, builder, properties) -> None:
     """Launch one build.
 
     Args:

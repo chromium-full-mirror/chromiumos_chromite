@@ -322,7 +322,7 @@ test_package_path = "/path/to/repo/pkg"
 class TriciumCargoClippyTests(cros_test_lib.LoggingTestCase):
     """Tests for Cargo Clippy."""
 
-    def test_parse_locations(self):
+    def test_parse_locations(self) -> None:
         """Tests that parse_locations is as expected."""
         for test_case, exp_results in valid_test_cases.items():
             if "locations" not in exp_results:
@@ -335,7 +335,7 @@ class TriciumCargoClippyTests(cros_test_lib.LoggingTestCase):
             )
             self.assertEqual(locations, exp_results["locations"])
 
-    def test_parse_locations_ebuild_directories(self):
+    def test_parse_locations_ebuild_directories(self) -> None:
         """Tests that parse_locations strips ebuild work directories."""
         expected_location = "src/foo"
         example_finding = json.dumps(
@@ -368,7 +368,7 @@ class TriciumCargoClippyTests(cros_test_lib.LoggingTestCase):
                 next(diagnostic.locations).file_path, expected_location
             )
 
-    def test_parse_level(self):
+    def test_parse_level(self) -> None:
         """Tests that parse_level is as expected."""
         for i, (test_case, exp_results) in enumerate(valid_test_cases.items()):
             if "level" not in exp_results:
@@ -377,7 +377,7 @@ class TriciumCargoClippyTests(cros_test_lib.LoggingTestCase):
             level = tricium_cargo_clippy.parse_level("valid", i, test_json)
             self.assertEqual(level, exp_results["level"])
 
-    def test_parse_message(self):
+    def test_parse_message(self) -> None:
         """Tests that parse_message is as expected."""
         for i, (test_case, exp_results) in enumerate(valid_test_cases.items()):
             if "message" not in exp_results:
@@ -386,7 +386,7 @@ class TriciumCargoClippyTests(cros_test_lib.LoggingTestCase):
             message = tricium_cargo_clippy.parse_message("valid", i, test_json)
             self.assertEqual(message, exp_results["message"])
 
-    def test_parse_diagnostics(self):
+    def test_parse_diagnostics(self) -> None:
         """Tests that parse_diagnostics yields correct diagnostics."""
         package_path_json = json.dumps({"package_path": test_package_path})
         orig_jsons = [package_path_json] + list(valid_test_cases.keys())
@@ -414,7 +414,7 @@ class TriciumCargoClippyTests(cros_test_lib.LoggingTestCase):
             )
             self.assertEqual(locations, expected_locations)
 
-    def test_logs_invalid_parse_diagnostic_cases(self):
+    def test_logs_invalid_parse_diagnostic_cases(self) -> None:
         """Tests that parse_diagnostics logs proper exceptions."""
         package_path_json = json.dumps({"package_path": test_package_path})
         for invalid_case, exp_errors in invalid_test_cases.items():
@@ -447,7 +447,7 @@ class TriciumCargoClippyTests(cros_test_lib.LoggingTestCase):
             self.assertIs(type(ctx.exception), type(exp_error))
             self.assertEqual(ctx.exception.args, exp_error.args)
 
-    def test_filter_diagnostics(self):
+    def test_filter_diagnostics(self) -> None:
         file_path = "some_filepath.json"
         example_code_location = tricium_cargo_clippy.CodeLocation(
             file_path=file_path,

@@ -179,7 +179,7 @@ def mocked_readonly_open(contents=None, default=None):
 class TriciumClangTidyTests(cros_test_lib.MockTestCase):
     """Various tests for tricium support."""
 
-    def test_tidy_diagnostic_path_normalization(self):
+    def test_tidy_diagnostic_path_normalization(self) -> None:
         expanded_from = tricium_clang_tidy.TidyExpandedFrom(
             file_path=Path("/old2/foo"),
             line_number=2,
@@ -200,7 +200,7 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
             ),
         )
 
-    def test_line_offest_map_works(self):
+    def test_line_offest_map_works(self) -> None:
         # (input_char, line_number_of_char, line_offset_of_char)
         line_offset_pairs = [
             ("a", 1, 0),
@@ -222,7 +222,7 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
             self.assertEqual(text.get_line_number(offset), line_number)
             self.assertEqual(text.get_line_offset(offset), line_offset)
 
-    def test_package_ebuild_resolution(self):
+    def test_package_ebuild_resolution(self) -> None:
         run_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
         run_mock.SetDefaultCmdResult(stdout="${package1_ebuild}\n")
         ebuilds = tricium_clang_tidy.resolve_package_ebuilds(
@@ -244,7 +244,7 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
     @mocked_readonly_open(default="")
     def test_parse_tidy_invocation_returns_exception_on_error(
         self, read_file_mock
-    ):
+    ) -> None:
         oh_no = ValueError("${oh_no}!")
         read_file_mock.side_effect = oh_no
         result = tricium_clang_tidy.parse_tidy_invocation(
@@ -278,7 +278,7 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
             ),
         }
     )
-    def test_parse_tidy_invocation_functions_on_success(self):
+    def test_parse_tidy_invocation_functions_on_success(self) -> None:
         result = tricium_clang_tidy.parse_tidy_invocation("/file/path.json")
         # If we got an |Exception|, print it out.
         self.assertNotIsInstance(result, tricium_clang_tidy.Error)
@@ -307,7 +307,7 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
 
     @mocked_nop_realpath
     @mocked_readonly_open(default="")
-    def test_parse_fixes_file_absolutizes_paths(self):
+    def test_parse_fixes_file_absolutizes_paths(self) -> None:
         results = tricium_clang_tidy.parse_tidy_fixes_file(
             "/tidy",
             {
@@ -328,7 +328,7 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
             "/tidy/foo.h": "a\n\n",
         }
     )
-    def test_parse_fixes_file_interprets_offsets_correctly(self):
+    def test_parse_fixes_file_interprets_offsets_correctly(self) -> None:
         results = tricium_clang_tidy.parse_tidy_fixes_file(
             "/tidy",
             {
@@ -355,7 +355,7 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
 
     @mocked_nop_realpath
     @mocked_readonly_open({"/tidy/foo.c": "a \n\n"})
-    def test_parse_fixes_file_handles_replacements(self):
+    def test_parse_fixes_file_handles_replacements(self) -> None:
         results = list(
             tricium_clang_tidy.parse_tidy_fixes_file(
                 "/tidy",
@@ -393,7 +393,7 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
 
     @mocked_nop_realpath
     @mocked_readonly_open({"/whee.c": "", "/whee.h": "\n\n"})
-    def test_parse_fixes_file_handles_macro_expansions(self):
+    def test_parse_fixes_file_handles_macro_expansions(self) -> None:
         results = list(
             tricium_clang_tidy.parse_tidy_fixes_file(
                 "/tidy",
@@ -432,7 +432,9 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
 
     @mock.patch.object(Path, "glob")
     @mock.patch.object(tricium_clang_tidy, "parse_tidy_invocation")
-    def test_collect_lints_functions(self, parse_invocation_mock, glob_mock):
+    def test_collect_lints_functions(
+        self, parse_invocation_mock, glob_mock
+    ) -> None:
         glob_mock.return_value = ("/lint/foo.json", "/lint/bar.json")
 
         diag_1 = default_tidy_diagnostic()
@@ -461,7 +463,7 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
 
         self.assertEqual(set(all_diags), lints)
 
-    def test_filter_tidy_lints_filters_nothing_by_default(self):
+    def test_filter_tidy_lints_filters_nothing_by_default(self) -> None:
         basis = default_tidy_diagnostic()
         diag2 = default_tidy_diagnostic(line_number=basis.line_number + 1)
         diags = [basis, diag2]
@@ -476,7 +478,9 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
             ),
         )
 
-    def test_filter_tidy_lints_filters_paths_outside_of_only_files(self):
+    def test_filter_tidy_lints_filters_paths_outside_of_only_files(
+        self,
+    ) -> None:
         in_only_files = default_tidy_diagnostic(file_path="foo.c")
         out_of_only_files = default_tidy_diagnostic(file_path="bar.c")
         self.assertEqual(
@@ -488,7 +492,7 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
             ),
         )
 
-    def test_filter_tidy_lints_normalizes_to_git_repo_baes(self):
+    def test_filter_tidy_lints_normalizes_to_git_repo_baes(self) -> None:
         git = default_tidy_diagnostic(file_path="/git/foo.c")
         nogit = default_tidy_diagnostic(file_path="/nogit/bar.c")
         self.assertEqual(
@@ -500,7 +504,7 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
             ),
         )
 
-    def test_filter_tidy_lints_normalizes_and_restricts_properly(self):
+    def test_filter_tidy_lints_normalizes_and_restricts_properly(self) -> None:
         git_and_only = default_tidy_diagnostic(file_path="/git/foo.c")
         git_and_noonly = default_tidy_diagnostic(file_path="/git/bar.c")
         self.assertEqual(
@@ -516,7 +520,7 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
     @mock.patch.object(osutils, "SafeMakedirs")
     def test_lint_generation_functions(
         self, safe_makedirs_mock, copy_dir_contents_mock
-    ):
+    ) -> None:
         run_mock = self.StartPatcher(cros_test_lib.PopenMock())
         run_mock.SetDefaultCmdResult()
 

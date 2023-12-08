@@ -200,7 +200,7 @@ def GetLastBuildState(root):
     return state
 
 
-def SetLastBuildState(root, new_state):
+def SetLastBuildState(root, new_state) -> None:
     """Save the state of the last build under |root|.
 
     Args:
@@ -249,7 +249,7 @@ def _MaybeCleanDistfiles(cache_dir, distfiles_ts):
     return time.time()
 
 
-def SanitizeCacheDir(cache_dir):
+def SanitizeCacheDir(cache_dir) -> None:
     """Make certain the .cache directory is valid.
 
     Args:
@@ -275,7 +275,9 @@ def SanitizeCacheDir(cache_dir):
 
 
 @StageDecorator
-def CleanBuildRoot(root, repo, cache_dir, build_state, source_cache=False):
+def CleanBuildRoot(
+    root, repo, cache_dir, build_state, source_cache=False
+) -> None:
     """Some kinds of branch transitions break builds.
 
     This method ensures that cbuildbot's buildroot is a clean checkout on the
@@ -376,7 +378,7 @@ def CleanBuildRoot(root, repo, cache_dir, build_state, source_cache=False):
 
 
 @StageDecorator
-def InitialCheckout(repo, options):
+def InitialCheckout(repo, options) -> None:
     """Preliminary ChromeOS checkout.
 
     Perform a complete checkout of ChromeOS on the specified branch. This does
@@ -506,7 +508,7 @@ def Cbuildbot(buildroot, depot_tools_path, argv):
 
 
 @StageDecorator
-def CleanupChroot(buildroot):
+def CleanupChroot(buildroot) -> None:
     """Unmount/cleanup an image-based chroot without deleting the backing image.
 
     Args:
@@ -541,7 +543,7 @@ def CleanupChroot(buildroot):
     # TODO(crbug.com/1000034): This should be fatal all the time.
 
 
-def ConfigureGlobalEnvironment():
+def ConfigureGlobalEnvironment() -> None:
     """Setup process wide environmental changes."""
     # Set umask to 022 so files created by buildbot are readable.
     os.umask(0o22)

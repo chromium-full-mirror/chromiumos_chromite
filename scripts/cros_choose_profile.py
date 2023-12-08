@@ -81,7 +81,7 @@ class ProfileDirectoryNotFoundError(Error):
     """Unable to find the profile directory."""
 
 
-def ChooseProfile(board, profile):
+def ChooseProfile(board, profile) -> None:
     """Make the link to choose the profile, print relevant warnings.
 
     Args:
@@ -261,7 +261,7 @@ class Board:
         return self._sysroot_config.GetCachedField("PROFILE_OVERRIDE")
 
     @profile_override.setter
-    def profile_override(self, value):
+    def profile_override(self, value) -> None:
         self._sysroot_config.SetCachedField("PROFILE_OVERRIDE", value)
 
 
@@ -320,7 +320,7 @@ def ParseArgs(argv):
     return opts
 
 
-def main(argv):
+def main(argv) -> None:
     # Parse arguments.
     opts = ParseArgs(argv)
 

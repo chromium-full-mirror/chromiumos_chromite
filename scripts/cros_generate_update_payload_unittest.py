@@ -17,7 +17,7 @@ pytestmark = cros_test_lib.pytestmark_inside_only
 class CrOSGenerateUpdatePayloadTest(cros_test_lib.MockTestCase):
     """Test correct arguments passed to delta_generator."""
 
-    def testGenerateUpdatePayload(self):
+    def testGenerateUpdatePayload(self) -> None:
         """Test correct arguments propagated to delta_generator call."""
 
         paygen_mock = self.PatchObject(

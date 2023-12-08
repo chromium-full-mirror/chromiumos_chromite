@@ -16,7 +16,7 @@ class IsDistributedBuilderTest(cros_test_lib.TestCase):
     """Test for cbuildbot._IsDistributedBuilder."""
 
     # pylint: disable=protected-access
-    def testIsDistributedBuilder(self):
+    def testIsDistributedBuilder(self) -> None:
         """Tests for _IsDistributedBuilder() under various configurations."""
         parser = cbuildbot._CreateParser()
         argv = ["--buildroot", "/foo", "amd64-generic-paladin"]
@@ -26,7 +26,7 @@ class IsDistributedBuilderTest(cros_test_lib.TestCase):
         build_config = dict(manifest_version=False)
         chrome_rev = None
 
-        def _TestConfig(expected):
+        def _TestConfig(expected) -> None:
             self.assertEqual(
                 expected,
                 cbuildbot._IsDistributedBuilder(
@@ -56,7 +56,7 @@ class IsDistributedBuilderTest(cros_test_lib.TestCase):
 class PostsubmitBuilderTest(cros_test_lib.TestCase):
     """Test for special parameters for ChromeOS Findit Integration."""
 
-    def testBuildPackages(self):
+    def testBuildPackages(self) -> None:
         parser = cbuildbot.CreateParser()
         argv = [
             "--buildroot",

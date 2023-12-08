@@ -31,7 +31,7 @@ def ParseArguments(argv):
     return opts
 
 
-def main(argv):
+def main(argv) -> None:
     opts = ParseArguments(argv)
 
     paygen_stateful_payload_lib.GenerateStatefulPayload(

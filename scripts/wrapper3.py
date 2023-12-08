@@ -74,7 +74,7 @@ class ChromiteLoader(importlib.abc.Loader):
             self.loading = False
 
     # pylint: disable=unused-argument
-    def exec_module(self, module):
+    def exec_module(self, module) -> None:
         """Required stub as a loader."""
 
 
@@ -205,7 +205,7 @@ def FindTarget(target):
             )
 
 
-def DoMain():
+def DoMain() -> None:
     commandline.ScriptWrapperMain(FindTarget)
 
 

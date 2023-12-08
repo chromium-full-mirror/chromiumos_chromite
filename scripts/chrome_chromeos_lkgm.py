@@ -56,7 +56,7 @@ class ChromeLKGMCleaner:
         # Strip any chrome branch from the lkgm version.
         self._current_lkgm = current_lkgm
 
-    def ProcessObsoleteLKGMRolls(self):
+    def ProcessObsoleteLKGMRolls(self) -> None:
         """Clean up all obsolete LKGM roll CLs by abandoning or rebasing.
 
         This method finds the LKGM roll CLs that were trying changing to an
@@ -173,7 +173,7 @@ class ChromeLKGMCleaner:
 
             logging.info("=> This CL is not in the merge-conflict state.")
 
-    def Run(self):
+    def Run(self) -> None:
         self.ProcessObsoleteLKGMRolls()
 
 
@@ -230,14 +230,14 @@ class ChromeLKGMCommitter:
             raise LKGMNotValid("LKGM not provided.")
         logging.info("lkgm=%s", lkgm)
 
-    def Run(self):
+    def Run(self) -> None:
         self.UpdateLKGM()
 
     @property
     def lkgm_file(self):
         return self._committer.FullPath(constants.PATH_TO_CHROME_LKGM)
 
-    def UpdateLKGM(self):
+    def UpdateLKGM(self) -> None:
         """Updates the LKGM file with the new version."""
         if chromeos_version.VersionInfo(self._lkgm) <= self._current_lkgm:
             raise LKGMNotValid(

@@ -46,7 +46,7 @@ def GenerateBreakpadSymbols(breakpad_dir, symbols_dir):
         breakpad_dir=breakpad_dir,
         num_errors=num_errors,
         # Mesa driver libraries fail with "-d".
-        dump_syms_args=["-v", "-m"]
+        dump_syms_args=["-v", "-m"],
     ) as queue:
         for root, _, files in os.walk(symbols_dir):
             for f in files:
@@ -55,7 +55,7 @@ def GenerateBreakpadSymbols(breakpad_dir, symbols_dir):
     return num_errors.value
 
 
-def ProcessSymbolsTarball(archive, breakpad_dir, symbols_path):
+def ProcessSymbolsTarball(archive, breakpad_dir, symbols_path) -> None:
     """Extract, process, and upload all symbols in a symbols file.
 
     Take the symbols file build artifact from an Borealis build, process it
@@ -79,8 +79,9 @@ def ProcessSymbolsTarball(archive, breakpad_dir, symbols_path):
             extract_dir,
             breakpad_dir,
         )
-        GenerateBreakpadSymbols(breakpad_dir,
-                                os.path.join(extract_dir, symbols_path))
+        GenerateBreakpadSymbols(
+            breakpad_dir, os.path.join(extract_dir, symbols_path)
+        )
 
 
 def get_parser():
@@ -91,12 +92,12 @@ def get_parser():
         "--symbols-file",
         type="path",
         required=True,
-        help="Tarball containing debug binaries"
+        help="Tarball containing debug binaries",
     )
     parser.add_argument(
         "--symbols-path",
         default="usr/lib/debug",
-        help="Path to search for debug binaries"
+        help="Path to search for debug binaries",
     )
     parser.add_argument(
         "--breakpad-dir",
@@ -107,11 +108,12 @@ def get_parser():
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     """Helper method mostly used for manual testing."""
     parser = get_parser()
     opts = parser.parse_args(argv)
     opts.Freeze()
 
-    ProcessSymbolsTarball(opts.symbols_file, opts.breakpad_dir,
-                          opts.symbols_path)
+    ProcessSymbolsTarball(
+        opts.symbols_file, opts.breakpad_dir, opts.symbols_path
+    )

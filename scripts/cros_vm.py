@@ -9,7 +9,7 @@ import logging
 from chromite.scripts import cros
 
 
-def main(argv):
+def main(argv) -> None:
     # TODO(2024-07-01): Delete this script.
     logging.notice(
         "`cros_vm` is deprecated in favor of `cros vm`, and will be removed on "

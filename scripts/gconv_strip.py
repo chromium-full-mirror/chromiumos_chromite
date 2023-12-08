@@ -132,7 +132,7 @@ class GconvModules:
             charsets.remove("INTERNAL")
         return charsets
 
-    def Rewrite(self, used_charsets, dryrun=False):
+    def Rewrite(self, used_charsets, dryrun=False) -> None:
         """Rewrite gconv-modules file with only the used charsets.
 
         Args:

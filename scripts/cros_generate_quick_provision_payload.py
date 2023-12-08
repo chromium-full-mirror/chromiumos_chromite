@@ -43,7 +43,7 @@ def ParseArguments(argv):
     return opts
 
 
-def CreateKernelQuickProvisionPayload(image, output):
+def CreateKernelQuickProvisionPayload(image, output) -> None:
     with osutils.TempDir() as temp_dir:
         # Extract kernel.
         kern = os.path.join(temp_dir, "kern")
@@ -54,7 +54,7 @@ def CreateKernelQuickProvisionPayload(image, output):
         )
 
 
-def CreateRootQuickProvisionPayload(image, output):
+def CreateRootQuickProvisionPayload(image, output) -> None:
     with osutils.TempDir() as temp_dir:
         # Extract root.
         root = os.path.join(temp_dir, "root")
@@ -65,13 +65,13 @@ def CreateRootQuickProvisionPayload(image, output):
         )
 
 
-def CreateStatefulQuickProvisionPayload(image, output):
+def CreateStatefulQuickProvisionPayload(image, output) -> None:
     # Create stateful quick provision payload.
     paygen_stateful_payload_lib.GenerateStatefulPayload(image, output)
     # Change output ownership of file.
 
 
-def main(argv):
+def main(argv) -> None:
     opts = ParseArguments(argv)
 
     parallel.RunParallelSteps(

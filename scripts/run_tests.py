@@ -37,7 +37,7 @@ from chromite.lint import linters
 from chromite.scripts import clang_format
 
 
-def main(argv):
+def main(argv) -> None:
     parser = get_parser()
     opts = parser.parse_args()
     opts.Freeze()
@@ -91,7 +91,7 @@ def main(argv):
     sys.exit(pytest.main(pytest_args))
 
 
-def precache():
+def precache() -> None:
     """Do some network-dependent stuff before we disallow network access."""
     # pylint: disable=protected-access
     logging.notice("Caching tools from network (cipd/vpython/etc...)")
@@ -120,7 +120,7 @@ def precache():
         pass
 
 
-def re_execute_inside_chroot(argv):
+def re_execute_inside_chroot(argv) -> None:
     """Re-execute the test wrapper inside the chroot."""
     if cros_build_lib.IsInsideChroot():
         return
@@ -141,7 +141,7 @@ def re_execute_inside_chroot(argv):
     os.execvp(cmd[0], cmd + argv)
 
 
-def ensure_chroot_exists():
+def ensure_chroot_exists() -> None:
     """Ensure that a chroot exists for us to run tests in."""
     chroot = os.path.join(constants.SOURCE_ROOT, constants.DEFAULT_CHROOT_DIR)
     if not os.path.exists(chroot) and not cros_build_lib.IsInsideChroot():

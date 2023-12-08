@@ -174,7 +174,7 @@ def run(cmd: List[str], **kwargs: Dict[Any, Any]):
     return cros_build_lib.run(cmd, **kwargs)
 
 
-def Dumper(flag, infile, outfile):
+def Dumper(flag, infile, outfile) -> None:
     """Run objdump on an input file.
 
     Args:
@@ -476,7 +476,7 @@ def CheckConfigChange() -> bool:
     return False
 
 
-def RunBuild(options, base, target, queue):
+def RunBuild(options, base, target, queue) -> None:
     """Run the U-Boot build.
 
     Args:
@@ -555,7 +555,7 @@ def RunBuild(options, base, target, queue):
     logging.info("Output directory %s", outdir)
 
 
-def main(argv):
+def main(argv) -> None:
     """Main function for script to build firmware.
 
     Args:

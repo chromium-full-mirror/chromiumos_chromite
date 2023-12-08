@@ -69,7 +69,7 @@ def GetPackagesLicensesFromHtml(html_file):
     return (packages, licenses)
 
 
-def ComparePkgLists(pkg_list1, pkg_list2):
+def ComparePkgLists(pkg_list1, pkg_list2) -> None:
     """Compare the package list in 2 dictionaries and output the differences.
 
     Args:
@@ -103,7 +103,7 @@ def ComparePkgLists(pkg_list1, pkg_list2):
             )
 
 
-def CompareLicenseSets(set1, set2):
+def CompareLicenseSets(set1, set2) -> None:
     """Compare the license list in 2 sets and output the differences.
 
     Args:
@@ -122,7 +122,7 @@ def CompareLicenseSets(set1, set2):
         print("License added: %s" % (added_license))
 
 
-def main(args):
+def main(args) -> None:
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
         "html1", metavar="license1.html", type="path", help="old html file"

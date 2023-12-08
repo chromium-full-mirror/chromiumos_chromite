@@ -17,7 +17,7 @@ from chromite.scripts.sysmon import osinfo_metrics
 class TestOSInfoMetrics(cros_test_lib.TestCase):
     """Tests for osinfo_metrics."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         patcher = mock.patch(
             "chromite.third_party.infra_libs.ts_mon.common.interface.state."
             "store",
@@ -26,7 +26,7 @@ class TestOSInfoMetrics(cros_test_lib.TestCase):
         self.store = patcher.start()
         self.addCleanup(patcher.stop)
 
-    def test_collect(self):
+    def test_collect(self) -> None:
         distro = ("Ubuntu", "14.04", "trusty")
         # This is removed in Python 3.8+.
         try:

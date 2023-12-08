@@ -118,7 +118,7 @@ def _MakeUniqueRef(project, base_ref, used_refs):
     return ref
 
 
-def _GitPushProjectUpstream(repo_root, project, dryrun):
+def _GitPushProjectUpstream(repo_root, project, dryrun) -> None:
     """Push the project revision to its remote upstream."""
     git.GitPush(
         os.path.join(repo_root, project.Path()),
@@ -128,7 +128,7 @@ def _GitPushProjectUpstream(repo_root, project, dryrun):
     )
 
 
-def main(argv):
+def main(argv) -> None:
     parser = GetParser()
     options = parser.parse_args(argv)
     options.Freeze()

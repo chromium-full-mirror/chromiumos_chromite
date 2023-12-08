@@ -42,7 +42,7 @@ def ParseCipdUri(uri):
     return (o.netloc + pkgpath, version)
 
 
-def main(argv):
+def main(argv) -> None:
     parser = GetParser()
     options = parser.parse_args(argv)
     options.Freeze()

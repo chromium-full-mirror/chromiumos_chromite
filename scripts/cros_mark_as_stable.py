@@ -35,7 +35,7 @@ COMMAND_DICTIONARY = {
 # ======================= Global Helper Functions ========================
 
 
-def CleanStalePackages(srcroot, boards, package_atoms):
+def CleanStalePackages(srcroot, boards, package_atoms) -> None:
     """Cleans up stale package info from a previous build.
 
     Args:
@@ -49,7 +49,7 @@ def CleanStalePackages(srcroot, boards, package_atoms):
     # First unmerge all the packages for a board, then eclean it.
     # We need these two steps to run in order (unmerge/eclean),
     # but we can let all the boards run in parallel.
-    def _CleanStalePackages(board):
+    def _CleanStalePackages(board) -> None:
         if board:
             suffix = "-" + board
             runcmd = cros_build_lib.run
@@ -102,7 +102,7 @@ def _DoWeHaveLocalCommits(stable_branch, tracking_branch, cwd):
 
 def PushChange(
     stable_branch, tracking_branch, dryrun, cwd, staging_branch=None
-):
+) -> None:
     """Pushes commits in the stable_branch to the remote git repository.
 
     Pushes local commits from calls to CommitChange to the remote git
@@ -224,10 +224,10 @@ class GitBranch:
         self.tracking_branch = tracking_branch
         self.cwd = cwd
 
-    def CreateBranch(self):
+    def CreateBranch(self) -> None:
         self.Checkout()
 
-    def Checkout(self, branch=None):
+    def Checkout(self, branch=None) -> None:
         """Function used to check out to another GitBranch."""
         if not branch:
             branch = self.branch_name
@@ -304,7 +304,7 @@ def GetParser():
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     parser = GetParser()
     options = parser.parse_args(argv)
 
@@ -388,7 +388,7 @@ def main(argv):
         )
 
 
-def _WorkOnPush(options, overlay_tracking_branch, git_project_overlays):
+def _WorkOnPush(options, overlay_tracking_branch, git_project_overlays) -> None:
     """Push uprevs of overlays belonging to different git projects in parallel.
 
     Args:
@@ -405,7 +405,7 @@ def _WorkOnPush(options, overlay_tracking_branch, git_project_overlays):
     parallel.RunTasksInProcessPool(_PushOverlays, inputs)
 
 
-def _PushOverlays(options, overlays, overlay_tracking_branch):
+def _PushOverlays(options, overlays, overlay_tracking_branch) -> None:
     """Push uprevs for overlays in sequence.
 
     Args:
@@ -436,7 +436,7 @@ def _WorkOnCommit(
     git_project_overlays,
     manifest,
     package_list,
-):
+) -> None:
     """Commit uprevs of overlays in different git projects in parallel.
 
     Args:
@@ -532,7 +532,7 @@ def _CommitOverlays(
     revved_packages,
     new_package_atoms,
     reject_self_repo=True,
-):
+) -> None:
     """Commit uprevs for overlays in sequence.
 
     Args:
@@ -639,7 +639,7 @@ def _WorkOnEbuild(
     revved_packages,
     new_package_atoms,
     reject_self_repo=True,
-):
+) -> None:
     """Work on a single ebuild.
 
     Args:

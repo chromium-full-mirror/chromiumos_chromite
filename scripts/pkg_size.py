@@ -81,7 +81,7 @@ def generate_package_size_report(
     }
 
 
-def main(argv):
+def main(argv) -> None:
     """Find and report approximate size info for a particular built package."""
     commandline.RunInsideChroot()
 

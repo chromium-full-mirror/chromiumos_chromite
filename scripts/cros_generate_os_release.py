@@ -11,7 +11,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 
 
-def GenerateOsRelease(root, default_params=None):
+def GenerateOsRelease(root, default_params=None) -> None:
     """Adds contents of /etc/os-release.d into /etc/os-release
 
     Args:
@@ -59,7 +59,7 @@ def GenerateOsRelease(root, default_params=None):
     osutils.WriteFile(os_release_path, osrelease_content)
 
 
-def main(argv):
+def main(argv) -> None:
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--root", type="path", required=True, help="sysroot of the board"

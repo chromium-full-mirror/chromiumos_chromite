@@ -82,7 +82,7 @@ class GenerateSysroot:
             "USE": os.environ.get("USE", ""),
         }
 
-    def _Emerge(self, *args, **kwargs):
+    def _Emerge(self, *args, **kwargs) -> None:
         """Emerge the given packages using parallel_emerge."""
         cmd = [
             self.PARALLEL_EMERGE,
@@ -93,7 +93,7 @@ class GenerateSysroot:
         kwargs.setdefault("extra_env", self.extra_env)
         cros_build_lib.sudo_run(cmd, **kwargs)
 
-    def _WriteConfig(self, sysroot):
+    def _WriteConfig(self, sysroot) -> None:
         sysroot.WriteConfig(
             sysroot.GenerateBoardSetupConfig(self.options.build_target)
         )
@@ -108,16 +108,16 @@ class GenerateSysroot:
             sudo=True,
         )
 
-    def _InstallToolchain(self):
+    def _InstallToolchain(self) -> None:
         # Create the sysroot's config.
         sysroot = sysroot_lib.Sysroot(self.sysroot)
         self._WriteConfig(sysroot)
         toolchain.InstallToolchain(sysroot, configure=False)
 
-    def _InstallKernelHeaders(self):
+    def _InstallKernelHeaders(self) -> None:
         self._Emerge("sys-kernel/linux-headers")
 
-    def _InstallBuildDependencies(self):
+    def _InstallBuildDependencies(self) -> None:
         # Calculate buildtime deps that are not runtime deps.
         raw_sysroot = build_target_lib.get_default_sysroot_path(
             self.options.board
@@ -154,11 +154,11 @@ class GenerateSysroot:
         if packages:
             self._Emerge(*packages)
 
-    def _CreateTarball(self):
+    def _CreateTarball(self) -> None:
         tarball_path = os.path.join(self.options.out_dir, self.options.out_file)
         cros_build_lib.CreateTarball(tarball_path, self.sysroot, sudo=True)
 
-    def Perform(self):
+    def Perform(self) -> None:
         """Generate the sysroot."""
         self._InstallToolchain()
         self._InstallKernelHeaders()
@@ -166,7 +166,7 @@ class GenerateSysroot:
         self._CreateTarball()
 
 
-def FinishParsing(options):
+def FinishParsing(options) -> None:
     """Run environment dependent checks on parsed args."""
     target = os.path.join(options.out_dir, options.out_file)
     if os.path.exists(target):
@@ -179,7 +179,7 @@ def FinishParsing(options):
         )
 
 
-def main(argv):
+def main(argv) -> None:
     options = ParseCommandLine(argv)
     FinishParsing(options)
 

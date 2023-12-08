@@ -11,7 +11,7 @@ from chromite.lib import osutils
 from chromite.scripts import build_api
 
 
-def testSmoke(tmp_path, monkeypatch):
+def testSmoke(tmp_path, monkeypatch) -> None:
     """Basic confidence check"""
 
     def stub(*_args, **_kwargs):

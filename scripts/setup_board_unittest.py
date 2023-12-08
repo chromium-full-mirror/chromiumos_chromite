@@ -12,7 +12,7 @@ from chromite.scripts import setup_board
 
 
 @mock.patch("chromite.service.sysroot.SetupBoard", return_value=None)
-def test_main(_, tmp_path):
+def test_main(_, tmp_path) -> None:
     """Smoke test."""
     # Missing --board fails.
     with pytest.raises(SystemExit):

@@ -70,7 +70,7 @@ def locate_all_hot_env_packages(overlays: Iterable[Path]) -> Iterable[str]:
                 yield f"{f.parent.name}/{f.name}"
 
 
-def main(argv: List[str]):
+def main(argv: List[str]) -> None:
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True, type=Path)
     opts = parser.parse_args(argv)

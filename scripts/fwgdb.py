@@ -189,7 +189,7 @@ def TestConnection(fd):
     return False
 
 
-def main(argv):
+def main(argv) -> None:
     opts = ParseArgs(argv)
     servo = client.ServoClient(host=opts.host, port=opts.port)
 

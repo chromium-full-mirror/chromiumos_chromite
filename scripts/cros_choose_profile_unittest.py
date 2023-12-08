@@ -16,7 +16,7 @@ from chromite.scripts import cros_choose_profile
 class ParseArgsTest(cros_test_lib.TestCase):
     """Tests for argument parsing and validation rules."""
 
-    def testInvalidArgs(self):
+    def testInvalidArgs(self) -> None:
         """Test invalid argument parsing."""
         with self.assertRaises(SystemExit):
             cros_choose_profile.ParseArgs([])
@@ -30,7 +30,7 @@ class ParseArgsTest(cros_test_lib.TestCase):
 class BoardTest(cros_test_lib.TestCase):
     """Tests for the Board class logic."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up the boards with the different construction variations."""
         # For readability's sake.
         Board = cros_choose_profile.Board
@@ -41,7 +41,7 @@ class BoardTest(cros_test_lib.TestCase):
             board="board_variant", board_root="/build/ignored_value"
         )
 
-    def testBoardVariant(self):
+    def testBoardVariant(self) -> None:
         """Board.{board, variant, board_variant} building tests."""
         self.assertEqual("board", self.board_variant1.board)
         self.assertEqual("variant", self.board_variant1.variant)
@@ -59,7 +59,7 @@ class BoardTest(cros_test_lib.TestCase):
         self.assertEqual("variant", self.board_variant4.variant)
         self.assertEqual("board_variant", self.board_variant4.board_variant)
 
-    def testRoot(self):
+    def testRoot(self) -> None:
         """Board.root tests."""
         self.assertEqual(self.board_variant1.root, self.board_variant2.root)
         self.assertEqual(self.board_variant1.root, self.board_variant3.root)
@@ -69,7 +69,7 @@ class BoardTest(cros_test_lib.TestCase):
 class ProfileTest(cros_test_lib.TempDirTestCase):
     """Tests for the Profile class and functions, and ChooseProfile."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup filesystem for the profile tests."""
         # Make sure everything will use the filesystem we're setting up.
         cros_choose_profile.PathPrefixDecorator.prefix = self.tempdir
@@ -172,7 +172,7 @@ class ProfileTest(cros_test_lib.TempDirTestCase):
             self._TempdirPath(self.board1_make_profile),
         )
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # Reset the prefix.
         cros_choose_profile.PathPrefixDecorator.prefix = None
 
@@ -181,7 +181,7 @@ class ProfileTest(cros_test_lib.TempDirTestCase):
         # lstrip leading / to prevent it returning the path without the tempdir.
         return os.path.join(self.tempdir, path.lstrip(os.sep))
 
-    def testChooseProfile(self):
+    def testChooseProfile(self) -> None:
         """ChooseProfile tests: verify profiles are properly chosen."""
         b1_parent_path = self._TempdirPath(
             os.path.join(self.board1_make_profile, "parent")
@@ -209,7 +209,7 @@ class ProfileTest(cros_test_lib.TempDirTestCase):
             cros_choose_profile.ChooseProfile(self.board1, profile)
             self.assertEqual(parent, osutils.ReadFile(b1_parent_path))
 
-    def testGetProfile(self):
+    def testGetProfile(self) -> None:
         """Test each profile parameter type behaves as expected when fetched."""
         # pylint: disable=protected-access
         # Test an invalid profile name.

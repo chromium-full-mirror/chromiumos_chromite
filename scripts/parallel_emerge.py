@@ -25,7 +25,7 @@ from chromite.lib import cros_build_lib
 class LookupBoardSysroot(argparse.Action):
     """Translates board argument to sysroot location."""
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser, namespace, values, option_string=None) -> None:
         sysroot = build_target_lib.get_default_sysroot_path(values)
         setattr(namespace, "sysroot", sysroot)
 
@@ -112,7 +112,7 @@ def ParallelEmergeArgParser():
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     parser = ParallelEmergeArgParser()
     parsed_args, emerge_args = parser.parse_known_args(argv)
     parsed_args = vars(parsed_args)

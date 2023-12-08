@@ -257,7 +257,7 @@ def MarkAndroidEBuildAsStable(
     )
 
 
-def _PrepareGitBranch(overlay_dir):
+def _PrepareGitBranch(overlay_dir) -> None:
     """Prepares a git branch for the uprev commit.
 
     If the overlay project is currently on a branch (e.g. patches are being
@@ -274,7 +274,9 @@ def _PrepareGitBranch(overlay_dir):
         git.RunGit(overlay_dir, ["rebase", existing_branch])
 
 
-def _CommitChange(message, android_package_dir, files_to_add, files_to_remove):
+def _CommitChange(
+    message, android_package_dir, files_to_add, files_to_remove
+) -> None:
     """Commit changes to git with list of files to add/remove."""
     git.RunGit(android_package_dir, ["add", "--"] + files_to_add)
     if files_to_remove:
@@ -330,7 +332,7 @@ def GetParser():
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     parser = GetParser()
     options = parser.parse_args(argv)
     options.Freeze()

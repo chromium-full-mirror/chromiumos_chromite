@@ -22,7 +22,7 @@ pytestmark = cros_test_lib.pytestmark_inside_only
 class MainTest(cros_test_lib.OutputTestCase):
     """Tests for the main() function."""
 
-    def testHelp(self):
+    def testHelp(self) -> None:
         """Test that --help is functioning."""
         argv = ["--help"]
 
@@ -38,7 +38,7 @@ class MainTest(cros_test_lib.OutputTestCase):
 class DepTrackerTest(cros_test_lib.TempDirTestCase):
     """Tests for the DepTracker() class."""
 
-    def testSimpleDep(self):
+    def testSimpleDep(self) -> None:
         unittest_lib.BuildELF(
             os.path.join(self.tempdir, "libabc.so"),
             ["func_a", "func_b", "func_c"],
@@ -55,7 +55,7 @@ class DepTrackerTest(cros_test_lib.TempDirTestCase):
 
         self.assertEqual(sorted(dt._files.keys()), ["abc_main", "libabc.so"])
 
-    def testFiletypeSet(self):
+    def testFiletypeSet(self) -> None:
         """Tests that the 'ftype' member is set for ELF files first."""
         unittest_lib.BuildELF(
             os.path.join(self.tempdir, "libabc.so"),

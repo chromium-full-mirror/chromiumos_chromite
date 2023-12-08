@@ -53,7 +53,7 @@ _write_chars_metric = metrics.CounterMetric(
 )
 
 
-def collect_proc_info():
+def collect_proc_info() -> None:
     collector = _ProcessMetricsCollector()
     collector.collect()
 
@@ -169,7 +169,7 @@ class _ProcessMetricsCollector:
         ]
         self._other_metric = _ProcessMetric("other")
 
-    def collect(self):
+    def collect(self) -> None:
         new_cpu_times = {}
         new_io_counters = {}
         for proc in psutil.process_iter():
@@ -180,14 +180,14 @@ class _ProcessMetricsCollector:
         _ProcessMetricsCollector.old_cpu_times = new_cpu_times
         _ProcessMetricsCollector.old_io_counters = new_io_counters
 
-    def _collect_proc(self, proc):
+    def _collect_proc(self, proc) -> None:
         for metric in self._metrics:
             if metric.add(proc):
                 break
         else:
             self._other_metric.add(proc)
 
-    def _flush(self):
+    def _flush(self) -> None:
         for metric in self._metrics:
             metric.flush()
         self._other_metric.flush()
@@ -236,7 +236,7 @@ class _ProcessMetric:
 
         return True
 
-    def flush(self):
+    def flush(self) -> None:
         """Finish collection and send metrics."""
         _count_metric.set(self._count, fields=self._fields)
         self._count = 0

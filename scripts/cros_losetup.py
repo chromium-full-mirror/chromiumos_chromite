@@ -42,7 +42,7 @@ LABEL="block_udev_end"
 _UDEV_RULE_FILE = Path("/etc/udev/rules.d/99-chromite-loop-dev.rules")
 
 
-def _create_udev_loopdev_ignore_rule():
+def _create_udev_loopdev_ignore_rule() -> None:
     """Create udev rules to ignore processing cros image loop device events."""
     if cros_build_lib.IsInsideChroot():
         return

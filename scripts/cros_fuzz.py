@@ -365,7 +365,7 @@ def IsOptionLimit(option):
     return False
 
 
-def LimitFuzzing(fuzz_command, corpus):
+def LimitFuzzing(fuzz_command, corpus) -> None:
     """Limits how long fuzzing will go if unspecified.
 
     Adds a reasonable limit on how much fuzzing will be done unless there
@@ -437,7 +437,7 @@ def RunFuzzer(
     fuzz_args="",
     testcase_path=None,
     crash_expected=False,
-):
+) -> None:
     """Runs the fuzzer while chrooted into the sysroot.
 
     Args:
@@ -662,7 +662,7 @@ def GetBuildExtraEnv(build_type):
     }
 
 
-def BuildPackage(package, board, build_type):
+def BuildPackage(package, board, build_type) -> None:
     """Builds a package on a specified board.
 
     Args:
@@ -761,7 +761,7 @@ def DownloadFuzzerCorpus(fuzzer, dest_directory=None):
     return dest_path
 
 
-def Reproduce(fuzzer, testcase_path):
+def Reproduce(fuzzer, testcase_path) -> None:
     """Runs a fuzzer in the sysroot on a testcase.
 
     Args:
@@ -773,7 +773,7 @@ def Reproduce(fuzzer, testcase_path):
     RunFuzzer(fuzzer, testcase_path=testcase_sysroot_path, crash_expected=True)
 
 
-def SetUpSysrootForFuzzing():
+def SetUpSysrootForFuzzing() -> None:
     """Sets up the sysroot for fuzzing
 
     Prepares the sysroot for fuzzing. Idempotent.
@@ -799,7 +799,7 @@ def SetUpSysrootForFuzzing():
     osutils.SafeMakedirsNonRoot(GetSysrootPath(SCRIPT_STORAGE_PATH))
 
 
-def CleanUpSysroot():
+def CleanUpSysroot() -> None:
     """Cleans up the the sysroot from SetUpSysrootForFuzzing.
 
     Undoes SetUpSysrootForFuzzing. Idempotent.
@@ -834,7 +834,7 @@ class ToolManager:
             self.ASAN_SYMBOLIZE_PATH
         )
 
-    def Install(self):
+    def Install(self) -> None:
         """Installs tools to the sysroot."""
         # Install asan_symbolize.py.
         sudo_run(
@@ -846,7 +846,7 @@ class ToolManager:
         for llvm_binary in self._GetLLVMBinaries():
             llvm_binary.Install()
 
-    def Uninstall(self):
+    def Uninstall(self) -> None:
         """Uninstalls tools from the sysroot. Undoes Install."""
         # Uninstall asan_symbolize.py.
         osutils.SafeUnlink(self.asan_symbolize_sysroot_path, sudo=True)
@@ -879,12 +879,12 @@ class LlvmBinary:
             self.binary_dir_path, binary
         )
 
-    def Uninstall(self):
+    def Uninstall(self) -> None:
         """Removes an LLVM binary from sysroot. Undoes Install."""
         osutils.RmDir(self.install_dir, ignore_missing=True, sudo=True)
         osutils.SafeUnlink(self.binary_chroot_dest_path, sudo=True)
 
-    def Install(self):
+    def Install(self) -> None:
         """Installs (sets up) an LLVM binary in the sysroot.
 
         Sets up an llvm binary in the sysroot so that it can be run there.
@@ -949,7 +949,7 @@ class DeviceManager:
         """Returns the path of |device_name| in sysroot's /dev."""
         return os.path.join(self.dev_path_chroot, device_name)
 
-    def SetUp(self):
+    def SetUp(self) -> None:
         """Sets up devices in the sysroot's /dev.
 
         Creates /dev/null, /dev/random, and /dev/urandom. If they already exist
@@ -961,7 +961,7 @@ class DeviceManager:
             device_path = self._GetDevicePath(device)
             self._MakeCharDevice(device_path, *mknod_params)
 
-    def CleanUp(self):
+    def CleanUp(self) -> None:
         """Cleans up devices in the sysroot's /dev. Undoes SetUp.
 
         Removes /dev/null, /dev/random, and /dev/urandom if they exist.
@@ -972,7 +972,7 @@ class DeviceManager:
                 # Use -r since dev/null is sometimes a directory.
                 sudo_run(["rm", "-r", device_path])
 
-    def _MakeCharDevice(self, path, mode, minor):
+    def _MakeCharDevice(self, path, mode, minor) -> None:
         """Make a character device."""
         mode = str(mode)
         minor = str(minor)
@@ -992,13 +992,13 @@ class ProcManager:
         self.proc_path_chroot = GetSysrootPath(self.PROC_PATH)
         self.is_mounted = osutils.IsMounted(self.proc_path_chroot)
 
-    def Unmount(self):
+    def Unmount(self) -> None:
         """Unmounts /proc in chroot. Undoes Mount."""
         if not self.is_mounted:
             return
         osutils.UmountDir(self.proc_path_chroot, cleanup=False)
 
-    def Mount(self):
+    def Mount(self) -> None:
         """Mounts /proc in chroot. Remounts it if already mounted."""
         self.Unmount()
         osutils.MountDir(
@@ -1069,7 +1069,7 @@ def ExecuteShellCommand():
     return EnterSysrootShell()
 
 
-def ExecuteSetupCommand():
+def ExecuteSetupCommand() -> None:
     """Executes the "setup" command. Wrapper for SetUpSysrootForFuzzing.
 
     Sets up the sysroot for fuzzing.
@@ -1077,7 +1077,7 @@ def ExecuteSetupCommand():
     SetUpSysrootForFuzzing()
 
 
-def ExecuteCleanupCommand():
+def ExecuteCleanupCommand() -> None:
     """Executes the "cleanup" command. Wrapper for CleanUpSysroot.
 
     Undoes pre-fuzzing setup.
@@ -1085,7 +1085,7 @@ def ExecuteCleanupCommand():
     CleanUpSysroot()
 
 
-def ExecuteCoverageCommand(options):
+def ExecuteCoverageCommand(options) -> None:
     """Executes the "coverage" command.
 
     Executes the "coverage" command by optionally doing a coverage build of a
@@ -1134,12 +1134,12 @@ def ExecuteCoverageCommand(options):
     )
 
 
-def ExecuteDownloadCommand(options):
+def ExecuteDownloadCommand(options) -> None:
     """Executes the "download" command. Wrapper around DownloadFuzzerCorpus."""
     DownloadFuzzerCorpus(StripFuzzerPrefixes(options.fuzzer), options.directory)
 
 
-def ExecuteReproduceCommand(options):
+def ExecuteReproduceCommand(options) -> None:
     """Executes the "reproduce" command.
 
     Executes the "reproduce" command by Running a fuzzer on a testcase.
@@ -1174,7 +1174,7 @@ def ExecuteReproduceCommand(options):
     Reproduce(StripFuzzerPrefixes(options.fuzzer), options.testcase)
 
 
-def InstallBaseDependencies(options):
+def InstallBaseDependencies(options) -> None:
     """Installs the base packages needed to chroot in board sysroot.
 
     Args:

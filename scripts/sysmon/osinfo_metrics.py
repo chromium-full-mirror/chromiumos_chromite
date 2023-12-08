@@ -31,7 +31,7 @@ _python_arch_metric = metrics.StringMetric(
 )
 
 
-def collect_os_info():
+def collect_os_info() -> None:
     os_info = _get_osinfo()
     _os_name_metric.set(os_info.name)
     _os_version_metric.set(os_info.version)

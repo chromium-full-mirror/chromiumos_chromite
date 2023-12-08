@@ -61,12 +61,12 @@ def ParsePixzArgs(argv):
     return raw_flag_list, file_to_compress, target
 
 
-def Execvp(argv):
+def Execvp(argv) -> None:
     """Execs the given argv."""
     os.execvp(argv[0], argv)
 
 
-def ExecCompressCommand(stdout, argv):
+def ExecCompressCommand(stdout, argv) -> None:
     """Execs compression command."""
     # It appears that in order for pixz to do parallel decompression,
     # compression needs to be done with pixz. xz itself is only capable of
@@ -121,7 +121,7 @@ def ExecCompressCommand(stdout, argv):
     sys.exit(return_code)
 
 
-def ExecXzDecompressCommand(stdout, argv):
+def ExecXzDecompressCommand(stdout, argv) -> None:
     """Executes `xz` with the given params."""
     cmd = ["xz"]
     if stdout:
@@ -132,7 +132,7 @@ def ExecXzDecompressCommand(stdout, argv):
     Execvp(cmd)
 
 
-def ExecDecompressCommand(stdout, argv):
+def ExecDecompressCommand(stdout, argv) -> None:
     """Execs decompression command."""
     if not HasPixz():
         ExecXzDecompressCommand(stdout, argv)
@@ -196,7 +196,7 @@ def GetParser():
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     parser = GetParser()
     known_args, argv = parser.parse_known_args()
     if "-i" in argv or "-o" in argv:

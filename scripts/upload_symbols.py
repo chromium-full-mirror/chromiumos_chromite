@@ -408,7 +408,7 @@ def FindDuplicates(symbols, status_url, api_key, timeout=DEDUPE_TIMEOUT):
             yield b
 
 
-def UploadSymbolFile(upload_url, symbol, api_key):
+def UploadSymbolFile(upload_url, symbol, api_key) -> None:
     """Upload a symbol file to the crash server, returning the status result.
 
     Args:

@@ -37,7 +37,7 @@ def _ParseCommandLine(argv):
 class InterfaceTest(cros_test_lib.OutputTestCase):
     """Tests the commandline interface of the script."""
 
-    def testGsLocalPathUnSpecified(self):
+    def testGsLocalPathUnSpecified(self) -> None:
         """Test no chrome path specified."""
         with self.OutputCapturer():
             self.assertRaises2(
@@ -47,7 +47,7 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
                 check_attrs={"code": 2},
             )
 
-    def testBuildDirSpecified(self):
+    def testBuildDirSpecified(self) -> None:
         """Test case of build dir specified."""
         argv = list(_REGULAR_TO) + [
             "--board",
@@ -57,7 +57,7 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         ]
         _ParseCommandLine(argv)
 
-    def testBuildDirSpecifiedWithoutBoard(self):
+    def testBuildDirSpecifiedWithoutBoard(self) -> None:
         """Test case of build dir specified without --board."""
         argv = list(_REGULAR_TO) + [
             "--build-dir",
@@ -66,12 +66,12 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         options = _ParseCommandLine(argv)
         self.assertEqual(options.board, _TARGET_BOARD)
 
-    def testBuildDirSpecifiedWithoutBoardError(self):
+    def testBuildDirSpecifiedWithoutBoardError(self) -> None:
         """Test case of irregular build dir specified without --board."""
         argv = list(_REGULAR_TO) + ["--build-dir", "/path/to/chrome/foo/bar"]
         self.assertParseError(argv)
 
-    def testGsPathSpecified(self):
+    def testGsPathSpecified(self) -> None:
         """Test case of GS path specified."""
         argv = list(_REGULAR_TO) + [
             "--board",
@@ -81,7 +81,7 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         ]
         _ParseCommandLine(argv)
 
-    def testLocalPathSpecified(self):
+    def testLocalPathSpecified(self) -> None:
         """Test case of local path specified."""
         argv = list(_REGULAR_TO) + [
             "--board",
@@ -91,17 +91,17 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         ]
         _ParseCommandLine(argv)
 
-    def testNoBoard(self):
+    def testNoBoard(self) -> None:
         """Test no board specified."""
         argv = list(_REGULAR_TO) + ["--gs-path", _GS_PATH]
         self.assertParseError(argv)
 
-    def testNoTarget(self):
+    def testNoTarget(self) -> None:
         """Test no target specified."""
         argv = ["--board", _TARGET_BOARD, "--gs-path", _GS_PATH]
         self.assertParseError(argv)
 
-    def testLacros(self):
+    def testLacros(self) -> None:
         """Test basic lacros invocation."""
         argv = [
             "--lacros",
@@ -116,7 +116,7 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         self.assertTrue(options.lacros)
         self.assertEqual(options.target_dir, deploy_chrome.LACROS_DIR)
 
-    def testLacrosNoStrip(self):
+    def testLacrosNoStrip(self) -> None:
         """Test lacros invocation with nostrip."""
         argv = [
             "--lacros",
@@ -131,7 +131,7 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         self.assertFalse(options.dostrip)
         self.assertEqual(options.target_dir, deploy_chrome.LACROS_DIR)
 
-    def testLacrosWithLacrosOnly(self):
+    def testLacrosWithLacrosOnly(self) -> None:
         """Test lacros invocation with skip restarting ui."""
         argv = [
             "--lacros",
@@ -148,13 +148,13 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         self.assertEqual(options.target_dir, deploy_chrome.LACROS_DIR)
         self.assertTrue(options.skip_restart_ui)
 
-    def assertParseError(self, argv):
+    def assertParseError(self, argv) -> None:
         with self.OutputCapturer():
             self.assertRaises2(
                 SystemExit, _ParseCommandLine, argv, check_attrs={"code": 2}
             )
 
-    def testMountOptionSetsTargetDir(self):
+    def testMountOptionSetsTargetDir(self) -> None:
         argv = list(_REGULAR_TO) + [
             "--board",
             _TARGET_BOARD,
@@ -165,7 +165,7 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         options = _ParseCommandLine(argv)
         self.assertIsNot(options.target_dir, None)
 
-    def testMountOptionSetsMountDir(self):
+    def testMountOptionSetsMountDir(self) -> None:
         argv = list(_REGULAR_TO) + [
             "--board",
             _TARGET_BOARD,
@@ -176,7 +176,7 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         options = _ParseCommandLine(argv)
         self.assertIsNot(options.mount_dir, None)
 
-    def testMountOptionDoesNotOverrideTargetDir(self):
+    def testMountOptionDoesNotOverrideTargetDir(self) -> None:
         argv = list(_REGULAR_TO) + [
             "--board",
             _TARGET_BOARD,
@@ -189,7 +189,7 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         options = _ParseCommandLine(argv)
         self.assertEqual(options.target_dir, "/foo/bar/cow")
 
-    def testMountOptionDoesNotOverrideMountDir(self):
+    def testMountOptionDoesNotOverrideMountDir(self) -> None:
         argv = list(_REGULAR_TO) + [
             "--board",
             _TARGET_BOARD,
@@ -202,7 +202,7 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         options = _ParseCommandLine(argv)
         self.assertEqual(options.mount_dir, "/foo/bar/cow")
 
-    def testSshIdentityOptionSetsOption(self):
+    def testSshIdentityOptionSetsOption(self) -> None:
         argv = list(_REGULAR_TO) + [
             "--board",
             _TARGET_BOARD,
@@ -214,7 +214,7 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         options = _ParseCommandLine(argv)
         self.assertEqual(options.private_key, "/foo/bar/key")
 
-    def testUnlockPassword(self):
+    def testUnlockPassword(self) -> None:
         argv = list(_REGULAR_TO) + [
             "--board",
             _TARGET_BOARD,
@@ -252,18 +252,18 @@ class DeployChromeMock(partial_mock.PartialMock):
             "status ui", stdout="ui start/running, process 123"
         )
 
-    def MockMountCmd(self, returnvalue):
+    def MockMountCmd(self, returnvalue) -> None:
         self.rsh_mock.AddCmdResult(deploy_chrome.MOUNT_RW_COMMAND, returnvalue)
 
-    def _DisableRootfsVerification(self, inst):
+    def _DisableRootfsVerification(self, inst) -> None:
         with mock.patch.object(time, "sleep"):
             self.backup["_DisableRootfsVerification"](inst)
 
-    def PreStart(self):
+    def PreStart(self) -> None:
         self.remote_device_mock.start()
         self.rsh_mock.start()
 
-    def PreStop(self):
+    def PreStop(self) -> None:
         self.rsh_mock.stop()
         self.remote_device_mock.stop()
 
@@ -271,7 +271,7 @@ class DeployChromeMock(partial_mock.PartialMock):
         # Fully stub out for now. Can be replaced if further testing is added.
         return False
 
-    def _ShouldUseCompressedAsh(self, inst):
+    def _ShouldUseCompressedAsh(self, inst) -> None:
         with mock.patch.object(
             remote_access.RemoteDevice, "IfFileExists"
         ) as exists_mock:
@@ -288,7 +288,7 @@ class DeployTest(cros_test_lib.MockTempDirTestCase):
             options, self.tempdir, os.path.join(self.tempdir, "staging")
         )
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.deploy_mock = self.StartPatcher(DeployChromeMock())
         self.deploy = self._GetDeployChrome(
             list(_REGULAR_TO)
@@ -305,14 +305,14 @@ class DeployTest(cros_test_lib.MockTempDirTestCase):
             remote_access.RemoteAccess, "RemoteReboot", return_value=True
         )
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self.deploy.Cleanup()
 
 
 class TestCheckIfBoardMatches(DeployTest):
     """Testing checking whether the DUT board matches the target board."""
 
-    def testMatchedBoard(self):
+    def testMatchedBoard(self) -> None:
         """Test the case where the DUT board matches the target board."""
         self.PatchObject(remote_access.ChromiumOSDevice, "board", _TARGET_BOARD)
         self.assertTrue(self.deploy.options.force)
@@ -320,7 +320,7 @@ class TestCheckIfBoardMatches(DeployTest):
         self.deploy.options.force = False
         self.deploy._CheckBoard()
 
-    def testMismatchedBoard(self):
+    def testMismatchedBoard(self) -> None:
         """Test the case where the DUT board does not match the target board."""
         self.PatchObject(remote_access.ChromiumOSDevice, "board", "cedar")
         self.assertTrue(self.deploy.options.force)
@@ -335,17 +335,17 @@ class TestCheckIfBoardMatches(DeployTest):
 class TestDisableRootfsVerification(DeployTest):
     """Testing disabling of rootfs verification and RO mode."""
 
-    def testDisableRootfsVerificationSuccess(self):
+    def testDisableRootfsVerificationSuccess(self) -> None:
         """Test the working case, disabling rootfs verification."""
         self.deploy_mock.MockMountCmd(0)
         self.deploy._DisableRootfsVerification()
         self.assertFalse(self.deploy._root_dir_is_still_readonly.is_set())
 
-    def testDisableRootfsVerificationFailure(self):
+    def testDisableRootfsVerificationFailure(self) -> None:
         """Test failure to disable rootfs verification."""
 
         # pylint: disable=unused-argument
-        def RaiseRunCommandError(timeout_sec=None):
+        def RaiseRunCommandError(timeout_sec=None) -> None:
             raise cros_build_lib.RunCommandError("Mock RunCommandError")
 
         self.remote_reboot_mock.side_effect = RaiseRunCommandError
@@ -364,11 +364,11 @@ class TestDeployCompressedAsh(DeployTest):
         args.append("--compressed-ash")
         return super(TestDeployCompressedAsh, self)._GetDeployChrome(args)
 
-    def testUnmountSuccess(self):
+    def testUnmountSuccess(self) -> None:
         """Test case for a successful 'umount' call."""
         self.deploy._KillAshChromeIfNeeded()
 
-    def testUnmountFailure(self):
+    def testUnmountFailure(self) -> None:
         """Test case for a failed 'umount' call."""
         self.deploy_mock.rsh_mock.AddCmdResult(
             ["umount", deploy_chrome.RAW_ASH_PATH],
@@ -383,14 +383,14 @@ class TestDeployCompressedAsh(DeployTest):
 class TestMount(DeployTest):
     """Testing mount success and failure."""
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Test case where we are able to mount as writable."""
         self.assertFalse(self.deploy._root_dir_is_still_readonly.is_set())
         self.deploy_mock.MockMountCmd(0)
         self.deploy._MountRootfsAsWritable()
         self.assertFalse(self.deploy._root_dir_is_still_readonly.is_set())
 
-    def testMountError(self):
+    def testMountError(self) -> None:
         """Test that mount failure doesn't raise an exception by default."""
         self.assertFalse(self.deploy._root_dir_is_still_readonly.is_set())
         self.PatchObject(
@@ -402,7 +402,7 @@ class TestMount(DeployTest):
         self.deploy._MountRootfsAsWritable()
         self.assertTrue(self.deploy._root_dir_is_still_readonly.is_set())
 
-    def testMountRwFailure(self):
+    def testMountRwFailure(self) -> None:
         """Test that mount failure raises an exception if check=True."""
         self.assertRaises(
             cros_build_lib.RunCommandError,
@@ -411,7 +411,7 @@ class TestMount(DeployTest):
         )
         self.assertFalse(self.deploy._root_dir_is_still_readonly.is_set())
 
-    def testMountTempDir(self):
+    def testMountTempDir(self) -> None:
         """Test that mount succeeds if target dir is writable."""
         self.assertFalse(self.deploy._root_dir_is_still_readonly.is_set())
         self.PatchObject(
@@ -427,7 +427,7 @@ class TestMount(DeployTest):
 class TestMountTarget(DeployTest):
     """Testing mount and umount command handling."""
 
-    def testMountTargetUmountFailure(self):
+    def testMountTargetUmountFailure(self) -> None:
         """Test error being thrown if umount fails.
 
         Test that 'lsof' is run on mount-dir and 'mount -rbind' command is not
@@ -461,20 +461,20 @@ class TestMountTarget(DeployTest):
 class TestUiJobStarted(DeployTest):
     """Test detection of a running 'ui' job."""
 
-    def MockStatusUiCmd(self, **kwargs):
+    def MockStatusUiCmd(self, **kwargs) -> None:
         self.deploy_mock.rsh_mock.AddCmdResult("status ui", **kwargs)
 
-    def testUiJobStartedFalse(self):
+    def testUiJobStartedFalse(self) -> None:
         """Correct results with a stopped job."""
         self.MockStatusUiCmd(stdout="ui stop/waiting")
         self.assertFalse(self.deploy._CheckUiJobStarted())
 
-    def testNoUiJob(self):
+    def testNoUiJob(self) -> None:
         """Correct results when the job doesn't exist."""
         self.MockStatusUiCmd(stderr="start: Unknown job: ui", returncode=1)
         self.assertFalse(self.deploy._CheckUiJobStarted())
 
-    def testCheckRootfsWriteableTrue(self):
+    def testCheckRootfsWriteableTrue(self) -> None:
         """Correct results with a running job."""
         self.MockStatusUiCmd(stdout="ui start/running, process 297")
         self.assertTrue(self.deploy._CheckUiJobStarted())
@@ -487,12 +487,12 @@ class TestUnlockPassword(DeployTest):
         args.append("--unlock-password=letmein")
         return super(TestUnlockPassword, self)._GetDeployChrome(args)
 
-    def testUnlock(self):
+    def testUnlock(self) -> None:
         """Test that unlock password is sent."""
         self.deploy._stopped_ui = True
 
         # Update LAST_LOGIN_COMMAND to return a different value.
-        def SideEffect(*args, **kwargs):
+        def SideEffect(*args, **kwargs) -> None:
             # pylint: disable=unused-argument
             self.deploy_mock.rsh_mock.AddCmdResult(
                 deploy_chrome.LAST_LOGIN_COMMAND, stdout="2.0"
@@ -516,7 +516,7 @@ class TestUnlockPassword(DeployTest):
 class StagingTest(cros_test_lib.MockTempDirTestCase):
     """Test user-mode and ebuild-mode staging functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.staging_dir = os.path.join(self.tempdir, "staging")
         osutils.SafeMakedirs(self.staging_dir)
         self.staging_tarball_path = os.path.join(
@@ -542,7 +542,7 @@ class StagingTest(cros_test_lib.MockTempDirTestCase):
             return_value={"STRIP": "x86_64-cros-linux-gnu-strip"},
         )
 
-    def testSingleFileDeployFailure(self):
+    def testSingleFileDeployFailure(self) -> None:
         """Default staging enforces that mandatory files are copied"""
         options = _ParseCommandLine(self.common_flags)
         osutils.Touch(os.path.join(self.build_dir, "chrome"), makedirs=True)
@@ -555,7 +555,7 @@ class StagingTest(cros_test_lib.MockTempDirTestCase):
             chrome_util._COPY_PATHS_CHROME,
         )
 
-    def testSloppyDeployFailure(self):
+    def testSloppyDeployFailure(self) -> None:
         """Sloppy staging enforces that at least one file is copied."""
         options = _ParseCommandLine(self.common_flags + ["--sloppy"])
         self.assertRaises(
@@ -567,7 +567,7 @@ class StagingTest(cros_test_lib.MockTempDirTestCase):
             chrome_util._COPY_PATHS_CHROME,
         )
 
-    def testSloppyDeploySuccess(self):
+    def testSloppyDeploySuccess(self) -> None:
         """Sloppy staging - stage one file."""
         options = _ParseCommandLine(self.common_flags + ["--sloppy"])
         osutils.Touch(os.path.join(self.build_dir, "chrome"), makedirs=True)
@@ -578,7 +578,7 @@ class StagingTest(cros_test_lib.MockTempDirTestCase):
             chrome_util._COPY_PATHS_CHROME,
         )
 
-    def testSloppyDeploySuccessLacros(self):
+    def testSloppyDeploySuccessLacros(self) -> None:
         """Ensure the squashfs mechanism with --compressed-ash doesn't throw."""
         options = _ParseCommandLine(
             self.common_flags + ["--sloppy", "--compressed-ash"]
@@ -592,7 +592,7 @@ class StagingTest(cros_test_lib.MockTempDirTestCase):
         )
 
     @cros_test_lib.pytestmark_network_test
-    def testUploadStagingDir(self):
+    def testUploadStagingDir(self) -> None:
         """Upload staging directory."""
         mockGsCopy = self.PatchObject(gs.GSContext, "Copy")
         staging_upload = "gs://some-path"
@@ -609,7 +609,7 @@ class StagingTest(cros_test_lib.MockTempDirTestCase):
         )
 
     @cros_test_lib.pytestmark_network_test
-    def testUploadStagingPublicReadACL(self):
+    def testUploadStagingPublicReadACL(self) -> None:
         """Upload staging directory with public-read ACL."""
         mockGsCopy = self.PatchObject(gs.GSContext, "Copy")
         staging_upload = "gs://some-path"
@@ -638,7 +638,7 @@ class DeployTestBuildDir(cros_test_lib.MockTempDirTestCase):
             options, self.tempdir, os.path.join(self.tempdir, "staging")
         )
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.staging_dir = os.path.join(self.tempdir, "staging")
         self.build_dir = os.path.join(self.tempdir, "build_dir")
         self.deploy_mock = self.StartPatcher(DeployChromeMock())
@@ -665,7 +665,7 @@ class DeployTestBuildDir(cros_test_lib.MockTempDirTestCase):
 class TestDeploymentType(DeployTestBuildDir):
     """Test detection of deployment type using build dir."""
 
-    def testAppShellDetection(self):
+    def testAppShellDetection(self) -> None:
         """Check for an app_shell deployment"""
         osutils.Touch(
             os.path.join(self.deploy.options.build_dir, "app_shell"),
@@ -675,7 +675,7 @@ class TestDeploymentType(DeployTestBuildDir):
         self.assertTrue(self.getCopyPath("app_shell"))
         self.assertFalse(self.getCopyPath("chrome"))
 
-    def testChromeAndAppShellDetection(self):
+    def testChromeAndAppShellDetection(self) -> None:
         """Check for a chrome deployment when app_shell also exists."""
         osutils.Touch(
             os.path.join(self.deploy.options.build_dir, "chrome"), makedirs=True
@@ -688,7 +688,7 @@ class TestDeploymentType(DeployTestBuildDir):
         self.assertTrue(self.getCopyPath("chrome"))
         self.assertFalse(self.getCopyPath("app_shell"))
 
-    def testChromeDetection(self):
+    def testChromeDetection(self) -> None:
         """Check for a regular chrome deployment"""
         osutils.Touch(
             os.path.join(self.deploy.options.build_dir, "chrome"), makedirs=True
@@ -701,7 +701,7 @@ class TestDeploymentType(DeployTestBuildDir):
 class TestDeployTestBinaries(cros_test_lib.RunCommandTempDirTestCase):
     """Tests _DeployTestBinaries()."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         options = _ParseCommandLine(
             list(_REGULAR_TO)
             + [
@@ -742,7 +742,7 @@ class TestDeployTestBinaries(cros_test_lib.RunCommandTempDirTestCase):
             )
         return test_binaries
 
-    def _AssertBinariesInStagingDir(self, test_binaries):
+    def _AssertBinariesInStagingDir(self, test_binaries) -> None:
         # Ensure the binaries were placed in the staging dir used to copy them
         # over.
         staging_dir = os.path.join(
@@ -751,7 +751,7 @@ class TestDeployTestBinaries(cros_test_lib.RunCommandTempDirTestCase):
         for binary in test_binaries:
             self.assertIn(binary, os.listdir(staging_dir))
 
-    def testFindError(self):
+    def testFindError(self) -> None:
         """Ensure an error is thrown if we can't inspect the device."""
         self.rc.AddCmdResult(
             partial_mock.ListRegex(" ".join(deploy_chrome._FIND_TEST_BIN_CMD)),
@@ -761,18 +761,18 @@ class TestDeployTestBinaries(cros_test_lib.RunCommandTempDirTestCase):
             deploy_chrome.DeployFailure, self.deploy._DeployTestBinaries
         )
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Ensure that the happy path succeeds as expected."""
         test_binaries = self._SimulateBinaries()
         self.deploy._DeployTestBinaries()
         self._AssertBinariesInStagingDir(test_binaries)
 
-    def testRetrySuccess(self):
+    def testRetrySuccess(self) -> None:
         """Ensure that a transient exception still results in success."""
 
         # Raises a RunCommandError on its first invocation, but passes on
         # subsequent calls.
-        def SideEffect(*args, **kwargs):
+        def SideEffect(*args, **kwargs) -> None:
             # pylint: disable=unused-argument
             if not SideEffect.called:
                 SideEffect.called = True
@@ -790,7 +790,7 @@ class TestDeployTestBinaries(cros_test_lib.RunCommandTempDirTestCase):
             self.assertEqual(copy_mock.call_count, 2)
         self._AssertBinariesInStagingDir(test_binaries)
 
-    def testRetryFailure(self):
+    def testRetryFailure(self) -> None:
         """Ensure that consistent exceptions result in failure."""
         self._SimulateBinaries()
         with self.assertRaises(cros_build_lib.RunCommandError):
@@ -805,12 +805,12 @@ class TestDeployTestBinaries(cros_test_lib.RunCommandTempDirTestCase):
 class LacrosPerformTest(cros_test_lib.RunCommandTempDirTestCase):
     """Line coverage for Perform() method with --lacros option."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.deploy = None
         self._ran_start_command = False
         self.StartPatcher(parallel_unittest.ParallelMock())
 
-        def start_ui_side_effect(*args, **kwargs):
+        def start_ui_side_effect(*args, **kwargs) -> None:
             # pylint: disable=unused-argument
             self._ran_start_command = True
 
@@ -818,7 +818,7 @@ class LacrosPerformTest(cros_test_lib.RunCommandTempDirTestCase):
             partial_mock.ListRegex("start ui"), side_effect=start_ui_side_effect
         )
 
-    def prepareDeploy(self, options=None):
+    def prepareDeploy(self, options=None) -> None:
         if not options:
             options = _ParseCommandLine(
                 [
@@ -844,7 +844,7 @@ class LacrosPerformTest(cros_test_lib.RunCommandTempDirTestCase):
         self.deploy._CheckDeviceFreeSpace = mock.Mock()
         self.deploy._KillAshChromeIfNeeded = mock.Mock()
 
-    def testLacros(self):
+    def testLacros(self) -> None:
         """When no flag is set, Ash should be restarted."""
         self.prepareDeploy()
 
@@ -852,7 +852,7 @@ class LacrosPerformTest(cros_test_lib.RunCommandTempDirTestCase):
         self.deploy._KillAshChromeIfNeeded.assert_called()
         self.assertTrue(self._ran_start_command)
 
-    def testSkipRestartUi(self):
+    def testSkipRestartUi(self) -> None:
         """When skip_restart_ui is enabled, Ash should not be restarted."""
         self.prepareDeploy(
             _ParseCommandLine(

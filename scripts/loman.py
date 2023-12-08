@@ -71,7 +71,7 @@ class LocalManifest:
         return list(self.nodes.findall("project"))
 
 
-def _AddProjectsToManifestGroups(options, new_group):
+def _AddProjectsToManifestGroups(options, new_group) -> None:
     """Enable the given manifest groups for the configured repository."""
 
     groups_to_enable = ["name:%s" % x for x in new_group]
@@ -113,7 +113,7 @@ def _AddProjectsToManifestGroups(options, new_group):
     git.RunGit(".", cmd)
 
 
-def _AssertNotMiniLayout():
+def _AssertNotMiniLayout() -> None:
     cros_build_lib.Die(
         "Your repository checkout is using the old minilayout.xml workflow; "
         "Autoupdate is no longer supported, reinstall your tree."

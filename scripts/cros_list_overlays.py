@@ -29,7 +29,7 @@ def _ParseArguments(argv):
     return opts
 
 
-def main(argv):
+def main(argv) -> None:
     opts = _ParseArguments(argv)
 
     overlays = portage_util.FindOverlays(constants.BOTH_OVERLAYS, opts.board)

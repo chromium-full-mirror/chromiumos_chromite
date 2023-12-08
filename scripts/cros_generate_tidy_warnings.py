@@ -72,24 +72,24 @@ class GenerateTidyWarnings:
             files.append(logfile)
         return files
 
-    def _ParseLogFiles(self):
+    def _ParseLogFiles(self) -> None:
         log_files = self._FindLogFiles(self.options.logs_dir)
         for f in log_files:
             # Copy log file to output directory because this is what we want to
             # upload to gs
             shutil.copy2(f, self.warnings_dir)
 
-    def _CreateTarball(self):
+    def _CreateTarball(self) -> None:
         tarball_path = os.path.join(self.options.out_dir, self.options.out_file)
         cros_build_lib.CreateTarball(tarball_path, self.warnings_dir, sudo=True)
 
-    def Perform(self):
+    def Perform(self) -> None:
         """Generate the warnings files."""
         self._ParseLogFiles()
         self._CreateTarball()
 
 
-def FinishParsing(options):
+def FinishParsing(options) -> None:
     """Run environment dependent checks on parsed args."""
     target = os.path.join(options.out_dir, options.out_file)
     if os.path.exists(target):
@@ -102,7 +102,7 @@ def FinishParsing(options):
         )
 
 
-def main(argv):
+def main(argv) -> None:
     options = ParseCommandLine(argv)
     FinishParsing(options)
 

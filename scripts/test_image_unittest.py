@@ -23,7 +23,7 @@ class TestImageTest(cros_test_lib.MockTempDirTestCase):
     This sets up proper directory with test image. The image file is zero-byte.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Create empty image file.
         self.image_file = os.path.join(
             self.tempdir, constants.BASE_IMAGE_NAME + ".bin"
@@ -56,24 +56,24 @@ class TestImageTest(cros_test_lib.MockTempDirTestCase):
 class FindImageTest(TestImageTest):
     """Test FindImage() function."""
 
-    def _testFindOkay(self, image_path):
+    def _testFindOkay(self, image_path) -> None:
         res = test_image.FindImage(image_path)
         self.assertEqual(
             res, os.path.join(self.tempdir, constants.BASE_IMAGE_NAME + ".bin")
         )
 
-    def testFindWithDirectory(self):
+    def testFindWithDirectory(self) -> None:
         self._testFindOkay(self.tempdir)
 
-    def testFindWithFile(self):
+    def testFindWithFile(self) -> None:
         self._testFindOkay(self.image_file)
 
-    def testFindWithInvalid(self):
+    def testFindWithInvalid(self) -> None:
         self.assertRaises(
             ValueError, test_image.FindImage, os.path.join(self.tempdir, "404")
         )
 
-    def testFindWithInvalidDirectory(self):
+    def testFindWithInvalidDirectory(self) -> None:
         os.unlink(self.image_file)
         self.assertRaises(
             ValueError, test_image.FindImage, os.path.join(self.tempdir)
@@ -83,7 +83,7 @@ class FindImageTest(TestImageTest):
 class MainTest(TestImageTest):
     """Test the main invocation of the script."""
 
-    def testChdir(self):
+    def testChdir(self) -> None:
         """Verify the CWD is in a temp directory."""
 
         class CwdTest(image_test_lib.ImageTestCase):
@@ -91,10 +91,10 @@ class MainTest(TestImageTest):
 
             _expected_dir = None
 
-            def SetCwd(self, cwd):
+            def SetCwd(self, cwd) -> None:
                 self._expected_dir = cwd
 
-            def testExpectedCwd(self):
+            def testExpectedCwd(self) -> None:
                 self.assertEqual(self._expected_dir, os.getcwd())
 
         self.assertNotEqual("/tmp", os.getcwd())
@@ -122,13 +122,13 @@ class MainTest(TestImageTest):
         self.assertEqual(0, test_image.main(argv))
         self.assertEqual("/tmp", os.getcwd())
 
-    def testBoardAndDirectory(self):
+    def testBoardAndDirectory(self) -> None:
         """Verify "--board", "--test_results_root" are passed to the tests."""
 
         class AttributeTest(image_test_lib.ImageTestCase):
             """Stub test class to hold board and directory."""
 
-            def testOkay(self):
+            def testOkay(self) -> None:
                 pass
 
         test = AttributeTest("testOkay")

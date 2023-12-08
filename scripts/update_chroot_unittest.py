@@ -7,7 +7,7 @@
 from chromite.scripts import update_chroot
 
 
-def test_main(run_mock):  # pylint: disable=unused-argument
+def test_main(run_mock) -> None:  # pylint: disable=unused-argument
     """Smoke test."""
     result = update_chroot.main([])
     assert result == 0

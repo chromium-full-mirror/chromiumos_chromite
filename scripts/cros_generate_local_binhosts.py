@@ -55,7 +55,7 @@ def GetParser():
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     parser = GetParser()
     flags = parser.parse_args(argv)
 

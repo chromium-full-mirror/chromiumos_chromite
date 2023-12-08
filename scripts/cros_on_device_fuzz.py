@@ -34,13 +34,13 @@ _PACKAGE_SEPARATOR = re.compile(r"[ ,]+")
 _FUZZER_BOARD = "amd64-generic"
 
 
-def main(argv: Iterable[str]):
+def main(argv: Iterable[str]) -> None:
     """Dispatch to other functions."""
     opts = parse_args(argv)
     opts.func(opts)
 
 
-def setup_main(opts):
+def setup_main(opts) -> None:
     """Setup up the DUT for fuzzing."""
     cros_build_lib.AssertInsideChroot()
     device = _get_device(opts.device, opts.private_key)
@@ -78,7 +78,7 @@ def setup_main(opts):
     logging.info("Fuzzer set up complete for %s", host)
 
 
-def fuzz_main(opts):
+def fuzz_main(opts) -> None:
     """Run a given fuzzer on the DUT."""
     cros_build_lib.AssertInsideChroot()
     fuzzer_install_path = Path("/usr/libexec/fuzzers")

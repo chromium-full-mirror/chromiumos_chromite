@@ -45,7 +45,7 @@ class StubGerritChange:
     def IsMergeable(self):
         return self._mergeable
 
-    def Rebase(self, allow_conflicts: bool = False):
+    def Rebase(self, allow_conflicts: bool = False) -> None:
         pass
 
 
@@ -55,7 +55,7 @@ class ChromeLKGMCommitterTester(
 ):
     """Test cros_chromeos_lkgm.Committer."""
 
-    def testCommitNewLKGM(self):
+    def testCommitNewLKGM(self) -> None:
         """Tests that we can commit a new LKGM file."""
         committer = chrome_chromeos_lkgm.ChromeLKGMCommitter(
             "1001.0.0",
@@ -89,7 +89,7 @@ class ChromeLKGMCommitterTester(
                             ],
                         )
 
-    def testOlderLKGMFails(self):
+    def testOlderLKGMFails(self) -> None:
         """Tests that trying to update to an older lkgm version fails."""
         committer = chrome_chromeos_lkgm.ChromeLKGMCommitter(
             "1001.0.0",
@@ -107,7 +107,7 @@ class ChromeLKGMCommitterTester(
                 )
                 ce.assert_not_called()
 
-    def testAbandonObsoleteLKGMs(self):
+    def testAbandonObsoleteLKGMs(self) -> None:
         """Tests that trying to abandon the obsolete lkgm CLs."""
         cleaner = chrome_chromeos_lkgm.ChromeLKGMCleaner(
             "main", chromeos_version.VersionInfo("10002.0.0"), "USER_EMAIL"
@@ -129,7 +129,7 @@ class ChromeLKGMCommitterTester(
                 mock_query.assert_called_once()
                 ac.assert_called_once_with((older_change), msg=mock.ANY)
 
-    def testRebaseObsoleteLKGMs(self):
+    def testRebaseObsoleteLKGMs(self) -> None:
         """Tests that trying to abandon the obsolete lkgm CLs."""
         cleaner = chrome_chromeos_lkgm.ChromeLKGMCleaner(
             "main", chromeos_version.VersionInfo("10002.0.0"), "USER_EMAIL"
@@ -162,7 +162,7 @@ class ChromeLKGMCommitterTester(
                     rebase.assert_called_once_with(allow_conflicts=True)
                     ce.assert_called_once_with(GERRIT_NUM, mock.ANY, ROLL_TO)
 
-    def testDoNothingObsoleteLKGMs(self):
+    def testDoNothingObsoleteLKGMs(self) -> None:
         """Tests that trying to abandon the obsolete lkgm CLs."""
         cleaner = chrome_chromeos_lkgm.ChromeLKGMCleaner(
             "main", chromeos_version.VersionInfo("10002.0.0"), "USER_EMAIL"
@@ -196,7 +196,7 @@ class ChromeLKGMCommitterTester(
                     rebase.assert_not_called()
                     ce.assert_not_called()
 
-    def testVersionWithChromeBranch(self):
+    def testVersionWithChromeBranch(self) -> None:
         """Tests passing a version with a chrome branch strips the branch."""
         branch = "refs/branch-heads/5000"
         committer = chrome_chromeos_lkgm.ChromeLKGMCommitter(
@@ -235,7 +235,7 @@ class ChromeLKGMCommitterTester(
                             ],
                         )
 
-    def testCommitMsg(self):
+    def testCommitMsg(self) -> None:
         """Tests format of the commit message."""
         committer = chrome_chromeos_lkgm.ChromeLKGMCommitter(
             "1001.0.0",

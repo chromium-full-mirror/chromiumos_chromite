@@ -12,7 +12,7 @@ from chromite.scripts import clang_format
 class ClangFormatTest(cros_test_lib.TestCase):
     """Tests the clang-format wrapper."""
 
-    def testClangFormatVersion(self):
+    def testClangFormatVersion(self) -> None:
         """Check that clang-format can return the version."""
         with clang_format.ClangFormat() as prog:
             result = cros_build_lib.run(
@@ -22,7 +22,7 @@ class ClangFormatTest(cros_test_lib.TestCase):
             )
         self.assertStartsWith(result.stdout, "clang-format version ")
 
-    def testClangFormatStdin(self):
+    def testClangFormatStdin(self) -> None:
         """Check clang-format can format from stdin."""
         with clang_format.ClangFormat() as prog:
             result = cros_build_lib.run(

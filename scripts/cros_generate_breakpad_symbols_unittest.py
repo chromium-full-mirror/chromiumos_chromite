@@ -38,7 +38,7 @@ class FindDebugDirMock(partial_mock.PartialMock):
 class IsSharedLibraryTest(cros_test_lib.TestCase):
     """Test IsSharedLibrary"""
 
-    def testSharedLibaries(self):
+    def testSharedLibaries(self) -> None:
         """Verify that shared libraries return truthy"""
         shared_libraries = [
             "lib/libcontainer.so",
@@ -53,7 +53,7 @@ class IsSharedLibraryTest(cros_test_lib.TestCase):
                 msg=f"expected {shared_library} to be a shared library",
             )
 
-    def testExecutables(self):
+    def testExecutables(self) -> None:
         """Verify that executables return None"""
         executables = [
             "sbin/crash_reporter",
@@ -77,7 +77,7 @@ class IsSharedLibraryTest(cros_test_lib.TestCase):
 class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
     """Test GenerateBreakpadSymbols."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.board = "monkey-board"
         self.board_dir = os.path.join(self.tempdir, "build", self.board)
         self.debug_dir = os.path.join(self.board_dir, "usr", "lib", "debug")
@@ -122,7 +122,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
 
         self.StartPatcher(FindDebugDirMock(self.debug_dir))
 
-    def markAllFilesAsProcessed(self, gen_mock):
+    def markAllFilesAsProcessed(self, gen_mock) -> None:
         """Sets mock to pretend it processed all the expected ELF files.
 
         This avoids having GenerateBreakpadSymbols return an error because not
@@ -137,7 +137,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
 
         gen_mock.side_effect = _SetFound
 
-    def testNormal(self, gen_mock):
+    def testNormal(self, gen_mock) -> None:
         """Verify all the files we expect to get generated do"""
         with parallel_unittest.ParallelMock():
             self.markAllFilesAsProcessed(gen_mock)
@@ -184,7 +184,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
             )
             self.assertEqual(exp_calls, actual_calls)
 
-    def testFileList(self, gen_mock):
+    def testFileList(self, gen_mock) -> None:
         """Verify that file_list restricts the symbols generated"""
         with parallel_unittest.ParallelMock():
             # Don't need markAllFilesAsProcessed since using file_list will
@@ -219,7 +219,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
             self.assertEqual(gen_mock.call_count, 1)
             self.assertEqual(gen_mock.call_args_list[0][0], call1)
 
-    def testGenLimit(self, gen_mock):
+    def testGenLimit(self, gen_mock) -> None:
         """Verify generate_count arg works"""
         with parallel_unittest.ParallelMock():
             # Generate nothing!
@@ -251,7 +251,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
             )
             self.assertEqual(gen_mock.call_args_list[0][0], call1)
 
-    def testGenErrors(self, gen_mock):
+    def testGenErrors(self, gen_mock) -> None:
         """Verify we handle errors from generation correctly"""
 
         def _SetError(*_args, **kwargs):
@@ -268,7 +268,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
             self.assertEqual(ret, 6)
             self.assertEqual(gen_mock.call_count, 5)
 
-    def testCleaningTrue(self, gen_mock):
+    def testCleaningTrue(self, gen_mock) -> None:
         """Verify behavior of clean_breakpad=True"""
         with parallel_unittest.ParallelMock():
             self.markAllFilesAsProcessed(gen_mock)
@@ -298,7 +298,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
             self.assertEqual(gen_mock.call_count, 2)
             self.assertNotExists(stub_file)
 
-    def testCleaningFalse(self, gen_mock):
+    def testCleaningFalse(self, gen_mock) -> None:
         """Verify behavior of clean_breakpad=False"""
         with parallel_unittest.ParallelMock():
             self.markAllFilesAsProcessed(gen_mock)
@@ -328,7 +328,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
             self.assertEqual(gen_mock.call_count, 2)
             self.assertExists(stub_file)
 
-    def testExclusionList(self, gen_mock):
+    def testExclusionList(self, gen_mock) -> None:
         """Verify files in directories of the exclusion list are excluded"""
         exclude_dirs = ["bin", "usr", "fake/dir/fake"]
         with parallel_unittest.ParallelMock():
@@ -339,7 +339,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
             self.assertEqual(ret, 0)
             self.assertEqual(gen_mock.call_count, 3)
 
-    def testExpectedFilesCompleteFailure(self, _):
+    def testExpectedFilesCompleteFailure(self, _) -> None:
         """Verify if no files are processed, all expected files give errors"""
         with parallel_unittest.ParallelMock() and self.assertLogs(
             level=logging.WARNING
@@ -363,7 +363,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
                     ) in cros_generate_breakpad_symbols.ExpectedFiles:
                         self.assertIn(expected_file.name, output)
 
-    def testExpectedFilesPartialFailure(self, gen_mock):
+    def testExpectedFilesPartialFailure(self, gen_mock) -> None:
         """If some expected files are processed, the others give errors"""
         expected_found = (
             cros_generate_breakpad_symbols.ExpectedFiles.LIBC,
@@ -401,7 +401,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
                         else:
                             self.assertIn(expected_file.name, output)
 
-    def testExpectedFilesWithSomeIgnored(self, _):
+    def testExpectedFilesWithSomeIgnored(self, _) -> None:
         """If some expected files are ignored, they don't give errors"""
         ignore_expected_files = [
             cros_generate_breakpad_symbols.ExpectedFiles.ASH_CHROME,
@@ -434,7 +434,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
                         else:
                             self.assertIn(expected_file.name, output)
 
-    def testExpectedFilesWithAllIgnored(self, _):
+    def testExpectedFilesWithAllIgnored(self, _) -> None:
         """If all expected files are ignored, there is no error"""
         with parallel_unittest.ParallelMock() and self.assertLogs(
             level=logging.WARNING
@@ -452,7 +452,7 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
                 "\n".join(cm.output),
             )
 
-    def testExpectedFilesWithSomeIgnoredAndSomeFound(self, gen_mock):
+    def testExpectedFilesWithSomeIgnoredAndSomeFound(self, gen_mock) -> None:
         """Some expected files are ignored, others processed => no error"""
         expected_found = (
             cros_generate_breakpad_symbols.ExpectedFiles.LIBC,
@@ -488,7 +488,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
 
     _DUMP_SYMS_BASE_CMD = ["dump_syms", "-v", "-d", "-m"]
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.elf_file = os.path.join(self.tempdir, "elf")
         osutils.Touch(self.elf_file)
         self.debug_dir = os.path.join(self.tempdir, "debug")
@@ -518,11 +518,11 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
 
         self.StartPatcher(FindDebugDirMock(self.debug_dir))
 
-    def assertCommandArgs(self, i, args):
+    def assertCommandArgs(self, i, args) -> None:
         """Helper for looking at the args of the |i|th call"""
         self.assertEqual(self.rc.call_args_list[i][0][0], args)
 
-    def testNormal(self):
+    def testNormal(self) -> None:
         """Normal run -- given an ELF and a debug file"""
         ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
             self.elf_file,
@@ -536,7 +536,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertExists(self.sym_file)
 
-    def testNormalNoCfi(self):
+    def testNormalNoCfi(self) -> None:
         """Normal run w/out CFI"""
         # Make sure the num_errors flag works too.
         num_errors = ctypes.c_int(0)
@@ -555,7 +555,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(self.rc.call_count, 2)
         self.assertExists(self.sym_file)
 
-    def testNormalElfOnly(self):
+    def testNormalElfOnly(self) -> None:
         """Normal run with just an ELF will fail"""
         num_errors = ctypes.c_int(0)
         ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
@@ -567,7 +567,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(num_errors.value, 1)
         self.assertNotExists(self.sym_file)
 
-    def testNormalSudo(self):
+    def testNormalSudo(self) -> None:
         """Normal run where ELF is readable only by root"""
         with mock.patch.object(os, "access") as mock_access:
             mock_access.return_value = False
@@ -582,7 +582,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
             + [self.elf_file, self.debug_dir],
         )
 
-    def testDumpSymsFail(self):
+    def testDumpSymsFail(self) -> None:
         """The call to dump_syms failed"""
         self.rc.AddCmdResult(
             self._DUMP_SYMS_BASE_CMD + [self.elf_file, self.debug_dir],
@@ -603,7 +603,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertNotExists(self.sym_file)
 
-    def testValidationFail(self):
+    def testValidationFail(self) -> None:
         """If symbol file validation fails, return an error"""
         BAD_SYMBOL_FILE = "MODULE OS CPU ID NAME\n"
         self.rc.SetDefaultCmdResult(stdout=BAD_SYMBOL_FILE)
@@ -619,7 +619,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(num_errors.value, 1)
         self.assertNotExists(self.sym_file)
 
-    def testValidationRaises(self):
+    def testValidationRaises(self) -> None:
         """If symbol file validation raises an error, return an error."""
         BAD_SYMBOL_FILE = (
             "MODULE Linux x86 D3096ED481217FD4C16B29CD9BC208BA0 elf\n"
@@ -638,7 +638,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(num_errors.value, 1)
         self.assertNotExists(self.sym_file)
 
-    def testForceBasicFallback(self):
+    def testForceBasicFallback(self) -> None:
         """Running with force_basic_fallback
 
         Test force_basic_fallback goes straight to _DumpAllowingBasicFallback().
@@ -665,7 +665,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertExists(self.sym_file)
 
-    def testForceBasicFallbackElfOnly(self):
+    def testForceBasicFallbackElfOnly(self) -> None:
         """Running with force_basic_fallback run given just an ELF"""
         ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
             self.elf_file,
@@ -677,7 +677,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandArgs(0, self._DUMP_SYMS_BASE_CMD + [self.elf_file])
         self.assertExists(self.sym_file)
 
-    def testForceBasicFallbackLargeDebugFail(self):
+    def testForceBasicFallbackLargeDebugFail(self) -> None:
         """In fallback mode, running w/large .debug failed, but retry worked"""
         self.rc.AddCmdResult(
             self._DUMP_SYMS_BASE_CMD + [self.elf_file, self.debug_dir],
@@ -701,7 +701,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertExists(self.sym_file)
 
-    def testForceBasicFallbackDebugFail(self):
+    def testForceBasicFallbackDebugFail(self) -> None:
         """In fallback mode, running w/.debug always fails, but works without"""
         self.rc.AddCmdResult(
             self._DUMP_SYMS_BASE_CMD + [self.elf_file, self.debug_dir],
@@ -731,7 +731,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandArgs(2, self._DUMP_SYMS_BASE_CMD + [self.elf_file])
         self.assertExists(self.sym_file)
 
-    def testForceBasicFallbackCompleteFail(self):
+    def testForceBasicFallbackCompleteFail(self) -> None:
         """In fallback mode, if dump_syms always fails, still an error"""
         self.rc.SetDefaultCmdResult(returncode=1)
         ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbol(
@@ -748,7 +748,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(ret, 1)
         self.assertEqual(num_errors.value, 1)
 
-    def testKernelObjects(self):
+    def testKernelObjects(self) -> None:
         """Kernel object files should call _DumpAllowingBasicFallback()"""
         ko_file = os.path.join(self.tempdir, "elf.ko")
         osutils.Touch(ko_file)
@@ -775,7 +775,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandArgs(2, self._DUMP_SYMS_BASE_CMD + [ko_file])
         self.assertExists(self.sym_file)
 
-    def testGoBinary(self):
+    def testGoBinary(self) -> None:
         """Go binaries should call _DumpAllowingBasicFallback()
 
         Also tests that dump_syms failing with 'file contains no debugging
@@ -826,7 +826,7 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertNotExists(self.sym_file)
         self.assertEqual(num_errors.value, 0)
 
-    def _testBinaryIsInLocalFallback(self, directory, filename):
+    def _testBinaryIsInLocalFallback(self, directory, filename) -> None:
         binary = os.path.join(self.tempdir, directory, filename)
         osutils.Touch(binary, makedirs=True)
         debug_dir = os.path.join(self.debug_dir, directory)
@@ -865,11 +865,11 @@ class GenerateSymbolTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertNotExists(self.sym_file)
         self.assertEqual(num_errors.value, 0)
 
-    def testAllowlist(self):
+    def testAllowlist(self) -> None:
         """Binaries in the allowlist should call _DumpAllowingBasicFallback()"""
         self._testBinaryIsInLocalFallback("usr/bin", "goldctl")
 
-    def testUsrLocalSkip(self):
+    def testUsrLocalSkip(self) -> None:
         """Binaries in /usr/local should call _DumpAllowingBasicFallback()"""
         self._testBinaryIsInLocalFallback("usr/local", "minidump_stackwalk")
 
@@ -888,7 +888,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
         """
         return os.path.join(os.path.dirname(__file__), "testdata", filename)
 
-    def testValidSymbolFiles(self):
+    def testValidSymbolFiles(self) -> None:
         """Make sure ValidateSymbolFile passes on valid files"""
 
         # All files are in the testdata/ subdirectory.
@@ -920,7 +920,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
                 )
                 self.assertFalse(found_files)
 
-    def testInvalidSymbolFiles(self):
+    def testInvalidSymbolFiles(self) -> None:
         """Make sure ValidateSymbolFile fails on invalid files.
 
         This test only covers cases that return false, not cases that raise
@@ -1022,7 +1022,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
                 self.assertEqual(file.expected_errors, cm.output)
                 self.assertFalse(found_files)
 
-    def testInvalidSymbolFilesWhichRaise(self):
+    def testInvalidSymbolFilesWhichRaise(self) -> None:
         """Test ValidateSymbolFile raise exceptions on certain files"""
 
         class InvalidSymbolFile:
@@ -1074,7 +1074,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
                     found_files,
                 )
 
-    def testAllowlist(self):
+    def testAllowlist(self) -> None:
         """Test that ELFs on the allowlist are allowed to pass."""
         with multiprocessing.Manager() as mp_manager:
             found_files = mp_manager.list()
@@ -1088,7 +1088,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
             )
             self.assertFalse(found_files)
 
-    def testAllowlistRegex(self):
+    def testAllowlistRegex(self) -> None:
         """Test that ELFs on the regex-based allowlist are allowed to pass."""
         with multiprocessing.Manager() as mp_manager:
             found_files = mp_manager.list()
@@ -1102,7 +1102,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
             )
             self.assertFalse(found_files)
 
-    def testSharedLibrariesSkipStackTest(self):
+    def testSharedLibrariesSkipStackTest(self) -> None:
         """Test that shared libraries can pass validation with no STACK."""
         with multiprocessing.Manager() as mp_manager:
             found_files = mp_manager.list()
@@ -1145,7 +1145,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
             for stack in range(0, stack_lines):
                 f.write(f"STACK CFI {stack} .cfa: $esp {stack} +\n")
 
-    def testValidChromeSymbolFile(self):
+    def testValidChromeSymbolFile(self) -> None:
         """Test that a chrome symbol file can pass the additional checks"""
         sym_file = self.tempdir / "chrome.sym"
         self._CreateSymbolFile(
@@ -1170,7 +1170,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
                 [cros_generate_breakpad_symbols.ExpectedFiles.ASH_CHROME],
             )
 
-    def testInvalidChromeSymbolFile(self):
+    def testInvalidChromeSymbolFile(self) -> None:
         """Test that a chrome symbol file is held to higher standards."""
 
         class ChromeSymbolFileTest:
@@ -1235,7 +1235,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
                 self.assertIn(test.expected_error, cm.output[0])
                 self.assertEqual(len(cm.output), 1)
 
-    def testValidLibcSymbolFile(self):
+    def testValidLibcSymbolFile(self) -> None:
         """Test that a libc.so symbol file can pass the additional checks."""
         with multiprocessing.Manager() as mp_manager:
             sym_file = self.tempdir / "libc.so.sym"
@@ -1256,7 +1256,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
                 [cros_generate_breakpad_symbols.ExpectedFiles.LIBC],
             )
 
-    def testInvalidLibcSymbolFile(self):
+    def testInvalidLibcSymbolFile(self) -> None:
         """Test that a libc.so symbol file is held to higher standards."""
 
         class LibcSymbolFileTest:
@@ -1311,7 +1311,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
                 self.assertIn(test.expected_error, cm.output[0])
                 self.assertEqual(len(cm.output), 1)
 
-    def testValidCrashReporterSymbolFile(self):
+    def testValidCrashReporterSymbolFile(self) -> None:
         """Test a crash_reporter symbol file can pass the additional checks."""
         with multiprocessing.Manager() as mp_manager:
             sym_file = self.tempdir / "crash_reporter.sym"
@@ -1336,7 +1336,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
                 [cros_generate_breakpad_symbols.ExpectedFiles.CRASH_REPORTER],
             )
 
-    def testInvalidCrashReporterSymbolFile(self):
+    def testInvalidCrashReporterSymbolFile(self) -> None:
         """Test that a crash_reporter symbol file is held to higher standards"""
 
         class CrashReporterSymbolFileTest:
@@ -1400,7 +1400,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
                 self.assertIn(test.expected_error, cm.output[0])
                 self.assertEqual(len(cm.output), 1)
 
-    def testValidLibMetricsSymbolFile(self):
+    def testValidLibMetricsSymbolFile(self) -> None:
         """Test a libmetrics.so symbol file can pass the additional checks."""
         with multiprocessing.Manager() as mp_manager:
             sym_file = self.tempdir / "libmetrics.so.sym"
@@ -1425,7 +1425,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
                 [cros_generate_breakpad_symbols.ExpectedFiles.LIBMETRICS],
             )
 
-    def testInvalidLibMetricsSymbolFile(self):
+    def testInvalidLibMetricsSymbolFile(self) -> None:
         """Test that a libmetrics.so symbol file is held to higher standards."""
 
         class LibMetricsSymbolFileTest:
@@ -1502,7 +1502,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
 class UtilsTestDir(cros_test_lib.TempDirTestCase):
     """Tests ReadSymsHeader."""
 
-    def testReadSymsHeaderGoodFile(self):
+    def testReadSymsHeaderGoodFile(self) -> None:
         """Make sure ReadSymsHeader can parse sym files"""
         sym_file = os.path.join(self.tempdir, "sym")
         osutils.WriteFile(sym_file, "MODULE Linux x86 s0m31D chrooome")
@@ -1518,7 +1518,7 @@ class UtilsTestDir(cros_test_lib.TempDirTestCase):
 class UtilsTest(cros_test_lib.TestCase):
     """Tests ReadSymsHeader."""
 
-    def testReadSymsHeaderGoodBuffer(self):
+    def testReadSymsHeaderGoodBuffer(self) -> None:
         """Make sure ReadSymsHeader can parse sym file handles"""
         result = cros_generate_breakpad_symbols.ReadSymsHeader(
             io.BytesIO(b"MODULE Linux arm MY-ID-HERE blkid"), "unused_elfname"
@@ -1528,7 +1528,7 @@ class UtilsTest(cros_test_lib.TestCase):
         self.assertEqual(result.name, "blkid")
         self.assertEqual(result.os, "Linux")
 
-    def testReadSymsHeaderBadd(self):
+    def testReadSymsHeaderBadd(self) -> None:
         """Make sure ReadSymsHeader throws on bad sym files"""
         self.assertRaises(
             ValueError,
@@ -1537,13 +1537,13 @@ class UtilsTest(cros_test_lib.TestCase):
             "unused_elfname",
         )
 
-    def testBreakpadDir(self):
+    def testBreakpadDir(self) -> None:
         """Make sure board->breakpad path expansion works"""
         expected = "/build/blah/usr/lib/debug/breakpad"
         result = cros_generate_breakpad_symbols.FindBreakpadDir("blah")
         self.assertEqual(expected, result)
 
-    def testDebugDir(self):
+    def testDebugDir(self) -> None:
         """Make sure board->debug path expansion works"""
         expected = "/build/blah/usr/lib/debug"
         result = cros_generate_breakpad_symbols.FindDebugDir("blah")

@@ -73,21 +73,21 @@ def _repr_type(type_: Any) -> str:
     return f"{name}[{', '.join(_repr_type(x) for x in args)}]"
 
 
-def _gen_docs(output: TextIO):
+def _gen_docs(output: TextIO) -> None:
     """Generate the documentation in Markdown format.
 
     Args:
         output: The file-like object for the documentation to be written to.
     """
 
-    def _pr(*args, **kwargs):
+    def _pr(*args, **kwargs) -> None:
         kwargs.setdefault("file", output)
         print(*args, **kwargs)
 
-    def _doc_attr(func, call_anno="", type_anno=""):
+    def _doc_attr(func, call_anno="", type_anno="") -> None:
         _pr(f"* `{func.__name__}{call_anno}`{type_anno}: {func.__doc__}")
 
-    def _doc_prop(func):
+    def _doc_prop(func) -> None:
         return_type = typing.get_type_hints(func).get("return")
         _doc_attr(func, type_anno=f" (`{_repr_type(return_type)}`)")
 
@@ -143,7 +143,7 @@ def _parse_args(argv):
     return parser.parse_args(argv)
 
 
-def main(argv):
+def main(argv) -> None:
     args = _parse_args(argv)
     buf = io.StringIO()
     _gen_docs(buf)

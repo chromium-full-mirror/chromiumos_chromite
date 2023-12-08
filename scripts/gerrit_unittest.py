@@ -9,7 +9,7 @@ import pytest
 from chromite.scripts import gerrit
 
 
-def test_main_usage():
+def test_main_usage() -> None:
     """Basic tests for the main help."""
     # Missing subcommand is an error.
     with pytest.raises(SystemExit) as excinfo:
@@ -51,13 +51,13 @@ DATA_PROCESS_ADD_REMOVE_LISTS = (
 @pytest.mark.parametrize(
     "items, exp_add, exp_remove", DATA_PROCESS_ADD_REMOVE_LISTS
 )
-def test_process_add_remove_lists(items, exp_add, exp_remove):
+def test_process_add_remove_lists(items, exp_add, exp_remove) -> None:
     """Test process_add_remove_lists behavior."""
     add, remove = gerrit.process_add_remove_lists(items)
     assert add == exp_add and remove == exp_remove
 
 
-def test_process_add_remove_lists_invalid():
+def test_process_add_remove_lists_invalid() -> None:
     """Test validation errors."""
     # Never accept the empty string.
     with pytest.raises(SystemExit) as excinfo:

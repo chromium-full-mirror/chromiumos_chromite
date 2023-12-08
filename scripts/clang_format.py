@@ -27,7 +27,7 @@ class ClangFormatCache(cache.RemoteCache):
 
     def _Fetch(
         self, url: str, local_path: str
-    ):  # pylint: disable=arguments-differ
+    ) -> None:  # pylint: disable=arguments-differ
         expected_sha1 = url.rsplit("/", 1)[-1]
         super()._Fetch(url, local_path, hash_sha1=expected_sha1, mode=0o755)
 

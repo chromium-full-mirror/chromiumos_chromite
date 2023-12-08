@@ -43,7 +43,7 @@ def _ParseArgs(argv):
     return opts
 
 
-def main(argv):
+def main(argv) -> None:
     """Main function."""
     commandline.RunInsideChroot()
 

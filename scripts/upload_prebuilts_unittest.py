@@ -47,12 +47,12 @@ def SimplePackageIndex(header=True, packages=True):
 class TestPrebuilt(cros_test_lib.MockTestCase):
     """Tests for Prebuilt logic."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._base_local_path = "/b/cbuild/build/chroot/build/x86-dogfood/"
         self._gs_bucket_path = "gs://chromeos-prebuilt/host/version"
         self._local_path = os.path.join(self._base_local_path, "public1.tbz2")
 
-    def testGenerateUploadDict(self):
+    def testGenerateUploadDict(self) -> None:
         self.PatchObject(prebuilt.os.path, "exists", return_true=True)
         pkgs = [{"CPV": "public1"}]
         result = prebuilt.GenerateUploadDict(
@@ -63,7 +63,7 @@ class TestPrebuilt(cros_test_lib.MockTestCase):
         }
         self.assertEqual(result, expected)
 
-    def testGenerateUploadDictWithDebug(self):
+    def testGenerateUploadDictWithDebug(self) -> None:
         self.PatchObject(prebuilt.os.path, "exists", return_true=True)
         pkgs = [{"CPV": "public1", "DEBUG_SYMBOLS": "yes"}]
         result = prebuilt.GenerateUploadDict(
@@ -77,7 +77,7 @@ class TestPrebuilt(cros_test_lib.MockTestCase):
         }
         self.assertEqual(result, expected)
 
-    def testDeterminePrebuiltConfHost(self):
+    def testDeterminePrebuiltConfHost(self) -> None:
         """Test that the host prebuilt path comes back properly."""
         expected_path = os.path.join(prebuilt._PREBUILT_MAKE_CONF["amd64"])
         self.assertEqual(
@@ -89,12 +89,12 @@ class TestPrebuilt(cros_test_lib.MockTestCase):
 class TestPkgIndex(cros_test_lib.TestCase):
     """Helper for tests that update the Packages index file."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.db = {}
         self.pkgindex = SimplePackageIndex()
         self.empty = SimplePackageIndex(packages=False)
 
-    def assertURIs(self, uris):
+    def assertURIs(self, uris) -> None:
         """Verify that the duplicate DB has the specified URLs."""
         expected = [v.uri for _, v in sorted(self.db.items())]
         self.assertEqual(expected, uris)
@@ -103,7 +103,7 @@ class TestPkgIndex(cros_test_lib.TestCase):
 class TestPackagesFileFiltering(TestPkgIndex):
     """Tests for Packages filtering behavior."""
 
-    def testFilterPkgIndex(self):
+    def testFilterPkgIndex(self) -> None:
         """Test filtering out of private packages."""
         self.pkgindex.RemoveFilteredPackages(
             lambda pkg: pkg in PRIVATE_PACKAGES
@@ -115,12 +115,12 @@ class TestPackagesFileFiltering(TestPkgIndex):
 class TestPopulateDuplicateDB(TestPkgIndex):
     """Tests for the _PopulateDuplicateDB function."""
 
-    def testEmptyIndex(self):
+    def testEmptyIndex(self) -> None:
         """Test population of the duplicate DB with an empty index."""
         self.empty._PopulateDuplicateDB(self.db, 0)
         self.assertEqual(self.db, {})
 
-    def testNormalIndex(self):
+    def testNormalIndex(self) -> None:
         """Test population of the duplicate DB with a full index."""
         self.pkgindex._PopulateDuplicateDB(self.db, 0)
         self.assertURIs(
@@ -131,7 +131,7 @@ class TestPopulateDuplicateDB(TestPkgIndex):
             ]
         )
 
-    def testMissingSHA1(self):
+    def testMissingSHA1(self) -> None:
         """Test population of the duplicate DB with a missing SHA1."""
         del self.pkgindex.packages[0]["SHA1"]
         self.pkgindex._PopulateDuplicateDB(self.db, 0)
@@ -139,7 +139,7 @@ class TestPopulateDuplicateDB(TestPkgIndex):
             ["gs://example/gtk+/foo.tgz", "gs://example/private.tbz2"]
         )
 
-    def testFailedPopulate(self):
+    def testFailedPopulate(self) -> None:
         """Test failure conditions for the populate method."""
         headerless = SimplePackageIndex(header=False)
         self.assertRaises(KeyError, headerless._PopulateDuplicateDB, self.db, 0)
@@ -152,13 +152,13 @@ class TestPopulateDuplicateDB(TestPkgIndex):
 class TestResolveDuplicateUploads(cros_test_lib.MockTestCase, TestPkgIndex):
     """Tests for the ResolveDuplicateUploads function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(binpkg.time, "time", return_value=binpkg.TWO_WEEKS)
         self.db = {}
         self.dup = SimplePackageIndex()
         self.expected_pkgindex = SimplePackageIndex()
 
-    def assertNoDuplicates(self, candidates):
+    def assertNoDuplicates(self, candidates) -> None:
         """Verify no duplicates are found with the specified candidates."""
         uploads = self.pkgindex.ResolveDuplicateUploads(candidates)
         self.assertEqual(uploads, self.pkgindex.packages)
@@ -176,7 +176,7 @@ class TestResolveDuplicateUploads(cros_test_lib.MockTestCase, TestPkgIndex):
             self.pkgindex.packages, self.expected_pkgindex.packages
         )
 
-    def assertAllDuplicates(self, candidates):
+    def assertAllDuplicates(self, candidates) -> None:
         """Verify every package is a duplicate in the specified list."""
         for pkg in self.expected_pkgindex.packages:
             pkg.setdefault("PATH", pkg["CPV"] + ".tbz2")
@@ -185,20 +185,20 @@ class TestResolveDuplicateUploads(cros_test_lib.MockTestCase, TestPkgIndex):
             self.pkgindex.packages, self.expected_pkgindex.packages
         )
 
-    def testEmptyList(self):
+    def testEmptyList(self) -> None:
         """If no candidates are supplied, no duplicates should be found."""
         self.assertNoDuplicates([])
 
-    def testEmptyIndex(self):
+    def testEmptyIndex(self) -> None:
         """If no packages are supplied, no duplicates should be found."""
         self.assertNoDuplicates([self.empty])
 
-    def testDifferentURI(self):
+    def testDifferentURI(self) -> None:
         """If the URI differs, no duplicates should be found."""
         self.dup.header["URI"] = "gs://example2"
         self.assertNoDuplicates([self.dup])
 
-    def testUpdateModificationTime(self):
+    def testUpdateModificationTime(self) -> None:
         """When duplicates are found, we should use the latest mtime."""
         for pkg in self.expected_pkgindex.packages:
             pkg["MTIME"] = "10"
@@ -206,12 +206,12 @@ class TestResolveDuplicateUploads(cros_test_lib.MockTestCase, TestPkgIndex):
             pkg["MTIME"] = "4"
         self.assertAllDuplicates([self.expected_pkgindex, self.dup])
 
-    def testCanonicalUrl(self):
+    def testCanonicalUrl(self) -> None:
         """If the URL is in a different format, should still find duplicates."""
         self.dup.header["URI"] = gs_urls_util.PUBLIC_BASE_HTTPS_URL + "example"
         self.assertAllDuplicates([self.dup])
 
-    def testMissingSHA1(self):
+    def testMissingSHA1(self) -> None:
         """We should not find duplicates if there is no SHA1."""
         del self.pkgindex.packages[0]["SHA1"]
         del self.expected_pkgindex.packages[0]["SHA1"]
@@ -228,7 +228,7 @@ class TestResolveDuplicateUploads(cros_test_lib.MockTestCase, TestPkgIndex):
             self.pkgindex.packages, self.expected_pkgindex.packages
         )
 
-    def testSymbolsAvailable(self):
+    def testSymbolsAvailable(self) -> None:
         """If symbols are available remotely: re-use them, set DEBUG_SYMBOLS."""
         self.dup.packages[0]["DEBUG_SYMBOLS"] = "yes"
 
@@ -236,7 +236,7 @@ class TestResolveDuplicateUploads(cros_test_lib.MockTestCase, TestPkgIndex):
         self.assertEqual(uploads, [])
         self.assertEqual(self.pkgindex.packages[0].get("DEBUG_SYMBOLS"), "yes")
 
-    def testSymbolsAvailableLocallyOnly(self):
+    def testSymbolsAvailableLocallyOnly(self) -> None:
         """If the symbols are only available locally, reupload them."""
         self.pkgindex.packages[0]["DEBUG_SYMBOLS"] = "yes"
 
@@ -247,7 +247,7 @@ class TestResolveDuplicateUploads(cros_test_lib.MockTestCase, TestPkgIndex):
 class TestWritePackageIndex(cros_test_lib.MockTestCase, TestPkgIndex):
     """Tests for the WriteToNamedTemporaryFile function."""
 
-    def testSimple(self):
+    def testSimple(self) -> None:
         """Test simple call of WriteToNamedTemporaryFile()"""
         self.PatchObject(self.pkgindex, "Write")
         f = self.pkgindex.WriteToNamedTemporaryFile()
@@ -257,7 +257,7 @@ class TestWritePackageIndex(cros_test_lib.MockTestCase, TestPkgIndex):
 class TestUploadPrebuilt(cros_test_lib.MockTempDirTestCase):
     """Tests for the _UploadPrebuilt function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         class MockTemporaryFile:
             """Mock out the temporary file logic."""
 
@@ -281,7 +281,7 @@ class TestUploadPrebuilt(cros_test_lib.MockTempDirTestCase):
         self.remote_up_mock = self.PatchObject(prebuilt, "RemoteUpload")
         self.gs_up_mock = self.PatchObject(prebuilt, "_GsUpload")
 
-    def testSuccessfulGsUpload(self):
+    def testSuccessfulGsUpload(self) -> None:
         uploads = {
             os.path.join(self.tempdir, "private.tbz2"): "gs://foo/private.tbz2"
         }
@@ -316,7 +316,7 @@ class TestUploadPrebuilt(cros_test_lib.MockTempDirTestCase):
 class TestUpdateRemoteSdkLatestFile(cros_test_lib.MockTestCase):
     """Tests for PrebuiltUploader._UpdateRemoteSdkLatestFile."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._write_file_patch = self.PatchObject(osutils, "WriteFile")
         self.PatchObject(prebuilt.PrebuiltUploader, "_Upload")
         self.PatchObject(
@@ -342,14 +342,14 @@ class TestUpdateRemoteSdkLatestFile(cros_test_lib.MockTestCase):
             report={},
         )
 
-    def testNoChanges(self):
+    def testNoChanges(self) -> None:
         self._uploader._UpdateRemoteSdkLatestFile()
         expected = prebuilt.PrebuiltUploader._CreateRemoteSdkLatestFileContents(
             "1000"
         )
         self._write_file_patch.assert_called_with(mock.ANY, expected)
 
-    def testChangeLatestSdk(self):
+    def testChangeLatestSdk(self) -> None:
         self._uploader._UpdateRemoteSdkLatestFile(latest_sdk="3000")
         expected = prebuilt.PrebuiltUploader._CreateRemoteSdkLatestFileContents(
             "3000"
@@ -360,10 +360,10 @@ class TestUpdateRemoteSdkLatestFile(cros_test_lib.MockTestCase):
 class TestSyncPrebuilts(cros_test_lib.MockTestCase):
     """Tests for the SyncHostPrebuilts function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         clnum = [1]
 
-        def mock_rev(_filename, _data, report, *_args, **_kwargs):
+        def mock_rev(_filename, _data, report, *_args, **_kwargs) -> None:
             report.setdefault("created_cls", []).append(
                 f"https://crrev.com/unittest/{clnum[0]}"
             )
@@ -387,7 +387,7 @@ class TestSyncPrebuilts(cros_test_lib.MockTestCase):
         )
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
-    def _testSyncHostPrebuilts(self, chroot, out_dir):
+    def _testSyncHostPrebuilts(self, chroot, out_dir) -> None:
         board = "x86-foo"
         target = prebuilt.BuildTarget(board, "aura")
         slave_targets = [prebuilt.BuildTarget("x86-bar", "aura")]
@@ -449,13 +449,13 @@ class TestSyncPrebuilts(cros_test_lib.MockTestCase):
             mock.ANY, self.key, binhost
         )
 
-    def testSyncHostPrebuilts(self):
+    def testSyncHostPrebuilts(self) -> None:
         self._testSyncHostPrebuilts(chroot=None, out_dir=None)
 
-    def testSyncHostPrebuiltsWithChroot(self):
+    def testSyncHostPrebuiltsWithChroot(self) -> None:
         self._testSyncHostPrebuilts(Path("/test/chroot"), Path("/test/out"))
 
-    def testSyncBoardPrebuilts(self):
+    def testSyncBoardPrebuilts(self) -> None:
         board = "x86-foo"
         target = prebuilt.BuildTarget(board, "aura")
         slave_targets = [prebuilt.BuildTarget("x86-bar", "aura")]
@@ -545,7 +545,7 @@ class TestSyncPrebuilts(cros_test_lib.MockTestCase):
 class TestMain(cros_test_lib.MockTestCase):
     """Tests for the main() function."""
 
-    def testMain(self):
+    def testMain(self) -> None:
         """Test that the main function works."""
         # Use a real object as returned from ParseOptions as a spec for
         # the mock options object, so that we don't have any properties
@@ -651,7 +651,7 @@ class TestSdk(cros_test_lib.MockTestCase):
 
     VERSION_PREFIX = "cros-"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(
             prebuilt,
             "_GsUpload",
@@ -699,7 +699,7 @@ class TestSdk(cros_test_lib.MockTestCase):
         to_upload_path=None,
         tc_tarballs=(),
         tc_upload_path=None,
-    ):
+    ) -> None:
         """Make sure we can upload just an SDK tarball"""
         tar = "sdk.tar.xz"
         ver = "1234.08.01.5678"
@@ -752,7 +752,7 @@ LATEST_SDK=\"{ver}\""""
             mock.ANY, expected_latest_file_contents
         )
 
-    def testBoardOverlayTarballUpload(self):
+    def testBoardOverlayTarballUpload(self) -> None:
         """Make sure processing of board-specific overlay tarballs works."""
         to_tarballs = (
             (
@@ -772,7 +772,7 @@ LATEST_SDK=\"{ver}\""""
             to_tarballs=to_tarballs, to_upload_path=to_upload_path
         )
 
-    def testToolchainTarballUpload(self):
+    def testToolchainTarballUpload(self) -> None:
         """Make sure processing of toolchain tarballs works."""
         tc_tarballs = (
             "i686:/some/i686.tar.xz",
@@ -815,7 +815,7 @@ class TestSdkBuildToolchain(TestSdk):
 def test_parse_options_sync_remote_latest_file(
     extra_args: List[str],
     expected_sync: bool,
-):
+) -> None:
     """Test --sync-remote-latest-file and --no-sync-remote-latest-file.
 
     Desired behavior:

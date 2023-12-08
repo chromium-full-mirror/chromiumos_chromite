@@ -26,25 +26,25 @@ BOARD = "amd64-generic"
 class SysrootPathTest(cros_test_lib.TestCase):
     """Tests the SysrootPath class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.path_to_sysroot = _SetPathToSysroot()
         self.sysroot_relative_path = "/dir"
         self.basename = os.path.basename(self.sysroot_relative_path)
         # Chroot relative path of a path that is in the sysroot.
         self.path_in_sysroot = os.path.join(self.path_to_sysroot, self.basename)
 
-    def testSysroot(self):
+    def testSysroot(self) -> None:
         """Tests that SysrootPath.sysroot returns expected result."""
         sysroot_path = cros_fuzz.SysrootPath(self.sysroot_relative_path)
         self.assertEqual(self.sysroot_relative_path, sysroot_path.sysroot)
 
-    def testChroot(self):
+    def testChroot(self) -> None:
         """Tests that SysrootPath.chroot returns expected result."""
         sysroot_path = cros_fuzz.SysrootPath(self.sysroot_relative_path)
         expected = os.path.join(self.path_to_sysroot, self.basename)
         self.assertEqual(expected, sysroot_path.chroot)
 
-    def testIsSysrootPath(self):
+    def testIsSysrootPath(self) -> None:
         """Tests that the IsSysrootPath can tell what is in the sysroot."""
         self.assertTrue(
             cros_fuzz.SysrootPath.IsPathInSysroot(self.path_to_sysroot)
@@ -63,7 +63,7 @@ class SysrootPathTest(cros_test_lib.TestCase):
             cros_fuzz.SysrootPath.IsPathInSysroot(path_not_in_sysroot_2)
         )
 
-    def testFromChrootPathInSysroot(self):
+    def testFromChrootPathInSysroot(self) -> None:
         """Tests that FromChrootPathInSysroot converts paths properly."""
         # Test that it raises an assertion error when the path is not in the
         # sysroot.
@@ -82,7 +82,7 @@ class SysrootPathTest(cros_test_lib.TestCase):
 class GetPathForCopyTest(cros_test_lib.TestCase):
     """Tests GetPathForCopy."""
 
-    def testGetPathForCopy(self):
+    def testGetPathForCopy(self) -> None:
         """Test that GetPathForCopy gives us the correct sysroot directory."""
         _SetPathToSysroot()
         directory = "/path/to/directory"
@@ -107,7 +107,7 @@ class GetPathForCopyTest(cros_test_lib.TestCase):
 class GetLibFuzzerOptionTest(cros_test_lib.TestCase):
     """Tests GetLibFuzzerOption."""
 
-    def testGetLibFuzzerOption(self):
+    def testGetLibFuzzerOption(self) -> None:
         """Tests that GetLibFuzzerOption returns a correct libFuzzer option."""
         expected = "-max_total_time=60"
         self.assertEqual(
@@ -118,11 +118,11 @@ class GetLibFuzzerOptionTest(cros_test_lib.TestCase):
 class LimitFuzzingTest(cros_test_lib.TestCase):
     """Tests LimitFuzzing."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.fuzz_command = ["./fuzzer", "-rss_limit_mb=4096"]
         self.corpus = None
 
-    def _Helper(self, expected_command=None):
+    def _Helper(self, expected_command=None) -> None:
         """Call LimitFuzzing and assert fuzz_command equals |expected_command|.
 
         If |expected| is None, then it is set to self.fuzz_command before
@@ -133,23 +133,23 @@ class LimitFuzzingTest(cros_test_lib.TestCase):
         cros_fuzz.LimitFuzzing(self.fuzz_command, self.corpus)
         self.assertEqual(expected_command, self.fuzz_command)
 
-    def testCommandHasMaxTotalTime(self):
+    def testCommandHasMaxTotalTime(self) -> None:
         """Tests that no limit is added when user specifies -max_total_time."""
         self.fuzz_command.append("-max_total_time=60")
         self._Helper()
 
-    def testCommandHasRuns(self):
+    def testCommandHasRuns(self) -> None:
         """Tests that no limit is added when user specifies -runs"""
         self.fuzz_command.append("-runs=1")
         self._Helper()
 
-    def testCommandHasCorpus(self):
+    def testCommandHasCorpus(self) -> None:
         """Tests that a limit is added when user specifies a corpus."""
         self.corpus = "corpus"
         expected = self.fuzz_command + ["-runs=0"]
         self._Helper(expected)
 
-    def testNoLimitOrCorpus(self):
+    def testNoLimitOrCorpus(self) -> None:
         """Test a limit is added when user specifies no corpus or limit."""
         expected = self.fuzz_command + [DEFAULT_MAX_TOTAL_TIME_OPTION]
         self._Helper(expected)
@@ -158,7 +158,7 @@ class LimitFuzzingTest(cros_test_lib.TestCase):
 class RunSysrootCommandMockTestCase(cros_test_lib.MockTestCase):
     """Class for TestCases that call RunSysrootCommand."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         _SetPathToSysroot()
         self.expected_command = None
         self.expected_extra_env = None
@@ -170,7 +170,7 @@ class RunSysrootCommandMockTestCase(cros_test_lib.MockTestCase):
 
     def MockedRunSysrootCommand(
         self, command, extra_env=None, **kwargs
-    ):  # pylint: disable=unused-argument
+    ) -> None:  # pylint: disable=unused-argument
         """The mocked version of RunSysrootCommand.
 
         Asserts |command| and |extra_env| are what is expected.
@@ -182,7 +182,7 @@ class RunSysrootCommandMockTestCase(cros_test_lib.MockTestCase):
 class RunFuzzerTest(RunSysrootCommandMockTestCase):
     """Tests RunFuzzer."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.corpus_path = None
         self.fuzz_args = ""
         self.testcase_path = None
@@ -198,25 +198,25 @@ class RunFuzzerTest(RunSysrootCommandMockTestCase):
             "handle_sigtrap=1",
         }
 
-    def _Helper(self):
+    def _Helper(self) -> None:
         """Calls RunFuzzer."""
         cros_fuzz.RunFuzzer(
             FUZZ_TARGET, self.corpus_path, self.fuzz_args, self.testcase_path
         )
 
-    def testNoOptional(self):
+    def testNoOptional(self) -> None:
         """Tests correct command and env used when not specifying optional."""
         self.expected_command.append(DEFAULT_MAX_TOTAL_TIME_OPTION)
         self._Helper()
 
-    def testFuzzArgs(self):
+    def testFuzzArgs(self) -> None:
         """Test the correct command is used when fuzz_args is specified."""
         fuzz_args = [DEFAULT_MAX_TOTAL_TIME_OPTION, "-fake_arg=fake_value"]
         self.expected_command.extend(fuzz_args)
         self.fuzz_args = " ".join(fuzz_args)
         self._Helper()
 
-    def testTestCase(self):
+    def testTestCase(self) -> None:
         """Tests a testcase is used when specified."""
         self.testcase_path = "/path/to/testcase"
         self.expected_command.append(self.testcase_path)
@@ -226,7 +226,7 @@ class RunFuzzerTest(RunSysrootCommandMockTestCase):
 class MergeProfrawTest(RunSysrootCommandMockTestCase):
     """Tests MergeProfraw."""
 
-    def testMergeProfraw(self):
+    def testMergeProfraw(self) -> None:
         """Tests that MergeProfraw works as expected."""
         # Parent class will assert that these commands are used.
         profdata_path = cros_fuzz.GetProfdataPath(FUZZ_TARGET)
@@ -244,12 +244,12 @@ class MergeProfrawTest(RunSysrootCommandMockTestCase):
 class GenerateCoverageReportTest(cros_test_lib.RunCommandTestCase):
     """Tests GenerateCoverageReport."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         _SetPathToSysroot()
         self.fuzzer_path = cros_fuzz.GetFuzzerSysrootPath(FUZZ_TARGET).chroot
         self.profdata_path = cros_fuzz.GetProfdataPath(FUZZ_TARGET)
 
-    def testWithSharedLibraries(self):
+    def testWithSharedLibraries(self) -> None:
         """Tests that right command is used when specifying shared libraries."""
         shared_libraries = ["shared_lib.so"]
         cros_fuzz.GenerateCoverageReport(FUZZ_TARGET, shared_libraries)
@@ -270,7 +270,7 @@ class GenerateCoverageReportTest(cros_test_lib.RunCommandTestCase):
             expected_command, stderr=True, debug_level=logging.DEBUG
         )
 
-    def testNoSharedLibraries(self):
+    def testNoSharedLibraries(self) -> None:
         """Tests the right coverage command is used without shared libraries."""
         shared_libraries = []
         cros_fuzz.GenerateCoverageReport(FUZZ_TARGET, shared_libraries)
@@ -293,7 +293,7 @@ class GenerateCoverageReportTest(cros_test_lib.RunCommandTestCase):
 class RunSysrootCommandTest(cros_test_lib.RunCommandTestCase):
     """Tests RunSysrootCommand."""
 
-    def testRunSysrootCommand(self):
+    def testRunSysrootCommand(self) -> None:
         """Test RunSysrootCommand creates a proper command to run in sysroot."""
         command = ["./fuzz", "-rss_limit_mb=4096"]
         sysroot_path = _SetPathToSysroot()
@@ -308,7 +308,7 @@ class GetBuildExtraEnvTest(cros_test_lib.TestCase):
 
     TEST_ENV_VAR = "TEST_VAR"
 
-    def testUseAndFeaturesNotClobbered(self):
+    def testUseAndFeaturesNotClobbered(self) -> None:
         """Test values of certain environment variables are appended to."""
         vars_and_values = {"FEATURES": "foo", "USE": "bar"}
         for var, value in vars_and_values.items():
@@ -317,7 +317,7 @@ class GetBuildExtraEnvTest(cros_test_lib.TestCase):
         for var, value in vars_and_values.items():
             self.assertIn(value, extra_env[var])
 
-    def testCoverageBuild(self):
+    def testCoverageBuild(self) -> None:
         """Tests that a proper environment is returned for a coverage build."""
         extra_env = cros_fuzz.GetBuildExtraEnv(cros_fuzz.BuildType.COVERAGE)
         for expected_flag in ["fuzzer", "coverage", "asan"]:

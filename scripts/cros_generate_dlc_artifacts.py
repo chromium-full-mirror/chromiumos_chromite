@@ -249,5 +249,5 @@ def GenerateDlcArtifacts(opts: commandline.ArgumentNamespace) -> None:
             logging.debug("Skipping DLC artifacts upload")
 
 
-def main(argv):
+def main(argv) -> None:
     GenerateDlcArtifacts(ParseArguments(argv))

@@ -15,7 +15,7 @@ from chromite.scripts import security_test_image
 class SecurityTestImageTest(cros_test_lib.MockTempDirTestCase):
     """Security test image script tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         D = cros_test_lib.Directory
         filesystem = (
             D("board", ("recovery_image.bin",)),
@@ -23,7 +23,7 @@ class SecurityTestImageTest(cros_test_lib.MockTempDirTestCase):
         )
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, filesystem)
 
-    def testParseArgs(self):
+    def testParseArgs(self) -> None:
         """Argument parsing tests."""
         # pylint: disable=protected-access
         # Test no arguments.

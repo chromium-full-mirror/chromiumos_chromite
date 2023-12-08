@@ -29,20 +29,20 @@ class RunGitMock(partial_mock.PartialCmdMock):
 class ParserTest(cros_test_lib.OutputTestCase):
     """Tests for the CLI parser."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.parser = loman.GetParser()
 
-    def testNoCommand(self):
+    def testNoCommand(self) -> None:
         """Require a command at least."""
         with self.OutputCapturer():
             self.assertRaises(SystemExit, self.parser.parse_args, [])
 
-    def testBadCommand(self):
+    def testBadCommand(self) -> None:
         """Reject unknown commands."""
         with self.OutputCapturer():
             self.assertRaises(SystemExit, self.parser.parse_args, ["flyaway"])
 
-    def testAddCommand(self):
+    def testAddCommand(self) -> None:
         """Verify basic add command behavior."""
         with self.OutputCapturer():
             self.parser.parse_args(["add", "--workon", "project"])
@@ -54,7 +54,7 @@ class ParserTest(cros_test_lib.OutputTestCase):
 class ManifestTest(cros_test_lib.TempDirTestCase):
     """Tests that need a real .repo/ manifest layout."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # The loman code looks for the repo root, so make one, and chdir there.
         os.chdir(self.tempdir)
 
@@ -66,7 +66,7 @@ class ManifestTest(cros_test_lib.TempDirTestCase):
 
         self._SetManifest("default.xml")
 
-    def _SetManifest(self, manifest):
+    def _SetManifest(self, manifest) -> None:
         """Set active manifest to point to |manifest|."""
         source = os.path.join(".repo", "manifest.xml")
         target = os.path.join("manifests", manifest)
@@ -77,7 +77,7 @@ class ManifestTest(cros_test_lib.TempDirTestCase):
 class AddTest(cros_test_lib.MockOutputTestCase, ManifestTest):
     """Tests for the add command."""
 
-    def testRejectBadCommands(self):
+    def testRejectBadCommands(self) -> None:
         """Reject bad invocations."""
         bad_cmds = (
             # Missing path.
@@ -97,10 +97,10 @@ class AddTest(cros_test_lib.MockOutputTestCase, ManifestTest):
 class NoMiniayoutTest(cros_test_lib.MockOutputTestCase, ManifestTest):
     """Check deprecated minilayout setups are detected."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._SetManifest("minilayout.xml")
 
-    def testMiniLayoutDetected(self):
+    def testMiniLayoutDetected(self) -> None:
         """Check error is raised when repo is setup with minilayout."""
 
         class _Error(Exception):
@@ -117,7 +117,7 @@ class IncludeXmlTest(cros_test_lib.MockOutputTestCase, ManifestTest):
 
     PROJECT = "chromiumos/repohooks"
 
-    def setUp(self):
+    def setUp(self) -> None:
         INCLUDING_XML = "including.xml"
         INCLUDED_XML = "included.xml"
         osutils.WriteFile(
@@ -163,7 +163,7 @@ class IncludeXmlTest(cros_test_lib.MockOutputTestCase, ManifestTest):
             stdout="group1,group2",
         )
 
-    def testAddExistingProject(self):
+    def testAddExistingProject(self) -> None:
         """Add an existing project, check no local_manifest.xml are created."""
         self.git_mock.AddCmdResult(
             [
@@ -180,7 +180,7 @@ class IncludeXmlTest(cros_test_lib.MockOutputTestCase, ManifestTest):
             self.assertEqual(loman.main(cmd), 0)
         self.assertNotExists(os.path.join(".repo", "local_manifest.xml"))
 
-    def testAddNewProject(self):
+    def testAddNewProject(self) -> None:
         """Add new project to the repo.
 
         Check local_manifest.xml is created and valid.

@@ -37,7 +37,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
         Metageneration:   1
       """
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup vars and create mock dir."""
         self.android_package = "android-package"
         self.android_branch = "android-branch"
@@ -102,7 +102,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
         self.arc_bucket_url = "gs://a"
         self.runtime_artifacts_bucket_url = "gs://r"
 
-    def testFindAndroidCandidates(self):
+    def testFindAndroidCandidates(self) -> None:
         """Test creation of stable ebuilds from mock dir."""
         (unstable, stable) = cros_mark_android_as_stable.FindAndroidCandidates(
             self.mock_android_dir
@@ -114,7 +114,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
         self.assertIn(self.old, stable_ebuild_paths)
         self.assertIn(self.old2, stable_ebuild_paths)
 
-    def testMarkAndroidEBuildAsStable(self):
+    def testMarkAndroidEBuildAsStable(self) -> None:
         """Test updating of ebuild."""
         rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
         rc_mock.SetDefaultCmdResult()
@@ -150,7 +150,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(files_to_remove, [self.old2])
         self.mock_find_data_collector_artifacts.assert_called()
 
-    def testMarkAndroidEBuildAsStableIgnoreDataCollector(self):
+    def testMarkAndroidEBuildAsStableIgnoreDataCollector(self) -> None:
         rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
         rc_mock.SetDefaultCmdResult()
         self.PatchObject(
@@ -175,7 +175,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
 
         self.mock_find_data_collector_artifacts.assert_not_called()
 
-    def testUpdateDataCollectorArtifacts(self):
+    def testUpdateDataCollectorArtifacts(self) -> None:
         android_version = "100"
         self.mock_find_data_collector_artifacts.return_value = {
             "key1": "val1",
@@ -197,7 +197,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
         )
         self.mock_find_runtime_artifacts_pin.assert_not_called()
 
-    def testUpdateDataCollectorArtifactsPinBranch(self):
+    def testUpdateDataCollectorArtifactsPinBranch(self) -> None:
         android_version = "100"
         android_pin_version = "50"
 
@@ -239,7 +239,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
         )
         self.mock_find_runtime_artifacts_pin.assert_called_once()
 
-    def testMainRevved(self):
+    def testMainRevved(self) -> None:
         android_version = self.new_version
 
         rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
@@ -286,11 +286,13 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
             '\n{"android_atom": "chromeos-base/android-package-100-r1", "modified_files": ["chromeos-base/android-package/android-package-100-r1.ebuild", "chromeos-base/android-package/Manifest", "chromeos-base/android-package/android-package-50-r1.ebuild"], "revved": true}'
         )
 
-    def testMainNotRevved(self):
+    def testMainNotRevved(self) -> None:
         android_version = self.old2_version
 
         # Mock to create a stable ebuild identical to the original.
-        def MockMarkAsStable(_unstable_path, new_stable_path, _vars, **_kwargs):
+        def MockMarkAsStable(
+            _unstable_path, new_stable_path, _vars, **_kwargs
+        ) -> None:
             osutils.WriteFile(new_stable_path, self.stable_data)
 
         self.PatchObject(

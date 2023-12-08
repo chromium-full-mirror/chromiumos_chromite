@@ -56,7 +56,7 @@ def GetParser():
     return parser
 
 
-def SyncChrome(gclient_path, options):
+def SyncChrome(gclient_path, options) -> None:
     """Sync new Chrome."""
     gclient.WriteConfigFile(
         gclient_path,

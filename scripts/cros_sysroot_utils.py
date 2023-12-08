@@ -85,7 +85,7 @@ def ParseArgs(argv):
     return options
 
 
-def main(argv):
+def main(argv) -> None:
     opts = ParseArgs(argv)
     if not cros_build_lib.IsInsideChroot():
         raise commandline.ChrootRequiredError(argv)

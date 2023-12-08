@@ -55,7 +55,7 @@ class ModificationTimeMonitor:
         self._tasks = list(key_path_pairs)
         self._result_queue = multiprocessing.Queue(len(self._tasks))
 
-    def _EnqueueModificationTime(self, key, path):
+    def _EnqueueModificationTime(self, key, path) -> None:
         """Calculate the last modification time of |path| and enqueue it."""
         if os.path.isdir(path):
             self._result_queue.put((key, self._LastModificationTime(path)))
@@ -230,7 +230,7 @@ def _ParseArguments(argv):
     return flags
 
 
-def main(argv):
+def main(argv) -> None:
     commandline.RunInsideChroot()
     logging.getLogger().setLevel(logging.INFO)
     flags = _ParseArguments(argv)

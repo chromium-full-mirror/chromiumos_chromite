@@ -60,19 +60,19 @@ _SUMMARY = """\
 class TestPuppetRunSummary(cros_test_lib.TestCase):
     """Tests for _PuppetRunSummary."""
 
-    def test_config_version(self):
+    def test_config_version(self) -> None:
         summary = puppet_metrics._PuppetRunSummary(io.StringIO(_SUMMARY))
         self.assertEqual(summary.config_version, 1499979608)
 
-    def test_puppet_version(self):
+    def test_puppet_version(self) -> None:
         summary = puppet_metrics._PuppetRunSummary(io.StringIO(_SUMMARY))
         self.assertEqual(summary.puppet_version, "3.4.3")
 
-    def test_events(self):
+    def test_events(self) -> None:
         summary = puppet_metrics._PuppetRunSummary(io.StringIO(_SUMMARY))
         self.assertEqual(summary.events, {"failure": 0, "success": 7})
 
-    def test_resources(self):
+    def test_resources(self) -> None:
         summary = puppet_metrics._PuppetRunSummary(io.StringIO(_SUMMARY))
         self.assertEqual(
             summary.resources,
@@ -88,7 +88,7 @@ class TestPuppetRunSummary(cros_test_lib.TestCase):
             },
         )
 
-    def test_times(self):
+    def test_times(self) -> None:
         summary = puppet_metrics._PuppetRunSummary(io.StringIO(_SUMMARY))
         self.assertEqual(
             summary.times,
@@ -111,7 +111,7 @@ class TestPuppetRunSummary(cros_test_lib.TestCase):
             },
         )
 
-    def test_last_run_time(self):
+    def test_last_run_time(self) -> None:
         summary = puppet_metrics._PuppetRunSummary(io.StringIO(_SUMMARY))
         self.assertEqual(summary.last_run_time, 1499979671)
 
@@ -119,7 +119,7 @@ class TestPuppetRunSummary(cros_test_lib.TestCase):
 class TestPuppetMetrics(cros_test_lib.TempDirTestCase):
     """Tests for puppet_metrics."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         patcher = mock.patch(
             "chromite.third_party.infra_libs.ts_mon.common.interface.state."
             "store",
@@ -129,7 +129,7 @@ class TestPuppetMetrics(cros_test_lib.TempDirTestCase):
         self.addCleanup(patcher.stop)
         self.tempfile = os.path.join(self.tempdir, "last_run_summary.yaml")
 
-    def test_collect(self):
+    def test_collect(self) -> None:
         osutils.WriteFile(self.tempfile, _SUMMARY)
         with mock.patch("time.time", return_value=1500000000):
             with mock.patch.object(

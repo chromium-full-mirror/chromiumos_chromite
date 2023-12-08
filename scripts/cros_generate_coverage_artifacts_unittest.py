@@ -17,7 +17,7 @@ from chromite.scripts import cros_generate_coverage_artifacts
 
 def test_generate_kernel_artifacts_success(
     run_mock: cros_test_lib.RunCommandMock, tmp_path: Path
-):
+) -> None:
     """Test happy path for generating kernel artifacts."""
     filesystem = [
         cros_test_lib.Directory("dir1", ["file1.gcno"]),
@@ -39,7 +39,7 @@ def test_generate_kernel_artifacts_success(
 
 def test_generate_kernel_artifacts_exception(
     run_mock: cros_test_lib.RunCommandMock, tmp_path: Path
-):
+) -> None:
     """Test exception is thrown for runc cmd errors."""
     filesystem = [
         cros_test_lib.Directory("dir1", ["file1.gcno"]),
@@ -51,7 +51,7 @@ def test_generate_kernel_artifacts_exception(
         cros_generate_coverage_artifacts.generate_kernel_artifacts(tmp_path)
 
 
-def test_generate_kernel_artifacts_nil_gcno(tmp_path: Path):
+def test_generate_kernel_artifacts_nil_gcno(tmp_path: Path) -> None:
     """Test none result when no gcno files present."""
     filesystem = [
         cros_test_lib.Directory("dir1", ["file1.cc"]),
@@ -65,7 +65,7 @@ def test_generate_kernel_artifacts_nil_gcno(tmp_path: Path):
 
 def test_generate_LLVM_artifacts_success(
     run_mock: cros_test_lib.RunCommandMock,
-):
+) -> None:
     """Test happy path for generating LLVM artifacts."""
     files = ["file1", "file2"]
     path = constants.CHROMITE_SCRIPTS_DIR / "testdata/test.profdata"
@@ -91,7 +91,7 @@ def test_generate_LLVM_artifacts_success(
 
 def test_generate_LLVM_artifacts_exception(
     run_mock: cros_test_lib.RunCommandMock,
-):
+) -> None:
     """Test exception is thrown for runc cmd errors."""
     files = ["file1", "file2"]
     run_mock.SetDefaultCmdResult(returncode=1)
@@ -99,7 +99,7 @@ def test_generate_LLVM_artifacts_exception(
         cros_generate_coverage_artifacts.generate_llvm_artifacts(files)
 
 
-def test_generate_LLVM_artifacts_empty_files():
+def test_generate_LLVM_artifacts_empty_files() -> None:
     """Test None returns for no valid object files."""
     files = []
     assert (

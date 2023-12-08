@@ -47,7 +47,7 @@ def GetReverseDependencyClosure(full_name, deps_map, divergent_set):
     """
     s = set()
 
-    def GetClosure(name):
+    def GetClosure(name) -> None:
         node = deps_map[name]
         if UnversionedName(node) in divergent_set:
             s.add(name)
@@ -144,7 +144,7 @@ def BuildDependencyGraph(pkg, input_deps, version_map, divergent_set):
     return graph
 
 
-def main(argv):
+def main(argv) -> None:
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
         "-f",

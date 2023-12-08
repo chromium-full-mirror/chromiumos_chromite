@@ -12,17 +12,17 @@ from chromite.scripts import cros_list_overlays
 class ListOverlaysTest(cros_test_lib.MockTestCase):
     """Tests for main()"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.find_mock = self.PatchObject(portage_util, "FindOverlays")
 
-    def testSmoke(self):
+    def testSmoke(self) -> None:
         """Basic confidence check"""
         cros_list_overlays.main([])
 
-    def testAll(self):
+    def testAll(self) -> None:
         """Verify --all returns a lot."""
         cros_list_overlays.main(["--all"])
 
-    def testBoard(self):
+    def testBoard(self) -> None:
         """Check --board handling."""
         cros_list_overlays.main(["--board", "eve"])

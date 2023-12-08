@@ -17,7 +17,7 @@ from chromite.scripts import build_minios
 class BuildMiniosTest(cros_test_lib.RunCommandTempDirTestCase):
     """Unit tests for build_minios."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.create_minios_mock_return = "/some/kernel/path"
         self.create_minios_mock = self.PatchObject(
             minios,
@@ -34,7 +34,7 @@ class BuildMiniosTest(cros_test_lib.RunCommandTempDirTestCase):
         self._tempdir = os.path.join(self.tempdir, "test-dir")
         self.PatchObject(tempfile, "mkdtemp", return_value=self._tempdir)
 
-    def testDefaultArguments(self):
+    def testDefaultArguments(self) -> None:
         """Test that default arguments of build_minios are formatted correct."""
         test_board = "test-board"
         test_version = "0.0.0.0"
@@ -87,7 +87,7 @@ class BuildMiniosTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testOverridenArguments(self):
+    def testOverridenArguments(self) -> None:
         """Test overridden arguments of build_minios are formatted correctly."""
         test_board = "test-board"
         test_version = "1.0.0.0"
@@ -154,7 +154,7 @@ class BuildMiniosTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testModForDev(self):
+    def testModForDev(self) -> None:
         """Test that default arguments of build_minios are formatted correct."""
         test_board = "test-board"
         test_version = "0.0.0.0"
@@ -210,7 +210,7 @@ class BuildMiniosTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testModForDevWithForceBuild(self):
+    def testModForDevWithForceBuild(self) -> None:
         """Test that default arguments of build_minios are formatted correct."""
         test_board = "test-board"
         test_version = "0.0.0.0"

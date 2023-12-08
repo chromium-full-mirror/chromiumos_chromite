@@ -43,7 +43,7 @@
 import wrapper3
 
 
-def main():
+def main() -> None:
     wrapper3.DoMain()
 
 

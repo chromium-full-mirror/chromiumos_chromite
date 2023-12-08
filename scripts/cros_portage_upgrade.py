@@ -191,7 +191,7 @@ class Upgrader:
         """Return True if running in upgrade mode."""
         return self._upgrade or self._upgrade_deep
 
-    def _SaveStatusOnStableRepo(self):
+    def _SaveStatusOnStableRepo(self) -> None:
         """Get the 'git status' for everything in |self._stable_repo|.
 
         The results are saved in a dict at self._stable_repo_status where each
@@ -226,7 +226,7 @@ class Upgrader:
 
         self._stable_repo_stashed = False
 
-    def _LoadStableRepoCategories(self):
+    def _LoadStableRepoCategories(self) -> None:
         """Load |self._stable_repo|/profiles/categories into set."""
 
         self._stable_repo_categories = set()
@@ -237,7 +237,7 @@ class Upgrader:
                 if line:
                     self._stable_repo_categories.add(line)
 
-    def _WriteStableRepoCategories(self):
+    def _WriteStableRepoCategories(self) -> None:
         """Write |self._stable_repo_categories| to profiles/categories."""
 
         categories = sorted(self._stable_repo_categories)
@@ -247,7 +247,7 @@ class Upgrader:
 
         self._RunGit(self._stable_repo, ["add", self.CATEGORIES_FILE])
 
-    def _CheckStableRepoOnBranch(self):
+    def _CheckStableRepoOnBranch(self) -> None:
         """Raise exception if |self._stable_repo| is not on a branch now."""
         result = self._RunGit(self._stable_repo, ["branch"], stdout=True)
         if result.returncode == 0:
@@ -290,7 +290,9 @@ class Upgrader:
         )
 
     @staticmethod
-    def _GetPreOrderDepGraphPackage(deps_graph, package, pkglist, visited):
+    def _GetPreOrderDepGraphPackage(
+        deps_graph, package, pkglist, visited
+    ) -> None:
         """Collect packages from |deps_graph| into |pkglist| in pre-order."""
         if package in visited:
             return
@@ -553,7 +555,7 @@ class Upgrader:
         (_overlay, cat, _pn, pv) = result
         return os.path.join(cat, pv)
 
-    def _SetUpgradedMaskBits(self, pinfo):
+    def _SetUpgradedMaskBits(self, pinfo) -> None:
         """Set pinfo.upgraded_unmasked."""
         cpv = pinfo.upgraded_cpv
         envvars = self._GenPortageEnvvars(self._curr_arch, unstable_ok=False)
@@ -592,7 +594,9 @@ class Upgrader:
             " %s\noutput:\n %s" % (cpv, " ".join(cmd), output)
         )
 
-    def _VerifyEbuildOverlay(self, cpv, expected_overlay, was_overwrite):
+    def _VerifyEbuildOverlay(
+        self, cpv, expected_overlay, was_overwrite
+    ) -> None:
         """Raises exception if ebuild for |cpv| is not from |expected_overlay|.
 
         Essentially, this verifies that the upgraded ebuild in portage-stable
@@ -692,7 +696,7 @@ class Upgrader:
 
         return None
 
-    def _GiveMaskedError(self, upgraded_cpv, emerge_output):
+    def _GiveMaskedError(self, upgraded_cpv, emerge_output) -> None:
         """Print error saying that |upgraded_cpv| is masked off.
 
         See if hint found in |emerge_output| to improve error emssage.
@@ -743,7 +747,7 @@ class Upgrader:
         files = [f for (f, s) in self._stable_repo_status.items() if s != "??"]
         return bool(len(files))
 
-    def _StashChanges(self):
+    def _StashChanges(self) -> None:
         """Run 'git stash save' on stable repo."""
         # Only one level of stashing expected/supported.
         self._RunGit(
@@ -754,7 +758,7 @@ class Upgrader:
         )
         self._stable_repo_stashed = True
 
-    def _UnstashAnyChanges(self):
+    def _UnstashAnyChanges(self) -> None:
         """Unstash any changes in stable repo."""
         # Only one level of stashing expected/supported.
         if self._stable_repo_stashed:
@@ -766,7 +770,7 @@ class Upgrader:
             )
             self._stable_repo_stashed = False
 
-    def _DropAnyStashedChanges(self):
+    def _DropAnyStashedChanges(self) -> None:
         """Drop any stashed changes in stable repo."""
         # Only one level of stashing expected/supported.
         if self._stable_repo_stashed:
@@ -840,7 +844,7 @@ class Upgrader:
 
         return upstream_cpv
 
-    def _StabilizeEbuild(self, ebuild_path):
+    def _StabilizeEbuild(self, ebuild_path) -> None:
         """Edit keywords to stablize ebuild at |ebuild_path| on current arch."""
         oper.Notice("Editing %r to mark it stable for everyone" % ebuild_path)
 
@@ -856,7 +860,7 @@ class Upgrader:
         # Write ebuild file back out.
         osutils.WriteFile(ebuild_path, content)
 
-    def _FixPythonCompat(self, ebuild_path):
+    def _FixPythonCompat(self, ebuild_path) -> None:
         """Edit PYTHON_COMPAT to cover the python versions used by ChromeOS."""
         oper.Notice(f"Fixing up PYTHON_COMPAT for {ebuild_path!r}")
 
@@ -954,7 +958,7 @@ class Upgrader:
         return state
 
     # TODO(mtennant): Generate output from finished table instead.
-    def _PrintPackageLine(self, pinfo):
+    def _PrintPackageLine(self, pinfo) -> None:
         """Print a brief one-line report of package status."""
         upstream_cpv = pinfo.upstream_cpv
         if pinfo.upgraded_cpv:
@@ -1070,14 +1074,14 @@ class Upgrader:
 
         return bool(pinfo.upgraded_cpv)
 
-    def _UpdateCategories(self, pinfo):
+    def _UpdateCategories(self, pinfo) -> None:
         """Update profiles/categories to include category in |pinfo|."""
 
         if pinfo.category not in self._stable_repo_categories:
             self._stable_repo_categories.add(pinfo.category)
             self._WriteStableRepoCategories()
 
-    def _VerifyPackageUpgrade(self, pinfo):
+    def _VerifyPackageUpgrade(self, pinfo) -> None:
         """Verify that the upgraded package in |pinfo| passes checks."""
         self._VerifyEbuildOverlay(
             pinfo.upgraded_cpv,
@@ -1085,7 +1089,7 @@ class Upgrader:
             pinfo.cpv_cmp_upstream == 0,
         )
 
-    def _PackageReport(self, pinfo):
+    def _PackageReport(self, pinfo) -> None:
         """Report on whatever was done with package in |pinfo|."""
 
         pinfo.state = self._GetPackageUpgradeState(pinfo)
@@ -1180,7 +1184,7 @@ class Upgrader:
 
         return self._CreateCommitMessage(upgrade_lines, remaining_lines)
 
-    def _GiveEmergeResults(self, pinfolist):
+    def _GiveEmergeResults(self, pinfolist) -> None:
         """Summarize emerge checks, raise RuntimeError if there is a problem."""
 
         upgraded_pinfos = [pinfo for pinfo in pinfolist if pinfo.upgraded_cpv]
@@ -1232,7 +1236,7 @@ class Upgrader:
                 % self._curr_board
             )
 
-    def _UpgradePackages(self, pinfolist):
+    def _UpgradePackages(self, pinfolist) -> None:
         """Given a list of cpv pinfos, adds the upstream cpv to the pinfos."""
         try:
             upgrades_this_run = False
@@ -1271,7 +1275,7 @@ class Upgrader:
             # address the issue (perhaps an edit to package.mask is required, or
             # another package must also be upgraded).
 
-    def _CheckStagedUpgrades(self, pinfolist):
+    def _CheckStagedUpgrades(self, pinfolist) -> None:
         """Raise RuntimeError if staged upgrades are not also in |pinfolist|."""
         # This deals with the situation where a previous upgrade run staged one
         # or more package upgrades, but did not commit them because it found an
@@ -1324,7 +1328,7 @@ class Upgrader:
 
         return argv
 
-    def _SetPortTree(self, settings, trees):
+    def _SetPortTree(self, settings, trees) -> None:
         """Set self._porttree from portage |settings| and |trees|."""
         root = settings["ROOT"]
         self._porttree = trees[root]["porttree"]
@@ -1342,7 +1346,7 @@ class Upgrader:
         self._FillPInfoFromCPV(pinfo, cpv, cpv_key)
         return pinfo
 
-    def _FillPInfoFromCPV(self, pinfo, cpv, cpv_key=None):
+    def _FillPInfoFromCPV(self, pinfo, cpv, cpv_key=None) -> None:
         """Flesh out |pinfo| from |cpv|."""
         pkg = Upgrader._GetCatPkgFromCpv(cpv)
         (cat, pn) = pkg.split("/")
@@ -1581,7 +1585,7 @@ class Upgrader:
 
         return pinfolist
 
-    def _DowngradeEAPI(self):
+    def _DowngradeEAPI(self) -> None:
         """Downgrade to supported EAPI for requested packages."""
         oper.Notice(f"Downgrading EAPI version for {self._args}.")
         pkg_dirs = []
@@ -1627,7 +1631,7 @@ class Upgrader:
         except OSError as e:
             oper.Error(f"Failed to downgrade ebuild file(s) {e}")
 
-    def PrepareToRun(self):
+    def PrepareToRun(self) -> None:
         """Checkout upstream gentoo if necessary, and any other prep steps."""
         if os.path.exists(self._upstream):
             if self._local_only:
@@ -1702,7 +1706,7 @@ class Upgrader:
         # An empty directory is needed to trick equery later.
         self._emptydir = tempfile.mkdtemp()
 
-    def RunCompleted(self):
+    def RunCompleted(self) -> None:
         """Undo any checkout of upstream gentoo if requested."""
         if self._no_upstream_cache:
             oper.Notice(
@@ -1723,7 +1727,7 @@ class Upgrader:
         """Return True if upgrades are staged and ready for a commit."""
         return bool(self._upgrade_cnt)
 
-    def Commit(self):
+    def Commit(self) -> None:
         """Commit whatever has been prepared in the stable repo."""
         # Lines for the body of the commit message.
         commit_lines = []
@@ -1792,14 +1796,14 @@ class Upgrader:
                 % (self.STABLE_OVERLAY_NAME, self._stable_repo)
             )
 
-    def PreRunChecks(self):
+    def PreRunChecks(self) -> None:
         """Run any board-independent validation checks before Run is called."""
         # Upfront check(s) if upgrade is requested.
         if self._upgrade or self._upgrade_deep:
             # Stable source must be on branch.
             self._CheckStableRepoOnBranch()
 
-    def RunBoard(self, board):
+    def RunBoard(self, board) -> None:
         """Runs the upgrader based on the supplied options and arguments.
 
         Currently just lists all package dependencies in pre-order along with
@@ -1880,7 +1884,7 @@ class Upgrader:
         finally:
             self._DropAnyStashedChanges()
 
-    def SayGoodbye(self):
+    def SayGoodbye(self) -> None:
         """Print any final messages to user."""
         if not self._IsInUpgradeMode():
             # Without this message users are confused why running a script
@@ -2025,7 +2029,7 @@ def _CreateParser():
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     """Main function."""
     parser = _CreateParser()
     options = parser.parse_args(argv)

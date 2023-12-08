@@ -68,7 +68,7 @@ def _ParseArguments(argv):
     return opts
 
 
-def main(argv):
+def main(argv) -> None:
     opts = _ParseArguments(argv)
     cros_build_lib.AssertInsideChroot()
 

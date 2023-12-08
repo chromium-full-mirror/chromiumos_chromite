@@ -26,7 +26,7 @@ def GetReverseDependencyClosure(full_name, deps_map):
     """
     s = set()
 
-    def GetClosure(name):
+    def GetClosure(name) -> None:
         s.add(name)
         node = deps_map[name]
         for dep in node["rev_deps"]:
@@ -48,7 +48,7 @@ def GetOutputBaseName(node, options):
     )
 
 
-def AddNodeToSubgraph(subgraph, node, options, color):
+def AddNodeToSubgraph(subgraph, node, options, color) -> None:
     """Gets the dot definition for a node."""
     name = node["full_name"]
     href = None
@@ -110,7 +110,7 @@ def GenerateDotGraph(package, deps_map, options):
     return graph.Gen()
 
 
-def GenerateImages(data, options):
+def GenerateImages(data, options) -> None:
     """Generate the output images for all the nodes in the input."""
     deps_map = json.loads(data)
 
@@ -158,7 +158,7 @@ def GetParser():
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     parser = GetParser()
     options = parser.parse_args(argv)
     options.Freeze()

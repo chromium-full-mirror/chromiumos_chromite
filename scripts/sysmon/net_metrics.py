@@ -56,7 +56,7 @@ _net_if_mtu_metric = metrics.GaugeMetric(
 )
 
 
-def collect_net_info():
+def collect_net_info() -> None:
     """Collect network metrics."""
     _collect_net_io_duplex_counters()
     _collect_net_if_stats()
@@ -93,7 +93,7 @@ _net_io_duplex_metrics = (
 )
 
 
-def _collect_net_io_duplex_counters():
+def _collect_net_io_duplex_counters() -> None:
     """Collect metrics for network IO duplex counters."""
     for nic, counters in _net_io_iter():
         fields = {"interface": nic}
@@ -135,7 +135,7 @@ _net_if_metrics = (
 )
 
 
-def _collect_net_if_stats():
+def _collect_net_if_stats() -> None:
     """Collect metrics for network interface stats."""
     for nic, stats in psutil.net_if_stats().items():
         if _is_virtual_netif(nic):
@@ -156,7 +156,7 @@ _family_field_strings = {
 }
 
 
-def _collect_net_if_addrs():
+def _collect_net_if_addrs() -> None:
     """Collects network addresses as metrics."""
     for nic, addresses in psutil.net_if_addrs().items():
         if _is_virtual_netif(nic):
@@ -178,7 +178,7 @@ def _is_virtual_netif(nic):
 _fqdn_metric = metrics.StringMetric("net/fqdn", description="FQDN")
 
 
-def _collect_fqdn():
+def _collect_fqdn() -> None:
     fqdn = socket.getfqdn()
     logging.debug("Got FQDN: %s", fqdn)
     _fqdn_metric.set(fqdn)

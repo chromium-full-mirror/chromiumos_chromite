@@ -16,7 +16,7 @@ def _ParseArguments(argv):
     return opts
 
 
-def displayConfigs(label, configs):
+def displayConfigs(label, configs) -> None:
     print("== %s ==" % label)
 
     for config in sorted(configs, key=lambda c: c.name):
@@ -28,7 +28,7 @@ def displayConfigs(label, configs):
     print()
 
 
-def main(argv):
+def main(argv) -> None:
     _ = _ParseArguments(argv)
 
     site_config = config_lib.GetConfig()

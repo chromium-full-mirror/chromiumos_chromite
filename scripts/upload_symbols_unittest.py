@@ -68,7 +68,7 @@ some junk
 STACK CFI 1234
 """
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Make certain we don't use the network.
         self.urlopen_mock = self.PatchObject(urllib.request, "urlopen")
         self.request_mock = self.PatchObject(
@@ -129,7 +129,7 @@ class SymbolServerRequestHandler(http.server.BaseHTTPRequestHandler):
     RESP_CODE = None
     RESP_MSG = None
 
-    def do_POST(self):
+    def do_POST(self) -> None:
         """Handle a POST request"""
         # Drain the data from the client.  If we don't, we might write the
         # response and close the socket before the client finishes, so they die
@@ -141,7 +141,7 @@ class SymbolServerRequestHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
     # pylint: disable=arguments-differ
-    def log_message(self, *args, **kwargs):
+    def log_message(self, *args, **kwargs) -> None:
         """Stub the logger as it writes to stderr"""
 
 
@@ -156,7 +156,7 @@ class UploadSymbolsServerTest(cros_test_lib.MockTempDirTestCase):
     SYM_CONTENTS = """MODULE Linux arm 123-456 blkid
 PUBLIC 1471 0 main"""
 
-    def SpawnServer(self, RequestHandler):
+    def SpawnServer(self, RequestHandler) -> None:
         """Spawn a new http server"""
         while True:
             try:
@@ -176,7 +176,7 @@ PUBLIC 1471 0 main"""
         # The child runs the server, so close the socket in the parent.
         self.httpd.server_close()
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.httpd_pid = None
         self.httpd = None
         self.server_url = None
@@ -188,12 +188,12 @@ PUBLIC 1471 0 main"""
         self.PatchObject(upload_symbols, "INITIAL_RETRY_DELAY", 0)
         self.PatchObject(upload_symbols, "MAX_RETRIES", 0)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # Only kill the server if we forked one.
         if self.httpd_pid:
             os.kill(self.httpd_pid, signal.SIGUSR1)
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """The server returns success for all uploads"""
 
         class Handler(SymbolServerRequestHandler):
@@ -217,7 +217,7 @@ PUBLIC 1471 0 main"""
         )
         self.assertEqual(ret, 0)
 
-    def testError(self):
+    def testError(self) -> None:
         """The server returns errors for all uploads"""
 
         class Handler(SymbolServerRequestHandler):
@@ -234,7 +234,7 @@ PUBLIC 1471 0 main"""
         )
         self.assertEqual(ret, 10)
 
-    def testHungServer(self):
+    def testHungServer(self) -> None:
         """The server chokes, but we recover"""
 
         class Handler(SymbolServerRequestHandler):
@@ -244,7 +244,7 @@ PUBLIC 1471 0 main"""
                 upload_symbols, "ExecRequest", return_value={"pairs": []}
             )
 
-            def do_POST(self):
+            def do_POST(self) -> None:
                 while True:
                     time.sleep(1000)
 
@@ -263,7 +263,7 @@ PUBLIC 1471 0 main"""
 class UploadSymbolsHelpersTest(cros_test_lib.TestCase):
     """Test assorted helper functions and classes."""
 
-    def testIsTarball(self):
+    def testIsTarball(self) -> None:
         notTar = [
             "/foo/bar/test.bin",
             "/foo/bar/test.tar.bin",
@@ -289,7 +289,7 @@ class UploadSymbolsHelpersTest(cros_test_lib.TestCase):
         for p in isTar:
             self.assertTrue(upload_symbols.IsTarball(p))
 
-    def testBatchGenerator(self):
+    def testBatchGenerator(self) -> None:
         result = upload_symbols.BatchGenerator([], 2)
         self.assertEqual(list(result), [])
 
@@ -308,7 +308,7 @@ class UploadSymbolsHelpersTest(cros_test_lib.TestCase):
 class FindSymbolFilesTest(SymbolsTestBase):
     """Test FindSymbolFiles."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.symfile = self.createSymbolFile("root.sym").file_name
         self.innerfile = self.createSymbolFile(
             os.path.join("nested", "inner.sym")
@@ -321,11 +321,11 @@ class FindSymbolFilesTest(SymbolsTestBase):
         # cros_build_lib.CreateTarball(
         #     'syms.tar.gz', self.tempdir, inputs=(self.data))
 
-    def testEmpty(self):
+    def testEmpty(self) -> None:
         symbols = list(upload_symbols.FindSymbolFiles(self.working, []))
         self.assertEqual(symbols, [])
 
-    def testFile(self):
+    def testFile(self) -> None:
         symbols = list(
             upload_symbols.FindSymbolFiles(self.working, [self.symfile])
         )
@@ -339,7 +339,7 @@ class FindSymbolFilesTest(SymbolsTestBase):
         self.assertEqual(sf.status, upload_symbols.SymbolFile.INITIAL)
         self.assertEqual(sf.FileSize(), len(self.FAT_CONTENT))
 
-    def testDir(self):
+    def testDir(self) -> None:
         symbols = list(
             upload_symbols.FindSymbolFiles(self.working, [self.data])
         )
@@ -364,7 +364,7 @@ class FindSymbolFilesTest(SymbolsTestBase):
 class AdjustSymbolFileSizeTest(SymbolsTestBase):
     """Test AdjustSymbolFileSize."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.slim = self.createSymbolFile("slim.sym", self.SLIM_CONTENT)
         self.fat = self.createSymbolFile("fat.sym", self.FAT_CONTENT)
 
@@ -372,7 +372,7 @@ class AdjustSymbolFileSizeTest(SymbolsTestBase):
             cbuildbot_alerts, "PrintBuildbotStepWarnings"
         )
 
-    def _testNotStripped(self, symbol, size=None, content=None):
+    def _testNotStripped(self, symbol, size=None, content=None) -> None:
         start_file = symbol.file_name
         after = upload_symbols.AdjustSymbolFileSize(symbol, self.working, size)
         self.assertIs(after, symbol)
@@ -380,31 +380,31 @@ class AdjustSymbolFileSizeTest(SymbolsTestBase):
         if content is not None:
             self.assertEqual(osutils.ReadFile(after.file_name), content)
 
-    def _testStripped(self, symbol, size=None, content=None):
+    def _testStripped(self, symbol, size=None, content=None) -> None:
         after = upload_symbols.AdjustSymbolFileSize(symbol, self.working, size)
         self.assertIs(after, symbol)
         self.assertTrue(after.file_name.startswith(self.working))
         if content is not None:
             self.assertEqual(osutils.ReadFile(after.file_name), content)
 
-    def testSmall(self):
+    def testSmall(self) -> None:
         """Ensure that files smaller than the limit are not modified."""
         self._testNotStripped(self.slim, 1024, self.SLIM_CONTENT)
         self._testNotStripped(self.fat, 1024, self.FAT_CONTENT)
 
-    def testLarge(self):
+    def testLarge(self) -> None:
         """Ensure that files larger than the limit are modified."""
         self._testStripped(self.slim, 1, self.SLIM_CONTENT)
         self._testStripped(self.fat, 1, self.SLIM_CONTENT)
 
-    def testMixed(self):
+    def testMixed(self) -> None:
         """Test mix of large and small."""
         strip_size = len(self.SLIM_CONTENT) + 1
 
         self._testNotStripped(self.slim, strip_size, self.SLIM_CONTENT)
         self._testStripped(self.fat, strip_size, self.SLIM_CONTENT)
 
-    def testSizeWarnings(self):
+    def testSizeWarnings(self) -> None:
         large = self.createSymbolFile(
             "large.sym",
             content=self.SLIM_CONTENT,
@@ -421,7 +421,7 @@ class AdjustSymbolFileSizeTest(SymbolsTestBase):
 class DeduplicateTest(SymbolsTestBase):
     """Test server Deduplication."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(
             upload_symbols,
             "ExecRequest",
@@ -452,7 +452,7 @@ class DeduplicateTest(SymbolsTestBase):
             },
         )
 
-    def testFindDuplicates(self):
+    def testFindDuplicates(self) -> None:
         # The first two symbols will be duplicate, the third new.
         sym1 = self.createSymbolFile("sym1.sym")
         sym1.header = cros_generate_breakpad_symbols.SymbolHeader(
@@ -480,7 +480,7 @@ class DeduplicateTest(SymbolsTestBase):
 class PerformSymbolFilesUploadTest(SymbolsTestBase):
     """Test PerformSymbolFile, and it's helper methods."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.sym_initial = self.createSymbolFile("initial.sym")
         self.sym_error = self.createSymbolFile(
             "error.sym", status=upload_symbols.SymbolFile.ERROR
@@ -492,7 +492,7 @@ class PerformSymbolFilesUploadTest(SymbolsTestBase):
             "uploaded.sym", status=upload_symbols.SymbolFile.UPLOADED
         )
 
-    def testGetUploadTimeout(self):
+    def testGetUploadTimeout(self) -> None:
         """Test GetUploadTimeout helper function."""
         # Timeout for small file.
         self.assertEqual(
@@ -504,14 +504,14 @@ class PerformSymbolFilesUploadTest(SymbolsTestBase):
         large = self.createSymbolFile("large.sym", size=(512 * 1024 * 1024))
         self.assertEqual(upload_symbols.GetUploadTimeout(large), 15 * 60)
 
-    def testUploadSymbolFile(self):
+    def testUploadSymbolFile(self) -> None:
         upload_symbols.UploadSymbolFile(
             "fake_url", self.sym_initial, api_key="testkey"
         )
         # TODO: Examine mock in more detail to make sure request is correct.
         self.assertEqual(self.request_mock.call_count, 3)
 
-    def testPerformSymbolsFileUpload(self):
+    def testPerformSymbolsFileUpload(self) -> None:
         """We upload on first try."""
         symbols = [self.sym_initial]
 
@@ -525,7 +525,7 @@ class PerformSymbolFilesUploadTest(SymbolsTestBase):
         )
         self.assertEqual(self.request_mock.call_count, 3)
 
-    def testPerformSymbolsFileUploadFailure(self):
+    def testPerformSymbolsFileUploadFailure(self) -> None:
         """All network requests fail."""
         self.request_mock.side_effect = IOError("network failure")
         symbols = [self.sym_initial]
@@ -540,7 +540,7 @@ class PerformSymbolFilesUploadTest(SymbolsTestBase):
         )
         self.assertEqual(self.request_mock.call_count, 6)
 
-    def testPerformSymbolsFileUploadTransisentFailure(self):
+    def testPerformSymbolsFileUploadTransisentFailure(self) -> None:
         """We fail once, then succeed."""
         self.urlopen_mock.side_effect = (IOError("network failure"), None)
         symbols = [self.sym_initial]
@@ -555,7 +555,7 @@ class PerformSymbolFilesUploadTest(SymbolsTestBase):
         )
         self.assertEqual(self.request_mock.call_count, 3)
 
-    def testPerformSymbolsFileUploadMixed(self):
+    def testPerformSymbolsFileUploadMixed(self) -> None:
         """Upload symbols in mixed starting states.
 
         Demonstrate that INITIAL and ERROR are uploaded, but DUPLICATE/UPLOADED
@@ -588,7 +588,7 @@ class PerformSymbolFilesUploadTest(SymbolsTestBase):
         )
         self.assertEqual(self.request_mock.call_count, 6)
 
-    def testPerformSymbolsFileUploadErrorOut(self):
+    def testPerformSymbolsFileUploadErrorOut(self) -> None:
         """Demonstate we exit only after X errors."""
 
         symbol_count = upload_symbols.MAX_TOTAL_ERRORS_FOR_RETRY + 10
@@ -605,7 +605,7 @@ class PerformSymbolFilesUploadTest(SymbolsTestBase):
             symbols.append(fail)
 
         # Mock out UploadSymbolFile and fail for fail.sym files.
-        def failSome(_url, symbol, _api_key):
+        def failSome(_url, symbol, _api_key) -> None:
             if symbol.file_name == fail_file:
                 raise IOError("network failure")
 
@@ -644,18 +644,18 @@ class PerformSymbolFilesUploadTest(SymbolsTestBase):
 class UploadSymbolsTest(SymbolsTestBase):
     """Test UploadSymbols, along with most helper methods."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Results gathering.
         self.failure_file = os.path.join(self.tempdir, "failures.txt")
 
-    def testUploadSymbolsEmpty(self):
+    def testUploadSymbolsEmpty(self) -> None:
         """Upload dir is empty."""
         result = upload_symbols.UploadSymbols([self.data], "fake_url")
 
         self.assertEqual(result, 0)
         self.assertEqual(self.urlopen_mock.call_count, 0)
 
-    def testUploadSymbols(self):
+    def testUploadSymbols(self) -> None:
         """Upload a few files."""
         self.createSymbolFile("slim.sym", self.SLIM_CONTENT)
         self.createSymbolFile(os.path.join("nested", "inner.sym"))
@@ -673,7 +673,7 @@ class UploadSymbolsTest(SymbolsTestBase):
         self.assertEqual(self.request_mock.call_count, 10)
         self.assertEqual(osutils.ReadFile(self.failure_file), "")
 
-    def testUploadSymbolsLimited(self):
+    def testUploadSymbolsLimited(self) -> None:
         """Upload a few files."""
         self.createSymbolFile("slim.sym", self.SLIM_CONTENT)
         self.createSymbolFile(os.path.join("nested", "inner.sym"))
@@ -687,12 +687,12 @@ class UploadSymbolsTest(SymbolsTestBase):
         self.assertEqual(self.request_mock.call_count, 7)
         self.assertNotExists(self.failure_file)
 
-    def testUploadSymbolsFailures(self):
+    def testUploadSymbolsFailures(self) -> None:
         """Upload a few files."""
         self.createSymbolFile("pass.sym")
         fail = self.createSymbolFile("fail.sym")
 
-        def failSome(_url, symbol, _api_key):
+        def failSome(_url, symbol, _api_key) -> None:
             if symbol.file_name == fail.file_name:
                 raise IOError("network failure")
 

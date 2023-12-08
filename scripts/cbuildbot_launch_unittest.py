@@ -35,7 +35,7 @@ class FakeException(Exception):
 class CbuildbotLaunchTest(cros_test_lib.MockTestCase):
     """Tests for cbuildbot_launch script."""
 
-    def testPreParseArguments(self):
+    def testPreParseArguments(self) -> None:
         """Test we can correctly extract branch values from cbuildbot args."""
         CASES = (
             (
@@ -81,7 +81,7 @@ class CbuildbotLaunchTest(cros_test_lib.MockTestCase):
             self.assertEqual(options.buildroot, expected_buildroot)
             self.assertEqual(options.git_cache_dir, expected_cache_dir)
 
-    def testInitialCheckout(self):
+    def testInitialCheckout(self) -> None:
         """Test InitialCheckout with minimum settings."""
         mock_repo = mock.MagicMock()
         mock_repo.branch = "branch"
@@ -98,7 +98,7 @@ class CbuildbotLaunchTest(cros_test_lib.MockTestCase):
             ],
         )
 
-    def testConfigureGlobalEnvironment(self):
+    def testConfigureGlobalEnvironment(self) -> None:
         """Ensure that we can setup our global runtime environment correctly."""
 
         os.environ.pop("LANG", None)
@@ -123,7 +123,7 @@ class RunTests(cros_test_lib.RunCommandTestCase):
     ARGS_CONFIG = ["config"]
     CMD = ["/cbuildbot_buildroot/chromite/bin/cbuildbot"]
 
-    def verifyCbuildbot(self, args, expected_cmd, version):
+    def verifyCbuildbot(self, args, expected_cmd, version) -> None:
         """Ensure we invoke cbuildbot correctly."""
         self.PatchObject(
             commands,
@@ -141,7 +141,7 @@ class RunTests(cros_test_lib.RunCommandTestCase):
             check=False,
         )
 
-    def testCbuildbotSimple(self):
+    def testCbuildbotSimple(self) -> None:
         """Ensure we invoke cbuildbot correctly."""
         self.verifyCbuildbot(
             self.ARGS_BASE + self.ARGS_CONFIG,
@@ -149,7 +149,7 @@ class RunTests(cros_test_lib.RunCommandTestCase):
             (0, 4),
         )
 
-    def testCbuildbotNotFiltered(self):
+    def testCbuildbotNotFiltered(self) -> None:
         """Ensure we invoke cbuildbot correctly."""
         self.verifyCbuildbot(
             self.ARGS_BASE + self.ARGS_CONFIG + self.ARGS_GIT_CACHE,
@@ -162,7 +162,7 @@ class RunTests(cros_test_lib.RunCommandTestCase):
             (0, 4),
         )
 
-    def testCbuildbotFiltered(self):
+    def testCbuildbotFiltered(self) -> None:
         """Ensure we invoke cbuildbot correctly."""
         self.verifyCbuildbot(
             self.ARGS_BASE + self.ARGS_CONFIG + self.ARGS_GIT_CACHE,
@@ -170,7 +170,7 @@ class RunTests(cros_test_lib.RunCommandTestCase):
             (0, 2),
         )
 
-    def testMainMin(self):
+    def testMainMin(self) -> None:
         """Test a minimal set of command line options."""
         self.PatchObject(osutils, "SafeMakedirs", autospec=True)
         self.PatchObject(
@@ -278,7 +278,7 @@ class RunTests(cros_test_lib.RunCommandTestCase):
         # Ensure we clean the chroot, as expected.
         mock_cleanup_chroot.assert_called_once_with("/root/repository")
 
-    def testMainMax(self):
+    def testMainMax(self) -> None:
         """Test a larger set of command line options."""
         self.PatchObject(osutils, "SafeMakedirs", autospec=True)
         self.PatchObject(
@@ -437,7 +437,7 @@ class RunTests(cros_test_lib.RunCommandTestCase):
 class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
     """Tests for CleanBuildRoot method."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Create standard buildroot contents for cleanup."""
         self.root = os.path.join(self.tempdir)
         self.previous_build_state = os.path.join(
@@ -453,7 +453,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         self.mock_repo = mock.Mock(repository.RepoRepository)
         self.mock_repo.directory = self.buildroot
 
-    def populateBuildroot(self, previous_build_state=None):
+    def populateBuildroot(self, previous_build_state=None) -> None:
         """Create standard buildroot contents for cleanup."""
         if previous_build_state:
             osutils.SafeMakedirs(self.root)
@@ -463,7 +463,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         for f in (self.repo, self.chroot, self.general, self.distfiles):
             osutils.Touch(f, makedirs=True)
 
-    def testNoBuildroot(self):
+    def testNoBuildroot(self) -> None:
         """Test CleanBuildRoot with no history."""
         self.mock_repo.branch = "main"
 
@@ -484,7 +484,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertExists(self.previous_build_state)
 
-    def testBuildrootNoState(self):
+    def testBuildrootNoState(self) -> None:
         """Test CleanBuildRoot with no state information."""
         self.populateBuildroot()
         self.mock_repo.branch = "main"
@@ -510,7 +510,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         self.assertNotExists(self.distfiles)
         self.assertExists(self.previous_build_state)
 
-    def testBuildrootFormatMismatch(self):
+    def testBuildrootFormatMismatch(self) -> None:
         """Test CleanBuildRoot with buildroot layout mismatch."""
         old_build_state = build_summary.BuildSummary(
             status=constants.BUILDER_STATUS_PASSED,
@@ -541,7 +541,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         self.assertNotExists(self.distfiles)
         self.assertExists(self.previous_build_state)
 
-    def testBuildrootBranchChange(self):
+    def testBuildrootBranchChange(self) -> None:
         """Test CleanBuildRoot with a change in branches."""
         old_build_state = build_summary.BuildSummary(
             status=constants.BUILDER_STATUS_PASSED,
@@ -579,7 +579,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
             delete=True,
         )
 
-    def testBuildrootBranchMatch(self):
+    def testBuildrootBranchMatch(self) -> None:
         """Test CleanBuildRoot with no change in branch."""
         old_build_state = build_summary.BuildSummary(
             status=constants.BUILDER_STATUS_PASSED,
@@ -610,7 +610,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         self.assertExists(self.distfiles)
         self.assertExists(self.previous_build_state)
 
-    def testBuildrootGitLocksPrevPass(self):
+    def testBuildrootGitLocksPrevPass(self) -> None:
         """Verify not CleanStaleLocks, if previous build was in passed."""
         old_build_state = build_summary.BuildSummary(
             status=constants.BUILDER_STATUS_PASSED,
@@ -637,7 +637,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
             ],
         )
 
-    def testBuildrootGitLocksPrevFail(self):
+    def testBuildrootGitLocksPrevFail(self) -> None:
         """Verify not CleanStaleLocks, if previous build was in failed."""
         old_build_state = build_summary.BuildSummary(
             status=constants.BUILDER_STATUS_FAILED,
@@ -664,7 +664,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
             ],
         )
 
-    def testBuildrootGitLocksPrevInFlight(self):
+    def testBuildrootGitLocksPrevInFlight(self) -> None:
         """Verify CleanStaleLocks, if previous build was in flight."""
         old_build_state = build_summary.BuildSummary(
             status=constants.BUILDER_STATUS_INFLIGHT,
@@ -692,7 +692,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
             ],
         )
 
-    def testBuildrootDistfilesRecentCache(self):
+    def testBuildrootDistfilesRecentCache(self) -> None:
         """Test CleanBuildRoot skips distfiles when cache is recent."""
         seed_distfiles_ts = time.time() - 60
         old_build_state = build_summary.BuildSummary(
@@ -726,7 +726,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         self.assertExists(self.distfiles)
         self.assertExists(self.previous_build_state)
 
-    def testBuildrootDistfilesCacheExpired(self):
+    def testBuildrootDistfilesCacheExpired(self) -> None:
         """Test CleanBuildRoot when the distfiles cache is too old."""
         old_build_state = build_summary.BuildSummary(
             status=constants.BUILDER_STATUS_PASSED,
@@ -758,7 +758,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         self.assertNotExists(self.distfiles)
         self.assertExists(self.previous_build_state)
 
-    def testRootOwnedCache(self):
+    def testRootOwnedCache(self) -> None:
         """Test CleanBuildRoot with no history."""
         seed_distfiles_ts = time.time() - 60
         old_build_state = build_summary.BuildSummary(
@@ -794,7 +794,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         self.assertNotExists(self.distfiles)
         self.assertExists(self.previous_build_state)
 
-    def testBuildrootRepoCleanFailure(self):
+    def testBuildrootRepoCleanFailure(self) -> None:
         """Test CleanBuildRoot with repo checkout failure."""
         old_build_state = build_summary.BuildSummary(
             status=constants.BUILDER_STATUS_PASSED,
@@ -826,7 +826,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         self.assertNotExists(self.distfiles)
         self.assertExists(self.previous_build_state)
 
-    def testGetCurrentBuildStateNoArgs(self):
+    def testGetCurrentBuildStateNoArgs(self) -> None:
         """Tests GetCurrentBuildState without arguments."""
         options = cbuildbot_launch.PreParseArguments(
             ["--buildroot", self.root, "config"]
@@ -840,7 +840,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertEqual(state, expected_state)
 
-    def testGetCurrentBuildStateHasArgs(self):
+    def testGetCurrentBuildStateHasArgs(self) -> None:
         """Tests GetCurrentBuildState with arguments."""
         options = cbuildbot_launch.PreParseArguments(
             [
@@ -864,7 +864,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertEqual(state, expected_state)
 
-    def testGetCurrentBuildStateLayout(self):
+    def testGetCurrentBuildStateLayout(self) -> None:
         """Test that GetCurrentBuildState uses the current buildroot layout."""
         # Change to a future version.
         self.PatchObject(cbuildbot_launch, "BUILDROOT_BUILDROOT_LAYOUT", 22)
@@ -881,27 +881,27 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         )
         self.assertEqual(state, expected_state)
 
-    def testGetLastBuildStateNoFile(self):
+    def testGetLastBuildStateNoFile(self) -> None:
         """Tests GetLastBuildState if the file is missing."""
         osutils.SafeMakedirs(self.root)
         state = cbuildbot_launch.GetLastBuildState(self.root)
         self.assertEqual(state, build_summary.BuildSummary())
 
-    def testGetLastBuildStateBadFile(self):
+    def testGetLastBuildStateBadFile(self) -> None:
         """Tests GetLastBuildState if the file contains invalid JSON."""
         osutils.SafeMakedirs(self.root)
         osutils.WriteFile(self.previous_build_state, "}}")
         state = cbuildbot_launch.GetLastBuildState(self.root)
         self.assertEqual(state, build_summary.BuildSummary())
 
-    def testGetLastBuildStateMissingBuildStatus(self):
+    def testGetLastBuildStateMissingBuildStatus(self) -> None:
         """Tests GetLastBuildState if the file doesn't have a valid status."""
         osutils.SafeMakedirs(self.root)
         osutils.WriteFile(self.previous_build_state, '{"build_number": "3"}')
         state = cbuildbot_launch.GetLastBuildState(self.root)
         self.assertEqual(state, build_summary.BuildSummary())
 
-    def testGetLastBuildStateGoodFile(self):
+    def testGetLastBuildStateGoodFile(self) -> None:
         """Tests GetLastBuildState on a good file."""
         osutils.SafeMakedirs(self.root)
         osutils.WriteFile(
@@ -916,7 +916,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
             ),
         )
 
-    def testSetLastBuildState(self):
+    def testSetLastBuildState(self) -> None:
         """Verifies that SetLastBuildState writes to the expected file."""
         osutils.SafeMakedirs(self.root)
         old_state = build_summary.BuildSummary(
@@ -932,13 +932,13 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertEqual(old_state, new_state)
 
-    def testCleanupChrootNoChroot(self):
+    def testCleanupChrootNoChroot(self) -> None:
         """Check CleanupChroot without a chroot."""
         self.StartPatcher(cros_test_lib.RunCommandMock())
         with mock.patch.object(cros_sdk_lib, "CleanupChrootMount"):
             cbuildbot_launch.CleanupChroot(self.buildroot)
 
-    def testCleanupChrootNormal(self):
+    def testCleanupChrootNormal(self) -> None:
         """Check normal CleanupChroot."""
         osutils.SafeMakedirs(self.chroot)
         osutils.Touch(self.chroot + ".img")
@@ -946,7 +946,7 @@ class CleanBuildRootTest(cros_test_lib.MockTempDirTestCase):
         with mock.patch.object(cros_sdk_lib, "CleanupChrootMount"):
             cbuildbot_launch.CleanupChroot(self.buildroot)
 
-    def testCleanupChrootTimeout(self):
+    def testCleanupChrootTimeout(self) -> None:
         """Check timeouts in CleanupChroot."""
         osutils.SafeMakedirs(self.chroot)
         osutils.Touch(self.chroot + ".img")

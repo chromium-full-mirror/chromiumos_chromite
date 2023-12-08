@@ -107,7 +107,7 @@ class _PuppetRunSummary:
         return times.get("last_run")
 
 
-def collect_puppet_summary():
+def collect_puppet_summary() -> None:
     """Send Puppet run summary metrics."""
     try:
         with open(LAST_RUN_FILE, encoding="utf-8") as f:

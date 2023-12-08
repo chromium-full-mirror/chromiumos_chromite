@@ -38,7 +38,7 @@ class CreateManifestSnapshotTest(
 
     # pylint: disable=protected-access
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.manifest = repo_manifest.Manifest.FromString(MANIFEST_XML)
         self.project_a = self.manifest.GetUniqueProject("project/a")
         self.project_b = self.manifest.GetUniqueProject("project/b")
@@ -65,22 +65,22 @@ class CreateManifestSnapshotTest(
             repo_util.Repository, "Manifest", return_value=self.manifest
         )
 
-    def testGetUpstreamBranchNoUpstream(self):
+    def testGetUpstreamBranchNoUpstream(self) -> None:
         """Test _GetUpstreamBranch with no upstream."""
         branch = create_manifest_snapshot._GetUpstreamBranch(self.project_a)
         self.assertIsNone(branch)
 
-    def testGetUpstreamBranchShortUpstream(self):
+    def testGetUpstreamBranchShortUpstream(self) -> None:
         """Test _GetUpstreamBranch with short upstream ref."""
         branch = create_manifest_snapshot._GetUpstreamBranch(self.project_b)
         self.assertEqual(branch, "short")
 
-    def testGetUpstreamBranchFullUpstream(self):
+    def testGetUpstreamBranchFullUpstream(self) -> None:
         """Test _GetUpstreamBranch with full upstream ref."""
         branch = create_manifest_snapshot._GetUpstreamBranch(self.project_c)
         self.assertEqual(branch, "main")
 
-    def testNeedsSnapshotReachable(self):
+    def testNeedsSnapshotReachable(self) -> None:
         """Test _NeedsSnapshot with revision reachable from upstream."""
         self.mock_is_reachable.return_value = True
         result = create_manifest_snapshot._NeedsSnapshot("root", self.project_c)
@@ -89,7 +89,7 @@ class CreateManifestSnapshotTest(
             "root/project/c", "deadbeef", "refs/remotes/origin/main"
         )
 
-    def testNeedsSnapshotUnreachable(self):
+    def testNeedsSnapshotUnreachable(self) -> None:
         """Test _NeedsSnapshot with revision reachable from upstream."""
         self.mock_is_reachable.return_value = False
         result = create_manifest_snapshot._NeedsSnapshot("root", self.project_b)
@@ -98,20 +98,20 @@ class CreateManifestSnapshotTest(
             "root/project/b", "cafe1234", "refs/remotes/origin/short"
         )
 
-    def testNeedsSnapshotNoUpstream(self):
+    def testNeedsSnapshotNoUpstream(self) -> None:
         """Test _NeedsSnapshot with no project upstream."""
         create_manifest_snapshot._NeedsSnapshot("root", self.project_a)
         self.mock_is_reachable.assert_called_with(
             "root/project/a", "f01dab1e", "refs/remotes/origin/main"
         )
 
-    def testNeedsSnapshotIsReachableFailure(self):
+    def testNeedsSnapshotIsReachableFailure(self) -> None:
         """Test _NeedsSnapshot with no project upstream."""
         self.mock_is_reachable.side_effect = cros_build_lib.RunCommandError("")
         result = create_manifest_snapshot._NeedsSnapshot("root", self.project_a)
         self.assertTrue(result)
 
-    def testMakeUniqueRefMain(self):
+    def testMakeUniqueRefMain(self) -> None:
         """Test _MakeUniqueRef with upstream main."""
         used = set()
         ref1 = create_manifest_snapshot._MakeUniqueRef(
@@ -127,7 +127,7 @@ class CreateManifestSnapshotTest(
         self.assertEqual(ref2, "base/1")
         self.assertEqual(ref3, "base/2")
 
-    def testMakeUniqueRefNonMain(self):
+    def testMakeUniqueRefNonMain(self) -> None:
         """Test _MakeUniqueRef with non-main upstream."""
         used = set()
         ref1 = create_manifest_snapshot._MakeUniqueRef(
@@ -139,7 +139,7 @@ class CreateManifestSnapshotTest(
         self.assertEqual(ref1, "base/short")
         self.assertEqual(ref2, "base/short/1")
 
-    def testGitPushProjectUpstream(self):
+    def testGitPushProjectUpstream(self) -> None:
         """Test _GitPushProjectUpstream."""
         create_manifest_snapshot._GitPushProjectUpstream(
             "root", self.project_b, False
@@ -151,7 +151,7 @@ class CreateManifestSnapshotTest(
             dry_run=False,
         )
 
-    def testGitPushProjectUpstreamDryRun(self):
+    def testGitPushProjectUpstreamDryRun(self) -> None:
         """Test _GitPushProjectUpstream with dry_run=True."""
         create_manifest_snapshot._GitPushProjectUpstream(
             "root", self.project_b, True
@@ -163,14 +163,14 @@ class CreateManifestSnapshotTest(
             dry_run=True,
         )
 
-    def testMainNoSnapshots(self):
+    def testMainNoSnapshots(self) -> None:
         """Test main with projects that don't need snapshots."""
         self.mock_is_reachable.return_value = True
         create_manifest_snapshot.main(self.main_args)
         snapshot_xml = osutils.ReadFile(self.output_file)
         self.AssertXMLAlmostEqual(snapshot_xml, MANIFEST_XML)
 
-    def testMainSnapshots(self):
+    def testMainSnapshots(self) -> None:
         """Test main with projects that need snapshots."""
         self.mock_is_reachable.return_value = False
         args = self.main_args + ["--snapshot-ref", "refs/snap"]
@@ -226,7 +226,7 @@ class CreateManifestSnapshotTest(
         expected_xml = repo_manifest_unittest.ManifestToString(expected)
         self.AssertXMLAlmostEqual(snapshot_xml, expected_xml)
 
-    def testMainNeedsSnapshotNoSnapshotRef(self):
+    def testMainNeedsSnapshotNoSnapshotRef(self) -> None:
         """Test main with projects that need snapshots but no --snapshot-ref."""
         self.mock_is_reachable.return_value = False
         with self.assertRaises(SystemExit):

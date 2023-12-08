@@ -84,7 +84,7 @@ class _GitMetricCollector:
         self._fields = {"repo": gitdir}
         self._metric_path = metric_path
 
-    def collect(self):
+    def collect(self) -> None:
         """Collect metrics."""
         try:
             self._collect_commit_hash_metric()
@@ -95,19 +95,19 @@ class _GitMetricCollector:
                 "Error collecting git metrics for %s: %s", self._gitdir, e
             )
 
-    def _collect_commit_hash_metric(self):
+    def _collect_commit_hash_metric(self) -> None:
         commit_hash = self._gitrepo.get_commit_hash()
         logger.debug("Collecting Git hash %r for %r", commit_hash, self._gitdir)
         self._commit_hash_metric.set(commit_hash, self._fields)
 
-    def _collect_timestamp_metric(self):
+    def _collect_timestamp_metric(self) -> None:
         commit_time = self._gitrepo.get_commit_time()
         logger.debug(
             "Collecting Git timestamp %r for %r", commit_time, self._gitdir
         )
         self._timestamp_metric.set(commit_time, self._fields)
 
-    def _collect_unstaged_changes_metric(self):
+    def _collect_unstaged_changes_metric(self) -> None:
         added, deleted = self._gitrepo.get_unstaged_changes()
         self._unstaged_changes_metric.set(
             added, fields=dict(change_type="added", **self._fields)
@@ -134,7 +134,7 @@ _repo_collectors = (
 )
 
 
-def collect_git_metrics():
+def collect_git_metrics() -> None:
     """Collect metrics for Git repository state."""
     for collector in _repo_collectors:
         collector.collect()

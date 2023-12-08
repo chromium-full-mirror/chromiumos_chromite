@@ -33,16 +33,16 @@ class CrosGenMock(partial_mock.PartialMock):
     KERNEL_HEADERS = "kernel_headers"
     BUILD_DEPS = "build-deps"
 
-    def _InstallToolchain(self, inst):
+    def _InstallToolchain(self, inst) -> None:
         osutils.Touch(os.path.join(inst.sysroot, self.TOOLCHAIN))
 
-    def _InstallKernelHeaders(self, inst):
+    def _InstallKernelHeaders(self, inst) -> None:
         osutils.Touch(os.path.join(inst.sysroot, self.KERNEL_HEADERS))
 
-    def _InstallBuildDependencies(self, inst):
+    def _InstallBuildDependencies(self, inst) -> None:
         osutils.Touch(os.path.join(inst.sysroot, self.BUILD_DEPS))
 
-    def VerifyTarball(self, tarball):
+    def VerifyTarball(self, tarball) -> None:
         dir_struct = [
             Dir(".", []),
             self.TOOLCHAIN,
@@ -59,13 +59,13 @@ TAR_NAME = "test.tar.xz"
 class OverallTest(cros_test_lib.MockTempDirTestCase):
     """Tests for cros_generate_sysroot."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.cg_mock = self.StartPatcher(CrosGenMock())
         self.PatchObject(
             sudo.SudoKeepAlive, "_IdentifyTTY", return_value="unknown"
         )
 
-    def testTarballGeneration(self):
+    def testTarballGeneration(self) -> None:
         """End-to-end test of tarball generation."""
         with mock.patch.object(cros_build_lib, "IsInsideChroot"):
             cros_build_lib.IsInsideChroot.returnvalue = True
@@ -102,14 +102,14 @@ class InterfaceTest(cros_test_lib.TempDirTestCase):
             + extra_args
         )
 
-    def testDefaultTargetName(self):
+    def testDefaultTargetName(self) -> None:
         """We are getting the right default target name."""
         options = self._Parse([])
         self.assertEqual(
             options.out_file, "sysroot_chromeos-base_chromeos-chrome.tar.xz"
         )
 
-    def testMultiplePkgsTargetName(self):
+    def testMultiplePkgsTargetName(self) -> None:
         """Test getting the right target name with multiple pkgs."""
         pkgs = "%s virtual/target-os" % constants.CHROME_CP
         options = cros_gen.ParseCommandLine(
@@ -127,7 +127,7 @@ class InterfaceTest(cros_test_lib.TempDirTestCase):
             options.out_file, "sysroot_chromeos-base_chromeos-chrome.tar.xz"
         )
 
-    def testExistingTarget(self):
+    def testExistingTarget(self) -> None:
         """Erroring out on pre-existing target."""
         options = self._Parse(["--out-file", TAR_NAME])
         osutils.Touch(os.path.join(self.tempdir, TAR_NAME))
@@ -135,7 +135,7 @@ class InterfaceTest(cros_test_lib.TempDirTestCase):
             cros_build_lib.DieSystemExit, cros_gen.FinishParsing, options
         )
 
-    def testNonExisting(self):
+    def testNonExisting(self) -> None:
         """Erroring out on non-existent output dir."""
         options = cros_gen.ParseCommandLine(
             [

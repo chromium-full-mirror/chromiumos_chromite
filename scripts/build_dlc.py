@@ -169,7 +169,7 @@ def GetParser():
     return parser
 
 
-def ValidateArguments(parser, opts, req_flags, invalid_flags):
+def ValidateArguments(parser, opts, req_flags, invalid_flags) -> None:
     """Validates the correctness of the passed arguments.
 
     Args:
@@ -203,7 +203,7 @@ def ValidateArguments(parser, opts, req_flags, invalid_flags):
         dlc_lib.ValidateDlcIdentifier(opts.package)
 
 
-def main(argv):
+def main(argv) -> None:
     parser = GetParser()
     opts = parser.parse_args(argv)
     opts.Freeze()

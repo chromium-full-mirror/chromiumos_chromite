@@ -14,7 +14,7 @@ from chromite.scripts import cros_setup_toolchains
 class UtilsTest(cros_test_lib.MockTempDirTestCase):
     """Tests for various small util funcs."""
 
-    def testFileIsCrosSdkElf(self):
+    def testFileIsCrosSdkElf(self) -> None:
         """Verify FileIsCrosSdkElf on x86_64 ELFs."""
         path = os.path.join(self.tempdir, "file")
         data = (
@@ -24,7 +24,7 @@ class UtilsTest(cros_test_lib.MockTempDirTestCase):
         osutils.WriteFile(path, data, mode="wb")
         self.assertTrue(cros_setup_toolchains.FileIsCrosSdkElf(path))
 
-    def testArmIsNotCrosSdkElf(self):
+    def testArmIsNotCrosSdkElf(self) -> None:
         """Verify FileIsCrosSdkElf on aarch64 ELFs."""
         path = os.path.join(self.tempdir, "file")
         data = (
@@ -34,7 +34,7 @@ class UtilsTest(cros_test_lib.MockTempDirTestCase):
         osutils.WriteFile(path, data, mode="wb")
         self.assertFalse(cros_setup_toolchains.FileIsCrosSdkElf(path))
 
-    def testScriptIsNotCrosSdkElf(self):
+    def testScriptIsNotCrosSdkElf(self) -> None:
         """Verify FileIsCrosSdkElf on shell scripts."""
         path = os.path.join(self.tempdir, "file")
         data = "#!/bin/sh\necho hi\n"

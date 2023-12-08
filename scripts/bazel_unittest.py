@@ -7,7 +7,7 @@
 from chromite.scripts import bazel
 
 
-def test_parse_known_args():
+def test_parse_known_args() -> None:
     """Test the parser will parse only known arguments."""
     script_args = ["--project", "fwsdk"]
     bazel_args = [

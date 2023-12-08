@@ -346,7 +346,7 @@ def ValidateSymbolFile(
         )
         errors = True
 
-    def _AddFoundFile(files, found):
+    def _AddFoundFile(files, found) -> None:
         """Add another file to the list of expected files we've found."""
         if files is not None:
             files.append(found)
@@ -591,7 +591,7 @@ def GenerateBreakpadSymbol(
             debug_level=logging.DEBUG,
         )
 
-    def _CrashCheck(result, file_or_files, msg):
+    def _CrashCheck(result, file_or_files, msg) -> None:
         if result.returncode:
             cbuildbot_alerts.PrintBuildbotStepWarnings()
             if result.returncode < 0:

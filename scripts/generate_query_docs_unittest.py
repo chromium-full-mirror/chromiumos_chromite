@@ -7,7 +7,7 @@
 from chromite.scripts import generate_query_docs
 
 
-def test_generated_contents(tmp_path):
+def test_generated_contents(tmp_path) -> None:
     """Test the output file matches the generated contents."""
     # pylint: disable=protected-access
     current_file = generate_query_docs._DEFAULT_OUTPUT

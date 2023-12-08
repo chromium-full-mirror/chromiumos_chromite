@@ -110,7 +110,7 @@ def ParseArgs(argv):
     return opts
 
 
-def FilterObsoleteDeps(package_deps):
+def FilterObsoleteDeps(package_deps) -> None:
     """Remove all the packages that are to be uninstalled from |package_deps|.
 
     Returns:
@@ -185,7 +185,7 @@ def ExtractDeps(
     return flattened_trees
 
 
-def main(argv):
+def main(argv) -> None:
     opts = ParseArgs(argv)
 
     sysroot = opts.sysroot or build_target_lib.get_default_sysroot_path(

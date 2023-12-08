@@ -20,18 +20,18 @@ from chromite.scripts import trigger_gsc_signing as trigger
 class TestLaunchOne(cros_test_lib.RunCommandTempDirTestCase):
     """Tests for the LaunchOne function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.log_info = self.PatchObject(logging, "info")
         self.properties = {"keyset": "test-keyest"}
         self.json_prop = json.dumps(self.properties)
 
-    def testDryRunOnlyLogs(self):
+    def testDryRunOnlyLogs(self) -> None:
         """Test that dryrun=True results in only a log message."""
         trigger.LaunchOne(True, "chromeos/packaging/test", self.properties)
         self.assertEqual(0, self.rc.call_count)
         self.log_info.assert_called_once()
 
-    def testCallsRun(self):
+    def testCallsRun(self) -> None:
         """Test that dryrun=False calls run()."""
         trigger.LaunchOne(False, "chromeos/packaging/test", self.properties)
         self.log_info.assert_not_called()
@@ -57,10 +57,10 @@ class TestLaunchOne(cros_test_lib.RunCommandTempDirTestCase):
 class TestMain(cros_test_lib.RunCommandTempDirTestCase):
     """Tests for the main function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.log_error = self.PatchObject(logging, "error")
 
-    def testMinimal(self):
+    def testMinimal(self) -> None:
         """Test minimal instructions."""
         launch = self.PatchObject(trigger, "LaunchOne")
         args = ["--archive", "gs://test/file.bin", "--keyset", "test-keyset"]
@@ -83,7 +83,7 @@ class TestMain(cros_test_lib.RunCommandTempDirTestCase):
             },
         )
 
-    def testPropertiesCorrect(self):
+    def testPropertiesCorrect(self) -> None:
         """Test minimal instructions."""
         launch = self.PatchObject(trigger, "LaunchOne")
         archive = "gs://test/file.bin"
@@ -127,7 +127,7 @@ class TestMain(cros_test_lib.RunCommandTempDirTestCase):
             },
         )
 
-    def testStaging(self):
+    def testStaging(self) -> None:
         """Test --staging works."""
         launch = self.PatchObject(trigger, "LaunchOne")
         args = [
@@ -156,7 +156,7 @@ class TestMain(cros_test_lib.RunCommandTempDirTestCase):
             },
         )
 
-    def testDryRun(self):
+    def testDryRun(self) -> None:
         """Test --dry-run works."""
         launch = self.PatchObject(trigger, "LaunchOne")
         args = [
@@ -185,7 +185,7 @@ class TestMain(cros_test_lib.RunCommandTempDirTestCase):
             },
         )
 
-    def testNodeLockedCatchesBadDeviceId(self):
+    def testNodeLockedCatchesBadDeviceId(self) -> None:
         """Test --target node_locked catches bad --device-id."""
         launch = self.PatchObject(trigger, "LaunchOne")
         args = [
@@ -205,7 +205,7 @@ class TestMain(cros_test_lib.RunCommandTempDirTestCase):
         launch.assert_not_called()
         self.assertEqual(1, self.log_error.call_count)
 
-    def testNodeLockedRequiresDeviceId(self):
+    def testNodeLockedRequiresDeviceId(self) -> None:
         """Test --target node_locked requires --device-id."""
         launch = self.PatchObject(trigger, "LaunchOne")
         args = [
@@ -220,7 +220,7 @@ class TestMain(cros_test_lib.RunCommandTempDirTestCase):
         launch.assert_not_called()
         self.assertEqual(1, self.log_error.call_count)
 
-    def testDeviceIdRequiresNodeLocked(self):
+    def testDeviceIdRequiresNodeLocked(self) -> None:
         """Test --device_id is rejected if not node_locked."""
         launch = self.PatchObject(trigger, "LaunchOne")
         args = [
@@ -238,7 +238,7 @@ class TestMain(cros_test_lib.RunCommandTempDirTestCase):
         launch.assert_not_called()
         self.assertEqual(1, self.log_error.call_count)
 
-    def testNodeLockedLaunchesMultiple(self):
+    def testNodeLockedLaunchesMultiple(self) -> None:
         """Test --target node_locked launches multiple jobs."""
         # Do not mock LaunchOne, so that we can grab the input= passed to run().
         args = [

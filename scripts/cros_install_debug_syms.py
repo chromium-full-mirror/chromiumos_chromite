@@ -61,11 +61,11 @@ class DebugSymbolsInstaller:
 
         return self
 
-    def __exit__(self, _exc_type, _exc_val, _exc_tb):
+    def __exit__(self, _exc_type, _exc_val, _exc_tb) -> None:
         if self._stdout_to_null:
             self._capturer.StopCapturing()
 
-    def Install(self, cpv, url):
+    def Install(self, cpv, url) -> None:
         """Install the debug symbols for |cpv|.
 
         This will install the debug symbols tarball in PKGDIR so that it can be
@@ -306,7 +306,7 @@ def GetInstallArgs(options, sysroot):
     return [(p, symbols_mapping[p]) for p in to_install]
 
 
-def ListInstallArgs(options, sysroot):
+def ListInstallArgs(options, sysroot) -> None:
     """List the args for the calling process."""
     lines = ["%s %s" % arg for arg in GetInstallArgs(options, sysroot)]
     print("\n".join(lines))
@@ -322,7 +322,7 @@ def GetInstallArgsList(argv):
     return [line.split() for line in lines if line]
 
 
-def _InstallOne(sysroot, debug, args):
+def _InstallOne(sysroot, debug, args) -> None:
     """Parallelizable wrapper for the DebugSymbolsInstaller.Install method."""
     vartree = GetVartree(sysroot)
     gs_context = gs.GSContext(boto_file=vartree.settings["BOTO_CONFIG"])
@@ -394,7 +394,7 @@ def ParseArgs(argv):
     return options
 
 
-def main(argv):
+def main(argv) -> None:
     if not cros_build_lib.IsInsideChroot():
         raise commandline.ChrootRequiredError(argv)
 

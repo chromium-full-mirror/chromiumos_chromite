@@ -26,7 +26,7 @@ def GetParser():
     return parser
 
 
-def Run(options):
+def Run(options) -> None:
     """Runs the replication described by a PrelicationConfig proto."""
     replication_config = json_format.Parse(
         osutils.ReadFile(options.replication_config),
@@ -36,7 +36,7 @@ def Run(options):
     replication_lib.Replicate(replication_config)
 
 
-def main(argv):
+def main(argv) -> None:
     parser = GetParser()
     options = parser.parse_args(argv)
     options.Freeze()

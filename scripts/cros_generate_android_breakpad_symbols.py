@@ -104,7 +104,7 @@ def _AdjustLineSymbolOffset(line, offset):
     return line
 
 
-def _AdjustSymbolOffset(breakpad_file, offset):
+def _AdjustSymbolOffset(breakpad_file, offset) -> None:
     """Given a breakpad file, adjust the symbols by offset.
 
     Updates the file in place.
@@ -123,7 +123,7 @@ def _AdjustSymbolOffset(breakpad_file, offset):
     osutils.WriteFile(breakpad_file, "".join(adjusted_lines))
 
 
-def _UnpackGenerateBreakpad(elf_file, *args, **kwargs):
+def _UnpackGenerateBreakpad(elf_file, *args, **kwargs) -> None:
     """Unpack Android relocation symbols, and GenerateBreakpadSymbol
 
     This method accepts exactly the same arguments as
@@ -193,7 +193,7 @@ def GenerateBreakpadSymbols(breakpad_dir, symbols_dir):
     return num_errors.value
 
 
-def ProcessSymbolsZip(zip_archive, breakpad_dir):
+def ProcessSymbolsZip(zip_archive, breakpad_dir) -> None:
     """Extract, process, and upload all symbols in a symbols zip file.
 
     Take the symbols file build artifact from an Android build, process it into
@@ -223,7 +223,7 @@ def ProcessSymbolsZip(zip_archive, breakpad_dir):
         GenerateBreakpadSymbols(breakpad_dir, extract_dir)
 
 
-def main(argv):
+def main(argv) -> None:
     """Helper method mostly used for manual testing."""
 
     parser = commandline.ArgumentParser(description=__doc__)

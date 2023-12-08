@@ -207,7 +207,7 @@ def DowngradePackageVersion(portage_root, package_cp, downgrade_to_version="0"):
     return code == 0
 
 
-def UpdatePackageContents(change_report, package_cp, portage_root=None):
+def UpdatePackageContents(change_report, package_cp, portage_root=None) -> None:
     """Add newly created files/directors to package contents.
 
     Given an ItemizedChangeReport, add the newly created files and directories
@@ -236,7 +236,7 @@ def UpdatePackageContents(change_report, package_cp, portage_root=None):
     vartree.dbapi.writeContentsToContentsFile(package, contents)
 
 
-def RemoveBzipPackages(autotest_sysroot):
+def RemoveBzipPackages(autotest_sysroot) -> None:
     """Remove all bzipped test/dep/profiler packages from sysroot autotest.
 
     Args:
@@ -361,7 +361,7 @@ def ParseArguments(argv):
     return parser.parse_args(argv)
 
 
-def _maybe_add_autotest_symlink(src_paths, path, dest_path):
+def _maybe_add_autotest_symlink(src_paths, path, dest_path) -> None:
     """If the symlink folders exists, add them to the src to quickmerge."""
     autotest_client_symlink = os.path.join(path, "client", AUTOTEST_SYMLINK)
     if os.path.exists(autotest_client_symlink):

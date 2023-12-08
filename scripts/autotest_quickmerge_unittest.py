@@ -66,7 +66,7 @@ TEST_PACKAGE_OLDCONTENTS = {
 class ItemizeChangesFromRsyncOutput(cros_test_lib.TestCase):
     """Test autotest_quickmerge.ItemizeChangesFromRsyncOutput."""
 
-    def testItemizeChangesFromRsyncOutput(self):
+    def testItemizeChangesFromRsyncOutput(self) -> None:
         """Test that rsync output parser returns correct FileMutations."""
         expected_new = set(
             [
@@ -104,7 +104,7 @@ class ItemizeChangesFromRsyncOutput(cros_test_lib.TestCase):
 class PackageNameParsingTest(cros_test_lib.TestCase):
     """Test autotest_quickmerge.GetStalePackageNames."""
 
-    def testGetStalePackageNames(self):
+    def testGetStalePackageNames(self) -> None:
         autotest_sysroot = "/an/arbitrary/path/"
         change_report = autotest_quickmerge.ItemizeChangesFromRsyncOutput(
             RSYNC_TEST_OUTPUT_FOR_PACKAGE_UPDATE, autotest_sysroot
@@ -127,7 +127,7 @@ class PackageNameParsingTest(cros_test_lib.TestCase):
 class RsyncCommandTest(cros_test_lib.RunCommandTestCase):
     """Test autotest_quickmerge.RsyncQuickmerge."""
 
-    def testRsyncQuickmergeCommand(self):
+    def testRsyncQuickmergeCommand(self) -> None:
         """Test that RsyncQuickMerge makes correct call to sudo_run"""
         include_file_name = "an_include_file_name"
         source_path = "a_source_path"
@@ -162,7 +162,7 @@ class RsyncCommandTest(cros_test_lib.RunCommandTestCase):
 class PortageManipulationsTest(cros_test_lib.MockTestCase):
     """Test usage of autotest_quickmerge.portage."""
 
-    def testUpdatePackageContents(self):
+    def testUpdatePackageContents(self) -> None:
         """Test UpdatePackageContents makes the correct calls to portage."""
         autotest_quickmerge.portage = mock.MagicMock()
         portage = autotest_quickmerge.portage
@@ -205,7 +205,7 @@ class PortageManipulationsTest(cros_test_lib.MockTestCase):
 class PortageAPITest(cros_test_lib.TestCase):
     """Ensures that required portage API exists."""
 
-    def runTest(self):
+    def runTest(self) -> None:
         try:
             import portage
         except ImportError:

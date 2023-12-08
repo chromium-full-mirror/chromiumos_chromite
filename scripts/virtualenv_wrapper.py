@@ -31,7 +31,7 @@ _REQUIREMENTS = os.path.join(_CHROMITE_DIR, "venv", "requirements.txt")
 _VENV_MARKER = "INSIDE_CHROMITE_VENV"
 
 
-def main():
+def main() -> None:
     if _IsInsideVenv(os.environ):
         # Don't bleed the marker into children processes that might use the
         # wrapper themselves to run inside of the virtualenv.
@@ -60,7 +60,7 @@ def _CreateVenv():
     return result.stdout.strip()
 
 
-def _ExecInVenv(venvdir, args):
+def _ExecInVenv(venvdir, args) -> None:
     """Exec command in chromite venv.
 
     Args:

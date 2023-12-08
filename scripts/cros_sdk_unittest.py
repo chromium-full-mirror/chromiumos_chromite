@@ -23,7 +23,7 @@ from chromite.scripts import cros_sdk
 class CrosSdkUtilsTest(cros_test_lib.MockTempDirTestCase):
     """Tests for misc util funcs."""
 
-    def testGetArchStageTarballs(self):
+    def testGetArchStageTarballs(self) -> None:
         """Basic test of GetArchStageTarballs."""
         self.assertCountEqual(
             [
@@ -33,7 +33,7 @@ class CrosSdkUtilsTest(cros_test_lib.MockTempDirTestCase):
             cros_sdk.GetArchStageTarballs("123"),
         )
 
-    def testFetchRemoteTarballsEmpty(self):
+    def testFetchRemoteTarballsEmpty(self) -> None:
         """Test FetchRemoteTarballs with no results."""
         m = self.PatchObject(retry_util, "RunCurl")
         with self.assertRaises(ValueError):
@@ -42,7 +42,7 @@ class CrosSdkUtilsTest(cros_test_lib.MockTempDirTestCase):
         with self.assertRaises(ValueError):
             cros_sdk.FetchRemoteTarballs(self.tempdir, ["gs://x.tar"])
 
-    def testFetchRemoteTarballsSuccess(self):
+    def testFetchRemoteTarballsSuccess(self) -> None:
         """Test FetchRemoteTarballs with a successful download."""
         curl = cros_build_lib.CompletedProcess(
             stdout=(b"HTTP/1.0 200\n" b"Foo: bar\n" b"Content-Length: 100\n")
@@ -62,10 +62,10 @@ class CrosSdkParserCommandLineTest(cros_test_lib.MockTestCase):
     # A typical sys.argv[0] that cros_sdk sees.
     ARGV0 = "/home/chronos/chromiumos/chromite/bin/cros_sdk"
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.parser, _ = cros_sdk._CreateParser("1", "2")
 
-    def testSudoCommand(self):
+    def testSudoCommand(self) -> None:
         """Verify basic sudo command building works."""
         # Stabilize the env for testing.
         for v in (
@@ -90,7 +90,7 @@ class CrosSdkParserCommandLineTest(cros_test_lib.MockTestCase):
             v = cmd[i].split("=", 1)[0]
             assert re.match(r"^[A-Za-z0-9_]+$", v) is not None
 
-    def testReexecCommand(self):
+    def testReexecCommand(self) -> None:
         """Verify reexec command line building."""
         # Stub sudo logic since we tested it above already.
         self.PatchObject(cros_sdk, "_SudoCommand", return_value=["sudo"])
@@ -98,7 +98,7 @@ class CrosSdkParserCommandLineTest(cros_test_lib.MockTestCase):
         new_cmd = cros_sdk._BuildReExecCommand([self.ARGV0], opts)
         assert new_cmd == ["sudo", "--", sys.executable, self.ARGV0]
 
-    def testReexecCommandStrace(self):
+    def testReexecCommandStrace(self) -> None:
         """Verify reexec command line building w/strace."""
         # Stub sudo logic since we tested it above already.
         self.PatchObject(cros_sdk, "_SudoCommand", return_value=["sudo"])
@@ -140,7 +140,7 @@ class CrosSdkParserCommandLineTest(cros_test_lib.MockTestCase):
 # pylint: disable=protected-access
 
 
-def test_freeze_options():
+def test_freeze_options() -> None:
     """Test that we can't change options after finalization."""
     parser, commands = cros_sdk._CreateParser("1", "2")
     options = parser.parse_args([])
@@ -151,7 +151,7 @@ def test_freeze_options():
         options.enter = False
 
 
-def test_bootstrap_alias():
+def test_bootstrap_alias() -> None:
     """Test the bootstrap/create alias."""
     parser, commands = cros_sdk._CreateParser("1", "2")
     options = parser.parse_args(["--bootstrap"])
@@ -159,7 +159,7 @@ def test_bootstrap_alias():
     assert options.create
 
 
-def test_replace_alias():
+def test_replace_alias() -> None:
     """Test the replace -> delete/create alias."""
     parser, commands = cros_sdk._CreateParser("1", "2")
     options = parser.parse_args(["--replace"])
@@ -168,7 +168,7 @@ def test_replace_alias():
     assert options.create
 
 
-def test_implied_download():
+def test_implied_download() -> None:
     """Test that create implies download."""
     parser, commands = cros_sdk._CreateParser("1", "2")
     options = parser.parse_args(["--create"])
@@ -185,7 +185,7 @@ def test_implied_download():
         ["--goma-dir", ".", "emerge", "baz"],
     ),
 )
-def test_implied_enter(arglist: List[str]):
+def test_implied_enter(arglist: List[str]) -> None:
     """Test for implicit --enter."""
     parser, commands = cros_sdk._CreateParser("1", "2")
     options = parser.parse_args(arglist)
@@ -203,7 +203,7 @@ def test_implied_enter(arglist: List[str]):
         "--download",
     ),
 )
-def test_commands(command: str):
+def test_commands(command: str) -> None:
     """Test options that don't imply --enter."""
     parser, commands = cros_sdk._CreateParser("1", "2")
     options = parser.parse_args([command])
@@ -219,7 +219,7 @@ def test_commands(command: str):
         ["--read-only-sticky"],  # without --[no-]read-only
     ),
 )
-def test_conflicting_args(arglist: List[str]):
+def test_conflicting_args(arglist: List[str]) -> None:
     """Test args that conflict raise an error."""
     parser, commands = cros_sdk._CreateParser("1", "2")
     options = parser.parse_args(arglist)
@@ -227,7 +227,7 @@ def test_conflicting_args(arglist: List[str]):
         cros_sdk._FinalizeOptions(parser, options, commands)
 
 
-def test_reclient_args(tmp_path):
+def test_reclient_args(tmp_path) -> None:
     """Test mismatched reclient/reproxy args."""
     reclient_dir = tmp_path
     cfg_file = tmp_path / "foo"
@@ -243,7 +243,7 @@ def test_reclient_args(tmp_path):
             cros_sdk._FinalizeOptions(parser, options, commands)
 
 
-def test_chroot_ready():
+def test_chroot_ready() -> None:
     """Ensure no implicit create when chroot is ready."""
     parser, commands = cros_sdk._CreateParser("1", "2")
     options = parser.parse_args([])
@@ -257,7 +257,7 @@ def test_chroot_ready():
     assert options.enter
 
 
-def test_chroot_not_ready():
+def test_chroot_not_ready() -> None:
     """Test implicit create when chroot isn't ready."""
     parser, commands = cros_sdk._CreateParser("1", "2")
     options = parser.parse_args([])
@@ -298,7 +298,7 @@ def test_readonly_configuration(
     arglist: List[str],
     confcontents: Optional[str],
     expect_ro: bool,
-):
+) -> None:
     """Test read-only configuration file and flags."""
     conf_file = tmp_path / "readonlyconf"
     if confcontents is not None:
@@ -333,7 +333,7 @@ def test_readonly_sticky(
     orig_contents: Optional[str],
     arglist: List[str],
     expect_conf_exists: bool,
-):
+) -> None:
     """Test that we write expected read-only-sticky contents.
 
     orig_contents: Optional pre-existing contents of the configuration file.
@@ -363,7 +363,7 @@ def test_readonly_sticky(
         (["--update", "--delete-out-dir"], True),
     ),
 )
-def test_delete_out(args, expected):
+def test_delete_out(args, expected) -> None:
     """Test the resolved value for --delete-out-dir/--no-delete-out-dir.
 
     Args:

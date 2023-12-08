@@ -80,7 +80,7 @@ def GetParser():
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     parser = GetParser()
     opts = parser.parse_args(argv)
     opts.Freeze()

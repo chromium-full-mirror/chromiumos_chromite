@@ -15,19 +15,19 @@ from chromite.scripts import cros_generate_os_release
 class CrosGenerateOsReleaseTest(cros_test_lib.TempDirTestCase):
     """Tests GenerateOsRelease."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Use a fresh tempdir as the root for each test case.
         self.osrelease = os.path.join(self.tempdir, "etc", "os-release")
         self.osreleased = os.path.join(self.tempdir, "etc", "os-release.d")
         osutils.SafeMakedirs(self.osreleased)
 
-    def testOnlyOsRelease(self):
+    def testOnlyOsRelease(self) -> None:
         """Tests the script without /etc/os-release."""
         osutils.WriteFile(os.path.join(self.osreleased, "TEST"), "hello")
         cros_generate_os_release.GenerateOsRelease(self.tempdir)
         self.assertEqual("TEST=hello\n", osutils.ReadFile(self.osrelease))
 
-    def testOnlyOsReleaseD(self):
+    def testOnlyOsReleaseD(self) -> None:
         """Tests the script without /etc/os-release.d."""
         osutils.RmDir(self.osreleased)
         osutils.WriteFile(self.osrelease, "TEST=bonjour\n")
@@ -35,7 +35,7 @@ class CrosGenerateOsReleaseTest(cros_test_lib.TempDirTestCase):
         cros_generate_os_release.GenerateOsRelease(self.tempdir)
         self.assertEqual("TEST=bonjour\n", osutils.ReadFile(self.osrelease))
 
-    def testFailOnDuplicate(self):
+    def testFailOnDuplicate(self) -> None:
         """Tests with a field set both in os-release and os-release.d/."""
         osutils.WriteFile(os.path.join(self.osreleased, "TEST"), "hello")
         osutils.WriteFile(self.osrelease, "TEST=bonjour")
@@ -46,7 +46,7 @@ class CrosGenerateOsReleaseTest(cros_test_lib.TempDirTestCase):
             self.tempdir,
         )
 
-    def testNormal(self):
+    def testNormal(self) -> None:
         """Normal scenario: both os-release and os-release.d are present."""
         osutils.WriteFile(os.path.join(self.osreleased, "TEST1"), "hello")
         osutils.WriteFile(self.osrelease, "TEST2=bonjour")
@@ -60,7 +60,7 @@ class CrosGenerateOsReleaseTest(cros_test_lib.TempDirTestCase):
         output.sort()
         self.assertEqual(["TEST1=hello", "TEST2=bonjour", "TEST3=hola"], output)
 
-    def testDefaultsOnly(self):
+    def testDefaultsOnly(self) -> None:
         """Test we always emit defaults even without any os-release.d frags."""
         osutils.RmDir(self.osreleased)
         cros_generate_os_release.GenerateOsRelease(self.tempdir, {"FOO": "bar"})

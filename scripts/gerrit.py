@@ -71,11 +71,11 @@ class UserAction:
     USE_PAGER = False
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
 
     @staticmethod
-    def __call__(opts):
+    def __call__(opts) -> None:
         """Implement the action."""
         raise RuntimeError(
             "Internal error: action missing __call__ implementation"
@@ -163,7 +163,7 @@ def blue(s):
     return COLOR.Color(terminal.Color.BLUE, s)
 
 
-def _run_parallel_tasks(task, jobs: int, *args):
+def _run_parallel_tasks(task, jobs: int, *args) -> None:
     """Small wrapper around BackgroundTaskRunner to enforce job count."""
 
     # When we run in parallel, we can hit the max requests limit.
@@ -173,7 +173,7 @@ def _run_parallel_tasks(task, jobs: int, *args):
         return e.http_status == 429
 
     @retry_util.WithRetry(5, handler=check_exc, sleep=1, backoff_factor=2)
-    def retry(*args):
+    def retry(*args) -> None:
         try:
             task(*args)
         except gob_util.GOBError as e:
@@ -291,7 +291,7 @@ def GetApprovalSummary(_opts, cls):
     return approvs
 
 
-def PrettyPrintCl(opts, cl, lims=None, show_approvals=True):
+def PrettyPrintCl(opts, cl, lims=None, show_approvals=True) -> None:
     """Pretty print a single result"""
     if lims is None:
         lims = {"url": 0, "project": 0}
@@ -338,7 +338,7 @@ def PrettyPrintCl(opts, cl, lims=None, show_approvals=True):
             print("      %s %s %s" % (n, t, approver["by"]["email"]))
 
 
-def PrintCls(opts, cls, lims=None, show_approvals=True):
+def PrintCls(opts, cls, lims=None, show_approvals=True) -> None:
     """Print all results based on the requested format."""
     if opts.format is OutputFormat.RAW:
         site_params = config_lib.GetSiteParams()
@@ -419,7 +419,7 @@ class _ActionSearchQuery(UserAction):
     USE_PAGER = True
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         parser.add_argument(
             "--sort",
@@ -443,7 +443,7 @@ class ActionTodo(_ActionSearchQuery):
     COMMAND = "todo"
 
     @staticmethod
-    def __call__(opts):
+    def __call__(opts) -> None:
         """Implement the action."""
         cls = FilteredQuery(opts, "attention:self")
         PrintCls(opts, cls)
@@ -455,13 +455,13 @@ class ActionSearch(_ActionSearchQuery):
     COMMAND = "search"
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         _ActionSearchQuery.init_subparser(parser)
         parser.add_argument("query", help="The search query")
 
     @staticmethod
-    def __call__(opts):
+    def __call__(opts) -> None:
         """Implement the action."""
         cls = FilteredQuery(opts, opts.query)
         PrintCls(opts, cls)
@@ -473,7 +473,7 @@ class ActionMine(_ActionSearchQuery):
     COMMAND = "mine"
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         _ActionSearchQuery.init_subparser(parser)
         parser.add_argument(
@@ -484,7 +484,7 @@ class ActionMine(_ActionSearchQuery):
         )
 
     @staticmethod
-    def __call__(opts):
+    def __call__(opts) -> None:
         """Implement the action."""
         if opts.draft:
             rule = "is:draft"
@@ -525,12 +525,12 @@ class ActionDeps(_ActionSearchQuery):
     COMMAND = "deps"
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         _ActionSearchQuery.init_subparser(parser)
         parser.add_argument("query", help="The search query")
 
-    def __call__(self, opts):
+    def __call__(self, opts) -> None:
         """Implement the action."""
         cls = _Query(opts, opts.query, raw=False)
 
@@ -598,7 +598,7 @@ class ActionInspect(_ActionSearchQuery):
     COMMAND = "inspect"
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         _ActionSearchQuery.init_subparser(parser)
         parser.add_argument(
@@ -606,7 +606,7 @@ class ActionInspect(_ActionSearchQuery):
         )
 
     @staticmethod
-    def __call__(opts):
+    def __call__(opts) -> None:
         """Implement the action."""
         cls = []
         for arg in opts.cls:
@@ -626,7 +626,7 @@ class _ActionLabeler(UserAction):
     VALUES = None
 
     @classmethod
-    def init_subparser(cls, parser):
+    def init_subparser(cls, parser) -> None:
         """Add arguments to this action's subparser."""
         parser.add_argument(
             "-m",
@@ -647,11 +647,11 @@ class _ActionLabeler(UserAction):
         )
 
     @classmethod
-    def __call__(cls, opts):
+    def __call__(cls, opts) -> None:
         """Implement the action."""
 
         # Convert user-friendly command line option into a gerrit parameter.
-        def task(arg):
+        def task(arg) -> None:
             helper, cl = GetGerrit(opts, arg)
             helper.SetReview(
                 cl,
@@ -708,16 +708,16 @@ class _ActionSimpleParallelCLs(UserAction):
     """Base helper for actions that only accept CLs."""
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         parser.add_argument(
             "cls", nargs="+", metavar="CL", help="The CL(s) to update"
         )
 
-    def __call__(self, opts):
+    def __call__(self, opts) -> None:
         """Implement the action."""
 
-        def task(arg):
+        def task(arg) -> None:
             helper, cl = GetGerrit(opts, arg)
             self._process_one(helper, cl, opts)
 
@@ -730,7 +730,7 @@ class ActionSubmit(_ActionSimpleParallelCLs):
     COMMAND = "submit"
 
     @staticmethod
-    def _process_one(helper, cl, opts):
+    def _process_one(helper, cl, opts) -> None:
         """Use |helper| to process the single |cl|."""
         helper.SubmitChange(cl, dryrun=opts.dryrun, notify=opts.notify)
 
@@ -741,7 +741,7 @@ class ActionAbandon(_ActionSimpleParallelCLs):
     COMMAND = "abandon"
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         parser.add_argument(
             "-m",
@@ -753,7 +753,7 @@ class ActionAbandon(_ActionSimpleParallelCLs):
         _ActionSimpleParallelCLs.init_subparser(parser)
 
     @staticmethod
-    def _process_one(helper, cl, opts):
+    def _process_one(helper, cl, opts) -> None:
         """Use |helper| to process the single |cl|."""
         helper.AbandonChange(
             cl, msg=opts.msg, dryrun=opts.dryrun, notify=opts.notify
@@ -766,7 +766,7 @@ class ActionRestore(_ActionSimpleParallelCLs):
     COMMAND = "restore"
 
     @staticmethod
-    def _process_one(helper, cl, opts):
+    def _process_one(helper, cl, opts) -> None:
         """Use |helper| to process the single |cl|."""
         helper.RestoreChange(cl, dryrun=opts.dryrun)
 
@@ -777,7 +777,7 @@ class ActionWorkInProgress(_ActionSimpleParallelCLs):
     COMMAND = "wip"
 
     @staticmethod
-    def _process_one(helper, cl, opts):
+    def _process_one(helper, cl, opts) -> None:
         """Use |helper| to process the single |cl|."""
         helper.SetWorkInProgress(cl, True, dryrun=opts.dryrun)
 
@@ -788,7 +788,7 @@ class ActionReadyForReview(_ActionSimpleParallelCLs):
     COMMAND = "ready"
 
     @staticmethod
-    def _process_one(helper, cl, opts):
+    def _process_one(helper, cl, opts) -> None:
         """Use |helper| to process the single |cl|."""
         helper.SetWorkInProgress(cl, False, dryrun=opts.dryrun)
 
@@ -799,7 +799,7 @@ class ActionReviewers(UserAction):
     COMMAND = "reviewers"
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         parser.add_argument("cl", metavar="CL", help="The CL to update")
         parser.add_argument(
@@ -810,7 +810,7 @@ class ActionReviewers(UserAction):
         )
 
     @staticmethod
-    def __call__(opts):
+    def __call__(opts) -> None:
         """Implement the action."""
         add_list, remove_list = process_add_remove_lists(opts.reviewers)
 
@@ -831,7 +831,7 @@ class ActionAttentionSet(UserAction):
     COMMAND = "attention"
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         parser.add_argument(
             "-m",
@@ -850,7 +850,7 @@ class ActionAttentionSet(UserAction):
         )
 
     @staticmethod
-    def __call__(opts):
+    def __call__(opts) -> None:
         """Implement the action."""
         add_list, remove_list = process_add_remove_lists(opts.users)
 
@@ -872,13 +872,13 @@ class ActionMessage(_ActionSimpleParallelCLs):
     COMMAND = "message"
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         _ActionSimpleParallelCLs.init_subparser(parser)
         parser.add_argument("message", help="The message to post")
 
     @staticmethod
-    def _process_one(helper, cl, opts):
+    def _process_one(helper, cl, opts) -> None:
         """Use |helper| to process the single |cl|."""
         helper.SetReview(cl, msg=opts.message, dryrun=opts.dryrun)
 
@@ -889,13 +889,13 @@ class ActionTopic(_ActionSimpleParallelCLs):
     COMMAND = "topic"
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         _ActionSimpleParallelCLs.init_subparser(parser)
         parser.add_argument("topic", help="The topic to set")
 
     @staticmethod
-    def _process_one(helper, cl, opts):
+    def _process_one(helper, cl, opts) -> None:
         """Use |helper| to process the single |cl|."""
         helper.SetTopic(cl, opts.topic, dryrun=opts.dryrun)
 
@@ -906,7 +906,7 @@ class ActionPrivate(_ActionSimpleParallelCLs):
     COMMAND = "private"
 
     @staticmethod
-    def _process_one(helper, cl, opts):
+    def _process_one(helper, cl, opts) -> None:
         """Use |helper| to process the single |cl|."""
         helper.SetPrivate(cl, True, dryrun=opts.dryrun)
 
@@ -917,7 +917,7 @@ class ActionPublic(_ActionSimpleParallelCLs):
     COMMAND = "public"
 
     @staticmethod
-    def _process_one(helper, cl, opts):
+    def _process_one(helper, cl, opts) -> None:
         """Use |helper| to process the single |cl|."""
         helper.SetPrivate(cl, False, dryrun=opts.dryrun)
 
@@ -928,7 +928,7 @@ class ActionSethashtags(UserAction):
     COMMAND = "hashtags"
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         parser.add_argument("cl", metavar="CL", help="The CL to update")
         parser.add_argument(
@@ -936,7 +936,7 @@ class ActionSethashtags(UserAction):
         )
 
     @staticmethod
-    def __call__(opts):
+    def __call__(opts) -> None:
         """Implement the action."""
         add, remove = process_add_remove_lists(opts.hashtags)
         helper, cl = GetGerrit(opts, opts.cl)
@@ -949,7 +949,7 @@ class ActionDelete(_ActionSimpleParallelCLs):
     COMMAND = "delete"
 
     @staticmethod
-    def _process_one(helper, cl, opts):
+    def _process_one(helper, cl, opts) -> None:
         """Use |helper| to process the single |cl|."""
         helper.Delete(cl, dryrun=opts.dryrun)
 
@@ -960,7 +960,7 @@ class ActionCherryPick(UserAction):
     COMMAND = "cherry-pick"
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         # Should we add an option to walk Cq-Depend and try to cherry-pick them?
         parser.add_argument(
@@ -995,11 +995,11 @@ class ActionCherryPick(UserAction):
         )
 
     @staticmethod
-    def __call__(opts):
+    def __call__(opts) -> None:
         """Implement the action."""
 
         # Process branches in parallel, but CLs in serial in case of CL stacks.
-        def task(branch):
+        def task(branch) -> None:
             for arg in opts.cls:
                 helper, cl = GetGerrit(opts, arg)
                 ret = helper.CherryPick(
@@ -1051,7 +1051,9 @@ class ActionReview(_ActionSimpleParallelCLs):
             "V": "Verified",
         }
 
-        def __call__(self, parser, namespace, values, option_string=None):
+        def __call__(
+            self, parser, namespace, values, option_string=None
+        ) -> None:
             labels = getattr(namespace, self.dest)
             for request in values.split():
                 if "=" in request:
@@ -1079,7 +1081,7 @@ class ActionReview(_ActionSimpleParallelCLs):
                 labels[label] = value
 
     @classmethod
-    def init_subparser(cls, parser):
+    def init_subparser(cls, parser) -> None:
         """Add arguments to this action's subparser."""
         parser.add_argument(
             "-m",
@@ -1126,7 +1128,7 @@ class ActionReview(_ActionSimpleParallelCLs):
         _ActionSimpleParallelCLs.init_subparser(parser)
 
     @staticmethod
-    def _process_one(helper, cl, opts):
+    def _process_one(helper, cl, opts) -> None:
         """Use |helper| to process the single |cl|."""
         add_reviewers, remove_reviewers = process_add_remove_lists(
             opts.reviewers
@@ -1169,7 +1171,7 @@ class ActionAccount(_ActionSimpleParallelCLs):
     USE_PAGER = True
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         parser.add_argument(
             "accounts",
@@ -1179,16 +1181,16 @@ class ActionAccount(_ActionSimpleParallelCLs):
         )
 
     @classmethod
-    def __call__(cls, opts):
+    def __call__(cls, opts) -> None:
         """Implement the action."""
         helper, _ = GetGerrit(opts)
 
-        def print_one(header, data):
+        def print_one(header, data) -> None:
             print(f"### {header}")
             compact = opts.format is OutputFormat.JSON
             print(pformat.json(data, compact=compact).rstrip())
 
-        def task(arg):
+        def task(arg) -> None:
             detail = gob_util.FetchUrlJson(
                 helper.host, f"accounts/{arg}/detail"
             )
@@ -1226,7 +1228,7 @@ class ActionConfig(UserAction):
     COMMAND = "config"
 
     @staticmethod
-    def __call__(opts):
+    def __call__(opts) -> None:
         """Implement the action."""
         # For now, this is a place holder for raising visibility for the config
         # file and its associated help text documentation.
@@ -1240,14 +1242,14 @@ class ActionHelp(UserAction):
     USE_PAGER = True
 
     @staticmethod
-    def init_subparser(parser):
+    def init_subparser(parser) -> None:
         """Add arguments to this action's subparser."""
         parser.add_argument(
             "command", nargs="?", help="The command to display."
         )
 
     @staticmethod
-    def __call__(opts):
+    def __call__(opts) -> None:
         """Implement the action."""
         # Show global help.
         if not opts.command:
@@ -1264,7 +1266,7 @@ class ActionHelpAll(UserAction):
     USE_PAGER = True
 
     @staticmethod
-    def __call__(opts):
+    def __call__(opts) -> None:
         """Implement the action."""
         first = True
         for action in _GetActions():
@@ -1325,7 +1327,7 @@ def _GetActionUsages():
     )
 
 
-def _AddCommonOptions(parser, subparser):
+def _AddCommonOptions(parser, subparser) -> None:
     """Add options that should work before & after the subcommand.
 
     Make it easy to do `gerrit --dry-run foo` and `gerrit foo --dry-run`.
@@ -1481,7 +1483,7 @@ def GetParser(
     return parser
 
 
-def start_pager():
+def start_pager() -> None:
     """Re-spawn ourselves attached to a pager."""
     pager = os.environ.get("PAGER", "less")
     os.environ.setdefault("LESS", "FRX")
@@ -1501,7 +1503,7 @@ def start_pager():
             stdin=gerrit_proc.stdout,
         ) as pager_proc:
             # Send SIGINT to just the gerrit process, not the pager too.
-            def _sighandler(signum, _frame):
+            def _sighandler(signum, _frame) -> None:
                 gerrit_proc.send_signal(signum)
 
             signal.signal(signal.SIGINT, _sighandler)
@@ -1514,7 +1516,7 @@ def start_pager():
             sys.exit(gerrit_proc.wait())
 
 
-def main(argv):
+def main(argv) -> None:
     base_parser = GetBaseParser()
     opts, subargs = base_parser.parse_known_args(argv)
 

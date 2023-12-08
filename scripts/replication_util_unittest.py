@@ -30,7 +30,7 @@ class RunTest(cros_test_lib.MockTempDirTestCase):
     replication_lib_unittest.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         file_layout = (D("src", ["audio_file"]),)
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, file_layout)
 
@@ -39,7 +39,7 @@ class RunTest(cros_test_lib.MockTempDirTestCase):
 
         self.PatchObject(constants, "SOURCE_ROOT", new=self.tempdir)
 
-    def testRun(self):
+    def testRun(self) -> None:
         """Basic test of the 'run' command."""
         audio_dst_path = os.path.join("dst", "audio_file")
 
@@ -74,7 +74,7 @@ class RunTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertTempFileContents(audio_dst_path, "[Speaker A Settings]")
 
-    def testUnknownFieldInConfig(self):
+    def testUnknownFieldInConfig(self) -> None:
         """Test that unknown fields in the ReplicationConfig cause an error."""
         audio_dst_path = os.path.join("dst", "audio_file")
 

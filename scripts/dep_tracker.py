@@ -98,11 +98,11 @@ class DepTracker:
         self._symlinks = {}
         self._hardlinks = {}
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Destructor method to free up self._pool resource."""
         self._pool.close()
 
-    def Init(self):
+    def Init(self) -> None:
         """Generates the initial list of files."""
         # First iteration over all the files in root searching for symlinks and
         # non-regular files.
@@ -138,7 +138,7 @@ class DepTracker:
                     continue
                 seen_inodes[st.st_ino] = rel_path
 
-    def SaveJSON(self, filename):
+    def SaveJSON(self, filename) -> None:
         """Save the computed information to a JSON file.
 
         Args:
@@ -151,7 +151,7 @@ class DepTracker:
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(data, f)
 
-    def ComputeEbuildDeps(self, sysroot):
+    def ComputeEbuildDeps(self, sysroot) -> None:
         """Compute the dependencies between ebuilds and files.
 
         Iterates over the list of ebuilds in the database and annotates the
@@ -203,7 +203,7 @@ class DepTracker:
             }
         # TODO(deymo): Parse dependencies between ebuilds.
 
-    def ComputeELFFileDeps(self):
+    def ComputeELFFileDeps(self) -> None:
         """Computes the dependencies between files.
 
         Computes the dependencies between the files in the root directory passed
@@ -263,7 +263,7 @@ class DepTracker:
             if file_deps:
                 file_data["deps"] = file_deps
 
-    def ComputeFileTypes(self):
+    def ComputeFileTypes(self) -> None:
         """Computes all the missing file type for the files in the root."""
         for rel_path, file_data in self._files.items():
             if "ftype" in file_data:
@@ -306,7 +306,7 @@ def ParseArgs(argv):
     return opts
 
 
-def main(argv):
+def main(argv) -> None:
     """Main function to start the script."""
     opts = ParseArgs(argv)
     logging.debug("Options are %s", opts)

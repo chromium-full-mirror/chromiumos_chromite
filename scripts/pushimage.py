@@ -210,7 +210,7 @@ class InputInsns:
 
     def OutputInsns(
         self, output_file, sect_insns, sect_general, insns_merge=None
-    ):
+    ) -> None:
         """Generate the output instruction file for sending to the signer.
 
         The override order is (later has precedence):
@@ -544,7 +544,7 @@ def PushImage(
         # Clear the list of files to sign before adding new artifacts.
         files_to_sign = []
 
-        def _AddToFilesToSign(image_type, dst, suffix):
+        def _AddToFilesToSign(image_type, dst, suffix) -> None:
             assert dst.endswith("." + suffix), "dst: %s, suffix: %s" % (
                 dst,
                 suffix,
@@ -761,7 +761,7 @@ def GetParser():
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     parser = GetParser()
     opts = parser.parse_args(argv)
     opts.Freeze()

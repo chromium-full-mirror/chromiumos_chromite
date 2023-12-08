@@ -56,7 +56,7 @@ def _patch_time(sleep_delta):
 class TestForceSleep(cros_test_lib.TestCase):
     """Tests for _force_sleep."""
 
-    def test__force_sleep_at_least_given_secs(self):
+    def test__force_sleep_at_least_given_secs(self) -> None:
         with _patch_time(sleep_delta=-7) as mock_time:
             loop._force_sleep(10)
         self.assertGreaterEqual(mock_time.current_time, 10)

@@ -26,20 +26,20 @@ class SleepLoop:
         self._callback = callback
         self._interval = interval
 
-    def loop_once(self):
+    def loop_once(self) -> None:
         """Do actions for a single loop."""
         try:
             self._callback()
         except Exception:
             logger.exception("Error during loop.")
 
-    def loop_forever(self):
+    def loop_forever(self) -> None:
         while True:
             self.loop_once()
             _force_sleep(self._interval)
 
 
-def _force_sleep(secs):
+def _force_sleep(secs) -> None:
     """Force sleep for at least the given number of seconds."""
     now = time.time()
     finished_time = now + secs

@@ -49,7 +49,7 @@ def get_all_package_objects(board):
     return {k: sorted(v) for k, v in result.items()}
 
 
-def main(argv):
+def main(argv) -> None:
     cros_build_lib.AssertInsideChroot()
 
     parser = commandline.ArgumentParser(description=__doc__)

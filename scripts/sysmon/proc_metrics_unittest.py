@@ -58,7 +58,7 @@ def _expected_calls_for(name):
 class TestProcMetrics(cros_test_lib.TestCase):
     """Tests for proc_metrics."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         patcher = mock.patch(
             "chromite.third_party.infra_libs.ts_mon.common.interface.state."
             "store",
@@ -67,7 +67,7 @@ class TestProcMetrics(cros_test_lib.TestCase):
         self.store = patcher.start()
         self.addCleanup(patcher.stop)
 
-    def test_collect(self):
+    def test_collect(self) -> None:
         with mock.patch("psutil.process_iter", autospec=True) as process_iter:
             process_iter.return_value = [
                 _mock_process(

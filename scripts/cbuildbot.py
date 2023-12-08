@@ -55,7 +55,7 @@ _BUILDBOT_REQUIRED_BINARIES = ("pbzip2",)
 _API_VERSION_ATTR = "api_version"
 
 
-def _BackupPreviousLog(log_file, backup_limit=25):
+def _BackupPreviousLog(log_file, backup_limit=25) -> None:
     """Rename previous log.
 
     Args:
@@ -106,7 +106,7 @@ def _IsDistributedBuilder(options, chrome_rev, build_config):
     return False
 
 
-def _RunBuildStagesWrapper(options, site_config, build_config):
+def _RunBuildStagesWrapper(options, site_config, build_config) -> None:
     """Helper function that wraps RunBuildStages()."""
     logging.info(
         "cbuildbot was executed with args %s", cros_build_lib.CmdToStr(sys.argv)
@@ -179,7 +179,7 @@ def _RunBuildStagesWrapper(options, site_config, build_config):
                 chrome_root_mgr.Cleanup()
 
 
-def _CheckChromeVersionOption(_option, _opt_str, value, parser):
+def _CheckChromeVersionOption(_option, _opt_str, value, parser) -> None:
     """Upgrade other options based on chrome_version being passed."""
     value = value.strip()
 
@@ -189,7 +189,7 @@ def _CheckChromeVersionOption(_option, _opt_str, value, parser):
     parser.values.chrome_version = value
 
 
-def _CheckChromeRootOption(_option, _opt_str, value, parser):
+def _CheckChromeRootOption(_option, _opt_str, value, parser) -> None:
     """Validate and convert chrome_root to full-path form."""
     if parser.values.chrome_rev is None:
         parser.values.chrome_rev = constants.CHROME_REV_LOCAL
@@ -197,7 +197,7 @@ def _CheckChromeRootOption(_option, _opt_str, value, parser):
     parser.values.chrome_root = value
 
 
-def FindCacheDir(_parser, _options):
+def FindCacheDir(_parser, _options) -> None:
     return None
 
 
@@ -834,7 +834,7 @@ def _CreateParser():
     return parser
 
 
-def _FinishParsing(options):
+def _FinishParsing(options) -> None:
     """Perform some parsing tasks that need to take place after optparse.
 
     This function needs to be easily testable!  Keep it free of
@@ -902,7 +902,7 @@ def _FinishParsing(options):
 
 
 # pylint: disable=unused-argument
-def _PostParseCheck(parser, options, site_config):
+def _PostParseCheck(parser, options, site_config) -> None:
     """Perform some usage validation after we've parsed the arguments
 
     Args:
@@ -1071,17 +1071,17 @@ class _ObjectMethodPatcher:
         self.original_attr = None
         self.new_attr = _MockMethodWithReturnValue(self.return_value)
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.original_attr = self.target.__dict__[self.attr]
         setattr(self.target, self.attr, self.new_attr)
 
-    def __exit__(self, *args):
+    def __exit__(self, *args) -> None:
         if self.target and self.original_attr:
             setattr(self.target, self.attr, self.original_attr)
 
 
 # TODO(build): This function is too damn long.
-def main(argv):
+def main(argv) -> None:
     # We get false positives with the options object.
     # pylint: disable=attribute-defined-outside-init
 

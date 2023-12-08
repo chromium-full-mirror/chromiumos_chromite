@@ -215,7 +215,7 @@ To install the debug symbols for all available packages, run:
             )
         return target_binary
 
-    def VerifyAndFinishInitialization(self, device):
+    def VerifyAndFinishInitialization(self, device) -> None:
         """Verify files/processes exist and flags are correct."""
         if not self.board:
             if self.remote:
@@ -375,7 +375,7 @@ To install the debug symbols for all available packages, run:
         finally:
             os.unlink(lock)
 
-    def SetupUser(self):
+    def SetupUser(self) -> None:
         """Propogate the user name<->id mapping from outside the chroot.
 
         Some unittests use getpwnam($USER), as does bash.  If the account
@@ -431,7 +431,7 @@ To install the debug symbols for all available packages, run:
                     f.write("\n")
                 f.write("%s\n" % acct)
 
-    def _FindRemoteProcess(self, device):
+    def _FindRemoteProcess(self, device) -> None:
         """Find a named process (or a pid) running on a remote device."""
         if not self.remote_process_name and not self.pid:
             return
@@ -558,7 +558,7 @@ To install the debug symbols for all available packages, run:
 
         return gdb_init_commands
 
-    def RunRemote(self):
+    def RunRemote(self) -> None:
         """Handle remote debugging, via gdbserver & cross debugger."""
         with remote_access.ChromiumOSDeviceHandler(
             self.remote,
@@ -586,7 +586,7 @@ To install the debug symbols for all available packages, run:
                 cwd=self.sysroot,
             )
 
-    def Run(self):
+    def Run(self) -> None:
         """Runs the debugger in a proper environment (e.g. qemu)."""
 
         self.VerifyAndFinishInitialization(None)
@@ -633,7 +633,7 @@ To install the debug symbols for all available packages, run:
         os.execvp(gdb_cmd, gdb_args)
 
 
-def _ReExecuteIfNeeded(argv, ns_net=False, ns_pid=False):
+def _ReExecuteIfNeeded(argv, ns_net=False, ns_pid=False) -> None:
     """Re-execute gdb as root.
 
     We often need to do things as root, so make sure we're that.  Like chroot
@@ -668,7 +668,7 @@ def FindInferior(arg_list):
     return program_name, new_list
 
 
-def main(argv):
+def main(argv) -> None:
     parser = commandline.ArgumentParser(description=__doc__)
 
     parser.add_argument("--board", default=None, help="board to debug for")

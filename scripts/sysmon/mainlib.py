@@ -34,7 +34,7 @@ class _MetricCollector:
             callback=osinfo_metrics.collect_os_info, interval=60 * 60
         )
 
-    def __call__(self):
+    def __call__(self) -> None:
         """Collect metrics."""
         system_metrics.collect_uptime()
         system_metrics.collect_cpu_info()
@@ -64,7 +64,7 @@ class _TimedCallback:
         self._interval = interval
         self._last_called = float("-inf")
 
-    def __call__(self):
+    def __call__(self) -> None:
         if time.time() >= self._next_call:
             self._callback()
             self._last_called = time.time()
@@ -74,7 +74,7 @@ class _TimedCallback:
         return self._last_called + self._interval
 
 
-def main():
+def main() -> None:
     parser = commandline.ArgumentParser(
         description=__doc__, default_log_level="DEBUG"
     )

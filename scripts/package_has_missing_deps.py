@@ -406,7 +406,7 @@ class DotSoResolver:
 
     def cache_libs_from_build(
         self, package: portage_util.InstalledPackage, image_dir: Path
-    ):
+    ) -> None:
         """Populate the provided_libs_cache for the package from the image dir.
 
         When using build-info, CONTENTS might not be available yet. so provide
@@ -620,7 +620,7 @@ def check_package(
     )
 
 
-def pretty_print(details: MissingDependencyDetails):
+def pretty_print(details: MissingDependencyDetails) -> None:
     """Handle --format=pretty"""
     if details.unsatisfied_libs:
         print(
@@ -644,13 +644,13 @@ def pretty_print(details: MissingDependencyDetails):
         pprint.pprint(details.bdepend)
 
 
-def raw_print(details: MissingDependencyDetails):
+def raw_print(details: MissingDependencyDetails) -> None:
     """Handle --format=raw"""
     pformat.json(details._asdict(), fp=sys.stdout, compact=True)
     print()
 
 
-def main(argv: Optional[List[str]]):
+def main(argv: Optional[List[str]]) -> None:
     """Main."""
     commandline.RunInsideChroot()
     opts = parse_arguments(argv)

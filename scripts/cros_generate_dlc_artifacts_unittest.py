@@ -13,7 +13,7 @@ from chromite.scripts import cros_generate_dlc_artifacts
 
 
 @pytest.mark.parametrize("dry_run", ((False), (True)))
-def test_upload_dlc_artifacts(dry_run):
+def test_upload_dlc_artifacts(dry_run) -> None:
     """Tests out UploadDlcArtifacts with dry_run option"""
     artifact_mock = mock.Mock()
     cros_generate_dlc_artifacts.UploadDlcArtifacts(
@@ -38,7 +38,7 @@ def test_generate_dlc_params(
     version,
     powerwash_safety,
     tmp_path,
-):
+) -> None:
     """Tests out GenerateDlcParams"""
     tmpfile = tmp_path / "license"
     tmpfile.touch()

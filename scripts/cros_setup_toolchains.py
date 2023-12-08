@@ -143,7 +143,7 @@ class Crossdev:
     }
 
     @classmethod
-    def Load(cls, reconfig):
+    def Load(cls, reconfig) -> None:
         """Load crossdev cache from disk.
 
         We invalidate the cache when crossdev updates or this script changes.
@@ -193,7 +193,7 @@ class Crossdev:
             cls._CACHE = data
 
     @classmethod
-    def Save(cls):
+    def Save(cls) -> None:
         """Store crossdev cache on disk."""
         # Save the cache from the successful run.
         with open(cls._CACHE_FILE, "w", encoding="utf-8") as f:
@@ -259,7 +259,7 @@ class Crossdev:
         return val[target]
 
     @classmethod
-    def UpdateTargets(cls, targets, usepkg, config_only=False):
+    def UpdateTargets(cls, targets, usepkg, config_only=False) -> None:
         """Calls crossdev to initialize a cross target.
 
         Args:
@@ -300,7 +300,7 @@ class Crossdev:
     @classmethod
     def _UpdateTarget(
         cls, target_name, target, usepkg, config_only, fetch_only=False
-    ):
+    ) -> None:
         """Calls crossdev to initialize a cross target.
 
         Args:
@@ -510,7 +510,7 @@ def TargetIsInitialized(target):
         return False
 
 
-def RemovePackageMask(target):
+def RemovePackageMask(target) -> None:
     """Removes a package.mask file for the given platform.
 
     The pre-existing package.mask files can mess with the keywords.
@@ -523,7 +523,7 @@ def RemovePackageMask(target):
 
 
 # Main functions performing the actual update steps.
-def RebuildLibtool(root="/"):
+def RebuildLibtool(root="/") -> None:
     """Rebuild libtool as needed
 
     Libtool hardcodes full paths to internal gcc files, so whenever we upgrade
@@ -633,7 +633,7 @@ def UpdateTargets(targets, usepkg, root="/"):
     return True
 
 
-def CleanTargets(targets, root="/"):
+def CleanTargets(targets, root="/") -> None:
     """Unmerges old packages that are assumed unnecessary.
 
     Args:
@@ -681,7 +681,7 @@ def CleanTargets(targets, root="/"):
         logging.info("Nothing to clean!")
 
 
-def SelectActiveToolchains(targets, root="/"):
+def SelectActiveToolchains(targets, root="/") -> None:
     """Runs gcc-config and binutils-config to select the desired.
 
     Args:
@@ -772,7 +772,7 @@ def UpdateToolchains(
     targets_wanted,
     boards_wanted,
     root="/",
-):
+) -> None:
     """Performs all steps to create a synchronized toolchain enviroment.
 
     Args:
@@ -844,7 +844,7 @@ def UpdateToolchains(
     RebuildLibtool(root=root)
 
 
-def ShowConfig(name):
+def ShowConfig(name) -> None:
     """Show the toolchain tuples used by |name|
 
     Args:
@@ -862,7 +862,7 @@ def ShowConfig(name):
     )
 
 
-def GeneratePathWrapper(root, wrappath, path):
+def GeneratePathWrapper(root, wrappath, path) -> None:
     """Generate a shell script to execute another shell script
 
     Since we can't symlink a wrapped ELF (see GenerateLdsoWrapper) because the
@@ -900,7 +900,7 @@ exit "$?"
     os.chmod(root_wrapper, 0o755)
 
 
-def FixClangXXWrapper(root, path):
+def FixClangXXWrapper(root, path) -> None:
     """Fix wrapper shell scripts and symlinks for invoking clang++
 
     In a typical installation, clang++ symlinks to clang, which symlinks to the
@@ -1093,7 +1093,7 @@ def _GetFilesForTarget(target, root="/"):
 
 def _BuildInitialPackageRoot(
     output_dir, paths, elfs, ldpaths, path_rewrite_func=lambda x: x, root="/"
-):
+) -> None:
     """Link in all packable files and their runtime dependencies
 
     This also wraps up executable ELFs with helper scripts.
@@ -1226,7 +1226,7 @@ def _EnvdGetVar(envd, var):
     return key_value_store.LoadFile(envd)[var]
 
 
-def _ProcessBinutilsConfig(target, output_dir):
+def _ProcessBinutilsConfig(target, output_dir) -> None:
     """Do what binutils-config would have done"""
     binpath = os.path.join("/bin", target + "-")
 
@@ -1287,7 +1287,7 @@ def _ProcessGccConfig(target, output_dir):
     return srcpath
 
 
-def _ProcessSysrootWrappers(_target, output_dir, srcpath):
+def _ProcessSysrootWrappers(_target, output_dir, srcpath) -> None:
     """Remove chroot-specific things from our sysroot wrappers"""
     # Disable ccache since we know it won't work outside of chroot.
 
@@ -1304,7 +1304,7 @@ def _ProcessSysrootWrappers(_target, output_dir, srcpath):
         )
 
 
-def _ProcessClangWrappers(target, output_dir):
+def _ProcessClangWrappers(target, output_dir) -> None:
     """Remove chroot-specific things from our sysroot wrappers"""
     clang_bin_path = "/usr/bin"
     # Disable ccache from clang wrappers.
@@ -1317,13 +1317,13 @@ def _ProcessClangWrappers(target, output_dir):
     )
 
 
-def _CreateMainLibDir(target, output_dir):
+def _CreateMainLibDir(target, output_dir) -> None:
     """Create some lib dirs so that compiler can get the right Gcc paths"""
     osutils.SafeMakedirs(os.path.join(output_dir, "usr", target, "lib"))
     osutils.SafeMakedirs(os.path.join(output_dir, "usr", target, "usr/lib"))
 
 
-def _CreateRemoteToolchainFile(output_dir):
+def _CreateRemoteToolchainFile(output_dir) -> None:
     """Create a remote_toolchain_inputs file for reclient/RBE"""
     # The inputs file lists all files/shared libraries needed to run clang.
     # All inputs are relative to location of clang binary and one input
@@ -1353,7 +1353,7 @@ def _CreateRemoteToolchainFile(output_dir):
         f.writelines("%s\n" % line for line in toolchain_inputs)
 
 
-def _ProcessDistroCleanups(target, output_dir):
+def _ProcessDistroCleanups(target, output_dir) -> None:
     """Clean up the tree and remove all distro-specific requirements
 
     Args:
@@ -1370,7 +1370,7 @@ def _ProcessDistroCleanups(target, output_dir):
     osutils.RmDir(os.path.join(output_dir, "etc"))
 
 
-def CreatePackagableRoot(target, output_dir, ldpaths, root="/"):
+def CreatePackagableRoot(target, output_dir, ldpaths, root="/") -> None:
     """Setup a tree from the packages for the specified target
 
     This populates a path with all the files from toolchain packages so that
@@ -1415,7 +1415,7 @@ def CreatePackagableRoot(target, output_dir, ldpaths, root="/"):
     _ProcessDistroCleanups(target, output_dir)
 
 
-def CreatePackages(targets_wanted, output_dir, root="/"):
+def CreatePackages(targets_wanted, output_dir, root="/") -> None:
     """Create redistributable cross-compiler packages for the specified targets
 
     This creates toolchain packages that should be usable in conjunction with

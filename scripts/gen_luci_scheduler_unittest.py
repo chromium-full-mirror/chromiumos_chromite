@@ -17,12 +17,12 @@ from chromite.scripts import gen_luci_scheduler
 class GenLuciSchedulerTest(cros_test_lib.MockTestCase):
     """Tests for cbuildbot_launch script."""
 
-    def testSanityAgainstProd(self):
+    def testSanityAgainstProd(self) -> None:
         """Test we can generate a luci scheduler config with live data."""
         # If it runs without crashing, we pass.
         gen_luci_scheduler.genLuciSchedulerConfig(config_lib.GetConfig())
 
-    def testGenSchedulerJob(self):
+    def testGenSchedulerJob(self) -> None:
         """Test the job creation helper."""
         build_config = config_lib_unittest.MockBuildConfig().apply(
             schedule="funky schedule"
@@ -52,7 +52,7 @@ job {
         result = gen_luci_scheduler.genSchedulerJob(build_config)
         self.assertEqual(result, expected)
 
-    def testGenSchedulerTriggerSimple(self):
+    def testGenSchedulerTriggerSimple(self) -> None:
         """Test the trigger creation helper."""
         trigger_name = "simple"
         repo = "url://repo"
@@ -81,7 +81,7 @@ trigger {
 
         self.assertEqual(result, expected)
 
-    def testGenSchedulerTriggerComplex(self):
+    def testGenSchedulerTriggerComplex(self) -> None:
         """Test the trigger creation helper."""
         trigger_name = "complex"
         repo = "url://repo"
@@ -110,7 +110,7 @@ trigger {
 
         self.assertEqual(result, expected)
 
-    def testGenSchedulerBranched(self):
+    def testGenSchedulerBranched(self) -> None:
         """Test the job creation helper."""
         build_config = config_lib_unittest.MockBuildConfig().apply(
             schedule_branch="mock_branch",
@@ -141,7 +141,7 @@ job {
         result = gen_luci_scheduler.genSchedulerJob(build_config)
         self.assertEqual(result, expected)
 
-    def testGenSchedulerWorkspaceBranch(self):
+    def testGenSchedulerWorkspaceBranch(self) -> None:
         """Test the job creation helper."""
         build_config = config_lib_unittest.MockBuildConfig().apply(
             workspace_branch="work_branch",
@@ -174,7 +174,7 @@ job {
         result = gen_luci_scheduler.genSchedulerJob(build_config)
         self.assertEqual(result, expected)
 
-    def testGenLuciSchedulerConfig(self):
+    def testGenLuciSchedulerConfig(self) -> None:
         """Test a full LUCI Scheduler config file."""
         site_config = config_lib.SiteConfig()
 

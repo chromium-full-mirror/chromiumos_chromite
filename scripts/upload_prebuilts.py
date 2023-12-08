@@ -102,7 +102,7 @@ def GetVersion():
     return datetime.datetime.now().strftime("%Y.%m.%d.%H%M%S")
 
 
-def _GsUpload(gs_context, acl, local_file, remote_file):
+def _GsUpload(gs_context, acl, local_file, remote_file) -> None:
     """Upload to GS bucket.
 
     Args:
@@ -145,7 +145,7 @@ def _GsUpload(gs_context, acl, local_file, remote_file):
             gs_context.ChangeACL(remote_file, acl_args_file=acl)
 
 
-def RemoteUpload(gs_context, acl, files, pool=10):
+def RemoteUpload(gs_context, acl, files, pool=10) -> None:
     """Upload to google storage.
 
     Create a pool of process and call _GsUpload with the proper arguments.
@@ -261,7 +261,7 @@ def UpdateBinhostConfFile(filepath: str, key: str, value: str) -> None:
         git.Commit(dirname, desc)
 
 
-def GenerateHtmlIndex(files, index, board, version, remote_location):
+def GenerateHtmlIndex(files, index, board, version, remote_location) -> None:
     """Given the list of |files|, generate an index.html at |index|.
 
     Args:
@@ -378,7 +378,7 @@ class PrebuiltUploader:
             retries=_RETRIES, sleep=_SLEEP_TIME, dry_run=self._dryrun
         )
 
-    def _Upload(self, local_file, remote_file):
+    def _Upload(self, local_file, remote_file) -> None:
         """Wrapper around _GsUpload"""
         _GsUpload(self._gs_context, self._acl, local_file, remote_file)
 
@@ -391,7 +391,7 @@ class PrebuiltUploader:
             cpv.package not in self._packages and cpv.cp not in self._packages
         )
 
-    def _UploadPrebuilt(self, package_path, url_suffix):
+    def _UploadPrebuilt(self, package_path, url_suffix) -> None:
         """Upload host or board prebuilt files to Google Storage space.
 
         Args:
@@ -466,7 +466,7 @@ class PrebuiltUploader:
         toolchain_tarballs,
         toolchain_upload_path,
         sync_remote_latest_sdk_file: bool,
-    ):
+    ) -> None:
         """Upload a tarball of the sdk at the specified path to Google Storage.
 
         Args:
@@ -603,7 +603,7 @@ LATEST_SDK=\"{latest_sdk}\""""
 
         return targets
 
-    def SyncHostPrebuilts(self, key, git_sync, sync_binhost_conf):
+    def SyncHostPrebuilts(self, key, git_sync, sync_binhost_conf) -> None:
         """Synchronize host prebuilt files.
 
         This function will sync both the standard host packages, plus the host
@@ -673,7 +673,7 @@ LATEST_SDK=\"{latest_sdk}\""""
         toolchain_tarballs,
         toolchain_upload_path,
         sync_remote_latest_sdk_file: bool,
-    ):
+    ) -> None:
         """Synchronize board prebuilt files.
 
         Args:
@@ -788,14 +788,14 @@ LATEST_SDK=\"{latest_sdk}\""""
 class _AddSlaveBoardAction(argparse.Action):
     """Callback that adds a slave board to the list of slave targets."""
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser, namespace, values, option_string=None) -> None:
         getattr(namespace, self.dest).append(BuildTarget(values))
 
 
 class _AddSlaveProfileAction(argparse.Action):
     """Callback that adds a slave profile to the list of slave targets."""
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser, namespace, values, option_string=None) -> None:
         if not namespace.slave_targets:
             parser.error("Must specify --slave-board before --slave-profile")
         if namespace.slave_targets[-1].profile is not None:
@@ -1066,7 +1066,7 @@ def ParseOptions(argv) -> Tuple[argparse.Namespace, Optional[BuildTarget]]:
     return options, target
 
 
-def main(argv):
+def main(argv) -> None:
     # We accumulate information about actions taken and report it at the end
     # if asked to do so. Currently, this only records CL creation, which
     # is the only thing we need for now.

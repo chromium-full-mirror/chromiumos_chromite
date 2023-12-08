@@ -545,7 +545,7 @@ def collect_lints(
     return all_complaints
 
 
-def setup_tidy(board: str, ebuild_list: List[portage_util.EBuild]):
+def setup_tidy(board: str, ebuild_list: List[portage_util.EBuild]) -> None:
     """Sets up to run clang-tidy on the given ebuilds for the given board."""
     packages = [x.package for x in ebuild_list]
     logging.info("Setting up to lint %r", packages)

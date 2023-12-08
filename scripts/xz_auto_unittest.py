@@ -28,12 +28,12 @@ class XzAutoTests(cros_test_lib.MockTempDirTestCase):
 
     TEST_FILE_CONTENTS = (b"", b"some random file contents")
 
-    def DisablePixzForCurrentTest(self):
+    def DisablePixzForCurrentTest(self) -> None:
         """Disables the use of pixz for the current test."""
         # This will be cleaned up by cros_test_lib, so no need to addCleanup.
         os.environ[xz_auto.PIXZ_DISABLE_VAR] = "1"
 
-    def testPixzArgParsingSeemsToWork(self):
+    def testPixzArgParsingSeemsToWork(self) -> None:
         """Tests our detection of file names in pixz commandlines."""
         self.assertEqual(
             xz_auto.ParsePixzArgs(["to_compress.txt"]),
@@ -64,13 +64,15 @@ class XzAutoTests(cros_test_lib.MockTempDirTestCase):
 
     @unittest.skipIf(not xz_auto.HasPixz(), "need pixz for this test")
     @mock.patch.object(xz_auto, "Execvp")
-    def testPixzCommandCreationSelectsPixzIfAvailable(self, execvp_mock):
+    def testPixzCommandCreationSelectsPixzIfAvailable(
+        self, execvp_mock
+    ) -> None:
         """Tests that we actually execute pixz when we intend to."""
 
         class ExecvpStopError(Exception):
             """Convenient way to halt execution."""
 
-        def execvp_side_effect(argv):
+        def execvp_side_effect(argv) -> None:
             """Does testing of our execvp calls."""
             self.assertEqual(argv[0], "pixz")
             raise ExecvpStopError()
@@ -82,7 +84,7 @@ class XzAutoTests(cros_test_lib.MockTempDirTestCase):
         with self.assertRaises(ExecvpStopError):
             xz_auto.ExecDecompressCommand(stdout=False, argv=[])
 
-    def _TestFileCompressionImpl(self, test_empty_file=True):
+    def _TestFileCompressionImpl(self, test_empty_file=True) -> None:
         """Tests that compressing a file with xz_auto WAI."""
         xz_auto_script = str(FindXzAutoLocation())
 
@@ -118,7 +120,7 @@ class XzAutoTests(cros_test_lib.MockTempDirTestCase):
                 file_contents,
             )
 
-    def _TestStdoutCompressionImpl(self):
+    def _TestStdoutCompressionImpl(self) -> None:
         """Tests that compressing stdstreams with xz_auto WAI."""
         xz_auto_script = str(FindXzAutoLocation())
         for file_contents in self.TEST_FILE_CONTENTS:
@@ -146,7 +148,7 @@ class XzAutoTests(cros_test_lib.MockTempDirTestCase):
             uncompressed_file = run_result.stdout
             self.assertEqual(file_contents, uncompressed_file)
 
-    def _TestStdoutCompressionFromFileImpl(self):
+    def _TestStdoutCompressionFromFileImpl(self) -> None:
         """Tests that compression of a file & outputting to stdout works.
 
         Pixz has some semi-weird behavior here (b/202735786).
@@ -182,7 +184,7 @@ class XzAutoTests(cros_test_lib.MockTempDirTestCase):
             self.assertEqual(file_contents, uncompressed_file)
 
     @unittest.skipIf(not xz_auto.HasPixz(), "need pixz for this test")
-    def testFileCompressionWithPixzWorks(self):
+    def testFileCompressionWithPixzWorks(self) -> None:
         """Tests that compressing a file with pixz WAI."""
         self._TestFileCompressionImpl()
 
@@ -195,26 +197,26 @@ class XzAutoTests(cros_test_lib.MockTempDirTestCase):
         self._TestFileCompressionImpl(test_empty_file=False)
 
     @unittest.skipIf(not xz_auto.HasPixz(), "need pixz for this test")
-    def testStdoutCompressionWithPixzWorks(self):
+    def testStdoutCompressionWithPixzWorks(self) -> None:
         """Tests that compressing `stdout` with pixz WAI."""
         self._TestStdoutCompressionImpl()
 
     @unittest.skipIf(not xz_auto.HasPixz(), "need pixz for this test")
-    def testStdoutCompressionFromFileWithPixzWorks(self):
+    def testStdoutCompressionFromFileWithPixzWorks(self) -> None:
         """Tests that compressing from a file to stdout with pixz WAI."""
         self._TestStdoutCompressionFromFileImpl()
 
-    def testFileCompressionWithXzWorks(self):
+    def testFileCompressionWithXzWorks(self) -> None:
         """Tests that compressing a file with pixz WAI."""
         self.DisablePixzForCurrentTest()
         self._TestFileCompressionImpl()
 
-    def testStdoutCompressionWithXzWorks(self):
+    def testStdoutCompressionWithXzWorks(self) -> None:
         """Tests that compressing `stdout` with pixz WAI."""
         self.DisablePixzForCurrentTest()
         self._TestStdoutCompressionImpl()
 
-    def testStdoutCompressionFromFileWithXzWorks(self):
+    def testStdoutCompressionFromFileWithXzWorks(self) -> None:
         """Tests that compressing from a file to stdout WAI."""
         self.DisablePixzForCurrentTest()
         self._TestStdoutCompressionFromFileImpl()

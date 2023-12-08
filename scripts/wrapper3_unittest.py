@@ -21,7 +21,7 @@ WRAPPER = Path(__file__).resolve().parent / "wrapper3.py"
 class FindTargetTests(cros_test_lib.TempDirTestCase):
     """Tests for FindTarget()."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Create a skeleton chromite layout.
         # tmpdir/
         #   chromite/
@@ -61,13 +61,13 @@ class FindTargetTests(cros_test_lib.TempDirTestCase):
             self.wrapper.chmod(0o755)
 
     @staticmethod
-    def insert_path(var: str, value: str):
+    def insert_path(var: str, value: str) -> None:
         """Insert |value| into the start of the environment |var|."""
         if var in os.environ:
             value += f":{os.environ[var]}"
         os.environ[var] = value
 
-    def gen_script(self, path: Path, wrapper: Path = None):
+    def gen_script(self, path: Path, wrapper: Path = None) -> None:
         """Create a script at |path|."""
         path.parent.mkdir(parents=True, exist_ok=True)
         path = path.with_suffix(".py")
@@ -99,7 +99,7 @@ class FindTargetTests(cros_test_lib.TempDirTestCase):
                 **kwargs,
             )
 
-    def _run_tests(self, prog: Path, verify=None, **kwargs):
+    def _run_tests(self, prog: Path, verify=None, **kwargs) -> None:
         """Run |prog| in the different fun ways."""
         if verify is None:
             verify = lambda result: self.assertEqual("hi []\n", result.stdout)
@@ -125,49 +125,49 @@ class FindTargetTests(cros_test_lib.TempDirTestCase):
         result = self.run_script([prog.name], **kwargs)
         verify(result)
 
-    def testExternal(self):
+    def testExternal(self) -> None:
         """Verify use from outside of chromite/ works with main() scripts."""
         prog = self.tempdir / "path" / "prog"
         self.gen_script(prog)
         self._run_tests(prog)
 
-    def testChromiteBin(self):
+    def testChromiteBin(self) -> None:
         """Verify chromite/bin/ works with module in chromite/scripts/."""
         prog = self.bindir / "prog"
         self.gen_script(self.scripts_dir / prog.name, prog)
         self._run_tests(prog)
 
-    def testChromiteScripts(self):
+    def testChromiteScripts(self) -> None:
         """Verify chromite/scripts/ works with main() scripts."""
         prog = self.scripts_dir / "prog"
         self.gen_script(prog)
         self._run_tests(prog)
 
-    def testChromiteCustomdir(self):
+    def testChromiteCustomdir(self) -> None:
         """Verify chromite/customdir/ works with main() scripts."""
         prog = self.chromite_dir / "customdir" / "prog"
         self.gen_script(prog)
         self._run_tests(prog)
 
-    def testChromiteTopdir(self):
+    def testChromiteTopdir(self) -> None:
         """Verify chromite/ works with main() scripts."""
         prog = self.chromite_dir / "prog"
         self.gen_script(prog)
         self._run_tests(prog)
 
-    def testWrapper(self):
+    def testWrapper(self) -> None:
         """Fail quickly when running the wrapper directly."""
         verify = lambda result: self.assertEqual(result.returncode, 100)
         self._run_tests(self.wrapper, verify=verify, check=False)
 
-    def testMissingScript(self):
+    def testMissingScript(self) -> None:
         """Fail quickly if wrapped script is missing."""
         verify = lambda result: self.assertNotEqual(result.returncode, 0)
         prog = self.bindir / "prog"
         prog.symlink_to(self.wrapper)
         self._run_tests(prog, verify=verify, check=False)
 
-    def testBrokenScript(self):
+    def testBrokenScript(self) -> None:
         """Fail quickly if wrapped script is corrupt."""
         verify = lambda result: self.assertNotEqual(result.returncode, 0)
         prog = self.scripts_dir / "prog"
@@ -176,7 +176,7 @@ class FindTargetTests(cros_test_lib.TempDirTestCase):
         prog.with_suffix(".py").write_text("}", encoding="utf-8")
         self._run_tests(prog, verify=verify, check=False)
 
-    def testDashes(self):
+    def testDashes(self) -> None:
         """Check behavior of scripts with dashes in their names."""
         script = self.chromite_dir / "scripts" / "p_r_o_g"
         self.gen_script(script)

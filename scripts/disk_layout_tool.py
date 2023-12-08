@@ -403,7 +403,7 @@ class ArgsAction(argparse.Action):  # pylint: disable=no-init
     We take care of appending to the 'args' array ourselves here.
     """
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser, namespace, values, option_string=None) -> None:
         args = getattr(namespace, "args", [])
         args.append(values)
         setattr(namespace, "args", args)
@@ -418,7 +418,7 @@ class HelpAllAction(argparse.Action):
         kwargs["nargs"] = 0
         argparse.Action.__init__(self, *args, **kwargs)
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser, namespace, values, option_string=None) -> None:
         print("%s\nCommands:" % (parser.description,), end="")
         subparser = getattr(namespace, "help_all")
         for key, subparser in namespace.help_all.choices.items():
@@ -508,7 +508,7 @@ def GetParser():
     return parser
 
 
-def main(argv):
+def main(argv) -> None:
     parser = GetParser()
     opts = parser.parse_args(argv)
 

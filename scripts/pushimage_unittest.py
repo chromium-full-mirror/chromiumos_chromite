@@ -27,17 +27,17 @@ signing.INPUT_INSN_DIR_REL = signing.TEST_INPUT_INSN_DIR
 class InputInsnsTest(cros_test_lib.MockTestCase):
     """Tests for InputInsns"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.StartPatcher(gs_unittest.GSContextMock())
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Simple smoke test"""
         insns = pushimage.InputInsns("test.board")
         insns.GetInsnFile("recovery")
         self.assertEqual(insns.GetChannels(), ["dev", "canary"])
         self.assertEqual(insns.GetKeysets(), ["stumpy-mp-v3"])
 
-    def testGetInsnFile(self):
+    def testGetInsnFile(self) -> None:
         """Verify various inputs result in right insns path"""
         testdata = (
             ("UPPER_CAPS", "UPPER_CAPS"),
@@ -52,7 +52,7 @@ class InputInsnsTest(cros_test_lib.MockTestCase):
                 os.path.basename(ret), "%s.instructions" % (filename)
             )
 
-    def testSplitCfgField(self):
+    def testSplitCfgField(self) -> None:
         """Verify splitting behavior behaves"""
         testdata = (
             ("", []),
@@ -66,7 +66,7 @@ class InputInsnsTest(cros_test_lib.MockTestCase):
             ret = pushimage.InputInsns.SplitCfgField(val)
             self.assertEqual(ret, exp)
 
-    def testOutputInsnsBasic(self):
+    def testOutputInsnsBasic(self) -> None:
         """Verify output instructions are correct"""
         exp_content = """[insns]
 channel = dev canary
@@ -88,7 +88,7 @@ create_nplusone = true
         content = m.call_args_list[0][0][1]
         self.assertEqual(content.rstrip(), exp_content.rstrip())
 
-    def testOutputInsnsReplacements(self):
+    def testOutputInsnsReplacements(self) -> None:
         """Verify output instructions can be updated"""
         exp_content = """[insns]
 channel = dev
@@ -121,7 +121,7 @@ config_board = test.board
         content = m.call_args_list[0][0][1]
         self.assertEqual(content.rstrip(), exp_content.rstrip())
 
-    def testOutputInsnsMergeAlts(self):
+    def testOutputInsnsMergeAlts(self) -> None:
         """Verify handling of alternative insns.xxx sections"""
         TEMPLATE_CONTENT = """[insns]
 channel = %(channel)s
@@ -184,14 +184,14 @@ config_board = test.board
 class MarkImageToBeSignedTest(gs_unittest.AbstractGSContextTest):
     """Tests for MarkImageToBeSigned()"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         # Minor optimization -- we call this for logging purposes in the main
         # code, but don't really care about it for testing.  It just slows us.
         self.PatchObject(
             cros_build_lib, "MachineDetails", return_value="1234\n"
         )
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Simple smoke test"""
         tbs_base = "gs://some-bucket"
         insns_path = "chan/board/ver/file.instructions"
@@ -201,13 +201,13 @@ class MarkImageToBeSignedTest(gs_unittest.AbstractGSContextTest):
         ret = pushimage.MarkImageToBeSigned(self.ctx, tbs_base, insns_path, 90)
         self.assertEqual(ret, tbs_file)
 
-    def testPriority(self):
+    def testPriority(self) -> None:
         """Verify diff priority values get used correctly"""
         for prio, sprio in ((0, "00"), (9, "09"), (35, "35"), (99, "99")):
             ret = pushimage.MarkImageToBeSigned(self.ctx, "", "", prio)
             self.assertEqual(ret, "/tobesigned/%s," % sprio)
 
-    def testBadPriority(self):
+    def testBadPriority(self) -> None:
         """Verify we reject bad priority values"""
         for prio in (-10, -1, 100, 91239):
             self.assertRaises(
@@ -219,7 +219,7 @@ class MarkImageToBeSignedTest(gs_unittest.AbstractGSContextTest):
                 prio,
             )
 
-    def testTbsUpload(self):
+    def testTbsUpload(self) -> None:
         """Make sure we actually try to upload the file"""
         pushimage.MarkImageToBeSigned(self.ctx, "", "", 50)
         self.gs_mock.assertCommandContains(["cp", "--"])
@@ -228,10 +228,10 @@ class MarkImageToBeSignedTest(gs_unittest.AbstractGSContextTest):
 class PushImageTests(gs_unittest.AbstractGSContextTest):
     """Tests for PushImage()"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.mark_mock = self.PatchObject(pushimage, "MarkImageToBeSigned")
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Simple smoke test"""
         EXPECTED = {
             "canary": [
@@ -250,7 +250,7 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
 
         self.assertEqual(urls, EXPECTED)
 
-    def testBasic_SignTypesEmptyList(self):
+    def testBasic_SignTypesEmptyList(self) -> None:
         """Tests PushImage behavior when |sign_types| is empty instead of None.
 
         As part of the buildbots, PushImage function always receives a tuple for
@@ -277,7 +277,7 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
 
         self.assertEqual(urls, EXPECTED)
 
-    def testBasic_RealBoardName(self):
+    def testBasic_RealBoardName(self) -> None:
         """Runs a simple smoke test using a real board name."""
         EXPECTED = {
             "canary": [
@@ -294,24 +294,24 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
 
         self.assertEqual(urls, EXPECTED)
 
-    def testBasicMock(self):
+    def testBasicMock(self) -> None:
         """Simple smoke test in mock mode"""
         with mock.patch.object(gs.GSContext, "Exists", return_value=True):
             pushimage.PushImage(
                 "/src", "test.board", "R34-5126.0.0", dryrun=True, mock=True
             )
 
-    def testBadVersion(self):
+    def testBadVersion(self) -> None:
         """Make sure we barf on bad version strings"""
         self.assertRaises(ValueError, pushimage.PushImage, "", "", "asdf")
 
-    def testNoInsns(self):
+    def testNoInsns(self) -> None:
         """Boards w/out insn files should get skipped"""
         urls = pushimage.PushImage("/src", "a bad bad board", "R34-5126.0.0")
         self.assertEqual(self.gs_mock.call_count, 0)
         self.assertEqual(urls, None)
 
-    def testSignTypesRecovery(self):
+    def testSignTypesRecovery(self) -> None:
         """Only sign the requested recovery type"""
         EXPECTED = {
             "canary": [
@@ -332,7 +332,7 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
         self.assertTrue(self.mark_mock.called)
         self.assertEqual(urls, EXPECTED)
 
-    def testSignTypesBase(self):
+    def testSignTypesBase(self) -> None:
         """Only sign the requested recovery type"""
         EXPECTED = {
             "canary": [
@@ -353,7 +353,7 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
         self.assertTrue(self.mark_mock.called)
         self.assertEqual(urls, EXPECTED)
 
-    def testSignTypesGscFirmware(self):
+    def testSignTypesGscFirmware(self) -> None:
         """Only sign the requested type"""
         EXPECTED = {
             "canary": [
@@ -374,7 +374,7 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
         self.assertTrue(self.mark_mock.called)
         self.assertEqual(urls, EXPECTED)
 
-    def testSignTypesNone(self):
+    def testSignTypesNone(self) -> None:
         """Verify nothing is signed when we request an unavailable type"""
         urls = pushimage.PushImage(
             "/src", "test.board", "R34-5126.0.0", sign_types=["nononononono"]
@@ -383,7 +383,7 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
         self.assertFalse(self.mark_mock.called)
         self.assertEqual(urls, {})
 
-    def testGsError(self):
+    def testGsError(self) -> None:
         """Verify random GS errors don't make us blow up entirely"""
         self.gs_mock.AddCmdResult(
             partial_mock.In("stat"), returncode=1, stdout="gobblety gook\n"
@@ -397,7 +397,7 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
                 "R34-5126.0.0",
             )
 
-    def testMultipleKeysets(self):
+    def testMultipleKeysets(self) -> None:
         """Verify behavior when processing an insn w/multiple keysets"""
         EXPECTED = {
             "canary": [
@@ -442,7 +442,7 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
             )
         self.assertEqual(urls, EXPECTED)
 
-    def testForceChannel(self):
+    def testForceChannel(self) -> None:
         """Verify behavior when user has specified custom channel"""
         EXPECTED = {
             "meep": [
@@ -458,7 +458,7 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
             )
         self.assertEqual(urls, EXPECTED)
 
-    def testMultipleAltInsns(self):
+    def testMultipleAltInsns(self) -> None:
         """Verify behavior when processing an insn w/multiple insn overlays"""
         EXPECTED = {
             "canary": [
@@ -502,9 +502,9 @@ class PushImageTests(gs_unittest.AbstractGSContextTest):
 class MainTests(cros_test_lib.MockTestCase):
     """Tests for main()"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(pushimage, "PushImage")
 
-    def testBasic(self):
+    def testBasic(self) -> None:
         """Simple smoke test"""
         pushimage.main(["--board", "test.board", "/src", "--yes"])

@@ -15,7 +15,7 @@ from chromite.scripts import strip_package
 class StripPackageTest(cros_test_lib.MockTestCase):
     """Tests for strip_package."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.sysroot_path = "/build/testboard"
         self.builder_mock = self.PatchObject(
             strip_package.builder, "UpdateGmergeBinhost"
@@ -26,24 +26,24 @@ class StripPackageTest(cros_test_lib.MockTestCase):
             return_value=self.sysroot_path,
         )
 
-    def testDefaultSysroot(self):
+    def testDefaultSysroot(self) -> None:
         """Test the base case."""
         strip_package.main(["--board=testboard", "foo"])
         self.builder_mock.assert_called_with(self.sysroot_path, ["foo"], False)
 
-    def testMultiplePkg(self):
+    def testMultiplePkg(self) -> None:
         """Test multiple package input."""
         strip_package.main(["--board=testboard", "foo", "foo1"])
         self.builder_mock.assert_called_with(
             self.sysroot_path, ["foo", "foo1"], False
         )
 
-    def testCustomSysroot(self):
+    def testCustomSysroot(self) -> None:
         """Test user given custom sysroot path."""
         strip_package.main(["--sysroot=/build/sysroot", "foo"])
         self.builder_mock.assert_called_with("/build/sysroot", ["foo"], False)
 
-    def testInstallMask(self):
+    def testInstallMask(self) -> None:
         """Test install mask environment variable."""
         strip_package.main(["--board=testboard", "foo"])
         self.assertEqual(
@@ -51,7 +51,7 @@ class StripPackageTest(cros_test_lib.MockTestCase):
             "\n".join(install_mask.DEFAULT),
         )
 
-    def testDeepOption(self):
+    def testDeepOption(self) -> None:
         """Test Deep option."""
         strip_package.main(["--board=testboard", "--deep", "foo"])
         self.builder_mock.assert_called_with(self.sysroot_path, ["foo"], True)

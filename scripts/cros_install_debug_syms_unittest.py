@@ -21,7 +21,7 @@ SimpleIndex = namedtuple("SimpleIndex", "header packages")
 class InstallDebugSymsTest(cros_test_lib.MockTestCase):
     """Test the parsing of package index"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.local_binhosts = [
             "/build/something/packages/",
             "file:///build/somethingelse/packages",
@@ -33,7 +33,7 @@ class InstallDebugSymsTest(cros_test_lib.MockTestCase):
             "gs://chromeos-stuff/binhost",
         ]
 
-    def testGetLocalPackageIndex(self):
+    def testGetLocalPackageIndex(self) -> None:
         """Check that local binhosts are fetched correctly."""
         self.PatchObject(
             cros_install_debug_syms.binpkg,
@@ -46,7 +46,7 @@ class InstallDebugSymsTest(cros_test_lib.MockTestCase):
         for binhost in self.local_binhosts:
             cros_install_debug_syms.GetPackageIndex(binhost)
 
-    def testGetRemotePackageIndex(self):
+    def testGetRemotePackageIndex(self) -> None:
         """Check that remote binhosts are fetched correctly."""
         self.PatchObject(
             cros_install_debug_syms.binpkg,
@@ -56,7 +56,7 @@ class InstallDebugSymsTest(cros_test_lib.MockTestCase):
         for binhost in self.remote_binhosts:
             cros_install_debug_syms.GetPackageIndex(binhost)
 
-    def testListRemoteBinhost(self):
+    def testListRemoteBinhost(self) -> None:
         """Check that urls are generated correctly for remote binhosts."""
         chaps_cpv = "chromeos-base/chaps-0-r2"
         metrics_cpv = "chromeos-base/metrics-0-r4"
@@ -86,7 +86,7 @@ class InstallDebugSymsTest(cros_test_lib.MockTestCase):
                 cros_install_debug_syms.ListBinhost(binhost), expected
             )
 
-    def testListRemoteBinhostWithURI(self):
+    def testListRemoteBinhostWithURI(self) -> None:
         """Check that urls are generated correctly when URI is defined."""
         index = SimpleIndex(
             {"URI": "gs://chromeos-prebuilts"},
@@ -116,7 +116,7 @@ class InstallDebugSymsTest(cros_test_lib.MockTestCase):
 class InstallArgsTest(cros_test_lib.MockTestCase):
     """Test InstallArgs utility funcs."""
 
-    def testListInstallArgs(self):
+    def testListInstallArgs(self) -> None:
         """Check ListInstallArgs behavior."""
         parser = cros_install_debug_syms.GetParser()
         opts = parser.parse_args(["--board", "betty", "sys-fs/fuse"])
@@ -135,7 +135,7 @@ class InstallArgsTest(cros_test_lib.MockTestCase):
             cap.GetStdout(),
         )
 
-    def testGetInstallArgsList(self):
+    def testGetInstallArgsList(self) -> None:
         """Check GetInstallArgsList behavior."""
         stdout = (
             "sys-apps/which-2.21 gs://bucket/board/which-2.21.debug.tbz2\n"

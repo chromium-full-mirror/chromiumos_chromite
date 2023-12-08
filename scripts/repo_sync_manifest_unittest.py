@@ -29,7 +29,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
         "https://chromium.googlesource.com/chromiumos/manifest-versions"
     )
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.repo_dir = os.path.join(self.tempdir, "repo")
         self.repo_url = os.path.join(self.tempdir, ".repo/repo")
         self.preload_src = os.path.join(self.tempdir, "source")
@@ -55,7 +55,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
             manifest_version, "ResolveBuildspecVersion", autospec=True
         )
 
-    def notestHelp(self):
+    def notestHelp(self) -> None:
         with self.assertRaises(SystemExit):
             repo_sync_manifest.main(
                 [
@@ -63,7 +63,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
                 ]
             )
 
-    def testMinimal(self):
+    def testMinimal(self) -> None:
         repo_sync_manifest.main(
             [
                 "--repo-root",
@@ -90,7 +90,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testMinimalExternal(self):
+    def testMinimalExternal(self) -> None:
         repo_sync_manifest.main(
             [
                 "--repo-root",
@@ -118,7 +118,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testMinimalManifestUrl(self):
+    def testMinimalManifestUrl(self) -> None:
         repo_sync_manifest.main(
             [
                 "--repo-root",
@@ -147,7 +147,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testBranch(self):
+    def testBranch(self) -> None:
         repo_sync_manifest.main(
             ["--repo-root", self.repo_dir, "--branch", "branch"]
         )
@@ -171,7 +171,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
         # Ensure manifest_versions is not updated.
         self.assertEqual(self.refresh_manifest_mock.mock_calls, [])
 
-    def testBuildSpec(self):
+    def testBuildSpec(self) -> None:
         self.resolve_buildspec_mock.return_value = "resolved_buildspec"
 
         repo_sync_manifest.main(
@@ -214,7 +214,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testBuildSpecExternal(self):
+    def testBuildSpecExternal(self) -> None:
         self.resolve_buildspec_mock.return_value = "resolved_buildspec"
 
         repo_sync_manifest.main(
@@ -258,7 +258,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testVersion(self):
+    def testVersion(self) -> None:
         self.resolve_version_mock.return_value = "resolved_buildspec"
 
         repo_sync_manifest.main(
@@ -301,7 +301,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testVersionExternal(self):
+    def testVersionExternal(self) -> None:
         self.resolve_version_mock.return_value = "resolved_buildspec"
 
         repo_sync_manifest.main(
@@ -345,7 +345,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testBuildSpecNoManifestVersions(self):
+    def testBuildSpecNoManifestVersions(self) -> None:
         with self.assertRaises(AssertionError):
             repo_sync_manifest.main(
                 [
@@ -367,7 +367,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
                 ]
             )
 
-    def testLocalManifest(self):
+    def testLocalManifest(self) -> None:
         repo_sync_manifest.main(
             [
                 "--repo-root",
@@ -396,7 +396,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testGroups(self):
+    def testGroups(self) -> None:
         repo_sync_manifest.main(
             [
                 "--repo-root",
@@ -427,7 +427,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
             ],
         )
 
-    def testOptimizations(self):
+    def testOptimizations(self) -> None:
         repo_sync_manifest.main(
             [
                 "--repo-root",

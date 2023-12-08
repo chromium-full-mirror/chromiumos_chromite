@@ -265,7 +265,7 @@ class DeployChrome:
 
         return result.stdout.split()[1].split("/")[0] == "start"
 
-    def _KillLacrosChrome(self):
+    def _KillLacrosChrome(self) -> None:
         """This method kills lacros-chrome on the device, if it's running."""
         # Mark the lacros chrome binary as not executable, so if keep-alive is
         # enabled ash chrome can't restart lacros chrome. This prevents rsync
@@ -282,11 +282,11 @@ class DeployChrome:
             check=False,
         )
 
-    def _ResetLacrosChrome(self):
+    def _ResetLacrosChrome(self) -> None:
         """Reset Lacros to fresh state by deleting user data dir."""
         self.device.run(["rm", "-rf", "/home/chronos/user/lacros"], check=False)
 
-    def _KillAshChromeIfNeeded(self):
+    def _KillAshChromeIfNeeded(self) -> None:
         """This method kills ash-chrome on the device, if it's running.
 
         This method calls 'stop ui', and then also manually pkills both
@@ -337,7 +337,9 @@ class DeployChrome:
             )
             raise DeployFailure(msg)
 
-    def _MountRootfsAsWritable(self, check=False, run_diagnostics=False):
+    def _MountRootfsAsWritable(
+        self, check=False, run_diagnostics=False
+    ) -> None:
         """Mounts the rootfs as writable.
 
         If the command fails and the root dir is not writable then this function
@@ -374,7 +376,7 @@ class DeployChrome:
         else:
             self._root_dir_is_still_readonly.clear()
 
-    def _EnsureTargetDir(self):
+    def _EnsureTargetDir(self) -> None:
         """Ensures that the target directory exists on the remote device."""
         target_dir = self.options.target_dir
         # Any valid /opt directory should already exist so avoid the remote
@@ -394,7 +396,7 @@ class DeployChrome:
         return_values = parallel.RunParallelSteps(steps, return_values=True)
         return DeviceInfo(*return_values)
 
-    def _CheckDeviceFreeSpace(self, device_info):
+    def _CheckDeviceFreeSpace(self, device_info) -> None:
         """See if target device has enough space for Chrome.
 
         Args:
@@ -425,7 +427,7 @@ class DeployChrome:
         elif self.options.compress == "auto":
             return not self.device.HasGigabitEthernet()
 
-    def _Deploy(self):
+    def _Deploy(self) -> None:
         logging.info(
             "Copying %s to %s on device...",
             self._deployment_name,
@@ -520,7 +522,7 @@ class DeployChrome:
                 logging.info("Unlocking...")
 
                 @retry_util.WithRetry(max_retry=5, sleep=1)
-                def WaitForUnlockScreen():
+                def WaitForUnlockScreen() -> None:
                     if self._GetLastLogin() == last_login:
                         raise DeployFailure("Unlock screen not shown")
 
@@ -534,7 +536,7 @@ class DeployChrome:
         """Returns last login time"""
         return self.device.run(LAST_LOGIN_COMMAND).stdout.strip()
 
-    def _DeployTestBinaries(self):
+    def _DeployTestBinaries(self) -> None:
         """Deploys any local test binary to _CHROME_TEST_BIN_DIR on the device.
 
         There could be several binaries located in the local build dir, so
@@ -570,7 +572,7 @@ class DeployChrome:
             mode="rsync",
         )
 
-    def _CheckBoard(self):
+    def _CheckBoard(self) -> None:
         """Check that the Chrome build is targeted for the device board."""
         if self.options.board == self.device.board:
             return
@@ -586,7 +588,7 @@ class DeployChrome:
         ):
             raise DeployFailure("Aborted.")
 
-    def _CheckDeployType(self):
+    def _CheckDeployType(self) -> None:
         if self.options.build_dir:
 
             def BinaryExists(filename):
@@ -602,7 +604,7 @@ class DeployChrome:
                 if BinaryExists("app_shell"):
                     self.copy_paths = chrome_util.GetCopyPaths("app_shell")
 
-    def _PrepareStagingDir(self):
+    def _PrepareStagingDir(self) -> None:
         _PrepareStagingDir(
             self.options,
             self.tempdir,
@@ -611,7 +613,7 @@ class DeployChrome:
             self.chrome_dir,
         )
 
-    def _MountTarget(self):
+    def _MountTarget(self) -> None:
         logging.info("Mounting Chrome...")
 
         # Create directory if does not exist.
@@ -649,7 +651,7 @@ class DeployChrome:
             ["mount", "-o", "remount,exec,suid", self.options.mount_dir]
         )
 
-    def Cleanup(self):
+    def Cleanup(self) -> None:
         """Clean up RemoteDevice."""
         if not self.options.staging_only:
             self.device.Cleanup()
@@ -1138,7 +1140,7 @@ def _ParseCommandLine(argv):
     return options
 
 
-def _PostParseCheck(options):
+def _PostParseCheck(options) -> None:
     """Perform some usage validation (after we've parsed the arguments).
 
     Args:
@@ -1271,7 +1273,7 @@ def _UploadStagingDir(
 
 def _PrepareStagingDir(
     options, tempdir, staging_dir, copy_paths=None, chrome_dir=None
-):
+) -> None:
     """Place the necessary files in the staging directory.
 
     The staging directory is the directory used to rsync the build artifacts
@@ -1388,7 +1390,7 @@ def _PrepareStagingDir(
         _UploadStagingDir(options, tempdir, staging_dir)
 
 
-def main(argv):
+def main(argv) -> None:
     options = _ParseCommandLine(argv)
     _PostParseCheck(options)
 

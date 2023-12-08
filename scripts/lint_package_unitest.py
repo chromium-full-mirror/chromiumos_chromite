@@ -20,7 +20,7 @@ class TestApplyFixes(cros_test_lib.MockTempDirTestCase):
     def fix_to_offsets(self, fix):
         return (fix.location.start_offset, fix.location.end_offset)
 
-    def testHasOverlap(self):
+    def testHasOverlap(self) -> None:
         prior_fixes = [
             self.fix_from_offsets(0, 5),
             self.fix_from_offsets(10, 15),
@@ -63,7 +63,7 @@ class TestApplyFixes(cros_test_lib.MockTempDirTestCase):
             lint_package.has_overlap(prior_fixes, no_overlaps + overlaps)
         )
 
-    def testApplyEdits(self):
+    def testApplyEdits(self) -> None:
         prior_contents = "0123456789" * 5
         edits = [
             self.fix_from_offsets(0, 5, edit="abc"),
@@ -84,7 +84,7 @@ class TestApplyFixes(cros_test_lib.MockTempDirTestCase):
             lint_package.apply_edits(prior_contents, edits), expected
         )
 
-    def testFilterLints(self):
+    def testFilterLints(self) -> None:
         names_filters = ["spam", "foo"]
         keep_lints = [
             toolchain.LinterFinding(name, "", [], "", [], None)

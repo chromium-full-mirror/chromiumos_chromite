@@ -18,16 +18,16 @@ from chromite.scripts import cros_losetup
 
 
 @pytest.fixture(autouse=True)
-def is_root_fixture(monkeypatch):
+def is_root_fixture(monkeypatch) -> None:
     """We don't want the code re-execing itself using sudo."""
     monkeypatch.setattr(osutils, "IsRootUser", lambda: True)
 
 
 @pytest.fixture(autouse=True)
-def stub_image_lib(monkeypatch):
+def stub_image_lib(monkeypatch) -> None:
     """Make sure these APIs aren't used by default."""
 
-    def fail(path):
+    def fail(path) -> None:
         raise RuntimeError("test is missing a mock")
 
     monkeypatch.setattr(image_lib.LoopbackPartitions, "detach_loopback", fail)
@@ -35,12 +35,12 @@ def stub_image_lib(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def path_write_text_fixture(monkeypatch):
+def path_write_text_fixture(monkeypatch) -> None:
     """Make sure we dont write the udev rule during test."""
     monkeypatch.setattr(cros_build_lib, "IsInsideChroot", lambda: True)
 
 
-def test_parser():
+def test_parser() -> None:
     """Basic tests for the parser interface."""
     parser = cros_losetup.get_parser()
 
@@ -63,7 +63,7 @@ def test_parser():
     parser.parse_args(["detach", "/dev/loop0"])
 
 
-def test_attach(monkeypatch, capsys):
+def test_attach(monkeypatch, capsys) -> None:
     """Verify attaching runs lower APIs."""
     monkeypatch.setattr(
         image_lib.LoopbackPartitions, "attach_image", lambda x: "/dev/loop0"
@@ -77,7 +77,7 @@ def test_attach(monkeypatch, capsys):
     assert data["path"] == "/dev/loop0"
 
 
-def test_detach_success(monkeypatch):
+def test_detach_success(monkeypatch) -> None:
     """Verify detaching runs lower APIs."""
     monkeypatch.setattr(
         image_lib.LoopbackPartitions, "detach_loopback", lambda x: True
@@ -85,7 +85,7 @@ def test_detach_success(monkeypatch):
     assert cros_losetup.main(["detach", "/dev/loop0"]) == 0
 
 
-def test_detach_failure(monkeypatch):
+def test_detach_failure(monkeypatch) -> None:
     """Verify detaching runs lower APIs."""
     monkeypatch.setattr(
         image_lib.LoopbackPartitions, "detach_loopback", lambda x: False
@@ -93,7 +93,7 @@ def test_detach_failure(monkeypatch):
     assert cros_losetup.main(["detach", "/dev/loop0"]) == 1
 
 
-def test_create_udev_rule(monkeypatch):
+def test_create_udev_rule(monkeypatch) -> None:
     """Test if the udev rule is created with the chromite source directory."""
     with osutils.TempDir() as tempdir:
         _cros_losetup_tmpfile = Path(tempdir) / "udev.rules"

@@ -25,7 +25,7 @@ pytestmark = cros_test_lib.pytestmark_inside_only
 class GconvStripTest(cros_test_lib.MockTempDirTestCase):
     """Tests for gconv_strip script."""
 
-    def testMultipleStringMatch(self):
+    def testMultipleStringMatch(self) -> None:
         self.assertEqual(
             gconv_strip.MultipleStringMatch(
                 [b"hell", b"a", b"z", b"k", b"spec"],
@@ -34,7 +34,7 @@ class GconvStripTest(cros_test_lib.MockTempDirTestCase):
             [True, True, False, False, True],
         )
 
-    def testModuleRewrite(self):
+    def testModuleRewrite(self) -> None:
         tmp_gconv_module = os.path.join(self.tempdir, "gconv-modules")
 
         data = """
@@ -92,7 +92,7 @@ module charset_foo   charset_A     USED_MODULE
         content = osutils.ReadFile(tmp_gconv_module)
         self.assertEqual(content, expected)
 
-    def testGconvStrip(self):
+    def testGconvStrip(self) -> None:
         """Tests GconvStrip end-to-end.
 
         Creates a fake root directory with fake gconv modules, and expects the

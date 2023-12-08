@@ -15,7 +15,7 @@ from chromite.scripts import cros_list_modified_packages
 class ListModifiedWorkonPackagesTest(cros_test_lib.MockTestCase):
     """Test for cros_list_modified_packages.ListModifiedWorkonPackages."""
 
-    def testListModifiedWorkonPackages(self):
+    def testListModifiedWorkonPackages(self) -> None:
         """Test that no ebuild breaks cros_list_modified_packages"""
 
         # A hook to set the "all_opt" parameter when calling ListWorkonPackages

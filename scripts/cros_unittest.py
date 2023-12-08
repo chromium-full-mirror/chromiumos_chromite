@@ -12,10 +12,10 @@ from chromite.scripts import cros
 class RunScriptTest(cros_test_lib.MockTempDirTestCase):
     """Test the main functionality."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.PatchObject(cros, "_RunSubCommand", autospec=True)
 
-    def testDefaultLogLevel(self):
+    def testDefaultLogLevel(self) -> None:
         """Test that the default log level is set to notice."""
         arg_parser = self.PatchObject(
             commandline,
@@ -25,7 +25,7 @@ class RunScriptTest(cros_test_lib.MockTempDirTestCase):
         cros.GetOptions()
         arg_parser.assert_called_with(caching=True, default_log_level="notice")
 
-    def testSubcommand(self):
+    def testSubcommand(self) -> None:
         """Test parser when given a subcommand."""
         parser = cros.GetOptions("lint")
         opts = parser.parse_args(["lint"])

@@ -20,7 +20,7 @@ from chromite.scripts.sysmon import git_metrics
 class TestGitMetricCollector(cros_test_lib.TestCase):
     """Tests for _GitMetricCollector."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         patcher = mock.patch(
             "chromite.third_party.infra_libs.ts_mon.common.interface.state."
             "store",
@@ -29,7 +29,7 @@ class TestGitMetricCollector(cros_test_lib.TestCase):
         self.store = patcher.start()
         self.addCleanup(patcher.stop)
 
-    def test_collect(self):
+    def test_collect(self) -> None:
         with mock.patch.object(
             git_metrics, "_GitRepo", autospec=True
         ) as _GitRepo:
@@ -81,10 +81,10 @@ class TestGitMetricCollector(cros_test_lib.TestCase):
 class TestGitRepoWithTempdir(cros_test_lib.TempDirTestCase):
     """Tests for _GitRepo using a Git fixture."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.git_dir = os.path.join(self.tempdir, ".git")
 
-        def call(args, **kwargs):
+        def call(args, **kwargs) -> None:
             subprocess.check_call(
                 args,
                 stdout=subprocess.DEVNULL,
@@ -103,19 +103,19 @@ class TestGitRepoWithTempdir(cros_test_lib.TempDirTestCase):
             env["GIT_COMMITTER_DATE"] = "2017-01-01T00:00:00Z"
             call(["git", "commit", "-m", "Initial commit"], env=env)
 
-    def test_get_commit_hash(self):
+    def test_get_commit_hash(self) -> None:
         """Test get_commit_hash()."""
         repo = git_metrics._GitRepo(self.git_dir)
         got = repo.get_commit_hash()
         self.assertEqual(got, "7c88f131e520e8455e2403b88ff4f723758c5dd6")
 
-    def test_get_commit_time(self):
+    def test_get_commit_time(self) -> None:
         """Test get_commit_time()."""
         repo = git_metrics._GitRepo(self.git_dir)
         got = repo.get_commit_time()
         self.assertEqual(got, 1483228800)
 
-    def test_get_unstaged_changes(self):
+    def test_get_unstaged_changes(self) -> None:
         """Test get_unstaged_changes()."""
         (self.tempdir / "spam").write_text("a\n", encoding="utf-8")
         os.remove(os.path.join(self.tempdir, "foo"))

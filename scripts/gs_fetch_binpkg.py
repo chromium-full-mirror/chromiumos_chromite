@@ -34,7 +34,7 @@ def GetParser():
     return parser
 
 
-def Copy(ctx, uri, filename):
+def Copy(ctx, uri, filename) -> None:
     """Run the copy using a temp file."""
     temp_path = "%s.tmp" % filename
     osutils.SafeUnlink(temp_path)
@@ -45,7 +45,7 @@ def Copy(ctx, uri, filename):
         osutils.SafeUnlink(temp_path)
 
 
-def main(argv):
+def main(argv) -> None:
     parser = GetParser()
     options = parser.parse_args(argv)
     options.Freeze()
