@@ -18,7 +18,18 @@ import shutil
 import stat
 import subprocess
 import tempfile
-from typing import Callable, Iterable, Iterator, List, Optional, Union
+import types
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Type,
+    Union,
+)
 
 from chromite.lib import cros_build_lib
 from chromite.lib import retry_util
@@ -1071,7 +1082,12 @@ def SetGlobalTempDir(tempdir_value, tempdir_env=None):
     return (old_tempdir_value, old_tempdir_env)
 
 
-def _TempDirSetup(self, prefix="tmp", set_global=False, base_dir=None) -> None:
+def _TempDirSetup(
+    self,
+    prefix: str = "tmp",
+    set_global: bool = False,
+    base_dir: Optional[Union[str, Path]] = None,
+) -> None:
     """Generate a tempdir, modifying the object, and env to use it.
 
     Specifically, if set_global is True, then from this invocation forward,
@@ -1090,7 +1106,7 @@ def _TempDirSetup(self, prefix="tmp", set_global=False, base_dir=None) -> None:
         )
 
 
-def _TempDirTearDown(self, force_sudo, delete=True) -> None:
+def _TempDirTearDown(self, force_sudo: bool, delete: bool = True) -> None:
     # Note that _TempDirSetup may have failed, resulting in these attributes
     # not being set; this is why we use getattr here (and must).
     tempdir = getattr(self, "tempdir", None)
@@ -1119,7 +1135,7 @@ class TempDir:
     is returned as a string by a 'with' statement.
     """
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         """Constructor. Creates the temporary directory.
 
         Args:
@@ -1131,13 +1147,13 @@ class TempDir:
             sudo_rm: Whether the temporary dir will need root privileges to
                 remove. (default: False)
         """
-        self.kwargs = kwargs.copy()
-        self.delete = kwargs.pop("delete", True)
-        self.sudo_rm = kwargs.pop("sudo_rm", False)
-        self.tempdir = None
+        self.kwargs: Any = kwargs.copy()
+        self.delete: bool = kwargs.pop("delete", True)
+        self.sudo_rm: bool = kwargs.pop("sudo_rm", False)
+        self.tempdir: Optional[Union[str, Path]] = None
         _TempDirSetup(self, **kwargs)
 
-    def SetSudoRm(self, enable=True) -> None:
+    def SetSudoRm(self, enable: bool = True) -> None:
         """Sets |sudo_rm|, which forces us to delete temporary files as root."""
         self.sudo_rm = enable
 
@@ -1149,11 +1165,16 @@ class TempDir:
             finally:
                 self.tempdir = None
 
-    def __enter__(self):
+    def __enter__(self) -> Optional[Union[str, Path]]:
         """Return the temporary directory."""
         return self.tempdir
 
-    def __exit__(self, exc_type, exc_value, exc_traceback) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[types.TracebackType],
+    ) -> None:
         try:
             self.Cleanup()
         except Exception:
@@ -1191,7 +1212,7 @@ class TempDir:
         self.Cleanup()
 
     def __str__(self) -> str:
-        return self.tempdir if self.tempdir else ""
+        return str(self.tempdir) if self.tempdir else ""
 
 
 # Flags synced from sys/mount.h.  See mount(2) for details.
@@ -1424,7 +1445,7 @@ def UmountTree(
         UmountDir(mount_pt, lazy=lazy, cleanup=cleanup)
 
 
-def SetEnvironment(env) -> None:
+def SetEnvironment(env: Dict[str, str]) -> None:
     """Restore the environment variables to that of passed in dictionary."""
     os.environ.clear()
     os.environ.update(env)

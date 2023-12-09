@@ -15,7 +15,21 @@ from pathlib import Path
 import re
 import sys
 import time
-from typing import Any, Dict, Iterable, Iterator, List, Sequence, Tuple, Union
+import types
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 import unittest
 from unittest import mock
 
@@ -380,8 +394,8 @@ class TruthTable:
 
         # Save each input tuple in a set.  Also confirm that the length
         # of each input tuple is the same.
-        self.dimension = len(inputs[0])
-        self.num_lines = pow(2, self.dimension)
+        self.dimension: int = len(inputs[0])
+        self.num_lines: int = pow(2, self.dimension)
         self.expected_inputs = set()
         self.expected_inputs_result = input_result
 
@@ -446,7 +460,7 @@ class TruthTable:
         return self.expected_inputs_result == (inputs in self.expected_inputs)
 
 
-class EasyAttr(dict):
+class EasyAttr(Dict[Any, Any]):
     """Convenient class for simulating objects with attributes in tests.
 
     An EasyAttr object can be created with any attributes initialized very
@@ -460,7 +474,7 @@ class EasyAttr(dict):
 
     __slots__ = ()
 
-    def __getattr__(self, attr: str):
+    def __getattr__(self, attr: str) -> Any:
         try:
             return self[attr]
         except KeyError:
@@ -472,10 +486,10 @@ class EasyAttr(dict):
         except KeyError:
             raise AttributeError(attr)
 
-    def __setattr__(self, attr: str, value) -> None:
+    def __setattr__(self, attr: str, value: Any) -> None:
         self[attr] = value
 
-    def __dir__(self):
+    def __dir__(self) -> List[Any]:
         return list(self.keys())
 
 
@@ -486,7 +500,7 @@ class LogFilter(logging.Filter):
         logging.Filter.__init__(self)
         self.messages = io.StringIO()
 
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord) -> bool:
         self.messages.write(record.getMessage() + "\n")
         # Return False to prevent the message from being displayed.
         return False
@@ -495,17 +509,27 @@ class LogFilter(logging.Filter):
 class LoggingCapturer:
     """Captures all messages emitted by the logging module."""
 
-    def __init__(self, logger_name="", log_level=logging.DEBUG) -> None:
+    def __init__(
+        self, logger_name: str = "", log_level: int = logging.DEBUG
+    ) -> None:
         self._log_filter = LogFilter()
-        self._old_level = None
-        self._log_level = log_level
+        self._old_level: Optional[Union[int, str]] = None
+        self._log_level: Union[int, str] = log_level
         self.logger_name = logger_name
 
-    def __enter__(self):
+    # Annotating function signature with LoggingCapturer is not synctactically
+    # correct, so ignoring return type. In Python 3.11+, can use typing.Self
+    # instead.
+    def __enter__(self) -> LoggingCapturer:
         self.StartCapturing()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[types.TracebackType],
+    ) -> None:
         self.StopCapturing()
 
     def StartCapturing(self) -> None:
@@ -518,19 +542,19 @@ class LoggingCapturer:
     def StopCapturing(self) -> None:
         """Stop capturing logging messages."""
         logger = logging.getLogger(self.logger_name)
-        logger.setLevel(self._old_level)
+        logger.setLevel(self._old_level)  # type: ignore[arg-type]
         logger.removeFilter(self._log_filter)
 
     @property
-    def messages(self):
+    def messages(self) -> str:
         return self._log_filter.messages.getvalue()
 
-    def LogsMatch(self, regex):
+    def LogsMatch(self, regex: Union[str, re.Pattern[str]]) -> bool:
         """Checks whether the logs match a given regex."""
         match = re.search(regex, self.messages, re.MULTILINE)
         return match is not None
 
-    def LogsContain(self, msg):
+    def LogsContain(self, msg: str) -> bool:
         """Checks whether the logs contain a given string."""
         return self.LogsMatch(re.escape(msg))
 
@@ -551,7 +575,7 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
     # pagers to scroll.
     maxDiff = None
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         unittest.TestCase.__init__(self, *args, **kwargs)
         # This is set to keep pylint from complaining.
         self.__test_was_run__ = False
@@ -625,7 +649,13 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
         """Return a pretty name that can be passed in via the command line."""
         return "[%s] %s" % (self.__module__, self.id())
 
-    def assertRaises2(self, exception, functor, *args, **kwargs):
+    def assertRaises2(
+        self,
+        exception: Type[BaseException],
+        functor: Callable[[Any], Any],
+        *args: Any,
+        **kwargs: Any,
+    ) -> BaseException:
         """Like assertRaises, just with checking of the exception.
 
         Args:
@@ -679,13 +709,15 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
                 raise AssertionError("\n".join(bad))
             return e
 
-    def assertExists(self, path, msg=None) -> None:
+    def assertExists(
+        self, path: Union[str, "os.PathLike[str]"], msg: Optional[str] = None
+    ) -> None:
         """Make sure |path| exists"""
         if os.path.exists(path):
             return
 
         if msg is None:
-            msg = ["path is missing: %s" % path]
+            messages: List[str] = ["path is missing: %s" % path]
             while path != "/":
                 path = os.path.dirname(path)
                 if not path:
@@ -693,15 +725,17 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
                     # "".
                     break
                 result = os.path.exists(path)
-                msg.append("\tos.path.exists(%s): %s" % (path, result))
+                messages.append("\tos.path.exists(%s): %s" % (path, result))
                 if result:
-                    msg.append("\tcontents: %r" % os.listdir(path))
+                    messages.append("\tcontents: %r" % os.listdir(path))
                     break
-            msg = "\n".join(msg)
+            msg = "\n".join(messages)
 
         raise self.failureException(msg)
 
-    def assertNotExists(self, path, msg=None) -> None:
+    def assertNotExists(
+        self, path: Union[str, "os.PathLike[str]"], msg: Optional[str] = None
+    ) -> None:
         """Make sure |path| does not exist"""
         if not os.path.exists(path):
             return
@@ -711,7 +745,9 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
 
         raise self.failureException(msg)
 
-    def assertStartsWith(self, s, prefix, msg=None) -> None:
+    def assertStartsWith(
+        self, s: str, prefix: str, msg: Optional[str] = None
+    ) -> None:
         """Asserts that |s| starts with |prefix|.
 
         This function should be preferred over assertTrue(s.startswith(prefix))
@@ -725,7 +761,9 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
 
         raise self.failureException(msg)
 
-    def assertEndsWith(self, s, suffix, msg=None) -> None:
+    def assertEndsWith(
+        self, s: str, suffix: str, msg: Optional[str] = None
+    ) -> None:
         """Asserts that |s| ends with |suffix|.
 
         This function should be preferred over assertTrue(s.endswith(suffix))
@@ -739,7 +777,7 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
 
         raise self.failureException(msg)
 
-    def GetSequenceDiff(self, seq1, seq2):
+    def GetSequenceDiff(self, seq1: Sequence[Any], seq2: Sequence[Any]) -> str:
         """Get a string describing the difference between two sequences.
 
         Args:
@@ -759,10 +797,11 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
     # Upstream deprecated these in Python 3, but left them in Python 2.
     # Deprecate them ourselves to help with migration.  We can delete these
     # once upstream drops them.
+    # pylint: disable-next=no-self-argument
     def _disable(  # type: ignore[misc] # complaining about no self argument
         deprecated: str, replacement: str
-    ):  # pylint: disable=no-self-argument
-        def disable_func(*_args, **_kwargs):
+    ) -> Any:
+        def disable_func(*_args: Any, **_kwargs: Any) -> None:
             raise RuntimeError(
                 "%s() is removed in Python 3; use %s() instead"
                 % (deprecated, replacement)
@@ -806,7 +845,12 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
 class LoggingTestCase(TestCase):
     """Base class for logging capturer test cases."""
 
-    def AssertLogsMatch(self, log_capturer, regex, inverted=False) -> None:
+    def AssertLogsMatch(
+        self,
+        log_capturer: LoggingCapturer,
+        regex: Union[str, re.Pattern[str]],
+        inverted: bool = False,
+    ) -> None:
         """Verifies a regex matches the logs."""
         assert_msg = "%r not found in %r" % (regex, log_capturer.messages)
         assert_fn = self.assertTrue
@@ -816,11 +860,12 @@ class LoggingTestCase(TestCase):
 
         assert_fn(log_capturer.LogsMatch(regex), msg=assert_msg)
 
-    def AssertLogsContain(self, log_capturer, msg, inverted=False):
+    def AssertLogsContain(
+        self, log_capturer: LoggingCapturer, msg: str, inverted: bool = False
+    ) -> None:
         """Verifies a message is contained in the logs."""
-        return self.AssertLogsMatch(
-            log_capturer, re.escape(msg), inverted=inverted
-        )
+        # self.assertTrue returns NoneType
+        self.AssertLogsMatch(log_capturer, re.escape(msg), inverted=inverted)
 
 
 class OutputTestCase(TestCase):
@@ -836,17 +881,19 @@ class OutputTestCase(TestCase):
         re.DOTALL,
     )
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Base class __init__ takes a second argument."""
         TestCase.__init__(self, *args, **kwargs)
-        self._output_capturer = None
+        self._output_capturer: Optional[outcap.OutputCapturer] = None
 
-    def OutputCapturer(self, *args, **kwargs):
+    def OutputCapturer(
+        self, *args: Any, **kwargs: Any
+    ) -> outcap.OutputCapturer:
         """Create and return OutputCapturer object."""
         self._output_capturer = outcap.OutputCapturer(*args, **kwargs)
         return self._output_capturer
 
-    def _GetOutputCapt(self):
+    def _GetOutputCapt(self) -> outcap.OutputCapturer:
         """Internal access to existing OutputCapturer.
 
         Raises RuntimeError if output capturing was never on.
@@ -858,20 +905,30 @@ class OutputTestCase(TestCase):
             "Output capturing was never turned on for this test."
         )
 
-    def _GenCheckMsgFunc(self, prefix_re, line_re):
+    def _GenCheckMsgFunc(
+        self,
+        prefix_re: Optional[Union[re.Pattern[str], str]],
+        line_re: Optional[Union[re.Pattern[str], str]],
+    ) -> Callable[[str], Union[bool, re.Match[str], None]]:
         """Return bool func to check a line given |prefix_re| and |line_re|."""
 
-        def _method(line):
+        def _method(line: str) -> Union[bool, re.Match[str], None]:
             if prefix_re:
                 # Prefix regexp will strip off prefix (and suffix) from line.
-                match = prefix_re.search(line)
+                # str prefix_re is guaranteed to be compiled below.
+                match = prefix_re.search(line)  # type: ignore[union-attr]
 
                 if match:
                     line = match.group(1)
                 else:
                     return False
 
-            return line_re.search(line) if line_re else True
+            # str line_re is guaranteed to be compiled below.
+            return (
+                line_re.search(line)  # type: ignore[union-attr]
+                if line_re
+                else True
+            )
 
         if isinstance(prefix_re, str):
             prefix_re = re.compile(prefix_re)
@@ -880,18 +937,28 @@ class OutputTestCase(TestCase):
 
         # Provide a description of what this function looks for in a line.
         # Error messages can make use of this.
-        _method.description = None
+        setattr(_method, "description", None)
         if prefix_re and line_re:
-            _method.description = (
-                "line matching prefix regexp %r then regexp %r"
-                % (prefix_re.pattern, line_re.pattern)
+            setattr(
+                _method,
+                "description",
+                (
+                    "line matching prefix regexp %r then regexp %r"
+                    % (prefix_re.pattern, line_re.pattern)
+                ),
             )
         elif prefix_re:
-            _method.description = (
-                "line matching prefix regexp %r" % prefix_re.pattern
+            setattr(
+                _method,
+                "description",
+                ("line matching prefix regexp %r" % prefix_re.pattern),
             )
         elif line_re:
-            _method.description = "line matching regexp %r" % line_re.pattern
+            setattr(
+                _method,
+                "description",
+                "line matching regexp %r" % line_re.pattern,
+            )
         else:
             raise RuntimeError(
                 "Nonsensical usage of _GenCheckMsgFunc: no prefix_re or line_re"
@@ -899,10 +966,14 @@ class OutputTestCase(TestCase):
 
         return _method
 
-    def _ContainsMsgLine(self, lines, msg_check_func):
+    def _ContainsMsgLine(
+        self, lines: Iterable[str], msg_check_func: Callable[[str], Any]
+    ) -> bool:
         return any(msg_check_func(ln) for ln in lines)
 
-    def _GenOutputDescription(self, check_stdout, check_stderr):
+    def _GenOutputDescription(
+        self, check_stdout: bool, check_stderr: bool
+    ) -> str:
         # Some extra logic to make an error message useful.
         if check_stdout and check_stderr:
             return "stdout or stderr"
@@ -910,9 +981,14 @@ class OutputTestCase(TestCase):
             return "stdout"
         elif check_stderr:
             return "stderr"
+        return ""
 
     def _AssertOutputContainsMsg(
-        self, check_msg_func, invert, check_stdout, check_stderr
+        self,
+        check_msg_func: Callable[[str], Union[bool, re.Match[str], None]],
+        invert: bool,
+        check_stdout: bool,
+        check_stderr: bool,
     ) -> None:
         assert check_stdout or check_stderr
 
@@ -930,21 +1006,25 @@ class OutputTestCase(TestCase):
         if invert:
             msg = "expected %s to not contain %s,\nbut found it in:\n%s" % (
                 output_desc,
-                check_msg_func.description,
+                getattr(check_msg_func, "description"),
                 lines,
             )
             self.assertFalse(result, msg=msg)
         else:
             msg = "expected %s to contain %s,\nbut did not find it in:\n%s" % (
                 output_desc,
-                check_msg_func.description,
+                getattr(check_msg_func, "description"),
                 lines,
             )
             self.assertTrue(result, msg=msg)
 
     def AssertOutputContainsError(
-        self, regexp=None, invert=False, check_stdout=True, check_stderr=False
-    ):
+        self,
+        regexp: Optional[re.Pattern[str]] = None,
+        invert: bool = False,
+        check_stdout: bool = True,
+        check_stderr: bool = False,
+    ) -> None:
         """Assert requested output contains at least one error line.
 
         If |regexp| is non-null, then the error line must also match it.
@@ -958,8 +1038,12 @@ class OutputTestCase(TestCase):
         )
 
     def AssertOutputContainsWarning(
-        self, regexp=None, invert=False, check_stdout=True, check_stderr=False
-    ):
+        self,
+        regexp: Optional[re.Pattern[str]] = None,
+        invert: bool = False,
+        check_stdout: bool = True,
+        check_stderr: bool = False,
+    ) -> None:
         """Assert requested output contains at least one warning line.
 
         If |regexp| is non-null, then the warning line must also match it.
@@ -973,8 +1057,12 @@ class OutputTestCase(TestCase):
         )
 
     def AssertOutputContainsLine(
-        self, regexp, invert=False, check_stdout=True, check_stderr=False
-    ):
+        self,
+        regexp: Optional[Union[re.Pattern[str], str]],
+        invert: bool = False,
+        check_stdout: bool = True,
+        check_stderr: bool = False,
+    ) -> None:
         """Assert requested output contains line matching |regexp|.
 
         If |invert| is true, then assert the line is NOT found.
@@ -987,7 +1075,10 @@ class OutputTestCase(TestCase):
         )
 
     def _AssertOutputEndsInMsg(
-        self, check_msg_func, check_stdout, check_stderr
+        self,
+        check_msg_func: Callable[[str], Union[bool, re.Match[str], None]],
+        check_stdout: bool,
+        check_stderr: bool,
     ) -> None:
         """Pass if requested output(s) ends(end) with an error message."""
         assert check_stdout or check_stderr
@@ -1013,14 +1104,17 @@ class OutputTestCase(TestCase):
 
         msg = "expected %s to end with %s,\nbut did not find it in:\n%s" % (
             output_desc,
-            check_msg_func.description,
+            getattr(check_msg_func, "description"),
             lines,
         )
         self.assertTrue(result, msg=msg)
 
     def AssertOutputEndsInError(
-        self, regexp=None, check_stdout=True, check_stderr=False
-    ):
+        self,
+        regexp: Optional[re.Pattern[str]] = None,
+        check_stdout: bool = True,
+        check_stderr: bool = False,
+    ) -> None:
         """Assert requested output ends in error line.
 
         If |regexp| is non-null, then the error line must also match it.
@@ -1033,8 +1127,11 @@ class OutputTestCase(TestCase):
         )
 
     def AssertOutputEndsInWarning(
-        self, regexp=None, check_stdout=True, check_stderr=False
-    ):
+        self,
+        regexp: Optional[re.Pattern[str]] = None,
+        check_stdout: bool = True,
+        check_stderr: bool = False,
+    ) -> None:
         """Assert requested output ends in warning line.
 
         If |regexp| is non-null, then the warning line must also match it.
@@ -1047,8 +1144,11 @@ class OutputTestCase(TestCase):
         )
 
     def AssertOutputEndsInLine(
-        self, regexp, check_stdout=True, check_stderr=False
-    ):
+        self,
+        regexp: Optional[re.Pattern[str]] = None,
+        check_stdout: bool = True,
+        check_stderr: bool = False,
+    ) -> None:
         """Assert requested output ends in line matching |regexp|.
 
         Raises RuntimeError if output capturing was never on for this test.
@@ -1058,7 +1158,9 @@ class OutputTestCase(TestCase):
             check_msg_func, check_stdout, check_stderr
         )
 
-    def FuncCatchSystemExit(self, func, *args, **kwargs):
+    def FuncCatchSystemExit(
+        self, func: Callable[[Any], Any], *args: Any, **kwargs: Any
+    ) -> Tuple[Any, Optional[int]]:
         """Run |func| with |args| and |kwargs| and catch SystemExit.
 
         Return tuple (return value or None, SystemExit number code or None).
@@ -1071,27 +1173,38 @@ class OutputTestCase(TestCase):
             exit_code = ex.args[0]
             return None, exit_code
 
-    def AssertFuncSystemExitZero(self, func, *args, **kwargs) -> None:
+    def AssertFuncSystemExitZero(
+        self, func: Callable[[Any], Any], *args: Any, **kwargs: Any
+    ) -> None:
         """Run |func| with |args| and |kwargs| catching SystemExit.
 
         If the func does not raise a SystemExit with exit code 0 then assert.
         """
-        exit_code = self.FuncCatchSystemExit(func, *args, **kwargs)[1]
+        exit_code: Optional[int] = self.FuncCatchSystemExit(
+            func, *args, **kwargs
+        )[1]
         self.assertIsNot(
             exit_code, None, msg="Expected system exit code 0, but caught none"
         )
         self.assertEqual(
             exit_code,
             0,
-            msg="Expected system exit code 0, but caught %d" % exit_code,
+            msg=(
+                "Expected system exit code 0, "
+                "but caught %d" % exit_code,  # type: ignore[str-format]
+            ),
         )
 
-    def AssertFuncSystemExitNonZero(self, func, *args, **kwargs) -> None:
+    def AssertFuncSystemExitNonZero(
+        self, func: Callable[[Any], Any], *args: Any, **kwargs: Any
+    ) -> None:
         """Run |func| with |args| and |kwargs| catching SystemExit.
 
         If the func does not raise a non-zero SystemExit code then assert.
         """
-        exit_code = self.FuncCatchSystemExit(func, *args, **kwargs)[1]
+        exit_code: Optional[int] = self.FuncCatchSystemExit(
+            func, *args, **kwargs
+        )[1]
         self.assertIsNot(
             exit_code,
             None,
@@ -1100,10 +1213,19 @@ class OutputTestCase(TestCase):
         self.assertNotEqual(
             exit_code,
             0,
-            msg="Expected non-zero system exit code, but caught %d" % exit_code,
+            msg=(
+                "Expected non-zero system exit code, "
+                "but caught %d" % exit_code,  # type: ignore[str-format]
+            ),
         )
 
-    def AssertRaisesAndReturn(self, error, func, *args, **kwargs):
+    def AssertRaisesAndReturn(
+        self,
+        error: Type[BaseException],
+        func: Callable[[Any], Any],
+        *args: Any,
+        **kwargs: Any,
+    ) -> BaseException:
         """Like assertRaises, but return exception raised."""
         try:
             func(*args, **kwargs)
@@ -1116,21 +1238,21 @@ class TempDirTestCase(TestCase):
     """Mixin used to give each test a tempdir that is cleansed upon finish"""
 
     # Whether to delete tempdir used by this test. cf: SkipCleanup.
-    DELETE = True
-    _NO_DELETE_TEMPDIR_OBJ = None
+    DELETE: bool = True
+    _NO_DELETE_TEMPDIR_OBJ: Optional[osutils.TempDir] = None
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         TestCase.__init__(self, *args, **kwargs)
-        self._tempdir = None
-        self._tempdir_obj = None
+        self._tempdir: Union[str, Path] = ""
+        self._tempdir_obj: Optional[osutils.TempDir] = None
 
     @property
-    def tempdir(self) -> Path:
+    def tempdir(self) -> Union[str, Path]:
         assert self._tempdir
         return self._tempdir
 
     @classmethod
-    def SkipCleanup(cls):
+    def SkipCleanup(cls) -> Union[str, Path]:
         """Leave behind tempdirs created by instances of this class.
 
         Calling this function ensures that all future instances will leak their
@@ -1155,13 +1277,19 @@ class TempDirTestCase(TestCase):
             cls.__name__,
             cls._NO_DELETE_TEMPDIR_OBJ.tempdir,
         )
-        return cls._NO_DELETE_TEMPDIR_OBJ.tempdir
+        # We can reasonably expect tempdir to be non-null after setup is
+        # complete.
+        return cls._NO_DELETE_TEMPDIR_OBJ.tempdir  # type: ignore[return-value]
 
     def setUp(self) -> None:
         self._tempdir_obj = osutils.TempDir(
             prefix="chromite.test", set_global=True, delete=self.DELETE
         )
-        self._tempdir = Path(self._tempdir_obj.tempdir)
+        # We can reasonably expect tempdir to be non-null after setup is
+        # complete.
+        self._tempdir = Path(
+            self._tempdir_obj.tempdir  # type: ignore[arg-type]
+        )
         # We must use addCleanup here so that inheriting TestCase classes can
         # use addCleanup with the guarantee that the tempdir will be cleaned up
         # _after_ their addCleanup has run. TearDown runs before cleanup
@@ -1172,24 +1300,28 @@ class TempDirTestCase(TestCase):
         if self._tempdir_obj is not None:
             self._tempdir_obj.Cleanup()
             self._tempdir_obj = None
-            self._tempdir = None
+            self._tempdir = None  # type: ignore[assignment]
 
     def ExpectRootOwnedFiles(self) -> None:
         """Tells us that we may need to clean up root owned files."""
         if self._tempdir_obj is not None:
             self._tempdir_obj.SetSudoRm()
 
-    def assertFileContents(self, file_path, content) -> None:
+    def assertFileContents(
+        self, file_path: Union[str, Path], content: Union[str, bytes]
+    ) -> None:
         """Assert that the file contains the given content."""
         self.assertExists(file_path)
         read_content = osutils.ReadFile(file_path)
         self.assertEqual(read_content, content)
 
-    def assertTempFileContents(self, file_path, content) -> None:
+    def assertTempFileContents(
+        self, file_path: Union[str, Path], content: Union[str, bytes]
+    ) -> None:
         """Assert a file in the temp directory contains the given content."""
         self.assertFileContents(os.path.join(self.tempdir, file_path), content)
 
-    def ReadTempFile(self, path):
+    def ReadTempFile(self, path: Union[str, Path]) -> Union[str, bytes]:
         """Read a given file from the temp directory.
 
         Args:
@@ -1197,7 +1329,9 @@ class TempDirTestCase(TestCase):
         """
         return osutils.ReadFile(os.path.join(self.tempdir, path))
 
-    def WriteTempFile(self, path, content, **kwargs) -> None:
+    def WriteTempFile(
+        self, path: Union[str, Path], content: Union[str, bytes], **kwargs: Any
+    ) -> None:
         """Write the given content to the temp directory
 
         Args:
@@ -1211,7 +1345,9 @@ class TempDirTestCase(TestCase):
 class FakeSDKCache:
     """Creates a fake SDK Cache."""
 
-    def __init__(self, cache_dir, sdk_version="12225.0.0") -> None:
+    def __init__(
+        self, cache_dir: Union[str, Path], sdk_version: str = "12225.0.0"
+    ) -> None:
         """Creates a fake SDK Cache.
 
         Args:
@@ -1230,7 +1366,7 @@ class FakeSDKCache:
         # Creates an SDK SymlinkCache instance.
         self.symlink_cache = cache.DiskCache(self.symlink_cache_path)
 
-    def CreateCacheReference(self, board, key):
+    def CreateCacheReference(self, board: str, key: str) -> "os.PathLike[str]":
         """Creates the Cache Reference.
 
         Args:
@@ -1311,7 +1447,7 @@ class MockTestCase(TestCase):
         )
         return self.StartPatcher(mock.patch.object(*args, **kwargs))
 
-    def PatchDict(self, *args: Any, **kwargs: Any):
+    def PatchDict(self, *args: Any, **kwargs: Any) -> Any:
         """Create and start a mock.patch.dict().
 
         stop() will be called automatically during tearDown.
@@ -1345,13 +1481,13 @@ class ProgressBarTestCase(MockOutputTestCase):
         )
         self.PatchObject(os, "isatty", return_value=True)
 
-    def SetMockTerminalSize(self, width, height) -> None:
+    def SetMockTerminalSize(self, width: int, height: int) -> None:
         """Set mock terminal's size."""
         self._terminal_size.return_value = operation._TerminalSize(
             width, height
         )
 
-    def AssertProgressBarAllEvents(self, num_events) -> None:
+    def AssertProgressBarAllEvents(self, num_events: int) -> None:
         """Check that the progress bar generates expected events."""
         skipped = 0
         for i in range(num_events):
@@ -1376,7 +1512,7 @@ class MockLoggingTestCase(MockTestCase, LoggingTestCase):
 
 
 @contextlib.contextmanager
-def SetTimeZone(tz):
+def SetTimeZone(tz: str) -> Generator[None, None, None]:
     """Temporarily set the timezone to the specified value.
 
     This is needed because cros_test_lib.TestCase doesn't call time.tzset()
@@ -1397,7 +1533,12 @@ class ListTestSuite(unittest.BaseTestSuite):
 
     # We hack in |top| for local recursive usage.
     # pylint: disable=arguments-differ
-    def run(self, result, _debug=False, top=True):
+    def run(  # type: ignore[override]
+        self,
+        result: unittest.TestResult,
+        _debug: bool = False,
+        top: bool = True,
+    ) -> Union[unittest.TestResult, List[unittest.TestCase]]:
         """List all the tests this suite would have run."""
         # Recursively build a list of all the tests and the descriptions.
         # We do this so we can align the output when printing.
@@ -1407,21 +1548,23 @@ class ListTestSuite(unittest.BaseTestSuite):
             if isinstance(test, type(self)):
                 tests += test(result, top=False)
             else:
-                desc = test.shortDescription()
+                # test is guaranteed to be a TestCase, since TestSuite is
+                # handled in the above if block.
+                desc = test.shortDescription()  # type: ignore[union-attr]
                 if desc is None:
                     desc = ""
-                tests.append((test.id(), desc))
+                tests.append((test.id(), desc))  # type: ignore[union-attr]
 
         if top:
             if tests:
                 # Now that we have all the tests, print them in lined up
                 # columns.
                 maxlen = max(len(x[0]) for x in tests)
-                for test, desc in tests:
+                for test, desc in tests:  # type: ignore[assignment]
                     print("%-*s  %s" % (maxlen, test, desc))
             return result
         else:
-            return tests
+            return tests  # type: ignore[return-value]
 
 
 class ListTestLoader(unittest.TestLoader):
@@ -1433,7 +1576,7 @@ class ListTestLoader(unittest.TestLoader):
 class ListTestRunner:
     """Stub test runner to list all possible tests"""
 
-    def run(self, test):
+    def run(self, test: unittest.TestCase) -> unittest.TestResult:
         result = unittest.TestResult()
         test(result)
         return result
@@ -1449,7 +1592,9 @@ class TraceTestRunner(unittest.TextTestRunner):
 
     TRACE_KWARGS: Dict[Any, Any] = {}
 
-    def run(self, test):
+    def run(
+        self, test: Union[unittest.TestSuite, unittest.TestCase]
+    ) -> unittest.TestResult:
         import trace
 
         tracer = trace.Trace(**self.TRACE_KWARGS)
@@ -1468,7 +1613,9 @@ class ProfileTestRunner(unittest.TextTestRunner):
     PROFILE_KWARGS: Dict[Any, Any] = {}
     SORT_STATS_KEYS: Sequence[Any] = ()
 
-    def run(self, test):
+    def run(
+        self, test: Union[unittest.TestSuite, unittest.TestCase]
+    ) -> unittest.TestResult:
         import cProfile
 
         profiler = cProfile.Profile(**self.PROFILE_KWARGS)
@@ -1488,13 +1635,13 @@ class TestProgram(unittest.TestProgram):
     you can inject custom argv for example (to limit what tests run).
     """
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         self.default_log_level = kwargs.pop("level", "critical")
-        self._leaked_tempdir = None
+        self._leaked_tempdir: Optional[Union[str, Path]] = None
 
         super().__init__(**kwargs)
 
-    def GetParser(self):
+    def GetParser(self) -> commandline.ArgumentParser:
         """Return a command line parser"""
         description = """Examples:
   %(prog)s                            - run default set of tests
@@ -1566,7 +1713,9 @@ class TestProgram(unittest.TestProgram):
         )
 
         # Note: The tracer module includes coverage options ...
-        group = parser.add_argument_group("Tracing options")
+        group = parser.add_argument_group(  # type: ignore[no-untyped-call]
+            "Tracing options"
+        )
         group.add_argument(
             "--trace",
             default=False,
@@ -1594,7 +1743,9 @@ class TestProgram(unittest.TestProgram):
             help="Do not ignore sys paths automatically",
         )
 
-        group = parser.add_argument_group("Profiling options")
+        group = parser.add_argument_group(  # type: ignore[no-untyped-call]
+            "Profiling options"
+        )
         group.add_argument(
             "--profile",
             default=False,
@@ -1616,10 +1767,10 @@ class TestProgram(unittest.TestProgram):
 
         return parser
 
-    def parseArgs(self, argv) -> None:
+    def parseArgs(self, argv: List[str]) -> None:
         """Parse the command line for the test"""
         parser = self.GetParser()
-        opts = parser.parse_args(argv[1:])
+        opts = parser.parse_args(argv[1:])  # type: ignore[no-untyped-call]
         opts.Freeze()
 
         # Process the common options first.
@@ -1648,6 +1799,10 @@ class TestProgram(unittest.TestProgram):
         if sum((opts.trace, opts.profile)) > 1:
             parser.error("--trace/--profile are exclusive")
 
+        self.testRunner: Union[
+            Type[ListTestRunner], Type[TraceTestRunner], Type[ProfileTestRunner]
+        ]
+
         if opts.list:
             self.testRunner = ListTestRunner
             self.testLoader = ListTestLoader()
@@ -1664,7 +1819,7 @@ class TestProgram(unittest.TestProgram):
                 )
                 for path in sys.path:
                     path = os.path.realpath(path)
-                    if path.startswith(constants.CHROMITE_DIR):
+                    if path.startswith(str(constants.CHROMITE_DIR)):
                         continue
                     auto_ignore.add(path)
 
@@ -1691,12 +1846,15 @@ class TestProgram(unittest.TestProgram):
             )
 
         # Figure out which tests the user/unittest wants to run.
-        if not opts.tests and self.defaultTest is None:
+        if (
+            not opts.tests
+            and self.defaultTest is None  # type: ignore[attr-defined]
+        ):
             self.testNames = None
         elif opts.tests:
             self.testNames = opts.tests
         else:
-            self.testNames = (self.defaultTest,)
+            self.testNames = (self.defaultTest,)  # type: ignore[attr-defined]
 
         if not opts.wipe:
             # Instruct the TempDirTestCase to skip cleanup before actually
@@ -1737,7 +1895,9 @@ class PopenMock(partial_mock.PartialCmdMock):
     def __init__(self) -> None:
         partial_mock.PartialCmdMock.__init__(self, create_tempdir=True)
 
-    def _target__init__(self, inst, cmd, *args: Any, **kwargs: Any) -> None:
+    def _target__init__(
+        self, inst: str, cmd: List[str], *args: Any, **kwargs: Any
+    ) -> None:
         result = self._results["__init__"].LookupResult(
             (cmd,),
             hook_args=(
