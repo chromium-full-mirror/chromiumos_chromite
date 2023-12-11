@@ -14,12 +14,13 @@ perhaps where a new one could be added, before using this directly.
 
 import functools
 import re
+from typing import TypeVar
 
 
 # One value, so make sure we skip all eviction logic with maxsize=None.
 # TODO(python3.9): Change to functools.cache.
 @functools.lru_cache(maxsize=None)
-def _get_version_regex():
+def _get_version_regex() -> "re.Pattern[str]":
     """Get the compiled version regex.
 
     NB: Make sure to always use .fullmatch() and never .match().
@@ -108,7 +109,7 @@ def _cmp_versions(v1: str, v2: str) -> int:
     return _cmp(int(m1.group("revision") or 0), int(m2.group("revision") or 0))
 
 
-def _cmp_numbers(v1: str, v2: str):
+def _cmp_numbers(v1: str, v2: str) -> int:
     """Compare the number components.
 
     Algorithm 3.2 from https://dev.gentoo.org/~ulm/pms/head/pms.html#x1-26069r6.
@@ -145,7 +146,7 @@ def _cmp_numbers(v1: str, v2: str):
     return _cmp(len(v1_parts), len(v2_parts))
 
 
-def _cmp_suffixes(s1: str, s2: str):
+def _cmp_suffixes(s1: str, s2: str) -> int:
     """Compare version suffixes.
 
     Algorithm 3.5 from https://dev.gentoo.org/~ulm/pms/head/pms.html#x1-26069r6.
@@ -197,7 +198,10 @@ def _cmp_suffixes(s1: str, s2: str):
     return 0
 
 
-def _cmp(x, y):
+_IntOrStr = TypeVar("_IntOrStr", int, str)
+
+
+def _cmp(x: _IntOrStr, y: _IntOrStr) -> int:
     """Simple compare helper function to simplify code above."""
     if x < y:
         return -1
