@@ -26,6 +26,8 @@ from chromite.utils import compat
         (Path("a/b"), Path("a"), True),
     ],
 )
-def test_path_is_relative_to(inner, outer, expected_result) -> None:
+def test_path_is_relative_to(
+    inner: Path, outer: Path, expected_result: bool
+) -> None:
     """Test comapt.path_is_relative_to()."""
     assert compat.path_is_relative_to(inner, outer) == expected_result

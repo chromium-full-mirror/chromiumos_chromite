@@ -14,13 +14,15 @@ version advances.
 
 import functools
 from pathlib import Path
-from typing import Tuple
+from typing import Any, Callable, Tuple
 import warnings
 
 import chromite
 
 
-def _available_in(python_version: Tuple[int], stdlib_equivalent: str):
+def _available_in(
+    python_version: Tuple[int, int], stdlib_equivalent: str
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Annotate a function as available in a certain Python version.
 
     Args:
@@ -31,9 +33,9 @@ def _available_in(python_version: Tuple[int], stdlib_equivalent: str):
         A function to wrap your function.
     """
 
-    def _decorator(f):
+    def _decorator(f: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(f)
-        def _wrapper(*args, **kwargs):
+        def _wrapper(*args: Any, **kwargs: Any) -> Any:
             if python_version <= chromite.MIN_PYTHON_VERSION:
                 warnings.warn(
                     f"{f.__name__} is now available in the Python standard "
@@ -48,7 +50,7 @@ def _available_in(python_version: Tuple[int], stdlib_equivalent: str):
 
 
 @_available_in((3, 9), "pathlib.Path.is_relative_to")
-def path_is_relative_to(inner: Path, outer: Path):
+def path_is_relative_to(inner: Path, outer: Path) -> bool:
     """Backport of Path.is_relative_to() (available in Python 3.9+).
 
     Args:
