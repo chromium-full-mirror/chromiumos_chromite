@@ -179,6 +179,10 @@ class PayloadConfig:
                 The remote location that the payload was uploaded or None.
                     (e.g. 'gs://cr/beta-channel/coral/12345.0.1/payloads/...')
             Keyed by a version number.
+
+        Raises:
+            signer_payloads_client.PaygenSigningError: If signing failed for any
+              reason.
         """
         # Leave the generated artifact local. This is ok because if we're
         # testing it's likely we want the artifact anyway, and in production

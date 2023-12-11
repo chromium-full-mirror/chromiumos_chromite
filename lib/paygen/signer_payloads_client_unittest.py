@@ -10,6 +10,7 @@ import shutil
 import tempfile
 from unittest import mock
 
+from chromite.api.gen.chromiumos import build_report_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.api.gen.chromiumos import signing_pb2
 from chromite.lib import chroot_lib
@@ -28,6 +29,8 @@ from chromite.service import image
 pytestmark = cros_test_lib.pytestmark_inside_only
 
 # pylint: disable=protected-access
+
+SIGNED_BUILD_METADATA = build_report_pb2.BuildReport.SignedBuildMetadata
 
 
 class SignerPayloadsClientGoogleStorageTest(
@@ -725,11 +728,11 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
                     keyset="update_signer",
                     signed_artifacts=[
                         signing_pb2.SignedArtifact(
-                            status=signing_pb2.STATUS_SUCCESS,
                             signed_artifact_name=artifact_name(i),
                         )
                         for i in range(3)
                     ],
+                    signing_status=SIGNED_BUILD_METADATA.SIGNING_STATUS_PASSED,
                 )
             ]
         )
@@ -773,3 +776,40 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
             os.path.join(client._work_dir, "result_dir"),
             self._docker_image,
         )
+
+    @mock.patch.object(image, "SignImage")
+    def testGetHashSignaturesMockSignImageFailure(
+        self, mock_sign_image: mock.MagicMock
+    ):
+        """Test that GetHashSignatures raises an exception if signing fails."""
+        client = self.createStandardClient()
+
+        expected_signature_files = [
+            f"{i}.payload.hash.update_signer.signed.bin" for i in range(3)
+        ]
+        os.mkdir(os.path.join(self.tempdir, "result_dir"))
+        for i, signature_file in enumerate(expected_signature_files):
+            with open(
+                os.path.join(self.tempdir, "result_dir", signature_file),
+                mode="wb+",
+            ) as f:
+                f.write(bytes("abcd" * (i + 1), "utf-8"))
+
+        artifact_name = lambda n: f"{n}.payload.hash.update_signer.signed.bin"
+        mock_sign_image.return_value = signing_pb2.BuildTargetSignedArtifacts(
+            archive_artifacts=[
+                signing_pb2.ArchiveArtifacts(
+                    keyset="update_signer",
+                    signed_artifacts=[
+                        signing_pb2.SignedArtifact(
+                            signed_artifact_name=artifact_name(i),
+                        )
+                        for i in range(3)
+                    ],
+                    signing_status=SIGNED_BUILD_METADATA.SIGNING_STATUS_FAILED,
+                )
+            ]
+        )
+
+        with self.assertRaises(signer_payloads_client.PaygenSigningError):
+            client.GetHashSignatures([b"Hash 1", b"Hash 2", b"Hash 3"])

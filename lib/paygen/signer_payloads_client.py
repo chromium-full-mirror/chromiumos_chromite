@@ -16,6 +16,7 @@ import time
 from typing import List
 
 from chromite.api.gen.chromite.api import payload_pb2
+from chromite.api.gen.chromiumos import build_report_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.api.gen.chromiumos import signing_pb2
 from chromite.lib import chroot_lib
@@ -29,11 +30,17 @@ from chromite.lib.paygen import gspaths
 from chromite.service import image
 
 
+SIGNED_BUILD_METADATA = build_report_pb2.BuildReport.SignedBuildMetadata
+
 # How long to sleep between polling GS to see if signer results are present.
 DELAY_CHECKING_FOR_SIGNER_RESULTS_SECONDS = 10
 
 # Signer priority value, slightly higher than the common value 50.
 SIGNER_PRIORITY = 45
+
+
+class PaygenSigningError(Exception):
+    """When (local) signing has an error."""
 
 
 class SignerPayloadsClientGoogleStorage:
@@ -620,6 +627,9 @@ class LocalSignerPayloadsClient:
             [ [sig_update_signer, sig_update_signer-v2], [...],    ... ]
 
             Returns None if the process failed.
+
+        Raises:
+            PaygenSigningError: if signing returns SIGNING_STATUS_FAILURE.
         """
         channel = self._build.channel.replace("-channel", "")
         channel = f"CHANNEL_{channel.upper()}"
@@ -659,6 +669,11 @@ class LocalSignerPayloadsClient:
             result_dir,
             self._docker_image,
         )
-        # TODO(b/299105459): Handle failures.
+        for signed_artifact in signing_response.archive_artifacts:
+            if (
+                signed_artifact.signing_status
+                == SIGNED_BUILD_METADATA.SIGNING_STATUS_FAILED
+            ):
+                raise PaygenSigningError("Paygen signing failed")
 
         return self._ReadSignatures(result_dir, keysets, signing_response)

@@ -934,6 +934,10 @@ class PaygenPayload:
         Returns:
             List of lists which contain each signed hash (as bytes).
             [[hash_1_sig_1, hash_1_sig_2], [hash_2_sig_1, hash_2_sig_2]]
+
+        Raises:
+            signer_payloads_client.PaygenSigningError: If signing failed for any
+              reason.
         """
         keysets = self.PAYLOAD_SIGNATURE_KEYSETS
         logging.info("Signing payload hashes with %s.", ", ".join(keysets))
@@ -1224,6 +1228,10 @@ class PaygenPayload:
         Returns:
             * Tuple(Signed payload file, List of payload signatures)
             * Tuple(Metadata signature file, List of metadata signatures)
+
+        Raises:
+            signer_payloads_client.PaygenSigningError: If signing failed for any
+              reason.
         """
         # Create hashes to sign or even if signing not needed.
         # TODO(ahassani): In practice we don't need to generate hashes if we are
@@ -1382,6 +1390,10 @@ class PaygenPayload:
                 (name of the signed payload file,
                  name of the metadata signature file).
             The values will be None if signing did not occur.
+
+        Raises:
+            signer_payloads_client.PaygenSigningError: If signing failed for any
+              reason.
         """
         # Sign the payload, if needed.
         signed_payload_info, metadata_signature_info = self._SignPayload(
@@ -1583,6 +1595,10 @@ class PaygenPayload:
         Returns:
             A tuple of local payload path and remote URI. If not uploaded, the
             remote URI will be None.
+
+        Raises:
+            signer_payloads_client.PaygenSigningError: If signing failed for any
+              reason.
         """
         payload_file = payload.payload_file_path.path
 
@@ -1619,6 +1635,10 @@ class PaygenPayload:
                 2: ("<local_path>", "<remote_path>"),
                 ...
             }
+
+        Raises:
+            signer_payloads_client.PaygenSigningError: If signing failed for any
+              reason.
         """
         logging.info("* Finalizing payloads")
         ret = {}
