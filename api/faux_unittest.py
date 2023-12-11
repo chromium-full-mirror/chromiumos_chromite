@@ -4,13 +4,13 @@
 
 """Tests for the faux module."""
 
+from chromite.api import api_config
 from chromite.api import faux
-from chromite.api.api_config import ApiConfigMixin
 from chromite.api.gen.chromite.api import build_api_test_pb2
 from chromite.lib import cros_test_lib
 
 
-class MockResponsesTest(cros_test_lib.TestCase, ApiConfigMixin):
+class MockResponsesTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
     """Tests for faux's mock response functionality."""
 
     _IMPL_RESULT = "result"

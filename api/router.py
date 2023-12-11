@@ -13,7 +13,6 @@ import contextlib
 import importlib
 import logging
 import os
-from types import ModuleType
 from typing import Callable, List, TYPE_CHECKING
 
 from chromite.third_party.google.protobuf import symbol_database
@@ -48,6 +47,8 @@ from chromite.utils import memoize
 
 
 if TYPE_CHECKING:
+    import types
+
     from chromite.third_party import google
 
     from chromite.api import api_config
@@ -171,7 +172,7 @@ class Router:
         )
         return method_extensions[self._method_options_ext]
 
-    def Register(self, proto_module: ModuleType) -> None:
+    def Register(self, proto_module: "types.ModuleType") -> None:
         """Register the services from a generated proto module.
 
         Args:

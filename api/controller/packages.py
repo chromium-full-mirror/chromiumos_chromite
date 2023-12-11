@@ -15,8 +15,8 @@ from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import portage_util
+from chromite.lib import uprev_lib
 from chromite.lib.parser import package_info
-from chromite.lib.uprev_lib import GitRef
 from chromite.service import packages
 
 
@@ -84,7 +84,9 @@ def UprevVersionedPackage(input_proto, output_proto, _config) -> None:
     refs = []
     for ref in input_proto.versions:
         refs.append(
-            GitRef(path=ref.repository, ref=ref.ref, revision=ref.revision)
+            uprev_lib.GitRef(
+                path=ref.repository, ref=ref.ref, revision=ref.revision
+            )
         )
 
     try:
