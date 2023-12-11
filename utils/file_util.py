@@ -5,23 +5,19 @@
 """File interaction utilities."""
 
 import contextlib
-from pathlib import Path
-from typing import TextIO, TYPE_CHECKING, Union
-
-
-if TYPE_CHECKING:
-    import os
+import os
+from typing import Any, IO, Iterator, Union
 
 
 @contextlib.contextmanager
-def Open(obj: Union[str, "os.PathLike", TextIO], mode: str = "r", **kwargs):
+def Open(
+    obj: Union[str, "os.PathLike[str]", IO[Any]], mode: str = "r", **kwargs: Any
+) -> Iterator[IO[Any]]:
     """Convenience ctx that accepts a file path or an opened file object."""
-    if isinstance(obj, str):
+    if isinstance(obj, (str, os.PathLike)):
         # TODO(b/236161656): Fix.
         # pylint: disable-next=unspecified-encoding
         with open(obj, mode=mode, **kwargs) as f:
             yield f
-    elif isinstance(obj, Path):
-        yield obj.open(mode=mode, **kwargs)
     else:
         yield obj
