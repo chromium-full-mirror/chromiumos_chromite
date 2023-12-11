@@ -713,9 +713,11 @@ class RemoteAccess:
             rsync_cmd.append("--compress")
         logging.info("Using rsync compression: %s", compress)
 
+        chmod = chmod if chmod else kwargs.pop("chmod", None)
+        chown = chown if chown else kwargs.pop("chown", None)
         if chmod:
             rsync_cmd.append(f"--chmod={chmod}")
-        if chmod:
+        if chown:
             rsync_cmd.extend(["--owner", "--group", f"--chown={chown}"])
         if relative:
             rsync_cmd.append("--relative")

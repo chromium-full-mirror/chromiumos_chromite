@@ -4,8 +4,6 @@
 
 """cros cp: Copy files to/from a target device."""
 
-import argparse
-
 from chromite.cli import command
 from chromite.lib import commandline
 from chromite.lib import remote_access
@@ -36,10 +34,12 @@ Examples:
         self.port = None
         self.username = None
         self.to_local = None
-        self.permission = None
         self.mode = None
+        self.chmod = None
+        self.chown = None
         self.src = None
         self.dest = None
+        self.kwargs = {}
 
     @classmethod
     def AddParser(cls, parser) -> None:
@@ -64,17 +64,21 @@ Examples:
             default=22,
             help="Port to connect (default: %(default)s)",
         )
-        # TODO(b:271334340): Need to support permission.
-        parser.add_argument(
-            "--permission",
-            type=str,
-            help=argparse.SUPPRESS,
-        )
         parser.add_argument(
             "--mode",
             default="scp",
             choices=("rsync", "scp"),
             help="Transfer mode (default: %(default)s)",
+        )
+        parser.add_argument(
+            "--chmod",
+            type=str,
+            help="Change file permission on remote device. Only for rsync.",
+        )
+        parser.add_argument(
+            "--chown",
+            type=str,
+            help="Change file owner/group on remote device. Only for rsync.",
         )
 
     @classmethod
@@ -92,8 +96,9 @@ Examples:
         self.hostname = remote.hostname
         self.username = remote.username
         self.port = self.options.port
-        self.permission = self.options.permission
         self.mode = self.options.mode
+        self.kwargs.setdefault("chmod", self.options.chmod)
+        self.kwargs.setdefault("chown", self.options.chown)
 
     def _StartCp(self):
         """Starts copying files from/to device.
@@ -118,12 +123,14 @@ Examples:
                     src=src.path,
                     dest=self.dest.path,
                     mode=self.mode,
+                    **self.kwargs,
                 )
             else:
                 ret = self.device.CopyToDevice(
                     src=src.path,
                     dest=self.dest.path,
                     mode=self.mode,
+                    **self.kwargs,
                 )
             if ret:
                 break

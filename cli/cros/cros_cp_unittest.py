@@ -75,13 +75,22 @@ class CpTest(cros_test_lib.MockTempDirTestCase):
         """Tests a command _StartCp for Rsync.
 
         Examples:
-            cros cp 127.0.0.1:/tmp_src /tmp_dest --mode=rsync
+            cros cp 127.0.0.1:/tmp_src /tmp_dest --mode=rsync --chmod="0664"
+            --chown="owner:group"
         """
         self.SetupCommandMock(
-            ["127.0.0.1:/tmp_src", "/tmp_dest", "--mode=rsync"]
+            [
+                "127.0.0.1:/tmp_src",
+                "/tmp_dest",
+                "--mode=rsync",
+                "--chmod=0664",
+                "--chown=owner:group",
+            ]
         )
         self.cmd_mock.inst.Run()
         self.assertTrue(self.cmd_mock.inst.device.CopyFromDevice.called)
         self.assertEqual(self.cmd_mock.inst.src[0].path, "/tmp_src")
         self.assertEqual(self.cmd_mock.inst.dest.path, "/tmp_dest")
         self.assertEqual(self.cmd_mock.inst.options.mode, "rsync")
+        self.assertEqual(self.cmd_mock.inst.options.chmod, "0664")
+        self.assertEqual(self.cmd_mock.inst.options.chown, "owner:group")
