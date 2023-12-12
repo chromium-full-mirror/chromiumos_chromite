@@ -343,7 +343,7 @@ class PackageCorrectnessError(Exception):
 class PackageInfo:
     """Package specific information, mostly about licenses."""
 
-    def __init__(self, sysroot, fullnamerev):
+    def __init__(self, sysroot, fullnamerev) -> None:
         """Package info initializer.
 
         Args:
@@ -1072,7 +1072,7 @@ class Licensing:
         package_fullnames,
         gen_licenses,
         placeholder: bool = False,
-    ):
+    ) -> None:
         self.sysroot = sysroot
         # List of stock and custom licenses referenced in ebuilds. Used to
         # print a report. Dict value says which packages use that license.
