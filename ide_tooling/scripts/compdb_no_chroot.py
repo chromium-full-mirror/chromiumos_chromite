@@ -35,7 +35,9 @@ def is_mount(directory: str) -> bool:
 class Converter:
     """Converts compilation database to work outside chroot"""
 
-    def __init__(self, external_trunk_path: str, which: Callable[[str], str]):
+    def __init__(
+        self, external_trunk_path: str, which: Callable[[str], str]
+    ) -> None:
         self.external_trunk_path = external_trunk_path
         self.external_chroot_path = os.path.join(external_trunk_path, "chroot")
         self.external_out_path = os.path.join(external_trunk_path, "out")
