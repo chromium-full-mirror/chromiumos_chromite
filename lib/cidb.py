@@ -194,7 +194,7 @@ class SchemaVersionedMySQLConnection:
         db_credentials_dir,
         for_service=False,
         query_retry_args=SqlConnectionRetryArgs(8, 4, 2),
-    ):
+    ) -> None:
         """SchemaVersionedMySQLConnection constructor.
 
         Args:
@@ -230,7 +230,7 @@ class SchemaVersionedMySQLConnection:
         class StrictModeListener(sqlalchemy.interfaces.PoolListener):
             """Listener to set up a connection with STRICT_ALL_TABLES."""
 
-            def __init__(self):
+            def __init__(self) -> None:
                 pass
 
             def connect(self, dbapi_con, *_args, **_kwargs) -> None:
@@ -725,7 +725,7 @@ GROUP BY b.build_config
         db_credentials_dir,
         for_service=False,
         query_retry_args=SqlConnectionRetryArgs(8, 4, 2),
-    ):
+    ) -> None:
         super().__init__(
             "cidb",
             str(CIDB_MIGRATIONS_DIR),
@@ -1521,7 +1521,7 @@ class CIDBConnectionFactoryClass(factory.ObjectFactory):
             return True
         return False
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             "cidb connection",
             self._CIDB_CONNECTION_TYPES,

@@ -78,7 +78,7 @@ class CacheReference:
             yield ref.path
     """
 
-    def __init__(self, cache, key):
+    def __init__(self, cache, key) -> None:
         self._cache = cache
         self.key = key
         self.acquired = False
@@ -206,7 +206,7 @@ class DiskCache:
         cache_dir: Union[str, os.PathLike],
         cache_user: Optional[str] = None,
         lock_suffix: str = ".lock",
-    ):
+    ) -> None:
         # TODO(vapier): Convert this to Path.
         self._cache_dir = str(cache_dir)
         self._cache_user = cache_user

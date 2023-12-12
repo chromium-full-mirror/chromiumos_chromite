@@ -94,7 +94,7 @@ class FakeChrootDiskLayout:
             ),
         )
 
-    def __getattribute__(self, name) -> Path:
+    def __getattribute__(self, name: str) -> Path:
         """Return an absolute Path relative to the current `root`."""
         return object.__getattribute__(self, "root") / object.__getattribute__(
             self, name
@@ -206,7 +206,7 @@ class Wrapper:
         fake_rootfs: Path under tmp_path holding a test filesystem tree.
     """
 
-    def __init__(self, tmp_path: Path):
+    def __init__(self, tmp_path: Path) -> None:
         """Creates a Wrapper using `tmp_path` for work."""
         self.tmp_path = tmp_path
         self.work_root = tmp_path / "work_root"

@@ -6,6 +6,7 @@
 
 from datetime import date
 from datetime import datetime
+from typing import Any
 
 from chromite.third_party.google.protobuf import field_mask_pb2
 from chromite.third_party.google.protobuf.struct_pb2 import Struct, Value
@@ -953,7 +954,7 @@ class StaticFunctionsTest(cros_test_lib.MockTestCase):
         class DisableAuthFn:
             """An object that can be compared to a function"""
 
-            def __eq__(self, fn):
+            def __eq__(self, fn: Any) -> bool:
                 request = new_request("a", "b", "c", "d", "e")
                 return not fn(request).include_auth
 

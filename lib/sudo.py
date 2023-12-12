@@ -25,7 +25,7 @@ class SudoKeepAlive(cros_build_lib.PrimaryPidContextManager):
     see crosbug/18393.
     """
 
-    def __init__(self, ttyless_sudo=True, repeat_interval=4):
+    def __init__(self, ttyless_sudo=True, repeat_interval=4) -> None:
         """Run sudo with a noop, to reset the sudo timestamp.
 
         Args:

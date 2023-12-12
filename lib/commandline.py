@@ -56,7 +56,7 @@ class ChrootRequiredError(Exception):
     should be done before raising the exception.
     """
 
-    def __init__(self, cmd, chroot_args=None, extra_env=None):
+    def __init__(self, cmd, chroot_args=None, extra_env=None) -> None:
         """Constructor for ChrootRequiredError.
 
         Args:
@@ -81,7 +81,7 @@ class ExecRequiredError(Exception):
     arguments should be done before raising the exception.
     """
 
-    def __init__(self, cmd):
+    def __init__(self, cmd) -> None:
         """Constructor for ExecRequiredError.
 
         Args:
@@ -287,7 +287,7 @@ class DeviceParser:
     def __init__(
         self,
         schemes: Optional[Union[DeviceScheme, List]] = None,
-    ):
+    ) -> None:
         """Initializes the parser.
 
         See the class comments for usage examples.
@@ -539,7 +539,7 @@ class _AppendOption(argparse.Action):
     options.out == ['-b', '--barg']
     """
 
-    def __init__(self, option_strings, dest, **kwargs):
+    def __init__(self, option_strings, dest, **kwargs) -> None:
         if "nargs" in kwargs:
             raise ValueError("nargs is not supported for append_option action")
         super().__init__(option_strings, dest, nargs=0, **kwargs)
@@ -586,7 +586,7 @@ class _EnumAction(argparse.Action):
         )
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Init override to extract the "enum" argument."""
         self.enum = kwargs.pop("enum", None)
         if self.enum:
@@ -710,7 +710,7 @@ class _DeprecatedAction:
     deprecation warning, the argument will behave as normal.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Init override to extract the deprecated argument when it exists."""
         self.deprecated_message = kwargs.pop("deprecated", None)
         super().__init__(*args, **kwargs)
@@ -777,7 +777,7 @@ class FilteringOption(Option):
 class _PathFilterAction(argparse.Action):
     """Setup a path filter."""
 
-    def __init__(self, option_strings, dest, **kwargs):
+    def __init__(self, option_strings, dest, **kwargs) -> None:
         if "nargs" in kwargs:
             raise ValueError("nargs is not supported for filter action")
         super().__init__(option_strings, dest, nargs=1, **kwargs)
@@ -796,7 +796,7 @@ class ColoredFormatter(logging.Formatter):
         "ERROR": terminal.Color.RED,
     }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Initializes the formatter.
 
         Args:
@@ -835,7 +835,7 @@ class BaseParser:
     DEFAULT_LOG_LEVEL = "info"
     ALLOW_LOGGING = True
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         """Initialize this parser instance.
 
         kwargs:
@@ -1129,7 +1129,7 @@ class OptionValues(
 ):
     """Class to mimic optparse.Values with value freezing support."""
 
-    def __init__(self, defaults, *args, **kwargs):
+    def __init__(self, defaults, *args, **kwargs) -> None:
         optparse.Values.__init__(self, defaults, *args, **kwargs)
         attrs_freezer.Freezable.__init__(self)
 
@@ -1154,7 +1154,7 @@ class FilteringParser(optparse.OptionParser, BaseParser):
 
     DEFAULT_OPTION_CLASS = FilteringOption
 
-    def __init__(self, usage=None, **kwargs):
+    def __init__(self, usage=None, **kwargs) -> None:
         BaseParser.__init__(self, **kwargs)
         self.PopUsedArgs(kwargs)
         kwargs.setdefault("option_class", self.DEFAULT_OPTION_CLASS)
@@ -1226,7 +1226,7 @@ class ArgumentParser(BaseParser, argparse.ArgumentParser):
     pass in logging=False to the constructor.
     """
 
-    def __init__(self, usage=None, **kwargs):
+    def __init__(self, usage=None, **kwargs) -> None:
         kwargs.setdefault(
             "formatter_class", argparse.RawDescriptionHelpFormatter
         )
@@ -1381,14 +1381,14 @@ class ArgumentParser(BaseParser, argparse.ArgumentParser):
 class _ShutDownException(SystemExit):
     """Exception raised when user hits CTRL+C."""
 
-    def __init__(self, sig_num, message):
+    def __init__(self, sig_num, message) -> None:
         self.signal = sig_num
         # Setup a usage message primarily for any code that may intercept it
         # while this exception is crashing back up the stack to us.
         SystemExit.__init__(self, 128 + sig_num)
         self.args = (sig_num, message)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Stringify this exception."""
         return self.args[1]
 

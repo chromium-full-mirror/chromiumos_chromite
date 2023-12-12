@@ -16,7 +16,7 @@ import enum
 import logging
 import os
 from pathlib import Path
-from typing import Iterable, Iterator, List, Optional, Set, Union
+from typing import Any, Iterable, Iterator, List, Optional, Set, Union
 
 from chromite.lib import build_target_lib
 from chromite.lib.parser import package_info
@@ -57,14 +57,14 @@ class PackageNode:
         pkg_info: package_info.PackageInfo,
         root: str,
         src_paths: Optional[Iterable[Union[str, os.PathLike]]] = None,
-    ):
+    ) -> None:
         self.pkg_info = pkg_info
         self.root = os.path.normpath(root)
         self._deps = set()
         self._rev_deps = set()
         self.source_paths = list(src_paths) if src_paths else []
 
-    def __eq__(self, other: Union["PackageNode", package_info.PackageInfo]):
+    def __eq__(self, other: Any) -> bool:
         if isinstance(other, PackageNode):
             return (
                 self.pkg_info == other.pkg_info
@@ -77,13 +77,13 @@ class PackageNode:
         else:
             return False
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.name, self.root))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"PackageNode<{self.pkg_info} in {self.root}>"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         # Build truncated strings for deps, rdeps, and source paths.
         truncated_len = 3
 
@@ -270,7 +270,7 @@ class DependencyGraph:
         nodes: Iterable[PackageNode],
         sysroot: Union[str, "sysroot_lib.Sysroot"],
         root_packages: List[Union[str, package_info.PackageInfo]],
-    ):
+    ) -> None:
         """DependencyGraph init.
 
         The |nodes| are expected to already have their dependencies added.
@@ -376,7 +376,7 @@ class DependencyGraph:
 
             yield pkg
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Size of the depgraph."""
         return self._len
 

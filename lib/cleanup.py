@@ -40,7 +40,7 @@ class EnforcedCleanupSection(cros_build_lib.PrimaryPidContextManager):
     >>>
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         cros_build_lib.PrimaryPidContextManager.__init__(self)
         self._lock = locking.ProcessLock(verbose=False)
         self._forked = False

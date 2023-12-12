@@ -29,7 +29,7 @@ class DownloaderException(Exception):
     DownloaderException, and raise it.
     """
 
-    def __init__(self, exceptions):
+    def __init__(self, exceptions) -> None:
         """Initialize a DownloaderException instance with a list of exceptions.
 
         Args:
@@ -39,10 +39,10 @@ class DownloaderException(Exception):
         Exception.__init__(self, message)
         self.exceptions = exceptions
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a custom exception message with all exceptions merged."""
         return "--------\n".join(
             [str(exception) for exception in self.exceptions]
@@ -74,7 +74,7 @@ class Downloader:
     # This filename must be kept in sync with clean_staged_images.py
     _TIMESTAMP_FILENAME = "staged.timestamp"
 
-    def __init__(self, static_dir, build_dir, build):
+    def __init__(self, static_dir, build_dir, build) -> None:
         super().__init__()
         self._static_dir = static_dir
         self._build_dir = build_dir
@@ -291,7 +291,7 @@ class GoogleStorageDownloader(Downloader):
         archive_url: Google Storage URL to download build artifacts from.
     """
 
-    def __init__(self, static_dir, archive_url, build_id):
+    def __init__(self, static_dir, archive_url, build_id) -> None:
         (board, build) = build_id.split("/")[-2:]
         build_dir = os.path.join(static_dir, build_id)
 
@@ -379,7 +379,7 @@ class LocalDownloader(Downloader):
         archive_params: parameters for where to download build artifacts from.
     """
 
-    def __init__(self, static_dir, source_path, delete_source=False):
+    def __init__(self, static_dir, source_path, delete_source=False) -> None:
         """Initialize us.
 
         Args:
@@ -448,7 +448,7 @@ class LocalDownloader(Downloader):
 class AndroidBuildDownloader(Downloader):
     """Downloader of images to the devserver from Android's build server."""
 
-    def __init__(self, static_dir, branch, build_id, target):
+    def __init__(self, static_dir, branch, build_id, target) -> None:
         """Initialize AndroidBuildDownloader.
 
         Args:

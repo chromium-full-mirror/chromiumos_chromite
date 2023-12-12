@@ -308,7 +308,7 @@ class ProjectCheckout(dict):
     TODO(davidjames): Convert this into an ordinary object instead of a dict.
     """
 
-    def __init__(self, attrs: Dict[str, Any]):
+    def __init__(self, attrs: Dict[str, Any]) -> None:
         """Constructor.
 
         Args:
@@ -368,7 +368,7 @@ class Manifest:
         self,
         source: Union[str, "os.PathLike[str]", TextIO],
         manifest_include_dir: Optional[Union[str, "os.PathLike[str]"]] = None,
-    ):
+    ) -> None:
         """Initialize this instance.
 
         Args:
@@ -614,7 +614,7 @@ class ManifestCheckout(Manifest):
         path: Union[str, "os.PathLike[str]"],
         manifest_path: Optional[Union[str, "os.PathLike[str]"]] = None,
         search: bool = True,
-    ):
+    ) -> None:
         """Initialize this instance.
 
         Args:

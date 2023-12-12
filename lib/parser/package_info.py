@@ -215,7 +215,7 @@ class PackageInfo:
         package: Optional[str] = None,
         version: Optional[Union[str, int]] = None,
         revision: Optional[Union[str, int]] = None,
-    ):
+    ) -> None:
         # Private attributes to enforce read-only. Particularly to allow use of
         # lru_cache for formatting.
         self._category = category

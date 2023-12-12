@@ -175,7 +175,7 @@ class PatchException(Exception):
     # Unless instances override it, default all exceptions to ToT.
     inflight = False
 
-    def __init__(self, patch, message=None):
+    def __init__(self, patch, message=None) -> None:
         if not isinstance(patch, GitRepoPatch) and not (
             mock and isinstance(patch, mock.MagicMock)
         ):
@@ -199,7 +199,7 @@ class PatchException(Exception):
         """
         return "failed: %s" % (self.msg,)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "%s %s" % (self.patch.PatchLink(), self.ShortExplanation())
 
 
@@ -208,7 +208,7 @@ class ApplyPatchException(PatchException):
 
     def __init__(
         self, patch, message=None, inflight=False, trivial=False, files=()
-    ):
+    ) -> None:
         PatchException.__init__(self, patch, message=message)
         self.inflight = inflight
         self.trivial = trivial
@@ -243,7 +243,7 @@ class ApplyPatchException(PatchException):
 class EbuildConflict(ApplyPatchException):
     """Exception thrown if two CLs delete the same ebuild."""
 
-    def __init__(self, patch, inflight, ebuilds):
+    def __init__(self, patch, inflight, ebuilds) -> None:
         ApplyPatchException.__init__(
             self, patch, inflight=inflight, files=ebuilds
         )
@@ -266,7 +266,7 @@ class ForbiddenMerge(PatchException):
 class NonMainlineMerge(ForbiddenMerge):
     """Thrown in a merge commit has no parents that are already in mainline."""
 
-    def __init__(self, patch):
+    def __init__(self, patch) -> None:
         msg = (
             "Neither parent of this merge commit is already submitted in "
             "the destination branch. The CQ can only handle merge commits "
@@ -278,7 +278,7 @@ class NonMainlineMerge(ForbiddenMerge):
 class PatchNoParents(PatchException):
     """Thrown when attempting to handle a patch with no parents."""
 
-    def __init__(self, patch):
+    def __init__(self, patch) -> None:
         msg = "This patch has no parents, and therefore cannot be applied."
         super().__init__(patch, message=msg)
 
@@ -295,7 +295,7 @@ class PatchIsEmpty(ApplyPatchException):
 class DependencyError(PatchException):
     """When a change cannot be applied due to a failure in a dependency."""
 
-    def __init__(self, patch, error):
+    def __init__(self, patch, error) -> None:
         """Initialize the error object.
 
         Args:
@@ -345,7 +345,7 @@ class DependencyError(PatchException):
 class BrokenChangeID(PatchException):
     """Raised if a patch has an invalid or missing Change-ID."""
 
-    def __init__(self, patch, message, missing=False):
+    def __init__(self, patch, message, missing=False) -> None:
         PatchException.__init__(self, patch, message=message)
         self.missing = missing
         self.args += (missing,)
@@ -374,7 +374,7 @@ class ChangeNotInManifest(PatchException):
 class PatchNotSubmittable(PatchException):
     """Raised if a patch is not submittable."""
 
-    def __init__(self, patch, reason):
+    def __init__(self, patch, reason) -> None:
         PatchException.__init__(self, patch)
         self.reason = str(reason)
         self.args = (patch, reason)
@@ -405,7 +405,7 @@ class PatchCache:
     deps, and for change querying.
     """
 
-    def __init__(self, initial=()):
+    def __init__(self, initial=()) -> None:
         self._dict = {}
         self.Inject(*initial)
 
@@ -450,7 +450,7 @@ class PatchCache:
                 return val
         return None
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return self[key] is not None
 
     def copy(self):
@@ -670,7 +670,7 @@ class PatchQuery:
         change_id=None,
         sha1=None,
         gerrit_number=None,
-    ):
+    ) -> None:
         """Initializes a PatchQuery instance.
 
         Args:
@@ -788,7 +788,7 @@ class PatchQuery:
                 "Change-Id, Gerrit number, or sha1"
             )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Returns a hash to be used in a set or a list."""
         if self.id:
             return hash(self.id)
@@ -804,7 +804,7 @@ class PatchQuery:
                 )
             )
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """Defines when two PatchQuery objects are considered equal."""
         # We allow comparing against a string to make testing easier.
         if isinstance(other, str):
@@ -859,7 +859,7 @@ class GitRepoPatch(PatchQuery):
         remote,
         sha1=None,
         change_id=None,
-    ):
+    ) -> None:
         """Initialization of abstract Patch class.
 
         Args:
@@ -1598,7 +1598,7 @@ class GitRepoPatch(PatchQuery):
         # representation.
         return str(self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns custom string to identify this patch."""
         s = "%s:%s" % (self.project, self.ref)
         if self.sha1 is not None:
@@ -1702,7 +1702,7 @@ class LocalPatch(GitRepoPatch):
 
     def __init__(
         self, project_url, project, ref, tracking_branch, remote, sha1
-    ):
+    ) -> None:
         GitRepoPatch.__init__(
             self, project_url, project, ref, tracking_branch, remote, sha1=sha1
         )
@@ -1864,7 +1864,7 @@ class UploadedLocalPatch(GitRepoPatch):
         original_sha1,
         remote,
         carbon_copy_sha1=None,
-    ):
+    ) -> None:
         """Initializes an UploadedLocalPatch instance.
 
         Args:
@@ -1900,7 +1900,7 @@ class UploadedLocalPatch(GitRepoPatch):
 
         return l
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns custom string to identify this patch."""
         s = "%s:%s" % (self.project, self.original_branch)
         if self._original_sha1_valid:
@@ -1933,7 +1933,7 @@ class GerritFetchOnlyPatch(GitRepoPatch):
         pass_count=0,
         total_fail_count=0,
         commit_message=None,
-    ):
+    ) -> None:
         """Initializes a GerritFetchOnlyPatch object."""
         super().__init__(
             project_url,
@@ -2058,7 +2058,7 @@ class GerritFetchOnlyPatch(GitRepoPatch):
 class GerritPatch(GerritFetchOnlyPatch):
     """Object that represents a Gerrit CL."""
 
-    def __init__(self, patch_dict, remote, url_prefix):
+    def __init__(self, patch_dict, remote, url_prefix) -> None:
         """Construct a GerritPatch object from Gerrit query results.
 
         Gerrit query JSON fields are documented at:
@@ -2453,7 +2453,7 @@ class GerritPatch(GerritFetchOnlyPatch):
 
         return msg
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns custom string to identify this patch."""
         s = "%s:%s" % (self.owner, self.gerrit_number_str)
         if self.sha1 is not None:

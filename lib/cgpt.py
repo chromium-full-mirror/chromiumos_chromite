@@ -38,7 +38,7 @@ class Disk:
         partitions: OrderedDict of partitions, indexed by part_num
     """
 
-    def __init__(self, image_file, partitions=None):
+    def __init__(self, image_file, partitions=None) -> None:
         self.image_file = image_file
         self.partitions = partitions or collections.OrderedDict()
 

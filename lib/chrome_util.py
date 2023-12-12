@@ -126,7 +126,7 @@ class Copier:
         default_mode=0o644,
         dir_mode=0o755,
         exe_mode=0o755,
-    ):
+    ) -> None:
         """Initialization.
 
         Args:
@@ -279,7 +279,7 @@ class Path:
         optional=False,
         strip=True,
         ignorelist=None,
-    ):
+    ) -> None:
         """Initializes the object.
 
         Args:

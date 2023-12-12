@@ -475,7 +475,7 @@ class _CommonPrepareBundle:
         build_target=None,
         input_artifacts=None,
         profile_info=None,
-    ):
+    ) -> None:
         self._gs_context = None
         self.artifact_name = artifact_name
         self.chroot = chroot
@@ -1317,7 +1317,7 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
         build_target,
         input_artifacts,
         profile_info,
-    ):
+    ) -> None:
         super().__init__(
             artifact_name,
             chroot,
@@ -1678,7 +1678,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         build_target,
         output_dir,
         profile_info,
-    ):
+    ) -> None:
         super().__init__(
             artifact_name,
             chroot,
@@ -2222,7 +2222,7 @@ class GetUpdatedFilesHandler:
         pformat.json(afdo_versions, fp=json_file)
         return [json_file]
 
-    def __init__(self, artifact_type, artifact_path, profile_info):
+    def __init__(self, artifact_type, artifact_path, profile_info) -> None:
         self.artifact_path = artifact_path
         self.profile_info = profile_info
         if artifact_type == "VerifiedKernelCwpAfdoFile":

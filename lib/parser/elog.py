@@ -48,7 +48,7 @@ class DuplicatePackageError(Error):
 class SummaryLog:
     """Parsed contents of a summary.log file"""
 
-    def __init__(self, log_contents):
+    def __init__(self, log_contents) -> None:
         self.package_logs = sorted(
             (PackageLog(cpv, logs) for cpv, logs in log_contents.items()),
             key=lambda x: x.cpv,
@@ -79,7 +79,7 @@ class SummaryLog:
 class PackageLog:
     """Parsed contents of a single package's entry from a summary.log"""
 
-    def __init__(self, cpv, log_mapping):
+    def __init__(self, cpv, log_mapping) -> None:
         self.cpv = cpv
         self.log_levels = dict((k, dict(v)) for k, v in log_mapping.items())
 

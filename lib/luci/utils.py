@@ -270,7 +270,7 @@ class _Cache:
     Thread- and NDB tasklet-safe.
     """
 
-    def __init__(self, func, expiration_sec):
+    def __init__(self, func, expiration_sec) -> None:
         self.func = func
         self.expiration_sec = expiration_sec
         self.lock = threading.Lock()

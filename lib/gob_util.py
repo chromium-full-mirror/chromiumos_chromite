@@ -49,7 +49,7 @@ class ErrorParser(html.parser.HTMLParser):
     - each <p> tag is replaced with '\n\n'
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         html.parser.HTMLParser.__init__(self)
         self.in_div = False
         self.err_data = ""
@@ -119,7 +119,7 @@ GOB_ERROR_REASON_CLOSED_CHANGE = "CLOSED CHANGE"
 class GOBError(Exception):
     """Exception class for errors communicating with the GOB service."""
 
-    def __init__(self, http_status=None, reason=None):
+    def __init__(self, http_status=None, reason=None) -> None:
         self.http_status = http_status
         self.reason = reason
 

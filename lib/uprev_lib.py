@@ -91,13 +91,13 @@ class ChromeEBuild(portage_util.EBuild):
     chrome_version_re = re.compile(r".*-(%s|9999).*" % CHROME_VERSION_REGEX)
     chrome_version = ""
 
-    def __init__(self, path):
+    def __init__(self, path) -> None:
         portage_util.EBuild.__init__(self, path)
         re_match = self.chrome_version_re.match(self.ebuild_path_no_revision)
         if re_match:
             self.chrome_version = re_match.group(1)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.ebuild_path
 
     @property
@@ -275,7 +275,7 @@ class UprevResult:
 
     def __init__(
         self, outcome: Outcome, changed_files: Optional[Iterable[str]] = None
-    ):
+    ) -> None:
         self.outcome = outcome
 
         if isinstance(changed_files, str):
@@ -284,7 +284,7 @@ class UprevResult:
             )
         self.changed_files = list(changed_files or [])
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """Returns True if a file was modified (uprev or revbump)."""
         return (
             self.new_ebuild_created or self.revision_bump or self.version_bump
@@ -332,7 +332,7 @@ class UprevChromeManager:
         build_targets: List["build_target_lib.BuildTarget"] = None,
         overlay_dir: str = None,
         chroot: chroot_lib.Chroot = None,
-    ):
+    ) -> None:
         self._version = version
         self._build_targets = build_targets or []
         self._new_ebuild_files = []
@@ -533,7 +533,7 @@ class UprevOverlayManager:
         build_targets: List["build_target_lib.BuildTarget"] = None,
         chroot: chroot_lib.Chroot = None,
         output_dir: str = None,
-    ):
+    ) -> None:
         """Init function.
 
         Args:
@@ -818,10 +818,10 @@ UprevVersionedPackageModifications = collections.namedtuple(
 class UprevVersionedPackageResult:
     """Data object for uprev_versioned_package."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.modified = []
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return self.uprevved
 
     def add_result(self, new_version, modified_files):

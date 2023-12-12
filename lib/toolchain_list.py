@@ -27,7 +27,7 @@ class MismatchedToolchainConfigsError(Exception):
 class ToolchainList:
     """Represents a list of toolchains."""
 
-    def __init__(self, overlays):
+    def __init__(self, overlays) -> None:
         """Construct an instance.
 
         Args:

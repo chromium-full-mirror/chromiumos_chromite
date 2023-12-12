@@ -6,7 +6,7 @@
 
 import os
 from pathlib import Path
-from typing import Union
+from typing import Any, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -19,7 +19,7 @@ class Remoteexec:
         self,
         reclient_dir: Union[str, os.PathLike],
         reproxy_cfg_file: Union[str, os.PathLike],
-    ):
+    ) -> None:
         """Initializes a Remoteexec instance.
 
         Args:
@@ -59,7 +59,7 @@ class Remoteexec:
                 )
         self.reproxy_cfg_file = reproxy_cfg_file
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if self.__class__ is other.__class__:
             return (
                 self.reclient_dir == other.reclient_dir

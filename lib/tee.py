@@ -28,7 +28,7 @@ _BUFSIZE = 1024
 class ToldToDie(Exception):
     """Exception thrown via signal handlers."""
 
-    def __init__(self, signum):
+    def __init__(self, signum) -> None:
         Exception.__init__(self, f"We received signal {signum}")
 
 
@@ -90,7 +90,9 @@ def _tee(input_fd, output_files, complain) -> None:
 class _TeeProcess(multiprocessing.Process):
     """Replicate output to multiple file handles."""
 
-    def __init__(self, output_filenames, complain, error_fd, master_pid):
+    def __init__(
+        self, output_filenames, complain, error_fd, master_pid
+    ) -> None:
         """Write to stdout and supplied filenames.
 
         Args:
@@ -196,7 +198,7 @@ class _TeeProcess(multiprocessing.Process):
 class Tee(cros_build_lib.PrimaryPidContextManager):
     """Class that handles tee-ing output to a file."""
 
-    def __init__(self, output_file):
+    def __init__(self, output_file) -> None:
         """Initializes object with path to log file."""
         cros_build_lib.PrimaryPidContextManager.__init__(self)
         self._file = output_file

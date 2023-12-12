@@ -85,7 +85,7 @@ PreconditionException: 412 Precondition Failed"""
     _CRCMOD_METHOD = "missing"
     GSUTIL_URL = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         partial_mock.PartialCmdMock.__init__(self, create_tempdir=True)
         self.raw_gs_cmds = []
 

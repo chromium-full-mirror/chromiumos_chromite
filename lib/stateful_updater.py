@@ -34,7 +34,7 @@ class StatefulUpdater:
     _DEV_IMAGE_DIR = "dev_image_new"
     _UPDATE_TYPE_FILE = ".update_available"
 
-    def __init__(self, device, stateful_dir=constants.STATEFUL_DIR):
+    def __init__(self, device, stateful_dir=constants.STATEFUL_DIR) -> None:
         """Initializes the module.
 
         Args:

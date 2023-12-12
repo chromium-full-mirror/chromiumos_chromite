@@ -106,7 +106,7 @@ def CreateExceptInfo(exception, tb):
 class CompoundFailure(StepFailure):
     """An exception that contains a list of ExceptInfo objects."""
 
-    def __init__(self, message="", exc_infos=None):
+    def __init__(self, message="", exc_infos=None) -> None:
         """Initializes an CompoundFailure instance.
 
         Args:
@@ -262,7 +262,7 @@ class SetFailureType:
         category_exception,
         source_exception=None,
         exclude_exceptions=EXCEPTIONS_TO_EXCLUDE,
-    ):
+    ) -> None:
         """Initializes the decorator.
 
         Args:
@@ -323,7 +323,7 @@ class BuildScriptFailure(StepFailure):
 
     EXCEPTION_CATEGORY = constants.EXCEPTION_CATEGORY_BUILD
 
-    def __init__(self, exception, shortname):
+    def __init__(self, exception, shortname) -> None:
         """Construct a BuildScriptFailure object.
 
         Args:
@@ -336,7 +336,7 @@ class BuildScriptFailure(StepFailure):
         self.shortname = shortname
         self.args = (exception, shortname)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Summarize a build command failure briefly."""
         result = self.exception.result
         if result.returncode:
@@ -366,7 +366,7 @@ class PackageBuildFailure(BuildScriptFailure):
         exception: cros_build_lib.RunCommandError,
         shortname: str,
         failed_packages: List[str],
-    ):
+    ) -> None:
         """Construct a PackageBuildFailure object.
 
         Args:
@@ -378,7 +378,7 @@ class PackageBuildFailure(BuildScriptFailure):
         self.failed_packages = set(failed_packages)
         self.args = (exception, shortname, failed_packages)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Packages failed in %s: %s" % (
             self.shortname,
             " ".join(sorted(self.failed_packages)),

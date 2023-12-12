@@ -284,7 +284,7 @@ class PortForwardSpec:
         remote_host="localhost",
         remote_port=None,
         local_host="localhost",
-    ):
+    ) -> None:
         if remote_port is None:
             remote_port = local_port
         self.local_port = NormalizePort(local_port)
@@ -323,7 +323,7 @@ class RemoteAccess:
         private_key=None,
         debug_level=logging.DEBUG,
         interactive=True,
-    ):
+    ) -> None:
         """Construct the object.
 
         Args:
@@ -848,7 +848,7 @@ class RemoteAccess:
 class RemoteDeviceHandler:
     """A wrapper of RemoteDevice."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Creates a RemoteDevice object."""
         self.device = RemoteDevice(*args, **kwargs)
 
@@ -864,7 +864,7 @@ class RemoteDeviceHandler:
 class ChromiumOSDeviceHandler:
     """A wrapper of ChromiumOSDevice."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Creates a RemoteDevice object."""
         self.device = ChromiumOSDevice(*args, **kwargs)
 
@@ -893,7 +893,7 @@ class RemoteDevice:
         debug_level=logging.DEBUG,
         ping=False,
         connect=True,
-    ):
+    ) -> None:
         """Initializes a RemoteDevice object.
 
         Args:
@@ -1549,7 +1549,7 @@ class ChromiumOSDevice(RemoteDevice):
     MOUNT_ROOTFS_RW_CMD = ["mount", "-o", "remount,rw", "/"]
     LIST_MOUNTS_CMD = ["cat", "/proc/mounts"]
 
-    def __init__(self, hostname, include_dev_paths=True, **kwargs):
+    def __init__(self, hostname, include_dev_paths=True, **kwargs) -> None:
         """Initializes this object.
 
         Args:

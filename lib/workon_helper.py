@@ -220,7 +220,7 @@ class WorkonHelper:
         friendly_name=None,
         verbose=False,
         src_root=constants.SOURCE_ROOT,
-    ):
+    ) -> None:
         """Construct an instance.
 
         Args:
@@ -1091,7 +1091,7 @@ class WorkonScope:
         self,
         build_target: build_target_lib.BuildTarget,
         pkgs: Iterable[str] = tuple(),
-    ):
+    ) -> None:
         """Construct an instance.
 
         Args:

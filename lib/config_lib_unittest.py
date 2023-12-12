@@ -7,6 +7,7 @@
 import copy
 import json
 import pickle
+from typing import Any
 
 from chromite.lib import config_lib
 from chromite.lib import cros_test_lib
@@ -68,10 +69,10 @@ def AssertSiteIndependentParameters(site_config):
 class _CustomObject:
     """Simple object. For testing deepcopy."""
 
-    def __init__(self, x):
+    def __init__(self, x) -> None:
         self.x = x
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return self.x == other.x
 
 
@@ -80,10 +81,10 @@ class _CustomObjectWithSlots:
 
     __slots__ = ["x"]
 
-    def __init__(self, x):
+    def __init__(self, x) -> None:
         self.x = x
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return self.x == other.x
 
 

@@ -62,7 +62,7 @@ class DepGraphGenerator:
         "include_bdepend",
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.board = None
         self.emerge = EmergeData()
         self.package_db = {}
@@ -810,7 +810,7 @@ class EmergeData:
         "trees",
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         # The action the user requested. If the user is installing packages,
         # this is None. If the user is doing anything other than installing
         # packages, this will contain the action name, which will map exactly to

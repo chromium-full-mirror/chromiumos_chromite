@@ -48,7 +48,7 @@ class ToolchainInstallError(Error, cros_build_lib.RunCommandError):
         result: cros_build_lib.CompletedProcess,
         exception: Optional[Exception] = None,
         tc_info: Optional[List["package_info.PackageInfo"]] = None,
-    ):
+    ) -> None:
         """ToolchainInstallError init.
 
         Args:
@@ -203,7 +203,9 @@ class ToolchainInstaller:
     This class installs the toolchain into the given sysroots.
     """
 
-    def __init__(self, force: bool, configure: bool, cbuild: str, pkgdir: str):
+    def __init__(
+        self, force: bool, configure: bool, cbuild: str, pkgdir: str
+    ) -> None:
         """ToolchainInstaller configuration.
 
         |force| and |configure| alter the installer's behavior (details below).
@@ -443,7 +445,7 @@ class ToolchainInfo:
         _PKG_RPCSVC: "net-libs/rpcsvc-proto",
     }
 
-    def __init__(self, target: str, cbuild: str):
+    def __init__(self, target: str, cbuild: str) -> None:
         """ToolchainInfo init.
 
         Args:

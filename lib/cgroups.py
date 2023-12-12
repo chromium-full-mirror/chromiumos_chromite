@@ -194,7 +194,7 @@ class Cgroup:
         parent=None,
         _is_root=False,
         _overwrite=True,
-    ):
+    ) -> None:
         """Initalize a cgroup instance.
 
         Args:
@@ -764,7 +764,7 @@ class ContainChildren(cros_build_lib.PrimaryPidContextManager):
     to ensure that it cleanses any children before returning.
     """
 
-    def __init__(self, node, pool_name=None, sigterm_timeout=10):
+    def __init__(self, node, pool_name=None, sigterm_timeout=10) -> None:
         super().__init__()
         self.node = node
         self.child = None

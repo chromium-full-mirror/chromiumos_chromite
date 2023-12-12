@@ -11,7 +11,7 @@ functionality that can eventually be centralized here.
 import functools
 import os
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, TYPE_CHECKING, Union
+from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -45,7 +45,7 @@ class Chroot:
         env: Optional[Dict[str, str]] = None,
         goma: Optional["goma_lib.Goma"] = None,
         remoteexec: Optional["remoteexec_util.Remoteexec"] = None,
-    ):
+    ) -> None:
         """Initialize.
 
         Args:
@@ -74,7 +74,7 @@ class Chroot:
         self.cache_dir = cache_dir or None
         self.chrome_root = chrome_root or None
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if self.__class__ is other.__class__:
             return (
                 self.path == other.path

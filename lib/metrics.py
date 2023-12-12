@@ -63,13 +63,13 @@ def _FlushingProcessClosed():
 class ProxyMetric:
     """Redirects any method calls to the message queue."""
 
-    def __init__(self, metric, metric_args, metric_kwargs):
+    def __init__(self, metric, metric_args, metric_kwargs) -> None:
         self.metric = metric
         self.metric_args = metric_args
         self.reset_after = metric_kwargs.pop("reset_after", False)
         self.metric_kwargs = metric_kwargs
 
-    def __getattr__(self, method_name):
+    def __getattr__(self, method_name: str):
         """Redirects all method calls to the MESSAGE_QUEUE."""
 
         def enqueue(*args, **kwargs) -> None:
@@ -132,7 +132,7 @@ class MockMetric:
     def _mock_method(self, *args, **kwargs) -> None:
         pass
 
-    def __getattr__(self, _):
+    def __getattr__(self, _: str):
         return self._mock_method
 
 
@@ -168,13 +168,13 @@ class FieldSpecAdapter:
         }
     )
 
-    def __init__(self, metric_cls, *args, **kwargs):
+    def __init__(self, metric_cls, *args, **kwargs) -> None:
         self._metric_cls = metric_cls
         self._args = args
         self._kwargs = kwargs
         self._instance = _MISSING
 
-    def __getattr__(self, prop):
+    def __getattr__(self, prop: str):
         """Return a wrapper which constructs the metric object on demand.
 
         Args:
@@ -879,7 +879,7 @@ class RuntimeBreakdownTimer:
 
     def __init__(
         self, name, fields=None, description=None, field_spec=_MISSING
-    ):
+    ) -> None:
         self._name = name
         self._fields = fields
         self._field_spec = field_spec

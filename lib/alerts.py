@@ -98,7 +98,7 @@ class GmailServer(MailServer):
 
     TOKEN_URI = "https://accounts.google.com/o/oauth2/token"
 
-    def __init__(self, token_cache_file, token_json_file=None):
+    def __init__(self, token_cache_file, token_json_file=None) -> None:
         """Initialize GmailServer.
 
         If token_cache_file contains valid credentials, it will be used.
@@ -194,7 +194,7 @@ class SmtpServer(MailServer):
     SMTP_RETRY_COUNT = 3
     SMTP_RETRY_DELAY = 30
 
-    def __init__(self, smtp_server=None):
+    def __init__(self, smtp_server=None) -> None:
         """Initialize SmtpServer.
 
         Args:

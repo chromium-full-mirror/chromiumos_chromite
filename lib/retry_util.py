@@ -43,7 +43,7 @@ class _RetryDelayStrategy:
     Please see WithRetry class document for details.
     """
 
-    def __init__(self, sleep=0, backoff_factor=1, jitter=0):
+    def __init__(self, sleep=0, backoff_factor=1, jitter=0) -> None:
         if sleep < 0:
             raise ValueError("sleep must be >= 0: %s" % sleep)
 
@@ -145,7 +145,7 @@ class WithRetry:
         raise_first_exception_on_failure=True,
         exception_to_raise=None,
         status_callback=None,
-    ):
+    ) -> None:
         """Initialize.
 
         Args:

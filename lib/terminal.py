@@ -25,7 +25,7 @@ class Color:
     RESET = "\033[0m"
     BACKGROUND_RESET = "\u001b[0m"
 
-    def __init__(self, enabled: Optional[bool] = None):
+    def __init__(self, enabled: Optional[bool] = None) -> None:
         """Create a new Color object, optionally disabling color output.
 
         Args:

@@ -89,7 +89,7 @@ class QueryTarget(abc.ABC):
 class Overlay(QueryTarget):
     """An overlay, e.g., src/third_party/chromiumos-overlay."""
 
-    def __init__(self, path: Union[str, "os.PathLike[str]"]):
+    def __init__(self, path: Union[str, "os.PathLike[str]"]) -> None:
         self.path = Path(path)
 
     @classmethod
@@ -278,7 +278,7 @@ class Profile(QueryTarget):
             cls._obj_cache[path] = super().__new__(cls)
         return cls._obj_cache[path]
 
-    def __init__(self, name: str, path: Path, overlay: Overlay):
+    def __init__(self, name: str, path: Path, overlay: Overlay) -> None:
         self.name = name
         self.path = path
         self.overlay = overlay
@@ -537,7 +537,7 @@ class Ebuild(QueryTarget):
     ebuild_file: Path
     overlay: Overlay
 
-    def __init__(self, ebuild_file: Path, overlay: Overlay):
+    def __init__(self, ebuild_file: Path, overlay: Overlay) -> None:
         self.ebuild_file = ebuild_file
         self.overlay = overlay
 
@@ -685,7 +685,7 @@ class Board(QueryTarget):
         name: str,
         private_overlay: Optional[Overlay] = None,
         public_overlay: Optional[Overlay] = None,
-    ):
+    ) -> None:
         self.name = name
         self.private_overlay = private_overlay
         self.public_overlay = public_overlay
@@ -803,7 +803,7 @@ class Query:
         target: Type[QueryTarget],
         board: Optional[str] = None,
         overlays: str = constants.BOTH_OVERLAYS,
-    ):
+    ) -> None:
         self._filters = []
         self._iter = target.find_all(board=board, overlays=overlays)
         self._consumed = False

@@ -28,7 +28,7 @@ MANIFEST = git.ManifestCheckout.Cached(constants.SOURCE_ROOT)
 class _Package:
     """Package helper class."""
 
-    def __init__(self, package):
+    def __init__(self, package) -> None:
         self.package = package
 
 
@@ -544,7 +544,7 @@ CROS_WORKON_SUBTREE="%s"
 class StubEBuild(portage_util.EBuild):
     """Test helper to StubEBuild."""
 
-    def __init__(self, path, subdir_support):
+    def __init__(self, path, subdir_support) -> None:
         super().__init__(path, subdir_support)
         self.is_workon = True
         self.is_stable = True

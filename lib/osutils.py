@@ -1119,7 +1119,7 @@ class TempDir:
     is returned as a string by a 'with' statement.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         """Constructor. Creates the temporary directory.
 
         Args:
@@ -1190,7 +1190,7 @@ class TempDir:
     def __del__(self) -> None:
         self.Cleanup()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.tempdir if self.tempdir else ""
 
 
@@ -1677,7 +1677,7 @@ class MountOverlayContext:
 
     OVERLAY_FS_MOUNT_ERRORS = (32,)
 
-    def __init__(self, lower_dir, upper_dir, mount_dir, cleanup=False):
+    def __init__(self, lower_dir, upper_dir, mount_dir, cleanup=False) -> None:
         """Initialize.
 
         Args:

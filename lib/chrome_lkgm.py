@@ -26,14 +26,14 @@ class Error(Exception):
 class NoChromiumSrcDir(Error):
     """Error thrown when no chromium src dir is found."""
 
-    def __init__(self, path):
+    def __init__(self, path) -> None:
         super().__init__(f"No chromium src dir found in {path}")
 
 
 class MissingLkgmFile(Error):
     """Error thrown when we cannot get the version from CHROMEOS_LKGM."""
 
-    def __init__(self, path):
+    def __init__(self, path) -> None:
         super().__init__(f"Cannot parse CHROMEOS_LKGM file: {path}")
 
 
@@ -66,7 +66,7 @@ class ChromeOSVersionFinder:
         fallback_versions,
         chrome_src=None,
         use_external_config=None,
-    ):
+    ) -> None:
         """Create a new object
 
         Args:

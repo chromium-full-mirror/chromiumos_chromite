@@ -114,7 +114,7 @@ class UnsupportedServoVersionError(Error):
 class Servo:
     """Data class for servos."""
 
-    def __init__(self, servo_type, serial):
+    def __init__(self, servo_type, serial) -> None:
         assert servo_type in VALID_SERVOS
         self.version = servo_type
         self.serial = serial

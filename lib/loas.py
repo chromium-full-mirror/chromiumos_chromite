@@ -26,7 +26,7 @@ class LoasError(Exception):
 class Loas:
     """Class for holding all the various LOAS cruft."""
 
-    def __init__(self, user, email_notify, email_server=None):
+    def __init__(self, user, email_notify, email_server=None) -> None:
         """Initialize.
 
         Args:

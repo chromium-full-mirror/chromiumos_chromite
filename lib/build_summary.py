@@ -6,6 +6,7 @@
 
 import json
 import logging
+from typing import Any
 
 from chromite.lib import constants
 from chromite.utils import pformat
@@ -55,7 +56,7 @@ class BuildSummary:
         buildroot_layout=0,
         branch="",
         distfiles_ts=None,
-    ):
+    ) -> None:
         self.build_number = build_number
         self.buildbucket_id = buildbucket_id
         self.master_build_id = master_build_id
@@ -64,7 +65,7 @@ class BuildSummary:
         self.branch = branch
         self.distfiles_ts = distfiles_ts
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         for a in self._PERSIST_ATTRIBUTES:
             if hasattr(other, a) != hasattr(self, a):
                 return False
@@ -72,7 +73,7 @@ class BuildSummary:
                 return False
         return True
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "BuildSummary(%s)" % self.to_json()
 
     def from_json(self, raw_json) -> None:

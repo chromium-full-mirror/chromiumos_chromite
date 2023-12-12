@@ -313,7 +313,7 @@ class MetricConsumer:
     before quitting.
     """
 
-    def __init__(self, message_q):
+    def __init__(self, message_q) -> None:
         # If our parent dies, finish flushing before exiting.
         self.reset_after_flush = []
         self.last_flush = 0

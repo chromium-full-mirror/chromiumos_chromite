@@ -44,7 +44,7 @@ logger = chromite.ChromiteLogger.getLogger(__name__)
 class Error(Exception):
     """Module base error class."""
 
-    def __init__(self, message: str, subtool: object):
+    def __init__(self, message: str, subtool: object) -> None:
         # TODO(build): Use self.add_note when Python 3.11 is available.
         super().__init__(f"{message}\nSubtool:\n{subtool}")
 
@@ -264,7 +264,7 @@ class Subtool:
         # Resolve symlinks (to avoid type=inode/symlink).
         return cls._FILETYPE_DECODER.GetType(str(path.resolve()))
 
-    def __init__(self, message: str, path: Path, work_root: Path):
+    def __init__(self, message: str, path: Path, work_root: Path) -> None:
         """Loads from a .textpoto file contents.
 
         Args:
@@ -668,7 +668,7 @@ class InstalledSubtools:
         config_dir: Path,
         work_root: Path,
         glob: str = SUBTOOLS_EXPORTS_GLOB,
-    ):
+    ) -> None:
         logger.notice(
             "Loading subtools from %s/%s with Protobuf library v%s",
             config_dir,
@@ -715,7 +715,7 @@ class BundledSubtools:
             package linking to the full URL of the uploaded instance.
     """
 
-    def __init__(self, bundles: List[Path]):
+    def __init__(self, bundles: List[Path]) -> None:
         """Creates and initializes a BundledSubtools wrapper."""
         self.bundles = bundles
         self.built_packages: List[Path] = []

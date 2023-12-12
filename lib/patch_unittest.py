@@ -1086,7 +1086,7 @@ class TestGerritPatch(TestGitRepoPatch):
 
         # Suppress the behaviour pointing the project url at actual gerrit,
         # instead slaving it back to a local repo for tests.
-        def __init__(self, *args, **kwargs):
+        def __init__(self, *args, **kwargs) -> None:
             cros_patch.GerritPatch.__init__(self, *args, **kwargs)
             assert hasattr(self, "patch_dict")
             self.project_url = self.patch_dict["_unittest_url_bypass"]
@@ -1572,7 +1572,7 @@ class TestFormatting(cros_test_lib.TestCase):
 class MockPatchFactory:
     """Helper class to create patches or series of them, for unit tests."""
 
-    def __init__(self, patch_mock=None):
+    def __init__(self, patch_mock=None) -> None:
         """Constructor for factory.
 
         patch_mock: Optional PatchMock instance.

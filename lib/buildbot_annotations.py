@@ -12,7 +12,7 @@ import json
 class Annotation:
     """Formatted annotation for buildbot."""
 
-    def __init__(self, name, args):
+    def __init__(self, name, args) -> None:
         """Initialize instance.
 
         Args:
@@ -22,7 +22,7 @@ class Annotation:
         self.name = name
         self.args = args
 
-    def __str__(self):
+    def __str__(self) -> str:
         inner_text = "@".join(
             _EscapeArgText(text)
             for text in itertools.chain([self.name], self.args)
@@ -44,7 +44,7 @@ class _NamedAnnotation(Annotation, metaclass=abc.ABCMeta):
     Concrete subclasses should define the ANNOTATION_NAME class attribute.
     """
 
-    def __init__(self, *args):
+    def __init__(self, *args) -> None:
         super().__init__(self.ANNOTATION_NAME, args)
 
     # TODO(b/236161656): Fix.
@@ -62,7 +62,7 @@ class StepLink(_NamedAnnotation):
     # Some callers pass in text/url by kwarg.  We leave the full signature here
     # so the API is a bit cleaner/more obvious.
     # pylint: disable=useless-super-delegation
-    def __init__(self, text, url):
+    def __init__(self, text, url) -> None:
         super().__init__(text, url)
 
 
@@ -95,7 +95,7 @@ class SetBuildProperty(_NamedAnnotation):
 
     ANNOTATION_NAME = "SET_BUILD_PROPERTY"
 
-    def __init__(self, name, value):
+    def __init__(self, name, value) -> None:
         super().__init__(name, json.dumps(value))
 
 
@@ -104,10 +104,10 @@ class SetEmailNotifyProperty(_NamedAnnotation):
 
     ANNOTATION_NAME = "SET_BUILD_PROPERTY"
 
-    def __init__(self, name, value):
+    def __init__(self, name, value) -> None:
         super().__init__(name, json.dumps(value))
 
-    def __str__(self):
+    def __str__(self) -> str:
         inner_text = "@".join(
             text for text in itertools.chain([self.name], self.args)
         )

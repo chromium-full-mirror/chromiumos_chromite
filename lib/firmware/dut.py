@@ -27,7 +27,7 @@ class DutConnectionError(Error):
 class DutControl:
     """Wrapper for dut_control calls."""
 
-    def __init__(self, port):
+    def __init__(self, port) -> None:
         self._base_cmd = ["dut-control"]
         if port:
             self._base_cmd.append("--port=%s" % port)

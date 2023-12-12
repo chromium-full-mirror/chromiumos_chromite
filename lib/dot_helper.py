@@ -13,7 +13,7 @@ class Subgraph:
 
     _valid_ranks = {"source", "sink", "same", "min", "max", None}
 
-    def __init__(self, rank=None):
+    def __init__(self, rank=None) -> None:
         self._rank = rank
         self._nodes = []
         self._subgraphs = []
@@ -86,7 +86,7 @@ class Subgraph:
 class Graph(Subgraph):
     """A top-level graph in dot. It's basically a subgraph with a name."""
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         Subgraph.__init__(self)
         self._name = name
 

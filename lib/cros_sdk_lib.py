@@ -59,7 +59,7 @@ class Error(Exception):
 class ChrootDeprecatedError(Error):
     """Raised when the chroot is too old to update."""
 
-    def __init__(self, version):
+    def __init__(self, version) -> None:
         # Message defined here because it's long and gives specific
         # instructions.
         super().__init__(
@@ -619,7 +619,7 @@ def InitLatestVersion(version_file=None, hooks_dir=None) -> None:
 class ChrootUpdater:
     """Chroot version and update related functionality."""
 
-    def __init__(self, version_file=None, hooks_dir=None):
+    def __init__(self, version_file=None, hooks_dir=None) -> None:
         if version_file:
             # We have one. Just here to skip the logic below since we don't need
             # it.
@@ -809,7 +809,7 @@ class ChrootCreator:
         self,
         chroot: chroot_lib.Chroot,
         sdk_tarball: Path,
-    ):
+    ) -> None:
         """Initialize.
 
         Args:
@@ -1183,7 +1183,7 @@ class ChrootEnteror:
         cmd: Optional[List[str]] = None,
         cwd: Optional[Path] = None,
         read_only: bool = False,
-    ):
+    ) -> None:
         """Initialize.
 
         Args:
@@ -1318,7 +1318,9 @@ def EnterChroot(*args, **kwargs) -> cros_build_lib.CompletedProcess:
 class _ChrootWritable:
     """A context manager for ensuring the Chroot mount writability."""
 
-    def __init__(self, writable: bool, path: Union[str, os.PathLike] = "/"):
+    def __init__(
+        self, writable: bool, path: Union[str, os.PathLike] = "/"
+    ) -> None:
         self._want_read_only = not writable
         self._chroot_path = path
         self._needs_remount = False
@@ -1405,7 +1407,7 @@ class ChrootReadWrite(_ChrootWritable):
             # Back to regular SDK shell, read-only.
     """
 
-    def __init__(self, path: Union[str, os.PathLike] = "/"):
+    def __init__(self, path: Union[str, os.PathLike] = "/") -> None:
         """Initialize a ChrootReadWrite context manager.
 
         Args:
@@ -1422,7 +1424,7 @@ class ChrootReadOnly(_ChrootWritable):
     where we need a writable chroot. See ChrootReadWrite for more info.
     """
 
-    def __init__(self, path: Union[str, os.PathLike] = "/"):
+    def __init__(self, path: Union[str, os.PathLike] = "/") -> None:
         """Initialize a ChrootReadOnly context manager.
 
         Args:

@@ -80,10 +80,10 @@ class ArtifactMeta(type):
 
     ARTIFACT_NAME = None
 
-    def __str__(cls):
+    def __str__(cls) -> str:
         return "%s_%s" % (cls.__name__, cls.ARTIFACT_NAME)
 
-    def __repr__(cls):
+    def __repr__(cls) -> str:
         return str(cls)
 
 
@@ -135,7 +135,7 @@ class Artifact(metaclass=ArtifactMeta):
         is_regex_name=False,
         optional_name=None,
         alt_name=None,
-    ):
+    ) -> None:
         """Constructor.
 
         Args:
@@ -396,18 +396,18 @@ class Artifact(metaclass=ArtifactMeta):
                     self._SaveException(e)
                     raise e
 
-    def __str__(self):
+    def __str__(self) -> str:
         """String representation for the download."""
         return "%s->%s" % (self.name, self.install_dir)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
 
 class MultiArtifact(Artifact):
     """Wrapper for artifacts where name matches multiple items.."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Takes Artifact args.
 
         Args:
@@ -432,7 +432,7 @@ class MultiArtifact(Artifact):
 class BundledArtifact(Artifact):
     """A single build artifact bundle e.g. zip file or tar file."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Takes Artifact args with some additional ones.
 
         Args:
@@ -540,7 +540,7 @@ class BundledArtifact(Artifact):
 class AutotestTarball(BundledArtifact):
     """Wrapper around the autotest tarball to download from gsutil."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         # We don't store/check explicit file lists in Autotest tarball markers;
         # this can get huge and unwieldy, and generally make little sense.
@@ -623,7 +623,7 @@ def _CreateNewArtifact(tag, base, name, *fixed_args, **fixed_kwargs):
         ARTIFACT_TAG = tag
         ARTIFACT_NAME = name
 
-        def __init__(self, *args, **kwargs):
+        def __init__(self, *args, **kwargs) -> None:
             all_args = fixed_args + args
             all_kwargs = {}
             all_kwargs.update(fixed_kwargs)
@@ -849,7 +849,7 @@ class BaseArtifactFactory:
         files,
         build,
         requested_to_optional_map,
-    ):
+    ) -> None:
         """Initializes the member variables for the factory.
 
         Args:
@@ -943,7 +943,7 @@ class BaseArtifactFactory:
 class ChromeOSArtifactFactory(BaseArtifactFactory):
     """A factory class that generates ChromeOS build artifacts from names."""
 
-    def __init__(self, download_dir, artifacts, files, build):
+    def __init__(self, download_dir, artifacts, files, build) -> None:
         """Pass the ChromeOS artifact map to the base class."""
         super().__init__(
             chromeos_artifact_map,
@@ -958,7 +958,7 @@ class ChromeOSArtifactFactory(BaseArtifactFactory):
 class AndroidArtifactFactory(BaseArtifactFactory):
     """A factory class that generates Android build artifacts from names."""
 
-    def __init__(self, download_dir, artifacts, files, build):
+    def __init__(self, download_dir, artifacts, files, build) -> None:
         """Pass the Android artifact map to the base class."""
         super().__init__(
             android_artifact_map,

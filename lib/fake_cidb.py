@@ -20,7 +20,7 @@ class FakeCIDBConnection:
 
     NUM_RESULTS_NO_LIMIT = -1
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.buildTable = []
         self.buildStageTable = {}
         self.failureTable = {}

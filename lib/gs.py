@@ -147,7 +147,7 @@ class ErrorDetails(NamedTuple):
 class GSCounter:
     """A counter class for Google Storage."""
 
-    def __init__(self, ctx, path):
+    def __init__(self, ctx, path) -> None:
         """Create a counter object.
 
         Args:
@@ -506,7 +506,7 @@ wheel: <
         retries=None,
         sleep=None,
         cache_user=None,
-    ):
+    ) -> None:
         """Constructor.
 
         Args:

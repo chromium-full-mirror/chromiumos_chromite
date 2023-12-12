@@ -242,7 +242,7 @@ class DiskLayout:
         self,
         disk_layout_path: Optional[Union[os.PathLike, str]] = None,
         adjust_partition: Optional[List[str]] = None,
-    ):
+    ) -> None:
         """Init Method.
 
         Specify the disk layout path and the partition adjustments that need to

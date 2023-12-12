@@ -157,7 +157,7 @@ class VM(device.Device):
     # kvm_* should match kvm_intel, kvm_amd, etc.
     NESTED_KVM_GLOB = "/sys/module/kvm_*/parameters/nested"
 
-    def __init__(self, opts):
+    def __init__(self, opts) -> None:
         """Initialize VM.
 
         Args:

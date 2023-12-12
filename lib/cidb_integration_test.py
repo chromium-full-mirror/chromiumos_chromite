@@ -54,7 +54,7 @@ class LocalSqlServerTestCase(cros_test_lib.TempDirTestCase):
     MYSQLD = "/usr/sbin/mysqld"
     MYSQLD_SHUTDOWN_TIMEOUT_S = 30
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         cros_test_lib.TempDirTestCase.__init__(self, *args, **kwargs)
         self.mysqld_host = None
         self.mysqld_port = None

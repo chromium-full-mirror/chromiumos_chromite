@@ -29,7 +29,7 @@ class FakeHTTPResponse:
 
     def __init__(
         self, body=b"", headers=(), reason=None, status=200, version=11
-    ):
+    ) -> None:
         if reason is None:
             reason = http.client.responses[status]
 

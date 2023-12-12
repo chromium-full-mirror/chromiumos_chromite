@@ -89,7 +89,7 @@ def GetSlavesAbortedBySelfDestructedMaster(master_build_identifier, buildstore):
 class BuilderStatus:
     """Object representing the status of a build."""
 
-    def __init__(self, status, message, dashboard_url=None):
+    def __init__(self, status, message, dashboard_url=None) -> None:
         """Constructor for BuilderStatus.
 
         Args:
@@ -277,7 +277,7 @@ class SlaveBuilderStatus:
         builders_array,
         dry_run,
         exclude_experimental=True,
-    ):
+    ) -> None:
         """Create an instance of SlaveBuilderStatus for a given master build.
 
         Args:
@@ -637,7 +637,7 @@ class BuilderStatusesFetcher:
         builders_array=None,
         exclude_experimental=True,
         dry_run=True,
-    ):
+    ) -> None:
         """Initialize BuilderStatusesFetcher.
 
         Args:

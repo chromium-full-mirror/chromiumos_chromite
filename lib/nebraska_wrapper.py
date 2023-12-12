@@ -66,7 +66,7 @@ class RemoteNebraskaWrapper(multiprocessing.Process):
         install_payloads_address=None,
         install_metadata_dir=None,
         ignore_appid=False,
-    ):
+    ) -> None:
         """Initializes the nebraska wrapper.
 
         Args:

@@ -310,7 +310,7 @@ class LockDict:
             # Critical section for 'bar'
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._lock = self._new_lock()
         self._dict = {}
 

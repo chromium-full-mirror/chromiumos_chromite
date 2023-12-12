@@ -79,7 +79,7 @@ class LoopbackPartitions:
         part_ids=None,
         mount_opts=("ro",),
         delete: bool = True,
-    ):
+    ) -> None:
         """Initialize.
 
         Args:
@@ -786,7 +786,7 @@ class SecurityTestConfig:
 
     def __init__(
         self, image: str, baselines: str, vboot_hash: str, directory: str
-    ):
+    ) -> None:
         """SecurityTest run configuration.
 
         Args:

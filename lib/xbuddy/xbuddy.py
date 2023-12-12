@@ -221,7 +221,7 @@ class XBuddy:
         images_dir: os.PathLike = "",
         static_dir: os.PathLike = DEFAULT_STATIC_DIR,
         gsutil_bin: Optional[os.PathLike] = None,
-    ):
+    ) -> None:
         """Initialize an XBuddy image file manager.
 
         Args:

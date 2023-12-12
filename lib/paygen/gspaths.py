@@ -108,7 +108,7 @@ class Image(utils.RestrictedAttrDict):
     )
     DEFAULT_IMAGE_TYPE = "recovery"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         # Pylint isn't able to follow utils.RestrictedAttrDict & _slots
@@ -124,7 +124,7 @@ class Image(utils.RestrictedAttrDict):
         if not self.image_type:
             self.image_type = Image.DEFAULT_IMAGE_TYPE
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.uri:
             return self.uri.split("/")[-1]
         else:
@@ -152,7 +152,7 @@ class DLCImage(Image):
     _name = "DLC Image definition"
     _slots = Image._slots + ("dlc_id", "dlc_package", "dlc_image")
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.uri:
             delim = "/"
             # All DLC images have the same image name, so differentiate by
@@ -173,11 +173,11 @@ class MiniOSImage(Image):
     _name = "MiniOS Image definition"
     _slots = Image._slots + ("minios",)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.minios = True
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.uri:
             return "%s (minios)" % self.uri.split("/")[-1]
         else:
@@ -202,7 +202,7 @@ class UnsignedImageArchive(utils.RestrictedAttrDict):
     _name = "Unsigned image archive definition"
     _slots = ("build", "milestone", "image_type", "uri")
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.uri:
             return "%s" % self.uri.split("/")[-1]
         else:
@@ -222,11 +222,11 @@ class UnsignedMiniOSImageArchive(UnsignedImageArchive):
     _name = "Unsigned MiniOS image archive definition"
     _slots = UnsignedImageArchive._slots + ("minios",)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.minios = True
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.uri:
             return "%s (minios)" % self.uri.split("/")[-1]
         else:
@@ -253,7 +253,7 @@ class Payload(utils.RestrictedAttrDict):
     _name = "Payload definition"
     _slots = ("tgt_image", "src_image", "build", "uri", "exists", "minios")
 
-    def __init__(self, exists=False, *args, **kwargs):
+    def __init__(self, exists=False, *args, **kwargs) -> None:
         kwargs.update(exists=exists)
         super().__init__(*args, **kwargs)
 
@@ -266,7 +266,7 @@ class Payload(utils.RestrictedAttrDict):
         if not self.build and self.tgt_image.build:
             self.build = Build(self.tgt_image.build)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.uri:
             return self.uri.split("/")[-1]
         else:

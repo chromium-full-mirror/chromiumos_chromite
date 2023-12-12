@@ -24,7 +24,7 @@ class Device:
 
     SSH_CONNECT_TIMEOUT = 30
 
-    def __init__(self, opts):
+    def __init__(self, opts) -> None:
         """Initialize Device.
 
         Args:

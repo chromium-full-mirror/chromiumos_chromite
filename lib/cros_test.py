@@ -30,7 +30,7 @@ _ADDITIONAL_LACROS_SUBDIR = "lacros_clang"
 class CrOSTest:
     """Class for running Chrome OS tests."""
 
-    def __init__(self, opts):
+    def __init__(self, opts) -> None:
         """Initialize CrOSTest.
 
         Args:

@@ -62,7 +62,7 @@ class DownloadCache:
 
     _GET_FILE_SPIN_DELAY = 2
 
-    def __init__(self, cache_dir, max_age=ONE_DAY, cache_size=None):
+    def __init__(self, cache_dir, max_age=ONE_DAY, cache_size=None) -> None:
         """Create a DownloadCache.
 
         Since Purging is not performed very often, we can exceed max_age or

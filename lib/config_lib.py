@@ -168,7 +168,7 @@ class AttrDict(dict):
     as read-only attributes.
     """
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         """Support attribute-like access to each dict entry."""
         if name in self:
             return self[name]
@@ -673,7 +673,7 @@ def DefaultSiteParameters():
 class SiteConfig(dict):
     """This holds a set of named BuildConfig values."""
 
-    def __init__(self, defaults=None, templates=None):
+    def __init__(self, defaults=None, templates=None) -> None:
         """Init.
 
         Args:

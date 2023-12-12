@@ -24,7 +24,9 @@ class ObjectFactory:
     _setup_instance = None
     _types = {}
 
-    def __init__(self, object_name, setup_types, allowed_transitions=None):
+    def __init__(
+        self, object_name, setup_types, allowed_transitions=None
+    ) -> None:
         """ObjectFactory constructor.
 
         Args:

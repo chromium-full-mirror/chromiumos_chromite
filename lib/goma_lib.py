@@ -99,7 +99,7 @@ class Goma:
         log_dir: Optional[Union[str, os.PathLike]] = None,
         stats_filename: Optional[Union[str, os.PathLike]] = None,
         counterz_filename: Optional[Union[str, os.PathLike]] = None,
-    ):
+    ) -> None:
         """Initializes Goma instance.
 
         This ensures that |self.goma_log_dir| directory exists (if missing,
@@ -344,7 +344,9 @@ class LogsArchiver:
     client-specified archive directory.
     """
 
-    def __init__(self, log_dir, dest_dir, stats_file=None, counterz_file=None):
+    def __init__(
+        self, log_dir, dest_dir, stats_file=None, counterz_file=None
+    ) -> None:
         """Initializes the archiver.
 
         Args:

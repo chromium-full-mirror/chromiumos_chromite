@@ -11,7 +11,7 @@ from pathlib import Path
 import re
 import shutil
 import tempfile
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -47,7 +47,7 @@ class VersionInfo:
         chrome_branch: Optional[str] = None,
         incr_type: str = "build",
         version_file: Optional[Union[str, os.PathLike]] = None,
-    ):
+    ) -> None:
         """Initialize.
 
         Args:
@@ -295,22 +295,22 @@ class VersionInfo:
         """Useful method to return a comparable version of a LKGM string."""
         return cls(version_string).VersionComponents()
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         return self.VersionComponents() < other.VersionComponents()
 
-    def __le__(self, other):
+    def __le__(self, other) -> bool:
         return self.VersionComponents() <= other.VersionComponents()
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return self.VersionComponents() == other.VersionComponents()
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         return self.VersionComponents() != other.VersionComponents()
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         return self.VersionComponents() > other.VersionComponents()
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         return self.VersionComponents() >= other.VersionComponents()
 
     __hash__ = None
@@ -325,5 +325,5 @@ class VersionInfo:
         # Default to build incr_type.
         return ""
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "%s(%s)" % (self.__class__, self.VersionString())

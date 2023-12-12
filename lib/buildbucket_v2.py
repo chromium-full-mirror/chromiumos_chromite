@@ -454,7 +454,7 @@ class BuildbucketV2:
         self,
         test_env=False,
         access_token_retriever: Optional[Callable[[], str]] = None,
-    ):
+    ) -> None:
         """Constructor for Buildbucket V2 Build client.
 
         Args:

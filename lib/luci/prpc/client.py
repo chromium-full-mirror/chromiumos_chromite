@@ -89,7 +89,7 @@ class RpcError(Error):
     how to handle the error.
     """
 
-    def __init__(self, message, status_code, metadata):
+    def __init__(self, message, status_code, metadata) -> None:
         super().__init__(message)
         self.status_code = status_code
         self.metadata = metadata
@@ -184,7 +184,7 @@ class Client:
     Otherwise, they raise an Error.
     """
 
-    def __init__(self, hostname, service_description, insecure=False):
+    def __init__(self, hostname, service_description, insecure=False) -> None:
         """Initializes a new pRPC Client.
 
         Args:

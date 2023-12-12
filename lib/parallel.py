@@ -186,7 +186,7 @@ class _BackgroundTask(multiprocessing.Process):
 
     def __init__(
         self, task, queue, semaphore=None, task_args=None, task_kwargs=None
-    ):
+    ) -> None:
         """Create a new _BackgroundTask object.
 
         If semaphore is supplied, it will be acquired for the duration of the

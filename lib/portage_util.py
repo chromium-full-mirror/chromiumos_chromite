@@ -398,7 +398,7 @@ def _GetSysrootTool(
 class EBuildVersionFormatError(Error):
     """Exception for bad ebuild version string format."""
 
-    def __init__(self, filename):
+    def __init__(self, filename) -> None:
         self.filename = filename
         message = (
             "Ebuild file name %s does not match expected format." % filename
@@ -409,7 +409,7 @@ class EBuildVersionFormatError(Error):
 class EbuildFormatIncorrectError(Error):
     """Exception for bad ebuild format."""
 
-    def __init__(self, filename, message):
+    def __init__(self, filename, message) -> None:
         message = "Ebuild %s has invalid format: %s " % (filename, message)
         super().__init__(message)
 
@@ -538,7 +538,7 @@ class EBuild:
         git_commit_cmd = ["commit", "-a", "-m", message]
         cls._RunGit(overlay, git_commit_cmd)
 
-    def __init__(self, path, subdir_support=False):
+    def __init__(self, path, subdir_support=False) -> None:
         """Sets up data about an ebuild from its path.
 
         Args:
@@ -1415,7 +1415,7 @@ class PortageDB:
         root: Union[os.PathLike, str] = "/",
         vdb: Optional[os.PathLike] = None,
         package_install_path: Optional[os.PathLike] = None,
-    ):
+    ) -> None:
         """Initialize the internal structure for the database in the given root.
 
         Args:
@@ -1496,7 +1496,7 @@ class InstalledPackage:
     SYM = "sym"
     DIR = "dir"
 
-    def __init__(self, portage_db, pkgdir, category=None, pf=None):
+    def __init__(self, portage_db, pkgdir, category=None, pf=None) -> None:
         """Initialize the installed ebuild wrapper.
 
         Args:

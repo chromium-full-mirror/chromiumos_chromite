@@ -460,19 +460,19 @@ class EasyAttr(dict):
 
     __slots__ = ()
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str):
         try:
             return self[attr]
         except KeyError:
             raise AttributeError(attr)
 
-    def __delattr__(self, attr) -> None:
+    def __delattr__(self, attr: str) -> None:
         try:
             self.pop(attr)
         except KeyError:
             raise AttributeError(attr)
 
-    def __setattr__(self, attr, value) -> None:
+    def __setattr__(self, attr: str, value) -> None:
         self[attr] = value
 
     def __dir__(self):
@@ -482,7 +482,7 @@ class EasyAttr(dict):
 class LogFilter(logging.Filter):
     """A simple log filter that intercepts log messages and stores them."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         logging.Filter.__init__(self)
         self.messages = io.StringIO()
 
@@ -495,7 +495,7 @@ class LogFilter(logging.Filter):
 class LoggingCapturer:
     """Captures all messages emitted by the logging module."""
 
-    def __init__(self, logger_name="", log_level=logging.DEBUG):
+    def __init__(self, logger_name="", log_level=logging.DEBUG) -> None:
         self._log_filter = LogFilter()
         self._old_level = None
         self._log_level = log_level
@@ -551,7 +551,7 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
     # pagers to scroll.
     maxDiff = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         unittest.TestCase.__init__(self, *args, **kwargs)
         # This is set to keep pylint from complaining.
         self.__test_was_run__ = False
@@ -836,7 +836,7 @@ class OutputTestCase(TestCase):
         re.DOTALL,
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Base class __init__ takes a second argument."""
         TestCase.__init__(self, *args, **kwargs)
         self._output_capturer = None
@@ -1119,7 +1119,7 @@ class TempDirTestCase(TestCase):
     DELETE = True
     _NO_DELETE_TEMPDIR_OBJ = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         TestCase.__init__(self, *args, **kwargs)
         self.tempdir = None
         self._tempdir_obj = None
@@ -1206,7 +1206,7 @@ class TempDirTestCase(TestCase):
 class FakeSDKCache:
     """Creates a fake SDK Cache."""
 
-    def __init__(self, cache_dir, sdk_version="12225.0.0"):
+    def __init__(self, cache_dir, sdk_version="12225.0.0") -> None:
         """Creates a fake SDK Cache.
 
         Args:
@@ -1483,7 +1483,7 @@ class TestProgram(unittest.TestProgram):
     you can inject custom argv for example (to limit what tests run).
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.default_log_level = kwargs.pop("level", "critical")
         self._leaked_tempdir = None
 

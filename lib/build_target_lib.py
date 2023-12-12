@@ -10,7 +10,7 @@ import functools
 import os
 from pathlib import Path
 import re
-from typing import Iterator, Optional
+from typing import Any, Iterator, Optional
 
 from chromite.lib import build_query
 from chromite.lib import constants
@@ -30,7 +30,7 @@ class BuildTarget:
         profile: Optional[str] = None,
         build_root: Optional[str] = None,
         public: Optional[bool] = None,
-    ):
+    ) -> None:
         """Build Target init.
 
         Args:
@@ -49,7 +49,7 @@ class BuildTarget:
         else:
             self.root = get_default_sysroot_path(self.name)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if self.__class__ is other.__class__:
             return (
                 self.name == other.name
@@ -60,10 +60,10 @@ class BuildTarget:
 
         return NotImplemented
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.name)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     @property

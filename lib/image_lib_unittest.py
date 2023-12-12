@@ -61,7 +61,7 @@ FAKE_DATE_STRING = "2022_07_20_203326"
 class LoopbackPartitionsMock(image_lib.LoopbackPartitions):
     """Mocked loopback partition class to use in unit tests."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.enable_rw_called = set()
         self.disable_rw_called = set()

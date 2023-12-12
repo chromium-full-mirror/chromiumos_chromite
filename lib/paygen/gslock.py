@@ -85,7 +85,9 @@ class Lock:
     time.
     """
 
-    def __init__(self, gs_path, lock_timeout_mins=120, dry_run=False, ctx=None):
+    def __init__(
+        self, gs_path, lock_timeout_mins=120, dry_run=False, ctx=None
+    ) -> None:
         """Initializer for the lock.
 
         Args:

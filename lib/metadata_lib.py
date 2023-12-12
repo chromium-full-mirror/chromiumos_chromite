@@ -34,7 +34,7 @@ class _StubLock:
 class CBuildbotMetadata:
     """Class for recording metadata about a run."""
 
-    def __init__(self, metadata_dict=None, multiprocess_manager=None):
+    def __init__(self, metadata_dict=None, multiprocess_manager=None) -> None:
         """Constructor for CBuildbotMetadata.
 
         Args:
@@ -362,7 +362,9 @@ class BuildData:
 
     SHEETS_VER_KEY = "sheets_version"
 
-    def __init__(self, metadata_url, metadata_dict, sheets_version=None):
+    def __init__(
+        self, metadata_url, metadata_dict, sheets_version=None
+    ) -> None:
         self.metadata_url = metadata_url
         self.metadata_dict = metadata_dict
 

@@ -149,7 +149,7 @@ class Qemu:
     _BINFMT_PATH = "/proc/sys/fs/binfmt_misc"
     _BINFMT_REGISTER_PATH = os.path.join(_BINFMT_PATH, "register")
 
-    def __init__(self, sysroot, arch=None):
+    def __init__(self, sysroot, arch=None) -> None:
         if arch is None:
             arch = self.DetectArch(None, sysroot)
         self.arch = arch

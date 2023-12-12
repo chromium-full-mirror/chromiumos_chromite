@@ -8,7 +8,7 @@ from collections import namedtuple
 import multiprocessing
 import os
 import time
-from typing import Callable, Optional, Tuple
+from typing import Any, Callable, Optional, Tuple
 
 from chromite.utils import key_value_store
 
@@ -38,7 +38,7 @@ class RestrictedAttrDict(dict):
 
     _slots = ()
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Ensure that only the expected keys are added."""
         dict.__init__(self, *args, **kwargs)
 
@@ -52,7 +52,7 @@ class RestrictedAttrDict(dict):
                 self._slots,
             )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Hash of the class to make hashable."""
 
         def _hash(obj):
@@ -69,15 +69,15 @@ class RestrictedAttrDict(dict):
 
         return _hash(self)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """Equality of the class with respect to hashing logic."""
         return type(self) is type(other) and super().__eq__(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         """Inequality of the class."""
         return not self.__eq__(other)
 
-    def __setattr__(self, name, val) -> None:
+    def __setattr__(self, name: str, val) -> None:
         """Setting an attribute, actually sets a dictionary value."""
         if name not in self._slots:
             raise AttributeError(
@@ -86,7 +86,7 @@ class RestrictedAttrDict(dict):
             )
         self[name] = val
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         """Fetching an attribute, actually fetches a dictionary value."""
         if name not in self:
             raise AttributeError(
@@ -100,7 +100,7 @@ class RestrictedAttrDict(dict):
             raise KeyError(name)
         dict.__setitem__(self, name, val)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Default stringification behavior."""
         name = self._name if hasattr(self, "_name") else self.__class__.__name__
         return "%s (%s)" % (name, self._GetAttrString())
@@ -196,7 +196,7 @@ class MemoryConsumptionSemaphore:
         unchecked_acquires: int = 0,
         total_max: int = 10,
         clock: Callable = time.time,
-    ):
+    ) -> None:
         """Create a new MemoryConsumptionSemaphore.
 
         Args:

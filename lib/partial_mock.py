@@ -63,10 +63,10 @@ class Comparator:
         """Returns whether rhs compares the same thing."""
         return isinstance(rhs, type(self)) and self.__dict__ == rhs.__dict__
 
-    def __eq__(self, rhs: object) -> bool:
+    def __eq__(self, rhs: Any) -> bool:
         return self.Equals(rhs)
 
-    def __ne__(self, rhs: object) -> bool:
+    def __ne__(self, rhs: Any) -> bool:
         return not self.Equals(rhs)
 
 
@@ -129,7 +129,7 @@ class InOrder(Comparator):
 class Regex(Comparator):
     """Checks if a string matches a regular expression."""
 
-    def __init__(self, pattern: str, flags: int = 0):
+    def __init__(self, pattern: str, flags: int = 0) -> None:
         """Initialize.
 
         Args:

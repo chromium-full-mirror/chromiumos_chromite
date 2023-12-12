@@ -39,7 +39,7 @@ class AutoStubMixIn:
 class SimpleMock:
     """Really simple manual class mock."""
 
-    def __init__(self, unit_test):
+    def __init__(self, unit_test) -> None:
         """Initialize SimpleMock.
 
         Do not call __init__ if you want to use the global call list to detect

@@ -32,7 +32,7 @@ class Error(Exception):
     Attribute response is response body.
     """
 
-    def __init__(self, msg, status_code, response, headers=None):
+    def __init__(self, msg, status_code, response, headers=None) -> None:
         super().__init__(msg)
         self.status_code = status_code
         self.headers = headers

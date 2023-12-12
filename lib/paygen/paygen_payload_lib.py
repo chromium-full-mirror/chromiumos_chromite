@@ -123,7 +123,7 @@ class PaygenSigner:
         payload_build=None,
         local_signing=False,
         docker_image=None,
-    ):
+    ) -> None:
         """Initializer.
 
         Args:
@@ -258,7 +258,7 @@ class PaygenPayload:
         upload: bool = True,
         cache_dir: Optional[Union[str, os.PathLike]] = None,
         static: bool = True,
-    ):
+    ) -> None:
         """Init for PaygenPayload.
 
         Args:

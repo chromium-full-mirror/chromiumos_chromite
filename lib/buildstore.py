@@ -32,7 +32,7 @@ class BuildStoreException(Exception):
 class BuildIdentifier:
     """The class maintains all the IDs corresponding to a build."""
 
-    def __init__(self, cidb_id=None, buildbucket_id=None):
+    def __init__(self, cidb_id=None, buildbucket_id=None) -> None:
         """Instantiate a container class for all IDs.
 
         Args:
@@ -55,7 +55,7 @@ class BuildStore:
         _write_to_cidb=True,
         cidb_creds=None,
         for_service=None,
-    ):
+    ) -> None:
         """Get an instance of the BuildStore.
 
         Args:
@@ -684,7 +684,7 @@ class BuildStore:
 class FakeBuildStore:
     """Fake BuildStore class to be used only in unittests."""
 
-    def __init__(self, fake_cidb_conn=None):
+    def __init__(self, fake_cidb_conn=None) -> None:
         super().__init__()
         if fake_cidb_conn:
             self.fake_cidb = fake_cidb_conn

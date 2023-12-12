@@ -26,7 +26,7 @@ _REMOTEEXEC_LOG_FILE_PATTERN = (
 class LogsArchiver:
     """Manages archiving remoteexec log files."""
 
-    def __init__(self, dest_dir: Path):
+    def __init__(self, dest_dir: Path) -> None:
         """Initializes the archiver.
 
         Args:

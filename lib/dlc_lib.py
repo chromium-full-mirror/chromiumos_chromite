@@ -197,7 +197,7 @@ class DlcArtifacts:
         image: str,
         meta: str,
         uri_path: str = None,
-    ):
+    ) -> None:
         self.image = image
         self.image_name = os.path.basename(self.image)
         if self.image_name != DLC_IMAGE:
@@ -305,7 +305,7 @@ class EbuildParams:
         use_logical_volume=False,
         *args,  # pylint: disable=unused-argument
         **kwargs,  # pylint: disable=unused-argument
-    ):
+    ) -> None:
         """Initializes the object.
 
         When adding a new variable in here, always set a default value. The
@@ -435,7 +435,7 @@ class EbuildParams:
         with open(path, "rb") as fp:
             return cls(**json.load(fp))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.__dict__)
 
 
@@ -457,7 +457,7 @@ class DlcMetadata:
         metadata_path: str,
         max_file_size: int = DLC_META_FILE_SIZE_LIMIT,
         sudo: bool = False,
-    ):
+    ) -> None:
         """Object initializer.
 
         Args:
@@ -698,7 +698,7 @@ class DlcGenerator:
         src_dir: str = None,
         reproducible: bool = False,
         license_file: os.PathLike = None,
-    ):
+    ) -> None:
         """Object initializer.
 
         Args:

@@ -51,7 +51,7 @@ class UserDB:
     # So in this case, T(24) * 1 second = 300 seconds.
     _DB_LOCK_RETRIES = 24
 
-    def __init__(self, sysroot):
+    def __init__(self, sysroot) -> None:
         self._sysroot = sysroot
         self._user_cache = None
         self._group_cache = None

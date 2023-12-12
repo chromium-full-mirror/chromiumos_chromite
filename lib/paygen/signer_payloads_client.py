@@ -48,7 +48,7 @@ class SignerPayloadsClientGoogleStorage:
 
     def __init__(
         self, chroot: chroot_lib.Chroot, build, work_dir, unique=None, ctx=None
-    ):
+    ) -> None:
         """This identifies the build and payload that need signatures.
 
         Args:
@@ -422,7 +422,9 @@ versionrev = %(version)s
 class UnofficialSignerPayloadsClient(SignerPayloadsClientGoogleStorage):
     """This class is a payload signer for local and test buckets."""
 
-    def __init__(self, chroot: chroot_lib.Chroot, private_key, work_dir=None):
+    def __init__(
+        self, chroot: chroot_lib.Chroot, private_key, work_dir=None
+    ) -> None:
         """A signer that signs an update payload with a given key.
 
         For example there is no test key that can be picked up by
@@ -517,7 +519,7 @@ class LocalSignerPayloadsClient:
 
     def __init__(
         self, docker_image: str, build: payload_pb2.Build, work_dir: str
-    ):
+    ) -> None:
         self._docker_image = docker_image
         self._build = build
         self._work_dir = work_dir

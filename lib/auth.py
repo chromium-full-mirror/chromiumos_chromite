@@ -228,7 +228,7 @@ def GitCreds(service_account_json=None):
 class AuthorizedHttp:
     """Authorized http instance"""
 
-    def __init__(self, get_access_token, http, **kwargs):
+    def __init__(self, get_access_token, http, **kwargs) -> None:
         self.get_access_token = get_access_token
         self.http = http if http is not None else httplib2.Http()
         self.token = self.get_access_token(**kwargs)

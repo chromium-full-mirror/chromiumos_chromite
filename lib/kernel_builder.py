@@ -26,7 +26,9 @@ class KernelBuildError(Error):
 class Builder:
     """A class for building kernel images."""
 
-    def __init__(self, board: str, work_dir: str, install_root: str, jobs: int):
+    def __init__(
+        self, board: str, work_dir: str, install_root: str, jobs: int
+    ) -> None:
         """Initialize this class.
 
         Args:

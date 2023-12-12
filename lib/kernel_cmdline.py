@@ -6,7 +6,7 @@
 
 import collections
 import re
-from typing import Iterable, Optional, Union
+from typing import Any, Iterable, Optional, Union
 
 
 class KernelArg:
@@ -15,7 +15,7 @@ class KernelArg:
     Valid KernelArgs are: 'arg', 'arg=', and 'arg=value'.
     """
 
-    def __init__(self, arg, value):
+    def __init__(self, arg, value) -> None:
         """Initialize the instance.
 
         Args:
@@ -36,10 +36,10 @@ class KernelArg:
         self.arg = arg
         self.value = value
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         return not self.__eq__(other)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         # Surrounding quotes in .value are optional.
         return (
             isinstance(other, KernelArg)
@@ -51,10 +51,10 @@ class KernelArg:
             )
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.Format()
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(str(self))
 
     def Format(self) -> str:
@@ -133,13 +133,13 @@ class KernelArgList(
                 if not isinstance(kv, KernelArg):
                     raise ValueError(kv)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._data)
 
     def __iter__(self):
         return iter(self._data)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if isinstance(other, KernelArgList):
             # pylint: disable=protected-access
             return self._data == other._data
@@ -147,7 +147,7 @@ class KernelArgList(
             # Comparing to a list of KeyValues is permitted.
             return self._data == other
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         return not self.__eq__(other)
 
     def __add__(self, other):
@@ -159,7 +159,7 @@ class KernelArgList(
         self._data += other._data
         return self
 
-    def __contains__(self, item):
+    def __contains__(self, item) -> bool:
         """Return True if |item| is in the list.
 
         Args:
@@ -327,7 +327,7 @@ class KernelArgList(
         for arg, value in kwargs.items():
             self[arg] = KernelArg(arg, value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.Format()
 
     def Format(self, separator: str = " ") -> str:
@@ -347,7 +347,7 @@ class CommandLine:
         init_args: Any arguments for init (after the first '--').
     """
 
-    def __init__(self, cmdline):
+    def __init__(self, cmdline) -> None:
         args = KernelArgList(cmdline)
         idx = args.index("--")
         if idx is None:
@@ -355,17 +355,17 @@ class CommandLine:
         self.kern_args = args[:idx]
         self.init_args = args[idx + 1 :]
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         return not self.__eq__(other)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return (
             isinstance(other, CommandLine)
             and self.kern_args == other.kern_args
             and self.init_args == other.init_args
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.Format()
 
     def Format(self):
@@ -432,7 +432,7 @@ class DmConfig:
         devices: OrderedDict of devices, by device name.
     """
 
-    def __init__(self, boot_arg):
+    def __init__(self, boot_arg) -> None:
         """Initialize.
 
         Args:
@@ -451,17 +451,17 @@ class DmConfig:
             self.devices[dev.name] = dev
             idx += dev.num_rows + 1
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         return not self.__eq__(other)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return (
             isinstance(other, DmConfig)
             and self.num_devices == other.num_devices
             and self.devices == other.devices
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.Format()
 
     def Format(self):
@@ -484,7 +484,7 @@ class DmDevice:
         rows: List of DmLine objects for the device.
     """
 
-    def __init__(self, config_lines):
+    def __init__(self, config_lines) -> None:
         """Initialize.
 
         Args:
@@ -497,10 +497,10 @@ class DmDevice:
         self.num_rows = int(rows)
         self.rows = [DmLine(row) for row in config_lines[1 : self.num_rows + 1]]
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         return not self.__eq__(other)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return (
             isinstance(other, DmDevice)
             and self.name == other.name
@@ -510,7 +510,7 @@ class DmDevice:
             and self.rows == other.rows
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.Format()
 
     def Format(self):
@@ -568,7 +568,7 @@ class DmLine:
         args: list of KernelArg args for the line.
     """
 
-    def __init__(self, line):
+    def __init__(self, line) -> None:
         """Parse a single line of dmsetup config."""
         # Allow leading whitespace.
         start, num, target, args = line.strip().split(" ", 3)
@@ -577,10 +577,10 @@ class DmLine:
         self.target_type = target
         self.args = KernelArgList(args)
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         return not self.__eq__(other)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return (
             isinstance(other, DmLine)
             and self.start == other.start
@@ -589,7 +589,7 @@ class DmLine:
             and self.args == other.args
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.Format()
 
     def Format(self):

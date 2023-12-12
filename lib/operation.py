@@ -62,7 +62,7 @@ class ProgressBarOperation:
     # By default, update the progress bar every 100 ms.
     _PROGRESS_BAR_UPDATE_INTERVAL = 0.1
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._queue = multiprocessing.Queue()
         self._stderr = None
         self._stdout = None
@@ -236,7 +236,7 @@ class ProgressBarOperation:
 class ParallelEmergeOperation(ProgressBarOperation):
     """ProgressBarOperation specific for scripts/parallel_emerge.py."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._total = None
         self._completed = 0
@@ -341,7 +341,7 @@ class Operation:
         expectation that output would ordinarily be visible.
     """
 
-    def __init__(self, name, color=None):
+    def __init__(self, name, color=None) -> None:
         """Create a new operation.
 
         Args:

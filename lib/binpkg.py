@@ -56,7 +56,7 @@ class PackageIndex:
             serves as a unique identifier for the package.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Constructor."""
 
         # The header tracks general key/value pairs that don't apply to any
@@ -354,7 +354,7 @@ class PackageIndexInfo:
         build_target=None,
         profile=None,
         location="",
-    ):
+    ) -> None:
         self.snapshot_sha = snapshot_sha
         self.snapshot_number = snapshot_number
         self.build_target = build_target or build_target_lib.BuildTarget(
@@ -363,7 +363,7 @@ class PackageIndexInfo:
         self.profile = profile or sysroot_lib.Profile()
         self.location = location
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """Check equality."""
         # BuildTarget is in the process of dropping Profile and root (which
         # properly belong to the Sysroot, not the BuildTarget. As such, they are

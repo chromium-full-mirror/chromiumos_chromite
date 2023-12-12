@@ -49,14 +49,14 @@ class Node(NamedTuple):
     ) -> List[str]:
         return [self.name]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
 class RootNode:
     """A group of nodes."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.children = []
 
     def reduce(
@@ -73,7 +73,7 @@ class RootNode:
             )
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return " ".join(_dedupe_in_order(str(x) for x in self.children))
 
 
@@ -91,7 +91,7 @@ class AllOfNode(RootNode):
             ret = (tuple(ret),)
         return ret
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"( {super().__str__()} )"
 
 
@@ -119,14 +119,14 @@ class AnyOfNode(RootNode):
 
         return list(_flatten(choices[:1]))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"|| ( {super().__str__()} )"
 
 
 class UseNode(RootNode):
     """A conditional node."""
 
-    def __init__(self, flag: str):
+    def __init__(self, flag: str) -> None:
         super().__init__()
         self.flag = flag
 
@@ -150,7 +150,7 @@ class UseNode(RootNode):
             else []
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f"{self.flag}? ( " + " ".join(str(x) for x in self.children) + " )"
         )

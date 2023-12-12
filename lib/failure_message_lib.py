@@ -131,7 +131,9 @@ class StageFailureMessage:
     message instance from the stage failure information stored in CIDB.
     """
 
-    def __init__(self, stage_failure, extra_info=None, stage_prefix_name=None):
+    def __init__(
+        self, stage_failure, extra_info=None, stage_prefix_name=None
+    ) -> None:
         """Construct a StageFailureMessage instance.
 
         Args:
@@ -163,7 +165,7 @@ class StageFailureMessage:
                 self.stage_name
             )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             "[failure id] %s [stage name] %s [stage prefix name] %s "
             "[exception type] %s [exception category] %s [exception message] %s"
@@ -249,7 +251,7 @@ class PackageBuildFailureMessage(StageFailureMessage):
 class CompoundFailureMessage(StageFailureMessage):
     """Message class contains information of a CompoundFailureMessage."""
 
-    def __init__(self, stage_failure, **kwargs):
+    def __init__(self, stage_failure, **kwargs) -> None:
         """Construct a CompoundFailureMessage instance.
 
         Args:
@@ -260,7 +262,7 @@ class CompoundFailureMessage(StageFailureMessage):
 
         self.inner_failures = []
 
-    def __str__(self):
+    def __str__(self) -> str:
         msg_str = super().__str__()
 
         for failure in self.inner_failures:

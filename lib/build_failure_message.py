@@ -16,7 +16,7 @@ class BuildFailureMessage:
 
     def __init__(
         self, message_summary, failure_messages, internal, reason, builder
-    ):
+    ) -> None:
         """Create a BuildFailureMessage instance.
 
         Args:
@@ -34,7 +34,7 @@ class BuildFailureMessage:
         # builder should match build_config, e.g. self._run.config.name.
         self.builder = str(builder)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.message_summary
 
     def BuildFailureMessageToStr(self):

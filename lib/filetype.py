@@ -54,7 +54,7 @@ class FileTypeDecoder:
         "application/gzip": "binary/compressed/gzip",
     }
 
-    def __init__(self, root="/"):
+    def __init__(self, root="/") -> None:
         """Initializes the internal state.
 
         Args:

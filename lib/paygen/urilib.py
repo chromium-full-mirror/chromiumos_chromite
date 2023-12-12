@@ -35,7 +35,7 @@ TYPE_LOCAL = PROTOCOL_FILE
 class NotSupportedForTypes(RuntimeError):
     """Raised when operation is not supported for all particular file type"""
 
-    def __init__(self, extra_msg=None, *uri_types):
+    def __init__(self, extra_msg=None, *uri_types) -> None:
         # pylint: disable=protected-access
         function = sys._getframe(1).f_code.co_name
         msg = "Function %s not supported for set of URIs with types: %s" % (
@@ -51,7 +51,7 @@ class NotSupportedForTypes(RuntimeError):
 class NotSupportedBetweenTypes(RuntimeError):
     """Raised when operation is not supported between particular file types"""
 
-    def __init__(self, uri_type1, uri_type2, extra_msg=None):
+    def __init__(self, uri_type1, uri_type2, extra_msg=None) -> None:
         # pylint: disable=protected-access
         function = sys._getframe(1).f_code.co_name
         msg = "Function %s not supported between %s and %s URIs" % (

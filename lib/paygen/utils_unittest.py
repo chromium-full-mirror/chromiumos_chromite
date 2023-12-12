@@ -37,7 +37,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
             """Return the current mock time."""
             return self._now
 
-        def __init__(self):
+        def __init__(self) -> None:
             """Init the clock."""
             self._now = 0.0
 

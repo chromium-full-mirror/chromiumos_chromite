@@ -21,14 +21,14 @@ if cidb.sqlalchemy_imported:
 class RetryableOperationalError(EnvironmentError):
     """An operational error with retryable error code."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(1053, "retryable")
 
 
 class FatalOperationalError(EnvironmentError):
     """An operational error with fatal error code."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(9999, "fatal")
 
 

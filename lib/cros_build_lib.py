@@ -199,7 +199,7 @@ class CompletedProcess(subprocess.CompletedProcess):
         args: Optional[Sequence[str]] = None,
         returncode: Optional[int] = None,
         **kwargs: Any,
-    ):
+    ) -> None:
         super().__init__(args=args, returncode=returncode, **kwargs)
 
     @property
@@ -251,7 +251,7 @@ class CalledProcessError(subprocess.CalledProcessError):
         stderr=None,
         msg=None,
         exception=None,
-    ):
+    ) -> None:
         if exception is not None and not isinstance(exception, Exception):
             raise TypeError(
                 "exception must be an exception instance; got %r" % (exception,)
@@ -324,10 +324,10 @@ class CalledProcessError(subprocess.CalledProcessError):
             items.append(msg)
         return "\n".join(items)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.Stringify()
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return (
             isinstance(other, type(self))
             and self.returncode == other.returncode
@@ -338,7 +338,7 @@ class CalledProcessError(subprocess.CalledProcessError):
             and self.exception == other.exception
         )
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         return not self.__eq__(other)
 
 
@@ -358,7 +358,7 @@ class RunCommandError(CalledProcessError):
         msg: str,
         result: Optional[CompletedProcess] = None,
         exception: Optional[Exception] = None,
-    ):
+    ) -> None:
         # This makes mocking tests easier.
         if result is None:
             result = CompletedProcess()
@@ -1647,7 +1647,7 @@ class PrimaryPidContextManager:
     # doing cleanup.
     ALTERNATE_PRIMARY_PID = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._invoking_pid = None
 
     def __enter__(self) -> Optional[Any]:

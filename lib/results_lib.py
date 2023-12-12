@@ -41,7 +41,9 @@ def LoadCheckpoint(buildroot) -> None:
 class RecordedTraceback:
     """This class represents a traceback recorded in the list of results."""
 
-    def __init__(self, failed_stage, failed_prefix, exception, traceback):
+    def __init__(
+        self, failed_stage, failed_prefix, exception, traceback
+    ) -> None:
         """Construct a RecordedTraceback object.
 
         Args:
@@ -71,7 +73,7 @@ class _Results:
 
     SPLIT_TOKEN = r"\_O_/"
 
-    def __init__(self):
+    def __init__(self) -> None:
         # List of results for all stages that's built up as we run. Members are
         # of the form:
         #   ('name', SUCCESS | FORGIVEN | Exception, None | description)

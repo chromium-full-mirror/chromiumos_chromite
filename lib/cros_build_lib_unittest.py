@@ -14,6 +14,7 @@ from pathlib import Path
 import shutil
 import signal
 import subprocess
+from typing import Any
 from unittest import mock
 
 from chromite.lib import constants
@@ -446,7 +447,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         class RejectSigIgn:
             """Make sure the signal action is not SIG_IGN."""
 
-            def __eq__(self, other):
+            def __eq__(self, other: Any) -> bool:
                 return other != signal.SIG_IGN
 
         # Verify the signals checked/setup are correct.

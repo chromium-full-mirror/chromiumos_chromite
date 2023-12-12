@@ -53,7 +53,7 @@ Group = collections.namedtuple(
 class AccountDatabase:
     """Parses, validates, and combines account databases from overlays."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Construct an an empty instance."""
         self.groups = {}
         self.users = {}

@@ -184,7 +184,7 @@ class DevServerWrapper(multiprocessing.Process):
         log_dir=None,
         src_image=None,
         board=None,
-    ):
+    ) -> None:
         """Initialize a DevServerWrapper instance.
 
         Args:

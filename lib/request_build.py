@@ -74,7 +74,7 @@ class RequestBuild:
         master_buildbucket_id=None,
         bucket=INTERNAL_SWARMING_BUILDBUCKET_BUCKET,
         requested_bot=None,
-    ):
+    ) -> None:
         """Construct the object.
 
         Args:

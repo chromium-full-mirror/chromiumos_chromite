@@ -45,7 +45,7 @@ class GerritHelper:
     # Fields that appear in gerrit change query results.
     MORE_CHANGES = "_more_changes"
 
-    def __init__(self, host, remote, print_cmd=True):
+    def __init__(self, host, remote, print_cmd=True) -> None:
         """Initialize.
 
         Args:

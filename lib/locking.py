@@ -50,7 +50,7 @@ class _Lock(cros_build_lib.PrimaryPidContextManager):
         locktype=LOCKF,
         blocking=True,
         blocking_timeout=None,
-    ):
+    ) -> None:
         """Initialize this instance.
 
         Two types of locks are available: LOCKF and FLOCK.
@@ -257,7 +257,7 @@ class FileLock(_Lock):
         world_writable=False,
         blocking=True,
         blocking_timeout=None,
-    ):
+    ) -> None:
         """Initializer for FileLock.
 
         Args:
@@ -338,7 +338,7 @@ class PortableLinkLock:
     or useradd.
     """
 
-    def __init__(self, path, max_retry=0, sleep=1):
+    def __init__(self, path, max_retry=0, sleep=1) -> None:
         """Construct an instance.
 
         Args:
@@ -396,7 +396,7 @@ class PipeLock:
     Be sure to delete the lock when you're done to prevent fd leakage.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.read_fd, self.write_fd = os.pipe2(os.O_CLOEXEC)
 
     def Wait(self, size=1):

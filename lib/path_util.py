@@ -75,7 +75,7 @@ class ChrootPathResolver:
         source_from_path_repo: bool = True,
         chroot_path: Optional[Union[str, os.PathLike]] = None,
         out_path: Optional[os.PathLike] = None,
-    ):
+    ) -> None:
         if chroot_path and source_path:
             raise AssertionError(
                 "Either source_path or chroot_path must be specified"
