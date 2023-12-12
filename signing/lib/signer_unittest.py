@@ -156,7 +156,7 @@ class MockBaseSigner(signer.BaseSigner):
         required_keys_public=None,
         required_keys_private=None,
         required_keyblocks=None,
-    ):
+    ) -> None:
         """Create a Signer based on the passed required lists."""
         self.required_keys = required_keys or []
         self.required_keys_public = required_keys_public or []

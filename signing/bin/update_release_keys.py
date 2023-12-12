@@ -32,7 +32,7 @@ class KeyimportError(Error):
 class KeyringData:
     """A collection of keyset information."""
 
-    def __init__(self, prod_dir, base_dir, options, signer_config):
+    def __init__(self, prod_dir, base_dir, options, signer_config) -> None:
         self.prod_dir = prod_dir
         self.base_dir = base_dir
         self.options = options

@@ -55,7 +55,7 @@ class KeysetMock(keys.Keyset):
 
     ROOT_OF_TRUST_NAMES = ("ACME", "SHINRA", "WILE", "COYOTE")
 
-    def __init__(self, key_dir, has_loem_ini=True):
+    def __init__(self, key_dir, has_loem_ini=True) -> None:
         """Create a Keyset with root_of_trust-specific keys, and populate it."""
         # We do not actually create files for the KeyPairs, since the tests
         # care.

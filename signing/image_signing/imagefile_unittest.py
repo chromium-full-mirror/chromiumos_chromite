@@ -31,7 +31,9 @@ class CalculateRootfsHashMock(imagefile.CalculateRootfsHash):
     """Mock for CalculateRootfsHash, to make testing easier."""
 
     # pylint: disable=super-init-not-called
-    def __init__(self, image, kern_cmdline, calc_dm_args=None, calc_conf=None):
+    def __init__(
+        self, image, kern_cmdline, calc_dm_args=None, calc_conf=None
+    ) -> None:
         self.image = image
         self.kern_cmdline = kern_cmdline
         # pylint: disable=consider-using-with

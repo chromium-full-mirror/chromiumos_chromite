@@ -25,7 +25,7 @@ class BiosSigner(signer.FutilitySigner):
     required_keys_public = ("kernel_subkey",)
     required_keyblocks = ("firmware_data_key",)
 
-    def __init__(self, sig_id="", sig_dir="", preamble_flags=None):
+    def __init__(self, sig_id="", sig_dir="", preamble_flags=None) -> None:
         """Init BiosSigner
 
         Args:
@@ -309,7 +309,7 @@ class Shellball:
     https://sites.google.com/a/google.com/chromeos-partner/platforms/creating-a-firmware-updater
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename) -> None:
         """Initial Shellball, no disk changes.
 
         Args:

@@ -261,7 +261,7 @@ class CalculateRootfsHash:
             hashtree.
     """
 
-    def __init__(self, image, cmd_line):
+    def __init__(self, image, cmd_line) -> None:
         """Create the hash_image for the rootfs.
 
         Args:

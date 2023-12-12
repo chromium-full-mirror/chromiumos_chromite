@@ -26,6 +26,7 @@ Signing Flow:
 import configparser
 import os
 import re
+from typing import Any
 
 from chromite.lib import cros_build_lib
 
@@ -60,7 +61,7 @@ class SignerInstructionConfig:
         channel="",
         input_files=(),
         output_files=(),
-    ):
+    ) -> None:
         """Initialize Configuration."""
         # [general] section
         self.archive = archive
@@ -82,7 +83,7 @@ class SignerInstructionConfig:
             (output_files,) if isinstance(output_files, str) else output_files
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return self.ToIniDict() == other.ToIniDict()
 
     def ToIniDict(self):

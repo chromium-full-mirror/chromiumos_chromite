@@ -9,6 +9,7 @@ import configparser
 import logging
 import os
 import re
+from typing import Any
 
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
@@ -74,7 +75,7 @@ class KeyPair:
 
     def __init__(
         self, name, keydir, version=1, pub_ext=None, priv_ext=".vbprivk"
-    ):
+    ) -> None:
         """Initialize KeyPair.
 
         Args:
@@ -115,7 +116,7 @@ class KeyPair:
         keyblock_name = "".join(name.split("_data_key"))
         self.keyblock = os.path.join(keydir, keyblock_name + ".keyblock")
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return (
             isinstance(other, KeyPair)
             and self.name == other.name
@@ -190,7 +191,7 @@ class KeyVersions:
             None of the methods save the instance to disk automatically.
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename) -> None:
         self._versions = {}
         self._path = filename
         if os.path.exists(filename):
@@ -317,7 +318,7 @@ class Keyset:
     # self.root_of_trust_key_prefixes will be set to this.
     _root_of_trust_key_names = set(("firmware_data_key", "root_key"))
 
-    def __init__(self, key_dir=None):
+    def __init__(self, key_dir=None) -> None:
         """Initialize the Keyset from key_dir, if given.
 
         Note: every public key and keyblock must have an accompanying private
@@ -386,7 +387,7 @@ class Keyset:
                         # root_of_trust-specific key and do the right thing.
                         self.AddKey(key)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return (
             isinstance(other, Keyset)
             and self.root_of_trust_map == other.root_of_trust_map
