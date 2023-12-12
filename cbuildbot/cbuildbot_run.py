@@ -38,7 +38,7 @@ from chromite.service import android
 class RunAttributesError(Exception):
     """Base class for exceptions related to RunAttributes behavior."""
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Handle stringify because base class will just spit out self.args."""
         return self.msg
 
@@ -50,7 +50,7 @@ class VersionNotSetError(RuntimeError):
 class ParallelAttributeError(AttributeError):
     """Custom version of AttributeError."""
 
-    def __init__(self, attr, board=None, target=None, *args):
+    def __init__(self, attr, board=None, target=None, *args) -> None:
         if board or target:
             self.msg = (
                 "No such board-specific parallel run attribute %r for %s/%s"
@@ -61,14 +61,14 @@ class ParallelAttributeError(AttributeError):
         super().__init__(self.msg, *args)
         self.args = (attr, board, target) + tuple(args)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.msg
 
 
 class AttrNotPickleableError(RunAttributesError):
     """For when attribute value to queue is not pickleable."""
 
-    def __init__(self, attr, value, *args):
+    def __init__(self, attr, value, *args) -> None:
         self.msg = 'Run attribute "%s" value cannot be pickled: %r' % (
             attr,
             value,
@@ -80,7 +80,7 @@ class AttrNotPickleableError(RunAttributesError):
 class AttrTimeoutError(RunAttributesError):
     """For when timeout is reached while waiting for attribute value."""
 
-    def __init__(self, attr, *args):
+    def __init__(self, attr, *args) -> None:
         self.msg = 'Timed out waiting for value for run attribute "%s".' % attr
         super().__init__(self.msg, *args)
         self.args = (attr,) + tuple(args)
@@ -115,11 +115,11 @@ class LockableQueue:
             ... process the queue in some way.
     """
 
-    def __init__(self, manager):
+    def __init__(self, manager) -> None:
         self._queue = manager.Queue()
         self.rlock = manager.RLock()
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str):
         """Relay everything to the underlying Queue object at self._queue."""
         return getattr(self._queue, attr)
 
@@ -204,7 +204,7 @@ class RunAttributes:
         "_queues",  # Dict of parallel attribute names to LockableQueues.
     )
 
-    def __init__(self, multiprocess_manager):
+    def __init__(self, multiprocess_manager) -> None:
         # The __slots__ logic above confuses pylint.
         # https://bitbucket.org/logilab/pylint/issue/380/
         # pylint: disable=assigning-non-slot
@@ -508,7 +508,7 @@ class BoardRunAttributes:
 
     __slots__ = ("_attrs", "_board", "_target")
 
-    def __init__(self, attrs, board, target):
+    def __init__(self, attrs, board, target) -> None:
         """Initialize.
 
         Args:
@@ -593,7 +593,7 @@ class _BuilderRunBase:
         # self.bot_id      # Effective name of builder for this run.
     )
 
-    def __init__(self, site_config, options, multiprocess_manager):
+    def __init__(self, site_config, options, multiprocess_manager) -> None:
         self.site_config = site_config
         self.options = options
 
@@ -972,7 +972,7 @@ class _RealBuilderRun:
         "_config",  # BuildConfig to use for dynamically overriding self.config.
     )
 
-    def __init__(self, run_base, build_config):
+    def __init__(self, run_base, build_config) -> None:
         """_RealBuilderRun constructor.
 
         Args:
@@ -987,7 +987,7 @@ class _RealBuilderRun:
         for board in build_config.boards:
             self.attrs.RegisterBoardAttrs(board, build_config.name)
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str):
         # Remember, __getattr__ only called if attribute was not found normally.
         # In normal usage, the __init__ guarantees that self._run_base and
         # self._config will be present.  However, the unpickle process bypasses
@@ -1043,7 +1043,7 @@ class BuilderRun(_RealBuilderRun):
 
     def __init__(
         self, options, site_config, build_config, multiprocess_manager
-    ):
+    ) -> None:
         """Initialize.
 
         Args:

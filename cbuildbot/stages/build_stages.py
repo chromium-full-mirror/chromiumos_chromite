@@ -304,7 +304,9 @@ class InitSDKStage(generic_stages.BuilderStage):
     option_name = "build"
     category = constants.CI_INFRA_STAGE
 
-    def __init__(self, builder_run, buildstore, chroot_replace=False, **kwargs):
+    def __init__(
+        self, builder_run, buildstore, chroot_replace=False, **kwargs
+    ) -> None:
         """InitSDK constructor.
 
         Args:
@@ -433,7 +435,7 @@ class BuildPackagesStage(
         update_metadata=False,
         record_packages_under_test=True,
         **kwargs,
-    ):
+    ) -> None:
         if not afdo_use:
             suffix = self.UpdateSuffix("-" + constants.USE_AFDO_USE, suffix)
         super().__init__(
@@ -766,7 +768,7 @@ class UprevStage(generic_stages.BuilderStage):
     option_name = "uprev"
     category = constants.CI_INFRA_STAGE
 
-    def __init__(self, builder_run, buildstore, boards=None, **kwargs):
+    def __init__(self, builder_run, buildstore, boards=None, **kwargs) -> None:
         super().__init__(builder_run, buildstore, **kwargs)
         if boards is not None:
             self._boards = boards

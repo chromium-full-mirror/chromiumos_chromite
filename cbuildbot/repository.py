@@ -128,7 +128,7 @@ class RepoRepository:
         repo_cmd="repo",
         preserve_paths=(),
         git_cache_dir=None,
-    ):
+    ) -> None:
         """Initialize.
 
         Args:

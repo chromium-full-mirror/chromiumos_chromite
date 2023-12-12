@@ -63,14 +63,16 @@ class PatchExceededRecursionLimit(cros_patch.PatchException):
 class GerritHelperNotAvailable(gerrit.GerritException):
     """Exception thrown when a specific helper is requested but unavailable."""
 
-    def __init__(self, remote=config_lib.GetSiteParams().EXTERNAL_REMOTE):
+    def __init__(
+        self, remote=config_lib.GetSiteParams().EXTERNAL_REMOTE
+    ) -> None:
         gerrit.GerritException.__init__(self)
         # Stringify the pool so that serialization doesn't try serializing
         # the actual HelperPool.
         self.remote = remote
         self.args = (remote,)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             "Needed a remote=%s gerrit_helper, but one isn't allowed by this "
             "HelperPool instance." % (self.remote,)
@@ -130,7 +132,7 @@ def _FetchChangesForRepo(fetched_changes, by_repo, repo) -> None:
 class HelperPool:
     """Pool of allowed GerritHelpers to be used by CQ/PatchSeries."""
 
-    def __init__(self, cros_internal=None, cros=None):
+    def __init__(self, cros_internal=None, cros=None) -> None:
         """Initialize this instance with the given handlers.
 
         Most likely you want the classmethod SimpleCreate which takes boolean
@@ -205,7 +207,7 @@ class _ManifestShim:
     arguments -- they just always return information about this project.
     """
 
-    def __init__(self, path, tracking_branch, remote="origin"):
+    def __init__(self, path, tracking_branch, remote="origin") -> None:
         tracking_branch = "refs/remotes/%s/%s" % (
             remote,
             git.StripRefs(tracking_branch),
@@ -238,7 +240,7 @@ class PatchSeries:
         forced_manifest=None,
         deps_filter_fn=None,
         is_submitting=False,
-    ):
+    ) -> None:
         """Constructor.
 
         Args:

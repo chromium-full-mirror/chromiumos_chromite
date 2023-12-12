@@ -39,7 +39,7 @@ class Builder:
         patch_pool: TrybotPatchPool.
     """
 
-    def __init__(self, builder_run, buildstore):
+    def __init__(self, builder_run, buildstore) -> None:
         """Initializes instance variables. Must be called by all subclasses."""
         self._run = builder_run
         self.buildstore = buildstore

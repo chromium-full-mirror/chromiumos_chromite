@@ -389,7 +389,7 @@ class BuildSpecsManager:
         metadata=None,
         buildstore=None,
         buildbucket_client=None,
-    ):
+    ) -> None:
         """Initializes a build specs manager.
 
         Args:

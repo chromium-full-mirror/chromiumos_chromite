@@ -44,7 +44,7 @@ class SlaveStatus:
         buildbucket_client=None,
         version=None,
         dry_run=True,
-    ):
+    ) -> None:
         """Initializes a SlaveStatus instance.
 
         Args:

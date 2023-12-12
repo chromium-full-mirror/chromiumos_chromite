@@ -83,7 +83,7 @@ def ChrootArgs(options):
 class WorkspaceStageBase(generic_stages.BuilderStage):
     """Base class for Workspace stages."""
 
-    def __init__(self, builder_run, buildstore, build_root, **kwargs):
+    def __init__(self, builder_run, buildstore, build_root, **kwargs) -> None:
         """Initializer.
 
         Properties for subclasses:
@@ -190,7 +190,7 @@ class SyncStage(WorkspaceStageBase):
         patch_pool=None,
         copy_repo=None,
         **kwargs,
-    ):
+    ) -> None:
         """Initializer.
 
         Args:
@@ -347,7 +347,7 @@ class WorkspaceUprevStage(WorkspaceStageBase):
 
     config_name = "uprev"
 
-    def __init__(self, builder_run, buildstore, boards=None, **kwargs):
+    def __init__(self, builder_run, buildstore, boards=None, **kwargs) -> None:
         super().__init__(builder_run, buildstore, **kwargs)
         if boards is not None:
             self._boards = boards

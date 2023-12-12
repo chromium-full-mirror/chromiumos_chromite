@@ -21,7 +21,7 @@ class ScheduleSlavesStage(generic_stages.BuilderStage):
 
     category = constants.CI_INFRA_STAGE
 
-    def __init__(self, builder_run, buildstore, sync_stage, **kwargs):
+    def __init__(self, builder_run, buildstore, sync_stage, **kwargs) -> None:
         super().__init__(builder_run, buildstore, **kwargs)
         self.sync_stage = sync_stage
         self.buildbucket_client = buildbucket_v2.BuildbucketV2()

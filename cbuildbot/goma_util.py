@@ -37,7 +37,7 @@ class GomaLogUploader:
 
     def __init__(
         self, goma_log_dir, today=None, dry_run=False, cbb_config_name=""
-    ):
+    ) -> None:
         """Initializes the uploader.
 
         Args:

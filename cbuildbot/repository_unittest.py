@@ -36,7 +36,7 @@ class RepositoryTests(cros_test_lib.RunCommandTestCase):
 class RepoInitTests(cros_test_lib.TempDirTestCase, cros_test_lib.MockTestCase):
     """Test cases related to repository initialization."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self.repo = None
         super().__init__(*args, **kwargs)
 

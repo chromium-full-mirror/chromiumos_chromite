@@ -33,7 +33,7 @@ BoardConfig = collections.namedtuple("BoardConfig", ["board", "name"])
 class SimpleBuilder(generic_builders.Builder):
     """Builder that performs basic vetting operations."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.sync_stage = None
 
@@ -240,7 +240,7 @@ class DistributedBuilder(SimpleBuilder):
     they use a non-distributed builder code for the bulk of the work.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Initializes a buildbot builder.
 
         Extra variables:

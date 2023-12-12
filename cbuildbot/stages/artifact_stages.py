@@ -39,7 +39,7 @@ class NothingToArchiveException(Exception):
 
     # We duplicate __init__ to specify a default for message.
     # pylint: disable=useless-super-delegation
-    def __init__(self, message="No images found to archive."):
+    def __init__(self, message="No images found to archive.") -> None:
         super().__init__(message)
 
 
@@ -61,7 +61,7 @@ class ArchiveStage(
     # This stage is intended to run in the background, in parallel with tests.
     def __init__(
         self, builder_run, buildstore, board, chrome_version=None, **kwargs
-    ):
+    ) -> None:
         super().__init__(builder_run, buildstore, board, **kwargs)
         self.chrome_version = chrome_version
 
@@ -599,7 +599,9 @@ class UploadPrebuiltsStage(generic_stages.BoardSpecificBuilderStage):
     config_name = "prebuilts"
     category = constants.CI_INFRA_STAGE
 
-    def __init__(self, builder_run, buildstore, board, version=None, **kwargs):
+    def __init__(
+        self, builder_run, buildstore, board, version=None, **kwargs
+    ) -> None:
         self.prebuilts_version = version
         super().__init__(builder_run, buildstore, board, **kwargs)
 

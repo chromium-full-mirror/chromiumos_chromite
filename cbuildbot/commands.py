@@ -2287,7 +2287,7 @@ class ChromeSDK:
         cache_dir=None,
         target_tc=None,
         toolchain_url=None,
-    ):
+    ) -> None:
         """Initialization.
 
         Args:

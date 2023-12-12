@@ -42,7 +42,7 @@ class _LKGMCandidateInfo(chromeos_version.VersionInfo):
         chrome_branch=None,
         incr_type=None,
         version_file=None,
-    ):
+    ) -> None:
         """Initialize.
 
         You can instantiate this in a few ways:
@@ -138,7 +138,7 @@ class LKGMManager(manifest_version.BuildSpecsManager):
         metadata=None,
         buildstore=None,
         buildbucket_client=None,
-    ):
+    ) -> None:
         """Initialize an LKGM Manager.
 
         Args:

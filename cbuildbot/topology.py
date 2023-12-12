@@ -50,7 +50,7 @@ class LockedDictAccessException(Exception):
 class LockedDefaultDict(collections.defaultdict):
     """collections.defaultdict which cannot be read from until unlocked."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._locked = True
 

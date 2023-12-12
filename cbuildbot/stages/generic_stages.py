@@ -111,7 +111,7 @@ class BuilderStage:
         attempt=None,
         max_retry=None,
         build_root=None,
-    ):
+    ) -> None:
         """Create a builder stage.
 
         Args:
@@ -814,7 +814,9 @@ class BoardSpecificBuilderStage(BuilderStage):
       board_runattrs: BoardRunAttributes object for this stage.
     """
 
-    def __init__(self, builder_run, buildstore, board, suffix=None, **kwargs):
+    def __init__(
+        self, builder_run, buildstore, board, suffix=None, **kwargs
+    ) -> None:
         if not isinstance(board, str):
             raise TypeError("Expected string, got %r" % (board,))
 

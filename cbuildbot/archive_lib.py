@@ -79,7 +79,7 @@ class Archive:
     _BUILDBOT_ARCHIVE = "buildbot_archive"
     _TRYBOT_ARCHIVE = "trybot_archive"
 
-    def __init__(self, bot_id, version_getter, options, config):
+    def __init__(self, bot_id, version_getter, options, config) -> None:
         """Initialize.
 
         Args:

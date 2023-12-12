@@ -194,7 +194,7 @@ class BinhostConfWriter:
     # e.g., x86-alex-pre-flight-branch. When completed the
     # UploadPrebuiltsStage code can be thinned significantly.
 
-    def __init__(self, builder_run):
+    def __init__(self, builder_run) -> None:
         """BinhostConfWriter constructor.
 
         Args:

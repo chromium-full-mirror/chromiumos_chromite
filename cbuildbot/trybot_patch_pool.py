@@ -42,12 +42,14 @@ def BranchFilter(branch, patch):
 class TrybotPatchPool:
     """Represents patches specified by the user to test."""
 
-    def __init__(self, gerrit_patches=(), local_patches=(), remote_patches=()):
+    def __init__(
+        self, gerrit_patches=(), local_patches=(), remote_patches=()
+    ) -> None:
         self.gerrit_patches = tuple(gerrit_patches)
         self.local_patches = tuple(local_patches)
         self.remote_patches = tuple(remote_patches)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """Returns True if the pool has any patches."""
         return any(
             [self.gerrit_patches, self.local_patches, self.remote_patches]

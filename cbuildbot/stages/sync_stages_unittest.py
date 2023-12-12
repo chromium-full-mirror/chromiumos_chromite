@@ -208,7 +208,7 @@ class MockPatch(mock.MagicMock):
     remote = "cros"
     mock_diff_status = {}
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         # Flags can vary per-patch.

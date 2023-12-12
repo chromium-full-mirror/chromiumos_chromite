@@ -36,7 +36,7 @@ class PatchChangesStage(generic_stages.BuilderStage):
 
     category = constants.CI_INFRA_STAGE
 
-    def __init__(self, builder_run, buildstore, patch_pool, **kwargs):
+    def __init__(self, builder_run, buildstore, patch_pool, **kwargs) -> None:
         """Construct a PatchChangesStage.
 
         Args:
@@ -142,7 +142,7 @@ class BootstrapStage(PatchChangesStage):
     option_name = "bootstrap"
     category = constants.CI_INFRA_STAGE
 
-    def __init__(self, builder_run, buildstore, patch_pool, **kwargs):
+    def __init__(self, builder_run, buildstore, patch_pool, **kwargs) -> None:
         super().__init__(
             builder_run,
             buildstore,
@@ -319,7 +319,7 @@ class SyncStage(generic_stages.BuilderStage):
     output_manifest_sha1 = True
     category = constants.CI_INFRA_STAGE
 
-    def __init__(self, builder_run, buildstore, **kwargs):
+    def __init__(self, builder_run, buildstore, **kwargs) -> None:
         super().__init__(builder_run, buildstore, **kwargs)
         self.repo = None
         self.skip_sync = False
@@ -410,7 +410,7 @@ class ManifestVersionedSyncStage(SyncStage):
     output_manifest_sha1 = False
     category = constants.CI_INFRA_STAGE
 
-    def __init__(self, builder_run, buildstore, **kwargs):
+    def __init__(self, builder_run, buildstore, **kwargs) -> None:
         # Perform the sync at the end of the stage to the given manifest.
         super().__init__(builder_run, buildstore, **kwargs)
         self.repo = None
@@ -705,7 +705,7 @@ class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
     external_manager = None
     category = constants.CI_INFRA_STAGE
 
-    def __init__(self, builder_run, buildstore, **kwargs):
+    def __init__(self, builder_run, buildstore, **kwargs) -> None:
         super().__init__(builder_run, buildstore, **kwargs)
         # lkgm_manager deals with making sure we're synced to whatever manifest
         # we get back in GetNextManifest so syncing again is redundant.

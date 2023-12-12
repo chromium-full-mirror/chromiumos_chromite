@@ -72,7 +72,9 @@ class ManifestVersionedSyncCompletionStage(
     option_name = "sync"
     category = constants.CI_INFRA_STAGE
 
-    def __init__(self, builder_run, buildstore, sync_stage, success, **kwargs):
+    def __init__(
+        self, builder_run, buildstore, sync_stage, success, **kwargs
+    ) -> None:
         super().__init__(builder_run, buildstore, **kwargs)
         self.sync_stage = sync_stage
         self.success = success
@@ -103,7 +105,7 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
 
     category = constants.CI_INFRA_STAGE
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         # TODO(nxia): rename to _build_statuses as it contains local status and
         # slave statuses for master builds
@@ -675,7 +677,9 @@ class PublishUprevChangesStage(generic_stages.BuilderStage):
 
     category = constants.CI_INFRA_STAGE
 
-    def __init__(self, builder_run, buildstore, sync_stage, success, **kwargs):
+    def __init__(
+        self, builder_run, buildstore, sync_stage, success, **kwargs
+    ) -> None:
         """Constructor.
 
         Args:

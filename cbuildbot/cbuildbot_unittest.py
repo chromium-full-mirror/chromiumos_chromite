@@ -43,7 +43,7 @@ class BuilderRunMock(partial_mock.PartialMock):
         "DetermineChromeVersion",
     )
 
-    def __init__(self, verinfo):
+    def __init__(self, verinfo) -> None:
         super().__init__()
         self._version_info = verinfo
 

@@ -21,7 +21,7 @@ from chromite.lib import patch_unittest
 class MockManifest:
     """Helper class for Mocking Manifest objects."""
 
-    def __init__(self, path, **kwargs):
+    def __init__(self, path, **kwargs) -> None:
         self.root = path
         for key, attr in kwargs.items():
             setattr(self, key, attr)

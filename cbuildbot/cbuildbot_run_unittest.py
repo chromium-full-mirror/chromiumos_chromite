@@ -541,7 +541,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
     class _SetAttr:
         """Stage-like class to set attr on a BoardRunAttributes obj."""
 
-        def __init__(self, bra, attr, value, delay=1):
+        def __init__(self, bra, attr, value, delay=1) -> None:
             self.bra = bra
             self.attr = attr
             self.value = value
@@ -555,7 +555,7 @@ class BoardRunAttributesTest(_BuilderRunTestCase):
     class _WaitForAttr:
         """Stage-like class to wait for attr on BoardRunAttributes obj."""
 
-        def __init__(self, bra, attr, expected_value, timeout=10):
+        def __init__(self, bra, attr, expected_value, timeout=10) -> None:
             self.bra = bra
             self.attr = attr
             self.expected_value = expected_value
