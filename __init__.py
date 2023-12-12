@@ -34,7 +34,7 @@ class ChromiteLogger(logging.getLoggerClass()):  # type: ignore
             )
         return logger
 
-    def __init__(self, name: str, level: int = logging.NOTSET):
+    def __init__(self, name: str, level: int = logging.NOTSET) -> None:
         super().__init__(name, level=level)
         logging.addLevelName(NOTICE, "NOTICE")
 
