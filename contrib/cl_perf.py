@@ -401,7 +401,7 @@ class SwarmingOutputProcessor:
                 raise Exception("presumably impossible state")
 
         # Find steps that are present in both baseline and tested builds.
-        self.shared_steps = tested_steps.intersection(baseline_steps)
+        self.shared_steps = sorted(tested_steps.intersection(baseline_steps))
         logging.debug(
             "Steps that are shared:\n %s", "\n ".join(self.shared_steps)
         )
