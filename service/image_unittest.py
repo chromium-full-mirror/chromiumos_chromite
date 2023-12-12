@@ -1380,6 +1380,8 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
                 "-v",
                 f"{result_dir}:/out",
                 "-v",
+                "/mnt/host/source/src/platform/signing/keys:/keys",
+                "-v",
                 "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
                 "-e",
                 "LUCI_CONTEXT=/tmp/luci/luci_context.1234",

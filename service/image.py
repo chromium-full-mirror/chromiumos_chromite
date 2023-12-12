@@ -1056,6 +1056,12 @@ def SignImage(
 
         auth_args = _get_auth_args()
 
+        keys_dir = constants.SOURCE_ROOT / "src/platform/signing/keys"
+        if not keys_dir.exists():
+            raise InvalidArgumentError(
+                "Cannot sign on a host that doesn't have keysets checked out."
+            )
+
         # Invoke the docker container to sign the artifacts.
         cros_build_lib.run(
             [
@@ -1080,6 +1086,9 @@ def SignImage(
                 # Mount the output dir as a volume.
                 "-v",
                 f"{result_path}:/out",
+                # Mount the keyset checkout as a volume.
+                "-v",
+                f"{keys_dir}:/keys",
                 # Specify all the volumes and env variables to pipe in for
                 # luci auth.
                 *auth_args,
