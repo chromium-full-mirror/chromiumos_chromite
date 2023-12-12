@@ -137,7 +137,7 @@ def ChooseProfile(board, profile) -> None:
 class Profile:
     """Simple data container class for the profile data."""
 
-    def __init__(self, name, directory, override):
+    def __init__(self, name, directory, override) -> None:
         self.name = name
         self._directory = directory
         self.override = override
@@ -194,7 +194,7 @@ class Board:
         board: Optional[str] = None,
         variant: Optional[str] = None,
         board_root: Optional[str] = None,
-    ):
+    ) -> None:
         """Board constructor.
 
         board [+ variant] is given preference when both board and board_root are

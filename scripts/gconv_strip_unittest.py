@@ -137,7 +137,7 @@ module  INTERNAL                EUC-TW//                EUC-TW          1
         class _StubOpts:
             """Stub for GconvStrip args."""
 
-            def __init__(self, root):
+            def __init__(self, root) -> None:
                 self.root = root
                 self.dryrun = False
 

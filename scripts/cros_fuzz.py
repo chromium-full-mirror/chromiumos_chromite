@@ -118,7 +118,7 @@ class SysrootPath:
     # The actual path to the sysroot (from within the chroot).
     path_to_sysroot = None
 
-    def __init__(self, path):
+    def __init__(self, path) -> None:
         """Constructor.
 
         Args:
@@ -829,7 +829,7 @@ class ToolManager:
     # List of LLVM binaries we must install in sysroot.
     LLVM_BINARY_NAMES = ["gdbserver", "llvm-symbolizer", "llvm-profdata"]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.asan_symbolize_sysroot_path = GetSysrootPath(
             self.ASAN_SYMBOLIZE_PATH
         )
@@ -869,7 +869,7 @@ class LlvmBinary:
     # Path to the lddtree chromite script.
     LDDTREE_SCRIPT_PATH = constants.CHROMITE_BIN_DIR / "lddtree"
 
-    def __init__(self, binary):
+    def __init__(self, binary) -> None:
         self.binary = binary
         self.install_dir = GetSysrootPath(
             os.path.join("/", "usr", "libexec", binary)
@@ -942,7 +942,7 @@ class DeviceManager:
 
     MKNOD_MAJOR = "1"
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.dev_path_chroot = GetSysrootPath("/dev")
 
     def _GetDevicePath(self, device_name):
@@ -988,7 +988,7 @@ class ProcManager:
 
     PROC_PATH = "/proc"
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.proc_path_chroot = GetSysrootPath(self.PROC_PATH)
         self.is_mounted = osutils.IsMounted(self.proc_path_chroot)
 

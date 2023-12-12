@@ -26,7 +26,7 @@ class FindDebugDirMock(partial_mock.PartialMock):
     ATTRS = ("FindDebugDir",)
     DEFAULT_ATTR = "FindDebugDir"
 
-    def __init__(self, path, *args, **kwargs):
+    def __init__(self, path, *args, **kwargs) -> None:
         self.path = path
         super().__init__(*args, **kwargs)
 
@@ -930,7 +930,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
         class InvalidSymbolFile:
             """The name of an invalid symbol file + the expected error msg."""
 
-            def __init__(self, filename, expected_errors):
+            def __init__(self, filename, expected_errors) -> None:
                 self.filename = filename
                 self.expected_errors = expected_errors
 
@@ -1028,7 +1028,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
         class InvalidSymbolFile:
             """The invalid symbol file + the expected exception message"""
 
-            def __init__(self, filename, expected_exception_regex):
+            def __init__(self, filename, expected_exception_regex) -> None:
                 self.filename = filename
                 self.expected_exception_regex = expected_exception_regex
 
@@ -1183,7 +1183,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
                 func_lines=100000,
                 stack_lines=1000000,
                 line_number_lines=1000000,
-            ):
+            ) -> None:
                 self.name = name
                 self.expected_error = expected_error
                 self.func_lines = func_lines
@@ -1268,7 +1268,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
                 expected_error,
                 public_lines=200,
                 stack_lines=20000,
-            ):
+            ) -> None:
                 self.name = name
                 self.expected_error = expected_error
                 self.public_lines = public_lines
@@ -1349,7 +1349,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
                 func_lines=2000,
                 stack_lines=2000,
                 line_number_lines=20000,
-            ):
+            ) -> None:
                 self.name = name
                 self.expected_error = expected_error
                 self.func_lines = func_lines
@@ -1439,7 +1439,7 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
                 public_lines=2,
                 stack_lines=2000,
                 line_number_lines=10000,
-            ):
+            ) -> None:
                 self.name = name
                 self.expected_error = expected_error
                 self.func_lines = func_lines

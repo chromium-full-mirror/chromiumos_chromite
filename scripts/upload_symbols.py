@@ -155,7 +155,7 @@ class SymbolFile:
     UPLOADED = "uploaded"
     ERROR = "error"
 
-    def __init__(self, display_path, file_name):
+    def __init__(self, display_path, file_name) -> None:
         """An instance of this class represents a symbol file over time.
 
         Args:

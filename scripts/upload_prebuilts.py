@@ -27,7 +27,7 @@ import os
 from pathlib import Path
 import re
 import tempfile
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.cbuildbot import commands
@@ -79,21 +79,21 @@ _PREBUILT_MAKE_CONF = {
 class BuildTarget:
     """A board/variant/profile tuple."""
 
-    def __init__(self, board_variant, profile=None):
+    def __init__(self, board_variant, profile=None) -> None:
         self.board_variant = board_variant
         self.board, _, self.variant = board_variant.partition("_")
         self.profile = profile
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.profile:
             return "%s_%s" % (self.board_variant, self.profile)
         else:
             return self.board_variant
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return str(other) == str(self)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(str(self))
 
 
@@ -323,7 +323,7 @@ class PrebuiltUploader:
         report,
         chroot=None,
         out_dir=None,
-    ):
+    ) -> None:
         """Constructor for prebuilt uploader object.
 
         This object can upload host or prebuilt files to Google Storage.

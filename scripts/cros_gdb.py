@@ -110,7 +110,7 @@ To install the debug symbols for all available packages, run:
         ping,
         binary,
         gdb_binary,
-    ):
+    ) -> None:
         self.board = board
         self.sysroot = None
         self.prompt = "(gdb) "

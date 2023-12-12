@@ -66,7 +66,7 @@ class _ProcessMetricsCollector:
     old_cpu_times = {}
     old_io_counters = {}
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._metrics = [
             _ProcessMetric("adb", test_func=partial(_is_process_name, "adb")),
             _ProcessMetric("autoserv", test_func=_is_parent_autoserv),
@@ -196,7 +196,7 @@ class _ProcessMetricsCollector:
 class _ProcessMetric:
     """Class for gathering process metrics."""
 
-    def __init__(self, process_name, test_func=lambda proc: True):
+    def __init__(self, process_name, test_func=lambda proc: True) -> None:
         """Initialize instance.
 
         process_name is used to identify the metric stream.
@@ -279,7 +279,7 @@ class _ProcessMetric:
 class _CPUTimes:
     """A container for CPU times metrics."""
 
-    def __init__(self, v=None):
+    def __init__(self, v=None) -> None:
         self.system = v.system if v else 0
         self.user = v.user if v else 0
         self.iowait = v.iowait if v else 0
@@ -433,7 +433,7 @@ def _is_cmd_with_subcmd(cmd, subcmd, proc):
 class _CPUTimes:
     """A container for CPU times metrics."""
 
-    def __init__(self, v=None):
+    def __init__(self, v=None) -> None:
         self.system = v.system if v else 0
         self.user = v.user if v else 0
         self.iowait = v.iowait if v else 0
@@ -476,7 +476,7 @@ class _CPUTimes:
 class _IOCounters:
     """A container for I/O counter metrics."""
 
-    def __init__(self, v=None):
+    def __init__(self, v=None) -> None:
         self.read_count = v.read_count if v else 0
         self.read_bytes = v.read_bytes if v else 0
         self.read_chars = v.read_chars if v else 0

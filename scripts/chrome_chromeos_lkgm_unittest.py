@@ -21,7 +21,7 @@ class StubGerritChange:
         subject,
         mergeable=True,
         original_file_content=None,
-    ):
+    ) -> None:
         self._gerrit_number = gerrit_number
         self._subject = subject
         self._file_content = file_content

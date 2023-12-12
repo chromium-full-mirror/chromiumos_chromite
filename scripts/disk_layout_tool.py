@@ -412,7 +412,7 @@ class ArgsAction(argparse.Action):  # pylint: disable=no-init
 class HelpAllAction(argparse.Action):
     """Display all subcommands help in one go."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         if "nargs" in kwargs:
             raise ValueError("nargs not allowed")
         kwargs["nargs"] = 0

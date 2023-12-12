@@ -45,7 +45,7 @@ class ChromeLKGMCleaner:
         user_email: str,
         dryrun: bool = False,
         buildbucket_id: Optional[str] = None,
-    ):
+    ) -> None:
         self._dryrun = dryrun
         self._branch = branch
         self._gerrit_helper = gerrit.GetCrosExternal()
@@ -211,7 +211,7 @@ class ChromeLKGMCommitter:
         current_lkgm: chromeos_version.VersionInfo,
         dryrun: bool = False,
         buildbucket_id: Optional[str] = None,
-    ):
+    ) -> None:
         self._dryrun = dryrun
         self._branch = branch
         self._buildbucket_id = buildbucket_id

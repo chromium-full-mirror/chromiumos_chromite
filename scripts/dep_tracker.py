@@ -70,7 +70,7 @@ class DepTracker:
     in the root image.
     """
 
-    def __init__(self, root: Union[str, os.PathLike], jobs: int = 1):
+    def __init__(self, root: Union[str, os.PathLike], jobs: int = 1) -> None:
         # TODO(vapier): Convert this to Path.
         root = str(root)
         root_st = os.lstat(root)

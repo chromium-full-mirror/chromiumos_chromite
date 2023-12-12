@@ -56,7 +56,7 @@ class PushError(Exception):
 class MissingBoardInstructions(Exception):
     """Raised when a board lacks any signer instructions."""
 
-    def __init__(self, board, image_type, input_insns):
+    def __init__(self, board, image_type, input_insns) -> None:
         Exception.__init__(
             self,
             "Board %s lacks insns for %s image: %s not found"
@@ -71,7 +71,7 @@ class InputInsns:
     reads) is not exactly the same as the instruction file pushimage reads.
     """
 
-    def __init__(self, board, image_type=None, buildroot=None):
+    def __init__(self, board, image_type=None, buildroot=None) -> None:
         """Initialization.
 
         Args:

@@ -110,7 +110,7 @@ class Error(Exception):
 class ClangTidyParseError(Error):
     """Raised when clang-tidy parsing jobs fail."""
 
-    def __init__(self, failed_jobs: int, total_jobs: int):
+    def __init__(self, failed_jobs: int, total_jobs: int) -> None:
         super().__init__(f"{failed_jobs}/{total_jobs} parse jobs failed")
         self.failed_jobs = failed_jobs
         self.total_jobs = total_jobs
@@ -158,7 +158,7 @@ class TidyDiagnostic(NamedTuple):
 class ClangTidySchemaError(Error):
     """Raised when we encounter malformed YAML."""
 
-    def __init__(self, err_msg: str):
+    def __init__(self, err_msg: str) -> None:
         super().__init__(err_msg)
         self.err_msg = err_msg
 
@@ -166,7 +166,7 @@ class ClangTidySchemaError(Error):
 class LineOffsetMap:
     """Convenient API to turn offsets in a file into line numbers."""
 
-    def __init__(self, newline_locations: Iterable[int]):
+    def __init__(self, newline_locations: Iterable[int]) -> None:
         line_starts = [x + 1 for x in newline_locations]
         # The |bisect| logic in |get_line_number|/|get_line_offset| gets a bit
         # complicated around the first and last lines of a file. Adding
@@ -390,11 +390,11 @@ class InvocationMetadata(NamedTuple):
 class ExceptionData:
     """Info about an exception that can be sent across processes."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Builds instance; only intended to be called from `except` blocks."""
         self._str = traceback.format_exc()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self._str
 
 

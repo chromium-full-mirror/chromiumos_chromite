@@ -214,7 +214,7 @@ class CustomGroup(optparse.OptionGroup):
 class CustomOption(commandline.FilteringOption):
     """Subclass FilteringOption class to implement pass-through and api."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         # The remote_pass_through argument specifies whether we should directly
         # pass the argument (with its value) onto the remote trybot.
         self.pass_through = kwargs.pop("remote_pass_through", False)
@@ -1043,7 +1043,7 @@ def _SetupConnections(options, build_config):
 class _MockMethodWithReturnValue:
     """A method mocker which just returns the specific value."""
 
-    def __init__(self, return_value):
+    def __init__(self, return_value) -> None:
         self.return_value = return_value
 
     def __call__(self, *args, **kwargs):
@@ -1057,7 +1057,7 @@ class _ObjectMethodPatcher:
     return value.
     """
 
-    def __init__(self, target, attr, return_value=None):
+    def __init__(self, target, attr, return_value=None) -> None:
         """Constructor.
 
         Args:

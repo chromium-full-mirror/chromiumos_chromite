@@ -25,7 +25,7 @@ class Error(Exception):
 class CargoClippyPackagePathError(Error):
     """Raised when no Package Path is provided."""
 
-    def __init__(self, source: Text):
+    def __init__(self, source: Text) -> None:
         super().__init__(f"{source} does not start with a package path")
         self.source = source
 
@@ -33,7 +33,7 @@ class CargoClippyPackagePathError(Error):
 class CargoClippyJSONError(Error):
     """Raised when cargo-clippy parsing jobs are not proper JSON."""
 
-    def __init__(self, source: Text, line_num: int):
+    def __init__(self, source: Text, line_num: int) -> None:
         super().__init__(f"{source}:{line_num}: is not valid JSON")
         self.source = source
         self.line_num = line_num
@@ -42,7 +42,7 @@ class CargoClippyJSONError(Error):
 class CargoClippyReasonError(Error):
     """Raised when cargo-clippy parsing jobs don't provide a "reason" field."""
 
-    def __init__(self, source: Text, line_num: int):
+    def __init__(self, source: Text, line_num: int) -> None:
         super().__init__(f"{source}:{line_num}: is missing its reason")
         self.source = source
         self.line_num = line_num
@@ -51,7 +51,7 @@ class CargoClippyReasonError(Error):
 class CargoClippyFieldError(Error):
     """Raised when cargo-clippy parsing jobs fail to determine a field."""
 
-    def __init__(self, source: Text, line_num: int, field: Text):
+    def __init__(self, source: Text, line_num: int, field: Text) -> None:
         super().__init__(
             f"{source}:{line_num}: {field} could not be parsed from original"
             " json"

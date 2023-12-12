@@ -48,7 +48,7 @@ CACHE_VERSION = "1"
 class DebugSymbolsInstaller:
     """Container for environment objects, needed for multiprocessing."""
 
-    def __init__(self, vartree, gs_context, sysroot, stdout_to_null):
+    def __init__(self, vartree, gs_context, sysroot, stdout_to_null) -> None:
         self._vartree = vartree
         self._gs_context = gs_context
         self._sysroot = sysroot

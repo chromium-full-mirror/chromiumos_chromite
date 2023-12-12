@@ -25,7 +25,7 @@ class LocalManifest:
             cros_build_lib.Die("Manifest file, %r, not found", path)
         return cls()
 
-    def __init__(self, text=None):
+    def __init__(self, text=None) -> None:
         self._text = text or "<manifest>\n</manifest>"
         self.nodes = ElementTree.fromstring(self._text)
 

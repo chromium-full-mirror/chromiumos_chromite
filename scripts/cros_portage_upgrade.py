@@ -11,7 +11,7 @@ import re
 import shutil
 import subprocess
 import tempfile
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import portage  # pylint: disable=import-error
 
@@ -70,12 +70,12 @@ class PInfo:
     # Any deriving classes must maintain this cumulative attribute list.
     __attrlist__ = __slots__
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         """Initialize all attributes to None unless specified in |kwargs|."""
         for attr in self.__attrlist__:
             setattr(self, attr, kwargs.get(attr))
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """Equality support.  Used in unittests."""
         if not isinstance(other, type(self)):
             return False
@@ -87,7 +87,7 @@ class PInfo:
 
         return True
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         """Inequality support for completeness."""
         return not self == other
 
@@ -158,7 +158,7 @@ class Upgrader:
         "_verbose",  # Boolean
     )
 
-    def __init__(self, options):
+    def __init__(self, options) -> None:
         self._args = options.packages
 
         self._upgrade_cnt = 0

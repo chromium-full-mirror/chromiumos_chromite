@@ -47,7 +47,7 @@ class Config:
     layout is taken from ~/.gitconfig settings.
     """
 
-    def __init__(self, path: Path = chromite_config.GERRIT_CONFIG):
+    def __init__(self, path: Path = chromite_config.GERRIT_CONFIG) -> None:
         self.cfg = configparser.ConfigParser(interpolation=None)
         if path.exists():
             self.cfg.read(chromite_config.GERRIT_CONFIG)

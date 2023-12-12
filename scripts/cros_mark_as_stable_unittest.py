@@ -124,7 +124,7 @@ class NonClassTests(cros_test_lib.MockTestCase):
 class EbuildMock:
     """Mock portage_util.Ebuild."""
 
-    def __init__(self, path, new_package=True):
+    def __init__(self, path, new_package=True) -> None:
         self.path = path
         self.package = "%s_package" % path
         self.cros_workon_vars = "cros_workon_vars"

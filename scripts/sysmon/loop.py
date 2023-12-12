@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class SleepLoop:
     """Sleep loop."""
 
-    def __init__(self, callback, interval=60):
+    def __init__(self, callback, interval=60) -> None:
         """Initialize instance.
 
         Args:

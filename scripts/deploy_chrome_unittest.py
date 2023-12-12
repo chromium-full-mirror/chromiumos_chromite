@@ -237,7 +237,7 @@ class DeployChromeMock(partial_mock.PartialMock):
         "_ShouldUseCompressedAsh",
     )
 
-    def __init__(self):
+    def __init__(self) -> None:
         partial_mock.PartialMock.__init__(self)
         self.remote_device_mock = remote_access_unittest.RemoteDeviceMock()
         # Target starts off as having rootfs verification enabled.

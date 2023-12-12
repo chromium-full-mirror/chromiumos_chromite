@@ -163,7 +163,7 @@ class SymbolFileLineCounts:
 
     LINE_NUMBER_REGEX = re.compile(r"^([0-9a-f]+)")
 
-    def __init__(self, sym_file: str, elf_file: str):
+    def __init__(self, sym_file: str, elf_file: str) -> None:
         # https://chromium.googlesource.com/breakpad/breakpad/+/HEAD/docs/symbol_files.md
         # explains what these line types are.
         self.module_lines = 0

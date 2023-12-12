@@ -9,6 +9,7 @@ import logging
 import os
 import re
 import subprocess
+from typing import Any
 import unittest
 from unittest import mock
 
@@ -347,7 +348,7 @@ class ManifestLine:
 
     __attrlist__ = __slots__
 
-    def __init__(self, line=None, **kwargs):
+    def __init__(self, line=None, **kwargs) -> None:
         """Parse |line| from manifest file."""
         if line:
             tokens = line.split()
@@ -367,7 +368,7 @@ class ManifestLine:
             if attr in kwargs or not hasattr(self, attr):
                 setattr(self, attr, kwargs.get(attr))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "%s %s %s RMD160 %s SHA1 %s SHA256 %s" % (
             self.type,
             self.file,
@@ -377,7 +378,7 @@ class ManifestLine:
             self.SHA256,
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """Equality support."""
         if not isinstance(other, type(self)):
             return False
@@ -389,7 +390,7 @@ class ManifestLine:
 
         return True
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         """Inequality for completeness."""
         return not self == other
 

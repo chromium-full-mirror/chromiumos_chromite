@@ -21,7 +21,7 @@ class _MockTime:
     Provides mock behavior for time.time() and time.sleep()
     """
 
-    def __init__(self, sleep_delta):
+    def __init__(self, sleep_delta) -> None:
         """Instantiate instance.
 
         Args:

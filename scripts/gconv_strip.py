@@ -64,7 +64,7 @@ class GconvModules:
     See the comments on gconv-modules file for syntax details.
     """
 
-    def __init__(self, gconv_modules_file, modules_dir):
+    def __init__(self, gconv_modules_file, modules_dir) -> None:
         """Initialize the class.
 
         Args:

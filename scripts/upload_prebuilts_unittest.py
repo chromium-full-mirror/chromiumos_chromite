@@ -261,7 +261,7 @@ class TestUploadPrebuilt(cros_test_lib.MockTempDirTestCase):
         class MockTemporaryFile:
             """Mock out the temporary file logic."""
 
-            def __init__(self, name):
+            def __init__(self, name) -> None:
                 self.name = name
 
         self.pkgindex = SimplePackageIndex()

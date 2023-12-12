@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 class _MetricCollector:
     """Metric collector class."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._collect_osinfo = _TimedCallback(
             callback=osinfo_metrics.collect_os_info, interval=60 * 60
         )
@@ -53,7 +53,7 @@ class _MetricCollector:
 class _TimedCallback:
     """Limits callback to one call in a given interval."""
 
-    def __init__(self, callback, interval):
+    def __init__(self, callback, interval) -> None:
         """Initialize instance.
 
         Args:

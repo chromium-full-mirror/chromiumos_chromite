@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class _GitRepo:
     """Helper class for running git commands."""
 
-    def __init__(self, gitdir):
+    def __init__(self, gitdir) -> None:
         self._gitdir = gitdir
 
     def _get_git_command(self):
@@ -78,7 +78,7 @@ class _GitMetricCollector:
         "git/unstaged_changes", description="Unstaged Git changes."
     )
 
-    def __init__(self, gitdir, metric_path):
+    def __init__(self, gitdir, metric_path) -> None:
         self._gitdir = gitdir
         self._gitrepo = _GitRepo(os.path.expanduser(gitdir))
         self._fields = {"repo": gitdir}

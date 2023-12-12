@@ -196,7 +196,7 @@ class DotSoResolver:
         board: Optional[str] = None,
         root: Union[os.PathLike, str] = "/",
         chroot: Optional[chroot_lib.Chroot] = None,
-    ):
+    ) -> None:
         self.board = board
         self.chroot = chroot if chroot else chroot_lib.Chroot()
 

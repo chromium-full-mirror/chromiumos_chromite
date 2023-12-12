@@ -51,7 +51,7 @@ class ModificationTimeMonitor:
         _result_queue: A queue populated with corresponding (key, mtime) pairs.
     """
 
-    def __init__(self, key_path_pairs):
+    def __init__(self, key_path_pairs) -> None:
         self._tasks = list(key_path_pairs)
         self._result_queue = multiprocessing.Queue(len(self._tasks))
 
@@ -94,7 +94,7 @@ class WorkonPackageInfo:
         src_ebuild_mtime: The modification time of the source ebuild.
     """
 
-    def __init__(self, cp, mtime, projects, src_ebuild_mtime):
+    def __init__(self, cp, mtime, projects, src_ebuild_mtime) -> None:
         self.cp = cp
         self.pkg_mtime = int(mtime)
         self.projects = projects

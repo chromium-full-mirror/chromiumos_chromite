@@ -53,7 +53,7 @@ _age_metric = metrics.FloatMetric(
 class _PuppetRunSummary:
     """Puppet run summary information."""
 
-    def __init__(self, f):
+    def __init__(self, f) -> None:
         """Instantiate instance.
 
         Args:

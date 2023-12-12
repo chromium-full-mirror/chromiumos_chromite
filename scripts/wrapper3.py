@@ -53,7 +53,7 @@ class ChromiteLoader(importlib.abc.Loader):
     import would also search those for .py modules.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # When trying to load the chromite dir from disk, we'll get called
         # again, so make sure to disable our logic to avoid an infinite loop.
         self.loading = False
@@ -84,7 +84,7 @@ class ChromiteFinder(importlib.abc.MetaPathFinder):
     We'll route any requests for the 'chromite' module.
     """
 
-    def __init__(self, loader):
+    def __init__(self, loader) -> None:
         self._loader = loader
 
     # pylint: disable=unused-argument

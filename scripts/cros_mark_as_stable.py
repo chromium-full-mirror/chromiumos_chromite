@@ -212,7 +212,7 @@ def PushChange(
 class GitBranch:
     """Wrapper class for a git branch."""
 
-    def __init__(self, branch_name, tracking_branch, cwd):
+    def __init__(self, branch_name, tracking_branch, cwd) -> None:
         """Sets up variables but does not create the branch.
 
         Args:

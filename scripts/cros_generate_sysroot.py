@@ -68,7 +68,7 @@ class GenerateSysroot:
 
     PARALLEL_EMERGE = constants.CHROMITE_BIN_DIR / "parallel_emerge"
 
-    def __init__(self, sysroot, options):
+    def __init__(self, sysroot, options) -> None:
         """Initialize
 
         Args:
