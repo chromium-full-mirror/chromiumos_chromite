@@ -73,7 +73,9 @@ class Overlay:
         "board-private",
     )
 
-    def __init__(self, root_path, name, parent_overlays=None, make_conf=None):
+    def __init__(
+        self, root_path, name, parent_overlays=None, make_conf=None
+    ) -> None:
         self.path = Path(root_path)
         self.name = str(name)
         self.parent_overlays = (
@@ -89,7 +91,7 @@ class Overlay:
 
     def __contains__(
         self, item: Union[package_info.CPV, package_info.PackageInfo]
-    ):
+    ) -> bool:
         if not isinstance(item, (package_info.CPV, package_info.PackageInfo)):
             raise TypeError(f"Expected a CPV but received a {type(item)}")
 
@@ -274,7 +276,7 @@ class Sysroot:
         ),
     )
 
-    def __init__(self, path, profile, overlays):
+    def __init__(self, path, profile, overlays) -> None:
         self.path = path
 
         osutils.SafeMakedirs(path / "etc" / "portage" / "profile")
@@ -351,7 +353,7 @@ class Profile:
         make_defaults=None,
         use_mask=(),
         use_force=(),
-    ):
+    ) -> None:
         self.overlay = overlay.name
         self.path = path
         self.full_path = overlay.path / "profiles" / path
@@ -379,7 +381,7 @@ class Package:
         rdepend="",
         inherit: Union[Iterable[str], str] = tuple(),
         **kwargs,
-    ):
+    ) -> None:
         self.category = category
         self.package = package
         self.version = version
