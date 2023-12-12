@@ -77,8 +77,13 @@ def initialize(
 
         cfg.flush()
 
+    if cfg.trace_config.enabled:
+        cfg.trace_config.gen_id()
+        cfg.flush()
+
     trace.initialize(
         enabled=cfg.trace_config.enabled,
         log_traces=log_traces,
         development_mode=cfg.trace_config.dev_flag,
+        user_uuid=cfg.trace_config.user_uuid(),
     )

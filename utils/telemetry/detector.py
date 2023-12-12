@@ -216,3 +216,14 @@ class DevelopmentDetector(resources.ResourceDetector):
         }
 
         return resources.Resource(resource)
+
+
+class UserDetector(resources.ResourceDetector):
+    """Capture user information."""
+
+    def __init__(self, user_uuid: str = ""):
+        super().__init__()
+        self.user_uuid = user_uuid
+
+    def detect(self) -> resources.Resource:
+        return resources.Resource({"user.uuid": self.user_uuid})

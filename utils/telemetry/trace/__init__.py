@@ -23,6 +23,7 @@ def initialize(
     enabled: bool = False,
     log_traces: bool = False,
     development_mode: bool = False,
+    user_uuid: str = "",
 ) -> None:
     """Initialize opentelemetry tracing.
 
@@ -34,6 +35,7 @@ def initialize(
         log_traces: Indicates if the traces should be printed to console.
         development_mode: Mark the telemetry as in development, so it can be
             easily identified as such later, e.g. filtered out of queries.
+        user_uuid: The user's UUID.
     """
 
     # The opentelemetry imports are moved inside this function to reduce the
@@ -79,6 +81,7 @@ def initialize(
             detector.SDKSourceDetector(),  # type: ignore[no-untyped-call]
             detector.SystemDetector(),  # type: ignore[no-untyped-call]
             detector.DevelopmentDetector(force_dev=development_mode),
+            detector.UserDetector(user_uuid=user_uuid),
         ]
     )
 

@@ -15,6 +15,32 @@ from chromite.utils.telemetry import config
 class TelemetryCommand(command.CliCommand):
     """Manage telemetry related options."""
 
+    EPILOG = """
+Telemetry Overview:
+
+The CrOS Build Team collects telemetry to help understand how our tooling is
+being used, where there might be performance or usability issues, and to get
+stronger signals and information about bugs developers might be experiencing.
+Data is only collected from Googlers.
+
+The telemetry is not used to track things like individual user "productivity".
+Data that identifies the user is anonymized, e.g. /home/ldap -> /home/<user>.
+We do generate and collect a generated UUID for each user, but it is not able to
+identify specific users, just identify commands as being run by the same user.
+It is automatically cycled weekly, and helps us to understand overall workflows.
+For example, it allows us to understand which commands are used together and the
+latency between commands. This helps to understand things like which commands
+are part of tight development workflows, and which ones might be prompting
+context switching.
+
+What we collect:
+* Chromite commands run and the arguments passed.
+* Performance data.
+* Error details, e.g. messages and tracebacks.
+* Data about the ChromiumOS checkout itself.
+* Machine specs, e.g. CPU count, amount of memory.
+"""
+
     @classmethod
     def AddParser(cls, parser) -> None:
         super(cls, TelemetryCommand).AddParser(parser)
@@ -36,13 +62,18 @@ class TelemetryCommand(command.CliCommand):
         )
         actions.add_argument(
             "--start-dev",
+            "--enable-dev",
             action="store_true",
+            dest="start_dev",
             help="Set the development attribute for all spans. Allows tagging "
-            "spans as in development so they can be easily filtered out.",
+            "spans as in development so they can be easily filtered out. This "
+            "is intended to be used by devs working on telemetry itself.",
         )
         actions.add_argument(
             "--stop-dev",
+            "--disable-dev",
             action="store_true",
+            dest="stop_dev",
             help="Stop setting the development attribute.",
         )
         actions.add_argument(
