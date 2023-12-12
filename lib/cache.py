@@ -393,9 +393,8 @@ def Untar(path, cwd, sudo=False) -> None:
 class TarballCache(RemoteCache):
     """Supports caching of extracted tarball contents."""
 
-    def _Insert(
-        self, key, tarball_path
-    ) -> None:  # pylint: disable=arguments-renamed
+    # pylint: disable-next=arguments-renamed
+    def _Insert(self, key, tarball_path) -> None:
         """Insert a tarball and its extracted contents into the cache.
 
         Download the tarball first if a URL is provided as tarball_path.
