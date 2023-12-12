@@ -28,7 +28,7 @@ class MockArtifact(NamedTuple):
 class MockBuildLinter(toolchain.BuildLinter):
     """Mocked version of Build Linters class."""
 
-    def __init__(self, tempdir: Text, packages: List[Text] = None):
+    def __init__(self, tempdir: Text, packages: List[Text] = None) -> None:
         super().__init__([], "", validate=False)
         self.tempdir = tempdir
         self.packages = [] if packages is None else packages

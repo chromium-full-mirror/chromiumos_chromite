@@ -105,7 +105,7 @@ class NotInChrootError(Error):
 class UpdateChrootError(Error):
     """Error occurred when running update chroot."""
 
-    def __init__(self, *args, failed_packages):
+    def __init__(self, *args, failed_packages) -> None:
         super().__init__(*args)
         self.failed_packages = failed_packages
 
@@ -130,7 +130,7 @@ class SetupBoardRunConfig:
         expanded_binhost_inheritance: bool = False,
         use_cq_prebuilts: bool = False,
         backtrack: int = BACKTRACK_DEFAULT,
-    ):
+    ) -> None:
         """Initialize method.
 
         Args:
@@ -214,7 +214,7 @@ class BuildPackagesRunConfig:
         backtrack: int = BACKTRACK_DEFAULT,
         bazel: bool = False,
         bazel_lite: bool = False,
-    ):
+    ) -> None:
         """Init method.
 
         Args:

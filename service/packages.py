@@ -79,7 +79,7 @@ class KernelVersionError(Error):
 class AndroidIsPinnedUprevError(UprevError):
     """Raised when we try to uprev while Android is pinned."""
 
-    def __init__(self, new_android_atom):
+    def __init__(self, new_android_atom) -> None:
         """Initialize a AndroidIsPinnedUprevError.
 
         Args:
@@ -98,7 +98,7 @@ class AndroidIsPinnedUprevError(UprevError):
 class GeneratedCrosConfigFilesError(Error):
     """Error when cros_config_schema does not produce expected files"""
 
-    def __init__(self, expected_files, found_files):
+    def __init__(self, expected_files, found_files) -> None:
         msg = "Expected to find generated C files: %s. Actually found: %s" % (
             expected_files,
             found_files,
@@ -1988,7 +1988,7 @@ class FirmwareVersions(NamedTuple):
     ec: Optional[str]
     ec_rw: Optional[str]
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(
             self.model or self.main or self.main_rw or self.ec or self.ec_rw
         )
@@ -2094,7 +2094,7 @@ class MainEcFirmwareVersions(NamedTuple):
     main_fw_version: Optional[str]
     ec_fw_version: Optional[str]
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.main_fw_version or self.ec_fw_version)
 
 

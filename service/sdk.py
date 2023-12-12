@@ -45,13 +45,13 @@ class UnmountError(Error):
         path: str,
         cmd_error: cros_build_lib.RunCommandError,
         fs_debug: cros_sdk_lib.FileSystemDebugInfo,
-    ):
+    ) -> None:
         super().__init__(path, cmd_error, fs_debug)
         self.path = path
         self.cmd_error = cmd_error
         self.fs_debug = fs_debug
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f"Umount failed: {self.cmd_error.stdout}.\n"
             f"fuser output={self.fs_debug.fuser}\n"
@@ -70,7 +70,7 @@ class CreateArguments:
         chroot: Optional["chroot_lib.Chroot"] = None,
         sdk_version: Optional[str] = None,
         ccache_disable: bool = False,
-    ):
+    ) -> None:
         """Create arguments init.
 
         Args:
@@ -146,7 +146,7 @@ class UpdateArguments:
         backtrack: Optional[int] = None,
         update_toolchain: bool = True,
         eclean: bool = True,
-    ):
+    ) -> None:
         """Update arguments init.
 
         Args:

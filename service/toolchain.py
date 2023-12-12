@@ -129,7 +129,7 @@ class BuildLinter:
         sysroot: Text,
         differential: bool = False,
         validate: bool = True,
-    ):
+    ) -> None:
         self.packages: List[package_info.PackageInfo] = packages
         self.sysroot: Text = sysroot
         self.differential: bool = differential

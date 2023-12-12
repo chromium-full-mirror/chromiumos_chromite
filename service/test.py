@@ -60,7 +60,7 @@ class BuildTargetUnitTestResult:
         self,
         return_code: int,
         failed_pkgs: Optional[Iterable["package_info.PackageInfo"]],
-    ):
+    ) -> None:
         """Init method.
 
         Args:

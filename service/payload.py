@@ -56,7 +56,7 @@ class PayloadConfig:
         cache_dir: Optional[str] = None,
         use_local_signing: bool = False,
         signing_docker_image: str = None,
-    ):
+    ) -> None:
         """Init method, sets up all the paths and configuration.
 
         Args:

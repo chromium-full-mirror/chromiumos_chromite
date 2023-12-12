@@ -188,7 +188,7 @@ def GetBuildImageCommand(
 class BuildResult:
     """Class to record and report build image results."""
 
-    def __init__(self, image_types: List[str]):
+    def __init__(self, image_types: List[str]) -> None:
         """Init method.
 
         Args:

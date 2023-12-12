@@ -8,7 +8,7 @@ import json
 import os
 from pathlib import Path
 import shutil
-from typing import List
+from typing import Any, List
 from unittest import mock
 
 from chromite.api.gen.chromiumos import common_pb2
@@ -32,11 +32,11 @@ from chromite.utils import code_coverage_util
 class PartialDict:
     """Used as key value matcher in a mocked call."""
 
-    def __init__(self, key, value):
+    def __init__(self, key, value) -> None:
         self.key = key
         self.value = value
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return other[self.key] == self.value
 
 
