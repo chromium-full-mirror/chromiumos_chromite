@@ -660,13 +660,14 @@ class CleanOutdatedCommand(command.CliCommand):
         """,
         )
         parser.add_argument(
-            "--include-use",
-            default=False,
-            action="store_true",
+            "--exclude-use",
+            dest="include_use",
+            default=True,
+            action="store_false",
             help="""
         Purge packages with incompatible USE flag dependencies.
         """,
-        )  # TODO: should this flag only apply to DUT?
+        )
         parser.epilog = """
 cros clean-outdated-pkgs purges packages that do not have an ebuild with the
 same version, then fixes slot conflicts.
