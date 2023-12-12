@@ -93,7 +93,7 @@ class BrilloDeployOperation(operation.ProgressBarOperation):
         "Please restart any updated",
     )
 
-    def __init__(self, emerge: bool):
+    def __init__(self, emerge: bool) -> None:
         """Construct BrilloDeployOperation object.
 
         Args:
@@ -159,7 +159,7 @@ class _InstallPackageScanner:
             use: str,
             rdeps: set = None,
             rev_rdeps: set = None,
-        ):
+        ) -> None:
             self.cpv = cpv
             self.build_time = build_time
             self.root = root
@@ -190,7 +190,7 @@ for cpv in vartree.dbapi.cpv_all():
 print(json.dumps(pkg_info))
 """
 
-    def __init__(self, sysroot: str):
+    def __init__(self, sysroot: str) -> None:
         self.sysroot = sysroot
         # Members containing the sysroot (binpkg) and target (installed) package
         # DB.

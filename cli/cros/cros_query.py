@@ -59,7 +59,7 @@ class ObjectMapping(collections.abc.Mapping):
     referenced as y["attr"].
     """
 
-    def __init__(self, obj: Any):
+    def __init__(self, obj: Any) -> None:
         self._obj = obj
 
     def __getitem__(self, item):
@@ -72,7 +72,7 @@ class ObjectMapping(collections.abc.Mapping):
     def __iter__(self):
         return iter(dir(self._obj))
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(dir(self._obj))
 
 

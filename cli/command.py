@@ -136,7 +136,7 @@ class CliCommand:
     # Indicates whether command uses filter related commandline options.
     use_filter_options = False
 
-    def __init__(self, options):
+    def __init__(self, options) -> None:
         self.options = options
 
     @classmethod

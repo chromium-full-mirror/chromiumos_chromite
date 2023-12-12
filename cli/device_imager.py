@@ -90,7 +90,7 @@ class DeviceImager:
         clear_tpm_owner: bool = False,
         delta: bool = False,
         reboot_timeout: datetime.timedelta = None,
-    ):
+    ) -> None:
         """Initialize DeviceImager for flashing a Chromium OS device.
 
         Args:
@@ -392,7 +392,7 @@ class ReaderBase(threading.Thread):
     needs to be sub-classed first to provide necessary function implementations.
     """
 
-    def __init__(self, use_named_pipes: bool = False):
+    def __init__(self, use_named_pipes: bool = False) -> None:
         """Initializes the class.
 
         Args:
@@ -492,7 +492,7 @@ class PartialFileReader(ReaderBase):
         offset: int,
         length: int,
         compression_command: List[str],
-    ):
+    ) -> None:
         """Initializes the class.
 
         Args:
@@ -524,7 +524,7 @@ class PartialFileReader(ReaderBase):
 class GsFileCopier(ReaderBase):
     """A class to download gzip compressed file from GS bucket into a pipe."""
 
-    def __init__(self, image: str):
+    def __init__(self, image: str) -> None:
         """Initializes the class.
 
         Args:
@@ -553,7 +553,7 @@ class PartitionUpdaterBase:
     functionality.
     """
 
-    def __init__(self, device, image: str, image_type, target: str):
+    def __init__(self, device, image: str, image_type, target: str) -> None:
         """Initializes this base class with the most commonly needed values.
 
         Args:
@@ -747,7 +747,7 @@ class KernelUpdater(RawPartitionUpdater):
 class RootfsUpdater(RawPartitionUpdater):
     """A class to update the root partition on a Chromium OS device."""
 
-    def __init__(self, current_root: str, *args):
+    def __init__(self, current_root: str, *args) -> None:
         """Initializes the class.
 
         Args:
@@ -840,7 +840,7 @@ class RootfsUpdater(RawPartitionUpdater):
 class MiniOSUpdater(RawPartitionUpdater):
     """A class to update the miniOS partition on a Chromium OS device."""
 
-    def __init__(self, *args):
+    def __init__(self, *args) -> None:
         """Initializes the class.
 
         Args:
@@ -938,7 +938,7 @@ class MiniOSUpdater(RawPartitionUpdater):
 class StatefulPayloadGenerator(ReaderBase):
     """A class for generating a stateful update payload in a separate thread."""
 
-    def __init__(self, image: str):
+    def __init__(self, image: str) -> None:
         """Initializes that class.
 
         Args:
@@ -960,7 +960,7 @@ class StatefulPayloadGenerator(ReaderBase):
 class StatefulUpdater(PartitionUpdaterBase):
     """A class to update the stateful partition on a device."""
 
-    def __init__(self, clobber_stateful: bool, *args):
+    def __init__(self, clobber_stateful: bool, *args) -> None:
         """Initializes the class
 
         Args:
@@ -1006,7 +1006,7 @@ class StatefulUpdater(PartitionUpdaterBase):
 class ProgressWatcher(threading.Thread):
     """A class used for watching the progress of rootfs update."""
 
-    def __init__(self, device, target_root: str):
+    def __init__(self, device, target_root: str) -> None:
         """Initializes the class.
 
         Args:
@@ -1084,7 +1084,7 @@ class ProgressWatcher(threading.Thread):
 class DeviceImagerOperation(operation.ProgressBarOperation):
     """A class to provide a progress bar for DeviceImager operation."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initializes the class."""
         super().__init__()
 

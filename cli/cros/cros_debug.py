@@ -36,7 +36,7 @@ To debug a process by its pid:
     cros debug device --pid=1234
 """
 
-    def __init__(self, options):
+    def __init__(self, options) -> None:
         """Initialize DebugCommand."""
         super().__init__(options)
         # SSH connection settings.

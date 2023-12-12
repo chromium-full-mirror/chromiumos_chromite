@@ -48,7 +48,7 @@ Quoting can be tricky; the rules are the same as with ssh:
         cros shell <ip> -- sh -c "'exit 42'"  (executes: sh -c 'exit 42')
 """
 
-    def __init__(self, options):
+    def __init__(self, options) -> None:
         """Initializes ShellCommand."""
         super().__init__(options)
         # ChromiumOSDevice to connect to.

@@ -36,7 +36,7 @@ def GetDefaultBoard():
 class UsbImagerOperation(operation.ProgressBarOperation):
     """Progress bar for flashing image to operation."""
 
-    def __init__(self, image):
+    def __init__(self, image) -> None:
         super().__init__()
         self._size = os.path.getsize(image)
         self._transferred = 0
@@ -147,7 +147,9 @@ class FlashError(Exception):
 class USBImager:
     """Copy image to the target removable device."""
 
-    def __init__(self, device, board, image, version, debug=False, yes=False):
+    def __init__(
+        self, device, board, image, version, debug=False, yes=False
+    ) -> None:
         """Initializes USBImager."""
         self.device = device
         self.board = board if board else GetDefaultBoard()

@@ -24,7 +24,7 @@ import os
 import re
 import sys
 import tokenize
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 import astroid
 from pylint import config
@@ -43,7 +43,7 @@ class DocStringSectionDetails:
     e.g. This holds the Args: or Returns: data.
     """
 
-    def __init__(self, name=None, header=None, lines=None, lineno=None):
+    def __init__(self, name=None, header=None, lines=None, lineno=None) -> None:
         """Initialize.
 
         Args:
@@ -58,11 +58,11 @@ class DocStringSectionDetails:
         self.lines = [] if lines is None else lines
         self.lineno = lineno
 
-    def __str__(self):
+    def __str__(self) -> str:
         """A human readable string for this object."""
         return "DocStringSectionDetails(%r, %r)" % (self.name, self.lineno)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """A string to quickly identify this object."""
         return "DocStringSectionDetails(%r, %r, %r, %r)" % (
             self.name,
@@ -71,7 +71,7 @@ class DocStringSectionDetails:
             self.lineno,
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """Test whether two DocStringSectionDetails objects are equivalent"""
         return (
             self.name == other.name
@@ -429,7 +429,7 @@ class DocStringChecker(pylint.checkers.BaseChecker):
         ),
     }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         pylint.checkers.BaseChecker.__init__(self, *args, **kwargs)
 
         if self.linter is None:

@@ -83,7 +83,7 @@ class APCommand(command.CliCommand):
 class BuildSubcommand(command.CliCommand):
     """Build the AP Firmware for the requested build target."""
 
-    def __init__(self, options):
+    def __init__(self, options) -> None:
         super().__init__(options)
         self.build_target = build_target_lib.BuildTarget(
             self.options.build_target
@@ -346,7 +346,7 @@ e.g.:
 class CleanSubcommand(command.CliCommand):
     """Clean up dependencies and artifacts for the requested build target."""
 
-    def __init__(self, options):
+    def __init__(self, options) -> None:
         super().__init__(options)
         self.build_target = build_target_lib.BuildTarget(
             self.options.build_target

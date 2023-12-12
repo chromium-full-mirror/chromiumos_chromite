@@ -111,7 +111,7 @@ class TestNode:
         name="module",
         display_type="Module",
         col_offset=None,
-    ):
+    ) -> None:
         if names is None:
             names = [("name", None)]
         self.doc = doc
@@ -140,7 +140,7 @@ class TestNode:
 class StatStub:
     """Stub object to stand in for stat checks."""
 
-    def __init__(self, size=0, mode=0o644):
+    def __init__(self, size=0, mode=0o644) -> None:
         self.st_size = size
         self.st_mode = mode
 

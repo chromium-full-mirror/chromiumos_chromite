@@ -5,7 +5,7 @@
 """Tests the `cros try` command."""
 
 from pathlib import Path
-from typing import List
+from typing import Any, List
 
 from chromite.cli.cros import cros_try
 from chromite.lib import cipd
@@ -21,7 +21,7 @@ MOCK_TRY_BIN = MOCK_TRY_DIR / "try"
 class StringStartsWith(str):
     """String-like object that matches a prefix."""
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return other.startswith(self)
 
 

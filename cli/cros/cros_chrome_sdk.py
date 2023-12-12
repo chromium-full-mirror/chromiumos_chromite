@@ -68,7 +68,7 @@ class MissingSDK(Exception):
         else:
             return ""
 
-    def __init__(self, config, board, version=None):
+    def __init__(self, config, board, version=None) -> None:
         msg = "Cannot find SDK for %s" % config
         if version is not None:
             msg += " with version %s" % version
@@ -128,7 +128,7 @@ class SDKFetcher:
         use_external_config=None,
         fallback_versions=VERSIONS_TO_CONSIDER,
         is_lacros=False,
-    ):
+    ) -> None:
         """Initialize the class.
 
         Args:
@@ -1236,7 +1236,7 @@ class ChromeSDKCommand(command.CliCommand):
         if options.boards:
             options.boards = options.boards.split(":")
 
-    def __init__(self, options):
+    def __init__(self, options) -> None:
         super().__init__(options)
         self.board = options.board
         # Lazy initialized.

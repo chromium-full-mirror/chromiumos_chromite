@@ -26,7 +26,7 @@ Examples:
         cros cp <user>@<ip>:<src_path> <dest_path> --port=<port>
 """
 
-    def __init__(self, options):
+    def __init__(self, options) -> None:
         """Initializes CpCommand."""
         super().__init__(options)
         self.device = None

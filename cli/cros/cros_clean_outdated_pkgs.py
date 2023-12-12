@@ -106,7 +106,7 @@ PORTAGE_UTILS_VERSION = "0.96"
 class OverlayPathFinder:
     """Finds an overlay of specific repository."""
 
-    def __init__(self, board: Optional[str]):
+    def __init__(self, board: Optional[str]) -> None:
         list_of_overlay_paths = portage_util.FindOverlays("both", board)
 
         self.overlay_to_path = {}

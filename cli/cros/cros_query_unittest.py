@@ -36,7 +36,7 @@ def test_filter_globals() -> None:
 class FakeProfile(build_query.Profile):
     """Fake profile for testing purposes."""
 
-    def __init__(self, name, overlay_name, parents):
+    def __init__(self, name, overlay_name, parents) -> None:
         # pylint: disable=super-init-not-called
         self.name = name
         self.overlay = mock.Mock()

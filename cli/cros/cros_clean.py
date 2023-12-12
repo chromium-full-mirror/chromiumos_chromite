@@ -157,7 +157,7 @@ class CleanCommand(command.CliCommand):
             " your sdk state is not in the default location.",
         )
 
-    def __init__(self, options):
+    def __init__(self, options) -> None:
         """Initializes cros clean."""
         command.CliCommand.__init__(self, options)
 

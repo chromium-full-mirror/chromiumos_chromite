@@ -29,7 +29,7 @@ class USBImagerMock(partial_mock.PartialCmdMock):
     )
     VALID_IMAGE = True
 
-    def __init__(self):
+    def __init__(self) -> None:
         partial_mock.PartialCmdMock.__init__(self)
 
     def CopyImageToDevice(self, _inst, *_args, **_kwargs) -> None:

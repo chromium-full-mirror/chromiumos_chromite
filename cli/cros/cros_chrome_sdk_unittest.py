@@ -37,7 +37,7 @@ class MockChromeSDKCommand(command_unittest.MockCommand):
     COMMAND = "chrome-sdk"
     ATTRS = ("_SetupEnvironment",) + command_unittest.MockCommand.ATTRS
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         command_unittest.MockCommand.__init__(self, *args, **kwargs)
         self.env = None
 
@@ -157,7 +157,7 @@ class SDKFetcherMock(partial_mock.PartialMock):
     BOARDS = ["amd64-generic", "arm-generic", "arm64-generic"]
     VERSION = "4567.8.9"
 
-    def __init__(self, external_mocks=None):
+    def __init__(self, external_mocks=None) -> None:
         """Initializes the mock.
 
         Args:

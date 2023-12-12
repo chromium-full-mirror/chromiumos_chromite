@@ -48,7 +48,7 @@ DLC_LOADPIN_DIGEST = (
 class ChromiumOSDeviceFake:
     """Fake for device."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.board = "board"
         self.hostname = None
         self.username = None
@@ -94,13 +94,13 @@ class ChromiumOSDeviceHandlerFake:
     class RemoteAccessFake:
         """Fake for chromite.lib.remote_access.RemoteAccess."""
 
-        def __init__(self):
+        def __init__(self) -> None:
             self.remote_sh_output = None
 
         def RemoteSh(self, *_args, **_kwargs):
             return cros_build_lib.CompletedProcess(stdout=self.remote_sh_output)
 
-    def __init__(self, *_args, **_kwargs):
+    def __init__(self, *_args, **_kwargs) -> None:
         self._agent = self.RemoteAccessFake()
         self.device = ChromiumOSDeviceFake()
 
@@ -118,7 +118,7 @@ class ChromiumOSDeviceHandlerFake:
 class BrilloDeployOperationFake(deploy.BrilloDeployOperation):
     """Fake for deploy.BrilloDeployOperation."""
 
-    def __init__(self, emerge, queue):
+    def __init__(self, emerge, queue) -> None:
         super().__init__(emerge)
         self._queue = queue
 
@@ -130,7 +130,7 @@ class BrilloDeployOperationFake(deploy.BrilloDeployOperation):
 class DbApiFake:
     """Fake for Portage dbapi."""
 
-    def __init__(self, pkgs):
+    def __init__(self, pkgs) -> None:
         self.pkg_db = {}
         for cpv, slot, rdeps_raw, build_time, root, use in pkgs:
             self.pkg_db[cpv] = {
@@ -152,7 +152,9 @@ class DbApiFake:
 class PackageScannerFake:
     """Fake for PackageScanner."""
 
-    def __init__(self, packages, pkgs_attrs, pkgs_root, packages_cpvs=None):
+    def __init__(
+        self, packages, pkgs_attrs, pkgs_root, packages_cpvs=None
+    ) -> None:
         self.pkgs = packages
         self.cpvs = packages_cpvs or packages
         self.listed = []
@@ -175,7 +177,7 @@ class PackageScannerFake:
 class PortageTreeFake:
     """Fake for Portage tree."""
 
-    def __init__(self, dbapi):
+    def __init__(self, dbapi) -> None:
         self.dbapi = dbapi
 
 

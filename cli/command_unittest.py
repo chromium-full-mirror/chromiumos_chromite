@@ -78,7 +78,7 @@ class MockCommand(partial_mock.PartialMock):
     COMMAND = None
     TARGET_CLASS = None
 
-    def __init__(self, args, base_args=None):
+    def __init__(self, args, base_args=None) -> None:
         partial_mock.PartialMock.__init__(self)
         self.args = args
         self.rc_mock = cros_test_lib.RunCommandMock()

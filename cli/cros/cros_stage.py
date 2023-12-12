@@ -129,7 +129,7 @@ NOTES:
             "If none the default chroot boto file is used.",
         )
 
-    def __init__(self, options):
+    def __init__(self, options) -> None:
         """Initializes cros stage."""
         super().__init__(options)
         self.board = self.options.board

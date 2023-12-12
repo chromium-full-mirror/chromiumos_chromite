@@ -63,7 +63,7 @@ class FailedPackageError(Error):
 
     def __init__(
         self, msg: str, failed_packages: Iterable["package_info.PackageInfo"]
-    ):
+    ) -> None:
         super().__init__(msg)
         self.failed_packages = failed_packages
 

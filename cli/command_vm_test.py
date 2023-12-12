@@ -78,7 +78,7 @@ class CommandVMTest:
     the test functions must use the test_command_decorator decorator.
     """
 
-    def __init__(self, board, image_path):
+    def __init__(self, board, image_path) -> None:
         """Initializes CommandVMTest.
 
         Args:
