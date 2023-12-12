@@ -20,7 +20,7 @@ class ForFunctions:
     classes, properties, etc...) are not supported.
     """
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         """Initialize.
 
         Args:

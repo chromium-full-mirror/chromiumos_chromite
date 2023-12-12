@@ -22,7 +22,7 @@ from chromite.utils.telemetry import detector
 class ManifestCheckoutMock:
     """Mock class for git.ManifestCheckout."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         pass
 
     @property

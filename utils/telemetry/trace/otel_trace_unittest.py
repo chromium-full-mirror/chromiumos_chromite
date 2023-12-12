@@ -17,7 +17,7 @@ from chromite.utils.telemetry.trace import otel_trace
 class SpanExporterStub(export_sdk.SpanExporter):
     """Stub for SpanExporter."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._spans = []
 
     @property

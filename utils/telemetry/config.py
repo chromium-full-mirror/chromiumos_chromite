@@ -29,7 +29,7 @@ KEY_USER_UUID = "user_uuid"
 class TraceConfig:
     """Tracing specific config in Telemetry config."""
 
-    def __init__(self, config: configparser.ConfigParser):
+    def __init__(self, config: configparser.ConfigParser) -> None:
         self._config = config
 
     def update(self, enabled: bool, reason: Literal["AUTO", "USER"]) -> None:
@@ -80,7 +80,7 @@ class TraceConfig:
 class RootConfig:
     """Root configs in Telemetry config."""
 
-    def __init__(self, config):
+    def __init__(self, config) -> None:
         self._config = config
 
     def update(self, notice_countdown: int) -> None:
@@ -99,7 +99,7 @@ class RootConfig:
 class Config:
     """Telemetry configuration."""
 
-    def __init__(self, path: os.PathLike):
+    def __init__(self, path: os.PathLike) -> None:
         self._path = path
         self._config = configparser.ConfigParser()
 

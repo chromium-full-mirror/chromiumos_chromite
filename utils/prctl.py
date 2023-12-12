@@ -57,7 +57,7 @@ class PrctlError(OSError, Error):
         returncode: int,
         prargs: Optional[List[Union[PrctlType, str]]] = None,
         errno: Optional[int] = None,
-    ):
+    ) -> None:
         if errno is None:
             errno = ctypes.get_errno()
         # We have to expand the errno string ourselves as Python will not, and

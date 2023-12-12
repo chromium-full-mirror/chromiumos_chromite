@@ -43,7 +43,7 @@ _DEFAULT_MAX_QUEUE_SIZE = 1000
 class AnonymizingFilter:
     """Applies the anonymizer to TraceSpan messages."""
 
-    def __init__(self, anonymizer: utils.Anonymizer):
+    def __init__(self, anonymizer: utils.Anonymizer) -> None:
         self._anonymizer = anonymizer
 
     def __call__(
@@ -69,7 +69,7 @@ class ClearcutSpanExporter(export.SpanExporter):
         prefilter: Optional[
             Callable[[trace_span_pb2.TraceSpan], trace_span_pb2.TraceSpan]
         ] = None,
-    ):
+    ) -> None:
         self._endpoint = endpoint
         self._timeout = timeout
         self._prefilter = prefilter or AnonymizingFilter(utils.Anonymizer())

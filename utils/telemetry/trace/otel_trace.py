@@ -17,7 +17,7 @@ from chromite.third_party.opentelemetry.util import types as otel_types
 class ChromiteSpan(otel_trace_api.Span):
     """Chromite specific otel span implementation."""
 
-    def __init__(self, inner: otel_trace_sdk.Span):
+    def __init__(self, inner: otel_trace_sdk.Span) -> None:
         self._inner = inner
 
     def end(self, end_time: Optional[int] = None) -> None:
@@ -160,7 +160,7 @@ def use_span(
 class ChromiteTracer(otel_trace_api.Tracer):
     """Chromite specific otel tracer."""
 
-    def __init__(self, inner: otel_trace_sdk.Tracer):
+    def __init__(self, inner: otel_trace_sdk.Tracer) -> None:
         self._inner = inner
 
     def start_span(
@@ -221,7 +221,7 @@ class ChromiteTracer(otel_trace_api.Tracer):
 class ChromiteTracerProvider(otel_trace_api.TracerProvider):
     """Chromite specific otel tracer provider."""
 
-    def __init__(self, inner: otel_trace_sdk.TracerProvider):
+    def __init__(self, inner: otel_trace_sdk.TracerProvider) -> None:
         self._inner = inner
 
     def get_tracer(

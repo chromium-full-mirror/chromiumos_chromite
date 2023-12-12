@@ -52,7 +52,7 @@ class Timer:
         avg.output() -> prints "Average: {formatted_delta}"
     """
 
-    def __init__(self, name: Optional[str] = None):
+    def __init__(self, name: Optional[str] = None) -> None:
         """Init.
 
         Args:

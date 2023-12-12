@@ -21,7 +21,7 @@ from chromite.utils.telemetry import utils
 class MockResponse:
     """Mock requests.Response."""
 
-    def __init__(self, status, text):
+    def __init__(self, status, text) -> None:
         self._status = status
         self._text = text
 

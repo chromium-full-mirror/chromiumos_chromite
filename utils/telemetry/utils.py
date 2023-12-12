@@ -14,7 +14,7 @@ class Anonymizer:
 
     def __init__(
         self, replacements: Optional[Sequence[Tuple[Pattern[str], str]]] = None
-    ):
+    ) -> None:
         self._replacements = list(replacements or [])
         self._replacements.append(
             (re.compile(re.escape(getpass.getuser())), "<user>")

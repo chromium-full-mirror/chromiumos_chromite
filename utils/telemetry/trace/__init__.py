@@ -136,7 +136,7 @@ def get_current_span():
 class ProxyTracer:
     """Duck typed equivalent for opentelemetry.trace.Tracer"""
 
-    def __init__(self, name: str, version: Optional[str] = None):
+    def __init__(self, name: str, version: Optional[str] = None) -> None:
         self._name = name
         self._version = version
         self._inner = None

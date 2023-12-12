@@ -38,7 +38,7 @@ PROC_MEMINFO_PATH = Path("/proc/meminfo")
 class ProcessDetector(resources.ResourceDetector):
     """ResourceDetector to capture information about the process."""
 
-    def __init__(self, allowed_env: Sequence[str] = None):
+    def __init__(self, allowed_env: Sequence[str] = None) -> None:
         super().__init__()
         self._allowed_env = allowed_env or ["USE"]
 
@@ -102,7 +102,7 @@ class MemoryInfo:
     MEMINFO_PHYSICAL_RAM_TOTAL = "MemTotal"
     MEMINFO_SWAP_MEMORY_TOTAL = "SwapTotal"
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._total_physical_ram = 0
         self._total_virtual_memory = 0
         self._total_swap_memory = 0
@@ -203,7 +203,7 @@ class SDKSourceDetector(resources.ResourceDetector):
 class DevelopmentDetector(resources.ResourceDetector):
     """Capture development related info."""
 
-    def __init__(self, *args, force_dev: bool = False, **kwargs):
+    def __init__(self, *args, force_dev: bool = False, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.force_dev = force_dev
 
