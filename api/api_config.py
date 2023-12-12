@@ -4,6 +4,8 @@
 
 """API config object and related helper functionality."""
 
+from typing import Any
+
 from chromite.api.gen.chromite.api import build_api_config_pb2
 
 
@@ -47,13 +49,13 @@ class ApiConfig:
     # The valid call types.
     _VALID_CALL_TYPES = tuple(ENUM_TYPE_MAP.keys())
 
-    def __init__(self, call_type=CALL_TYPE_EXECUTE, log_path=None):
+    def __init__(self, call_type=CALL_TYPE_EXECUTE, log_path=None) -> None:
         assert call_type in self._VALID_CALL_TYPES
         self._call_type = call_type
         # Explicit `or None` to simplify proto default empty string.
         self.log_path = log_path or None
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if self.__class__ is other.__class__:
             return self.__dict__ == other.__dict__
 

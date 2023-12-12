@@ -104,7 +104,7 @@ class Router:
     REEXEC_OUTPUT_FILE = "response"
     REEXEC_CONFIG_FILE = "config"
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._services = {}
         self._aliases = {}
         # All imported generated messages get added to this symbol db.

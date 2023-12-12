@@ -42,7 +42,7 @@ class InvalidPathHandlerError(Error):
 class ChrootHandler:
     """Translate a Chroot message to chroot enter arguments and env."""
 
-    def __init__(self, clear_field):
+    def __init__(self, clear_field) -> None:
         self.clear_field = clear_field
 
     def handle(self, message, recurse=True) -> Optional["chroot_lib.Chroot"]:
@@ -235,7 +235,7 @@ class SyncedDirHandler:
         field: common_pb2.SyncedDir,
         destination: str,
         chroot: chroot_lib.Chroot,
-    ):
+    ) -> None:
         self.field = field
         self.chroot = chroot
 

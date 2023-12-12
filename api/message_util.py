@@ -190,7 +190,7 @@ class MessageHandler:
         input_arg: str,
         output_arg: str,
         config_arg: str,
-    ):
+    ) -> None:
         """MessageHandler init.
 
         Args:
