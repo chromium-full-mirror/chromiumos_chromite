@@ -4989,40 +4989,6 @@
       "build_cadence": "DAILY_CADENCE"
     },
     {
-      "name": "elm-kernelnext",
-      "reference_board_name": "elm-kernelnext",
-      "arch": "ARM_INTERNAL",
-      "builder": "RELEASE",
-      "experimental": false,
-      "models": [
-        {
-          "board_name": "elm-kernelnext",
-          "name": "elm",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 425,
-          "is_active": true,
-          "stable_target_milestone": 117,
-          "is_experimental": true
-        }
-      ],
-      "rubik_target_milestone": 108,
-      "stable_target_milestone": 117,
-      "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
-    },
-    {
       "name": "endeavour",
       "reference_board_name": "endeavour",
       "arch": "X86_INTERNAL",
