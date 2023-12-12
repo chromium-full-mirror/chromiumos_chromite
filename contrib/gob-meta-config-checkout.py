@@ -35,7 +35,7 @@ CSI_ERASE_LINE_AFTER = "\x1b[K"
 class GitConfig:
     """Access to .git/config settings."""
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path) -> None:
         self.path = path / ".git" / "config"
         self.config = configparser.ConfigParser()
         self.read()

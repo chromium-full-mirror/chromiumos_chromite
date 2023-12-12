@@ -23,7 +23,7 @@ class PackageNode:
     Variables are yielded to improve runtime and memory usage.
     """
 
-    def __init__(self, pkg_name: str):
+    def __init__(self, pkg_name: str) -> None:
         self.name = pkg_name
         # List of child PackageNodes.
         self.dependencies = []
@@ -51,7 +51,7 @@ class DepVisualizer:
         dep_vis.VisualizeGraph()
     """
 
-    def __init__(self, dep_tree: Dict[str, List[str]]):
+    def __init__(self, dep_tree: Dict[str, List[str]]) -> None:
         """Dependency Visualizer init.
 
         Args:

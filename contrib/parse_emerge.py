@@ -63,7 +63,7 @@ class BuildPackagesProcessor:
         "Recording ",
     )
 
-    def __init__(self, stream):
+    def __init__(self, stream) -> None:
         self.stream = stream
         self.terminal_width = None
         self.terminal_height = None

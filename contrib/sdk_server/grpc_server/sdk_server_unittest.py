@@ -27,7 +27,7 @@ SKIP = _NO_CHROOT or _MODULE_NOT_FOUND
 
 
 class PopenMock:
-    def __init__(self, returncode=0):
+    def __init__(self, returncode=0) -> None:
         self.stdout = tempfile.NamedTemporaryFile(delete=False)
         self.stdout.write(b"we are testing stdout!")
         self.stdout.seek(0)

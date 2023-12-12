@@ -126,7 +126,7 @@ class TempMemLogger(logging.Logger):
     logger used to buffer messages before adding to log file
     """
 
-    def __init__(self, target, capacity=4000):
+    def __init__(self, target, capacity=4000) -> None:
         self.file = tempfile.NamedTemporaryFile(mode="a", delete=True)
         super().__init__(self.file.name)
         self.handler = handlers.MemoryHandler(capacity=capacity)
@@ -146,7 +146,7 @@ class SdkImage:
         path: Union[str, os.PathLike],
         latest: bool = False,
         image_type=None,
-    ):
+    ) -> None:
         self.path = path
         self.latest = latest
         self.name = os.path.split(str(path).rstrip("/"))[1]
@@ -155,17 +155,17 @@ class SdkImage:
         self.packages = []
         self.image_type = image_type
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
 
 class SdkSysroot(sysroot_lib.Sysroot):
     """Wrapper for sysroot_lib.Sysroot class."""
 
-    def __init__(self, path: Union[str, os.PathLike], name):
+    def __init__(self, path: Union[str, os.PathLike], name) -> None:
         super().__init__(path)
         self.name = name
         self.images = []
@@ -206,7 +206,7 @@ class SdkChroot(
 ):
     """Wrapper for chroot_lib Chroot class."""
 
-    def __init__(self, path: Union[str, os.PathLike] = None):
+    def __init__(self, path: Union[str, os.PathLike] = None) -> None:
         chroot_lib.Chroot.__init__(self, path)
         self.date_created = None
         self.version = None

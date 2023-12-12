@@ -263,7 +263,9 @@ class TestResult:
     total_runtime: int  # seconds
     steps: Dict[str, int]  # (step_name, elasped_seconds)
 
-    def __init__(self, swarmingUrl: str, task_id: str, build_proto_json: Dict):
+    def __init__(
+        self, swarmingUrl: str, task_id: str, build_proto_json: Dict
+    ) -> None:
         self.swarmingUrl = swarmingUrl
         self.task_id = task_id
         self.build_proto_json = build_proto_json
@@ -340,7 +342,7 @@ class SwarmingOutputProcessor:
         repeats: int,
         baseline: BuildResults,
         tested: BuildResults,
-    ):
+    ) -> None:
         self.baseline = baseline.succeeded
         self.tested = tested.succeeded
         self.repeats = repeats
@@ -661,7 +663,7 @@ class Test:
         repeats: int,
         tested_jobs=None,
         baseline_jobs=None,
-    ):
+    ) -> None:
         self._properties = {
             "test_name": test_name,
             "tested_job": json.loads(tested_job),
