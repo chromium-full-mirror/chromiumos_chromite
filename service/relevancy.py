@@ -59,7 +59,7 @@ class ReasonFundamental(Reason):
         )
         return pb
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f"{self.trigger} modified a path under {self.subtree}, which is "
             f"considered to be a fundamental path that affects all targets."
@@ -192,7 +192,9 @@ def _belongs(
                 "package."
             ) or profile_path.name.startswith("use."):
                 profile_path = profile_path.parent
-            yield overlay.get_profile(profile_path)
+            profile = overlay.get_profile(profile_path)
+            if profile:
+                yield profile
             return
         for ebuild in overlay.ebuilds:
             if compat.path_is_relative_to(path, ebuild.ebuild_file.parent):
@@ -285,10 +287,8 @@ def _belong_applies_to_target(
         A reason if the build target is applicable, None otherwise.
     """
     if isinstance(belong, build_query.Profile):
-        if _profile_contains_profile(
-            build_target.board.top_level_profile,
-            belong,
-        ):
+        profile = build_target.board.top_level_profile
+        if profile and _profile_contains_profile(profile, belong):
             return ReasonProfile(trigger=path, profile=belong)
     if isinstance(belong, build_query.Overlay):
         if belong in build_target.board.overlays:
@@ -298,6 +298,7 @@ def _belong_applies_to_target(
         # just consider ebuild presence in one of the boards overlays.
         if belong.overlay in build_target.board.overlays:
             return ReasonPackage(trigger=path, ebuild=belong)
+    return None
 
 
 def get_relevant_build_targets(
@@ -319,9 +320,11 @@ def get_relevant_build_targets(
     for path in paths:
         for subtree in _BELONGS_ALL:
             if compat.path_is_relative_to(path, subtree):
-                reason = ReasonFundamental(trigger=path, subtree=subtree)
+                reason_fundamental = ReasonFundamental(
+                    trigger=path, subtree=subtree
+                )
                 for build_target in considered:
-                    yield build_target, reason
+                    yield build_target, reason_fundamental
                 return
 
     belongs = list(_get_belongs_set(paths))

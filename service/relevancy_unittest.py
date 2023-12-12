@@ -5,6 +5,7 @@
 """Tests for the relevancy service."""
 
 from pathlib import Path
+from typing import List, Optional, Type
 
 import pytest
 
@@ -13,6 +14,7 @@ from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import portage_util
 from chromite.service import relevancy
+from chromite.test import portage_testables
 
 
 # pylint complains about fixture usage.
@@ -21,13 +23,15 @@ from chromite.service import relevancy
 
 
 @pytest.fixture
-def source_root_is_tmp(monkeypatch, tmp_path) -> None:
+def source_root_is_tmp(
+    monkeypatch: "pytest.MonkeyPatch", tmp_path: Path
+) -> None:
     """Patch SOURCE_ROOT to tmp_path."""
     monkeypatch.setattr(constants, "SOURCE_ROOT", tmp_path)
 
 
 @pytest.fixture
-def mock_source_info(monkeypatch, tmp_path) -> None:
+def mock_source_info(monkeypatch: "pytest.MonkeyPatch", tmp_path: Path) -> None:
     """Mock out the source_info property on ebuilds to a constant."""
     fake_source_info = portage_util.SourceInfo(
         projects=["chromiumos/platform/fake"],
@@ -83,12 +87,12 @@ def mock_source_info(monkeypatch, tmp_path) -> None:
     ],
 )
 def test_relevancy(
-    path,
-    board,
-    expected_reason,
-    fake_build_query_overlays,
-    source_root_is_tmp,
-    mock_source_info,
+    path: str,
+    board: str,
+    expected_reason: Optional[Type[relevancy.Reason]],
+    fake_build_query_overlays: List[portage_testables.Overlay],
+    source_root_is_tmp: None,
+    mock_source_info: None,
 ) -> None:
     """Test a variety of relevancy checks."""
     build_target = build_target_lib.BuildTarget(board, public=False)
