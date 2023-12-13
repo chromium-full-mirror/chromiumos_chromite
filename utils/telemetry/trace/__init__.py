@@ -7,7 +7,12 @@
 import contextlib
 import os
 import sys
-from typing import Mapping, Optional
+from typing import Any, Dict, Iterator, Mapping, Optional, TYPE_CHECKING, Union
+
+
+if TYPE_CHECKING:
+    from chromite.third_party.opentelemetry import trace
+    from chromite.third_party.opentelemetry.trace import span
 
 
 _TRACING_INITIALIZED = False
@@ -64,26 +69,27 @@ def initialize(
             "telemetry.version": telemetry.TELEMETRY_VERSION,
         }
     )
+
     detected_resource = otel_resources.get_aggregated_resources(
+        # pylint: disable=line-too-long
         [
-            otel_resources.ProcessResourceDetector(),
-            otel_resources.OTELResourceDetector(),
+            otel_resources.ProcessResourceDetector(),  # type: ignore[no-untyped-call]
+            otel_resources.OTELResourceDetector(),  # type: ignore[no-untyped-call]
             detector.ProcessDetector(),
-            detector.SDKSourceDetector(),
-            detector.SystemDetector(),
+            detector.SDKSourceDetector(),  # type: ignore[no-untyped-call]
+            detector.SystemDetector(),  # type: ignore[no-untyped-call]
             detector.DevelopmentDetector(force_dev=development_mode),
         ]
     )
 
     resource = detected_resource.merge(default_resource)
-    otel_trace_api.set_tracer_provider(
-        otel_trace.ChromiteTracerProvider(
-            otel_trace_sdk.TracerProvider(resource=resource)
-        )
+    tracer_provider = otel_trace.ChromiteTracerProvider(
+        otel_trace_sdk.TracerProvider(resource=resource)
     )
+    otel_trace_api.set_tracer_provider(tracer_provider)
 
     if log_traces:
-        otel_trace_api.get_tracer_provider().add_span_processor(
+        tracer_provider.add_span_processor(
             otel_export.BatchSpanProcessor(
                 otel_export.ConsoleSpanExporter(out=sys.stderr)
             )
@@ -93,7 +99,7 @@ def initialize(
         return
 
     if enabled:
-        otel_trace_api.get_tracer_provider().add_span_processor(
+        tracer_provider.add_span_processor(
             otel_export.BatchSpanProcessor(exporter.ClearcutSpanExporter())
         )
 
@@ -111,7 +117,7 @@ def get_tracer(name: str, version: Optional[str] = None) -> "ProxyTracer":
 
 def extract_tracecontext() -> Mapping[str, str]:
     """Extract the current tracecontext into a dict."""
-    carrier = {}
+    carrier: Dict[str, str] = {}
 
     if _TRACING_INITIALIZED:
         from chromite.third_party.opentelemetry.trace.propagation import (
@@ -122,9 +128,8 @@ def extract_tracecontext() -> Mapping[str, str]:
     return carrier
 
 
-def get_current_span():
+def get_current_span() -> Union["span.Span", "NoOpSpan"]:
     """Get the currently active span."""
-
     if _TRACING_INITIALIZED:
         from chromite.third_party.opentelemetry import trace
 
@@ -139,11 +144,11 @@ class ProxyTracer:
     def __init__(self, name: str, version: Optional[str] = None) -> None:
         self._name = name
         self._version = version
-        self._inner = None
+        self._inner: Optional[Union["trace.Tracer", "NoOpTracer"]] = None
         self._noop_tracer = NoOpTracer()
 
     @property
-    def _tracer(self):
+    def _tracer(self) -> Union["trace.Tracer", "NoOpTracer"]:
         if self._inner:
             return self._inner
 
@@ -158,11 +163,15 @@ class ProxyTracer:
         return self._noop_tracer
 
     @contextlib.contextmanager
-    def start_as_current_span(self, *args, **kwargs):
+    def start_as_current_span(
+        self, *args: Any, **kwargs: Any
+    ) -> Union[Iterator["span.Span"], Iterator["NoOpSpan"]]:
         with self._tracer.start_as_current_span(*args, **kwargs) as span:
             yield span
 
-    def start_span(self, *args, **kwargs):
+    def start_span(
+        self, *args: Any, **kwargs: Any
+    ) -> Union["span.Span", "NoOpSpan"]:
         return self._tracer.start_span(*args, **kwargs)
 
 
@@ -170,12 +179,14 @@ class NoOpTracer:
     """Duck typed no-op impl for opentelemetry Tracer."""
 
     # pylint: disable=unused-argument
-    def start_span(self, *args, **kwargs):
+    def start_span(self, *args: Any, **kwargs: Any) -> "NoOpSpan":
         return NoOpSpan()
 
     @contextlib.contextmanager
     # pylint: disable=unused-argument
-    def start_as_current_span(self, *args, **kwargs):
+    def start_as_current_span(
+        self, *args: Any, **kwargs: Any
+    ) -> Iterator["NoOpSpan"]:
         yield NoOpSpan()
 
 
@@ -190,15 +201,15 @@ class NoOpSpan:
         return None
 
     # pylint: disable=unused-argument
-    def set_attributes(self, *args, **kwargs) -> None:
+    def set_attributes(self, *args: Any, **kwargs: Any) -> None:
         pass
 
     # pylint: disable=unused-argument
-    def set_attribute(self, *args, **kwargs) -> None:
+    def set_attribute(self, *args: Any, **kwargs: Any) -> None:
         pass
 
     # pylint: disable=unused-argument
-    def add_event(self, *args, **kwargs) -> None:
+    def add_event(self, *args: Any, **kwargs: Any) -> None:
         pass
 
     # pylint: disable=unused-argument
@@ -210,16 +221,16 @@ class NoOpSpan:
         return False
 
     # pylint: disable=unused-argument
-    def set_status(self, *args, **kwargs) -> None:
+    def set_status(self, *args: Any, **kwargs: Any) -> None:
         pass
 
     # pylint: disable=unused-argument
-    def record_exception(self, *args, **kwargs) -> None:
+    def record_exception(self, *args: Any, **kwargs: Any) -> None:
         pass
 
     def __enter__(self) -> "NoOpSpan":
         return self
 
     # pylint: disable=unused-argument
-    def __exit__(self, *args, **kwargs) -> None:
+    def __exit__(self, *args: Any, **kwargs: Any) -> None:
         self.end()
