@@ -23,6 +23,8 @@ from chromite.utils import compat
 _BELONGS_ALL = [
     Path("chromite"),
     Path("src/scripts"),
+    Path("manifest"),
+    Path("manifest-internal"),
 ]
 
 
