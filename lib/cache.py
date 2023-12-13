@@ -11,7 +11,7 @@ import logging
 import os
 import shutil
 import tempfile
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 import urllib.parse
 
 from chromite.lib import cros_build_lib
@@ -87,7 +87,7 @@ class CacheReference:
         self._entry_lock = cache._LockForKey(key, suffix=".entry_lock")
 
     @property
-    def path(self) -> "os.PathLike[str]":
+    def path(self):
         """Returns on-disk path to the cached item."""
         return self._cache.GetKeyPath(self.key)
 
@@ -219,7 +219,7 @@ class DiskCache:
     def _KeyExists(self, key):
         return os.path.lexists(self.GetKeyPath(key))
 
-    def GetKeyPath(self, key: Tuple[str, ...]) -> "os.PathLike[str]":
+    def GetKeyPath(self, key):
         """Get the on-disk path of a key."""
         return os.path.join(self._cache_dir, "+".join(key))
 
@@ -282,7 +282,7 @@ class DiskCache:
                     keys.append(self.GetKey(key_path))
         return keys
 
-    def Lookup(self, key: Tuple[str, ...]) -> CacheReference:
+    def Lookup(self, key):
         """Get a reference to a given key."""
         return CacheReference(self, key)
 
