@@ -82,7 +82,7 @@ class BlockedTest(image_test_lib.ImageTestCase):
     BLOCKED_PACKAGES = (
         "app-text/iso-codes",
         "dev-java/icedtea",
-        "dev-java/icedtea6-bin",
+        "dev-java/icedtea-bin",
         "dev-java/openjdk-bin",
         "dev-lang/perl",
         "dev-lang/python",
