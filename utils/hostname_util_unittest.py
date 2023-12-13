@@ -5,13 +5,20 @@
 """Unit tests for hostname_util."""
 
 import socket
+from typing import TYPE_CHECKING
 from unittest import mock
 
 from chromite.lib import cros_test_lib
 from chromite.utils import hostname_util
 
 
-def test_google_host_to_be_true_for_valid_hosts(monkeypatch) -> None:
+if TYPE_CHECKING:
+    import pytest
+
+
+def test_google_host_to_be_true_for_valid_hosts(
+    monkeypatch: "pytest.MonkeyPatch",
+) -> None:
     """Test that is_google_host returns true for valid host."""
 
     for suffix in hostname_util.GOOGLE_HOSTNAME_SUFFIX:
@@ -23,7 +30,9 @@ def test_google_host_to_be_true_for_valid_hosts(monkeypatch) -> None:
         m.assert_called_once_with(fully_qualified=True)
 
 
-def test_google_host_to_be_false_for_invalid_hosts(monkeypatch) -> None:
+def test_google_host_to_be_false_for_invalid_hosts(
+    monkeypatch: "pytest.MonkeyPatch",
+) -> None:
     """Test that is_google_host returns true for invalid host."""
     m = mock.Mock(return_value="some.host.com")
     monkeypatch.setattr(hostname_util, "get_host_name", m)
