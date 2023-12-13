@@ -37,7 +37,6 @@ from chromite.lib import patch
 from chromite.lib import retry_util
 from chromite.lib import terminal
 from chromite.lib import uri_lib
-from chromite.utils import memoize
 from chromite.utils import pformat
 
 
@@ -534,7 +533,7 @@ class ActionDeps(_ActionSearchQuery):
         """Implement the action."""
         cls = _Query(opts, opts.query, raw=False)
 
-        @memoize.Memoize
+        @functools.lru_cache(maxsize=None)
         def _QueryChange(cl, helper=None):
             return _Query(opts, cl, raw=False, helper=helper)
 
@@ -1281,7 +1280,7 @@ class ActionHelpAll(UserAction):
                 pass
 
 
-@memoize.Memoize
+@functools.lru_cache
 def _GetActions():
     """Get all the possible actions we support.
 

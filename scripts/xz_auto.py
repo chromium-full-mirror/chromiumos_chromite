@@ -6,6 +6,7 @@
 
 from __future__ import division
 
+import functools
 import getopt
 import os
 import subprocess
@@ -13,14 +14,13 @@ import sys
 
 from chromite.lib import commandline
 from chromite.lib import osutils
-from chromite.utils import memoize
 
 
 PIXZ_DISABLE_VAR = "FOR_TEST_XZ_AUTO_NO_PIXZ"
 XZ_DISABLE_VAR = "FOR_TEST_XZ_AUTO_NO_XZ_DECOMPRESSION"
 
 
-@memoize.Memoize
+@functools.lru_cache
 def HasPixz():
     """Returns path to pixz if it's on PATH or None otherwise."""
     return PIXZ_DISABLE_VAR not in os.environ and osutils.Which("pixz")

@@ -9,6 +9,7 @@ https://gerrit-review.googlesource.com/Documentation/rest-api.html
 
 import base64
 import datetime
+import functools
 import html.parser
 import http.client
 import http.cookiejar
@@ -32,7 +33,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import retry_util
 from chromite.lib import timeout_util
-from chromite.utils import memoize
 
 
 _GAE_VERSION = "GAE_VERSION"
@@ -87,7 +87,7 @@ class ErrorParser(html.parser.HTMLParser):
         pass
 
 
-@memoize.Memoize
+@functools.lru_cache
 def _GetAppCredentials():
     """Returns the singleton Appengine credentials for gerrit code review."""
     return gce.AppAssertionCredentials(
