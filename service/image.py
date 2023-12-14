@@ -22,6 +22,7 @@ from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import dlc_lib
+from chromite.lib import flexor
 from chromite.lib import image_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
@@ -36,6 +37,7 @@ _IMAGE_TYPE_DESCRIPTION = {
     constants.DEV_IMAGE_BIN: "Developer",
     constants.TEST_IMAGE_BIN: "Test",
     constants.FACTORY_IMAGE_BIN: "Chromium OS Factory install shim",
+    constants.FLEXOR_KERNEL_IMAGE_NAME: "Flexor vmlinuz",
 }
 
 TERMINA_TOOLS_DIR = os.path.join(
@@ -299,7 +301,19 @@ def Build(
     version_info = chromeos_version.VersionInfo(
         version_file=constants.SOURCE_ROOT / constants.VERSION_FILE
     )
-    cmd = GetBuildImageCommand(config, image_names, board)
+
+    # For Flexor, we don't use build_image.sh, but instead call the build
+    # command directly.
+    should_build_flexor = False
+    if constants.FLEXOR_KERNEL_IMAGE_NAME in image_names:
+        should_build_flexor = True
+        image_names.remove(constants.FLEXOR_KERNEL_IMAGE_NAME)
+
+    cmd = (
+        GetBuildImageCommand(config, image_names, board)
+        if image_names
+        else None
+    )
 
     cros_build_lib.ClearShadowLocks(
         build_target_lib.get_default_sysroot_path(board)
@@ -336,13 +350,50 @@ def Build(
             constants.PARALLEL_EMERGE_STATUS_FILE_ENVVAR
         ] = status_file
         try:
-            result = cros_build_lib.run(
-                cmd, enter_chroot=True, extra_env=extra_env_local
-            )
-            build_result.return_code = result.returncode
+            # We don't need to invoke build_image.sh if we are only
+            # building Flexor.
+            if cmd:
+                result = cros_build_lib.run(
+                    cmd, enter_chroot=True, extra_env=extra_env_local
+                )
+                build_result.return_code = result.returncode
         except cros_build_lib.RunCommandError as e:
             build_result.exception = e
             build_result.return_code = e.returncode
+
+        if should_build_flexor:
+            try:
+                # For now we only sign Flexor with UEFI keys,
+                # so it is fine to use the devkeys for the
+                # kernel.
+                flexor.create_flexor_kernel_image(
+                    build_target=build_target_lib.BuildTarget(board),
+                    version=version_info.VersionString(),
+                    work_dir=build_dir,
+                    keys_dir=constants.VBOOT_DEVKEYS_DIR,
+                    public_key=constants.KERNEL_PUBLIC_SUBKEY,
+                    private_key=constants.KERNEL_DATA_PRIVATE_KEY,
+                    keyblock=constants.KERNEL_KEYBLOCK,
+                    serial=config.enable_serial,
+                    jobs=config.jobs,
+                    build_kernel=True,
+                )
+
+                build_result.return_code = 0
+            except flexor.FlexorBuildError as e:
+                build_result.exception = e
+                build_result.return_code = e.returncode
+
+            try:
+                cros_build_lib.CreateTarball(
+                    constants.FLEXOR_KERNEL_IMAGE_TAR,
+                    build_dir,
+                    inputs=[constants.FLEXOR_KERNEL_IMAGE_NAME],
+                    compression=cros_build_lib.CompressionType.ZSTD,
+                )
+            except cros_build_lib.TarballError as e:
+                build_result.exception = e
+                build_result.return_code = e.returncode
 
         try:
             content = osutils.ReadFile(status_file).strip()
@@ -390,14 +441,17 @@ def Build(
         image_path = os.path.relpath(image_path)
         msg = (
             f"{_IMAGE_TYPE_DESCRIPTION[filename]} image created as {filename}\n"
-            "To copy the image to a USB key, use:\n"
-            f"  cros flash usb:// {image_path}\n"
-            "To flash the image to a Chrome OS device, use:\n"
-            f"  cros flash ${{DUT_IP}} {image_path}\n"
-            "Note that the device must be accessible over the network.\n"
-            "A base image will not work in this mode, but a test or dev image"
-            " will.\n"
         )
+        if image_type != constants.IMAGE_TYPE_FLEXOR_KERNEL:
+            msg += (
+                "To copy the image to a USB key, use:\n"
+                f"  cros flash usb:// {image_path}\n"
+                "To flash the image to a Chrome OS device, use:\n"
+                f"  cros flash ${{DUT_IP}} {image_path}\n"
+                "Note that the device must be accessible over the network.\n"
+                "A base image will not work in this mode, but a test or"
+                "dev image will.\n"
+            )
         if any(
             filename == x
             for x in [constants.DEV_IMAGE_BIN, constants.TEST_IMAGE_BIN]

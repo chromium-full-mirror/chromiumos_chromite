@@ -4,9 +4,9 @@
 
 """Flexor build library."""
 
-import logging
 import os
 from pathlib import Path
+from typing import Optional
 
 from chromite.lib import build_target_lib
 from chromite.lib import cros_build_lib
@@ -26,6 +26,14 @@ KERNEL_FLAGS = (
 )
 
 
+class Error(Exception):
+    """Base error class for the module."""
+
+
+class FlexorBuildError(Error):
+    """Error class thrown when failing to build the Flexor kernel (image)."""
+
+
 def create_flexor_kernel_image(
     build_target: build_target_lib.BuildTarget,
     version: str,
@@ -34,7 +42,7 @@ def create_flexor_kernel_image(
     public_key: Path,
     private_key: Path,
     keyblock: Path,
-    serial: str,
+    serial: Optional[str],
     jobs: int,
     build_kernel: bool = True,
 ) -> str:
@@ -65,31 +73,41 @@ def create_flexor_kernel_image(
     if build_kernel:
         # Flexor ramfs cannot be built with multiple conflicting `_ramfs`
         # flags.
-        kb.CreateCustomKernel(
-            KERNEL_FLAGS,
-            [
-                x
-                for x in os.environ.get("USE", "").split()
-                if not x.endswith("_ramfs")
-            ],
-        )
+        try:
+            kb.CreateCustomKernel(
+                KERNEL_FLAGS,
+                [
+                    x
+                    for x in os.environ.get("USE", "").split()
+                    if not x.endswith("_ramfs")
+                ],
+            )
+        except kernel_builder.KernelBuildError as e:
+            raise FlexorBuildError(
+                "flexor: Failed to build flexor kernel image"
+            ) from e
     kernel = work_dir / FLEXOR_KERNEL_IMAGE
     assert " " not in version, f"bad version: {version}"
     boot_args = f"noinitrd panic=60 cros_flexor_version={version}"
-    kb.CreateKernelImage(
-        kernel,
-        boot_args=boot_args,
-        serial=serial,
-        keys_dir=keys_dir,
-        public_key=public_key,
-        private_key=private_key,
-        keyblock=keyblock,
-    )
+    try:
+        kb.CreateKernelImage(
+            kernel,
+            boot_args=boot_args,
+            serial=serial,
+            keys_dir=keys_dir,
+            public_key=public_key,
+            private_key=private_key,
+            keyblock=keyblock,
+        )
+    except:
+        raise FlexorBuildError(
+            "flexor: Failed to create flexor kernel image"
+        ) from e
     vmlinuz = work_dir / FLEXOR_VMLINUZ
     try:
         cros_build_lib.sudo_run(
             ["vbutil_kernel", "--get-vmlinuz", kernel, "--vmlinuz-out", vmlinuz]
         )
     except cros_build_lib.RunCommandError as e:
-        logging.error("Failed to extract vmlinuz due to: %s", e)
+        raise FlexorBuildError("Failed to extract flexor vmlinuz") from e
     return vmlinuz

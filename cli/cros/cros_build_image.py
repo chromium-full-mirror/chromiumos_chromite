@@ -13,11 +13,14 @@ test - Like dev, but with additional test specific packages and can be easily
     used for automated testing using scripts like test_that, etc.
 factory_install - Install shim for bootstrapping the factory test process.
     Cannot be built along with any other image.
+flexor - Builds a standalone Flexor vmlinuz. Flexor is a ChromeOS Flex installer
+    for more details, take a look at platform2/flexor or go/dd-flexor.
 
 Examples:
 
 cros build-image --board=<board> dev test - build developer and test images.
 cros build-image --board=<board> factory_install - build a factory install shim.
+cros build-image --board=<board> flexor - builds a Flexor vmlinuz.
 
 Note if you want to build an image with custom size partitions, either consider
 adding a new disk layout in build_library/legacy_disk_layout.json OR use

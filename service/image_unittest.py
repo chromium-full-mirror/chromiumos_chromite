@@ -92,6 +92,7 @@ class BuildImageTest(
             constants.IMAGE_TYPE_BASE,
             constants.IMAGE_TYPE_DEV,
             constants.IMAGE_TYPE_TEST,
+            constants.IMAGE_TYPE_FLEXOR_KERNEL,
         ]
         image.Build("board", multi, config=self.config)
         for x in multi:
