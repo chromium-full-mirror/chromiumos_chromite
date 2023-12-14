@@ -28,7 +28,7 @@ TELEMETRY_VERSION = "3"
 
 
 def initialize(
-    config_file: os.PathLike,
+    config_file: "os.PathLike[str]",
     log_traces: bool = False,
     enable: Optional[bool] = None,
 ) -> None:
