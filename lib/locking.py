@@ -11,6 +11,7 @@ import logging
 import os
 import stat
 import tempfile
+from typing import Optional
 
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
@@ -389,17 +390,19 @@ class PipeLock:
     """A simple one-way lock based on pipe().
 
     This is used when code is calling os.fork() directly and needs to
-    synchronize behavior between the two.  The same process should not try to
-    use Wait/Post as it will just see its own results.  If you need
-    bidirectional locks, you'll need to create two yourself.
+    synchronize behavior between the two.  The same process must not try to
+    use both Wait and Post.  If you need bidirectional locks, you'll need to
+    create two yourself.
 
     Be sure to delete the lock when you're done to prevent fd leakage.
     """
 
     def __init__(self) -> None:
-        self.read_fd, self.write_fd = os.pipe2(os.O_CLOEXEC)
+        self._read_fd: Optional[int]
+        self._write_fd: Optional[int]
+        self._read_fd, self._write_fd = os.pipe2(os.O_CLOEXEC)
 
-    def Wait(self, size=1):
+    def Wait(self, size: int = 1) -> bytes:
         """Read |size| bytes from the pipe.
 
         Args:
@@ -407,19 +410,38 @@ class PipeLock:
                 passed by the other end during its call to Post.
 
         Returns:
-            The data read back.
+            The data read back.  Note that this will be shorter than requested
+            if the other end closed the lock (e.g., early termination).
         """
-        return os.read(self.read_fd, size)
+        # We've chosen to use the "read" end of the pipe; close the "write" end.
+        if self._write_fd is not None:
+            os.close(self._write_fd)
+            self._write_fd = None
 
-    def Post(self, data=b"!") -> None:
+        assert self._read_fd is not None
+        return os.read(self._read_fd, size)
+
+    def Post(self, data: bytes = b"!") -> None:
         """Write |data| to the pipe.
 
         Args:
             data: The data to send to the other side calling Wait.  It must be
                 of the exact length that is passed to Wait.
         """
-        os.write(self.write_fd, data)
+        # We've chosen to use the "write" end of the pipe; close the "read" end.
+        if self._read_fd is not None:
+            os.close(self._read_fd)
+            self._read_fd = None
+
+        assert self._write_fd is not None
+        try:
+            os.write(self._write_fd, data)
+        except BrokenPipeError:
+            # Other end is all closed up. That's OK.
+            pass
 
     def __del__(self) -> None:
-        os.close(self.read_fd)
-        os.close(self.write_fd)
+        if self._read_fd is not None:
+            os.close(self._read_fd)
+        if self._write_fd is not None:
+            os.close(self._write_fd)

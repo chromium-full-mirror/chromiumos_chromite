@@ -325,16 +325,63 @@ class PipeLockTest(cros_test_lib.TestCase):
         fds_finished = os.listdir("/proc/self/fd/")
         self.assertEqual(fds_before, fds_finished)
 
-    def testSimple(self) -> None:
-        """Test we can Wait/Post."""
-        # If this fails, we'd just hang :).
+    def testBothEnds(self) -> None:
+        """Error if we try to use both ends."""
+        # If this fails, we might hang.
+        with timeout_util.Timeout(30):
+            with self.assertRaises(AssertionError):
+                lock = locking.PipeLock()
+                lock.Post()
+                lock.Wait()
+                del lock
+
+    def testDoublePost(self) -> None:
+        """Test out more than one Post/Wait."""
+        # If this fails, we might hang.
         with timeout_util.Timeout(30):
             lock = locking.PipeLock()
-            lock.Post()
-            lock.Post()
-            lock.Wait()
-            lock.Wait()
-            del lock
+            pid = os.fork()
+            # pylint: disable=protected-access
+            if pid:
+                # Parent.
+                lock.Post()
+                lock.Post()
+                del lock
+                status = os.waitpid(pid, 0)[1]
+                self.assertEqual(process_util.GetExitStatus(status), 0)
+            else:
+                # Child.
+                try:
+                    lock.Wait()
+                    lock.Wait()
+                except Exception:
+                    os._exit(1)
+                finally:
+                    del lock
+                    # No matter what happens, we must exit w/out running
+                    # handlers.
+                    os._exit(0)
+
+    def testChildExit(self) -> None:
+        """Child exits before posting."""
+        # If this fails, we might hang.
+        with timeout_util.Timeout(30):
+            lock = locking.PipeLock()
+            pid = os.fork()
+            # pylint: disable=protected-access
+            if pid:
+                # Wait for child (that will never come).
+                ret = lock.Wait()
+                self.assertEqual(ret, b"")
+                del lock
+                # We should still continue once the child dies and closes the
+                # pipe.
+                status = os.waitpid(pid, 0)[1]
+                self.assertEqual(process_util.GetExitStatus(status), 1)
+            else:
+                # Oops, the child terminated early.
+                os._exit(1)
+                # Just imagine we intended to lock.Post() here ;)
 
     def testParallel(self) -> None:
         """Test interprocesses actually sync."""
