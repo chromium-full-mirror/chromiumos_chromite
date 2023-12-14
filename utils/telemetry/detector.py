@@ -213,6 +213,7 @@ class DevelopmentDetector(resources.ResourceDetector):
                 self.force_dev
                 or os.environ.get("CHROMITE_TELEMETRY_IGNORE") == "1"
             ),
+            "development.tag": os.environ.get("CHROMITE_TELEMETRY_TAG", ""),
         }
 
         return resources.Resource(resource)
