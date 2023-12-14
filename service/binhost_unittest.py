@@ -36,6 +36,8 @@ from chromite.utils import gs_urls_util
 MOCK_BINHOST_ID = 1
 MOCK_BUILD_TARGET = "test_build_target"
 MOCK_DATE_STRING = "2023-07-25T08:09:14.842Z"
+MOCK_GENERIC_BUILD_TARGET = "generic_build_target"
+MOCK_GENERIC_PROFILE = "generic_profile"
 MOCK_GS_BUCKET_NAME = "test_bucket"
 MOCK_GS_URI = "gs://test"
 MOCK_ID_TOKEN = "test_token"
@@ -750,7 +752,7 @@ CPV: package/exclude-2
 class GetSnapshotShasTest(
     cros_test_lib.MockTempDirTestCase, cros_test_lib.LoggingTestCase
 ):
-    """The the _get_snapshot_shas function.
+    """Unittests for the _get_snapshot_shas function.
 
     The _get_snapshot_shas_from_git_log function is also tested here when it is
     called internally and the relevant functions are mocked.
@@ -867,6 +869,9 @@ class FetchBinhostsTest(
         MOCK_BUILD_TARGET,
         MOCK_PROFILE,
         False,
+        True,
+        MOCK_GENERIC_BUILD_TARGET,
+        MOCK_GENERIC_PROFILE,
     )
 
     def setUp(self):
@@ -907,12 +912,8 @@ class FetchBinhostsTest(
             400, "Unable to parse filter parameters from the request."
         )
 
-        with cros_test_lib.LoggingCapturer() as logs:
+        with self.assertRaises(binhost.BinhostsLookupServiceError):
             binhost._fetch_binhosts(*self.FETCH_BINHOSTS_MOCK_ARGS)
-            self.AssertLogsContain(
-                logs,
-                "Error while fetching binhosts from the binhost lookup service",
-            )
 
 
 class LookupBinhostsTest(cros_test_lib.MockTestCase):
@@ -933,17 +934,48 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
         self.get_snapshot_shas = self.PatchObject(binhost, "_get_snapshot_shas")
         self.fetch_binhosts = self.PatchObject(binhost, "_fetch_binhosts")
 
-    def test_internal(self):
-        """Test for internal checkout having internal and external manifests."""
+    def test_internal_private_board(self):
+        """Test for internal checkout with a private board."""
         self.get_snapshot_shas.side_effect = [
             binhost.SnapshotShas(
                 self.EXTERNAL_SNAPSHOT_SHAS, self.INTERNAL_SNAPSHOT_SHAS
             )
         ]
-        self.fetch_binhosts.side_effect = (
-            self.INTERNAL_GS_URIS,
-            self.EXTERNAL_GS_URIS,
-        )
+        self.fetch_binhosts.side_effect = [
+            [
+                *self.INTERNAL_GS_URIS,
+                *self.EXTERNAL_GS_URIS,
+            ]
+        ]
+        assert binhost.lookup_binhosts(
+            MOCK_GS_BUCKET_NAME, MOCK_BUILD_TARGET, MOCK_PROFILE
+        ) == [*self.INTERNAL_GS_URIS, *self.EXTERNAL_GS_URIS]
+
+    def test_internal_public_board(self):
+        """Test for internal checkout with a public board."""
+        self.get_snapshot_shas.side_effect = [
+            binhost.SnapshotShas(
+                self.EXTERNAL_SNAPSHOT_SHAS, self.INTERNAL_SNAPSHOT_SHAS
+            )
+        ]
+        self.fetch_binhosts.side_effect = [self.EXTERNAL_GS_URIS]
+        assert binhost.lookup_binhosts(
+            MOCK_GS_BUCKET_NAME, MOCK_BUILD_TARGET, MOCK_PROFILE
+        ) == [*self.EXTERNAL_GS_URIS]
+
+    def test_external_private_board(self):
+        """Test for external checkout having internal and external manifests.
+
+        External checkouts which have both manifests but only have external
+        snapshot shas, e.g. partners.
+        """
+        self.get_snapshot_shas.side_effect = [
+            binhost.SnapshotShas(self.EXTERNAL_SNAPSHOT_SHAS, [])
+        ]
+        self.fetch_binhosts.side_effect = [
+            [*self.INTERNAL_GS_URIS, *self.EXTERNAL_GS_URIS]
+        ]
+
         assert binhost.lookup_binhosts(
             MOCK_GS_BUCKET_NAME, MOCK_BUILD_TARGET, MOCK_PROFILE
         ) == [*self.INTERNAL_GS_URIS, *self.EXTERNAL_GS_URIS]
