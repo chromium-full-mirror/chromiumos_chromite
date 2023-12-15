@@ -1121,8 +1121,13 @@ class TempDirTestCase(TestCase):
 
     def __init__(self, *args, **kwargs) -> None:
         TestCase.__init__(self, *args, **kwargs)
-        self.tempdir = None
+        self._tempdir = None
         self._tempdir_obj = None
+
+    @property
+    def tempdir(self) -> Path:
+        assert self._tempdir
+        return self._tempdir
 
     @classmethod
     def SkipCleanup(cls):
@@ -1156,7 +1161,7 @@ class TempDirTestCase(TestCase):
         self._tempdir_obj = osutils.TempDir(
             prefix="chromite.test", set_global=True, delete=self.DELETE
         )
-        self.tempdir = Path(self._tempdir_obj.tempdir)
+        self._tempdir = Path(self._tempdir_obj.tempdir)
         # We must use addCleanup here so that inheriting TestCase classes can
         # use addCleanup with the guarantee that the tempdir will be cleaned up
         # _after_ their addCleanup has run. TearDown runs before cleanup
@@ -1167,7 +1172,7 @@ class TempDirTestCase(TestCase):
         if self._tempdir_obj is not None:
             self._tempdir_obj.Cleanup()
             self._tempdir_obj = None
-            self.tempdir = None
+            self._tempdir = None
 
     def ExpectRootOwnedFiles(self) -> None:
         """Tells us that we may need to clean up root owned files."""

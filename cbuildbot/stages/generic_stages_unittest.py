@@ -467,7 +467,6 @@ class BuilderStageTest(AbstractStageTestCase):
         )
         self.assertFalse(self.mock_cidb.StartBuildStage.called)
 
-    @osutils.TempFileDecorator
     def testRunSkipsPreviouslyCompletedStage(self) -> None:
         """Tests a stage that has run before is skipped, and marked as such."""
         handle_skip_mock = self.PatchObject(
@@ -481,10 +480,10 @@ class BuilderStageTest(AbstractStageTestCase):
             results_lib.Results.SUCCESS,
             description="Injected success",
         )
-        with open(self.tempfile, "w", encoding="utf-8") as out:
+        with open(self.tempdir / "foo", "w", encoding="utf-8") as out:
             results_lib.Results.SaveCompletedStages(out)
         results_lib.Results.Clear()
-        with open(self.tempfile, "r", encoding="utf-8") as out:
+        with open(self.tempdir / "foo", "r", encoding="utf-8") as out:
             results_lib.Results.RestoreCompletedStages(out)
 
         output = self._RunCapture(stage)
