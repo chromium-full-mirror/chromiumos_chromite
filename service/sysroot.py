@@ -880,7 +880,7 @@ def BuildPackages(
     _LogBinhostAge(binhosts, date_threshold=30)
     try:
         fetched_binhosts = binhost_service.lookup_binhosts(
-            target.name, target.profile
+            target.name, target.profile or "base"
         )
         logging.info(
             "Binhosts fetched from the lookup service: %s", fetched_binhosts
