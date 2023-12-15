@@ -77,13 +77,24 @@ def Unshare(flags) -> None:
         raise OSError(e, os.strerror(e))
 
 
-def _ReapChildren(pid: int, uid: Optional[int], gid: Optional[int]) -> None:
+def _ReapChildren(
+    pid: int,
+    uid: Optional[int],
+    gid: Optional[int],
+    stop_lock: Optional[locking.PipeLock] = None,
+) -> None:
     """Reap all children that get reparented to us until we see |pid| exit.
+
+    SIGSTOP handling notes: we want process reapers to handle stopped children
+    by propagating SIGSTOP upwards (i.e., stopping themselves). However, PID 1
+    (in the namespace) can't be stopped; instead, we use a PipeLock to
+    communicate upward.
 
     Args:
         pid: The main child to watch for.
         uid: The user to switch to first.
         gid: The group to switch to first.
+        stop_lock: The lock to post to when our child stops.
     """
     if gid is not None:
         os.setgid(gid)
@@ -92,8 +103,19 @@ def _ReapChildren(pid: int, uid: Optional[int], gid: Optional[int]) -> None:
 
     while True:
         try:
-            (wpid, status) = os.wait()
+            (wpid, status) = os.waitpid(-1, os.WUNTRACED)
             if pid == wpid:
+                if os.WIFSTOPPED(status):
+                    # Propagate the stoppage upwards one way or another.
+                    if stop_lock:
+                        stop_lock.Post()
+                    else:
+                        # In practice, we don't get here, because the only
+                        # caller (the external init manager) should only have a
+                        # single, unstoppable child (the init manager). But we
+                        # include this for completeness.
+                        os.kill(os.getpgrp(), signal.SIGSTOP)
+                    continue
                 process_util.ExitAsStatus(status)
         except OSError as e:
             if e.errno == errno.ECHILD:
@@ -122,12 +144,24 @@ def _SafeTcSetPgrp(fd, pgrp) -> None:
         os.tcsetpgrp(fd, pgrp)
 
 
-def _ForwardToChildPid(pid, signal_to_forward) -> None:
-    """Setup a signal handler that forwards the given signal to |pid|."""
+def _ForwardToChildPid(
+    pid: int, signal_to_forward: int, group: bool = False
+) -> None:
+    """Setup a signal handler that forwards the given signal to children.
+
+    Args:
+        pid: Process to target.
+        signal_to_forward: Signal number to forward.
+        group: If False, forward the signal only to the |pid| in question. If
+            True, forward to the entire process group that |pid| belongs to.
+    """
 
     def _ForwardingHandler(signum, _frame) -> None:
         try:
-            os.kill(pid, signum)
+            if group:
+                os.killpg(os.getpgid(pid), signum)
+            else:
+                os.kill(pid, signum)
         except ProcessLookupError:
             # The target PID might have already exited, and thus we get a
             # ProcessLookupError when trying to send it a signal.
@@ -161,6 +195,9 @@ def CreatePidNs(uid: Optional[int] = None, gid: Optional[int] = None) -> int:
             - All SIGTERM/SIGINT signals are forwarded down from pid X to pid Z
               to handle.
             - SIGKILL will only kill pid X, and leak Pid Y and Z.
+            - SIGTSTP/SIGSTOP on Z will propagate out to Y (which can't stop,
+              as it is PID 1) and then out to Z via stop_lock.
+            - SIGCONT is forwarded from X to Z.
 
     Args:
         uid: The user to run the init processes as.
@@ -187,6 +224,10 @@ def CreatePidNs(uid: Optional[int] = None, gid: Optional[int] = None) -> int:
     # forward the controlling terminal.
     lock = locking.PipeLock()
 
+    # The new PID 1 can't SIGSTOP itself, so we'll use this lock to notify the
+    # external init when it's time to SIGSTOP.
+    stop_lock = locking.PipeLock()
+
     # Now that we're in the new pid namespace, fork.  The parent is the master
     # of it in the original namespace, so it only monitors the child inside it.
     # It is only allowed to fork once too.
@@ -197,8 +238,12 @@ def CreatePidNs(uid: Optional[int] = None, gid: Optional[int] = None) -> int:
         # We forward termination signals to the child and trust the child to
         # respond sanely. Later, ExitAsStatus propagates the exit status back
         # up.
+        # We also forward continuation signals to the entire group (in shell
+        # job control fashion), so we all resume together if we're ever
+        # SIGSTOP'd.
         _ForwardToChildPid(pid, signal.SIGINT)
         _ForwardToChildPid(pid, signal.SIGTERM)
+        _ForwardToChildPid(pid, signal.SIGCONT, group=True)
 
         # Forward the control of the terminal to the child so it can manage
         # input.
@@ -208,8 +253,18 @@ def CreatePidNs(uid: Optional[int] = None, gid: Optional[int] = None) -> int:
         lock.Post()
         del lock
 
+        # Wait for our child to stop (in which case they Post non-empty
+        # contents) or terminate (broken / empty pipe). We only have 1 child,
+        # so it's OK to defer reaping until the lock is closed.
+        while len(stop_lock.Wait()) != 0:
+            # Child Post()ed; that means we want to propagate SIGSTOP to the
+            # group.
+            os.killpg(os.getpgrp(), signal.SIGSTOP)
+
         # Reap the children as the parent of the new namespace.
         _ReapChildren(pid, uid=uid, gid=gid)
+        # Shouldn't get here, but clean up for completeness.
+        del stop_lock
     else:
         # Make sure to unshare the existing mount point if needed.  Some distros
         # create shared mount points everywhere by default.
@@ -246,8 +301,12 @@ def CreatePidNs(uid: Optional[int] = None, gid: Optional[int] = None) -> int:
             # We forward termination signals to the child and trust the child to
             # respond sanely. Later, ExitAsStatus propagates the exit status
             # back up.
+            # We also forward continuation signals to the entire group (in
+            # shell job control fashion), so we all resume together if we're
+            # ever SIGSTOP'd.
             _ForwardToChildPid(pid, signal.SIGINT)
             _ForwardToChildPid(pid, signal.SIGTERM)
+            _ForwardToChildPid(pid, signal.SIGCONT, group=True)
 
             # Now that we're in a new pid namespace, start a new process group
             # so that children have something valid to use.  Otherwise
@@ -265,7 +324,12 @@ def CreatePidNs(uid: Optional[int] = None, gid: Optional[int] = None) -> int:
 
             # Watch all the children.  We need to act as the master inside the
             # namespace and reap old processes.
-            _ReapChildren(pid, uid=uid, gid=gid)
+            _ReapChildren(pid, uid=uid, gid=gid, stop_lock=stop_lock)
+            # Shouldn't get here, but clean up for completeness.
+            del stop_lock
+
+    # Grandchild doesn't need this lock.
+    del stop_lock
 
     # Wait for our parent to finish initialization.
     lock.Wait()
