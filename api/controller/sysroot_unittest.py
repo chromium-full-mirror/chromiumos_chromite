@@ -198,6 +198,7 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             backtrack=sysroot_controller.DEFAULT_BACKTRACK,
         )
         self.assertEqual(board, out_proto.sysroot.build_target.name)
+        self.assertEqual(profile, out_proto.sysroot.build_target.profile.name)
         self.assertEqual(sysroot_path, out_proto.sysroot.path)
 
 

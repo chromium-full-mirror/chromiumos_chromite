@@ -233,6 +233,7 @@ def Create(request, response, _config):
 
     response.sysroot.path = created.path
     response.sysroot.build_target.name = build_target.name
+    response.sysroot.build_target.profile.name = build_target.profile
 
     return controller.RETURN_CODE_SUCCESS
 
@@ -356,6 +357,7 @@ def InstallPackages(
     build_target = controller_util.ParseBuildTarget(
         request.sysroot.build_target
     )
+    build_target.profile = request.sysroot.build_target.profile.name
 
     # Get the package atom for each specified package. The field is optional, so
     # error only when we cannot parse an atom for each of the given packages.
