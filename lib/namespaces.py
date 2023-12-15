@@ -99,8 +99,8 @@ def _ReapChildren(pid: int, uid: Optional[int], gid: Optional[int]) -> None:
             if e.errno == errno.ECHILD:
                 raise ValueError(
                     "All children of the current processes have been reaped, "
-                    "but %u was not one of them. This means that %u is not a "
-                    "child of the current processes." % (pid)
+                    f"but {pid} was not one of them. This means that {pid} "
+                    "is not a child of the current processes."
                 )
             elif e.errno != errno.EINTR:
                 raise
@@ -140,7 +140,7 @@ def _ForwardToChildPid(pid, signal_to_forward) -> None:
     signal.signal(signal_to_forward, _ForwardingHandler)
 
 
-def CreatePidNs(uid: Optional[int] = None, gid: Optional[int] = None) -> None:
+def CreatePidNs(uid: Optional[int] = None, gid: Optional[int] = None) -> int:
     """Start a new pid namespace.
 
     This will launch all the right manager processes.  The child that returns

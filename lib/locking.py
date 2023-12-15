@@ -81,10 +81,10 @@ class _Lock(cros_build_lib.PrimaryPidContextManager):
         self._verbose = verbose
         self.description = description
         self._fd = None
-        self.locking_mechanism = (
-            fcntl.flock if locktype == FLOCK else fcntl.lockf
-        )
-        # Store (to log) the locktype string.
+        if locktype == FLOCK:
+            self.locking_mechanism = fcntl.flock
+        else:
+            self.locking_mechanism = fcntl.lockf
         self.locktype = locktype
         self.blocking = blocking
         self.blocking_timeout = blocking_timeout
