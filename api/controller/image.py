@@ -50,6 +50,7 @@ _FIRMWARE_ID = common_pb2.IMAGE_TYPE_FIRMWARE
 _BASE_GUEST_VM_ID = common_pb2.IMAGE_TYPE_BASE_GUEST_VM
 _TEST_GUEST_VM_ID = common_pb2.IMAGE_TYPE_TEST_GUEST_VM
 _NETBOOT_ID = common_pb2.IMAGE_TYPE_NETBOOT
+_FLEXOR_ID = common_pb2.IMAGE_TYPE_FLEXOR_KERNEL
 
 # Dict to allow easily translating names to enum ids and vice versa.
 _IMAGE_MAPPING = {
@@ -67,6 +68,8 @@ _IMAGE_MAPPING = {
     constants.IMAGE_TYPE_FIRMWARE: _FIRMWARE_ID,
     _NETBOOT_ID: constants.IMAGE_TYPE_NETBOOT,
     constants.IMAGE_TYPE_NETBOOT: _NETBOOT_ID,
+    _FLEXOR_ID: constants.IMAGE_TYPE_FLEXOR_KERNEL,
+    constants.IMAGE_TYPE_FLEXOR_KERNEL: _FLEXOR_ID,
 }
 
 # Dict to describe the prerequisite built images for each VM image type.

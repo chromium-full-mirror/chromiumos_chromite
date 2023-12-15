@@ -223,6 +223,28 @@ class CreateTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         )
         netboot_patch.assert_any_call("board", os.path.dirname(factory_path))
 
+    def testFlexor(self) -> None:
+        """Test it's properly building flexor."""
+        request = self._GetRequest(
+            board="board",
+            types=[
+                common_pb2.IMAGE_TYPE_FLEXOR_KERNEL,
+            ],
+        )
+        flexor_path = self.tempdir / "flexor_vmlinuz"
+        flexor_path.touch()
+        result = image_service.BuildResult([constants.IMAGE_TYPE_FLEXOR_KERNEL])
+        result.add_image(constants.IMAGE_TYPE_FLEXOR_KERNEL, flexor_path)
+        result.return_code = 0
+        build_patch = self.PatchObject(
+            image_service, "Build", return_value=result
+        )
+
+        image_controller.Create(request, self.response, self.api_config)
+        build_patch.assert_any_call(
+            "board", [constants.IMAGE_TYPE_FLEXOR_KERNEL], config=mock.ANY
+        )
+
 
 class GetArtifactsTest(
     cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
