@@ -21,6 +21,8 @@ import re
 import tempfile
 from typing import Dict, List, NamedTuple, Set, Tuple
 
+from chromite.third_party.opentelemetry import trace
+
 from chromite.cli import command
 from chromite.lib import build_target_lib
 from chromite.lib import constants
@@ -1631,6 +1633,10 @@ def _GetDLCInfo(
         return content.get(_DLC_ID), content.get(_DLC_PACKAGE)
 
 
+tracer = trace.get_tracer(__name__)
+
+
+@tracer.start_as_current_span("cli.deploy")
 def Deploy(
     device: remote_access.RemoteDevice,
     packages: List[str],
@@ -1705,6 +1711,19 @@ def Deploy(
             board = cros_build_lib.GetBoard(
                 device_board=device.board, override_board=board
             )
+
+            # add board information now that we have it.
+            span = trace.get_current_span()
+            span.set_attributes(
+                {
+                    "device": device.hostname,
+                    "device_board": device.board,
+                    "board_used_for_pkg_build": board,
+                    "emerge": emerge,
+                    "packages": packages,
+                }
+            )
+
             if not force and board != device.board:
                 raise DeployError(
                     "Device (%s) is incompatible with board %s. Use "
