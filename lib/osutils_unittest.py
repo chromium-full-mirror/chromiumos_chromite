@@ -5,6 +5,7 @@
 """Unittests for the osutils.py module (imagine that!)."""
 
 import collections
+import datetime
 import errno
 import filecmp
 import glob
@@ -19,6 +20,8 @@ import sys
 import tempfile
 import time
 from unittest import mock
+
+import pytest
 
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -1951,3 +1954,71 @@ class TestMockSyncStorage(cros_test_lib.TestCase):
         with mock.patch.object(libc, "GetLibc", return_value=m):
             osutils.sync_storage(".")
         m.fsync.assert_called_once()
+
+
+@pytest.fixture(name="log_file")
+def fixture_log_file(tmp_path):
+    f = tmp_path / "log.log"
+    f.write_text("test contents")
+    return f
+
+
+@pytest.fixture(name="generic_log")
+def fixture_generic_log(log_file):
+    log_file.chmod(0o777)
+    return log_file
+
+
+@pytest.fixture(name="root_log")
+def fixture_root_log(log_file):
+    osutils.Chown(log_file, user="root", group="root")
+    return log_file
+
+
+def test_rotate_log_file(generic_log):
+    with osutils.rotate_log_file(generic_log, purge=True):
+        pass
+    assert not generic_log.exists()
+
+
+def test_rotate_log_file_root(root_log):
+    with osutils.rotate_log_file(root_log, purge=True):
+        pass
+    assert not root_log.exists()
+
+
+def test_rotate_log_path_is_dir(tmp_path):
+    p = tmp_path / "unreal"
+    p.mkdir()
+    with pytest.raises(OSError):
+        with osutils.rotate_log_file(p):
+            pass
+
+
+def test_rotate_log_creates_parent_dir(tmp_path):
+    p = tmp_path / "plus" / "some" / "subdir"
+    with osutils.rotate_log_file(p / "log.log"):
+        pass
+    assert p.exists()
+
+
+@pytest.fixture(name="_patch_datetime_now")
+def fixture_patch_datetime_now(monkeypatch):
+    FAKE_NOW = datetime.datetime(2023, 1, 1, 16, 20, 0)
+    datetime_mock = mock.Mock(wraps=datetime.datetime)
+    datetime_mock.now.return_value = FAKE_NOW
+    monkeypatch.setattr(datetime, "datetime", datetime_mock)
+
+
+def test_rotate_log_copy(generic_log, _patch_datetime_now):
+    with osutils.rotate_log_file(generic_log):
+        pass
+    assert not generic_log.exists()
+    assert (generic_log.parent / "log-copy-20230101-162000.log").exists()
+
+
+def test_rotate_log_copy_root(root_log, _patch_datetime_now):
+    with osutils.rotate_log_file(root_log):
+        pass
+    assert not root_log.exists()
+    assert (root_log.parent / "log-copy-20230101-162000.log").exists()

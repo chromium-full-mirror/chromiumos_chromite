@@ -7,6 +7,7 @@
 import collections
 import contextlib
 import ctypes
+import datetime
 import errno
 import glob
 import hashlib
@@ -23,6 +24,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Generator,
     Iterable,
     Iterator,
     List,
@@ -1982,3 +1984,44 @@ def sync_storage(
         logging.info("syncing all data & filesystems & hardware in the system")
         ret = clib.sync() == 0
     return ret
+
+
+@contextlib.contextmanager
+def rotate_log_file(
+    path: Path, purge: bool = False
+) -> Generator[None, None, None]:
+    """Rotate an arbitrary (log) file.
+
+    The file does not have to exist, and if the parent directories don't already
+    exist, the function will ensure they are present. This may fail when the
+    immediate parent exists as a file; if this is the case, an exception
+    will be raised.
+
+    Args:
+        path: The client-provided path to the log file. The log file may not
+            exist.
+        purge: Remove the file without creating a backup copy.
+    """
+    if path.exists():
+        if not path.is_file():
+            raise OSError(f"provided log path is not a file: {path}")
+        if purge:
+            try:
+                path.unlink()
+            except PermissionError:
+                cros_build_lib.sudo_run(["rm", str(path)])
+            logging.debug("removed old log file: %s", path)
+        else:
+            # Path construction does not account for multiple suffixes, e.g.
+            # '.tar.gz'.
+            ts = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            new_path = path.parent / f"{path.stem}-copy-{ts}{path.suffix}"
+            try:
+                shutil.move(path, new_path)
+            except PermissionError:
+                cros_build_lib.sudo_run(["mv", str(path), str(new_path)])
+            logging.debug("moved old logs to file: %s", new_path)
+    else:
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+    yield
