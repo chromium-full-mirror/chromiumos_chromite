@@ -7,6 +7,8 @@
 import json
 import os
 
+import pytest
+
 import chromite as cr
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -2295,3 +2297,35 @@ class EbuildManifestFileHashTest(cros_test_lib.TempDirTestCase):
             self.tempdir, "foobar", "MD5", entry_type="AUX"
         )
         self.assertEqual(h, "abc123def")
+
+
+@pytest.mark.parametrize(
+    "data,expected",
+    (
+        ('{"test": 1}', {"test": 1}),
+        ('{"int": 1, "list": [1, 2, 3]}', {"int": 1, "list": [1, 2, 3]}),
+        ('{"test": 1}\n{"test": 2}', {"test": 3}),
+        (
+            '{"test": 1, "list": ["a", "b"]}\n{"test": 2, "list": ["c", "d"]}',
+            {"test": 3, "list": ["a", "b", "c", "d"]},
+        ),
+    ),
+)
+def test_read_depgraph_counters_and_combine(data, expected) -> None:
+    assert portage_util.read_depgraph_counters(data) == expected
+
+
+@pytest.mark.parametrize(
+    "data,expected",
+    (
+        ('{"test": 1}', [{"test": 1}]),
+        ('{"int": 1, "list": [1, 2, 3]}', [{"int": 1, "list": [1, 2, 3]}]),
+        ('{"test": 1}\n{"test": 2}', [{"test": 1}, {"test": 2}]),
+        (
+            '{"test": 1, "list": ["a", "b"]}\n{"test": 2, "list": ["c", "d"]}',
+            [{"test": 1, "list": ["a", "b"]}, {"test": 2, "list": ["c", "d"]}],
+        ),
+    ),
+)
+def test_read_depgraph_counters_no_combine(data, expected) -> None:
+    assert portage_util.read_depgraph_counters(data, combine=False) == expected

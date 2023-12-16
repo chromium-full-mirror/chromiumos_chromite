@@ -706,3 +706,7 @@ RECOVERY_DATA_PRIVATE_KEY = "recovery_kernel_data_key.vbprivk"
 RECOVERY_KEYBLOCK = "recovery_kernel.keyblock"
 MINIOS_DATA_PRIVATE_KEY = "minios_kernel_data_key.vbprivk"
 MINIOS_KEYBLOCK = "minios_kernel.keyblock"
+
+# Portage log paths.
+PORTAGE_LOG_DIR = Path("/var/log/portage")
+PORTAGE_DEPGRAPH_COUNTERS_LOG = PORTAGE_LOG_DIR / "depgraph_counters.log"

@@ -16,6 +16,7 @@ from pathlib import Path
 import re
 import shutil
 from typing import (
+    Any,
     Dict,
     Iterable,
     Iterator,
@@ -3318,3 +3319,53 @@ def EbuildManifestFileHash(
         manifest_content,
     )
     raise ValueError("unexpected Manifest file content")
+
+
+def read_depgraph_counters(
+    content: str, combine: bool = True
+) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
+    """Transform contents of /var/log/portage/depgraph_counters.log to JSON.
+
+    We can expect each line of this file to be a stringified dict. Convert back
+    to json to make querying easier. We also combine attributes by default when
+    multiple lines are present, since the primary use case is to add this data
+    to OpenTelemetry spans, which don't accept arbitrary dicts.
+
+    Args:
+        content: The log file contents
+        combine: Whether to combine multiple entries into one dict.
+    """
+    if not content:
+        return {}
+
+    def add(a: Dict[str, Any], b: Dict[str, Any]):
+        # We make a (possibly faulty) assumption that the inputs are
+        # well-formed.
+        # All values are either int, str, or list(str), and that the data type
+        # per key is consistent. All these items should correctly use the +
+        # operator without issue.
+        # Dict members that aren't present in both inputs are dropped in the
+        # intersection operation, so we can safely expect no key errors.
+        return dict((k, a[k] + b[k]) for k in set(b) & set(a))
+
+    results = []
+    for line in content.splitlines():
+        results.append(json.loads(line))
+    if combine:
+        r = results[0]
+        for i in range(1, len(results)):
+            r = add(r, results[i])
+        return r
+    return results
+
+
+def write_depgraph_counters_to_span(span):
+    try:
+        contents = osutils.ReadFile(constants.PORTAGE_DEPGRAPH_COUNTERS_LOG)
+    except FileNotFoundError:
+        return
+    if contents:
+        transformed = read_depgraph_counters(contents)
+        span.set_attributes(
+            {f"depgraph_counters_{k}": v for k, v in transformed.items()}
+        )

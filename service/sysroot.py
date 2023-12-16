@@ -537,6 +537,7 @@ def SetupBoard(
 
 
 @tracer.start_as_current_span("service.sysroot.Create")
+@osutils.rotate_log_file(constants.PORTAGE_DEPGRAPH_COUNTERS_LOG)
 def Create(
     target: "build_target_lib.BuildTarget",
     run_configs: SetupBoardRunConfig,
@@ -573,10 +574,13 @@ def Create(
     if run_configs.update_chroot and not run_configs.regen_configs:
         with tracer.start_as_current_span(
             "service.sysroot.Create.update_chroot"
-        ):
+        ) as span:
             result = sdk_service.Update(
                 run_configs.GetUpdateChrootArgs(target.name)
             )
+
+            portage_util.write_depgraph_counters_to_span(span)
+
             if not result.success:
                 raise UpdateChrootError(
                     "Error occurred while updating the chroot. "
@@ -801,6 +805,7 @@ def CreateChromeEbuildEnv(
 
 
 @tracer.start_as_current_span("service.sysroot.InstallToolchain")
+@osutils.rotate_log_file(constants.PORTAGE_DEPGRAPH_COUNTERS_LOG)
 def InstallToolchain(
     target: "build_target_lib.BuildTarget",
     sysroot: sysroot_lib.Sysroot,
@@ -830,9 +835,12 @@ def InstallToolchain(
         local_init = run_configs.usepkg or run_configs.local_build
         _InstallToolchain(sysroot, target, local_init=local_init)
 
+    portage_util.write_depgraph_counters_to_span(trace.get_current_span())
+
 
 @tracer.start_as_current_span("service.sysroot.BuildPackages")
 @metrics_lib.timed("service.sysroot.BuildPackages")
+@osutils.rotate_log_file(constants.PORTAGE_DEPGRAPH_COUNTERS_LOG)
 def BuildPackages(
     target: "build_target_lib.BuildTarget",
     sysroot: sysroot_lib.Sysroot,
@@ -998,6 +1006,8 @@ def BuildPackages(
         # Remove any broken or outdated binpkgs.
         if run_configs.eclean:
             portage_util.CleanOutdatedBinaryPackages(sysroot.path, deep=True)
+
+    portage_util.write_depgraph_counters_to_span(trace.get_current_span())
 
 
 def _LogBinhostAge(binhosts: List[str], date_threshold: int) -> None:
