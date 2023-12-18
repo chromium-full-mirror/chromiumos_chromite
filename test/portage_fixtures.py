@@ -150,6 +150,13 @@ def fake_build_query_overlays(tmp_path):
             overlay_fake.profiles[Path("base")],
         ],
     )
+    overlay_fake_private.create_profile(
+        "alt-profile",
+        make_defaults={"USE": "alt_profile"},
+        profile_parents=[
+            overlay_fake_private.profiles[Path("base")],
+        ],
+    )
     overlay_fake_private.add_package(
         portage_testables.Package(
             category="chromeos-base",

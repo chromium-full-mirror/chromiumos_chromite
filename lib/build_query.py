@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import abc
+import dataclasses
 import enum
 import functools
 import logging
@@ -677,18 +678,14 @@ class Ebuild(QueryTarget):
         return self.ebuild_file == other.ebuild_file
 
 
+@dataclasses.dataclass(frozen=True)
 class Board(QueryTarget):
     """A board, as in what would be passed to setup_board."""
 
-    def __init__(
-        self,
-        name: str,
-        private_overlay: Optional[Overlay] = None,
-        public_overlay: Optional[Overlay] = None,
-    ) -> None:
-        self.name = name
-        self.private_overlay = private_overlay
-        self.public_overlay = public_overlay
+    name: str
+    private_overlay: Optional[Overlay] = None
+    public_overlay: Optional[Overlay] = None
+    profile: str = "base"
 
     @classmethod
     def find_all(
@@ -705,18 +702,23 @@ class Board(QueryTarget):
             if board_name not in boards:
                 boards[board_name] = Board(board_name)
             if overlay.is_private:
-                boards[board_name].private_overlay = overlay
+                boards[board_name] = dataclasses.replace(
+                    boards[board_name], private_overlay=overlay
+                )
             else:
-                boards[board_name].public_overlay = overlay
+                boards[board_name] = dataclasses.replace(
+                    boards[board_name], public_overlay=overlay
+                )
 
         yield from boards.values()
 
     @classmethod
-    def get(cls, name: str) -> Board:
+    def get(cls, name: str, profile: str = "base") -> Board:
         """Convenience function to get a board by name.
 
         Args:
             name: The board name.
+            profile: The profile for the board.
 
         Returns:
             The corresponding Board object.
@@ -728,7 +730,7 @@ class Board(QueryTarget):
         if not boards:
             raise ValueError(f"No such board: {name}")
         assert len(boards) == 1
-        return boards[0]
+        return dataclasses.replace(boards[0], profile=profile)
 
     @property
     def top_level_overlay(self) -> Optional[Overlay]:
@@ -745,8 +747,10 @@ class Board(QueryTarget):
     @property
     def top_level_profile(self) -> Optional[Profile]:
         """The top-level profile for this board."""
-        if self.top_level_overlay:
-            return self.top_level_overlay.get_profile("base")
+        for overlay in self.overlays:
+            profile = overlay.get_profile(self.profile)
+            if profile:
+                return profile
         return None
 
     def tree(self) -> Iterator[Profile]:
@@ -780,12 +784,10 @@ class Board(QueryTarget):
         return False
 
     def __repr__(self) -> str:
-        return self.name
-
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, Board):
-            return False
-        return self.name == other.name
+        result = self.name
+        if self.profile != "base":
+            result += f":{self.profile}"
+        return result
 
 
 class Query:

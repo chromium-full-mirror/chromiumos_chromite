@@ -5,6 +5,7 @@
 """Tests for query.py."""
 
 from pathlib import Path
+from typing import Dict
 
 import pytest
 
@@ -31,19 +32,34 @@ def test_query_overlays(fake_build_query_overlays) -> None:
 
 def test_query_profiles(fake_build_query_overlays) -> None:
     """Test listing all profiles."""
-    profiles = list(build_query.Profile.find_all())
-    assert profiles[0].overlay.name == "baseboard-fake"
-    assert profiles[0].name == "base"
-    assert profiles[0].parents == []
-    assert profiles[1].overlay.name == "fake"
-    assert profiles[1].name == "base"
-    assert profiles[1].parents == [profiles[0]]
-    assert profiles[2].overlay.name == "baseboard-fake-private"
-    assert profiles[2].name == "base"
-    assert profiles[2].parents == [profiles[0]]
-    assert profiles[3].overlay.name == "fake-private"
-    assert profiles[3].name == "base"
-    assert profiles[3].parents == [profiles[2], profiles[1]]
+    profiles: Dict[str, build_query.Profile] = {
+        str(x): x for x in build_query.Profile.find_all()
+    }
+    assert profiles["baseboard-fake:base"].overlay.name == "baseboard-fake"
+    assert profiles["baseboard-fake:base"].name == "base"
+    assert profiles["baseboard-fake:base"].parents == []
+    assert profiles["fake:base"].overlay.name == "fake"
+    assert profiles["fake:base"].name == "base"
+    assert profiles["fake:base"].parents == [profiles["baseboard-fake:base"]]
+    assert (
+        profiles["baseboard-fake-private:base"].overlay.name
+        == "baseboard-fake-private"
+    )
+    assert profiles["baseboard-fake-private:base"].name == "base"
+    assert profiles["baseboard-fake-private:base"].parents == [
+        profiles["baseboard-fake:base"]
+    ]
+    assert profiles["fake-private:alt-profile"].overlay.name == "fake-private"
+    assert profiles["fake-private:alt-profile"].name == "alt-profile"
+    assert profiles["fake-private:alt-profile"].parents == [
+        profiles["fake-private:base"]
+    ]
+    assert profiles["fake-private:base"].overlay.name == "fake-private"
+    assert profiles["fake-private:base"].name == "base"
+    assert profiles["fake-private:base"].parents == [
+        profiles["baseboard-fake-private:base"],
+        profiles["fake:base"],
+    ]
 
 
 def test_query_boards(fake_build_query_overlays) -> None:
@@ -242,6 +258,13 @@ def test_board_get_fail(fake_build_query_overlays) -> None:
         build_query.Board.get("notfake")
 
 
+def test_board_get_profile(fake_build_query_overlays) -> None:
+    """Test Board.get() with a profile."""
+    board = build_query.Board.get("fake", profile="alt-profile")
+    assert board.name == "fake"
+    assert "alt_profile" in board.use_flags
+
+
 def test_query_one(fake_build_query_overlays) -> None:
     """Test .one() on a query which yields one result."""
     board = (
@@ -279,11 +302,7 @@ def test_query_one_or_none(fake_build_query_overlays) -> None:
 def test_query_all(fake_build_query_overlays) -> None:
     """Test .all() on a query."""
     boards = build_query.Query(build_query.Board).all()
-    assert boards == [
-        build_query.Board("fake"),
-        build_query.Board("faux"),
-        build_query.Board("foo"),
-    ]
+    assert [str(x) for x in boards] == ["fake", "faux", "foo"]
 
 
 def test_resolve_incremental_variable(fake_build_query_overlays) -> None:

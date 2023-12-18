@@ -4,6 +4,7 @@
 
 """Generate documentation for `cros query` types in Markdown."""
 
+import dataclasses
 import functools
 import inspect
 import io
@@ -103,7 +104,15 @@ def _gen_docs(output: TextIO) -> None:
         _pr("**Attributes:**")
         _pr()
 
+        dataclass_attrs = set()
+        if dataclasses.is_dataclass(target):
+            for field in dataclasses.fields(target):
+                _pr(f"* `{field.name}` (`{field.type}`)")
+                dataclass_attrs.add(field.name)
+
         for attr in sorted(dir(target)):
+            if attr in dataclass_attrs:
+                continue
             if attr.startswith("_"):
                 continue
             # tree() is considered internal to the CLI.

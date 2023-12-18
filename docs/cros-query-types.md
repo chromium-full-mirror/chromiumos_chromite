@@ -7,6 +7,10 @@
 
 **Attributes:**
 
+* `name` (`str`)
+* `private_overlay` (`Optional[Overlay]`)
+* `public_overlay` (`Optional[Overlay]`)
+* `profile` (`str`)
 * `arch` (`Optional[str]`): The machine architecture of this board.
 * `is_variant` (`bool`): True if this board has another board's top level overlay in its
         overlays parents.
