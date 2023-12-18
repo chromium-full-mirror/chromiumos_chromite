@@ -27,7 +27,7 @@ class BuildTarget:
     def __init__(
         self,
         name: Optional[str],
-        profile: Optional[str] = None,
+        profile: str = "base",
         build_root: Optional[str] = None,
         public: Optional[bool] = None,
     ) -> None:
@@ -76,7 +76,7 @@ class BuildTarget:
         board_name = self.name
         if self.is_host():
             board_name = "amd64-host"
-        return build_query.Board.get(board_name)
+        return build_query.Board.get(board_name, profile=self.profile)
 
     @property
     def public(self) -> bool:
