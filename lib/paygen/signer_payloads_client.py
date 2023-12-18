@@ -607,9 +607,7 @@ class LocalSignerPayloadsClient:
             signatures.append(signatures_by_keyset[keyset])
         return [list(l) for l in zip(*signatures)]
 
-    def GetHashSignatures(
-        self, hashes, keysets=("update_signer",)
-    ) -> List[List[str]]:
+    def GetHashSignatures(self, hashes, keysets) -> List[List[str]]:
         """Take an arbitrary list of hash files, and get them signed.
 
         Args:

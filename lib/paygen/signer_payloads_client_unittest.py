@@ -710,8 +710,9 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
     ) -> None:
         client = self.createStandardClient()
 
+        keyset = "DevPreMPKeys"
         expected_signature_files = [
-            f"{i}.payload.hash.update_signer.signed.bin" for i in range(3)
+            f"{i}.payload.hash.{keyset}.signed.bin" for i in range(3)
         ]
         os.mkdir(os.path.join(self.tempdir, "result_dir"))
         for i, signature_file in enumerate(expected_signature_files):
@@ -721,11 +722,11 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
             ) as f:
                 f.write(bytes("abcd" * (i + 1), "utf-8"))
 
-        artifact_name = lambda n: f"{n}.payload.hash.update_signer.signed.bin"
+        artifact_name = lambda n: f"{n}.payload.hash.{keyset}.signed.bin"
         mock_sign_image.return_value = signing_pb2.BuildTargetSignedArtifacts(
             archive_artifacts=[
                 signing_pb2.ArchiveArtifacts(
-                    keyset="update_signer",
+                    keyset=keyset,
                     signed_artifacts=[
                         signing_pb2.SignedArtifact(
                             signed_artifact_name=artifact_name(i),
@@ -738,7 +739,7 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
         )
 
         hashes = [b"Hash 1", b"Hash 2", b"Hash 3"]
-        signatures = client.GetHashSignatures(hashes)
+        signatures = client.GetHashSignatures(hashes, (keyset,))
         self.assertEqual(
             signatures,
             [
@@ -755,7 +756,7 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
                     signing_configs=[
                         signing_pb2.SigningConfig(
                             image_type=common_pb2.IMAGE_TYPE_UPDATE_PAYLOAD,
-                            keyset="update_signer",
+                            keyset=keyset,
                             channel=common_pb2.CHANNEL_DEV,
                             version="foo-version",
                             input_files=[
@@ -784,8 +785,9 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
         """Test that GetHashSignatures raises an exception if signing fails."""
         client = self.createStandardClient()
 
+        keyset = "DevPreMPKeys"
         expected_signature_files = [
-            f"{i}.payload.hash.update_signer.signed.bin" for i in range(3)
+            f"{i}.payload.hash.{keyset}.signed.bin" for i in range(3)
         ]
         os.mkdir(os.path.join(self.tempdir, "result_dir"))
         for i, signature_file in enumerate(expected_signature_files):
@@ -795,11 +797,11 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
             ) as f:
                 f.write(bytes("abcd" * (i + 1), "utf-8"))
 
-        artifact_name = lambda n: f"{n}.payload.hash.update_signer.signed.bin"
+        artifact_name = lambda n: f"{n}.payload.hash.{keyset}.signed.bin"
         mock_sign_image.return_value = signing_pb2.BuildTargetSignedArtifacts(
             archive_artifacts=[
                 signing_pb2.ArchiveArtifacts(
-                    keyset="update_signer",
+                    keyset=keyset,
                     signed_artifacts=[
                         signing_pb2.SignedArtifact(
                             signed_artifact_name=artifact_name(i),
@@ -812,4 +814,6 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
         )
 
         with self.assertRaises(signer_payloads_client.PaygenSigningError):
-            client.GetHashSignatures([b"Hash 1", b"Hash 2", b"Hash 3"])
+            client.GetHashSignatures(
+                [b"Hash 1", b"Hash 2", b"Hash 3"], (keyset,)
+            )

@@ -56,6 +56,7 @@ class PayloadConfig:
         cache_dir: Optional[str] = None,
         use_local_signing: bool = False,
         signing_docker_image: str = None,
+        keyset: str = None,
     ) -> None:
         """Init method, sets up all the paths and configuration.
 
@@ -70,6 +71,7 @@ class PayloadConfig:
             cache_dir: The cache dir for paygen to use or None for default.
             use_local_signing: Whether to use local signing.
             signing_docker_image: Docker image to use for local signing.
+            keyset: Keyset to use (for local signing).
         """
 
         # Set when we call GeneratePayload on this object.
@@ -86,11 +88,17 @@ class PayloadConfig:
         self.cache_dir = cache_dir
         self.use_local_signing = use_local_signing
         self.signing_docker_image = signing_docker_image
+        self.keyset = keyset
 
-        if self.use_local_signing and not self.signing_docker_image:
-            raise ValueError(
-                "local signing enabled but no docker image specified"
-            )
+        if self.use_local_signing:
+            if not self.signing_docker_image:
+                raise ValueError(
+                    "local signing enabled but no docker image specified"
+                )
+            if not self.keyset:
+                raise ValueError(
+                    "local signing enabled but no keyset specified"
+                )
 
         # This block ensures that we have paths to the correct perm of images.
         src_image_path = None
@@ -195,6 +203,7 @@ class PayloadConfig:
                 payload_build=self.payload.build,
                 local_signing=self.use_local_signing,
                 docker_image=self.signing_docker_image,
+                keyset=self.keyset,
             )
             self.paygen = paygen_payload_lib.PaygenPayload(
                 self.chroot,

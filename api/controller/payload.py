@@ -127,20 +127,13 @@ def GeneratePayload(
     """
     src_image, tgt_image = _ValidateImages(request)
 
-    if request.use_local_signing and not request.docker_image:
-        cros_build_lib.Die(
-            "local signing enabled but no docker image specified"
-        )
+    if request.use_local_signing:
+        cros_build_lib.Die("local signing not supported for this endpoint")
 
     # Find the value of bucket or default to 'chromeos-releases'.
     destination_bucket = request.bucket or "chromeos-releases"
 
     chroot = controller_util.ParseChroot(request.chroot)
-
-    local_signing_kwargs = {}
-    if request.use_local_signing:
-        local_signing_kwargs["use_local_signing"] = True
-        local_signing_kwargs["signing_docker_image"] = request.docker_image
 
     # There's a potential that some paygen_lib library might raise here, but
     # since we're still involved in config we'll keep it before the
@@ -154,7 +147,6 @@ def GeneratePayload(
         request.verify,
         upload=not request.dryrun,
         cache_dir=_DEFAULT_PAYGEN_CACHE_DIR,
-        **local_signing_kwargs,
     )
 
     # If configured for validation only we're done here.
@@ -321,10 +313,13 @@ def FinalizePayload(
     """
     src_image, tgt_image = _ValidateImages(request)
 
-    if request.use_local_signing and not request.docker_image:
-        cros_build_lib.Die(
-            "local signing enabled but no docker image specified"
-        )
+    if request.use_local_signing:
+        if not request.docker_image:
+            cros_build_lib.Die(
+                "local signing enabled but no docker image specified"
+            )
+        if not request.keyset:
+            cros_build_lib.Die("local signing enabled but no keyset specified")
 
     # Find the value of bucket or default to 'chromeos-releases'.
     destination_bucket = request.bucket or "chromeos-releases"
@@ -335,6 +330,7 @@ def FinalizePayload(
     if request.use_local_signing:
         local_signing_kwargs["use_local_signing"] = True
         local_signing_kwargs["signing_docker_image"] = request.docker_image
+        local_signing_kwargs["keyset"] = request.keyset
 
     # There's a potential that some paygen_lib library might raise here, but
     # since we're still involved in config we'll keep it before the

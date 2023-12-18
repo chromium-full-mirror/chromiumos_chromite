@@ -123,6 +123,7 @@ class PaygenSigner:
         payload_build=None,
         local_signing=False,
         docker_image=None,
+        keyset=None,
     ) -> None:
         """Initializer.
 
@@ -133,6 +134,7 @@ class PaygenSigner:
             payload_build: The build defined for the payload.
             local_signing: Use the new local signing prototype.
             docker_image: Docker image to use for local signing.
+            keyset: Keyset to use for local signing.
         """
         self.public_key = None
 
@@ -142,6 +144,13 @@ class PaygenSigner:
         self._payload_build = payload_build
         self.local_signing = local_signing
         self._docker_image = docker_image
+
+        # Only set keyset for local signing, the legacy flow relies on
+        # defaults.
+        if self.local_signing:
+            self.keyset = keyset
+        else:
+            self.keyset = None
 
         self._signer = None
         self._Initialize()
@@ -944,9 +953,7 @@ class PaygenPayload:
         logging.info("Payload hashes: %s", hashes)
 
         if self.signer.local_signing:
-            # TODO(b/299105459): Use `update_signer` once we have a way of
-            # distinguishing between dev and prod.
-            keysets = ("DevPreMPKeys",)
+            keysets = (self.signer.keyset,)
 
         # Results look like:
         #  [[hash_1_sig_1, hash_1_sig_2], [hash_2_sig_1, hash_2_sig_2]]

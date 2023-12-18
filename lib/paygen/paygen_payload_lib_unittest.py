@@ -285,7 +285,13 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
     """PaygenPayloadLib basic (and quick) testing."""
 
     def _GetStdGenerator(
-        self, work_dir=None, payload=None, sign=True, minios=False, static=True
+        self,
+        work_dir=None,
+        payload=None,
+        sign=True,
+        minios=False,
+        static=True,
+        local_signing=False,
     ):
         """Helper function to create a standardized PayloadGenerator."""
         if payload is None:
@@ -299,8 +305,10 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         signer_mock = None
         if sign:
             signer_mock = self.PatchObject(paygen_payload_lib, "PaygenSigner")
-            signer_mock.local_signing = False
+            signer_mock.local_signing = local_signing
             signer_mock.public_key = None
+            if local_signing:
+                signer_mock.keyset = "DevPreMPKeys"
 
         gen = paygen_payload_lib.PaygenPayload(
             chroot=chroot_lib.Chroot(),
@@ -905,6 +913,26 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         hash_mock.assert_called_once_with(
             hashes, keysets=gen.PAYLOAD_SIGNATURE_KEYSETS
         )
+
+    def testSignHashes_LocalSigning(self) -> None:
+        """Tests _SignHashes for a local signing flow."""
+        hashes = (b"foo", b"bar")
+        signatures = ((b"0" * 256,), (b"1" * 256,))
+
+        gen = self._GetStdGenerator(work_dir="/work", local_signing=True)
+
+        # Stub out the required functions.
+        hash_mock = self.PatchObject(
+            paygen_payload_lib.PaygenSigner,
+            "GetHashSignatures",
+            return_value=signatures,
+        )
+
+        # Run the test.
+        self.assertEqual(gen._SignHashes(hashes), signatures)
+
+        # Check the expected function calls.
+        hash_mock.assert_called_once_with(hashes, keysets=("DevPreMPKeys",))
 
     def testWriteSignaturesToFile(self) -> None:
         """Test writing signatures into files."""

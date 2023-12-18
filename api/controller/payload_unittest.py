@@ -191,68 +191,6 @@ class GeneratePayloadTests(
             controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE,
         )
 
-    def testLocalSigningSuccessMock(self) -> None:
-        """Test a local signing paygen request inits with the right values."""
-        patch = self.PatchObject(payload_service, "PayloadConfig")
-
-        req = self.req
-        req.use_local_signing = True
-        req.docker_image = (
-            "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
-        )
-
-        res = payload.GeneratePayload(self.req, self.result, self.api_config)
-        self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
-
-        patch.assert_called_with(
-            mock.ANY,  # chroot
-            mock.ANY,  # target image
-            mock.ANY,  # source image
-            mock.ANY,  # dest bucket
-            mock.ANY,  # minios
-            mock.ANY,  # verify
-            upload=mock.ANY,
-            cache_dir=mock.ANY,
-            use_local_signing=True,
-            signing_docker_image=req.docker_image,
-        )
-
-    def testLocalSigningSuccess(self) -> None:
-        """Test a local signing paygen request."""
-        patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
-        patch.return_value.CreateUnsignedPayloads.return_value = {
-            1: ("/tmp/aohiwdadoi/delta.bin", "/tmp/aohiwdadoi/delta.json")
-        }
-        patch.return_value.FinalizePayload.return_value = {
-            1: ("/tmp/aohiwdadoi/delta.bin", "gs://minios/something")
-        }
-
-        req = self.req
-        req.use_local_signing = True
-        req.docker_image = (
-            "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
-        )
-
-        res = payload.GeneratePayload(self.req, self.result, self.api_config)
-        self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
-
-    def testLocalSigningFailure(self) -> None:
-        """Test a local signing paygen request."""
-        patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
-        patch.return_value.CreateUnsignedPayloads.return_value = {
-            1: ("/tmp/aohiwdadoi/delta.bin", "/tmp/aohiwdadoi/delta.json")
-        }
-        patch.return_value.FinalizePayload.return_value = {
-            1: ("/tmp/aohiwdadoi/delta.bin", "gs://minios/something")
-        }
-
-        req = self.req
-        req.use_local_signing = True
-
-        # No docker image, will fail.
-        with self.assertRaises(cros_build_lib.DieSystemExit):
-            payload.GeneratePayload(self.req, self.result, self.api_config)
-
 
 class GenerateUnsignedPayloadTests(
     cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
@@ -464,7 +402,6 @@ class FinalizePayloadTest(
             src_unsigned_image=src_image,
             bucket="test-destination-bucket",
             verify=True,
-            keyset="update_signer",
             dryrun=False,
             result_path=common_pb2.ResultPath(
                 path=common_pb2.Path(
@@ -576,6 +513,7 @@ class FinalizePayloadTest(
         req.docker_image = (
             "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
         )
+        req.keyset = "DevPreMPKeys"
 
         res = payload.FinalizePayload(req, self.result, self.api_config)
         self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
@@ -591,6 +529,7 @@ class FinalizePayloadTest(
             cache_dir=mock.ANY,
             use_local_signing=True,
             signing_docker_image=req.docker_image,
+            keyset="DevPreMPKeys",
         )
 
     def testLocalSigningSuccess(self) -> None:
@@ -605,20 +544,26 @@ class FinalizePayloadTest(
         req.docker_image = (
             "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
         )
+        req.keyset = "DevPreMPKeys"
 
         res = payload.FinalizePayload(req, self.result, self.api_config)
         self.assertEqual(res, controller.RETURN_CODE_SUCCESS)
 
-    def testLocalSigningFailure(self) -> None:
-        """Test a local signing paygen request."""
-        patch = self.PatchObject(paygen_payload_lib, "PaygenPayload")
-        patch.return_value.FinalizePayload.return_value = {
-            1: ("/tmp/aohiwdadoi/delta.bin", "gs://minios/something")
-        }
-
+    def testLocalSigningFailureNoDockerImage(self) -> None:
+        """Test a local signing paygen request fails with no docker image."""
         req = self.req
         req.use_local_signing = True
 
         # No docker image, will fail.
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            payload.FinalizePayload(self.req, self.result, self.api_config)
+
+    def testLocalSigningFailureNoKeyset(self) -> None:
+        """Test a local signing paygen request fails with no keyset."""
+        req = self.req
+        req.use_local_signing = True
+        req.docker_image = "foo"
+
+        # No keyset, will fail.
         with self.assertRaises(cros_build_lib.DieSystemExit):
             payload.FinalizePayload(self.req, self.result, self.api_config)
