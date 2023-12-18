@@ -8,9 +8,12 @@ import os
 
 import pytest
 
+from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
+
+# pylint: disable-next=import-modules-only
 from chromite.lib.build_target_lib import BuildTarget
 from chromite.test import portage_testables
 
@@ -113,3 +116,12 @@ def test_find_overlays_public(tmp_path, monkeypatch, public) -> None:
         expected_overlays.add(chromeos_path)
 
     assert overlays == expected_overlays
+
+
+def test_to_proto() -> None:
+    """Test BuildTarget.to_proto()."""
+    target = BuildTarget(name="some-board", profile="special-profile")
+    assert target.to_proto() == common_pb2.BuildTarget(
+        name="some-board",
+        profile=common_pb2.Profile(name="special-profile"),
+    )

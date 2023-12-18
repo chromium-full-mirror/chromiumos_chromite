@@ -116,6 +116,10 @@ pkg_files(
         # that might expand the set of Chromite modules that can cache-bust all
         # packages in a Bazel build.
         [
+            "api/__init__.py",
+            "api/gen/__init__.py",
+            "api/gen/chromiumos/__init__.py",
+            "api/gen/chromiumos/common_pb2.py",
             "cbuildbot/cbuildbot_alerts.py",
             "cbuildbot/__init__.py",
             "lib/buildbot_annotations.py",
@@ -151,6 +155,8 @@ pkg_files(
             "licensing/ebuild_license_hook.py",
             "licensing/__init__.py",
             "licensing/licenses_lib.py",
+            "third_party/google/__init__.py",
+            "third_party/google/protobuf/**",
             "utils/attrs_freezer.py",
             "utils/file_util.py",
             "utils/gs_urls_util.py",
@@ -286,6 +292,10 @@ pkg_files(
         # that might expand the set of Chromite modules that can cache-bust all
         # packages in a Bazel build.
         [
+            "api/__init__.py",
+            "api/gen/__init__.py",
+            "api/gen/chromiumos/__init__.py",
+            "api/gen/chromiumos/common_pb2.py",
             "cbuildbot/cbuildbot_alerts.py",
             "cbuildbot/__init__.py",
             "lib/buildbot_annotations.py",
@@ -316,6 +326,8 @@ pkg_files(
             "lib/signals.py",
             "lib/terminal.py",
             "lib/timeout_util.py",
+            "third_party/google/__init__.py",
+            "third_party/google/protobuf/**",
             "utils/attrs_freezer.py",
             "utils/file_util.py",
             "utils/gs_urls_util.py",
@@ -368,6 +380,10 @@ pkg_files(
         # that might expand the set of Chromite modules that can cache-bust all
         # packages in a Bazel build.
         [
+            "api/__init__.py",
+            "api/gen/__init__.py",
+            "api/gen/chromiumos/__init__.py",
+            "api/gen/chromiumos/common_pb2.py",
             "bin/build_dlc",
             "cbuildbot/cbuildbot_alerts.py",
             "cbuildbot/__init__.py",
@@ -416,6 +432,8 @@ pkg_files(
             "scripts/build_dlc.py",
             "scripts/cros_set_lsb_release.py",
             "scripts/__init__.py",
+            "third_party/google/__init__.py",
+            "third_party/google/protobuf/**",
             "utils/attrs_freezer.py",
             "utils/c_blkpg.py",
             "utils/c_loop.py",
