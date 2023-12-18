@@ -13,7 +13,6 @@ from chromite.api import faux
 from chromite.api import validate
 from chromite.api.controller import controller_util
 from chromite.api.gen.chromite.api import relevancy_pb2
-from chromite.api.gen.chromiumos import common_pb2
 from chromite.service import relevancy
 
 
@@ -38,7 +37,7 @@ def GetRelevantBuildTargets(request, response, _config) -> None:
     ):
         response.build_targets.append(
             relevancy_pb2.GetRelevantBuildTargetsResponse.RelevantTarget(
-                build_target=common_pb2.BuildTarget(name=build_target.name),
+                build_target=build_target.to_proto(),
                 reason=reason.to_proto(),
             ),
         )

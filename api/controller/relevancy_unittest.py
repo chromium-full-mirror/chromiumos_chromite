@@ -32,7 +32,10 @@ _REASON_FUNDAMENTAL = relevancy_service.ReasonFundamental(
     subtree=Path("chromite"),
 )
 _RELEVANT_TARGET = relevancy_pb2.GetRelevantBuildTargetsResponse.RelevantTarget(
-    build_target=common_pb2.BuildTarget(name="fake"),
+    build_target=common_pb2.BuildTarget(
+        name="fake",
+        profile=common_pb2.Profile(name="base"),
+    ),
     reason=_REASON_FUNDAMENTAL.to_proto(),
 )
 
