@@ -100,6 +100,18 @@ class ParseBuildTargetTest(cros_test_lib.TestCase):
 
         self.assertEqual(expected, result)
 
+    def testParseProfileFromBuildTarget(self) -> None:
+        """When the profile is specified in the BuildTarget PB, use that."""
+        name = "build-target-name"
+        profile = "profile"
+        build_target_msg = common_pb2.BuildTarget(
+            name=name, profile=common_pb2.Profile(name=profile)
+        )
+
+        expected = build_target_lib.BuildTarget(name, profile=profile)
+        result = controller_util.ParseBuildTarget(build_target_msg)
+        self.assertEqual(expected, result)
+
     def testWrongMessage(self) -> None:
         """Test invalid message type given."""
         with self.assertRaises(AssertionError):

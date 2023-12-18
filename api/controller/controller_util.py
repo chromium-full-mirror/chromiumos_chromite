@@ -175,7 +175,11 @@ def ParseBuildTarget(
         profile_message, sysroot_pb2.Profile
     )
 
-    profile_name = profile_message.name if profile_message else "base"
+    profile_name = "base"
+    if build_target_message.HasField("profile"):
+        profile_name = build_target_message.profile.name
+    elif profile_message:
+        profile_name = profile_message.name
     return build_target_lib.BuildTarget(
         build_target_message.name, profile=profile_name
     )
