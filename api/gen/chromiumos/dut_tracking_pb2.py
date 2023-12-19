@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='chromiumos',
   syntax='proto3',
   serialized_options=_b('Z4go.chromium.org/chromiumos/infra/proto/go/chromiumos'),
-  serialized_pb=_b('\n\x1d\x63hromiumos/dut_tracking.proto\x12\nchromiumos\x1a\x1c\x63hromiumos/bot_scaling.proto\"\xcc\x01\n\x0eTrackingPolicy\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x31\n\ndimensions\x18\x02 \x03(\x0b\x32\x1d.chromiumos.SwarmingDimension\x12)\n\x05modes\x18\x03 \x03(\x0e\x32\x1a.chromiumos.MonitoringMode\x12\x16\n\x0elookback_hours\x18\x04 \x01(\x11\x12\x36\n\x0ftask_dimensions\x18\x05 \x03(\x0b\x32\x1d.chromiumos.SwarmingDimension\"A\n\x11TrackingPolicyCfg\x12,\n\x08policies\x18\x01 \x03(\x0b\x32\x1a.chromiumos.TrackingPolicy*b\n\x0eMonitoringMode\x12\x14\n\x10\x44\x45\x46\x41ULT_TRACKING\x10\x00\x12\x12\n\x0eTASK_BOT_COUNT\x10\x01\x12\x11\n\rMAX_PEND_TIME\x10\x02\x12\x13\n\x0fPASS_FAIL_COUNT\x10\x03\x42\x36Z4go.chromium.org/chromiumos/infra/proto/go/chromiumosb\x06proto3')
+  serialized_pb=_b('\n\x1d\x63hromiumos/dut_tracking.proto\x12\nchromiumos\x1a\x1c\x63hromiumos/bot_scaling.proto\"\xe7\x01\n\x0eTrackingPolicy\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x31\n\ndimensions\x18\x02 \x03(\x0b\x32\x1d.chromiumos.SwarmingDimension\x12)\n\x05modes\x18\x03 \x03(\x0e\x32\x1a.chromiumos.MonitoringMode\x12\x16\n\x0elookback_hours\x18\x04 \x01(\x11\x12\x36\n\x0ftask_dimensions\x18\x05 \x03(\x0b\x32\x1d.chromiumos.SwarmingDimension\x12\x19\n\x11swarming_instance\x18\x06 \x01(\t\"A\n\x11TrackingPolicyCfg\x12,\n\x08policies\x18\x01 \x03(\x0b\x32\x1a.chromiumos.TrackingPolicy*b\n\x0eMonitoringMode\x12\x14\n\x10\x44\x45\x46\x41ULT_TRACKING\x10\x00\x12\x12\n\x0eTASK_BOT_COUNT\x10\x01\x12\x11\n\rMAX_PEND_TIME\x10\x02\x12\x13\n\x0fPASS_FAIL_COUNT\x10\x03\x42\x36Z4go.chromium.org/chromiumos/infra/proto/go/chromiumosb\x06proto3')
   ,
   dependencies=[chromiumos_dot_bot__scaling__pb2.DESCRIPTOR,])
 
@@ -50,8 +50,8 @@ _MONITORINGMODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=349,
-  serialized_end=447,
+  serialized_start=376,
+  serialized_end=474,
 )
 _sym_db.RegisterEnumDescriptor(_MONITORINGMODE)
 
@@ -105,6 +105,13 @@ _TRACKINGPOLICY = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='swarming_instance', full_name='chromiumos.TrackingPolicy.swarming_instance', index=5,
+      number=6, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -118,7 +125,7 @@ _TRACKINGPOLICY = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=76,
-  serialized_end=280,
+  serialized_end=307,
 )
 
 
@@ -148,8 +155,8 @@ _TRACKINGPOLICYCFG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=282,
-  serialized_end=347,
+  serialized_start=309,
+  serialized_end=374,
 )
 
 _TRACKINGPOLICY.fields_by_name['dimensions'].message_type = chromiumos_dot_bot__scaling__pb2._SWARMINGDIMENSION
