@@ -498,7 +498,7 @@ class UpdateTest(
             return_value=["gs://binhost1", "gs://binhost2"],
         )
         with cros_test_lib.LoggingCapturer() as logs:
-            sdk.Update(sdk.UpdateArguments())
+            sdk.Update(sdk.UpdateArguments(use_snapshot_binhosts=True))
 
             self.AssertLogsContain(
                 logs,
@@ -511,8 +511,7 @@ class UpdateTest(
 
             self.AssertLogsContain(
                 logs,
-                "PORTAGE_BINHOST",
-                inverted=True,
+                "PORTAGE_BINHOST: ",
             )
 
 
