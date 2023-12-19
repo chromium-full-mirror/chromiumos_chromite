@@ -186,3 +186,16 @@ def test_expand_dir(tmp_path, breakout_files) -> None:
         osutils.Touch(file)
     assert _call_cros_lint([str(tmp_path)]) == 0
     assert set(breakout_files.call_args.args[0]) == set(files)
+
+
+def test_shell_lint(tmp_path) -> None:
+    """Test codepaths invoking lint on shell files."""
+    path = tmp_path / "test.sh"
+
+    # File with a lint error ("x appears unused").
+    path.write_text("#!/bin/bash\nx=1\n", encoding="utf-8")
+    assert _call_cros_lint([str(path)]) == 1
+
+    # Fix the lint error.
+    path.write_text("#!/bin/bash\nx=1\nexport x\n", encoding="utf-8")
+    assert _call_cros_lint([str(path)]) == 0
