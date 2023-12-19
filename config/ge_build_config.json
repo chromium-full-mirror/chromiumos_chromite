@@ -11999,27 +11999,6 @@
         },
         {
           "board_name": "zork",
-          "name": "jelboz",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "au",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 381,
-          "is_active": true,
-          "stable_target_milestone": 92,
-          "is_experimental": false
-        },
-        {
-          "board_name": "zork",
           "name": "jelboz360",
           "test_suites": [
             "sanity",
