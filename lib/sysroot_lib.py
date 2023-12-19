@@ -84,7 +84,7 @@ exec {command} --board="{board}" "$@"
 """
 
 _BOARD_WRAPPER_DEPRECATED_CMD_TEMPLATE = """#!/bin/sh
-echo "{deprecated}"
+echo '{deprecated}' >&2
 exec {command} --board="{board}" "$@"
 """
 
@@ -618,15 +618,20 @@ class Sysroot:
                 board=friendly_name,
                 command="cros_workon",
                 deprecated=(
-                    "cros_workon-%s is deprecated, use cros-workon-%s instead."
-                    % (friendly_name, friendly_name)
+                    f"cros_workon-{friendly_name} is deprecated, use "
+                    f"`cros workon --board {friendly_name}` instead."
                 ),
             )
             _CreateWrapper(
                 self._WrapperPath("cros-workon", friendly_name),
-                _BUILD_TARGET_WRAPPER_TEMPLATE,
+                _BOARD_WRAPPER_DEPRECATED_CMD_TEMPLATE,
                 build_target=friendly_name,
+                board=friendly_name,
                 command="cros workon",
+                deprecated=(
+                    f"cros-workon-{friendly_name} is deprecated, use "
+                    f"`cros workon --board {friendly_name}` instead."
+                ),
             )
             _CreateWrapper(
                 self._WrapperPath("gdb", friendly_name),
