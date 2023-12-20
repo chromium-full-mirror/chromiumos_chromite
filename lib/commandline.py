@@ -627,13 +627,21 @@ class _SplitExtendAction(argparse.Action):
         getattr(namespace, self.dest).extend(values.split())
 
 
+def ExpandPath(value: str) -> Path:
+    """Expands ~/ paths and normalizes to Path.
+
+    We can't use osutils.ExpandPath directly as it returns a string when the
+    input is a string.
+    """
+    return osutils.ExpandPath(Path(value))
+
+
 def ExistingPath(value: str) -> Path:
     """Expands ~/ paths and standardizes to the real path.
 
     Checks that the path exists.
     """
-    ret = osutils.ExpandPath(value)
-    path = Path(ret)
+    path = ExpandPath(value)
     if not path.exists():
         msg = f"Path does not exist: {value}"
         logging.error(msg)
@@ -673,7 +681,7 @@ VALID_TYPES = {
     "cipd": ValidateCipdURL,
     "date": ParseDate,
     "email": ParseEmail,
-    "path": osutils.ExpandPath,
+    "path": ExpandPath,
     "str_path": osutils.ExpandPath,
     "path_exists": ExistingPath,
     "dir_exists": ExistingDirectory,

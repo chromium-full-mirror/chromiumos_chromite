@@ -9,6 +9,7 @@ import datetime
 import enum
 import logging
 import os
+from pathlib import Path
 import pickle
 import signal
 import sys
@@ -1273,7 +1274,7 @@ class DeprecatedActionTest(cros_test_lib.MockTestCase):
 
 
 class PathExistsTest(cros_test_lib.TempDirTestCase):
-    """Test type=path_exists, dir_exists, and file_exists functionality."""
+    """Test Path based types."""
 
     def setUp(self) -> None:
         cros_test_lib.CreateOnDiskHierarchy(
@@ -1290,6 +1291,11 @@ class PathExistsTest(cros_test_lib.TempDirTestCase):
         self.link_path = self.tempdir / "other" / "link"
         osutils.SafeSymlink(self.file_path, self.link_path)
 
+    def _ParsePath(self, path):
+        parser = commandline.ArgumentParser()
+        parser.add_argument("--path", type="path")
+        return parser.parse_args(["--path", str(path)])
+
     def _ParsePathExists(self, path):
         parser = commandline.ArgumentParser()
         parser.add_argument("--path", type="path_exists")
@@ -1305,10 +1311,17 @@ class PathExistsTest(cros_test_lib.TempDirTestCase):
         parser.add_argument("--file", type="file_exists")
         return parser.parse_args(["--file", str(path)])
 
+    def testPath(self) -> None:
+        """Test that path works."""
+        options = self._ParsePath(self.file_path)
+        self.assertEqual(options.path, self.file_path)
+        assert isinstance(options.path, Path)
+
     def testExistingPath(self) -> None:
         """Test that the path exists."""
         options = self._ParsePathExists(self.file_path)
         self.assertEqual(options.path, self.file_path)
+        assert isinstance(options.path, Path)
 
     def testExistingSymlinkPath(self) -> None:
         """Test that a path with symlink exists."""
