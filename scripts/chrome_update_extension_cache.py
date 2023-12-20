@@ -215,7 +215,7 @@ def main(argv) -> None:
     parser.add_argument(
         "--path",
         default=None,
-        type="path",
+        type="str_path",
         help="Path of files dir with external_extensions.json",
     )
     parser.add_argument(

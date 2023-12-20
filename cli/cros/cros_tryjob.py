@@ -631,13 +631,13 @@ List Examples:
         where_group.add_argument(
             "-r",
             "--buildroot",
-            type="path",
+            type="str_path",
             help="Root directory to use for the local tryjob. "
             "NOT the current checkout.",
         )
         where_group.add_argument(
             "--git-cache-dir",
-            type="path",
+            type="str_path",
             help="Git cache directory to use for local tryjobs.",
         )
 

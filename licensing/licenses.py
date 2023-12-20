@@ -104,7 +104,7 @@ def get_parser() -> commandline.ArgumentParser:
     )
     group.add_argument(
         "--sysroot",
-        type="path",
+        type="str_path",
         help="which sysroot to run on (e.g. /build/eve)",
     )
     group.add_argument(
@@ -148,7 +148,7 @@ def get_parser() -> commandline.ArgumentParser:
     parser.add_argument(
         "-o",
         "--output",
-        type="path",
+        type="str_path",
         help="which html file to create with output",
     )
     parser.add_argument(

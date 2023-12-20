@@ -289,9 +289,9 @@ def RebuildRepoCheckout(
 def get_parser():
     """Return a command line parser"""
     parser = commandline.ArgumentParser(description=__doc__)
-    parser.add_argument("repository_root", type="path")
-    parser.add_argument("referenced_repository", type="path")
-    parser.add_argument("chroot_path", type="path", nargs="?")
+    parser.add_argument("repository_root", type="str_path")
+    parser.add_argument("referenced_repository", type="str_path")
+    parser.add_argument("chroot_path", type="str_path", nargs="?")
     return parser
 
 

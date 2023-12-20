@@ -178,7 +178,7 @@ Note: When flashing a signed image, ssh connection to the device will be lost
         )
         update.add_argument(
             "--src-image-to-delta",
-            type="path",
+            type="str_path",
             help="Local path to an image to be used as the base to generate "
             "delta payloads.",
             deprecated="Not used anymore.",
@@ -204,7 +204,7 @@ Note: When flashing a signed image, ssh connection to the device will be lost
         )
         update.add_argument(
             "--private-key",
-            type="path",
+            type="str_path",
             default=None,
             help="SSH identify file (private key).",
         )

@@ -230,7 +230,10 @@ def GetParser():
     parser = commandline.ArgumentParser(description=__doc__)
 
     parser.add_argument(
-        "-o", "--file_out", type="path", help="Write output to specified file."
+        "-o",
+        "--file_out",
+        type="str_path",
+        help="Write output to specified file.",
     )
 
     return parser

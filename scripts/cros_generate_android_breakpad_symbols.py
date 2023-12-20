@@ -229,11 +229,14 @@ def main(argv) -> None:
     parser = commandline.ArgumentParser(description=__doc__)
 
     parser.add_argument(
-        "--symbols_file", type="path", required=True, help="Zip file containing"
+        "--symbols_file",
+        type="str_path",
+        required=True,
+        help="Zip file containing",
     )
     parser.add_argument(
         "--breakpad_dir",
-        type="path",
+        type="str_path",
         required=True,
         help="Root directory for breakpad symbol files.",
     )

@@ -44,7 +44,7 @@ def GetParser():
     )
     parser.add_argument(
         "--baselines",
-        type="path",
+        type="str_path",
         help="Directory to load security baselines from (default "
         "from cros-signing).",
     )

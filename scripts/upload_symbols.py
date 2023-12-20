@@ -672,12 +672,15 @@ def main(argv):
     )
     parser.add_argument(
         "--breakpad_root",
-        type="path",
+        type="str_path",
         default=None,
         help="full path to the breakpad symbol directory",
     )
     parser.add_argument(
-        "--root", type="path", default=None, help="full path to the chroot dir"
+        "--root",
+        type="str_path",
+        default=None,
+        help="full path to the chroot dir",
     )
     parser.add_argument(
         "--official_build",
@@ -705,7 +708,7 @@ def main(argv):
     )
     parser.add_argument(
         "--failed-list",
-        type="path",
+        type="str_path",
         help="where to save a list of failed symbols",
     )
     parser.add_argument(

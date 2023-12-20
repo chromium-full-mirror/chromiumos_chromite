@@ -271,16 +271,19 @@ def get_arg_parser() -> commandline.ArgumentParser:
     """Creates an argument parser for this script."""
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--output", required=True, type="path", help="File to write results to."
+        "--output",
+        required=True,
+        type="str_path",
+        help="File to write results to.",
     )
     parser.add_argument(
         "--clippy-json-dir",
-        type="path",
+        type="str_path",
         help="Directory where clippy outputs were previously written to.",
     )
     parser.add_argument(
         "--git-repo-path",
-        type="path",
+        type="str_path",
         default="",
         help="Base directory for git repo to strip out in diagnostics.",
     )

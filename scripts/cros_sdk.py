@@ -475,12 +475,12 @@ def _CreateParser(
     parser.add_argument(
         "--chrome-root",
         "--chrome_root",
-        type="path",
+        type="str_path",
         help="Mount this chrome root into the SDK chroot",
     )
     parser.add_argument(
         "--chrome_root_mount",
-        type="path",
+        type="str_path",
         help="Mount chrome into this path inside SDK chroot",
     )
     parser.add_argument(

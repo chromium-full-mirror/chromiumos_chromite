@@ -194,11 +194,11 @@ class BuildPackagesCommand(command.CliCommand):
         # --usepkgonly and --norebuild are required, because building is not
         # supported when board_root is set.
         parser.add_argument(
-            "--sysroot", type="path", help="Emerge packages to sysroot."
+            "--sysroot", type="str_path", help="Emerge packages to sysroot."
         )
         parser.add_argument(
             "--board_root",
-            type="path",
+            type="str_path",
             dest="sysroot",
             deprecated=deprecation_note % "--sysroot",
             help=argparse.SUPPRESS,

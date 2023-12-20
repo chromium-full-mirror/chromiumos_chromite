@@ -286,18 +286,18 @@ def ParseArgs(argv):
     )
     parser.add_argument(
         "--sysroot",
-        type="path",
+        type="str_path",
         metavar="SYSROOT",
         help="parse portage DB for ebuild information from the provided "
         "sysroot.",
     )
     parser.add_argument(
-        "--json", type="path", help="store information in JSON file."
+        "--json", type="str_path", help="store information in JSON file."
     )
 
     parser.add_argument(
         "root",
-        type="path",
+        type="str_path",
         help="path to the directory where the rootfs is mounted.",
     )
 

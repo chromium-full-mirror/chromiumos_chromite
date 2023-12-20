@@ -743,7 +743,7 @@ def GetParser():
     parser.add_argument(
         "--buildroot",
         default=constants.SOURCE_ROOT,
-        type="path",
+        type="str_path",
         help="Buildroot to use. Defaults to current.",
     )
     parser.add_argument(

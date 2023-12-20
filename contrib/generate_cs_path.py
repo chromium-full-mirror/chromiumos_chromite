@@ -151,7 +151,7 @@ def GetParser():
         "clipboard.",
     )
 
-    parser.add_argument("path", type="path", help="Path to a file.")
+    parser.add_argument("path", type="str_path", help="Path to a file.")
 
     return parser
 

@@ -376,7 +376,7 @@ def ParseArgs(argv):
     parser = commandline.ArgumentParser(description=__doc__, dryrun=True)
     parser.add_argument(
         "root",
-        type="path",
+        type="str_path",
         help="path to the directory where the rootfs is mounted.",
     )
 

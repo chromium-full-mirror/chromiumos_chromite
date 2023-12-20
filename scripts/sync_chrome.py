@@ -49,7 +49,7 @@ def GetParser():
         action="store_false",
     )
     parser.add_argument(
-        "--git_cache_dir", type="path", help="Define explicit git cache."
+        "--git_cache_dir", type="str_path", help="Define explicit git cache."
     )
     parser.add_argument("chrome_root", help="Directory to sync chrome in")
 

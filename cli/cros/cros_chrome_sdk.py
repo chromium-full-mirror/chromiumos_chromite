@@ -1008,14 +1008,14 @@ class ChromeSDKCommand(command.CliCommand):
         )
         parser.add_argument(
             "--bashrc",
-            type="path",
+            type="str_path",
             default=chromite_config.CHROME_SDK_BASHRC,
             help="A bashrc file used to set up the SDK shell environment. "
             "(default: %(default)s",
         )
         parser.add_argument(
             "--chroot",
-            type="path",
+            type="str_path",
             help="Path to a ChromeOS chroot to use. If set, "
             "<chroot>/build/<board> will be used as the sysroot that Chrome "
             "is built against. If chromeos-chrome was built, the build "
@@ -1024,13 +1024,13 @@ class ChromeSDKCommand(command.CliCommand):
         )
         parser.add_argument(
             "--chrome-src",
-            type="path",
+            type="str_path",
             help="Specifies the location of a Chrome src/ directory.  Required "
             "if not running from a Chrome checkout.",
         )
         parser.add_argument(
             "--cwd",
-            type="path",
+            type="str_path",
             help="Specifies a directory to switch to after setting up the SDK "
             "shell.  Defaults to the current directory.",
         )
@@ -1123,7 +1123,7 @@ class ChromeSDKCommand(command.CliCommand):
         )
         parser.add_argument(
             "--gomadir",
-            type="path",
+            type="str_path",
             help="Use the goma installation at the specified PATH.",
             deprecated="Goma is deprecated. "
             "Please use --use-remoteexec instead.",

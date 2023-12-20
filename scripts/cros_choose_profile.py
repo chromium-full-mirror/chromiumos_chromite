@@ -284,7 +284,7 @@ def GetParser():
     parser.add_argument(
         "-r",
         "--board-root",
-        type="path",
+        type="str_path",
         help="Board root where the profile should be created.",
     )
     parser.add_argument(
@@ -295,7 +295,7 @@ def GetParser():
     group = parser.add_argument_group("Advanced options")
     group.add_argument(
         "--filesystem-prefix",
-        type="path",
+        type="str_path",
         help="Force filesystem accesses to be prefixed by the given path.",
     )
     return parser

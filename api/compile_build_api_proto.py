@@ -403,7 +403,7 @@ def GetParser():
     )
     dest_group.add_argument(
         "--destination",
-        type="path",
+        type="str_path",
         help="A directory where a single version of the proto should be "
         "generated. When not given, the proto generates in all default "
         "locations instead.",

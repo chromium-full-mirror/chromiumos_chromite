@@ -32,7 +32,7 @@ def create_parser() -> commandline.ArgumentParser:
     )
     group.add_argument(
         "--sysroot",
-        type="path",
+        type="str_path",
         help="Sysroot that processed packages belong to. "
         "This is incompatible with --board.",
     )

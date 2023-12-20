@@ -46,12 +46,12 @@ def ParseArguments(argv: List[str]) -> commandline.ArgumentNamespace:
     )
     parser.add_argument(
         "--output-dir",
-        type="path",
+        type="str_path",
         help="The optional output directory to put artifacts into",
     )
     parser.add_argument(
         "--output-metadata-dir",
-        type="path",
+        type="str_path",
         help="The optional output directory to put metadata into",
     )
 

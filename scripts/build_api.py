@@ -31,24 +31,24 @@ def GetParser():
     input_args = parser.add_mutually_exclusive_group(required=True)
     input_args.add_argument(
         "--input-binary",
-        type="path",
+        type="str_path",
         help="Path to the protobuf binary serialization of the input message.",
     )
     input_args.add_argument(
         "--input-json",
-        type="path",
+        type="str_path",
         help="Path to the JSON serialized input argument protobuf message.",
     )
     # Output options.
     parser.add_argument(
         "--output-binary",
-        type="path",
+        type="str_path",
         help="The path to which the protobuf binary serialization of the "
         "response message should be written.",
     )
     parser.add_argument(
         "--output-json",
-        type="path",
+        type="str_path",
         help="The path to which the JSON serialization of the response message "
         "should be written.",
     )
@@ -56,13 +56,13 @@ def GetParser():
     config_args = parser.add_mutually_exclusive_group()
     config_args.add_argument(
         "--config-binary",
-        type="path",
+        type="str_path",
         help="The path to the protobuf binary serialization of the Build API "
         "call configs.",
     )
     config_args.add_argument(
         "--config-json",
-        type="path",
+        type="str_path",
         help="The path to the JSON encoded Build API call configs.",
     )
 

@@ -759,7 +759,7 @@ class VM(device.Device):
         )
         parser.add_argument(
             "--image-path",
-            type="path",
+            type="str_path",
             help="Path to VM image to launch with --start.",
         )
         parser.add_argument(
@@ -769,7 +769,7 @@ class VM(device.Device):
         )
         parser.add_argument(
             "--qemu-path",
-            type="path",
+            type="str_path",
             help="Path of qemu binary to launch with --start.",
         )
         parser.add_argument(
@@ -793,7 +793,7 @@ class VM(device.Device):
         )
         parser.add_argument(
             "--qemu-bios-path",
-            type="path",
+            type="str_path",
             help="Path of directory with qemu bios files.",
         )
         parser.add_argument(
@@ -823,7 +823,7 @@ class VM(device.Device):
         )
         parser.add_argument(
             "--qemu-img-path",
-            type="path",
+            type="str_path",
             help="Path to qemu-img binary used to create temporary "
             "copy-on-write images.",
         )
@@ -846,18 +846,18 @@ class VM(device.Device):
         )
         parser.add_argument(
             "--chroot-path",
-            type="path",
+            type="str_path",
             default=os.path.join(
                 constants.SOURCE_ROOT, constants.DEFAULT_CHROOT_DIR
             ),
         )
         parser.add_argument(
             "--cache-dir",
-            type="path",
+            type="str_path",
             default=path_util.GetCacheDir(),
             help="Cache directory to use.",
         )
         parser.add_argument(
-            "--vm-dir", type="path", help="Temp VM directory to use."
+            "--vm-dir", type="str_path", help="Temp VM directory to use."
         )
         return parser

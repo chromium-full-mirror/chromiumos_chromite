@@ -129,7 +129,7 @@ class KeyringData:
 def ParseArgs(argv):
     """Parse the commandline arguments."""
     parser = commandline.ArgumentParser(description=__doc__)
-    parser.add_argument("-P", "--prefix", type="path", default="/")
+    parser.add_argument("-P", "--prefix", type="str_path", default="/")
     parser.add_argument("-d", "--directory", default=BASE_DIR)
     parser.add_argument(
         "-D", "--discover", action="store_true", help="Discover keysets"

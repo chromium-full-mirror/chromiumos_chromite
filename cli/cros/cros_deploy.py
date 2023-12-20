@@ -94,7 +94,7 @@ For more information of cros build usage:
         )
         parser.add_argument(
             "--private-key",
-            type="path",
+            type="str_path",
             default=None,
             help="SSH identify file (private key).",
         )

@@ -816,7 +816,7 @@ def _CreateParser():
     )
     parser.add_argument(
         "--build-dir",
-        type="path",
+        type="str_path",
         help="The directory with Chrome build artifacts to "
         "deploy from. Typically of format "
         "<chrome_root>/out/Debug. When this option is used, "
@@ -824,7 +824,7 @@ def _CreateParser():
     )
     parser.add_argument(
         "--target-dir",
-        type="path",
+        type="str_path",
         default=None,
         help="Target directory on device to deploy Chrome into.",
     )
@@ -836,7 +836,7 @@ def _CreateParser():
     )
     parser.add_argument(
         "--private-key",
-        type="path",
+        type="str_path",
         default=None,
         help="An ssh private key to use when deploying to " "a CrOS device.",
     )
@@ -868,7 +868,7 @@ def _CreateParser():
     )
     parser.add_argument(
         "--mount-dir",
-        type="path",
+        type="str_path",
         default=None,
         help="Deploy Chrome in target directory and bind it "
         "to the directory specified by this flag. "
@@ -952,7 +952,7 @@ def _CreateParser():
     group.add_argument(
         "-l",
         "--local-pkg-path",
-        type="path",
+        type="str_path",
         help="Path to local chrome prebuilt package to deploy.",
     )
     group.add_argument(
@@ -1037,7 +1037,7 @@ def _CreateParser():
     # temporary directory that is removed when the script finishes. If the path
     # is specified, then it will not be removed.
     parser.add_argument(
-        "--staging-dir", type="path", default=None, help=argparse.SUPPRESS
+        "--staging-dir", type="str_path", default=None, help=argparse.SUPPRESS
     )
     # Only prepare the staging directory, and skip deploying to the device.
     parser.add_argument(

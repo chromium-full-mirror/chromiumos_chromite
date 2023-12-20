@@ -21,7 +21,7 @@ def _get_parser():
     parser.add_argument(
         "--root",
         required=True,
-        type="path",
+        type="str_path",
         help="Specify the rootfs to investigate.",
     )
     parser.add_argument(

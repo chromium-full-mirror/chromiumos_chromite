@@ -54,7 +54,7 @@ def _ParseArguments(argv):
     parser.add_argument(
         "--image_path",
         required=True,
-        type="path",
+        type="str_path",
         help="Path to the image for the VM to run tests.",
     )
     return parser.parse_args(argv)

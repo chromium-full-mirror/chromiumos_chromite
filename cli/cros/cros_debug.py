@@ -67,7 +67,7 @@ To debug a process by its pid:
         )
         parser.add_argument(
             "--private-key",
-            type="path",
+            type="str_path",
             default=None,
             help="SSH identity file (private key).",
         )

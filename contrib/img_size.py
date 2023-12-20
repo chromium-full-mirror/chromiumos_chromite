@@ -43,11 +43,11 @@ def get_parser() -> commandline.ArgumentParser:
 
     parser.add_argument(
         "baseline",
-        type="path",
+        type="str_path",
         help="The image to use as a baseline for the size deltas.",
     )
     parser.add_argument(
-        "target", type="path", help="The target image being measured."
+        "target", type="str_path", help="The target image being measured."
     )
     parser.add_argument(
         "packages", nargs="+", help="The package atom(s) being measured."

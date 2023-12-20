@@ -28,7 +28,9 @@ def ParseArgs(argv):
     """Parse command line arguments."""
     parser = commandline.ArgumentParser(description=__doc__)
     target = parser.add_mutually_exclusive_group(required=True)
-    target.add_argument("--sysroot", type="path", help="Path to the sysroot.")
+    target.add_argument(
+        "--sysroot", type="str_path", help="Path to the sysroot."
+    )
     target.add_argument("-b", "--build-target", help="Name of the target build")
     parser.add_argument(
         "--output-path", default=None, help="Write output to the given path."

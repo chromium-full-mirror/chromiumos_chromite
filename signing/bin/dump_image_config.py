@@ -11,7 +11,7 @@ from chromite.signing.image_signing import imagefile
 def main(argv) -> None:
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "input_image", type="path", help="Path to input image file"
+        "input_image", type="str_path", help="Path to input image file"
     )
 
     options = parser.parse_args(argv)

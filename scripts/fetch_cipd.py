@@ -27,7 +27,7 @@ def GetParser():
         "uri", type="cipd", help="CIPD URI of a file to download."
     )
     parser.add_argument(
-        "output", type="path", help="Location to store the file."
+        "output", type="str_path", help="Location to store the file."
     )
     return parser
 

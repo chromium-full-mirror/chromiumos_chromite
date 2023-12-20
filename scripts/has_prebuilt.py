@@ -35,7 +35,7 @@ def GetParser():
     )
     parser.add_argument(
         "--output",
-        type="path",
+        type="str_path",
         required=True,
         help="The file path where the result json should be stored.",
     )

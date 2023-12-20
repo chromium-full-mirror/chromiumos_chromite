@@ -37,7 +37,7 @@ def ParseCommandLine(argv):
     )
     parser.add_argument(
         "--out-dir",
-        type="path",
+        type="str_path",
         required=True,
         help="Directory to place the generated tarball.",
     )

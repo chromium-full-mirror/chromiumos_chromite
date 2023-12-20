@@ -1991,7 +1991,7 @@ def _CreateParser():
     )
     parser.add_argument(
         "--srcroot",
-        type="path",
+        type="str_path",
         default=os.path.join(constants.SOURCE_ROOT, "src"),
         help="Path to root src directory [default: %(default)s]",
     )
@@ -2009,7 +2009,7 @@ def _CreateParser():
     )
     parser.add_argument(
         "--upstream",
-        type="path",
+        type="str_path",
         default=Upgrader.UPSTREAM_TMP_REPO,
         help="Latest upstream repo location [default: %(default)s]",
     )

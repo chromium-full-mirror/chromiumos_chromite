@@ -795,7 +795,7 @@ def ParseCommandLine(argv):
     )
     parser.add_argument(
         "--build-dir",
-        type="path",
+        type="str_path",
         help="Directory for building and deploying chrome.",
     )
     parser.add_argument(
@@ -864,7 +864,7 @@ def ParseCommandLine(argv):
         help="Files to scp to the device.",
     )
     parser.add_argument(
-        "--files-from", type="path", help="File with list of files to copy."
+        "--files-from", type="str_path", help="File with list of files to copy."
     )
     parser.add_argument(
         "--results-src",
@@ -875,7 +875,7 @@ def ParseCommandLine(argv):
     )
     parser.add_argument(
         "--results-dest-dir",
-        type="path",
+        type="str_path",
         help="Destination directory to copy results to.",
     )
     parser.add_argument(
@@ -898,7 +898,7 @@ def ParseCommandLine(argv):
         help="Run a command on the host.",
     )
     parser.add_argument(
-        "--results-dir", type="path", help="Autotest results directory."
+        "--results-dir", type="str_path", help="Autotest results directory."
     )
     parser.add_argument(
         "--test_that-args",

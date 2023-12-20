@@ -39,7 +39,7 @@ def get_parser() -> commandline.ArgumentParser:
     )
     parser.add_argument(
         "--sysroot",
-        type="path",
+        type="str_path",
         required=True,
         help="The path to the sysroot for which the command will be created.",
     )

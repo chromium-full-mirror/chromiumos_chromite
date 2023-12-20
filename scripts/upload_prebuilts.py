@@ -832,7 +832,7 @@ def ParseOptions(argv) -> Tuple[argparse.Namespace, Optional[BuildTarget]]:
     parser.add_argument(
         "-B",
         "--prepackaged-tarball",
-        type="path",
+        type="str_path",
         help="Board tarball prebuilt outside of this script.",
     )
     parser.add_argument(

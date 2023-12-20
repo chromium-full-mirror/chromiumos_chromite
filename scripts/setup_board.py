@@ -83,7 +83,7 @@ def GetParser():
         "must be located in overlay-board/profiles.",
     )
     target.add_argument("--variant", help="Board variant.")
-    target.add_argument("--board-root", type="path", help="Board root.")
+    target.add_argument("--board-root", type="str_path", help="Board root.")
     target.add_bool_argument(
         "--public",
         default=None,

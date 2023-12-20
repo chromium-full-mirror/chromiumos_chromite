@@ -49,7 +49,9 @@ def ParseArgs(argv):
 
     target = parser.add_mutually_exclusive_group(required=True)
 
-    target.add_argument("--sysroot", type="path", help="Path to the sysroot.")
+    target.add_argument(
+        "--sysroot", type="str_path", help="Path to the sysroot."
+    )
     target.add_argument("--board", help="Board name.")
     target.add_argument(
         "--host", action="store_true", help="Run tests for the host SDK."
@@ -80,7 +82,7 @@ def ParseArgs(argv):
     )
     parser.add_argument(
         "--package_file",
-        type="path",
+        type="str_path",
         help=(
             "Path to a file containing the list of packages "
             "that should be tested."

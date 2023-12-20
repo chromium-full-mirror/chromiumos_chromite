@@ -33,7 +33,7 @@ def GetParser():
 
     parser.add_argument(
         "--repo-root",
-        type="path",
+        type="str_path",
         default=".",
         help="Path to the repo root to sync.",
     )
@@ -56,7 +56,7 @@ def GetParser():
     )
     manifest_ex.add_argument(
         "--manifest-file",
-        type="path",
+        type="str_path",
         help="Sync to an existing local manifest file.",
     )
 
@@ -99,7 +99,7 @@ def GetParser():
 
     resources_group.add_argument(
         "--manifest-versions-int",
-        type="path",
+        type="str_path",
         help=(
             "Directory for internal manifest versions checkout. "
             "May be refreshed."
@@ -108,7 +108,7 @@ def GetParser():
 
     resources_group.add_argument(
         "--manifest-versions-ext",
-        type="path",
+        type="str_path",
         help=(
             "Directory for internal manifest versions checkout. "
             "May be refreshed."
@@ -122,14 +122,14 @@ def GetParser():
 
     optimization_group.add_argument(
         "--copy-repo",
-        type="path",
+        type="str_path",
         help=(
             "Path to an existing repo root. Used to preload the local "
             "checkout if the local checkout doesn't exist."
         ),
     )
     optimization_group.add_argument(
-        "--git-cache-dir", type="path", help="Git cache directory to use."
+        "--git-cache-dir", type="str_path", help="Git cache directory to use."
     )
     optimization_group.add_argument(
         "--repo-url", help="Repo repository location."

@@ -90,7 +90,7 @@ def get_parser():
 
     parser.add_argument(
         "--symbols-file",
-        type="path",
+        type="str_path",
         required=True,
         help="Tarball containing debug binaries",
     )
@@ -101,7 +101,7 @@ def get_parser():
     )
     parser.add_argument(
         "--breakpad-dir",
-        type="path",
+        type="str_path",
         required=True,
         help="Root directory for breakpad symbol files.",
     )

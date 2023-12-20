@@ -20,14 +20,14 @@ def ParseArguments(argv):
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--image",
-        type="path",
+        type="str_path",
         required=True,
         help="The path to local image to build the quick "
         "provision payloads for.",
     )
     parser.add_argument(
         "--output",
-        type="path",
+        type="str_path",
         help="The output directory to generate quick "
         "provision payloads for.",
         default=".",

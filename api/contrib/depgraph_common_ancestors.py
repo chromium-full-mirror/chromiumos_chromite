@@ -52,7 +52,7 @@ def GetParser():
     parser.add_argument(
         "-d",
         "--depgraph",
-        type="path",
+        type="str_path",
         default=default_depgraph,
         help="The json output file containing the depgraph. By default uses "
         "the dependency__get_build_dependency_graph call_scripts output file.",

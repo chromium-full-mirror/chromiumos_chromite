@@ -160,7 +160,11 @@ class ReadSubcommand(command.CliCommand):
             "-r" "--region", dest="region", type=str, help="Region to read."
         )
         parser.add_argument(
-            "-o", "--output", type="path", required=True, help="Output file."
+            "-o",
+            "--output",
+            type="str_path",
+            required=True,
+            help="Output file.",
         )
         parser.epilog = """Command to read the AP firmware from a DUT.
 To read image of device.cros via SSH:
@@ -271,7 +275,7 @@ class FlashSubcommand(command.CliCommand):
             "-i",
             "--image",
             required=True,
-            type="path",
+            type="str_path",
             help="/path/to/BIOS_image.bin",
         )
         parser.add_argument(

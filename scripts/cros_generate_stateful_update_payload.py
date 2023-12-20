@@ -14,14 +14,14 @@ def ParseArguments(argv):
     parser.add_argument(
         "-i",
         "--image_path",
-        type="path",
+        type="str_path",
         required=True,
         help="The image to generate the stateful update for.",
     )
     parser.add_argument(
         "-o",
         "--output_dir",
-        type="path",
+        type="str_path",
         required=True,
         help="The path to the directory to output the stateful" "update file.",
     )

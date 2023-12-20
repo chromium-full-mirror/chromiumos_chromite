@@ -39,7 +39,9 @@ def GetOptions(argv):
         help="Skip locking the database before reading it.",
     )
     get_ent_parser.add_argument(
-        "sysroot", type="path", help="Path to sysroot containing the database"
+        "sysroot",
+        type="str_path",
+        help="Path to sysroot containing the database",
     )
     get_ent_parser.add_argument(
         "database", choices=(USER_DB, GROUP_DB), help="Name of database to get"
@@ -51,9 +53,9 @@ def GetOptions(argv):
     )
     user_parser.add_argument("name", type=str, help="Name of user to install")
     user_parser.add_argument("--uid", type=int, help="UID of the user")
-    user_parser.add_argument("--shell", type="path", help="Shell of user")
+    user_parser.add_argument("--shell", type="str_path", help="Shell of user")
     user_parser.add_argument(
-        "--home", type="path", help="Home directory of user"
+        "--home", type="str_path", help="Home directory of user"
     )
     user_parser.add_argument(
         "--primary_group", type=str, help="Name of primary group for user"
@@ -70,7 +72,9 @@ def GetOptions(argv):
     # Both group and user parsers need to understand the target sysroot.
     for sub_parser in (user_parser, group_parser):
         sub_parser.add_argument(
-            "sysroot", type="path", help="The sysroot to install the user into"
+            "sysroot",
+            type="str_path",
+            help="The sysroot to install the user into",
         )
 
     options = parser.parse_args(argv)

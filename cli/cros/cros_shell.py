@@ -73,7 +73,7 @@ Quoting can be tricky; the rules are the same as with ssh:
         cls.AddDeviceArgument(parser, positional=True)
         parser.add_argument(
             "--private-key",
-            type="path",
+            type="str_path",
             default=None,
             help="SSH identify file (private key).",
         )

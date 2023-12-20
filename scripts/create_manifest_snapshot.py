@@ -29,7 +29,7 @@ def GetParser():
     parser = commandline.ArgumentParser(description=__doc__, dryrun=True)
     parser.add_argument(
         "--repo-path",
-        type="path",
+        type="str_path",
         default=".",
         help="Path to the repo to snapshot.",
     )
@@ -42,7 +42,7 @@ def GetParser():
     )
     parser.add_argument(
         "--output-file",
-        type="path",
+        type="str_path",
         help="Path to write the manifest snapshot XML to.",
     )
     # This is for limiting network traffic to the git remote(s).

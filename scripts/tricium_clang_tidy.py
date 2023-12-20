@@ -699,11 +699,14 @@ def get_parser() -> commandline.ArgumentParser:
     """Creates an argument parser for this script."""
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--output", required=True, type="path", help="File to write results to."
+        "--output",
+        required=True,
+        type="str_path",
+        help="File to write results to.",
     )
     parser.add_argument(
         "--git-repo-base",
-        type="path",
+        type="str_path",
         help=(
             "Base directory of the git repo we're looking at. If specified, "
             "only diagnostics in files in this directory will be emitted. All "
@@ -733,7 +736,7 @@ def get_parser() -> commandline.ArgumentParser:
     parser.add_argument(
         "file",
         nargs="*",
-        type="path",
+        type="str_path",
         help=(
             "File(s) to output lints for. If none are specified, this tool "
             "outputs all lints that clang-tidy emits after applying filtering "

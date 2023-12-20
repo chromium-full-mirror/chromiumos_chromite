@@ -283,11 +283,13 @@ class AnalyzeImageCommand(command.CliCommand):
         )
         parser.add_argument(
             "--image",
-            type="path",
+            type="str_path",
             help="Specify a local image file to analyze.",
         )
         parser.add_argument(
-            "--local-path", type="path", help="Local path to fetch image to."
+            "--local-path",
+            type="str_path",
+            help="Local path to fetch image to.",
         )
         parser.add_argument(
             "--minsize",

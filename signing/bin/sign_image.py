@@ -67,7 +67,7 @@ def main(argv):
         "--input",
         required=True,
         dest="input_image",
-        type="path",
+        type="str_path",
         help="Path to input image file",
     )
     parser.add_argument(

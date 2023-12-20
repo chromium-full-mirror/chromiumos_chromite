@@ -21,13 +21,13 @@ def ParseArgs(args):
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--test_results_root",
-        type="path",
+        type="str_path",
         help="Directory to store test results",
     )
     parser.add_argument("--board", type=str, help="Board (wolf, beaglebone...)")
     parser.add_argument(
         "image",
-        type="path",
+        type="str_path",
         help="Image directory or file to test",
     )
 

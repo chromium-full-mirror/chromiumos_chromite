@@ -23,7 +23,7 @@ def get_parser():
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--manifest-file",
-        type="path",
+        type="str_path",
         help="File path to a manifest to search.",
     )
     parser.add_argument(

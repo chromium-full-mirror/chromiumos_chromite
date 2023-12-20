@@ -34,14 +34,14 @@ def _add_local_script_args(parser: commandline.ArgumentParser) -> None:
     parser.add_argument(
         "-b", "--board", "--build-target", help="Build target name."
     )
-    parser.add_argument("--chroot", type="path", help="Chroot path.")
-    parser.add_argument("--input", type="path", help="Input path.")
-    parser.add_argument("--output", type="path", help="Output path.")
+    parser.add_argument("--chroot", type="str_path", help="Chroot path.")
+    parser.add_argument("--input", type="str_path", help="Input path.")
+    parser.add_argument("--output", type="str_path", help="Output path.")
     parser.add_argument("-p", "--package", help="Package.")
     parser.add_argument(
         "--sdk", action="store_true", default=False, help="For the SDK."
     )
-    parser.add_argument("--sysroot", type="path", help="Sysroot path.")
+    parser.add_argument("--sysroot", type="str_path", help="Sysroot path.")
 
     parser.add_argument("packages", nargs="*", default=[])
 

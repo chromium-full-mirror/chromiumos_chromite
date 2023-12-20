@@ -39,7 +39,7 @@ def GetParser():
     )
     parser.add_argument(
         "--sysroot",
-        type="path",
+        type="str_path",
         required=True,
         help="The sysroot to install the toolchain for.",
     )

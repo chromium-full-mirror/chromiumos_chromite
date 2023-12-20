@@ -28,9 +28,11 @@ def ParseArguments(argv):
         " of the source image. If specified, this makes a delta"
         " update payload.",
     )
-    parser.add_argument("--output", type="path", help="Output file.")
+    parser.add_argument("--output", type="str_path", help="Output file.")
     parser.add_argument(
-        "--private-key", type="path", help="Path to private key in .pem format."
+        "--private-key",
+        type="str_path",
+        help="Path to private key in .pem format.",
     )
     parser.add_argument(
         "--check",
@@ -51,12 +53,12 @@ def ParseArguments(argv):
     )
     parser.add_argument(
         "--work-dir",
-        type="path",
+        type="str_path",
         help="Path to a temporary directory in the chroot.",
     )
     parser.add_argument(
         "--payload",
-        type="path",
+        type="str_path",
         help="Path to the input payload file. Only used when "
         "trying to generate the payload properties file using "
         "the given payload. If --output is not passed, the "

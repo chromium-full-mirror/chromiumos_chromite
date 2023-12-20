@@ -19,7 +19,7 @@ def GetParser():
     # cases.
     parser.add_argument(
         "--sysroot",
-        type="path",
+        type="str_path",
         metavar="DIR",
         help="The root path to the board's build root, e.g. /build/eve",
     )
@@ -27,7 +27,7 @@ def GetParser():
     #  it.
     parser.add_argument(
         "--src-dir",
-        type="path",
+        type="str_path",
         metavar="SRC_DIR_PATH",
         help=(
             "Override the default Root directory path that contains all DLC "
@@ -36,7 +36,7 @@ def GetParser():
     )
     parser.add_argument(
         "--install-root-dir",
-        type="path",
+        type="str_path",
         metavar="DIR",
         help=(
             "If building a specific DLC, it is the root path to"
@@ -53,13 +53,13 @@ def GetParser():
     )
     one_dlc.add_argument(
         "--rootfs",
-        type="path",
+        type="str_path",
         metavar="ROOT_FS_PATH",
         help="Path to the platform rootfs.",
     )
     one_dlc.add_argument(
         "--stateful",
-        type="path",
+        type="str_path",
         metavar="STATEFUL_PATH",
         help="Path to the platform stateful.",
     )

@@ -364,7 +364,7 @@ def get_parser():
     modes_group = parser.add_mutually_exclusive_group(required=True)
     modes_group.add_argument(
         "--parse",
-        type="path",
+        type="str_path",
         action="append",
         default=[],
         help="File(s) to parse.",

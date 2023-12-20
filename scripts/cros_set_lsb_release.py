@@ -70,7 +70,7 @@ def _ParseArguments(argv):
     parser.add_argument(
         "--sysroot",
         required=True,
-        type="path",
+        type="str_path",
         help="The sysroot to install the lsb-release file into.",
     )
     parser.add_argument(

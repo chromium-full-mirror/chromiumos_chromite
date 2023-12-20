@@ -288,11 +288,13 @@ def GetParser():
     parser.add_argument(
         "-p", "--packages", help="Colon separated list of packages to rev."
     )
-    parser.add_argument("--buildroot", type="path", help="Path to buildroot.")
+    parser.add_argument(
+        "--buildroot", type="str_path", help="Path to buildroot."
+    )
     parser.add_argument(
         "-r",
         "--srcroot",
-        type="path",
+        type="str_path",
         help="Path to root src. Deprecated in favor of " "--buildroot",
     )
     parser.add_argument(

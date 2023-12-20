@@ -102,7 +102,7 @@ def NormalizeGSPath(value):
 
 def NormalizeLocalOrGSPath(value):
     """Normalize a local or GS path."""
-    ptype = "gs_path" if gs_urls_util.PathIsGs(value) else "path"
+    ptype = "gs_path" if gs_urls_util.PathIsGs(value) else "str_path"
     return VALID_TYPES[ptype](value)
 
 
@@ -206,7 +206,7 @@ def NormalizeUri(value):
     o = urllib.parse.urlparse(value)
     if o.scheme == "file":
         # Trim off the file:// prefix.
-        return VALID_TYPES["path"](value[7:])
+        return VALID_TYPES["str_path"](value[7:])
     elif o.scheme not in ("", "gs"):
         o = list(o)
         o[2] = os.path.normpath(o[2])
@@ -674,6 +674,7 @@ VALID_TYPES = {
     "date": ParseDate,
     "email": ParseEmail,
     "path": osutils.ExpandPath,
+    "str_path": osutils.ExpandPath,
     "path_exists": ExistingPath,
     "dir_exists": ExistingDirectory,
     "file_exists": ExistingFile,
@@ -741,7 +742,7 @@ def OptparseWrapCheck(desc, check_f, _option, opt, value):
 class Option(optparse.Option):
     """Subclass to implement path evaluation & other useful types."""
 
-    _EXTRA_TYPES = ("path", "gs_path")
+    _EXTRA_TYPES = ("path", "gs_path", "str_path")
     TYPES = optparse.Option.TYPES + _EXTRA_TYPES
     TYPE_CHECKER = optparse.Option.TYPE_CHECKER.copy()
     for t in _EXTRA_TYPES:
@@ -980,7 +981,7 @@ class BaseParser:
                 self.caching_group,
                 "--cache-dir",
                 default=None,
-                type="path",
+                type="str_path",
                 help="Override the calculated chromeos cache directory; "
                 "typically defaults to '$REPO/.cache' .",
             )

@@ -26,13 +26,13 @@ def GetParser():
     )
     parser.add_argument(
         "--image",
-        type="path",
+        type="str_path",
         required=True,
         help="The path to the chromium os image.",
     )
     parser.add_argument(
         "--keys-dir",
-        type="path",
+        type="str_path",
         help="The path to keyset.",
         default=constants.VBOOT_DEVKEYS_DIR,
     )

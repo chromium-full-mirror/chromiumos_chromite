@@ -256,7 +256,7 @@ def _CreateParser():
     parser.add_option(
         "-r",
         "--buildroot",
-        type="path",
+        type="str_path",
         dest="buildroot",
         help=(
             "Root directory where source is checked out to, and "
@@ -267,13 +267,13 @@ def _CreateParser():
     )
     parser.add_option(
         "--workspace",
-        type="path",
+        type="str_path",
         api=constants.REEXEC_API_WORKSPACE,
         help="Root directory for a secondary checkout .",
     )
     parser.add_option(
         "--bootstrap-dir",
-        type="path",
+        type="str_path",
         help=(
             "Bootstrapping cbuildbot may involve checking out "
             "multiple copies of chromite. All these checkouts "
@@ -298,7 +298,7 @@ def _CreateParser():
     # but not officially supported yet.
     parser.add_option(
         "--goma_dir",
-        type="path",
+        type="str_path",
         api=constants.REEXEC_API_GOMA,
         help=(
             "Specify a directory containing goma. When this is "
@@ -307,7 +307,7 @@ def _CreateParser():
     )
     parser.add_option(
         "--chromeos_goma_dir",
-        type="path",
+        type="str_path",
         api=constants.REEXEC_API_CHROMEOS_GOMA_DIR,
         help="Specify a directory containing goma for build package.",
     )
@@ -403,7 +403,7 @@ def _CreateParser():
     )
     parser.add_remote_option(
         "--repo-cache",
-        type="path",
+        type="str_path",
         dest="_repo_cache",
         help="Present for backwards compatibility, ignored.",
     )
@@ -424,7 +424,7 @@ def _CreateParser():
     group.add_option(
         "--chrome_root",
         action="callback",
-        type="path",
+        type="str_path",
         callback=_CheckChromeRootOption,
         help="Local checkout of Chrome to use.",
     )
@@ -455,7 +455,7 @@ def _CreateParser():
     parser.add_option(
         "--log_dir",
         dest="log_dir",
-        type="path",
+        type="str_path",
         help="Directory where logs are stored.",
     )
     group.add_remote_option(
@@ -611,7 +611,7 @@ def _CreateParser():
     )
     group.add_remote_option(
         "--git-cache-dir",
-        type="path",
+        type="str_path",
         api=constants.REEXEC_API_GIT_CACHE_DIR,
         help=(
             "Specify the cache directory to store the "
@@ -623,7 +623,7 @@ def _CreateParser():
     )
     group.add_remote_option(
         "--chrome-preload-dir",
-        type="path",
+        type="str_path",
         api=constants.REEXEC_API_CHROME_PRELOAD_DIR,
         help=(
             "Specify a preloaded chrome source cache "
@@ -751,7 +751,9 @@ def _CreateParser():
         default=3,
         help="Deprecated and ignored.",
     )
-    group.add_option("--sourceroot", type="path", default=constants.SOURCE_ROOT)
+    group.add_option(
+        "--sourceroot", type="str_path", default=constants.SOURCE_ROOT
+    )
     group.add_remote_option(
         "--test-bootstrap",
         action="store_true",

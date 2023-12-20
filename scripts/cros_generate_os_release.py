@@ -62,7 +62,7 @@ def GenerateOsRelease(root, default_params=None) -> None:
 def main(argv) -> None:
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--root", type="path", required=True, help="sysroot of the board"
+        "--root", type="str_path", required=True, help="sysroot of the board"
     )
     parser.add_argument("--version", help="The image version string.")
     parser.add_argument("--build_id", help="The image build ID string.")

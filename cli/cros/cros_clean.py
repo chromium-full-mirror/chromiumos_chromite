@@ -144,14 +144,14 @@ class CleanCommand(command.CliCommand):
         )
         group.add_argument(
             "--sdk-path",
-            type="path",
+            type="str_path",
             default=constants.DEFAULT_CHROOT_PATH,
             help="The sdk (chroot) path. This only needs to be provided if "
             "your chroot is not in the default location.",
         )
         group.add_argument(
             "--out-path",
-            type="path",
+            type="str_path",
             default=constants.DEFAULT_OUT_PATH,
             help="The sdk state/output path. This only needs to be provided if"
             " your sdk state is not in the default location.",

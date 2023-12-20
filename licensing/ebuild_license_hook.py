@@ -19,12 +19,12 @@ def main(args) -> None:
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--builddir",
-        type="path",
+        type="str_path",
         required=True,
         help="Take $PORTAGE_BUILDDIR as argument.",
     )
     parser.add_argument(
-        "--sysroot", type="path", help="Take $SYSROOT as argument."
+        "--sysroot", type="str_path", help="Take $SYSROOT as argument."
     )
 
     opts = parser.parse_args(args)

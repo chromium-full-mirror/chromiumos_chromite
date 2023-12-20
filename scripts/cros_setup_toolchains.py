@@ -1524,7 +1524,7 @@ def GetParser():
     parser.add_argument(
         "--output-dir",
         default=os.getcwd(),
-        type="path",
+        type="str_path",
         help="Output directory",
     )
     parser.add_argument(
@@ -1535,7 +1535,7 @@ def GetParser():
     )
     parser.add_argument(
         "--sysroot",
-        type="path",
+        type="str_path",
         help="The sysroot in which to install the toolchains",
     )
     return parser

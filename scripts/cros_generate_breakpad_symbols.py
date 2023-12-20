@@ -916,13 +916,13 @@ def main(argv):
     )
     parser.add_argument(
         "--breakpad_root",
-        type="path",
+        type="str_path",
         default=None,
         help="root output directory for breakpad symbols",
     )
     parser.add_argument(
         "--sysroot",
-        type="path",
+        type="str_path",
         default=None,
         help="root input directory for files",
     )
