@@ -1218,7 +1218,6 @@ in
                 "--execution_log_binary_file="
                 + BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
                 "--execution_log_sort=false",
-                "--keep_going",
             ]
             + targets,
             extra_env=extra_env,
