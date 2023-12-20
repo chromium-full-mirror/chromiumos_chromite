@@ -96,6 +96,10 @@ the directory structure to find which git repo is making the call.
 
 Do not use `virtualenv_wrapper.py` in new code.
 
+### chromite/shell
+
+This directory is a staging area for migrating shell scripts to Python.
+
 ### chromite/service
 
 These files act as the centralized business logic for processes, utilizing lib
