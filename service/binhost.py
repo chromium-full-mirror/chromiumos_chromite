@@ -41,7 +41,7 @@ _GOOGLESTORAGE_GSUTIL_FILE = "googlestorage_acl.txt"
 _DEV_INSTALL_PACKAGES_FILE = "build/dev-install/package.installable"
 
 # The maximum number of binhosts to return from the lookup service.
-_MAX_BINHOSTS = 10
+_MAX_BINHOSTS = 5
 
 # Parameters for the Lookup Binhosts Service endpoint.
 _PROTOCOL = "https"
@@ -794,17 +794,27 @@ def _get_snapshot_shas_from_git_log(
     Returns:
         A list of snapshot SHAs.
     """
+    # Determine manifest constants.
     manifest_type = "manifest-internal" if internal else "manifest"
     manifest_dir = os.path.join(constants.SOURCE_ROOT, manifest_type)
-    remote_name = (
+    manifest_remote_name = (
         site_params.INTERNAL_REMOTE if internal else site_params.EXTERNAL_REMOTE
     )
+
+    # Determine repo constants.
+    repo_branch = "snapshot"
+    repo_dir = git.FindRepoDir(".")
+    repo_manifests_dir = Path(repo_dir) / "manifests" if repo_dir else None
+    if repo_manifests_dir:
+        branch = git.ManifestCheckout(repo_manifests_dir).manifest_branch
+        if branch in ("stable", "green"):
+            repo_branch = branch
     try:
         return git.Log(
             manifest_dir,
             format="format:%H",
             max_count=_MAX_BINHOSTS,
-            rev=f"{remote_name}/snapshot",
+            rev=f"{manifest_remote_name}/{repo_branch}",
         ).splitlines()
     except cros_build_lib.RunCommandError as e:
         logging.warning(e)

@@ -767,6 +767,7 @@ class GetSnapshotShasTest(
         self.source_root_mock = self.PatchObject(
             constants, "SOURCE_ROOT", new=self.tempdir
         )
+        self.manifest_checkout_mock = self.PatchObject(git, "ManifestCheckout")
 
     def testInternalSuccess(self) -> None:
         """Test basic internal success case."""
@@ -780,7 +781,7 @@ class GetSnapshotShasTest(
         self.git_log_mock.assert_called_with(
             os.path.join(self.tempdir, "manifest-internal"),
             format="format:%H",
-            max_count=10,
+            max_count=5,
             rev="cros-internal/snapshot",
         )
         self.assertEqual(
@@ -801,8 +802,30 @@ class GetSnapshotShasTest(
         self.git_log_mock.assert_called_with(
             os.path.join(self.tempdir, "manifest"),
             format="format:%H",
-            max_count=10,
+            max_count=5,
             rev="cros/snapshot",
+        )
+        self.assertEqual(
+            ["external-snapshot-sha1", "external-snapshot-sha2"],
+            result.external,
+        )
+        self.assertEqual([], result.internal)
+
+    def testRepoBranch(self) -> None:
+        """Test when a non-default branch is used."""
+        self.has_remote_mock.side_effect = (True, False)
+        self.git_log_mock.side_effect = (
+            "external-snapshot-sha1\nexternal-snapshot-sha2",
+        )
+        self.manifest_checkout_mock.return_value.manifest_branch = "stable"
+
+        result = binhost._get_snapshot_shas()
+
+        self.git_log_mock.assert_called_with(
+            os.path.join(self.tempdir, "manifest"),
+            format="format:%H",
+            max_count=5,
+            rev="cros/stable",
         )
         self.assertEqual(
             ["external-snapshot-sha1", "external-snapshot-sha2"],
