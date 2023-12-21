@@ -1194,34 +1194,6 @@ class TempDir:
         return self.tempdir if self.tempdir else ""
 
 
-def TempDirDecorator(func):
-    """Populates self.tempdir with path to a temporary writeable directory."""
-
-    def f(self, *args, **kwargs):
-        with TempDir() as tempdir:
-            self.tempdir = tempdir
-            return func(self, *args, **kwargs)
-
-    f.__name__ = func.__name__
-    f.__doc__ = func.__doc__
-    f.__module__ = func.__module__
-    return f
-
-
-def TempFileDecorator(func):
-    """Populates self.tempfile with path to a temporary writeable file"""
-
-    def f(self, *args, **kwargs):
-        with tempfile.NamedTemporaryFile(dir=self.tempdir, delete=False) as f:
-            self.tempfile = f.name
-        return func(self, *args, **kwargs)
-
-    f.__name__ = func.__name__
-    f.__doc__ = func.__doc__
-    f.__module__ = func.__module__
-    return TempDirDecorator(f)
-
-
 # Flags synced from sys/mount.h.  See mount(2) for details.
 # COIL(b/187793358): keeping values synced with Linux utility constants.
 MS_RDONLY = 1
