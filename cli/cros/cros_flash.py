@@ -339,9 +339,9 @@ Note: When flashing a signed image, ssh connection to the device will be lost
                 ) as span:
                     span.set_attributes(
                         {
-                            "board": self.options.board,
-                            "device": self.options.device.raw,
-                            "image": self.options.image,
+                            "board": self.options.board or "",
+                            "device": self.options.device.raw or "",
+                            "image": self.options.image or "",
                         }
                     )
                     self._Flash()
