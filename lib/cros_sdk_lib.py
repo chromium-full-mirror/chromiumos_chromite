@@ -30,7 +30,9 @@ from chromite.lib import timeout_util
 # Version file location inside chroot.
 CHROOT_VERSION_FILE = "/etc/cros_chroot_version"
 # Version hooks directory.
-_CHROOT_VERSION_HOOKS_DIR = constants.CROSUTILS_DIR / "chroot_version_hooks.d"
+_CHROOT_VERSION_HOOKS_DIR = (
+    constants.CHROMITE_DIR / "sdk" / "chroot_version_hooks.d"
+)
 
 # Bash completion directory.
 _BASH_COMPLETION_DIR = (
