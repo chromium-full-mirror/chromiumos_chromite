@@ -1,0 +1,8 @@
+# Copyright 2023 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Remove root credentials. We should never be using gsutil as root these days.
+# We've stopped copying these files over, but let's clear out any existing
+# chroots for consistency.
+sudo rm -rf /root/.boto /root/.gsutil

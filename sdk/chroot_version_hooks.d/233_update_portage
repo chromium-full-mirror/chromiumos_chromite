@@ -1,0 +1,10 @@
+# Copyright 2023 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# b/305401356: Update portage to pick up recent fixes before updating rest of
+# chroot. We force binpkgs, because building from source will trigger the bug
+# we're trying to avoid. Ignore errors, because we can only do harm by failing
+# here. The rest of `update_chroot` should try (and, possibly, fail) the same
+# upgrade.
+sudo emerge --update --getbinpkg --getbinpkgonly -j8 sys-apps/portage || :
