@@ -427,7 +427,7 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
         return UpdateResult(result.returncode, GetChrootVersion())
 
     cmd = [
-        constants.CROSUTILS_DIR / "update_chroot.sh",
+        constants.CHROMITE_SHELL_DIR / "update_chroot.sh",
         "--script-is-run-only-by-chromite-and-not-users",
     ]
     cmd.extend(arguments.GetArgList())

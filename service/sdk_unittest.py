@@ -481,7 +481,9 @@ class UpdateTest(
         )
         expected_rc = 1
         self.rc.AddCmdResult(
-            partial_mock.In(str(constants.CROSUTILS_DIR / "update_chroot.sh")),
+            partial_mock.In(
+                str(constants.CHROMITE_SHELL_DIR / "update_chroot.sh")
+            ),
             returncode=expected_rc,
         )
 
