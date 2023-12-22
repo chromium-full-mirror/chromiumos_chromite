@@ -152,7 +152,7 @@ class Chroot:
         """
         args = []
 
-        # The old src/scripts/sdk_lib/enter_chroot.sh uses shflags which only
+        # The old shell/sdk_lib/enter_chroot.sh uses shflags which only
         # accepts _ in option names.  Our Python code uses - instead.
         # TODO(build): Delete this once sdk_lib/enter_chroot.sh is gone.
         sep = "_" if for_shell else "-"

@@ -753,7 +753,7 @@ class ChrootCreator:
     """
 
     MAKE_CHROOT = os.path.join(
-        constants.SOURCE_ROOT, "src/scripts/sdk_lib/make_chroot.sh"
+        constants.CHROMITE_SHELL_DIR, "sdk_lib/make_chroot.sh"
     )
 
     # If the host timezone isn't set, we'll use this inside the SDK.
@@ -1115,7 +1115,7 @@ class ChrootEnteror:
     """Enters an existing chroot (and syncs state we care about)."""
 
     ENTER_CHROOT = os.path.join(
-        constants.SOURCE_ROOT, "src/scripts/sdk_lib/enter_chroot.sh"
+        constants.CHROMITE_SHELL_DIR, "sdk_lib/enter_chroot.sh"
     )
 
     # The rlimits we will lookup & pass down, in order.

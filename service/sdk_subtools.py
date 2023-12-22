@@ -120,7 +120,7 @@ def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
 
     # sysroot.BuildPackages can't (yet?) be used here, because it _only_
     # supports cross-compilation. SDK package management is currently all
-    # handled by src/scripts/sdk_lib/make_chroot.sh (b/191307774).
+    # handled by shell/sdk_lib/make_chroot.sh (b/191307774).
 
     config = sysroot.BuildPackagesRunConfig(
         packages=packages,

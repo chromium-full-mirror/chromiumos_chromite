@@ -4,8 +4,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+HERE="$(dirname "$0")"
 # shellcheck source=common.sh
-. "$(dirname "$0")/common.sh" || exit 1
+. "${HERE}/common.sh" || exit 1
 
 if [[ "$1" != "--script-is-run-only-by-chromite-and-not-users" ]]; then
   die_notrace 'This script must not be run by users.' \
@@ -51,7 +52,7 @@ eval set -- "${FLAGS_ARGV}"
 switch_to_strict_mode
 
 # shellcheck source=sdk_lib/make_conf_util.sh
-. "${SCRIPTS_DIR}"/sdk_lib/make_conf_util.sh
+. "${HERE}"/sdk_lib/make_conf_util.sh
 
 info "Updating chroot"
 
