@@ -274,7 +274,7 @@ def ExtractArchive(request, response, _config) -> None:
     result = sysroot.ExtractSysroot(
         chroot, sysroot_lib.Sysroot(sysroot_path), sysroot_archive
     )
-    response.sysroot_archive.path = result
+    response.sysroot_archive.path = str(result)
     response.sysroot_archive.location = common_pb2.Path.INSIDE
 
 

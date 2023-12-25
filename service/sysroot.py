@@ -1836,5 +1836,6 @@ def ExtractSysroot(
     cros_build_lib.ExtractTarball(
         Path(sysroot_archive),
         sysroot_path,
+        sudo=True,
     )
     return sysroot_path

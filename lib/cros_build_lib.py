@@ -1398,6 +1398,7 @@ def ExtractTarball(
     files_to_extract: Optional[List[str]] = None,
     excluded_files: Optional[List[str]] = None,
     return_extracted_files: bool = False,
+    sudo: Optional[bool] = False,
 ) -> List[str]:
     """Extracts a tarball using tar.
 
@@ -1411,6 +1412,7 @@ def ExtractTarball(
         excluded_files: String of files to not extract.
         return_extracted_files: whether the caller expects the list of files
             extracted; if False, returns an empty list.
+        sudo: Whether to run with "sudo".
 
     Returns:
         List of absolute paths of the files extracted (possibly empty).
@@ -1447,8 +1449,13 @@ def ExtractTarball(
     if files_to_extract:
         cmd.extend(files_to_extract)
 
+    if sudo:
+        rc_func = functools.partial(sudo_run, preserve_env=True)
+    else:
+        rc_func = run
+
     try:
-        result = run(cmd, capture_output=True, encoding="utf-8")
+        result = rc_func(cmd, capture_output=True, encoding="utf-8")
     except RunCommandError as e:
         raise TarballError(
             "An error occurred when attempting to untar %s:\n%s"
