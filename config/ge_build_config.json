@@ -11636,6 +11636,24 @@
       "models": [
         {
           "board_name": "nissa-pvs",
+          "name": "anraggar",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-pvs",
+          "name": "anraggar360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-pvs",
           "name": "craask",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
