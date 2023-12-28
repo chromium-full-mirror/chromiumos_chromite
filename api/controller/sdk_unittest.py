@@ -673,7 +673,7 @@ class BuildSdkToolchainTest(
 class uprev_test(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Test case for SdkService/Uprev() endpoint."""
 
-    _binhost_gs_bucket = "gs://chromiumos-prebuilts/"
+    _binhost_gs_bucket = "gs://chromeos-prebuilt"
 
     def setUp(self) -> None:
         """Set up the test case."""
@@ -682,42 +682,72 @@ class uprev_test(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             "uprev_sdk_and_prebuilts",
         )
 
-    def NewRequest(
-        self, version: str = "", toolchain_tarball_template: str = ""
+    def new_request(
+        self,
+        version: str = "",
+        toolchain_tarball_template: str = "",
+        sdk_gs_bucket: str = "",
     ):
         """Return a new UprevRequest with standard inputs."""
         return sdk_pb2.UprevRequest(
             binhost_gs_bucket=self._binhost_gs_bucket,
             version=version,
             toolchain_tarball_template=toolchain_tarball_template,
+            sdk_gs_bucket=sdk_gs_bucket,
         )
 
     @staticmethod
-    def NewResponse() -> sdk_pb2.UprevResponse:
+    def new_response() -> sdk_pb2.UprevResponse:
         """Return a new empty UprevResponse."""
         return sdk_pb2.UprevResponse()
 
-    def testWithVersion(self) -> None:
+    def _test_with_version(self) -> None:
         """Test the endpoint with `version` specified.
 
         In this case, we expect that sdk_controller.Uprev is called with the
         version specified in the UprevRequest.
+
+        Args:
+            request_sdk_gs_bucket: The sdk_gs_bucket that the test will use in
+                the UprevRequest.
+            service_sdk_gs_bucket: The sdk_gs_bucket that we expect to see
+                passed into service/sdk/uprev_sdk_and_prebuilts().
         """
         specified_version = "1970.01.01.000000"
         toolchain_tarball_template = "path/to/%(version)s/toolchain"
-        request = self.NewRequest(
+        request = self.new_request(
             version=specified_version,
             toolchain_tarball_template=toolchain_tarball_template,
         )
-        response = self.NewResponse()
+        response = self.new_response()
         sdk_controller.Uprev(request, response, self.api_config)
         self._uprev_patch.assert_called_with(
-            binhost_gs_bucket=self._binhost_gs_bucket,
-            sdk_version=specified_version,
-            toolchain_tarball_template=toolchain_tarball_template,
+            specified_version,
+            toolchain_tarball_template,
+            self._binhost_gs_bucket,
+            sdk_gs_bucket=None,
         )
 
-    def testWithoutVersion(self) -> None:
+    def test_with_sdk_gs_bucket(self) -> None:
+        """Test the endpoint, passing in the sdk_gs_bucket."""
+        specified_version = "1970.01.01.000000"
+        toolchain_tarball_template = "path/to/%(version)s/toolchain"
+        sdk_gs_bucket = "staging-chromiumos-sdk"
+        request = self.new_request(
+            version=specified_version,
+            toolchain_tarball_template=toolchain_tarball_template,
+            sdk_gs_bucket=sdk_gs_bucket,
+        )
+        response = self.new_response()
+        sdk_controller.Uprev(request, response, self.api_config)
+        self._uprev_patch.assert_called_with(
+            specified_version,
+            toolchain_tarball_template,
+            self._binhost_gs_bucket,
+            sdk_gs_bucket=sdk_gs_bucket,
+        )
+
+    def test_without_version(self) -> None:
         """Test the endpoint with `version` not specified.
 
         In this case, we expect that sdk_controller.Uprev is called with the
@@ -726,16 +756,16 @@ class uprev_test(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         (mocked here in setUp()).
         """
         toolchain_tarball_template = "path/to/%(version)s/toolchain"
-        request = self.NewRequest(
+        request = self.new_request(
             toolchain_tarball_template=toolchain_tarball_template
         )
-        response = self.NewResponse()
+        response = self.new_response()
         with self.assertRaises(cros_build_lib.DieSystemExit):
             sdk_controller.Uprev(request, response, self.api_config)
 
-    def testWithoutToolchainTarballTemplate(self) -> None:
+    def test_without_toolchain_tarball_template(self) -> None:
         """Test the endpoint with `toolchain_tarball_template` not specified."""
-        request = self.NewRequest(version="1234")
-        response = self.NewResponse()
+        request = self.new_request(version="1234")
+        response = self.new_response()
         with self.assertRaises(cros_build_lib.DieSystemExit):
             sdk_controller.Uprev(request, response, self.api_config)

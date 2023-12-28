@@ -6,7 +6,7 @@
 
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import binpkg
@@ -671,6 +671,7 @@ class UprevSdkAndPrebuiltsTest(cros_test_lib.MockTestCase):
     # Note: The "%(target)s" here is expected in the actual SDK version file.
     _old_tc_path = "2021/01/%(target)s-2021.01.01.111111"
     _old_bootstrap_version = "2020.00.00.000000"
+    _old_sdk_bucket = "old-chromiumos-sdk"
 
     # Contents of the SDK version file. Intended to be %-interpolated.
     _sdk_version_file_template = """# Copyright 2022 The ChromiumOS Authors
@@ -681,11 +682,15 @@ class UprevSdkAndPrebuiltsTest(cros_test_lib.MockTestCase):
 SDK_LATEST_VERSION="%(sdk_version)s"
 
 # How to find the standalone toolchains from the above sdk.
-TC_PATH = "%(tc_path)s"
+TC_PATH="%(tc_path)s"
 
 # Frozen version of SDK used for bootstrapping.
 # If unset, SDK_LATEST_VERSION will be used for bootstrapping.
-BOOTSTRAP_FROZEN_VERSION = "%(bootstrap_version)s"
+BOOTSTRAP_FROZEN_VERSION="%(bootstrap_version)s"
+
+# The Google Storage bucket containing the SDK tarball and toolchains.
+# If empty, Chromite will assume a default value, likely "chromiumos-sdk".
+SDK_BUCKET="%(sdk_bucket)s"
 """
 
     # Contents of the host prebuilt file. Intended to be %-interpolated.
@@ -753,6 +758,7 @@ source make.conf.host_setup
                     "sdk_version": self._old_version,
                     "tc_path": self._old_tc_path,
                     "bootstrap_version": self._old_bootstrap_version,
+                    "sdk_bucket": self._old_sdk_bucket,
                 }
             if filepath.name == "prebuilt.conf":
                 return self._prebuilt_file_template % {
@@ -769,20 +775,35 @@ source make.conf.host_setup
     def test_noop(self) -> None:
         """Test trying to update to the existing version."""
         modified_paths = sdk.uprev_sdk_and_prebuilts(
-            "gs://chromeos-prebuilt",
             self._old_version,
             self._old_tc_path,
+            "gs://chromeos-prebuilt",
         )
         self.assertEqual(modified_paths, [])
 
-    def test_update(self) -> None:
-        """Test making a genuine update."""
+    def _test_update(
+        self,
+        input_prebuilts_bucket: str,
+        input_sdk_bucket: Optional[str],
+        expected_new_sdk_bucket: str,
+    ) -> None:
+        """Test making a genuine update.
+
+        Args:
+            input_prebuilts_bucket: The value to pass into
+                uprev_sdk_and_prebuilts for the "prebuilts_gs_bucket" arg
+            input_sdk_bucket: The value to pass into uprev_sdk_and_prebuilts for
+                the "sdk_gs_bucket" kwarg.
+            expected_new_sdk_bucket: The value that we expect to see written
+                to the new file.
+        """
         new_version = "2022.02.02.222222"
         new_tc_path = "path/to/%(target)s/toolchain.tar.xz"
         modified_paths = sdk.uprev_sdk_and_prebuilts(
-            "gs://chromeos-prebuilt/",
             new_version,
             new_tc_path,
+            input_prebuilts_bucket,
+            sdk_gs_bucket=input_sdk_bucket,
         )
         self.assertCountEqual(
             modified_paths,
@@ -797,8 +818,9 @@ source make.conf.host_setup
             self._sdk_version_file_template
             % {
                 "sdk_version": new_version,
-                "tc_path": self._old_tc_path,
+                "tc_path": new_tc_path,
                 "bootstrap_version": self._old_bootstrap_version,
+                "sdk_bucket": expected_new_sdk_bucket,
             },
         )
         self._write_file_patch.assert_any_call(
@@ -808,4 +830,34 @@ source make.conf.host_setup
         self._write_file_patch.assert_any_call(
             constants.MAKE_CONF_AMD64_HOST_FILE_FULL_PATH,
             self._make_conf_amd64_template % {"version": new_version},
+        )
+
+    def test_update_where_sdk_bucket_is_none(self) -> None:
+        """Test making an update without changing the SDK bucket."""
+        self._test_update("gs://chromeos-prebuilt", None, self._old_sdk_bucket)
+
+    def test_update_where_sdk_bucket_is_empty_string(self) -> None:
+        """Test making an update, setting the SDK bucket to "".
+
+        This test case is intended to catch any code that checks whether
+        SDK_BUCKET is falsey. The empty string is a meaningful value, distinct
+        from None.
+        """
+        self._test_update("gs://chromeos-prebuilt", "", "")
+
+    def test_update_where_buckets_have_prefix(self) -> None:
+        """Test an update where the SDK and prebuilt buckets start with gs://.
+
+        We expect the gs:// prefix to be stripped.
+        """
+        self._test_update(
+            "gs://chromeos-prebuilt",
+            "gs://new-chromiumos-sdk",
+            "new-chromiumos-sdk",
+        )
+
+    def test_update_where_sdk_bucket_has_no_prefix(self) -> None:
+        """Test an update where the buckets have no gs:// prefix."""
+        self._test_update(
+            "chromeos-prebuilt", "new-chromiumos-sdk", "new-chromiumos-sdk"
         )

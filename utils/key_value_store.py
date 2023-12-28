@@ -11,7 +11,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import cast, Dict, Generator, List, Optional, Tuple, Union
+from typing import cast, Dict, Generator, Iterable, List, Optional, Tuple, Union
 
 from chromite.lib import osutils
 
@@ -129,26 +129,24 @@ def LoadFile(
     return {}
 
 
-def UpdateKeyInLocalFile(
-    filepath: Union[Path, str], key: str, value: str
-) -> bool:
-    """Update a key in a local key-value store file with the value passed.
+def UpdateKeyInContents(
+    old_lines: Iterable[str], key: str, value: str
+) -> List[str]:
+    """Update a key in the contents of a key-value store.
 
-    File format:
+    Key-value pairs are represented as:
         key="value"
-    Note that quotes are added automatically.
-
-    If `filepath` does not already exist, it will be created.
 
     If the key-value store does not already contain |key|, it will be appended.
 
     Args:
-        filepath: Name of file to modify.
+        old_lines: The existing contents of the key-value store.
         key: The variable key to update.
-        value: Value to write with the key.
+        value: The value to write for that key. Quotes will be added
+            automatically.
 
     Returns:
-        True if changes were made to the file.
+        A new list of lines for an updated key-value store.
 
     Raises:
         ValueError: If the key already exists in the file with a multiline
@@ -204,20 +202,12 @@ def UpdateKeyInLocalFile(
 
     # new_lines is the content to be used to overwrite/create the config file
     # at the end of this function.
-    made_changes = False
     new_lines = []
-
-    # Read current lines.
-    current_lines: List[str] = []
-    try:
-        current_lines = osutils.ReadText(filepath).splitlines()
-    except FileNotFoundError:
-        logging.info("Creating new file %s", filepath)
 
     # Scan current lines, copy all vars to new_lines, change the line with
     # |key|.
     found = False
-    for line in current_lines:
+    for line in old_lines:
         # Strip newlines from end of line. We already add newlines below.
         line = line.rstrip("\n")
         file_keyval = _extract_key_value(line)
@@ -235,24 +225,40 @@ def UpdateKeyInLocalFile(
         logging.info(
             "Updating %s=%s to %s=%s", file_key, file_value, key, value
         )
-        made_changes |= file_value != value
         new_lines.append(new_keyval_line)
     if not found:
         logging.info("Adding new variable %s=%s", key, value)
-        made_changes = True
         new_lines.append(new_keyval_line)
 
     # End the file with a single newline, but don't add one if one exists.
     if new_lines[-1]:
         new_lines.append("")
 
-    # Write out new file.
-    osutils.WriteFile(filepath, "\n".join(new_lines))
-    return made_changes
+    return new_lines
+
+
+def UpdateKeyInLocalFile(
+    filepath: Union[Path, str], key: str, value: str
+) -> bool:
+    """Update a key in a local key-value store file with the value passed.
+
+    If `filepath` does not already exist, it will be created.
+
+    Args:
+        filepath: Name of file to modify.
+        key: The variable key to update.
+        value: The value to write for that key. Quotes will be added
+            automatically.
+
+    Returns:
+        True if changes were made to the file.
+    """
+    return UpdateKeysInLocalFile(filepath, {key: value})
 
 
 def UpdateKeysInLocalFile(
-    filepath: Union[Path, str], keys_values: Dict[str, str]
+    filepath: Union[Path, str],
+    keys_values: Dict[str, str],
 ) -> bool:
     """Update any number of key-value pairs in a local key-value store file.
 
@@ -261,10 +267,26 @@ def UpdateKeysInLocalFile(
         keys_values: Dict of {key: value} for all new values.
 
     Returns:
-        True if any changes were made to the file.
+        True if any key-value pairs were changed in the file.
     """
-    changed = False
+    original_lines: List[str] = []
+    try:
+        original_lines = osutils.ReadText(filepath).splitlines()
+    except FileNotFoundError:
+        logging.info("Creating new file %s", filepath)
+
+    # Make sure original_lines ends in a blank line. That way, if
+    # UpdateKeyInContents will do nothing but append a blank line, we won't
+    # report that a change was made.
+    if original_lines and original_lines[-1]:
+        original_lines.append("")
+
+    # Copy `original_lines`. We'll modify `lines`, and later compare it against
+    # the original.
+    lines = list(original_lines)
     for key, value in keys_values.items():
-        if UpdateKeyInLocalFile(filepath, key, value):
-            changed = True
+        lines = UpdateKeyInContents(lines, key, value)
+
+    if changed := lines != original_lines:
+        osutils.WriteFile(filepath, "\n".join(lines))
     return changed

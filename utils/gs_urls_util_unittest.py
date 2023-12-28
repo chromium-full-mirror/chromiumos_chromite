@@ -5,6 +5,9 @@
 """Unittests for the gs_urls_util.py module."""
 
 from pathlib import Path
+from typing import Optional, Type
+
+import pytest
 
 from chromite.lib import cros_test_lib
 from chromite.utils import gs_urls_util
@@ -125,3 +128,35 @@ class GsUrlToHttpTest(cros_test_lib.TestCase):
                 gs_urls_util.GsUrlToHttp(gs_url, public=False, directory=True),
                 http_url,
             )
+
+
+@pytest.mark.parametrize(
+    "uri,expected_bucket,expected_exception",
+    (
+        ("gs://my_bucket", "my_bucket", None),
+        ("gs://my_bucket/my_resource.txt", "my_bucket", None),
+        ("my_bucket", "my_bucket", None),
+        ("my_bucket/my_resource.text", "my_bucket", None),
+        ("https://my_bucket", "", ValueError),
+    ),
+)
+def test_extract_gs_bucket(
+    uri: str,
+    expected_bucket: str,
+    expected_exception: Optional[Type[Exception]],
+) -> None:
+    """Test the behaviors of extract_gs_bucket().
+
+    Args:
+        uri: The URI to pass into extract_gs_bucket().
+        expected_bucket: The return value we expect. Ignored if expect_raise is
+            given.
+        expected_exception: If given, the exception type that the function
+            should raise.
+    """
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            gs_urls_util.extract_gs_bucket(uri)
+    else:
+        bucket = gs_urls_util.extract_gs_bucket(uri)
+        assert bucket == expected_bucket

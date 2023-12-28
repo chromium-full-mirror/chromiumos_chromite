@@ -226,9 +226,10 @@ def Uprev(
     """
     # The main uprev logic occurs in service/sdk.py.
     modified_files = sdk.uprev_sdk_and_prebuilts(
-        binhost_gs_bucket=request.binhost_gs_bucket,
-        sdk_version=request.version,
-        toolchain_tarball_template=request.toolchain_tarball_template,
+        request.version,
+        request.toolchain_tarball_template,
+        request.binhost_gs_bucket,
+        sdk_gs_bucket=request.sdk_gs_bucket or None,
     )
 
     # Populate the UprevResponse object with the modified files.

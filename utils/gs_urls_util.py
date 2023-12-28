@@ -5,6 +5,7 @@
 """Library to make common google storage operations more reliable."""
 
 from typing import TYPE_CHECKING, Union
+import urllib.parse
 
 
 if TYPE_CHECKING:
@@ -111,3 +112,24 @@ def GsUrlToHttp(path: str, public: bool = True, directory: bool = False) -> str:
             return path.replace(BASE_GS_URL, PRIVATE_BASE_HTTPS_DOWNLOAD_URL, 1)
         else:
             return path.replace(BASE_GS_URL, PRIVATE_BASE_HTTPS_URL, 1)
+
+
+def extract_gs_bucket(uri: str) -> str:
+    """Extract the Google Storage bucket from an ambiguously formatted URI.
+
+    All of the following inputs should return the same output (my_bucket):
+        gs://my_bucket
+        gs://my_bucket
+        gs://my_bucket/my_resource.txt
+        my_bucket
+        my_bucket/my_resource.txt
+
+    Raises:
+        ValueError: The URI uses a scheme other than gs://, such as https://.
+    """
+    parsed_uri = urllib.parse.urlparse(uri)
+    if parsed_uri.scheme == "gs":
+        return parsed_uri.netloc
+    if not parsed_uri.scheme:
+        return uri.split("/")[0]
+    raise ValueError(f"Unexpected scheme {parsed_uri.scheme} in URI {uri}.")
