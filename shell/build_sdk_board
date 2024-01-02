@@ -1,0 +1,203 @@
+#!/bin/bash
+
+# Copyright 2018 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# The host (chroot) specific "setup_board" process. This separates the chroot
+# specific setup from the generic board setup.
+
+# shellcheck source=common.sh
+. "$(dirname "$0")/common.sh" || exit 1
+
+# Script must run inside the chroot
+restart_in_chroot_if_needed "$@"
+
+assert_not_root_user
+
+# Developer-visible flags.
+DEFINE_string board "amd64-host" \
+  "The name of the board to set up."
+DEFINE_boolean force "${FLAGS_FALSE}" \
+  "Force re-creating board root."
+
+FLAGS_HELP="usage: $(basename "$0") [flags]
+
+build_sdk_board builds the chroot for the amd64-host (chroot) board.
+This should not need to be called except by the SDK Builder.
+"
+
+# Parse command line flags
+FLAGS "$@" || exit 1
+eval set -- "${FLAGS_ARGV}"
+
+# Only now can we die on error.  shflags functions leak non-zero error codes,
+# so will die prematurely if 'switch_to_strict_mode' is specified before now.
+switch_to_strict_mode
+
+BOARD=${FLAGS_board}
+
+CREATE_SDK_BOARD_ROOT_ARGS=("--board" "${BOARD}")
+if [[ ${FLAGS_force} -eq ${FLAGS_TRUE} ]]; then
+  CREATE_SDK_BOARD_ROOT_ARGS+=("--force")
+fi
+info_run "${SCRIPTS_DIR}/create_sdk_board_root" \
+  "${CREATE_SDK_BOARD_ROOT_ARGS[@]}"
+
+# Locations we will need
+BOARD_ROOT="/build/${BOARD}"
+
+eval "$(portageq envvar -v CHOST PKGDIR)"
+
+EMERGE_CMD="${CHROMITE_BIN}/parallel_emerge"
+mapfile -t TOOLCHAIN_PACKAGES < \
+  <("${CHROMITE_BIN}/cros_setup_toolchains" --show-packages host)
+# Sanity check we got some valid results.
+if [[ ${#TOOLCHAIN_PACKAGES[@]} -eq 0 ]]; then
+  die_notrace "cros_setup_toolchains failed"
+fi
+PACKAGES=( system virtual/target-sdk )
+
+run_emerge() {
+  info_run sudo -E "${EMERGE_CMD}" "$@"
+}
+
+# First, rebuild all packages from scratch. This is needed to make sure
+# we rebuild all chroot packages.
+
+# We build the toolchain by hand to avoid race conditions where the toolchain
+# is used by other packages that we're building.  See https://crbug.com/906289.
+run_emerge "${TOOLCHAIN_PACKAGES[@]}"
+
+# Then build everything else.
+run_emerge --verbose --emptytree --with-bdeps=y \
+  --exclude "${TOOLCHAIN_PACKAGES[*]}" \
+  "${PACKAGES[@]}" virtual/target-sdk-nobdeps
+info_run sudo eclean -d packages
+
+# Next, install our rebuilt packages into our separate root.
+HOST_FLAGS=(
+  "--root=${BOARD_ROOT}" --update --verbose --deep --root-deps
+  --newuse --usepkgonly
+)
+run_emerge "${HOST_FLAGS[@]}" --with-bdeps=y "${PACKAGES[@]}"
+# Install our rebuilt packages from the nobdeps target into our separate root
+# without their build-time deps.  We also avoid adding this target to the
+# world set so that subsequent update_chroot commands won't re-import the
+# build deps.
+run_emerge "${HOST_FLAGS[@]}" --with-bdeps=n --oneshot \
+  virtual/target-sdk-nobdeps
+# shellcheck disable=SC2154  # PKGDIR is defined via eval above
+info_run sudo cp -a "${PKGDIR}" "${BOARD_ROOT}/packages"
+
+# Copy our chroot version into the newly packaged chroot.
+info_run sudo cp -a \
+  "${CHROOT_VERSION_FILE}" \
+  "${BOARD_ROOT}${CHROOT_VERSION_FILE}"
+
+# Now cleanup paths referencing the ROOT from the *.la files.
+info_run sudo find "${BOARD_ROOT}" -type f -name '*.la' -exec \
+  sed -i -e "s|${BOARD_ROOT}/|/|g" {} +
+
+# Remove wrapper scripts and any home directory contents left behind in the
+# sysroot. These are not supposed to be part of the final filesystem.
+info_run sudo rm -rf \
+  "${BOARD_ROOT}/build" \
+  "${BOARD_ROOT}"/run/* \
+  "${BOARD_ROOT}"/home/* \
+  "${BOARD_ROOT}"/etc/{,portage/}make.{conf,profile} \
+  "${BOARD_ROOT}/etc/make.conf.user" \
+  "${BOARD_ROOT}/var/cache/distfiles" \
+  "${BOARD_ROOT}/var/lock"
+
+# Setup host make.conf. This includes any overlay that we may be using and a
+# pointer to pre-built packages.
+cros_overlay="${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay"
+info_run sudo mkdir -p "${BOARD_ROOT}/etc/portage"
+info_run sudo ln -sf \
+  "${cros_overlay}/chromeos/config/make.conf.amd64-host" \
+  "${BOARD_ROOT}/etc/make.conf"
+info_run sudo ln -sf \
+  "${cros_overlay}/profiles/default/linux/amd64/10.0/sdk" \
+  "${BOARD_ROOT}/etc/portage/make.profile"
+
+# Create make.conf.user.
+cat <<\EOF | info_run sudo tee "${BOARD_ROOT}/etc/make.conf.user" >/dev/null
+# This file is useful for doing global (chroot and all board) changes.
+# Tweak emerge settings, ebuild env, etc...
+#
+# Make sure to append variables unless you really want to clobber all
+# existing settings.  e.g. You most likely want:
+#   FEATURES="${FEATURES} ..."
+#   USE="${USE} foo"
+# and *not*:
+#   USE="foo"
+#
+# This also is a good place to setup ACCEPT_LICENSE.
+EOF
+info_run sudo chmod 0644 "${BOARD_ROOT}/etc/make.conf.user"
+
+# Enable locale that some Chrome scripts assume exist.
+info_run sudo sed -i -e '/^#en_US.UTF-8/s:#::' "${BOARD_ROOT}/etc/locale.gen"
+info_run sudo mount --bind /dev "${BOARD_ROOT}/dev"
+info_run sudo chroot "${BOARD_ROOT}" locale-gen -u
+info_run sudo umount "${BOARD_ROOT}/dev"
+
+# b/278101251: /build/amd64-host doesn't include ccache's link tree by default,
+# which makes `FEATURES=ccache` quietly fail for host packages. Ensure it's
+# built here.
+info_run sudo ROOT="${BOARD_ROOT}" \
+  "${BOARD_ROOT}/usr/bin/ccache-config" --install-links
+
+# Add chromite into python path.
+for python_path in "${BOARD_ROOT}/usr/lib/"python*.*/site-packages; do
+  info_run sudo mkdir -p "${python_path}"
+  info_run sudo ln -sfT "${CHROOT_TRUNK_DIR}"/chromite "${python_path}"/chromite
+done
+
+# Newer portage complains about bare overlays.  Create the file that crossdev
+# will also create later on.
+OVERLAYS_ROOT="/usr/local/portage"
+CROSSDEV_OVERLAY="${OVERLAYS_ROOT}/crossdev"
+CROSSDEV_METADATA="${BOARD_ROOT}/${CROSSDEV_OVERLAY}/metadata"
+info_run sudo mkdir -p -m 755 "${CROSSDEV_METADATA}"
+cat <<EOF | sudo tee "${CROSSDEV_METADATA}/layout.conf" >/dev/null
+# Autogenerated and managed by crossdev
+# Delete the above line if you want to manage this file yourself
+masters = portage-stable eclass-overlay chromiumos
+repo-name = crossdev
+use-manifests = true
+thin-manifests = true
+EOF
+
+PORTAGE_CACHE_DIRS=(
+  "${BOARD_ROOT}/var/lib/portage/pkgs"
+  "${BOARD_ROOT}/var/cache/"chromeos-{cache,chrome}
+)
+
+# Setup stable paths.
+info_run sudo mkdir -p -m 755 \
+  "${PORTAGE_CACHE_DIRS[@]}" \
+  "${BOARD_ROOT}/var/cache" \
+  "${BOARD_ROOT}/etc/profile.d" \
+  "${BOARD_ROOT}/run" \
+  "${BOARD_ROOT}/mnt/host" \
+  "${BOARD_ROOT}/mnt/host/out" \
+  "${BOARD_ROOT}/mnt/host/source"
+
+info_run sudo ln -sfT \
+  /mnt/host/source/src/chromium/depot_tools \
+  "${BOARD_ROOT}/mnt/host/depot_tools"
+
+info_run sudo ln -sfT \
+  chromeos-cache/distfiles "${BOARD_ROOT}/var/cache/distfiles"
+
+# Setup cache dirs.
+info_run sudo chmod 775 "${PORTAGE_CACHE_DIRS[@]}"
+
+# Make sure some paths always exist so we can mount on top.
+info_run sudo touch "${BOARD_ROOT}"/etc/{hosts,resolv.conf}
+
+command_completed
+echo "Done!"
+echo "The SYSROOT is: ${BOARD_ROOT}"
