@@ -16,7 +16,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import toolchain_list
-from chromite.utils import gs_urls_util
 from chromite.utils import key_value_store
 
 
@@ -139,21 +138,6 @@ def FilterToolchains(targets, key, value):
         have been deleted
     """
     return dict((k, v) for k, v in targets.items() if v[key] == value)
-
-
-def GetSdkURL(for_gsutil=False, suburl=""):
-    """Construct a Google Storage URL for accessing SDK related archives
-
-    Args:
-        for_gsutil: Do you want a URL for passing to `gsutil`?
-        suburl: A url fragment to tack onto the end
-
-    Returns:
-        The fully constructed URL
-    """
-    return gs_urls_util.GetGsURL(
-        constants.SDK_GS_BUCKET, for_gsutil=for_gsutil, suburl=suburl
-    )
 
 
 def GetArchForTarget(target):

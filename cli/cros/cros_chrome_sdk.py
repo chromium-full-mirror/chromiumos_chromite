@@ -27,6 +27,7 @@ from chromite.lib import cipd
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import cros_sdk_lib
 from chromite.lib import gclient
 from chromite.lib import gs
 from chromite.lib import osutils
@@ -34,7 +35,6 @@ from chromite.lib import parallel
 from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.lib import qemu
-from chromite.utils import gs_urls_util
 from chromite.utils import memoize
 from chromite.utils import pformat
 
@@ -545,10 +545,8 @@ class SDKFetcher:
             if ref.Exists(lock=True):
                 manifest = osutils.ReadFile(ref.path)
             else:
-                manifest_path = gs_urls_util.GetGsURL(
-                    bucket=constants.SDK_GS_BUCKET,
-                    suburl="cros-sdk-%s.tar.xz.Manifest"
-                    % self._GetSDKVersion(version),
+                manifest_path = cros_sdk_lib.get_sdk_manifest_url(
+                    self._GetSDKVersion(version),
                     for_gsutil=True,
                 )
                 manifest = self.gs_ctx.Cat(manifest_path, encoding="utf-8")

@@ -15,7 +15,7 @@ import pwd
 import resource
 import shutil
 import sys
-from typing import List, Optional, Set, Union
+from typing import Any, List, Optional, Set, Union
 
 from chromite.lib import chroot_lib
 from chromite.lib import constants
@@ -25,6 +25,7 @@ from chromite.lib import metrics_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import timeout_util
+from chromite.utils import gs_urls_util
 
 
 # Version file location inside chroot.
@@ -265,6 +266,57 @@ def IsChrootReady(chroot):
     """
     version = GetChrootVersion(chroot)
     return version is not None and version > 0
+
+
+def get_sdk_gs_url(suburl: str = "", for_gsutil: bool = False) -> str:
+    """Construct a Google Storage URL for an arbitrary file in the SDK bucket.
+
+    Args:
+        suburl: The path to the file within the SDK bucket.
+        for_gsutil: Whether to return a URL for passing to `gsutil`.
+
+    Returns:
+        The fully constructed URL.
+    """
+    return gs_urls_util.GetGsURL(
+        constants.SDK_GS_BUCKET, for_gsutil=for_gsutil, suburl=suburl
+    )
+
+
+def get_sdk_tarball_url(
+    sdk_version: str,
+    file_extension: str = "tar.xz",
+    **kwargs: Any,
+) -> str:
+    """Return a Google Storage URL pointing to an SDK tarball.
+
+    Args:
+        sdk_version: The SDK version to fetch a manifest for.
+        file_extension: The tarball's file extension.
+        **kwargs: Additional keyword arguments for get_sdk_gs_url().
+    """
+    tarball_basename = f"cros-sdk-{sdk_version}.{file_extension}"
+    return get_sdk_gs_url(suburl=tarball_basename, **kwargs)
+
+
+def get_sdk_manifest_url(sdk_version: str, **kwargs: Any) -> str:
+    """Return a Google Storage URL pointing to an SDK manifest file.
+
+    Args:
+        sdk_version: The SDK version to fetch a manifest for.
+        **kwargs: Additional keyword arguments for get_sdk_gs_url().
+    """
+    manifest_basename = f"cros-sdk-{sdk_version}.tar.xz.Manifest"
+    return get_sdk_gs_url(suburl=manifest_basename, **kwargs)
+
+
+def get_sdk_latest_conf_file_url(**kwargs: Any) -> str:
+    """Return a Google Storage URL for the remote cros-sdk-latest.conf file.
+
+    Args:
+        **kwargs: Additional keyword arguments for get_sdk_gs_url().
+    """
+    return get_sdk_gs_url(suburl="cros-sdk-latest.conf", **kwargs)
 
 
 def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:

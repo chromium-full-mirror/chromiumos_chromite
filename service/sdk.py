@@ -483,11 +483,7 @@ def _get_remote_latest_file_value(key: str) -> str:
     Raises:
         ValueError: If the given key is not found in the file.
     """
-    uri = gs_urls_util.GetGsURL(
-        constants.SDK_GS_BUCKET,
-        for_gsutil=True,
-        suburl="cros-sdk-latest.conf",
-    )
+    uri = cros_sdk_lib.get_sdk_latest_conf_file_url(for_gsutil=True)
     contents = gs.GSContext().Cat(uri).decode()
     contents_dict = key_value_store.LoadData(
         contents, source="remote latest SDK file"

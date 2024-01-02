@@ -36,12 +36,12 @@ from chromite.lib import chroot_lib
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import cros_sdk_lib
 from chromite.lib import git
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import portage_util
-from chromite.lib import toolchain
 from chromite.lib.parser import package_info
 from chromite.utils import gs_urls_util
 from chromite.utils import pformat
@@ -502,8 +502,8 @@ class PrebuiltUploader:
         m = re.match(r"(.*-)?(\d\d\d\d\.\d\d\.\d\d.*)", self._version)
         assert m, "version does not match format .*YYYY.MM.DD.*"
         version_str = m[2]
-        remote_tarfile = toolchain.GetSdkURL(
-            for_gsutil=True, suburl="cros-sdk-%s.tar.xz" % (version_str,)
+        remote_tarfile = cros_sdk_lib.get_sdk_tarball_url(
+            version_str, for_gsutil=True
         )
         # For SDK, also upload the manifest which is guaranteed to exist
         # by the builderstage.
@@ -522,8 +522,9 @@ class PrebuiltUploader:
             for tarball_spec in tarball_list:
                 qualifier_val, local_path = tarball_spec.split(":")
                 suburl = upload_path % {qualifier_name: qualifier_val}
-                remote_path = toolchain.GetSdkURL(
-                    for_gsutil=True, suburl=suburl
+                remote_path = cros_sdk_lib.get_sdk_gs_url(
+                    suburl=suburl,
+                    for_gsutil=True,
                 )
                 self._Upload(local_path, remote_path)
 
@@ -555,8 +556,8 @@ class PrebuiltUploader:
             return
 
         # Get existing values from the remote file.
-        remote_pointerfile = toolchain.GetSdkURL(
-            for_gsutil=True, suburl="cros-sdk-latest.conf"
+        remote_pointerfile = cros_sdk_lib.get_sdk_latest_conf_file_url(
+            for_gsutil=True
         )
         existing_keyval = self._gs_context.LoadKeyValueStore(
             remote_pointerfile, acl=self._acl

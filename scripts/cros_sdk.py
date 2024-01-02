@@ -39,7 +39,6 @@ from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import process_util
 from chromite.lib import retry_util
-from chromite.lib import toolchain
 from chromite.utils import key_value_store
 from chromite.utils import xdg_util
 
@@ -72,8 +71,9 @@ def GetArchStageTarballs(version):
     """Returns the URL for a given arch/version"""
     extension = {"xz": "tar.xz"}
     return [
-        toolchain.GetSdkURL(
-            suburl="cros-sdk-%s.%s" % (version, extension[compressor])
+        cros_sdk_lib.get_sdk_tarball_url(
+            version,
+            file_extension=extension[compressor],
         )
         for compressor in COMPRESSION_PREFERENCE
     ]
