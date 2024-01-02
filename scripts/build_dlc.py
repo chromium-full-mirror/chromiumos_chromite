@@ -172,6 +172,12 @@ def GetParser():
         help="DLC will use logical volumes on LVM stateful partition "
         "migrated devices. (scaled option takes precedence)",
     )
+    one_dlc.add_argument(
+        "--user-tied",
+        default=False,
+        action="store_true",
+        help="DLC will be user-tied.",
+    )
     return parser
 
 
@@ -259,6 +265,7 @@ def main(argv) -> None:
             force_ota=opts.force_ota,
             powerwash_safe=opts.powerwash_safe,
             use_logical_volume=opts.use_logical_volume,
+            user_tied=opts.user_tied,
         )
         params.VerifyDlcParameters()
         params.StoreDlcParameters(
