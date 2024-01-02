@@ -1160,7 +1160,7 @@ def _BazelBuild(
     # Bazel needs amd64-host sysroot with sdk/bootstrap profile.
     cros_build_lib.run(
         [
-            constants.CROSUTILS_DIR / "create_sdk_board_root",
+            constants.CHROMITE_SHELL_DIR / "create_sdk_board_root",
             "--board",
             "amd64-host",
             "--profile",

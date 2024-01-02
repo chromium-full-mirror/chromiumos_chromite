@@ -7,8 +7,9 @@
 # The host (chroot) specific "setup_board" process. This separates the chroot
 # specific setup from the generic board setup.
 
+SCRIPT_ROOT="$(dirname "$0")"
 # shellcheck source=common.sh
-. "$(dirname "$0")/common.sh" || exit 1
+. "${SCRIPT_ROOT}/common.sh" || exit 1
 
 # Script must run inside the chroot
 restart_in_chroot_if_needed "$@"
@@ -41,7 +42,7 @@ CREATE_SDK_BOARD_ROOT_ARGS=("--board" "${BOARD}")
 if [[ ${FLAGS_force} -eq ${FLAGS_TRUE} ]]; then
   CREATE_SDK_BOARD_ROOT_ARGS+=("--force")
 fi
-info_run "${SCRIPTS_DIR}/create_sdk_board_root" \
+info_run "${SCRIPT_ROOT}/create_sdk_board_root" \
   "${CREATE_SDK_BOARD_ROOT_ARGS[@]}"
 
 # Locations we will need

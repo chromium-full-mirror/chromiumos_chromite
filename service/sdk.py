@@ -612,7 +612,7 @@ def BuildPrebuilts(
         FileNotFoundError: If either of the expected return paths is not found
             after running `build_sdk_board`.
     """
-    cmd = ["./build_sdk_board"]
+    cmd = [chroot.chroot_path(constants.CHROMITE_SHELL_DIR / "build_sdk_board")]
     if board:
         cmd.append(f"--board={board}")
 
