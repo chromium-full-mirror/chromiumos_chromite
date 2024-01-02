@@ -15,7 +15,7 @@ from chromite.api.gen_sdk.chromiumos.test.api import test_case_pb2 as chromiumos
 from chromite.api.gen_sdk.chromiumos.test.api import test_case_metadata_pb2 as chromiumos_dot_test_dot_api_dot_test__case__metadata__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#chromiumos/test/api/suite_set.proto\x12\x13\x63hromiumos.test.api\x1a#chromiumos/test/api/test_case.proto\x1a,chromiumos/test/api/test_case_metadata.proto\"\xe3\x01\n\x08SuiteSet\x12,\n\x02id\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.SuiteSet.Id\x12/\n\x08metadata\x18\x02 \x01(\x0b\x32\x1d.chromiumos.test.api.Metadata\x12\x34\n\nsuite_sets\x18\x04 \x03(\x0b\x32 .chromiumos.test.api.SuiteSet.Id\x12-\n\x06suites\x18\x03 \x03(\x0b\x32\x1d.chromiumos.test.api.Suite.Id\x1a\x13\n\x02Id\x12\r\n\x05value\x18\x01 \x01(\t\"\xa9\x01\n\x05Suite\x12)\n\x02id\x18\x01 \x01(\x0b\x32\x1d.chromiumos.test.api.Suite.Id\x12/\n\x08metadata\x18\x02 \x01(\x0b\x32\x1d.chromiumos.test.api.Metadata\x12/\n\x05tests\x18\x03 \x03(\x0b\x32 .chromiumos.test.api.TestCase.Id\x1a\x13\n\x02Id\x12\r\n\x05value\x18\x01 \x01(\t\"\xa3\x01\n\x08Metadata\x12,\n\x06owners\x18\x01 \x03(\x0b\x32\x1c.chromiumos.test.api.Contact\x12\x38\n\rbug_component\x18\x02 \x01(\x0b\x32!.chromiumos.test.api.BugComponent\x12/\n\x08\x63riteria\x18\x03 \x01(\x0b\x32\x1d.chromiumos.test.api.CriteriaB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#chromiumos/test/api/suite_set.proto\x12\x13\x63hromiumos.test.api\x1a#chromiumos/test/api/test_case.proto\x1a,chromiumos/test/api/test_case_metadata.proto\"\xe3\x01\n\x08SuiteSet\x12,\n\x02id\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.SuiteSet.Id\x12/\n\x08metadata\x18\x02 \x01(\x0b\x32\x1d.chromiumos.test.api.Metadata\x12\x34\n\nsuite_sets\x18\x04 \x03(\x0b\x32 .chromiumos.test.api.SuiteSet.Id\x12-\n\x06suites\x18\x03 \x03(\x0b\x32\x1d.chromiumos.test.api.Suite.Id\x1a\x13\n\x02Id\x12\r\n\x05value\x18\x01 \x01(\t\"A\n\x0cSuiteSetList\x12\x31\n\nsuite_sets\x18\x01 \x03(\x0b\x32\x1d.chromiumos.test.api.SuiteSet\"\xa9\x01\n\x05Suite\x12)\n\x02id\x18\x01 \x01(\x0b\x32\x1d.chromiumos.test.api.Suite.Id\x12/\n\x08metadata\x18\x02 \x01(\x0b\x32\x1d.chromiumos.test.api.Metadata\x12/\n\x05tests\x18\x03 \x03(\x0b\x32 .chromiumos.test.api.TestCase.Id\x1a\x13\n\x02Id\x12\r\n\x05value\x18\x01 \x01(\t\"7\n\tSuiteList\x12*\n\x06suites\x18\x01 \x03(\x0b\x32\x1a.chromiumos.test.api.Suite\"\xa3\x01\n\x08Metadata\x12,\n\x06owners\x18\x01 \x03(\x0b\x32\x1c.chromiumos.test.api.Contact\x12\x38\n\rbug_component\x18\x02 \x01(\x0b\x32!.chromiumos.test.api.BugComponent\x12/\n\x08\x63riteria\x18\x03 \x01(\x0b\x32\x1d.chromiumos.test.api.CriteriaB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.api.suite_set_pb2', globals())
@@ -27,10 +27,14 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _SUITESET._serialized_end=371
   _SUITESET_ID._serialized_start=352
   _SUITESET_ID._serialized_end=371
-  _SUITE._serialized_start=374
-  _SUITE._serialized_end=543
+  _SUITESETLIST._serialized_start=373
+  _SUITESETLIST._serialized_end=438
+  _SUITE._serialized_start=441
+  _SUITE._serialized_end=610
   _SUITE_ID._serialized_start=352
   _SUITE_ID._serialized_end=371
-  _METADATA._serialized_start=546
-  _METADATA._serialized_end=709
+  _SUITELIST._serialized_start=612
+  _SUITELIST._serialized_end=667
+  _METADATA._serialized_start=670
+  _METADATA._serialized_end=833
 # @@protoc_insertion_point(module_scope)

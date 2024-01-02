@@ -13,9 +13,10 @@ _sym_db = _symbol_database.Default()
 
 from chromite.api.gen.chromiumos.test.api import test_case_pb2 as chromiumos_dot_test_dot_api_dot_test__case__pb2
 from chromite.api.gen.chromiumos.test.api import test_case_metadata_pb2 as chromiumos_dot_test_dot_api_dot_test__case__metadata__pb2
+from chromite.api.gen.chromiumos.test.api import test_execution_metadata_pb2 as chromiumos_dot_test_dot_api_dot_test__execution__metadata__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$chromiumos/test/api/test_suite.proto\x12\x13\x63hromiumos.test.api\x1a#chromiumos/test/api/test_case.proto\x1a,chromiumos/test/api/test_case_metadata.proto\"\xb9\x03\n\tTestSuite\x12\x0c\n\x04name\x18\x01 \x01(\t\x12<\n\rtest_case_ids\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.TestCaseIdListH\x00\x12T\n\x16test_case_tag_criteria\x18\x03 \x01(\x0b\x32\x32.chromiumos.test.api.TestSuite.TestCaseTagCriteriaH\x00\x12\x37\n\ntest_cases\x18\x04 \x01(\x0b\x32!.chromiumos.test.api.TestCaseListH\x00\x12H\n\x13test_cases_metadata\x18\x06 \x01(\x0b\x32).chromiumos.test.api.TestCaseMetadataListH\x00\x12\x14\n\x0ctotal_shards\x18\x05 \x01(\x03\x1ai\n\x13TestCaseTagCriteria\x12\x0c\n\x04tags\x18\x01 \x03(\t\x12\x14\n\x0ctag_excludes\x18\x02 \x03(\t\x12\x12\n\ntest_names\x18\x03 \x03(\t\x12\x1a\n\x12test_name_excludes\x18\x04 \x03(\tB\x06\n\x04specB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$chromiumos/test/api/test_suite.proto\x12\x13\x63hromiumos.test.api\x1a#chromiumos/test/api/test_case.proto\x1a,chromiumos/test/api/test_case_metadata.proto\x1a\x31\x63hromiumos/test/api/test_execution_metadata.proto\"\xfd\x03\n\tTestSuite\x12\x0c\n\x04name\x18\x01 \x01(\t\x12<\n\rtest_case_ids\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.TestCaseIdListH\x00\x12T\n\x16test_case_tag_criteria\x18\x03 \x01(\x0b\x32\x32.chromiumos.test.api.TestSuite.TestCaseTagCriteriaH\x00\x12\x37\n\ntest_cases\x18\x04 \x01(\x0b\x32!.chromiumos.test.api.TestCaseListH\x00\x12H\n\x13test_cases_metadata\x18\x06 \x01(\x0b\x32).chromiumos.test.api.TestCaseMetadataListH\x00\x12\x14\n\x0ctotal_shards\x18\x05 \x01(\x03\x12\x42\n\x12\x65xecution_metadata\x18\x07 \x01(\x0b\x32&.chromiumos.test.api.ExecutionMetadata\x1ai\n\x13TestCaseTagCriteria\x12\x0c\n\x04tags\x18\x01 \x03(\t\x12\x14\n\x0ctag_excludes\x18\x02 \x03(\t\x12\x12\n\ntest_names\x18\x03 \x03(\t\x12\x1a\n\x12test_name_excludes\x18\x04 \x03(\tB\x06\n\x04specB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.api.test_suite_pb2', globals())
@@ -23,8 +24,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z-go.chromium.org/chromiumos/config/go/test/api'
-  _TESTSUITE._serialized_start=145
-  _TESTSUITE._serialized_end=586
-  _TESTSUITE_TESTCASETAGCRITERIA._serialized_start=473
-  _TESTSUITE_TESTCASETAGCRITERIA._serialized_end=578
+  _TESTSUITE._serialized_start=196
+  _TESTSUITE._serialized_end=705
+  _TESTSUITE_TESTCASETAGCRITERIA._serialized_start=592
+  _TESTSUITE_TESTCASETAGCRITERIA._serialized_end=697
 # @@protoc_insertion_point(module_scope)
