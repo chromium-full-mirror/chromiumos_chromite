@@ -34,9 +34,10 @@ from chromite.utils import gs_urls_util
 
 # Define constants for test cases.
 MOCK_BINHOST_ID = 1
-MOCK_BUILD_TARGET = "test_build_target"
+MOCK_BUILD_TARGET = build_target_lib.BuildTarget("test_build_target", "base")
+MOCK_BUILD_TARGET_NAME = "test_build_target"
 MOCK_DATE_STRING = "2023-07-25T08:09:14.842Z"
-MOCK_GENERIC_BUILD_TARGET = "generic_build_target"
+MOCK_GENERIC_BUILD_TARGET_NAME = "generic_build_target"
 MOCK_GENERIC_PROFILE = "generic_profile"
 MOCK_GS_BUCKET_NAME = "test_bucket"
 MOCK_GS_URI = "gs://test"
@@ -889,11 +890,11 @@ class FetchBinhostsTest(
     FETCH_BINHOSTS_MOCK_ARGS = (
         MOCK_GS_BUCKET_NAME,
         [MOCK_SNAPSHOT_SHA],
-        MOCK_BUILD_TARGET,
+        MOCK_BUILD_TARGET_NAME,
         MOCK_PROFILE,
         False,
         True,
-        MOCK_GENERIC_BUILD_TARGET,
+        MOCK_GENERIC_BUILD_TARGET_NAME,
         MOCK_GENERIC_PROFILE,
     )
 
@@ -956,6 +957,7 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
     def setUp(self):
         self.get_snapshot_shas = self.PatchObject(binhost, "_get_snapshot_shas")
         self.fetch_binhosts = self.PatchObject(binhost, "_fetch_binhosts")
+        self.sysroot = self.PatchObject(sysroot_lib, "Sysroot")
 
     def test_internal_private_board(self):
         """Test for internal checkout with a private board."""
@@ -971,7 +973,7 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
             ]
         ]
         assert binhost.lookup_binhosts(
-            MOCK_GS_BUCKET_NAME, MOCK_BUILD_TARGET, MOCK_PROFILE
+            MOCK_BUILD_TARGET, MOCK_GS_BUCKET_NAME
         ) == [*self.INTERNAL_GS_URIS, *self.EXTERNAL_GS_URIS]
 
     def test_internal_public_board(self):
@@ -983,7 +985,7 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
         ]
         self.fetch_binhosts.side_effect = [self.EXTERNAL_GS_URIS]
         assert binhost.lookup_binhosts(
-            MOCK_GS_BUCKET_NAME, MOCK_BUILD_TARGET, MOCK_PROFILE
+            MOCK_BUILD_TARGET, MOCK_GS_BUCKET_NAME
         ) == [*self.EXTERNAL_GS_URIS]
 
     def test_external_private_board(self):
@@ -1000,7 +1002,7 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
         ]
 
         assert binhost.lookup_binhosts(
-            MOCK_GS_BUCKET_NAME, MOCK_BUILD_TARGET, MOCK_PROFILE
+            MOCK_BUILD_TARGET, MOCK_GS_BUCKET_NAME
         ) == [*self.INTERNAL_GS_URIS, *self.EXTERNAL_GS_URIS]
 
     def test_external(self):
@@ -1010,9 +1012,7 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
         ]
         self.fetch_binhosts.side_effect = [self.EXTERNAL_GS_URIS]
         assert (
-            binhost.lookup_binhosts(
-                MOCK_GS_BUCKET_NAME, MOCK_BUILD_TARGET, MOCK_PROFILE
-            )
+            binhost.lookup_binhosts(MOCK_BUILD_TARGET, MOCK_GS_BUCKET_NAME)
             == self.EXTERNAL_GS_URIS
         )
 

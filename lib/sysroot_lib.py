@@ -990,6 +990,13 @@ PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
 
         return config
 
+    def GetBaseArchBoard(self) -> Optional[str]:
+        """Return name of base architecture board."""
+        arch = self.GetStandardField(STANDARD_FIELD_ARCH)
+        if arch in _ARCH_MAPPING:
+            return _ARCH_MAPPING[arch]
+        return None
+
     def _ContinuousBinhosts(
         self,
         builder_type: str,
@@ -1017,9 +1024,9 @@ PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
                 boards.extend(x for x in names if x != board)
 
         # Add base architecture board.
-        arch = self.GetStandardField(STANDARD_FIELD_ARCH)
-        if arch in _ARCH_MAPPING:
-            boards.append(_ARCH_MAPPING[arch])
+        base_board = self.GetBaseArchBoard()
+        if base_board:
+            boards.append(base_board)
 
         filenames = [f"{p}-{builder_type}_BINHOST.conf" for p in boards]
 

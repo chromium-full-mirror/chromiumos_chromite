@@ -36,6 +36,17 @@ class SysrootLibTest(cros_test_lib.MockTempDirTestCase):
         # make.conf needs to exist to correctly read back config.
         unittest_lib.create_stub_make_conf(sysroot_path)
 
+    def testGetBaseArchBoard(self) -> None:
+        """Tests that we can get the base arch board."""
+        self.PatchObject(
+            self.sysroot, "GetStandardField", return_value="test_arch"
+        )
+        self.PatchDict(
+            sysroot_lib._ARCH_MAPPING,  # pylint: disable=protected-access
+            {"test_arch": "test_board"},
+        )
+        self.assertEqual(self.sysroot.GetBaseArchBoard(), "test_board")
+
     def _writeOverlays(
         self,
         board_overlays: Optional[Iterable[str]] = None,

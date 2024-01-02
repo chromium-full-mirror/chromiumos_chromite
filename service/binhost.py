@@ -24,6 +24,7 @@ from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import portage_util
 from chromite.lib import repo_util
+from chromite.lib import sysroot_lib
 from chromite.utils import gs_urls_util
 from chromite.utils import key_value_store
 
@@ -31,7 +32,6 @@ from chromite.utils import key_value_store
 if TYPE_CHECKING:
     from chromite.lib import build_target_lib
     from chromite.lib import chroot_lib
-    from chromite.lib import sysroot_lib
 
 # The name of the ACL argument file.
 _GOOGLESTORAGE_GSUTIL_FILE = "googlestorage_acl.txt"
@@ -822,18 +822,16 @@ def _get_snapshot_shas_from_git_log(
 
 
 def lookup_binhosts(
-    build_target: str,
-    profile: str,
+    build_target: "build_target_lib.BuildTarget",
     gs_bucket_name: str = _BINHOSTS_GS_BUCKET_NAME,
 ) -> List[Optional[str]]:
     """Get binhost locations from the binhost lookup service.
 
     Args:
+        build_target: Details of the build target.
         gs_bucket_name: Name of the google storage bucket which contains the
             binhosts (e.g. "chromeos-prebuilt" in
             gs://chromeos-prebuilt/binhosts/..).
-        build_target: build target (also known as board) of the binhosts.
-        profile: profile associated with the build target.
 
     Returns:
         A list of Google Storage URIs of binhosts, sorted by created
@@ -870,16 +868,19 @@ def lookup_binhosts(
         get_corresponding_binhosts = False
         private = False
 
-    # TODO(b/316157442): Map to the corresponding generic build target.
+    # Get generic build target.
+    board_root = sysroot_lib.Sysroot(build_target.root)
+    base_board = board_root.GetBaseArchBoard()
+
     binhost_gs_uris = _fetch_binhosts(
         gs_bucket_name,
         snapshot_shas,
-        build_target,
-        profile,
+        build_target.name,
+        build_target.profile or "base",
         private,
         get_corresponding_binhosts,
-        build_target,
-        profile,
+        base_board,
+        "base",
     )
 
     return binhost_gs_uris
