@@ -24,14 +24,27 @@ from chromite.scripts import cros_sdk
 class CrosSdkUtilsTest(cros_test_lib.MockTempDirTestCase):
     """Tests for misc util funcs."""
 
-    def testGetArchStageTarballs(self) -> None:
-        """Basic test of GetArchStageTarballs."""
+    def test_get_sdk_tarball_urls(self) -> None:
+        """Basic test of get_sdk_tarball_urls."""
         self.assertCountEqual(
             [
                 "https://storage.googleapis.com/chromiumos-sdk/"
                 "cros-sdk-123.tar.xz",
             ],
-            cros_sdk.GetArchStageTarballs("123"),
+            cros_sdk.get_sdk_tarball_urls("123"),
+        )
+
+    def test_get_sdk_tarball_urls_with_bucket(self) -> None:
+        """Test of get_sdk_tarball_urls with a custom bucket."""
+        self.assertCountEqual(
+            [
+                "https://storage.googleapis.com/staging-chromiumos-sdk/"
+                "cros-sdk-123.tar.xz",
+            ],
+            cros_sdk.get_sdk_tarball_urls(
+                "123",
+                bucket="staging-chromiumos-sdk",
+            ),
         )
 
     def testFetchRemoteTarballsEmpty(self) -> None:

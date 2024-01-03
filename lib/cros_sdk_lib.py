@@ -268,18 +268,26 @@ def IsChrootReady(chroot):
     return version is not None and version > 0
 
 
-def get_sdk_gs_url(suburl: str = "", for_gsutil: bool = False) -> str:
+def get_sdk_gs_url(
+    suburl: str = "",
+    for_gsutil: bool = False,
+    override_bucket: Optional[str] = None,
+) -> str:
     """Construct a Google Storage URL for an arbitrary file in the SDK bucket.
 
     Args:
         suburl: The path to the file within the SDK bucket.
         for_gsutil: Whether to return a URL for passing to `gsutil`.
+        override_bucket: If given and non-empty, use this URL instead of the
+            standard SDK bucket.
 
     Returns:
         The fully constructed URL.
     """
     return gs_urls_util.GetGsURL(
-        constants.SDK_GS_BUCKET, for_gsutil=for_gsutil, suburl=suburl
+        override_bucket or constants.SDK_GS_BUCKET,
+        for_gsutil=for_gsutil,
+        suburl=suburl,
     )
 
 

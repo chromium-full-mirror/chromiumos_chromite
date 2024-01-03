@@ -67,23 +67,33 @@ NEEDED_TOOLS = ("curl", "xz")
 PROXY_NEEDED_TOOLS = ("ip",)
 
 
-def GetArchStageTarballs(version):
-    """Returns the URL for a given arch/version"""
+def get_sdk_tarball_urls(
+    version: str,
+    bucket: Optional[str] = None,
+) -> str:
+    """Return URL candidates to download an SDK tarball.
+
+    Args:
+        version: The SDK version to download, such as '1970.01.01.314159'.
+        bucket: The Google Storage bucket containing the SDK tarball, if not the
+            standard SDK bucket.
+    """
     extension = {"xz": "tar.xz"}
     return [
         cros_sdk_lib.get_sdk_tarball_url(
             version,
             file_extension=extension[compressor],
+            override_bucket=bucket,
         )
         for compressor in COMPRESSION_PREFERENCE
     ]
 
 
 def FetchRemoteTarballs(storage_dir: Path, urls: List[str]) -> Path:
-    """Fetches a tarball given by url, and place it in |storage_dir|.
+    """Fetch a tarball given by url, and place it in |storage_dir|.
 
     Args:
-        storage_dir: Path where to save the tarball.
+        storage_dir: Path in which to save the tarball.
         urls: List of URLs to try to download. Download will stop on first
             success.
 
@@ -99,7 +109,7 @@ def FetchRemoteTarballs(storage_dir: Path, urls: List[str]) -> Path:
     status_re = re.compile(rb"^HTTP/[0-9]+(\.[0-9]+)? 200")
     # pylint: disable=undefined-loop-variable
     for url in urls:
-        logging.notice("Downloading tarball %s ...", urls[0].rsplit("/", 1)[-1])
+        logging.notice("Downloading tarball %s ...", url.rsplit("/", 1)[-1])
         parsed = urllib.parse.urlparse(url)
         tarball_name = os.path.basename(parsed.path)
         if parsed.scheme in ("", "file"):
@@ -806,6 +816,7 @@ def main(argv) -> None:
     )
     sdk_latest_version = conf.get("SDK_LATEST_VERSION", "<unknown>")
     bootstrap_frozen_version = conf.get("BOOTSTRAP_FROZEN_VERSION", "<unknown>")
+    sdk_bucket: Optional[str] = conf.get("SDK_BUCKET", None)
 
     # Use latest SDK for bootstrapping if requested. Use a frozen version of SDK
     # for bootstrapping if BOOTSTRAP_FROZEN_VERSION is set.
@@ -921,7 +932,7 @@ def main(argv) -> None:
         if options.sdk_url:
             urls = [options.sdk_url]
         else:
-            urls = GetArchStageTarballs(sdk_version)
+            urls = get_sdk_tarball_urls(sdk_version, bucket=sdk_bucket)
 
     sdk_cache = Path(chroot.cache_dir) / "sdks"
     if options.download or options.create or replace_for_update:
