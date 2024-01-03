@@ -233,6 +233,9 @@ def CompileSSHConnectSettings(**kwargs):
         "ServerAliveCountMax": 3,
         "StrictHostKeyChecking": "no",
         "UserKnownHostsFile": "/dev/null",
+        "ControlMaster": "auto",
+        "ControlPath": "~/.ssh/ctrl-%C",
+        "ControlPersist": 120,
     }
     settings.update(kwargs)
     return ["-o%s=%s" % (k, v) for k, v in settings.items() if v is not None]
