@@ -439,7 +439,6 @@ class EBuild:
     # These eclass files imply that src_test is defined for an ebuild.
     _ECLASS_IMPLIES_TEST = {
         "cros-common.mk",
-        "cros-ec",  # defines src_test
         "cros-firmware",
         "cros-go",  # defines src_test
         "cros-rust",  # defines src_test
