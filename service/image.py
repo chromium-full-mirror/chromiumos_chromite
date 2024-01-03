@@ -153,7 +153,7 @@ def GetBuildImageCommand(
         List with build_image command with arguments.
     """
     cmd = [
-        constants.CROSUTILS_DIR / "build_image.sh",
+        constants.CHROMITE_SHELL_DIR / "build_image.sh",
         "--script-is-run-only-by-chromite-and-not-users",
         "--board",
         board,
