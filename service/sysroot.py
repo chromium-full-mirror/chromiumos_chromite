@@ -879,9 +879,7 @@ def BuildPackages(
     extra_env["PORTAGE_BINHOST"] = " ".join(binhosts)
     _LogBinhostAge(binhosts, date_threshold=30)
     try:
-        fetched_binhosts = binhost_service.lookup_binhosts(
-            target.name, target.profile or "base"
-        )
+        fetched_binhosts = binhost_service.lookup_binhosts(target)
         logging.info(
             "Binhosts fetched from the lookup service: %s", fetched_binhosts
         )
