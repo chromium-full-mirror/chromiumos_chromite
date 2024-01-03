@@ -562,7 +562,17 @@ class DlcGeneratorTest(
         copy_dir_mock = self.PatchObject(osutils, "CopyDirContents")
 
         self.GetDlcGenerator().CreateSquashfsImage()
-        self.assertCommandContains(["mksquashfs", "-4k-align", "-noappend"])
+        self.assertCommandContains(
+            [
+                "mksquashfs",
+                "-4k-align",
+                "-noappend",
+                "-comp",
+                dlc_lib.ZSTD_COMP_NAME,
+                dlc_lib.ZSTD_COMP_LEVEL_OPT,
+                dlc_lib.ZSTD_MAX_COMP_LEVEL,
+            ]
+        )
         self.assertCommandContains(
             [
                 "unsquashfs",
@@ -582,7 +592,17 @@ class DlcGeneratorTest(
         copy_dir_mock = self.PatchObject(osutils, "CopyDirContents")
 
         self.GetDlcGenerator().CreateSquashfsImage()
-        self.assertCommandContains(["mksquashfs", "-4k-align", "-noappend"])
+        self.assertCommandContains(
+            [
+                "mksquashfs",
+                "-4k-align",
+                "-noappend",
+                "-comp",
+                dlc_lib.ZSTD_COMP_NAME,
+                dlc_lib.ZSTD_COMP_LEVEL_OPT,
+                dlc_lib.ZSTD_MAX_COMP_LEVEL,
+            ]
+        )
         self.assertCommandContains(
             [
                 "unsquashfs",
@@ -610,6 +630,10 @@ class DlcGeneratorTest(
                 "mksquashfs",
                 "-4k-align",
                 "-noappend",
+                "-comp",
+                dlc_lib.ZSTD_COMP_NAME,
+                dlc_lib.ZSTD_COMP_LEVEL_OPT,
+                dlc_lib.ZSTD_MAX_COMP_LEVEL,
                 "-mkfs-time",
                 "0",
                 "-all-time",

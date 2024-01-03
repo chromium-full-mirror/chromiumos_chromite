@@ -101,6 +101,13 @@ _MAX_ID_NAME = 80
 _IMAGE_SIZE_NEARING_RATIO = 1.05
 _IMAGE_SIZE_GROWTH_RATIO = 1.2
 
+# Compression options for squashfs-tool'ing.
+ZSTD_COMP_NAME = "zstd"
+ZSTD_COMP_LEVEL_OPT = "-Xcompression-level"
+
+# Compression level for zstd
+ZSTD_MAX_COMP_LEVEL = "22"
+
 
 class Error(Exception):
     """Base class for dlc_lib errors."""
@@ -848,6 +855,10 @@ class DlcGenerator:
                 self.dest_image,
                 "-4k-align",
                 "-noappend",
+                "-comp",
+                ZSTD_COMP_NAME,
+                ZSTD_COMP_LEVEL_OPT,
+                ZSTD_MAX_COMP_LEVEL,
             ]
             if self.reproducible:
                 mksquashfs.extend(
