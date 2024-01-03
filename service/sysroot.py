@@ -1188,7 +1188,6 @@ def _BazelBuild(
 let targets =
     kind("ebuild",
         deps(@portage//target/virtual/target-os)
-        union deps(@portage//target/virtual/target-os-test)
     )
 in
     $targets except rdeps(
