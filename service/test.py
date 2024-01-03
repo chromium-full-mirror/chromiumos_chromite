@@ -522,27 +522,32 @@ def bundle_e2e_code_coverage(
         BundleCoverageError whenever we fail to generate the tarball.
     """
     base_path = chroot.full_path(sysroot_class.path)
-    cov_dir = chroot.out_path / base_path / _PKG_ARTIFACTS_DIR
-    logging.info("Looking for E2E artifacts under %s", cov_dir)
+    artifacts_dir = chroot.out_path / base_path / _PKG_ARTIFACTS_DIR
+    logging.info("Looking for E2E artifacts under %s", artifacts_dir)
 
     tmp_path = chroot.out_path / "tmp"
     with tempfile.TemporaryDirectory(dir=tmp_path) as tmpdir:
         tmpdir_path = Path(tmpdir)
-        for path in cov_dir.glob("**/hpt_coverage/*.json"):
+        for path in artifacts_dir.glob("**/hpt_coverage/*.json"):
             cov_json = code_coverage_util.GetLlvmJsonCoverageDataIfValid(path)
             if not cov_json:
                 logging.info("Did not find a valid JSON for: %s", path)
                 continue
 
-            rel_path = path.relative_to(cov_dir)
+            rel_path = path.relative_to(artifacts_dir)
             pkg_name = list(rel_path.parents)[-3].name
             logging.info("Found %s path and package %s", path, pkg_name)
             filename = tmpdir_path / f"{pkg_name}.json"
             filename.write_text(json.dumps(cov_json), encoding="utf-8")
 
-        for path in cov_dir.glob("**/hpt_coverage/*.gcov"):
+        for path in artifacts_dir.glob("**/hpt_coverage/*.gcov"):
             filename = tmpdir_path / path.name
             path.replace(filename)
+
+        mapping = code_coverage_util.GatherPathMapping(artifacts_dir)
+        if mapping:
+            mapping_file = tmpdir_path / "src_to_build_dest_map.json"
+            mapping_file.write_text(json.dumps(mapping), encoding="utf-8")
 
         # If no artifacts found, return None.
         if not any(tmpdir_path.iterdir()):

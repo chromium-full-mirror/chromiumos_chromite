@@ -340,6 +340,9 @@ class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):
 
     def test_bundle_e2e_code_coverage_returns_none(self) -> None:
         """Verify bundle_e2e_code_coverage returns None for no e2e artifact."""
+        self.PatchObject(
+            code_coverage_util, "GatherPathMapping", return_value=[]
+        )
         path = test.bundle_e2e_code_coverage(
             self.chroot, self.sysroot, self.output_dir.as_posix()
         )
@@ -363,6 +366,10 @@ class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):
         """Verify bundle_e2e_code_coverage returns none for invalid JSON."""
         json_file = self.cov_dir / "coverage.json"
         json_file.write_text("invalid_json", encoding="utf-8")
+
+        self.PatchObject(
+            code_coverage_util, "GatherPathMapping", return_value=[]
+        )
         path = test.bundle_e2e_code_coverage(
             self.chroot, self.sysroot, self.output_dir
         )
@@ -384,6 +391,23 @@ class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):
         )
         json_file.write_text(content, encoding="utf-8")
         (self.cov_dir / "abc.gcov").write_text("some text", encoding="utf-8")
+
+        mapping_file = self.cov_dir / "src_to_build_dest_map.json"
+        content = [
+            {
+                "src_path": "src/third_party/../platform2",
+                "build_dest_path": (
+                    "/build/nami/../tmp2/tmp/portage/chromeos-base/"
+                    "shill-net-0.0.1-r1072/work/"
+                    "shill-net-0.0.1"
+                ),
+            },
+        ]
+        mapping_file.write_text(json.dumps(content), encoding="utf-8")
+
+        self.PatchObject(
+            code_coverage_util, "GatherPathMapping", return_value=[]
+        )
         path = test.bundle_e2e_code_coverage(
             self.chroot, self.sysroot, self.output_dir
         )

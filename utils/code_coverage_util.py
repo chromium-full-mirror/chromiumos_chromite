@@ -324,7 +324,7 @@ def CleanLlvmFileNames(
     return CreateLlvmCoverageJson(result_coverage_data)
 
 
-def GatherPathMapping(search_directory: str) -> Optional[List]:
+def GatherPathMapping(search_directory: Path) -> Optional[List]:
     """Method to gather path mapping json.
 
     Walk through search_directory and read and merge all
@@ -336,36 +336,22 @@ def GatherPathMapping(search_directory: str) -> Optional[List]:
     Returns:
         List of path mapping entries.
     """
-    if not os.path.exists(search_directory):
-        logging.warning(
-            "The path in GatherPathMapping does not exists %s.",
-            search_directory,
-        )
-        return None
-    if not os.path.isdir(search_directory):
-        raise ValueError("The path is not a directory: ", search_directory)
-    temp = []
-    for dirpath, _, files in os.walk(search_directory):
-        for f in files:
-            path_to_file = os.path.join(dirpath, f)
-            if os.path.basename(path_to_file) != "src_to_build_dest_map.json":
-                continue
-            data = json.loads(Path(path_to_file).read_text(encoding="utf-8"))
-            _ValidatePathMappingEntryList(data)
-            temp.extend(data["mapping"])
-
     result = []
-    for entry in temp:
-        result.extend(
-            [
-                {
-                    "build_dest_path": os.path.normpath(
-                        entry["build_dest_path"]
-                    ),
-                    "src_path": os.path.normpath(entry["src_path"]),
-                }
-            ]
-        )
+    for file in search_directory.glob("**/src_to_build_dest_map.json"):
+        data = json.loads(file.read_text(encoding="utf-8"))
+        _ValidatePathMappingEntryList(data)
+
+        for mapping in data["mapping"]:
+            result.extend(
+                [
+                    {
+                        "build_dest_path": os.path.normpath(
+                            mapping["build_dest_path"]
+                        ),
+                        "src_path": os.path.normpath(mapping["src_path"]),
+                    }
+                ]
+            )
     result.extend([{"build_dest_path": "/mnt/host/source/", "src_path": ""}])
     result.sort(reverse=True, key=lambda x: len(x["build_dest_path"]))
     return result
