@@ -227,10 +227,8 @@ class SDKFetcherMock(partial_mock.PartialMock):
     def _GetManifest(self, _inst, _version):
         return {
             "packages": {
-                "app-emulation/qemu": [["3.0.0", {}]],
                 "chromeos-base/tast-cmd": [["1.2.3", {}]],
                 "chromeos-base/tast-remote-tests-cros": [["7.8.9", {}]],
-                "sys-firmware/seabios": [["1.11.0", {}]],
             }
         }
 
@@ -667,67 +665,6 @@ class RunThroughTest(
 
         self.cmd_mock.inst.Run()
         self.assertExists(chrome_cache)
-
-    def testSeabiosDownload(self) -> None:
-        """Verify _CreateSeabiosFWSymlinks.
-
-        Create qemu/seabios directory structure with expected symlinks,
-        break the symlinks, and verify that they get fixed.
-        """
-        qemu_share = os.path.join(
-            self.tempdir,
-            "chrome-sdk/tarballs/app-emulation/qemu/some-fake-hash/usr/share",
-        )
-        seabios_share = os.path.join(
-            self.tempdir,
-            "chrome-sdk/tarballs/sys-firmware/seabios/some-fake-hash/usr/share",
-        )
-
-        # Create qemu subdirectories.
-        for share_dir in ["qemu", "seabios", "seavgabios"]:
-            os.makedirs(os.path.join(qemu_share, share_dir))
-
-        def _CreateLink(share, bios_dir, bios) -> None:
-            src_file = os.path.join(share, bios_dir, bios)
-            dest_file = os.path.join(share, "qemu", bios)
-            osutils.Touch(src_file, makedirs=True)
-            rel_path = os.path.relpath(src_file, os.path.dirname(dest_file))
-            os.symlink(rel_path, dest_file)
-
-        def _VerifyLinks(broken) -> None:
-            """Verfies that the links are |broken|."""
-            qemu_share_dir = os.path.join(qemu_share, "qemu")
-            for link in os.listdir(qemu_share_dir):
-                full_link = os.path.join(qemu_share_dir, link)
-                self.assertTrue(os.path.islink(full_link))
-                self.assertNotEqual(os.path.exists(full_link), broken)
-
-        # Create qemu links.
-        for bios in ["bios.bin", "bios256k.bin"]:
-            _CreateLink(qemu_share, "seabios", bios)
-        for bios in [
-            "vgabios-vmware.bin",
-            "vgabios-virtio.bin",
-            "vgabios-stdvga.bin",
-            "vgabios-qxl.bin",
-            "vgabios-cirrus.bin",
-            "vgabios.bin",
-        ]:
-            _CreateLink(qemu_share, "seavgabios", bios)
-
-        # Move the seabios/seavgabios directories into the seabios package,
-        # which breaks the links.
-        for bios_dir in ["seabios", "seavgabios"]:
-            shutil.move(
-                os.path.join(qemu_share, bios_dir),
-                os.path.join(seabios_share, bios_dir),
-            )
-        _VerifyLinks(broken=True)
-
-        # Run the command and verify the links get fixed.
-        self.SetupCommandMock(extra_args=["--download-vm"])
-        self.cmd_mock.inst.Run()
-        _VerifyLinks(broken=False)
 
     def testSymlinkCache(self) -> None:
         """Verify the symlink cache contains valid tarball cache links."""

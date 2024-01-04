@@ -106,8 +106,6 @@ class SDKFetcher:
     ARM64_TUPLE = "aarch64-cros-linux-gnu"
     TARGET_TOOLCHAIN_KEY = "target_toolchain"
     NACL_ARM32_TOOLCHAIN_KEY = "arm32_toolchain_for_nacl_helper"
-    QEMU_BIN_PATH = "app-emulation/qemu"
-    SEABIOS_BIN_PATH = "sys-firmware/seabios"
     SQUASHFS_CIPD_PATH = "infra/3pp/tools/squashfs/linux-amd64"
     SQUASHFS_CIPD_VER = "97pLXFMaDo0YFKrWyL_wfrZHyTNXM9iO6T_uRHkMkrQC"
     ZSTD_CIPD_PATH = "infra/3pp/static_libs/libzstd/linux-amd64"
@@ -557,89 +555,6 @@ class SDKFetcher:
                 ref.AssignText(manifest)
             return json.loads(manifest)
 
-    def _GetBinPackageGSPath(self, version, key):
-        """Get google storage path of prebuilt binary package.
-
-        Args:
-            version: LKGM version, e.g. 12345.0.0
-            key: key in build manifest, for e.g. 'app-emulation/qemu'
-
-        Returns:
-            GS path, for e.g. gs://chromeos-prebuilt/board/amd64-host/
-            chroot-2018.10.23.171742/packages/app-emulation/qemu-3.0.0.tbz2
-        """
-        if not version or not key:
-            # A version and key is needed to locate the package in Google
-            # Storage.
-            return None
-        package_version = self._GetManifest(version)["packages"][key][0][0]
-        return gs_urls_util.GetGsURL(
-            bucket="chromeos-prebuilt",
-            suburl="board/amd64-host/chroot-%s/packages/%s-%s.tbz2"
-            % (self._GetSDKVersion(version), key, package_version),
-            for_gsutil=True,
-        )
-
-    def _GetTarballCachePath(self, component, url):
-        """Get a path in the tarball cache.
-
-        Args:
-            component: component name, for e.g. 'app-emulation/qemu'
-            url: Google Storage url, e.g.
-                'gs://chromiumos-sdk/2019/some-tarball.tar'
-        """
-        cache_key = self._GetTarballCacheKey(component, url)
-        with self.tarball_cache.Lookup(cache_key) as ref:
-            if ref.Exists(lock=True):
-                return ref.path
-        return None
-
-    def _FinalizePackages(self, version) -> None:
-        """Finalize downloaded packages.
-
-        Fix broken seabios symlinks in the qemu package.
-
-        Args:
-            version: LKGM version, e.g. 12345.0.0
-        """
-        self._CreateSeabiosFWSymlinks(version)
-
-    def _CreateSeabiosFWSymlinks(self, version) -> None:
-        """Create Seabios firmware symlinks.
-
-        tarballs/<board>+<version>+app-emulation/qemu/usr/share/qemu/ has a
-        number of broken symlinks, for example: bios.bin -> ../seabios/bios.bin
-        bios.bin is in the seabios package at <cache>/seabios/usr/share/seabios/
-        To resolve these symlinks, we create symlinks from
-        <cache>+sys-firmware/seabios/usr/share/* to
-        <cache>+app-emulation/qemu/usr/share/
-
-        Args:
-            version: LKGM version, e.g. 12345.0.0
-        """
-        qemu_bin_path = self._GetTarballCachePath(
-            self.QEMU_BIN_PATH,
-            self._GetBinPackageGSPath(version, self.QEMU_BIN_PATH),
-        )
-        seabios_bin_path = self._GetTarballCachePath(
-            self.SEABIOS_BIN_PATH,
-            self._GetBinPackageGSPath(version, self.SEABIOS_BIN_PATH),
-        )
-        if not qemu_bin_path or not seabios_bin_path:
-            return
-
-        # Symlink the directories in seabios/usr/share/* to qemu/usr/share/.
-        share_dir = "usr/share"
-        seabios_share_dir = os.path.join(seabios_bin_path, share_dir)
-        qemu_share_dir = os.path.join(qemu_bin_path, share_dir)
-        for seabios_dir in os.listdir(seabios_share_dir):
-            src_dir = os.path.relpath(
-                os.path.join(seabios_share_dir, seabios_dir), qemu_share_dir
-            )
-            target_dir = os.path.join(qemu_share_dir, seabios_dir)
-            if not os.path.exists(target_dir):
-                os.symlink(src_dir, target_dir)
-
     def GetDefaultVersion(self):
         """Get the default SDK version to use.
 
@@ -846,20 +761,6 @@ class SDKFetcher:
         if constants.TEST_IMAGE_TAR in components:
             qemu.InstallFromCipd()
 
-            qemu_bin_path = self._GetBinPackageGSPath(
-                version, self.QEMU_BIN_PATH
-            )
-            seabios_bin_path = self._GetBinPackageGSPath(
-                version, self.SEABIOS_BIN_PATH
-            )
-            if qemu_bin_path and seabios_bin_path:
-                fetch_urls[self.QEMU_BIN_PATH] = qemu_bin_path
-                fetch_urls[self.SEABIOS_BIN_PATH] = seabios_bin_path
-            else:
-                logging.warning(
-                    "Failed to find QEMU/Seabios binaries to download."
-                )
-
         version_base = self._GetVersionGSBase(version)
         fetch_urls.update(
             (t, os.path.join(version_base, t)) for t in components
@@ -915,7 +816,6 @@ class SDKFetcher:
                 self._UpdateTarball, inputs_list, processes=2
             )
 
-            self._FinalizePackages(version)
             ctx_version = version
             if self.sdk_path is not None:
                 ctx_version = CUSTOM_VERSION
