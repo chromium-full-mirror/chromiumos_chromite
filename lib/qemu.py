@@ -9,11 +9,31 @@ import errno
 import filecmp
 import logging
 import os
+from pathlib import Path
 import re
 import shutil
 import tempfile
+from typing import Optional
 
+from chromite.lib import cipd
 from chromite.lib import osutils
+
+
+_CIPD_VER = "4kEgEXe4l8wVqC_iQce0JHPs7tJEEcDgba0h5aT425oC"
+
+
+def InstallFromCipd(cache_dir: Optional[str] = None) -> Path:
+    """Install qemu from cipd & return bin/ dir."""
+    path = cipd.InstallPackage(
+        cipd.GetCIPDFromCache(cache_dir=cache_dir),
+        "chromiumos/infra/tools/qemu",
+        _CIPD_VER,
+        cache_dir=cache_dir,
+    )
+
+    # TODO(b/277992359): The bin/ dir should exist in the root of the
+    # package.  We shouldn't have/need .cipd/ in the first place.
+    return path / ".cipd" / "pkgs" / "0" / _CIPD_VER / "bin"
 
 
 class Qemu:

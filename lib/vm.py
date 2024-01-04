@@ -24,6 +24,7 @@ from chromite.lib import device
 from chromite.lib import image_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
+from chromite.lib import qemu
 from chromite.lib import remote_access
 from chromite.lib import retry_util
 from chromite.utils import memoize
@@ -307,40 +308,15 @@ class VM(device.Device):
     def _SetQemuPath(self) -> None:
         """Find a suitable Qemu executable."""
         qemu_exe = "qemu-system-x86_64"
-        # Newer CrOS qemu builds provide a standalone version under libexec.
-        qemu_wrapper_path = os.path.join("usr/libexec/qemu/bin", qemu_exe)
-        qemu_exe_path = os.path.join("usr/bin", qemu_exe)
 
-        # Check SDK cache.
+        # Pull from CIPD if needed.
         if not self.qemu_path:
-            qemu_dir = cros_chrome_sdk.SDKFetcher.GetCachePath(
-                cros_chrome_sdk.SDKFetcher.QEMU_BIN_PATH,
-                self.cache_dir,
-                self.board,
+            self.qemu_path = str(
+                qemu.InstallFromCipd(cache_dir=self.cache_dir) / qemu_exe
             )
-            if qemu_dir:
-                for qemu_path in (qemu_wrapper_path, qemu_exe_path):
-                    qemu_path = os.path.join(qemu_dir, qemu_path)
-                    if os.path.isfile(qemu_path):
-                        self.qemu_path = qemu_path
-                        break
 
-        # Check chroot.
-        if not self.qemu_path:
-            for qemu_path in (qemu_wrapper_path, qemu_exe_path):
-                qemu_path = os.path.join(self.chroot_path, qemu_path)
-                print("checking", qemu_path)
-                if os.path.isfile(qemu_path):
-                    self.qemu_path = qemu_path
-                    break
-
-        # Check system.
-        if not self.qemu_path:
-            logging.warning("Using system QEMU.")
-            self.qemu_path = osutils.Which(qemu_exe)
-
-        if not self.qemu_path or not os.path.isfile(self.qemu_path):
-            raise VMError("QEMU not found.")
+        if not os.path.isfile(self.qemu_path):
+            raise VMError("QEMU not found.", self.qemu_path)
 
         if self.copy_on_write:
             if not self.qemu_img_path:

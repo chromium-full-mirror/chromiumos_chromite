@@ -9,17 +9,15 @@ import logging
 import multiprocessing
 import os
 import socket
-import stat
 import sys
 from unittest import mock
 
-from chromite.cli.cros import cros_chrome_sdk
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import device
 from chromite.lib import osutils
 from chromite.lib import partial_mock
+from chromite.lib import qemu
 from chromite.lib import remote_access
 from chromite.lib import vm
 
@@ -45,6 +43,12 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         self._vm.image_path = self.TempFilePath(constants.TEST_IMAGE_BIN)
         osutils.Touch(self._vm.image_path)
 
+        # This function is unittested in qemu_unittest, so mocking the basic API
+        # should be safe for us.
+        self.mock_qemu_install = self.PatchObject(
+            qemu, "InstallFromCipd", side_effect=self._InstallQemu
+        )
+
         self.nested_kvm_file = self.TempFilePath("kvm_intel_nested")
         osutils.WriteFile(self.nested_kvm_file, "N")
         # Make the glob match the path we just created for nested_kvm_file.
@@ -60,6 +64,17 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         self.rc.AddCmdResult(partial_mock.In("--version"), stdout=version_str)
 
         self.ssh_port = self._vm.ssh_port
+
+    def _InstallQemu(self, cache_dir):
+        """Mock for installing qemu into the cache from cipd."""
+        # Creates a fake SDK cache with the QEMU binary.
+        path = cache_dir / "qemu-cipd" / "bin"
+        path.mkdir(parents=True, exist_ok=True)
+
+        for exe in ("qemu-system-x86_64", "qemu-img"):
+            (path / exe).touch()
+
+        return path
 
     def TempFilePath(self, file_path):
         return os.path.join(self.tempdir, file_path)
@@ -238,51 +253,12 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
             self._vm.image_path, self.TempFilePath(constants.TEST_IMAGE_BIN)
         )
 
-    def testChrootQemuPath(self) -> None:
-        """Verify that QEMU in the chroot is picked up by vm.VM."""
-        if cros_build_lib.IsInsideChroot():
-            self._vm._SetQemuPath()
-            self.assertTrue(
-                "usr/bin/qemu-system-x86_64" in self._vm.qemu_path
-                or "usr/libexec/qemu/bin/qemu-system-x86_64"
-                in self._vm.qemu_path
-            )
-
-    def testSDKQemuPath(self) -> None:
+    def testQemuCipdPath(self) -> None:
         """Verify vm.VM picks up the downloaded QEMU in the SDK."""
+        qemu_exe = self._InstallQemu(self._vm.cache_dir) / "qemu-system-x86_64"
         self._vm.qemu_path = None
-        qemu_dir_path = cros_chrome_sdk.SDKFetcher.QEMU_BIN_PATH
-        # Creates a fake SDK cache with the QEMU binary.
-        qemu_path = cros_test_lib.FakeSDKCache(
-            self._vm.cache_dir
-        ).CreateCacheReference(self._vm.board, qemu_dir_path)
-        qemu_path = os.path.join(qemu_path, "usr", "bin", "qemu-system-x86_64")
-        osutils.Touch(qemu_path, makedirs=True)
         self._vm._SetQemuPath()
-        self.assertEqual(self._vm.qemu_path, qemu_path)
-
-    @mock.patch("chromite.lib.vm.VM._CheckQemuMinVersion")
-    def testSystemQemuPath(self, check_min_version_mock) -> None:
-        """Verify that QEMU in the system is picked up by vm.VM."""
-        # Skip the SDK Cache.
-        os.environ[cros_chrome_sdk.SDKFetcher.SDK_VERSION_ENV] = "None"
-
-        # Skip the Chroot.
-        self._vm.chroot_path = "fake/path"
-
-        # Checks the QEMU path in the system.
-        qemu_path = self.TempFilePath("qemu-system-x86_64")
-        osutils.Touch(qemu_path, mode=stat.S_IRWXU, makedirs=True)
-        qemu_dir = os.path.dirname(qemu_path)
-
-        os.environ["PATH"] = qemu_dir
-        self._vm._SetQemuPath()
-
-        # SetQemuPath() calls _CheckQemuMinVersion().
-        # Checks that mock version has been called.
-        check_min_version_mock.assert_called()
-
-        self.assertEqual(self._vm.qemu_path, qemu_path)
+        self.assertEqual(self._vm.qemu_path, str(qemu_exe))
 
     def testInvalidQemuBiosPath(self) -> None:
         """Verify that VMError is raised for nonexistent qemu bios path."""
@@ -315,14 +291,6 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
                 % os.path.join(self._vm.vm_dir, "qcow2.img"),
             ]
         )
-
-    @mock.patch("os.path.isfile", return_value=False)
-    @mock.patch("chromite.lib.osutils.Which", return_value=None)
-    def testQemuNotFound(self, which_mock, is_file_mock) -> None:
-        """Verify that VMError is raised when qemu path cannot be set."""
-        self.assertRaises(vm.VMError, self._vm._SetQemuPath)
-        which_mock.assert_called()
-        is_file_mock.assert_called()
 
     def testQemuImageNotFound(self) -> None:
         """Veryify that VMError is raised for nonexistent qemu image path."""

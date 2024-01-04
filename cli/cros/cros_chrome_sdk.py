@@ -33,6 +33,7 @@ from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import path_util
 from chromite.lib import portage_util
+from chromite.lib import qemu
 from chromite.utils import gs_urls_util
 from chromite.utils import memoize
 from chromite.utils import pformat
@@ -838,8 +839,13 @@ class SDKFetcher:
             )
             components.remove(self.TARGET_TOOLCHAIN_KEY)
 
-        # Also fetch QEMU binary if VM download is requested.
+        # Also fetch QEMU binary if VM download is requested.  We don't use it
+        # directly, but we want to cache the artifacts in case people run `cros
+        # vm` later on, especially on Chrome bots that want to seed the cache
+        # before executing tests.
         if constants.TEST_IMAGE_TAR in components:
+            qemu.InstallFromCipd()
+
             qemu_bin_path = self._GetBinPackageGSPath(
                 version, self.QEMU_BIN_PATH
             )

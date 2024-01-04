@@ -88,3 +88,14 @@ class QemuTests(cros_test_lib.TestCase):
             # Second time shouldn't update anything, but it should still work.
             qemu.Qemu(sysroot=tmpdir, arch="arm").Install()
             self.assertTrue(filecmp.cmp(src, dst, shallow=False))
+
+
+def test_cipd_cache() -> None:
+    """Verify the cipd package state matches what we expect.
+
+    NB: We assume run_tests harness already cached the package for us.
+    """
+    path = qemu.InstallFromCipd()
+    assert path.is_dir()
+    assert (path / "qemu-img").is_file()
+    assert (path / "qemu-system-x86_64").is_file()
