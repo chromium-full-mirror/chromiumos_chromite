@@ -4,11 +4,24 @@
 
 """Provides utility for formatting Rust code."""
 
+import functools
 import os
 from pathlib import Path
 from typing import Optional, Union
 
+from chromite.lib import cipd
 from chromite.lib import cros_build_lib
+
+
+@functools.lru_cache(maxsize=None)
+def _find_rustfmt() -> str:
+    """Find the `rustfmt` tool."""
+    path = cipd.InstallPackage(
+        cipd.GetCIPDFromCache(),
+        "chromiumos/infra/tools/rustfmt",
+        "bCK_ZjJbnn741h6Cb1EkHlayx3vFVo1T7YBw5f4cCsUC",
+    )
+    return os.path.join(path, "bin", "rustfmt")
 
 
 def Data(
@@ -31,7 +44,7 @@ def Data(
         while not path.is_dir():
             path = path.parent
     result = cros_build_lib.run(
-        ["rustfmt", "--edition", "2018"],
+        [_find_rustfmt(), "--edition", "2018"],
         capture_output=True,
         cwd=path,
         input=data,
