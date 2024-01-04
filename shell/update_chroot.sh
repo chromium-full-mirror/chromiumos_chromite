@@ -110,7 +110,7 @@ fi
 
 info "Updating the SDK"
 
-EMERGE_FLAGS=( -uNv --with-bdeps=y --backtrack="${FLAGS_backtrack}" )
+EMERGE_FLAGS=( -uNv --backtrack="${FLAGS_backtrack}" )
 if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
   EMERGE_FLAGS+=( --getbinpkg )
 
