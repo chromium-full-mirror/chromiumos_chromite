@@ -13,6 +13,7 @@ import shutil
 from typing import Optional, Union
 from unittest import mock
 
+from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
 from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
@@ -668,6 +669,11 @@ class BuildPackagesTest(
         self.sysroot = sysroot_lib.Sysroot(self.target.root)
         self.build_target_name_mock = self.PatchObject(
             sysroot_lib.Sysroot, "build_target_name", return_value=self.board
+        )
+        self.binhost_lookup_service_data = (
+            prebuilts_cloud_pb2.BinhostLookupServiceData(
+                snapshot_shas=["test_snapshot_sha"], private=True
+            )
         )
 
         self.base_command = [

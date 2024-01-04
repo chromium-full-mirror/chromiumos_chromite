@@ -824,6 +824,9 @@ def _get_snapshot_shas_from_git_log(
 def lookup_binhosts(
     build_target: "build_target_lib.BuildTarget",
     gs_bucket_name: str = _BINHOSTS_GS_BUCKET_NAME,
+    binhost_lookup_service_data: Optional[
+        prebuilts_cloud_pb2.BinhostLookupServiceData
+    ] = None,
 ) -> List[Optional[str]]:
     """Get binhost locations from the binhost lookup service.
 
@@ -832,41 +835,53 @@ def lookup_binhosts(
         gs_bucket_name: Name of the google storage bucket which contains the
             binhosts (e.g. "chromeos-prebuilt" in
             gs://chromeos-prebuilt/binhosts/..).
+        binhost_lookup_service_data: Data needed for fetching binhosts.
 
     Returns:
         A list of Google Storage URIs of binhosts, sorted by created
         time (descending).
     """
-    snapshot_shas_combined = _get_snapshot_shas()
 
-    site_params = config_lib.GetSiteParams()
-    # Get the repo.
-    try:
-        repo = repo_util.Repository.MustFind(constants.SOURCE_ROOT)
-    except repo_util.NotInRepoError as e:
-        logging.error("Unable to determine a repo directory: %s", e)
-        raise e
-
-    manifest = repo.Manifest()
-
-    if manifest.HasRemote(site_params.INTERNAL_REMOTE) and manifest.HasRemote(
-        site_params.EXTERNAL_REMOTE
+    if (
+        binhost_lookup_service_data
+        and binhost_lookup_service_data.snapshot_shas
     ):
-        # Googlers
-        if snapshot_shas_combined.internal:
-            snapshot_shas = snapshot_shas_combined.internal
-            get_corresponding_binhosts = True
-            private = True
-        # Partners
+        # Use snapshot SHAs if they are passed from the builder.
+        snapshot_shas = binhost_lookup_service_data.snapshot_shas
+        get_corresponding_binhosts = True
+        private = binhost_lookup_service_data.private
+    else:
+        # Get snapshot SHAs from the git log.
+        snapshot_shas_combined = _get_snapshot_shas()
+
+        site_params = config_lib.GetSiteParams()
+        # Get the repo.
+        try:
+            repo = repo_util.Repository.MustFind(constants.SOURCE_ROOT)
+        except repo_util.NotInRepoError as e:
+            logging.error("Unable to determine a repo directory: %s", e)
+            raise e
+
+        manifest = repo.Manifest()
+
+        if manifest.HasRemote(
+            site_params.INTERNAL_REMOTE
+        ) and manifest.HasRemote(site_params.EXTERNAL_REMOTE):
+            # Googlers
+            if snapshot_shas_combined.internal:
+                snapshot_shas = snapshot_shas_combined.internal
+                get_corresponding_binhosts = True
+                private = True
+            # Partners
+            else:
+                snapshot_shas = snapshot_shas_combined.external
+                get_corresponding_binhosts = True
+                private = False
+        # External Developers
         else:
             snapshot_shas = snapshot_shas_combined.external
-            get_corresponding_binhosts = True
+            get_corresponding_binhosts = False
             private = False
-    # External Developers
-    else:
-        snapshot_shas = snapshot_shas_combined.external
-        get_corresponding_binhosts = False
-        private = False
 
     # Get generic build target.
     board_root = sysroot_lib.Sysroot(build_target.root)

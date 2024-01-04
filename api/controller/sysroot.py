@@ -387,6 +387,7 @@ def InstallPackages(
     )
 
     noclean = request.flags.skip_clean_package_dirs
+    binhost_lookup_service_data = request.binhost_lookup_service_data
 
     if not target_sysroot.IsToolchainInstalled():
         cros_build_lib.Die("Toolchain must first be installed.")
@@ -410,11 +411,14 @@ def InstallPackages(
         bazel=bazel,
         bazel_lite=bazel_lite,
         noclean=noclean,
+        binhost_lookup_service_data=binhost_lookup_service_data,
     )
 
     try:
         sysroot.BuildPackages(
-            build_target, target_sysroot, build_packages_config
+            build_target,
+            target_sysroot,
+            build_packages_config,
         )
     except sysroot_lib.PackageInstallError as e:
         if not e.failed_packages:

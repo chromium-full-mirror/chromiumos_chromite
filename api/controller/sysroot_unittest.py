@@ -14,12 +14,18 @@ from chromite.api.controller import controller_util
 from chromite.api.controller import sysroot as sysroot_controller
 from chromite.api.gen.chromite.api import sysroot_pb2
 from chromite.api.gen.chromiumos import common_pb2
+from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
 from chromite.service import sysroot as sysroot_service
+
+
+MOCK_BINHOST_LOOKUP_SERVICE_DATA = prebuilts_cloud_pb2.BinhostLookupServiceData(
+    snapshot_shas=[], private=False
+)
 
 
 class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
@@ -767,6 +773,7 @@ class InstallPackagesTest(
         package_indexes=None,
         packages=None,
         bazel=False,
+        binhost_lookup_service_data=MOCK_BINHOST_LOOKUP_SERVICE_DATA,
     ):
         """Helper to build an input proto instance."""
         instance = sysroot_pb2.InstallPackagesRequest()
@@ -796,6 +803,10 @@ class InstallPackagesTest(
                 controller_util.serialize_package_info(pkg_info, pkg_info_msg)
         if bazel:
             instance.flags.bazel = bazel
+        if binhost_lookup_service_data:
+            instance.binhost_lookup_service_data.CopyFrom(
+                binhost_lookup_service_data
+            )
         return instance
 
     def _OutputProto(self):
@@ -1019,6 +1030,7 @@ class InstallPackagesTest(
             bazel=False,
             bazel_lite=False,
             noclean=False,
+            binhost_lookup_service_data=MOCK_BINHOST_LOOKUP_SERVICE_DATA,
         )
 
     def testSuccessWithGomaLogs(self) -> None:

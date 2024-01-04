@@ -953,11 +953,32 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
         "external_snapshot_sha1",
         "external_snapshot_sha2",
     ]
+    TEST_SHAS = ["test_snapshot_sha1, test_snapshot_sha2"]
 
     def setUp(self):
         self.get_snapshot_shas = self.PatchObject(binhost, "_get_snapshot_shas")
         self.fetch_binhosts = self.PatchObject(binhost, "_fetch_binhosts")
         self.sysroot = self.PatchObject(sysroot_lib, "Sysroot")
+
+    def test_binhost_lookup_service_data_passed(self):
+        """Test when snapshot SHAs are passed as input."""
+
+        binhost_lookup_service_data = (
+            prebuilts_cloud_pb2.BinhostLookupServiceData(
+                snapshot_shas=self.INTERNAL_SNAPSHOT_SHAS, private=True
+            )
+        )
+        self.fetch_binhosts.side_effect = [
+            [
+                *self.INTERNAL_GS_URIS,
+                *self.EXTERNAL_GS_URIS,
+            ]
+        ]
+        assert binhost.lookup_binhosts(
+            MOCK_BUILD_TARGET,
+            MOCK_GS_BUCKET_NAME,
+            binhost_lookup_service_data,
+        ) == [*self.INTERNAL_GS_URIS, *self.EXTERNAL_GS_URIS]
 
     def test_internal_private_board(self):
         """Test for internal checkout with a private board."""

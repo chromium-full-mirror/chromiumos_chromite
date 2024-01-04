@@ -29,6 +29,7 @@ import urllib
 
 from chromite.third_party.opentelemetry import trace
 
+from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
 from chromite.lib import cache
 from chromite.lib import chromite_config
 from chromite.lib import constants
@@ -217,6 +218,9 @@ class BuildPackagesRunConfig:
         bazel: bool = False,
         bazel_lite: bool = False,
         noclean: bool = False,
+        binhost_lookup_service_data: Optional[
+            prebuilts_cloud_pb2.BinhostLookupServiceData
+        ] = None,  # pylint: disable=line-too-long
     ) -> None:
         """Init method.
 
@@ -259,6 +263,8 @@ class BuildPackagesRunConfig:
             bazel_lite: Whether to perform lite Bazel build, which limits
                 the set of target packages.
             noclean: Whether to set the noclean FEATURES flag.
+            binhost_lookup_service_data: Data needed to fetch binhosts from the
+                binhost lookup service.
         """
         self.usepkg = usepkg
         self.install_debug_symbols = install_debug_symbols
@@ -287,6 +293,7 @@ class BuildPackagesRunConfig:
         self.bazel = bazel
         self.bazel_lite = bazel_lite
         self.noclean = noclean
+        self.binhost_lookup_service_data = binhost_lookup_service_data
 
     def GetUseFlags(self) -> Optional[str]:
         """Get the use flags as a single string."""
@@ -904,7 +911,10 @@ def BuildPackages(
     extra_env["PORTAGE_BINHOST"] = " ".join(binhosts)
     _LogBinhostAge(binhosts, date_threshold=30)
     try:
-        fetched_binhosts = binhost_service.lookup_binhosts(target)
+        fetched_binhosts = binhost_service.lookup_binhosts(
+            build_target=target,
+            binhost_lookup_service_data=run_configs.binhost_lookup_service_data,
+        )
         logging.info(
             "Binhosts fetched from the lookup service: %s", fetched_binhosts
         )
