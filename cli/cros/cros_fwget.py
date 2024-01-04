@@ -4,8 +4,6 @@
 
 """A cros command used to retrieve firmware archives from Google Storage."""
 
-import argparse
-
 from chromite.cli import command
 from chromite.lib import commandline
 from chromite.lib.fwbuddy import fwbuddy
@@ -49,7 +47,7 @@ Examples:
 """
 
     @classmethod
-    def AddParser(cls, parser: argparse.ArgumentParser) -> None:
+    def AddParser(cls, parser: commandline.ArgumentParser) -> None:
         """Add parser arguments."""
         super(FwgetCommand, cls).AddParser(parser)
         parser.add_argument(
@@ -61,7 +59,7 @@ Examples:
         )
         parser.add_argument(
             "--path",
-            type=commandline.ExistingDirectory,
+            type="dir_exists",
             help="The path to the local folder where the firmware archive will "
             "be extracted to.",
         )
