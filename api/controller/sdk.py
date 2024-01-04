@@ -193,6 +193,7 @@ def Update(
         build_source=build_source,
         toolchain_targets=targets,
         toolchain_changed=toolchain_changed,
+        use_snapshot_binhosts=request.use_snapshot_binhosts,
     )
 
     result = sdk.Update(args)

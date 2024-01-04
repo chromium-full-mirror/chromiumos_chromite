@@ -313,10 +313,13 @@ class SdkUpdateTest(
 
         self.response = sdk_pb2.UpdateResponse()
 
-    def _GetRequest(self, build_source=False, targets=None):
+    def _GetRequest(
+        self, build_source=False, targets=None, use_snapshot_binhosts=False
+    ):
         """Helper to simplify building a request instance."""
         request = sdk_pb2.UpdateRequest()
         request.flags.build_source = build_source
+        request.use_snapshot_binhosts = use_snapshot_binhosts
 
         for target in targets or []:
             added = request.toolchain_targets.add()
@@ -444,7 +447,10 @@ class SdkUpdateTest(
         request = self._GetRequest(build_source=False)
         sdk_controller.Update(request, self.response, self.api_config)
         args_patch.assert_called_with(
-            build_source=False, toolchain_targets=[], toolchain_changed=False
+            build_source=False,
+            toolchain_targets=[],
+            toolchain_changed=False,
+            use_snapshot_binhosts=False,
         )
 
         # Multiple boards and flags True.
@@ -455,6 +461,17 @@ class SdkUpdateTest(
             build_source=True,
             toolchain_targets=targets,
             toolchain_changed=False,
+            use_snapshot_binhosts=False,
+        )
+
+        # Use host binpkgs uploaded by snapshot builders.
+        request = self._GetRequest(use_snapshot_binhosts=True)
+        sdk_controller.Update(request, self.response, self.api_config)
+        args_patch.assert_called_with(
+            build_source=False,
+            toolchain_targets=[],
+            toolchain_changed=False,
+            use_snapshot_binhosts=True,
         )
 
 
