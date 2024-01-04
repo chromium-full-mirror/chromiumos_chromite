@@ -222,46 +222,43 @@ class SDKFetcher:
             return False
         return True
 
+    def _InstallFromCipd(
+        self, cipd_path: str, version: str, subdir: str = "bin"
+    ) -> str:
+        """Install a package from cipd."""
+        key = (cipd_path.replace("/", "-"), version)
+        with self.cipd_cache.Lookup(key) as ref:
+            if not ref.Exists(lock=True):
+                Log("SDK: Getting %s", cipd_path)
+                path = cipd.InstallPackage(
+                    cipd.GetCIPDFromCache(),
+                    cipd_path,
+                    version,
+                    self.cipd_cache.staging_dir,
+                )
+                ref.SetDefault(os.path.join(path, subdir))
+
+        return ref.path
+
     def _InstallZstdFromCipd(self) -> None:
         """Install zstd from cipd if the system doesn't have it."""
         if osutils.Which("zstd"):
             return
 
-        key = (self.ZSTD_CIPD_PATH.replace("/", "-"), self.ZSTD_CIPD_VER)
-        with self.cipd_cache.Lookup(key) as ref:
-            if not ref.Exists(lock=True):
-                Log("SDK: Getting zstd")
-                path = cipd.InstallPackage(
-                    cipd.GetCIPDFromCache(),
-                    self.ZSTD_CIPD_PATH,
-                    self.ZSTD_CIPD_VER,
-                    self.cipd_cache.staging_dir,
-                )
-                ref.SetDefault(os.path.join(path, "bin"))
-
-        os.environ["PATH"] += f":{ref.path}"
+        path = self._InstallFromCipd(self.ZSTD_CIPD_PATH, self.ZSTD_CIPD_VER)
+        os.environ["PATH"] += f":{path}"
 
     def _InstallSquashfsFromCipd(self) -> None:
         """Install mksquahsfs from cipd if the system doesn't have it."""
         if osutils.Which("mksquashfs"):
             return
 
-        key = (
-            self.SQUASHFS_CIPD_PATH.replace("/", "-"),
+        path = self._InstallFromCipd(
+            self.SQUASHFS_CIPD_PATH,
             self.SQUASHFS_CIPD_VER,
+            subdir="squashfs-tools",
         )
-        with self.cipd_cache.Lookup(key) as ref:
-            if not ref.Exists(lock=True):
-                Log("SDK: Getting squashfs")
-                path = cipd.InstallPackage(
-                    cipd.GetCIPDFromCache(),
-                    self.SQUASHFS_CIPD_PATH,
-                    self.SQUASHFS_CIPD_VER,
-                    self.cipd_cache.staging_dir,
-                )
-                ref.SetDefault(os.path.join(path, "squashfs-tools"))
-
-        os.environ["PATH"] += f":{ref.path}"
+        os.environ["PATH"] += f":{path}"
 
     def _UpdateTarball(self, key, url, ref) -> None:
         """Worker function to fetch a tarball.
