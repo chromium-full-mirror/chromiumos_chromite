@@ -5,6 +5,11 @@
 
 set -e
 
+: "${REAL_SCRIPT:=$(readlink -f -- "$0")}"
+: "${SCRIPT_LOCATION:=$(dirname "${REAL_SCRIPT}")}"
+
+pushd "${SCRIPT_LOCATION}" || exit 1
+
 if [[ "${UID:-$(id -u)}" != 0 ]]; then
   # Note that since we're screwing w/ sudo variables, this script
   # explicitly bounces up to root for everything it does- that way
@@ -12,11 +17,11 @@ if [[ "${UID:-$(id -u)}" != 0 ]]; then
   # mid upgrade.
 
   # shellcheck source=../common.sh
-  . "$(dirname "$(dirname "$0")")/common.sh" || exit 1
+  . "../common.sh" || exit 1
 
   load_environment_whitelist
   echo "Rewriting with env list ${ENVIRONMENT_WHITELIST[*]}"
-  exec sudo bash "$0" / "${USER}" "${ENVIRONMENT_WHITELIST[@]}"
+  exec sudo bash "${REAL_SCRIPT}" / "${USER}" "${ENVIRONMENT_WHITELIST[@]}"
   exit 1
 fi
 
@@ -30,7 +35,7 @@ fi
 root=$1
 username=$2
 shift 2
-set -- "$@" CROS_WORKON_SRCROOT PORTAGE_USERNAME
+set -- "$@"
 
 cat > "${root}/etc/sudoers.d/90_cros" <<EOF
 Defaults env_keep += "$*"

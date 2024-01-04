@@ -1,0 +1,1 @@
+../../shell/sdk_lib/rewrite-sudoers.d.sh
