@@ -1194,6 +1194,11 @@ in
             "//internal/packages/stage2/target/board/chromiumos/chromeos-base/chromeos-chrome:",
             kind("ebuild", deps(@portage//target/chromeos-base/chromeos-chrome))
         )
+        union
+        filter(
+            "//internal/packages/stage2/target/board/chromiumos/chromeos-base/libhwsec-foundation:",
+            kind("ebuild", deps(@portage//target/chromeos-base/libhwsec-foundation))
+        )
     )
                 """,
             ],
