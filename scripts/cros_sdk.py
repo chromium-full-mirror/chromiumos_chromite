@@ -36,7 +36,6 @@ from chromite.lib import namespaces
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import process_util
-from chromite.lib import remoteexec_util
 from chromite.lib import retry_util
 from chromite.lib import timeout_util
 from chromite.lib import toolchain
@@ -504,16 +503,6 @@ def _CreateParser(
         type="dir_exists",
         help="Goma installed directory to mount into the chroot.",
     )
-    parser.add_argument(
-        "--reclient-dir",
-        type="dir_exists",
-        help="Reclient installed directory to mount into the chroot.",
-    )
-    parser.add_argument(
-        "--reproxy-cfg-file",
-        type="file_exists",
-        help="Config file for re-client's reproxy used for remoteexec.",
-    )
     parser.add_bool_argument(
         "--delete-out-dir",
         default=None,
@@ -762,11 +751,6 @@ def _FinalizeOptions(
 
     options.Freeze()
 
-    if options.reclient_dir and not options.reproxy_cfg_file:
-        parser.error("--reclient-dir requires --reproxy-cfg-file")
-    if not options.reclient_dir and options.reproxy_cfg_file:
-        parser.error("--reproxy-cfg-file only makes sense with --reclient-dir")
-
     if options.read_only_sticky:
         # Notify the user when toggling stickiness.
         if options.read_only:
@@ -839,14 +823,6 @@ def main(argv) -> None:
     # |options| cannot be modified after this.
     _FinalizeOptions(parser, options, commands)
 
-    remoteexec = (
-        remoteexec_util.Remoteexec(
-            options.reclient_dir, options.reproxy_cfg_file
-        )
-        if (options.reclient_dir and options.reproxy_cfg_file)
-        else None
-    )
-
     goma = (
         goma_lib.Goma(
             options.goma_dir, chroot_dir=options.chroot, out_dir=options.out_dir
@@ -861,7 +837,6 @@ def main(argv) -> None:
         cache_dir=options.cache_dir,
         chrome_root=options.chrome_root,
         goma=goma,
-        remoteexec=remoteexec,
     )
 
     lock_path = os.path.dirname(options.chroot)

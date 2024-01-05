@@ -19,7 +19,6 @@ from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import goma_lib
-from chromite.lib import remoteexec_util
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
 
@@ -99,20 +98,6 @@ def ParseSysroot(sysroot_message: sysroot_pb2.Sysroot) -> sysroot_lib.Sysroot:
     assert isinstance(sysroot_message, sysroot_pb2.Sysroot)
 
     return sysroot_lib.Sysroot(sysroot_message.path)
-
-
-def ParseRemoteexecConfig(remoteexec_message: common_pb2.RemoteexecConfig):
-    """Parse a remoteexec config message."""
-    assert isinstance(remoteexec_message, common_pb2.RemoteexecConfig)
-
-    if not (
-        remoteexec_message.reclient_dir or remoteexec_message.reproxy_cfg_file
-    ):
-        return None
-
-    return remoteexec_util.Remoteexec(
-        remoteexec_message.reclient_dir, remoteexec_message.reproxy_cfg_file
-    )
 
 
 def ParseGomaConfig(goma_message, chroot_path, out_path):

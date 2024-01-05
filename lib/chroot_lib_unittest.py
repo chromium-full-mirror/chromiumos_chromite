@@ -11,7 +11,6 @@ from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
-from chromite.lib import remoteexec_util
 
 
 class ChrootTest(cros_test_lib.MockTempDirTestCase):
@@ -46,28 +45,11 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
             chrome_root,
         ]
 
-        reclient_dir = self.tempdir / "cipd" / "rbe"
-        osutils.SafeMakedirs(reclient_dir)
-        reproxy_cfg_file = self.tempdir / "reclient_cfgs" / "reproxy_config.cfg"
-        osutils.Touch(reproxy_cfg_file, makedirs=True)
-        remoteexec = remoteexec_util.Remoteexec(
-            reclient_dir=reclient_dir, reproxy_cfg_file=reproxy_cfg_file
-        )
-        expected.extend(
-            [
-                "--reproxy-cfg-file",
-                str(reclient_dir),
-                "--reclient-dir",
-                str(reproxy_cfg_file),
-            ]
-        )
-
         chroot = chroot_lib.Chroot(
             path=path,
             out_path=out_path,
             cache_dir=cache_dir,
             chrome_root=chrome_root,
-            remoteexec=remoteexec,
         )
 
         self.assertCountEqual(expected, chroot.get_enter_args())
@@ -77,21 +59,6 @@ class ChrootTest(cros_test_lib.MockTempDirTestCase):
         env = {"VAR": "val"}
         chroot = chroot_lib.Chroot(env=env)
         self.assertEqual(env, chroot.env)
-
-    def testEnvRemoteexec(self) -> None:
-        reclient_dir = os.path.join(self.tempdir, "cipd/rbe")
-        osutils.SafeMakedirs(reclient_dir)
-        reproxy_cfg_file = os.path.join(
-            self.tempdir, "reclient_cfgs/reproxy_config.cfg"
-        )
-        osutils.SafeMakedirs(reproxy_cfg_file)
-        remoteexec = remoteexec_util.Remoteexec(
-            reclient_dir=reclient_dir, reproxy_cfg_file=reproxy_cfg_file
-        )
-
-        chroot = chroot_lib.Chroot(remoteexec=remoteexec)
-        self.assertEndsWith(chroot.env["RECLIENT_DIR"], "/reclient")
-        self.assertEndsWith(chroot.env["REPROXY_CFG"], "/reproxy_chroot.cfg")
 
     def testTempdir(self) -> None:
         """Test the tempdir functionality."""

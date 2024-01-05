@@ -99,17 +99,6 @@ def handle_goma(message, chroot_path, out_path):
     return None
 
 
-def handle_remoteexec(message: protobuf_message.Message):
-    """Find the RemoteexecConfig field, returning the Remoteexec instance."""
-    for descriptor in message.DESCRIPTOR.fields:
-        field = getattr(message, descriptor.name)
-        if isinstance(field, common_pb2.RemoteexecConfig):
-            remoteexec_config = field
-            return controller_util.ParseRemoteexecConfig(remoteexec_config)
-
-    return None
-
-
 class PathHandler:
     """Handles transferring a file or directory into or out of the chroot."""
 

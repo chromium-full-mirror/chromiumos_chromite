@@ -22,7 +22,6 @@ from chromite.utils import key_value_store
 
 if TYPE_CHECKING:
     from chromite.lib import goma_lib
-    from chromite.lib import remoteexec_util
 
 
 class Error(Exception):
@@ -44,7 +43,6 @@ class Chroot:
         chrome_root: Optional[str] = None,
         env: Optional[Dict[str, str]] = None,
         goma: Optional["goma_lib.Goma"] = None,
-        remoteexec: Optional["remoteexec_util.Remoteexec"] = None,
     ) -> None:
         """Initialize.
 
@@ -55,7 +53,6 @@ class Chroot:
             chrome_root: Root of the Chrome browser source checkout.
             env: Extra environment settings to use.
             goma: Interface for utilizing goma.
-            remoteexec: Interface for utilizing remoteexec client.
         """
         # Strip trailing / if present for consistency.
         # TODO(vapier): Switch this to Path instead of str.
@@ -67,7 +64,6 @@ class Chroot:
         self._is_default_out_path = not out_path
         self._env = env
         self.goma = goma
-        self.remoteexec = remoteexec
         # String in proto are '' when not set, but testing and comparing is much
         # easier when the "unset" value is consistent, so do an explicit "or
         # None".
@@ -174,15 +170,6 @@ class Chroot:
                     str(self.goma.linux_goma_dir),
                 ]
             )
-        if self.remoteexec:
-            args.extend(
-                [
-                    f"--reclient{sep}dir",
-                    str(self.remoteexec.reclient_dir),
-                    f"--reproxy{sep}cfg{sep}file",
-                    str(self.remoteexec.reproxy_cfg_file),
-                ]
-            )
 
         return args
 
@@ -191,8 +178,6 @@ class Chroot:
         env = self._env.copy() if self._env else {}
         if self.goma:
             env.update(self.goma.GetChrootExtraEnv())
-        if self.remoteexec:
-            env.update(self.remoteexec.GetChrootExtraEnv())
 
         return env
 

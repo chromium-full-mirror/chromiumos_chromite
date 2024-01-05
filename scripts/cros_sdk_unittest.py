@@ -227,22 +227,6 @@ def test_conflicting_args(arglist: List[str]) -> None:
         cros_sdk._FinalizeOptions(parser, options, commands)
 
 
-def test_reclient_args(tmp_path) -> None:
-    """Test mismatched reclient/reproxy args."""
-    reclient_dir = tmp_path
-    cfg_file = tmp_path / "foo"
-    cfg_file.touch()
-
-    for arglist in (
-        ["--reclient-dir", str(reclient_dir)],  # without --reproxy-cfg-file
-        ["--reproxy-cfg-file", str(cfg_file)],  # without --reclient-dir
-    ):
-        parser, commands = cros_sdk._CreateParser("1", "2")
-        options = parser.parse_args(arglist)
-        with pytest.raises(SystemExit):
-            cros_sdk._FinalizeOptions(parser, options, commands)
-
-
 def test_chroot_ready() -> None:
     """Ensure no implicit create when chroot is ready."""
     parser, commands = cros_sdk._CreateParser("1", "2")

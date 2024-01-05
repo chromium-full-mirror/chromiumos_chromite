@@ -15,7 +15,6 @@ from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
-from chromite.lib import remoteexec_util
 
 
 class ChrootHandlerTest(cros_test_lib.TestCase):
@@ -89,34 +88,6 @@ class ChrootHandlerTest(cros_test_lib.TestCase):
 
         with self.assertRaises(field_handler.MissingChrootMessage):
             field_handler.handle_chroot(message, clear_field=False)
-
-
-class HandleRemoteexec(cros_test_lib.TempDirTestCase):
-    """Tests for handling remoteexec."""
-
-    def test_handle_remoteexec(self) -> None:
-        """Test handling remoteexec when there is a RemoteexecConfig."""
-        reclient_dir = os.path.join(self.tempdir, "cipd/rbe")
-        reproxy_cfg_file = os.path.join(
-            self.tempdir, "reclient_cfgs/reproxy_config.cfg"
-        )
-
-        osutils.SafeMakedirs(reclient_dir)
-        osutils.Touch(reproxy_cfg_file, makedirs=True)
-        remoteexec_config = common_pb2.RemoteexecConfig(
-            reclient_dir=reclient_dir, reproxy_cfg_file=reproxy_cfg_file
-        )
-        message = build_api_test_pb2.TestRequestMessage(
-            remoteexec_config=remoteexec_config
-        )
-
-        expected = remoteexec_util.Remoteexec(reclient_dir, reproxy_cfg_file)
-        self.assertEqual(expected, field_handler.handle_remoteexec(message))
-
-    def test_handle_remoteexec_no_config(self) -> None:
-        """Test handling remoteexec when there is no RmoteexecConfig."""
-        message = build_api_test_pb2.TestRequestMessage()
-        self.assertIsNone(field_handler.handle_remoteexec(message))
 
 
 class CopyPathInTest(cros_test_lib.MockTempDirTestCase):

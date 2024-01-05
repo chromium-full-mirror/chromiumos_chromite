@@ -85,14 +85,13 @@ def _run_system_emerge(
     emerge_cmd: List[Union[str, Path]],
     extra_env: Dict[str, str],
     use_goma: bool,
-    use_remoteexec: bool,
     reason: str,
 ) -> None:
     """Runs an emerge command, updating the live system."""
     extra_env = extra_env.copy()
     with osutils.TempDir() as tempdir:
         extra_env[constants.CROS_METRICS_DIR_ENVVAR] = tempdir
-        with sysroot.RemoteExecution(use_goma, use_remoteexec):
+        with sysroot.RemoteExecution(use_goma):
             logging.info("Merging %s now.", reason)
             try:
                 # TODO(b/277992359): Bazel.
@@ -152,7 +151,6 @@ def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
             cmd,
             extra_env,
             config.use_goma,
-            config.use_remoteexec,
             reason="subtools builder SDK packages",
         )
 

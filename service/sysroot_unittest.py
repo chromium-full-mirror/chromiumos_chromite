@@ -26,7 +26,6 @@ from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import partial_mock
 from chromite.lib import portage_util
-from chromite.lib import remoteexec_util
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
 from chromite.service import sdk
@@ -1420,8 +1419,6 @@ class RemoteExecutionTest(cros_test_lib.MockLoggingTestCase):
     def setUp(self) -> None:
         self.goma_mock = self.PatchObject(goma_lib, "Goma", autospec=True)
         self.goma_instance = self.goma_mock.return_value
-        self.remoteexec_mock = self.PatchObject(remoteexec_util, "Remoteexec")
-        self.remoteexec_instance = self.remoteexec_mock.return_value
 
     def testGomaDir(self) -> None:
         """Test the case where GOMA env variable is defined."""
@@ -1433,7 +1430,7 @@ class RemoteExecutionTest(cros_test_lib.MockLoggingTestCase):
             }
         )
 
-        with sysroot.RemoteExecution(use_goma=True, use_remoteexec=False):
+        with sysroot.RemoteExecution(use_goma=True):
             self.goma_mock.assert_called_once_with(
                 Path("goma/path"),
                 "goma/tmp/dir",
@@ -1442,13 +1439,12 @@ class RemoteExecutionTest(cros_test_lib.MockLoggingTestCase):
             )
         self.goma_instance.Restart.assert_called_once()
         self.goma_instance.Stop.assert_called_once()
-        self.remoteexec_mock.assert_not_called()
 
     def testGomaHomeDir(self) -> None:
         """Test the case where Home Path is used."""
         self.PatchObject(Path, "home", return_value=Path("home"))
 
-        with sysroot.RemoteExecution(use_goma=True, use_remoteexec=False):
+        with sysroot.RemoteExecution(use_goma=True):
             self.goma_mock.assert_called_once_with(
                 Path("home/goma"),
                 None,
@@ -1457,80 +1453,33 @@ class RemoteExecutionTest(cros_test_lib.MockLoggingTestCase):
             )
         self.goma_instance.Restart.assert_called_once()
         self.goma_instance.Stop.assert_called_once()
-        self.remoteexec_mock.assert_not_called()
 
     def testGomaException(self) -> None:
         """Test the case where GOMA interface raises exception."""
         self.goma_mock.side_effect = ValueError()
 
         with cros_test_lib.LoggingCapturer() as log:
-            with sysroot.RemoteExecution(use_goma=True, use_remoteexec=False):
+            with sysroot.RemoteExecution(use_goma=True):
                 self.AssertLogsMatch(log, ".*initialization error.*")
         self.goma_instance.Restart.assert_not_called()
         self.goma_instance.Stop.assert_not_called()
-        self.remoteexec_mock.assert_not_called()
-
-    def testRemoteExec(self) -> None:
-        """Test the case where remoteexec env variables are defined."""
-        os.environ.update(
-            {
-                "RECLIENT_DIR": "reclient/path",
-                "REPROXY_CFG": "reclient_cfg",
-            }
-        )
-
-        with sysroot.RemoteExecution(use_goma=False, use_remoteexec=True):
-            self.remoteexec_mock.assert_called_once_with(
-                "reclient/path", "reclient_cfg"
-            )
-        self.remoteexec_instance.Start.assert_called_once()
-        self.remoteexec_instance.Stop.assert_called_once()
-        self.goma_mock.assert_not_called()
-
-    def testRemoteExecNoEnv(self) -> None:
-        """Test the case where remoteexec env variables are not defined."""
-        with sysroot.RemoteExecution(use_goma=False, use_remoteexec=True):
-            pass
-        self.remoteexec_mock.assert_not_called()
-        self.goma_mock.assert_not_called()
-
-    def testRemoteExecException(self) -> None:
-        """Test the case where remoteexec raises exception."""
-        os.environ.update(
-            {
-                "RECLIENT_DIR": "reclient/path",
-                "REPROXY_CFG": "reclient_cfg",
-            }
-        )
-        self.remoteexec_mock.side_effect = ValueError()
-
-        with cros_test_lib.LoggingCapturer() as log:
-            with sysroot.RemoteExecution(use_goma=False, use_remoteexec=True):
-                self.AssertLogsMatch(log, ".*initialization error.*")
-        self.remoteexec_instance.Start.assert_not_called()
-        self.remoteexec_instance.Stop.assert_not_called()
-        self.goma_mock.assert_not_called()
 
     def testNoRemoteExec(self) -> None:
         """Test the case where no remoteexec is requested with env variable."""
         os.environ.update(
             {
-                "RECLIENT_DIR": "reclient/path",
-                "REPROXY_CFG": "reclient_cfg",
                 "GOMA_DIR": "goma/path",
             }
         )
 
-        with sysroot.RemoteExecution(use_goma=False, use_remoteexec=False):
+        with sysroot.RemoteExecution(use_goma=False):
             pass
-        self.remoteexec_mock.assert_not_called()
         self.goma_mock.assert_not_called()
 
     def testNoRemoteExecNoEnv(self) -> None:
         """Test case where no remoteexec is requested without env variable."""
-        with sysroot.RemoteExecution(use_goma=False, use_remoteexec=False):
+        with sysroot.RemoteExecution(use_goma=False):
             pass
-        self.remoteexec_mock.assert_not_called()
         self.goma_mock.assert_not_called()
 
 
