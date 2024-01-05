@@ -39,6 +39,8 @@ SYSTEM_PACKAGES = {
     "app-admin/sudo",
     # Compression utils/algos used by portage.
     "app-arch/",
+    # Used by cmake.
+    "app-crypt/rhash",
     # CAs must be installed to establish a secure connection.
     "app-misc/ca-certificates",
     # ELF utils used by portage.
