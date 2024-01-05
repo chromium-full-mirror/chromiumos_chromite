@@ -6,6 +6,7 @@
 
 from __future__ import division
 
+import functools
 import hashlib
 import json
 import logging
@@ -21,6 +22,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import dlc_allowlist
 from chromite.lib import gs
 from chromite.lib import osutils
+from chromite.lib import parallel
 from chromite.lib import verity
 from chromite.licensing import licenses_lib
 from chromite.scripts import cros_set_lsb_release
@@ -1467,6 +1469,90 @@ def InstallDlcImages(
         # TODO: Convert this to an error.
         logging.warning(err_msg)
 
+    BuildDlcs(
+        sysroot=sysroot,
+        dlc_id=dlc_id,
+        board=board,
+        install_root_dir=install_root_dir,
+        build_dir=build_dir,
+        rootfs=rootfs,
+        stateful=stateful,
+        src_dir=src_dir,
+        build_dir_scaled=build_dir_scaled,
+        preload=preload,
+        factory_install=factory_install,
+    )
+
+    # This read from rootfs directly, which should now hold all the installed
+    # metadata. For cleanup, redirect metadata installations into a secondary
+    # temporary rootfs path.
+    if rootfs and not dlc_id:
+        CreatePowerwashSafeFileInRootfs(rootfs)
+
+    # Skip creating compressed metadata when installing a single DLC (e.g. for
+    # `cros deploy`).
+    if rootfs and not dlc_id:
+        logging.info("Creating compressed DLC metadata.")
+        dlc_all = []
+
+        artifacts_meta_dir = os.path.join(sysroot, DLC_BUILD_DIR_ARTIFACTS_META)
+        if os.path.exists(artifacts_meta_dir):
+            dlc_all.extend(
+                (x, artifacts_meta_dir) for x in os.listdir(artifacts_meta_dir)
+            )
+
+        for scaled in (False, True):
+            dlc_build_dir = build_dir_scaled if scaled else build_dir
+
+            if not os.path.isdir(dlc_build_dir):
+                logging.debug("Skipping build directory %s.", dlc_build_dir)
+                continue
+
+            dlc_all.extend(
+                (x, dlc_build_dir) for x in os.listdir(dlc_build_dir)
+            )
+
+        with DlcMetadata(
+            metadata_path=os.path.join(rootfs, DLC_META_DIR),
+            sudo=True,
+        ) as metadata:
+            metadata.Create(dlc_all)
+
+    logging.debug("Done installing DLCs.")
+
+
+def BuildDlcs(
+    *,
+    board: str,
+    build_dir: str,
+    build_dir_scaled: str,
+    dlc_id: str,
+    install_root_dir: str,
+    rootfs: str,
+    src_dir: str,
+    stateful: str,
+    sysroot: str,
+    factory_install: bool,
+    preload: bool,
+):
+    """Builds the DLC related contents.
+
+    Args:
+        board: The target board we are building for.
+        build_dir: The root path where DLC build files reside.
+        build_dir_scaled: The root path where scaled DLC build files reside.
+        dlc_id: The DLC ID.
+        install_root_dir: The path to the root installation directory.
+        rootfs: Path to the platform rootfs.
+        src_dir: The source dlc metadata directory.
+        stateful: Path to the platform stateful.
+        sysroot: The path to the build root directory.
+        factory_install: Allow for factory installation.
+        preload: Allow for preload.
+
+    Raises:
+        Error: if issues encountered during any DLC generation.
+    """
     for scaled in (False, True):
         dlc_build_dir = build_dir_scaled if scaled else build_dir
 
@@ -1497,6 +1583,47 @@ def InstallDlcImages(
                 ", ".join(dlc_ids),
             )
 
+        parallel.RunParallelSteps(
+            [
+                functools.partial(
+                    GenerateDlc,
+                    board=board,
+                    dlc_build_dir=dlc_build_dir,
+                    dlc_id=d_id,
+                    src_dir=src_dir,
+                    sysroot=sysroot,
+                    scaled=scaled,
+                )
+                for d_id in dlc_ids
+            ]
+        )
+
+        parallel.RunParallelSteps(
+            [
+                functools.partial(
+                    PreloadDlc,
+                    dlc_build_dir=dlc_build_dir,
+                    dlc_id=d_id,
+                    install_root_dir=install_root_dir,
+                    preload=preload,
+                )
+                for d_id in dlc_ids
+            ]
+        )
+
+        if stateful and factory_install:
+            parallel.RunParallelSteps(
+                [
+                    functools.partial(
+                        FactoryInstallDlc,
+                        dlc_build_dir=dlc_build_dir,
+                        dlc_id=d_id,
+                        stateful=stateful,
+                    )
+                    for d_id in dlc_ids
+                ]
+            )
+
         for d_id in dlc_ids:
             dlc_id_path = os.path.join(dlc_build_dir, d_id)
             dlc_packages = [
@@ -1505,134 +1632,6 @@ def InstallDlcImages(
                 if os.path.isdir(os.path.join(dlc_id_path, direct))
             ]
             for d_package in dlc_packages:
-                logging.debug("Building image: DLC %s", d_id)
-                params = EbuildParams.LoadEbuildParams(
-                    sysroot=sysroot,
-                    dlc_id=d_id,
-                    dlc_package=d_package,
-                    scaled=scaled,
-                )
-                # Because portage sandboxes every ebuild package during
-                # `cros build-packages` phase, we cannot delete the old image
-                # during that phase, but we can use the existence of the file
-                # |EBUILD_PARAMETERS| to know if the image has to be generated
-                # or not.
-                if not params:
-                    logging.debug(
-                        "The ebuild parameters file (%s) for DLC (%s) does not "
-                        "exist. This means that the image was already "
-                        "generated and there is no need to create it again.",
-                        EbuildParams.GetParamsPath(
-                            sysroot, d_id, d_package, scaled=scaled
-                        ),
-                        d_id,
-                    )
-                else:
-                    # Install time validity check.
-                    params.VerifyDlcParameters()
-
-                    dlc_generator = DlcGenerator(
-                        src_dir=src_dir,
-                        sysroot=sysroot,
-                        board=board,
-                        ebuild_params=params,
-                    )
-                    dlc_generator.GenerateDLC()
-
-                # Copy the dlc images to install_root_dir.
-                if install_root_dir:
-                    if preload and not IsDlcPreloadingAllowed(
-                        d_id, dlc_build_dir
-                    ):
-                        logging.debug(
-                            "Skipping installation of DLC %s because the "
-                            "preload flag is set and the DLC does not "
-                            "support preloading.",
-                            d_id,
-                        )
-                    else:
-                        osutils.SafeMakedirsNonRoot(install_root_dir)
-                        install_dlc_dir = os.path.join(
-                            install_root_dir, d_id, d_package
-                        )
-                        osutils.SafeMakedirsNonRoot(install_dlc_dir)
-                        source_dlc_dir = os.path.join(
-                            dlc_build_dir, d_id, d_package
-                        )
-                        for filepath in (
-                            os.path.join(source_dlc_dir, fname)
-                            for fname in os.listdir(source_dlc_dir)
-                            if fname.endswith(".img")
-                        ):
-                            logging.debug(
-                                "Copying DLC(%s) image from %s to %s: ",
-                                d_id,
-                                filepath,
-                                install_dlc_dir,
-                            )
-                            shutil.copy(filepath, install_dlc_dir)
-                            logging.debug(
-                                "Done copying DLC to %s.", install_dlc_dir
-                            )
-                else:
-                    logging.debug(
-                        "install_root_dir value was not provided. Copying dlc"
-                        " image skipped."
-                    )
-
-                # Factory install DLCs.
-                if (
-                    stateful
-                    and factory_install
-                    and IsFactoryInstallAllowed(d_id, dlc_build_dir)
-                ):
-                    install_stateful_root = os.path.join(
-                        stateful, DLC_FACTORY_INSTALL_DIR
-                    )
-                    install_stateful_dir = os.path.join(
-                        install_stateful_root, d_id, d_package
-                    )
-                    osutils.SafeMakedirs(
-                        install_stateful_dir, mode=0o755, sudo=True
-                    )
-                    source_dlc_dir = os.path.join(
-                        dlc_build_dir, d_id, d_package
-                    )
-                    for filepath, fname in (
-                        (os.path.join(source_dlc_dir, fname), fname)
-                        for fname in os.listdir(source_dlc_dir)
-                        if fname.endswith(".img")
-                    ):
-                        logging.debug(
-                            "Factory installing DLC(%s) image from %s to %s: ",
-                            d_id,
-                            filepath,
-                            install_stateful_dir,
-                        )
-                        cros_build_lib.sudo_run(
-                            ["cp", filepath, install_stateful_dir],
-                            print_cmd=False,
-                            stderr=True,
-                        )
-                        osutils.Chmod(
-                            os.path.join(install_stateful_dir, fname),
-                            0o644,
-                            sudo=True,
-                        )
-
-                    # Change the owner + group of factory install directory.
-                    # Refer to
-                    # http://cs/chromeos_public/src/third_party/eclass-overlay
-                    # or DLC/dlcservice related uid + gid.
-                    cros_build_lib.sudo_run(
-                        [
-                            "chown",
-                            "-R",
-                            "%d:%d" % (DLC_UID, DLC_GID),
-                            install_stateful_root,
-                        ]
-                    )
-
                 # Create metadata directory in rootfs.
                 # TODO(b/290961240): Remove copying individual imageloader.json
                 # and table files after fully migrated to used the compressed
@@ -1719,42 +1718,191 @@ def InstallDlcImages(
                         "skipped."
                     )
 
-    # This read from rootfs directly, which should now hold all the installed
-    # metadata. For cleanup, redirect metadata installations into a secondary
-    # temporary rootfs path.
-    if rootfs and not dlc_id:
-        CreatePowerwashSafeFileInRootfs(rootfs)
 
-    # Skip creating compressed metadata when installing a single DLC (e.g. for
-    # `cros deploy`).
-    if rootfs and not dlc_id:
-        logging.info("Creating compressed DLC metadata.")
-        dlc_all = []
+def GenerateDlc(
+    *,
+    board: str,
+    dlc_build_dir: str,
+    dlc_id: str,
+    src_dir: str,
+    sysroot: str,
+    scaled: bool,
+) -> None:
+    """Generates a DLC.
 
-        artifacts_meta_dir = os.path.join(sysroot, DLC_BUILD_DIR_ARTIFACTS_META)
-        if os.path.exists(artifacts_meta_dir):
-            dlc_all.extend(
-                (x, artifacts_meta_dir) for x in os.listdir(artifacts_meta_dir)
+    Args:
+        board: The target board we are building for.
+        dlc_build_dir: The root path where DLC build files reside.
+        dlc_id: The DLC ID.
+        src_dir: The source dlc metadata directory.
+        sysroot: The path to the build root directory.
+        scaled: Scaled DLC option.
+    """
+    dlc_id_path = os.path.join(dlc_build_dir, dlc_id)
+    dlc_packages = [
+        direct
+        for direct in os.listdir(dlc_id_path)
+        if os.path.isdir(os.path.join(dlc_id_path, direct))
+    ]
+    for d_package in dlc_packages:
+        logging.debug("Building image: DLC %s", dlc_id)
+        params = EbuildParams.LoadEbuildParams(
+            sysroot=sysroot,
+            dlc_id=dlc_id,
+            dlc_package=d_package,
+            scaled=scaled,
+        )
+        # Because portage sandboxes every ebuild package during
+        # `cros build-packages` phase, we cannot delete the old image
+        # during that phase, but we can use the existence of the file
+        # |EBUILD_PARAMETERS| to know if the image has to be generated
+        # or not.
+        if not params:
+            logging.debug(
+                "The ebuild parameters file (%s) for DLC (%s) does not "
+                "exist. This means that the image was already "
+                "generated and there is no need to create it again.",
+                EbuildParams.GetParamsPath(
+                    sysroot, dlc_id, d_package, scaled=scaled
+                ),
+                dlc_id,
+            )
+        else:
+            # Install time validity check.
+            params.VerifyDlcParameters()
+
+            dlc_generator = DlcGenerator(
+                src_dir=src_dir,
+                sysroot=sysroot,
+                board=board,
+                ebuild_params=params,
+            )
+            dlc_generator.GenerateDLC()
+
+
+def PreloadDlc(
+    *,
+    dlc_build_dir: str,
+    dlc_id: str,
+    install_root_dir: str,
+    preload: bool,
+) -> None:
+    """Preloads a DLC.
+
+    Args:
+        install_root_dir: The path to the root installation directory.
+        dlc_id: The DLC ID.
+        dlc_build_dir: The root path where DLC build files reside.
+        preload: Allow for preloading.
+    """
+    dlc_id_path = os.path.join(dlc_build_dir, dlc_id)
+    dlc_packages = [
+        direct
+        for direct in os.listdir(dlc_id_path)
+        if os.path.isdir(os.path.join(dlc_id_path, direct))
+    ]
+    for d_package in dlc_packages:
+        if install_root_dir:
+            if preload and not IsDlcPreloadingAllowed(dlc_id, dlc_build_dir):
+                logging.debug(
+                    "Skipping installation of DLC %s because the "
+                    "preload flag is set and the DLC does not "
+                    "support preloading.",
+                    dlc_id,
+                )
+            else:
+                osutils.SafeMakedirsNonRoot(install_root_dir)
+                install_dlc_dir = os.path.join(
+                    install_root_dir, dlc_id, d_package
+                )
+                osutils.SafeMakedirsNonRoot(install_dlc_dir)
+                source_dlc_dir = os.path.join(dlc_build_dir, dlc_id, d_package)
+                for filepath in (
+                    os.path.join(source_dlc_dir, fname)
+                    for fname in os.listdir(source_dlc_dir)
+                    if fname.endswith(".img")
+                ):
+                    logging.debug(
+                        "Copying DLC(%s) image from %s to %s: ",
+                        dlc_id,
+                        filepath,
+                        install_dlc_dir,
+                    )
+                    shutil.copy(filepath, install_dlc_dir)
+                    logging.debug("Done copying DLC to %s.", install_dlc_dir)
+        else:
+            logging.debug(
+                "install_root_dir value was not provided. Copying dlc"
+                " image skipped."
             )
 
-        for scaled in (False, True):
-            dlc_build_dir = build_dir_scaled if scaled else build_dir
 
-            if not os.path.isdir(dlc_build_dir):
-                logging.debug("Skipping build directory %s.", dlc_build_dir)
-                continue
+def FactoryInstallDlc(
+    *,
+    dlc_build_dir: str,
+    dlc_id: str,
+    stateful: str,
+) -> None:
+    """Factory installs a DLC.
 
-            dlc_all.extend(
-                (x, dlc_build_dir) for x in os.listdir(dlc_build_dir)
+    Args:
+        stateful: Path to the platform stateful.
+        dlc_id: The DLC ID.
+        dlc_build_dir: The root path where DLC build files reside.
+
+    Raises:
+        Error: if factory install is not allowed.
+    """
+    if not IsFactoryInstallAllowed(dlc_id, dlc_build_dir):
+        return
+
+    dlc_id_path = os.path.join(dlc_build_dir, dlc_id)
+    dlc_packages = [
+        direct
+        for direct in os.listdir(dlc_id_path)
+        if os.path.isdir(os.path.join(dlc_id_path, direct))
+    ]
+    for d_package in dlc_packages:
+        install_stateful_root = os.path.join(stateful, DLC_FACTORY_INSTALL_DIR)
+        install_stateful_dir = os.path.join(
+            install_stateful_root, dlc_id, d_package
+        )
+        osutils.SafeMakedirs(install_stateful_dir, mode=0o755, sudo=True)
+        source_dlc_dir = os.path.join(dlc_build_dir, dlc_id, d_package)
+        for filepath, fname in (
+            (os.path.join(source_dlc_dir, fname), fname)
+            for fname in os.listdir(source_dlc_dir)
+            if fname.endswith(".img")
+        ):
+            logging.debug(
+                "Factory installing DLC(%s) image from %s to %s: ",
+                dlc_id,
+                filepath,
+                install_stateful_dir,
+            )
+            cros_build_lib.sudo_run(
+                ["cp", filepath, install_stateful_dir],
+                print_cmd=False,
+                stderr=True,
+            )
+            osutils.Chmod(
+                os.path.join(install_stateful_dir, fname),
+                0o644,
+                sudo=True,
             )
 
-        with DlcMetadata(
-            metadata_path=os.path.join(rootfs, DLC_META_DIR),
-            sudo=True,
-        ) as metadata:
-            metadata.Create(dlc_all)
-
-    logging.debug("Done installing DLCs.")
+        # Change the owner + group of factory install directory.
+        # Refer to
+        # http://cs/chromeos_public/src/third_party/eclass-overlay
+        # or DLC/dlcservice related uid + gid.
+        cros_build_lib.sudo_run(
+            [
+                "chown",
+                "-R",
+                "%d:%d" % (DLC_UID, DLC_GID),
+                install_stateful_root,
+            ]
+        )
 
 
 def ValidateDlcIdentifier(name) -> None:

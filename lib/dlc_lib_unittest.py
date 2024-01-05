@@ -886,9 +886,9 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
             dlc_lib.InstallDlcImages(
                 board=_BOARD, sysroot=sysroot, install_root_dir=output
             )
-        self.assertEqual(
-            str(e.exception),
+        self.assertIn(
             "DLC=id is not allowed to be factory installed.",
+            str(e.exception),
         )
 
     def testInstallDlcImagesPowerwashSafeDisallowed(self) -> None:
@@ -916,9 +916,9 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
             dlc_lib.InstallDlcImages(
                 board=_BOARD, sysroot=sysroot, install_root_dir=output
             )
-        self.assertEqual(
-            str(e.exception),
+        self.assertIn(
             "DLC=id is not allowed to be powerwash safe.",
+            str(e.exception),
         )
 
     def testInstallDlcImagesLegacy(self) -> None:
@@ -1017,6 +1017,122 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
             board=_BOARD, sysroot=sysroot, install_root_dir=output
         )
         copy_contents_mock.assert_not_called()
+
+    def testInstallDlcImagesWithFactoryInstallAllowed(self) -> None:
+        """Verify InstallDlcImages factory installs DLCs."""
+        self.PatchObject(
+            dlc_allowlist, "IsFactoryInstallAllowlisted", return_value=True
+        )
+        package_nums = 2
+        factory_install_allowed_json = '{"factory-install": true}'
+        sysroot = os.path.join(self.tempdir, "sysroot")
+        for package_num in range(package_nums):
+            osutils.WriteFile(
+                os.path.join(
+                    sysroot,
+                    dlc_lib.DLC_BUILD_DIR,
+                    _ID,
+                    _PACKAGE + str(package_num),
+                    dlc_lib.DLC_IMAGE,
+                ),
+                "image content",
+                makedirs=True,
+            )
+            osutils.WriteFile(
+                os.path.join(
+                    sysroot,
+                    dlc_lib.DLC_BUILD_DIR,
+                    _ID,
+                    _PACKAGE + str(package_num),
+                    dlc_lib.DLC_TMP_META_DIR,
+                    dlc_lib.IMAGELOADER_JSON,
+                ),
+                factory_install_allowed_json,
+                makedirs=True,
+            )
+        stateful = os.path.join(self.tempdir, "stateful")
+        dlc_lib.InstallDlcImages(
+            board=_BOARD,
+            sysroot=sysroot,
+            install_root_dir=None,
+            factory_install=True,
+            stateful=stateful,
+        )
+        for package_num in range(package_nums):
+            self.assertExists(
+                os.path.join(
+                    stateful,
+                    dlc_lib.DLC_FACTORY_INSTALL_DIR,
+                    _ID,
+                    _PACKAGE + str(package_num),
+                    dlc_lib.DLC_IMAGE,
+                )
+            )
+
+    def testInstallDlcImagesWithFactoryInstallSomeAllowed(self) -> None:
+        """Verify InstallDlcImages factory installs some DLCs."""
+        self.PatchObject(
+            dlc_allowlist, "IsFactoryInstallAllowlisted", return_value=True
+        )
+        nums = 10
+        factory_install_allowed_json = '{"factory-install": true}'
+        factory_install_not_allowed_json = '{"factory-install": false}'
+        sysroot = os.path.join(self.tempdir, "sysroot")
+        for num in range(nums):
+            osutils.WriteFile(
+                os.path.join(
+                    sysroot,
+                    dlc_lib.DLC_BUILD_DIR,
+                    _ID + str(num),
+                    _PACKAGE,
+                    dlc_lib.DLC_IMAGE,
+                ),
+                "image content",
+                makedirs=True,
+            )
+            osutils.WriteFile(
+                os.path.join(
+                    sysroot,
+                    dlc_lib.DLC_BUILD_DIR,
+                    _ID + str(num),
+                    _PACKAGE,
+                    dlc_lib.DLC_TMP_META_DIR,
+                    dlc_lib.IMAGELOADER_JSON,
+                ),
+                factory_install_allowed_json
+                if num % 2
+                else factory_install_not_allowed_json,
+                makedirs=True,
+            )
+        stateful = os.path.join(self.tempdir, "stateful")
+        dlc_lib.InstallDlcImages(
+            board=_BOARD,
+            sysroot=sysroot,
+            install_root_dir=None,
+            factory_install=True,
+            stateful=stateful,
+        )
+        for num in range(nums):
+            if num % 2:
+                self.assertExists(
+                    os.path.join(
+                        stateful,
+                        dlc_lib.DLC_FACTORY_INSTALL_DIR,
+                        _ID + str(num),
+                        _PACKAGE,
+                        dlc_lib.DLC_IMAGE,
+                    )
+                )
+            else:
+                self.assertNotExists(
+                    os.path.join(
+                        stateful,
+                        dlc_lib.DLC_FACTORY_INSTALL_DIR,
+                        _ID + str(num),
+                        _PACKAGE,
+                        dlc_lib.DLC_IMAGE,
+                    )
+                )
 
     def testInstallDlcImagesWithPreloadAllowed(self) -> None:
         package_nums = 2
