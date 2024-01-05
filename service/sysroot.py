@@ -215,6 +215,7 @@ class BuildPackagesRunConfig:
         backtrack: int = BACKTRACK_DEFAULT,
         bazel: bool = False,
         bazel_lite: bool = False,
+        noclean: bool = False,
     ) -> None:
         """Init method.
 
@@ -256,6 +257,7 @@ class BuildPackagesRunConfig:
             bazel: Whether to use Bazel to build packages.
             bazel_lite: Whether to perform lite Bazel build, which limits
                 the set of target packages.
+            noclean: Whether to set the noclean FEATURES flag.
         """
         self.usepkg = usepkg
         self.install_debug_symbols = install_debug_symbols
@@ -283,6 +285,7 @@ class BuildPackagesRunConfig:
         self.backtrack = backtrack
         self.bazel = bazel
         self.bazel_lite = bazel_lite
+        self.noclean = noclean
 
     def GetUseFlags(self) -> Optional[str]:
         """Get the use flags as a single string."""
@@ -299,6 +302,15 @@ class BuildPackagesRunConfig:
 
         return " ".join(use_flags) if use_flags else None
 
+    def get_features(self) -> Optional[str]:
+        """Get the features as a single string."""
+        use_flags = os.environ.get("FEATURES", "").split()
+
+        if self.noclean:
+            use_flags.append("noclean")
+
+        return " ".join(use_flags) if use_flags else None
+
     def GetExtraEnv(self) -> Dict[str, str]:
         """Get the extra env for this config."""
         env = {}
@@ -306,6 +318,10 @@ class BuildPackagesRunConfig:
         use_flags = self.GetUseFlags()
         if use_flags:
             env["USE"] = use_flags
+
+        features = self.get_features()
+        if features:
+            env["FEATURES"] = features
 
         if self.use_goma:
             env["USE_GOMA"] = "true"

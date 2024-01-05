@@ -1018,6 +1018,7 @@ class InstallPackagesTest(
             workon=False,
             bazel=False,
             bazel_lite=False,
+            noclean=False,
         )
 
     def testSuccessWithGomaLogs(self) -> None:

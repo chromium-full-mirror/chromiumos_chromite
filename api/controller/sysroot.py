@@ -386,6 +386,8 @@ def InstallPackages(
         request.bazel_targets == sysroot_pb2.InstallPackagesRequest.LITE
     )
 
+    noclean = request.flags.skip_clean_package_dirs
+
     if not target_sysroot.IsToolchainInstalled():
         cros_build_lib.Die("Toolchain must first be installed.")
 
@@ -407,6 +409,7 @@ def InstallPackages(
         workon=workon,
         bazel=bazel,
         bazel_lite=bazel_lite,
+        noclean=noclean,
     )
 
     try:
