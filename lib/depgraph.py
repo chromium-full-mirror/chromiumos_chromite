@@ -12,19 +12,6 @@ import sys
 import time
 from typing import Collection, List, Optional, TYPE_CHECKING, Union
 
-# These aren't available outside the SDK.
-# pylint: disable=import-error
-from _emerge.actions import adjust_configs
-from _emerge.actions import load_emerge_config
-from _emerge.create_depgraph_params import create_depgraph_params
-from _emerge.depgraph import backtrack_depgraph
-from _emerge.main import parse_opts
-from _emerge.Package import Package
-from _emerge.stdout_spinner import stdout_spinner
-import portage
-from portage._global_updates import _global_updates
-
-# pylint: enable=import-error
 from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -32,6 +19,23 @@ from chromite.lib import dependency_graph
 from chromite.lib import dependency_lib
 from chromite.lib.parser import package_info
 
+
+try:
+    # These aren't available outside the SDK.
+    # pylint: disable=import-error
+    from _emerge.actions import adjust_configs
+    from _emerge.actions import load_emerge_config
+    from _emerge.create_depgraph_params import create_depgraph_params
+    from _emerge.depgraph import backtrack_depgraph
+    from _emerge.main import parse_opts
+    from _emerge.Package import Package
+    from _emerge.stdout_spinner import stdout_spinner
+    import portage
+    from portage._global_updates import _global_updates
+except ImportError:
+    if cros_build_lib.IsInsideChroot():
+        raise
+# pylint: enable=import-error
 
 if TYPE_CHECKING:
     from chromite.lib import sysroot_lib

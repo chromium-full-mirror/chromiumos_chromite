@@ -167,7 +167,7 @@ def get_keep_going():
 def main(argv):
     opts = ParseArgs(argv)
 
-    cros_build_lib.AssertInsideChroot()
+    commandline.RunInsideChroot()
 
     chromite_config.initialize()
     telemetry.initialize(
