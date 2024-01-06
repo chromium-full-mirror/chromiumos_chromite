@@ -1545,7 +1545,6 @@ class ExtractSysrootTest(cros_test_lib.TempDirTestCase):
         ]
         self.expected_dir_structure = [
             cros_test_lib.Directory("test", ["foo.bar"]),
-            "test2",
         ]
 
     def testExtractSysroot(self) -> None:

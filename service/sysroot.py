@@ -1838,5 +1838,6 @@ def ExtractSysroot(
         Path(sysroot_archive),
         sysroot_path,
         sudo=True,
+        replace_install_path=True,
     )
     return sysroot_path

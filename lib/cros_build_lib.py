@@ -1399,6 +1399,7 @@ def ExtractTarball(
     excluded_files: Optional[List[str]] = None,
     return_extracted_files: bool = False,
     sudo: Optional[bool] = False,
+    replace_install_path: Optional[bool] = False,
 ) -> List[str]:
     """Extracts a tarball using tar.
 
@@ -1413,6 +1414,8 @@ def ExtractTarball(
         return_extracted_files: whether the caller expects the list of files
             extracted; if False, returns an empty list.
         sudo: Whether to run with "sudo".
+        replace_install_path: Try removing files and directory hierarchies in
+            install_path before extracting over them.
 
     Returns:
         List of absolute paths of the files extracted (possibly empty).
@@ -1441,6 +1444,9 @@ def ExtractTarball(
     # If caller requires the list of extracted files, get verbose.
     if return_extracted_files:
         cmd += ["--verbose"]
+
+    if replace_install_path:
+        cmd += ["--overwrite-dir", "--recursive-unlink"]
 
     if excluded_files:
         for exclude in excluded_files:
