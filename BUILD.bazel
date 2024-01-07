@@ -176,6 +176,7 @@ pkg_files(
             "utils/telemetry/trace/__init__.py",
             "utils/xdg_util.py",
         ] + _chromite_common_files,
+        exclude = ["**/*.pyc"],
     ),
     attributes = pkg_attributes(
         mode = "0755",
@@ -257,6 +258,7 @@ pkg_files(
             "utils/timer.py",
             "utils/xdg_util.py",
         ] + _chromite_common_files,
+        exclude = ["**/*.pyc"],
     ),
     attributes = pkg_attributes(
         mode = "0755",
@@ -348,6 +350,7 @@ pkg_files(
             "utils/telemetry/trace/__init__.py",
             "utils/xdg_util.py",
         ] + _chromite_common_files,
+        exclude = ["**/*.pyc"],
     ),
     attributes = pkg_attributes(
         mode = "0755",
@@ -455,6 +458,7 @@ pkg_files(
             "utils/telemetry/trace/__init__.py",
             "utils/xdg_util.py",
         ] + _chromite_common_files,
+        exclude = ["**/*.pyc"],
     ),
     attributes = pkg_attributes(
         mode = "0755",
