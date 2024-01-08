@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from chromite.api.gen.chromiumos.test.api import test_suite_pb2 as chromiumos_dot_test_dot_api_dot_test__suite__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n.chromiumos/test/api/cros_test_finder_cli.proto\x12\x13\x63hromiumos.test.api\x1a$chromiumos/test/api/test_suite.proto\"g\n\x15\x43rosTestFinderRequest\x12\x33\n\x0btest_suites\x18\x01 \x03(\x0b\x32\x1e.chromiumos.test.api.TestSuite\x12\x19\n\x11metadata_required\x18\x02 \x01(\x08\"M\n\x16\x43rosTestFinderResponse\x12\x33\n\x0btest_suites\x18\x01 \x03(\x0b\x32\x1e.chromiumos.test.api.TestSuiteB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n.chromiumos/test/api/cros_test_finder_cli.proto\x12\x13\x63hromiumos.test.api\x1a$chromiumos/test/api/test_suite.proto\"\x82\x01\n\x15\x43rosTestFinderRequest\x12\x33\n\x0btest_suites\x18\x01 \x03(\x0b\x32\x1e.chromiumos.test.api.TestSuite\x12\x19\n\x11metadata_required\x18\x02 \x01(\x08\x12\x19\n\x11\x63\x65ntralized_suite\x18\x03 \x01(\t\"M\n\x16\x43rosTestFinderResponse\x12\x33\n\x0btest_suites\x18\x01 \x03(\x0b\x32\x1e.chromiumos.test.api.TestSuiteB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.api.cros_test_finder_cli_pb2', globals())
@@ -22,8 +22,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z-go.chromium.org/chromiumos/config/go/test/api'
-  _CROSTESTFINDERREQUEST._serialized_start=109
-  _CROSTESTFINDERREQUEST._serialized_end=212
-  _CROSTESTFINDERRESPONSE._serialized_start=214
-  _CROSTESTFINDERRESPONSE._serialized_end=291
+  _CROSTESTFINDERREQUEST._serialized_start=110
+  _CROSTESTFINDERREQUEST._serialized_end=240
+  _CROSTESTFINDERRESPONSE._serialized_start=242
+  _CROSTESTFINDERRESPONSE._serialized_end=319
 # @@protoc_insertion_point(module_scope)
