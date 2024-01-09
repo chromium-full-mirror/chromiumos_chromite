@@ -288,6 +288,7 @@ class EbuildParams:
         loadpin_verity_digest: (bool) DLC digest is part of LoadPin trusted
             dm-verity digest.
         scaled: (bool) DLC will be fed through scaling design.
+        force_ota: (bool) DLC will force OTA installations.
         powerwash_safe: (bool) DLC will be powerwash safe.
         use_logical_volume: (bool) DLC will use logical volumes on LVM stateful
             partition migrated devices.
@@ -310,6 +311,7 @@ class EbuildParams:
         factory_install=False,
         loadpin_verity_digest=False,
         scaled=False,
+        force_ota=False,
         powerwash_safe=False,
         use_logical_volume=False,
         *args,  # pylint: disable=unused-argument
@@ -337,6 +339,7 @@ class EbuildParams:
         self.critical_update = critical_update
         self.loadpin_verity_digest = loadpin_verity_digest
         self.scaled = scaled
+        self.force_ota = force_ota
         self.powerwash_safe = powerwash_safe
         self.use_logical_volume = use_logical_volume
 
@@ -1124,6 +1127,7 @@ class DlcGenerator:
             "critical-update": self.ebuild_params.critical_update,
             "loadpin-verity-digest": self.ebuild_params.loadpin_verity_digest,
             "scaled": self.ebuild_params.scaled,
+            "force-ota": self.ebuild_params.force_ota,
             # All scaled enabled DLCs will by default use logical volume, even
             # when usage of logical volumes are force disabled.
             # Legacy DLCs are allowed to use logical volumes as well.

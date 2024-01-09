@@ -132,6 +132,12 @@ def GetParser():
         help="DLC will be fed through scaling design.",
     )
     one_dlc.add_argument(
+        "--force-ota",
+        default=False,
+        action="store_true",
+        help="DLC will allow forced OTA installations.",
+    )
+    one_dlc.add_argument(
         "--reserved",
         default=False,
         action="store_true",
@@ -250,6 +256,7 @@ def main(argv) -> None:
             critical_update=opts.critical_update,
             fullnamerev=opts.fullnamerev,
             scaled=opts.scaled,
+            force_ota=opts.force_ota,
             powerwash_safe=opts.powerwash_safe,
             use_logical_volume=opts.use_logical_volume,
         )

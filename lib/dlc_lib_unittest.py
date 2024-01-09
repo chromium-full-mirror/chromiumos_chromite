@@ -123,6 +123,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
             "reserved": False,
             "critical_update": False,
             "scaled": True,
+            "force_ota": False,
             "use_logical_volume": True,
         }
 
@@ -173,6 +174,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         critical_update=False,
         fullnamerev=_FULLNAME_REV,
         scaled=False,
+        force_ota=False,
         powerwash_safe=False,
         use_logical_volume=False,
     ) -> None:
@@ -195,6 +197,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
                 "critical_update": critical_update,
                 "fullnamerev": fullnamerev,
                 "scaled": scaled,
+                "force_ota": force_ota,
                 "powerwash_safe": powerwash_safe,
                 "use_logical_volume": use_logical_volume,
             },
@@ -218,6 +221,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         critical_update=False,
         fullnamerev=_FULLNAME_REV,
         scaled=False,
+        force_ota=False,
         powerwash_safe=False,
         use_logical_volume=False,
     ) -> dlc_lib.EbuildParams:
@@ -238,6 +242,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
             critical_update=critical_update,
             fullnamerev=fullnamerev,
             scaled=scaled,
+            force_ota=force_ota,
             powerwash_safe=powerwash_safe,
             use_logical_volume=use_logical_volume,
         )
@@ -720,6 +725,7 @@ class DlcGeneratorTest(
                 "critical-update": False,
                 "loadpin-verity-digest": False,
                 "scaled": False,
+                "force-ota": False,
                 "use-logical-volume": False,
             },
         )
