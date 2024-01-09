@@ -645,7 +645,6 @@ class LocalSignerPayloadsClient:
                     keyset=keyset,
                     channel=channel,
                     image_type=common_pb2.IMAGE_TYPE_UPDATE_PAYLOAD,
-                    version=self._build.version,
                     input_files=hash_filenames,
                     output_names=["@BASENAME@.@KEYSET_VER@.signed"],
                     archive_path=os.path.basename(archive_path),

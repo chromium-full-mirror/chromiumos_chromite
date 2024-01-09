@@ -758,7 +758,6 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
                             image_type=common_pb2.IMAGE_TYPE_UPDATE_PAYLOAD,
                             keyset=keyset,
                             channel=common_pb2.CHANNEL_DEV,
-                            version="foo-version",
                             input_files=[
                                 "0.payload.hash",
                                 "1.payload.hash",
