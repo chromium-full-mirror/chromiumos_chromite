@@ -5,6 +5,7 @@
 
 import json
 import sys
+from typing import List, Optional
 
 from chromite.lib import cros_build_lib
 from chromite.lib import depgraph
@@ -19,19 +20,20 @@ from chromite.lib import depgraph
 #       deps_name: {
 #         action: str
 #         root: str
-#         depttypes: List[str] (e.g. runtime, buildtime etc)
+#         deptypes: List[str] (e.g. runtime, buildtime etc)
 #       }
 #     }
 #   }
 # }
 
-cros_build_lib.AssertInsideChroot()
+def main(argv: Optional[List[str]] = None) -> Optional[int]:
+    cros_build_lib.AssertInsideChroot()
 
-board = sys.argv[1]
-packages = sys.argv[2:]
+    board = sys.argv[1]
+    packages = sys.argv[2:]
 
-deps = depgraph.DepGraphGenerator()
-deps.Initialize([f"--board={board}", "--quiet"] + packages)
-deps_tree, _, _ = deps.GenDependencyTree()
+    deps = depgraph.DepGraphGenerator()
+    deps.Initialize([f"--board={board}", "--quiet"] + packages)
+    deps_tree, _, _ = deps.GenDependencyTree()
 
-print(json.dumps(deps_tree))
+    print(json.dumps(deps_tree))

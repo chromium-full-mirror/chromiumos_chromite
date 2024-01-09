@@ -10,7 +10,7 @@ import os
 PACKAGE_ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
 PACKAGE_SCRIPTS_DIR = os.path.join(PACKAGE_ROOT_DIR, "scripts")
 
-PRINT_DEPS_SCRIPT_PATH = os.path.join(PACKAGE_SCRIPTS_DIR, "print_deps.py")
+PRINT_DEPS_SCRIPT_PATH = os.path.join(PACKAGE_SCRIPTS_DIR, "print_deps")
 
 # Set of packages that should be fine to work with but are not handled properly
 # yet.
