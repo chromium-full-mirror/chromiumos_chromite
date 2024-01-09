@@ -2,29 +2,24 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+"""Helpers for setting up a package_index_cros run."""
+
 import os
 from pathlib import Path
 from typing import List, Optional
 
+from chromite.contrib.package_index_cros.lib import (
+    constants as package_index_constants,
+)
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import git
 from chromite.lib import path_util
 from chromite.lib import repo_util
 
-from .constants import PACKAGE_ROOT_DIR
-
 
 class Setup:
-    """
-    POD to keep all data related to a setup:
-      * board
-      * cros_dir: absolute path to chromeos checkout root dir
-      * chroot_dir: absolute path to chroot dir
-      * chroot_out_dir: absolute path to chroot output dir
-      * src_dir: absolute path to src
-      * manifest: manifest handler
-    """
+    """Dataclass to hold setup-related info."""
 
     def __init__(
         self,
@@ -36,9 +31,22 @@ class Setup:
         chroot_dir: str = "",
         chroot_out_dir: str = "",
     ):
+        """Initialize the instance.
+
+        Args:
+            board: The build target being worked on.
+            skip_packages: A list of fully-named packages to ignore.
+            with_build: Whether to build packages before generating the index.
+            with_tests: Whether to build tests alongside packages. (Irrelevant
+                if with_build is False.)
+            chroot_dir: Absolute path to the local chroot directory.
+            chroot_out_dir: Absolute path to the local chroot's out dir.
+        """
         self.board = board
 
-        checkout_info = path_util.DetermineCheckout(PACKAGE_ROOT_DIR)
+        checkout_info = path_util.DetermineCheckout(
+            package_index_constants.PACKAGE_ROOT_DIR
+        )
         if checkout_info.type != path_util.CheckoutType.REPO:
             raise repo_util.NotInRepoError(
                 "Script is executed outside of ChromeOS checkout"
@@ -54,8 +62,8 @@ class Setup:
                 not self.chroot.path.startswith(self.cros_dir)
                 or self.chroot.path == constants.DEFAULT_CHROOT_DIR
             ), (
-                f"Custom chroot dir inside {self.cros_dir} is not supported, and "
-                f"chromite resolves it to {constants.DEFAULT_CHROOT_DIR}."
+                f"Custom chroot dir inside {self.cros_dir} is not supported, "
+                f"and chromite resolves it to {constants.DEFAULT_CHROOT_DIR}."
             )
         else:
             self.chroot = chroot_lib.Chroot(
@@ -98,4 +106,5 @@ class Setup:
 
     @property
     def manifest(self) -> git.ManifestCheckout:
+        """Return a manifest handler to work with the checked-out manifest."""
         return git.ManifestCheckout.Cached(self.cros_dir)
