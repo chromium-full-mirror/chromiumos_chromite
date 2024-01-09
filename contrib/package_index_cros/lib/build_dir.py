@@ -2,18 +2,20 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+"""Module for working with build dirs."""
+
 import filecmp
 import os
 import shutil
 from typing import Dict, List
 
-from .logger import g_logger
-from .package import Package
-from .setup import Setup
+from chromite.contrib.package_index_cros.lib import logger
+from chromite.contrib.package_index_cros.lib import package
+from chromite.contrib.package_index_cros.lib import setup
 
 
 class _BuildDirMerger:
-    """Merges build directories of given packages."""
+    """Merge build directories of given packages."""
 
     g_ignore_extensions = [
         ".gn",
@@ -23,21 +25,21 @@ class _BuildDirMerger:
         ".ninja_log",
     ]
 
-    def __init__(self, setup: Setup, result_build_dir):
-        self.setup = setup
+    def __init__(self, setup_data: setup.Setup, result_build_dir):
+        self.setup = setup_data
         self.result_build_dir = result_build_dir
 
         assert os.path.isdir(
             self.result_build_dir
         ), "Result build dir does not exist"
 
-    def Append(self, package: Package) -> Dict:
-        """
-        Add |package|'s build dir to result one.
+    def Append(self, new_package: package.Package) -> Dict[str, str]:
+        """Add |new_package|'s build dir to result one.
 
-        Returns a dictionary of conflicting files (same result name, different
-        content) mapping file's original name to a result name. The result name
-        is composed like {dest_dir}/{package_name}_{filename}.
+        Returns:
+            A dictionary of conflicting files (same result name, different
+            content), mapping file's original name to a result name. The result
+            name is composed like {dest_dir}/{package_name}_{filename}.
         """
         source_dest_conflicts = {}
 
@@ -45,22 +47,23 @@ class _BuildDirMerger:
             assert os.path.isfile(source), "Copying directory instead of file"
 
             if any(
-                [
-                    source.endswith(ext)
-                    for ext in _BuildDirMerger.g_ignore_extensions
-                ]
+                source.endswith(ext)
+                for ext in _BuildDirMerger.g_ignore_extensions
             ):
-                g_logger.debug("%s: ignore file: %s", package.full_name, source)
+                logger.g_logger.debug(
+                    "%s: ignore file: %s", new_package.full_name, source
+                )
                 return
 
             if os.path.exists(dest) and not filecmp.cmp(source, dest):
                 dest = os.path.join(
                     os.path.dirname(dest),
-                    package.package_info.name + "_" + os.path.basename(dest),
+                    f"{new_package.package_info.name}_{os.path.basename(dest)}",
                 )
-                g_logger.debug(
-                    "%s: Copying conflicting file with package prefix: %s to %s",
-                    package.full_name,
+                logger.g_logger.debug(
+                    "%s: Copying conflicting file with package prefix: "
+                    "%s to %s",
+                    new_package.full_name,
                     source,
                     dest,
                 )
@@ -81,42 +84,42 @@ class _BuildDirMerger:
                 elif os.path.isfile(source_item):
                     CopyFile(source_item, dest_item)
                 else:
-                    g_logger.debug(
+                    logger.g_logger.debug(
                         "%s: ignoring: %s (not valid file nor dir)",
-                        package.full_name,
+                        new_package.full_name,
                         source_item,
                     )
 
-        CopyDir(package.build_dir, self.result_build_dir)
+        CopyDir(new_package.build_dir, self.result_build_dir)
         return source_dest_conflicts
 
 
 class BuildDirGenerator:
-    """Merges build directories of given packages."""
+    """Helper class that merges build directories of given packages."""
 
-    def __init__(self, setup: Setup):
-        self.setup = setup
+    def __init__(self, setup_data: setup.Setup):
+        self.setup = setup_data
 
     def _PrepareDir(self, result_build_dir: str) -> None:
-        """Delete existing |result_build_dir| if exist. Create new one."""
-
+        """Create a new result_build_dir, clobbering any that already exist."""
         if os.path.isdir(result_build_dir):
-            g_logger.warning(
+            logger.g_logger.warning(
                 "Removing existing build dir: %s", result_build_dir
             )
             shutil.rmtree(result_build_dir)
 
         os.makedirs(result_build_dir)
-        g_logger.debug("Build dir created: %s", result_build_dir)
+        logger.g_logger.debug("Build dir created: %s", result_build_dir)
 
-    def Generate(self, packages: List[Package], result_build_dir: str) -> Dict:
-        """
-        Generates common |result_build_dir| accumulating artifcats from |packages|'s
-        build dirs.
+    def Generate(
+        self, packages: List[package.Package], result_build_dir: str
+    ) -> Dict[str, str]:
+        """Generate a common result dir containing the packages' artifacts.
 
-        Returns a dictionary of conflicting files (same result name, different
-        content) mapping file's original name to a result name. The result name is
-        composed like {dest_dir}/{package_name}_{filename}.
+        Returns:
+            A dictionary of conflicting files (same result name, different
+            content) mapping file's original name to a result name. The result
+            name is composed like {dest_dir}/{package_name}_{filename}.
         """
         assert result_build_dir
 
@@ -124,12 +127,12 @@ class BuildDirGenerator:
 
         merger = _BuildDirMerger(self.setup, result_build_dir)
         source_dest_conflicts = {}
-        for package in packages:
-            source_dest_conflicts.update(merger.Append(package))
-            g_logger.debug(
+        for pkg in packages:
+            source_dest_conflicts.update(merger.Append(pkg))
+            logger.g_logger.debug(
                 "Added %s to result build dir: %s",
-                package.full_name,
-                package.build_dir,
+                pkg.full_name,
+                pkg.build_dir,
             )
 
         return source_dest_conflicts
