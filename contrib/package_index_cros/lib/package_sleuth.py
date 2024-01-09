@@ -60,7 +60,7 @@ class PackageSleuth:
             [
                 e.package
                 for e in ebuilds
-                if pkg.IsPackageSupported(e, self.setup)
+                if pkg.GetPackageSupport(e, self.setup).is_supported()
             ]
         )
 
@@ -89,7 +89,7 @@ class PackageSleuth:
                 [
                     e.package
                     for e in ebuilds
-                    if pkg.IsPackageSupported(e, self.setup)
+                    if pkg.GetPackageSupport(e, self.setup).is_supported()
                 ]
             )
 
@@ -104,10 +104,10 @@ class PackageSleuth:
             ]
 
         for ebuild in ebuilds:
-            is_supported = pkg.IsPackageSupported(ebuild, self.setup)
-            if is_supported != pkg.PackageSupport.SUPPORTED:
+            package_supported = pkg.GetPackageSupport(ebuild, self.setup)
+            if package_supported.is_unsupported():
                 g_logger.warning(
-                    "%s: Not supported: %s", ebuild.package, is_supported.name
+                    "%s: Not supported: %s", ebuild.package, package_supported.name
                 )
                 packages.unsupported.append(ebuild.package)
             else:
