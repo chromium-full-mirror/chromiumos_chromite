@@ -8,7 +8,7 @@ set -e
 : "${REAL_SCRIPT:=$(readlink -f -- "$0")}"
 : "${SCRIPT_LOCATION:=$(dirname "${REAL_SCRIPT}")}"
 
-pushd "${SCRIPT_LOCATION}" || exit 1
+cd "${SCRIPT_LOCATION}" || exit 1
 
 if [[ "${UID:-$(id -u)}" != 0 ]]; then
   # Note that since we're screwing w/ sudo variables, this script
