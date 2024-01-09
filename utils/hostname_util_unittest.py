@@ -87,10 +87,12 @@ class TestGetHostname(cros_test_lib.MockTestCase):
         fq_hostname_golo = "test.golo.chromium.org"
         fq_hostname_gce_1 = "test.chromeos-bot.internal"
         fq_hostname_gce_2 = "test.chrome.corp.google.com"
+        fq_hostname_gce_3 = "test.chromeos-release-bot.internal"
         fq_hostname_invalid = "test"
         self.assertTrue(hostname_util.host_is_ci_builder(fq_hostname_golo))
         self.assertTrue(hostname_util.host_is_ci_builder(fq_hostname_gce_1))
         self.assertTrue(hostname_util.host_is_ci_builder(fq_hostname_gce_2))
+        self.assertTrue(hostname_util.host_is_ci_builder(fq_hostname_gce_3))
         self.assertFalse(hostname_util.host_is_ci_builder(fq_hostname_invalid))
         self.assertFalse(
             hostname_util.host_is_ci_builder(

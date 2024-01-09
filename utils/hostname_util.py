@@ -61,12 +61,15 @@ def host_is_ci_builder(
     GOLO_DOMAIN = "golo.chromium.org"
     CHROME_DOMAIN = "chrome." + CORP_DOMAIN
     CHROMEOS_BOT_INTERNAL = "chromeos-bot.internal"
+    CHROMEOS_RELEASE_BOT_INTERNAL = "chromeos-release-bot.internal"
 
     if not fq_hostname:
         fq_hostname = get_host_name(fully_qualified=True)
     in_golo = fq_hostname.endswith("." + GOLO_DOMAIN)
-    in_gce = fq_hostname.endswith("." + CHROME_DOMAIN) or fq_hostname.endswith(
-        "." + CHROMEOS_BOT_INTERNAL
+    in_gce = (
+        fq_hostname.endswith("." + CHROME_DOMAIN)
+        or fq_hostname.endswith("." + CHROMEOS_BOT_INTERNAL)
+        or fq_hostname.endswith("." + CHROMEOS_RELEASE_BOT_INTERNAL)
     )
     if golo_only:
         return in_golo
