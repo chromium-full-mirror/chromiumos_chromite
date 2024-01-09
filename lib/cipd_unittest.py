@@ -81,6 +81,19 @@ class CipdCacheTest(cros_test_lib.MockTempDirTestCase):
         # already).
         self.assertTrue(path.startswith(str(self.tempdir)))
 
+    def testGetCIPDFromAltCacheDir(self) -> None:
+        """Check GetCIPDFromCache behavior."""
+        cache_dir = self.tempdir / "cache"
+        cache_dir.mkdir()
+        alt_cache_dir = self.tempdir / "alt"
+        alt_cache_dir.mkdir()
+        self.PatchObject(path_util, "GetCacheDir", return_value=cache_dir)
+        path = cipd.GetCIPDFromCache(cache_dir=alt_cache_dir)
+        # This is more about making sure the func doesn't crash than inspecting
+        # the internal caching logic (which is handled by lib.cache_unittest
+        # already).
+        self.assertStartsWith(path, str(alt_cache_dir))
+
 
 def test_get_instance_id(run_mock: cros_test_lib.RunCommandMock) -> None:
     """Validate the command creation and processing of GetInstanceID."""
@@ -177,6 +190,25 @@ def test_install_package(run_mock: cros_test_lib.RunCommandMock) -> None:
             "ensure",
             "-root",
             Path("/destination/some/package"),
+            "-list",
+            # Ignore the temporary file arg.
+        ]
+    )
+
+
+def test_install_package_cache_dir(
+    run_mock: cros_test_lib.RunCommandMock,
+) -> None:
+    """Validate the command created by InstallPackage"""
+    cipd.InstallPackage(
+        "/cipd.fake", "some/package", "version-ref", cache_dir="/cache"
+    )
+    run_mock.assertCommandContains(
+        [
+            "/cipd.fake",
+            "ensure",
+            "-root",
+            Path("/cache/cipd/packages/some/package"),
             "-list",
             # Ignore the temporary file arg.
         ]

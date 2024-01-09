@@ -150,13 +150,18 @@ class CipdCache(cache.RemoteCache):
         os.chmod(local_path, 0o755)
 
 
-def GetCIPDFromCache():
+def GetCIPDFromCache(cache_dir: Optional[str] = None) -> str:
     """Checks the cache, downloading CIPD if it is missing.
+
+    Args:
+        cache_dir: The cache directory to use instead of the global default.
 
     Returns:
         Path to the CIPD binary.
     """
-    cache_dir = os.path.join(path_util.GetCacheDir(), "cipd")
+    if cache_dir is None:
+        cache_dir = path_util.GetCacheDir()
+    cache_dir = os.path.join(cache_dir, "cipd")
     bin_cache = CipdCache(cache_dir)
     key = (CIPD_CLIENT_SHA256,)
     ref = bin_cache.Lookup(key)
@@ -249,6 +254,7 @@ def InstallPackage(
     package,
     version,
     destination: Optional[Union[os.PathLike, str]] = None,
+    cache_dir: Optional[str] = None,
     service_account_json=None,
     print_cmd: bool = True,
 ):
@@ -260,19 +266,20 @@ def InstallPackage(
         version: The CIPD version of the package to install (can be instance ID
             or a ref).
         destination: The folder to install the package under.
+        cache_dir: The cache directory to use instead of the global default.
         service_account_json: The path of the service account credentials.
         print_cmd: Whether to print the command before running it.
 
     Returns:
         The path of the package.
     """
+    if cache_dir is None:
+        cache_dir = path_util.GetCacheDir()
     if not destination:
         # GetCacheDir does a non-trivial amount of work,
         # too much for a constant. If needed elsewhere, a
         # memoized function would be a good alternative.
-        destination = (
-            Path(path_util.GetCacheDir()).absolute() / "cipd" / "packages"
-        )
+        destination = Path(cache_dir).absolute() / "cipd" / "packages"
 
     destination = Path(destination) / package
 
