@@ -72,6 +72,10 @@ from chromite.format import formatters
 from chromite.lib import cros_build_lib
 
 
+class InternalLinterError(Exception):
+    """Exception when the linter has malfunctioned internally."""
+
+
 class LintResult(NamedTuple):
     """Object holding the result of a lint check."""
 
@@ -144,18 +148,18 @@ def Unquote(string_with_quotes):
             start and the end.
 
     Returns:
-        String with the double-quote characters stripped, or the original string
-        if it's not quoted.
+        String with the double-quote characters stripped. Raises an exception
+        if the string was not quoted (e.g., if it was actually an unquoted
+        IDENTIFIER and not a LITERAL).
     """
     if (
         len(string_with_quotes) < 2
         or not string_with_quotes.startswith('"')
         or not string_with_quotes.endswith('"')
     ):
-        logging.error(
-            "Quoted string expected, but found: %s", string_with_quotes
+        raise InternalLinterError(
+            f"Quoted string expected, but found: {string_with_quotes}"
         )
-        return string_with_quotes
     return string_with_quotes[1:-1]
 
 
@@ -883,6 +887,10 @@ def GnLintInstallPathAlias(gndata, _gn_path=""):
             return
         name = child[0].get("value")
         if name != "install_path":
+            return
+        # Ignore non-literals, as we don't handle variables (or lists, or ...)
+        # properly.
+        if child[1].get("type") != "LITERAL":
             return
         install_path = GetNodeValue(child[1])
         install_normpath = os.path.normpath(install_path)

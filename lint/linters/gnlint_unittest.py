@@ -162,6 +162,10 @@ def CreateInstallPathTestData(target, value):
     # <target>("test") {
     #   install_path = <value>
     # }
+    # variable = "/some/path"
+    # <target>("unquoted") {
+    #   install_path = variable
+    # }
     return {
         "child": [
             {
@@ -184,7 +188,7 @@ def CreateInstallPathTestData(target, value):
                                     },
                                     {"type": "LITERAL", "value": value},
                                 ],
-                                "type": "LITERAL",
+                                "type": "BINARY",
                                 "value": "=",
                                 "location": STUB_ERROR_LOCATION,
                             }
@@ -194,7 +198,52 @@ def CreateInstallPathTestData(target, value):
                 ],
                 "type": "FUNCTION",
                 "value": target,
-            }
+            },
+            {
+                "child": [
+                    {
+                        "child": [
+                            {
+                                "type": "IDENTIFIER",
+                                "value": "variable",
+                            },
+                            {"type": "LITERAL", "value": '"/some/path"'},
+                        ],
+                        "type": "BINARY",
+                        "value": "=",
+                    },
+                ],
+            },
+            {
+                "child": [
+                    {
+                        "child": [
+                            {
+                                "type": "LITERAL",
+                                "value": '"unquoted"',
+                            }
+                        ],
+                    },
+                    {
+                        "child": [
+                            {
+                                "child": [
+                                    {
+                                        "type": "IDENTIFIER",
+                                        "value": "install_path",
+                                    },
+                                    {"type": "IDENTIFIER", "value": "variable"},
+                                ],
+                                "type": "LITERAL",
+                                "value": "=",
+                            }
+                        ],
+                        "type": "BLOCK",
+                    },
+                ],
+                "type": "FUNCTION",
+                "value": target,
+            },
         ],
         "type": "BLOCK",
     }
@@ -268,9 +317,9 @@ class GnLintTests(LintTestCase):
         self._CheckLinter(
             linters.gnlint.GnLintLibFlags,
             [
-                CreateTestData("ldflags", "=", "-lfoo"),
-                CreateTestData("ldflags", "+=", "-lfoo"),
-                CreateTestData("ldflags", "-=", "-lfoo"),
+                CreateTestData("ldflags", "=", '"-lfoo"'),
+                CreateTestData("ldflags", "+=", '"-lfoo"'),
+                CreateTestData("ldflags", "-=", '"-lfoo"'),
             ],
         )
 
@@ -558,9 +607,9 @@ class GnLintTests(LintTestCase):
         self._CheckLinter(
             linters.gnlint.GnLintSourceFileNames,
             [
-                CreateTestData("sources", "=", "foo_unittest.c"),
-                CreateTestData("sources", "=", "foo_unittest.cc"),
-                CreateTestData("sources", "=", "foo_unittest.h"),
+                CreateTestData("sources", "=", '"foo_unittest.c"'),
+                CreateTestData("sources", "=", '"foo_unittest.cc"'),
+                CreateTestData("sources", "=", '"foo_unittest.h"'),
             ],
         )
 
@@ -569,8 +618,8 @@ class GnLintTests(LintTestCase):
         self._CheckLinter(
             linters.gnlint.GnLintPkgConfigs,
             [
-                CreateTestData("libs", "=", "z"),
-                CreateTestData("libs", "=", "ssl"),
+                CreateTestData("libs", "=", '"z"'),
+                CreateTestData("libs", "=", '"ssl"'),
             ],
         )
 
@@ -704,32 +753,41 @@ class GnLintTests(LintTestCase):
             is_bad_input=False,
         )
 
+    def testInternalMisquotingUsage(self) -> None:
+        """Verify we raise an internal exception if we're mistreating quotes."""
+        # type(...) shenanigans because chromite.utils.lazy_loader gets in the
+        # way otherwise.
+        with self.assertRaises(type(linters.gnlint.InternalLinterError())):
+            linters.gnlint.GnLintInstallPathAlias(
+                CreateInstallPathTestData("executable", "unquoted")
+            )
+
     def testGnLintInstallPathAlias(self) -> None:
         """Verify GnLintInstallPathAlias catches full path instead of alias."""
         self._CheckLinter(
             linters.gnlint.GnLintInstallPathAlias,
             [
                 # executable
-                CreateInstallPathTestData("executable", "bin"),
-                CreateInstallPathTestData("executable", "sbin"),
+                CreateInstallPathTestData("executable", '"bin"'),
+                CreateInstallPathTestData("executable", '"sbin"'),
                 # shared_liabary
-                CreateInstallPathTestData("shared_library", "lib"),
+                CreateInstallPathTestData("shared_library", '"lib"'),
                 # shared_library
-                CreateInstallPathTestData("static_library", "lib"),
+                CreateInstallPathTestData("static_library", '"lib"'),
                 # install_config
-                CreateInstallPathTestData("install_config", "dbus_system_d"),
+                CreateInstallPathTestData("install_config", '"dbus_system_d"'),
                 CreateInstallPathTestData(
-                    "install_config", "dbus_system_services"
+                    "install_config", '"dbus_system_services"'
                 ),
-                CreateInstallPathTestData("install_config", "miniail_conf"),
-                CreateInstallPathTestData("install_config", "seccomp_policy"),
-                CreateInstallPathTestData("install_config", "tmpfilesd"),
+                CreateInstallPathTestData("install_config", '"miniail_conf"'),
+                CreateInstallPathTestData("install_config", '"seccomp_policy"'),
+                CreateInstallPathTestData("install_config", '"tmpfilesd"'),
                 CreateInstallPathTestData(
-                    "install_config", "tmpfiled_ondemand"
+                    "install_config", '"tmpfiled_ondemand"'
                 ),
-                CreateInstallPathTestData("install_config", "upstart"),
+                CreateInstallPathTestData("install_config", '"upstart"'),
                 # absolute path
-                CreateInstallPathTestData("install_config", "/test/path"),
+                CreateInstallPathTestData("install_config", '"/test/path"'),
             ],
             is_bad_input=False,
         )
@@ -737,36 +795,36 @@ class GnLintTests(LintTestCase):
             linters.gnlint.GnLintInstallPathAlias,
             [
                 # executable
-                CreateInstallPathTestData("executable", "/bin"),
-                CreateInstallPathTestData("executable", "/usr/bin"),
-                CreateInstallPathTestData("executable", "/sbin"),
-                CreateInstallPathTestData("executable", "/usr/sbin"),
+                CreateInstallPathTestData("executable", '"/bin"'),
+                CreateInstallPathTestData("executable", '"/usr/bin"'),
+                CreateInstallPathTestData("executable", '"/sbin"'),
+                CreateInstallPathTestData("executable", '"/usr/sbin"'),
                 # shared_liabary
-                CreateInstallPathTestData("shared_library", "/usr/lib"),
-                CreateInstallPathTestData("shared_library", "/usr/lib64"),
+                CreateInstallPathTestData("shared_library", '"/usr/lib"'),
+                CreateInstallPathTestData("shared_library", '"/usr/lib64"'),
                 # shared_library
-                CreateInstallPathTestData("static_library", "/usr/local/lib"),
+                CreateInstallPathTestData("static_library", '"/usr/local/lib"'),
                 # install_config
                 CreateInstallPathTestData(
-                    "install_config", "/etc/dbus-1/system.d"
+                    "install_config", '"/etc/dbus-1/system.d"'
                 ),
                 CreateInstallPathTestData(
-                    "install_config", "/usr/share/dbus-1/system-services"
+                    "install_config", '"/usr/share/dbus-1/system-services"'
                 ),
                 CreateInstallPathTestData(
-                    "install_config", "/usr/share/minijail"
+                    "install_config", '"/usr/share/minijail"'
                 ),
                 CreateInstallPathTestData(
-                    "install_config", "/usr/share/policy"
+                    "install_config", '"/usr/share/policy"'
                 ),
                 CreateInstallPathTestData(
-                    "install_config", "/usr/lib/tmpfiles.d"
+                    "install_config", '"/usr/lib/tmpfiles.d"'
                 ),
                 CreateInstallPathTestData(
-                    "install_config", "/usr/lib/tmpfiles.d/on-demand"
+                    "install_config", '"/usr/lib/tmpfiles.d/on-demand"'
                 ),
-                CreateInstallPathTestData("install_config", "/etc/init"),
-                CreateInstallPathTestData("install_config", "/etc/init/"),
+                CreateInstallPathTestData("install_config", '"/etc/init"'),
+                CreateInstallPathTestData("install_config", '"/etc/init/"'),
             ],
         )
 
@@ -788,7 +846,7 @@ class GnLintTests(LintTestCase):
         self._CheckLinter(
             linters.gnlint.GnLintDepsOtherProjectDirectly,
             [
-                CreateDepsTestData(['"//platform_camera', '"test"']),
+                CreateDepsTestData(['"//platform_camera"', '"test"']),
             ],
             gn_path=Path("platform/camera/BUILD.gn"),
             is_bad_input=False,
