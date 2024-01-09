@@ -21,8 +21,8 @@ class PackageSleuth:
         supported: List[pkg.Package]
         unsupported: List[str]
 
-    def __init__(self, setup: Setup):
-        self.setup = setup
+    def __init__(self, setup_data: Setup):
+        self.setup = setup_data
         self.overlays = portage_util.FindOverlays(
             overlay_type=portage_util.constants.BOTH_OVERLAYS,
             board=self.setup.board,
@@ -154,11 +154,10 @@ class PackageSleuth:
     def _GetPackagesDependenciesDepgraph(
         self, packages_names: List[str]
     ) -> Dict[str, List[pkg.PackageDependency]]:
-        """
-        Returns a dictionary mapping packages names to their dependencies.
+        """Return a dictionary mapping packages names to their dependencies.
 
-        The dictionary size is greater than given |packages_names|. Dependencies are
-        also mapped with depth = 1.
+        The dictionary size is greater than given |packages_names|. Dependencies
+        are also mapped with depth = 1.
         """
 
         deps_json = CrosSdk(self.setup).GenerateDependencyTree(packages_names)
