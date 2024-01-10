@@ -2,53 +2,59 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+"""Module to handle GN targets."""
+
 import filecmp
 import json
 import os
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
-from .cros_sdk import CrosSdk
-from .logger import g_logger
-from .package import Package
-from .package import PackagePathException
-from .path_handler import FixedPath, PathHandler
-from .setup import Setup
+from chromite.contrib.package_index_cros.lib import cros_sdk
+from chromite.contrib.package_index_cros.lib import logger
+from chromite.contrib.package_index_cros.lib import package
+from chromite.contrib.package_index_cros.lib import path_handler
+from chromite.contrib.package_index_cros.lib import setup
+
+
+class TargetPathException(package.PackagePathException):
+    """Exception to indicate failure while resolving paths for target."""
+
+
+class GnTargetsMergeException(Exception):
+    """Exception to indicate failure while merging gn targets."""
 
 
 class GnTargets:
     """Responsible for fixing targets."""
-
-    class TargetPathException(PackagePathException):
-        """Exception to indicate failure while resolving paths for target."""
 
     # Extensions of files that most likely generated and not exist.
     g_ignorable_extensions = [".typemap"]
 
     def __init__(
         self,
-        data: Dict,
-        package: Package,
-        setup: Setup,
+        data: Dict[str, Any],
+        pkg: package.Package,
+        setup_data: setup.Setup,
         *,
         result_build_dir: str = None,
-        file_conflicts: Dict = {},
+        file_conflicts: Optional[Dict] = None,
     ):
-        """
-        Gn targets constructor.
+        """Construct a new GnTargets instance.
 
-        Arguments:
-          * data: loaded of gn_targets.json for |package|.
-          * package: package to work with.
-          * setup: setup data (board, dirs, etc).
-          * result_build_dir: path to result build dir simulating single result
-            package.
-          * file_conflicts: maps original build artifacts in chroot dir that
-            conflict between packages to corresponding artfacts in
-            |result_build_dir|.
+        Args:
+            data: Loaded JSON from gn_targets.json for |pkg|.
+            pkg: The package to work with.
+            setup_data: Setup data (board, dirs, etc).
+            result_build_dir: Path to the result build dir, simulating a single
+                result package.
+            file_conflicts: Map of {original_artifact_path: result_path}, where
+                original_artifact_path is an original build artifact in the
+                chroot dir that conflicts between packages, and result_path is
+                the corresponding artifact in |result_build_dir|.
         """
         self.data = data
-        self.package = package
-        self.setup = setup
+        self.package = pkg
+        self.setup = setup_data
         self.fields_to_resolve = {
             "args": GnTargets._FixArgsField,
             "cflags": GnTargets._FixArgList,
@@ -64,13 +70,13 @@ class GnTargets:
             "sources": GnTargets._FixSourcesField,
             "script": GnTargets._FixScriptField,
         }
-        self.path_handler = PathHandler(self.setup)
+        self.path_handler = path_handler.PathHandler(self.setup)
         if result_build_dir:
             self.build_dir = result_build_dir
         else:
             self.build_dir = self.package.build_dir
 
-        self.file_conflicts = file_conflicts
+        self.file_conflicts = file_conflicts or {}
 
     def Fix(self) -> "GnTargets":
         """Go through targets and their fields, fix what you can."""
@@ -84,13 +90,14 @@ class GnTargets:
         return self
 
     def _FixScriptField(self, script_file: str) -> str:
-        """
-        Fix script file path. Ensure it exist and is the same as |script_file|.
+        """Fix the script filepath.
+
+        Ensure that the script file exists and is the same as |script_file|.
 
         Raises:
-          * TargetPathException if actual script file not found.
-          * TargetPathException if temp and actual script files have different
-            data.
+            TargetPathException: Actual script file not found.
+            TargetPathException: Temp and actual script files have different
+                data.
         """
         temp_script_file, actual_script_file = self.path_handler.FixPath(
             script_file, self.package, conflicting_paths=self.file_conflicts
@@ -100,14 +107,15 @@ class GnTargets:
 
         if not filecmp.cmp(temp_script_file, actual_script_file):
             if self.package.is_highly_volatile:
-                g_logger.debug(
-                    "%s: Temp and actual scripts differ. Possibly patches: %s vs %s",
+                logger.g_logger.debug(
+                    "%s: Temp and actual scripts differ. "
+                    "Possibly patches: %s vs %s",
                     self.package.full_name,
                     temp_script_file,
                     actual_script_file,
                 )
             else:
-                raise GnTargets.TargetPathException(
+                raise TargetPathException(
                     self.package,
                     "Temp and actual scripts differ",
                     temp_script_file,
@@ -129,8 +137,8 @@ class GnTargets:
         return self._FixPathList(path_list)
 
     def _FixOutputPatternsField(self, pattern_list: List[str]) -> List[str]:
-        # File name is not actual file, but some pattern. Let's fix it's directory
-        # instead.
+        # File name is not actual file, but some pattern. Let's fix its
+        # directory instead.
         fixed_pattern_dirs = self._FixPathList(
             [os.path.dirname(p) for p in pattern_list]
         )
@@ -157,19 +165,13 @@ class GnTargets:
             return separator.join(fixed_split_args)
 
         def FixWhiteSpaceSeparator(arg: str) -> str:
-            return FixWithSeparator(
-                arg, " ", lambda split_arg: self._FixArg(split_arg)
-            )
+            return FixWithSeparator(arg, " ", self._FixArg)
 
         def FixWithColonSeparator(arg: str) -> str:
-            return FixWithSeparator(
-                arg, ":", lambda split_arg: FixWhiteSpaceSeparator(split_arg)
-            )
+            return FixWithSeparator(arg, ":", FixWhiteSpaceSeparator)
 
         def FixWithCommaSeparator(arg: str) -> str:
-            return FixWithSeparator(
-                arg, ",", lambda split_arg: FixWithColonSeparator(split_arg)
-            )
+            return FixWithSeparator(arg, ",", FixWithColonSeparator)
 
         actual_arg_list = []
         for arg in args_list:
@@ -181,15 +183,13 @@ class GnTargets:
         def Fixer(chroot_path):
             return self._FixPath(chroot_path).actual
 
-        arg_prefix, actual_path = PathHandler.FixPathInArgument(arg, Fixer)
+        arg_prefix, actual_path = path_handler.PathHandler.FixPathInArgument(
+            arg, Fixer
+        )
         return arg_prefix + actual_path
 
-    def _FixPath(self, chroot_path: str) -> FixedPath:
-        """
-        Wrapper for |PathHandler.FixPathWithIgnores| with all ignores set and
-        additional action to move path from |package.build_dir| to
-        |self.result_build_dir|.
-        """
+    def _FixPath(self, chroot_path: str) -> path_handler.FixedPath:
+        """Wrap |FixPathWithIgnores|, and move build_dir to the result dir."""
         fixed_path = self.path_handler.FixPathWithIgnores(
             chroot_path,
             self.package,
@@ -202,9 +202,9 @@ class GnTargets:
         )
 
         if fixed_path.actual.startswith(self.package.build_dir):
-            return FixedPath(
+            return path_handler.FixedPath(
                 fixed_path.original,
-                PathHandler.MovePath(
+                path_handler.PathHandler.MovePath(
                     fixed_path.actual, self.package.build_dir, self.build_dir
                 ),
             )
@@ -213,9 +213,6 @@ class GnTargets:
 
 class GnTargetsMerger:
     """Responsible for merging targets."""
-
-    class GnTargetsMergeException(Exception):
-        """Exception to indicate failure while merging gn targets."""
 
     def __init__(self):
         self.data = {}
@@ -239,24 +236,22 @@ class GnTargetsMerger:
             "libs": GnTargetsMerger._MergeLists,
             "outputs": GnTargetsMerger._MergeLists,
             "sources": GnTargetsMerger._MergeLists,
-            # Scripts from different packages differ only in path but use the same
-            # file. It should be safe to keep the first script and ignore the rest.
+            # Scripts from different packages differ only in path but use the
+            # same file. It should be safe to keep the first script and ignore
+            # the rest.
             "script": GnTargetsMerger._IgnoreNewData,
             # Everything else shall be either unique or equal.
         }
 
     @staticmethod
-    def _MergeLists(
-        existing_list: List, new_list: List, field_name: str
-    ) -> List:
+    def _MergeLists(existing_list: List, new_list: List) -> List:
         return existing_list + [
             element for element in new_list if element not in existing_list
         ]
 
     @staticmethod
-    def _IgnoreNewData(
-        existing_data: Any, new_data: Any, field_name: str
-    ) -> Any:
+    def _IgnoreNewData(existing_data: Any, new_data: Any) -> Any:
+        del new_data  # Unused.
         return existing_data
 
     def Append(self, new_targets: GnTargets) -> None:
@@ -268,7 +263,7 @@ class GnTargetsMerger:
                 self.data[target] = new_targets.data[target]
                 continue
 
-            g_logger.debug(
+            logger.g_logger.debug(
                 "%s: Merging existing target: %s",
                 new_targets.package.full_name,
                 target,
@@ -287,7 +282,7 @@ class GnTargetsMerger:
                     # Fields equal. Nothing  to merge.
                     continue
 
-                g_logger.debug(
+                logger.g_logger.debug(
                     "%s: %s: Merging existing field: %s",
                     new_targets.package.full_name,
                     target,
@@ -295,106 +290,102 @@ class GnTargetsMerger:
                 )
 
                 if not field in self.fields_to_resolve:
-                    raise GnTargetsMerger.GnTargetsMergeException(
+                    raise GnTargetsMergeException(
                         f"{new_targets.package.full_name}: "
                         f"Unknown '{field}' in '{target}'"
                     )
 
                 self.data[target][field] = self.fields_to_resolve[field](
-                    field_data, new_field_data, field
+                    field_data, new_field_data
                 )
 
 
 class GnTargetsGenerator:
     """Generates and fixes output of gn desc command generating gn targets."""
 
-    class RootDirException(PackagePathException):
+    class RootDirException(package.PackagePathException):
         """Indicates troubles with root dir."""
 
     def __init__(
         self,
-        setup: Setup,
+        setup_data: setup.Setup,
         *,
-        result_build_dir: str = None,
-        file_conflicts: Dict = {},
+        result_build_dir: Optional[str] = None,
+        file_conflicts: Optional[Dict[str, str]] = None,
         keep_going: bool = False,
     ):
-        """
-        GnTargetsGenerator constructor.
+        """Construct a new GnTargetsGenerator instance.
 
-        Arguments:
-          * setup: setup data (board, dirs, etc).
-          * result_build_dir: path to result build dir simulating single result
-            package.
-          * file_conflicts: maps original build artifacts in chroot dir that
-            conflict between packages to corresponding artifacts in
-            |result_build_dir|.
+        Args:
+            setup_data: Setup data (board, dirs, etc).
+            result_build_dir: Path to the result build dir, simulating a single
+                result package.
+            file_conflicts: Map of {original_artifact_path: result_path}, where
+                original_artifact_path is an original build artifact in the
+                chroot dir that conflicts between packages, and result_path is
+                the corresponding artifact in |result_build_dir|.
+            keep_going: If given, don't stop generating upon a package failure.
         """
-        self.setup = setup
+        self.setup = setup_data
         self.result_build_dir = result_build_dir
-        self.file_conflicts = file_conflicts
+        self.file_conflicts = file_conflicts or {}
         self.keep_going = keep_going
 
-    def _FindRootDir(self, package: Package) -> str:
+    def _FindRootDir(self, pkg: package.Package) -> str:
         """Returns a dir from which it's possible to generate gn targets."""
 
-        for src_match in package.src_dir_matches:
+        for src_match in pkg.src_dir_matches:
             if os.path.isfile(os.path.join(src_match.temp, ".gn")):
                 return src_match.temp
 
-        raise GnTargetsGenerator.RootDirException(
-            package, "Cannot find root dir"
-        )
+        raise GnTargetsGenerator.RootDirException(pkg, "Cannot find root dir")
 
-    def _GenerateTargetsForPackage(self, package: Package) -> GnTargets:
-        path_handler = PathHandler(self.setup)
-        chroot_targets_root_dir = path_handler.ToChroot(
-            self._FindRootDir(package)
-        )
-        chroot_build_dir = path_handler.ToChroot(package.build_dir)
-        targets_str = CrosSdk(self.setup).GenerateGnTargets(
+    def _GenerateTargetsForPackage(self, pkg: package.Package) -> GnTargets:
+        _path_handler = path_handler.PathHandler(self.setup)
+        chroot_targets_root_dir = _path_handler.ToChroot(self._FindRootDir(pkg))
+        chroot_build_dir = _path_handler.ToChroot(pkg.build_dir)
+        targets_str = cros_sdk.CrosSdk(self.setup).GenerateGnTargets(
             chroot_targets_root_dir, chroot_build_dir
         )
         targets_str = targets_str[
             targets_str.find("{") : targets_str.rfind("}") + 1
         ]
-        g_logger.debug("%s: Generated targets", package.full_name)
+        logger.g_logger.debug("%s: Generated targets", pkg.full_name)
 
         targets_data = json.loads(targets_str)
         if not targets_data:
-            g_logger.error("%s: gn targets are empty", package)
+            logger.g_logger.error("%s: gn targets are empty", pkg)
 
         if not isinstance(targets_data, Dict):
             raise NotImplementedError(
-                f"gn targets are not dict for package: {package.full_name}"
+                f"gn targets are not dict for package: {pkg.full_name}"
             )
 
         return GnTargets(
             targets_data,
-            package,
+            pkg,
             self.setup,
             result_build_dir=self.result_build_dir,
             file_conflicts=self.file_conflicts,
         )
 
-    def _GenerateResultTargets(self, packages: List[Package]) -> List:
+    def _GenerateResultTargets(self, packages: List[package.Package]) -> List:
         """Generates, fixes and merges gn_targets for given packages."""
 
         result_targets = GnTargetsMerger()
 
-        for package in packages:
+        for pkg in packages:
             try:
-                new_targets = self._GenerateTargetsForPackage(package).Fix()
+                new_targets = self._GenerateTargetsForPackage(pkg).Fix()
                 result_targets.Append(new_targets)
-                g_logger.debug("%s: targets merged", package.full_name)
+                logger.g_logger.debug("%s: targets merged", pkg.full_name)
             except (
-                GnTargets.TargetPathException,
-                GnTargetsMerger.GnTargetsMergeException,
-                PackagePathException,
+                GnTargetsMergeException,
+                package.PackagePathException,
             ) as e:
                 if self.keep_going:
-                    g_logger.error(
-                        "%s: Failed to fix gn targets: %s", package.full_name, e
+                    logger.g_logger.error(
+                        "%s: Failed to fix gn targets: %s", pkg.full_name, e
                     )
                 else:
                     raise e
@@ -402,17 +393,16 @@ class GnTargetsGenerator:
         return result_targets.data
 
     def Generate(
-        self, packages: List[Package], result_targets_file: str
+        self, packages: List[package.Package], result_targets_file: str
     ) -> str:
-        """
-        Generates, fixes and merges gn_targets for given packages.
+        """Generate, fix, and merge gn_targets for the given packages.
 
         Raises:
-          * TargetPathException if failed to fix a target.
+            TargetPathException: Failed to fix a target.
         """
         assert result_targets_file
 
         result_targets = self._GenerateResultTargets(packages)
 
-        with open(result_targets_file, "w") as output:
+        with open(result_targets_file, "w", encoding="utf-8") as output:
             json.dump(result_targets, output, indent=2)
