@@ -1,51 +1,21 @@
-#!/usr/bin/env python3
 # Copyright 2022 The Chromium Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+"""Main entrypoint for the package_index_cros tool.
+
+For usage instructions, see README.md.
+"""
+
 import argparse
 import logging
 import os
-import sys
 import textwrap
+from typing import List, Optional
 
-from lib.logger import g_logger
-from lib.logger import SetupLogger
-
-
-def _FindChromite(path):
-    """Find the chromite dir in a repo, gclient, or submodule checkout."""
-    path = os.path.abspath(path)
-    # Depending on the checkout type (whether repo chromeos or gclient chrome)
-    # Chromite lives in a different location.
-    roots = (
-        (".repo", "chromite/.git"),
-        (".gclient", "src/third_party/chromite/.git"),
-        ("src/.gitmodules", "src/third_party/chromite/.git"),
-    )
-
-    while path != "/":
-        for root, chromite_git_dir in roots:
-            if all(
-                os.path.exists(os.path.join(path, x))
-                for x in [root, chromite_git_dir]
-            ):
-                return os.path.dirname(os.path.join(path, chromite_git_dir))
-        path = os.path.dirname(path)
-    return None
-
-
-def _MissingErrorOut(target):
-    sys.stderr.write(
-        """ERROR: Couldn't find the chromite tool %s.
-
-Please change to a directory inside your Chromium OS source tree
-and retry.  If you need to setup a Chromium OS source tree, see
-  https://chromium.googlesource.com/chromiumos/docs/+/HEAD/developer_guide.md
-"""
-        % target
-    )
-    return 127
+from chromite.contrib.package_index_cros.lib import conductor
+from chromite.contrib.package_index_cros.lib import logger
+from chromite.contrib.package_index_cros.lib import setup
 
 
 def _BuildParser():
@@ -239,9 +209,9 @@ def _BuildParser():
     return parser
 
 
-def main():
+def main(argv: Optional[List[str]] = None) -> Optional[int]:
     parser = _BuildParser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.compile_commands_file:
         args.compile_commands_file = os.path.abspath(args.compile_commands_file)
 
@@ -251,18 +221,9 @@ def main():
     if args.build_dir:
         args.build_dir = os.path.abspath(args.build_dir)
 
-    SetupLogger(logging.DEBUG if args.verbose else logging.INFO)
+    logger.SetupLogger(logging.DEBUG if args.verbose else logging.INFO)
 
-    chromite_dir = _FindChromite(os.getcwd())
-    if not chromite_dir:
-        return _MissingErrorOut(sys.argv[0])
-    g_logger.debug("Chromite dir: %s", chromite_dir)
-    sys.path.append(os.path.dirname(chromite_dir))
-
-    from lib.conductor import Conductor
-    from lib.setup import Setup
-
-    setup = Setup(
+    _setup = setup.Setup(
         args.board,
         skip_packages=args.skip_packages.split(" "),
         with_build=args.with_build,
@@ -271,17 +232,13 @@ def main():
         chroot_out_dir=args.chroot_out_dir,
     )
 
-    conductor = Conductor(setup)
-    conductor.Prepare(
+    _conductor = conductor.Conductor(_setup)
+    _conductor.Prepare(
         package_names=args.packages, ignore_unsupported=args.ignore_unsupported
     )
-    conductor.DoMagic(
+    _conductor.DoMagic(
         cdb_output_file=args.compile_commands_file,
         targets_output_file=args.gn_targets_file,
         build_output_dir=args.build_dir,
         keep_going=args.keep_going,
     )
-
-
-if __name__ == "__main__":
-    main()

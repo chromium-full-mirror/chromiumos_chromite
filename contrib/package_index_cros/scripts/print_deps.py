@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
 # Copyright 2022 The Chromium Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+"""Script that prints a package's dependency tree as JSON."""
+
 import json
-import sys
 from typing import List, Optional
 
 from chromite.lib import cros_build_lib
@@ -26,11 +26,12 @@ from chromite.lib import depgraph
 #   }
 # }
 
+
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
     cros_build_lib.AssertInsideChroot()
 
-    board = sys.argv[1]
-    packages = sys.argv[2:]
+    board = argv[0]
+    packages = argv[1:]
 
     deps = depgraph.DepGraphGenerator()
     deps.Initialize([f"--board={board}", "--quiet"] + packages)

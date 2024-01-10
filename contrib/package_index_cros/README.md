@@ -21,19 +21,9 @@ Currently, it is able to generate, fix and merge:
 
 ## Usage
 
-1. Clone [`package_index_cros`] somewhere in Chrome OS checkout. E.g
-   `chromeos/package_index_cros`, `chromeos/tmp/package_index_cros`. The
-   script needs `chromite` in one of parent directories.
-
-   You can clone the script as part of infra repo (see
-   [Chromium checkout instructions]):
-
-   ```bash
-   fetch --nohooks infra
-   ```
-
-1. Make `package_index_cros/main.py` executable.
-1. Run `/path/to/package_index_cros/main.py --help` for details.
+The main entrypoint for this tool is at
+`chromite/contrib/package_index_cros/main`. Run that file with `--help` for
+details.
 
 ## Local usage
 
