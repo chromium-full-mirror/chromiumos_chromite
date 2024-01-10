@@ -1174,6 +1174,88 @@ class DBusServiceTest(image_test_lib.ImageTestCase):
         self.assertTrue(success)
 
 
+class SafesetidEntry(NamedTuple):
+    """An entry in a Safesetid allowlist file."""
+
+    conf: str
+    source_uid: int
+    target_uid: int
+
+
+class SafesetidTest(image_test_lib.ImageTestCase):
+    """Safesetid related image tests."""
+
+    _success = True
+
+    def _parse(self, conf):
+        """Parse a safesetid allowlist.txt file and yield each entry."""
+        for line in conf.read_text("utf-8").splitlines():
+            line = line.strip().split("#", 1)[0]
+            if not line:
+                continue
+
+            parts = line.split(":")
+            if (
+                len(parts) != 2
+                or not parts[0].isnumeric()
+                or not parts[1].isnumeric()
+            ):
+                logging.error("%s: has invalid line '%s'", conf, line)
+                self._success = False
+                continue
+            yield SafesetidEntry(conf.name, int(parts[0]), int(parts[1]))
+
+    def _iter_allowlist_txt(self):
+        """Yield every safesetid rule in the rootfs."""
+        root = Path(image_test_lib.ROOT_A)
+        config_path = (
+            root
+            / "usr"
+            / "share"
+            / "cros"
+            / "startup"
+            / "process_management_policies"
+        )
+        for conf in config_path.glob("*.txt"):
+            yield from self._parse(conf)
+
+    def TestSafesetidConfig(self) -> None:
+        """Check for Safesetid config problems
+
+        * The same rule should not exist more than once or setting the policy
+          will fail.
+        * There should not be transitions to unconstrained users. Every
+          destination user should have at least one rule to make sure it is not
+          able to transition to any other user (such as root).
+        """
+
+        sources = set()
+        targets = set()
+        rules = {}
+        for entry in self._iter_allowlist_txt():
+            key = (entry.source_uid, entry.target_uid)
+            sources.add(entry.source_uid)
+            targets.add(entry.target_uid)
+            if key in rules:
+                other = rules[key].conf
+                logging.error(
+                    "%s and %s: both have '%s'", other, entry.conf, key
+                )
+                self._success = False
+            else:
+                rules[key] = entry
+
+        unconstrained_uids = targets.difference(sources)
+        if unconstrained_uids:
+            logging.error(
+                "UIDs that are only targets are unconstrained: '%s'",
+                unconstrained_uids,
+            )
+            self._success = False
+
+        self.assertTrue(self._success)
+
+
 class TmpfilesdEntry(NamedTuple):
     """An entry in a tmpfiles.d file."""
 
