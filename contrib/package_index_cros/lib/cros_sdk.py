@@ -2,37 +2,35 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from typing import List
+"""This module provides functionality to work with the CrOS SDK."""
 
+from typing import List, Union
+
+from chromite.contrib.package_index_cros.lib import constants
+from chromite.contrib.package_index_cros.lib import logger
+from chromite.contrib.package_index_cros.lib import path_handler
+from chromite.contrib.package_index_cros.lib import setup
 from chromite.lib import cros_build_lib
-
-from .constants import PRINT_DEPS_SCRIPT_PATH
-from .logger import g_logger
-from .path_handler import PathHandler
-from .setup import Setup
 
 
 class CrosSdk:
-    """Handles requests to cros_sdk."""
+    """Handler for requests to the ChromiumOS SDK."""
 
     def _Exec(
         self,
-        cmd: List[str],
+        cmd: Union[List[str], str],
         *,
         capture_output: bool = False,
         with_sudo: bool = False,
     ) -> cros_build_lib.CompletedProcess:
-        shell = True
-        if isinstance(cmd, List):
-            shell = False
-
+        """Execute a command inside the chroot."""
+        logger.g_logger.debug("Executing: '%s'", cmd)
+        shell = isinstance(cmd, str)
         encoding = "utf-8" if capture_output else None
-
-        g_logger.debug("Executing: '%s'", cmd)
         run_func = (
             self.setup.chroot.sudo_run if with_sudo else self.setup.chroot.run
         )
-        res = run_func(
+        return run_func(
             cmd,
             shell=shell,
             capture_output=capture_output,
@@ -40,17 +38,15 @@ class CrosSdk:
             check=True,
             print_cmd=False,
         )
-        return res
 
-    def __init__(self, setup: Setup):
-        self.setup = setup
+    def __init__(self, setup_data: setup.Setup):
+        self.setup = setup_data
 
     def BuildPackages(self, package_names: List[str]) -> None:
-        """
-        Builds given packages and preserves build artifcats.
+        """Build the named packages, preserving build artifacts.
 
         Raises:
-          * cros_build_lib.CompletedProcess if command failed.
+            cros_build_lib.CalledProcessError: Command failed.
         """
         features = ["noclean"]
         if self.setup.with_tests:
@@ -67,13 +63,13 @@ class CrosSdk:
         self._Exec(cmd, with_sudo=True)
 
     def GenerateCompileCommands(self, chroot_build_dir: str) -> str:
-        """
-        Calls ninja and returns compile commands as a string.
+        """Call ninja and return compile commands as a string.
 
-        |chroot_build_dir|  is package's build dir inside chroot.
+        Args:
+            chroot_build_dir: A package's build dir, inside the chroot.
 
         Raises:
-          * cros_build_lib.CompletedProcess if command failed.
+            cros_build_lib.CalledProcessError: Command failed.
         """
         ninja_cmd = [
             "ninja",
@@ -84,21 +80,20 @@ class CrosSdk:
             "cc",
             "cxx",
         ]
-
         return self._Exec(ninja_cmd, capture_output=True).stdout
 
     def GenerateGnTargets(
         self, chroot_root_dir: str, chroot_build_dir: str
     ) -> str:
-        """
-        Calls gn desc and returns gn targets as a string.
+        """Call `gn desc` and return gn targets as a string.
 
-        |chroot_root_dir| is a package's dir containing upper most .gn file inside
-        chroot.
-        |chroot_build_dir| is a package's build dir inside chroot.
+        Args:
+            chroot_root_dir: A package's dir containing the uppermost .gn file
+                inside the chroot.
+            chroot_build_dir: A package's build dir inside the chroot.
 
         Raises:
-          * cros_build_lib.CompletedProcess if command failed.
+            cros_build_lib.CalledProcessError: Command failed.
         """
         gn_desc_cmd = [
             "gn",
@@ -108,22 +103,21 @@ class CrosSdk:
             "*",
             "--format=json",
         ]
-
         return self._Exec(gn_desc_cmd, capture_output=True).stdout
 
     def GenerateDependencyTree(self, package_names: List[str]):
-        """
-        Generates dependency tree for given packages.
+        """Generate the dependency tree for the given packages.
 
-        Returns a dictionary with dependencies (see script/print_deps.py for
-        detailed format).
+        Utilizes chromite.lib.depgraph to fetch dependency tree. Depgraph has to
+        be called from inside chroot, so it lives in separate script file which
+        is called via cros_sdk wrapper.
 
-        Utilizes chromite.lib.depgraph to fetch dependency tree. Depgraph has to be
-        called from inside chroot so it lives in separate script file which is
-        called via cros_sdk wrapper.
+        Returns:
+            A dictionary with dependencies. See script/print_deps.py for the
+            detailed format.
 
         Raises:
-          * cros_build_lib.CompletedProcess if command failed.
+            cros_build_lib.CalledProcessError: Command failed.
         """
 
         features = []
@@ -132,7 +126,9 @@ class CrosSdk:
         cmd = " ".join(
             [
                 f'FEATURES="{" ".join(features)}"',
-                PathHandler(self.setup).ToChroot(PRINT_DEPS_SCRIPT_PATH),
+                path_handler.PathHandler(self.setup).ToChroot(
+                    constants.PRINT_DEPS_SCRIPT_PATH
+                ),
                 self.setup.board,
             ]
             + package_names
