@@ -271,7 +271,7 @@ def main():
         chroot_out_dir=args.chroot_out_dir,
     )
 
-    conductor = Conductor(setup=setup)
+    conductor = Conductor(setup)
     conductor.Prepare(
         package_names=args.packages, ignore_unsupported=args.ignore_unsupported
     )
