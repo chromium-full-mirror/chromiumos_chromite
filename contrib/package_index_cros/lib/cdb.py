@@ -2,93 +2,93 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from collections import defaultdict
+"""Module to interact with the compile commands database."""
+
+import collections
 import filecmp
 import json
 import os
-from typing import Dict, List, NamedTuple, Set
+from typing import Any, Dict, List, NamedTuple, Optional, Set
 
-from .cros_sdk import CrosSdk
-from .logger import g_logger
-from .package import Package
-from .package import PackagePathException
-from .path_handler import FixedPath, PathHandler
-from .setup import Setup
+from chromite.contrib.package_index_cros.lib import cros_sdk
+from chromite.contrib.package_index_cros.lib import logger
+from chromite.contrib.package_index_cros.lib import package
+from chromite.contrib.package_index_cros.lib import path_handler
+from chromite.contrib.package_index_cros.lib import setup
+
+
+class CdbException(Exception):
+    """Exception to indicate failure while fixing Cdb."""
+
+
+class DirectoryFieldException(CdbException, package.PackagePathException):
+    """Exception to indicate failure resolving the directory field."""
+
+
+class FileFieldException(CdbException, package.PackagePathException):
+    """Exception to indicate failure resolving the file field."""
+
+
+class _IncludePathOrder(NamedTuple):
+    """Dataclass to hold the include args sorted by interest.
+
+    TODO: chroot paths shall be skipped in favor of include paths from
+        dependencies.
+
+    Attributes:
+        local: Paths in the ChromiumOS src tree.
+        generated: Paths in the build dir.
+        chroot: Paths in the chroot dir, or in the chroot's out dir.
+    """
+
+    local: Set[str]
+    generated: Set[str]
+    chroot: Set[str]
 
 
 class Cdb:
     """Responsible for fixing paths in compile commands database."""
-
-    class CdbException(Exception):
-        """Exception to indicate failure while fixing Cdb."""
-
-    class DirectoryFieldException(CdbException, PackagePathException):
-        """Exception to indicate failure while resolving directory field"""
-
-    class FileFieldException(CdbException, PackagePathException):
-        """Exception to indicate failure while resolving file field"""
-
-    class ArgumentsFieldException(CdbException, PackagePathException):
-        """
-        Exception to indicate a failure while resolving command or arguments field
-        """
-
-    class OutputFieldException(CdbException, PackagePathException):
-        """Exception to indicate failure while resolving output field"""
-
-    class _IncludePathOrder(NamedTuple):
-        """
-        Sort include args by interest:
-        * local from {cros_dir}/src,
-        * generated in {build_dir}
-        * TODO: chroot paths shall be skipped in favor of include paths from
-          dependencies.
-        """
-
-        local: Set[str]
-        generated: Set[str]
-        chroot: Set[str]
 
     g_clang_additional_args = ["-stdlib=libc++"]
 
     def __init__(
         self,
         cdb_data: List,
-        package: Package,
-        setup: Setup,
-        package_to_include_args: Dict[str, "Cdb._IncludePathOrder"],
+        pkg: package.Package,
+        setup_data: setup.Setup,
+        package_to_include_args: Dict[str, _IncludePathOrder],
         *,
         result_build_dir: str = None,
-        file_conflicts: Dict = {},
+        file_conflicts: Optional[Dict[str, str]] = None,
     ):
-        """
-        Cdb constructor.
+        """Initialize a new Cdb instance.
 
-        Arguments:
-          * cdb_data: loaded of compile_commands.json for |package|.
-          * package: package to work with.
-          * setup: setup data (board, dirs, etc).
-          * package_to_include_args: maps packages to their include dirs. Is used to
-            populate |package| dependencies' include paths.
-          * result_build_dir: path to result build dir simulating single result
-            package.
-          * file_conflicts: maps original build artifacts in chroot dir that
-            conflict between packages to corresponding artifacts in
-            |result_build_dir|.
+        Args:
+            cdb_data: loaded of compile_commands.json for |pkg|.
+            pkg: package to work with.
+            setup_data: setup data (board, dirs, etc).
+            package_to_include_args: maps packages to their include dirs. Is
+                used to populate |pkg| dependencies' include paths.
+            result_build_dir: path to result build dir simulating single result
+                package.
+            file_conflicts: Map of {original_artifact_path: result_path}, where
+                original_artifact_path is an original build artifact in the
+                chroot dir that conflicts between packages, and result_path is
+                the corresponding artifact in |result_build_dir|.
         """
         self.data = cdb_data
-        self.package = package
-        self.setup = setup
-        self.path_handler = PathHandler(self.setup)
+        self.package = pkg
+        self.setup = setup_data
+        self.path_handler = path_handler.PathHandler(self.setup)
         if result_build_dir:
             self.build_dir = result_build_dir
         else:
             self.build_dir = self.package.build_dir
-        self.file_conflicts = file_conflicts
+        self.file_conflicts = file_conflicts or {}
 
         for dep in self.package.dependencies:
             if dep.name not in package_to_include_args:
-                raise Cdb.CdbException(
+                raise CdbException(
                     f"{self.package.full_name}:"
                     f" No include path for dependency: {dep.name}"
                 )
@@ -96,26 +96,30 @@ class Cdb:
         self.package_to_include_args = package_to_include_args
         self.package_to_include_args[
             self.package.full_name
-        ] = Cdb._IncludePathOrder(set(), set(), set())
+        ] = _IncludePathOrder(set(), set(), set())
 
     def Fix(self) -> "Cdb":
-        """
-        Fix cdb entries:
-        * Substitute chroot paths with corresponding paths outside of chroot.
-        * Substitute temp src paths with actual paths.
-        * TODO: substitute chroot include paths with actual paths from
-          dependencies.
-        * Add several clang args.
+        """Fix cdb entries.
+
+        This will do a few things:
+        *   Substitute chroot paths with corresponding paths outside of chroot.
+        *   Substitute temp src paths with actual paths.
+        *   TODO: substitute chroot include paths with actual paths from
+            dependencies.
+        *   Add several clang args.
+
+        Returns:
+            Self.
         """
         if self.package.is_highly_volatile:
-            g_logger.debug(
+            logger.g_logger.debug(
                 "%s: Is highly volatile package. Not all checks performed",
                 self.package.full_name,
             )
 
         if self.package.additional_include_paths:
             for include_path in self.package.additional_include_paths:
-                g_logger.debug(
+                logger.g_logger.debug(
                     "%s: Additional include path will be used: %s",
                     self.package.full_name,
                     include_path,
@@ -138,18 +142,16 @@ class Cdb:
         return self
 
     def _GetFixedDirectory(self, entry: Dict) -> str:
-        assert "directory" in entry, "Directory field is missing"
-
-        dir = self.path_handler.FromChroot(entry["directory"])
-
-        if dir != self.package.build_dir:
-            raise Cdb.DirectoryFieldException(
+        if "directory" not in entry:
+            raise ValueError(f"Directory field is missing from {entry}")
+        directory = self.path_handler.FromChroot(entry["directory"])
+        if directory != self.package.build_dir:
+            raise DirectoryFieldException(
                 self.package,
                 "Directory field does not match build dir",
-                dir,
+                directory,
                 self.package.build_dir,
             )
-
         return self.build_dir
 
     def _GetFixedArguments(self, entry: Dict) -> List[str]:
@@ -166,7 +168,7 @@ class Cdb:
 
         # First argument is always a compiler.
         actual_arguments = [self._FixArgumentsCompiler(compiler)]
-        actual_include_args = Cdb._IncludePathOrder(set(), set(), set())
+        actual_include_args = _IncludePathOrder(set(), set(), set())
 
         for arg in arguments:
 
@@ -179,14 +181,16 @@ class Cdb:
                     ignorable_dirs=self.setup.ignorable_dirs,
                 ).actual
 
-            arg_prefix, actual_path = PathHandler.FixPathInArgument(arg, Fixer)
+            (
+                arg_prefix,
+                actual_path,
+            ) = path_handler.PathHandler.FixPathInArgument(arg, Fixer)
             actual_arg = arg_prefix + actual_path
 
             if arg_prefix == "-I":
                 # Put include path into corresponding ordered location.
                 if actual_path.startswith(self.build_dir):
-                    # If actual_include_path.startswith(self.build_dir):
-                    # Build dir can be inside {src_dir}. So it comes before local.
+                    # build_dir can be inside src_dir, so it comes before local.
                     actual_include_args.generated.add(actual_arg)
                 elif actual_path.startswith(self.setup.src_dir):
                     actual_include_args.local.add(actual_arg)
@@ -239,22 +243,24 @@ class Cdb:
 
         if temp_file != actual_file:
             if not os.path.isfile(temp_file) or not os.path.isfile(actual_file):
-                g_logger.debug(
-                    "%s: Cannot verify if temp and actual file are the same: %s vs %s",
+                logger.g_logger.debug(
+                    "%s: Cannot verify if temp and actual file are the same: "
+                    "%s vs %s",
                     self.package.full_name,
                     temp_file,
                     actual_file,
                 )
             elif not filecmp.cmp(temp_file, actual_file):
                 if self.package.is_highly_volatile:
-                    g_logger.debug(
-                        "%s: Temp and actual files differ. Possibly patches: %s vs %s",
+                    logger.g_logger.debug(
+                        "%s: Temp and actual files differ. Possibly patches: "
+                        "%s vs %s",
                         self.package.full_name,
                         temp_file,
                         actual_file,
                     )
                 else:
-                    raise Cdb.FileFieldException(
+                    raise FileFieldException(
                         self.package,
                         "Temp and actual file differ",
                         temp_file,
@@ -272,13 +278,10 @@ class Cdb:
 
         return actual_file
 
-    def _FixPath(
-        self, chroot_path: str, **ignore_args
-    ) -> FixedPath:
-        """
-        Wrapper for |PathHandler.FixPathWithIgnores| with additional action to
-        move path from |package.build_dir| to |self.result_build_dir|.
-        """
+    def _FixPath(  # pylint: disable=docstring-misnamed-args
+        self, chroot_path: str, **ignore_args: Any
+    ) -> path_handler.FixedPath:
+        """Wrap |FixPathWithIgnores|, and move build_dir to the result dir."""
         fixed_path = self.path_handler.FixPathWithIgnores(
             chroot_path,
             self.package,
@@ -287,9 +290,9 @@ class Cdb:
         )
 
         if fixed_path.actual.startswith(self.package.build_dir):
-            return FixedPath(
+            return path_handler.FixedPath(
                 fixed_path.original,
-                PathHandler.MovePath(
+                path_handler.PathHandler.MovePath(
                     fixed_path.actual, self.package.build_dir, self.build_dir
                 ),
             )
@@ -309,97 +312,97 @@ class CdbGenerator:
 
     def __init__(
         self,
-        setup: Setup,
+        setup_data: setup.Setup,
         *,
         result_build_dir: str = None,
-        file_conflicts: Dict = {},
+        file_conflicts: Optional[Dict[str, str]] = None,
         keep_going: bool = False,
     ):
-        """
-        CdbGenerator constructor.
+        """Initialize a new CdbGenerator instance.
 
-        Arguments:
-          * setup: setup data (board, dirs, etc).
-          * result_build_dir: path to result build dir simulating single result
-            package.
-          * file_conflicts: maps original build artifacts in chroot dir that
-            conflict between packages to corresponding artifacts in
-            |result_build_dir|.
+        Args:
+            setup_data: Setup data (board, dirs, etc).
+            result_build_dir: Path to the result build dir, simulating a single
+                resultpackage.
+            file_conflicts: Map of {original_artifact_path: result_path}, where
+                original_artifact_path is an original build artifact in the
+                chroot dir that conflicts between packages, and result_path is
+                the corresponding artifact in |result_build_dir|.
+            keep_going: If given, don't stop generating upon a package failure.
         """
-        self.setup = setup
+        self.setup = setup_data
         self.result_build_dir = result_build_dir
-        self.file_conflicts = file_conflicts
+        self.file_conflicts = file_conflicts or {}
         self.keep_going = keep_going
-        self.package_status = defaultdict(list)
+        self.package_status = collections.defaultdict(list)
 
     def _GenerateCdbForPackage(
-        self, package: Package, packages_to_include_args: Dict
+        self, pkg: package.Package, packages_to_include_args: Dict
     ) -> Cdb:
-        cdb_str = CrosSdk(self.setup).GenerateCompileCommands(
-            PathHandler(self.setup).ToChroot(package.build_dir)
+        cdb_str = cros_sdk.CrosSdk(self.setup).GenerateCompileCommands(
+            path_handler.PathHandler(self.setup).ToChroot(pkg.build_dir)
         )
-        g_logger.debug("%s: Generated compile commands", package.full_name)
+        logger.g_logger.debug("%s: Generated compile commands", pkg.full_name)
 
         cdb_data = json.loads(cdb_str)
         if not cdb_data:
-            g_logger.error("%s: Compile commands are empty", package.full_name)
+            logger.g_logger.error(
+                "%s: Compile commands are empty", pkg.full_name
+            )
 
         assert isinstance(cdb_data, List)
 
         return Cdb(
             cdb_data,
-            package,
+            pkg,
             self.setup,
             packages_to_include_args,
             result_build_dir=self.result_build_dir,
             file_conflicts=self.file_conflicts,
         )
 
-    def _GenerateResultCdb(self, packages: List[Package]) -> List:
+    def _GenerateResultCdb(self, packages: List[package.Package]) -> List:
         result_cdb_data = []
 
         packages_to_include_args = {}
-        for package in packages:
+        for pkg in packages:
             try:
                 cdb_data = (
-                    self._GenerateCdbForPackage(
-                        package, packages_to_include_args
-                    )
+                    self._GenerateCdbForPackage(pkg, packages_to_include_args)
                     .Fix()
                     .data
                 )
                 result_cdb_data.extend(cdb_data)
-            except (Cdb.CdbException, PackagePathException) as e:
-                self.package_status["failed_exception"].append(
-                    package.full_name
-                )
+            except (CdbException, package.PackagePathException) as e:
+                self.package_status["failed_exception"].append(pkg.full_name)
                 if self.keep_going:
-                    g_logger.error(
+                    logger.g_logger.error(
                         "%s: Failed to fix compile commands: %s",
-                        package.full_name,
+                        pkg.full_name,
                         e,
                     )
                 else:
                     raise e
-            self.package_status["success"].append(package.full_name)
+            self.package_status["success"].append(pkg.full_name)
 
         return result_cdb_data
 
-    def Generate(self, packages: List[Package], result_cdb_file: str) -> None:
-        """
-        Generates, fixes and merges compile databases for given |packages|.
+    def Generate(
+        self, packages: List[package.Package], result_cdb_file: str
+    ) -> None:
+        """Generate, fix, and merge compile databases for the given packages.
 
         Raises:
-          * Cdb.CdbException or field specific exception if failed to fix cdb entry.
+            CdbException or field specific exception: Failed to fix cdb entry.
         """
         assert result_cdb_file
 
         result_cdb = self._GenerateResultCdb(packages)
 
-        g_logger.info(
+        logger.g_logger.info(
             "Package CDB Statuses:\n%s",
             json.dumps(self.package_status, indent=2),
         )
 
-        with open(result_cdb_file, "w") as output:
+        with open(result_cdb_file, "w", encoding="utf-8") as output:
             json.dump(result_cdb, output, indent=2)
