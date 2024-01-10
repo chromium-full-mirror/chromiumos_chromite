@@ -19,9 +19,6 @@ import re
 import sys
 from typing import Iterable, List, NamedTuple, Optional, TYPE_CHECKING, Union
 
-from chromite.third_party.google.protobuf import json_format
-
-from chromite.api.gen.config import replication_config_pb2
 from chromite.lib import chromeos_version
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -30,7 +27,6 @@ from chromite.lib import image_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import protofiles_lib
-from chromite.lib import replication_lib
 from chromite.lib import uprev_lib
 from chromite.lib.parser import package_info
 from chromite.service import android
@@ -975,86 +971,6 @@ def _get_latest_version_from_refs(
     return target_version_ref.replace(refs_prefix, "")
 
 
-def _generate_platform_c_files(
-    replication_config: replication_config_pb2.ReplicationConfig,
-    chroot: "chroot_lib.Chroot",
-) -> List[str]:
-    """Generates platform C files from a platform JSON payload.
-
-    Args:
-        replication_config: A ReplicationConfig that has already been run. If it
-            produced a build_config.json file, that file will be used to
-            generate platform C files. Otherwise, nothing will be generated.
-        chroot: The chroot to use to generate.
-
-    Returns:
-        A list of generated files.
-    """
-    # Generate the platform C files from the build config. Note that it would be
-    # more intuitive to generate the platform C files from the platform config;
-    # however, cros_config_schema does not allow this, because the platform
-    # config payload is not always valid input. For example, if a property is
-    # both 'required' and 'build-only', it will fail schema validation. Thus,
-    # use the build config, and use '-f' to filter.
-    build_config_path = [
-        rule.destination_path
-        for rule in replication_config.file_replication_rules
-        if rule.destination_path.endswith("build_config.json")
-    ]
-
-    if not build_config_path:
-        logging.info(
-            "No build_config.json found, will not generate platform C files. "
-            "Replication config: %s",
-            replication_config,
-        )
-        return []
-
-    if len(build_config_path) > 1:
-        raise ValueError(
-            "Expected at most one build_config.json destination path. "
-            "Replication config: %s" % replication_config
-        )
-
-    build_config_path = build_config_path[0]
-
-    # Paths to the build_config.json and dir to output C files to, in the
-    # chroot.
-    build_config_chroot_path = os.path.join(
-        constants.CHROOT_SOURCE_ROOT, build_config_path
-    )
-    generated_output_chroot_dir = os.path.join(
-        constants.CHROOT_SOURCE_ROOT, os.path.dirname(build_config_path)
-    )
-
-    command = [
-        "cros_config_schema",
-        "-m",
-        build_config_chroot_path,
-        "-g",
-        generated_output_chroot_dir,
-        "-f",
-        '"TRUE"',
-    ]
-
-    chroot.run(command)
-
-    # A relative (to the source root) path to the generated C files.
-    generated_output_dir = os.path.dirname(build_config_path)
-    generated_files = []
-    expected_c_files = ["config.c", "ec_config.c", "ec_config.h"]
-    for f in expected_c_files:
-        if os.path.exists(
-            os.path.join(constants.SOURCE_ROOT, generated_output_dir, f)
-        ):
-            generated_files.append(os.path.join(generated_output_dir, f))
-
-    if len(expected_c_files) != len(generated_files):
-        raise GeneratedCrosConfigFilesError(expected_c_files, generated_files)
-
-    return generated_files
-
-
 def _get_private_overlay_package_root(ref: uprev_lib.GitRef, package: str):
     """Returns the absolute path to the root of a given private overlay.
 
@@ -1080,62 +996,6 @@ def _get_private_overlay_package_root(ref: uprev_lib.GitRef, package: str):
         constants.SOURCE_ROOT,
         "src/private-overlays/overlay-%s-private" % overlay,
         package,
-    )
-
-
-@uprevs_versioned_package("chromeos-base/chromeos-config-bsp")
-def replicate_private_config(_build_targets, refs, chroot):
-    """Replicate private cros_config change to the corresponding public config.
-
-    See uprev_versioned_package for args
-    """
-    package = "chromeos-base/chromeos-config-bsp"
-
-    if len(refs) != 1:
-        raise ValueError("Expected exactly one ref, actual %s" % refs)
-
-    # Expect a replication_config.jsonpb in the package root.
-    package_root = _get_private_overlay_package_root(refs[0], package)
-    replication_config_path = os.path.join(
-        package_root, "replication_config.jsonpb"
-    )
-
-    try:
-        replication_config = json_format.Parse(
-            osutils.ReadFile(replication_config_path),
-            replication_config_pb2.ReplicationConfig(),
-        )
-    except IOError:
-        raise ValueError(
-            "Expected ReplicationConfig missing at %s" % replication_config_path
-        )
-
-    replication_lib.Replicate(replication_config)
-
-    modified_files = [
-        rule.destination_path
-        for rule in replication_config.file_replication_rules
-    ]
-
-    # The generated platform C files are not easily filtered by replication
-    # rules, i.e. JSON / proto filtering can be described by a FieldMask,
-    # arbitrary C files cannot. Therefore, replicate and filter the JSON
-    # payloads, and then generate filtered C files from the JSON payload.
-    modified_files.extend(
-        _generate_platform_c_files(replication_config, chroot)
-    )
-
-    # Use the private repo's commit hash as the new version.
-    new_private_version = refs[0].revision
-
-    # modified_files should contain only relative paths at this point, but the
-    # returned UprevVersionedPackageResult must contain only absolute paths.
-    for i, modified_file in enumerate(modified_files):
-        assert not os.path.isabs(modified_file)
-        modified_files[i] = os.path.join(constants.SOURCE_ROOT, modified_file)
-
-    return uprev_lib.UprevVersionedPackageResult().add_result(
-        new_private_version, modified_files
     )
 
 
