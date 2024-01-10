@@ -29,7 +29,7 @@ logging = chromite.ChromiteLogger.getLogger(__name__)
 
 IGNORED_REPOSITORIES = frozenset(["crossdev", "toolchains"])
 
-# TODO: better detect all packages that are part of "system profile" or are
+# SYSTEM_PACKAGES is a list of packages that are part of "system profile" or are
 # otherwise crucial, and must never be removed, like bash, portage or awk.
 # Note that this list works by substring matching, so "dev-lang/python" also
 # matches "dev-lang/python-exec-conf".
