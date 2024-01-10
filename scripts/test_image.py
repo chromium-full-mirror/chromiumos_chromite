@@ -4,6 +4,7 @@
 
 """Script to mount a built image and run tests on it."""
 
+import contextlib
 import os
 import unittest
 
@@ -37,6 +38,12 @@ def ParseArgs(args):
         default=False,
         action="store_true",
         help="List all the available tests",
+    )
+    parser.add_bool_argument(
+        "--bind-mount",
+        default=False,
+        enabled_desc="bind mount the image path as ROOT-A",
+        disabled_desc="mount ROOT-A and STATE from the image file",
     )
     parser.add_argument(
         "tests",
@@ -117,17 +124,32 @@ def main(args):
     runner = image_test_lib.ImageTestRunner()
     runner.SetBoard(opts.board)
     runner.SetResultDir(opts.test_results_root)
-    image_file = FindImage(opts.image)
     tmp_in_chroot = path_util.FromChrootPath("/tmp")
-    with osutils.TempDir(base_dir=tmp_in_chroot) as temp_dir:
-        with image_lib.LoopbackPartitions(image_file, temp_dir) as image:
-            # Due to the lack of mount context, we mount the partitions
-            # but do not reference directly.  This will be removed with the
-            # submission of http://crrev/c/1795578
-            _ = image.Mount((constants.PART_ROOT_A,))[0]
-            _ = image.Mount((constants.PART_STATE,))[0]
-            with osutils.ChdirContext(temp_dir):
-                result = runner.run(all_tests)
+
+    with contextlib.ExitStack() as stack:
+        temp_dir = stack.enter_context(osutils.TempDir(base_dir=tmp_in_chroot))
+
+        if opts.bind_mount:
+            runner.SetImageType(image_test_lib.ImageType.BIND_MOUNT)
+            mount_path = temp_dir + "/dir-" + constants.PART_ROOT_A
+            stack.enter_context(
+                osutils.MountDirContext(
+                    opts.image, mount_path, mount_opts=("bind", "ro")
+                )
+            )
+        else:
+            runner.SetImageType(image_test_lib.ImageType.BIN_FILE)
+            image_file = FindImage(opts.image)
+            stack.enter_context(
+                image_lib.LoopbackPartitions(
+                    image_file,
+                    temp_dir,
+                    (constants.PART_ROOT_A, constants.PART_STATE),
+                )
+            )
+
+        with osutils.ChdirContext(temp_dir):
+            result = runner.run(all_tests)
 
     if result and not result.wasSuccessful():
         return 1
