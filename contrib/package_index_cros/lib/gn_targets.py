@@ -11,7 +11,7 @@ from .cros_sdk import CrosSdk
 from .logger import g_logger
 from .package import Package
 from .package import PackagePathException
-from .path_handler import PathHandler
+from .path_handler import FixedPath, PathHandler
 from .setup import Setup
 
 
@@ -184,7 +184,7 @@ class GnTargets:
         arg_prefix, actual_path = PathHandler.FixPathInArgument(arg, Fixer)
         return arg_prefix + actual_path
 
-    def _FixPath(self, chroot_path: str) -> PathHandler.FixedPath:
+    def _FixPath(self, chroot_path: str) -> FixedPath:
         """
         Wrapper for |PathHandler.FixPathWithIgnores| with all ignores set and
         additional action to move path from |package.build_dir| to
@@ -202,7 +202,7 @@ class GnTargets:
         )
 
         if fixed_path.actual.startswith(self.package.build_dir):
-            return PathHandler.FixedPath(
+            return FixedPath(
                 fixed_path.original,
                 PathHandler.MovePath(
                     fixed_path.actual, self.package.build_dir, self.build_dir

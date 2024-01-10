@@ -12,7 +12,7 @@ from .cros_sdk import CrosSdk
 from .logger import g_logger
 from .package import Package
 from .package import PackagePathException
-from .path_handler import PathHandler
+from .path_handler import FixedPath, PathHandler
 from .setup import Setup
 
 
@@ -274,7 +274,7 @@ class Cdb:
 
     def _FixPath(
         self, chroot_path: str, **ignore_args
-    ) -> PathHandler.FixedPath:
+    ) -> FixedPath:
         """
         Wrapper for |PathHandler.FixPathWithIgnores| with additional action to
         move path from |package.build_dir| to |self.result_build_dir|.
@@ -287,7 +287,7 @@ class Cdb:
         )
 
         if fixed_path.actual.startswith(self.package.build_dir):
-            return PathHandler.FixedPath(
+            return FixedPath(
                 fixed_path.original,
                 PathHandler.MovePath(
                     fixed_path.actual, self.package.build_dir, self.build_dir
