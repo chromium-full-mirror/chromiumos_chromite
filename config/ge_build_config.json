@@ -11504,6 +11504,16 @@
         },
         {
           "board_name": "nissa-kernelnext",
+          "name": "craaskov",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7262,
+          "is_active": true,
+          "stable_target_milestone": 125,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-kernelnext",
           "name": "craaskvin",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -11711,7 +11721,7 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 120,
+      "stable_target_milestone": 125,
       "board_variant": "kernelnext",
       "build_cadence": "DAILY_CADENCE"
     },
