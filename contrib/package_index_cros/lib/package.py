@@ -5,11 +5,11 @@
 """Support and processing for Portage packages."""
 
 import enum
+import logging
 import os
 from typing import List, NamedTuple, Optional
 
 from chromite.contrib.package_index_cros.lib import constants
-from chromite.contrib.package_index_cros.lib import logger
 from chromite.contrib.package_index_cros.lib import setup
 from chromite.lib import osutils
 from chromite.lib import portage_util
@@ -348,15 +348,13 @@ class Package:
         Raises:
             DirsException: Build, source or temp source dirs are not found.
         """
-        logger.g_logger.debug("%s: Initializing", self.full_name)
+        logging.debug("%s: Initializing", self.full_name)
 
         self.temp_dir = self._GetTempDir()
-        logger.g_logger.debug("%s: Temp dir: %s", self.full_name, self.temp_dir)
+        logging.debug("%s: Temp dir: %s", self.full_name, self.temp_dir)
 
         self.build_dir = self._GetBuildDir()
-        logger.g_logger.debug(
-            "%s: Build dir: %s", self.full_name, self.build_dir
-        )
+        logging.debug("%s: Build dir: %s", self.full_name, self.build_dir)
 
         self.src_dir_matches = self._GetSourceDirsToTempSourceDirsMap()
 
@@ -576,7 +574,7 @@ class Package:
                 raise DirsException(
                     self, "Cannot find temp src dir", match.temp
                 )
-            logger.g_logger.debug(
+            logging.debug(
                 "%s: Match between temp and actual: %s and %s",
                 self.full_name,
                 match.temp,

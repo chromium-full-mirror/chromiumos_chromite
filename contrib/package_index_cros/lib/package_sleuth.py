@@ -5,10 +5,10 @@
 """Module to help with finding packages and their dependencies."""
 
 import json
+import logging
 from typing import Dict, List, NamedTuple, Optional, Set
 
 from chromite.contrib.package_index_cros.lib import cros_sdk
-from chromite.contrib.package_index_cros.lib import logger
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import setup
 from chromite.lib import portage_util
@@ -107,7 +107,7 @@ class PackageSleuth:
         for ebuild in ebuilds:
             package_supported = package.GetPackageSupport(ebuild, self.setup)
             if package_supported.is_unsupported():
-                logger.g_logger.warning(
+                logging.warning(
                     "%s: Not supported: %s",
                     ebuild.package,
                     package_supported.name,

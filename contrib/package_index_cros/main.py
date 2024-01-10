@@ -8,48 +8,35 @@ For usage instructions, see README.md.
 """
 
 import argparse
-import logging
 import os
 import textwrap
 from typing import List, Optional
 
 from chromite.contrib.package_index_cros.lib import conductor
-from chromite.contrib.package_index_cros.lib import logger
 from chromite.contrib.package_index_cros.lib import setup
+from chromite.lib import commandline
 
 
 def _BuildParser():
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawTextHelpFormatter
-    )
+    parser = commandline.ArgumentParser(
+        usage="%(prog)s [options] package [package...]",
+        description=textwrap.dedent(
+            """\
+        Generate compile commands and gn targets for given packages in current
+        or given directory."""
+        ),
+        epilog=textwrap.dedent(
+            """\
+        If you don't want build artifacts, run: cros clean
 
-    parser.usage = "%(prog)s [options] package [package ...]"
+        WARNING: Be careful with header files. There are still some include
+        paths in chroot (like dbus, or standard library, or something else
+        yet to be discovered). You might end up changing a chroot file instead
+        of the actual one.
 
-    parser.description = textwrap.dedent(
-        """\
-    Generate compile commands and gn targets for given packages in current or
-    given directory."""
-    )
-
-    parser.epilog = textwrap.dedent(
-        """\
-    If you don't want build artifcats, run: cros clean
-
-    WARNING: Be careful with header files. There are still some include
-    paths in chroot (like dbus, or standard library, or something else
-    yet to be discovered). You might end up changing a chroot file instead
-    of the actual one.
-
-    WARNING: --build-dir flag removes existing build dir if any."""
-    )
-
-    parser.add_argument(
-        "--verbose",
-        "-v",
-        action="store_true",
-        default=False,
-        dest="verbose",
-        help="Use DEBUG level for logging instead of default WARNING.",
+        WARNING: --build-dir flag removes existing build dir if any."""
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
     )
 
     parser.add_argument(
@@ -220,8 +207,6 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
 
     if args.build_dir:
         args.build_dir = os.path.abspath(args.build_dir)
-
-    logger.SetupLogger(logging.DEBUG if args.verbose else logging.INFO)
 
     _setup = setup.Setup(
         args.board,

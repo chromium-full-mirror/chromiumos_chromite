@@ -4,10 +4,10 @@
 
 """This module provides functionality to work with the CrOS SDK."""
 
+import logging
 from typing import List, Union
 
 from chromite.contrib.package_index_cros.lib import constants
-from chromite.contrib.package_index_cros.lib import logger
 from chromite.contrib.package_index_cros.lib import path_handler
 from chromite.contrib.package_index_cros.lib import setup
 from chromite.lib import cros_build_lib
@@ -24,7 +24,7 @@ class CrosSdk:
         with_sudo: bool = False,
     ) -> cros_build_lib.CompletedProcess:
         """Execute a command inside the chroot."""
-        logger.g_logger.debug("Executing: '%s'", cmd)
+        logging.debug("Executing: '%s'", cmd)
         shell = isinstance(cmd, str)
         encoding = "utf-8" if capture_output else None
         run_func = (

@@ -9,11 +9,11 @@ temporary location in the chroot to a their actual locations on the host
 filesystem.
 """
 
+import logging
 import os
 import re
 from typing import Callable, Dict, List, NamedTuple, Optional, Tuple
 
-from chromite.contrib.package_index_cros.lib import logger
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import setup
 
@@ -352,7 +352,7 @@ class PathHandler:
 
             if ignore_generated and path and path.startswith(pkg.build_dir):
                 # Path inside build dir and ignorable, return as is.
-                logger.g_logger.debug(
+                logging.debug(
                     "%s: Failed to fix generated path: %s",
                     pkg.full_name,
                     path,
@@ -361,7 +361,7 @@ class PathHandler:
 
             def CanIgnoreFailure() -> bool:
                 if ignore_highly_volatile and pkg.is_highly_volatile:
-                    logger.g_logger.debug(
+                    logging.debug(
                         "%s: Failed to fix path "
                         "for highly volatile package: %s",
                         pkg.full_name,
@@ -369,14 +369,14 @@ class PathHandler:
                     )
                     return True
                 if ignore_stable and not pkg.is_built_from_actual_sources:
-                    logger.g_logger.debug(
+                    logging.debug(
                         "%s: Failed to fix path for stable package: %s",
                         pkg.full_name,
                         chroot_path,
                     )
                     return True
                 if ignorable_dirs:
-                    logger.g_logger.debug(
+                    logging.debug(
                         "%s: Failed to fix path in ignorable dir: %s",
                         pkg.full_name,
                         chroot_path,
@@ -386,7 +386,7 @@ class PathHandler:
                     chroot_path.endswith(ignorable_ext)
                     for ignorable_ext in ignorable_extensions
                 ):
-                    logger.g_logger.debug(
+                    logging.debug(
                         "%s: Failed to fix path with ignorable extension: %s",
                         pkg.full_name,
                         chroot_path,

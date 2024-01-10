@@ -5,11 +5,11 @@
 """Module for working with build dirs."""
 
 import filecmp
+import logging
 import os
 import shutil
 from typing import Dict, List
 
-from chromite.contrib.package_index_cros.lib import logger
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import setup
 
@@ -50,7 +50,7 @@ class _BuildDirMerger:
                 source.endswith(ext)
                 for ext in _BuildDirMerger.g_ignore_extensions
             ):
-                logger.g_logger.debug(
+                logging.debug(
                     "%s: ignore file: %s", new_package.full_name, source
                 )
                 return
@@ -60,7 +60,7 @@ class _BuildDirMerger:
                     os.path.dirname(dest),
                     f"{new_package.package_info.name}_{os.path.basename(dest)}",
                 )
-                logger.g_logger.debug(
+                logging.debug(
                     "%s: Copying conflicting file with package prefix: "
                     "%s to %s",
                     new_package.full_name,
@@ -84,7 +84,7 @@ class _BuildDirMerger:
                 elif os.path.isfile(source_item):
                     CopyFile(source_item, dest_item)
                 else:
-                    logger.g_logger.debug(
+                    logging.debug(
                         "%s: ignoring: %s (not valid file nor dir)",
                         new_package.full_name,
                         source_item,
@@ -103,13 +103,11 @@ class BuildDirGenerator:
     def _PrepareDir(self, result_build_dir: str) -> None:
         """Create a new result_build_dir, clobbering any that already exist."""
         if os.path.isdir(result_build_dir):
-            logger.g_logger.warning(
-                "Removing existing build dir: %s", result_build_dir
-            )
+            logging.warning("Removing existing build dir: %s", result_build_dir)
             shutil.rmtree(result_build_dir)
 
         os.makedirs(result_build_dir)
-        logger.g_logger.debug("Build dir created: %s", result_build_dir)
+        logging.debug("Build dir created: %s", result_build_dir)
 
     def Generate(
         self, packages: List[package.Package], result_build_dir: str
@@ -129,7 +127,7 @@ class BuildDirGenerator:
         source_dest_conflicts = {}
         for pkg in packages:
             source_dest_conflicts.update(merger.Append(pkg))
-            logger.g_logger.debug(
+            logging.debug(
                 "Added %s to result build dir: %s",
                 pkg.full_name,
                 pkg.build_dir,

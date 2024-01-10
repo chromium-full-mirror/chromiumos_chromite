@@ -7,11 +7,11 @@
 import collections
 import filecmp
 import json
+import logging
 import os
 from typing import Any, Dict, List, NamedTuple, Optional, Set
 
 from chromite.contrib.package_index_cros.lib import cros_sdk
-from chromite.contrib.package_index_cros.lib import logger
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import path_handler
 from chromite.contrib.package_index_cros.lib import setup
@@ -112,14 +112,14 @@ class Cdb:
             Self.
         """
         if self.package.is_highly_volatile:
-            logger.g_logger.debug(
+            logging.debug(
                 "%s: Is highly volatile package. Not all checks performed",
                 self.package.full_name,
             )
 
         if self.package.additional_include_paths:
             for include_path in self.package.additional_include_paths:
-                logger.g_logger.debug(
+                logging.debug(
                     "%s: Additional include path will be used: %s",
                     self.package.full_name,
                     include_path,
@@ -243,7 +243,7 @@ class Cdb:
 
         if temp_file != actual_file:
             if not os.path.isfile(temp_file) or not os.path.isfile(actual_file):
-                logger.g_logger.debug(
+                logging.debug(
                     "%s: Cannot verify if temp and actual file are the same: "
                     "%s vs %s",
                     self.package.full_name,
@@ -252,7 +252,7 @@ class Cdb:
                 )
             elif not filecmp.cmp(temp_file, actual_file):
                 if self.package.is_highly_volatile:
-                    logger.g_logger.debug(
+                    logging.debug(
                         "%s: Temp and actual files differ. Possibly patches: "
                         "%s vs %s",
                         self.package.full_name,
@@ -342,13 +342,11 @@ class CdbGenerator:
         cdb_str = cros_sdk.CrosSdk(self.setup).GenerateCompileCommands(
             path_handler.PathHandler(self.setup).ToChroot(pkg.build_dir)
         )
-        logger.g_logger.debug("%s: Generated compile commands", pkg.full_name)
+        logging.debug("%s: Generated compile commands", pkg.full_name)
 
         cdb_data = json.loads(cdb_str)
         if not cdb_data:
-            logger.g_logger.error(
-                "%s: Compile commands are empty", pkg.full_name
-            )
+            logging.error("%s: Compile commands are empty", pkg.full_name)
 
         assert isinstance(cdb_data, List)
 
@@ -376,7 +374,7 @@ class CdbGenerator:
             except (CdbException, package.PackagePathException) as e:
                 self.package_status["failed_exception"].append(pkg.full_name)
                 if self.keep_going:
-                    logger.g_logger.error(
+                    logging.error(
                         "%s: Failed to fix compile commands: %s",
                         pkg.full_name,
                         e,
@@ -399,7 +397,7 @@ class CdbGenerator:
 
         result_cdb = self._GenerateResultCdb(packages)
 
-        logger.g_logger.info(
+        logging.info(
             "Package CDB Statuses:\n%s",
             json.dumps(self.package_status, indent=2),
         )

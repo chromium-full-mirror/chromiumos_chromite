@@ -4,6 +4,7 @@
 
 """Module to run the whole package-indexing process."""
 
+import logging
 import os
 from typing import List, Optional
 
@@ -12,7 +13,6 @@ from chromite.contrib.package_index_cros.lib import cdb
 from chromite.contrib.package_index_cros.lib import constants
 from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import gn_targets
-from chromite.contrib.package_index_cros.lib import logger
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import package_sleuth
 from chromite.contrib.package_index_cros.lib import setup
@@ -56,7 +56,7 @@ class Conductor:
                 pn for pn in package_names if not pn in unsupported_packages
             ]
 
-            logger.g_logger.warning(
+            logging.warning(
                 "Unsupported input packages: %s",
                 (set(package_names).difference(supported_packages)),
             )
@@ -73,7 +73,7 @@ class Conductor:
             set(p.full_name for p in packages_list)
         ), "Duplicates among packages"
 
-        logger.g_logger.info(
+        logging.info(
             "The following packages are going forward: %s",
             "\n".join([str(p) for p in packages_list]),
         )
@@ -105,7 +105,7 @@ class Conductor:
             except Exception as e:
                 bad_packages.append(p)
                 if keep_going:
-                    logger.g_logger.warning(
+                    logging.warning(
                         "Skipped with initialization failure: %s", e
                     )
                     continue
@@ -117,7 +117,7 @@ class Conductor:
             build_dir_conflicts = build_dir.BuildDirGenerator(
                 self.setup
             ).Generate(self.packages, build_output_dir)
-            logger.g_logger.info("Generated build dir: %s", build_output_dir)
+            logging.info("Generated build dir: %s", build_output_dir)
 
         if cdb_output_file:
             cdb.CdbGenerator(
@@ -126,7 +126,7 @@ class Conductor:
                 file_conflicts=build_dir_conflicts,
                 keep_going=keep_going,
             ).Generate(self.packages, cdb_output_file)
-            logger.g_logger.info("Generated cdb file: %s", cdb_output_file)
+            logging.info("Generated cdb file: %s", cdb_output_file)
 
         if targets_output_file:
             gn_targets.GnTargetsGenerator(
@@ -135,11 +135,9 @@ class Conductor:
                 file_conflicts=build_dir_conflicts,
                 keep_going=keep_going,
             ).Generate(self.packages, targets_output_file)
-            logger.g_logger.info(
-                "Generated targets file: %s", targets_output_file
-            )
+            logging.info("Generated targets file: %s", targets_output_file)
 
-        logger.g_logger.info("Done")
+        logging.info("Done")
 
     @staticmethod
     def _GetSortedPackages(

@@ -6,11 +6,11 @@
 
 import filecmp
 import json
+import logging
 import os
 from typing import Any, Callable, Dict, List, Optional
 
 from chromite.contrib.package_index_cros.lib import cros_sdk
-from chromite.contrib.package_index_cros.lib import logger
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import path_handler
 from chromite.contrib.package_index_cros.lib import setup
@@ -107,7 +107,7 @@ class GnTargets:
 
         if not filecmp.cmp(temp_script_file, actual_script_file):
             if self.package.is_highly_volatile:
-                logger.g_logger.debug(
+                logging.debug(
                     "%s: Temp and actual scripts differ. "
                     "Possibly patches: %s vs %s",
                     self.package.full_name,
@@ -263,7 +263,7 @@ class GnTargetsMerger:
                 self.data[target] = new_targets.data[target]
                 continue
 
-            logger.g_logger.debug(
+            logging.debug(
                 "%s: Merging existing target: %s",
                 new_targets.package.full_name,
                 target,
@@ -282,7 +282,7 @@ class GnTargetsMerger:
                     # Fields equal. Nothing  to merge.
                     continue
 
-                logger.g_logger.debug(
+                logging.debug(
                     "%s: %s: Merging existing field: %s",
                     new_targets.package.full_name,
                     target,
@@ -350,11 +350,11 @@ class GnTargetsGenerator:
         targets_str = targets_str[
             targets_str.find("{") : targets_str.rfind("}") + 1
         ]
-        logger.g_logger.debug("%s: Generated targets", pkg.full_name)
+        logging.debug("%s: Generated targets", pkg.full_name)
 
         targets_data = json.loads(targets_str)
         if not targets_data:
-            logger.g_logger.error("%s: gn targets are empty", pkg)
+            logging.error("%s: gn targets are empty", pkg)
 
         if not isinstance(targets_data, Dict):
             raise NotImplementedError(
@@ -378,13 +378,13 @@ class GnTargetsGenerator:
             try:
                 new_targets = self._GenerateTargetsForPackage(pkg).Fix()
                 result_targets.Append(new_targets)
-                logger.g_logger.debug("%s: targets merged", pkg.full_name)
+                logging.debug("%s: targets merged", pkg.full_name)
             except (
                 GnTargetsMergeException,
                 package.PackagePathException,
             ) as e:
                 if self.keep_going:
-                    logger.g_logger.error(
+                    logging.error(
                         "%s: Failed to fix gn targets: %s", pkg.full_name, e
                     )
                 else:
