@@ -646,6 +646,7 @@ class UploadPrebuiltPackagesTest(cros_test_lib.RunCommandTestCase):
             ["--binhost-conf-dir", expected_binhost_conf_dir],
             ["--upload-board-tarball"],
             ["--prepackaged-tarball", expected_prepackaged_tarball],
+            ["--no-sync-remote-latest-sdk-file"],
         ]
 
         # Act

@@ -786,6 +786,9 @@ def UploadPrebuiltPackages(
                 constants.SOURCE_ROOT,
                 "src/third_party/chromiumos-overlay/chromeos/binhost",
             ),
+            # upload_prebuilts updates cros-latest-sdk.conf by default, but
+            # we only want to upload the prebuilts here, so turn it off.
+            "--no-sync-remote-latest-sdk-file",
         ],
         check=True,
     )
