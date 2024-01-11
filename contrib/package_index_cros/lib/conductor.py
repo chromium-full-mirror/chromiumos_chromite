@@ -91,7 +91,7 @@ class Conductor:
         cdb_output_file: str = None,
         targets_output_file: str = None,
         build_output_dir: str = None,
-        keep_going: bool = False,
+        fail_fast: bool = False,
     ):
         """Call generators one by one.
 
@@ -103,13 +103,11 @@ class Conductor:
             try:
                 p.Initialize()
             except Exception as e:
+                logging.warning("Skipped with initialization failure: %s", e)
                 bad_packages.append(p)
-                if keep_going:
-                    logging.warning(
-                        "Skipped with initialization failure: %s", e
-                    )
-                    continue
-                raise e
+                if fail_fast:
+                    raise e
+
         self.packages = [p for p in self.packages if p not in bad_packages]
 
         build_dir_conflicts = {}
@@ -124,7 +122,7 @@ class Conductor:
                 self.setup,
                 result_build_dir=build_output_dir,
                 file_conflicts=build_dir_conflicts,
-                keep_going=keep_going,
+                fail_fast=fail_fast,
             ).Generate(self.packages, cdb_output_file)
             logging.info("Generated cdb file: %s", cdb_output_file)
 
@@ -133,7 +131,7 @@ class Conductor:
                 self.setup,
                 result_build_dir=build_output_dir,
                 file_conflicts=build_dir_conflicts,
-                keep_going=keep_going,
+                fail_fast=fail_fast,
             ).Generate(self.packages, targets_output_file)
             logging.info("Generated targets file: %s", targets_output_file)
 

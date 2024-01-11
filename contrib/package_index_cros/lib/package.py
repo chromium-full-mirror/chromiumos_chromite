@@ -84,6 +84,11 @@ def GetPackageSupport(
         setup_data.manifest,
     )
 
+    # We don't want to disqualify virtual packages from the dep graph expansion.
+    def IsVirtual():
+        if ebuild.category == "virtual":
+            return True
+
     def HasLocalSource():
         # Project is CROS_WORKON_PROJECT in ebuild file.
         # Srcdir is CROS_WORKON_LOCALNAME in ebuild file.
@@ -149,6 +154,9 @@ def GetPackageSupport(
         # * chromeos-base/avtest_label_detect
 
         return True
+
+    if IsVirtual():
+        return PackageSupport.SUPPORTED
 
     if not HasLocalSource():
         return PackageSupport.NO_LOCAL_SOURCE

@@ -77,13 +77,12 @@ def _BuildParser():
     )
 
     parser.add_argument(
-        "--keep-going",
-        "--keep_going",
-        action="store_true",
+        "--fail-fast",
+        "--fail_fast",
         default=False,
-        dest="keep_going",
+        dest="fail_fast",
         help="""\
-    If set, skips failed packages and continues execution.""",
+    If set, stops on first failed package.""",
     )
 
     parser.add_argument(
@@ -225,5 +224,5 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
         cdb_output_file=args.compile_commands_file,
         targets_output_file=args.gn_targets_file,
         build_output_dir=args.build_dir,
-        keep_going=args.keep_going,
+        fail_fast=args.fail_fast,
     )

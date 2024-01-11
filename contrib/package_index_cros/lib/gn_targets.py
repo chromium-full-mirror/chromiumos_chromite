@@ -312,7 +312,7 @@ class GnTargetsGenerator:
         *,
         result_build_dir: Optional[str] = None,
         file_conflicts: Optional[Dict[str, str]] = None,
-        keep_going: bool = False,
+        fail_fast: bool = False,
     ):
         """Construct a new GnTargetsGenerator instance.
 
@@ -324,12 +324,12 @@ class GnTargetsGenerator:
                 original_artifact_path is an original build artifact in the
                 chroot dir that conflicts between packages, and result_path is
                 the corresponding artifact in |result_build_dir|.
-            keep_going: If given, don't stop generating upon a package failure.
+            fail_fast: If given, stop generating upon a package failure.
         """
         self.setup = setup_data
         self.result_build_dir = result_build_dir
         self.file_conflicts = file_conflicts or {}
-        self.keep_going = keep_going
+        self.fail_fast = fail_fast
 
     def _FindRootDir(self, pkg: package.Package) -> str:
         """Returns a dir from which it's possible to generate gn targets."""
@@ -383,11 +383,10 @@ class GnTargetsGenerator:
                 GnTargetsMergeException,
                 package.PackagePathException,
             ) as e:
-                if self.keep_going:
-                    logging.error(
-                        "%s: Failed to fix gn targets: %s", pkg.full_name, e
-                    )
-                else:
+                logging.error(
+                    "%s: Failed to fix gn targets: %s", pkg.full_name, e
+                )
+                if self.fail_fast:
                     raise e
 
         return result_targets.data

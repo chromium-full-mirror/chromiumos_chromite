@@ -316,7 +316,7 @@ class CdbGenerator:
         *,
         result_build_dir: str = None,
         file_conflicts: Optional[Dict[str, str]] = None,
-        keep_going: bool = False,
+        fail_fast: bool = False,
     ):
         """Initialize a new CdbGenerator instance.
 
@@ -328,12 +328,12 @@ class CdbGenerator:
                 original_artifact_path is an original build artifact in the
                 chroot dir that conflicts between packages, and result_path is
                 the corresponding artifact in |result_build_dir|.
-            keep_going: If given, don't stop generating upon a package failure.
+            fail_fast: If given, stop generating upon a package failure.
         """
         self.setup = setup_data
         self.result_build_dir = result_build_dir
         self.file_conflicts = file_conflicts or {}
-        self.keep_going = keep_going
+        self.fail_fast = fail_fast
         self.package_status = collections.defaultdict(list)
 
     def _GenerateCdbForPackage(
@@ -373,13 +373,12 @@ class CdbGenerator:
                 result_cdb_data.extend(cdb_data)
             except (CdbException, package.PackagePathException) as e:
                 self.package_status["failed_exception"].append(pkg.full_name)
-                if self.keep_going:
-                    logging.error(
-                        "%s: Failed to fix compile commands: %s",
-                        pkg.full_name,
-                        e,
-                    )
-                else:
+                logging.warning(
+                    "%s: Failed to fix compile commands: %s",
+                    pkg.full_name,
+                    e,
+                )
+                if self.fail_fast:
                     raise e
             self.package_status["success"].append(pkg.full_name)
 
