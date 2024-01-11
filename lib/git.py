@@ -949,7 +949,6 @@ def Clone(
 def ShallowFetch(
     git_repo: Union[str, "os.PathLike[str]"],
     git_url: str,
-    sparse_checkout: Optional[List[str]] = None,
     commit: Optional[str] = None,
 ) -> None:
     """Fetch a shallow git repository.
@@ -957,19 +956,10 @@ def ShallowFetch(
     Args:
         git_repo: Path of the git repo.
         git_url: Url to fetch the git repository from.
-        sparse_checkout: List of file paths to fetch.
         commit: Commit to fetch (defaults to HEAD).
     """
     Init(git_repo)
     RunGit(git_repo, ["remote", "add", "origin", git_url])
-    if sparse_checkout is not None:
-        assert isinstance(sparse_checkout, list)
-        RunGit(git_repo, ["config", "core.sparsecheckout", "true"])
-        osutils.WriteFile(
-            os.path.join(git_repo, ".git/info/sparse-checkout"),
-            "\n".join(sparse_checkout),
-        )
-        logger.info("Sparse checkout: %s", sparse_checkout)
 
     # Only fetch TOT git metadata without revision history.
     cmd = ["fetch", "--depth=1"]
@@ -982,7 +972,7 @@ def ShallowFetch(
         stderr=True,
         stdout=None,
     )
-    # Pull the files in sparse_checkout.
+    # Checkout the commit.
     RunGit(
         git_repo,
         ["pull", "origin", "HEAD"],

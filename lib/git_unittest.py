@@ -142,29 +142,6 @@ Change-Id: %s
         )
         self.assertNotExists(sparse_checkout)
 
-    def testShallowFetchSparseCheckout(self) -> None:
-        url = "http://happy/git/repo"
-
-        sparse_checkout = os.path.join(
-            self.fake_git_dir, ".git", "info", "sparse-checkout"
-        )
-        osutils.SafeMakedirs(os.path.dirname(sparse_checkout))
-
-        git.ShallowFetch(
-            self.fake_git_dir, url, sparse_checkout=["dir1/file1", "dir2/file2"]
-        )
-
-        # Should have created the git repo directory, if it didn't exist.
-        self.assertExists(self.fake_git_dir)
-        self.assertCommandContains(["init"])
-        self.assertCommandContains(["config", "core.sparsecheckout", "true"])
-        self.assertCommandContains(["remote", "add", "origin", url])
-        self.assertCommandContains(["fetch", "--depth=1"])
-        self.assertCommandContains(["pull", "origin", "HEAD"])
-        self.assertEqual(
-            osutils.ReadFile(sparse_checkout), "dir1/file1\ndir2/file2"
-        )
-
     def testFindGitTopLevel(self) -> None:
         git.FindGitTopLevel(self.fake_path)
         self.assertCommandContains(["--show-toplevel"])
