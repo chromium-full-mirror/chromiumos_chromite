@@ -1196,6 +1196,8 @@ def _BazelBuild(
             [
                 BAZEL_COMMAND,
                 "cquery",
+                # Makes it so we don't need to download distfiles or chrome src.
+                "--//bazel/portage:omit_ebuild_src",
                 # pylint: disable=line-too-long
                 """
 let targets =
