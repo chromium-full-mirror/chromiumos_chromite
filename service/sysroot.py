@@ -1232,6 +1232,8 @@ in
                 BAZEL_COMMAND,
                 "build",
                 "--profile=" + BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
+                "--experimental_profile_include_target_label",
+                "--experimental_profile_include_primary_output",
                 "--execution_log_binary_file="
                 + BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
                 "--execution_log_sort=false",
