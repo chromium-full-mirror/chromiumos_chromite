@@ -37,6 +37,7 @@ from chromite.lib import config_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.utils import file_util
+from chromite.utils import timer
 
 
 logger = chromite.ChromiteLogger.getLogger(__name__)
@@ -944,6 +945,7 @@ def Clone(
     RunGit(dest_path, cmd, print_cmd=True)
 
 
+@timer.timed("ShallowFetch completed in")
 def ShallowFetch(
     git_repo: Union[str, "os.PathLike[str]"],
     git_url: str,
@@ -969,8 +971,6 @@ def ShallowFetch(
         )
         logger.info("Sparse checkout: %s", sparse_checkout)
 
-    utcnow = datetime.datetime.utcnow
-    start = utcnow()
     # Only fetch TOT git metadata without revision history.
     cmd = ["fetch", "--depth=1"]
     if commit:
@@ -990,7 +990,6 @@ def ShallowFetch(
         stderr=True,
         stdout=None,
     )
-    logger.info("ShallowFetch completed in %s.", utcnow() - start)
 
 
 def FindGitTopLevel(path: Union[str, "os.PathLike[str]"]) -> Optional[str]:
