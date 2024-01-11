@@ -187,10 +187,10 @@ class ChromeLKGMCommitter:
     # https://source.chromium.org/chromium/chromium/src/+/main:infra/config/subprojects/chrome/try.star.
     _PRESUBMIT_BOTS = (
         "chromeos-betty-pi-arc-chrome",
-        "chromeos-eve-chrome",
-        "chromeos-jacuzzi-chrome",
-        "chromeos-octopus-chrome",
+        "chromeos-brya-chrome-skylab",
+        "chromeos-jacuzzi-chrome-skylab",
         "chromeos-reven-chrome",
+        "chromeos-volteer-chrome-skylab",
     )
     # Files needed in a local checkout to successfully update the LKGM. The
     # OWNERS file allows the --tbr-owners mechanism to select an appropriate
