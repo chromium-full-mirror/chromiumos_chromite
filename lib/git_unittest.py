@@ -114,7 +114,7 @@ Change-Id: %s
         self.assertCommandContains(["init"])
         self.assertCommandContains(["remote", "add", "origin", url])
         self.assertCommandContains(["fetch", "--depth=1"])
-        self.assertCommandContains(["pull", "origin", "HEAD"])
+        self.assertCommandContains(["checkout", "FETCH_HEAD"])
 
         sparse_checkout = os.path.join(
             self.fake_git_dir, ".git", "info", "sparse-checkout"
@@ -135,7 +135,7 @@ Change-Id: %s
         self.assertCommandContains(["init"])
         self.assertCommandContains(["remote", "add", "origin", url])
         self.assertCommandContains(["fetch", "--depth=1", "origin", "1234"])
-        self.assertCommandContains(["pull", "origin", "HEAD"])
+        self.assertCommandContains(["checkout", "FETCH_HEAD"])
 
         sparse_checkout = os.path.join(
             self.fake_git_dir, ".git", "info", "sparse-checkout"

@@ -972,10 +972,11 @@ def ShallowFetch(
         stderr=True,
         stdout=None,
     )
-    # Checkout the commit.
+    # Checkout the commit.  The fetch above will update symbolic FETCH_HEAD to
+    # whatever commit it actually fetched.
     RunGit(
         git_repo,
-        ["pull", "origin", "HEAD"],
+        ["checkout", "FETCH_HEAD"],
         print_cmd=True,
         stderr=True,
         stdout=None,
