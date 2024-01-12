@@ -31,8 +31,6 @@ DEFINE_string chrome_root_mount "/home/${SUDO_USER}/chrome_root" \
   "The mount point of the chrome broswer source in the chroot."
 DEFINE_string cache_dir "" "Directory to use for caching."
 DEFINE_string goma_dir "" "Goma installed directory."
-DEFINE_string reclient_dir "" "Reclient binaries installed directory."
-DEFINE_string reproxy_cfg_file "" "Config file for re-client's reproxy."
 DEFINE_string working_dir "${CHROOT_TRUNK_DIR}/src/scripts" \
   "The working directory relative to ${CHROOT_TRUNK_DIR} for the command in \
 chroot, must start with '/' if set."
@@ -483,17 +481,6 @@ setup_env() {
           "/home/${SUDO_USER}/.config/${x}"
       fi
     done
-
-    if [[ -n "${FLAGS_reclient_dir}" ]]; then
-      debug "Mounting re-client"
-      setup_mount "${FLAGS_reclient_dir}" "/home/${SUDO_USER}/reclient"
-    fi
-
-    if [[ -n "${FLAGS_reproxy_cfg_file}" ]]; then
-      debug "Mounting reproxy config file."
-      setup_mount "${FLAGS_reproxy_cfg_file}" \
-        "/home/${SUDO_USER}/reclient_cfgs/reproxy_chroot.cfg"
-    fi
 
     if [[ -n "${FLAGS_goma_dir}" ]]; then
       debug "Mounting goma"
