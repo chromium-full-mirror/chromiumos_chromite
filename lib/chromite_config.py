@@ -28,6 +28,8 @@ AUTO_COP_CONFIG_OFF = DIR / "autocop-off"
 
 SDK_READONLY_STICKY_CONFIG = DIR / "sdk-readonly-sticky"
 
+SDK_UPDATE_STICKY_CONFIG = DIR / "sdk-update-sticky"
+
 TELEMETRY_CONFIG = DIR / "telemetry.cfg"
 
 # Mapping of names to constants to simplify unit test mocking.
@@ -37,6 +39,7 @@ ALL_CONFIGS = {
     "CHROME_SDK_BASHRC": CHROME_SDK_BASHRC.name,
     "GERRIT_CONFIG": GERRIT_CONFIG.name,
     "SDK_READONLY_STICKY_CONFIG": SDK_READONLY_STICKY_CONFIG.name,
+    "SDK_UPDATE_STICKY_CONFIG": SDK_UPDATE_STICKY_CONFIG.name,
     "TELEMETRY_CONFIG": TELEMETRY_CONFIG.name,
 }
 

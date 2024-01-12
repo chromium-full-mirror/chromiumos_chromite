@@ -596,9 +596,15 @@ def _CreateParser(
     )
     group.add_bool_argument(
         "--update",
-        default=False,
+        default=None,
         enabled_desc="Update the SDK upon entry",
         disabled_desc="Do not update the SDK upon entry",
+    )
+    group.add_bool_argument(
+        "--update-sticky",
+        default=False,
+        enabled_desc="Remember the --[no-]update setting for future runs.",
+        disabled_desc="Leave --[no-]update stickiness alone.",
     )
     group.add_argument(
         "--download",
@@ -741,6 +747,12 @@ def _FinalizeOptions(
             "--no-read-only does not make sense."
         )
 
+    if options.update is None and options.update_sticky:
+        parser.error(
+            "Specifying --update-sticky without --update or --no-update "
+            "does not make sense."
+        )
+
     chromite_config.initialize()
     osutils.SafeMakedirsNonRoot(xdg_util.CACHE_HOME)
     ro_cfg = chromite_config.SDK_READONLY_STICKY_CONFIG
@@ -748,6 +760,11 @@ def _FinalizeOptions(
         # Defer to sticky configuration file only if --read-only/--no-read-only
         # were not provided.
         options.read_only = ro_cfg.exists()
+
+    update_cfg = chromite_config.SDK_UPDATE_STICKY_CONFIG
+    if options.update is None:
+        # Defer to configuration file.
+        options.update = update_cfg.exists()
 
     options.Freeze()
 
@@ -761,6 +778,17 @@ def _FinalizeOptions(
             if ro_cfg.exists():
                 logging.warning("Making cros_sdk --no-read-only sticky")
                 ro_cfg.unlink()
+
+    if options.update_sticky:
+        # Notify the user when toggling stickiness.
+        if options.update:
+            if not update_cfg.exists():
+                logging.warning("Making cros_sdk --update sticky")
+            update_cfg.touch()
+        else:
+            if update_cfg.exists():
+                logging.warning("Making cros_sdk --no-update sticky")
+                update_cfg.unlink()
 
 
 def main(argv) -> None:

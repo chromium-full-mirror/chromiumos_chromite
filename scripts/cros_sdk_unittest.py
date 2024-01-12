@@ -5,6 +5,7 @@
 """Tests for cros_sdk."""
 
 import os
+from pathlib import Path
 import re
 import sys
 from typing import List, Optional
@@ -286,7 +287,7 @@ def test_readonly_configuration(
     """Test read-only configuration file and flags."""
     conf_file = tmp_path / "readonlyconf"
     if confcontents is not None:
-        conf_file.write_text(confcontents)
+        conf_file.touch()
     monkeypatch.setattr(
         chromite_config, "SDK_READONLY_STICKY_CONFIG", conf_file
     )
@@ -336,6 +337,45 @@ def test_readonly_sticky(
     cros_sdk._FinalizeOptions(parser, options, commands)
 
     assert conf_file.exists() == expect_conf_exists
+
+
+@pytest.mark.parametrize(
+    ["conf_exists", "arglist", "new_conf_exists"],
+    (
+        (False, [], False),
+        (False, ["--update"], False),
+        (False, ["--no-update"], False),
+        (True, ["--update"], True),
+        (True, ["--no-update"], True),
+        (False, ["--update", "--update-sticky"], True),
+        (True, ["--no-update", "--update-sticky"], False),
+        (True, ["--update", "--update-sticky"], True),
+        (False, ["--no-update", "--update-sticky"], False),
+    ),
+)
+def test_update_sticky(
+    monkeypatch: "pytest.MonkeyPatch",
+    tmp_path: Path,
+    conf_exists: bool,
+    arglist: List[str],
+    new_conf_exists: bool,
+) -> None:
+    """Test that we write expected update-sticky contents.
+
+    conf_exists: Whether the config file exists originally.
+    arglist: The cros_sdk argument list to test.
+    new_conf_exists: Whether we expect the conf file to exist.
+    """
+    conf_file = tmp_path / "fake-conf"
+    if conf_exists:
+        conf_file.touch()
+    monkeypatch.setattr(chromite_config, "SDK_UPDATE_STICKY_CONFIG", conf_file)
+
+    parser, commands = cros_sdk._CreateParser("1", "2")
+    options = parser.parse_args(arglist)
+    cros_sdk._FinalizeOptions(parser, options, commands)
+
+    assert conf_file.exists() == new_conf_exists
 
 
 @pytest.mark.parametrize(
