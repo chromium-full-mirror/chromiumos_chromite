@@ -28,6 +28,11 @@ find_src_scripts() {
 
     if [[ -d "${search_dir}/.repo" ]]; then
       echo "${search_dir}/src/scripts"
+     return
+    fi
+
+    if [[ -d "${search_dir}/.citc" ]]; then
+      echo "${search_dir}/chrome-internal/src/scripts"
       return
     fi
   done
