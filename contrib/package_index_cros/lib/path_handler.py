@@ -177,7 +177,7 @@ class PathHandler:
 
         actual_path = os.path.realpath(Fix())
         Check(actual_path)
-        return PathHandler.FixedPath(path, actual_path)
+        return FixedPath(path, actual_path)
 
     def _FixPathFromBasedir(
         self,
@@ -240,7 +240,7 @@ class PathHandler:
                 actual_path = os.path.join(
                     actual_path_basedir, chroot_path_basename
                 )
-                return PathHandler.FixedPath(path, actual_path)
+                return FixedPath(path, actual_path)
             except PathNotFixedException:
                 # If base directory fixing fails, move up one directory level
                 # and repeat.
@@ -357,7 +357,7 @@ class PathHandler:
                     pkg.full_name,
                     path,
                 )
-                return PathHandler.FixedPath(path, path)
+                return FixedPath(path, path)
 
             def CanIgnoreFailure() -> bool:
                 if ignore_highly_volatile and pkg.is_highly_volatile:
