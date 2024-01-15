@@ -394,11 +394,6 @@ def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
             # qemu, but nothing else currently.
             pass
 
-    if "configfs" in KNOWN_FILESYSTEMS:
-        osutils.Mount(
-            "configfs", path / "sys/kernel/config", "configfs", defflags
-        )
-
     # We expose /dev so we can access loopback & USB drives for flashing.
     osutils.Mount("/dev", path / "dev", None, osutils.MS_BIND | osutils.MS_REC)
 
