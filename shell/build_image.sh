@@ -43,33 +43,6 @@ DEFINE_integer loglevel 7 \
 DEFINE_string builder_path "" \
   "The build_name to be installed on DUT during hwtest."
 
-
-FLAGS_HELP="USAGE: build_image [flags] [list of images to build].
-This script is used to build a Chromium OS image. Chromium OS comes in many
-different forms.  This scripts can be used to build the following:
-
-base - Pristine Chromium OS image. As similar to Chrome OS as possible.
-dev [default] - Developer image. Like base but with additional dev packages.
-test - Like dev, but with additional test specific packages and can be easily
-  used for automated testing using scripts like test_that, etc.
-factory_install - Install shim for bootstrapping the factory test process.
-  Cannot be built along with any other image.
-
-Examples:
-
-build_image --board=<board> dev test - builds developer and test images.
-build_image --board=<board> factory_install - builds a factory install shim.
-
-Note if you want to build an image with custom size partitions, either consider
-adding a new disk layout in build_library/legacy_disk_layout.json OR use
-adjust_part. See the help above but here are a few examples:
-
-adjust_part='STATE:+1G' -- add one GB to the size the stateful partition
-adjust_part='ROOT-A:-1G' -- remove one GB from the primary rootfs partition
-adjust_part='STATE:=1G' --  make the stateful partition 1 GB
-...
-"
-
 # The following options are advanced options, only available to those willing
 # to read the source code. They are not shown in help output, since they are
 # not needed for the typical developer workflow.
