@@ -34,7 +34,8 @@
           "board_group": "",
           "arch": "X86_INTERNAL",
           "board_variant": "arc-r",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 103
@@ -49,7 +50,8 @@
           "board_group": "",
           "arch": "UNKNOWN",
           "board_variant": "arc-r-container",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 108
@@ -64,7 +66,8 @@
           "board_group": "",
           "arch": "X86_INTERNAL",
           "board_variant": "arc-t",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 108
@@ -79,7 +82,8 @@
           "board_group": "",
           "arch": "UNKNOWN",
           "board_variant": "arc-v",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 108
@@ -94,7 +98,8 @@
           "board_group": "",
           "arch": "X86_INTERNAL",
           "board_variant": "kernelnext",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 108
@@ -109,7 +114,8 @@
           "board_group": "vm builds",
           "arch": "X86_INTERNAL",
           "board_variant": "pi-arc",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -170,7 +176,8 @@
           "board_group": "",
           "arch": "UNKNOWN",
           "board_variant": "labstation",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -230,7 +237,8 @@
           "board_group": "",
           "arch": "UNKNOWN",
           "board_variant": "arc-t",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -246,7 +254,8 @@
           "board_group": "",
           "arch": "UNKNOWN",
           "board_variant": "kernelnext",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -262,7 +271,8 @@
           "board_group": "",
           "arch": "X86_INTERNAL",
           "board_variant": "vmtest",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -529,7 +539,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "connectivitynext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "asurada-kernelnext",
@@ -582,7 +593,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "atlas",
@@ -635,7 +647,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "connectivitynext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "atlas-kernelnext",
@@ -668,7 +681,8 @@
       "rubik_target_milestone": 102,
       "stable_target_milestone": 101,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "atlas-signingnext",
@@ -910,7 +924,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "borealis",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "brask",
@@ -1156,7 +1171,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 114,
       "board_variant": "labstation",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "brya",
@@ -1931,7 +1947,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 116,
       "board_variant": "arc-t",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "brya-connectivitynext",
@@ -2150,7 +2167,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "connectivitynext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "brya-gki",
@@ -2378,7 +2396,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "gki",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "brya-hibernate",
@@ -2692,7 +2711,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 120,
       "board_variant": "hibernate",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "brya-kernelnext",
@@ -3089,7 +3109,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 116,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "brya-pvs",
@@ -3308,7 +3329,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "pvs",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "cherry",
@@ -4044,7 +4066,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "arc-t",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "corsola-kernelnext",
@@ -5621,7 +5644,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 130,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "dedede-pvs",
@@ -6087,7 +6111,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 119,
       "board_variant": "pvs",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "dedede-pvs-lab",
@@ -6541,7 +6566,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 120,
       "board_variant": "pvs-lab",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "drallion",
@@ -6664,7 +6690,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 120,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "elm",
@@ -6717,7 +6744,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "connectivitynext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "elm-kernelnext",
@@ -6751,7 +6779,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 117,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "endeavour",
@@ -6836,7 +6865,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "arc-r",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "eve-arm64",
@@ -6857,7 +6887,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "arm64",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "eve-kernelnext",
@@ -6889,7 +6920,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "eve-userdebug",
@@ -6910,7 +6942,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "userdebug",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "excelsior",
@@ -7096,7 +7129,8 @@
       "rubik_target_milestone": 103,
       "stable_target_milestone": 86,
       "board_variant": "labstation",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "fizz-moblab",
@@ -7584,7 +7618,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "guybrush",
@@ -7704,7 +7739,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "arc-t",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "guybrush-kernelnext",
@@ -7752,7 +7788,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "hana",
@@ -7999,7 +8036,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 117,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "hatch",
@@ -8328,7 +8366,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "arc-r-userdebug",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "hatch-arc-t",
@@ -8578,7 +8617,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 115,
       "board_variant": "arc-t",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "hatch-connectivitynext",
@@ -8707,7 +8747,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "connectivitynext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "hatch-gki",
@@ -8836,7 +8877,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "gki",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "hatch-kernelnext",
@@ -8990,7 +9032,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "jacuzzi",
@@ -9582,7 +9625,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "jacuzzi64",
@@ -10000,7 +10044,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "kukui64",
@@ -10495,7 +10540,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "nami-scudo",
@@ -10588,7 +10634,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "scudo",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "nautilus",
@@ -11488,7 +11535,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "arc-t",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "nissa-pvs",
@@ -11752,7 +11800,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "pvs",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "nocturne",
@@ -11816,7 +11865,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "octopus",
@@ -13000,7 +13050,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "arc-r",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "octopus-arc-t",
@@ -13823,7 +13874,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 119,
       "board_variant": "arc-t",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "octopus-kernelnext",
@@ -14501,7 +14553,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 110,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "ovis",
@@ -14803,7 +14856,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 120,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "puff-moblab",
@@ -14948,7 +15002,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "arc-r-userdebug",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "reef",
@@ -15370,7 +15425,8 @@
       "rubik_target_milestone": 103,
       "stable_target_milestone": 78,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "skyrim",
@@ -15577,7 +15633,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "arc-t",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "skyrim-chausie",
@@ -15670,7 +15727,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "chausie",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "skyrim-kernelnext",
@@ -15756,7 +15814,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 112,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "snappy",
@@ -15857,7 +15916,8 @@
       "rubik_target_milestone": 103,
       "stable_target_milestone": 57,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "soraka",
@@ -15911,7 +15971,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "libcamera",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "staryu",
@@ -16148,7 +16209,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "strongbad-userdebug",
@@ -16205,7 +16267,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "userdebug",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "trogdor",
@@ -16416,7 +16479,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "connectivitynext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "trogdor-kernelnext",
@@ -16518,7 +16582,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "trogdor-userdebug",
@@ -16593,7 +16658,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "userdebug",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "volteer",
@@ -17227,7 +17293,8 @@
       ],
       "rubik_target_milestone": 103,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "volteer-scudo",
@@ -17365,7 +17432,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "scudo",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "zork",
@@ -17743,7 +17811,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "connectivitynext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "zork-kernelnext",
@@ -17898,7 +17967,8 @@
       ],
       "rubik_target_milestone": 108,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     }
   ]
 }
