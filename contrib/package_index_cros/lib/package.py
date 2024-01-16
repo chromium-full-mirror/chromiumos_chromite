@@ -86,8 +86,7 @@ def GetPackageSupport(
 
     # We don't want to disqualify virtual packages from the dep graph expansion.
     def IsVirtual():
-        if ebuild.category == "virtual":
-            return True
+        return ebuild.category == "virtual"
 
     def HasLocalSource():
         # Project is CROS_WORKON_PROJECT in ebuild file.
