@@ -26,7 +26,8 @@
           "board_group": "vm builds",
           "arch": "X86_INTERNAL",
           "board_variant": "pi-arc",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -57,7 +58,8 @@
           "board_group": "",
           "arch": "UNKNOWN",
           "board_variant": "labstation",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -88,7 +90,8 @@
           "board_group": "",
           "arch": "UNKNOWN",
           "board_variant": "arc-t",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -104,7 +107,8 @@
           "board_group": "",
           "arch": "UNKNOWN",
           "board_variant": "kernelnext",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -120,7 +124,8 @@
           "board_group": "",
           "arch": "X86_INTERNAL",
           "board_variant": "vmtest",
-          "build_cadence": "DAILY_CADENCE"
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
         }
       ],
       "rubik_target_milestone": 108,
@@ -324,7 +329,8 @@
       "rubik_target_milestone": 102,
       "stable_target_milestone": 101,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "aurora",
@@ -681,7 +687,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 114,
       "board_variant": "labstation",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "brya",
@@ -1456,7 +1463,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 116,
       "board_variant": "arc-t",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "brya-kernelnext",
@@ -1853,7 +1861,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 116,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "cherry",
@@ -3947,7 +3956,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 119,
       "board_variant": "pvs",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "drallion",
@@ -4087,7 +4097,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 117,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "endeavour",
@@ -4326,7 +4337,8 @@
       "rubik_target_milestone": 103,
       "stable_target_milestone": 86,
       "board_variant": "labstation",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "fizz-moblab",
@@ -4940,7 +4952,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 117,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "hatch",
@@ -5408,7 +5421,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 115,
       "board_variant": "arc-t",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "jacuzzi",
@@ -8486,7 +8500,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 119,
       "board_variant": "arc-t",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "octopus-kernelnext",
@@ -9164,7 +9179,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 110,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "puff",
@@ -9677,7 +9693,8 @@
       "rubik_target_milestone": 103,
       "stable_target_milestone": 78,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "skyrim",
@@ -9886,7 +9903,8 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 112,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "snappy",
@@ -9987,7 +10005,8 @@
       "rubik_target_milestone": 103,
       "stable_target_milestone": 57,
       "board_variant": "kernelnext",
-      "build_cadence": "DAILY_CADENCE"
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "soraka",
