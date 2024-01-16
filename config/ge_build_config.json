@@ -3263,6 +3263,16 @@
         },
         {
           "board_name": "dedede",
+          "name": "palutena",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 419,
+          "is_active": true,
+          "stable_target_milestone": 122,
+          "is_experimental": false
+        },
+        {
+          "board_name": "dedede",
           "name": "pasara",
           "test_suites": [
             "sanity",
