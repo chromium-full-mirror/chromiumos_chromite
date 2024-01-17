@@ -1287,30 +1287,32 @@ def uprev_starbase_artifacts(
 ) -> uprev_lib.UprevVersionedPackageResult:
     """Updates one or more starbase ebuilds to fetch their latest tar file.
 
-    Additional documentation at go/starbase-rapid-pupr.
+    Additional documentation at go/starbase-rapid-pupr.  However, the source of
+    truth for the naming convention is the script verify_pupr_workflow.py in
+    vr/stargate/starbase.
 
-    This function is triggered by a Rapid workflow that builds a one or more
-    tar files and uploads them to chromeos-localmirror-private, so that the
-    next CrOS build can pick up these tar files and install their content on
-    the CrOS image.
+    This function is triggered by a Rapid workflow that builds one or more tar
+    files and uploads them to chromeos-localmirror-private, so that the next
+    CrOS build can pick up these tar files and install their content on the
+    CrOS image.
 
     The function takes one "refs" argument of type GitRef, but there is no git
     tag push in the Rapid workflow.  Instead "refs" is repurposed for our
     needs as follows.  Let's define these variables (they are all strings):
 
     CATEGORY = package category.  Example: chromeos-base
-    PACKAGE_NAME = name of the package.  Example: starbase-artifacts
+    PACKAGE_NAME = name of the package.  Example: starbase-starcam-app
     PACKAGE_VERSION = package version, excluding revision.  Example: 0.0.1
 
     TARFILE_NAME = name of the tarfile created for a package.  Example:
-      starbase_client_tarfile.tar.zst
+      starbase_starcam_app_tarfile.tar.zst
     TARFILE_HASH = cryptographic hash of the tarfile.
 
     The ebuild file name is PACKAGE_NAME-PACKAGE_VERSION.ebuild, and its
     directory (relative to the overlay root) is CATEGORY/PACKAGE_NAME.  Thus
     the relative pathname of the ebuild can be, for instance:
 
-    chromeos-base/starbase-artifacts/starbase-artifacts-0.0.1.ebuild
+    chromeos-base/starbase-starcam-app/starbase-starcam-app-0.0.1.ebuild
 
     We pass these values in the ref (the / characters appear literally in the
     string, and the first one is the delimiter):
@@ -1328,7 +1330,8 @@ def uprev_starbase_artifacts(
     Define a few more variables:
 
     PACKAGE_VERSION = whatever the current ebuild uses.  It can only be
-    changed with a manual CL.
+    changed with a manual CL, as this workflow only changes the revision number
+    (the # in "...-r#.ebuild").
 
     VERSION_ID = the version ID of the tar file, which is also the version ID
     of the Rapid "release candidate" of the workflow that generated and
@@ -1338,11 +1341,11 @@ def uprev_starbase_artifacts(
 
     The tar file stored at this GS path:
 
-    GS_MIRROR/distfiles/starbase/VERSION_ID/PACKAGE_NAME.tar.zst
+    GS_MIRROR/distfiles/starbase/VERSION_ID/TARFILE_NAME
 
     For instance:
 
-    GS_MIRROR/distfiles/starbase/20230101-r00-rc001/starbase-artifacts.tar.zst
+    GS_MIRROR/distfiles/starbase/20230101-r00-rc001/starbase-foobar.tar.zst
 
     Note that each directory can contain multiple tar files.  The "refs"
     parameter is a list with one element for each tar file (or package).  Only
