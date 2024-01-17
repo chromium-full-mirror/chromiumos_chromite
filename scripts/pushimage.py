@@ -46,6 +46,7 @@ _SUPPORTED_IMAGE_TYPES = (
     constants.IMAGE_TYPE_ACCESSORY_RWSIG,
     constants.IMAGE_TYPE_BASE,
     constants.IMAGE_TYPE_GSC_FIRMWARE,
+    constants.IMAGE_TYPE_FLEXOR_KERNEL,
 )
 
 
@@ -434,6 +435,7 @@ def PushImage(
         gsc_firmware_basename = _ImageNameBase(
             constants.IMAGE_TYPE_GSC_FIRMWARE
         )
+        flexor_basename = _ImageNameBase(constants.IMAGE_TYPE_FLEXOR_KERNEL)
         test_basename = _ImageNameBase(constants.IMAGE_TYPE_TEST)
         base_basename = _ImageNameBase(constants.IMAGE_TYPE_BASE)
         hwqual_tarball = "chromeos-hwqual-%s-%s.tar.bz2" % (board, versionrev)
@@ -512,6 +514,12 @@ def PushImage(
                 gsc_firmware_basename,
                 "tar.bz2",
                 constants.IMAGE_TYPE_GSC_FIRMWARE,
+            ),
+            (
+                constants.FLEXOR_KERNEL_IMAGE_TAR,
+                flexor_basename,
+                "tar.zstd",
+                constants.IMAGE_TYPE_FLEXOR_KERNEL,
             ),
         )
 
