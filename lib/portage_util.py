@@ -1662,6 +1662,11 @@ class InstalledPackage:
         """The packages we compiled with."""
         return self._read_depend_field("BDEPEND")
 
+    @property
+    def use(self) -> Set[str]:
+        """The effective USE flags from the package build."""
+        return set(self._ReadField("USE").split(" "))
+
     def ListContents(self):
         """List of files and directories installed by this package.
 
