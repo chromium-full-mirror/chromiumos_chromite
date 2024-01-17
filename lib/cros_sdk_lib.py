@@ -1014,16 +1014,12 @@ PORTAGE_USERNAME="{user}"
         ):
             src_dir = Path(self.chroot.path) / chroot_path
             dst_dir = self.chroot.out_path / out_path
-            # out/ destination exists already? Then we're not doing a clean
-            # unpack, and we assume the destination is already set up.
-            if dst_dir.exists():
-                continue
             # chroot source didn't have this path? Then skip it.
             if not src_dir.exists():
                 continue
 
             osutils.SafeMakedirsNonRoot(dst_dir)
-            osutils.MoveDirContents(src_dir, dst_dir)
+            osutils.MoveDirContents(src_dir, dst_dir, allow_nonempty=True)
 
         # Create edb cache stub directories.
         edb_cache_dep = self.chroot.full_path(
