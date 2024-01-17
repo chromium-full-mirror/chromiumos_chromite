@@ -83,7 +83,7 @@ class SystemDetector(resources.ResourceDetector):
             CPU_ARCHITECTURE: platform.machine(),
             CPU_COUNT: os.cpu_count(),
             CPU_NAME: platform.processor(),
-            HOST_TYPE: host_type,
+            HOST_TYPE: host_type.strip(),
             MEMORY_SWAP_TOTAL: mem_info.total_swap_memory,
             MEMORY_TOTAL: mem_info.total_physical_ram,
             OS_NAME: os.name,
