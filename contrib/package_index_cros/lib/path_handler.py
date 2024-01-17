@@ -223,7 +223,7 @@ class PathHandler:
                 PathHandler.SanitizePath(ignorable_dir)
             )
         else:
-            ignorable_dir = chroot_path
+            chroot_ignorable_dir = chroot_path
         assert chroot_ignorable_dir
 
         # Try to fix the base directory of the path. If unsuccessful, move up
