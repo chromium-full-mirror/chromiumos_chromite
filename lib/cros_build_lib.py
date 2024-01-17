@@ -1290,9 +1290,10 @@ def CreateTarball(
         sudo: Whether to run with "sudo".
         compression: The type of compression desired.  See the FindCompressor
             function for details.
-        chroot: See FindCompressor().
-        inputs: A list of files or directories to add to the tarball.  If unset,
-            defaults to ".".
+        chroot: Optionally used for searching the compressor. See
+            FindCompressor().
+        inputs: A list of files or directories relative to `cwd` to add to the
+            tarball. If unset, defaults to ".".
         timeout: The number of seconds to wait on soft failure.
         extra_args: A list of extra args to pass to "tar".
         **kwargs: Any run options/overrides to use.
