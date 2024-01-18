@@ -380,7 +380,8 @@ class CdbGenerator:
                 )
                 if self.fail_fast:
                     raise e
-            self.package_status["success"].append(pkg.full_name)
+            else:
+                self.package_status["success"].append(pkg.full_name)
 
         return result_cdb_data
 
