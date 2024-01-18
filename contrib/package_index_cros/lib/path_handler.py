@@ -32,6 +32,24 @@ class FixedPath(NamedTuple):
     actual: str
 
 
+def SanitizePath(path: str) -> str:
+    """Remove any trailing slashes from |path|."""
+    return path.rstrip(os.path.sep)
+
+
+def MovePath(path: str, from_dir: str, to_dir: str) -> str:
+    """Replace path's base dir |from_dir| with |to_dir|.
+
+    Raises:
+        ValueError: |path| is not in |from_dir|.
+    """
+    if not path.startswith(from_dir):
+        raise ValueError(f"Path is not in dir: {path} vs {from_dir}")
+    return os.path.realpath(
+        os.path.join(to_dir, os.path.relpath(path, from_dir))
+    )
+
+
 class PathHandler:
     """Class with helper methods to convert paths.
 
@@ -40,24 +58,6 @@ class PathHandler:
 
     def __init__(self, setup_data: setup.Setup):
         self.setup = setup_data
-
-    @staticmethod
-    def SanitizePath(path: str) -> str:
-        """Remove any trailing slashes from |path|."""
-        return path.rstrip(os.path.sep)
-
-    @staticmethod
-    def MovePath(path: str, from_dir: str, to_dir: str) -> str:
-        """Replace path's base dir |from_dir| with |to_dir|.
-
-        Raises:
-            ValueError: |path| is not in |from_dir|.
-        """
-        if not path.startswith(from_dir):
-            raise ValueError(f"Path is not in dir: {path} vs {from_dir}")
-        return os.path.realpath(
-            os.path.join(to_dir, os.path.relpath(path, from_dir))
-        )
 
     def FromChroot(self, chroot_path: str):
         return self.setup.chroot.full_path(chroot_path)
@@ -91,7 +91,7 @@ class PathHandler:
         Returns:
             Path outside of chroot if able to move; otherwise, None.
         """
-        chroot_path = PathHandler.SanitizePath(chroot_path)
+        chroot_path = SanitizePath(chroot_path)
 
         assert (
             chroot_base_dir or base_dir
@@ -158,9 +158,7 @@ class PathHandler:
                 if not path.startswith(matching_dirs.temp):
                     continue
                 actual_path = os.path.realpath(
-                    PathHandler.MovePath(
-                        path, matching_dirs.temp, matching_dirs.actual
-                    )
+                    MovePath(path, matching_dirs.temp, matching_dirs.actual)
                 )
                 if os.path.exists(actual_path):
                     return actual_path
@@ -212,16 +210,14 @@ class PathHandler:
         if conflicting_paths is None:
             conflicting_paths = {}
 
-        chroot_path = PathHandler.SanitizePath(chroot_path)
+        chroot_path = SanitizePath(chroot_path)
         chroot_path_base_dir = os.path.dirname(chroot_path)
         chroot_path_basename = os.path.basename(chroot_path)
 
         # Ignorable dir is the uppermost possible parent which may not exist.
         # If not given, use chroot_path as the ignorable dir.
         if ignorable_dir:
-            chroot_ignorable_dir = self.ToChroot(
-                PathHandler.SanitizePath(ignorable_dir)
-            )
+            chroot_ignorable_dir = self.ToChroot(SanitizePath(ignorable_dir))
         else:
             chroot_ignorable_dir = chroot_path
         assert chroot_ignorable_dir
@@ -533,52 +529,50 @@ class PathHandler:
         r")$"
     )
 
-    @staticmethod
-    def FixPathInArgument(
-        arg: str, fixer_callback: Callable[[str], str]
-    ) -> Tuple[str, str]:
-        """Parse |arg| into a prefix and a path.
 
-        See |PathHandler.g_path_regex| for acceptable paths.
-        See |g_argument_prefix_regex| for acceptable arguments.
+def FixPathInArgument(
+    arg: str, fixer_callback: Callable[[str], str]
+) -> Tuple[str, str]:
+    """Parse |arg| into a prefix and a path.
 
-        |fixer_callback| shall have chroot path as an argument and return
-        corresponding actual path.
+    See |PathHandler.g_path_regex| for acceptable paths.
+    See |g_argument_prefix_regex| for acceptable arguments.
 
-        Returns:
-            A tuple of (prefix, actual_path), fixed with the given callback. If
-            the arg cannot be parsed, then default to returning (arg, "").
+    |fixer_callback| shall have chroot path as an argument and return
+    corresponding actual path.
 
-        Raises:
-            PathNotFixedException: |path| cannot be resolved to an actual path.
-            PathNotFixedException: The actual path does not exist.
-        """
-        # Do not sanitize the arg, as it can have trailing separators required
-        # for regex match.
+    Returns:
+        A tuple of (prefix, actual_path), fixed with the given callback. If
+        the arg cannot be parsed, then default to returning (arg, "").
 
-        # Include argument may not have a path with a separator in it which is
-        # required for regex. Handle it separately.
-        if arg[0:2] == "-I":
-            chroot_path = arg[2:]
-            return ("-I", fixer_callback(chroot_path))
+    Raises:
+        PathNotFixedException: |path| cannot be resolved to an actual path.
+        PathNotFixedException: The actual path does not exist.
+    """
+    # Do not sanitize the arg, as it can have trailing separators required
+    # for regex match.
 
-        match = re.match(PathHandler.g_argument_regexes, arg)
-        if not match:
-            if not re.match(PathHandler.g_gn_target_regex, arg):
-                assert (
-                    os.sep not in arg
-                ), f"Unknown arg with possible path: {arg}"
+    # Include argument may not have a path with a separator in it which is
+    # required for regex. Handle it separately.
+    if arg[0:2] == "-I":
+        chroot_path = arg[2:]
+        return ("-I", fixer_callback(chroot_path))
 
-            # Argument is a gn target. Nothing to fix.
+    match = re.match(PathHandler.g_argument_regexes, arg)
+    if not match:
+        if not re.match(PathHandler.g_gn_target_regex, arg):
+            assert os.sep not in arg, f"Unknown arg with possible path: {arg}"
 
-            return (arg, "")
+        # Argument is a gn target. Nothing to fix.
 
-        assert os.sep in arg, f"Unknown arg: {arg}"
-        prefix = match.group(1)
-        chroot_path = match.group(2)
+        return (arg, "")
 
-        if chroot_path[0] == "$":
-            # Path starts with env. Do not fix.
-            return (arg, "")
+    assert os.sep in arg, f"Unknown arg: {arg}"
+    prefix = match.group(1)
+    chroot_path = match.group(2)
 
-        return (prefix, fixer_callback(chroot_path))
+    if chroot_path[0] == "$":
+        # Path starts with env. Do not fix.
+        return (arg, "")
+
+    return (prefix, fixer_callback(chroot_path))

@@ -183,9 +183,7 @@ class GnTargets:
         def Fixer(chroot_path):
             return self._FixPath(chroot_path).actual
 
-        arg_prefix, actual_path = path_handler.PathHandler.FixPathInArgument(
-            arg, Fixer
-        )
+        arg_prefix, actual_path = path_handler.FixPathInArgument(arg, Fixer)
         return arg_prefix + actual_path
 
     def _FixPath(self, chroot_path: str) -> path_handler.FixedPath:
@@ -204,7 +202,7 @@ class GnTargets:
         if fixed_path.actual.startswith(self.package.build_dir):
             return path_handler.FixedPath(
                 fixed_path.original,
-                path_handler.PathHandler.MovePath(
+                path_handler.MovePath(
                     fixed_path.actual, self.package.build_dir, self.build_dir
                 ),
             )
@@ -217,42 +215,31 @@ class GnTargetsMerger:
     def __init__(self):
         self.data = {}
         self.fields_to_resolve = {
-            "all_dependent_configs": GnTargetsMerger._MergeLists,
-            "args": GnTargetsMerger._IgnoreNewData,
-            "defines": GnTargetsMerger._MergeLists,
-            "deps": GnTargetsMerger._MergeLists,
-            "cflags": GnTargetsMerger._MergeLists,
-            "cflags_c": GnTargetsMerger._MergeLists,
-            "cflags_cc": GnTargetsMerger._MergeLists,
-            "configs": GnTargetsMerger._MergeLists,
-            "include_dirs": GnTargetsMerger._MergeLists,
-            "inputs": GnTargetsMerger._MergeLists,
+            "all_dependent_configs": _MergeLists,
+            "args": _IgnoreNewData,
+            "defines": _MergeLists,
+            "deps": _MergeLists,
+            "cflags": _MergeLists,
+            "cflags_c": _MergeLists,
+            "cflags_cc": _MergeLists,
+            "configs": _MergeLists,
+            "include_dirs": _MergeLists,
+            "inputs": _MergeLists,
             # Metadata structure varies between targets but not much between
             # packages with the same target. It should be safe to keep the first
             # metadata and ignore the rest.
-            "metadata": GnTargetsMerger._IgnoreNewData,
-            "ldflags": GnTargetsMerger._MergeLists,
-            "lib_dirs": GnTargetsMerger._MergeLists,
-            "libs": GnTargetsMerger._MergeLists,
-            "outputs": GnTargetsMerger._MergeLists,
-            "sources": GnTargetsMerger._MergeLists,
+            "metadata": _IgnoreNewData,
+            "ldflags": _MergeLists,
+            "lib_dirs": _MergeLists,
+            "libs": _MergeLists,
+            "outputs": _MergeLists,
+            "sources": _MergeLists,
             # Scripts from different packages differ only in path but use the
             # same file. It should be safe to keep the first script and ignore
             # the rest.
-            "script": GnTargetsMerger._IgnoreNewData,
+            "script": _IgnoreNewData,
             # Everything else shall be either unique or equal.
         }
-
-    @staticmethod
-    def _MergeLists(existing_list: List, new_list: List) -> List:
-        return existing_list + [
-            element for element in new_list if element not in existing_list
-        ]
-
-    @staticmethod
-    def _IgnoreNewData(existing_data: Any, new_data: Any) -> Any:
-        del new_data  # Unused.
-        return existing_data
 
     def Append(self, new_targets: GnTargets) -> None:
         """Add targets from |new_targets| to existing ones."""
@@ -405,3 +392,20 @@ class GnTargetsGenerator:
 
         with open(result_targets_file, "w", encoding="utf-8") as output:
             json.dump(result_targets, output, indent=2)
+
+
+def _MergeLists(existing_list: List[Any], new_list: List[Any]) -> List[Any]:
+    """Merge elements from new_list into existing_list, ignoring duplicates."""
+    return existing_list + [
+        element for element in new_list if element not in existing_list
+    ]
+
+
+def _IgnoreNewData(existing_data: Any, new_data: Any) -> Any:
+    """Return existing_data unchanged.
+
+    This should maintain the same function signature as _MergeLists so that they
+    can be called as function-objects.
+    """
+    del new_data  # Unused.
+    return existing_data

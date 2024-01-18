@@ -79,7 +79,7 @@ class Conductor:
         )
 
         # Sort packages so that dependencies go first.
-        self.packages = Conductor._GetSortedPackages(packages_list)
+        self.packages = _GetSortedPackages(packages_list)
 
         if self.setup.with_build:
             package_names = [p.full_name for p in self.packages]
@@ -137,37 +137,35 @@ class Conductor:
 
         logging.info("Done")
 
-    @staticmethod
-    def _GetSortedPackages(
-        packages_list: List[package.Package],
-    ) -> List[package.Package]:
-        """Return the given packages, sorted according to their dependencies.
 
-        More independent packages go first.
-        """
-        result_packages = []
-        packages_dict = {p.full_name: p for p in packages_list}
+def _GetSortedPackages(
+    packages_list: List[package.Package],
+) -> List[package.Package]:
+    """Return the given packages, sorted according to their dependencies.
 
-        in_degrees = {p.full_name: 0 for p in packages_list}
-        for p in packages_list:
-            for dep in p.dependencies:
-                in_degrees[dep.name] = in_degrees[dep.name] + 1
+    More independent packages go first.
+    """
+    result_packages = []
+    packages_dict = {p.full_name: p for p in packages_list}
 
-        queue = [p_name for p_name in in_degrees if in_degrees[p_name] == 0]
-        while queue:
-            p_name = queue.pop(0)
-            result_packages.append(packages_dict[p_name])
-            for dep in packages_dict[p_name].dependencies:
-                in_degrees[dep.name] = in_degrees[dep.name] - 1
-                if in_degrees[dep.name] == 0:
-                    queue.append(dep.name)
-            assert len(result_packages) <= len(
-                packages_list
-            ), "Too many sorted packages, probably due to circular dependencies"
+    in_degrees = {p.full_name: 0 for p in packages_list}
+    for p in packages_list:
+        for dep in p.dependencies:
+            in_degrees[dep.name] = in_degrees[dep.name] + 1
 
-        assert len(result_packages) == len(
+    queue = [p_name for p_name in in_degrees if in_degrees[p_name] == 0]
+    while queue:
+        p_name = queue.pop(0)
+        result_packages.append(packages_dict[p_name])
+        for dep in packages_dict[p_name].dependencies:
+            in_degrees[dep.name] = in_degrees[dep.name] - 1
+            if in_degrees[dep.name] == 0:
+                queue.append(dep.name)
+        assert len(result_packages) <= len(
             packages_list
-        ), "Missing some packages"
+        ), "Too many sorted packages, probably due to circular dependencies"
 
-        result_packages.reverse()
-        return result_packages
+    assert len(result_packages) == len(packages_list), "Missing some packages"
+
+    result_packages.reverse()
+    return result_packages

@@ -46,7 +46,7 @@ class PackageSleuth:
         if packages_names is None:
             packages_names = []
         packages = self._ListPackagesWithDeps(packages_names)
-        PackageSleuth._FilterPackagesDependencies(packages.supported)
+        _FilterPackagesDependencies(packages.supported)
 
         return packages
 
@@ -167,10 +167,10 @@ class PackageSleuth:
         package_to_deps = {}
         for pkg in deps_tree:
             deps = deps_tree[pkg]["deps"]
-            package_name = PackageSleuth._ExtractPackageName(pkg)
+            package_name = _ExtractPackageName(pkg)
             package_to_deps[package_name] = [
                 package.PackageDependency(
-                    PackageSleuth._ExtractPackageName(d), deps[d]["deptypes"]
+                    _ExtractPackageName(d), deps[d]["deptypes"]
                 )
                 for d in deps
             ]
@@ -184,46 +184,44 @@ class PackageSleuth:
 
         return package_to_deps
 
-    @staticmethod
-    def _FilterPackagesDependencies(packages: List[package.Package]) -> None:
-        supported_packages_names = set(p.full_name for p in packages)
-        for pkg in packages:
-            pkg.dependencies = PackageSleuth._GetFilterDependencies(
-                pkg, supported_packages_names
-            )
 
-    @staticmethod
-    def _GetFilterDependencies(
-        pkg: package.Package, available_packages_names: Set[str]
-    ) -> List[package.PackageDependency]:
-        def IsSupportedDependency(dep: package.PackageDependency) -> bool:
-            # Filter package itself.
-            if dep.name == pkg.full_name:
-                return False
+def _FilterPackagesDependencies(packages: List[package.Package]) -> None:
+    supported_packages_names = set(p.full_name for p in packages)
+    for pkg in packages:
+        pkg.dependencies = _GetFilterDependencies(pkg, supported_packages_names)
 
-            # Filter unsupported or not queried dependencies.
-            if dep.name not in available_packages_names:
-                return False
 
-            # Filter circular dependencies caused by PDEPEND.
-            if len(dep.types) == 1 and "runtime_post" in dep.types:
-                return False
+def _GetFilterDependencies(
+    pkg: package.Package, available_packages_names: Set[str]
+) -> List[package.PackageDependency]:
+    def IsSupportedDependency(dep: package.PackageDependency) -> bool:
+        # Filter package itself.
+        if dep.name == pkg.full_name:
+            return False
 
-            return True
+        # Filter unsupported or not queried dependencies.
+        if dep.name not in available_packages_names:
+            return False
 
-        return [dep for dep in pkg.dependencies if IsSupportedDependency(dep)]
+        # Filter circular dependencies caused by PDEPEND.
+        if len(dep.types) == 1 and "runtime_post" in dep.types:
+            return False
 
-    @staticmethod
-    def _ExtractPackageName(full_package_name: str) -> str:
-        """Return the package's name in the format of category/name.
+        return True
 
-        Args:
-            full_package_name: A simple or fully qualified package name, either
-                with or without a version. For example:
-                chromeos-base/some_package-0.0.1-r100
+    return [dep for dep in pkg.dependencies if IsSupportedDependency(dep)]
 
-        Returns:
-            The package's category and name. For example:
-            chromeos-base/some_package
-        """
-        return package_info.parse(full_package_name).atom
+
+def _ExtractPackageName(full_package_name: str) -> str:
+    """Return the package's name in the format of category/name.
+
+    Args:
+        full_package_name: A simple or fully qualified package name, either
+            with or without a version. For example:
+            chromeos-base/some_package-0.0.1-r100
+
+    Returns:
+        The package's category and name. For example:
+        chromeos-base/some_package
+    """
+    return package_info.parse(full_package_name).atom

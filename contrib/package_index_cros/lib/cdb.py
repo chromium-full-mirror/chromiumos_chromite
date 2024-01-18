@@ -184,7 +184,7 @@ class Cdb:
             (
                 arg_prefix,
                 actual_path,
-            ) = path_handler.PathHandler.FixPathInArgument(arg, Fixer)
+            ) = path_handler.FixPathInArgument(arg, Fixer)
             actual_arg = arg_prefix + actual_path
 
             if arg_prefix == "-I":
@@ -292,7 +292,7 @@ class Cdb:
         if fixed_path.actual.startswith(self.package.build_dir):
             return path_handler.FixedPath(
                 fixed_path.original,
-                path_handler.PathHandler.MovePath(
+                path_handler.MovePath(
                     fixed_path.actual, self.package.build_dir, self.build_dir
                 ),
             )
