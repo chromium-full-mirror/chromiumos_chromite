@@ -226,3 +226,4 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
         build_output_dir=args.build_dir,
         fail_fast=args.fail_fast,
     )
+    return 0

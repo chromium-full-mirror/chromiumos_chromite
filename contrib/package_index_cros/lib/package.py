@@ -52,17 +52,14 @@ class PackageDependency(NamedTuple):
 
 def _CheckEbuildVar(
     ebuild_file: str, var: str, temp_src_basedir: str = ""
-) -> str:
+) -> Optional[str]:
     """Returns a variable's value in ebuild file."""
 
     env = {"CROS_WORKON_ALWAYS_LIVE": "", "S": temp_src_basedir}
     settings = osutils.SourceEnvironment(
         ebuild_file, (var,), env=env, multiline=True
     )
-    if var in settings:
-        return settings[var]
-
-    return None
+    return settings.get("var", None)
 
 
 def GetPackageSupport(
@@ -194,8 +191,8 @@ class PackagePathException(Exception):
         self,
         package,
         message: str,
-        first_dir: str = None,
-        second_dir: str = None,
+        first_dir: Optional[str] = None,
+        second_dir: Optional[str] = None,
     ):
         if not first_dir:
             super().__init__(f"{package.full_name}: {message}")
@@ -217,9 +214,11 @@ class UnsupportedPackageException(Exception):
     def __init__(self, package_name, reason: PackageSupport):
         self.package_name = package_name
         self.reason = reason
-        super(Package.UnsupportedPackageException, self).__init__(
-            f"{package_name}: Not supported due to: {reason}"
-        )
+        super().__init__(f"{package_name}: Not supported due to: {reason}")
+
+
+class NotInitializedException(Exception):
+    """Exception for when a property is accessed before initialization."""
 
 
 class TempActualDichotomy(NamedTuple):
@@ -306,10 +305,57 @@ class Package:
         self.dependencies = deps or []
 
         # Attributes that will be set up later, during Initialize().
-        self.temp_dir: Optional[str] = None
-        self.build_dir: Optional[str] = None
-        self.src_dir_matches: Optional[List[str]] = None
-        self.additional_include_paths: Optional[List[str]] = None
+        # In general, these properties should be accessed by their corresponding
+        # @property methods (ex. temp_dir(), for _temp_dir) to make sure they're
+        # initialized and non-None.
+        self._temp_dir: Optional[str] = None
+        self._build_dir: Optional[str] = None
+        self._src_dir_matches: Optional[List[TempActualDichotomy]] = None
+        self._additional_include_paths: Optional[List[str]] = None
+
+    @property
+    def temp_dir(self) -> str:
+        """Return the package's temporary directory.
+
+        Raises:
+            NotInitializedException: If Initialize() has not been called.
+        """
+        if self._temp_dir is None:
+            raise NotInitializedException
+        return self._temp_dir
+
+    @property
+    def build_dir(self) -> str:
+        """Return the directory in which the package is built.
+
+        Raises:
+            NotInitializedException: If Initialize() has not been called.
+        """
+        if self._build_dir is None:
+            raise NotInitializedException
+        return self._build_dir
+
+    @property
+    def src_dir_matches(self) -> List[TempActualDichotomy]:
+        """Return matches between actual src dirs and temp src dirs.
+
+        Raises:
+            NotInitializedException: If Initialize() has not been called.
+        """
+        if self._src_dir_matches is None:
+            raise NotInitializedException
+        return self._src_dir_matches
+
+    @property
+    def additional_include_paths(self) -> List[str]:
+        """Return actual paths to be added as include path args.
+
+        Raises:
+            NotInitializedException: If Initialize() has not been called.
+        """
+        if self._additional_include_paths is None:
+            raise NotInitializedException
+        return self._additional_include_paths
 
     def __eq__(self, other) -> bool:
         """Return whether |self| and |other| refer to the same package.
@@ -357,32 +403,29 @@ class Package:
         """
         logging.debug("%s: Initializing", self.full_name)
 
-        self.temp_dir = self._GetTempDir()
+        self._temp_dir = self._GetTempDir()
         logging.debug("%s: Temp dir: %s", self.full_name, self.temp_dir)
 
-        self.build_dir = self._GetBuildDir()
+        self._build_dir = self._GetBuildDir()
         logging.debug("%s: Build dir: %s", self.full_name, self.build_dir)
 
-        self.src_dir_matches = self._GetSourceDirsToTempSourceDirsMap()
+        self._src_dir_matches = self._GetSourceDirsToTempSourceDirsMap()
 
-        self.additional_include_paths = self.GetAdditionalIncludePaths()
-        if self.additional_include_paths:
-            for path in self.additional_include_paths:
-                if not os.path.isdir(path):
-                    raise DirsException(
-                        self, "Additional include path does not exist", path
-                    )
+        self._additional_include_paths = self.GetAdditionalIncludePaths()
+        for path in self.additional_include_paths:
+            if not os.path.isdir(path):
+                raise DirsException(
+                    self, "Additional include path does not exist", path
+                )
 
-    def GetAdditionalIncludePaths(self) -> Optional[List[str]]:
+    def GetAdditionalIncludePaths(self) -> List[str]:
         """Return a list of actual paths to be added as include path args."""
-
         # Special case for chromeos-base/update_engine which pretends to be in
         # platform2 and uses platform2 as include path. While the actual include
         # path is {src_dir}/aosp/system with update_engine inside.
         if self.full_name == "chromeos-base/update_engine":
             return [os.path.join(self.setup.src_dir, "aosp", "system")]
-
-        return None
+        return []
 
     def _GetOrderedVersionSuffixes(self) -> List[str]:
         """Return the current package's versions, sorted from high to low."""

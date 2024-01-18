@@ -9,7 +9,7 @@ import filecmp
 import json
 import logging
 import os
-from typing import Any, Dict, List, NamedTuple, Optional, Set
+from typing import Any, DefaultDict, Dict, List, NamedTuple, Optional, Set
 
 from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import package
@@ -58,7 +58,7 @@ class Cdb:
         setup_data: setup.Setup,
         package_to_include_args: Dict[str, _IncludePathOrder],
         *,
-        result_build_dir: str = None,
+        result_build_dir: Optional[str] = None,
         file_conflicts: Optional[Dict[str, str]] = None,
     ):
         """Initialize a new Cdb instance.
@@ -117,13 +117,12 @@ class Cdb:
                 self.package.full_name,
             )
 
-        if self.package.additional_include_paths:
-            for include_path in self.package.additional_include_paths:
-                logging.debug(
-                    "%s: Additional include path will be used: %s",
-                    self.package.full_name,
-                    include_path,
-                )
+        for include_path in self.package.additional_include_paths:
+            logging.debug(
+                "%s: Additional include path will be used: %s",
+                self.package.full_name,
+                include_path,
+            )
 
         for entry in self.data:
             entry["directory"] = self._GetFixedDirectory(entry)
@@ -207,9 +206,8 @@ class Cdb:
 
         # Args are fixed.
 
-        if self.package.additional_include_paths:
-            for include_path in self.package.additional_include_paths:
-                actual_include_args.local.add("-I" + include_path)
+        for include_path in self.package.additional_include_paths:
+            actual_include_args.local.add("-I" + include_path)
 
         # Do not pass our dependencies up.
         self.package_to_include_args[self.package.full_name].local.update(
@@ -314,7 +312,7 @@ class CdbGenerator:
         self,
         setup_data: setup.Setup,
         *,
-        result_build_dir: str = None,
+        result_build_dir: Optional[str] = None,
         file_conflicts: Optional[Dict[str, str]] = None,
         fail_fast: bool = False,
     ):
@@ -334,7 +332,9 @@ class CdbGenerator:
         self.result_build_dir = result_build_dir
         self.file_conflicts = file_conflicts or {}
         self.fail_fast = fail_fast
-        self.package_status = collections.defaultdict(list)
+        self.package_status: DefaultDict[
+            str, List[str]
+        ] = collections.defaultdict(list)
 
     def _GenerateCdbForPackage(
         self, pkg: package.Package, packages_to_include_args: Dict
@@ -362,7 +362,7 @@ class CdbGenerator:
     def _GenerateResultCdb(self, packages: List[package.Package]) -> List:
         result_cdb_data = []
 
-        packages_to_include_args = {}
+        packages_to_include_args: Dict[str, _IncludePathOrder] = {}
         for pkg in packages:
             try:
                 cdb_data = (

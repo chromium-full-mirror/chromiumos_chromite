@@ -8,12 +8,16 @@ import filecmp
 import json
 import logging
 import os
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, TypeVar
 
 from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import path_handler
 from chromite.contrib.package_index_cros.lib import setup
+
+
+_T = TypeVar("_T")
+_ArgFixerCallable = Callable[["GnTargets", _T], _T]
 
 
 class TargetPathException(package.PackagePathException):
@@ -36,7 +40,7 @@ class GnTargets:
         pkg: package.Package,
         setup_data: setup.Setup,
         *,
-        result_build_dir: str = None,
+        result_build_dir: Optional[str] = None,
         file_conflicts: Optional[Dict] = None,
     ):
         """Construct a new GnTargets instance.
@@ -55,7 +59,7 @@ class GnTargets:
         self.data = data
         self.package = pkg
         self.setup = setup_data
-        self.fields_to_resolve = {
+        self.fields_to_resolve: Dict[str, _ArgFixerCallable] = {
             "args": GnTargets._FixArgsField,
             "cflags": GnTargets._FixArgList,
             "cflags_c": GnTargets._FixArgList,
@@ -380,16 +384,14 @@ class GnTargetsGenerator:
 
     def Generate(
         self, packages: List[package.Package], result_targets_file: str
-    ) -> str:
+    ) -> None:
         """Generate, fix, and merge gn_targets for the given packages.
 
         Raises:
             TargetPathException: Failed to fix a target.
         """
         assert result_targets_file
-
         result_targets = self._GenerateResultTargets(packages)
-
         with open(result_targets_file, "w", encoding="utf-8") as output:
             json.dump(result_targets, output, indent=2)
 

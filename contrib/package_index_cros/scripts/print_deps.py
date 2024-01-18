@@ -27,7 +27,7 @@ from chromite.lib import depgraph
 # }
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: List[str]) -> Optional[int]:
     cros_build_lib.AssertInsideChroot()
 
     board = argv[0]
@@ -38,3 +38,4 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     deps_tree, _, _ = deps.GenDependencyTree()
 
     print(json.dumps(deps_tree))
+    return 0

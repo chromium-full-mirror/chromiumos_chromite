@@ -100,7 +100,7 @@ class Setup:
             self.chroot.full_path(os.path.join("/usr", "share", "cros-camera")),
         ]
 
-        self.skip_packages = skip_packages
+        self.skip_packages = skip_packages or []
         self.with_build = with_build
         self.with_tests = with_tests
 

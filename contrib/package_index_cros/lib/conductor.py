@@ -88,9 +88,9 @@ class Conductor:
     def DoMagic(
         self,
         *,
-        cdb_output_file: str = None,
-        targets_output_file: str = None,
-        build_output_dir: str = None,
+        cdb_output_file: Optional[str] = None,
+        targets_output_file: Optional[str] = None,
+        build_output_dir: Optional[str] = None,
         fail_fast: bool = False,
     ):
         """Call generators one by one.

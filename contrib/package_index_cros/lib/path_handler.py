@@ -91,14 +91,11 @@ class PathHandler:
         Returns:
             Path outside of chroot if able to move; otherwise, None.
         """
-        chroot_path = SanitizePath(chroot_path)
-
-        assert (
-            chroot_base_dir or base_dir
-        ), "Either chroot_base_dir or base_dir must be set"
-        if not chroot_base_dir:
+        if chroot_base_dir is None:
+            assert base_dir, "Either chroot_base_dir or base_dir must be set"
             chroot_base_dir = self.ToChroot(base_dir)
 
+        chroot_path = SanitizePath(chroot_path)
         if chroot_path.startswith("//"):
             # Special case. '//' indicates source dir.
             for match_dirs in pkg.src_dir_matches:
@@ -284,6 +281,10 @@ class PathHandler:
         path = self._GetPathOutsideOfChroot(
             chroot_path, pkg, base_dir=pkg.build_dir
         )
+        if path is None:
+            raise PathNotFixedException(
+                pkg, "Cannot convert path to outside", path, path
+            )
         return self._FixPath(path, pkg, conflicting_paths=conflicting_paths)
 
     def FixPathWithIgnores(
@@ -339,6 +340,10 @@ class PathHandler:
         path = self._GetPathOutsideOfChroot(
             chroot_path, pkg, base_dir=pkg.build_dir
         )
+        if path is None:
+            raise PathNotFixedException(
+                pkg, "Cannot convert path to outside", path, path
+            )
 
         try:
             return self._FixPath(path, pkg, conflicting_paths=conflicting_paths)
@@ -388,6 +393,7 @@ class PathHandler:
                         chroot_path,
                     )
                     return True
+                return False
 
             if not CanIgnoreFailure():
                 # Issue cannot be ignored. Report failure.
