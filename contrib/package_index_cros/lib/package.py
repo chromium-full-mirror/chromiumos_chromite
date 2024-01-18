@@ -4,10 +4,11 @@
 
 """Support and processing for Portage packages."""
 
+import dataclasses
 import enum
 import logging
 import os
-from typing import List, NamedTuple, Optional
+from typing import List, Optional
 
 from chromite.contrib.package_index_cros.lib import constants
 from chromite.contrib.package_index_cros.lib import setup
@@ -36,7 +37,8 @@ class PackageSupport(enum.IntEnum):
         return not self.is_supported()
 
 
-class PackageDependency(NamedTuple):
+@dataclasses.dataclass
+class PackageDependency:
     """Data class representing a single package dependency.
 
     Attributes:
@@ -221,7 +223,8 @@ class NotInitializedException(Exception):
     """Exception for when a property is accessed before initialization."""
 
 
-class TempActualDichotomy(NamedTuple):
+@dataclasses.dataclass
+class TempActualDichotomy:
     """Data class for a package's actual source dir and temp source dir."""
 
     temp: str

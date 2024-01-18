@@ -64,9 +64,9 @@ class Conductor:
             supported_packages = package_names
 
         sleuth = package_sleuth.PackageSleuth(self.setup)
-        packages_list, _ = sleuth.list_packages(
+        packages_list = sleuth.list_packages(
             packages_names=supported_packages
-        )
+        ).supported
 
         assert packages_list, "No packages to work with"
         assert len(packages_list) == len(

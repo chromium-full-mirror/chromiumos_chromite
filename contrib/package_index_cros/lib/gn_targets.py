@@ -103,30 +103,30 @@ class GnTargets:
             TargetPathException: Temp and actual script files have different
                 data.
         """
-        temp_script_file, actual_script_file = self.path_handler.fix_path(
+        fixed_path = self.path_handler.fix_path(
             script_file, self.package, conflicting_paths=self.file_conflicts
         )
-        if temp_script_file == actual_script_file:
-            return actual_script_file
+        if fixed_path.original == fixed_path.actual:
+            return fixed_path.actual
 
-        if not filecmp.cmp(temp_script_file, actual_script_file):
+        if not filecmp.cmp(fixed_path.original, fixed_path.actual):
             if self.package.is_highly_volatile:
                 logging.debug(
                     "%s: Temp and actual scripts differ. "
                     "Possibly patches: %s vs %s",
                     self.package.full_name,
-                    temp_script_file,
-                    actual_script_file,
+                    fixed_path.original,
+                    fixed_path.actual,
                 )
             else:
                 raise TargetPathException(
                     self.package,
                     "Temp and actual scripts differ",
-                    temp_script_file,
-                    actual_script_file,
+                    fixed_path.original,
+                    fixed_path.actual,
                 )
 
-        return actual_script_file
+        return fixed_path.actual
 
     def _fix_args_field(self, args_list: List[str]) -> List[str]:
         return self.g(args_list)
@@ -205,8 +205,8 @@ class GnTargets:
 
         if fixed_path.actual.startswith(self.package.build_dir):
             return path_handler.FixedPath(
-                fixed_path.original,
-                path_handler.move_path(
+                original=fixed_path.original,
+                actual=path_handler.move_path(
                     fixed_path.actual, self.package.build_dir, self.build_dir
                 ),
             )

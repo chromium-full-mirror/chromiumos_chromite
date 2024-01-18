@@ -9,10 +9,11 @@ temporary location in the chroot to a their actual locations on the host
 filesystem.
 """
 
+import dataclasses
 import logging
 import os
 import re
-from typing import Callable, Dict, List, NamedTuple, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import setup
@@ -22,8 +23,9 @@ class PathNotFixedException(package.PackagePathException):
     """Exception raised while while trying to fix a path."""
 
 
-class FixedPath(NamedTuple):
-    """Data class to represent a path outside the chroot and its actual path.
+@dataclasses.dataclass
+class FixedPath:
+    """Combination of a path outside the chroot and its actual path.
 
     This matches a temporary downloaded src to an actual src file.
     """
@@ -172,7 +174,7 @@ class PathHandler:
 
         actual_path = os.path.realpath(fix())
         check(actual_path)
-        return FixedPath(path, actual_path)
+        return FixedPath(original=path, actual=actual_path)
 
     def _fix_path_from_basedir(
         self,
@@ -224,16 +226,19 @@ class PathHandler:
         while chroot_path and chroot_path.startswith(chroot_ignorable_dir):
             try:
                 # Try fixing the base dir of the current path.
-                path_basedir, actual_path_basedir = self.fix_path(
+                fixed_path = self.fix_path(
                     chroot_path_base_dir,
                     pkg,
                     conflicting_paths=conflicting_paths,
                 )
-                path = os.path.join(path_basedir, chroot_path_basename)
-                actual_path = os.path.join(
-                    actual_path_basedir, chroot_path_basename
+                return FixedPath(
+                    original=os.path.join(
+                        fixed_path.original, chroot_path_basename
+                    ),
+                    actual=os.path.join(
+                        fixed_path.actual, chroot_path_basename
+                    ),
                 )
-                return FixedPath(path, actual_path)
             except PathNotFixedException:
                 # If base directory fixing fails, move up one directory level
                 # and repeat.
@@ -360,7 +365,7 @@ class PathHandler:
                     pkg.full_name,
                     path,
                 )
-                return FixedPath(path, path)
+                return FixedPath(original=path, actual=path)
 
             def can_ignore_failure() -> bool:
                 if ignore_highly_volatile and pkg.is_highly_volatile:

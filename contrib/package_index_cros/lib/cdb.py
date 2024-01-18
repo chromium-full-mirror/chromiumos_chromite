@@ -5,11 +5,12 @@
 """Module to interact with the compile commands database."""
 
 import collections
+import dataclasses
 import filecmp
 import json
 import logging
 import os
-from typing import Any, DefaultDict, Dict, List, NamedTuple, Optional, Set
+from typing import Any, DefaultDict, Dict, List, Optional, Set
 
 from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import package
@@ -29,7 +30,8 @@ class FileFieldException(CdbException, package.PackagePathException):
     """Exception to indicate failure resolving the file field."""
 
 
-class _IncludePathOrder(NamedTuple):
+@dataclasses.dataclass
+class _IncludePathOrder:
     """Dataclass to hold the include args sorted by interest.
 
     TODO: chroot paths shall be skipped in favor of include paths from
@@ -96,7 +98,7 @@ class Cdb:
         self.package_to_include_args = package_to_include_args
         self.package_to_include_args[
             self.package.full_name
-        ] = _IncludePathOrder(set(), set(), set())
+        ] = _IncludePathOrder(local=set(), generated=set(), chroot=set())
 
     def fix(self) -> "Cdb":
         """Fix cdb entries.
@@ -167,7 +169,9 @@ class Cdb:
 
         # First argument is always a compiler.
         actual_arguments = [self._fix_arguments_compiler(compiler)]
-        actual_include_args = _IncludePathOrder(set(), set(), set())
+        actual_include_args = _IncludePathOrder(
+            local=set(), generated=set(), chroot=set()
+        )
 
         for arg in arguments:
 
@@ -235,37 +239,39 @@ class Cdb:
     def _get_fixed_file(self, entry: Dict) -> str:
         assert "file" in entry, "File field is missing"
 
-        temp_file, actual_file = self._fix_path(
+        fixed_path = self._fix_path(
             entry["file"], ignore_generated=True, ignore_highly_volatile=True
         )
 
-        if temp_file != actual_file:
-            if not os.path.isfile(temp_file) or not os.path.isfile(actual_file):
+        if fixed_path.original != fixed_path.actual:
+            if not os.path.isfile(fixed_path.original) or not os.path.isfile(
+                fixed_path.actual
+            ):
                 logging.debug(
                     "%s: Cannot verify if temp and actual file are the same: "
                     "%s vs %s",
                     self.package.full_name,
-                    temp_file,
-                    actual_file,
+                    fixed_path.original,
+                    fixed_path.actual,
                 )
-            elif not filecmp.cmp(temp_file, actual_file):
+            elif not filecmp.cmp(fixed_path.original, fixed_path.actual):
                 if self.package.is_highly_volatile:
                     logging.debug(
                         "%s: Temp and actual files differ. Possibly patches: "
                         "%s vs %s",
                         self.package.full_name,
-                        temp_file,
-                        actual_file,
+                        fixed_path.original,
+                        fixed_path.actual,
                     )
                 else:
                     raise FileFieldException(
                         self.package,
                         "Temp and actual file differ",
-                        temp_file,
-                        actual_file,
+                        fixed_path.original,
+                        fixed_path.actual,
                     )
 
-        return actual_file
+        return fixed_path.actual
 
     def _get_fix_output(self, entry: Dict) -> str:
         assert "output" in entry, "Output field is missing"
@@ -289,8 +295,8 @@ class Cdb:
 
         if fixed_path.actual.startswith(self.package.build_dir):
             return path_handler.FixedPath(
-                fixed_path.original,
-                path_handler.move_path(
+                original=fixed_path.original,
+                actual=path_handler.move_path(
                     fixed_path.actual, self.package.build_dir, self.build_dir
                 ),
             )

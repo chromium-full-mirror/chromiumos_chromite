@@ -4,9 +4,10 @@
 
 """Module to help with finding packages and their dependencies."""
 
+import dataclasses
 import json
 import logging
-from typing import Dict, List, NamedTuple, Optional, Set
+from typing import Dict, List, Optional, Set
 
 from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import package
@@ -15,7 +16,8 @@ from chromite.lib import portage_util
 from chromite.lib.parser import package_info
 
 
-class SupportedUnsupportedPackages(NamedTuple):
+@dataclasses.dataclass
+class SupportedUnsupportedPackages:
     """Dataclass to hold supported and unsupported packages."""
 
     supported: List[package.Package]
@@ -54,7 +56,7 @@ class PackageSleuth:
         self, packages_names: List[str]
     ) -> SupportedUnsupportedPackages:
         """Return a list of packages and their transitive dependencies."""
-        packages = SupportedUnsupportedPackages([], [])
+        packages = SupportedUnsupportedPackages(supported=[], unsupported=[])
 
         ebuilds = self._list_ebuilds(packages_names)
         dependencies = self._get_packages_dependencies(
@@ -170,7 +172,7 @@ class PackageSleuth:
             package_name = _extract_package_name(pkg)
             package_to_deps[package_name] = [
                 package.PackageDependency(
-                    _extract_package_name(d), deps[d]["deptypes"]
+                    name=_extract_package_name(d), types=deps[d]["deptypes"]
                 )
                 for d in deps
             ]
