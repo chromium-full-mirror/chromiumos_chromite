@@ -1223,8 +1223,13 @@ in
         )
         union
         filter(
-            "//internal/packages/stage2/target/board/chromiumos/chromeos-base/libhwsec-foundation:",
-            kind("ebuild", deps(@portage//target/chromeos-base/libhwsec-foundation))
+            "//internal/packages/stage2/target/board/chromiumos/chromeos-base/libhwsec:",
+            kind("ebuild", deps(@portage//target/chromeos-base/libhwsec))
+        )
+        union
+        filter(
+            "//internal/packages/stage2/target/board/chromiumos/chromeos-base/featured:",
+            kind("ebuild", deps(@portage//target/chromeos-base/featured))
         )
     )
                 """,
