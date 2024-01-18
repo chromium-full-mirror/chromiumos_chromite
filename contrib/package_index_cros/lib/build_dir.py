@@ -33,7 +33,7 @@ class _BuildDirMerger:
             self.result_build_dir
         ), "Result build dir does not exist"
 
-    def Append(self, new_package: package.Package) -> Dict[str, str]:
+    def append(self, new_package: package.Package) -> Dict[str, str]:
         """Add |new_package|'s build dir to result one.
 
         Returns:
@@ -43,7 +43,7 @@ class _BuildDirMerger:
         """
         source_dest_conflicts = {}
 
-        def CopyFile(source: str, dest: str) -> None:
+        def copy_file(source: str, dest: str) -> None:
             assert os.path.isfile(source), "Copying directory instead of file"
 
             if any(
@@ -70,7 +70,7 @@ class _BuildDirMerger:
                 source_dest_conflicts[source] = dest
             shutil.copy2(source, dest)
 
-        def CopyDir(source: str, dest: str) -> None:
+        def copy_dir(source: str, dest: str) -> None:
             assert os.path.isdir(source), "Copying file instead of directory"
 
             for item in os.listdir(source):
@@ -80,9 +80,9 @@ class _BuildDirMerger:
                 if os.path.isdir(source_item):
                     if not os.path.isdir(dest_item):
                         os.mkdir(dest_item)
-                    CopyDir(source_item, dest_item)
+                    copy_dir(source_item, dest_item)
                 elif os.path.isfile(source_item):
-                    CopyFile(source_item, dest_item)
+                    copy_file(source_item, dest_item)
                 else:
                     logging.debug(
                         "%s: ignoring: %s (not valid file nor dir)",
@@ -90,7 +90,7 @@ class _BuildDirMerger:
                         source_item,
                     )
 
-        CopyDir(new_package.build_dir, self.result_build_dir)
+        copy_dir(new_package.build_dir, self.result_build_dir)
         return source_dest_conflicts
 
 
@@ -100,7 +100,7 @@ class BuildDirGenerator:
     def __init__(self, setup_data: setup.Setup):
         self.setup = setup_data
 
-    def _PrepareDir(self, result_build_dir: str) -> None:
+    def _prepare_dir(self, result_build_dir: str) -> None:
         """Create a new result_build_dir, clobbering any that already exist."""
         if os.path.isdir(result_build_dir):
             logging.warning("Removing existing build dir: %s", result_build_dir)
@@ -109,7 +109,7 @@ class BuildDirGenerator:
         os.makedirs(result_build_dir)
         logging.debug("Build dir created: %s", result_build_dir)
 
-    def Generate(
+    def generate(
         self, packages: List[package.Package], result_build_dir: str
     ) -> Dict[str, str]:
         """Generate a common result dir containing the packages' artifacts.
@@ -121,12 +121,12 @@ class BuildDirGenerator:
         """
         assert result_build_dir
 
-        self._PrepareDir(result_build_dir)
+        self._prepare_dir(result_build_dir)
 
         merger = _BuildDirMerger(self.setup, result_build_dir)
         source_dest_conflicts = {}
         for pkg in packages:
-            source_dest_conflicts.update(merger.Append(pkg))
+            source_dest_conflicts.update(merger.append(pkg))
             logging.debug(
                 "Added %s to result build dir: %s",
                 pkg.full_name,

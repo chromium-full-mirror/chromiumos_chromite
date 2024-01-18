@@ -50,7 +50,7 @@ class PackageDependency(NamedTuple):
     types: List[str]
 
 
-def _CheckEbuildVar(
+def _check_ebuild_var(
     ebuild_file: str, var: str, temp_src_basedir: str = ""
 ) -> Optional[str]:
     """Returns a variable's value in ebuild file."""
@@ -62,7 +62,7 @@ def _CheckEbuildVar(
     return settings.get("var", None)
 
 
-def GetPackageSupport(
+def get_package_support(
     ebuild: portage_util.EBuild, setup_data: setup.Setup
 ) -> PackageSupport:
     """Check whether the package can be processed.
@@ -82,10 +82,10 @@ def GetPackageSupport(
     )
 
     # We don't want to disqualify virtual packages from the dep graph expansion.
-    def IsVirtual():
+    def is_virtual():
         return ebuild.category == "virtual"
 
-    def HasLocalSource():
+    def has_local_source():
         # Project is CROS_WORKON_PROJECT in ebuild file.
         # Srcdir is CROS_WORKON_LOCALNAME in ebuild file.
         # If package does not have project and srcdir, it's downloaded.
@@ -118,7 +118,7 @@ def GetPackageSupport(
         # With local source:
         # *   dev-libs/libtextclassifier: not platform2 with non-existing
         #     PLATFORM_SUBDIR.
-        platform_subdir = _CheckEbuildVar(ebuild_file, "PLATFORM_SUBDIR")
+        platform_subdir = _check_ebuild_var(ebuild_file, "PLATFORM_SUBDIR")
         if platform_subdir and not os.path.isdir(
             os.path.join(setup_data.platform2_dir, platform_subdir)
         ):
@@ -133,13 +133,13 @@ def GetPackageSupport(
 
         return True
 
-    def IsBuiltWithGn():
+    def is_built_with_gn():
         # Subtrees is CROS_WORKON_SUBTREE in ebuild file.
         # If none of subtrees is .gn - package is not built with gn.
         if all((not st.endswith(".gn") for st in ebuild_source_info.subtrees)):
             return False
 
-        if _CheckEbuildVar(ebuild_file, "CROS_RUST_SUBDIR"):
+        if _check_ebuild_var(ebuild_file, "CROS_RUST_SUBDIR"):
             return False
 
         # TODO: Returns true for config packages (should be false):
@@ -151,13 +151,13 @@ def GetPackageSupport(
 
         return True
 
-    if IsVirtual():
+    if is_virtual():
         return PackageSupport.SUPPORTED
 
-    if not HasLocalSource():
+    if not has_local_source():
         return PackageSupport.NO_LOCAL_SOURCE
 
-    if not IsBuiltWithGn():
+    if not is_built_with_gn():
         return PackageSupport.NO_GN_BUILD
 
     if ebuild.package in constants.TEMPORARY_UNSUPPORTED_PACKAGES:
@@ -244,7 +244,7 @@ class PackageInfo:
 class Package:
     """A portage package, with access to paths associated with the package.
 
-    NOTE: All dir fields are expected to exist when Initialize is called.
+    NOTE: All dir fields are expected to exist when initialize() is called.
     NOTE: Only packages built with gn are supported.
 
     Attributes:
@@ -286,7 +286,7 @@ class Package:
         Raises:
             UnsupportedPackageException: If the package is not supported.
         """
-        package_support = GetPackageSupport(ebuild, setup_data)
+        package_support = get_package_support(ebuild, setup_data)
         if package_support.is_unsupported():
             raise UnsupportedPackageException(ebuild.package, package_support)
 
@@ -304,7 +304,7 @@ class Package:
         )
         self.dependencies = deps or []
 
-        # Attributes that will be set up later, during Initialize().
+        # Attributes that will be set up later, during initialize().
         # In general, these properties should be accessed by their corresponding
         # @property methods (ex. temp_dir(), for _temp_dir) to make sure they're
         # initialized and non-None.
@@ -318,7 +318,7 @@ class Package:
         """Return the package's temporary directory.
 
         Raises:
-            NotInitializedException: If Initialize() has not been called.
+            NotInitializedException: If initialize() has not been called.
         """
         if self._temp_dir is None:
             raise NotInitializedException
@@ -329,7 +329,7 @@ class Package:
         """Return the directory in which the package is built.
 
         Raises:
-            NotInitializedException: If Initialize() has not been called.
+            NotInitializedException: If initialize() has not been called.
         """
         if self._build_dir is None:
             raise NotInitializedException
@@ -340,7 +340,7 @@ class Package:
         """Return matches between actual src dirs and temp src dirs.
 
         Raises:
-            NotInitializedException: If Initialize() has not been called.
+            NotInitializedException: If initialize() has not been called.
         """
         if self._src_dir_matches is None:
             raise NotInitializedException
@@ -351,7 +351,7 @@ class Package:
         """Return actual paths to be added as include path args.
 
         Raises:
-            NotInitializedException: If Initialize() has not been called.
+            NotInitializedException: If initialize() has not been called.
         """
         if self._additional_include_paths is None:
             raise NotInitializedException
@@ -382,7 +382,7 @@ class Package:
     def is_built_from_actual_sources(self) -> bool:
         assert self.temp_dir
         out_of_tree_build = (
-            _CheckEbuildVar(
+            _check_ebuild_var(
                 self.package_info.ebuild_file, "CROS_WORKON_OUTOFTREE_BUILD"
             )
             or "0"
@@ -392,7 +392,7 @@ class Package:
         is_not_stable = "9999" in self.temp_dir
         return out_of_tree_build and is_not_stable
 
-    def Initialize(self) -> None:
+    def initialize(self) -> None:
         """Find directories associated with the package and check they exist.
 
         This method will fail on a not-yet-built package, so make sure you've
@@ -403,22 +403,22 @@ class Package:
         """
         logging.debug("%s: Initializing", self.full_name)
 
-        self._temp_dir = self._GetTempDir()
+        self._temp_dir = self._get_temp_dir()
         logging.debug("%s: Temp dir: %s", self.full_name, self.temp_dir)
 
-        self._build_dir = self._GetBuildDir()
+        self._build_dir = self._get_build_dir()
         logging.debug("%s: Build dir: %s", self.full_name, self.build_dir)
 
-        self._src_dir_matches = self._GetSourceDirsToTempSourceDirsMap()
+        self._src_dir_matches = self._get_source_dirs_to_temp_source_dirs_map()
 
-        self._additional_include_paths = self.GetAdditionalIncludePaths()
+        self._additional_include_paths = self.get_additional_include_paths()
         for path in self.additional_include_paths:
             if not os.path.isdir(path):
                 raise DirsException(
                     self, "Additional include path does not exist", path
                 )
 
-    def GetAdditionalIncludePaths(self) -> List[str]:
+    def get_additional_include_paths(self) -> List[str]:
         """Return a list of actual paths to be added as include path args."""
         # Special case for chromeos-base/update_engine which pretends to be in
         # platform2 and uses platform2 as include path. While the actual include
@@ -427,7 +427,7 @@ class Package:
             return [os.path.join(self.setup.src_dir, "aosp", "system")]
         return []
 
-    def _GetOrderedVersionSuffixes(self) -> List[str]:
+    def _get_ordered_version_suffixes(self) -> List[str]:
         """Return the current package's versions, sorted from high to low."""
 
         return [
@@ -436,7 +436,7 @@ class Package:
             self.package_info.version,
         ]
 
-    def _GetTempDir(self) -> str:
+    def _get_temp_dir(self) -> str:
         """Return the path to the base temp dir (${WORKDIR} in portage).
 
         See WORKDIR entry on
@@ -448,7 +448,7 @@ class Package:
         base_dir = os.path.join(self.setup.board_dir, "tmp", "portage")
         not_in_dirs = []
 
-        for version_suffix in self._GetOrderedVersionSuffixes():
+        for version_suffix in self._get_ordered_version_suffixes():
             temp_dir = os.path.join(
                 base_dir,
                 self.package_info.category,
@@ -466,7 +466,7 @@ class Package:
 
         raise DirsException(self, "Cannot find temp dir in", dirs_tried)
 
-    def _GetBuildDir(self) -> str:
+    def _get_build_dir(self) -> str:
         """Return the path to the dir with build metadata (where args.gn lives).
 
         Raises:
@@ -498,7 +498,7 @@ class Package:
 
         raise DirsException(self, "Cannot find build dir")
 
-    def _GetTempSourceBaseDir(self) -> Optional[str]:
+    def _get_temp_source_base_dir(self) -> Optional[str]:
         """Return the base source path within the temp dir (${S} in portage).
 
         See S on
@@ -506,7 +506,7 @@ class Package:
 
         The base source dir contains copied source files.
         """
-        for version in self._GetOrderedVersionSuffixes():
+        for version in self._get_ordered_version_suffixes():
             source_dir = os.path.join(
                 self.temp_dir, f"{self.package_info.name}-{version}"
             )
@@ -514,7 +514,7 @@ class Package:
                 return source_dir
         return None
 
-    def _GetEbuildSourceDirs(self) -> List[str]:
+    def _get_ebuild_source_dirs(self) -> List[str]:
         """Return actual source dirs.
 
         Based on:
@@ -528,11 +528,11 @@ class Package:
 
         # CROS_WORKON_SRCPATH and CROS_WORKON_LOCALNAME declare paths relative
         # to base source dir.
-        source_dirs = _CheckEbuildVar(
+        source_dirs = _check_ebuild_var(
             self.package_info.ebuild_file, "CROS_WORKON_SRCPATH", ""
         )
         if not source_dirs:
-            source_dirs = _CheckEbuildVar(
+            source_dirs = _check_ebuild_var(
                 self.package_info.ebuild_file, "CROS_WORKON_LOCALNAME", ""
             )
 
@@ -547,7 +547,7 @@ class Package:
             os.path.join(source_base_dir, dir) for dir in source_dirs.split(",")
         ]
 
-    def _GetEbuildDestDirs(self, temp_source_basedir: str) -> List[str]:
+    def _get_ebuilds_dest_dirs(self, temp_source_basedir: str) -> List[str]:
         """Return destination source dirs.
 
         Dest dirs contain temp copy of source dirs.
@@ -557,7 +557,7 @@ class Package:
         """
 
         # CROS_WORKON_DESTDIR declares abs paths in |temp_source_basedir|.
-        dest_dirs = _CheckEbuildVar(
+        dest_dirs = _check_ebuild_var(
             self.package_info.ebuild_file,
             "CROS_WORKON_DESTDIR",
             temp_source_basedir,
@@ -571,7 +571,9 @@ class Package:
             # |dest_dirs| is a comma-separated list of absolute paths to dirs.
             return dest_dirs.split(",")
 
-    def _GetSourceDirsToTempSourceDirsMap(self) -> List[TempActualDichotomy]:
+    def _get_source_dirs_to_temp_source_dirs_map(
+        self,
+    ) -> List[TempActualDichotomy]:
         """Return a list of matches between actual src dirs and temp src dirs.
 
         See cros-workon_src_unpack() on
@@ -584,7 +586,7 @@ class Package:
             DirsException: Cannot find temp source dirs.
             DirsException: Cannot map actual source dirs to temp source dirs.
         """
-        temp_source_basedir = self._GetTempSourceBaseDir()
+        temp_source_basedir = self._get_temp_source_base_dir()
 
         if not temp_source_basedir:
             if not self.is_built_from_actual_sources:
@@ -595,7 +597,7 @@ class Package:
                 )
             # Out-of-tree packages are not copied but are built from the actual
             # sources.
-            source_dirs = self._GetEbuildSourceDirs()
+            source_dirs = self._get_ebuild_source_dirs()
             return [
                 TempActualDichotomy(temp=source_dir, actual=source_dir)
                 for source_dir in source_dirs
@@ -603,8 +605,8 @@ class Package:
 
         # cros-workon.eclass maps source dirs to dest dirs extracted from the
         # ebuild, in the order that they are declared.
-        source_dirs = self._GetEbuildSourceDirs()
-        dest_dirs = self._GetEbuildDestDirs(temp_source_basedir)
+        source_dirs = self._get_ebuild_source_dirs()
+        dest_dirs = self._get_ebuilds_dest_dirs(temp_source_basedir)
 
         if len(source_dirs) != len(dest_dirs):
             raise DirsException(

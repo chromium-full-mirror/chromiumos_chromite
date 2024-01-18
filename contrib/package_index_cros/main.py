@@ -17,7 +17,7 @@ from chromite.contrib.package_index_cros.lib import setup
 from chromite.lib import commandline
 
 
-def _BuildParser():
+def _build_parser():
     parser = commandline.ArgumentParser(
         usage="%(prog)s [options] package [package...]",
         description=textwrap.dedent(
@@ -196,7 +196,7 @@ def _BuildParser():
 
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
-    parser = _BuildParser()
+    parser = _build_parser()
     args = parser.parse_args(argv)
     if args.compile_commands_file:
         args.compile_commands_file = os.path.abspath(args.compile_commands_file)
@@ -217,10 +217,10 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     )
 
     _conductor = conductor.Conductor(_setup)
-    _conductor.Prepare(
+    _conductor.prepare(
         package_names=args.packages, ignore_unsupported=args.ignore_unsupported
     )
-    _conductor.DoMagic(
+    _conductor.do_magic(
         cdb_output_file=args.compile_commands_file,
         targets_output_file=args.gn_targets_file,
         build_output_dir=args.build_dir,

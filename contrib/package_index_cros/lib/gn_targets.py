@@ -60,19 +60,19 @@ class GnTargets:
         self.package = pkg
         self.setup = setup_data
         self.fields_to_resolve: Dict[str, _ArgFixerCallable] = {
-            "args": GnTargets._FixArgsField,
-            "cflags": GnTargets._FixArgList,
-            "cflags_c": GnTargets._FixArgList,
-            "cflags_cc": GnTargets._FixArgList,
-            "include_dirs": GnTargets._FixPathList,
-            "inputs": GnTargets._FixInputsField,
-            "ldflags": GnTargets._FixArgList,
-            "lib_dirs": GnTargets._FixPathList,
-            "output_patterns": GnTargets._FixOutputPatternsField,
-            "outputs": GnTargets._FixOutputsField,
-            "response_file_contents": GnTargets._FixPathList,
-            "sources": GnTargets._FixSourcesField,
-            "script": GnTargets._FixScriptField,
+            "args": GnTargets._fix_args_field,
+            "cflags": GnTargets.g,
+            "cflags_c": GnTargets.g,
+            "cflags_cc": GnTargets.g,
+            "include_dirs": GnTargets._fix_path_list,
+            "inputs": GnTargets._fix_inputs_field,
+            "ldflags": GnTargets.g,
+            "lib_dirs": GnTargets._fix_path_list,
+            "output_patterns": GnTargets._fix_output_patterns_field,
+            "outputs": GnTargets._fix_outputs_field,
+            "response_file_contents": GnTargets._fix_path_list,
+            "sources": GnTargets._fix_sources_field,
+            "script": GnTargets._fix_script_field,
         }
         self.path_handler = path_handler.PathHandler(self.setup)
         if result_build_dir:
@@ -82,7 +82,7 @@ class GnTargets:
 
         self.file_conflicts = file_conflicts or {}
 
-    def Fix(self) -> "GnTargets":
+    def fix(self) -> "GnTargets":
         """Go through targets and their fields, fix what you can."""
 
         for target in self.data:
@@ -93,7 +93,7 @@ class GnTargets:
                     )
         return self
 
-    def _FixScriptField(self, script_file: str) -> str:
+    def _fix_script_field(self, script_file: str) -> str:
         """Fix the script filepath.
 
         Ensure that the script file exists and is the same as |script_file|.
@@ -103,7 +103,7 @@ class GnTargets:
             TargetPathException: Temp and actual script files have different
                 data.
         """
-        temp_script_file, actual_script_file = self.path_handler.FixPath(
+        temp_script_file, actual_script_file = self.path_handler.fix_path(
             script_file, self.package, conflicting_paths=self.file_conflicts
         )
         if temp_script_file == actual_script_file:
@@ -128,22 +128,22 @@ class GnTargets:
 
         return actual_script_file
 
-    def _FixArgsField(self, args_list: List[str]) -> List[str]:
-        return self._FixArgList(args_list)
+    def _fix_args_field(self, args_list: List[str]) -> List[str]:
+        return self.g(args_list)
 
-    def _FixSourcesField(self, path_list: List[str]) -> List[str]:
-        return self._FixPathList(path_list)
+    def _fix_sources_field(self, path_list: List[str]) -> List[str]:
+        return self._fix_path_list(path_list)
 
-    def _FixInputsField(self, path_list: List[str]) -> List[str]:
-        return self._FixPathList(path_list)
+    def _fix_inputs_field(self, path_list: List[str]) -> List[str]:
+        return self._fix_path_list(path_list)
 
-    def _FixOutputsField(self, path_list: List[str]) -> List[str]:
-        return self._FixPathList(path_list)
+    def _fix_outputs_field(self, path_list: List[str]) -> List[str]:
+        return self._fix_path_list(path_list)
 
-    def _FixOutputPatternsField(self, pattern_list: List[str]) -> List[str]:
+    def _fix_output_patterns_field(self, pattern_list: List[str]) -> List[str]:
         # File name is not actual file, but some pattern. Let's fix its
         # directory instead.
-        fixed_pattern_dirs = self._FixPathList(
+        fixed_pattern_dirs = self._fix_path_list(
             [os.path.dirname(p) for p in pattern_list]
         )
         return [
@@ -151,16 +151,16 @@ class GnTargets:
             for dir, pattern in zip(fixed_pattern_dirs, pattern_list)
         ]
 
-    def _FixPathList(self, path_list: List[str]) -> List[str]:
-        return [self._FixPath(path).actual for path in path_list]
+    def _fix_path_list(self, path_list: List[str]) -> List[str]:
+        return [self._fix_path(path).actual for path in path_list]
 
-    def _FixArgList(self, args_list: List[str]) -> List[str]:
+    def g(self, args_list: List[str]) -> List[str]:
         """Fix paths in arguments. Ignores all misses."""
 
         # Split each argument in the list by comma, then by colon, then by
         # whitespace. Fix split argument separately, then join them back to get
         # fixed actual arg.
-        def FixWithSeparator(
+        def fix_with_separator(
             arg: str, separator: str, fixer: Callable[[str], str]
         ):
             fixed_split_args = [
@@ -168,31 +168,31 @@ class GnTargets:
             ]
             return separator.join(fixed_split_args)
 
-        def FixWhiteSpaceSeparator(arg: str) -> str:
-            return FixWithSeparator(arg, " ", self._FixArg)
+        def fix_white_space_separator(arg: str) -> str:
+            return fix_with_separator(arg, " ", self._fix_arg)
 
-        def FixWithColonSeparator(arg: str) -> str:
-            return FixWithSeparator(arg, ":", FixWhiteSpaceSeparator)
+        def fix_with_colon_separator(arg: str) -> str:
+            return fix_with_separator(arg, ":", fix_white_space_separator)
 
-        def FixWithCommaSeparator(arg: str) -> str:
-            return FixWithSeparator(arg, ",", FixWithColonSeparator)
+        def fix_with_comma_separator(arg: str) -> str:
+            return fix_with_separator(arg, ",", fix_with_colon_separator)
 
         actual_arg_list = []
         for arg in args_list:
-            actual_arg_list.append(FixWithCommaSeparator(arg))
+            actual_arg_list.append(fix_with_comma_separator(arg))
 
         return actual_arg_list
 
-    def _FixArg(self, arg: str) -> str:
-        def Fixer(chroot_path):
-            return self._FixPath(chroot_path).actual
+    def _fix_arg(self, arg: str) -> str:
+        def fixer(chroot_path):
+            return self._fix_path(chroot_path).actual
 
-        arg_prefix, actual_path = path_handler.FixPathInArgument(arg, Fixer)
+        arg_prefix, actual_path = path_handler.fix_path_in_argument(arg, fixer)
         return arg_prefix + actual_path
 
-    def _FixPath(self, chroot_path: str) -> path_handler.FixedPath:
-        """Wrap |FixPathWithIgnores|, and move build_dir to the result dir."""
-        fixed_path = self.path_handler.FixPathWithIgnores(
+    def _fix_path(self, chroot_path: str) -> path_handler.FixedPath:
+        """Wrap |fix_path_with_ignores|; move build_dir to the result dir."""
+        fixed_path = self.path_handler.fix_path_with_ignores(
             chroot_path,
             self.package,
             conflicting_paths=self.file_conflicts,
@@ -206,7 +206,7 @@ class GnTargets:
         if fixed_path.actual.startswith(self.package.build_dir):
             return path_handler.FixedPath(
                 fixed_path.original,
-                path_handler.MovePath(
+                path_handler.move_path(
                     fixed_path.actual, self.package.build_dir, self.build_dir
                 ),
             )
@@ -219,33 +219,33 @@ class GnTargetsMerger:
     def __init__(self):
         self.data = {}
         self.fields_to_resolve = {
-            "all_dependent_configs": _MergeLists,
-            "args": _IgnoreNewData,
-            "defines": _MergeLists,
-            "deps": _MergeLists,
-            "cflags": _MergeLists,
-            "cflags_c": _MergeLists,
-            "cflags_cc": _MergeLists,
-            "configs": _MergeLists,
-            "include_dirs": _MergeLists,
-            "inputs": _MergeLists,
+            "all_dependent_configs": _merge_lists,
+            "args": _ignore_new_data,
+            "defines": _merge_lists,
+            "deps": _merge_lists,
+            "cflags": _merge_lists,
+            "cflags_c": _merge_lists,
+            "cflags_cc": _merge_lists,
+            "configs": _merge_lists,
+            "include_dirs": _merge_lists,
+            "inputs": _merge_lists,
             # Metadata structure varies between targets but not much between
             # packages with the same target. It should be safe to keep the first
             # metadata and ignore the rest.
-            "metadata": _IgnoreNewData,
-            "ldflags": _MergeLists,
-            "lib_dirs": _MergeLists,
-            "libs": _MergeLists,
-            "outputs": _MergeLists,
-            "sources": _MergeLists,
+            "metadata": _ignore_new_data,
+            "ldflags": _merge_lists,
+            "lib_dirs": _merge_lists,
+            "libs": _merge_lists,
+            "outputs": _merge_lists,
+            "sources": _merge_lists,
             # Scripts from different packages differ only in path but use the
             # same file. It should be safe to keep the first script and ignore
             # the rest.
-            "script": _IgnoreNewData,
+            "script": _ignore_new_data,
             # Everything else shall be either unique or equal.
         }
 
-    def Append(self, new_targets: GnTargets) -> None:
+    def append(self, new_targets: GnTargets) -> None:
         """Add targets from |new_targets| to existing ones."""
 
         for target in new_targets.data:
@@ -322,7 +322,7 @@ class GnTargetsGenerator:
         self.file_conflicts = file_conflicts or {}
         self.fail_fast = fail_fast
 
-    def _FindRootDir(self, pkg: package.Package) -> str:
+    def _find_root_dir(self, pkg: package.Package) -> str:
         """Returns a dir from which it's possible to generate gn targets."""
 
         for src_match in pkg.src_dir_matches:
@@ -331,11 +331,13 @@ class GnTargetsGenerator:
 
         raise GnTargetsGenerator.RootDirException(pkg, "Cannot find root dir")
 
-    def _GenerateTargetsForPackage(self, pkg: package.Package) -> GnTargets:
+    def _generate_targets_for_package(self, pkg: package.Package) -> GnTargets:
         _path_handler = path_handler.PathHandler(self.setup)
-        chroot_targets_root_dir = _path_handler.ToChroot(self._FindRootDir(pkg))
-        chroot_build_dir = _path_handler.ToChroot(pkg.build_dir)
-        targets_str = cros_sdk.CrosSdk(self.setup).GenerateGnTargets(
+        chroot_targets_root_dir = _path_handler.to_chroot(
+            self._find_root_dir(pkg)
+        )
+        chroot_build_dir = _path_handler.to_chroot(pkg.build_dir)
+        targets_str = cros_sdk.CrosSdk(self.setup).generate_gn_targets(
             chroot_targets_root_dir, chroot_build_dir
         )
         targets_str = targets_str[
@@ -360,15 +362,15 @@ class GnTargetsGenerator:
             file_conflicts=self.file_conflicts,
         )
 
-    def _GenerateResultTargets(self, packages: List[package.Package]) -> List:
+    def _generate_result_targets(self, packages: List[package.Package]) -> List:
         """Generates, fixes and merges gn_targets for given packages."""
 
         result_targets = GnTargetsMerger()
 
         for pkg in packages:
             try:
-                new_targets = self._GenerateTargetsForPackage(pkg).Fix()
-                result_targets.Append(new_targets)
+                new_targets = self._generate_targets_for_package(pkg).fix()
+                result_targets.append(new_targets)
                 logging.debug("%s: targets merged", pkg.full_name)
             except (
                 GnTargetsMergeException,
@@ -382,7 +384,7 @@ class GnTargetsGenerator:
 
         return result_targets.data
 
-    def Generate(
+    def generate(
         self, packages: List[package.Package], result_targets_file: str
     ) -> None:
         """Generate, fix, and merge gn_targets for the given packages.
@@ -391,23 +393,23 @@ class GnTargetsGenerator:
             TargetPathException: Failed to fix a target.
         """
         assert result_targets_file
-        result_targets = self._GenerateResultTargets(packages)
+        result_targets = self._generate_result_targets(packages)
         with open(result_targets_file, "w", encoding="utf-8") as output:
             json.dump(result_targets, output, indent=2)
 
 
-def _MergeLists(existing_list: List[Any], new_list: List[Any]) -> List[Any]:
+def _merge_lists(existing_list: List[Any], new_list: List[Any]) -> List[Any]:
     """Merge elements from new_list into existing_list, ignoring duplicates."""
     return existing_list + [
         element for element in new_list if element not in existing_list
     ]
 
 
-def _IgnoreNewData(existing_data: Any, new_data: Any) -> Any:
+def _ignore_new_data(existing_data: Any, new_data: Any) -> Any:
     """Return existing_data unchanged.
 
-    This should maintain the same function signature as _MergeLists so that they
-    can be called as function-objects.
+    This should maintain the same function signature as _merge_lists so that
+    they can be called as function-objects.
     """
     del new_data  # Unused.
     return existing_data

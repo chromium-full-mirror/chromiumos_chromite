@@ -16,7 +16,7 @@ from chromite.lib import cros_build_lib
 class CrosSdk:
     """Handler for requests to the ChromiumOS SDK."""
 
-    def _Exec(
+    def _exec(
         self,
         cmd: Union[List[str], str],
         *,
@@ -42,7 +42,7 @@ class CrosSdk:
     def __init__(self, setup_data: setup.Setup):
         self.setup = setup_data
 
-    def BuildPackages(self, package_names: List[str]) -> None:
+    def build_packages(self, package_names: List[str]) -> None:
         """Build the named packages, preserving build artifacts.
 
         Raises:
@@ -60,9 +60,9 @@ class CrosSdk:
             ]
             + package_names
         )
-        self._Exec(cmd, with_sudo=True)
+        self._exec(cmd, with_sudo=True)
 
-    def GenerateCompileCommands(self, chroot_build_dir: str) -> str:
+    def generate_compile_commands(self, chroot_build_dir: str) -> str:
         """Call ninja and return compile commands as a string.
 
         Args:
@@ -80,9 +80,9 @@ class CrosSdk:
             "cc",
             "cxx",
         ]
-        return self._Exec(ninja_cmd, capture_output=True).stdout
+        return self._exec(ninja_cmd, capture_output=True).stdout
 
-    def GenerateGnTargets(
+    def generate_gn_targets(
         self, chroot_root_dir: str, chroot_build_dir: str
     ) -> str:
         """Call `gn desc` and return gn targets as a string.
@@ -103,9 +103,9 @@ class CrosSdk:
             "*",
             "--format=json",
         ]
-        return self._Exec(gn_desc_cmd, capture_output=True).stdout
+        return self._exec(gn_desc_cmd, capture_output=True).stdout
 
-    def GenerateDependencyTree(self, package_names: List[str]):
+    def generate_dependency_tree(self, package_names: List[str]):
         """Generate the dependency tree for the given packages.
 
         Utilizes chromite.lib.depgraph to fetch dependency tree. Depgraph has to
@@ -126,11 +126,11 @@ class CrosSdk:
         cmd = " ".join(
             [
                 f'FEATURES="{" ".join(features)}"',
-                path_handler.PathHandler(self.setup).ToChroot(
+                path_handler.PathHandler(self.setup).to_chroot(
                     constants.PRINT_DEPS_SCRIPT_PATH
                 ),
                 self.setup.board,
             ]
             + package_names
         )
-        return self._Exec(cmd, capture_output=True, with_sudo=True).stdout
+        return self._exec(cmd, capture_output=True, with_sudo=True).stdout

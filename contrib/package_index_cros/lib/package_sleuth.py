@@ -33,7 +33,7 @@ class PackageSleuth:
             buildroot=self.setup.cros_dir,
         )
 
-    def ListPackages(
+    def list_packages(
         self, *, packages_names: Optional[List[str]] = None
     ) -> SupportedUnsupportedPackages:
         """Find all packages matching the given packages_names.
@@ -45,23 +45,23 @@ class PackageSleuth:
         """
         if packages_names is None:
             packages_names = []
-        packages = self._ListPackagesWithDeps(packages_names)
-        _FilterPackagesDependencies(packages.supported)
+        packages = self._list_packages_with_deps(packages_names)
+        _filter_packages_dependencies(packages.supported)
 
         return packages
 
-    def _ListPackagesWithDeps(
+    def _list_packages_with_deps(
         self, packages_names: List[str]
     ) -> SupportedUnsupportedPackages:
         """Return a list of packages and their transitive dependencies."""
         packages = SupportedUnsupportedPackages([], [])
 
-        ebuilds = self._ListEbuilds(packages_names)
-        dependencies = self._GetPackagesDependencies(
+        ebuilds = self._list_ebuilds(packages_names)
+        dependencies = self._get_packages_dependencies(
             [
                 e.package
                 for e in ebuilds
-                if package.GetPackageSupport(e, self.setup).is_supported()
+                if package.get_package_support(e, self.setup).is_supported()
             ]
         )
 
@@ -79,18 +79,18 @@ class PackageSleuth:
         while packages_to_list:
             # It's not necessary that |new_ebuilds| == |packages_to_list|.
             # new_ebuilds can be less, or even empty.
-            new_ebuilds = self._ListEbuilds(packages_to_list)
+            new_ebuilds = self._list_ebuilds(packages_to_list)
             if not new_ebuilds:
                 break
 
             # TODO: Some packages need specific USE flag for emerge (e.g.
             # arc-base needs USE=arcpp or USE=arcvm). Without them emerge fails
             # and cros-sdk raises an exception.
-            new_dependencies = self._GetPackagesDependencies(
+            new_dependencies = self._get_packages_dependencies(
                 [
                     e.package
                     for e in ebuilds
-                    if package.GetPackageSupport(e, self.setup).is_supported()
+                    if package.get_package_support(e, self.setup).is_supported()
                 ]
             )
 
@@ -105,7 +105,7 @@ class PackageSleuth:
             ]
 
         for ebuild in ebuilds:
-            package_supported = package.GetPackageSupport(ebuild, self.setup)
+            package_supported = package.get_package_support(ebuild, self.setup)
             if package_supported.is_unsupported():
                 logging.warning(
                     "%s: Not supported: %s",
@@ -122,7 +122,7 @@ class PackageSleuth:
 
         return packages
 
-    def _ListEbuilds(self, packages_names: List[str]) -> portage_util.EBuild:
+    def _list_ebuilds(self, packages_names: List[str]) -> portage_util.EBuild:
         """Return a list of ebuilds with the given names.
 
         If packages_names is None or empty, return all available ebuilds
@@ -141,7 +141,7 @@ class PackageSleuth:
             )
         return ebuilds
 
-    def _GetPackagesDependencies(
+    def _get_packages_dependencies(
         self, packages_names: List[str]
     ) -> Dict[str, List[package.PackageDependency]]:
         """Return a dictionary mapping package names to their dependencies.
@@ -149,9 +149,9 @@ class PackageSleuth:
         The dictionary size is greater than the given |packages_names|.
         Dependencies are also mapped with depth = 1.
         """
-        return self._GetPackagesDependenciesDepgraph(packages_names)
+        return self._get_packages_dependencies_depgraph(packages_names)
 
-    def _GetPackagesDependenciesDepgraph(
+    def _get_packages_dependencies_depgraph(
         self, packages_names: List[str]
     ) -> Dict[str, List[package.PackageDependency]]:
         """Return a dictionary mapping packages names to their dependencies.
@@ -159,7 +159,7 @@ class PackageSleuth:
         The dictionary size is greater than given |packages_names|. Dependencies
         are also mapped with depth = 1.
         """
-        deps_json = cros_sdk.CrosSdk(self.setup).GenerateDependencyTree(
+        deps_json = cros_sdk.CrosSdk(self.setup).generate_dependency_tree(
             packages_names
         )
         deps_tree = json.loads(deps_json)
@@ -167,10 +167,10 @@ class PackageSleuth:
         package_to_deps = {}
         for pkg in deps_tree:
             deps = deps_tree[pkg]["deps"]
-            package_name = _ExtractPackageName(pkg)
+            package_name = _extract_package_name(pkg)
             package_to_deps[package_name] = [
                 package.PackageDependency(
-                    _ExtractPackageName(d), deps[d]["deptypes"]
+                    _extract_package_name(d), deps[d]["deptypes"]
                 )
                 for d in deps
             ]
@@ -185,16 +185,18 @@ class PackageSleuth:
         return package_to_deps
 
 
-def _FilterPackagesDependencies(packages: List[package.Package]) -> None:
+def _filter_packages_dependencies(packages: List[package.Package]) -> None:
     supported_packages_names = set(p.full_name for p in packages)
     for pkg in packages:
-        pkg.dependencies = _GetFilterDependencies(pkg, supported_packages_names)
+        pkg.dependencies = _get_filter_dependencies(
+            pkg, supported_packages_names
+        )
 
 
-def _GetFilterDependencies(
+def _get_filter_dependencies(
     pkg: package.Package, available_packages_names: Set[str]
 ) -> List[package.PackageDependency]:
-    def IsSupportedDependency(dep: package.PackageDependency) -> bool:
+    def is_supported_dependency(dep: package.PackageDependency) -> bool:
         # Filter package itself.
         if dep.name == pkg.full_name:
             return False
@@ -209,10 +211,10 @@ def _GetFilterDependencies(
 
         return True
 
-    return [dep for dep in pkg.dependencies if IsSupportedDependency(dep)]
+    return [dep for dep in pkg.dependencies if is_supported_dependency(dep)]
 
 
-def _ExtractPackageName(full_package_name: str) -> str:
+def _extract_package_name(full_package_name: str) -> str:
     """Return the package's name in the format of category/name.
 
     Args:

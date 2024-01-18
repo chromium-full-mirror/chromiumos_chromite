@@ -26,7 +26,7 @@ class Conductor:
         self.cros_sdk = cros_sdk.CrosSdk(self.setup)
         self.packages: Optional[List[package.Package]] = None
 
-    def Prepare(
+    def prepare(
         self, package_names: List[str], *, ignore_unsupported: bool = False
     ) -> None:
         """Find relevant packages, and build them if necessary.
@@ -64,7 +64,7 @@ class Conductor:
             supported_packages = package_names
 
         sleuth = package_sleuth.PackageSleuth(self.setup)
-        packages_list, _ = sleuth.ListPackages(
+        packages_list, _ = sleuth.list_packages(
             packages_names=supported_packages
         )
 
@@ -79,13 +79,13 @@ class Conductor:
         )
 
         # Sort packages so that dependencies go first.
-        self.packages = _GetSortedPackages(packages_list)
+        self.packages = _get_sorted_packages(packages_list)
 
         if self.setup.with_build:
             package_names = [p.full_name for p in self.packages]
-            self.cros_sdk.BuildPackages(package_names)
+            self.cros_sdk.build_packages(package_names)
 
-    def DoMagic(
+    def do_magic(
         self,
         *,
         cdb_output_file: Optional[str] = None,
@@ -95,13 +95,13 @@ class Conductor:
     ):
         """Call generators one by one.
 
-        |Prepare| should be called prior to this method.
+        |prepare| should be called prior to this method.
         """
         assert self.packages is not None
         bad_packages: List[package.Package] = []
         for p in self.packages:
             try:
-                p.Initialize()
+                p.initialize()
             except Exception as e:
                 logging.warning("Skipped with initialization failure: %s", e)
                 bad_packages.append(p)
@@ -114,7 +114,7 @@ class Conductor:
         if build_output_dir:
             build_dir_conflicts = build_dir.BuildDirGenerator(
                 self.setup
-            ).Generate(self.packages, build_output_dir)
+            ).generate(self.packages, build_output_dir)
             logging.info("Generated build dir: %s", build_output_dir)
 
         if cdb_output_file:
@@ -123,7 +123,7 @@ class Conductor:
                 result_build_dir=build_output_dir,
                 file_conflicts=build_dir_conflicts,
                 fail_fast=fail_fast,
-            ).Generate(self.packages, cdb_output_file)
+            ).generate(self.packages, cdb_output_file)
             logging.info("Generated cdb file: %s", cdb_output_file)
 
         if targets_output_file:
@@ -132,13 +132,13 @@ class Conductor:
                 result_build_dir=build_output_dir,
                 file_conflicts=build_dir_conflicts,
                 fail_fast=fail_fast,
-            ).Generate(self.packages, targets_output_file)
+            ).generate(self.packages, targets_output_file)
             logging.info("Generated targets file: %s", targets_output_file)
 
         logging.info("Done")
 
 
-def _GetSortedPackages(
+def _get_sorted_packages(
     packages_list: List[package.Package],
 ) -> List[package.Package]:
     """Return the given packages, sorted according to their dependencies.

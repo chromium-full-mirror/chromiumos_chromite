@@ -98,7 +98,7 @@ class Cdb:
             self.package.full_name
         ] = _IncludePathOrder(set(), set(), set())
 
-    def Fix(self) -> "Cdb":
+    def fix(self) -> "Cdb":
         """Fix cdb entries.
 
         This will do a few things:
@@ -125,25 +125,25 @@ class Cdb:
             )
 
         for entry in self.data:
-            entry["directory"] = self._GetFixedDirectory(entry)
+            entry["directory"] = self._get_fixed_directory(entry)
 
             entry["file"] = os.path.relpath(
-                self._GetFixedFile(entry), entry["directory"]
+                self._get_fixed_file(entry), entry["directory"]
             )
 
-            entry["command"] = " ".join(self._GetFixedArguments(entry))
+            entry["command"] = " ".join(self._get_fixed_arguments(entry))
             if "arguments" in entry:
                 del entry["arguments"]
 
             if "output" in entry:
-                entry["output"] = self._GetFixOutput(entry)
+                entry["output"] = self._get_fix_output(entry)
 
         return self
 
-    def _GetFixedDirectory(self, entry: Dict) -> str:
+    def _get_fixed_directory(self, entry: Dict) -> str:
         if "directory" not in entry:
             raise ValueError(f"Directory field is missing from {entry}")
-        directory = self.path_handler.FromChroot(entry["directory"])
+        directory = self.path_handler.from_chroot(entry["directory"])
         if directory != self.package.build_dir:
             raise DirectoryFieldException(
                 self.package,
@@ -153,7 +153,7 @@ class Cdb:
             )
         return self.build_dir
 
-    def _GetFixedArguments(self, entry: Dict) -> List[str]:
+    def _get_fixed_arguments(self, entry: Dict) -> List[str]:
         # Each entry has either command or arguments. If it's arguments then
         # substitute it with command.
         assert (
@@ -166,13 +166,13 @@ class Cdb:
             compiler, *arguments = entry["command"].split(" ")
 
         # First argument is always a compiler.
-        actual_arguments = [self._FixArgumentsCompiler(compiler)]
+        actual_arguments = [self._fix_arguments_compiler(compiler)]
         actual_include_args = _IncludePathOrder(set(), set(), set())
 
         for arg in arguments:
 
-            def Fixer(chroot_path: str) -> str:
-                return self._FixPath(
+            def fixer(chroot_path: str) -> str:
+                return self._fix_path(
                     chroot_path,
                     ignore_highly_volatile=True,
                     ignore_generated=True,
@@ -183,7 +183,7 @@ class Cdb:
             (
                 arg_prefix,
                 actual_path,
-            ) = path_handler.FixPathInArgument(arg, Fixer)
+            ) = path_handler.fix_path_in_argument(arg, fixer)
             actual_arg = arg_prefix + actual_path
 
             if arg_prefix == "-I":
@@ -232,10 +232,10 @@ class Cdb:
 
         return actual_arguments
 
-    def _GetFixedFile(self, entry: Dict) -> str:
+    def _get_fixed_file(self, entry: Dict) -> str:
         assert "file" in entry, "File field is missing"
 
-        temp_file, actual_file = self._FixPath(
+        temp_file, actual_file = self._fix_path(
             entry["file"], ignore_generated=True, ignore_highly_volatile=True
         )
 
@@ -267,20 +267,20 @@ class Cdb:
 
         return actual_file
 
-    def _GetFixOutput(self, entry: Dict) -> str:
+    def _get_fix_output(self, entry: Dict) -> str:
         assert "output" in entry, "Output field is missing"
 
-        actual_file = self._FixPath(
+        actual_file = self._fix_path(
             entry["output"], ignore_generated=True, ignore_highly_volatile=True
         ).actual
 
         return actual_file
 
-    def _FixPath(  # pylint: disable=docstring-misnamed-args
+    def _fix_path(  # pylint: disable=docstring-misnamed-args
         self, chroot_path: str, **ignore_args: Any
     ) -> path_handler.FixedPath:
-        """Wrap |FixPathWithIgnores|, and move build_dir to the result dir."""
-        fixed_path = self.path_handler.FixPathWithIgnores(
+        """Wrap |fix_path_with_ignores|; move build_dir to the result dir."""
+        fixed_path = self.path_handler.fix_path_with_ignores(
             chroot_path,
             self.package,
             conflicting_paths=self.file_conflicts,
@@ -290,13 +290,13 @@ class Cdb:
         if fixed_path.actual.startswith(self.package.build_dir):
             return path_handler.FixedPath(
                 fixed_path.original,
-                path_handler.MovePath(
+                path_handler.move_path(
                     fixed_path.actual, self.package.build_dir, self.build_dir
                 ),
             )
         return fixed_path
 
-    def _FixArgumentsCompiler(self, compiler: str) -> str:
+    def _fix_arguments_compiler(self, compiler: str) -> str:
         if compiler.endswith("clang++"):
             return "clang++"
         elif compiler.endswith("clang"):
@@ -336,11 +336,11 @@ class CdbGenerator:
             str, List[str]
         ] = collections.defaultdict(list)
 
-    def _GenerateCdbForPackage(
+    def _generate_cdb_for_package(
         self, pkg: package.Package, packages_to_include_args: Dict
     ) -> Cdb:
-        cdb_str = cros_sdk.CrosSdk(self.setup).GenerateCompileCommands(
-            path_handler.PathHandler(self.setup).ToChroot(pkg.build_dir)
+        cdb_str = cros_sdk.CrosSdk(self.setup).generate_compile_commands(
+            path_handler.PathHandler(self.setup).to_chroot(pkg.build_dir)
         )
         logging.debug("%s: Generated compile commands", pkg.full_name)
 
@@ -359,15 +359,17 @@ class CdbGenerator:
             file_conflicts=self.file_conflicts,
         )
 
-    def _GenerateResultCdb(self, packages: List[package.Package]) -> List:
+    def _generate_result_cdb(self, packages: List[package.Package]) -> List:
         result_cdb_data = []
 
         packages_to_include_args: Dict[str, _IncludePathOrder] = {}
         for pkg in packages:
             try:
                 cdb_data = (
-                    self._GenerateCdbForPackage(pkg, packages_to_include_args)
-                    .Fix()
+                    self._generate_cdb_for_package(
+                        pkg, packages_to_include_args
+                    )
+                    .fix()
                     .data
                 )
                 result_cdb_data.extend(cdb_data)
@@ -385,7 +387,7 @@ class CdbGenerator:
 
         return result_cdb_data
 
-    def Generate(
+    def generate(
         self, packages: List[package.Package], result_cdb_file: str
     ) -> None:
         """Generate, fix, and merge compile databases for the given packages.
@@ -395,7 +397,7 @@ class CdbGenerator:
         """
         assert result_cdb_file
 
-        result_cdb = self._GenerateResultCdb(packages)
+        result_cdb = self._generate_result_cdb(packages)
 
         logging.info(
             "Package CDB Statuses:\n%s",
