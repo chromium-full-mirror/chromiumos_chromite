@@ -20,6 +20,9 @@ class Anonymizer:
             (re.compile(re.escape(getpass.getuser())), "<user>")
         )
 
+    def __call__(self, *args, **kwargs):
+        return self.apply(*args, **kwargs)
+
     def apply(self, data: str) -> str:
         """Applies the replacement rules to data text."""
         if not data:

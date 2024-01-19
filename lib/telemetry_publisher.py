@@ -8,12 +8,34 @@ import dataclasses
 import datetime
 import enum
 import json
-from typing import Any, Dict, List, Optional
+import logging
+import time
+from typing import Any, Callable, Dict, Iterable, List, Optional
+import urllib.error
+import urllib.request
 
 from chromite.third_party.google.protobuf import json_format
+from chromite.third_party.google.protobuf import message as proto_msg
 from chromite.third_party.opentelemetry.sdk import resources
 
+# Required due to incomplete proto support in chromite. This proto usage is not
+# tied to the Build API, so delegating the proto handling to api/ does not make
+# sense. When proto is better supported in chromite, the protos could live
+# somewhere else instead.
+from chromite.api.gen.chromite.telemetry import clientanalytics_pb2
+from chromite.api.gen.chromite.telemetry import trace_span_pb2
 from chromite.utils.telemetry import detector
+from chromite.utils.telemetry import utils
+
+
+_DEFAULT_ENDPOINT = "https://play.googleapis.com/log"
+_DEFAULT_TIMEOUT = 15
+_DEAULT_MAX_WAIT_SECS = 60
+_DEFAULT_MAX_BATCH_SIZE = 1000
+# Preallocated in Clearcut proto to Build.
+_LOG_SOURCE = 2044
+# Preallocated in Clearcut proto to Python clients.
+_CLIENT_TYPE = 33
 
 
 class TraceSpanDataclassMixin:
@@ -371,3 +393,122 @@ class TraceSpan(TraceSpanDataclassMixin):
 
         TraceSpanDataclassMixin.from_dict(self, mapping)
         return {}
+
+    @classmethod
+    def parse(cls, span: str) -> "TraceSpan":
+        """Create an instance from the json encoded string."""
+        instance = cls()
+        instance.from_json(span)
+        return instance
+
+
+class ClearcutPublisher:
+    """Publish span to google http endpoint."""
+
+    def __init__(
+        self,
+        endpoint: str = _DEFAULT_ENDPOINT,
+        timeout: int = _DEFAULT_TIMEOUT,
+        max_wait_secs: int = _DEAULT_MAX_WAIT_SECS,
+        max_batch_size: int = _DEFAULT_MAX_BATCH_SIZE,
+        prefilter: Optional[Callable[[str], str]] = None,
+    ) -> None:
+        self._endpoint = endpoint
+        self._timeout = timeout
+        self._next_request_dt = datetime.datetime.now()
+        self._max_wait_secs = max_wait_secs
+        self._queue = []
+        self._max_batch_size = max_batch_size
+        self._prefilter = prefilter or utils.Anonymizer()
+
+    @property
+    def wait_time(self) -> int:
+        """Get the wait time until the next publish."""
+        wait_delta = self._next_request_dt - datetime.datetime.now()
+        wait_time = wait_delta.total_seconds()
+
+        return wait_time if wait_time > 0 else 0
+
+    def publish(self, spans: Optional[Iterable[str]] = None) -> bool:
+        """Queue |spans| and publish the full queue."""
+        self.queue(spans or [])
+        while self._queue:
+            if not self._publish_batch():
+                return False
+
+        return True
+
+    def queue(self, spans: Iterable[str]) -> None:
+        """Add spans to the queue."""
+        self._queue.extend([TraceSpan.parse(self._prefilter(x)) for x in spans])
+
+    def _publish_batch(self, timeout: Optional[int] = None) -> bool:
+        """Publish one batch of spans to clearcut via http api."""
+        spans = self._queue[: self._max_batch_size]
+        self._queue = self._queue[self._max_batch_size :]
+
+        while True:
+            if self.wait_time > self._max_wait_secs:
+                logging.warning("Wait is too long. This should be weird.")
+                return False
+            elif self.wait_time > 0:
+                time.sleep(self.wait_time)
+                continue
+
+            log_request = self._prepare_request_body(spans)
+            log_response = self._do_publish_request(log_request, timeout)
+            if not log_response:
+                return False
+
+            now = datetime.datetime.now()
+            delta = datetime.timedelta(
+                milliseconds=log_response.next_request_wait_millis
+            )
+            self._next_request_dt = now + delta
+            return True
+
+    def _prepare_request_body(
+        self, spans: Iterable[TraceSpan]
+    ) -> clientanalytics_pb2.LogRequest:
+        log_request = clientanalytics_pb2.LogRequest()
+        log_request.request_time_ms = int(time.time() * 1000)
+        log_request.client_info.client_type = _CLIENT_TYPE
+        log_request.log_source = _LOG_SOURCE
+
+        for span in spans:
+            trace_span = trace_span_pb2.TraceSpan()
+            span.to_proto(trace_span)
+            log_event = log_request.log_event.add()
+            log_event.event_time_ms = int(time.time() * 1000)
+            log_event.source_extension = trace_span.SerializeToString()
+
+        return log_request
+
+    def _do_publish_request(
+        self,
+        log_request: clientanalytics_pb2.LogRequest,
+        timeout: Optional[int] = None,
+    ) -> Optional[clientanalytics_pb2.LogResponse]:
+        req = urllib.request.Request(
+            self._endpoint,
+            data=log_request.SerializeToString(),
+            method="POST",
+        )
+        log_response = clientanalytics_pb2.LogResponse()
+
+        try:
+            with urllib.request.urlopen(
+                req, timeout=timeout or self._timeout
+            ) as f:
+                log_response.ParseFromString(f.read())
+        except urllib.error.URLError as e:
+            # It is expected that child Pids in build_image which call
+            # sys.exit do not have network re-enabled in that namespace, so
+            # for now, log this error at the debug level.
+            logging.debug(e)
+            return None
+        except proto_msg.DecodeError as e:
+            logging.warning("could not decode data into proto: %s", e)
+            return None
+
+        return log_response

@@ -6,13 +6,12 @@
 
 import json
 
+from chromite.api.gen.chromite.telemetry import clientanalytics_pb2
 from chromite.api.gen.chromite.telemetry import trace_span_pb2
 from chromite.lib import telemetry_publisher
 
 
-def test_from_json_to_proto():
-    """Test parsing a json span."""
-    span = """\
+_SPAN = """\
 {
     "name": "test",
     "context": {
@@ -83,10 +82,13 @@ def test_from_json_to_proto():
     }
 }"""
 
-    trace_span = telemetry_publisher.TraceSpan()
-    trace_span.from_json(span)
 
-    data = json.loads(span)
+def test_from_json_to_proto():
+    """Test parsing a json span and populating a proto."""
+    trace_span = telemetry_publisher.TraceSpan()
+    trace_span.from_json(_SPAN)
+
+    data = json.loads(_SPAN)
 
     message = trace_span_pb2.TraceSpan()
     trace_span.to_proto(message)
@@ -185,3 +187,82 @@ def test_from_json_to_proto():
     )
     assert "os.name" not in trace_span.resource.attributes
     assert "os.name" not in message.resource.attributes
+
+
+def test_prepare_request_body() -> None:
+    """Test LogRequest population."""
+    spans = [telemetry_publisher.TraceSpan.parse(_SPAN)]
+
+    publisher = telemetry_publisher.ClearcutPublisher(max_batch_size=1)
+    # pylint: disable-next=protected-access
+    request = publisher._prepare_request_body(spans)
+
+    # Verify the payload in the request matches the span's proto.
+    expected = trace_span_pb2.TraceSpan()
+    telemetry_publisher.TraceSpan.parse(_SPAN).to_proto(expected)
+
+    parsed = trace_span_pb2.TraceSpan()
+    parsed.ParseFromString(request.log_event[0].source_extension)
+
+    assert expected == parsed
+
+
+def test_max_batch_size(monkeypatch) -> None:
+    """Verify max_batch_size is respected."""
+    monkeypatch.setattr(
+        telemetry_publisher.ClearcutPublisher,
+        "_do_publish_request",
+        lambda *args, **kwargs: clientanalytics_pb2.LogResponse(
+            next_request_wait_millis=10000
+        ),
+    )
+
+    publisher = telemetry_publisher.ClearcutPublisher(max_batch_size=2)
+    publisher.queue([_SPAN, _SPAN, _SPAN])
+
+    # Verify we only publish a single batch.
+    # pylint: disable=protected-access
+    publisher._publish_batch()
+    assert len(publisher._queue) == 1
+
+
+def test_max_wait_time(monkeypatch) -> None:
+    """Verify max_wait_time is respected."""
+    # Force a 1-hour wait time.
+    response = clientanalytics_pb2.LogResponse(
+        next_request_wait_millis=1000 * 60 * 60
+    )
+    monkeypatch.setattr(
+        telemetry_publisher.ClearcutPublisher,
+        "_do_publish_request",
+        lambda *args, **kwargs: response,
+    )
+
+    # Max wait time = 1 seconds < response's 1 hour.
+    publisher = telemetry_publisher.ClearcutPublisher(
+        max_batch_size=1, max_wait_secs=1
+    )
+    # Should return False on the second call.
+    assert not publisher.publish([_SPAN, _SPAN])
+
+
+def test_next_request_wait(monkeypatch) -> None:
+    """Verify response's next_request_wait_millis is respected."""
+    # Force a 24-hour wait time.
+    response = clientanalytics_pb2.LogResponse(
+        next_request_wait_millis=1000 * 60 * 60 * 24
+    )
+    monkeypatch.setattr(
+        telemetry_publisher.ClearcutPublisher,
+        "_do_publish_request",
+        lambda *args, **kwargs: response,
+    )
+
+    publisher = telemetry_publisher.ClearcutPublisher()
+    # Shouldn't be a wait time for a freshly initialized instance.
+    assert not publisher.wait_time
+    # Should publish successfully.
+    assert publisher.publish([_SPAN])
+    # Verify new wait time is close to the 24 hours.
+    # If this test takes more than 6 minutes to run we've got issues.
+    assert publisher.wait_time > int(60 * 60 * 23.9)
