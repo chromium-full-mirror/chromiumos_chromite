@@ -90,6 +90,7 @@ and run the script on top level packages:
 $ FEATURES="noclean" build_packages \
   --board ${BOARD} \
   --no-usepkg --no-usepkgonly \
+  --skip-toolchain-update --skip-chroot-upgrade \
   --withtest --withdev --withfactory
 
 $ FEATURES="noclean" cros_run_unit_tests --board ${BOARD}
