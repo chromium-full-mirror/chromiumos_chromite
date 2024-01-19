@@ -7,6 +7,7 @@
 import contextlib
 import datetime
 import glob
+import json
 import logging
 import multiprocessing
 import os
@@ -83,6 +84,7 @@ BACKTRACK_DEFAULT = 10
 SYSROOT_ARCHIVE_FILE = "sysroot.tar.zst"
 BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE = "/tmp/allpackages_command.profile.gz"
 BAZEL_ALLPACKAGES_EXEC_LOG_FILE = "/tmp/allpackages_exec.log"
+BAZEL_BUILD_EVENT_JSON_FILE_PATH = "/tmp/chromeos_bazel_build_events.json"
 BAZEL_COMMAND = constants.CHROMITE_BIN_DIR / "bazel"
 
 
@@ -971,6 +973,7 @@ def BuildPackages(
                             target.name,
                             run_configs.bazel_lite,
                             extra_env,
+                            metrics_dir,
                         )
                     else:
                         cros_build_lib.sudo_run(
@@ -1165,11 +1168,68 @@ def _GetEmergeCommand(
     return cmd
 
 
+def _GetFailedPackages(bazel_build_event_json_file: str) -> List[str]:
+    """Reads the specified file and returns a list of failed packages.
+
+    Each line of the input file is a JSON object which represents an event, and
+    each event looks like this:
+    {
+      "id": {
+        "actionCompleted": {
+          "primaryOutput": ".../chrome-icu/chrome-icu-122.0.6226.0_rc-r1.tbz2",
+          "label": "@@.../chromeos-base/chrome-icu:122.0.6226.0_rc-r1",
+          "configuration": {
+            "id": "..."
+          }
+        }
+      },
+      "action": {
+        "exitCode": 1,
+        "stderr": {
+          "name": "stderr",
+          "uri": "bytestream://remotebuildexecution.googleapis.com/..."
+        },
+        "label": "@@.../chromeos-base/chrome-icu:122.0.6226.0_rc-r1",
+        "configuration": {
+          "id": "..."
+        },
+        "type": "Ebuild",
+        "commandLine": [
+          ...
+        ],
+        "failureDetail": {
+          "message": "local spawn failed for Ebuild",
+          "spawn": {
+            "code": "NON_ZERO_EXIT",
+            "spawnExitCode": 1
+          }
+        }
+      }
+    }
+    """
+    failed_packages = set()
+    with open(bazel_build_event_json_file, encoding="utf-8") as f:
+        for line in f:
+            # Look for actionCompleted events with failureDetails.
+            event = json.loads(line)
+            action_completed = event.get("id", {}).get("actionCompleted")
+            failure_detail = event.get("action", {}).get("failureDetail")
+            if action_completed and failure_detail:
+                label = action_completed.get("label", "")
+                m = re.match(
+                    "@@_main~portage~portage//.*/([^/]+/[^:]+):", label
+                )
+                if m:
+                    failed_packages.add(m.group(1))
+    return list(failed_packages)
+
+
 def _BazelBuild(
     packages: List[str],
     target_name: str,
     bazel_lite: bool,
     extra_env: Dict[str, str],
+    metrics_dir: str,
 ) -> None:
     """Build packages with Bazel.
 
@@ -1180,6 +1240,8 @@ def _BazelBuild(
         bazel_lite: Whether to perform lite build, which targets a reduced
             set of packages and skips sysroot installation.
         extra_env: Environment in which commands should be executed.
+        metrics_dir: Path of the directory where FAILED_PACKAGES file will be
+            stored.
     """
 
     # Bazel needs amd64-host sysroot with sdk/bootstrap profile.
@@ -1243,7 +1305,12 @@ in
         # @portage//internal/(...)/chromeos-base/crosid:0.0.1-r209 (7729267)
         # and we need to remove the id at the end.
         targets = re.findall("(.*) \\(", query_result.stdout)
+    else:
+        targets = [
+            "@portage//target/%s:installed" % package for package in packages
+        ]
 
+    try:
         cros_build_lib.run(
             [
                 BAZEL_COMMAND,
@@ -1251,26 +1318,32 @@ in
                 "--profile=" + BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
                 "--experimental_profile_include_target_label",
                 "--experimental_profile_include_primary_output",
+                # --keep_going to keep building packages even after a failure to
+                # detect as many failure as possible on the CI builders.
+                # We may need to delete this after launching Alchemy.
+                "--keep_going=%s" % ("false" if bazel_lite else "true"),
                 "--execution_log_binary_file="
                 + BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
                 "--execution_log_sort=false",
                 "--config=hash_tracer",
+                "--build_event_json_file=%s" % BAZEL_BUILD_EVENT_JSON_FILE_PATH,
             ]
             + targets,
             extra_env=extra_env,
         )
-    else:
-        cros_build_lib.run(
-            [
-                constants.SOURCE_ROOT
-                / "src/bazel/portage/tools"
-                / "install_packages_to_sysroot.py",
-                "--board",
-                target_name,
-            ]
-            + packages,
-            extra_env=extra_env,
-        )
+    except cros_build_lib.RunCommandError:
+        failed_packages = _GetFailedPackages(BAZEL_BUILD_EVENT_JSON_FILE_PATH)
+        if failed_packages:
+            with open(
+                os.path.join(metrics_dir, constants.DIE_HOOK_STATUS_FILE_NAME),
+                "w",
+                encoding="utf-8",
+            ) as f:
+                for package in failed_packages:
+                    # "unknown" is a place holder for the failing ebuild
+                    # phase name which won't be used.
+                    f.write("%s unknown\n" % package)
+        raise
 
 
 def _CreateSysrootSkeleton(sysroot: sysroot_lib.Sysroot) -> None:
