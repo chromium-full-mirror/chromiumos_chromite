@@ -29,9 +29,10 @@ class _BuildDirMerger:
         self.setup = setup_data
         self.result_build_dir = result_build_dir
 
-        assert os.path.isdir(
-            self.result_build_dir
-        ), "Result build dir does not exist"
+        if not os.path.isdir(self.result_build_dir):
+            raise FileNotFoundError(
+                f"Result build dir does not exist: {self.result_build_dir}"
+            )
 
     def append(self, new_package: package.Package) -> Dict[str, str]:
         """Add |new_package|'s build dir to result one.
@@ -44,7 +45,10 @@ class _BuildDirMerger:
         source_dest_conflicts = {}
 
         def copy_file(source: str, dest: str) -> None:
-            assert os.path.isfile(source), "Copying directory instead of file"
+            if not os.path.isfile(source):
+                raise IsADirectoryError(
+                    f"Copying directory instead of file: {source}"
+                )
 
             if any(
                 source.endswith(ext)
@@ -71,7 +75,10 @@ class _BuildDirMerger:
             shutil.copy2(source, dest)
 
         def copy_dir(source: str, dest: str) -> None:
-            assert os.path.isdir(source), "Copying file instead of directory"
+            if not os.path.isdir(source):
+                raise NotADirectoryError(
+                    f"Copying file instead of directory: {source}"
+                )
 
             for item in os.listdir(source):
                 source_item = os.path.join(source, item)
@@ -119,7 +126,8 @@ class BuildDirGenerator:
             content) mapping file's original name to a result name. The result
             name is composed like {dest_dir}/{package_name}_{filename}.
         """
-        assert result_build_dir
+        if not result_build_dir:
+            raise ValueError(result_build_dir)
 
         self._prepare_dir(result_build_dir)
 

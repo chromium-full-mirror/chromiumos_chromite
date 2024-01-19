@@ -58,13 +58,15 @@ class Setup:
                 path=Path(os.path.realpath(chroot_dir)),
                 out_path=Path(os.path.realpath(chroot_out_dir)),
             )
-            assert (
-                not self.chroot.path.startswith(self.cros_dir)
-                or self.chroot.path == constants.DEFAULT_CHROOT_DIR
-            ), (
-                f"Custom chroot dir inside {self.cros_dir} is not supported, "
-                f"and chromite resolves it to {constants.DEFAULT_CHROOT_DIR}."
-            )
+            if (
+                self.chroot.path.startswith(self.cros_dir)
+                and self.chroot.path != constants.DEFAULT_CHROOT_DIR
+            ):
+                raise ValueError(
+                    f"Custom chroot dir inside {self.cros_dir} is not "
+                    "supported, and chromite resolves it to "
+                    f"{constants.DEFAULT_CHROOT_DIR}."
+                )
         else:
             self.chroot = chroot_lib.Chroot(
                 path=Path(self.cros_dir) / constants.DEFAULT_CHROOT_DIR,

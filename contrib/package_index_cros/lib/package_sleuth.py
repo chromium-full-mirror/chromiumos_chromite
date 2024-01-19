@@ -178,11 +178,13 @@ class PackageSleuth:
             ]
 
         # Check that all given packages have their deps fetched.
-        assert not [
-            package_name
-            for package_name in packages_names
-            if package_name not in package_to_deps
+        packages_missing_deps = [
+            pkg for pkg in packages_names if pkg not in package_to_deps
         ]
+        if packages_missing_deps:
+            raise ValueError(
+                f"Some packages' deps are not fetched: {packages_missing_deps}"
+            )
 
         return package_to_deps
 

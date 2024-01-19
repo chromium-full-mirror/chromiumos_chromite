@@ -37,10 +37,8 @@ class Conductor:
             ignore_unsupported: If True, don't process any packages marked as
                 unsupported, nor their dependencies.
         """
-
-        assert os.path.isdir(
-            self.setup.board_dir
-        ), f"Board is not set up: {self.setup.board}"
+        if not os.path.isdir(self.setup.board_dir):
+            raise Exception(f"Board is not set up: {self.setup.board}")
 
         if ignore_unsupported:
             unsupported_packages = constants.TEMPORARY_UNSUPPORTED_PACKAGES
@@ -68,10 +66,10 @@ class Conductor:
             packages_names=supported_packages
         ).supported
 
-        assert packages_list, "No packages to work with"
-        assert len(packages_list) == len(
-            set(p.full_name for p in packages_list)
-        ), "Duplicates among packages"
+        if not packages_list:
+            raise ValueError("No packages to work with.")
+        if len(packages_list) != len(set(p.full_name for p in packages_list)):
+            raise ValueError(f"Duplicates among packages: {packages_list}")
 
         logging.info(
             "The following packages are going forward: %s",
@@ -97,7 +95,8 @@ class Conductor:
 
         |prepare| should be called prior to this method.
         """
-        assert self.packages is not None
+        if not self.packages:
+            raise ValueError("No packages to work on.")
         bad_packages: List[package.Package] = []
         for p in self.packages:
             try:
@@ -161,11 +160,20 @@ def _get_sorted_packages(
             in_degrees[dep.name] = in_degrees[dep.name] - 1
             if in_degrees[dep.name] == 0:
                 queue.append(dep.name)
-        assert len(result_packages) <= len(
-            packages_list
-        ), "Too many sorted packages, probably due to circular dependencies"
+        if len(result_packages) > len(packages_list):
+            raise ValueError(
+                "Too many sorted packages. This is probably due to circular "
+                "dependencies.\n"
+                f"result_packages: {result_packages}\n"
+                f"packages_list: {packages_list}"
+            )
 
-    assert len(result_packages) == len(packages_list), "Missing some packages"
+    if len(result_packages) != len(packages_list):
+        raise ValueError(
+            "Missing some packages.\n"
+            f"result_packages: {result_packages}\n"
+            f"packages_list: {packages_list}"
+        )
 
     result_packages.reverse()
     return result_packages

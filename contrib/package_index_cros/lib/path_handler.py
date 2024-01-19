@@ -94,7 +94,10 @@ class PathHandler:
             Path outside of chroot if able to move; otherwise, None.
         """
         if chroot_base_dir is None:
-            assert base_dir, "Either chroot_base_dir or base_dir must be set"
+            if base_dir is None:
+                raise ValueError(
+                    "Either chroot_base_dir or base_dir must be set."
+                )
             chroot_base_dir = self.to_chroot(base_dir)
 
         chroot_path = sanitize_path(chroot_path)
@@ -219,7 +222,8 @@ class PathHandler:
             chroot_ignorable_dir = self.to_chroot(sanitize_path(ignorable_dir))
         else:
             chroot_ignorable_dir = chroot_path
-        assert chroot_ignorable_dir
+        if not chroot_ignorable_dir:
+            raise ValueError(chroot_ignorable_dir)
 
         # Try to fix the base directory of the path. If unsuccessful, move up
         # the hierarchy. Stop when we reach the ignorable dir.
@@ -412,9 +416,10 @@ class PathHandler:
                 for ignorable_dir in ignorable_dirs
                 if path and path.startswith(ignorable_dir)
             ]
-            assert (
-                len(ignorable_parent_dirs) <= 1
-            ), "Expecting one match at most"
+            if len(ignorable_parent_dirs) > 1:
+                raise ValueError(
+                    f"Expecting one match at most; got {ignorable_parent_dirs}"
+                )
             ignorable_parent_dir = (
                 ignorable_parent_dirs[0] if ignorable_parent_dirs else None
             )
@@ -574,13 +579,15 @@ def fix_path_in_argument(
     match = re.match(PathHandler.g_argument_regexes, arg)
     if not match:
         if not re.match(PathHandler.g_gn_target_regex, arg):
-            assert os.sep not in arg, f"Unknown arg with possible path: {arg}"
+            if os.sep in arg:
+                raise ValueError(f"Unknown arg with possible path: {arg}")
 
         # Argument is a gn target. Nothing to fix.
 
         return (arg, "")
 
-    assert os.sep in arg, f"Unknown arg: {arg}"
+    if os.sep not in arg:
+        raise ValueError(f"Unknown arg: {arg}")
     prefix = match.group(1)
     chroot_path = match.group(2)
 

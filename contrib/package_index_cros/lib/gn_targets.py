@@ -392,7 +392,8 @@ class GnTargetsGenerator:
         Raises:
             TargetPathException: Failed to fix a target.
         """
-        assert result_targets_file
+        if not result_targets_file:
+            raise ValueError(result_targets_file)
         result_targets = self._generate_result_targets(packages)
         with open(result_targets_file, "w", encoding="utf-8") as output:
             json.dump(result_targets, output, indent=2)

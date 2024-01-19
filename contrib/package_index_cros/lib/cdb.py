@@ -158,9 +158,10 @@ class Cdb:
     def _get_fixed_arguments(self, entry: Dict) -> List[str]:
         # Each entry has either command or arguments. If it's arguments then
         # substitute it with command.
-        assert (
-            "arguments" in entry or "command" in entry
-        ), "Arguments and command field are missing"
+        if "arguments" not in entry and "command" not in entry:
+            raise ValueError(
+                f"Arguments and command fields are missing from entry: {entry}"
+            )
 
         if "arguments" in entry:
             compiler, *arguments = entry["arguments"]
@@ -237,7 +238,8 @@ class Cdb:
         return actual_arguments
 
     def _get_fixed_file(self, entry: Dict) -> str:
-        assert "file" in entry, "File field is missing"
+        if "file" not in entry:
+            raise ValueError(f"File field is missing from entry: {entry}")
 
         fixed_path = self._fix_path(
             entry["file"], ignore_generated=True, ignore_highly_volatile=True
@@ -274,7 +276,8 @@ class Cdb:
         return fixed_path.actual
 
     def _get_fix_output(self, entry: Dict) -> str:
-        assert "output" in entry, "Output field is missing"
+        if "output" not in entry:
+            raise ValueError(f"Output field is missing in entry: {entry}")
 
         actual_file = self._fix_path(
             entry["output"], ignore_generated=True, ignore_highly_volatile=True
@@ -354,7 +357,10 @@ class CdbGenerator:
         if not cdb_data:
             logging.error("%s: Compile commands are empty", pkg.full_name)
 
-        assert isinstance(cdb_data, List)
+        if not isinstance(cdb_data, list):
+            raise ValueError(
+                f"Unexpected cdb_data format {type(cdb_data)}: {cdb_data}"
+            )
 
         return Cdb(
             cdb_data,
@@ -401,7 +407,8 @@ class CdbGenerator:
         Raises:
             CdbException or field specific exception: Failed to fix cdb entry.
         """
-        assert result_cdb_file
+        if not result_cdb_file:
+            raise ValueError(result_cdb_file)
 
         result_cdb = self._generate_result_cdb(packages)
 

@@ -383,7 +383,6 @@ class Package:
 
     @property
     def is_built_from_actual_sources(self) -> bool:
-        assert self.temp_dir
         out_of_tree_build = (
             _check_ebuild_var(
                 self.package_info.ebuild_file, "CROS_WORKON_OUTOFTREE_BUILD"
