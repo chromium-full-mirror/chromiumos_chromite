@@ -61,7 +61,7 @@ def _check_ebuild_var(
     settings = osutils.SourceEnvironment(
         ebuild_file, (var,), env=env, multiline=True
     )
-    return settings.get("var", None)
+    return settings.get(var, None)
 
 
 def get_package_support(
