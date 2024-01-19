@@ -47,7 +47,7 @@ locally with clangd.
 
    ```bash
    (outside)
-   $ /path/to/package_index_cros/main.py \
+   $ /path/to/package_index_cros/main \
      --with-tests \
      --compile-commands \
      /path/to/clangd/compile/commands/dir/compile_commands.json \
@@ -76,10 +76,6 @@ locally with clangd.
 NOTE: The script does not clean up after itself. You might want to use
 `cros_sdk clean`.
 
-NOTE: The script has deprecated `--with-build` option which builds packages
-before generating compile commands. The option is not supported and
-flaky. Prefer building packages manually.
-
 ### Cover all packages
 
 To have as many packages as possible in compile commands, build all the packages
@@ -96,7 +92,7 @@ $ FEATURES="noclean" build_packages \
 $ FEATURES="noclean" cros_run_unit_tests --board ${BOARD}
 
 (outside)
-$ /path/to/package_index_cros/main.py \
+$ /path/to/package_index_cros/main \
   --with-tests \
   --compile-commands \
   /path/to/clangd/compile/commands/dir/compile_commands.json \
