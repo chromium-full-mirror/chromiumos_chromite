@@ -348,10 +348,10 @@ class CdbGenerator:
     def _generate_cdb_for_package(
         self, pkg: package.Package, packages_to_include_args: Dict
     ) -> Cdb:
+        logging.debug("%s: Generating compile commands", pkg.full_name)
         cdb_str = cros_sdk.CrosSdk(self.setup).generate_compile_commands(
             path_handler.PathHandler(self.setup).to_chroot(pkg.build_dir)
         )
-        logging.debug("%s: Generated compile commands", pkg.full_name)
 
         cdb_data = json.loads(cdb_str)
         if not cdb_data:
