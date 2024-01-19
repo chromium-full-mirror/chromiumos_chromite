@@ -307,7 +307,11 @@ class VM(device.Device):
 
     def _SetQemuPath(self) -> None:
         """Find a suitable Qemu executable."""
-        qemu_exe = "qemu-system-x86_64"
+        # TODO: b/321778557 - Remove hacking "arm64" check.
+        if self.board.startswith("arm64"):
+            qemu_exe = "qemu-system-aarch64"
+        else:
+            qemu_exe = "qemu-system-x86_64"
 
         # Pull from CIPD if needed.
         if not self.qemu_path:
