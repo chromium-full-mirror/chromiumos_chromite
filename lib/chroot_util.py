@@ -5,7 +5,7 @@
 """Utilities for updating and building in the chroot environment."""
 
 import os
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Set, Union
 
 from chromite.third_party.opentelemetry import trace
 
@@ -119,7 +119,7 @@ def Emerge(
 @tracer.start_as_current_span("chroot_util.RunUnittests")
 def RunUnittests(
     sysroot: str,
-    packages: List[str],
+    packages: Set[str],
     extra_env: Optional[Dict[str, str]] = None,
     keep_going: bool = False,
     verbose: bool = False,
@@ -144,7 +144,7 @@ def RunUnittests(
     span.set_attributes(
         {
             "sysroot": sysroot,
-            "packages": packages,
+            "packages": list(packages),
             "keep_going": keep_going,
             "jobs": jobs,
         }

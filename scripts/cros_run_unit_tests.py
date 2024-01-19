@@ -242,7 +242,7 @@ def inner_main(opts: commandline.ArgumentNamespace):
     span.set_attributes(
         {
             "sysroot": sysroot,
-            "packages": pkg_with_test,
+            "packages": list(pkg_with_test),
             "pretend": opts.pretend,
             "jobs": opts.jobs,
             "empty_sysroot": opts.empty_sysroot,
