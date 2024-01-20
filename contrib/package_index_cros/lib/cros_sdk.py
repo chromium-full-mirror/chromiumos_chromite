@@ -42,26 +42,6 @@ class CrosSdk:
     def __init__(self, setup_data: setup.Setup):
         self.setup = setup_data
 
-    def build_packages(self, package_names: List[str]) -> None:
-        """Build the named packages, preserving build artifacts.
-
-        Raises:
-            cros_build_lib.CalledProcessError: Command failed.
-        """
-        features = ["noclean"]
-        if self.setup.with_tests:
-            features.append("test")
-        cmd = " ".join(
-            [
-                f'FEATURES="{" ".join(features)}"',
-                "parallel_emerge",
-                "--board",
-                self.setup.board,
-            ]
-            + package_names
-        )
-        self._exec(cmd, with_sudo=True)
-
     def generate_compile_commands(self, chroot_build_dir: str) -> str:
         """Call ninja and return compile commands as a string.
 

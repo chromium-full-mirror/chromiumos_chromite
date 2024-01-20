@@ -40,21 +40,6 @@ def _build_parser():
     )
 
     parser.add_argument(
-        "--with-build",
-        "--with_build",
-        action="store_true",
-        default=False,
-        dest="with_build",
-        help=textwrap.dedent(
-            """\
-    Build packages before generating.
-    If you've already built packages
-    and want to regenerate, you may
-    skip this option."""
-        ),
-    )
-
-    parser.add_argument(
         "--with-tests",
         "--with_tests",
         action="store_true",
@@ -210,7 +195,6 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     _setup = setup.Setup(
         args.board,
         skip_packages=args.skip_packages.split(" "),
-        with_build=args.with_build,
         with_tests=args.with_tests,
         chroot_dir=args.chroot_dir,
         chroot_out_dir=args.chroot_out_dir,

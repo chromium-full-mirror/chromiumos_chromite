@@ -165,21 +165,6 @@ def get_package_support(
     if ebuild.package in constants.TEMPORARY_UNSUPPORTED_PACKAGES:
         return PackageSupport.TEMP_NO_SUPPORT
 
-    if (
-        setup_data.with_build
-        and ebuild.package
-        in constants.TEMPORARY_UNSUPPORTED_PACKAGES_WITH_BUILD
-    ):
-        return PackageSupport.TEMP_NO_SUPPORT
-
-    if (
-        setup_data.with_build
-        and setup_data.with_tests
-        and ebuild.package
-        in constants.TEMPORARY_UNSUPPORTED_PACKAGES_WITH_TESTS
-    ):
-        return PackageSupport.TEMP_NO_SUPPORT
-
     if ebuild.package in setup_data.skip_packages:
         return PackageSupport.TEMP_NO_SUPPORT
 

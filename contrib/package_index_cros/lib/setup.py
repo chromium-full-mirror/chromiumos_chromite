@@ -26,7 +26,6 @@ class Setup:
         board: str,
         *,
         skip_packages: Optional[List[str]] = None,
-        with_build: bool = False,
         with_tests: bool = False,
         chroot_dir: str = "",
         chroot_out_dir: str = "",
@@ -36,9 +35,7 @@ class Setup:
         Args:
             board: The build target being worked on.
             skip_packages: A list of fully-named packages to ignore.
-            with_build: Whether to build packages before generating the index.
-            with_tests: Whether to build tests alongside packages. (Irrelevant
-                if with_build is False.)
+            with_tests: Whether to build tests alongside packages.
             chroot_dir: Absolute path to the local chroot directory.
             chroot_out_dir: Absolute path to the local chroot's out dir.
         """
@@ -103,7 +100,6 @@ class Setup:
         ]
 
         self.skip_packages = skip_packages or []
-        self.with_build = with_build
         self.with_tests = with_tests
 
     @property

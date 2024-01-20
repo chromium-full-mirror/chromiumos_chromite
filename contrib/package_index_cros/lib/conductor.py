@@ -29,7 +29,7 @@ class Conductor:
     def prepare(
         self, package_names: List[str], *, ignore_unsupported: bool = False
     ) -> None:
-        """Find relevant packages, and build them if necessary.
+        """Find relevant packages.
 
         Args:
             package_names: If non-empty, then fetch these packages and their
@@ -42,10 +42,6 @@ class Conductor:
 
         if ignore_unsupported:
             unsupported_packages = constants.TEMPORARY_UNSUPPORTED_PACKAGES
-            if self.setup.with_build:
-                unsupported_packages.update(
-                    constants.TEMPORARY_UNSUPPORTED_PACKAGES_WITH_BUILD
-                )
             if self.setup.with_tests:
                 unsupported_packages.update(
                     constants.TEMPORARY_UNSUPPORTED_PACKAGES_WITH_TESTS
@@ -78,10 +74,6 @@ class Conductor:
 
         # Sort packages so that dependencies go first.
         self.packages = _get_sorted_packages(packages_list)
-
-        if self.setup.with_build:
-            package_names = [p.full_name for p in self.packages]
-            self.cros_sdk.build_packages(package_names)
 
     def do_magic(
         self,
