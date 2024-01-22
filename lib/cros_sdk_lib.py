@@ -886,8 +886,7 @@ class ChrootCreator:
 
     Note: For the lifetime of this class, no paths are mounted in the chroot.
     Thus, some standard path conversion functions like path_util.FromChrootPath
-    and chroot.full_path might return paths that don't exist. Instead, use
-    self._from_chroot_path().
+    and chroot.full_path might return paths that don't exist.
     """
 
     # If the host timezone isn't set, we'll use this inside the SDK.
