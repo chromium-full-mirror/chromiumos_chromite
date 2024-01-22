@@ -1123,6 +1123,7 @@ class FetchMetadataTestCase(
                 "/build/coral/usr/share/tast/metadata/local/cros.pb",
                 "/build/coral/build/share/tast/metadata/local/crosint.pb",
                 "/usr/share/tast/metadata/remote/cros.pb",
+                "/build/coral/usr/local/build/gtest/gtest_metadata.pb",
             )
         ]
         self.PatchObject(cros_build_lib, "AssertOutsideChroot")

@@ -888,6 +888,7 @@ def FindAllMetadataFiles(
         _FindTastLocalMetadataFile(chroot, sysroot),
         _FindTastLocalPrivateMetadataFile(chroot, sysroot),
         _FindTastRemoteMetadataFile(chroot),
+        _FindGtestMetadataFile(chroot, sysroot),
     ]
 
 
@@ -938,4 +939,16 @@ def _FindTastRemoteMetadataFile(chroot: "chroot_lib.Chroot") -> str:
     """
     return chroot.full_path(
         "usr", "share", "tast", "metadata", "remote", "cros.pb"
+    )
+
+
+def _FindGtestMetadataFile(
+    chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
+) -> str:
+    """Find the full path to the Gtest/Crosier test metadata file.
+
+    This file is installed during the tast-bundle eclass.
+    """
+    return chroot.full_path(
+        sysroot.JoinPath("usr", "local", "build", "gtest", "gtest_metadata.pb")
     )
