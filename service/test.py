@@ -542,7 +542,8 @@ def bundle_e2e_code_coverage(
 
         for path in artifacts_dir.glob("**/hpt_coverage/*.gcov"):
             filename = tmpdir_path / path.name
-            path.replace(filename)
+            shutil.copy2(path, filename)
+            logging.info("Moved kernel file %s to tmp.", path)
 
         mapping = code_coverage_util.GatherPathMapping(artifacts_dir)
         if mapping:
