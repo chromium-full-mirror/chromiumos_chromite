@@ -29,6 +29,7 @@ from chromite.lib import partial_mock
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
+from chromite.service import binhost
 from chromite.service import sdk
 from chromite.service import sysroot
 from chromite.utils import os_util
@@ -689,6 +690,7 @@ class BuildPackagesTest(
         self.portageq_envvar_mock = self.PatchObject(
             portage_util, "PortageqEnvvar", return_value="gs://fake/binhost"
         )
+        self.lookup_binhosts_mock = self.PatchObject(binhost, "lookup_binhosts")
         self.PatchObject(portage_util, "RegenDependencyCache")
         self.installed_packages_mock = self.PatchObject(
             portage_util.PortageDB, "InstalledPackages"
@@ -806,8 +808,19 @@ class BuildPackagesTest(
                 "Error getting the binhost age",
             )
 
-    def testPackageIndexes(self) -> None:
-        """Test that package_indexes are passed to portage."""
+    def testLookupService(self) -> None:
+        """Test that binhosts from the lookup service are passed to portage."""
+        config = sysroot.BuildPackagesRunConfig()
+        self.lookup_binhosts_mock.return_value = ["gs://AAAA", "gs://BBBB"]
+
+        sysroot.BuildPackages(self.target, self.sysroot, config)
+
+        self.assertCommandContains(
+            ["PORTAGE_BINHOST=gs://fake/binhost gs://AAAA gs://BBBB"]
+        )
+
+    def testPackageIndexesNone(self) -> None:
+        """Test when the lookup service does not return any binhosts."""
         pkg_indexes = [
             binpkg.PackageIndexInfo(
                 build_target=build_target_lib.BuildTarget("board"),
@@ -826,6 +839,35 @@ class BuildPackagesTest(
             ),
         ]
         config = sysroot.BuildPackagesRunConfig(package_indexes=pkg_indexes)
+        self.lookup_binhosts_mock.return_value = []
+
+        sysroot.BuildPackages(self.target, self.sysroot, config)
+
+        self.assertCommandContains(
+            ["PORTAGE_BINHOST=gs://fake/binhost gs://AAAA gs://BBBB"]
+        )
+
+    def testPackageIndexesError(self) -> None:
+        """Test when the lookup service errors."""
+        pkg_indexes = [
+            binpkg.PackageIndexInfo(
+                build_target=build_target_lib.BuildTarget("board"),
+                snapshot_sha="A",
+                location="gs://AAAA",
+            ),
+            binpkg.PackageIndexInfo(
+                build_target=build_target_lib.BuildTarget("board"),
+                snapshot_sha="B",
+                location="gs://BBBB",
+            ),
+            binpkg.PackageIndexInfo(
+                build_target=build_target_lib.BuildTarget("board"),
+                snapshot_sha="C",
+                location="gs://fake/binhost",
+            ),
+        ]
+        config = sysroot.BuildPackagesRunConfig(package_indexes=pkg_indexes)
+        self.lookup_binhosts_mock.side_effect = ValueError()
 
         sysroot.BuildPackages(self.target, self.sysroot, config)
 

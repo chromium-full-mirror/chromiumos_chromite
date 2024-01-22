@@ -897,19 +897,9 @@ def BuildPackages(
         "PORTAGE_BINHOST", target.name
     )
     binhosts = portage_binhost.strip().split()
-    # TODO(b/302386659): Remove use of package_indexes and use lookup service
-    # when it launches.
-    if run_configs.package_indexes:
-        # Binhosts specified by package_indexes are fetched from GCP using the
-        # lookup service prototype.
-        fetched_binhosts = [
-            x.location
-            for x in run_configs.package_indexes
-            if x.location not in binhosts
-        ]
-        binhosts.extend(fetched_binhosts)
-    extra_env["PORTAGE_BINHOST"] = " ".join(binhosts)
-    _LogBinhostAge(binhosts, date_threshold=30)
+
+    # Use the binhost lookup service.
+    use_package_indexes = False
     try:
         fetched_binhosts = binhost_service.lookup_binhosts(
             build_target=target,
@@ -918,9 +908,30 @@ def BuildPackages(
         logging.info(
             "Binhosts fetched from the lookup service: %s", fetched_binhosts
         )
+        binhosts.extend([x for x in fetched_binhosts if x not in binhosts])
+        # If no binhosts were found, default to using package_indexes.
+        if not fetched_binhosts:
+            use_package_indexes = True
     # Do not block on any exceptions thrown from the lookup service.
     except Exception as e:
         logging.info("Lookup service error: %s", e)
+        use_package_indexes = True
+
+    # TODO(b/302386659): Remove use of package_indexes once lookup service
+    # stabilizes.
+    if use_package_indexes and run_configs.package_indexes:
+        # Binhosts specified by package_indexes are fetched from GCP using
+        # the lookup service prototype.
+        logging.info("Lookup service failure, using package indexes instead.")
+        fetched_binhosts = [
+            x.location
+            for x in run_configs.package_indexes
+            if x.location not in binhosts
+        ]
+        binhosts.extend(fetched_binhosts)
+
+    extra_env["PORTAGE_BINHOST"] = " ".join(binhosts)
+    _LogBinhostAge(binhosts, date_threshold=30)
 
     with osutils.TempDir() as tempdir, cpupower_helper.ModifyCpuGovernor(
         run_configs.autosetgov, run_configs.autosetgov_sticky

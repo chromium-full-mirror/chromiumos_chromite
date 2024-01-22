@@ -897,5 +897,6 @@ def lookup_binhosts(
         base_board,
         "base",
     )
+    binhost_gs_uris.reverse()
 
     return binhost_gs_uris
