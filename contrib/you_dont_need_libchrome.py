@@ -40,12 +40,8 @@ def get_dependencies(package: portage_util.InstalledPackage) -> Set[str]:
 def get_linked_libs(package: portage_util.InstalledPackage) -> Set[str]:
     """Get the libraries a package links to (via REQUIRES)."""
     result = set()
-    if not package.requires:
-        return result
-    for line in package.requires.splitlines():
-        # format of each line is "arch: libs..."
-        _, _, libs = line.partition(":")
-        result.update(libs.split())
+    for libs in package.requires.values():
+        result.update(libs)
     return result
 
 

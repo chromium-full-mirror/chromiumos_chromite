@@ -1608,8 +1608,23 @@ class InstalledPackage:
         return self._ReadField("LICENSE")
 
     @property
-    def requires(self):
-        return self._ReadField("REQUIRES")
+    def requires(self) -> Dict[str, List[str]]:
+        """Get the REQUIRES field.
+
+        The raw file format is:
+          arch1: lib1.so lib2.so
+          arch2: lib3.so lib4.so
+
+        This gets parsed into a dictionary mapping architectures to libraries.
+        """
+        result: Dict[str, List[str]] = {}
+        field = self._ReadField("REQUIRES")
+        if not field:
+            return result
+        for line in field.splitlines():
+            arch, _, libs = line.partition(":")
+            result[arch] = libs.split()
+        return result
 
     @property
     def pf(self):

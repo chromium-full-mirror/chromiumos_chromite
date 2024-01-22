@@ -1701,7 +1701,8 @@ class InstalledPackageTest(cros_test_lib.TempDirTestCase):
         self.assertEqual([">=sys-apps/pkg-12:0/0"], pkg.rdepend.reduce())
         self.assertEqual("portage-stable", pkg.repository)
         self.assertEqual(
-            "x86_64: libc++.so.1 libc++abi.so.1 libc.so.6", pkg.requires
+            {"x86_64": ["libc++.so.1", "libc++abi.so.1", "libc.so.6"]},
+            pkg.requires,
         )
         self.assertEqual("123", pkg.size)
 
