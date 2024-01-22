@@ -37,7 +37,6 @@ from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import process_util
 from chromite.lib import retry_util
-from chromite.lib import timeout_util
 from chromite.lib import toolchain
 from chromite.utils import key_value_store
 from chromite.utils import xdg_util
@@ -895,31 +894,9 @@ def main(argv) -> None:
     # with LVM needs to be done here before we enter the new namespaces.
 
     if replace_for_update or options.delete:
-        # Set a timeout of 300 seconds when getting the lock.
-        with chroot.lock(blocking_timeout=300) as lock:
-            try:
-                lock.write_lock()
-            except timeout_util.TimeoutError as e:
-                logging.error(
-                    "Acquiring write_lock on %s failed: %s", lock.path, e
-                )
-                if not options.force:
-                    cros_build_lib.Die(
-                        "Exiting; use --force to continue w/o lock."
-                    )
-                else:
-                    logging.warning(
-                        "cros_sdk was invoked with force option, continuing."
-                    )
-            logging.notice("Deleting chroot: %s", chroot.path)
-            logging.notice(
-                "%s output dir: %s",
-                "Deleting" if options.delete_out_dir else "Keeping",
-                chroot.out_path,
-            )
-            cros_sdk_lib.CleanupChroot(
-                chroot, delete_out=options.delete_out_dir
-            )
+        chroot.delete(
+            delete_out_dir=options.delete_out_dir, force=options.force
+        )
 
     # Enter a new set of namespaces.  Everything after here cannot directly
     # affect the hosts's mounts or alter LVM volumes.

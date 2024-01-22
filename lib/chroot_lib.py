@@ -9,6 +9,7 @@ functionality that can eventually be centralized here.
 """
 
 import functools
+import logging
 import os
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING, Union
@@ -18,6 +19,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import locking
 from chromite.lib import osutils
 from chromite.lib import path_util
+from chromite.lib import timeout_util
 from chromite.utils import key_value_store
 
 
@@ -143,6 +145,46 @@ class Chroot:
             description="chroot lock",
             blocking_timeout=blocking_timeout,
         )
+
+    def delete(
+        self,
+        delete_out_dir: bool = True,
+        blocking_timeout: int = 300,
+        force: bool = False,
+    ) -> None:
+        """Delete the chroot.
+
+        Args:
+            delete_out_dir: If true, delete the out directory in addition to the
+                chroot.
+            blocking_timeout: Number of seconds to wait for lock.
+            force: If true, delete the chroot anyway after lock timeout.
+        """
+        # Delayed import to avoid circular imports :(
+        # TODO(build): Once cbuildbot is deleted, we won't have any more
+        # calls to CleanupChroot besides this one.  At that point, we can
+        # inline the deletion functionality here and drop this import.
+        # pylint: disable-next=wrong-import-position
+        from chromite.lib import cros_sdk_lib
+
+        with self.lock(blocking_timeout=blocking_timeout) as lock:
+            try:
+                lock.write_lock()
+            except timeout_util.TimeoutError as e:
+                logging.error(
+                    "Acquiring write_lock on %s failed: %s", lock.path, e
+                )
+                if not force:
+                    raise
+                else:
+                    logging.warning("Chroot deletion is forced, continuing.")
+            logging.notice("Deleting chroot: %s", self.path)
+            logging.notice(
+                "%s output dir: %s",
+                "Deleting" if delete_out_dir else "Keeping",
+                self.out_path,
+            )
+            cros_sdk_lib.CleanupChroot(self, delete_out=delete_out_dir)
 
     @functools.cached_property
     def _os_release_props(self) -> Dict[str, str]:

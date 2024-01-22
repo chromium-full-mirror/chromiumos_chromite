@@ -8,10 +8,13 @@ import os
 from pathlib import Path
 from unittest import mock
 
+import pytest
+
 from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
+from chromite.lib import timeout_util
 
 
 class ChrootTest(cros_test_lib.MockTempDirTestCase):
@@ -200,6 +203,66 @@ def test_lock(tmp_path: Path, outside_sdk: None) -> None:
     chroot = chroot_lib.Chroot(path=tmp_path / "test_chroot")
     with chroot.lock() as lock:
         assert Path(lock.path) == tmp_path / ".test_chroot_lock"
+
+
+def test_delete(tmp_path: Path, outside_sdk: None) -> None:
+    """Test chroot.delete when not locked."""
+    del outside_sdk
+    chroot_dir = tmp_path / "test_chroot"
+    chroot_dir.mkdir()
+    chroot_test_file = chroot_dir / "test_file"
+    chroot_test_file.touch()
+    out_dir = tmp_path / "out_dir"
+    out_dir.mkdir()
+    out_test_file = out_dir / "test_file"
+    out_test_file.touch()
+    chroot = chroot_lib.Chroot(path=chroot_dir, out_path=out_dir)
+    chroot.delete()
+    assert not chroot_test_file.exists()
+    assert not out_test_file.exists()
+
+
+def test_delete_locked(tmp_path: Path, outside_sdk: None) -> None:
+    """Test chroot.delete when locked and not forced."""
+    del outside_sdk
+    chroot_dir = tmp_path / "test_chroot"
+    chroot_dir.mkdir()
+    chroot_test_file = chroot_dir / "test_file"
+    chroot_test_file.touch()
+    out_dir = tmp_path / "out_dir"
+    out_dir.mkdir()
+    out_test_file = out_dir / "test_file"
+    out_test_file.touch()
+    chroot = chroot_lib.Chroot(path=chroot_dir, out_path=out_dir)
+    with mock.patch(
+        "chromite.lib.locking._Lock.write_lock",
+        side_effect=timeout_util.TimeoutError,
+    ):
+        with pytest.raises(timeout_util.TimeoutError):
+            chroot.delete()
+    assert chroot_test_file.exists()
+    assert out_test_file.exists()
+
+
+def test_delete_locked_forced(tmp_path: Path, outside_sdk: None) -> None:
+    """Test chroot.delete when locked and forced."""
+    del outside_sdk
+    chroot_dir = tmp_path / "test_chroot"
+    chroot_dir.mkdir()
+    chroot_test_file = chroot_dir / "test_file"
+    chroot_test_file.touch()
+    out_dir = tmp_path / "out_dir"
+    out_dir.mkdir()
+    out_test_file = out_dir / "test_file"
+    out_test_file.touch()
+    chroot = chroot_lib.Chroot(path=chroot_dir, out_path=out_dir)
+    with mock.patch(
+        "chromite.lib.locking._Lock.write_lock",
+        side_effect=timeout_util.TimeoutError,
+    ):
+        chroot.delete(force=True)
+    assert not chroot_test_file.exists()
+    assert not out_test_file.exists()
 
 
 class ChrootRunTest(cros_test_lib.RunCommandTempDirTestCase):
