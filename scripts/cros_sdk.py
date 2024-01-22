@@ -12,15 +12,17 @@ If given args those are passed to the chroot environment, and executed.
 """
 
 import argparse
+import functools
 import glob
 import logging
+import multiprocessing
 import os
 from pathlib import Path
 import pwd
 import re
 import shlex
 import sys
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 import urllib.parse
 
 from chromite.cbuildbot import cbuildbot_alerts
@@ -77,7 +79,7 @@ def GetArchStageTarballs(version):
     ]
 
 
-def FetchRemoteTarballs(storage_dir, urls):
+def FetchRemoteTarballs(storage_dir: Path, urls: List[str]) -> Path:
     """Fetches a tarball given by url, and place it in |storage_dir|.
 
     Args:
@@ -127,32 +129,37 @@ def FetchRemoteTarballs(storage_dir, urls):
     else:
         raise ValueError("No valid URLs found!")
 
-    tarball_dest = os.path.join(storage_dir, tarball_name)
-    current_size = 0
-    if os.path.exists(tarball_dest):
-        current_size = os.path.getsize(tarball_dest)
-        if current_size > content_length:
-            osutils.SafeUnlink(tarball_dest)
-            current_size = 0
+    osutils.SafeMakedirsNonRoot(storage_dir)
+    tarball_dest = storage_dir / tarball_name
+    lock_file = tarball_dest.with_name(f".{tarball_dest.name}.lock")
 
-    if current_size < content_length:
-        retry_util.RunCurl(
-            [
-                "--fail",
-                "-L",
-                "-y",
-                "30",
-                "-C",
-                "-",
-                "--output",
-                tarball_dest,
-                url,
-            ],
-            print_cmd=False,
-            debug_level=logging.NOTICE,
-        )
+    with locking.FileLock(lock_file) as lock:
+        lock.write_lock(f"{tarball_dest} download lock")
+        current_size = 0
+        if os.path.exists(tarball_dest):
+            current_size = os.path.getsize(tarball_dest)
+            if current_size > content_length:
+                osutils.SafeUnlink(tarball_dest)
+                current_size = 0
 
-    # Cleanup old tarballs now since we've successfull fetched; only cleanup
+        if current_size < content_length:
+            retry_util.RunCurl(
+                [
+                    "--fail",
+                    "-L",
+                    "-y",
+                    "30",
+                    "-C",
+                    "-",
+                    "--output",
+                    tarball_dest,
+                    url,
+                ],
+                print_cmd=False,
+                debug_level=logging.NOTICE,
+            )
+
+    # Cleanup old tarballs now since we've successfully fetched; only cleanup
     # the tarballs for our prefix, or unknown ones. This gets a bit tricky
     # because we might have partial overlap between known prefixes.
     for p in Path(storage_dir).glob("cros-sdk-*"):
@@ -893,14 +900,20 @@ def main(argv) -> None:
     # Anything that needs to manipulate the main chroot mount or communicate
     # with LVM needs to be done here before we enter the new namespaces.
 
+    # Delete is handled in a background process so we can download the
+    # SDK tarball in parallel.  Eventually, we may be able to fully
+    # background-off deletion and not block on it anywhere by renaming the SDK
+    # to be deleted.
+    delete_proc: Optional[multiprocessing.Process] = None
     if replace_for_update or options.delete:
-        chroot.delete(
-            delete_out_dir=options.delete_out_dir, force=options.force
+        delete_proc = multiprocessing.Process(
+            target=functools.partial(
+                chroot.delete,
+                delete_out_dir=options.delete_out_dir,
+                force=options.force,
+            ),
         )
-
-    # Enter a new set of namespaces.  Everything after here cannot directly
-    # affect the hosts's mounts or alter LVM volumes.
-    namespaces.SimpleUnshare(net=options.ns_net, pid=options.ns_pid)
+        delete_proc.start()
 
     # Based on selections, determine the tarball to fetch.
     urls = []
@@ -910,11 +923,31 @@ def main(argv) -> None:
         else:
             urls = GetArchStageTarballs(sdk_version)
 
+    sdk_cache = Path(chroot.cache_dir) / "sdks"
+    if options.download or options.create or replace_for_update:
+        sdk_tarball = FetchRemoteTarballs(sdk_cache, urls)
+
+    if delete_proc:
+        delete_proc.join(timeout=15)
+        if delete_proc.is_alive():
+            logging.warning(
+                "Waiting for SDK deletion.  If you have SDK shells open, "
+                "please close them."
+            )
+            delete_proc.join()
+        if delete_proc.exitcode != 0:
+            cros_build_lib.Die(
+                "SDK deletion failed (exit code=%s)", delete_proc.exitcode
+            )
+
+    # Enter a new set of namespaces.  Everything after here cannot directly
+    # affect the hosts's mounts or alter LVM volumes.
+    namespaces.SimpleUnshare(net=options.ns_net, pid=options.ns_pid)
+
     with chroot.lock() as lock:
         if options.proxy_sim:
             _ProxySimSetup(options)
 
-        sdk_cache = os.path.join(chroot.cache_dir, "sdks")
         distfiles_cache = os.path.join(chroot.cache_dir, "distfiles")
         osutils.SafeMakedirsNonRoot(chroot.cache_dir)
         osutils.SafeMakedirsNonRoot(options.out_dir)
@@ -961,16 +994,11 @@ def main(argv) -> None:
             if cros_sdk_lib.IsChrootReady(chroot.path):
                 logging.debug("Chroot already exists.  Skipping creation.")
             else:
-                sdk_tarball = FetchRemoteTarballs(sdk_cache, urls)
                 cros_sdk_lib.CreateChroot(
                     chroot,
                     Path(sdk_tarball),
                 )
                 mounted = True
-        elif options.download:
-            # Allow downloading only.
-            lock.write_lock()
-            FetchRemoteTarballs(sdk_cache, urls)
 
         if options.enter:
             lock.read_lock()

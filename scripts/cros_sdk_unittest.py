@@ -50,7 +50,7 @@ class CrosSdkUtilsTest(cros_test_lib.MockTempDirTestCase):
         )
         self.PatchObject(retry_util, "RunCurl", return_value=curl)
         self.assertEqual(
-            os.path.join(self.tempdir, "tar"),
+            self.tempdir / "tar",
             cros_sdk.FetchRemoteTarballs(self.tempdir, ["gs://x/tar"]),
         )
 
