@@ -5,6 +5,7 @@
 """chroot_lib unit tests."""
 
 import os
+from pathlib import Path
 from unittest import mock
 
 from chromite.lib import chroot_lib
@@ -191,6 +192,14 @@ def test_tarball_version_missing(tmp_path, outside_sdk) -> None:
     del outside_sdk
     chroot = chroot_lib.Chroot(path=tmp_path)
     assert chroot.tarball_version is None
+
+
+def test_lock(tmp_path: Path, outside_sdk: None) -> None:
+    """Test chroot.lock."""
+    del outside_sdk
+    chroot = chroot_lib.Chroot(path=tmp_path / "test_chroot")
+    with chroot.lock() as lock:
+        assert Path(lock.path) == tmp_path / ".test_chroot_lock"
 
 
 class ChrootRunTest(cros_test_lib.RunCommandTempDirTestCase):

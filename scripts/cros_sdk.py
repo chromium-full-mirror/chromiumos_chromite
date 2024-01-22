@@ -867,11 +867,6 @@ def main(argv) -> None:
         goma=goma,
     )
 
-    lock_path = os.path.dirname(options.chroot)
-    lock_path = os.path.join(
-        lock_path, ".%s_lock" % os.path.basename(options.chroot).lstrip(".")
-    )
-
     if not options.sdk_version:
         sdk_version = (
             bootstrap_latest_version
@@ -901,14 +896,12 @@ def main(argv) -> None:
 
     if replace_for_update or options.delete:
         # Set a timeout of 300 seconds when getting the lock.
-        with locking.FileLock(
-            lock_path, "chroot lock", blocking_timeout=300
-        ) as lock:
+        with chroot.lock(blocking_timeout=300) as lock:
             try:
                 lock.write_lock()
             except timeout_util.TimeoutError as e:
                 logging.error(
-                    "Acquiring write_lock on %s failed: %s", lock_path, e
+                    "Acquiring write_lock on %s failed: %s", lock.path, e
                 )
                 if not options.force:
                     cros_build_lib.Die(
@@ -940,7 +933,7 @@ def main(argv) -> None:
         else:
             urls = GetArchStageTarballs(sdk_version)
 
-    with locking.FileLock(lock_path, "chroot lock") as lock:
+    with chroot.lock() as lock:
         if options.proxy_sim:
             _ProxySimSetup(options)
 

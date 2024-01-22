@@ -15,6 +15,7 @@ from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import locking
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.utils import key_value_store
@@ -122,6 +123,26 @@ class Chroot:
     def has_path(self, *args: str) -> bool:
         """Check if a chroot-relative path exists inside the chroot."""
         return os.path.exists(self.full_path(*args))
+
+    def lock(self, blocking_timeout: Optional[int] = None) -> locking.FileLock:
+        """Get a locking.FileLock corresponding to this chroot.
+
+        Args:
+            blocking_timeout: If specified, the number of seconds blocking
+                operations on this lock should wait before timing out.
+
+        Returns:
+            A locking.FileLock.
+        """
+        chroot_path = Path(self.path)
+        lock_path = chroot_path.with_name(
+            f".{chroot_path.name.lstrip('.')}_lock"
+        )
+        return locking.FileLock(
+            lock_path,
+            description="chroot lock",
+            blocking_timeout=blocking_timeout,
+        )
 
     @functools.cached_property
     def _os_release_props(self) -> Dict[str, str]:
