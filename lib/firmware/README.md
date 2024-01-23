@@ -23,6 +23,16 @@ To build the AP Firmware only for `foo-variant`:
   cros ap build -b foo --fw-name foo-variant
 ```
 
+This will create 3 files:
+ - `image-[variant].net.bin` : enables net-boot flow. Allows the bios to boot a
+ kernel that is retrieved over the network every boot. Rarely needed.
+ - `image-[variant].serial.bin` : enables a bios with verbose logging to the
+ serial console. Slower boot but useful when modifying the bios.
+ - `image-[variant].bin`: the most "normal" image, without serial logging.
+ Closest to the production version.
+
+During development you probably want to flash the `*.serial.bin` image.
+
 ## Flashing
 Flashing via servo requires servod process to be running.
 
