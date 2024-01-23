@@ -23,6 +23,7 @@ not_string_data_array=()
 sort_order="DESC"
 before_datestring=""
 after_datestring=""
+by_date=0
 
 print_usage() {
   cat <<HELP_USAGE
@@ -31,6 +32,7 @@ Usage:  $0 -c|--count <search_string>
            OR -s|--string <search_string>|-ns <search_string>
      [-w|-when] <when_string>
      [-l|--limit] <limit_string> [--field_limit <field_limit>]
+     [-g|--by_date]
      [--case_sensitive)]
      [--asc]
      [--es|--ef]
@@ -73,6 +75,7 @@ Usage:  $0 -c|--count <search_string>
      only_stdout   : Show only stdout and date, not buildId, stepName, etc.
      case_sensitive: Match (or for 'ns', don't match) case sensitive.
                      Note that case-insensitive is the default.
+     by_date       : Group counts by date. Ignored when -s given.
      verbose       : Show dremel query before executing it.
 HELP_USAGE
   exit 0
@@ -137,6 +140,10 @@ while (("$#")); do
       case_insensitive=0
       shift 1
       ;;
+    -g | --by_date)
+      by_date=1
+      shift 1
+      ;;
     -v | --verbose)
       verbose=1
       shift
@@ -156,7 +163,7 @@ done
 string_data_arraylen=${#string_data_array[@]}
 not_string_data_arraylen=${#not_string_data_array[@]}
 
-if [[ $string_data_arraylen -ne 0 ]] && [[ -n ${count_data} ]]; then
+if [[ ${string_data_arraylen} -ne 0 ]] && [[ -n ${count_data} ]]; then
   echo "Specifying both -s and -c is not allowed."
   print_usage
 fi
@@ -171,7 +178,15 @@ fi
 if [[ -n ${count_data} ]]; then
   # Note that we use count(stdout) regardless of case-sensitivity. The WHERE
   # part of the query will use ${source_data} to handle case-sensitivity.
-  query="SELECT count(stdout) AS Count FROM
+  cols="count(stdout) AS Count"
+  group_order=""
+  if [[ ${by_date} -eq 1 ]]; then
+    cols+=", EXTRACT(DATE FROM TIMESTAMP_SECONDS(request_time.seconds)) "
+    cols+="AS StartDate"
+    group_order="GROUP BY StartDate ORDER BY StartDate"
+  fi
+
+  query="SELECT ${cols} FROM
   chromeos_ci_eng.analysis_event_log.${when} WHERE ${source_data} LIKE "
   if [[ ${case_insensitive} -eq 1 ]]; then
     query+=" LOWER(\"%${count_data}%\")"
@@ -179,12 +194,12 @@ if [[ -n ${count_data} ]]; then
     query+=" \"%${count_data}%\""
   fi
   if [ "${execution_failure}" -eq 1 ]; then
-    query+=" AND step_execution_result IS NOT NULL;"
+    query+=" AND step_execution_result IS NOT NULL"
   elif [ "${execution_success}" -eq 1 ]; then
-    query+=" AND step_execution_result IS NULL;"
-  else
-    query+=";"
+    query+=" AND step_execution_result IS NULL"
   fi
+  query+=" ${group_order};"
+
   if [ "${verbose}" -eq 1 ]; then
     echo "QUERY: ${query}"
     echo "Executing..."
@@ -206,7 +221,7 @@ if [[ -n ${join_1} ]]; then
   if [[ ${case_insensitive} -eq 1 ]]; then
     source_2="LOWER(stdout_2)"
   fi
-  echo "JOIN $join_1 AND $join_2"
+  echo "JOIN ${join_1} AND ${join_2}"
   query="SELECT CONCAT('https://ci.chromium.org/b/', CAST(build_id AS STRING))
   as BuildId, step_name, SUBSTR(${source_1}, STRPOS(${source_1}, \"${join_1}\"),
   ${field_limit}) AS stdout_1, step_name1,
@@ -218,13 +233,13 @@ if [[ -n ${join_1} ]]; then
   query+=" step_name AS step_name1, stdout AS stdout_2"
   query+=" FROM chromeos_ci_eng.analysis_event_log.${when})"
   query+=" ON build_id = build_id1 AND step_name != step_name1"
-  query+=" WHERE $source_1 "
+  query+=" WHERE ${source_1} "
   if [[ ${case_insensitive} -eq 1 ]]; then
     query+=" LIKE LOWER(\"%${join_1}%\")"
   else
     query+=" LIKE \"%${join_1}%\""
   fi
-  query+=" AND $source_2 "
+  query+=" AND ${source_2} "
   if [[ ${case_insensitive} -eq 1 ]]; then
     query+=" LIKE LOWER(\"%${join_2}%\")"
   else
@@ -250,22 +265,23 @@ if [[ -n ${join_1} ]]; then
   exit 0
 fi
 
-if [[ $string_data_arraylen -eq 0 && $not_string_data_arraylen -eq 0 ]]; then
+if [[ ${string_data_arraylen} -eq 0 && ${not_string_data_arraylen} -eq 0 ]];
+then
   echo "No search string specified."
   echo " -s|--string <search_string> or -ns <search_string> is required."
   print_usage
 fi
 
 select_fields=""
-for ((index = 0; index < $string_data_arraylen; index++)); do
-  string_data=${string_data_array[$index]}
+for ((index = 0; index < string_data_arraylen; index++)); do
+  string_data=${string_data_array[${index}]}
 
   # Field_limit is always set (even w/o cmd line arg), so set select_field
   # based on array and field_limit.
   select_field="SUBSTR(${source_data}, STRPOS(${source_data},"
   select_field="${select_field} \"${string_data}\"),"
-  select_field="${select_field} ${field_limit}) AS Stdout$index,"
-  select_fields="$select_fields $select_field"
+  select_field="${select_field} ${field_limit}) AS Stdout${index},"
+  select_fields="${select_fields} ${select_field}"
 done
 
 if [ "${only_stdout}" -eq 1 ]; then
@@ -279,9 +295,9 @@ fi
 
 query+=" FROM chromeos_ci_eng.analysis_event_log.${when}"
 
-for ((index = 0; index < $string_data_arraylen; index++)); do
-  string_data=${string_data_array[$index]}
-  if [[ $index -eq 0 ]]; then
+for ((index = 0; index < string_data_arraylen; index++)); do
+  string_data=${string_data_array[${index}]}
+  if [[ ${index} -eq 0 ]]; then
     query+=" WHERE ${source_data}"
   else
     query+=" AND ${source_data}"
@@ -293,9 +309,9 @@ for ((index = 0; index < $string_data_arraylen; index++)); do
   fi
 done
 
-for ((index = 0; index < $not_string_data_arraylen; index++)); do
-  not_string_data=${not_string_data_array[$index]}
-  if [[ $index -eq 0 && $string_data_arraylen -eq 0 ]]; then
+for ((index = 0; index < not_string_data_arraylen; index++)); do
+  not_string_data=${not_string_data_array[${index}]}
+  if [[ ${index} -eq 0 && ${string_data_arraylen} -eq 0 ]]; then
     query+=" WHERE ${source_data}"
   else
     query+=" AND ${source_data}"
