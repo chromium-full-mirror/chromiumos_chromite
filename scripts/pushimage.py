@@ -518,7 +518,7 @@ def PushImage(
             (
                 constants.FLEXOR_KERNEL_IMAGE_TAR,
                 flexor_basename,
-                "tar.zstd",
+                "tar.zst",
                 constants.IMAGE_TYPE_FLEXOR_KERNEL,
             ),
         )

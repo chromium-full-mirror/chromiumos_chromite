@@ -598,7 +598,7 @@ FACTORY_IMAGE_NAME = "factory_install_shim"
 FACTORY_IMAGE_BIN = f"{FACTORY_IMAGE_NAME}.bin"
 
 FLEXOR_KERNEL_IMAGE_NAME = "flexor_vmlinuz"
-FLEXOR_KERNEL_IMAGE_TAR = f"{FLEXOR_KERNEL_IMAGE_NAME}.tar.zstd"
+FLEXOR_KERNEL_IMAGE_TAR = f"{FLEXOR_KERNEL_IMAGE_NAME}.tar.zst"
 
 # Image type constants.
 IMAGE_TYPE_BASE = "base"
