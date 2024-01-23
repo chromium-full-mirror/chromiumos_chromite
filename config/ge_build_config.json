@@ -10693,15 +10693,6 @@
         },
         {
           "board_name": "rex",
-          "name": "karis4es",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7205,
-          "is_active": true,
-          "is_experimental": true
-        },
-        {
-          "board_name": "rex",
           "name": "rex",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
