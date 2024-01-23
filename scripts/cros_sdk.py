@@ -703,11 +703,6 @@ def _FinalizeOptions(
     if options.force and not options.delete:
         parser.error("Specifying --force without --delete does not make sense.")
 
-    # Resolve tri-state --delete-out-dir to a boolean.  This argument is
-    # default-on for --delete/--replace, but default-off for --update.
-    if options.delete_out_dir is None:
-        options.delete_out_dir = not options.update
-
     # Resolve default output directories.
     chroot_path = (
         constants.DEFAULT_CHROOT_PATH
@@ -771,6 +766,11 @@ def _FinalizeOptions(
     if options.update is None:
         # Defer to configuration file.
         options.update = update_cfg.exists()
+
+    # Resolve tri-state --delete-out-dir to a boolean.  This argument is
+    # default-on for --delete/--replace, but default-off for --update.
+    if options.delete_out_dir is None:
+        options.delete_out_dir = not options.update
 
     options.Freeze()
 

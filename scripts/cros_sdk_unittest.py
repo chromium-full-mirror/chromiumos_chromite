@@ -379,21 +379,40 @@ def test_update_sticky(
 
 
 @pytest.mark.parametrize(
-    ["args", "expected"],
+    ["args", "update_sticky", "expected"],
     (
-        (["--replace"], True),
-        (["--update"], False),
-        (["--replace", "--no-delete-out-dir"], False),
-        (["--update", "--delete-out-dir"], True),
+        (["--replace"], False, True),
+        (["--update"], False, False),
+        (["--replace", "--no-delete-out-dir"], False, False),
+        (["--update", "--delete-out-dir"], False, True),
+        (["--replace"], True, False),
+        (["--update"], True, False),
+        (["--replace", "--no-delete-out-dir"], True, False),
+        (["--update", "--delete-out-dir"], True, True),
+        ([], True, False),
     ),
 )
-def test_delete_out(args, expected) -> None:
+def test_delete_out(
+    tmp_path: Path,
+    monkeypatch: "pytest.MonkeyPatch",
+    args,
+    update_sticky,
+    expected,
+) -> None:
     """Test the resolved value for --delete-out-dir/--no-delete-out-dir.
 
     Args:
+        tmp_path: pytest fixture.
+        monkeypatch: pytest fixture.
         args: The command line args.
+        update_sticky: True if sticky update config exists.
         expected: The expected opts.delete_out_dir.
     """
+    conf_file = tmp_path / "update_sticky"
+    if update_sticky:
+        conf_file.touch()
+    monkeypatch.setattr(chromite_config, "SDK_UPDATE_STICKY_CONFIG", conf_file)
+
     parser, commands = cros_sdk._CreateParser("1", "2")
     opts = parser.parse_args(args)
     cros_sdk._FinalizeOptions(parser, opts, commands)
