@@ -862,3 +862,6 @@ source make.conf.host_setup
         self._test_update(
             "chromeos-prebuilt", "new-chromiumos-sdk", "new-chromiumos-sdk"
         )
+
+    def test_update_sdk_bucket_to_default_value(self) -> None:
+        self._test_update("chromeos-prebuilt", "chromiumos-sdk", "")

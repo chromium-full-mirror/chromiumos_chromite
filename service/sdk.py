@@ -505,7 +505,10 @@ def _uprev_local_sdk_version_file(
         new_sdk_gs_bucket: The new value for SDK_BUCKET. If None, don't modify.
             (But the empty string is a meaningful value!) This may either
             include or exclude the "gs://" prefix.
-            Examples: "gs://chromiumos-sdk", "chromiumos-sdk".
+            Examples: "gs://my-bucket", "my-bucket".
+            If the given bucket is equal to the default SDK bucket, then instead
+            the empty string will be written to the file so that Chromite can
+            continue to use the default, whatever it may be.
 
     Returns:
         True if changes were made, else False.
@@ -524,6 +527,8 @@ def _uprev_local_sdk_version_file(
     }
     if new_sdk_gs_bucket is not None:
         new_sdk_gs_bucket = gs_urls_util.extract_gs_bucket(new_sdk_gs_bucket)
+        if new_sdk_gs_bucket == constants.SDK_GS_BUCKET:
+            new_sdk_gs_bucket = ""
         new_values["SDK_BUCKET"] = new_sdk_gs_bucket
     logging.info(
         "Updating SDK version file (%s)", constants.SDK_VERSION_FILE_FULL_PATH
