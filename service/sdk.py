@@ -446,6 +446,10 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
     features = " ".join((existing, "-separatedebug splitdebug")).strip()
     extra_env = {"FEATURES": features}
 
+    # We require USE be passed as SDK_USE in the environment.  Users setting USE
+    # likely intend the flags to apply to the board, not the SDK.
+    extra_env["USE"] = os.environ.get("SDK_USE", "")
+
     binhosts = portage_util.PortageqEnvvar("PORTAGE_BINHOST")
     if arguments.use_snapshot_binhosts:
         portage_binhosts = binhost.GetHostBinhosts()
