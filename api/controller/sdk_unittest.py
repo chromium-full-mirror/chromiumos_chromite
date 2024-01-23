@@ -451,6 +451,7 @@ class SdkUpdateTest(
             toolchain_targets=[],
             toolchain_changed=False,
             use_snapshot_binhosts=False,
+            log_installed_packages=True,
         )
 
         # Multiple boards and flags True.
@@ -462,6 +463,7 @@ class SdkUpdateTest(
             toolchain_targets=targets,
             toolchain_changed=False,
             use_snapshot_binhosts=False,
+            log_installed_packages=True,
         )
 
         # Use host binpkgs uploaded by snapshot builders.
@@ -472,6 +474,7 @@ class SdkUpdateTest(
             toolchain_targets=[],
             toolchain_changed=False,
             use_snapshot_binhosts=True,
+            log_installed_packages=True,
         )
 
 

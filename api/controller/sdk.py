@@ -194,6 +194,7 @@ def Update(
         toolchain_targets=targets,
         toolchain_changed=toolchain_changed,
         use_snapshot_binhosts=request.use_snapshot_binhosts,
+        log_installed_packages=True,
     )
 
     result = sdk.Update(args)

@@ -2597,6 +2597,11 @@ def _Qlist(
     )
 
 
+def get_installed_packages(board=None) -> List[str]:
+    """Get the installed packages."""
+    return _Qlist(["-Iv"], board).stdout.splitlines()
+
+
 def GetInstalledPackageUseFlags(
     pkg_str, board=None, buildroot=constants.SOURCE_ROOT
 ):
