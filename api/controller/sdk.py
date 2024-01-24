@@ -153,7 +153,10 @@ def Create(
         ccache_disable=ccache_disable,
     )
 
-    version = sdk.Create(args)
+    try:
+        version = sdk.Create(args)
+    except sdk.SdkCreateError as e:
+        cros_build_lib.Die(e)
 
     if version:
         response.version.version = version
@@ -163,6 +166,7 @@ def Create(
             "No chroot version could be found. There was likely an"
             "error creating the chroot that was not detected."
         )
+
     return None
 
 

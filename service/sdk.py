@@ -37,6 +37,10 @@ class Error(Exception):
     """Base module error."""
 
 
+class SdkCreateError(Error):
+    """Error creating the SDK."""
+
+
 class UnmountError(Error):
     """An error raised when unmount fails."""
 
@@ -294,7 +298,10 @@ def Create(arguments: CreateArguments) -> Optional[int]:
     cros_build_lib.AssertOutsideChroot()
 
     cros_sdk = constants.CHROMITE_BIN_DIR / "cros_sdk"
-    cros_build_lib.run([cros_sdk] + arguments.GetArgList())
+    try:
+        cros_build_lib.run([cros_sdk] + arguments.GetArgList())
+    except cros_build_lib.RunCommandError as e:
+        raise SdkCreateError(f"Error creating the SDK: {str(e)}") from e
 
     version = GetChrootVersion(arguments.chroot.path)
     if not arguments.replace:
