@@ -6,7 +6,7 @@
 
 import os
 from pathlib import Path
-from typing import Dict, TYPE_CHECKING, Union
+from typing import Dict, Optional, TYPE_CHECKING, Union
 
 from chromite.api import controller
 from chromite.api import faux
@@ -80,7 +80,7 @@ def _CreateManifestFromSdkResponse(
 ) -> None:
     """Populate a fake CreateManifestFromSdkResponse."""
     response.manifest_path.path = "/fake/sdk/tarball.tar.gz.Manifest"
-    response.manifest_path.location = common_pb2.Path.Location.INSIDE
+    response.manifest_path.location = common_pb2.Path.INSIDE
 
 
 @faux.success(_CreateManifestFromSdkResponse)
@@ -113,7 +113,7 @@ def CreateManifestFromSdk(
 
     manifest_path = sdk.CreateManifestFromSdk(sdk_path, dest_dir)
     response.manifest_path.path = str(manifest_path)
-    response.manifest_path.location = common_pb2.Path.Location.OUTSIDE
+    response.manifest_path.location = common_pb2.Path.OUTSIDE
 
 
 @faux.success(_ChrootVersionResponse)
@@ -124,7 +124,7 @@ def Create(
     request: "sdk_pb2.CreateRequest",
     response: "sdk_pb2.CreateResponse",
     config: "api_config.ApiConfig",
-) -> Union[int, None]:
+) -> Optional[int]:
     """Chroot creation, includes support for replacing an existing chroot.
 
     Args:
@@ -174,7 +174,7 @@ def Update(
     request: "sdk_pb2.UpdateRequest",
     response: "sdk_pb2.UpdateResponse",
     _config: "api_config.ApiConfig",
-) -> Union[int, None]:
+) -> Optional[int]:
     """Update the chroot.
 
     Args:
