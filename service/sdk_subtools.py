@@ -141,6 +141,7 @@ def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
 
     emerge_flags.extend(
         [
+            "--with-test-deps=n",
             f"--useoldpkg-atoms={exclude_pkgs}",
             f"--rebuild-exclude={exclude_pkgs}",
         ]
