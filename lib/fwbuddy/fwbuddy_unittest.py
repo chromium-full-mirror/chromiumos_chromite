@@ -11,6 +11,8 @@
 
 import builtins
 from pathlib import Path
+from typing import Any
+from unittest import mock
 
 import pytest
 
@@ -23,6 +25,21 @@ GENERIC_VALID_URI = (
     "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed/serial"
 )
 
+FAKE_FIRMWARE_QUALS_DATA = """{
+    "firmware_quals": [
+        {
+            "board_name": "dedede",
+            "model_name": "galnat360",
+            "branch_name": "firmware-dedede-13606.B"
+        }
+    ]
+}
+"""
+
+
+def mock_read_text(*args: Any, **kwargs: Any) -> str:
+    return FAKE_FIRMWARE_QUALS_DATA
+
 
 @pytest.fixture(name="setup")
 def fixture_setup(monkeypatch: "pytest.MonkeyPatch") -> None:
@@ -31,6 +48,7 @@ def fixture_setup(monkeypatch: "pytest.MonkeyPatch") -> None:
     monkeypatch.setattr(gs.GSContext, "CheckPathAccess", lambda *_,: None)
     monkeypatch.setattr(fwbuddy.FwBuddy, "setup", lambda *_,: None)
     monkeypatch.setattr(fwbuddy.FwBuddy, "cleanup", lambda *_,: None)
+    monkeypatch.setattr(Path, "read_text", mock_read_text)
 
 
 def test_usage_string(setup: Path) -> None:
@@ -100,60 +118,89 @@ def test_generate_unsigned_gspaths(setup: Path) -> None:
         model="",
         firmware_name="galtic",
         release=fwbuddy.parse_release_string("R89-13606.459.0"),
-        branch="firmware-dedede-13606.B",
+        branches=set(["some-branch-name"]),
         image_type="unsigned",
         firmware_type="",
     )
 
-    expected_gspaths = [
-        (
-            "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
-            "firmware/R89-13606.459.0/firmware_from_source.tar.bz2"
-        ),
-        (
-            "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
-            "firmware/R89-13606.459.0/dedede/firmware_from_source.tar.bz2"
-        ),
-        (
-            "gs://chromeos-image-archive/dedede-firmware/R89-13606.459.0/"
-            "firmware_from_source.tar.bz2"
-        ),
-        (
-            "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
-            "firmware/R89-13606.459.0/firmware_from_source.tar.bz2"
-        ),
-        (
-            "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
-            "firmware/R89-13606.459.0/dedede/firmware_from_source.tar.bz2"
-        ),
-    ]
+    expected_gspaths = set(
+        [
+            (
+                "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
+                "firmware/R89-13606.459.0/firmware_from_source.tar.bz2"
+            ),
+            (
+                "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
+                "firmware/R89-13606.459.0/dedede/firmware_from_source.tar.bz2"
+            ),
+            (
+                "gs://chromeos-image-archive/dedede-firmware/R89-13606.459.0/"
+                "firmware_from_source.tar.bz2"
+            ),
+            (
+                "gs://chromeos-image-archive/some-branch-name-branch-"
+                "firmware/R89-13606.459.0/firmware_from_source.tar.bz2"
+            ),
+            (
+                "gs://chromeos-image-archive/some-branch-name-branch-"
+                "firmware/R89-13606.459.0/dedede/firmware_from_source.tar.bz2"
+            ),
+        ]
+    )
 
-    # This could be neater if https://github.com/pytest-dev/pytest/issues/10032
-    # is fixed.
-    result = fwbuddy.generate_gspaths(fw_image)
-    result.sort()
-    expected_gspaths.sort()
-
-    assert result == expected_gspaths
+    assert fwbuddy.generate_gspaths(fw_image) == expected_gspaths
 
 
-def test_lookup_branch(
-    setup: Path, run_mock: cros_test_lib.RunCommandMock
+def test_generate_gspaths_no_branches(setup: Path) -> None:
+    """Tests that we can generate unsigned gspaths using our schemas."""
+
+    fw_image = fwbuddy.FwImage(
+        board="dedede",
+        model="",
+        firmware_name="galtic",
+        release=fwbuddy.parse_release_string("R89-13606.459.0"),
+        branches=set(),
+        image_type="unsigned",
+        firmware_type="",
+    )
+
+    expected_gspaths = set(
+        [
+            (
+                "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
+                "firmware/R89-13606.459.0/firmware_from_source.tar.bz2"
+            ),
+            (
+                "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
+                "firmware/R89-13606.459.0/dedede/firmware_from_source.tar.bz2"
+            ),
+            (
+                "gs://chromeos-image-archive/dedede-firmware/R89-13606.459.0/"
+                "firmware_from_source.tar.bz2"
+            ),
+        ]
+    )
+
+    assert fwbuddy.generate_gspaths(fw_image) == expected_gspaths
+
+
+def test_lookup_branches(
+    setup: Path,
 ) -> None:
     """Tests that we correctly parse the SQL output from the branch lookup"""
-    csv = "branch_name\nfirmware-icarus-12574.B\n"
-    run_mock.SetDefaultCmdResult(stdout=csv)
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
-    assert f.lookup_branch() == "firmware-icarus-12574.B"
+    assert f.lookup_branches() == set(["firmware-dedede-13606.B"])
 
 
-def test_lookup_branch_fails(
-    setup: Path, run_mock: cros_test_lib.RunCommandMock
-) -> None:
-    """Tests that we return None when our dremel command fails to run"""
-    run_mock.SetDefaultCmdResult(returncode=1)
+def test_lookup_branches_fails(setup: Path) -> None:
+    """Tests that we return an empty set when we can't access the branch map"""
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
-    assert f.lookup_branch() is None
+
+    with mock.patch(
+        "chromite.lib.gs.GSContext.CheckPathAccess",
+        side_effect=Exception("No Access"),
+    ):
+        assert f.lookup_branches() == set()
 
 
 def test_generate_signed_gspaths(setup: Path) -> None:
@@ -163,15 +210,17 @@ def test_generate_signed_gspaths(setup: Path) -> None:
         model="",
         firmware_name="galtic",
         release=fwbuddy.parse_release_string("R89-13606.459.0"),
-        branch="",
+        branches=set("firmware-dedede-13606.B"),
         image_type="signed",
         firmware_type="",
     )
 
-    expected_gspaths = [
-        "gs://chromeos-releases/canary-channel/dedede/13606.459.0/ChromeOS-"
-        "firmware-R89-13606.459.0-dedede.tar.bz2"
-    ]
+    expected_gspaths = set(
+        [
+            "gs://chromeos-releases/canary-channel/dedede/13606.459.0/ChromeOS-"
+            "firmware-R89-13606.459.0-dedede.tar.bz2"
+        ]
+    )
 
     assert fwbuddy.generate_gspaths(fw_image) == expected_gspaths
 

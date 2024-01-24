@@ -4,14 +4,14 @@
 
 """Main module for finding and retrieving firmware archives"""
 
-import csv
-import io
+import json
 import logging
 import os
+from pathlib import Path
 import re
 import shutil
 import textwrap
-from typing import List, NamedTuple, Optional
+from typing import List, NamedTuple, Optional, Set
 
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
@@ -57,7 +57,7 @@ class FwImage(NamedTuple):
     model: str
     firmware_name: str
     release: Release
-    branch: Optional[str]
+    branches: Set[str]
     image_type: str
     firmware_type: Optional[str]
 
@@ -191,16 +191,6 @@ BUG_SUBMIT_URL = (
     "https://issuetracker.google.com/issues/new?component="
     "1094001&template=1670797"
 )
-# Dremel query to DLM to get the firmware branch for a given board/model.
-# TODO(b/280096504): Replace queries to DLM with static file b/279808263
-QUERY_FIRMWARE_BRANCH = """
-SELECT
-  branch_name
-  FROM chromeos_build_release_data.firmware_quals
-  WHERE model_name = "%(model)s"
-  AND board_name = "%(board)s"
-  LIMIT 1;
-"""
 
 # If a user passes just "fwbuddy" as a URI then prompt the user for each field
 # one by one.
@@ -248,9 +238,14 @@ AP = "ap"
 EC = "ec"
 CHIP_TYPES = [AP, EC]
 
+# A small JSON file containing a (board, model) -> branch_name mapping populated
+# with data from DLM
+BRANCH_MAP_LOCAL_PATH = Path(f"{TMP_STORAGE_FOLDER}/firmware_quals.json")
+BRANCH_MAP_URI = "gs://chromeos-build-release-console/firmware_quals.json"
+
 # All known file path schemas that unsigned firmware archives may be stored
 # underneath. This list may grow over time as more schemas are discovered.
-UNSIGNED_GSPATH_SCHEMAS = [
+UNSIGNED_GSPATH_SCHEMAS_WITHOUT_BRANCH = [
     (
         f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s."
         f"B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s."
@@ -266,7 +261,9 @@ UNSIGNED_GSPATH_SCHEMAS = [
         f"%(major_version)s.%(minor_version)s.%(patch_number)s/"
         f"{UNSIGNED_ARCHIVE_NAME}"
     ),
-    # Schemas that incorporate firmware branch directly.
+]
+# Schemas that incorporate firmware branch directly.
+UNSIGNED_GSPATH_SCHEMAS_WITH_BRANCH = [
     (
         f"{UNSIGNED_ARCHIVE_BUCKET}/%(branch)s-branch-firmware/R%(milestone)s-"
         f"%(major_version)s.%(minor_version)s.%(patch_number)s/"
@@ -362,52 +359,52 @@ class FwBuddy:
             model=self.uri.model,
             firmware_name=self.uri.firmware_name,
             release=self.determine_release(),
-            branch=self.lookup_branch(),
+            branches=self.lookup_branches(),
             image_type=self.uri.image_type,
             firmware_type=parse_firmware_type(self.uri.firmware_type),
         )
 
-    def lookup_branch(self) -> Optional[str]:
-        """Gets firmware branch for the given board/model combination from DLM.
+    def lookup_branches(self) -> Set[str]:
+        """Gets the firmware branches for the given board/model combination.
 
         Some firmware archives are stored underneath branches that do not match
         the name of their board. For those scenarios, we need to retrieve the
         branch name as well and populate our GS schemas using it.
 
         Returns:
-            The firmware branch.
+            The possible firmware branches.
         """
-        query = QUERY_FIRMWARE_BRANCH % {
-            "board": self.uri.board,
-            "model": self.uri.model,
-        }
-        result = None
-        # TODO(b/279808263): Replace with reads to Google Storage.
-        try:
-            result = cros_build_lib.run(
-                ["dremel", "--output", "csv"],
-                input=query,
-                capture_output=True,
-                encoding="utf-8",
-            )
-            fields = list(csv.reader(io.StringIO(result.stdout), delimiter=","))
-            if len(fields) == 2 and len(fields[1]) == 1:
-                return fields[1][0]
-        except cros_build_lib.RunCommandError as e:
-            # Log but do not act on gcert and dremel errors and attempt to
-            # continue so that people running this within chroot and partners
-            # can still use fwbuddy in a majority of situations.
-            self.logger.warning(e)
 
-        self.logger.warning(
-            (
-                "Unable to identify the firmware branch for %s "
-                "This may not be an issue, since the firmware branch is only "
-                "needed on rare occasions. Continuing on for the time being..."
-            ),
-            self.uri,
+        try:
+            self.gs.CheckPathAccess(BRANCH_MAP_URI)
+        except Exception as e:
+            self.logger.warning(
+                (
+                    "Unable to identify the firmware branch for %s: %s"
+                    " This may not be an issue, since the firmware branch is"
+                    " only needed on rare occasions. Continuing on for the time"
+                    " being..."
+                ),
+                self.uri,
+                e,
+            )
+            return set()
+
+        self.gs.Copy(BRANCH_MAP_URI, TMP_STORAGE_FOLDER)
+        branches: Set[str] = set()
+        branch_map = json.loads(
+            BRANCH_MAP_LOCAL_PATH.read_text(encoding="utf-8")
         )
-        return None
+        for entry in branch_map["firmware_quals"]:
+            if (
+                "model_name" in entry
+                and "board_name" in entry
+                and "branch_name" in entry
+                and entry["model_name"] == self.uri.model
+                and entry["board_name"] == self.uri.board
+            ):
+                branches.add(entry["branch_name"])
+        return branches
 
     def determine_release(self) -> Release:
         """Generates a Release from a pinned version or release string
@@ -657,7 +654,7 @@ def parse_release_string(release_str: str) -> Release:
     return Release(fields[0][0], fields[0][1], fields[0][2], fields[0][3])
 
 
-def generate_gspaths(fw_image: FwImage) -> List[str]:
+def generate_gspaths(fw_image: FwImage) -> Set[str]:
     """Generates all possible GS paths the firmware archive may be stored at
 
     Args:
@@ -665,28 +662,47 @@ def generate_gspaths(fw_image: FwImage) -> List[str]:
             schemas
 
     Returns:
-        A list of all possible paths the archive may be.
+        A list of all possible paths the archive may be located at.
     """
-    gspaths = []
-    schemas = (
-        SIGNED_GSPATH_SCHEMAS
-        if fw_image.image_type == "signed"
-        else UNSIGNED_GSPATH_SCHEMAS
-    )
-    for schema in schemas:
-        gspaths.append(
-            schema
-            % {
-                "board": fw_image.board,
-                "milestone": fw_image.release.milestone,
-                "major_version": fw_image.release.major_version,
-                "minor_version": fw_image.release.minor_version,
-                "patch_number": fw_image.release.patch_number,
-                "branch": fw_image.branch,
-            }
-        )
+    gspaths: Set[str] = set()
+    schemas: List[str] = []
+    if fw_image.image_type == "signed":
+        schemas += SIGNED_GSPATH_SCHEMAS
+    else:
+        if fw_image.branches:
+            schemas.extend(UNSIGNED_GSPATH_SCHEMAS_WITH_BRANCH)
+        schemas.extend(UNSIGNED_GSPATH_SCHEMAS_WITHOUT_BRANCH)
+
+    if len(fw_image.branches) > 0:
+        for branch in fw_image.branches:
+            for schema in schemas:
+                gspaths.add(build_gspath(schema, fw_image, branch))
+    else:
+        for schema in schemas:
+            gspaths.add(build_gspath(schema, fw_image))
 
     return gspaths
+
+
+def build_gspath(schema: str, fw_image: FwImage, branch: str = "") -> str:
+    """Populates and returns a gspath schema with supplied data
+
+    Args:
+        schema: The gspath schema to populate
+        fw_image: The FwImage with the data we need to populate the schema
+        branch: The branch to use to populate the schema
+
+    Returns:
+        The gspath
+    """
+    return schema % {
+        "board": fw_image.board,
+        "milestone": fw_image.release.milestone,
+        "major_version": fw_image.release.major_version,
+        "minor_version": fw_image.release.minor_version,
+        "patch_number": fw_image.release.patch_number,
+        "branch": branch,
+    }
 
 
 def parse_chip(chip: Optional[str]) -> Optional[str]:
