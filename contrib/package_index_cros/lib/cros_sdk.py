@@ -103,6 +103,7 @@ class CrosSdk:
         features = []
         if self.setup.with_tests:
             features.append("test")
+        log_level = logging.getLevelName(logging.getLogger().level).lower()
         cmd = " ".join(
             [
                 f'FEATURES="{" ".join(features)}"',
@@ -110,7 +111,9 @@ class CrosSdk:
                     constants.PRINT_DEPS_SCRIPT_PATH
                 ),
                 self.setup.board,
+                *package_names,
+                f"--log-level={log_level}",
             ]
-            + package_names
         )
+        logging.info(cmd)
         return self._exec(cmd, capture_output=True, with_sudo=True).stdout
