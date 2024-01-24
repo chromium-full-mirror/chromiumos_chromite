@@ -71,6 +71,11 @@ IMAGELOADER_IMAGE_SHA256_HASH_KEY = "image-sha256-hash"
 
 DLC_ID_RE = r"[a-zA-Z0-9][a-zA-Z0-9-]*"
 
+# This is a special pre-allocated-size option that allows dynamically resizing
+# DLC slots after `cros flash` or `cros deploy`. This option should only be used
+# during DLC development and it disables the DLC update.
+MAGIC_DEV_SIZE = -1
+
 # This is a special board that allows for out of band DLC build for builds that
 # aren't associated with a specific board.
 MAGIC_BOARD = "none"
@@ -1045,6 +1050,13 @@ class DlcGenerator:
 
     def VerifyImageSize(self) -> None:
         """Verify the image can fit to the reserved file."""
+        if self.ebuild_params.pre_allocated_blocks == MAGIC_DEV_SIZE:
+            logging.warning(
+                "The DLC image size will not be verified since it is set to "
+                "be still under development."
+            )
+            return
+
         logging.debug("Verifying the DLC image size.")
         image_bytes = os.path.getsize(self.dest_image)
         preallocated_bytes = (
@@ -1118,7 +1130,9 @@ class DlcGenerator:
             "name": self.ebuild_params.name,
             "description": self.ebuild_params.description,
             "pre-allocated-size": str(
-                self.ebuild_params.pre_allocated_blocks * self._BLOCK_SIZE
+                MAGIC_DEV_SIZE
+                if self.ebuild_params.pre_allocated_blocks == MAGIC_DEV_SIZE
+                else self.ebuild_params.pre_allocated_blocks * self._BLOCK_SIZE
             ),
             "size": str(blocks * self._BLOCK_SIZE),
             "table-sha256-hash": table_hash,

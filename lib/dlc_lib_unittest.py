@@ -351,6 +351,26 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         with open(ebuild_params_path, "rb") as f:
             self.CheckParams(json.load(f), **params)
 
+    def testStorePreAllocatedSizeAsDevSize(self) -> None:
+        """Tests EbuildParams.LoadDlcParameters"""
+        sysroot = os.path.join(self.tempdir, "build_root")
+        self.GenerateParams(
+            sysroot, pre_allocated_blocks=dlc_lib.MAGIC_DEV_SIZE
+        )
+        ebuild_params_path = os.path.join(
+            sysroot,
+            dlc_lib.DLC_BUILD_DIR,
+            _ID,
+            _PACKAGE,
+            dlc_lib.EBUILD_PARAMETERS,
+        )
+        self.assertExists(ebuild_params_path)
+
+        with open(ebuild_params_path, "rb") as f:
+            self.CheckParams(
+                json.load(f), pre_allocated_blocks=dlc_lib.MAGIC_DEV_SIZE
+            )
+
     def testLoadDlcParameters(self) -> None:
         """Tests EbuildParams.LoadDlcParameters"""
         sysroot = os.path.join(self.tempdir, "build_root")
@@ -498,7 +518,11 @@ class DlcGeneratorTest(
     def setUp(self) -> None:
         self.ExpectRootOwnedFiles()
 
-    def GetDlcGenerator(self, fs_type=dlc_lib.SQUASHFS_TYPE):
+    def GetDlcGenerator(
+        self,
+        fs_type=dlc_lib.SQUASHFS_TYPE,
+        pre_allocated_blocks=_PRE_ALLOCATED_BLOCKS,
+    ):
         """Factory method for a DcGenerator object"""
         src_dir = os.path.join(self.tempdir, "src")
         osutils.SafeMakedirs(src_dir)
@@ -518,7 +542,7 @@ class DlcGeneratorTest(
             fs_type=fs_type,
             name=_NAME,
             description=_DESCRIPTION,
-            pre_allocated_blocks=_PRE_ALLOCATED_BLOCKS,
+            pre_allocated_blocks=pre_allocated_blocks,
             version=_VERSION,
             preload=False,
             factory_install=False,
@@ -799,6 +823,22 @@ class DlcGeneratorTest(
             self.GetDlcGenerator().VerifyImageSize()
             self.AssertLogsContain(
                 logs, "is significantly less than the preallocated size"
+            )
+
+    def testVerifyImageSizeDevSizeWarning(self) -> None:
+        """Test that VerifyImageSize logs the DEV_SIZE warning."""
+        # Logs a warning that the preallocated size is set to DEV_SIZE.
+        with cros_test_lib.LoggingCapturer() as logs:
+            self.PatchObject(
+                os.path,
+                "getsize",
+                return_value=_BLOCK_SIZE,
+            )
+            self.GetDlcGenerator(
+                pre_allocated_blocks=dlc_lib.MAGIC_DEV_SIZE
+            ).VerifyImageSize()
+            self.AssertLogsContain(
+                logs, "The DLC image size will not be verified"
             )
 
     def testGetOptimalImageBlockSize(self) -> None:
