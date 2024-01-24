@@ -27,6 +27,7 @@ from typing import (
     Any,
     Iterable,
     List,
+    Mapping,
     NoReturn,
     Optional,
     Sequence,
@@ -870,8 +871,7 @@ def run(
             }
         )
 
-        tracecontext = trace.extract_tracecontext()
-        env.update(tracecontext)
+        env.update(_get_trace_context())
 
     cmd_result.args = cmd
 
@@ -1026,6 +1026,15 @@ def run(
 def dbg_run(*args, **kwargs):
     kwargs.setdefault("debug_level", logging.DEBUG)
     return run(*args, **kwargs)
+
+
+def _get_trace_context() -> Mapping[str, str]:
+    """Get the trace context.
+
+    This helper is just to make it easy to patch out the effect telemetry
+    context propagation has on the environment.
+    """
+    return trace.extract_tracecontext()
 
 
 class DieSystemExit(SystemExit):

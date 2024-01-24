@@ -654,7 +654,10 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         """Test run() properly sets/restores sigint.  Exception case."""
         self.testSubprocessCommunicateExceptionRaisesError(ignore_sigint=True)
 
-    def testEnvWorks(self) -> None:
+    @mock.patch(
+        "chromite.lib.cros_build_lib._get_trace_context", return_value={}
+    )
+    def testEnvWorks(self, _trace_context_mock) -> None:
         """Test run(..., env=xyz) works."""
         # We'll put this bogus environment together, just to make sure
         # subprocess.Popen gets passed it.
@@ -671,7 +674,10 @@ class TestRunCommand(cros_test_lib.MockTestCase):
             cmd_list, cmd_list, sp_kv=dict(env=sp_env), rc_kv=dict(env=rc_env)
         )
 
-    def testExtraEnvOnlyWorks(self) -> None:
+    @mock.patch(
+        "chromite.lib.cros_build_lib._get_trace_context", return_value={}
+    )
+    def testExtraEnvOnlyWorks(self, _trace_context_mock) -> None:
         """Test run(..., extra_env=xyz) works."""
         # We'll put this bogus environment together, just to make sure
         # subprocess.Popen gets passed it.
@@ -696,7 +702,10 @@ class TestRunCommand(cros_test_lib.MockTestCase):
             rc_kv=dict(extra_env=extra_env),
         )
 
-    def testExtraEnvTooWorks(self) -> None:
+    @mock.patch(
+        "chromite.lib.cros_build_lib._get_trace_context", return_value={}
+    )
+    def testExtraEnvTooWorks(self, _trace_context_mock) -> None:
         """Test run(..., env=xy, extra_env=z) works."""
         # We'll put this bogus environment together, just to make sure
         # subprocess.Popen gets passed it.
@@ -725,7 +734,12 @@ class TestRunCommand(cros_test_lib.MockTestCase):
     @mock.patch(
         "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
     )
-    def testChrootExtraEnvWorks(self, _inchroot_mock) -> None:
+    @mock.patch(
+        "chromite.lib.cros_build_lib._get_trace_context", return_value={}
+    )
+    def testChrootExtraEnvWorks(
+        self, _inchroot_mock, _trace_context_mock
+    ) -> None:
         """Test run(..., enter_chroot=True, env=xy, extra_env=z) works."""
         # We'll put this bogus environment together, just to make sure
         # subprocess.Popen gets passed it.
