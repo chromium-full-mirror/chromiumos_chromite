@@ -176,7 +176,7 @@ def mocked_readonly_open(contents=None, default=None):
     return inner
 
 
-class TriciumClangTidyTests(cros_test_lib.MockTestCase):
+class TriciumClangTidyTests(cros_test_lib.RunCommandTempDirTestCase):
     """Various tests for tricium support."""
 
     def test_tidy_diagnostic_path_normalization(self) -> None:
@@ -223,8 +223,7 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
             self.assertEqual(text.get_line_offset(offset), line_offset)
 
     def test_package_ebuild_resolution(self) -> None:
-        run_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
-        run_mock.SetDefaultCmdResult(stdout="${package1_ebuild}\n")
+        self.rc.SetDefaultCmdResult(stdout="${package1_ebuild}\n")
         ebuilds = tricium_clang_tidy.resolve_package_ebuilds(
             "${board}",
             [
@@ -233,7 +232,7 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
             ],
         )
 
-        run_mock.assertCommandContains(
+        self.assertCommandContains(
             ["equery-${board}", "w", "package1"],
             check=True,
             stdout=subprocess.PIPE,
@@ -521,40 +520,33 @@ class TriciumClangTidyTests(cros_test_lib.MockTestCase):
     def test_lint_generation_functions(
         self, safe_makedirs_mock, copy_dir_contents_mock
     ) -> None:
-        run_mock = self.StartPatcher(cros_test_lib.PopenMock())
-        run_mock.SetDefaultCmdResult()
-
-        # Mock mkdtemp last, since PopenMock() makes a tempdir.
+        self.PatchObject(
+            tricium_clang_tidy,
+            "LINT_BASE",
+            new=self.tempdir / "linting_output" / "clang-tidy",
+        )
         mkdtemp_mock = self.PatchObject(tempfile, "mkdtemp")
-        mkdtemp_path = "/path/to/temp/dir"
-        mkdtemp_mock.return_value = mkdtemp_path
+        mkdtemp_mock.return_value = str(self.tempdir)
         with mock.patch.object(osutils, "RmDir") as rmdir_mock:
-            dir_name = str(
-                tricium_clang_tidy.generate_lints(
-                    "${board}", "/path/to/the.ebuild"
-                )
+            lint_path = tricium_clang_tidy.generate_lints(
+                "${board}", "/path/to/the.ebuild"
             )
-        self.assertEqual(mkdtemp_path, dir_name)
 
-        rmdir_mock.assert_called_with(
+        self.assertEqual(self.tempdir, lint_path)
+
+        rmdir_mock.assert_any_call(
             tricium_clang_tidy.LINT_BASE, ignore_missing=True, sudo=True
         )
         safe_makedirs_mock.assert_called_with(
             tricium_clang_tidy.LINT_BASE, 0o777, sudo=True
         )
 
-        desired_env = dict(os.environ)
-        desired_env["WITH_TIDY"] = "tricium"
-        # cros_build_lib.run adds LC_MESSAGES to the environment by default, so
-        # it is always in the actual env. It isn't guaranteed to be set in the
-        # ambient environment, so desired_env doesn't always have it, causing
-        # flakes. Explicitly set it to make sure it matches.
-        desired_env["LC_MESSAGES"] = "C"
-        run_mock.assertCommandContains(
+        desired_env = {"WITH_TIDY": "tricium"}
+        self.assertCommandContains(
             ["ebuild-${board}", "/path/to/the.ebuild", "clean", "compile"],
-            env=desired_env,
+            extra_env=desired_env,
         )
 
         copy_dir_contents_mock.assert_called_with(
-            tricium_clang_tidy.LINT_BASE, dir_name
+            tricium_clang_tidy.LINT_BASE, str(lint_path)
         )
