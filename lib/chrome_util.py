@@ -354,7 +354,7 @@ C = Conditions
 # In the below Path lists, if two Paths both match a file, the earlier Path
 # takes precedence.
 
-# Files shared between all deployment types.
+# Files shared between all deployment types except Lacros.
 _COPY_PATHS_COMMON = (
     # Copying icudtl.dat has to be optional because in CROS, icudtl.dat will
     # be installed by the package "chrome-icu", and icudtl.dat in chrome is
@@ -470,7 +470,8 @@ _COPY_PATHS_CHROME = (
 _COPY_PATHS_LACROS = (
     Path("chrome", exe=True),
     Path("nacl_helper", exe=True, optional=True),
-    Path("nacl_helper_bootstrap", exe=True, optional=True),
+    # Don't try to strip nacl_helper_bootstrap, see crbug.com/1517785.
+    Path("nacl_helper_bootstrap", exe=True, optional=True, strip=False),
     Path("nacl_helper_nonsfi", exe=True, optional=True),
     Path("nacl_irt_x86_64.nexe", exe=True, optional=True),
     Path("nacl_irt_arm.nexe", exe=True, optional=True),
