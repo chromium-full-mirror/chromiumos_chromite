@@ -29,7 +29,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import image_lib
 from chromite.lib import metrics_lib
 from chromite.lib import sysroot_lib
-from chromite.scripts import pushimage
 from chromite.service import image
 from chromite.service import packages as packages_service
 
@@ -613,10 +612,14 @@ def Test(
 @faux.empty_success
 @faux.empty_completed_unsuccessfully_error
 @validate.require("gs_image_dir", "sysroot.build_target.name")
+@validate.each_in(
+    "sign_types", None, SUPPORTED_IMAGE_TYPES.keys(), optional=True
+)
+@validate.validation_complete
 def PushImage(
     request: "image_pb2.PushImageRequest",
-    _response: "image_pb2.PushImageResponse",
-    config: "api.config.ApiConfig",
+    response: "image_pb2.PushImageResponse",
+    _config: "api.config.ApiConfig",
 ):
     """Push artifacts from the archive bucket to the release bucket.
 
@@ -624,49 +627,43 @@ def PushImage(
 
     Args:
         request: Input proto.
-        _response: Output proto.
-        config: The API call config.
+        response: Output proto.
+        _config: The API call config.
 
     Returns:
         A controller return code (e.g. controller.RETURN_CODE_SUCCESS).
     """
-    sign_types = []
-    if request.sign_types:
-        for sign_type in request.sign_types:
-            if sign_type not in SUPPORTED_IMAGE_TYPES:
-                logging.error("unsupported sign type %g", sign_type)
-                return controller.RETURN_CODE_INVALID_INPUT
-            sign_types.append(SUPPORTED_IMAGE_TYPES[sign_type])
-
-    # If configured for validation only we're done here.
-    if config.validate_only:
-        return controller.RETURN_CODE_VALID_INPUT
-
-    kwargs = {}
+    build_target = controller_util.ParseBuildTarget(
+        request.sysroot.build_target
+    )
     if request.profile.name:
-        kwargs["profile"] = request.profile.name
-    if request.dest_bucket:
-        kwargs["dest_bucket"] = request.dest_bucket
-    if request.channels:
-        kwargs["force_channels"] = [
-            common_pb2.Channel.Name(channel).lower()[len("channel_") :]
-            for channel in request.channels
-        ]
+        build_target.profile = request.profile.name
+
+    sign_types = [SUPPORTED_IMAGE_TYPES[x] for x in request.sign_types]
+    channels = [
+        common_pb2.Channel.Name(x).lower()[len("channel_") :]
+        for x in request.channels
+    ]
+
+    args = image.PushImageArguments(
+        image_dir=request.gs_image_dir,
+        build_target=build_target,
+        sign_types=sign_types,
+        dryrun=request.dryrun,
+        channels=channels,
+        destination_bucket=request.dest_bucket,
+        yes=True,
+    )
+
     try:
-        channel_to_uris = pushimage.PushImage(
-            request.gs_image_dir,
-            request.sysroot.build_target.name,
-            dryrun=request.dryrun,
-            sign_types=sign_types,
-            **kwargs,
-        )
-    except Exception:
-        logging.error("PushImage failed: ", exc_info=True)
+        channel_to_uris = image.run_push_image(args)
+    except image.PushImageError:
+        logging.error("Push image error", exc_info=True)
         return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
-    if channel_to_uris:
-        for uris in channel_to_uris.values():
-            for uri in uris:
-                _response.instructions.add().instructions_file_path = uri
+
+    for uris in channel_to_uris.values():
+        for uri in uris:
+            response.instructions.add().instructions_file_path = uri
     return controller.RETURN_CODE_SUCCESS
 
 
