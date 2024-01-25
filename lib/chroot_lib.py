@@ -8,6 +8,8 @@ This is currently a very sparse class, but there's a significant amount of
 functionality that can eventually be centralized here.
 """
 
+from __future__ import annotations
+
 import functools
 import logging
 import os
@@ -126,6 +128,12 @@ class Chroot:
         """Check if a chroot-relative path exists inside the chroot."""
         return os.path.exists(self.full_path(*args))
 
+    @property
+    def lock_path(self) -> Path:
+        """The path to the lock file for this chroot."""
+        chroot_path = Path(self.path)
+        return chroot_path.with_name(f".{chroot_path.name.lstrip('.')}_lock")
+
     def lock(self, blocking_timeout: Optional[int] = None) -> locking.FileLock:
         """Get a locking.FileLock corresponding to this chroot.
 
@@ -136,15 +144,61 @@ class Chroot:
         Returns:
             A locking.FileLock.
         """
-        chroot_path = Path(self.path)
-        lock_path = chroot_path.with_name(
-            f".{chroot_path.name.lstrip('.')}_lock"
-        )
         return locking.FileLock(
-            lock_path,
+            self.lock_path,
             description="chroot lock",
             blocking_timeout=blocking_timeout,
         )
+
+    def rename(
+        self,
+        target_path: Union[str, "os.PathLike[str]"],
+        rename_out: Optional[Union[str, "os.PathLike[str]"]] = None,
+    ) -> Chroot:
+        """Rename the chroot directory.
+
+        Args:
+            target_path: The target to rename to.  Note this likely has to be on
+                the same device as the chroot (as an atomic rename is done).
+                The easiest way to guarantee this is to rename to a path in the
+                same directory.
+            rename_out: If a path to the target out directory is provided, the
+                out directory should be renamed too.  The same cross-device
+                restrictions apply.
+
+        Returns:
+            A new Chroot object.  Note the original Chroot object is unmodified.
+            This enables re-using the original Chroot object to create another
+            chroot, for example.
+        """
+
+        def _rename(
+            src: Union[str, "os.PathLike[str]"],
+            dest: Union[str, "os.PathLike[str]"],
+        ) -> Path:
+            # For all paths we rename, we don't care if they don't exist, just
+            # return the destination path in that case.
+            try:
+                Path(src).rename(dest)
+            except FileNotFoundError:
+                pass
+            return Path(dest)
+
+        if rename_out:
+            out_path = _rename(self.out_path, rename_out)
+        else:
+            out_path = self.out_path
+
+        new_chroot = Chroot(
+            path=_rename(self.path, target_path),
+            out_path=out_path,
+            cache_dir=self.cache_dir,
+            chrome_root=self.chrome_root,
+            env=self.env,
+            goma=self.goma,
+        )
+        _rename(self.lock_path, new_chroot.lock_path)
+        return new_chroot
 
     def delete(
         self,

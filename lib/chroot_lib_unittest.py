@@ -265,6 +265,42 @@ def test_delete_locked_forced(tmp_path: Path, outside_sdk: None) -> None:
     assert not out_test_file.exists()
 
 
+def test_rename(tmp_path: Path, outside_sdk: None) -> None:
+    """Test chroot.rename without renaming out dir."""
+    del outside_sdk
+    chroot_dir = tmp_path / "test_chroot"
+    chroot_dir.mkdir()
+    out_dir = tmp_path / "out_dir"
+    out_dir.mkdir()
+    chroot = chroot_lib.Chroot(path=chroot_dir, out_path=out_dir)
+    new_chroot_dir = chroot_dir.with_name("new_chroot")
+    new_chroot = chroot.rename(new_chroot_dir)
+    assert new_chroot_dir.exists()
+    assert out_dir.exists()
+    assert not chroot_dir.exists()
+    assert Path(new_chroot.path) == new_chroot_dir
+    assert new_chroot.out_path == out_dir
+
+
+def test_rename_with_out(tmp_path: Path, outside_sdk: None) -> None:
+    """Test chroot.rename with renaming out dir."""
+    del outside_sdk
+    chroot_dir = tmp_path / "test_chroot"
+    chroot_dir.mkdir()
+    out_dir = tmp_path / "out_dir"
+    out_dir.mkdir()
+    chroot = chroot_lib.Chroot(path=chroot_dir, out_path=out_dir)
+    new_chroot_dir = chroot_dir.with_name("new_chroot")
+    new_out_dir = chroot_dir.with_name("new_out")
+    new_chroot = chroot.rename(new_chroot_dir, rename_out=new_out_dir)
+    assert new_chroot_dir.exists()
+    assert new_out_dir.exists()
+    assert not chroot_dir.exists()
+    assert not out_dir.exists()
+    assert Path(new_chroot.path) == new_chroot_dir
+    assert new_chroot.out_path == new_out_dir
+
+
 class ChrootRunTest(cros_test_lib.RunCommandTempDirTestCase):
     """Chroot tests with mock run()."""
 
