@@ -47,6 +47,7 @@ IMAGE_TARS = {
     constants.TEST_GUEST_VM_DIR: constants.TEST_GUEST_VM_TAR,
     constants.BASE_GUEST_VM_DIR: constants.BASE_GUEST_VM_TAR,
     constants.KERNEL_IMAGE_BIN: constants.KERNEL_IMAGE_TAR,
+    constants.FLEXOR_KERNEL_IMAGE_TAR: constants.FLEXOR_KERNEL_IMAGE_TAR,
 }
 
 # Additional files under sysroot that will be archived with individual image.
@@ -421,6 +422,8 @@ def ArchiveImages(
 ) -> List[str]:
     """Create a .tar.xz archive for each image that has been created.
 
+    This copies already compressed images to output_dir.
+
     Args:
         chroot: The chroot containing the sysroot.
         sysroot: The sysroot whose artifacts are being archived.
@@ -450,9 +453,17 @@ def ArchiveImages(
             content.extend(additional_files)
             # Remove path folders created for additional files
             extra_args.append("--transform=s#.*/##")
+
+        # Don't compress in case the input is already compressed.
+        compression = (
+            cros_build_lib.CompressionType.XZ
+            if img == tar
+            else cros_build_lib.CompressionType.NONE
+        )
         cros_build_lib.CreateTarball(
             tarball_path,
             image_dir,
+            compression=compression,
             inputs=content,
             print_cmd=False,
             extra_args=extra_args,
