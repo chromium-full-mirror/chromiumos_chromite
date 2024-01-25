@@ -12195,6 +12195,164 @@
       "rubik_target_milestone": 107,
       "stable_target_milestone": 86,
       "build_cadence": "DAILY_CADENCE"
+    },
+    {
+      "name": "zork-kernelnext",
+      "reference_board_name": "zork-kernelnext",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": false,
+      "models": [
+        {
+          "board_name": "zork-kernelnext",
+          "name": "berknip",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 452,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "zork-kernelnext",
+          "name": "dalboz",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 452,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "zork-kernelnext",
+          "name": "dirinboz",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 452,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "zork-kernelnext",
+          "name": "ezkinil",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "au",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 452,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "zork-kernelnext",
+          "name": "gumboz",
+          "test_suites": [
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 452,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "zork-kernelnext",
+          "name": "jelboz",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 452,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "zork-kernelnext",
+          "name": "jelboz360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 452,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "zork-kernelnext",
+          "name": "morphius",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 452,
+          "is_active": true,
+          "stable_target_milestone": 121,
+          "is_experimental": true
+        },
+        {
+          "board_name": "zork-kernelnext",
+          "name": "shuboz",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 452,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "zork-kernelnext",
+          "name": "trembyle",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 452,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "zork-kernelnext",
+          "name": "vilboz",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 452,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "zork-kernelnext",
+          "name": "vilboz14",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 452,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "zork-kernelnext",
+          "name": "vilboz360",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 452,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "zork-kernelnext",
+          "name": "woomax",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 452,
+          "is_active": true,
+          "is_experimental": true
+        }
+      ],
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 121,
+      "board_variant": "kernelnext",
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     }
   ]
 }
