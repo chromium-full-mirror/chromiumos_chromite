@@ -702,7 +702,7 @@ def _CreateParser(sdk_latest_version, bootstrap_latest_version):
       '--nouse-image',
       dest='use_image',
       action='store_false',
-      default=True,
+      default=False,
       help='Do not mount the chroot on a loopback image; '
       'instead, create it directly in a directory.')
 
