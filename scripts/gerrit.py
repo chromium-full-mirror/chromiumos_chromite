@@ -1011,11 +1011,12 @@ class ActionCherryPick(UserAction):
                     notify=opts.notify,
                 )
                 logging.debug("Response: %s", ret)
-                if opts.format is OutputFormat.RAW:
-                    print(ret["_number"])
-                else:
-                    uri = f'https://{helper.host}/c/{ret["_number"]}'
-                    print(uri_lib.ShortenUri(uri))
+                if not opts.dryrun:
+                    if opts.format is OutputFormat.RAW:
+                        print(ret["_number"])
+                    else:
+                        uri = f'https://{helper.host}/c/{ret["_number"]}'
+                        print(uri_lib.ShortenUri(uri))
 
         _run_parallel_tasks(task, opts.jobs, *opts.branches)
 
