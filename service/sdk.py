@@ -118,7 +118,7 @@ class CreateArguments:
         args = []
 
         if self.replace:
-            args.append("--replace")
+            args.extend(["--replace", "--delete-out-dir"])
         else:
             args.append("--create")
 
