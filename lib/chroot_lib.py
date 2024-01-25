@@ -59,11 +59,9 @@ class Chroot:
             env: Extra environment settings to use.
             goma: Interface for utilizing goma.
         """
-        # Strip trailing / if present for consistency.
+        # Strip trailing / by going to Path and back to str for consistency.
         # TODO(vapier): Switch this to Path instead of str.
-        self._path = (
-            str(path) if path else constants.DEFAULT_CHROOT_PATH
-        ).rstrip("/")
+        self._path = str(Path(path)) if path else constants.DEFAULT_CHROOT_PATH
         self._out_path = out_path if out_path else constants.DEFAULT_OUT_PATH
         self._is_default_path = not bool(path)
         self._is_default_out_path = not out_path
@@ -74,6 +72,32 @@ class Chroot:
         # None".
         self.cache_dir = cache_dir or None
         self.chrome_root = chrome_root or None
+
+    def path_is_valid(self) -> bool:
+        """Safety-check the provided chroot path.
+
+        If the user provides a chroot path which is not intended to be a chroot,
+        we want to avoid trashing that directory.  We assume the following are
+        valid chroot paths:
+
+        1. A path which does not exist.
+        2. A path which is an empty directory.
+        3. A path which contains /etc/cros_chroot_version.
+
+        Returns:
+            True if the chroot path appears to be valid, False otherwise.
+        """
+        chroot_path = Path(self.path)
+        if not chroot_path.exists():
+            return True
+        if not chroot_path.is_dir():
+            return False
+        files = list(chroot_path.iterdir())
+        if not files:
+            return True
+        # We don't use cros_sdk_lib.GetChrootVersion here to avoid circular
+        # import, and we don't care about the contents being valid anyway.
+        return (chroot_path / "etc" / "cros_chroot_version").is_file()
 
     def __eq__(self, other: Any) -> bool:
         if self.__class__ is other.__class__:

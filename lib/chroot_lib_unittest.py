@@ -301,6 +301,46 @@ def test_rename_with_out(tmp_path: Path, outside_sdk: None) -> None:
     assert new_chroot.out_path == new_out_dir
 
 
+def test_chroot_path_valid_noexist(tmp_path: Path, outside_sdk: None) -> None:
+    """chroot.path_is_valid() should return True when the dir does not exist."""
+    del outside_sdk
+    chroot = chroot_lib.Chroot(path=tmp_path / "noexist")
+    assert chroot.path_is_valid()
+
+
+def test_chroot_path_valid_empty(tmp_path: Path, outside_sdk: None) -> None:
+    """chroot.path_is_valid() should return True when the dir is empty."""
+    del outside_sdk
+    chroot = chroot_lib.Chroot(path=tmp_path)
+    assert chroot.path_is_valid()
+
+
+def test_chroot_path_valid_version(tmp_path: Path, outside_sdk: None) -> None:
+    """chroot.path_is_valid() should return True when there's a version file."""
+    del outside_sdk
+    osutils.Touch(tmp_path / "etc" / "cros_chroot_version", makedirs=True)
+    chroot = chroot_lib.Chroot(path=tmp_path)
+    assert chroot.path_is_valid()
+
+
+def test_chroot_path_invalid_contents(
+    tmp_path: Path, outside_sdk: None
+) -> None:
+    """chroot.path_is_valid() should return False with unknown contents."""
+    del outside_sdk
+    (tmp_path / "somefile").touch()
+    chroot = chroot_lib.Chroot(path=tmp_path)
+    assert not chroot.path_is_valid()
+
+
+def test_chroot_path_invalid_notdir(tmp_path: Path, outside_sdk: None) -> None:
+    """chroot.path_is_valid() should return False when not a directory."""
+    del outside_sdk
+    (tmp_path / "somefile").touch()
+    chroot = chroot_lib.Chroot(path=tmp_path / "somefile")
+    assert not chroot.path_is_valid()
+
+
 class ChrootRunTest(cros_test_lib.RunCommandTempDirTestCase):
     """Chroot tests with mock run()."""
 

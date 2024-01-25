@@ -884,6 +884,17 @@ def main(argv) -> None:
         goma=goma,
     )
 
+    if not chroot.path_is_valid():
+        if options.force:
+            logging.warning("Proceeding with an invalid chroot due to --force.")
+        else:
+            cros_build_lib.Die(
+                "Your chroot directory (%s) doesn't look like a chroot, nor a "
+                "safe place to make one.  If you really want to trash this "
+                "directory, pass --force.",
+                chroot.path,
+            )
+
     if not options.sdk_version:
         sdk_version = (
             bootstrap_latest_version
