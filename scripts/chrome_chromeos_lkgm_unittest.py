@@ -246,6 +246,7 @@ class ChromeLKGMCommitterTester(
         )
 
         committer._PRESUBMIT_BOTS = ["bot1", "bot2"]
+        committer._PRESUBMIT_PUBLIC_BOTS = ["bot3", "bot4"]
         commit_msg_lines = committer.ComposeCommitMsg().splitlines()
         self.assertIn(
             "Automated Commit: LKGM 1001.0.0 for chromeos.", commit_msg_lines
@@ -259,4 +260,10 @@ class ChromeLKGMCommitterTester(
         )
         self.assertIn(
             "CQ_INCLUDE_TRYBOTS=luci.chrome.try:bot2", commit_msg_lines
+        )
+        self.assertIn(
+            "CQ_INCLUDE_TRYBOTS=luci.chromium.try:bot3", commit_msg_lines
+        )
+        self.assertIn(
+            "CQ_INCLUDE_TRYBOTS=luci.chromium.try:bot4", commit_msg_lines
         )
