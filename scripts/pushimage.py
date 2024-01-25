@@ -15,6 +15,7 @@ import logging
 import os
 import re
 import textwrap
+from typing import List, Optional
 
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -22,6 +23,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import signing
+from chromite.utils import pformat
 
 
 # This will split a fully qualified ChromeOS version string up.
@@ -765,14 +767,35 @@ def GetParser():
         default=constants.RELEASE_BUCKET,
         help="dest bucket. Default to %(default)s",
     )
+    parser.add_argument(
+        "--instruction-urls-file",
+        type="path",
+        help="File where the instruction urls should be dumped. Contains a "
+        "JSON formatted mapping from channel to a list of URLs. Parent "
+        "directory must exist. e.g. /tmp/urls.json.",
+    )
 
     return parser
 
 
-def main(argv) -> None:
+def _parse_args(
+    argv: Optional[List[str]] = None,
+) -> commandline.ArgumentNamespace:
     parser = GetParser()
     opts = parser.parse_args(argv)
+
+    if opts.instruction_urls_file:
+        if not opts.instruction_urls_file.parent.exists():
+            parser.error(
+                "--instruction-urls-file must be in a directory that exists."
+            )
+
     opts.Freeze()
+    return opts
+
+
+def main(argv: Optional[List[str]] = None) -> None:
+    opts = _parse_args(argv)
 
     force_keysets = {f"{TEST_KEYSET_PREFIX}-{x}" for x in opts.test_sign}
 
@@ -796,7 +819,7 @@ def main(argv) -> None:
         ):
             cros_build_lib.Die("better safe than sorry")
 
-    PushImage(
+    instruction_urls = PushImage(
         opts.image_dir,
         opts.board,
         versionrev=opts.version,
@@ -810,3 +833,9 @@ def main(argv) -> None:
         buildroot=opts.buildroot,
         dest_bucket=opts.dest_bucket,
     )
+
+    if opts.instruction_urls_file:
+        # Write the instruction_urls to a file if requested.
+        osutils.WriteFile(
+            opts.instruction_urls_file, pformat.json(instruction_urls)
+        )
