@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 import re
 import shutil
-from typing import Iterable, List, NamedTuple, Optional, Union
+from typing import Dict, Iterable, List, NamedTuple, Optional, Union
 
 from chromite.api.gen.chromiumos import signing_pb2
 from chromite.lib import build_target_lib
@@ -59,6 +59,10 @@ class ChrootError(Error, Exception):
     """Unexpectedly run outside the chroot."""
 
 
+class ImageToVmError(Error):
+    """Error converting the image to a vm."""
+
+
 class InvalidArgumentError(Error, ValueError):
     """Invalid argument values."""
 
@@ -71,8 +75,8 @@ class MissingImageError(Error):
     """An image that was expected to exist was not found."""
 
 
-class ImageToVmError(Error):
-    """Error converting the image to a vm."""
+class PushImageError(Error):
+    """An error while pushing the image."""
 
 
 @dataclasses.dataclass
@@ -1163,3 +1167,75 @@ def SignImage(
     with open(os.path.join(result_path, "out_proto.bin"), "rb") as f:
         output.ParseFromString(f.read())
     return output
+
+
+@dataclasses.dataclass
+class PushImageArguments:
+    """Push image arguments."""
+
+    image_dir: str
+    build_target: build_target_lib.BuildTarget
+    # See pushimage._SUPPORTED_IMAGE_TYPES.
+    sign_types: Iterable[str] = ()
+    dryrun: bool = False
+    channels: Iterable[str] = ()
+    destination_bucket: Optional[str] = None
+    yes: bool = False
+
+    @property
+    def profile(self):
+        return self.build_target.profile
+
+    def get_cli_args(self, urls_file: Optional[Path] = None) -> List[str]:
+        """Get the pushimage CLI args."""
+        args = [
+            self.image_dir,
+            "--board",
+            self.build_target.name,
+        ]
+
+        if self.profile and self.profile != "base":
+            args.extend(["--profile", self.profile])
+
+        if self.sign_types:
+            args.extend(["--sign-types", *self.sign_types])
+
+        if self.dryrun:
+            args.append("--dry-run")
+
+        if self.channels:
+            args.extend(["--channels", " ".join(self.channels)])
+
+        if self.destination_bucket:
+            args.extend(["--dest-bucket", self.destination_bucket])
+
+        if self.yes:
+            args.append("--yes")
+
+        if urls_file:
+            args.extend(["--instruction-urls-file", urls_file])
+
+        return args
+
+
+def run_push_image(args: PushImageArguments) -> Dict[str, List[str]]:
+    """Execute the pushimage script.
+
+    Named as such to allow the pushimage script to later be refactored into the
+    service, but because the pushimage script uses vpython, explicitly running
+    the script instead of just calling the implementation may be necessary for
+    some time.
+    """
+    with osutils.TempDir() as tmpdir:
+        urls_file = Path(tmpdir) / "urls.json"
+        cmd = [
+            constants.CHROMITE_BIN_DIR / "pushimage",
+            *args.get_cli_args(urls_file),
+        ]
+
+        try:
+            cros_build_lib.run(cmd)
+        except cros_build_lib.RunCommandError as e:
+            raise PushImageError(f"Error running pushimage: {e}") from e
+
+        return json.loads(osutils.ReadFile(urls_file))

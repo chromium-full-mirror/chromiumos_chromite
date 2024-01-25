@@ -23,6 +23,7 @@ from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
 from chromite.service import image
+from chromite.utils import pformat
 
 
 class BuildImageTest(
@@ -1441,3 +1442,133 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
                 result_dir,
                 "signing:latest",
             )
+
+
+class PushImageArgTest(cros_test_lib.TempDirTestCase):
+    """PushImageArguments tests."""
+
+    def test_cli_translation_minimal(self):
+        """Test minimal arguments."""
+        image_dir = "gs://some/path"
+        board = "board"
+
+        expected = [image_dir, "--board", board]
+
+        args = image.PushImageArguments(
+            image_dir=image_dir,
+            build_target=build_target_lib.BuildTarget(board),
+        )
+
+        self.assertListEqual(expected, args.get_cli_args())
+
+    def test_cli_translation_full(self):
+        """Test all arguments."""
+        image_dir = "gs://some/path"
+        board = "board"
+        profile = "profile"
+        sign_types = [constants.IMAGE_TYPE_BASE, constants.IMAGE_TYPE_FACTORY]
+        dry_run = True
+        channels = ["canary", "dev"]
+        destination_bucket = "gs://some/destination"
+        file_path = self.tempdir / "urls.json"
+
+        expected = [
+            [image_dir],
+            ["--board", board],
+            ["--profile", profile],
+            ["--sign-types", *sign_types],
+            ["--dry-run"],
+            ["--channels", " ".join(channels)],
+            ["--dest-bucket", destination_bucket],
+            ["--instruction-urls-file", file_path],
+        ]
+
+        args = image.PushImageArguments(
+            image_dir=image_dir,
+            build_target=build_target_lib.BuildTarget(board, profile),
+            sign_types=sign_types,
+            dryrun=dry_run,
+            channels=channels,
+            destination_bucket=destination_bucket,
+        )
+
+        actual = args.get_cli_args(file_path)
+
+        # Verify total lengths match.
+        self.assertEqual(sum(len(x) for x in expected), len(actual))
+        # Verify each argument and their values appear as expected in the actual
+        # arguments without caring about what order they appear in so the test
+        # isn't super fragile.
+        for arg_group in expected:
+            # Check the first piece exists (rather than handling a ValueError).
+            self.assertIn(arg_group[0], actual)
+            first_index = actual.index(arg_group[0])
+            # Check the rest of |chunk|.
+            self.assertSequenceEqual(
+                arg_group, actual[first_index : first_index + len(arg_group)]
+            )
+
+
+class RunPushImageTest(cros_test_lib.RunCommandTempDirTestCase):
+    """run_push_image tests."""
+
+    def test_command_building(self):
+        """Verify the command is built correctly."""
+        image_dir = "gs://some/path"
+        board = "board"
+        profile = "profile"
+        sign_types = [constants.IMAGE_TYPE_BASE, constants.IMAGE_TYPE_FACTORY]
+        dry_run = True
+        channels = ["canary", "dev"]
+        destination_bucket = "gs://some/destination"
+
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+
+        # Write out a simple sample mapping to verify data parsing after the
+        # command is run.
+        expected_path = self.tempdir / "urls.json"
+        expected_uri_mapping = {
+            "dev": [
+                f"{destination_bucket}/dev-channel/{board}/"
+                f"ChromeOS-recovery-R100-12345.0.0-{board}.instructions",
+            ],
+            "canary": [
+                f"{destination_bucket}/canary-channel/{board}/"
+                f"ChromeOS-recovery-R100-12345.0.0-{board}.instructions",
+            ],
+        }
+        osutils.WriteFile(expected_path, pformat.json(expected_uri_mapping))
+
+        expected_cmd = [
+            constants.CHROMITE_BIN_DIR / "pushimage",
+            image_dir,
+            "--board",
+            board,
+            "--profile",
+            profile,
+            "--sign-types",
+            *sign_types,
+            "--dry-run",
+            "--channels",
+            " ".join(channels),
+            "--dest-bucket",
+            destination_bucket,
+            "--instruction-urls-file",
+            expected_path,
+        ]
+
+        args = image.PushImageArguments(
+            image_dir=image_dir,
+            build_target=build_target_lib.BuildTarget(board, profile),
+            sign_types=sign_types,
+            dryrun=dry_run,
+            channels=channels,
+            destination_bucket=destination_bucket,
+        )
+
+        result = image.run_push_image(args)
+
+        self.assertCommandContains(expected_cmd)
+        self.assertDictEqual(result, expected_uri_mapping)
