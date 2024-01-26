@@ -1308,6 +1308,29 @@ def Mount(
         )
 
 
+@contextlib.contextmanager
+def MountDirContext(source: str, destination: str, **kwargs) -> Iterator[None]:
+    """Context manager for mounting a filesystem.
+
+    Mounts the filesystem located at 'source' to the 'destination' directory,
+    and ensures its unmounting afterwards.
+
+    Args:
+        source: A string representing the path to the source to be mounted.
+        destination: A string representing the path to the mounting point.
+        **kwargs: Additional keyword arguments to pass to MountDir.
+
+    Yields:
+        None. This context manager is used for its side effects.
+    """
+
+    MountDir(source, destination, **kwargs)
+    try:
+        yield
+    finally:
+        UmountDir(destination)
+
+
 def MountDir(
     src_path,
     dst_path,
