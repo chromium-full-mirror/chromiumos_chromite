@@ -216,7 +216,7 @@ class Artifact(metaclass=ArtifactMeta):
 
         # If the marker is missing, it's definitely not staged.
         if not os.path.exists(marker_file):
-            logging.error("No marker file, %s is not staged.", self)
+            logging.notice("No marker file, %s is not staged.", self)
             return False
 
         # We want to ensure that every file listed in the marker is actually
