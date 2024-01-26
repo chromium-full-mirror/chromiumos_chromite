@@ -848,7 +848,7 @@ def lookup_binhosts(
     ):
         # Use snapshot SHAs if they are passed from the builder.
         snapshot_shas = binhost_lookup_service_data.snapshot_shas
-        get_corresponding_binhosts = True
+        get_corresponding_binhosts = False
         private = binhost_lookup_service_data.private
     else:
         # Get snapshot SHAs from the git log.
