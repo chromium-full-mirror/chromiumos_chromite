@@ -342,6 +342,9 @@ def PushImage(src_path, board, versionrev=None, profile=None, priority=50,
   if profile is not None:
     boardpath += '-%s' % profile.replace('_', '-')
 
+  if boardpath.endswith('-'):
+    boardpath = boardpath[:-1]
+
   ctx = gs.GSContext(dry_run=dry_run)
 
   try:
