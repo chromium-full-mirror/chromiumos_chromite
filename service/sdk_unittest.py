@@ -461,18 +461,6 @@ class UpdateTest(
         self.assertCommandContains(expected_args)
         self.assertEqual(expected_version, version)
 
-    def testDepotToolsFailure(self) -> None:
-        """Test non-zero return code when depot_tools fails."""
-        self.rc.AddCmdResult(
-            [constants.DEPOT_TOOLS_DIR / "ensure_bootstrap"],
-            returncode=20,
-        )
-
-        result = sdk.Update(sdk.UpdateArguments())
-        self.assertFalse(result.success)
-        self.assertEqual(20, result.return_code)
-        self.assertCountEqual([], result.failed_pkgs)
-
     def testPackageFailure(self) -> None:
         """Test non-zero return code and failed package handling."""
         pkgs = [package_info.parse(p) for p in ["foo/bar", "cat/pkg"]]

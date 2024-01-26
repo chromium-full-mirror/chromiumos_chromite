@@ -433,14 +433,6 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
 
     portage_util.RegenDependencyCache(jobs=arguments.jobs)
 
-    # Make sure depot_tools is bootstrapped, so that it can build Chrome.
-    logging.info("Bootstrapping depot_tools")
-    result = cros_build_lib.run(
-        [constants.DEPOT_TOOLS_DIR / "ensure_bootstrap"], check=False
-    )
-    if result.returncode:
-        return UpdateResult(result.returncode, GetChrootVersion())
-
     cmd = [
         constants.CHROMITE_SHELL_DIR / "update_chroot.sh",
         "--script-is-run-only-by-chromite-and-not-users",

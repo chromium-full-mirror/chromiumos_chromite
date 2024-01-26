@@ -933,6 +933,26 @@ class BuildPackagesTest(
         self.assertEqual(cpvs, e.exception.failed_packages)
         self.assertCommandContains(self.base_command)
 
+    def testEnsureBootstrapSuccess(self) -> None:
+        """Ensure ensure_bootstrap gets called."""
+        config = sysroot.BuildPackagesRunConfig()
+        sysroot.BuildPackages(self.target, self.sysroot, config)
+        self.assertCommandCalled(
+            [constants.DEPOT_TOOLS_DIR / "ensure_bootstrap"]
+        )
+
+    def testEnsureBootstrapFailure(self) -> None:
+        """Ensure BuildPackages fails when ensure_bootstrap fails."""
+        self.rc.AddCmdResult(
+            partial_mock.ListRegex("ensure_bootstrap"), returncode=1
+        )
+        config = sysroot.BuildPackagesRunConfig()
+        with self.assertRaises(cros_build_lib.RunCommandError):
+            sysroot.BuildPackages(self.target, self.sysroot, config)
+        self.assertCommandCalled(
+            [constants.DEPOT_TOOLS_DIR / "ensure_bootstrap"]
+        )
+
 
 class GatherSymbolFilesTest(cros_test_lib.MockTempDirTestCase):
     """Base class for testing GatherSymbolFiles."""

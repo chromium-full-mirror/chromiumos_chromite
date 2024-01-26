@@ -869,6 +869,9 @@ def BuildPackages(
     cros_build_lib.AssertNonRootUser()
     metrics_prefix = "service.sysroot.BuildPackages"
 
+    logging.info("Bootstraping depot_tools")
+    cros_build_lib.run([constants.DEPOT_TOOLS_DIR / "ensure_bootstrap"])
+
     if (
         not chromite_config.AUTO_COP_CONFIG_OFF.is_file()
         and os.environ.get("CROS_CLEAN_OUTDATED_PKGS") != "0"
