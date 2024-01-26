@@ -33,6 +33,8 @@ EXCLUDE_PACKAGES = (
     "sys-devel/gcc",
     "sys-devel/binutils",
     "sys-kernel/linux-headers",
+    "sys-libs/libcxx",
+    "sys-libs/llvm-libunwind",
     "sys-devel/llvm",
 )
 
