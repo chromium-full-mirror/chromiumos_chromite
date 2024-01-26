@@ -197,6 +197,8 @@ class VM(device.Device):
 
         self.chroot_path = opts.chroot_path
 
+        self.wait_for_boot = opts.wait_for_boot
+
         self.cache_dir = os.path.abspath(opts.cache_dir)
         assert os.path.isdir(self.cache_dir), "Cache directory doesn't exist"
 
@@ -557,7 +559,8 @@ class VM(device.Device):
             )
             run(qemu_args, dryrun=self.dryrun)
             try:
-                self.WaitForBoot()
+                if self.wait_for_boot:
+                    self.WaitForBoot()
                 return
             except device.DeviceError:
                 if attempt == retries:
@@ -839,5 +842,11 @@ class VM(device.Device):
         )
         parser.add_argument(
             "--vm-dir", type="str_path", help="Temp VM directory to use."
+        )
+        parser.add_bool_argument(
+            "--wait-for-boot",
+            True,
+            "Wait for the VM to boot after starting.",
+            "Don't wait for the VM to boot after starting.",
         )
         return parser

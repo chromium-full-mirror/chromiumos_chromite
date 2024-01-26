@@ -176,6 +176,13 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertRaises(device.DeviceError, self._vm.Start)
 
+    @mock.patch("chromite.lib.device.Device.WaitForBoot")
+    def testNoWaitForBoot(self, mock_wait) -> None:
+        """Start() does not wait for boot if wait_for_boot is False."""
+        mock_wait.assert_not_called()
+        self._vm.wait_for_boot = False
+        self._vm.Start()
+
     def testStartWithVMX(self) -> None:
         """Verify vmx is enabled if the host supports nested virtualization."""
         osutils.WriteFile(self.nested_kvm_file, "1")
