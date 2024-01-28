@@ -79,6 +79,9 @@ class Device:
         if result.returncode != 0:
             raise DeviceError("WaitForBoot failed: %s." % result.stderr)
 
+    def chmod(self, *args, **kwargs) -> None:
+        return self.remote.chmod(*args, **kwargs)
+
     def mkdir(self, *args, **kwargs) -> None:
         return self.remote.mkdir(*args, **kwargs)
 

@@ -273,8 +273,9 @@ class DeployChrome:
         # chrome). Note that this will cause ash chrome to continuously attempt
         # to start lacros and fail, although it doesn't seem to cause issues.
         if self.options.skip_restart_ui:
-            self.device.run(
-                ["chmod", "-x", f"{self.options.target_dir}/chrome"],
+            self.device.chmod(
+                f"{self.options.target_dir}/chrome",
+                "-x",
                 check=False,
             )
         self.device.run(
@@ -471,8 +472,9 @@ class DeployChrome:
             )
         finally:
             if self.options.lacros and self.options.skip_restart_ui:
-                self.device.run(
-                    ["chmod", "+x", f"{self.options.target_dir}/chrome"],
+                self.device.chmod(
+                    f"{self.options.target_dir}/chrome",
+                    "+x",
                     check=False,
                 )
 
@@ -490,13 +492,10 @@ class DeployChrome:
         for p in self.copy_paths:
             if p.mode:
                 # Set mode if necessary.
-                self.device.run(
-                    "chmod %o %s/%s"
-                    % (
-                        p.mode,
-                        self.options.target_dir,
-                        p.src if not p.dest else p.dest,
-                    )
+                sub_path = p.src if not p.dest else p.dest
+                self.device.chmod(
+                    f"{self.options.target_dir}/{sub_path}",
+                    p.mode,
                 )
 
         if self.options.lacros:

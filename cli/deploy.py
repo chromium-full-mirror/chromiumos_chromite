@@ -1539,7 +1539,7 @@ def _DeployDLCImage(
 
             # Set the proper perms and ownership so dlcservice can access the
             # image.
-            device.run(["chmod", "-R", "u+rwX,go+rX,go-w", _DLC_INSTALL_ROOT])
+            device.chmod(_DLC_INSTALL_ROOT, "u+rwX,go+rX,go-w", recursive=True)
             device.run(
                 ["chown", "-R", "dlcservice:dlcservice", _DLC_INSTALL_ROOT]
             )

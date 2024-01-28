@@ -1342,6 +1342,26 @@ class RemoteDevice:
 
         self.run(cmd)
 
+    def chmod(
+        self,
+        path: Union[Union[str, os.PathLike], List[Union[str, os.PathLike]]],
+        mode: Union[int, str],
+        check: bool = True,
+        recursive: bool = False,
+    ) -> None:
+        """Changing file modes on paths on the remote device."""
+        if isinstance(mode, int):
+            mode = f"{mode:o}"
+        cmd = ["chmod"]
+        if recursive:
+            cmd += ["--recursive"]
+        cmd += [mode, "--"]
+        if isinstance(path, (str, os.PathLike)):
+            cmd += [path]
+        else:
+            cmd += path
+        self.run(cmd, check=check)
+
     def mkdir(
         self,
         path: Union[Union[str, os.PathLike], List[Union[str, os.PathLike]]],

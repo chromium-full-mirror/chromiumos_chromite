@@ -70,6 +70,9 @@ class ChromiumOSDeviceFake:
     def IsSELinuxEnforced(self):
         return True
 
+    def chmod(self, _path, _mode, **_kwargs) -> None:
+        return None
+
     def mkdir(self, _path) -> None:
         return None
 
