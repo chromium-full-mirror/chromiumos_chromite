@@ -2731,10 +2731,10 @@ def GetRepositoryFromEbuildInfo(info):
      CROS_WORKON_PROJECT=("chromiumos/platform2")
     """
     srcdir_match = re.search(
-        r'^CROS_WORKON_SRCDIR=(\(".*"\))$', info, re.MULTILINE
+        r'^CROS_WORKON_SRCDIR=(\(["\'].*["\']\))$', info, re.MULTILINE
     )
     project_match = re.search(
-        r'^CROS_WORKON_PROJECT=(\(".*"\))$', info, re.MULTILINE
+        r'^CROS_WORKON_PROJECT=(\(["\'].*["\']\))$', info, re.MULTILINE
     )
     if not srcdir_match or not project_match:
         return None

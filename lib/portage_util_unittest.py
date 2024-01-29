@@ -1317,21 +1317,23 @@ class UtilFuncsTest(cros_test_lib.TempDirTestCase):
         ) -> None:
             """Generate the output from ebuild info"""
 
-            # ebuild info always put () around the result, even for single
-            # element array.
-            fake_ebuild_contents = """
-CROS_WORKON_PROJECT=("%s")
-CROS_WORKON_SRCDIR=("%s")
+            # ebuild info always puts () around the result, even for single
+            # element array. It tends to use single quotes, though double
+            # quotes are valid too.
+            for quote in ("'", '"'):
+                fake_ebuild_contents = f"""
+CROS_WORKON_PROJECT=({quote}%s{quote})
+CROS_WORKON_SRCDIR=({quote}%s{quote})
       """ % (
-                '" "'.join(fake_projects),
-                '" "'.join(fake_srcdirs),
-            )
-            result = portage_util.GetRepositoryFromEbuildInfo(
-                fake_ebuild_contents
-            )
-            result_srcdirs, result_projects = zip(*result)
-            self.assertEqual(fake_projects, list(result_projects))
-            self.assertEqual(fake_srcdirs, list(result_srcdirs))
+                    f"{quote} {quote}".join(fake_projects),
+                    f"{quote} {quote}".join(fake_srcdirs),
+                )
+                result = portage_util.GetRepositoryFromEbuildInfo(
+                    fake_ebuild_contents
+                )
+                result_srcdirs, result_projects = zip(*result)
+                self.assertEqual(fake_projects, list(result_projects))
+                self.assertEqual(fake_srcdirs, list(result_srcdirs))
 
         _runTestGetRepositoryFromEbuildInfo(["a", "b"], ["src_a", "src_b"])
         _runTestGetRepositoryFromEbuildInfo(["a"], ["src_a"])
