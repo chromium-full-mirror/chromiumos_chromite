@@ -172,7 +172,10 @@ def main(argv):
         cros_build_lib.IsInsideChroot()
         and opts.service_method == "chromite.api.ImageService/Create"
     ):
-        namespaces.ReExecuteWithNamespace(sys.argv, preserve_env=True)
+        logging.debug("Reexecuting without network access.")
+        namespaces.ReExecuteWithNamespace(
+            [sys.executable, *sys.argv], preserve_env=True
+        )
 
     # We currently don't have any APIs that want to access stdin, so rebind.
     # pylint: disable=consider-using-with
