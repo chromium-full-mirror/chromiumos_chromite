@@ -216,6 +216,7 @@ Note: When flashing a signed image, ssh connection to the device will be lost
         )
         update.add_argument(
             "--disable-rootfs-verification",
+            "-r",
             default=False,
             action="store_true",
             help="Disable rootfs verification after update is completed.",
