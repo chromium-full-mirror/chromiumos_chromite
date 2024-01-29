@@ -330,7 +330,9 @@ class Router(object):
       # the rest of the handlers after.
       output_handler = output_handlers[0]
 
+      # Use python3 to prevent vpython being used inside the SDK.
       cmd = [
+          'python3',
           'build_api',
           '%s/%s' % (service_name, method_name),
           input_handler.input_arg,
