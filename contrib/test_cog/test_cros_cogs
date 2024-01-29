@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Copyright 2024 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+set -euox pipefail
+
+cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+
+source ./cros_cogs.sh
+
+# This script runs an 'integration test' of the cog workspace creation and
+# building the chromeos superproject.
+
+# The list of current workarounds to a single, patchless build are listed below.
+# *
+# *
+# *
+
+# Python shouldn't be scribbling all over the place.
+export PYTHONDONTWRITEBYTECODE=1
+
+main() {
+  # Ensure that we have valid gcert credentials for at least six hours
+  #
+  # so that we have time to setup a board and build packages.
+  gcertstatus --nocheck_ssh --check_remaining=6h --quiet || \
+      gcert --nocorpssh
+
+  workspace_name=$(generate_workspace_unique_name)
+
+  echo "Generated workspace ${workspace_name}" \
+      chrome-internal/chromeos/superproject
+
+  # By default create a new workspace.
+  git citc create "${workspace_name}" chrome-internal/chromeos/superproject
+
+  workspace_path="/google/cog/cloud/${USER}/${workspace_name}"
+
+  mountpoint=$(mount_workspace "${workspace_path}")
+
+  cd "${mountpoint}"
+
+  cd chrome-internal
+
+  # Let this fail from now on.
+  set +e
+
+  cros_sdk -- setup_board --force -b amd64-generic
+
+  echo "Workspace created at ${mountpoint}."
+}
+
+main "$@"
