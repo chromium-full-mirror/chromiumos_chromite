@@ -471,8 +471,6 @@ class VM(device.Device):
             self.qemu_m,
             "-smp",
             str(self.qemu_smp),
-            "-vga",
-            "virtio",
             "-daemonize",
             "-pidfile",
             self.pidfile,
@@ -518,6 +516,22 @@ class VM(device.Device):
             qemu_args += ["-enable-kvm"]
         if not self.display:
             qemu_args += ["-display", "none"]
+
+        # TODO: b/321778557 - Remove hacking "arm64" check.
+        if self.board.startswith("arm64"):
+            qemu_args += [
+                "-M",
+                "virt",
+                "-accel",
+                "tcg",
+                "-vga",
+                "none",
+            ]
+        else:
+            qemu_args += [
+                "-vga",
+                "virtio",
+            ]
 
         return qemu_args
 

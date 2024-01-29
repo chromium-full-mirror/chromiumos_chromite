@@ -111,8 +111,6 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
                 "8G",
                 "-smp",
                 "8",
-                "-vga",
-                "virtio",
                 "-daemonize",
                 "-device",
                 "usb-tablet",
@@ -158,6 +156,12 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
             ]
         )
         self.assertCommandContains(["-enable-kvm"])
+        self.assertCommandContains(
+            [
+                "-vga",
+                "virtio",
+            ]
+        )
 
     @mock.patch("chromite.lib.device.Device.WaitForBoot")
     def testStartRetriesSuccess(self, mock_wait) -> None:
