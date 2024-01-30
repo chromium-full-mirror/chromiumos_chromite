@@ -16,7 +16,6 @@ from chromite.third_party.opentelemetry import trace
 from chromite.lib import build_query
 from chromite.lib import chromite_config
 from chromite.lib import commandline
-from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
@@ -95,25 +94,24 @@ def parse_pkgs(command: List[str], build_target_name: str) -> Iterable[str]:
 
 
 # TODO: Find a better name and a reusable location for this.
+@osutils.rotate_log_file(portage_util.get_die_hook_status_file())
 def sudo_run_cmd_with_failed_pkg_parsing(command, extra_env):
-    """Wrapper for sudo_run that adds CROS_METRICS_DIR usage."""
+    """Wrapper for sudo_run that adds DIE_HOOK_STATUS_FILE usage."""
     extra_env = extra_env.copy()
-    with osutils.TempDir() as tempdir:
-        extra_env[constants.CROS_METRICS_DIR_ENVVAR] = tempdir
-        try:
-            return cros_build_lib.sudo_run(
-                command,
-                print_cmd=False,
-                preserve_env=True,
-                extra_env=extra_env,
-            )
-        except cros_build_lib.RunCommandError as e:
-            raise sysroot_lib.PackageInstallError(
-                "Merging board packages failed",
-                e.result,
-                exception=e,
-                packages=portage_util.ParseDieHookStatusFile(tempdir),
-            ) from e
+    try:
+        return cros_build_lib.sudo_run(
+            command,
+            print_cmd=False,
+            preserve_env=True,
+            extra_env=extra_env,
+        )
+    except cros_build_lib.RunCommandError as e:
+        raise sysroot_lib.PackageInstallError(
+            "Merging board packages failed",
+            e.result,
+            exception=e,
+            packages=portage_util.ParseDieHookStatusFile(),
+        ) from e
 
 
 @tracer.start_as_current_span("portage_cmd_wrapper.execute")

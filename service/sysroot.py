@@ -850,6 +850,7 @@ def InstallToolchain(
 @tracer.start_as_current_span("service.sysroot.BuildPackages")
 @metrics_lib.timed("service.sysroot.BuildPackages")
 @osutils.rotate_log_file(constants.PORTAGE_DEPGRAPH_COUNTERS_LOG)
+@osutils.rotate_log_file(portage_util.get_die_hook_status_file())
 def BuildPackages(
     target: "build_target_lib.BuildTarget",
     sysroot: sysroot_lib.Sysroot,
@@ -936,12 +937,9 @@ def BuildPackages(
     extra_env["PORTAGE_BINHOST"] = " ".join(binhosts)
     _LogBinhostAge(binhosts, date_threshold=30)
 
-    with osutils.TempDir() as tempdir, cpupower_helper.ModifyCpuGovernor(
+    with cpupower_helper.ModifyCpuGovernor(
         run_configs.autosetgov, run_configs.autosetgov_sticky
     ):
-        metrics_dir = os.environ.get(constants.CROS_METRICS_DIR_ENVVAR, tempdir)
-        extra_env[constants.CROS_METRICS_DIR_ENVVAR] = metrics_dir
-
         cros_build_lib.ClearShadowLocks(sysroot.path)
 
         # Before running any emerge operations, regenerate the Portage
@@ -997,7 +995,6 @@ def BuildPackages(
                             target.name,
                             run_configs.bazel_lite,
                             extra_env,
-                            metrics_dir,
                         )
                     else:
                         cros_build_lib.sudo_run(
@@ -1007,7 +1004,7 @@ def BuildPackages(
                         )
                 logging.info("Builds complete.")
             except cros_build_lib.RunCommandError as e:
-                failed_pkgs = portage_util.ParseDieHookStatusFile(metrics_dir)
+                failed_pkgs = portage_util.ParseDieHookStatusFile()
                 raise sysroot_lib.PackageInstallError(
                     "Merging board packages failed",
                     e.result,
@@ -1291,7 +1288,6 @@ def _BazelBuild(
     target_name: str,
     bazel_lite: bool,
     extra_env: Dict[str, str],
-    metrics_dir: str,
 ) -> None:
     """Build packages with Bazel.
 
@@ -1302,8 +1298,6 @@ def _BazelBuild(
         bazel_lite: Whether to perform lite build, which targets a reduced
             set of packages and skips sysroot installation.
         extra_env: Environment in which commands should be executed.
-        metrics_dir: Path of the directory where FAILED_PACKAGES file will be
-            stored.
     """
 
     # Bazel needs amd64-host sysroot with sdk/bootstrap profile.
@@ -1399,15 +1393,12 @@ in
             BAZEL_BUILD_EVENT_JSON_FILE_PATH, target_name
         )
         if failed_packages:
-            with open(
-                os.path.join(metrics_dir, constants.DIE_HOOK_STATUS_FILE_NAME),
-                "w",
+            # "unknown" is a place holder for the failing ebuild phase name
+            # which won't be used.
+            portage_util.get_die_hook_status_file().write_text(
+                "\n".join(f"{x} unknown" for x in failed_packages),
                 encoding="utf-8",
-            ) as f:
-                for package in failed_packages:
-                    # "unknown" is a place holder for the failing ebuild
-                    # phase name which won't be used.
-                    f.write("%s unknown\n" % package)
+            )
         raise
 
 

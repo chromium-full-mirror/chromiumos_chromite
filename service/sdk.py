@@ -426,6 +426,7 @@ def Update(arguments: UpdateArguments) -> UpdateResult:
         return _Update(arguments)
 
 
+@osutils.rotate_log_file(portage_util.get_die_hook_status_file())
 def _Update(arguments: UpdateArguments) -> UpdateResult:
     cros_build_lib.ClearShadowLocks(arguments.root)
 
@@ -457,12 +458,9 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
             extra_env["PORTAGE_BINHOST"] = binhosts
     logging.info("PORTAGE_BINHOST: %s", binhosts)
 
-    # Set up the failed package status file.
-    with osutils.TempDir() as tempdir:
-        extra_env[constants.CROS_METRICS_DIR_ENVVAR] = tempdir
-        result = cros_build_lib.run(cmd, extra_env=extra_env, check=False)
-        failed_pkgs = portage_util.ParseDieHookStatusFile(tempdir)
-        ret = UpdateResult(result.returncode, GetChrootVersion(), failed_pkgs)
+    result = cros_build_lib.run(cmd, extra_env=extra_env, check=False)
+    failed_pkgs = portage_util.ParseDieHookStatusFile()
+    ret = UpdateResult(result.returncode, GetChrootVersion(), failed_pkgs)
 
     # Generate /usr/bin/remote_toolchain_inputs file for Reclient used by Chrome
     # for distributed builds. go/rbe/dev/x/reclient

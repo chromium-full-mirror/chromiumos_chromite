@@ -1070,6 +1070,7 @@ PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
             )
             osutils.SafeSymlink(filename, linkpath, sudo=True)
 
+    @osutils.rotate_log_file(portage_util.get_die_hook_status_file())
     def UpdateToolchain(self, board: str, local_init: bool = True) -> None:
         """Updates the toolchain packages.
 
@@ -1095,20 +1096,14 @@ PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
             # Emerge the implicit dependencies.
             emerge = self._UpdateToolchainCommand(board, local_init)
 
-            # Use a tempdir to handle the status file cleanup.
-            with osutils.TempDir() as tempdir:
-                extra_env = {constants.CROS_METRICS_DIR_ENVVAR: tempdir}
-
-                try:
-                    cros_build_lib.sudo_run(
-                        emerge, preserve_env=True, extra_env=extra_env
-                    )
-                except cros_build_lib.RunCommandError as e:
-                    # Include failed packages from the status file in the error.
-                    failed_pkgs = portage_util.ParseDieHookStatusFile(tempdir)
-                    raise ToolchainInstallError(
-                        str(e), e.result, exception=e, tc_info=failed_pkgs
-                    )
+            try:
+                cros_build_lib.sudo_run(emerge, preserve_env=True)
+            except cros_build_lib.RunCommandError as e:
+                # Include failed packages from the status file in the error.
+                failed_pkgs = portage_util.ParseDieHookStatusFile()
+                raise ToolchainInstallError(
+                    str(e), e.result, exception=e, tc_info=failed_pkgs
+                )
 
             # Record we've installed them so we don't call emerge each time.
             self.SetCachedField(_IMPLICIT_SYSROOT_DEPS_KEY, "yes")

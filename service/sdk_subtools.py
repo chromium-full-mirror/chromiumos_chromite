@@ -83,6 +83,7 @@ def setup_base_sdk(
         osutils.SafeMakedirs(SUBTOOLS_EXPORTS_CONFIG_DIR, sudo=sudo)
 
 
+@osutils.rotate_log_file(portage_util.get_die_hook_status_file())
 def _run_system_emerge(
     emerge_cmd: List[Union[str, Path]],
     extra_env: Dict[str, str],
@@ -91,27 +92,25 @@ def _run_system_emerge(
 ) -> None:
     """Runs an emerge command, updating the live system."""
     extra_env = extra_env.copy()
-    with osutils.TempDir() as tempdir:
-        extra_env[constants.CROS_METRICS_DIR_ENVVAR] = tempdir
-        with sysroot.RemoteExecution(use_goma):
-            logging.info("Merging %s now.", reason)
-            try:
-                # TODO(b/277992359): Bazel.
-                cros_build_lib.sudo_run(
-                    emerge_cmd,
-                    preserve_env=True,
-                    extra_env=extra_env,
-                )
-                logging.info("Merging %s complete.", reason)
-            except cros_build_lib.RunCommandError as e:
-                failed_pkgs = portage_util.ParseDieHookStatusFile(tempdir)
-                logging.error("Merging %s failed on %s", reason, failed_pkgs)
-                raise sysroot_lib.PackageInstallError(
-                    f"Merging {reason} failed",
-                    e.result,
-                    exception=e,
-                    packages=failed_pkgs,
-                ) from e
+    with sysroot.RemoteExecution(use_goma):
+        logging.info("Merging %s now.", reason)
+        try:
+            # TODO(b/277992359): Bazel.
+            cros_build_lib.sudo_run(
+                emerge_cmd,
+                preserve_env=True,
+                extra_env=extra_env,
+            )
+            logging.info("Merging %s complete.", reason)
+        except cros_build_lib.RunCommandError as e:
+            failed_pkgs = portage_util.ParseDieHookStatusFile()
+            logging.error("Merging %s failed on %s", reason, failed_pkgs)
+            raise sysroot_lib.PackageInstallError(
+                f"Merging {reason} failed",
+                e.result,
+                exception=e,
+                packages=failed_pkgs,
+            ) from e
 
 
 def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:

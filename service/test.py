@@ -75,6 +75,7 @@ class BuildTargetUnitTestResult:
         return self.return_code == 0 and len(self.failed_pkgs) == 0
 
 
+@osutils.rotate_log_file(portage_util.get_die_hook_status_file())
 def BuildTargetUnitTest(
     build_target: "build_target_lib.BuildTarget",
     packages: Optional[List[str]] = None,
@@ -148,12 +149,8 @@ def BuildTargetUnitTest(
 
     extra_env["USE"] = " ".join(use_flags)
     # Set up the failed package status file.
-    with osutils.TempDir() as tempdir:
-        metrics_dir = os.environ.get(constants.CROS_METRICS_DIR_ENVVAR, tempdir)
-        extra_env[constants.CROS_METRICS_DIR_ENVVAR] = metrics_dir
-        result = cros_build_lib.run(cmd, extra_env=extra_env, check=False)
-
-        failed_pkgs = portage_util.ParseDieHookStatusFile(metrics_dir)
+    result = cros_build_lib.run(cmd, extra_env=extra_env, check=False)
+    failed_pkgs = portage_util.ParseDieHookStatusFile()
 
     return BuildTargetUnitTestResult(result.returncode, failed_pkgs)
 
