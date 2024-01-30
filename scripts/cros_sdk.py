@@ -979,38 +979,12 @@ def main(argv) -> None:
 
         distfiles_cache = os.path.join(chroot.cache_dir, "distfiles")
         osutils.SafeMakedirsNonRoot(chroot.cache_dir)
+        osutils.SafeMakedirsNonRoot(distfiles_cache)
         osutils.SafeMakedirsNonRoot(options.out_dir)
         # Create here (in addition to cros_sdk_lib.MountChrootPaths()) because
         # some usages want to create tmp files here even before we've fully
         # mounted the SDK.
         osutils.SafeMakedirsNonRoot(options.out_dir / "tmp", mode=0o1777)
-
-        for target in (sdk_cache, distfiles_cache):
-            src = os.path.join(constants.SOURCE_ROOT, os.path.basename(target))
-            if not os.path.exists(src):
-                osutils.SafeMakedirsNonRoot(target)
-                continue
-            lock.write_lock(
-                "Upgrade to %r needed but chroot is locked; please exit "
-                "all instances so this upgrade can finish." % src
-            )
-            if not os.path.exists(src):
-                # Note that while waiting for the write lock, src may've
-                # vanished; it's a rare race during the upgrade process that's a
-                # byproduct of us avoiding taking a write lock to do the src
-                # check.  If we took a write lock for that check, it would
-                # effectively limit all cros_sdk for a chroot to a single
-                # instance.
-                osutils.SafeMakedirsNonRoot(target)
-            elif not os.path.exists(target):
-                # Upgrade occurred, but a reversion, or something whacky
-                # occurred writing to the old location.  Wipe and continue.
-                os.rename(src, target)
-            else:
-                # Upgrade occurred once already, but either a reversion or
-                # some before/after separate cros_sdk usage is at play.
-                # Wipe and continue.
-                osutils.RmDir(src)
 
         cros_sdk_lib.MigrateStatePaths(chroot, lock)
 
