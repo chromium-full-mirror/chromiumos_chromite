@@ -8,7 +8,8 @@ import dataclasses
 import enum
 import logging
 import os
-from typing import List, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from chromite.contrib.package_index_cros.lib import constants
 from chromite.contrib.package_index_cros.lib import setup
@@ -53,12 +54,12 @@ class PackageDependency:
 
 
 def _check_ebuild_var(
-    ebuild_file: str, var: str, temp_src_basedir: str = ""
+    ebuild_file: Path, var: str, temp_src_basedir: Optional[Path] = None
 ) -> Optional[str]:
     """Returns a variable's value in ebuild file."""
 
-    env = {"CROS_WORKON_ALWAYS_LIVE": "", "S": temp_src_basedir}
-    settings = osutils.SourceEnvironment(
+    env = {"CROS_WORKON_ALWAYS_LIVE": "", "S": str(temp_src_basedir)}
+    settings: Dict[str, str] = osutils.SourceEnvironment(
         ebuild_file, (var,), env=env, multiline=True
     )
     return settings.get(var, None)
@@ -84,10 +85,10 @@ def get_package_support(
     )
 
     # We don't want to disqualify virtual packages from the dep graph expansion.
-    def is_virtual():
+    def is_virtual() -> bool:
         return ebuild.category == "virtual"
 
-    def has_local_source():
+    def has_local_source() -> bool:
         # Project is CROS_WORKON_PROJECT in ebuild file.
         # Srcdir is CROS_WORKON_LOCALNAME in ebuild file.
         # If package does not have project and srcdir, it's downloaded.
@@ -135,7 +136,7 @@ def get_package_support(
 
         return True
 
-    def is_built_with_gn():
+    def is_built_with_gn() -> bool:
         # Subtrees is CROS_WORKON_SUBTREE in ebuild file.
         # If none of subtrees is .gn - package is not built with gn.
         if all((not st.endswith(".gn") for st in ebuild_source_info.subtrees)):
@@ -176,11 +177,11 @@ class PackagePathException(Exception):
 
     def __init__(
         self,
-        package,
+        package: "Package",
         message: str,
-        first_dir: Optional[str] = None,
-        second_dir: Optional[str] = None,
-    ):
+        first_dir: Optional[Path] = None,
+        second_dir: Optional[Path] = None,
+    ) -> None:
         if not first_dir:
             super().__init__(f"{package.full_name}: {message}")
         elif not second_dir:
@@ -198,7 +199,7 @@ class DirsException(PackagePathException):
 class UnsupportedPackageException(Exception):
     """Exception indicating an attempt to create an unsupported package."""
 
-    def __init__(self, package_name, reason: PackageSupport):
+    def __init__(self, package_name: str, reason: PackageSupport) -> None:
         self.package_name = package_name
         self.reason = reason
         super().__init__(f"{package_name}: Not supported due to: {reason}")
@@ -212,8 +213,8 @@ class NotInitializedException(Exception):
 class TempActualDichotomy:
     """Data class for a package's actual source dir and temp source dir."""
 
-    temp: str
-    actual: str
+    temp: Path
+    actual: Path
 
 
 class PackageInfo:
@@ -283,26 +284,21 @@ class Package:
         self.package_info = PackageInfo(ebuild)
 
         self.is_highly_volatile = (
-            os.path.isdir(
-                os.path.join(
-                    os.path.dirname(self.package_info.ebuild_file), "files"
-                )
-            )
-            or self.full_name in Package.highly_volatile_packages
-        )
+            Path(self.package_info.ebuild_file).parent / "files"
+        ).is_dir() or self.full_name in Package.highly_volatile_packages
         self.dependencies = deps or []
 
         # Attributes that will be set up later, during initialize().
         # In general, these properties should be accessed by their corresponding
         # @property methods (ex. temp_dir(), for _temp_dir) to make sure they're
         # initialized and non-None.
-        self._temp_dir: Optional[str] = None
-        self._build_dir: Optional[str] = None
+        self._temp_dir: Optional[Path] = None
+        self._build_dir: Optional[Path] = None
         self._src_dir_matches: Optional[List[TempActualDichotomy]] = None
-        self._additional_include_paths: Optional[List[str]] = None
+        self._additional_include_paths: Optional[List[Path]] = None
 
     @property
-    def temp_dir(self) -> str:
+    def temp_dir(self) -> Path:
         """Return the package's temporary directory.
 
         Raises:
@@ -313,7 +309,7 @@ class Package:
         return self._temp_dir
 
     @property
-    def build_dir(self) -> str:
+    def build_dir(self) -> Path:
         """Return the directory in which the package is built.
 
         Raises:
@@ -335,7 +331,7 @@ class Package:
         return self._src_dir_matches
 
     @property
-    def additional_include_paths(self) -> List[str]:
+    def additional_include_paths(self) -> List[Path]:
         """Return actual paths to be added as include path args.
 
         Raises:
@@ -345,7 +341,7 @@ class Package:
             raise NotInitializedException
         return self._additional_include_paths
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         """Return whether |self| and |other| refer to the same package.
 
         If compared to another Package object, they are equal if they have the
@@ -376,7 +372,7 @@ class Package:
         ) == "1"
         # Instead of calling 'cros-workon list', just check if workon version is
         # present.
-        is_not_stable = "9999" in self.temp_dir
+        is_not_stable = "9999" in str(self.temp_dir)
         return out_of_tree_build and is_not_stable
 
     def initialize(self) -> None:
@@ -400,18 +396,18 @@ class Package:
 
         self._additional_include_paths = self.get_additional_include_paths()
         for path in self.additional_include_paths:
-            if not os.path.isdir(path):
+            if not path.is_dir():
                 raise DirsException(
                     self, "Additional include path does not exist", path
                 )
 
-    def get_additional_include_paths(self) -> List[str]:
+    def get_additional_include_paths(self) -> List[Path]:
         """Return a list of actual paths to be added as include path args."""
         # Special case for chromeos-base/update_engine which pretends to be in
         # platform2 and uses platform2 as include path. While the actual include
         # path is {src_dir}/aosp/system with update_engine inside.
         if self.full_name == "chromeos-base/update_engine":
-            return [os.path.join(self.setup.src_dir, "aosp", "system")]
+            return [self.setup.src_dir / "aosp" / "system"]
         return []
 
     def _get_ordered_version_suffixes(self) -> List[str]:
@@ -423,7 +419,7 @@ class Package:
             self.package_info.version,
         ]
 
-    def _get_temp_dir(self) -> str:
+    def _get_temp_dir(self) -> Path:
         """Return the path to the base temp dir (${WORKDIR} in portage).
 
         See WORKDIR entry on
@@ -431,61 +427,57 @@ class Package:
 
         Chooses the dir with the highest ebuild version.
         """
-
-        base_dir = os.path.join(self.setup.board_dir, "tmp", "portage")
+        base_dir = self.setup.board_dir / "tmp" / "portage"
         not_in_dirs = []
 
         for version_suffix in self._get_ordered_version_suffixes():
-            temp_dir = os.path.join(
-                base_dir,
-                self.package_info.category,
-                f"{self.package_info.name}-{version_suffix}",
-                "work",
+            temp_dir = (
+                base_dir
+                / self.package_info.category
+                / f"{self.package_info.name}-{version_suffix}"
+                / "work"
             )
 
-            if os.path.isdir(temp_dir):
+            if temp_dir.is_dir():
                 return temp_dir
             else:
                 not_in_dirs.append(temp_dir)
 
         # Failed all tries, report and raise.
-        dirs_tried = ", ".join([str(os.path.join(x)) for x in not_in_dirs])
+        dirs_tried = ", ".join([str(x) for x in not_in_dirs])
+        raise DirsException(self, f"Cannot find temp dir in {dirs_tried}")
 
-        raise DirsException(self, "Cannot find temp dir in", dirs_tried)
-
-    def _get_build_dir(self) -> str:
+    def _get_build_dir(self) -> Path:
         """Return the path to the dir with build metadata (where args.gn lives).
 
         Raises:
             DirsException: build dir is not found.
             DirsException: 'args.gn' file not found in any expected build dir.
         """
-        build_dirs = [
-            os.path.join(
-                self.setup.board_dir,
-                "var",
-                "cache",
-                "portage",
-                self.package_info.category,
-                self.package_info.name,
-                "out",
-                "Default",
-            ),
-            os.path.join(self.temp_dir, "build", "out", "Default"),
+        build_dirs: List[Path] = [
+            self.setup.board_dir
+            / "var"
+            / "cache"
+            / "portage"
+            / self.package_info.category
+            / self.package_info.name
+            / "out"
+            / "Default",
+            self.temp_dir / "build" / "out" / "Default",
         ]
 
         for build_dir in build_dirs:
-            if not os.path.isdir(build_dir):
+            if not build_dir.is_dir():
                 continue
 
-            if not os.path.isfile(os.path.join(build_dir, "args.gn")):
+            if not (build_dir / "args.gn").is_file():
                 continue
 
             return build_dir
 
         raise DirsException(self, "Cannot find build dir")
 
-    def _get_temp_source_base_dir(self) -> Optional[str]:
+    def _get_temp_source_base_dir(self) -> Optional[Path]:
         """Return the base source path within the temp dir (${S} in portage).
 
         See S on
@@ -494,14 +486,12 @@ class Package:
         The base source dir contains copied source files.
         """
         for version in self._get_ordered_version_suffixes():
-            source_dir = os.path.join(
-                self.temp_dir, f"{self.package_info.name}-{version}"
-            )
-            if os.path.isdir(source_dir):
+            source_dir = self.temp_dir / f"{self.package_info.name}-{version}"
+            if source_dir.is_dir():
                 return source_dir
         return None
 
-    def _get_ebuild_source_dirs(self) -> List[str]:
+    def _get_ebuild_source_dirs(self) -> List[Path]:
         """Return actual source dirs.
 
         Based on:
@@ -511,16 +501,16 @@ class Package:
         # category.
         source_base_dir = self.setup.src_dir
         if self.package_info.category not in Package.src_categories:
-            source_base_dir = os.path.join(source_base_dir, "third_party")
+            source_base_dir = source_base_dir / "third_party"
 
         # CROS_WORKON_SRCPATH and CROS_WORKON_LOCALNAME declare paths relative
         # to base source dir.
         source_dirs = _check_ebuild_var(
-            self.package_info.ebuild_file, "CROS_WORKON_SRCPATH", ""
+            self.package_info.ebuild_file, "CROS_WORKON_SRCPATH"
         )
         if not source_dirs:
             source_dirs = _check_ebuild_var(
-                self.package_info.ebuild_file, "CROS_WORKON_LOCALNAME", ""
+                self.package_info.ebuild_file, "CROS_WORKON_LOCALNAME"
             )
 
         if not source_dirs:
@@ -530,11 +520,9 @@ class Package:
 
         # |source_dirs| is a comma separated list of directories relative to the
         # source base dir.
-        return [
-            os.path.join(source_base_dir, dir) for dir in source_dirs.split(",")
-        ]
+        return [(source_base_dir / child) for child in source_dirs.split(",")]
 
-    def _get_ebuilds_dest_dirs(self, temp_source_basedir: str) -> List[str]:
+    def _get_ebuilds_dest_dirs(self, temp_source_basedir: Path) -> List[Path]:
         """Return destination source dirs.
 
         Dest dirs contain temp copy of source dirs.
@@ -556,7 +544,7 @@ class Package:
             return [temp_source_basedir]
         else:
             # |dest_dirs| is a comma-separated list of absolute paths to dirs.
-            return dest_dirs.split(",")
+            return [Path(d) for d in dest_dirs.split(",")]
 
     def _get_source_dirs_to_temp_source_dirs_map(
         self,
@@ -606,10 +594,9 @@ class Package:
         ]
 
         for match in matches:
-            if not os.path.isdir(match.actual):
+            if not match.actual.is_dir():
                 raise DirsException(self, "Cannot find src dir", match.actual)
-
-            if not os.path.isdir(match.temp):
+            if not match.temp.is_dir():
                 raise DirsException(
                     self, "Cannot find temp src dir", match.temp
                 )
@@ -621,7 +608,8 @@ class Package:
             )
 
         # Sort by actual source dir length so the deepest and most accurate
-        # match appears first.
-        matches.sort(key=lambda match: len(match.actual), reverse=True)
+        # Sort by directory depth of the actual depth so that the deepest and
+        # most accurate match appears first.
+        matches.sort(key=lambda match: len(match.actual.parts), reverse=True)
 
         return matches

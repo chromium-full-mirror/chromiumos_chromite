@@ -10,6 +10,7 @@ import filecmp
 import json
 import logging
 import os
+from pathlib import Path
 from typing import Any, DefaultDict, Dict, List, Optional, Set
 
 from chromite.contrib.package_index_cros.lib import cros_sdk
@@ -38,9 +39,9 @@ class _IncludePathOrder:
         dependencies.
 
     Attributes:
-        local: Paths in the ChromiumOS src tree.
-        generated: Paths in the build dir.
-        chroot: Paths in the chroot dir, or in the chroot's out dir.
+        local: Args for paths in the ChromiumOS src tree.
+        generated: Args for paths in the build dir.
+        chroot: Args for paths in the chroot dir, or in the chroot's out dir.
     """
 
     local: Set[str]
@@ -60,8 +61,8 @@ class Cdb:
         setup_data: setup.Setup,
         package_to_include_args: Dict[str, _IncludePathOrder],
         *,
-        result_build_dir: Optional[str] = None,
-        file_conflicts: Optional[Dict[str, str]] = None,
+        result_build_dir: Optional[Path] = None,
+        file_conflicts: Optional[Dict[Path, Path]] = None,
     ):
         """Initialize a new Cdb instance.
 
@@ -129,8 +130,8 @@ class Cdb:
         for entry in self.data:
             entry["directory"] = self._get_fixed_directory(entry)
 
-            entry["file"] = os.path.relpath(
-                self._get_fixed_file(entry), entry["directory"]
+            entry["file"] = self._get_fixed_file(entry).relative_to(
+                entry["directory"]
             )
 
             entry["command"] = " ".join(self._get_fixed_arguments(entry))
@@ -142,7 +143,7 @@ class Cdb:
 
         return self
 
-    def _get_fixed_directory(self, entry: Dict) -> str:
+    def _get_fixed_directory(self, entry: Dict) -> Path:
         if "directory" not in entry:
             raise ValueError(f"Directory field is missing from {entry}")
         directory = self.path_handler.from_chroot(entry["directory"])
@@ -176,7 +177,7 @@ class Cdb:
 
         for arg in arguments:
 
-            def fixer(chroot_path: str) -> str:
+            def fixer(chroot_path: Path) -> Path:
                 return self._fix_path(
                     chroot_path,
                     ignore_highly_volatile=True,
@@ -185,22 +186,26 @@ class Cdb:
                     ignorable_dirs=self.setup.ignorable_dirs,
                 ).actual
 
-            (
-                arg_prefix,
-                actual_path,
-            ) = path_handler.fix_path_in_argument(arg, fixer)
-            actual_arg = arg_prefix + actual_path
+            (arg_prefix, actual_path) = path_handler.fix_path_in_argument(
+                arg, fixer
+            )
+            actual_arg = f"{arg_prefix}{actual_path or ''}"
+
+            actual_path_parents: List[Path] = []
+            if actual_path is not None:
+                actual_path_parents = list(actual_path.parents)
 
             if arg_prefix == "-I":
                 # Put include path into corresponding ordered location.
-                if actual_path.startswith(self.build_dir):
+                if self.build_dir in actual_path_parents:
                     # build_dir can be inside src_dir, so it comes before local.
                     actual_include_args.generated.add(actual_arg)
-                elif actual_path.startswith(self.setup.src_dir):
+                elif self.setup.src_dir in actual_path_parents:
                     actual_include_args.local.add(actual_arg)
-                elif actual_path.startswith(
-                    self.setup.chroot.path
-                ) or actual_path.startswith(str(self.setup.chroot.out_path)):
+                elif (
+                    self.setup.chroot.path in actual_path_parents
+                    or self.setup.chroot.out_path in actual_path_parents
+                ):
                     actual_include_args.chroot.add(actual_arg)
                 else:
                     raise NotImplementedError(
@@ -212,7 +217,7 @@ class Cdb:
         # Args are fixed.
 
         for include_path in self.package.additional_include_paths:
-            actual_include_args.local.add("-I" + include_path)
+            actual_include_args.local.add(f"-I{include_path}")
 
         # Do not pass our dependencies up.
         self.package_to_include_args[self.package.full_name].local.update(
@@ -237,7 +242,7 @@ class Cdb:
 
         return actual_arguments
 
-    def _get_fixed_file(self, entry: Dict) -> str:
+    def _get_fixed_file(self, entry: Dict) -> Path:
         if "file" not in entry:
             raise ValueError(f"File field is missing from entry: {entry}")
 
@@ -275,7 +280,7 @@ class Cdb:
 
         return fixed_path.actual
 
-    def _get_fix_output(self, entry: Dict) -> str:
+    def _get_fix_output(self, entry: Dict) -> Path:
         if "output" not in entry:
             raise ValueError(f"Output field is missing in entry: {entry}")
 
@@ -286,7 +291,7 @@ class Cdb:
         return actual_file
 
     def _fix_path(  # pylint: disable=docstring-misnamed-args
-        self, chroot_path: str, **ignore_args: Any
+        self, chroot_path: Path, **ignore_args: Any
     ) -> path_handler.FixedPath:
         """Wrap |fix_path_with_ignores|; move build_dir to the result dir."""
         fixed_path = self.path_handler.fix_path_with_ignores(
@@ -296,7 +301,7 @@ class Cdb:
             **ignore_args,
         )
 
-        if fixed_path.actual.startswith(self.package.build_dir):
+        if self.package.build_dir in fixed_path.actual.parents:
             return path_handler.FixedPath(
                 original=fixed_path.original,
                 actual=path_handler.move_path(
@@ -321,8 +326,8 @@ class CdbGenerator:
         self,
         setup_data: setup.Setup,
         *,
-        result_build_dir: Optional[str] = None,
-        file_conflicts: Optional[Dict[str, str]] = None,
+        result_build_dir: Optional[Path] = None,
+        file_conflicts: Optional[Dict[Path, Path]] = None,
         fail_fast: bool = False,
     ):
         """Initialize a new CdbGenerator instance.
@@ -400,7 +405,7 @@ class CdbGenerator:
         return result_cdb_data
 
     def generate(
-        self, packages: List[package.Package], result_cdb_file: str
+        self, packages: List[package.Package], result_cdb_file: Path
     ) -> None:
         """Generate, fix, and merge compile databases for the given packages.
 
@@ -417,5 +422,5 @@ class CdbGenerator:
             json.dumps(self.package_status, indent=2),
         )
 
-        with open(result_cdb_file, "w", encoding="utf-8") as output:
+        with result_cdb_file.open("w", encoding="utf-8") as output:
             json.dump(result_cdb, output, indent=2)

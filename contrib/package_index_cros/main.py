@@ -8,7 +8,7 @@ For usage instructions, see README.md.
 """
 
 import argparse
-import os
+from pathlib import Path
 import textwrap
 from typing import List, Optional
 
@@ -17,7 +17,7 @@ from chromite.contrib.package_index_cros.lib import setup
 from chromite.lib import commandline
 
 
-def _build_parser():
+def _build_parser() -> commandline.ArgumentParser:
     parser = commandline.ArgumentParser(
         usage="%(prog)s [options] package [package...]",
         description=textwrap.dedent(
@@ -96,8 +96,8 @@ def _build_parser():
 
     parser.add_argument(
         "--chroot",
-        type=str,
-        default="",
+        type=Path,
+        default=None,
         dest="chroot_dir",
         help=textwrap.dedent(
             """\
@@ -110,8 +110,8 @@ def _build_parser():
 
     parser.add_argument(
         "--chroot-out",
-        type=str,
-        default="",
+        type=Path,
+        default=None,
         dest="chroot_out_dir",
         help=textwrap.dedent(
             """\
@@ -124,7 +124,7 @@ def _build_parser():
         "--compile-commands",
         "--compile_commands",
         "-c",
-        type=str,
+        type=Path,
         dest="compile_commands_file",
         default=None,
         help=textwrap.dedent(
@@ -141,7 +141,7 @@ def _build_parser():
         "--gn-targets",
         "--gn_targets",
         "-t",
-        type=str,
+        type=Path,
         dest="gn_targets_file",
         default=None,
         help=textwrap.dedent(
@@ -158,7 +158,7 @@ def _build_parser():
         "--build-dir",
         "--build_dir",
         "-o",
-        type=str,
+        type=Path,
         dest="build_dir",
         default=None,
         help=textwrap.dedent(
@@ -184,13 +184,13 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     parser = _build_parser()
     args = parser.parse_args(argv)
     if args.compile_commands_file:
-        args.compile_commands_file = os.path.abspath(args.compile_commands_file)
+        args.compile_commands_file = args.compile_commands_file.absolute()
 
     if args.gn_targets_file:
-        args.gn_targets_file = os.path.abspath(args.gn_targets_file)
+        args.gn_targets_file = args.gn_targets_file.absolute()
 
     if args.build_dir:
-        args.build_dir = os.path.abspath(args.build_dir)
+        args.build_dir = args.build_dir.absolute()
 
     _setup = setup.Setup(
         args.board,

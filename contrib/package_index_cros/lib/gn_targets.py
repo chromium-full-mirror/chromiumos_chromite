@@ -7,7 +7,7 @@
 import filecmp
 import json
 import logging
-import os
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, TypeVar
 
 from chromite.contrib.package_index_cros.lib import cros_sdk
@@ -40,7 +40,7 @@ class GnTargets:
         pkg: package.Package,
         setup_data: setup.Setup,
         *,
-        result_build_dir: Optional[str] = None,
+        result_build_dir: Optional[Path] = None,
         file_conflicts: Optional[Dict] = None,
     ):
         """Construct a new GnTargets instance.
@@ -93,7 +93,7 @@ class GnTargets:
                     )
         return self
 
-    def _fix_script_field(self, script_file: str) -> str:
+    def _fix_script_field(self, script_file: Path) -> Path:
         """Fix the script filepath.
 
         Ensure that the script file exists and is the same as |script_file|.
@@ -131,27 +131,30 @@ class GnTargets:
     def _fix_args_field(self, args_list: List[str]) -> List[str]:
         return self.g(args_list)
 
-    def _fix_sources_field(self, path_list: List[str]) -> List[str]:
+    def _fix_sources_field(self, path_list: List[Path]) -> List[Path]:
         return self._fix_path_list(path_list)
 
-    def _fix_inputs_field(self, path_list: List[str]) -> List[str]:
+    def _fix_inputs_field(self, path_list: List[Path]) -> List[Path]:
         return self._fix_path_list(path_list)
 
-    def _fix_outputs_field(self, path_list: List[str]) -> List[str]:
+    def _fix_outputs_field(self, path_list: List[Path]) -> List[Path]:
         return self._fix_path_list(path_list)
 
-    def _fix_output_patterns_field(self, pattern_list: List[str]) -> List[str]:
+    def _fix_output_patterns_field(
+        self, pattern_list: List[Path]
+    ) -> List[Path]:
+        """Filename is not an actual file, but some pattern. Fix its dir."""
         # File name is not actual file, but some pattern. Let's fix its
         # directory instead.
         fixed_pattern_dirs = self._fix_path_list(
-            [os.path.dirname(p) for p in pattern_list]
+            [p.parent for p in pattern_list]
         )
         return [
-            os.path.join(dir, os.path.basename(pattern))
-            for dir, pattern in zip(fixed_pattern_dirs, pattern_list)
+            (d / pattern.name)
+            for d, pattern in zip(fixed_pattern_dirs, pattern_list)
         ]
 
-    def _fix_path_list(self, path_list: List[str]) -> List[str]:
+    def _fix_path_list(self, path_list: List[Path]) -> List[Path]:
         return [self._fix_path(path).actual for path in path_list]
 
     def g(self, args_list: List[str]) -> List[str]:
@@ -184,13 +187,13 @@ class GnTargets:
         return actual_arg_list
 
     def _fix_arg(self, arg: str) -> str:
-        def fixer(chroot_path):
+        def fixer(chroot_path: Path):
             return self._fix_path(chroot_path).actual
 
         arg_prefix, actual_path = path_handler.fix_path_in_argument(arg, fixer)
-        return arg_prefix + actual_path
+        return f"{arg_prefix}{actual_path or ''}"
 
-    def _fix_path(self, chroot_path: str) -> path_handler.FixedPath:
+    def _fix_path(self, chroot_path: Path) -> path_handler.FixedPath:
         """Wrap |fix_path_with_ignores|; move build_dir to the result dir."""
         fixed_path = self.path_handler.fix_path_with_ignores(
             chroot_path,
@@ -203,7 +206,7 @@ class GnTargets:
             ignorable_extensions=GnTargets.g_ignorable_extensions,
         )
 
-        if fixed_path.actual.startswith(self.package.build_dir):
+        if self.package.build_dir in fixed_path.actual.parents:
             return path_handler.FixedPath(
                 original=fixed_path.original,
                 actual=path_handler.move_path(
@@ -301,8 +304,8 @@ class GnTargetsGenerator:
         self,
         setup_data: setup.Setup,
         *,
-        result_build_dir: Optional[str] = None,
-        file_conflicts: Optional[Dict[str, str]] = None,
+        result_build_dir: Optional[Path] = None,
+        file_conflicts: Optional[Dict[Path, Path]] = None,
         fail_fast: bool = False,
     ):
         """Construct a new GnTargetsGenerator instance.
@@ -322,11 +325,11 @@ class GnTargetsGenerator:
         self.file_conflicts = file_conflicts or {}
         self.fail_fast = fail_fast
 
-    def _find_root_dir(self, pkg: package.Package) -> str:
+    def _find_root_dir(self, pkg: package.Package) -> Path:
         """Returns a dir from which it's possible to generate gn targets."""
 
         for src_match in pkg.src_dir_matches:
-            if os.path.isfile(os.path.join(src_match.temp, ".gn")):
+            if (src_match.temp / ".gn").is_file():
                 return src_match.temp
 
         raise GnTargetsGenerator.RootDirException(pkg, "Cannot find root dir")
@@ -385,7 +388,7 @@ class GnTargetsGenerator:
         return result_targets.data
 
     def generate(
-        self, packages: List[package.Package], result_targets_file: str
+        self, packages: List[package.Package], result_targets_file: Path
     ) -> None:
         """Generate, fix, and merge gn_targets for the given packages.
 
@@ -395,7 +398,7 @@ class GnTargetsGenerator:
         if not result_targets_file:
             raise ValueError(result_targets_file)
         result_targets = self._generate_result_targets(packages)
-        with open(result_targets_file, "w", encoding="utf-8") as output:
+        with result_targets_file.open("w", encoding="utf-8") as output:
             json.dump(result_targets, output, indent=2)
 
 

@@ -4,7 +4,6 @@
 
 """Helpers for setting up a package_index_cros run."""
 
-import os
 from pathlib import Path
 from typing import List, Optional
 
@@ -27,8 +26,8 @@ class Setup:
         *,
         skip_packages: Optional[List[str]] = None,
         with_tests: bool = False,
-        chroot_dir: str = "",
-        chroot_out_dir: str = "",
+        chroot_dir: Optional[Path] = None,
+        chroot_out_dir: Optional[Path] = None,
     ):
         """Initialize the instance.
 
@@ -49,19 +48,20 @@ class Setup:
                 "Script is executed outside of ChromeOS checkout"
             )
 
-        self.cros_dir = checkout_info.root
+        self.cros_dir = Path(checkout_info.root)
         if chroot_dir:
             self.chroot = chroot_lib.Chroot(
-                path=Path(os.path.realpath(chroot_dir)),
-                out_path=Path(os.path.realpath(chroot_out_dir)),
+                path=chroot_dir.resolve(),
+                out_path=chroot_out_dir.resolve() if chroot_out_dir else None,
             )
-            if (
-                self.chroot.path.startswith(self.cros_dir)
-                and self.chroot.path != constants.DEFAULT_CHROOT_DIR
-            ):
+            chroot_path = Path(self.chroot.path).resolve()
+            if self.cros_dir in [
+                chroot_path,
+                *chroot_path.parents,
+            ] and not chroot_path.samefile(constants.DEFAULT_CHROOT_PATH):
                 raise ValueError(
-                    f"Custom chroot dir inside {self.cros_dir} is not "
-                    "supported, and chromite resolves it to "
+                    f"Custom chroot dir {chroot_path} inside {self.cros_dir} "
+                    "is not supported, and chromite resolves it to "
                     f"{constants.DEFAULT_CHROOT_DIR}."
                 )
         else:
@@ -69,37 +69,33 @@ class Setup:
                 path=Path(self.cros_dir) / constants.DEFAULT_CHROOT_DIR,
                 out_path=Path(self.cros_dir) / constants.DEFAULT_OUT_DIR,
             )
-        self.board_dir = self.chroot.full_path(
-            os.path.join("/build", self.board)
+        self.board_dir = Path(
+            self.chroot.full_path(Path("/") / "build" / self.board)
         )
-        self.src_dir = os.path.join(self.cros_dir, "src")
-        self.platform2_dir = os.path.join(self.src_dir, "platform2")
+        self.src_dir = self.cros_dir / "src"
+        self.platform2_dir = self.src_dir / "platform2"
 
         # List of dirs that might not exist and can be ignored during path fix.
-        self.ignorable_dirs = [
-            os.path.join(
-                self.board_dir, "usr", "include", "chromeos", "libica"
-            ),
-            os.path.join(
-                self.board_dir, "usr", "include", "chromeos", "libsoda"
-            ),
-            os.path.join(self.board_dir, "usr", "include", "u2f", "client"),
-            os.path.join(self.board_dir, "usr", "share", "dbus-1"),
-            os.path.join(self.board_dir, "usr", "share", "proto"),
-            self.chroot.full_path(os.path.join("/build", "share")),
-            self.chroot.full_path(os.path.join("/usr", "include", "android")),
+        self.ignorable_dirs: List[Path] = [
+            self.board_dir / "usr" / "include" / "chromeos" / "libica",
+            self.board_dir / "usr" / "include" / "chromeos" / "libsoda",
+            self.board_dir / "usr" / "include" / "u2f" / "client",
+            self.board_dir / "usr" / "share" / "dbus-1",
+            self.board_dir / "usr" / "share" / "proto",
+            self.chroot.full_path(Path("/") / "build" / "share"),
+            self.chroot.full_path(Path("/") / "usr" / "include" / "android"),
             self.chroot.full_path(
-                os.path.join("/usr", "include", "cros-camera")
+                Path("/") / "usr" / "include" / "cros-camera"
             ),
-            self.chroot.full_path(os.path.join("/usr", "lib64", "shill")),
-            self.chroot.full_path(os.path.join("/usr", "libexec", "ipsec")),
+            self.chroot.full_path(Path("/") / "usr" / "lib64" / "shill"),
+            self.chroot.full_path(Path("/") / "usr" / "libexec" / "ipsec"),
             self.chroot.full_path(
-                os.path.join("/usr", "libexec", "l2tpipsec_vpn")
+                Path("/") / "usr" / "libexec" / "l2tpipsec_vpn"
             ),
-            self.chroot.full_path(os.path.join("/usr", "share", "cros-camera")),
+            self.chroot.full_path(Path("/") / "usr" / "share" / "cros-camera"),
         ]
 
-        self.skip_packages = skip_packages or []
+        self.skip_packages: List[str] = skip_packages or []
         self.with_tests = with_tests
 
     @property
