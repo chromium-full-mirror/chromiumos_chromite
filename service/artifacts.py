@@ -454,20 +454,18 @@ def ArchiveImages(
             # Remove path folders created for additional files
             extra_args.append("--transform=s#.*/##")
 
-        # Don't compress in case the input is already compressed.
-        compression = (
-            cros_build_lib.CompressionType.XZ
-            if img == tar
-            else cros_build_lib.CompressionType.NONE
-        )
-        cros_build_lib.CreateTarball(
-            tarball_path,
-            image_dir,
-            compression=compression,
-            inputs=content,
-            print_cmd=False,
-            extra_args=extra_args,
-        )
+        if img != tar:
+            cros_build_lib.CreateTarball(
+                tarball_path,
+                image_dir,
+                inputs=content,
+                print_cmd=False,
+                extra_args=extra_args,
+            )
+        else:
+            # In case the input is already compressed, copy it.
+            image_path = os.path.join(image_dir, img)
+            shutil.copy(image_path, tarball_path)
         archives.append(tar)
 
     return archives
