@@ -17,7 +17,6 @@ BOARD = "amd64-generic"
 def test_basic_setup() -> None:
     """Make sure we can initialize a basic Setup."""
     _setup = setup.Setup(BOARD)
-    assert _setup.cros_dir == str(constants.SOURCE_ROOT)
     assert _setup.chroot.path == constants.DEFAULT_CHROOT_PATH
 
 
@@ -25,9 +24,8 @@ def test_with_chroot_dir() -> None:
     """Initialize a Setup with a custom chroot_dir."""
     chroot_path = "/path/to/chroot"
     _setup = setup.Setup(BOARD, chroot_dir=chroot_path)
-    assert _setup.cros_dir == str(constants.SOURCE_ROOT)
     assert _setup.chroot.path == chroot_path
-    assert _setup.chroot.out_path == constants.DEFAULT_OUT_PATH
+    assert _setup.chroot.out_path == str(constants.DEFAULT_OUT_PATH)
 
 
 def test_custom_chroot_dir_inside_source_root() -> None:

@@ -8,10 +8,14 @@ import dataclasses
 import enum
 import logging
 import os
+from pathlib import Path
 from typing import List, Optional
 
-from chromite.contrib.package_index_cros.lib import constants
+from chromite.contrib.package_index_cros.lib import (
+    constants as package_index_constants,
+)
 from chromite.contrib.package_index_cros.lib import setup
+from chromite.lib import constants
 from chromite.lib import osutils
 from chromite.lib import portage_util
 
@@ -79,7 +83,7 @@ def get_package_support(
     # pylint: disable=protected-access
     ebuild_file = ebuild._unstable_ebuild_path
     ebuild_source_info = ebuild.GetSourceInfo(
-        setup_data.src_dir,
+        constants.SOURCE_ROOT / "src",
         setup_data.manifest,
     )
 
@@ -120,15 +124,14 @@ def get_package_support(
         # With local source:
         # *   dev-libs/libtextclassifier: not platform2 with non-existing
         #     PLATFORM_SUBDIR.
+        platform2_path = constants.SOURCE_ROOT / "src" / "platform2"
         platform_subdir = _check_ebuild_var(ebuild_file, "PLATFORM_SUBDIR")
-        if platform_subdir and not os.path.isdir(
-            os.path.join(setup_data.platform2_dir, platform_subdir)
-        ):
+        if platform_subdir and not (platform2_path / platform_subdir).exists():
             if not any(
                 (
                     os.path.isdir(srcdir)
                     for srcdir in ebuild_source_info.srcdirs
-                    if srcdir != setup_data.platform2_dir
+                    if Path(srcdir).resolve() != platform2_path
                 )
             ):
                 return False
@@ -162,7 +165,7 @@ def get_package_support(
     if not is_built_with_gn():
         return PackageSupport.NO_GN_BUILD
 
-    if ebuild.package in constants.TEMPORARY_UNSUPPORTED_PACKAGES:
+    if ebuild.package in package_index_constants.TEMPORARY_UNSUPPORTED_PACKAGES:
         return PackageSupport.TEMP_NO_SUPPORT
 
     if ebuild.package in setup_data.skip_packages:
@@ -409,9 +412,9 @@ class Package:
         """Return a list of actual paths to be added as include path args."""
         # Special case for chromeos-base/update_engine which pretends to be in
         # platform2 and uses platform2 as include path. While the actual include
-        # path is {src_dir}/aosp/system with update_engine inside.
+        # path is $CHECKOUT/src/aosp/system with update_engine inside.
         if self.full_name == "chromeos-base/update_engine":
-            return [os.path.join(self.setup.src_dir, "aosp", "system")]
+            return [str(constants.SOURCE_ROOT / "src" / "aosp" / "system")]
         return []
 
     def _get_ordered_version_suffixes(self) -> List[str]:
@@ -509,7 +512,7 @@ class Package:
         """
         # Base dir is either src or src/third_party, depending on the package's
         # category.
-        source_base_dir = self.setup.src_dir
+        source_base_dir = constants.SOURCE_ROOT / "src"
         if self.package_info.category not in Package.src_categories:
             source_base_dir = os.path.join(source_base_dir, "third_party")
 

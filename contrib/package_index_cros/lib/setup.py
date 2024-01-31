@@ -8,14 +8,9 @@ import os
 from pathlib import Path
 from typing import List, Optional
 
-from chromite.contrib.package_index_cros.lib import (
-    constants as package_index_constants,
-)
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import git
-from chromite.lib import path_util
-from chromite.lib import repo_util
 
 
 class Setup:
@@ -41,42 +36,25 @@ class Setup:
         """
         self.board = board
 
-        checkout_info = path_util.DetermineCheckout(
-            package_index_constants.PACKAGE_ROOT_DIR
-        )
-        if checkout_info.type != path_util.CheckoutType.REPO:
-            raise repo_util.NotInRepoError(
-                "Script is executed outside of ChromeOS checkout"
-            )
-
-        self.cros_dir = checkout_info.root
         if chroot_dir:
             if not chroot_out_dir:
-                chroot_out_dir = os.path.join(
-                    self.cros_dir, constants.DEFAULT_OUT_DIR
-                )
+                chroot_out_dir = str(constants.DEFAULT_OUT_PATH)
             self.chroot = chroot_lib.Chroot(
-                path=Path(os.path.realpath(chroot_dir)),
-                out_path=Path(os.path.realpath(chroot_out_dir)),
+                path=os.path.realpath(chroot_dir),
+                out_path=os.path.realpath(chroot_out_dir),
             )
-            if self.chroot.path.startswith(
-                self.cros_dir
-            ) and self.chroot.path != str(constants.DEFAULT_CHROOT_PATH):
+            if (
+                self.chroot.path.startswith(str(constants.SOURCE_ROOT))
+                and self.chroot.path != constants.DEFAULT_CHROOT_PATH
+            ):
                 raise ValueError(
-                    f"Custom chroot dir {self.chroot.path} inside "
-                    f"{self.cros_dir} is not supported, and chromite resolves "
-                    f"it to {constants.DEFAULT_CHROOT_DIR}."
+                    f"Custom chroot dir {self.chroot.path} inside source root "
+                    f"is not supported, and chromite resolves it to "
+                    f"{constants.DEFAULT_CHROOT_DIR}."
                 )
         else:
-            self.chroot = chroot_lib.Chroot(
-                path=Path(self.cros_dir) / constants.DEFAULT_CHROOT_DIR,
-                out_path=Path(self.cros_dir) / constants.DEFAULT_OUT_DIR,
-            )
-        self.board_dir = self.chroot.full_path(
-            os.path.join("/build", self.board)
-        )
-        self.src_dir = os.path.join(self.cros_dir, "src")
-        self.platform2_dir = os.path.join(self.src_dir, "platform2")
+            self.chroot = chroot_lib.Chroot()
+        self.board_dir = self.chroot.full_path(Path("/") / "build" / self.board)
 
         # List of dirs that might not exist and can be ignored during path fix.
         self.ignorable_dirs = [
@@ -108,4 +86,4 @@ class Setup:
     @property
     def manifest(self) -> git.ManifestCheckout:
         """Return a manifest handler to work with the checked-out manifest."""
-        return git.ManifestCheckout.Cached(self.cros_dir)
+        return git.ManifestCheckout.Cached(constants.SOURCE_ROOT)
