@@ -594,7 +594,9 @@ def PushImage(
 
             dst_archive = "%s.%s" % (dst_name, suffix)
             sect_general["archive"] = dst_archive
-            sect_general["type"] = image_type
+            sect_general["type"] = (
+                "uefi_kernel" if image_type == "flexor" else image_type
+            )
 
             # In the default/automatic mode, only flag files for signing if the
             # archives were actually uploaded in a previous stage. This
