@@ -28,12 +28,10 @@ TEMPORARY_UNSUPPORTED_PACKAGES = {
     # deps. crbug.com/1501725
     "sys-devel/llvm",
     "sys-libs/llvm-libunwind",
-
     "chromeos-base/screen-capture-utils",
     "chromeos-base/update_engine",
     "chromeos-base/mtpd",
     "net-wireless/floss",
-
     "chromeos-base/vboot_reference",
     "chromeos-base/chromeos-installer",
     "chromeos-base/chromeos-init",
@@ -41,9 +39,7 @@ TEMPORARY_UNSUPPORTED_PACKAGES = {
 }
 
 # Set of packages that are not currently supported when building with tests.
-TEMPORARY_UNSUPPORTED_PACKAGES_WITH_TESTS = {
-}
+TEMPORARY_UNSUPPORTED_PACKAGES_WITH_TESTS = {}
 
 # Set of packages failing test run. To be skipped for test run.
-PACKAGES_FAILING_TESTS = {
-}
+PACKAGES_FAILING_TESTS = {}
