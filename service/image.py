@@ -453,7 +453,7 @@ def Build(
                 "To flash the image to a Chrome OS device, use:\n"
                 f"  cros flash ${{DUT_IP}} {image_path}\n"
                 "Note that the device must be accessible over the network.\n"
-                "A base image will not work in this mode, but a test or"
+                "A base image will not work in this mode, but a test or "
                 "dev image will.\n"
             )
         if any(
