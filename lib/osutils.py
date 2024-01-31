@@ -230,8 +230,8 @@ def WriteFile(
                 write_path, get_existing_perms(path) if chmod is None else chmod
             )
 
+            mv_target = str(path) if not atomic else str(path) + ".tmp"
             try:
-                mv_target = str(path) if not atomic else str(path) + ".tmp"
                 cros_build_lib.sudo_run(
                     ["mv", write_path, mv_target], print_cmd=False, stderr=True
                 )
@@ -1399,7 +1399,7 @@ def UmountDir(path, lazy=True, sudo=True, cleanup=True) -> None:
         lazy: Whether to do a lazy unmount.
         sudo: Run through sudo.
         cleanup: Whether to delete the |path| after unmounting.
-        Note: Does not work when |lazy| is set.
+            Note: Does not work when |lazy| is set.
     """
     if sudo:
         runcmd = cros_build_lib.sudo_run
