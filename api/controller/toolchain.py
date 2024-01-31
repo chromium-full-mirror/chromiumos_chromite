@@ -498,4 +498,9 @@ def SetupToolchains(
     del response, config  # Unused.
     cros_build_lib.AssertInsideChroot()
     include_boards = [bt.name for bt in request.boards]
-    toolchain.setup_toolchains(include_boards=include_boards)
+    targets = [x.target for x in request.targets]
+    toolchain.setup_toolchains(
+        include_boards=include_boards,
+        targets=targets,
+        sysroot=request.sysroot_path or None,
+    )

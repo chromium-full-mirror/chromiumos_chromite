@@ -497,7 +497,9 @@ class SetupToolchainsTest(
             self.response,
             self.api_config,
         )
-        service_mock.assert_called_once_with(include_boards=[])
+        service_mock.assert_called_once_with(
+            include_boards=[], targets=[], sysroot=None
+        )
 
     def test_with_boards(self) -> None:
         """Test the behavior if the request object specifies boards."""
@@ -517,4 +519,46 @@ class SetupToolchainsTest(
         )
         service_mock.assert_called_once_with(
             include_boards=["amd64-generic", "arm-generic"],
+            targets=[],
+            sysroot=None,
+        )
+
+    def test_with_targets(self) -> None:
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
+        service_mock = self.PatchObject(toolchain_service, "setup_toolchains")
+        request = toolchain_pb2.SetupToolchainsRequest(
+            chroot=self.chroot,
+            targets=[
+                toolchain_pb2.SetupToolchainsRequest.ToolchainTarget(
+                    target="all"
+                ),
+            ],
+        )
+        toolchain.SetupToolchains(
+            request,
+            self.response,
+            self.api_config,
+        )
+        service_mock.assert_called_once_with(
+            include_boards=[],
+            targets=["all"],
+            sysroot=None,
+        )
+
+    def test_with_sysroot(self) -> None:
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
+        service_mock = self.PatchObject(toolchain_service, "setup_toolchains")
+        request = toolchain_pb2.SetupToolchainsRequest(
+            chroot=self.chroot,
+            sysroot_path="/build/amd64-host",
+        )
+        toolchain.SetupToolchains(
+            request,
+            self.response,
+            self.api_config,
+        )
+        service_mock.assert_called_once_with(
+            include_boards=[],
+            targets=[],
+            sysroot="/build/amd64-host",
         )
