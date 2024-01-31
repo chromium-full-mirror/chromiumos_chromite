@@ -645,3 +645,31 @@ class TestSetupToolchains(cros_test_lib.RunCommandTestCase):
             ],
             enter_chroot=True,
         )
+
+    def test_targets(self) -> None:
+        toolchain.setup_toolchains(targets=["boards", "sdk"])
+        self.assertCommandCalled(
+            [
+                "sudo",
+                "--preserve-env",
+                "--",
+                "cros_setup_toolchains",
+                "--targets",
+                "boards,sdk",
+            ],
+            enter_chroot=True,
+        )
+
+    def test_sysroot(self) -> None:
+        toolchain.setup_toolchains(sysroot="/build/amd64-host")
+        self.assertCommandCalled(
+            [
+                "sudo",
+                "--preserve-env",
+                "--",
+                "cros_setup_toolchains",
+                "--sysroot",
+                "/build/amd64-host",
+            ],
+            enter_chroot=True,
+        )
