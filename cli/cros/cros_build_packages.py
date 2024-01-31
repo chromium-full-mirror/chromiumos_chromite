@@ -534,6 +534,9 @@ def build_packages(opts: commandline.ArgumentNamespace) -> None:
             "is_incremental": opts.build_run_config.is_incremental,
             "workon": opts.workon is True,
             "bazel": opts.bazel is True,
+            "sticky_update_enabled": (
+                chromite_config.SDK_UPDATE_STICKY_CONFIG.exists()
+            ),
         }
     )
 
