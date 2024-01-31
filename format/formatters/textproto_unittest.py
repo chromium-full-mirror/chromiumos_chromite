@@ -23,3 +23,13 @@ def test_check_format(data, exp) -> None:
     if exp is None:
         exp = data
     assert exp == formatters.textproto.Data(data)
+
+
+@pytest.mark.parametrize(
+    "data",
+    ('"',),
+)
+def test_format_failures(data) -> None:
+    """Verify inputs raise ParseErrors as expected."""
+    with pytest.raises(formatters.ParseError):
+        formatters.textproto.Data(data)

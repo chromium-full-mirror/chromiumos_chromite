@@ -41,12 +41,15 @@ def Data(
     # txtpbfmt doesn't fully trim whitespace currently.
     data = formatters.whitespace.Data(data, path)
 
-    result = cros_build_lib.run(
-        [
-            _find_txtpbfmt(),
-        ],
-        capture_output=True,
-        input=data,
-        encoding="utf-8",
-    )
-    return result.stdout
+    try:
+        result = cros_build_lib.run(
+            [
+                _find_txtpbfmt(),
+            ],
+            capture_output=True,
+            input=data,
+            encoding="utf-8",
+        )
+        return result.stdout
+    except cros_build_lib.RunCommandError as e:
+        raise formatters.ParseError(path) from e
