@@ -10,6 +10,7 @@
 
 
 import builtins
+import os
 from pathlib import Path
 from typing import Any
 from unittest import mock
@@ -46,9 +47,19 @@ def fixture_setup(monkeypatch: "pytest.MonkeyPatch") -> None:
     monkeypatch.setattr(gs.GSContext, "LS", lambda *_,: ["some/path"])
     monkeypatch.setattr(gs.GSContext, "Copy", lambda *_,: None)
     monkeypatch.setattr(gs.GSContext, "CheckPathAccess", lambda *_,: None)
-    monkeypatch.setattr(fwbuddy.FwBuddy, "setup", lambda *_,: None)
-    monkeypatch.setattr(fwbuddy.FwBuddy, "cleanup", lambda *_,: None)
+    monkeypatch.setattr(fwbuddy.FwBuddy, "setup_temp_dirs", lambda *_,: None)
     monkeypatch.setattr(Path, "read_text", mock_read_text)
+
+
+def test_context_manager(setup: Path) -> None:
+    """Tests that we can manage an FwBuddy object within a context manager"""
+    temp_dir_path = Path("")
+    with fwbuddy.FwBuddy(GENERIC_VALID_URI) as f:
+        temp_dir_path = f.temp_dir_path
+        assert os.path.exists(temp_dir_path)
+
+    # Temp directory should be cleaned up after we exit the with block.
+    assert not os.path.exists(temp_dir_path)
 
 
 def test_usage_string(setup: Path) -> None:
@@ -239,25 +250,25 @@ def test_determine_gspath(
 def test_download(setup: Path) -> None:
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
     f.download()
-    assert f.archive_path == f"{fwbuddy.TMP_STORAGE_FOLDER}/path"
+    assert f.archive_path == Path(f.temp_dir_path) / "path"
 
 
 def test_extract(setup: Path, run_mock: cros_test_lib.RunCommandMock) -> None:
     run_mock.SetDefaultCmdResult(0)
     # Ap image path extraction with firmware_type
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
-    f.archive_path = "/unused"
+    f.archive_path = Path("/unused")
     f.extract("tmp")
-    assert f.ap_path == "tmp/image-galtic.serial.bin"
+    assert f.ap_path == Path("tmp/image-galtic.serial.bin")
 
     # AP and EC image path extraction
     f = fwbuddy.FwBuddy(
         "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed"
     )
-    f.archive_path = "/unused"
+    f.archive_path = Path("/unused")
     f.extract("tmp")
-    assert f.ap_path == "tmp/image-galtic.bin"
-    assert f.ec_path == "tmp/galtic/ec.bin"
+    assert f.ap_path == Path("tmp/image-galtic.bin")
+    assert f.ec_path == Path("tmp/galtic/ec.bin")
 
     # Some error while extracting archive contents.
     run_mock.SetDefaultCmdResult(1, stderr="some error")
@@ -270,7 +281,7 @@ def test_export_firmware_image(
 ) -> None:
     run_mock.SetDefaultCmdResult(0)
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
-    f.archive_path = "/unused"
+    f.archive_path = Path("/unused")
     # Unsupported chip
     f.extract("tmp")
     with pytest.raises(fwbuddy.FwBuddyException):

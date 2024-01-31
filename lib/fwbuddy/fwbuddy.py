@@ -4,17 +4,21 @@
 
 """Main module for finding and retrieving firmware archives"""
 
+from __future__ import annotations
+
+import atexit
 import json
 import logging
 import os
 from pathlib import Path
 import re
-import shutil
 import textwrap
-from typing import List, NamedTuple, Optional, Set
+import types
+from typing import List, NamedTuple, Optional, Set, Type, Union
 
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
+from chromite.lib import osutils
 
 
 class FwBuddyException(Exception):
@@ -100,7 +104,7 @@ FIELD_DOCS = {
             "flash can be found by running "
             "`chromeos-firmwareupdate --manifest` on it and looking for the "
             "version number for your model. For example, the manifest file on "
-            "a Galnat360 indicates that the firmware version is "
+            "a specific Galnat360 might indicate that the firmware version is "
             "`Google_Galtic.13606.459.0`, implying the firmware name is Galtic."
         ),
         examples="galtic, dood, redrix, etc.",
@@ -216,15 +220,6 @@ UNSIGNED_ARCHIVE_BUCKET = "gs://chromeos-image-archive"
 # The GS bucket that contains our signed firmware archives.
 SIGNED_ARCHIVE_BUCKET = "gs://chromeos-releases"
 
-# Where to temporarily store files downloaded from Google Storage.
-TMP_STORAGE_FOLDER = "/tmp/fwbuddy"
-
-# Where firmware archives are extracted to when a folder isn't specified.
-DEFAULT_EXTRACTED_ARCHIVE_PATH = f"{TMP_STORAGE_FOLDER}/archive"
-
-# Where firmware images are exported to when a folder isn't specified.
-DEFAULT_EXPORTED_FIRMWARE_PATH = f"{TMP_STORAGE_FOLDER}/exported"
-
 # Some AP Firmware Images are compiled with different flags to enable features
 # like additional logging. In the firmware archives, this images would show up
 # as image-galtic.serial.bin or image-galtic.dev.bin.
@@ -240,7 +235,6 @@ CHIP_TYPES = [AP, EC]
 
 # A small JSON file containing a (board, model) -> branch_name mapping populated
 # with data from DLM
-BRANCH_MAP_LOCAL_PATH = Path(f"{TMP_STORAGE_FOLDER}/firmware_quals.json")
 BRANCH_MAP_URI = "gs://chromeos-build-release-console/firmware_quals.json"
 
 # All known file path schemas that unsigned firmware archives may be stored
@@ -320,33 +314,61 @@ class FwBuddy:
         Args:
             uri: An fwbuddy URI used to identify a specific firmware archive.
         """
+        # Where to temporarily store files downloaded from Google Storage.
+        self.temp_dir = osutils.TempDir()
+        self.temp_dir_path = Path(str(self.temp_dir))
 
-        # These paths are not populated until after we've downloaded and
-        # extracted the contents of the firmware archive.
-        self.archive_path: Optional[str] = None
-        self.ec_path: Optional[str] = None
-        self.ap_path: Optional[str] = None
+        # Where to extract firmware archives when a folder isn't specified.
+        self.default_extracted_archive_path = (
+            Path(self.temp_dir_path) / "archive"
+        )
+
+        self.setup_temp_dirs()
+
+        # Registering cleanup using atexit allows us to still cleanup after
+        # a CTRL+C and other, less fatal interrupts (wont' do anything in face
+        # of a `kill -9`).
+        atexit.register(self.temp_dir.Cleanup)
+
+        # Where to store the branch map json file retrieved from GS
+        self.branch_map_local_path = (
+            Path(self.temp_dir_path) / "firmware_quals.json"
+        )
+
+        self.archive_path: Optional[Path] = None
+        self.ec_path: Optional[Path] = None
+        self.ap_path: Optional[Path] = None
+
+        self.gs = gs.GSContext()
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
 
         if uri in INTERACTIVE_MODE:
             uri = get_uri_interactive()
-        self.cleanup()
-        self.setup()
-        self.gs = gs.GSContext()
         self.uri = parse_uri(uri)
         self.fw_image = self.build_fw_image()
         self.gspath = self.determine_gspath()
 
-    def cleanup(self) -> None:
-        """Deletes any temporarily downloaded files"""
-        if os.path.isdir(TMP_STORAGE_FOLDER):
-            shutil.rmtree(TMP_STORAGE_FOLDER)
+    def __enter__(self) -> FwBuddy:
+        """Allows FwBuddy to be used as a context manager ("with" keyword)
 
-    def setup(self) -> None:
+        Returns:
+            The FwBuddy object
+        """
+        return self
+
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[types.TracebackType],
+    ) -> None:
+        """Cleans up temp dirs when exiting the context manager"""
+        self.temp_dir.Cleanup()
+
+    def setup_temp_dirs(self) -> None:
         """Create the folder that will contain our tmp data."""
-        os.makedirs(DEFAULT_EXTRACTED_ARCHIVE_PATH, exist_ok=True)
-        os.makedirs(DEFAULT_EXPORTED_FIRMWARE_PATH, exist_ok=True)
+        os.makedirs(self.default_extracted_archive_path, exist_ok=True)
 
     def build_fw_image(self) -> FwImage:
         """Builds a new FwImage with information from the URI and DLM
@@ -390,10 +412,10 @@ class FwBuddy:
             )
             return set()
 
-        self.gs.Copy(BRANCH_MAP_URI, TMP_STORAGE_FOLDER)
+        self.gs.Copy(BRANCH_MAP_URI, self.temp_dir_path)
         branches: Set[str] = set()
         branch_map = json.loads(
-            BRANCH_MAP_LOCAL_PATH.read_text(encoding="utf-8")
+            self.branch_map_local_path.read_text(encoding="utf-8")
         )
         for entry in branch_map["firmware_quals"]:
             if (
@@ -466,7 +488,7 @@ class FwBuddy:
             self.gspath,
         )
         self.gs.CheckPathAccess(self.gspath)
-        self.gs.Copy(self.gspath, TMP_STORAGE_FOLDER)
+        self.gs.Copy(self.gspath, self.temp_dir_path)
         self.logger.info(
             "Successfully downloaded the firmware archive from: %s ",
             self.gspath,
@@ -475,9 +497,9 @@ class FwBuddy:
 
         # Store the file path in self rather than return it as a string
         # as there's no real reason to expose this information to the API User.
-        self.archive_path = f"{TMP_STORAGE_FOLDER}/{file_name}"
+        self.archive_path = Path(self.temp_dir_path) / file_name
 
-    def extract(self, directory: str = DEFAULT_EXTRACTED_ARCHIVE_PATH) -> None:
+    def extract(self, directory: Union[str, Path] = "") -> None:
         """Extracts the firmware archive to a given directory
 
         Args:
@@ -486,6 +508,7 @@ class FwBuddy:
         Raises:
             FwBuddyException: If extract contents fails.
         """
+        directory = directory or self.default_extracted_archive_path
         self.logger.info("Extracting firmware contents to: %s...", directory)
         result = cros_build_lib.run(
             ["tar", "-xf", self.archive_path, f"--directory={directory}"],
@@ -506,15 +529,21 @@ class FwBuddy:
             if self.fw_image.firmware_type
             else AP_PATH_SCHEMA
         )
-        self.ap_path = ap_path_schema % {
-            "directory": directory,
-            "firmware_name": self.fw_image.firmware_name,
-            "firmware_type": self.fw_image.firmware_type,
-        }
-        self.ec_path = EC_PATH_SCHEMA % {
-            "directory": directory,
-            "firmware_name": self.fw_image.firmware_name,
-        }
+        self.ap_path = Path(
+            ap_path_schema
+            % {
+                "directory": directory,
+                "firmware_name": self.fw_image.firmware_name,
+                "firmware_type": self.fw_image.firmware_type,
+            }
+        )
+        self.ec_path = Path(
+            EC_PATH_SCHEMA
+            % {
+                "directory": directory,
+                "firmware_name": self.fw_image.firmware_name,
+            }
+        )
 
     def export_firmware_image(self, chip: str, directory: str) -> None:
         """Locates the firmware image for the chip and copies it to directory
@@ -539,7 +568,7 @@ class FwBuddy:
         firmware_image_path = self.ec_path if chip == EC else self.ap_path
         image_name = ""
         if firmware_image_path is not None:
-            image_name = firmware_image_path.split("/")[-1]
+            image_name = firmware_image_path.stem
 
         # Get the absolute path, expanding any user or system
         # variables, like `~` to reference $HOME
