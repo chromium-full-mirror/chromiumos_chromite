@@ -20,6 +20,7 @@ The output dictionary is structured as follows:
 }
 """
 
+import argparse
 import json
 from typing import List, Optional
 
@@ -28,7 +29,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import depgraph
 
 
-def _parse_args(argv: List[str]) -> commandline.ArgumentNamespace:
+def _parse_args(argv: List[str]) -> argparse.Namespace:
     parser = commandline.ArgumentParser()
     parser.add_argument("board")
     parser.add_argument("packages", nargs="*")

@@ -5,7 +5,6 @@
 """This module provides functionality to work with the CrOS SDK."""
 
 import logging
-from pathlib import Path
 from typing import List, Union
 
 from chromite.contrib.package_index_cros.lib import constants
@@ -43,7 +42,7 @@ class CrosSdk:
     def __init__(self, setup_data: setup.Setup):
         self.setup = setup_data
 
-    def generate_compile_commands(self, chroot_build_dir: Path) -> str:
+    def generate_compile_commands(self, chroot_build_dir: str) -> str:
         """Call ninja and return compile commands as a string.
 
         Args:
@@ -55,7 +54,7 @@ class CrosSdk:
         ninja_cmd = [
             "ninja",
             "-C",
-            str(chroot_build_dir),
+            chroot_build_dir,
             "-t",
             "compdb",
             "cc",
@@ -64,7 +63,7 @@ class CrosSdk:
         return self._exec(ninja_cmd, capture_output=True).stdout
 
     def generate_gn_targets(
-        self, chroot_root_dir: Path, chroot_build_dir: Path
+        self, chroot_root_dir: str, chroot_build_dir: str
     ) -> str:
         """Call `gn desc` and return gn targets as a string.
 
@@ -79,8 +78,8 @@ class CrosSdk:
         gn_desc_cmd = [
             "gn",
             "desc",
-            f"--root={str(chroot_root_dir)}",
-            str(chroot_build_dir),
+            f"--root={chroot_root_dir}",
+            chroot_build_dir,
             "*",
             "--format=json",
         ]
@@ -108,10 +107,8 @@ class CrosSdk:
         cmd = " ".join(
             [
                 f'FEATURES="{" ".join(features)}"',
-                str(
-                    path_handler.PathHandler(self.setup).to_chroot(
-                        constants.PRINT_DEPS_SCRIPT_PATH
-                    )
+                path_handler.PathHandler(self.setup).to_chroot(
+                    constants.PRINT_DEPS_SCRIPT_PATH
                 ),
                 self.setup.board,
                 *package_names,

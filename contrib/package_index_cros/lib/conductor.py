@@ -5,7 +5,7 @@
 """Module to run the whole package-indexing process."""
 
 import logging
-from pathlib import Path
+import os
 from typing import List, Optional
 
 from chromite.contrib.package_index_cros.lib import build_dir
@@ -37,7 +37,7 @@ class Conductor:
             ignore_unsupported: If True, don't process any packages marked as
                 unsupported, nor their dependencies.
         """
-        if not self.setup.board_dir.is_dir():
+        if not os.path.isdir(self.setup.board_dir):
             raise Exception(f"Board is not set up: {self.setup.board}")
 
         if ignore_unsupported:
@@ -52,7 +52,7 @@ class Conductor:
 
             logging.warning(
                 "Unsupported input packages: %s",
-                set(package_names).difference(supported_packages),
+                (set(package_names).difference(supported_packages)),
             )
         else:
             supported_packages = package_names
@@ -78,11 +78,11 @@ class Conductor:
     def do_magic(
         self,
         *,
-        cdb_output_file: Optional[Path] = None,
-        targets_output_file: Optional[Path] = None,
-        build_output_dir: Optional[Path] = None,
+        cdb_output_file: Optional[str] = None,
+        targets_output_file: Optional[str] = None,
+        build_output_dir: Optional[str] = None,
         fail_fast: bool = False,
-    ) -> None:
+    ):
         """Call generators one by one.
 
         |prepare| should be called prior to this method.

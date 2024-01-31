@@ -12,7 +12,6 @@ filesystem.
 import dataclasses
 import logging
 import os
-from pathlib import Path
 import re
 from typing import Callable, Dict, List, Optional, Tuple
 
@@ -31,17 +30,26 @@ class FixedPath:
     This matches a temporary downloaded src to an actual src file.
     """
 
-    original: Path
-    actual: Path
+    original: str
+    actual: str
 
 
-def move_path(path: Path, from_dir: Path, to_dir: Path) -> Path:
+def sanitize_path(path: str) -> str:
+    """Remove any trailing slashes from |path|."""
+    return path.rstrip(os.path.sep)
+
+
+def move_path(path: str, from_dir: str, to_dir: str) -> str:
     """Replace path's base dir |from_dir| with |to_dir|.
 
     Raises:
         ValueError: |path| is not in |from_dir|.
     """
-    return to_dir / path.relative_to(from_dir)
+    if not path.startswith(from_dir):
+        raise ValueError(f"Path is not in dir: {path} vs {from_dir}")
+    return os.path.realpath(
+        os.path.join(to_dir, os.path.relpath(path, from_dir))
+    )
 
 
 class PathHandler:
@@ -53,22 +61,20 @@ class PathHandler:
     def __init__(self, setup_data: setup.Setup):
         self.setup = setup_data
 
-    def from_chroot(self, chroot_path: Path) -> Path:
-        """Convert a chroot path to a host-absolute path."""
-        return Path(self.setup.chroot.full_path(chroot_path))
+    def from_chroot(self, chroot_path: str):
+        return self.setup.chroot.full_path(chroot_path)
 
-    def to_chroot(self, path: Path) -> Path:
-        """Convert an absolute host path to a chroot path."""
-        return Path(self.setup.chroot.chroot_path(path))
+    def to_chroot(self, path: str):
+        return self.setup.chroot.chroot_path(path)
 
     def _get_path_outside_of_chroot(
         self,
-        chroot_path: Path,
+        chroot_path: str,
         pkg: package.Package,
         *,
-        chroot_base_dir: Optional[Path] = None,
-        base_dir: Optional[Path] = None,
-    ) -> Optional[Path]:
+        chroot_base_dir: Optional[str] = None,
+        base_dir: Optional[str] = None,
+    ) -> Optional[str]:
         """Convert a path inside the chroot to an outside path.
 
         If the path is relative, then it will return an absolute dir with
@@ -94,27 +100,29 @@ class PathHandler:
                 )
             chroot_base_dir = self.to_chroot(base_dir)
 
-        if Path("//") in chroot_path.parents:
+        chroot_path = sanitize_path(chroot_path)
+        if chroot_path.startswith("//"):
             # Special case. '//' indicates source dir.
             for match_dirs in pkg.src_dir_matches:
-                path_attempt = match_dirs.temp / chroot_path.relative_to("//")
-                if path_attempt.exists():
+                path_attempt = os.path.join(match_dirs.temp, chroot_path[2:])
+                if os.path.exists(path_attempt):
                     return path_attempt
             return None
 
-        if not chroot_path.is_absolute():
-            chroot_path = chroot_base_dir / chroot_path
+        if not os.path.isabs(chroot_path):
+            chroot_path = os.path.join(chroot_base_dir, chroot_path)
 
         # Only remove dotted paths elements, do not resolve chroot's symlinks.
-        chroot_path = chroot_path.absolute()
+        chroot_path = os.path.normpath(chroot_path)
+
         return self.from_chroot(chroot_path)
 
     def _fix_path(
         self,
-        path: Path,
+        path: str,
         pkg: package.Package,
         *,
-        conflicting_paths: Dict[Path, Path],
+        conflicting_paths: Dict[str, str],
     ) -> FixedPath:
         """Map a temporary source path (outside the chroot) to its actual path.
 
@@ -132,53 +140,52 @@ class PathHandler:
             PathNotFixedException: Cannot resolve |path| to actual path.
             PathNotFixedException: Actual path does not exist.
         """
-        if not path or not path.exists():
+        if not path or not os.path.exists(path):
             raise PathNotFixedException(
                 pkg, "Given path does not exist", path, path
             )
 
-        def fix() -> Path:
+        def fix() -> str:
             if path in conflicting_paths:
                 return conflicting_paths[path]
 
-            # Don't care about paths outside of temp_dir.
-            if pkg.temp_dir not in path.parents:
-                return path
-
-            # Build dir can be a subdir of temp_dir, but we don't care either.
-            if pkg.build_dir in path.parents:
+            if not path.startswith(pkg.temp_dir) or path.startswith(
+                pkg.build_dir
+            ):
+                # Don't care about paths outside of temp_dir.
+                # Build dir can be subdir of temp_dir, but we don't care either.
                 return path
 
             for matching_dirs in pkg.src_dir_matches:
-                if matching_dirs.temp not in path.parents:
+                if not path.startswith(matching_dirs.temp):
                     continue
-                actual_path = move_path(
-                    path, matching_dirs.temp, matching_dirs.actual
+                actual_path = os.path.realpath(
+                    move_path(path, matching_dirs.temp, matching_dirs.actual)
                 )
-                if actual_path.exists():
+                if os.path.exists(actual_path):
                     return actual_path
 
             raise PathNotFixedException(
                 pkg, "Could not find path in any of source dirs", path
             )
 
-        def check(actual_path: Path) -> None:
-            if not actual_path.exists():
+        def check(actual_path: str) -> None:
+            if not os.path.exists(actual_path):
                 raise PathNotFixedException(
                     pkg, "Found path does not exist", path, actual_path
                 )
 
-        actual_path = fix().resolve()
+        actual_path = os.path.realpath(fix())
         check(actual_path)
         return FixedPath(original=path, actual=actual_path)
 
     def _fix_path_from_basedir(
         self,
-        chroot_path: Path,
+        chroot_path: str,
         pkg: package.Package,
         *,
-        conflicting_paths: Optional[Dict[Path, Path]] = None,
-        ignorable_dir: Optional[Path] = None,
+        conflicting_paths: Optional[Dict[str, str]] = None,
+        ignorable_dir: Optional[str] = None,
     ) -> FixedPath:
         """Fix chroot_path's base dir, and append its basename to the fixed dir.
 
@@ -205,13 +212,14 @@ class PathHandler:
         if conflicting_paths is None:
             conflicting_paths = {}
 
-        chroot_path_base_dir = chroot_path.parent
-        chroot_path_basename = chroot_path.name
+        chroot_path = sanitize_path(chroot_path)
+        chroot_path_base_dir = os.path.dirname(chroot_path)
+        chroot_path_basename = os.path.basename(chroot_path)
 
         # Ignorable dir is the uppermost possible parent which may not exist.
         # If not given, use chroot_path as the ignorable dir.
         if ignorable_dir:
-            chroot_ignorable_dir = self.to_chroot(ignorable_dir)
+            chroot_ignorable_dir = self.to_chroot(sanitize_path(ignorable_dir))
         else:
             chroot_ignorable_dir = chroot_path
         if not chroot_ignorable_dir:
@@ -219,8 +227,7 @@ class PathHandler:
 
         # Try to fix the base directory of the path. If unsuccessful, move up
         # the hierarchy. Stop when we reach the ignorable dir.
-        relative_path = Path(chroot_path_basename)
-        while chroot_path and chroot_ignorable_dir in chroot_path.parents:
+        while chroot_path and chroot_path.startswith(chroot_ignorable_dir):
             try:
                 # Try fixing the base dir of the current path.
                 fixed_path = self.fix_path(
@@ -229,15 +236,21 @@ class PathHandler:
                     conflicting_paths=conflicting_paths,
                 )
                 return FixedPath(
-                    original=fixed_path.original / relative_path,
-                    actual=fixed_path.actual / relative_path,
+                    original=os.path.join(
+                        fixed_path.original, chroot_path_basename
+                    ),
+                    actual=os.path.join(
+                        fixed_path.actual, chroot_path_basename
+                    ),
                 )
             except PathNotFixedException:
                 # If base directory fixing fails, move up one directory level
                 # and repeat.
-                chroot_path = chroot_path.parent
-                relative_path = Path(chroot_path_base_dir.name) / relative_path
-                chroot_path_base_dir = chroot_path_base_dir.parent
+                chroot_path = os.path.dirname(chroot_path)
+                chroot_path_basename = os.path.join(
+                    os.path.basename(chroot_path_base_dir), chroot_path_basename
+                )
+                chroot_path_base_dir = os.path.dirname(chroot_path_base_dir)
 
         raise PathNotFixedException(
             pkg, "Failed for fix from base dir", chroot_path, chroot_path
@@ -245,10 +258,10 @@ class PathHandler:
 
     def fix_path(
         self,
-        chroot_path: Path,
+        chroot_path: str,
         pkg: package.Package,
         *,
-        conflicting_paths: Optional[Dict[Path, Path]] = None,
+        conflicting_paths: Optional[Dict] = None,
     ) -> FixedPath:
         """Convert a chroot path to an original and an actual path (outside).
 
@@ -285,14 +298,14 @@ class PathHandler:
 
     def fix_path_with_ignores(
         self,
-        chroot_path: Path,
+        chroot_path: str,
         pkg: package.Package,
         *,
-        conflicting_paths: Optional[Dict[Path, Path]] = None,
+        conflicting_paths: Optional[Dict] = None,
         ignore_highly_volatile: bool = False,
         ignore_generated: bool = False,
         ignore_stable: bool = False,
-        ignorable_dirs: Optional[List[Path]] = None,
+        ignorable_dirs: Optional[List[str]] = None,
         ignorable_extensions: Optional[List[str]] = None,
     ) -> FixedPath:
         """Fix a path (like |fix_path|), but ignore some failures.
@@ -349,7 +362,7 @@ class PathHandler:
             # Failed to fix as is. Check if the error can be ignored, and try to
             # fix from parent dir. Note that |path| can be None.
 
-            if ignore_generated and path and pkg.build_dir in path.parents:
+            if ignore_generated and path and path.startswith(pkg.build_dir):
                 # Path inside build dir and ignorable, return as is.
                 logging.debug(
                     "%s: Failed to fix generated path: %s",
@@ -381,9 +394,9 @@ class PathHandler:
                         chroot_path,
                     )
                     return True
-                if (
-                    ignorable_extensions
-                    and chroot_path.suffix in ignorable_extensions
+                if ignorable_extensions and any(
+                    chroot_path.endswith(ignorable_ext)
+                    for ignorable_ext in ignorable_extensions
                 ):
                     logging.debug(
                         "%s: Failed to fix path with ignorable extension: %s",
@@ -401,7 +414,7 @@ class PathHandler:
             ignorable_parent_dirs = [
                 ignorable_dir
                 for ignorable_dir in ignorable_dirs
-                if path and ignorable_dir in path.parents
+                if path and path.startswith(ignorable_dir)
             ]
             if len(ignorable_parent_dirs) > 1:
                 raise ValueError(
@@ -536,8 +549,8 @@ class PathHandler:
 
 
 def fix_path_in_argument(
-    arg: str, fixer_callback: Callable[[Path], Path]
-) -> Tuple[str, Optional[Path]]:
+    arg: str, fixer_callback: Callable[[str], str]
+) -> Tuple[str, str]:
     """Parse |arg| into a prefix and a path.
 
     See |PathHandler.g_path_regex| for acceptable paths.
@@ -548,7 +561,7 @@ def fix_path_in_argument(
 
     Returns:
         A tuple of (prefix, actual_path), fixed with the given callback. If
-        the arg cannot be parsed, then default to returning (arg, None).
+        the arg cannot be parsed, then default to returning (arg, "").
 
     Raises:
         PathNotFixedException: |path| cannot be resolved to an actual path.
@@ -560,7 +573,7 @@ def fix_path_in_argument(
     # Include argument may not have a path with a separator in it which is
     # required for regex. Handle it separately.
     if arg[0:2] == "-I":
-        chroot_path = Path(arg[2:])
+        chroot_path = arg[2:]
         return ("-I", fixer_callback(chroot_path))
 
     match = re.match(PathHandler.g_argument_regexes, arg)
@@ -570,15 +583,16 @@ def fix_path_in_argument(
                 raise ValueError(f"Unknown arg with possible path: {arg}")
 
         # Argument is a gn target. Nothing to fix.
-        return (arg, None)
+
+        return (arg, "")
 
     if os.sep not in arg:
         raise ValueError(f"Unknown arg: {arg}")
     prefix = match.group(1)
-    chroot_path = Path(match.group(2))
+    chroot_path = match.group(2)
 
-    if str(chroot_path).startswith("$"):
+    if chroot_path[0] == "$":
         # Path starts with env. Do not fix.
-        return (arg, None)
+        return (arg, "")
 
     return (prefix, fixer_callback(chroot_path))
