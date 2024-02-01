@@ -528,7 +528,8 @@ class DeployChrome:
                 WaitForUnlockScreen()
                 time.sleep(POST_UNLOCK_WAIT)
                 self.device.run(
-                    UNLOCK_PASSWORD_COMMAND % self.options.unlock_password
+                    UNLOCK_PASSWORD_COMMAND % self.options.unlock_password,
+                    shell=True,
                 )
 
     def _GetLastLogin(self):
