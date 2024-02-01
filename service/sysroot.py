@@ -1192,7 +1192,9 @@ def _GetEmergeCommand(
     return cmd
 
 
-def _GetFailedPackages(bazel_build_event_json_file: str) -> List[str]:
+def _GetFailedPackages(
+    bazel_build_event_json_file: str, board: str
+) -> List[str]:
     """Reads the specified file and returns a list of failed packages.
 
     Each line of the input file is a JSON object which represents an event, and
@@ -1241,10 +1243,36 @@ def _GetFailedPackages(bazel_build_event_json_file: str) -> List[str]:
             if action_completed and failure_detail:
                 label = action_completed.get("label", "")
                 m = re.match(
-                    "@@_main~portage~portage//.*/([^/]+/[^:]+):", label
+                    "@@_main~portage~portage//.*/([^/]+)/([^:]+):(.*)", label
                 )
                 if m:
-                    failed_packages.add(m.group(1))
+                    category = m.group(1)
+                    pn = m.group(2)
+                    pvr = m.group(3)
+                    pf = "%s-%s" % (pn, pvr)
+                    failed_packages.add("%s/%s" % (category, pf))
+
+                    # Copy the package log file to the same path as portage.
+                    primary_output = action_completed.get("primaryOutput")
+                    if primary_output:
+                        primary_output_path = (
+                            Path(constants.BAZEL_WORKSPACE_ROOT)
+                            / primary_output
+                        )
+                        log_path = primary_output_path.parent / ("%s.log" % pf)
+                        if log_path.exists():
+                            timestamp = datetime.datetime.now().strftime(
+                                "%Y%m%d-%H%M%S"
+                            )
+                            dest_path = Path(
+                                "/build/%s/tmp/portage/logs/%s:%s:%s.log"
+                                % (board, category, pf, timestamp)
+                            )
+                            # TODO(b/318794206): Correctly handle cases where
+                            # `dest_path` already exists (e.g. when the same
+                            # package fails in multiple stages).
+                            shutil.copy2(log_path, dest_path)
+
     return list(failed_packages)
 
 
@@ -1356,7 +1384,9 @@ in
             extra_env=extra_env,
         )
     except cros_build_lib.RunCommandError:
-        failed_packages = _GetFailedPackages(BAZEL_BUILD_EVENT_JSON_FILE_PATH)
+        failed_packages = _GetFailedPackages(
+            BAZEL_BUILD_EVENT_JSON_FILE_PATH, target_name
+        )
         if failed_packages:
             with open(
                 os.path.join(metrics_dir, constants.DIE_HOOK_STATUS_FILE_NAME),
