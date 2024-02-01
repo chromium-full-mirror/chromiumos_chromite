@@ -71,12 +71,13 @@ def _GenerateRemoteInputsFile(out_file: str, clang_path: Path) -> None:
     # Clang is typically a symlink, collect actual files.
     paths.add(clang_path)
 
-    # Add clang resources, gcc config and glibc loader files.
+    # Add clang resources, clang++, gcc config and glibc loader files.
     cmd = [str(clang_path), "--print-resource-dir"]
     resource_dir = cros_build_lib.run(
         cmd, capture_output=True, encoding="utf-8", print_cmd=False
     ).stdout.splitlines()[0]
     paths.add(Path(resource_dir) / "share")
+    paths.add(clang_dir / "clang++")
     paths.update(
         Path(x)
         for x in (
