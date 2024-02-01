@@ -512,7 +512,7 @@ class TestUnlockPassword(DeployTest):
                 self.deploy._Deploy()
         # Ensure unlock command was called.
         self.deploy_mock.rsh_mock.assertCommandContains(
-            ["uinput.cros_type_keys", "letmein\n"],
+            deploy_chrome.UNLOCK_PASSWORD_COMMAND % "letmein"
         )
 
 

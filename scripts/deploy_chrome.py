@@ -53,6 +53,7 @@ POST_UNLOCK_WAIT = 3
 
 MOUNT_RW_COMMAND = ["mount", "-o", "remount,rw", "/"]
 LAST_LOGIN_COMMAND = ["bootstat_get_last", "login-prompt-visible"]
+UNLOCK_PASSWORD_COMMAND = "python -m uinput.cros_type_keys $'%s\\n'"
 
 _ANDROID_DIR = "/system/chrome"
 _ANDROID_DIR_EXTRACT_PATH = "system/chrome/*"
@@ -527,12 +528,7 @@ class DeployChrome:
                 WaitForUnlockScreen()
                 time.sleep(POST_UNLOCK_WAIT)
                 self.device.run(
-                    [
-                        "python",
-                        "-m",
-                        "uinput.cros_type_keys",
-                        f"{self.options.unlock_password}\n",
-                    ]
+                    UNLOCK_PASSWORD_COMMAND % self.options.unlock_password
                 )
 
     def _GetLastLogin(self):
