@@ -876,7 +876,9 @@ class Sysroot:
     def GenerateBinhostConf(
         self,
         local_only: bool = False,
-        package_indexes: List["PackageIndexInfo"] = None,
+        package_indexes: List[  # pylint: disable=unused-argument
+            "PackageIndexInfo"
+        ] = None,
         expanded_binhost_inheritance: bool = False,
         use_cq_prebuilts: bool = False,
         source_root: Path = constants.SOURCE_ROOT,
@@ -915,35 +917,22 @@ class Sysroot:
             )
 
         config = []
-        if package_indexes:
-            # TODO(crbug/1088059): Drop all use of overlay commits, once the
-            #   solution is in place for non-snapshot checkouts.
-            # If present, this defines PORTAGE_BINHOST.  These are independent
-            # of the overlay commits.
-            config.append("# This is the list of binhosts provided by the API.")
-            config.append(
-                'PASSED_BINHOST="%s"'
-                % " ".join(x.location for x in reversed(package_indexes))
-            )
-            config.append('PORTAGE_BINHOST="$PASSED_BINHOST"')
-        else:
-            config.append(
-                """
+        config.append(
+            """
 # FULL_BINHOST is populated by the full builders. It is listed first because it
 # is the lowest priority binhost. It is better to download packages from the
 # postsubmit/cq binhost because they are fresher packages.
 PORTAGE_BINHOST="$FULL_BINHOST"
 """
+        )
+        config.extend(
+            self._ContinuousBinhostConfigs(
+                "POSTSUBMIT",
+                board,
+                expanded_binhost_inheritance,
+                source_root,
             )
-
-            config.extend(
-                self._ContinuousBinhostConfigs(
-                    "POSTSUBMIT",
-                    board,
-                    expanded_binhost_inheritance,
-                    source_root,
-                )
-            )
+        )
 
         # CQ BINHOSTs in the repository are effective if |package_indexes| is
         # not set or |use_cq_prebuilts| is explicitly specified.
