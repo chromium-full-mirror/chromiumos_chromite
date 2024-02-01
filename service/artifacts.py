@@ -454,7 +454,12 @@ def ArchiveImages(
             # Remove path folders created for additional files
             extra_args.append("--transform=s#.*/##")
 
-        if img != tar:
+        if img == constants.FLEXOR_KERNEL_IMAGE_TAR:
+            # Flexor is already compressed, so copy it.
+            image_path = os.path.join(image_dir, img)
+            shutil.copy(image_path, tarball_path)
+        else:
+            # Otherwise create a tarball.
             cros_build_lib.CreateTarball(
                 tarball_path,
                 image_dir,
@@ -462,10 +467,6 @@ def ArchiveImages(
                 print_cmd=False,
                 extra_args=extra_args,
             )
-        else:
-            # In case the input is already compressed, copy it.
-            image_path = os.path.join(image_dir, img)
-            shutil.copy(image_path, tarball_path)
         archives.append(tar)
 
     return archives
