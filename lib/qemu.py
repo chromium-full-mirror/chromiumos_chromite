@@ -19,7 +19,7 @@ from chromite.lib import cipd
 from chromite.lib import osutils
 
 
-_CIPD_VER = "4kEgEXe4l8wVqC_iQce0JHPs7tJEEcDgba0h5aT425oC"
+_CIPD_VER = "6i7V2YPdDeTNm-tQ3A_j2Cb-hJXLB3qgrYKuePPds1sC"
 
 
 def InstallFromCipd(cache_dir: Optional[str] = None) -> Path:
@@ -31,9 +31,7 @@ def InstallFromCipd(cache_dir: Optional[str] = None) -> Path:
         cache_dir=cache_dir,
     )
 
-    # TODO(b/277992359): The bin/ dir should exist in the root of the
-    # package.  We shouldn't have/need .cipd/ in the first place.
-    return path / ".cipd" / "pkgs" / "0" / _CIPD_VER / "bin"
+    return path / "bin"
 
 
 class Qemu:
