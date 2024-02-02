@@ -28,41 +28,6 @@ _make_conf_prebuilt() {
   fi
 }
 
-# Include configuration settings for building private overlay
-# packages, if the overlay is present.
-_make_conf_private() {
-  # If the private overlay dir exists, make sure each sub-piece also exists
-  # before we try using it.  Otherwise, simply creating an empty dir will
-  # lead to weird build errors.
-  local chromeos_overlay="src/private-overlays/chromeos-overlay"
-  chromeos_overlay="${CHROOT_TRUNK_DIR}/${chromeos_overlay}"
-
-  if [[ -d "${chromeos_overlay}" ]]; then
-    local make_conf="${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay"
-    make_conf+="/chromeos/config/make.conf.sdk-chromeos"
-    echo "source ${make_conf}"
-  fi
-
-  local boto_config="${chromeos_overlay}/googlestorage_account.boto"
-  if [[ -e "${boto_config}" ]]; then
-    local gs_fetch_binpkg='/mnt/host/source/chromite/bin/gs_fetch_binpkg'
-    printf 'FETCHCOMMAND_GS="%s --boto \\"%s\\" \\"%s\\" \\"%s\\""\n' \
-      "${gs_fetch_binpkg}" "${boto_config}" \
-      '\${URI}' '\${DISTDIR}/\${FILE}'
-    echo 'RESUMECOMMAND_GS="${FETCHCOMMAND_GS}"'
-  fi
-
-  local chromeos_partner_overlay="src/private-overlays/chromeos-partner-overlay"
-  chromeos_partner_overlay="${CHROOT_TRUNK_DIR}/${chromeos_partner_overlay}"
-
-  local overlay
-  for overlay in "${chromeos_partner_overlay}" "${chromeos_overlay}"; do
-    if [[ -d "${overlay}" ]]; then
-      echo "PORTDIR_OVERLAY=\"\$PORTDIR_OVERLAY ${overlay}\""
-    fi
-  done
-}
-
 # Create /etc/make.conf.host_setup according to parameters.
 #
 # Usage:
@@ -73,7 +38,6 @@ _create_host_setup() {
   ( echo "# Automatically generated.  EDIT THIS AND BE SORRY."
     echo
     _make_conf_fetchcommand
-    _make_conf_private
     _make_conf_prebuilt
     echo 'MAKEOPTS="-j'${NUM_JOBS}'"' ) | sudo_clobber "$host_setup"
   sudo chmod 644 "$host_setup"
