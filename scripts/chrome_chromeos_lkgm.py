@@ -192,8 +192,6 @@ class ChromeLKGMCommitter:
         "chromeos-reven-chrome",
         "chromeos-volteer-chrome-skylab",
     )
-    # Similar to above but for public trybots.
-    _PRESUBMIT_PUBLIC_BOTS = ("chromeos-amd64-generic-rel-gtest-and-tast",)
     # Files needed in a local checkout to successfully update the LKGM. The
     # OWNERS file allows the --tbr-owners mechanism to select an appropriate
     # OWNER to TBR. TRANSLATION_OWNERS is necessary to parse CHROMEOS_OWNERS
@@ -299,8 +297,6 @@ class ChromeLKGMCommitter:
         if self._branch == "main":
             for bot in self._PRESUBMIT_BOTS:
                 cq_includes += "CQ_INCLUDE_TRYBOTS=luci.chrome.try:%s\n" % bot
-            for bot in self._PRESUBMIT_PUBLIC_BOTS:
-                cq_includes += "CQ_INCLUDE_TRYBOTS=luci.chromium.try:%s\n" % bot
         build_link = ""
         if self._buildbucket_id:
             build_link = "\nUploaded by https://ci.chromium.org/b/%s\n" % (
