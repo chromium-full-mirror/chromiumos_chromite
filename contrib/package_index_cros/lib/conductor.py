@@ -6,7 +6,8 @@
 
 import logging
 import os
-from typing import List, Optional
+from pathlib import Path
+from typing import Dict, List, Optional
 
 from chromite.contrib.package_index_cros.lib import build_dir
 from chromite.contrib.package_index_cros.lib import cdb
@@ -101,11 +102,11 @@ class Conductor:
 
         self.packages = [p for p in self.packages if p not in bad_packages]
 
-        build_dir_conflicts = {}
+        build_dir_conflicts: Dict[str, str] = {}
         if build_output_dir:
             build_dir_conflicts = build_dir.BuildDirGenerator(
                 self.setup
-            ).generate(self.packages, build_output_dir)
+            ).generate(self.packages, Path(build_output_dir))
             logging.info("Generated build dir: %s", build_output_dir)
 
         if cdb_output_file:
