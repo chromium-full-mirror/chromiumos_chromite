@@ -7,6 +7,7 @@
 import base64
 import collections
 import datetime
+import functools
 import json
 import logging
 import os
@@ -23,6 +24,7 @@ from chromite.api.gen.chromite.api import payload_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import cgpt
 from chromite.lib import chroot_lib
+from chromite.lib import cipd
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import dlc_lib
@@ -39,6 +41,9 @@ from chromite.lib.paygen import utils
 from chromite.scripts import cros_set_lsb_release
 from chromite.utils import pformat
 
+
+# Cipd version pin for delta_generator binary.
+_DELTA_GENERATOR_CIPD_VER = "DBPEqRGHo04H1QroDeAJz3IBfWkAU1L14KpQ-lRdk6oC"
 
 # Recovery key versions.
 # Part A is the default (used for all non-minios payloads).
@@ -110,6 +115,17 @@ class MiniOSPartitionMismatchException(MiniOSException):
     def return_code(self) -> int:
         """Failure reason indicating a mismatch in recovery keys."""
         return payload_pb2.GenerationResponse.MINIOS_COUNT_MISMATCH
+
+
+@functools.lru_cache(maxsize=None)
+def _find_delta_generator() -> str:
+    """Find the `delta_generator` tool."""
+    path = cipd.InstallPackage(
+        cipd.GetCIPDFromCache(),
+        "chromiumos/infra/tools/delta_generator",
+        _DELTA_GENERATOR_CIPD_VER,
+    )
+    return os.path.join(path, "bin", "delta_generator")
 
 
 class PaygenSigner:
@@ -682,11 +698,11 @@ class PaygenPayload:
         )
 
     def _RunGeneratorCmd(self, cmd, squawk_wrap=False) -> None:
-        """Wrapper for run (maybe in chroot).
+        """Wrapper for run.
 
-        Run the given command, inside the chroot if we have one.
-        It will automatically log the command output. Note that the command's
-        stdout and stderr are combined into a single string.
+        Run the given command.  It will automatically log the command output.
+        Note that the command's stdout and stderr are combined into a single
+        string.
 
         For context on why this is so complex see: crbug.com/1035799
 
@@ -706,7 +722,7 @@ class PaygenPayload:
         def _inner_run(cmd, response_queue) -> None:
             try:
                 # Run the command.
-                result = self.chroot.run(
+                result = cros_build_lib.run(
                     cmd,
                     stdout=True,
                     stderr=subprocess.STDOUT,
@@ -862,7 +878,7 @@ class PaygenPayload:
         logging.info("Generating unsigned payload as %s", payload_file)
 
         cmd = [
-            "delta_generator",
+            _find_delta_generator(),
             "--major_version=2",
             "--out_file=" + self.chroot.chroot_path(payload_file),
             # Target image args: (The order of partitions are important.)
@@ -909,7 +925,7 @@ class PaygenPayload:
             dir=self.work_dir,
         ) as payload_hash_file:
             cmd = [
-                "delta_generator",
+                _find_delta_generator(),
                 "--in_file=" + self.chroot.chroot_path(payload_file),
                 "--signature_size=" + ":".join(self._signature_sizes),
                 "--out_hash_file="
@@ -1048,7 +1064,7 @@ class PaygenPayload:
         )
 
         cmd = [
-            "delta_generator",
+            _find_delta_generator(),
             "--in_file=" + self.chroot.chroot_path(payload_file),
             "--signature_size=" + ":".join(self._signature_sizes),
             "--payload_signature_file="
@@ -1124,7 +1140,7 @@ class PaygenPayload:
 
         props_file = os.path.join(self.work_dir, "properties.json")
         cmd = [
-            "delta_generator",
+            _find_delta_generator(),
             "--in_file=" + payload_path,
             "--properties_file=" + self.chroot.chroot_path(props_file),
             "--properties_format=json",
