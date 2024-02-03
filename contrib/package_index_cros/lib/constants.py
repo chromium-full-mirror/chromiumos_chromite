@@ -17,6 +17,8 @@ PRINT_DEPS_SCRIPT_PATH = os.path.join(PACKAGE_SCRIPTS_DIR, "print_deps")
 TEMPORARY_UNSUPPORTED_PACKAGES = {
     # TODO(b/308121733): Remove once symlinks are handled correctly.
     "chromeos-base/debugd",
+    # Hangs forever.
+    "net-wireless/floss",
 }
 
 # Set of packages that are not currently supported when building with tests.
