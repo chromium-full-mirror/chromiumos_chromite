@@ -1268,10 +1268,20 @@ def _GetFailedPackages(
                                 "/build/%s/tmp/portage/logs/%s:%s:%s.log"
                                 % (board, category, pf, timestamp)
                             )
-                            # TODO(b/318794206): Correctly handle cases where
-                            # `dest_path` already exists (e.g. when the same
-                            # package fails in multiple stages).
-                            shutil.copy2(log_path, dest_path)
+                            # Open `dest_path` with "a" to handle cases where
+                            # it already exists (e.g. when the same package
+                            # fails in multiple stages).
+                            with open(
+                                dest_path, "a", encoding="utf-8"
+                            ) as f_dest:
+                                f_dest.write(
+                                    "(Copied from %s to %s)\n"
+                                    % (log_path, dest_path)
+                                )
+                                with open(
+                                    log_path, "r", encoding="utf-8"
+                                ) as f_src:
+                                    shutil.copyfileobj(f_src, f_dest)
 
     return list(failed_packages)
 
