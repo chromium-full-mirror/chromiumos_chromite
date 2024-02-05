@@ -356,7 +356,11 @@ GROUP_BASELINE = dict(
             gid=429,
             users={"crash", "debugd", "fbpreprocessor"},
         ),
-        GroupEntry(group="bpf-access", gid=430, users={"patchpaneld"}),
+        GroupEntry(
+            group="bpf-access",
+            gid=430,
+            users={"patchpaneld", "secagentd"},
+        ),
         GroupEntry(
             group="wayland", gid=601, users={"chronos", "crosvm", "pluginvm"}
         ),
