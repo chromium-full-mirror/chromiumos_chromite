@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 import shutil
 import time
+from typing import List
 from unittest import mock
 
 from chromite.lib import chroot_lib
@@ -1577,31 +1578,94 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
             ),
         )
 
-    def testBundleClangCrashDiagnoses(self) -> None:
+    def runToolchainCrOSArtifactsBundleTest(
+        self,
+        artifact_files: List[str],
+        expected_output_subpaths: List[str],
+    ) -> None:
+        """Asserts that the given artifact_path is tarred up properly.
+
+        If no output files are expected, we assert that no tarballs are created.
+
+        Args:
+            artifact_files: a list of files to |touch| relative to
+                _PACKAGE_ARTIFACTS_PATH.
+            expected_output_subpaths: a list of files that should be present in
+                the tarball, relative to _PACKAGE_ARTIFACTS_PATH.
+
+        Returns:
+            Nothing.
+        """
+        with mock.patch.object(
+            cros_build_lib, "CreateTarball"
+        ) as create_tarball_mock:
+            roots = ("/", f"/build/{self.board}")
+            for root in roots:
+                cros_artifacts_subdir = os.path.join(
+                    root, toolchain_util._PACKAGE_ARTIFACTS_PATH
+                )
+                for f in artifact_files:
+                    in_chroot_path = self.chroot.full_path(
+                        os.path.join(cros_artifacts_subdir, f)
+                    )
+                    self.WriteTempFile(in_chroot_path, "", makedirs=True)
+
+            bundled_tarballs = self.obj.Bundle()
+            if not expected_output_subpaths:
+                # Bundlers should not create tarballs when no artifacts are
+                # found.
+                self.assertEqual(bundled_tarballs, [])
+                return
+
+            self.assertEqual(len(bundled_tarballs), 1)
+            create_tarball_mock.assert_called_once()
+
+            prefixed_expected_output_files = set()
+            for root in roots:
+                # Remove the leading / from the root, since tar inputs are
+                # relative.
+                artifacts_path = os.path.join(
+                    root[1:], toolchain_util._PACKAGE_ARTIFACTS_PATH
+                )
+                prefixed_expected_output_files.update(
+                    os.path.join(artifacts_path, x)
+                    for x in expected_output_subpaths
+                )
+
+            inputs = create_tarball_mock.call_args[1]["inputs"]
+            self.assertEqual(prefixed_expected_output_files, set(inputs))
+
+    def testBundleClangCrashDiagnosesWithNoArtifacts(self) -> None:
         self.SetUpBundle("ClangCrashDiagnoses")
-        artifact_path = "/tmp/clang_crash_diagnostics"
-        tarball_name = "%s.DATE.clang_crash_diagnoses.tar.xz" % self.board
 
-        # Test behaviour when no artifacts are found.
-        self.runToolchainBundleTest(artifact_path, tarball_name, [], [])
+        # Ensure everything's fine if there are no artifact files.
+        self.runToolchainCrOSArtifactsBundleTest(
+            artifact_files=[],
+            expected_output_subpaths=[],
+        )
 
-        # Test behaviour when artifacts are found.
-        self.runToolchainBundleTest(
-            artifact_path,
-            tarball_name,
-            input_files=("1.cpp", "1.sh", "2.cc", "2.sh", "foo/bar.sh"),
-            expected_output_files=(
-                "1.cpp",
-                "1.sh",
-                "10.cpp",
-                "10.sh",
-                "2.cc",
-                "2.sh",
-                "20.cc",
-                "20.sh",
-                "foo/bar.sh",
-                "foo/bar0.sh",
-            ),
+        # ...And with adjacent ones.
+        self.runToolchainCrOSArtifactsBundleTest(
+            artifact_files=[
+                "sys-devel/llvm/cros-artifacts/toolchain/bar/foo",
+                "sys-devel/llvm/cros-artifacts/toolchain/foo",
+                # And make the directory a regular file for fun.
+                "toolchain/clang_crash_diagnoses",
+            ],
+            expected_output_subpaths=[],
+        )
+
+    def testBundleClangCrashDiagnosesWithArtifacts(self) -> None:
+        self.SetUpBundle("ClangCrashDiagnoses")
+        prefix = "sys-devel/llvm/cros-artifacts/toolchain/clang_crash_diagnoses"
+        files = [
+            f"{prefix}/foo.sh",
+            f"{prefix}/bar.txt",
+            f"{prefix}/baz",
+        ]
+        self.runToolchainCrOSArtifactsBundleTest(
+            artifact_files=files,
+            expected_output_subpaths=files,
         )
 
     def testBundleCompilerRusageLogs(self) -> None:

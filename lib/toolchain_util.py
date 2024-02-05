@@ -178,6 +178,9 @@ CHROME_BINARY_PATH = (
     "src/out_{board}/Release/chrome"
 )
 
+# cros-artifacts go here in the chroot.
+_PACKAGE_ARTIFACTS_PATH = "var/lib/chromeos/package-artifacts"
+
 
 class Error(Exception):
     """Base module error class."""
@@ -1656,9 +1659,7 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
 
     def _PrepareClangCrashDiagnoses(self):
         # We always build this artifact.
-        # Cleanup the temp directory that holds the artifacts
-        self._CleanupArtifactDirectory("/tmp/clang_crash_diagnostics")
-        return PrepareForBuildReturn.UNKNOWN
+        return PrepareForBuildReturn.NEEDED
 
     def _PrepareCompilerRusageLogs(self):
         # We always build this artifact.
@@ -2035,6 +2036,86 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         logging.info("%d files collected", len(output))
         return output
 
+    def _FindAllCrOSArtifactDirs(self) -> List[str]:
+        """Finds all cros-artifacts directories in the chroot."""
+        portage_roots = [Path(self.chroot.full_path("/"))]
+        build_root = Path(self.chroot.full_path("/build"))
+        portage_roots.extend(build_root.glob("*/"))
+
+        artifact_dirs = []
+        cros_artifacts_subdir_glob = os.path.join(
+            glob.escape(_PACKAGE_ARTIFACTS_PATH), "*/*/cros-artifacts/"
+        )
+        for root in portage_roots:
+            artifact_dirs.extend(
+                str(x) for x in root.glob(cros_artifacts_subdir_glob)
+            )
+        return artifact_dirs
+
+    def _CollectCrOSArtifactFiles(
+        self,
+        artifact_subdir: str,
+        dest_dir: str,
+        include_file: Callable[[str], bool],
+    ):
+        """Collects files from all cros-artifacts dirs in a chroot.
+
+        Args:
+            artifact_subdir: the subdirectory of artifact directories to
+                inspect.
+            dest_dir: the path of the directory to copy files to (will be
+                created if it doesn't exist and files need to be copied).
+            include_file: a callable that returns True if a file should be
+                copied; False otherwise.
+
+        Returns:
+            A list of all files that were copied, relative to the chroot's /.
+        """
+        artifact_dirs = self._FindAllCrOSArtifactDirs()
+
+        output = []
+        for artifact_dir in artifact_dirs:
+            directory = os.path.join(artifact_dir, artifact_subdir)
+            if not os.path.isdir(directory):
+                logging.info(
+                    "toolchain-logs: artifact subdir %s does not exist; skip",
+                    directory,
+                )
+                continue
+
+            chroot_dir_path = self.chroot.chroot_path(directory)
+            assert chroot_dir_path.startswith("/"), chroot_dir_path
+
+            logging.info("toolchain-logs: scanning %s", directory)
+            for src_path in self._ListTransitiveFiles(directory):
+                rel_path = os.path.relpath(src_path, start=directory)
+                logging.info("toolchain-logs: checking %s", rel_path)
+                if not include_file(rel_path):
+                    logging.warning(
+                        "toolchain-logs: skipped file: %s", rel_path
+                    )
+                    continue
+
+                # Chop the leading '/' from the chroot path.
+                dest_path = os.path.join(
+                    dest_dir, chroot_dir_path[1:], rel_path
+                )
+                while os.path.exists(dest_path):
+                    file_noext, file_ext = os.path.splitext(dest_path)
+                    dest_path = f"{file_noext}0{file_ext}"
+
+                osutils.SafeMakedirs(os.path.dirname(dest_path))
+                rel_dest_path = os.path.relpath(dest_path, start=dest_dir)
+
+                logging.info(
+                    "toolchain-logs: adding path %s as %s", src_path, dest_path
+                )
+                shutil.copy(src_path, dest_path)
+                output.append(rel_dest_path)
+
+        logging.info("%d files collected", len(output))
+        return output
+
     def _CreateBundle(self, src_dir, tarball, destination, extension=None):
         """Bundle the files from src_dir into a tar.xz file.
 
@@ -2069,6 +2150,47 @@ class BundleArtifactHandler(_CommonPrepareBundle):
 
         return output_compressed
 
+    def _CreateCrOSArtifactBundle(
+        self,
+        src_subdir: str,
+        tarball: str,
+        destination: str,
+        extension: Optional[str] = None,
+    ) -> str:
+        """Bundle the files from src_dir into a tar.xz file.
+
+        Args:
+            src_subdir: the path to the directory to copy files from.
+            tarball: name of the generated tarballfile (build target, time
+                stamp, and .tar.xz extension will be added automatically).
+            destination: path to create tarball in
+            extension: type of file to search for in src_dir.
+            If extension is None (default), all file types will be allowed.
+
+        Returns:
+            Path to the generated tar.xz file
+        """
+
+        def FilterFile(file_path: str) -> bool:
+            return extension is None or file_path.endswith(extension)
+
+        files = self._CollectCrOSArtifactFiles(
+            src_subdir, destination, include_file=FilterFile
+        )
+        if not files:
+            logging.info("No data found for %s, skip bundle artifact", tarball)
+            raise NoArtifactsToBundleError(
+                f"No {extension} files in {src_subdir}"
+            )
+
+        now = datetime.datetime.strftime(datetime.datetime.now(), "%Y%m%d")
+        name = f"{self.build_target}.{now}.{tarball}.tar.xz"
+        output_compressed = os.path.join(self.output_dir, name)
+        cros_build_lib.CreateTarball(
+            output_compressed, destination, inputs=files
+        )
+        return output_compressed
+
     def _BundleToolchainWarningLogs(self):
         """Bundle the compiler warnings for upload for werror checker."""
         with self.chroot.tempdir() as tempdir:
@@ -2092,8 +2214,8 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         with osutils.TempDir(prefix="clang_crash_diagnoses_tarball") as tempdir:
             try:
                 return [
-                    self._CreateBundle(
-                        "/tmp/clang_crash_diagnostics",
+                    self._CreateCrOSArtifactBundle(
+                        "toolchain/clang_crash_diagnoses",
                         "clang_crash_diagnoses",
                         tempdir,
                     )
