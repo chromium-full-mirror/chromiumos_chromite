@@ -74,7 +74,6 @@ HOST_PACKAGES = (
 # the cross-compilers to be installed first (because they need them to actually
 # build), so we have to delay their installation.
 HOST_POST_CROSS_PACKAGES = (
-    "dev-lang/rust",
     "virtual/target-sdk-post-cross",
     "dev-embedded/hps-sdk",
 )
@@ -105,6 +104,14 @@ TARGET_COMPILER_RT_ENABLED = (
     "armv7m-cros-eabi",
 )
 CROSSDEV_COMPILER_RT_ARGS = ("--ex-pkg", "sys-libs/compiler-rt")
+
+# Enable Rust for these targets.
+TARGET_RUST_ENABLED = (
+    "x86_64-cros-linux-gnu",
+    "armv7a-cros-linux-gnueabihf",
+    "aarch64-cros-linux-gnu",
+)
+CROSSDEV_RUST_ARGS = ("--ex-pkg", "dev-lang/rust")
 
 TARGET_LLVM_PKGS_ENABLED = (
     "arm-none-eabi",
@@ -227,6 +234,8 @@ class Crossdev:
                     cmd.extend(CROSSDEV_LIBXCRYPT_ARGS)
                 if target in TARGET_COMPILER_RT_ENABLED:
                     cmd.extend(CROSSDEV_COMPILER_RT_ARGS)
+                if target in TARGET_RUST_ENABLED:
+                    cmd.extend(CROSSDEV_RUST_ARGS)
                 if target in TARGET_LLVM_PKGS_ENABLED:
                     # TODO(b/236161656): Fix.
                     # pylint: disable-next=consider-using-dict-items
@@ -341,6 +350,8 @@ class Crossdev:
             elif pkg == "ex_go":
                 # Go does not have selectable versions.
                 cmd.extend(CROSSDEV_GO_ARGS)
+            elif pkg == "ex_rust":
+                cmd.extend(CROSSDEV_RUST_ARGS)
             elif pkg in LLVM_PKGS_TABLE:
                 cmd.extend(LLVM_PKGS_TABLE[pkg])
             elif pkg in cls.MANUAL_PKGS:
