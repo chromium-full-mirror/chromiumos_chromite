@@ -92,9 +92,9 @@ TARGET_GO_ENABLED = (
     "armv7a-cros-linux-gnueabihf",
     "aarch64-cros-linux-gnu",
 )
-CROSSDEV_GO_ARGS = ["--ex-pkg", "dev-lang/go"]
+CROSSDEV_GO_ARGS = ("--ex-pkg", "dev-lang/go")
 
-CROSSDEV_LIBXCRYPT_ARGS = ["--ex-pkg", "sys-libs/libxcrypt"]
+CROSSDEV_LIBXCRYPT_ARGS = ("--ex-pkg", "sys-libs/libxcrypt")
 
 # Enable llvm's compiler-rt for these targets.
 TARGET_COMPILER_RT_ENABLED = (
@@ -104,7 +104,7 @@ TARGET_COMPILER_RT_ENABLED = (
     "arm-none-eabi",
     "armv7m-cros-eabi",
 )
-CROSSDEV_COMPILER_RT_ARGS = ["--ex-pkg", "sys-libs/compiler-rt"]
+CROSSDEV_COMPILER_RT_ARGS = ("--ex-pkg", "sys-libs/compiler-rt")
 
 TARGET_LLVM_PKGS_ENABLED = (
     "arm-none-eabi",
@@ -215,10 +215,10 @@ class Crossdev:
                     packages_list = HOST_PACKAGES
                 else:
                     packages_list = HOST_POST_CROSS_PACKAGES
-                manual_pkgs = dict(
-                    (pkg, cat)
-                    for cat, pkg in [x.split("/") for x in packages_list]
-                )
+                manual_pkgs = {
+                    pkg: cat
+                    for cat, pkg in (x.split("/") for x in packages_list)
+                }
             else:
                 # Build the crossdev command.
                 cmd = ["crossdev", "--stable", "--show-target-cfg", "--ex-gdb"]
@@ -234,16 +234,16 @@ class Crossdev:
                         cmd.extend(LLVM_PKGS_TABLE[pkg])
                 if target in TARGET_GO_ENABLED:
                     cmd.extend(CROSSDEV_GO_ARGS)
-                cmd.extend(["-t", target])
+                cmd.extend(("-t", target))
                 # Catch output of crossdev.
                 out = cros_build_lib.run(
                     cmd, print_cmd=False, stdout=True, encoding="utf-8"
                 ).stdout.splitlines()
                 # List of tuples split at the first '=', converted into dict.
-                conf = dict(
-                    (k, cros_build_lib.ShellUnquote(v))
+                conf = {
+                    k: cros_build_lib.ShellUnquote(v)
                     for k, v in (x.split("=", 1) for x in out)
-                )
+                }
                 conf["crosspkgs"] = conf["crosspkgs"].split()
 
                 manual_pkgs = cls.MANUAL_PKGS
