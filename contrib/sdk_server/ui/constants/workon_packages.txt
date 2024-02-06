@@ -161,9 +161,7 @@ chromeos-base/demo_mode_resources
 chromeos-base/dev-install
 chromeos-base/devserver
 chromeos-base/diagnostics
-chromeos-base/diagnostics-dpsl-test
 chromeos-base/diagnostics-minidiag
-chromeos-base/diagnostics-test
 chromeos-base/discod
 chromeos-base/disk_updater
 chromeos-base/dlcservice
