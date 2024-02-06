@@ -2959,26 +2959,6 @@
         },
         {
           "board_name": "dedede",
-          "name": "botenflex",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": true,
-          "release_builder_test_pool": "bvt",
-          "board_id": 419,
-          "is_active": true,
-          "stable_target_milestone": 90,
-          "is_experimental": false
-        },
-        {
-          "board_name": "dedede",
           "name": "boxy",
           "test_suites": [
             "sanity",
@@ -10950,26 +10930,6 @@
         },
         {
           "board_name": "strongbad",
-          "name": "mrbland",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 461,
-          "is_active": true,
-          "stable_target_milestone": 100,
-          "is_experimental": false
-        },
-        {
-          "board_name": "strongbad",
           "name": "quackingstick",
           "test_suites": [
             "sanity",
@@ -11466,25 +11426,6 @@
         {
           "board_name": "volteer",
           "name": "volteer",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 405,
-          "is_active": true,
-          "is_experimental": false
-        },
-        {
-          "board_name": "volteer",
-          "name": "volteer2",
-          "test_suites": [
-            "sanity",
-            "bvt-inline",
-            "bvt-tast-cq",
-            "bvt-installer",
-            "bvt-arc",
-            "bvt-cq",
-            "bvt-perbuild",
-            "bvt-tast-informational"
-          ],
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 405,
