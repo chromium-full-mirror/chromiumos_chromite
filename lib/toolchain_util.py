@@ -1974,20 +1974,30 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             for file_name in file_names:
                 yield os.path.join(dir_path, file_name)
 
-    def _FindAllCrOSArtifactDirs(self) -> List[str]:
+    def _FindAllCrOSArtifactDirs(
+        self, include_incomplete_packages: bool
+    ) -> List[str]:
         """Finds all cros-artifacts directories in the chroot."""
-        portage_roots = [Path(self.chroot.full_path("/"))]
-        build_root = Path(self.chroot.full_path("/build"))
-        portage_roots.extend(build_root.glob("*/"))
+        portage_roots = ["/"]
+        portage_roots.extend(
+            f"/build/{x.name}"
+            for x in Path(self.chroot.full_path("/build")).glob("*/")
+        )
+
+        subpaths_to_search = [_PACKAGE_ARTIFACTS_PATH]
+        if include_incomplete_packages:
+            subpaths_to_search.append("var/tmp/portage")
 
         artifact_dirs = []
-        cros_artifacts_subdir_glob = os.path.join(
-            glob.escape(_PACKAGE_ARTIFACTS_PATH), "*/*/cros-artifacts/"
-        )
         for root in portage_roots:
-            artifact_dirs.extend(
-                str(x) for x in root.glob(cros_artifacts_subdir_glob)
-            )
+            for subpath in subpaths_to_search:
+                full_dir = Path(
+                    self.chroot.full_path(os.path.join(root, subpath))
+                )
+                artifact_dirs.extend(
+                    str(x) for x in full_dir.glob("*/*/cros-artifacts/")
+                )
+
         return artifact_dirs
 
     def _CollectCrOSArtifactFiles(
@@ -1995,6 +2005,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         artifact_subdir: str,
         dest_dir: str,
         include_file: Callable[[str], bool],
+        include_incomplete_packages: bool,
     ):
         """Collects files from all cros-artifacts dirs in a chroot.
 
@@ -2005,11 +2016,16 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 created if it doesn't exist and files need to be copied).
             include_file: a callable that returns True if a file should be
                 copied; False otherwise.
+            include_incomplete_packages: True if cros-artifacts directories
+                should be included for packages that weren't successfully
+                built.
 
         Returns:
             A list of all files that were copied, relative to the chroot's /.
         """
-        artifact_dirs = self._FindAllCrOSArtifactDirs()
+        artifact_dirs = self._FindAllCrOSArtifactDirs(
+            include_incomplete_packages
+        )
 
         output = []
         for artifact_dir in artifact_dirs:
@@ -2060,6 +2076,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         tarball: str,
         destination: str,
         extension: Optional[str] = None,
+        include_incomplete_packages: bool = False,
     ) -> str:
         """Bundle the files from src_dir into a tar.xz file.
 
@@ -2069,7 +2086,10 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 stamp, and .tar.xz extension will be added automatically).
             destination: path to create tarball in
             extension: type of file to search for in src_dir.
-            If extension is None (default), all file types will be allowed.
+                If extension is None (default), all file types will be allowed.
+            include_incomplete_packages: if True, this will also bundle files
+                from cros-artifacts dirs that weren't emerged (e.g., due to
+                build failures)
 
         Returns:
             Path to the generated tar.xz file
@@ -2079,7 +2099,10 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             return extension is None or file_path.endswith(extension)
 
         files = self._CollectCrOSArtifactFiles(
-            src_subdir, destination, include_file=FilterFile
+            src_subdir,
+            destination,
+            include_file=FilterFile,
+            include_incomplete_packages=include_incomplete_packages,
         )
         if not files:
             logging.info("No data found for %s, skip bundle artifact", tarball)
@@ -2105,6 +2128,10 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                         "fatal_clang_warnings",
                         tempdir,
                         ".json",
+                        # Collecting warning logs is generally only done with
+                        # experimental toolchains (e.g., llvm-next), so a green
+                        # ToT is not expected.
+                        include_incomplete_packages=True,
                     )
                 ]
             except NoArtifactsToBundleError:
@@ -2122,6 +2149,9 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                         "toolchain/clang_crash_diagnoses",
                         "clang_crash_diagnoses",
                         tempdir,
+                        # If the compiler crashed, the package almost
+                        # definitely failed to build.
+                        include_incomplete_packages=True,
                     )
                 ]
             except NoArtifactsToBundleError:
@@ -2142,6 +2172,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                         "clang_rusage_logs",
                         tempdir,
                         ".json",
+                        include_incomplete_packages=False,
                     )
                 ]
             except NoArtifactsToBundleError:

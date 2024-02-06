@@ -1155,6 +1155,11 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
 class BundleArtifactHandlerTest(PrepareBundleTest):
     """Test BundleArtifactHandler specific methods."""
 
+    # An arbitrary path to a cros-artifacts dir of an incomplete ebuild.
+    _INCOMPLETE_PACKAGE_ARTIFACTS = (
+        "var/tmp/portage/sys-devel/gcc-1.2/cros-artifacts"
+    )
+
     def setUp(self) -> None:
         def _Bundle(_self) -> None:
             osutils.WriteFile(
@@ -1516,18 +1521,18 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
 
     def runToolchainCrOSArtifactsBundleTest(
         self,
-        artifact_files: List[str],
-        expected_output_subpaths: List[str],
+        root_paths: List[str],
+        expected_output_paths: List[str],
     ) -> None:
         """Asserts that the given artifact_path is tarred up properly.
 
         If no output files are expected, we assert that no tarballs are created.
 
         Args:
-            artifact_files: a list of files to |touch| relative to
-                _PACKAGE_ARTIFACTS_PATH.
-            expected_output_subpaths: a list of files that should be present in
-                the tarball, relative to _PACKAGE_ARTIFACTS_PATH.
+            root_paths: a list of files to |touch| in each root (e.g., /
+                and /build/amd64-generic).
+            expected_output_paths: a list of files that should be present in
+                the tarball.
 
         Returns:
             Nothing.
@@ -1537,17 +1542,14 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         ) as create_tarball_mock:
             roots = ("/", f"/build/{self.board}")
             for root in roots:
-                cros_artifacts_subdir = os.path.join(
-                    root, toolchain_util._PACKAGE_ARTIFACTS_PATH
-                )
-                for f in artifact_files:
+                for f in root_paths:
                     in_chroot_path = self.chroot.full_path(
-                        os.path.join(cros_artifacts_subdir, f)
+                        os.path.join(root, f)
                     )
                     self.WriteTempFile(in_chroot_path, "", makedirs=True)
 
             bundled_tarballs = self.obj.Bundle()
-            if not expected_output_subpaths:
+            if not expected_output_paths:
                 # Bundlers should not create tarballs when no artifacts are
                 # found.
                 self.assertEqual(bundled_tarballs, [])
@@ -1560,12 +1562,8 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
             for root in roots:
                 # Remove the leading / from the root, since tar inputs are
                 # relative.
-                artifacts_path = os.path.join(
-                    root[1:], toolchain_util._PACKAGE_ARTIFACTS_PATH
-                )
                 prefixed_expected_output_files.update(
-                    os.path.join(artifacts_path, x)
-                    for x in expected_output_subpaths
+                    os.path.join(root[1:], x) for x in expected_output_paths
                 )
 
             inputs = create_tarball_mock.call_args[1]["inputs"]
@@ -1575,23 +1573,34 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         self.SetUpBundle("ToolchainWarningLogs")
         # Ensure everything's fine if there are no artifact files.
         self.runToolchainCrOSArtifactsBundleTest(
-            artifact_files=[],
-            expected_output_subpaths=[],
+            root_paths=[],
+            expected_output_paths=[],
         )
 
     def testBundleToolchainWarningLogsWithArtifacts(self) -> None:
         self.SetUpBundle("ToolchainWarningLogs")
-        prefix = "sys-devel/llvm/cros-artifacts/toolchain/fatal_clang_warnings"
+        prefix = os.path.join(
+            toolchain_util._PACKAGE_ARTIFACTS_PATH,
+            "sys-devel/llvm/cros-artifacts/toolchain/fatal_clang_warnings",
+        )
+        incomplete_prefix = os.path.join(
+            self._INCOMPLETE_PACKAGE_ARTIFACTS, "toolchain/fatal_clang_warnings"
+        )
         # Ensure everything's fine if there are no artifact files.
         self.runToolchainCrOSArtifactsBundleTest(
-            artifact_files=[
-                "file/does/not/matter",
+            root_paths=[
+                os.path.join(
+                    toolchain_util._PACKAGE_ARTIFACTS_PATH,
+                    "file/does/not/matter",
+                ),
                 f"{prefix}/notjson",
                 f"{prefix}/notjson.notjson",
                 f"{prefix}/an_actual_warning_log.json",
+                f"{incomplete_prefix}/another_warning_log.json",
             ],
-            expected_output_subpaths=[
+            expected_output_paths=[
                 f"{prefix}/an_actual_warning_log.json",
+                f"{incomplete_prefix}/another_warning_log.json",
             ],
         )
 
@@ -1600,52 +1609,77 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
 
         # Ensure everything's fine if there are no artifact files.
         self.runToolchainCrOSArtifactsBundleTest(
-            artifact_files=[],
-            expected_output_subpaths=[],
+            root_paths=[],
+            expected_output_paths=[],
         )
 
         # ...And with adjacent ones.
         self.runToolchainCrOSArtifactsBundleTest(
-            artifact_files=[
-                "sys-devel/llvm/cros-artifacts/toolchain/bar/foo",
-                "sys-devel/llvm/cros-artifacts/toolchain/foo",
+            root_paths=[
+                os.path.join(
+                    toolchain_util._PACKAGE_ARTIFACTS_PATH,
+                    "sys-devel/llvm/toolchain/cros-artifacts",
+                    "not_clang_crash_diagnoses/foo",
+                ),
+                os.path.join(
+                    toolchain_util._PACKAGE_ARTIFACTS_PATH,
+                    "sys-devel/llvm/cros-artifacts/toolchain/foo",
+                ),
                 # And make the directory a regular file for fun.
-                "toolchain/clang_crash_diagnoses",
+                os.path.join(
+                    toolchain_util._PACKAGE_ARTIFACTS_PATH,
+                    "toolchain/clang_crash_diagnoses",
+                ),
             ],
-            expected_output_subpaths=[],
+            expected_output_paths=[],
         )
 
     def testBundleClangCrashDiagnosesWithArtifacts(self) -> None:
         self.SetUpBundle("ClangCrashDiagnoses")
-        prefix = "sys-devel/llvm/cros-artifacts/toolchain/clang_crash_diagnoses"
+        prefix = os.path.join(
+            toolchain_util._PACKAGE_ARTIFACTS_PATH,
+            "sys-devel/llvm/cros-artifacts/toolchain/clang_crash_diagnoses",
+        )
+        incomplete_prefix = os.path.join(
+            self._INCOMPLETE_PACKAGE_ARTIFACTS,
+            "toolchain/clang_crash_diagnoses",
+        )
         files = [
             f"{prefix}/foo.sh",
             f"{prefix}/bar.txt",
-            f"{prefix}/baz",
+            f"{incomplete_prefix}/baz",
         ]
         self.runToolchainCrOSArtifactsBundleTest(
-            artifact_files=files,
-            expected_output_subpaths=files,
+            root_paths=files,
+            expected_output_paths=files,
         )
 
     def testBundleCompilerRusageWithNoArtifacts(self) -> None:
         self.SetUpBundle("CompilerRusageLogs")
         # Ensure everything's fine if there are no artifact files.
         self.runToolchainCrOSArtifactsBundleTest(
-            artifact_files=[],
-            expected_output_subpaths=[],
+            root_paths=[],
+            expected_output_paths=[],
         )
 
     def testBundleCompilerRusageWithArtifacts(self) -> None:
         self.SetUpBundle("CompilerRusageLogs")
         # Ensure everything's fine if there are no artifact files.
-        prefix = "sys-devel/llvm/cros-artifacts/toolchain/clang_rusage_logs"
+        prefix = os.path.join(
+            toolchain_util._PACKAGE_ARTIFACTS_PATH,
+            "sys-devel/llvm/cros-artifacts/toolchain/clang_rusage_logs",
+        )
+        incomplete_prefix = os.path.join(
+            self._INCOMPLETE_PACKAGE_ARTIFACTS,
+            "toolchain/clang_crash_diagnoses",
+        )
         self.runToolchainCrOSArtifactsBundleTest(
-            artifact_files=[
+            root_paths=[
                 f"{prefix}/rusage.json",
                 f"{prefix}/notrusage.notjson",
+                f"{incomplete_prefix}/rusage.json",
             ],
-            expected_output_subpaths=[
+            expected_output_paths=[
                 f"{prefix}/rusage.json",
             ],
         )
