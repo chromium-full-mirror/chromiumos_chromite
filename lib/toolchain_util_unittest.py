@@ -1668,34 +1668,26 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
             expected_output_subpaths=files,
         )
 
-    def testBundleCompilerRusageLogs(self) -> None:
+    def testBundleCompilerRusageWithNoArtifacts(self) -> None:
         self.SetUpBundle("CompilerRusageLogs")
-        artifact_path = "/tmp/compiler_rusage"
-        tarball_name = "%s.DATE.compiler_rusage_logs.tar.xz" % self.board
+        # Ensure everything's fine if there are no artifact files.
+        self.runToolchainCrOSArtifactsBundleTest(
+            artifact_files=[],
+            expected_output_subpaths=[],
+        )
 
-        # Test behaviour when no artifacts are found.
-        self.runToolchainBundleTest(artifact_path, tarball_name, [], [])
-
-        # Test behaviour when artifacts are found.
-        self.runToolchainBundleTest(
-            artifact_path,
-            tarball_name,
-            input_files=(
-                "good1.json",
-                "good2.json",
-                "good3.json",
-                "bad1.notjson",
-                "bad2",
-                "json",
-            ),
-            expected_output_files=(
-                "good1.json",
-                "good2.json",
-                "good3.json",
-                "good10.json",
-                "good20.json",
-                "good30.json",
-            ),
+    def testBundleCompilerRusageWithArtifacts(self) -> None:
+        self.SetUpBundle("CompilerRusageLogs")
+        # Ensure everything's fine if there are no artifact files.
+        prefix = "sys-devel/llvm/cros-artifacts/toolchain/clang_rusage_logs"
+        self.runToolchainCrOSArtifactsBundleTest(
+            artifact_files=[
+                f"{prefix}/rusage.json",
+                f"{prefix}/notrusage.notjson",
+            ],
+            expected_output_subpaths=[
+                f"{prefix}/rusage.json",
+            ],
         )
 
 

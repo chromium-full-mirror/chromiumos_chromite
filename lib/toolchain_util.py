@@ -1663,8 +1663,6 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
 
     def _PrepareCompilerRusageLogs(self):
         # We always build this artifact.
-        # Cleanup the temp directory that holds the artifacts
-        self._CleanupArtifactDirectory("/tmp/compiler_rusage")
         return PrepareForBuildReturn.UNKNOWN
 
 
@@ -2233,9 +2231,9 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         with self.chroot.tempdir() as tempdir:
             try:
                 return [
-                    self._CreateBundle(
-                        "/tmp/compiler_rusage",
-                        "compiler_rusage_logs",
+                    self._CreateCrOSArtifactBundle(
+                        "toolchain/clang_rusage_logs",
+                        "clang_rusage_logs",
                         tempdir,
                         ".json",
                     )
