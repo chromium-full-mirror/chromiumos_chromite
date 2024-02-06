@@ -141,7 +141,11 @@ class BuildPackagesCommand(command.CliCommand):
             default=cros_build_lib.GetDefaultBoard(),
             help="The board to build packages for.",
         )
-
+        parser.add_argument(
+            "--profile",
+            help="The portage configuration profile to use. Profile "
+            "must be located in overlay-board/profiles.",
+        )
         build_shell_bool_style_args(
             parser,
             "usepkg",
@@ -519,7 +523,9 @@ def build_packages(opts: commandline.ArgumentNamespace) -> None:
     span = trace.get_current_span()
 
     build_target = build_target_lib.BuildTarget(
-        opts.board, build_root=opts.sysroot
+        opts.board,
+        build_root=opts.sysroot,
+        profile=opts.profile,
     )
     board_root = sysroot_lib.Sysroot(build_target.root)
     if not board_root.Exists():
