@@ -1653,8 +1653,6 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
 
     def _PrepareToolchainWarningLogs(self):
         # We always build this artifact.
-        # Cleanup the temp directory that holds the artifacts
-        self._CleanupArtifactDirectory("/tmp/fatal_clang_warnings")
         return PrepareForBuildReturn.NEEDED
 
     def _PrepareClangCrashDiagnoses(self):
@@ -1977,63 +1975,6 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             for file_name in file_names:
                 yield os.path.join(dir_path, file_name)
 
-    def _CollectFiles(self, src_dir, dest_dir, include_file):
-        """Collect the files with any of file_exts from path to working_dir.
-
-        Args:
-            src_dir: the path to the directory to copy files from.
-            dest_dir: the path of the directory to copy files to (will be
-                created if it doesn't exist and files need to be copied).
-            include_file: a callable that returns True if a file should be
-                copied; False otherwise.
-
-        Returns:
-            A list of all files that were copied, relative to `src_dir`.
-        """
-        check_dirs = [
-            self.chroot.full_path(x)
-            for x in [
-                src_dir,
-                os.path.join(
-                    self.sysroot_path,
-                    src_dir[1:] if os.path.isabs(src_dir) else src_dir,
-                ),
-            ]
-        ]
-
-        logging.info("toolchain-logs: checking %s", check_dirs)
-        output = []
-        for directory in check_dirs:
-            if not os.path.isdir(directory):
-                logging.info("toolchain-logs: %s doesn't exist", directory)
-                continue
-
-            for src_path in self._ListTransitiveFiles(directory):
-                rel_path = os.path.relpath(src_path, start=directory)
-                logging.info("toolchain-logs: checking %s", rel_path)
-                if not include_file(rel_path):
-                    logging.warning(
-                        "toolchain-logs: skipped file: %s", rel_path
-                    )
-                    continue
-
-                dest_path = os.path.join(dest_dir, rel_path)
-                while os.path.exists(dest_path):
-                    file_noext, file_ext = os.path.splitext(dest_path)
-                    dest_path = f"{file_noext}0{file_ext}"
-
-                osutils.SafeMakedirs(os.path.dirname(dest_path))
-                rel_dest_path = os.path.relpath(dest_path, start=dest_dir)
-
-                logging.info(
-                    "toolchain-logs: adding path %s as %s", src_path, dest_path
-                )
-                shutil.copy(src_path, dest_path)
-                output.append(rel_dest_path)
-
-        logging.info("%d files collected", len(output))
-        return output
-
     def _FindAllCrOSArtifactDirs(self) -> List[str]:
         """Finds all cros-artifacts directories in the chroot."""
         portage_roots = [Path(self.chroot.full_path("/"))]
@@ -2114,40 +2055,6 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         logging.info("%d files collected", len(output))
         return output
 
-    def _CreateBundle(self, src_dir, tarball, destination, extension=None):
-        """Bundle the files from src_dir into a tar.xz file.
-
-        Args:
-            src_dir: the path to the directory to copy files from.
-            tarball: name of the generated tarballfile (build target, time
-                stamp, and .tar.xz extension will be added automatically).
-            destination: path to create tarball in
-            extension: type of file to search for in src_dir.
-            If extension is None (default), all file types will be allowed.
-
-        Returns:
-            Path to the generated tar.xz file
-        """
-
-        def FilterFile(file_path):
-            return extension is None or file_path.endswith(extension)
-
-        files = self._CollectFiles(
-            src_dir, destination, include_file=FilterFile
-        )
-        if not files:
-            logging.info("No data found for %s, skip bundle artifact", tarball)
-            raise NoArtifactsToBundleError(f"No {extension} files in {src_dir}")
-
-        now = datetime.datetime.strftime(datetime.datetime.now(), "%Y%m%d")
-        name = f"{self.build_target}.{now}.{tarball}.tar.xz"
-        output_compressed = os.path.join(self.output_dir, name)
-        cros_build_lib.CreateTarball(
-            output_compressed, destination, inputs=files
-        )
-
-        return output_compressed
-
     def _CreateCrOSArtifactBundle(
         self,
         src_subdir: str,
@@ -2194,8 +2101,8 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         with self.chroot.tempdir() as tempdir:
             try:
                 return [
-                    self._CreateBundle(
-                        "/tmp/fatal_clang_warnings",
+                    self._CreateCrOSArtifactBundle(
+                        "toolchain/fatal_clang_warnings",
                         "fatal_clang_warnings",
                         tempdir,
                         ".json",

@@ -1514,70 +1514,6 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         ):
             self.callBundleVerifiedKernelCwpAfdoFile(ebuild_data_list)
 
-    def runToolchainBundleTest(
-        self, artifact_path, tarball_name, input_files, expected_output_files
-    ) -> None:
-        """Asserts that the given artifact_path is tarred up properly.
-
-        If no output files are expected, we assert that no tarballs are created.
-
-        Args:
-            artifact_path: the path to touch |input_files| in.
-            tarball_name: the expected name of the tarball we will produce.
-            input_files: a list of files to |touch| relative to |artifact_path|.
-            expected_output_files: a list of files that should be present in the
-                tarball.
-
-        Returns:
-            Nothing.
-        """
-        with mock.patch.object(
-            cros_build_lib, "CreateTarball"
-        ) as create_tarball_mock:
-            in_chroot_dirs = [
-                artifact_path,
-                f"/build/{self.board}{artifact_path}",
-            ]
-            for d in (self.chroot.full_path(x) for x in in_chroot_dirs):
-                for l in input_files:
-                    self.WriteTempFile(os.path.join(d, l), "", makedirs=True)
-
-            tarball = self.obj.Bundle()
-
-            if len(expected_output_files) > 0:
-                tarball_path = os.path.join(self.outdir, tarball_name)
-                self.assertEqual(tarball, [tarball_path])
-
-                create_tarball_mock.assert_called_once()
-                output, _tempdir = create_tarball_mock.call_args[0]
-                self.assertEqual(output, tarball_path)
-                inputs = create_tarball_mock.call_args[1]["inputs"]
-                self.assertCountEqual(expected_output_files, inputs)
-            else:
-                # Bundlers do not create tarballs when no artifacts are found.
-                self.assertEqual(tarball, [])
-
-    def testBundleToolchainWarningLogs(self) -> None:
-        self.SetUpBundle("ToolchainWarningLogs")
-        artifact_path = "/tmp/fatal_clang_warnings"
-        tarball_name = "%s.DATE.fatal_clang_warnings.tar.xz" % self.board
-
-        # Test behaviour when no artifacts are found.
-        self.runToolchainBundleTest(artifact_path, tarball_name, [], [])
-
-        # Test behaviour when artifacts are found.
-        self.runToolchainBundleTest(
-            artifact_path,
-            tarball_name,
-            input_files=("log1.json", "log2.json", "log3.notjson", "log4"),
-            expected_output_files=(
-                "log1.json",
-                "log10.json",
-                "log2.json",
-                "log20.json",
-            ),
-        )
-
     def runToolchainCrOSArtifactsBundleTest(
         self,
         artifact_files: List[str],
@@ -1634,6 +1570,30 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
 
             inputs = create_tarball_mock.call_args[1]["inputs"]
             self.assertEqual(prefixed_expected_output_files, set(inputs))
+
+    def testBundleToolchainWarningLogsWithNoArtifacts(self) -> None:
+        self.SetUpBundle("ToolchainWarningLogs")
+        # Ensure everything's fine if there are no artifact files.
+        self.runToolchainCrOSArtifactsBundleTest(
+            artifact_files=[],
+            expected_output_subpaths=[],
+        )
+
+    def testBundleToolchainWarningLogsWithArtifacts(self) -> None:
+        self.SetUpBundle("ToolchainWarningLogs")
+        prefix = "sys-devel/llvm/cros-artifacts/toolchain/fatal_clang_warnings"
+        # Ensure everything's fine if there are no artifact files.
+        self.runToolchainCrOSArtifactsBundleTest(
+            artifact_files=[
+                "file/does/not/matter",
+                f"{prefix}/notjson",
+                f"{prefix}/notjson.notjson",
+                f"{prefix}/an_actual_warning_log.json",
+            ],
+            expected_output_subpaths=[
+                f"{prefix}/an_actual_warning_log.json",
+            ],
+        )
 
     def testBundleClangCrashDiagnosesWithNoArtifacts(self) -> None:
         self.SetUpBundle("ClangCrashDiagnoses")
