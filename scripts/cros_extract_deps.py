@@ -193,7 +193,7 @@ def main(argv) -> None:
     sysroot = opts.sysroot or build_target_lib.get_default_sysroot_path(
         opts.board
     )
-    deps_list, _ = ExtractDeps(sysroot, opts.pkgs, opts.format)
+    deps_list, _ = ExtractDeps(sysroot, opts.pkgs)
 
     pformat.json(
         deps_list, fp=opts.output_path if opts.output_path else sys.stdout
