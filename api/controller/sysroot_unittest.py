@@ -6,7 +6,8 @@
 
 import datetime
 import os
-from typing import Union
+from typing import Optional, Union
+from unittest import mock
 
 from chromite.api import api_config
 from chromite.api import controller
@@ -15,6 +16,7 @@ from chromite.api.controller import sysroot as sysroot_controller
 from chromite.api.gen.chromite.api import sysroot_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
+from chromite.lib import build_query
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
@@ -206,6 +208,68 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.assertEqual(board, out_proto.sysroot.build_target.name)
         self.assertEqual(profile, out_proto.sysroot.build_target.profile.name)
         self.assertEqual(sysroot_path, out_proto.sysroot.path)
+
+
+class GetTargetArchitectureTest(
+    cros_test_lib.MockTestCase, api_config.ApiConfigMixin
+):
+    """Tests for SysrootService/GetTargetArchitecture()."""
+
+    def setUp(self) -> None:
+        """Basic patching to make the tests hermetic."""
+        self.PatchObject(
+            build_query.Board,
+            "get",
+            return_value=build_query.Board("some-board"),
+        )
+
+    def _patch_board_arch(self, return_value: Optional[str]) -> None:
+        """Patch the return value of build_query.Board.arch."""
+        self.PatchObject(
+            build_query.Board,
+            "arch",
+            return_value=return_value,
+            new_callable=mock.PropertyMock,
+        )
+
+    def test_basic(self) -> None:
+        """Test a basic successful call to GetTargetArchitecture()."""
+        self._patch_board_arch("amd64")
+        request = sysroot_pb2.GetTargetArchitectureRequest(
+            build_target=common_pb2.BuildTarget(name="some-board")
+        )
+        response = sysroot_pb2.GetTargetArchitectureResponse()
+        sysroot_controller.GetTargetArchitecture(
+            request,
+            response,
+            self.api_config,
+        )
+        self.assertEqual(response.architecture, "amd64")
+
+    def test_no_build_target_name(self) -> None:
+        """Test a request with no build target name."""
+        request = sysroot_pb2.GetTargetArchitectureRequest()
+        response = sysroot_pb2.GetTargetArchitectureResponse()
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            sysroot_controller.GetTargetArchitecture(
+                request,
+                response,
+                self.api_config,
+            )
+
+    def test_arch_is_none(self) -> None:
+        """Test a call where the target architecture returns None."""
+        self._patch_board_arch(None)
+        request = sysroot_pb2.GetTargetArchitectureRequest(
+            build_target=common_pb2.BuildTarget(name="some-board")
+        )
+        response = sysroot_pb2.GetTargetArchitectureResponse()
+        sysroot_controller.GetTargetArchitecture(
+            request,
+            response,
+            self.api_config,
+        )
+        self.assertEqual(response.architecture, "")
 
 
 class GetArtifactsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):

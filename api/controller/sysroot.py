@@ -8,6 +8,7 @@ import logging
 import os
 from pathlib import Path
 import traceback
+from typing import TYPE_CHECKING
 
 from chromite.api import controller
 from chromite.api import faux
@@ -26,6 +27,10 @@ from chromite.lib import portage_util
 from chromite.lib import remoteexec_lib
 from chromite.lib import sysroot_lib
 from chromite.service import sysroot
+
+
+if TYPE_CHECKING:
+    from chromite.api import api_config
 
 
 _ACCEPTED_LICENSES = "@CHROMEOS"
@@ -236,6 +241,20 @@ def Create(request, response, _config):
     response.sysroot.build_target.profile.name = build_target.profile
 
     return controller.RETURN_CODE_SUCCESS
+
+
+@validate.require("build_target.name")
+@validate.validation_complete
+def GetTargetArchitecture(
+    request: sysroot_pb2.GetTargetArchitectureRequest,
+    response: sysroot_pb2.GetTargetArchitectureResponse,
+    _config: "api_config.ApiConfig",
+) -> None:
+    """Determine the target architecture for the given build target."""
+    build_target = build_target_lib.BuildTarget(request.build_target.name)
+    architecture = build_target.board.arch
+    if architecture:
+        response.architecture = architecture
 
 
 @faux.all_empty
