@@ -38,6 +38,7 @@ from chromite.api.gen.chromite.api import portage_explorer_pb2
 from chromite.api.gen.chromite.api import relevancy_pb2
 from chromite.api.gen.chromite.api import sdk_pb2
 from chromite.api.gen.chromite.api import sdk_subtools_pb2
+from chromite.api.gen.chromite.api import signing_pb2
 from chromite.api.gen.chromite.api import sysroot_pb2
 from chromite.api.gen.chromite.api import test_pb2
 from chromite.api.gen.chromite.api import toolchain_pb2
@@ -623,6 +624,7 @@ def RegisterServices(router: Router) -> None:
     router.Register(relevancy_pb2)
     router.Register(sdk_pb2)
     router.Register(sdk_subtools_pb2)
+    router.Register(signing_pb2)
     router.Register(sysroot_pb2)
     router.Register(test_pb2)
     router.Register(toolchain_pb2)
