@@ -1368,6 +1368,7 @@ in
                 BAZEL_COMMAND,
                 "build",
                 "--profile=" + BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
+                "--noslim_profile",
                 "--experimental_profile_include_target_label",
                 "--experimental_profile_include_primary_output",
                 # --keep_going to keep building packages even after a failure to
