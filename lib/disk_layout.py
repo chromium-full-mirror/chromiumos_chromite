@@ -933,6 +933,17 @@ class DiskLayout:
 
         return self._disk_layout_config["metadata"]["fs_block_size"]
 
+    def GetVerityHashAlgo(self) -> str:
+        """Return the hash algorithm to be used for rootfs verification.
+
+        Returns:
+            Hash algorithm to be used for rootfs verification.
+        """
+
+        return self._disk_layout_config["metadata"].get(
+            "verity_hash_algo", "sha256"
+        )
+
     def GetType(self, image_type: str, num: int) -> str:
         """Returns the type of a given partition for a given layout.
 

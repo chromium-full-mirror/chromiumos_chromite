@@ -378,6 +378,18 @@ def DoDebugOutput(
     ).DoDebugOutput(image_type)
 
 
+def GetVerityHashAlgo(
+    _options: List[str], layout_filename: Union[str, "os.PathLike[str]"]
+) -> str:
+    """Return hashing algo to be used with verity.
+
+    Args:
+        options: Flags passed to the script.
+        layout_filename: Path to partition configuration file.
+    """
+    return disk_layout.DiskLayout(layout_filename).GetVerityHashAlgo()
+
+
 def Validate(
     options: List[str],
     image_type: str,
@@ -467,6 +479,7 @@ def GetParser():
         "readtype": GetType,
         "readpartitionnums": GetPartitions,
         "readuuid": GetUUID,
+        "readverityhashalgo": GetVerityHashAlgo,
         "debug": DoDebugOutput,
         "validate": Validate,
     }

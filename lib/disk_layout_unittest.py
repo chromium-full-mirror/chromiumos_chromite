@@ -48,6 +48,43 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
             }
           }"""
 
+    def testDefaultVerityHashAlgo(self) -> None:
+        """Test that if the hash algo is omitted, sha256 is defaulted."""
+        osutils.WriteFile(
+            self.layout_json,
+            """{
+                    "metadata": {
+                        "fs_block_size": 4096
+                    },
+                    "layouts": {
+                        "common": [],
+                        "base": []
+                    }
+                }
+                """,
+        )
+        layout = disk_layout.DiskLayout(self.layout_json)
+        self.assertEqual(layout.GetVerityHashAlgo(), "sha256")
+
+    def testVerityHashAlgo(self) -> None:
+        """Test that if the hash algo is specified, it is properly used."""
+        osutils.WriteFile(
+            self.layout_json,
+            """{
+                    "metadata": {
+                        "fs_block_size": 4096,
+                        "verity_hash_algo": "blake2b-256"
+                    },
+                    "layouts": {
+                        "common": [],
+                        "base": []
+                    }
+                }
+                """,
+        )
+        layout = disk_layout.DiskLayout(self.layout_json)
+        self.assertEqual(layout.GetVerityHashAlgo(), "blake2b-256")
+
     def testJSONComments(self) -> None:
         """Test that we ignore comments in JSON in lines starting with #."""
         osutils.WriteFile(
