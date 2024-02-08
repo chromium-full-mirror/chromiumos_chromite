@@ -14,7 +14,6 @@ import logging
 import os
 from pathlib import Path
 import pprint
-import tempfile
 from typing import Dict, Iterable, List, Optional, Union
 import urllib.parse
 
@@ -283,16 +282,15 @@ def InstallPackage(
 
     destination = Path(destination) / package
 
-    with tempfile.NamedTemporaryFile() as f:
-        f.write(("%s %s" % (package, version)).encode("utf-8"))
-        f.flush()
-
-        cros_build_lib.run(
-            [cipd_path, "ensure", "-root", destination, "-ensure-file", f.name]
-            + _shared_cipd_args(cred_path=service_account_json),
-            capture_output=True,
-            print_cmd=print_cmd,
-        )
+    ensure = f"{package} {version}"
+    logging.debug("Ensure file: %s", ensure)
+    cros_build_lib.run(
+        [cipd_path, "ensure", "-root", destination, "-ensure-file", "-"]
+        + _shared_cipd_args(cred_path=service_account_json),
+        capture_output=True,
+        print_cmd=print_cmd,
+        input=ensure,
+    )
 
     return destination
 
