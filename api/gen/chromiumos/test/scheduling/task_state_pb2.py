@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+chromiumos/test/scheduling/task_state.proto\x12\x1a\x63hromiumos.test.scheduling\"\x92\x01\n\x18\x43reateTaskStatesResponse\x12J\n\x03ids\x18\x01 \x03(\x0b\x32=.chromiumos.test.scheduling.CreateTaskStatesResponse.IdsEntry\x1a*\n\x08IdsEntry\x12\x0b\n\x03key\x18\x01 \x01(\x03\x12\r\n\x05value\x18\x02 \x01(\x03:\x02\x38\x01\"R\n\x16ReadTaskStatesResponse\x12\x38\n\x05tasks\x18\x01 \x03(\x0b\x32).chromiumos.test.scheduling.TaskWithState\"j\n\rTaskWithState\x12\x15\n\rtask_state_id\x18\x01 \x01(\x03\x12\x34\n\x05state\x18\x02 \x01(\x0e\x32%.chromiumos.test.scheduling.TaskState\x12\x0c\n\x04\x62\x62id\x18\x03 \x01(\x03*Q\n\tTaskState\x12\r\n\tREQUESTED\x10\x00\x12\x0b\n\x07PENDING\x10\x01\x12\x0c\n\x08LAUNCHED\x10\x02\x12\r\n\tCOMPLETED\x10\x03\x12\x0b\n\x07\x45XPIRED\x10\x04\x42\tZ\x07./protob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+chromiumos/test/scheduling/task_state.proto\x12\x1a\x63hromiumos.test.scheduling\"\x92\x01\n\x18\x43reateTaskStatesResponse\x12J\n\x03ids\x18\x01 \x03(\x0b\x32=.chromiumos.test.scheduling.CreateTaskStatesResponse.IdsEntry\x1a*\n\x08IdsEntry\x12\x0b\n\x03key\x18\x01 \x01(\x03\x12\r\n\x05value\x18\x02 \x01(\x03:\x02\x38\x01\"R\n\x16ReadTaskStatesResponse\x12\x38\n\x05tasks\x18\x01 \x03(\x0b\x32).chromiumos.test.scheduling.TaskWithState\"j\n\rTaskWithState\x12\x15\n\rtask_state_id\x18\x01 \x01(\x03\x12\x34\n\x05state\x18\x02 \x01(\x0e\x32%.chromiumos.test.scheduling.TaskState\x12\x0c\n\x04\x62\x62id\x18\x03 \x01(\x03*_\n\tTaskState\x12\r\n\tREQUESTED\x10\x00\x12\x0b\n\x07PENDING\x10\x01\x12\x0c\n\x08LAUNCHED\x10\x02\x12\r\n\tCOMPLETED\x10\x03\x12\x0b\n\x07\x45XPIRED\x10\x04\x12\x0c\n\x08\x43\x41NCELED\x10\x05\x42\tZ\x07./protob\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.scheduling.task_state_pb2', globals())
@@ -24,7 +24,7 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _CREATETASKSTATESRESPONSE_IDSENTRY._options = None
   _CREATETASKSTATESRESPONSE_IDSENTRY._serialized_options = b'8\001'
   _TASKSTATE._serialized_start=416
-  _TASKSTATE._serialized_end=497
+  _TASKSTATE._serialized_end=511
   _CREATETASKSTATESRESPONSE._serialized_start=76
   _CREATETASKSTATESRESPONSE._serialized_end=222
   _CREATETASKSTATESRESPONSE_IDSENTRY._serialized_start=180
