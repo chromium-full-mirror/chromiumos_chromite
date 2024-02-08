@@ -386,17 +386,22 @@ def get_global_cache_dir() -> Path:
     return xdg_util.CACHE_HOME / "cros" / "chromite"
 
 
-def FindCacheDir() -> CheckoutType:
+def FindCacheDir() -> str:
     """Returns the cache directory location based on the checkout type."""
+    return str(find_cache_dir())
+
+
+def find_cache_dir() -> Path:
+    """Returns the cache directory Path based on the checkout type."""
     checkout = DetermineCheckout()
     if checkout.type == CheckoutType.REPO:
-        return os.path.join(checkout.root, GENERAL_CACHE_DIR)
+        return Path(checkout.root) / GENERAL_CACHE_DIR
     elif checkout.type == CheckoutType.GCLIENT:
-        return os.path.join(checkout.chrome_src_dir, "build", CHROME_CACHE_DIR)
+        return Path(checkout.chrome_src_dir) / "build" / CHROME_CACHE_DIR
     elif checkout.type == CheckoutType.CITC:
-        return str(get_global_cog_base_dir() / "cache")
+        return get_global_cog_base_dir() / "cache"
     elif checkout.type == CheckoutType.UNKNOWN:
-        return str(get_global_cache_dir())
+        return get_global_cache_dir()
     else:
         raise AssertionError("Unexpected type %s" % checkout.type)
 
@@ -404,6 +409,11 @@ def FindCacheDir() -> CheckoutType:
 def GetCacheDir() -> str:
     """Returns the current cache dir."""
     return os.environ.get(constants.SHARED_CACHE_ENVVAR, FindCacheDir())
+
+
+def get_cache_dir() -> Path:
+    """Returns the current cache dir Path."""
+    return Path(GetCacheDir())
 
 
 def ToChrootPath(
