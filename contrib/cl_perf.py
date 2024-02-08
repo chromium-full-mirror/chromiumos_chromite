@@ -22,11 +22,11 @@ from chromite.lib import path_util
 from chromite.utils import pformat
 
 
-_TESTS_FOLDER = Path(path_util.GetCacheDir()) / "cl-perf"
+_TESTS_FOLDER = path_util.get_cache_dir() / "cl-perf"
 
 # _CHECKOUT_CIPD_ROOT_PATH is used to install `swarming`, if it's not in PATH.
 _CHECKOUT_CIPD_ROOT_PATH = (
-    Path(path_util.GetCacheDir()).absolute() / "cipd" / "packages"
+    path_util.get_cache_dir().absolute() / "cipd" / "packages"
 )
 _SWARMING_CIPD_PKG_NAME = "infra/tools/luci/swarming/linux-amd64"
 _SWARMING_CIPD_PKG_VERSION = "latest"

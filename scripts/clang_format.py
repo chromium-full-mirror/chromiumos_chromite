@@ -5,7 +5,6 @@
 """Wrap the clang-format binary from gs://chromium-clang-format"""
 
 import contextlib
-import os
 from typing import ContextManager, Sequence
 
 from chromite.lib import cache
@@ -25,16 +24,16 @@ CLANG_FORMAT_SHA1 = "b42097ca924d1f1736a5a7806068fed9d7345eb4"
 class ClangFormatCache(cache.RemoteCache):
     """Supports caching the clang-format executable."""
 
-    def _Fetch(
+    def _Fetch(  # pylint: disable=arguments-differ
         self, url: str, local_path: str
-    ) -> None:  # pylint: disable=arguments-differ
+    ) -> None:
         expected_sha1 = url.rsplit("/", 1)[-1]
         super()._Fetch(url, local_path, hash_sha1=expected_sha1, mode=0o755)
 
 
 def GetClangFormatCache() -> ClangFormatCache:
     """Returns the cache instance for the clang-format binary."""
-    cache_dir = os.path.join(path_util.FindCacheDir(), "chromium-clang-format")
+    cache_dir = path_util.find_cache_dir() / "chromium-clang-format"
     return ClangFormatCache(cache_dir)
 
 

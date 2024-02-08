@@ -374,7 +374,7 @@ class PaygenPayload:
         Returns:
             Returns a directory suitable for use with a DownloadCache.
         """
-        return os.path.join(path_util.GetCacheDir(), "paygen_cache")
+        return path_util.get_cache_dir() / "paygen_cache"
 
     def _GetDlcImageParams(self, tgt_image, src_image=None):
         """Returns parameters related to target and source DLC images.

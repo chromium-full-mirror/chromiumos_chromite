@@ -264,8 +264,8 @@ def GetVartree(sysroot):
 
 def GetBinhostCache(options):
     """Get and optionally clear the binhost cache."""
-    cache_dir = os.path.join(
-        path_util.FindCacheDir(), "cros_install_debug_syms-v" + CACHE_VERSION
+    cache_dir = (
+        path_util.find_cache_dir() / f"cros_install_debug_syms-v{CACHE_VERSION}"
     )
     if options.clearcache:
         osutils.RmDir(cache_dir, ignore_missing=True)

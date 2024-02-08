@@ -196,8 +196,8 @@ def FindSymbolFiles(tempdir, paths):
     Yields:
         A SymbolFile for every symbol file found in paths.
     """
-    cache_dir = path_util.GetCacheDir()
-    common_path = os.path.join(cache_dir, constants.COMMON_CACHE)
+    cache_dir = path_util.get_cache_dir()
+    common_path = cache_dir / constants.COMMON_CACHE
     tar_cache = cache.TarballCache(common_path)
 
     for p in paths:
