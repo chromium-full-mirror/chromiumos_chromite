@@ -284,13 +284,6 @@ class PaygenSignerTest(PaygenLibTest):
 class PaygenPayloadLibBasicTest(PaygenLibTest):
     """PaygenPayloadLib basic (and quick) testing."""
 
-    def setUp(self):
-        self.PatchObject(
-            paygen_payload_lib,
-            "_find_delta_generator",
-            return_value="delta_generator",
-        )
-
     def _GetStdGenerator(
         self,
         work_dir=None,
@@ -417,7 +410,10 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         self.rc.assertCommandCalled(
             expected_cmd,
             stdout=True,
+            enter_chroot=True,
+            chroot_args=mock.ANY,
             stderr=subprocess.STDOUT,
+            extra_env=mock.ANY,
         )
 
         self.assertIn(
@@ -438,7 +434,10 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         self.rc.assertCommandCalled(
             expected_cmd,
             stdout=True,
+            enter_chroot=True,
+            chroot_args=mock.ANY,
             stderr=subprocess.STDOUT,
+            extra_env=mock.ANY,
         )
 
         self.assertIn(
