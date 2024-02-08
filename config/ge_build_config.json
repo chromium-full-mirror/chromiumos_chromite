@@ -5703,6 +5703,15 @@
         },
         {
           "board_name": "dedede-pvs",
+          "name": "dita",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7267,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "dedede-pvs",
           "name": "drawcia",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -6170,6 +6179,15 @@
         {
           "board_name": "dedede-pvs-lab",
           "name": "dibbi",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7293,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "dedede-pvs-lab",
+          "name": "dita",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7293,
