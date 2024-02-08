@@ -171,6 +171,24 @@ class FindCacheDirTest(cros_test_lib.MockTempDirTestCase):
         )
 
 
+class GetLogDirTest(cros_test_lib.MockTestCase):
+    """get_log_dir tests."""
+
+    @mock.patch("chromite.lib.cros_build_lib.IsInsideChroot", return_value=True)
+    def test_inside(self, _) -> None:
+        """Test inside the SDK."""
+        assert path_util.get_log_dir() == Path("/var/log")
+
+    @mock.patch(
+        "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
+    )
+    def test_outside(self, _) -> None:
+        """Test outside the SDK."""
+        log_dir = path_util.get_log_dir()
+        expected_suffix = constants.DEFAULT_OUT_DIR / "sdk" / "logs"
+        assert str(log_dir).endswith(str(expected_suffix))
+
+
 class TestPathResolver(cros_test_lib.MockTempDirTestCase):
     """Tests of ChrootPathResolver class."""
 

@@ -416,6 +416,15 @@ def get_cache_dir() -> Path:
     return Path(GetCacheDir())
 
 
+def get_log_dir() -> Path:
+    """Return the log dir."""
+    log_dir = "/var/log"
+    if cros_build_lib.IsInsideChroot():
+        return Path(log_dir)
+    else:
+        return Path(FromChrootPath(log_dir))
+
+
 def ToChrootPath(
     path: Optional[Union[str, os.PathLike]],
     source_path: Optional[Union[str, os.PathLike]] = None,
