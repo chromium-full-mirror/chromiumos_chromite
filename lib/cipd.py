@@ -288,7 +288,7 @@ def InstallPackage(
         f.flush()
 
         cros_build_lib.run(
-            [cipd_path, "ensure", "-root", destination, "-list", f.name]
+            [cipd_path, "ensure", "-root", destination, "-ensure-file", f.name]
             + _shared_cipd_args(cred_path=service_account_json),
             capture_output=True,
             print_cmd=print_cmd,

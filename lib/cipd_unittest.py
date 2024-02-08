@@ -190,7 +190,7 @@ def test_install_package(run_mock: cros_test_lib.RunCommandMock) -> None:
             "ensure",
             "-root",
             Path("/destination/some/package"),
-            "-list",
+            "-ensure-file",
             # Ignore the temporary file arg.
         ]
     )
@@ -209,7 +209,7 @@ def test_install_package_cache_dir(
             "ensure",
             "-root",
             Path("/cache/cipd/packages/some/package"),
-            "-list",
+            "-ensure-file",
             # Ignore the temporary file arg.
         ]
     )
