@@ -133,7 +133,8 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandContains(
             [
                 "-cpu",
-                "Haswell-noTSX,-invpcid,-tsc-deadline,check",
+                "Haswell-noTSX,vendor=GenuineIntel"
+                ",-invpcid,-tsc-deadline,check",
             ]
         )
         self.assertCommandContains(
@@ -190,7 +191,8 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandContains(
             [
                 "-cpu",
-                "Haswell-noTSX,-invpcid,-tsc-deadline,check,vmx=on,svm=on",
+                "Haswell-noTSX,vendor=GenuineIntel"
+                ",-invpcid,-tsc-deadline,check,vmx=on,svm=on",
             ]
         )
 

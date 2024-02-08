@@ -771,7 +771,7 @@ class VM(device.Device):
         parser.add_argument(
             "--qemu-cpu",
             type=str,
-            default="Haswell-noTSX,-invpcid,-tsc-deadline",
+            default="Haswell-noTSX,vendor=GenuineIntel,-invpcid,-tsc-deadline",
             help="CPU argument that will be passed to qemu.",
         )
         parser.add_argument(
