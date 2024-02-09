@@ -13,6 +13,7 @@ from typing import List, Optional, TYPE_CHECKING, Union
 from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import cros_sdk_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import toolchain_list
@@ -295,8 +296,11 @@ class ToolchainInstaller:
 
             if not os.path.exists(libc_path):
                 # Install libc in chroot if it hasn't already been installed.
+                # TODO(b/322501347): Can we remove this once crossdev installs
+                # the package in the SDK builder?
                 cmd = ["emerge", "--nodeps", "-gf", "=%s" % tc_info.libc_cpf]
-                cros_build_lib.sudo_run(cmd)
+                with cros_sdk_lib.ChrootReadWrite():
+                    cros_build_lib.sudo_run(cmd)
 
             try:
                 self._ExtractLibc(sysroot, tc_info.target, libc_path)

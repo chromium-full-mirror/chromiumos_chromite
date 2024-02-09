@@ -1370,6 +1370,9 @@ class _ChrootWritable:
             read_only: if True, remount read-only; otherwise, remount
                 read/write.
         """
+        logging.debug(
+            "Re-mounting chroot %s", "read-only" if read_only else "read-write"
+        )
         try:
             ro = osutils.MS_RDONLY if read_only else 0
             osutils.Mount(
