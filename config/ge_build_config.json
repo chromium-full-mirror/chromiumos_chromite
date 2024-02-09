@@ -7129,6 +7129,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7224,
           "is_active": true,
+          "stable_target_milestone": 123,
           "is_experimental": true
         },
         {
@@ -7138,6 +7139,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7224,
           "is_active": true,
+          "stable_target_milestone": 123,
           "is_experimental": true
         },
         {
@@ -7147,6 +7149,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7224,
           "is_active": true,
+          "stable_target_milestone": 123,
           "is_experimental": true
         },
         {
@@ -7166,6 +7169,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7224,
           "is_active": true,
+          "stable_target_milestone": 123,
           "is_experimental": true
         },
         {
@@ -7175,11 +7179,12 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7224,
           "is_active": true,
+          "stable_target_milestone": 123,
           "is_experimental": true
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 65,
+      "stable_target_milestone": 123,
       "board_variant": "kernelnext",
       "build_cadence": "DAILY_CADENCE",
       "has_lab_resources": true
@@ -9861,6 +9866,40 @@
       "rubik_target_milestone": 108,
       "stable_target_milestone": 78,
       "build_cadence": "DAILY_CADENCE"
+    },
+    {
+      "name": "kalista-kernelnext",
+      "reference_board_name": "kalista-kernelnext",
+      "arch": "X86_INTERNAL",
+      "builder": "RELEASE",
+      "experimental": true,
+      "models": [
+        {
+          "board_name": "kalista-kernelnext",
+          "name": "karma",
+          "test_suites": [
+            "sanity",
+            "bvt-inline",
+            "bvt-tast-cq",
+            "bvt-installer",
+            "bvt-arc",
+            "bvt-cq",
+            "bvt-perbuild",
+            "bvt-tast-informational"
+          ],
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7225,
+          "is_active": true,
+          "stable_target_milestone": 123,
+          "is_experimental": true
+        }
+      ],
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 123,
+      "board_variant": "kernelnext",
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "kukui",
@@ -15636,6 +15675,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7210,
           "is_active": true,
+          "stable_target_milestone": 123,
           "is_experimental": true
         },
         {
@@ -15645,6 +15685,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7210,
           "is_active": true,
+          "stable_target_milestone": 123,
           "is_experimental": true
         },
         {
@@ -15664,6 +15705,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7210,
           "is_active": true,
+          "stable_target_milestone": 123,
           "is_experimental": true
         },
         {
@@ -15673,11 +15715,12 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7210,
           "is_active": true,
+          "stable_target_milestone": 123,
           "is_experimental": true
         }
       ],
-      "rubik_target_milestone": 103,
-      "stable_target_milestone": 78,
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 123,
       "board_variant": "kernelnext",
       "build_cadence": "DAILY_CADENCE",
       "has_lab_resources": true
