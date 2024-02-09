@@ -798,27 +798,14 @@ class BuildLinter:
         `ebuild $(equery w <package>) info`.
         """
         cros_build_lib.AssertInsideChroot()
-
-        ebuild_command = self.get_ebuild_command()
-        ebuild_file = portage_util.FindEbuildForPackage(
+        ebuild_path = portage_util.FindEbuildForPackage(
             package_atom, self.sysroot
         )
+        repos = portage_util.GetRepositoryForEbuild(ebuild_path, self.sysroot)
+        if repos is None:
+            return False
+        return any("platform2" in repo.srcdir for repo in repos)
 
-        cmd = [ebuild_command, ebuild_file, "info"]
-        output = cros_build_lib.run(
-            cmd, stdout=subprocess.PIPE, encoding="utf-8"
-        ).stdout
-
-        # Example output:
-        #   CROS_WORKON_SRCDIR=("/mnt/host/source/src/platform2")
-        #   CROS_WORKON_PROJECT=("chromiumos/platform2")
-        for line in output.split():
-            if line in [
-                'CROS_WORKON_SRCDIR=("/mnt/host/source/src/platform2")',
-                'CROS_WORKON_PROJECT=("chromiumos/platform2")',
-            ]:
-                return True
-        return False
 
     def _try_to_get_file_contents(
         self,
