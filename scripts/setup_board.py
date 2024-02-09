@@ -19,8 +19,8 @@ from chromite.lib import build_target_lib
 from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import portage_util
+from chromite.lib import telemetry
 from chromite.service import sysroot
-from chromite.utils import telemetry
 
 
 tracer = trace.get_tracer(__name__)

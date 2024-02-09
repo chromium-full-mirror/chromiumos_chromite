@@ -11,8 +11,8 @@ from chromite.third_party.opentelemetry.sdk import trace as trace_sdk
 from chromite.third_party.opentelemetry.sdk.trace import export
 import pytest
 
+from chromite.lib import telemetry
 from chromite.utils import hostname_util
-from chromite.utils import telemetry
 from chromite.utils.telemetry import config
 from chromite.utils.telemetry import exporter
 

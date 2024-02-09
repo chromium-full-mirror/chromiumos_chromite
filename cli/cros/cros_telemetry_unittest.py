@@ -10,7 +10,7 @@ from chromite.cli import command_unittest
 from chromite.cli.cros import cros_telemetry
 from chromite.lib import chromite_config
 from chromite.lib import cros_test_lib
-from chromite.utils import telemetry
+from chromite.utils.telemetry import config
 
 
 pytestmark = cros_test_lib.pytestmark_inside_only
@@ -36,7 +36,7 @@ class TelemetryCommandTest(cros_test_lib.MockTempDirTestCase):
             cmd = MockTelemetryCommand(["--enable"])
             cmd.inst.Run()
 
-        cfg = telemetry.config.Config(path=file)
+        cfg = config.Config(path=file)
         self.assertTrue(config_initialize_mock.called)
         self.assertTrue(cfg.trace_config.has_enabled())
         self.assertTrue(cfg.trace_config.enabled)
@@ -52,7 +52,7 @@ class TelemetryCommandTest(cros_test_lib.MockTempDirTestCase):
             cmd = MockTelemetryCommand(["--disable"])
             cmd.inst.Run()
 
-        cfg = telemetry.config.Config(path=file)
+        cfg = config.Config(path=file)
         self.assertTrue(config_initialize_mock.called)
         self.assertTrue(cfg.trace_config.has_enabled())
         self.assertFalse(cfg.trace_config.enabled)

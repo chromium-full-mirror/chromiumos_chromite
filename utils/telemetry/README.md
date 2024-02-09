@@ -36,7 +36,7 @@ In the script you wish to instrument, you will want to add the following lines
 of code:
 
 ```python
-from chromite.utils import telemetry
+from chromite.lib import telemetry
 
 tracer = telemetry.get_tracer(__name__)
 
@@ -52,7 +52,7 @@ under `service/`, `lib/`, or any other relevant chromite code path. Each
 instrumented file will need a reference to a `Tracer` object.
 
 ```python
-from chromite.utils import telemetry
+from chromite.lib import telemetry
 
 tracer = telemetry.get_tracer(__name__)
 
@@ -64,7 +64,7 @@ def my_important_method():
 or
 
 ```python
-from chromite.utils import telemetry
+from chromite.lib import telemetry
 
 tracer = telemetry.get_tracer(__name__)
 

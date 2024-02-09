@@ -48,8 +48,8 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import namespaces
 from chromite.lib import path_util
+from chromite.lib import telemetry
 from chromite.service import image
-from chromite.utils import telemetry
 from chromite.utils import timer
 
 

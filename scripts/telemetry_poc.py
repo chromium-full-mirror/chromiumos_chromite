@@ -12,7 +12,7 @@ from chromite.third_party.opentelemetry import trace
 
 from chromite.lib import chromite_config
 from chromite.lib import commandline
-from chromite.utils import telemetry
+from chromite.lib import telemetry
 
 
 def get_parser() -> commandline.ArgumentParser:

@@ -12,7 +12,7 @@ from chromite.cli import command
 from chromite.cli import deploy
 from chromite.lib import chromite_config
 from chromite.lib import commandline
-from chromite.utils import telemetry
+from chromite.lib import telemetry
 from chromite.utils import timer
 
 

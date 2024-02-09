@@ -56,8 +56,8 @@ def initialize(
         tracecontext,
     )
 
+    from chromite.lib import telemetry
     from chromite.utils import hostname_util
-    from chromite.utils import telemetry
     from chromite.utils.telemetry import detector
     from chromite.utils.telemetry import exporter
     from chromite.utils.telemetry.trace import otel_trace

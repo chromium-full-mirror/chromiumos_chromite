@@ -20,8 +20,8 @@ from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
+from chromite.lib import telemetry
 from chromite.lib.parser import package_info
-from chromite.utils import telemetry
 
 
 tracer = trace.get_tracer(__name__)

@@ -18,8 +18,8 @@ from chromite.lib import build_target_lib
 from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
+from chromite.lib import telemetry
 from chromite.lib import workon_helper
-from chromite.utils import telemetry
 
 
 tracer = trace.get_tracer(__name__)

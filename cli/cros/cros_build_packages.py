@@ -27,8 +27,8 @@ from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import sysroot_lib
+from chromite.lib import telemetry
 from chromite.service import sysroot
-from chromite.utils import telemetry
 from chromite.utils import timer
 
 

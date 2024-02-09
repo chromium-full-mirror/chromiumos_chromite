@@ -16,7 +16,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import dev_server_wrapper
 from chromite.lib import path_util
 from chromite.lib import sudo
-from chromite.utils import telemetry
+from chromite.lib import telemetry
 from chromite.utils import timer
 from chromite.utils.telemetry import trace
 
