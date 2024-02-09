@@ -6,6 +6,7 @@
 
 import pytest
 
+from chromite.lib import build_target_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import dependency_graph
 from chromite.lib import dependency_lib
@@ -20,9 +21,8 @@ pytestmark = cros_test_lib.pytestmark_inside_only
 class DependencyTests(cros_test_lib.MockTestCase):
     """General unittests for dependency module."""
 
-    def _build_sysroot_depgraph(self):
+    def _build_sysroot_depgraph(self, sysroot="/build/target"):
         """Build a DependencyGraph to test against."""
-        sysroot = "/build/target"
 
         virtual = package_info.parse("virtual/target-foo-1.2.3")
         dep1 = package_info.parse("cat/dep-1.0.0-r1")
@@ -147,6 +147,28 @@ class DependencyTests(cros_test_lib.MockTestCase):
             return_value=(self._build_sysroot_depgraph()),
         )
         sysroot_path = "/build/target"
+        actual_deps = dependency.GetDependencies(sysroot_path)
+        dep1 = package_info.parse("cat/dep-1.0.0-r1")
+        dep2 = package_info.parse("cat/dep-2.0.0-r1")
+        virtual = package_info.parse("virtual/target-foo-1.2.3")
+        virtual_depdep = package_info.parse("virtual/depdep-1.0")
+        depdep = package_info.parse("cat/depdep-2.0.1-r5")
+
+        expected_deps = [dep1, dep2, virtual, virtual_depdep, depdep]
+        self.assertEqual(set(expected_deps), set(actual_deps))
+
+    def testGetDependenciesWithSdkSysroot(self) -> None:
+        """Test GetDependencies with the SDK depgraph."""
+        self.PatchObject(
+            depgraph,
+            "get_sdk_dependency_graph",
+            return_value=(
+                self._build_sysroot_depgraph(
+                    sysroot=build_target_lib.get_sdk_sysroot_path()
+                )
+            ),
+        )
+        sysroot_path = build_target_lib.get_sdk_sysroot_path()
         actual_deps = dependency.GetDependencies(sysroot_path)
         dep1 = package_info.parse("cat/dep-1.0.0-r1")
         dep2 = package_info.parse("cat/dep-2.0.0-r1")

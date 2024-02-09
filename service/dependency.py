@@ -30,8 +30,8 @@ if cros_build_lib.IsInsideChroot():
     from chromite.lib import depgraph
 
 if TYPE_CHECKING:
-    from chromite.lib.dependency_graph import PackageNode
-    from chromite.lib.parser.package_info import PackageInfo
+    from chromite.lib import dependency_graph
+    from chromite.libparser import package_info
 
 
 class Error(Exception):
@@ -112,7 +112,7 @@ def GenerateSourcePathMapping(
 def GetBuildDependency(
     sysroot_path: Optional[str],
     board: Optional[str] = None,
-    packages: Optional[Collection["PackageInfo"]] = None,
+    packages: Optional[Collection["package_info.PackageInfo"]] = None,
 ) -> Tuple[dict, dict]:
     """Return the build dependency and package -> source path map for |board|.
 
@@ -256,15 +256,19 @@ def GetDependencies(
         and src_paths.
     """
     cros_build_lib.AssertInsideChroot()
-    dep_graph = depgraph.get_sysroot_dependency_graph(
-        sysroot_path, packages, with_src_paths=True
+    dep_graph = (
+        depgraph.get_sdk_dependency_graph(packages, with_src_paths=True)
+        if sysroot_path == build_target_lib.get_sdk_sysroot_path()
+        else depgraph.get_sysroot_dependency_graph(
+            sysroot_path, packages, with_src_paths=True
+        )
     )
 
     if not src_paths:
         return set(x.pkg_info for x in dep_graph.get_nodes())
 
     dep_nodes = dep_graph.get_relevant_nodes(src_paths=src_paths)
-    rev_dep_nodes: List["PackageNode"] = []
+    rev_dep_nodes: List["dependency_graph.PackageNode"] = []
     affected_nodes = []
     for dep in dep_nodes:
         if include_rev_dependencies:

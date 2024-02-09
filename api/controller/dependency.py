@@ -100,7 +100,6 @@ def _ListResponse(_request, response, _config) -> None:
 
 @faux.success(_ListResponse)
 @faux.empty_error
-@validate.require("sysroot.build_target.name")
 @validate.exists("sysroot.path")
 @validate.require_each("src_paths", ["path"])
 @validate.require_each("packages", ["category", "package_name"])

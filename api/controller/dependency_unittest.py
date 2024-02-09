@@ -187,15 +187,6 @@ class ListTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         with self.assertRaises(cros_build_lib.DieSystemExit):
             dependency.List(request, self.response, self.api_config)
 
-    def testArgumentValidationMissingBuildTarget(self) -> None:
-        """Test missing build target name."""
-        sysroot = sysroot_pb2.Sysroot(
-            path=self.sysroot, build_target=common_pb2.BuildTarget()
-        )
-        request = depgraph_pb2.ListRequest(sysroot=sysroot)
-        with self.assertRaises(cros_build_lib.DieSystemExit):
-            dependency.List(request, self.response, self.api_config)
-
     def testDefaultArguments(self) -> None:
         """Test with default arguments."""
         sysroot = sysroot_pb2.Sysroot(
