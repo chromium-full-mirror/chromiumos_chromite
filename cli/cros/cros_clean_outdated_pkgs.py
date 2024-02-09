@@ -97,8 +97,6 @@ SYSTEM_PACKAGES = {
     # Many packages require but do not depend on pkgconfig. Toolchain
     # is installing from binary only, complicating reinstall.
     "virtual/pkgconfig",
-    # Many CrOS packages use chromite-sdk but do not depend on it.
-    "chromeos-base/chromite-sdk",
 }
 # pylint: disable=protected-access
 
