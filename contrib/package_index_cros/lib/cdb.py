@@ -16,7 +16,6 @@ from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import path_handler
 from chromite.contrib.package_index_cros.lib import setup
-from chromite.lib import constants
 
 
 class CdbException(Exception):
@@ -195,9 +194,9 @@ class Cdb:
             if arg_prefix == "-I":
                 # Put include path into corresponding ordered location.
                 if actual_path.startswith(self.build_dir):
-                    # build_dir can be inside src/, so it comes before local.
+                    # build_dir can be inside src_dir, so it comes before local.
                     actual_include_args.generated.add(actual_arg)
-                elif actual_path.startswith(str(constants.SOURCE_ROOT / "src")):
+                elif actual_path.startswith(self.setup.src_dir):
                     actual_include_args.local.add(actual_arg)
                 elif actual_path.startswith(
                     self.setup.chroot.path

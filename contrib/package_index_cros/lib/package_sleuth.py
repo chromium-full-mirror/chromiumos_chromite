@@ -12,7 +12,6 @@ from typing import Dict, List, Optional, Set
 from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import setup
-from chromite.lib import constants
 from chromite.lib import portage_util
 from chromite.lib.parser import package_info
 
@@ -33,7 +32,7 @@ class PackageSleuth:
         self.overlays = portage_util.FindOverlays(
             overlay_type=portage_util.constants.BOTH_OVERLAYS,
             board=self.setup.board,
-            buildroot=constants.SOURCE_ROOT,
+            buildroot=self.setup.cros_dir,
         )
 
     def list_packages(
