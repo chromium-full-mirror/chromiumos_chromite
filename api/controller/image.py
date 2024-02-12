@@ -661,9 +661,10 @@ def PushImage(
         logging.error("Push image error", exc_info=True)
         return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
-    for uris in channel_to_uris.values():
-        for uri in uris:
-            response.instructions.add().instructions_file_path = uri
+    if channel_to_uris:
+        for uris in channel_to_uris.values():
+            for uri in uris:
+                response.instructions.add().instructions_file_path = uri
     return controller.RETURN_CODE_SUCCESS
 
 
