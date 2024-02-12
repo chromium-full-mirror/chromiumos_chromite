@@ -11,8 +11,6 @@ import os
 from pathlib import Path
 from typing import Iterable, List, Optional
 
-from chromite.third_party.opentelemetry import trace
-
 from chromite.lib import build_query
 from chromite.lib import chromite_config
 from chromite.lib import commandline
@@ -22,6 +20,7 @@ from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib import telemetry
 from chromite.lib.parser import package_info
+from chromite.lib.telemetry import trace
 
 
 tracer = trace.get_tracer(__name__)

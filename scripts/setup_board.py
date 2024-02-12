@@ -13,13 +13,12 @@ headers, gcc-libs).
 import argparse
 import logging
 
-from chromite.third_party.opentelemetry import trace
-
 from chromite.lib import build_target_lib
 from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import portage_util
 from chromite.lib import telemetry
+from chromite.lib.telemetry import trace
 from chromite.service import sysroot
 
 

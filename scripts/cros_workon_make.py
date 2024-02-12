@@ -12,14 +12,13 @@ migrated to python from chromiumos/src/scripts/cros_workon_make.
 import logging
 from typing import List, Optional
 
-from chromite.third_party.opentelemetry import trace
-
 from chromite.lib import build_target_lib
 from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import telemetry
 from chromite.lib import workon_helper
+from chromite.lib.telemetry import trace
 
 
 tracer = trace.get_tracer(__name__)

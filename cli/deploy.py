@@ -21,8 +21,6 @@ import re
 import tempfile
 from typing import Dict, List, NamedTuple, Set, Tuple
 
-from chromite.third_party.opentelemetry import trace
-
 from chromite.cli import command
 from chromite.lib import build_target_lib
 from chromite.lib import constants
@@ -34,6 +32,7 @@ from chromite.lib import portage_util
 from chromite.lib import remote_access
 from chromite.lib import workon_helper
 from chromite.lib.parser import package_info
+from chromite.lib.telemetry import trace
 
 
 try:
@@ -41,6 +40,9 @@ try:
 except ImportError:
     if cros_build_lib.IsInsideChroot():
         raise
+
+
+tracer = trace.get_tracer(__name__)
 
 
 _DEVICE_BASE_DIR = "/usr/local/tmp/cros-deploy"
@@ -1631,9 +1633,6 @@ def _GetDLCInfo(
             logging.info("Installing DLC in rootfs.")
             return None, None
         return content.get(_DLC_ID), content.get(_DLC_PACKAGE)
-
-
-tracer = trace.get_tracer(__name__)
 
 
 @tracer.start_as_current_span("cli.deploy")

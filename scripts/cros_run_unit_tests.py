@@ -10,7 +10,7 @@ import multiprocessing
 import os
 from typing import Set
 
-from chromite.third_party.opentelemetry import trace
+from chromite.third_party.opentelemetry.trace import status
 
 from chromite.lib import build_target_lib
 from chromite.lib import chromite_config
@@ -23,6 +23,7 @@ from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import telemetry
 from chromite.lib import workon_helper
+from chromite.lib.telemetry import trace
 from chromite.scripts import cros_extract_deps
 
 
@@ -292,7 +293,7 @@ def inner_main(opts: commandline.ArgumentNamespace):
             )
         except cros_build_lib.RunCommandError:
             logging.error("Failed building dependencies for unittests.")
-            span.set_status(trace.StatusCode.ERROR, "FAILED_DEPS_BUILD")
+            span.set_status(status.StatusCode.ERROR, "FAILED_DEPS_BUILD")
             return 1
 
     try:
@@ -306,5 +307,5 @@ def inner_main(opts: commandline.ArgumentNamespace):
         )
     except cros_build_lib.RunCommandError:
         logging.error("Unittests failed.")
-        span.set_status(trace.StatusCode.ERROR, "FAILED_UNITTESTS")
+        span.set_status(status.StatusCode.ERROR, "FAILED_UNITTESTS")
         return 1

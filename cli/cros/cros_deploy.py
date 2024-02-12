@@ -6,13 +6,12 @@
 
 import logging
 
-from chromite.third_party.opentelemetry import trace
-
 from chromite.cli import command
 from chromite.cli import deploy
 from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import telemetry
+from chromite.lib.telemetry import trace
 from chromite.utils import timer
 
 

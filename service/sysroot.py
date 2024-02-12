@@ -27,8 +27,6 @@ from typing import (
 )
 import urllib
 
-from chromite.third_party.opentelemetry import trace
-
 from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
 from chromite.lib import cache
 from chromite.lib import chromite_config
@@ -42,6 +40,7 @@ from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib import workon_helper
+from chromite.lib.telemetry import trace
 from chromite.service import binhost as binhost_service
 from chromite.service import sdk as sdk_service
 

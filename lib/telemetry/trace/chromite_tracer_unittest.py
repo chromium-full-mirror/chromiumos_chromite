@@ -11,7 +11,7 @@ from chromite.third_party.opentelemetry import trace as trace_api
 from chromite.third_party.opentelemetry.sdk import trace as trace_sdk
 from chromite.third_party.opentelemetry.sdk.trace import export as export_sdk
 
-from chromite.utils.telemetry.trace import otel_trace
+from chromite.lib.telemetry.trace import chromite_tracer
 
 
 class SpanExporterStub(export_sdk.SpanExporter):
@@ -44,7 +44,9 @@ class ExceptionWithFailedPackages(Exception):
 def test_chromite_span_to_capture_keyboard_interrupt_as_decorator() -> None:
     """Test chromite span can capture KeyboardInterrupt as decorator."""
     exporter = SpanExporterStub()
-    provider = otel_trace.ChromiteTracerProvider(trace_sdk.TracerProvider())
+    provider = chromite_tracer.ChromiteTracerProvider(
+        trace_sdk.TracerProvider()
+    )
     provider.add_span_processor(
         export_sdk.BatchSpanProcessor(span_exporter=exporter)
     )
@@ -71,7 +73,9 @@ def test_chromite_span_to_capture_keyboard_interrupt_as_decorator() -> None:
 def test_chromite_span_to_capture_keyboard_interrupt_in_context() -> None:
     """Test chromite span can capture KeyboardInterrupt in context."""
     exporter = SpanExporterStub()
-    provider = otel_trace.ChromiteTracerProvider(trace_sdk.TracerProvider())
+    provider = chromite_tracer.ChromiteTracerProvider(
+        trace_sdk.TracerProvider()
+    )
     provider.add_span_processor(
         export_sdk.BatchSpanProcessor(span_exporter=exporter)
     )
@@ -95,7 +99,9 @@ def test_chromite_span_to_capture_keyboard_interrupt_in_context() -> None:
 def test_chromite_span_to_capture_failed_packages_in_context() -> None:
     """Test chromite span can capture failed_packages in context."""
     exporter = SpanExporterStub()
-    provider = otel_trace.ChromiteTracerProvider(trace_sdk.TracerProvider())
+    provider = chromite_tracer.ChromiteTracerProvider(
+        trace_sdk.TracerProvider()
+    )
     provider.add_span_processor(
         export_sdk.BatchSpanProcessor(span_exporter=exporter)
     )
@@ -127,7 +133,9 @@ def test_chromite_span_to_capture_failed_packages_in_context() -> None:
 def test_chromite_span_to_capture_failed_packages_as_decorator() -> None:
     """Test chromite span can capture failed_packages as decorator."""
     exporter = SpanExporterStub()
-    provider = otel_trace.ChromiteTracerProvider(trace_sdk.TracerProvider())
+    provider = chromite_tracer.ChromiteTracerProvider(
+        trace_sdk.TracerProvider()
+    )
     provider.add_span_processor(
         export_sdk.BatchSpanProcessor(span_exporter=exporter)
     )

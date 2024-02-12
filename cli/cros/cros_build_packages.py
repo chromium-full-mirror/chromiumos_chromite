@@ -19,8 +19,6 @@ import os
 import urllib.error
 import urllib.request
 
-from chromite.third_party.opentelemetry import trace
-
 from chromite.cli import command
 from chromite.lib import build_target_lib
 from chromite.lib import chromite_config
@@ -28,8 +26,12 @@ from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import sysroot_lib
 from chromite.lib import telemetry
+from chromite.lib.telemetry import trace
 from chromite.service import sysroot
 from chromite.utils import timer
+
+
+tracer = trace.get_tracer(__name__)
 
 
 def build_shell_bool_style_args(
@@ -68,9 +70,6 @@ def build_shell_bool_style_args(
         dest=dest,
         help="Don't " + help_str.lower(),
     )
-
-
-tracer = trace.get_tracer(__name__)
 
 
 @command.command_decorator("build-packages")

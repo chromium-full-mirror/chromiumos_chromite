@@ -57,10 +57,10 @@ def initialize(
     )
 
     from chromite.lib import telemetry
+    from chromite.lib.telemetry.trace import chromite_tracer
     from chromite.utils import hostname_util
     from chromite.utils.telemetry import detector
     from chromite.utils.telemetry import exporter
-    from chromite.utils.telemetry.trace import otel_trace
 
     # Need this to globally mark telemetry initialized to enable real imports.
     # pylint: disable=global-statement
@@ -86,7 +86,7 @@ def initialize(
     )
 
     resource = detected_resource.merge(default_resource)
-    tracer_provider = otel_trace.ChromiteTracerProvider(
+    tracer_provider = chromite_tracer.ChromiteTracerProvider(
         otel_trace_sdk.TracerProvider(resource=resource)
     )
     otel_trace_api.set_tracer_provider(tracer_provider)
@@ -169,8 +169,8 @@ class ProxyTracer:
     def start_as_current_span(
         self, *args: Any, **kwargs: Any
     ) -> Union[Iterator["span.Span"], Iterator["NoOpSpan"]]:
-        with self._tracer.start_as_current_span(*args, **kwargs) as span:
-            yield span
+        with self._tracer.start_as_current_span(*args, **kwargs) as s:
+            yield s
 
     def start_span(
         self, *args: Any, **kwargs: Any

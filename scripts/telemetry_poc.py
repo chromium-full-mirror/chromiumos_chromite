@@ -8,11 +8,13 @@ import argparse
 import time
 from typing import List, Optional
 
-from chromite.third_party.opentelemetry import trace
-
 from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import telemetry
+from chromite.lib.telemetry import trace
+
+
+tracer = trace.get_tracer(__name__)
 
 
 def get_parser() -> commandline.ArgumentParser:
@@ -37,9 +39,6 @@ def parse_arguments(argv: List) -> argparse.Namespace:
 
     opts.Freeze()
     return opts
-
-
-tracer = trace.get_tracer(__name__)
 
 
 def main(argv: Optional[List[str]]) -> Optional[int]:

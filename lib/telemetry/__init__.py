@@ -55,8 +55,8 @@ def initialize(
 
     # Importing this inside the function to avoid performance overhead from the
     # global package import.
+    from chromite.lib.telemetry import trace
     from chromite.utils.telemetry import config
-    from chromite.utils.telemetry import trace
 
     cfg = config.Config(config_file)
     if enable is not None:

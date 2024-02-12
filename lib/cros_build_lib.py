@@ -39,9 +39,9 @@ from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import constants
 from chromite.lib import osutils
 from chromite.lib import signals
+from chromite.lib.telemetry import trace
 from chromite.utils import hostname_util
 from chromite.utils import os_util
-from chromite.utils.telemetry import trace
 
 
 STRICT_SUDO = False

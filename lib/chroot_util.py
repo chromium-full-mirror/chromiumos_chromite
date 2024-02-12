@@ -7,17 +7,17 @@
 import os
 from typing import Dict, List, Optional, Set, Union
 
-from chromite.third_party.opentelemetry import trace
-
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import sysroot_lib
+from chromite.lib.telemetry import trace
 
 
 if cros_build_lib.IsInsideChroot():
     # These import libraries outside chromite.
     from chromite.scripts import cros_list_modified_packages as workon
     from chromite.scripts import cros_setup_toolchains as toolchain
+
 
 tracer = trace.get_tracer(__name__)
 

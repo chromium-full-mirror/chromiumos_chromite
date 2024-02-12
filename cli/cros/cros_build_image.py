@@ -38,7 +38,6 @@ from pathlib import Path
 import sys
 from typing import Iterable, List, Optional, TYPE_CHECKING
 
-from chromite.third_party.opentelemetry import trace
 from chromite.third_party.opentelemetry.trace import status
 
 from chromite.cli import command
@@ -49,12 +48,16 @@ from chromite.lib import cros_build_lib
 from chromite.lib import namespaces
 from chromite.lib import path_util
 from chromite.lib import telemetry
+from chromite.lib.telemetry import trace
 from chromite.service import image
 from chromite.utils import timer
 
 
 if TYPE_CHECKING:
     from chromite.lib.parser import package_info
+
+
+tracer = trace.get_tracer(__name__)
 
 
 class Error(Exception):
@@ -197,9 +200,6 @@ def build_shell_string_style_args(
         deprecated=deprecation_note % f"--{alternate_name}",
         help=argparse.SUPPRESS,
     )
-
-
-tracer = trace.get_tracer(__name__)
 
 
 @command.command_decorator("build-image")

@@ -17,8 +17,8 @@ from chromite.lib import dev_server_wrapper
 from chromite.lib import path_util
 from chromite.lib import sudo
 from chromite.lib import telemetry
+from chromite.lib.telemetry import trace
 from chromite.utils import timer
-from chromite.utils.telemetry import trace
 
 
 tracer = trace.get_tracer(__name__)
