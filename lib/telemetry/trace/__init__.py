@@ -5,9 +5,12 @@
 """The trace package for chromite telemetry."""
 
 import contextlib
+import datetime
+import functools
 import os
 import sys
 from typing import Any, Dict, Iterator, Mapping, Optional, TYPE_CHECKING, Union
+import uuid
 
 
 if TYPE_CHECKING:
@@ -19,16 +22,52 @@ _TRACING_INITIALIZED = False
 TRACEPARENT_ENVVAR = "traceparent"
 
 
+@functools.lru_cache
+def _get_trace_dir():
+    from chromite.lib import osutils
+    from chromite.lib import path_util
+
+    path = path_util.get_log_dir() / "telemetry"
+
+    now = datetime.datetime.now()
+    date = now.strftime("%Y-%m-%d")
+    time = now.strftime("%H-%M-%S")
+    pid = os.getpid()
+    script = os.path.basename(sys.argv[0])
+
+    path /= date
+    path /= f"{script}--{time}--{pid}"
+
+    osutils.SafeMakedirsNonRoot(path)
+
+    return path
+
+
+@functools.lru_cache
+def _get_trace_path():
+    from chromite.lib import osutils
+    from chromite.utils import os_util
+
+    path = _get_trace_dir() / f"{uuid.uuid4()}.otel.traces.json"
+
+    path.touch()
+    if os_util.is_root_user() and os_util.get_non_root_user():
+        osutils.Chown(path, os_util.get_non_root_user())
+
+    return path
+
+
 def initialize(
     enabled: bool = False,
     log_traces: bool = False,
     development_mode: bool = False,
     user_uuid: str = "",
+    batch: bool = False,
 ) -> None:
     """Initialize opentelemetry tracing.
 
     For most use cases, `telemetry.initialize` should be used since that also
-    takes case of any consent and other auxilliary logic related to telemetry.
+    takes case of any consent and other auxiliary logic related to telemetry.
 
     Args:
         enabled: Indicates is the traces should be enabled.
@@ -36,6 +75,7 @@ def initialize(
         development_mode: Mark the telemetry as in development, so it can be
             easily identified as such later, e.g. filtered out of queries.
         user_uuid: The user's UUID.
+        batch: Write telemetry to files for batch publishing.
     """
 
     # The opentelemetry imports are moved inside this function to reduce the
@@ -57,10 +97,11 @@ def initialize(
     )
 
     from chromite.lib import telemetry
+    from chromite.lib.telemetry import exporter
     from chromite.lib.telemetry.trace import chromite_tracer
     from chromite.utils import hostname_util
     from chromite.utils.telemetry import detector
-    from chromite.utils.telemetry import exporter
+    from chromite.utils.telemetry import exporter as utils_exporter
 
     # Need this to globally mark telemetry initialized to enable real imports.
     # pylint: disable=global-statement
@@ -102,9 +143,19 @@ def initialize(
         return
 
     if enabled:
-        tracer_provider.add_span_processor(
-            otel_export.BatchSpanProcessor(exporter.ClearcutSpanExporter())
-        )
+        if batch:
+            path = _get_trace_path()
+            tracer_provider.add_span_processor(
+                otel_export.BatchSpanProcessor(
+                    exporter.ChromiteFileExporter(path)
+                )
+            )
+        else:
+            tracer_provider.add_span_processor(
+                otel_export.BatchSpanProcessor(
+                    utils_exporter.ClearcutSpanExporter()
+                )
+            )
 
     if TRACEPARENT_ENVVAR in os.environ:
         ctx = tracecontext.TraceContextTextMapPropagator().extract(os.environ)

@@ -48,10 +48,6 @@ def initialize(
         enable: Indicates if the traces should be enabled.
         publish: Fork background process to publish telemetry.
     """
-    # Publish in a background process.
-    if publish:
-        _fork_and_publish()
-
     # Importing this inside the function to avoid performance overhead from the
     # global package import.
     from chromite.lib import chromite_config
@@ -82,11 +78,16 @@ def initialize(
         cfg.trace_config.gen_id()
         cfg.flush()
 
+    # Publish pending telemetry in a background process.
+    if publish:
+        _fork_and_publish()
+
     trace.initialize(
         enabled=cfg.trace_config.enabled,
         log_traces=log_traces,
         development_mode=cfg.trace_config.dev_flag,
         user_uuid=cfg.trace_config.user_uuid(),
+        batch=cfg.trace_config.batch,
     )
 
 
