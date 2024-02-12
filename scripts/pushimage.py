@@ -39,6 +39,8 @@ TEST_KEYSET_PREFIX = "test-keys"
 TEST_KEYSETS = {"mp", "premp", "nvidia-premp"}
 
 # Supported image types for signing.
+# These are kept in sync with SUPPORTED_SIGN_TYPES in
+# infra/recipes/recipe_modules/cros_release/api.py.
 _SUPPORTED_IMAGE_TYPES = (
     constants.IMAGE_TYPE_RECOVERY,
     constants.IMAGE_TYPE_FACTORY,
