@@ -19,6 +19,7 @@ DEFAULT = {
     "*.h++",
     "*.hxx",
     "*.proto",
+    "*.rlib",
     "*/.keep*",
     "/build/bin",
     "/build/initramfs",
