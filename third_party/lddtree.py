@@ -396,6 +396,9 @@ def ParseELF(path, root='/', prefix='', ldpaths={'conf':[], 'env':[], 'interp':[
     except exceptions.ELFParseError:
       warn('ELFParser failed to parse %s' % (path,))
       raise
+    except exceptions.ELFError:
+      warn('ELFParser encountered an unknown error for %s' % (path,))
+      raise
 
     # If this is the first ELF, extract the interpreter.
     if _first:
