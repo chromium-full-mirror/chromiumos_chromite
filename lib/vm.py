@@ -171,6 +171,8 @@ class VM(device.Device):
         self.qemu_bios_path = opts.qemu_bios_path
         self.qemu_m = opts.qemu_m
         self.qemu_cpu = opts.qemu_cpu
+        # x86_64 is used by default instead of aarch64
+        self.is_x86 = True
         self.qemu_smp = opts.qemu_smp
         if self.qemu_smp == 0:
             self.qemu_smp = min(8, multiprocessing.cpu_count())
@@ -309,11 +311,10 @@ class VM(device.Device):
 
     def _SetQemuPath(self) -> None:
         """Find a suitable Qemu executable."""
-        # TODO: b/321778557 - Remove hacking "arm64" check.
-        if self.board.startswith("arm64"):
-            qemu_exe = "qemu-system-aarch64"
-        else:
+        if self.is_x86:
             qemu_exe = "qemu-system-x86_64"
+        else:
+            qemu_exe = "qemu-system-aarch64"
 
         # Pull from CIPD if needed.
         if not self.qemu_path:
@@ -389,10 +390,15 @@ class VM(device.Device):
         Raises:
             DieSystemExit: If a board cannot be found.
         """
-        if self.board:
-            return
-        sdk_board_env = os.environ.get(cros_chrome_sdk.SDKFetcher.SDK_BOARD_ENV)
-        self.board = cros_build_lib.GetBoard(sdk_board_env, strict=True)
+        if not self.board:
+            sdk_board_env = os.environ.get(
+                cros_chrome_sdk.SDKFetcher.SDK_BOARD_ENV
+            )
+            self.board = cros_build_lib.GetBoard(sdk_board_env, strict=True)
+
+        # TODO: b/321778557 - Remove hacking "arm64" check.
+        if self.board.startswith("arm64"):
+            self.is_x86 = False
 
     def _WaitForSSHPort(self, sleep=5) -> None:
         """Wait for SSH port to become available."""
@@ -517,20 +523,17 @@ class VM(device.Device):
         if not self.display:
             qemu_args += ["-display", "none"]
 
-        # TODO: b/321778557 - Remove hacking "arm64" check.
-        if self.board.startswith("arm64"):
-            qemu_args += [
-                "-M",
-                "virt",
-                "-accel",
-                "tcg",
-                "-vga",
-                "none",
-            ]
-        else:
+        if self.is_x86:
             qemu_args += [
                 "-vga",
                 "virtio",
+            ]
+        else:
+            qemu_args += [
+                "-M",
+                "virt",
+                "-vga",
+                "none",
             ]
 
         return qemu_args
