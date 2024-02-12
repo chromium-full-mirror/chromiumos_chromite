@@ -1100,6 +1100,105 @@ class BundleGceTarballTest(BundleTestCase):
             )
 
 
+class FetchCentralizedSuitesTestCase(
+    cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
+):
+    """Unittests for FetchCentralizedSuites."""
+
+    sysroot_path = "/build/coral"
+    chroot_name = "chroot"
+
+    def setUp(self) -> None:
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+        self.chroot = chroot_lib.Chroot(
+            path=self.tempdir / "chroot",
+            out_path=self.tempdir / "out",
+        )
+        pathlib.Path(self.chroot.path).touch()
+        self.chroot.out_path.touch()
+        self.expected_suite_set_file = self.chroot.full_path(
+            "/build/coral/usr/share/centralized-suites/suite_sets.pb"
+        )
+        self.expected_suite_file = self.chroot.full_path(
+            "/build/coral/usr/share/centralized-suites/suites.pb"
+        )
+        self.expected_mock_suite_set = "/centralized-suites/suite_sets.pb"
+        self.expected_mock_suite = "/centralized-suites/suites.pb"
+        self.PatchObject(cros_build_lib, "AssertOutsideChroot")
+
+    def createFetchCentralizedSuitesRequest(
+        self, use_sysroot_path=True, use_chroot=True
+    ):
+        """Construct a FetchCentralizedSuitesRequest for use in test cases."""
+        request = artifacts_pb2.FetchCentralizedSuitesRequest()
+        if use_sysroot_path:
+            request.sysroot.path = self.sysroot_path
+        if use_chroot:
+            request.chroot.path = self.chroot.path
+            request.chroot.out_path = str(self.chroot.out_path)
+        return request
+
+    def testValidateOnly(self) -> None:
+        """Check that a validate only call does not execute any logic."""
+        patch = self.PatchObject(controller_util, "ParseSysroot")
+        request = self.createFetchCentralizedSuitesRequest()
+        response = artifacts_pb2.FetchCentralizedSuitesResponse()
+        artifacts.FetchCentralizedSuites(
+            request, response, self.validate_only_config
+        )
+        patch.assert_not_called()
+
+    def testMockCall(self) -> None:
+        """Test a mock call does not execute logic, returns mocked value."""
+        patch = self.PatchObject(controller_util, "ParseSysroot")
+        request = self.createFetchCentralizedSuitesRequest()
+        response = artifacts_pb2.FetchCentralizedSuitesResponse()
+        artifacts.FetchCentralizedSuites(
+            request, response, self.mock_call_config
+        )
+        patch.assert_not_called()
+        self.assertEqual(
+            response.suite_set_file.path.path, self.expected_mock_suite_set
+        )
+        self.assertEqual(
+            response.suite_file.path.path, self.expected_mock_suite
+        )
+
+    def testNoSysrootPath(self) -> None:
+        """Check that a request with no sysroot.path results in failure."""
+        request = self.createFetchCentralizedSuitesRequest(
+            use_sysroot_path=False
+        )
+        response = artifacts_pb2.FetchCentralizedSuitesResponse()
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            artifacts.FetchCentralizedSuites(request, response, self.api_config)
+
+    def testNoChroot(self) -> None:
+        """Check that a request with no chroot results in failure."""
+        request = self.createFetchCentralizedSuitesRequest(use_chroot=False)
+        response = artifacts_pb2.FetchCentralizedSuitesResponse()
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            artifacts.FetchCentralizedSuites(request, response, self.api_config)
+
+    def testSuccess(self) -> None:
+        """Check that a well-formed request yields the expected results."""
+        request = self.createFetchCentralizedSuitesRequest(use_chroot=True)
+        response = artifacts_pb2.FetchCentralizedSuitesResponse()
+        artifacts.FetchCentralizedSuites(request, response, self.api_config)
+        self.assertEqual(
+            response.suite_set_file.path.path, self.expected_suite_set_file
+        )
+        self.assertEqual(
+            response.suite_file.path.path, self.expected_suite_file
+        )
+        self.assertEqual(
+            response.suite_set_file.path.location, common_pb2.Path.OUTSIDE
+        )
+        self.assertEqual(
+            response.suite_file.path.location, common_pb2.Path.OUTSIDE
+        )
+
+
 class FetchMetadataTestCase(
     cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
 ):

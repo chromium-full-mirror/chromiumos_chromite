@@ -877,6 +877,32 @@ def GatherCodeCoverageGolang(
     return coverage_data
 
 
+def FindSuiteSetFile(
+    chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
+) -> str:
+    """Find the full path to the SuiteSet proto file.
+
+    This file is installed during the dev-util/centralized-suites ebuild.
+    """
+    cros_build_lib.AssertOutsideChroot()
+    return chroot.full_path(
+        sysroot.JoinPath("usr", "share", "centralized-suites", "suite_sets.pb")
+    )
+
+
+def FindSuiteFile(
+    chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
+) -> str:
+    """Find the full path to the Suite proto file.
+
+    This file is installed during the dev-util/centralized-suites ebuild.
+    """
+    cros_build_lib.AssertOutsideChroot()
+    return chroot.full_path(
+        sysroot.JoinPath("usr", "share", "centralized-suites", "suites.pb")
+    )
+
+
 def FindAllMetadataFiles(
     chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
 ) -> List[str]:

@@ -472,6 +472,58 @@ def FetchPinnedGuestImageUris(_request, _response, _config) -> None:
     pass
 
 
+def _FetchCentralizedSuitesResponse(
+    _request: artifacts_pb2.FetchCentralizedSuitesRequest,
+    response: artifacts_pb2.FetchCentralizedSuitesResponse,
+    _config: "api_config.ApiConfig",
+) -> Optional[int]:
+    """Populate the response with sample data."""
+    response.suite_set_file.path.CopyFrom(
+        common_pb2.Path(
+            path="/centralized-suites/suite_sets.pb",
+            location=common_pb2.Path.OUTSIDE,
+        )
+    )
+    response.suite_file.path.CopyFrom(
+        common_pb2.Path(
+            path="/centralized-suites/suites.pb",
+            location=common_pb2.Path.OUTSIDE,
+        )
+    )
+    return controller.RETURN_CODE_SUCCESS
+
+
+@faux.success(_FetchCentralizedSuitesResponse)
+@faux.empty_error
+@validate.exists("chroot.path")
+@validate.require("sysroot.path")
+@validate.validation_complete
+def FetchCentralizedSuites(
+    request: artifacts_pb2.FetchCentralizedSuitesRequest,
+    response: artifacts_pb2.FetchCentralizedSuitesResponse,
+    _config: "api_config.ApiConfig",
+) -> Optional[int]:
+    """FetchCentralizedSuites returns the paths to the centralized suite files.
+
+    This implements ArtifactsService.FetchCentralizedSuites.
+    """
+    chroot = controller_util.ParseChroot(request.chroot)
+    sysroot = controller_util.ParseSysroot(request.sysroot)
+    response.suite_set_file.path.CopyFrom(
+        common_pb2.Path(
+            path=test.FindSuiteSetFile(chroot, sysroot),
+            location=common_pb2.Path.OUTSIDE,
+        )
+    )
+    response.suite_file.path.CopyFrom(
+        common_pb2.Path(
+            path=test.FindSuiteFile(chroot, sysroot),
+            location=common_pb2.Path.OUTSIDE,
+        )
+    )
+    return controller.RETURN_CODE_SUCCESS
+
+
 def _FetchMetadataResponse(_request, response, _config) -> Optional[int]:
     """Populate the response with sample data."""
     for fp in ("/metadata/foo.txt", "/metadata/bar.jsonproto"):
