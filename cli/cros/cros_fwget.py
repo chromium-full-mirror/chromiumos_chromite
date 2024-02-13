@@ -33,17 +33,17 @@ Examples:
     Download and extract the entire contents of the unsigned version
     R89-13606.459.0 Dedede firmware archive to a temporary directory.
 
-        cros fwget fwbuddy://dedede/galith/galtic/R89-13606.459.0/unsigned
+        cros fwget fwbuddy://dedede/galtic/R89-13606.459.0/unsigned
 
     Download and extract the unsigned EC binary for Galtic firmware
     verision R89-13606.459.0 to the downloads folder.
 
-        cros fwget fwbuddy://dedede/galith/galtic/R89-13606.459.0/unsigned ~/Downloads --chip=ec
+        cros fwget fwbuddy://dedede/galtic/R89-13606.459.0/unsigned ~/Downloads --chip=ec
 
     Download and extract the signed serial AP binary for Cozmo firmware
     verision R79-12574.111.0 to the downloads folder.
 
-        cros fwget fwbuddy://jacuzzi/cozmo/cozmo/R79-12574.111.0/signed/serial ~/Downloads --chip=ap
+        cros fwget fwbuddy://jacuzzi/cozmo/R79-12574.111.0/signed/serial ~/Downloads --chip=ap
 """
 
     @classmethod

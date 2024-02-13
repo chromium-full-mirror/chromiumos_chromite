@@ -22,9 +22,7 @@ from chromite.lib import gs
 from chromite.lib.fwbuddy import fwbuddy
 
 
-GENERIC_VALID_URI = (
-    "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed/serial"
-)
+GENERIC_VALID_URI = "fwbuddy://dedede/galtic/R99-123.456.0/signed/serial"
 
 FAKE_FIRMWARE_QUALS_DATA = """{
     "firmware_quals": [
@@ -72,7 +70,6 @@ def test_parse_uri(setup: Path) -> None:
     """Tests that we can properly convert a uri string into a URI object"""
     assert fwbuddy.parse_uri(GENERIC_VALID_URI) == fwbuddy.URI(
         board="dedede",
-        model="galnat360",
         firmware_name="galtic",
         version="R99-123.456.0",
         image_type="signed",
@@ -80,10 +77,9 @@ def test_parse_uri(setup: Path) -> None:
     )
 
     assert fwbuddy.parse_uri(
-        "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed"
+        "fwbuddy://dedede/galtic/R99-123.456.0/signed"
     ) == fwbuddy.URI(
         board="dedede",
-        model="galnat360",
         firmware_name="galtic",
         version="R99-123.456.0",
         image_type="signed",
@@ -96,9 +92,7 @@ def test_parse_uri(setup: Path) -> None:
 
     # Wrong header
     with pytest.raises(fwbuddy.FwBuddyException):
-        fwbuddy.parse_uri(
-            "fwbozo://dedede/galnat360/galtic/R99-123.456.0/unsigned"
-        )
+        fwbuddy.parse_uri("fwbozo://dedede/galtic/R99-123.456.0/unsigned")
 
 
 def test_parse_release_string(setup: Path) -> None:
@@ -126,7 +120,6 @@ def test_generate_unsigned_gspaths(setup: Path) -> None:
 
     fw_image = fwbuddy.FwImage(
         board="dedede",
-        model="",
         firmware_name="galtic",
         release=fwbuddy.parse_release_string("R89-13606.459.0"),
         branches=set(["some-branch-name"]),
@@ -167,7 +160,6 @@ def test_generate_gspaths_no_branches(setup: Path) -> None:
 
     fw_image = fwbuddy.FwImage(
         board="dedede",
-        model="",
         firmware_name="galtic",
         release=fwbuddy.parse_release_string("R89-13606.459.0"),
         branches=set(),
@@ -218,7 +210,6 @@ def test_generate_signed_gspaths(setup: Path) -> None:
     """Tests that we can generate signed gspaths using our schemas."""
     fw_image = fwbuddy.FwImage(
         board="dedede",
-        model="",
         firmware_name="galtic",
         release=fwbuddy.parse_release_string("R89-13606.459.0"),
         branches=set("firmware-dedede-13606.B"),
@@ -262,9 +253,7 @@ def test_extract(setup: Path, run_mock: cros_test_lib.RunCommandMock) -> None:
     assert f.ap_path == Path("tmp/image-galtic.serial.bin")
 
     # AP and EC image path extraction
-    f = fwbuddy.FwBuddy(
-        "fwbuddy://dedede/galnat360/galtic/R99-123.456.0/signed"
-    )
+    f = fwbuddy.FwBuddy("fwbuddy://dedede/galtic/R99-123.456.0/signed")
     f.archive_path = Path("/unused")
     f.extract("tmp")
     assert f.ap_path == Path("tmp/image-galtic.bin")
@@ -330,7 +319,7 @@ def test_get_uri_interactive(
         builtins, "input", lambda *args, **kwargs: f"{increment_num()}"
     )
 
-    assert fwbuddy.get_uri_interactive() == "fwbuddy://1/2/3/4/5/6/"
+    assert fwbuddy.get_uri_interactive() == "fwbuddy://1/2/3/4/5/"
 
 
 def test_interactive_mode(

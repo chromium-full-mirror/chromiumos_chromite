@@ -38,7 +38,6 @@ class URI(NamedTuple):
     """All fwbuddy parameters in tuple form"""
 
     board: str
-    model: str
     firmware_name: str
     version: str
     image_type: str
@@ -58,7 +57,6 @@ class FwImage(NamedTuple):
     """All of the parameters that identify a unique firmware image"""
 
     board: str
-    model: str
     firmware_name: str
     release: Release
     branches: Set[str]
@@ -67,7 +65,7 @@ class FwImage(NamedTuple):
 
 
 FWBUDDY_URI_SCHEMA = (
-    "fwbuddy://<board>/<model>/<firmware-name>/<version>/<image-type>/"
+    "fwbuddy://<board>/<firmware-name>/<version>/<image-type>/"
     "<firmware-type>"
 )
 
@@ -80,17 +78,6 @@ FIELD_DOCS = {
             "be able to run the image for their respective boards."
         ),
         examples="dedede, octopus, brya, etc.",
-        required=True,
-        strict=False,
-    ),
-    "model": FieldDoc(
-        description=(
-            "A model generally refers to a ChromeOS device that is "
-            "unique in the market. A model typically maintains the major "
-            "hardware components of its parent board but may vary in minor "
-            "elements of one or more of: physical design, OEM, or ODM"
-        ),
-        examples="galnat360, dood, redrix, etc.",
         required=True,
         strict=False,
     ),
@@ -201,10 +188,8 @@ BUG_SUBMIT_URL = (
 INTERACTIVE_MODE = ["fwbuddy", "fwbuddy://"]
 
 # TODO(b/280096504) Add support for channel specific versions.
-STABLE = "stable"
-STABLE_RO = "stable-ro"
 LATEST = "latest"
-PINNED_VERSIONS = [STABLE, STABLE_RO, LATEST]
+PINNED_VERSIONS = [LATEST]
 
 SIGNED = "signed"
 UNSIGNED = "unsigned"
@@ -293,7 +278,7 @@ RELEASE_STRING_REGEX_PATTERN = re.compile(r"[R|r](\d+|\*)-(\d+)\.(\d+)\.(\d+)")
 
 # Example: fwbuddy://dedede/galnat360/galtic/latest/signed/serial
 FWBUDDY_URI_REGEX_PATTERN = re.compile(
-    r"fwbuddy:\/\/(\w+)\/(\w+)\/(\w+)\/([\w\-\.\*]+)\/(\w+)\/?(\w+)?"
+    r"fwbuddy:\/\/(\w+)\/(\w+)\/([\w\-\.\*]+)\/(\w+)\/?(\w+)?"
 )
 
 
@@ -378,7 +363,6 @@ class FwBuddy:
         """
         return FwImage(
             board=self.uri.board,
-            model=self.uri.model,
             firmware_name=self.uri.firmware_name,
             release=self.determine_release(),
             branches=self.lookup_branches(),
@@ -387,7 +371,7 @@ class FwBuddy:
         )
 
     def lookup_branches(self) -> Set[str]:
-        """Gets the firmware branches for the given board/model combination.
+        """Gets the firmware branches for the given board combination.
 
         Some firmware archives are stored underneath branches that do not match
         the name of their board. For those scenarios, we need to retrieve the
@@ -419,10 +403,8 @@ class FwBuddy:
         )
         for entry in branch_map["firmware_quals"]:
             if (
-                "model_name" in entry
-                and "board_name" in entry
+                "board_name" in entry
                 and "branch_name" in entry
-                and entry["model_name"] == self.uri.model
                 and entry["board_name"] == self.uri.board
             ):
                 branches.add(entry["branch_name"])
@@ -643,17 +625,15 @@ def parse_uri(uri: str) -> URI:
         )
 
     board = fields[0][0]
-    model = fields[0][1]
-    firmware_name = fields[0][2]
-    version = fields[0][3]
-    image_type = fields[0][4]
+    firmware_name = fields[0][1]
+    version = fields[0][2]
+    image_type = fields[0][3]
     firmware_type = None
-    if len(fields[0]) == 6 and fields[0][5] != "":
-        firmware_type = fields[0][5]
+    if len(fields[0]) == 5 and fields[0][4] != "":
+        firmware_type = fields[0][4]
 
     return URI(
         board=board,
-        model=model,
         firmware_name=firmware_name,
         version=version,
         image_type=image_type,
@@ -766,7 +746,7 @@ def parse_firmware_type(firmware_type: Optional[str]) -> Optional[str]:
         A lowercase copy of firmware_type
 
     Raises:
-        FwBuddyException: If the frimware_type is not supported
+        FwBuddyException: If the firmware_type is not supported
     """
     if firmware_type is None:
         return None
