@@ -710,6 +710,13 @@ def _FinalizeOptions(
             "was specified makes no sense."
         )
 
+    # --update behavior should be disabled when --delete is specified.  Further
+    # options like --create might also be in the command, but the --update flag
+    # won't actually need be enabled in this case, as we'll build off the latest
+    # tarball anyway.
+    if options.delete:
+        options.update = False
+
     if options.force and not options.delete:
         parser.error("Specifying --force without --delete does not make sense.")
 
