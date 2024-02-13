@@ -1705,6 +1705,7 @@ def CollectBazelPerformanceArtifacts(
     chroot_raw_artifacts = [
         BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
         BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
+        BAZEL_BUILD_EVENT_JSON_FILE_PATH,
     ]
     raw_artifacts = [
         chroot.full_path(artifact) for artifact in chroot_raw_artifacts
