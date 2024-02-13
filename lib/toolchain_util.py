@@ -59,7 +59,7 @@ RELEASE_PROFILE_VETTED_URL = "gs://chromeos-prebuilt/afdo-job/vetted/release"
 AFDO_SUFFIX = ".afdo"
 BZ2_COMPRESSION_SUFFIX = ".bz2"
 XZ_COMPRESSION_SUFFIX = ".xz"
-KERNEL_AFDO_COMPRESSION_SUFFIX = ".gcov.xz"
+KERNEL_AFDO_COMPRESSION_SUFFIX = ".afdo.xz"
 # FIXME: we should only use constants.SOURCE_ROOT and use
 # path_util.ToChrootPath to convert to inchroot path when needed. So we
 # need fix all the use cases for this variable (we can remove all but one
@@ -136,11 +136,10 @@ CWP_PROFILE_NAME_REGEX = r"""
        (\d+)\.                      # Build
        (\d+)-                       # Patch
        (\d+)                        # Clock; breaks ties sometimes.
-       (?:\.afdo|\.gcov)?           # Optional: CWP for Chrome has `afdo`,
-                                    # and kernel has `gcov`. Also this regex
-                                    # is also used to match names in ebuild and
-                                    # sometimes names in ebuild don't have
-                                    # suffix.
+       (?:\.afdo|\.gcov)?           # Optional: CWP profiles have ".afdo",
+                                    # historically we had ".gcov", and
+                                    # names in ebuilds sometimes don't
+                                    # have this part at all.
        (?:\.xz)?$                   # We don't care about the presence of xz
     """
 
@@ -1933,7 +1932,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             )
         profile_name += KERNEL_AFDO_COMPRESSION_SUFFIX
         # The verified profile is in the sysroot with a name similar to:
-        # /usr/lib/debug/boot/chromeos-kernel-4_4-R82-12874.0-1581935639.gcov.xz
+        # /usr/lib/debug/boot/chromeos-kernel-4_4-R82-12874.0-1581935639.afdo.xz
         profile_path = self.chroot.full_path(
             self.sysroot_path,
             "usr",

@@ -347,8 +347,8 @@ class PrepBundLatestAFDOArtifactTest(PrepareBundleTest):
             ("R78-3866.0-1570000000.afdo.xz", 1.1),  # Latest
             ("R77-3811.0-1580000000.afdo.xz", 3.1),
             # Kernel profiles
-            ("R76-3869.38-1562580965.gcov.xz", 1.3),
-            ("R76-3866.0-1570000000.gcov.xz", 2.3),  # Latest
+            ("R76-3869.38-1562580965.afdo.xz", 1.3),
+            ("R76-3866.0-1570000000.afdo.xz", 2.3),  # Latest
         ]
 
         self.gs_list = [
