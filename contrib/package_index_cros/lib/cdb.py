@@ -119,13 +119,6 @@ class Cdb:
                 self.package.full_name,
             )
 
-        for include_path in self.package.additional_include_paths:
-            logging.debug(
-                "%s: Additional include path will be used: %s",
-                self.package.full_name,
-                include_path,
-            )
-
         for entry in self.data:
             entry["directory"] = self._get_fixed_directory(entry)
 
@@ -210,9 +203,6 @@ class Cdb:
                 actual_arguments.append(actual_arg)
 
         # Args are fixed.
-
-        for include_path in self.package.additional_include_paths:
-            actual_include_args.local.add("-I" + include_path)
 
         # Do not pass our dependencies up.
         self.package_to_include_args[self.package.full_name].local.update(

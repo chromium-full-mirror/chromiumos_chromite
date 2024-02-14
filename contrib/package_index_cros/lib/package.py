@@ -250,8 +250,6 @@ class Package:
         src_dir_matches: List of tuples (temp, actual). Represents a possible
             match between temporary and actual source dirs/files. The list is
             sorted by depth: match is better when closer to desired path.
-        additional_include_paths: List of actual paths to be added to include
-            path arguments.
     """
 
     highly_volatile_packages = [
@@ -299,7 +297,6 @@ class Package:
         self._temp_dir: Optional[str] = None
         self._build_dir: Optional[str] = None
         self._src_dir_matches: Optional[List[TempActualDichotomy]] = None
-        self._additional_include_paths: Optional[List[str]] = None
 
     @property
     def temp_dir(self) -> str:
@@ -333,17 +330,6 @@ class Package:
         if self._src_dir_matches is None:
             raise NotInitializedException
         return self._src_dir_matches
-
-    @property
-    def additional_include_paths(self) -> List[str]:
-        """Return actual paths to be added as include path args.
-
-        Raises:
-            NotInitializedException: If initialize() has not been called.
-        """
-        if self._additional_include_paths is None:
-            raise NotInitializedException
-        return self._additional_include_paths
 
     def __eq__(self, other) -> bool:
         """Return whether |self| and |other| refer to the same package.
@@ -397,22 +383,6 @@ class Package:
         logging.debug("%s: Build dir: %s", self.full_name, self.build_dir)
 
         self._src_dir_matches = self._get_source_dirs_to_temp_source_dirs_map()
-
-        self._additional_include_paths = self.get_additional_include_paths()
-        for path in self.additional_include_paths:
-            if not os.path.isdir(path):
-                raise DirsException(
-                    self, "Additional include path does not exist", path
-                )
-
-    def get_additional_include_paths(self) -> List[str]:
-        """Return a list of actual paths to be added as include path args."""
-        # Special case for chromeos-base/update_engine which pretends to be in
-        # platform2 and uses platform2 as include path. While the actual include
-        # path is {src_dir}/aosp/system with update_engine inside.
-        if self.full_name == "chromeos-base/update_engine":
-            return [os.path.join(self.setup.src_dir, "aosp", "system")]
-        return []
 
     def _get_ordered_version_suffixes(self) -> List[str]:
         """Return the current package's versions, sorted from high to low."""
