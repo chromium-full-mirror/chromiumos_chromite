@@ -406,7 +406,14 @@ GROUP_BASELINE = dict(
         GroupEntry(
             group="ippusb",
             gid=20100,
-            users={"ippusb", "lp", "lpadmin", "cups", _SCANNER_DAEMON},
+            users={
+                "ippusb",
+                "lp",
+                "lpadmin",
+                "cups",
+                _SCANNER_DAEMON,
+                "printscanmgr",
+            },
         ),
         GroupEntry(
             group="cfm-peripherals",
