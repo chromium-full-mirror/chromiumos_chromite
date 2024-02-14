@@ -449,20 +449,30 @@ class VM(device.Device):
             image_path: Path to QEMU image.
             image_format: Format of the image.
         """
-        # Append 'check' to warn if the requested CPU is not fully supported.
-        if "check" not in self.qemu_cpu.split(","):
-            self.qemu_cpu += ",check"
-        # Append 'vmx=on' if the host supports nested virtualization. It can be
-        # enabled via 'vmx+' or 'vmx=on' (or similarly disabled) so just test
-        # for the presence of 'vmx'. For more details, see:
-        # https://www.kernel.org/doc/Documentation/virtual/kvm/nested-vmx.txt
-        if "vmx" not in self.qemu_cpu and self.enable_kvm:
-            for f in glob.glob(self.NESTED_KVM_GLOB):
-                if cros_build_lib.BooleanShellValue(
-                    osutils.ReadFile(f).strip(), False
-                ):
-                    self.qemu_cpu += ",vmx=on,svm=on"
-                    break
+        if self.is_x86:
+            if not self.qemu_cpu:
+                self.qemu_cpu = (
+                    "Haswell-noTSX,vendor=GenuineIntel,-invpcid,-tsc-deadline"
+                )
+
+            # Append 'check' to warn if the requested CPU is not fully
+            # supported.
+            if "check" not in self.qemu_cpu.split(","):
+                self.qemu_cpu += ",check"
+            # Append 'vmx=on' if the host supports nested virtualization. It
+            # can be enabled via 'vmx+' or 'vmx=on' (or similarly disabled) so
+            # just test for the presence of 'vmx'. For more details, see:
+            # https://docs.kernel.org/virt/kvm/x86/nested-vmx.html
+            if "vmx" not in self.qemu_cpu and self.enable_kvm:
+                for f in glob.glob(self.NESTED_KVM_GLOB):
+                    if cros_build_lib.BooleanShellValue(
+                        osutils.ReadFile(f).strip(), False
+                    ):
+                        self.qemu_cpu += ",vmx=on,svm=on"
+                        break
+        else:
+            if not self.qemu_cpu:
+                self.qemu_cpu = "cortex-a72"
 
         qemu_args = [self.qemu_path]
         if self.qemu_bios_path:
@@ -791,7 +801,6 @@ class VM(device.Device):
         parser.add_argument(
             "--qemu-cpu",
             type=str,
-            default="Haswell-noTSX,vendor=GenuineIntel,-invpcid,-tsc-deadline",
             help="CPU argument that will be passed to qemu.",
         )
         parser.add_argument(
