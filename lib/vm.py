@@ -545,9 +545,12 @@ class VM(device.Device):
             retries: Number of times to retry launching the VM if it fails to
                 boot-up.
         """
+        self._SetBoard()
+        # KVM is currently not supported on arm64.
+        if not self.is_x86:
+            self.enable_kvm = False
         if not self.enable_kvm:
             logging.warning("KVM is not supported; Chrome VM will be slow")
-        self._SetBoard()
         self._SetQemuPath()
         self._SetVMImagePath()
         logging.info("Pid file: %s", self.pidfile)
