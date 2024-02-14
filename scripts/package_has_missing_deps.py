@@ -469,10 +469,8 @@ class DotSoResolver:
                 # Packages with bundled libs for internal use and/or standaline
                 # binary packages.
                 if f"{pkg.category}/{pkg.package}" in (
-                    "app-emulation/qemu",
                     "chromeos-base/aosp-frameworks-ml-nn-vts",
                     "chromeos-base/factory",
-                    "chromeos-base/signingtools-bin",
                     "sys-devel/gcc-bin",
                 ):
                     continue
