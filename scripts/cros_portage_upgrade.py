@@ -813,7 +813,9 @@ class Upgrader:
         # the last item in the directory.
         if os.path.exists(pkgdir):
             items = set(
-                x for x in os.listdir(pkgdir) if not x.endswith(".bashrc")
+                x
+                for x in os.listdir(pkgdir)
+                if not x.endswith(".bashrc") and x != "cros"
             )
             items -= CROS_AUTHORED_FILES
             items = [os.path.join(catpkgsubdir, x) for x in items]
