@@ -15,7 +15,7 @@ from chromite.api.gen_sdk.chromiumos.build.api import firmware_config_pb2 as chr
 from chromite.api.gen_sdk.chromiumos.test.lab.api import ip_endpoint_pb2 as chromiumos_dot_test_dot_lab_dot_api_dot_ip__endpoint__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n,chromiumos/test/api/firmware_provision.proto\x12\x13\x63hromiumos.test.api\x1a*chromiumos/build/api/firmware_config.proto\x1a)chromiumos/test/lab/api/ip_endpoint.proto\"e\n FirmwareProvisionStartupMetadata\x12\x41\n\x14\x63\x61\x63he_server_address\x18\x01 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpoint\"a\n FirmwareProvisionInstallMetadata\x12=\n\x0f\x66irmware_config\x18\x01 \x01(\x0b\x32$.chromiumos.build.api.FirmwareConfigB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n,chromiumos/test/api/firmware_provision.proto\x12\x13\x63hromiumos.test.api\x1a*chromiumos/build/api/firmware_config.proto\x1a)chromiumos/test/lab/api/ip_endpoint.proto\"i\n FirmwareProvisionStartupMetadata\x12\x45\n\x14\x63\x61\x63he_server_address\x18\x01 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpointB\x02\x18\x01\"a\n FirmwareProvisionInstallMetadata\x12=\n\x0f\x66irmware_config\x18\x01 \x01(\x0b\x32$.chromiumos.build.api.FirmwareConfigB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.api.firmware_provision_pb2', globals())
@@ -23,8 +23,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z-go.chromium.org/chromiumos/config/go/test/api'
+  _FIRMWAREPROVISIONSTARTUPMETADATA.fields_by_name['cache_server_address']._options = None
+  _FIRMWAREPROVISIONSTARTUPMETADATA.fields_by_name['cache_server_address']._serialized_options = b'\030\001'
   _FIRMWAREPROVISIONSTARTUPMETADATA._serialized_start=156
-  _FIRMWAREPROVISIONSTARTUPMETADATA._serialized_end=257
-  _FIRMWAREPROVISIONINSTALLMETADATA._serialized_start=259
-  _FIRMWAREPROVISIONINSTALLMETADATA._serialized_end=356
+  _FIRMWAREPROVISIONSTARTUPMETADATA._serialized_end=261
+  _FIRMWAREPROVISIONINSTALLMETADATA._serialized_start=263
+  _FIRMWAREPROVISIONINSTALLMETADATA._serialized_end=360
 # @@protoc_insertion_point(module_scope)
