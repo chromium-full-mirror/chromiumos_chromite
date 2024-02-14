@@ -118,8 +118,7 @@ def emerge_and_upload_lints(board: str, start_time: int) -> str:
 class BuildLinter:
     """Provides functions to support endpoints for the Build Linters recipe."""
 
-    # FIXME(b/229769929): move linting artifiacts out of /tmp when
-    TIDY_BASE_DIR = Path("/tmp/linting_output/clang-tidy")
+    # FIXME(b/229769929): move clippy linting artifiacts out of /tmp
     CARGO_BASE_DIR = Path("/tmp/cargo_clippy")
     BASE_DIR = Path("var/lib/chromeos/package-artifacts")
     GOLINT_TIMESTAMP_PATTERN = re.compile(r"(\d+).txt")
@@ -270,10 +269,7 @@ class BuildLinter:
         return findings
 
     def _reset_temporary_files_for_linting(self) -> None:
-        """Prepares for linting by rming prior linter findings and caches."""
-        # rm any existing lints from clang tidy
-        osutils.RmDir(BuildLinter.TIDY_BASE_DIR, ignore_missing=True, sudo=True)
-        osutils.SafeMakedirs(BuildLinter.TIDY_BASE_DIR, 0o777, sudo=True)
+        """Prepares for linting by rming caches."""
 
         # rm any existing temporary portage files from builds of affected
         # packages: this is required to make sure lints are always regenerated
