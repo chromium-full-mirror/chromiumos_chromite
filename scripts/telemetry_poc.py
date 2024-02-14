@@ -49,7 +49,7 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
     chromite_config.initialize()
     telemetry.initialize(chromite_config.TELEMETRY_CONFIG, opts.log_telemetry)
 
-    with tracer.start_as_current_span("test") as span:
+    with tracer.start_as_current_span("telemetry_poc.main") as span:
         time.sleep(opts.time / 2)
         span.add_event(name="mid-sleep-event", attributes={"attr": "val"})
         time.sleep(opts.time / 2)
