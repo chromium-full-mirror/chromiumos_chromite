@@ -26,6 +26,6 @@ class Anonymizer:
             return data
 
         for repl_from, repl_to in self._replacements:
-            data, _ = re.subn(repl_from, repl_to, data)
+            data = re.sub(repl_from, repl_to, data)
 
         return data
