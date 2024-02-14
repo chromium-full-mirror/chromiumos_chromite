@@ -6,6 +6,7 @@
 
 import logging
 import os
+import shutil
 from typing import Any, NamedTuple, Optional, TYPE_CHECKING
 
 from chromite.api import controller
@@ -430,6 +431,27 @@ def BundleTastFiles(
     output_dir = request.result_path.path.path
     chroot = controller_util.ParseChroot(request.chroot)
     sysroot = controller_util.ParseSysroot(request.sysroot)
+
+    tast_use_flag_path = chroot.full_path(
+        sysroot.JoinPath("etc/tast_use_flags.txt")
+    )
+
+    if os.path.exists(tast_use_flag_path):
+        logging.info("Found tast_use_flags.txt file at %s.", tast_use_flag_path)
+        tast_use_flag_output_dir_path = os.path.join(
+            output_dir, os.path.basename(tast_use_flag_path)
+        )
+        shutil.copy(tast_use_flag_path, tast_use_flag_output_dir_path)
+        response.artifacts.add(
+            artifact_path=common_pb2.Path(
+                path=tast_use_flag_output_dir_path,
+                location=common_pb2.Path.OUTSIDE,
+            )
+        )
+    else:
+        logging.warning(
+            "Found no tast_use_flags.txt file at %s.", tast_use_flag_path
+        )
 
     if not sysroot.Exists(chroot=chroot):
         logging.warning("Sysroot does not exist: %s", sysroot.path)
