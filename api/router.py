@@ -550,6 +550,7 @@ class Router:
                     cmd,
                     cwd=constants.SOURCE_ROOT,
                     check=False,
+                    chroot_args=["--no-update"],
                 )
             except cros_build_lib.RunCommandError:
                 # A non-zero return code will not result in an error, but one
