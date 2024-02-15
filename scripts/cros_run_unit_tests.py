@@ -13,7 +13,6 @@ from typing import Set
 from chromite.third_party.opentelemetry.trace import status
 
 from chromite.lib import build_target_lib
-from chromite.lib import chromite_config
 from chromite.lib import chroot_util
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -170,10 +169,7 @@ def main(argv):
 
     commandline.RunInsideChroot()
 
-    chromite_config.initialize()
-    telemetry.initialize(
-        chromite_config.TELEMETRY_CONFIG, log_traces=opts.log_telemetry
-    )
+    telemetry.initialize(log_traces=opts.log_telemetry)
 
     with tracer.start_as_current_span("scripts.cros_run_unit_tests"):
         with (

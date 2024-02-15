@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Iterable, List, Optional
 
 from chromite.lib import build_query
-from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
@@ -158,10 +157,7 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
 
     opts = parse_arguments(argv)
 
-    chromite_config.initialize()
-    telemetry.initialize(
-        chromite_config.TELEMETRY_CONFIG, log_traces=opts.log_telemetry
-    )
+    telemetry.initialize(log_traces=opts.log_telemetry)
 
     try:
         return execute(opts)

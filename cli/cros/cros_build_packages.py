@@ -409,11 +409,7 @@ class BuildPackagesCommand(command.CliCommand):
     def Run(self) -> None:
         commandline.RunInsideChroot()
 
-        chromite_config.initialize()
-        telemetry.initialize(
-            chromite_config.TELEMETRY_CONFIG,
-            log_traces=self.options.log_telemetry,
-        )
+        telemetry.initialize(log_traces=self.options.log_telemetry)
         try:
             build_packages(self.options)
         except sysroot_lib.PackageInstallError as e:

@@ -10,7 +10,6 @@ import logging
 from chromite.cli import command
 from chromite.cli import flash
 from chromite.cli.cros import cros_chrome_sdk
-from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import dev_server_wrapper
@@ -324,11 +323,7 @@ Note: When flashing a signed image, ssh connection to the device will be lost
         # can interfere with prompting for the sudo password.
         # TODO(b/302557861): stop using `losetup`.
 
-        chromite_config.initialize()
-        telemetry.initialize(
-            chromite_config.TELEMETRY_CONFIG,
-            log_traces=self.options.log_telemetry,
-        )
+        telemetry.initialize(log_traces=self.options.log_telemetry)
 
         previous_strict_sudo = cros_build_lib.STRICT_SUDO
         try:

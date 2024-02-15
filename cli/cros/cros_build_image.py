@@ -41,7 +41,6 @@ from typing import Iterable, List, Optional, TYPE_CHECKING
 from chromite.third_party.opentelemetry.trace import status
 
 from chromite.cli import command
-from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -446,11 +445,7 @@ class BuildImageCommand(command.CliCommand):
         commandline.RunInsideChroot(self, chroot_args=chroot_args)
         commandline.RunAsRootUser(sys.argv, preserve_env=True)
 
-        chromite_config.initialize()
-        telemetry.initialize(
-            chromite_config.TELEMETRY_CONFIG,
-            log_traces=self.options.log_telemetry,
-        )
+        telemetry.initialize(log_traces=self.options.log_telemetry)
 
         result = None
 

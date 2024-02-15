@@ -13,7 +13,6 @@ import logging
 from typing import List, Optional
 
 from chromite.lib import build_target_lib
-from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import telemetry
@@ -69,8 +68,7 @@ def GetParser() -> commandline.ArgumentParser:
 def main(argv: Optional[List[str]]) -> Optional[int]:
     commandline.RunInsideChroot()
 
-    chromite_config.initialize()
-    telemetry.initialize(chromite_config.TELEMETRY_CONFIG)
+    telemetry.initialize()
     DoMain(argv)
 
 

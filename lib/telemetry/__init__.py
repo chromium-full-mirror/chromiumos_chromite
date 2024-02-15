@@ -28,7 +28,6 @@ TELEMETRY_VERSION = "3"
 
 
 def initialize(
-    config_file: "os.PathLike[str]",
     log_traces: bool = False,
     enable: Optional[bool] = None,
 ) -> None:
@@ -40,25 +39,22 @@ def initialize(
     until the countdown runs out and the user is auto enrolled.
 
     Examples:
-        from chromite.lib import chromite_config
-
         opts = parse_args(argv)
-        chromite_config.initialize()
-        telemetry.initialize(chromite_config.TELEMETRY_CONFIG, opts.debug)
+        telemetry.initialize(opts.log_telemetry)
 
     Args:
-        config_file: The path to the telemetry cfg to load for initializing
-        the telemetry.
         log_traces: Indicates if the traces should be exported to console.
         enable: Indicates if the traces should be enabled.
     """
 
     # Importing this inside the function to avoid performance overhead from the
     # global package import.
+    from chromite.lib import chromite_config
     from chromite.lib.telemetry import trace
     from chromite.utils.telemetry import config
 
-    cfg = config.Config(config_file)
+    chromite_config.initialize()
+    cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
     if enable is not None:
         cfg.trace_config.update(enabled=enable, reason="USER")
         cfg.flush()

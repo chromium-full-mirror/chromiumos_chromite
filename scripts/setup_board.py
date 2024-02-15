@@ -14,7 +14,6 @@ import argparse
 import logging
 
 from chromite.lib import build_target_lib
-from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import portage_util
 from chromite.lib import telemetry
@@ -217,10 +216,7 @@ def main(argv):
     commandline.RunInsideChroot()
     opts = _ParseArgs(argv)
 
-    chromite_config.initialize()
-    telemetry.initialize(
-        chromite_config.TELEMETRY_CONFIG, log_traces=opts.log_telemetry
-    )
+    telemetry.initialize(log_traces=opts.log_telemetry)
 
     with tracer.start_as_current_span("chromite.scripts.setup_board") as span:
         try:

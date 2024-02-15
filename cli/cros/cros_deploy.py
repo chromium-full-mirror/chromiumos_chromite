@@ -8,7 +8,6 @@ import logging
 
 from chromite.cli import command
 from chromite.cli import deploy
-from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import telemetry
 from chromite.lib.telemetry import trace
@@ -139,11 +138,7 @@ For more information of cros build usage:
         """Run cros deploy."""
         commandline.RunInsideChroot(self)
 
-        chromite_config.initialize()
-        telemetry.initialize(
-            chromite_config.TELEMETRY_CONFIG,
-            log_traces=self.options.log_telemetry,
-        )
+        telemetry.initialize(log_traces=self.options.log_telemetry)
 
         with timer.Timer() as t:
             deploy.Deploy(
