@@ -898,6 +898,7 @@ class FetchBinhostsTest(
         True,
         MOCK_GENERIC_BUILD_TARGET_NAME,
         MOCK_GENERIC_PROFILE,
+        True,
     )
 
     def setUp(self):
@@ -955,6 +956,9 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
         "external_snapshot_sha1",
         "external_snapshot_sha2",
     ]
+    BINHOST_LOOKUP_SERVICE_DATA = prebuilts_cloud_pb2.BinhostLookupServiceData(
+        snapshot_shas=INTERNAL_SNAPSHOT_SHAS, private=True, is_staging=True
+    )
 
     def setUp(self):
         self.PatchObject(config_lib, "GetSiteParams")
@@ -965,11 +969,7 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
 
     def testInputSnapshotShas(self):
         """Test when snapshot SHAs are passed as input."""
-        binhost_lookup_service_data = (
-            prebuilts_cloud_pb2.BinhostLookupServiceData(
-                snapshot_shas=self.INTERNAL_SNAPSHOT_SHAS, private=True
-            )
-        )
+
         self.fetch_binhosts.return_value = (
             self.INTERNAL_GS_URIS + self.EXTERNAL_GS_URIS
         )
@@ -977,7 +977,7 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
         result = binhost.lookup_binhosts(
             MOCK_BUILD_TARGET,
             MOCK_GS_BUCKET_NAME,
-            binhost_lookup_service_data,
+            self.BINHOST_LOOKUP_SERVICE_DATA,
         )
 
         self.assertEqual(
@@ -999,7 +999,11 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
             self.INTERNAL_GS_URIS + self.EXTERNAL_GS_URIS
         )
 
-        result = binhost.lookup_binhosts(MOCK_BUILD_TARGET, MOCK_GS_BUCKET_NAME)
+        result = binhost.lookup_binhosts(
+            MOCK_BUILD_TARGET,
+            MOCK_GS_BUCKET_NAME,
+            self.BINHOST_LOOKUP_SERVICE_DATA,
+        )
 
         self.fetch_binhosts.assert_called_with(
             MOCK_GS_BUCKET_NAME,
@@ -1010,6 +1014,7 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
             mock.ANY,
             mock.ANY,
             mock.ANY,
+            True,
         )
         self.assertEqual(
             result,

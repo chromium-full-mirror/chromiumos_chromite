@@ -46,12 +46,8 @@ _MAX_BINHOSTS = 5
 # Parameters for the Lookup Binhosts Service endpoint.
 _PROTOCOL = "https"
 _CHROMEOS_PREBUILTS_DOMAIN = "us-central1-chromeos-prebuilts.cloudfunctions.net"
-_LOOKUP_BINHOSTS_ENDPOINT = "prod-lookup-service-binhosts"
-_BINHOST_LOOKUP_SERVICE_URI = "%s://%s/%s" % (
-    _PROTOCOL,
-    _CHROMEOS_PREBUILTS_DOMAIN,
-    _LOOKUP_BINHOSTS_ENDPOINT,
-)
+_LOOKUP_BINHOSTS_ENDPOINT_STAGING = "staging-lookup-service-binhosts"
+_LOOKUP_BINHOSTS_ENDPOINT_PROD = "prod-lookup-service-binhosts"
 
 # Timeout for the API call to the binhost lookup service.
 _BINHOST_LOOKUP_SERVICE_TIMEOUT = 60
@@ -672,6 +668,7 @@ def _fetch_binhosts(
     get_corresponding_binhosts: bool,
     generic_build_target: str,
     generic_profile: str,
+    is_staging: bool = False,
 ) -> List[Optional[str]]:
     """Call the binhost lookup service to get locations of BINHOSTs.
 
@@ -688,6 +685,7 @@ def _fetch_binhosts(
         generic_build_target: The base architecture board for the
             build target (e.g. amd64-generic).
         generic_profile: The profile of the base architecture board.
+        is_staging: Denote which lookup service endpoint should be called.
 
     Returns:
         A list of Google Storage URIs of binhosts, sorted by created
@@ -716,11 +714,19 @@ def _fetch_binhosts(
         lookup_binhosts_request.SerializeToString()
     ).decode()
 
+    # Call the appropriate lookup service endpoint based on the env.
+    binhost_lookup_service_uri = "%s://%s/%s" % (
+        _PROTOCOL,
+        _CHROMEOS_PREBUILTS_DOMAIN,
+        _LOOKUP_BINHOSTS_ENDPOINT_STAGING
+        if is_staging
+        else _LOOKUP_BINHOSTS_ENDPOINT_PROD,
+    )
     response = requests.request(
         "GET",
         "%s?filter=%s"
         % (
-            _BINHOST_LOOKUP_SERVICE_URI,
+            binhost_lookup_service_uri,
             lookup_binhosts_request_encoded,
         ),
         timeout=_BINHOST_LOOKUP_SERVICE_TIMEOUT,
@@ -896,6 +902,7 @@ def lookup_binhosts(
         get_corresponding_binhosts,
         base_board,
         "base",
+        binhost_lookup_service_data.is_staging,
     )
     binhost_gs_uris.reverse()
 
