@@ -174,61 +174,62 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
 
         bl_no_pkg = toolchain.BuildLinter([], self.tempdir, validate=False)
 
+        lints_dir = "cros-artifacts/linting-output"
+
         relevant_cases = [
-            "category1/package1/linting-output/linter1/a.out",
-            "category1/package1/linting-output/linter1/b.json",
-            "category1/package1/linting-output/linter1/c",
-            "category1/package2/linting-output/linter1/a.out",
-            "category1/package2/linting-output/linter1/b.json",
-            "category1/package2/linting-output/linter1/c",
-            "category2/package3/linting-output/linter1/a.out",
-            "category2/package3/linting-output/linter1/b.json",
-            "category2/package3/linting-output/linter1/c",
+            f"category1/package1/{lints_dir}/linter1/a.out",
+            f"category1/package1/{lints_dir}/linter1/b.json",
+            f"category1/package1/{lints_dir}/linter1/c",
+            f"category1/package2/{lints_dir}/linter1/a.out",
+            f"category1/package2/{lints_dir}/linter1/b.json",
+            f"category1/package2/{lints_dir}/linter1/c",
+            f"category2/package3/{lints_dir}/linter1/a.out",
+            f"category2/package3/{lints_dir}/linter1/b.json",
+            f"category2/package3/{lints_dir}/linter1/c",
         ]
 
         irrelevant_cases = [
-            "category3/package1/linting-output/linter1/a.out",
-            "category4/package2/linting-output/linter1/a.out",
-            "category2/package5/linting-output/linter1/a.out",
-            "category2/package6/linting-output/linter1/a.out",
-            "category1/package1/linting-output/linter2/a.out",
-            "category1/package2/linting-output/linter2/a.out",
-            "category2/package3/linting-output/linter3/a.out",
-            "category2/package4/linting-output/linter4/a.out",
+            f"category3/package1/{lints_dir}/linter1/a.out",
+            f"category4/package2/{lints_dir}/linter1/a.out",
+            f"category2/package5/{lints_dir}/linter1/a.out",
+            f"category2/package6/{lints_dir}/linter1/a.out",
+            f"category1/package1/{lints_dir}/linter2/a.out",
+            f"category1/package2/{lints_dir}/linter2/a.out",
+            f"category2/package3/{lints_dir}/linter3/a.out",
+            f"category2/package4/{lints_dir}/linter4/a.out",
         ]
 
         root = Path(self.tempdir) / "var/lib/chromeos/package-artifacts"
-
         expected_results = {
             "category1/package1": [
-                f"{str(root)}/category1/package1/linting-output/linter1/a.out",
-                f"{str(root)}/category1/package1/linting-output/linter1/b.json",
-                f"{str(root)}/category1/package1/linting-output/linter1/c",
+                f"{str(root)}/category1/package1/{lints_dir}/linter1/a.out",
+                f"{str(root)}/category1/package1/{lints_dir}/linter1/b.json",
+                f"{str(root)}/category1/package1/{lints_dir}/linter1/c",
             ],
             "category1/package2": [
-                f"{str(root)}/category1/package2/linting-output/linter1/a.out",
-                f"{str(root)}/category1/package2/linting-output/linter1/b.json",
-                f"{str(root)}/category1/package2/linting-output/linter1/c",
+                f"{str(root)}/category1/package2/{lints_dir}/linter1/a.out",
+                f"{str(root)}/category1/package2/{lints_dir}/linter1/b.json",
+                f"{str(root)}/category1/package2/{lints_dir}/linter1/c",
             ],
             "category2/package3": [
-                f"{str(root)}/category2/package3/linting-output/linter1/a.out",
-                f"{str(root)}/category2/package3/linting-output/linter1/b.json",
-                f"{str(root)}/category2/package3/linting-output/linter1/c",
+                f"{str(root)}/category2/package3/{lints_dir}/linter1/a.out",
+                f"{str(root)}/category2/package3/{lints_dir}/linter1/b.json",
+                f"{str(root)}/category2/package3/{lints_dir}/linter1/c",
             ],
         }
 
         additional_no_pkg_results = {
             "category3/package1": [
-                f"{str(root)}/category3/package1/linting-output/linter1/a.out"
+                f"{str(root)}/category3/package1/{lints_dir}/linter1/a.out"
             ],
             "category4/package2": [
-                f"{str(root)}/category4/package2/linting-output/linter1/a.out"
+                f"{str(root)}/category4/package2/{lints_dir}/linter1/a.out"
             ],
             "category2/package5": [
-                f"{str(root)}/category2/package5/linting-output/linter1/a.out"
+                f"{str(root)}/category2/package5/{lints_dir}/linter1/a.out"
             ],
             "category2/package6": [
-                f"{str(root)}/category2/package6/linting-output/linter1/a.out"
+                f"{str(root)}/category2/package6/{lints_dir}/linter1/a.out"
             ],
         }
 
@@ -293,7 +294,13 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
 
         root = Path(self.tempdir) / "var/lib/chromeos/package-artifacts"
         for case in test_cases:
-            test_path = root / case[0] / case[1] / "linting-output" / case[2]
+            test_path = (
+                root
+                / case[0]
+                / case[1]
+                / "cros-artifacts/linting-output"
+                / case[2]
+            )
             expected_result = case[3]
             # pylint: disable=protected-access
             actual_result = bl._get_package_for_artifact_dir(test_path)

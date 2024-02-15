@@ -713,7 +713,9 @@ class BuildLinter:
         base_dir = Path(self.sysroot) / BuildLinter.BASE_DIR
         for dirpath, _, files in os.walk(base_dir):
             subdir_path = Path(dirpath)
-            if subdir_path.match(f"{base_dir}/*/*/linting-output/{subdir}"):
+            if subdir_path.match(
+                f"{base_dir}/*/*/cros-artifacts/linting-output/{subdir}"
+            ):
                 package_atom = self._get_package_for_artifact_dir(subdir_path)
                 if not self.packages or package_atom in self.package_atoms:
                     full_paths = [str(subdir_path / file) for file in files]
@@ -723,7 +725,9 @@ class BuildLinter:
 
     def _get_package_for_artifact_dir(self, artifact_dir: Path) -> Text:
         """Gets the package atom for an artifact subdirectory."""
-        package_path = artifact_dir.parent.parent
+        # Paths should look like:
+        # .../{category}/{package}/cros-artifacts/linting-output/{linter}
+        package_path = artifact_dir.parents[2]
         category = package_path.parent.name
         package = package_path.name.rsplit("-", 1)[0]
         package_atom = f"{category}/{package}"
@@ -801,7 +805,6 @@ class BuildLinter:
         if repos is None:
             return False
         return any("platform2" in repo.srcdir for repo in repos)
-
 
     def _try_to_get_file_contents(
         self,
