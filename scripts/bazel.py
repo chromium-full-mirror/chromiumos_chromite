@@ -16,7 +16,6 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 from chromite.lib import cipd
-from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import osutils
 
@@ -114,11 +113,14 @@ def _get_bazelisk() -> Path:
     return package_path / "bazelisk"
 
 
-def _get_parser() -> commandline.ArgumentParser:
+def _get_parser() -> argparse.ArgumentParser:
     """Build the argument parser."""
 
-    # We don't create a help message, as we want --help to go to the Bazel help.
-    parser = commandline.ArgumentParser(add_help=False)
+    # Do not use commandline.ArgumentParser.
+    # It adds extra flags with the same names as bazel's flags.
+    # For example, bazel info --color=yes will actually throw an error:
+    # bazel: error: argument --color: ignored explicit argument 'yes'
+    parser = argparse.ArgumentParser(add_help=False)
 
     parser.add_argument(
         "--project",
