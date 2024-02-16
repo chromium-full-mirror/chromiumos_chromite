@@ -4,7 +4,6 @@
 
 """Test the cros_sdk_lib module."""
 
-import errno
 import os
 from pathlib import Path
 import stat
@@ -16,7 +15,6 @@ from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
-from chromite.lib import locking
 from chromite.lib import osutils
 
 
@@ -91,110 +89,6 @@ class TestGetFileSystemDebug(cros_test_lib.RunCommandTestCase):
         self.assertEqual(file_system_debug_tuple.fuser, "fuser_output")
         self.assertEqual(file_system_debug_tuple.lsof, "lsof_output")
         self.assertEqual(file_system_debug_tuple.ps, "ps_output")
-
-
-class TestMigrateStatePaths(cros_test_lib.MockTempDirTestCase):
-    """Tests MigrateStatePaths functionality."""
-
-    def setUp(self) -> None:
-        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
-
-        chroot_path = self.tempdir / "chroot"
-        out_path = self.tempdir / "out"
-        self.chroot = chroot_lib.Chroot(path=chroot_path, out_path=out_path)
-        osutils.SafeMakedirsNonRoot(self.chroot.path)
-        osutils.SafeMakedirsNonRoot(self.chroot.out_path)
-        self.lock = locking.FileLock(
-            chroot_path / ".chroot_lock", "chroot lock"
-        )
-
-        self.state_path_map = (
-            (Path(self.chroot.path) / "tmp", self.chroot.out_path / "tmp"),
-            (Path(self.chroot.path) / "home", self.chroot.out_path / "home"),
-            (Path(self.chroot.path) / "build", self.chroot.out_path / "build"),
-            (
-                Path(self.chroot.path) / "usr" / "local" / "bin",
-                self.chroot.out_path / "sdk" / "bin",
-            ),
-            (
-                Path(self.chroot.path) / "var" / "cache",
-                self.chroot.out_path / "sdk" / "cache",
-            ),
-            (
-                Path(self.chroot.path) / "var" / "log",
-                self.chroot.out_path / "sdk" / "logs",
-            ),
-        )
-
-    def _crossdevice_rename(self, src, dst) -> None:
-        raise OSError(errno.EXDEV, "fake cross-device rename failure")
-
-    def testOldPathsExist(self) -> None:
-        for src, dst in self.state_path_map:
-            osutils.SafeMakedirsNonRoot(src / "foo")
-
-        cros_sdk_lib.MigrateStatePaths(self.chroot, self.lock)
-
-        for src, dst in self.state_path_map:
-            self.assertNotExists(src / "foo")
-            self.assertExists(src / "README")
-            self.assertExists(dst / "foo")
-
-    def testOnlyReadmeExists(self) -> None:
-        for src, dst in self.state_path_map:
-            osutils.SafeMakedirsNonRoot(src)
-            osutils.Touch(src / "README")
-
-        cros_sdk_lib.MigrateStatePaths(self.chroot, self.lock)
-
-        for src, dst in self.state_path_map:
-            self.assertExists(src / "README")
-            self.assertNotExists(dst / "README")
-
-    def testBothPathsExist(self) -> None:
-        for src, dst in self.state_path_map:
-            osutils.SafeMakedirsNonRoot(src / "foo")
-            osutils.Touch(src / "foo" / "bar")
-            osutils.SafeMakedirsNonRoot(dst / "foo")
-            osutils.Touch(dst / "foo" / "baz")
-
-        cros_sdk_lib.MigrateStatePaths(self.chroot, self.lock)
-
-        for src, dst in self.state_path_map:
-            self.assertNotExists(src / "foo")
-            self.assertExists(dst / "foo")
-            self.assertExists(dst / "foo" / "bar")
-            self.assertExists(dst / "foo" / "baz")
-
-    def testCrossDevice(self) -> None:
-        """Verify we can migrate state across filesystem boundaries.
-
-        Check for retention of ownership, mode too, since we
-        need to exercise different logic when os.rename()
-        doesn't work.
-        """
-        # Mock os.rename() to fail, so we fall back to copying/rsyncing.
-        self.PatchObject(os, "rename", side_effect=self._crossdevice_rename)
-
-        for src, dst in self.state_path_map:
-            osutils.SafeMakedirsNonRoot(src / "foo")
-            (src / "foo" / "bar").touch()
-            (src / "foo" / "baz").touch(mode=0o400)
-            osutils.Chown(src / "foo" / "baz", user="root", group="root")
-            self.assertEqual(
-                stat.S_IMODE((src / "foo" / "baz").stat().st_mode), 0o400
-            )
-
-            cros_sdk_lib.MigrateStatePaths(self.chroot, self.lock)
-
-            self.assertNotExists(src / "foo")
-            self.assertExists(dst / "foo")
-            self.assertExists(dst / "foo" / "bar")
-            self.assertExists(dst / "foo" / "baz")
-            st = (dst / "foo" / "baz").stat()
-            self.assertEqual(stat.S_IMODE(st.st_mode), 0o400)
-            self.assertEqual(st.st_uid, 0)
-            self.assertEqual(st.st_gid, 0)
 
 
 class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):

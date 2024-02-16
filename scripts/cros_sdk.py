@@ -902,6 +902,20 @@ def main(argv) -> None:
                 chroot.path,
             )
 
+    # Most important chroot state bits migrated to the out directory via logic
+    # landed on 2023-05-08.  If the user has not entered recently, don't let
+    # them unexpectedly loose state bits (since the migration logic is gone).
+    # TODO(2025-01-01): Delete this check.
+    if not options.delete:
+        chroot_version = cros_sdk_lib.GetChrootVersion(chroot.path)
+        if chroot_version and chroot_version <= 223:
+            cros_build_lib.Die(
+                "Your SDK is too old to be entered!  Please copy any state you "
+                "need out of your chroot, and run `cros_sdk --replace`.  "
+                "(chroot_version=%s)",
+                chroot_version,
+            )
+
     if not options.sdk_version:
         sdk_version = (
             bootstrap_latest_version
@@ -992,8 +1006,6 @@ def main(argv) -> None:
         # some usages want to create tmp files here even before we've fully
         # mounted the SDK.
         osutils.SafeMakedirsNonRoot(options.out_dir / "tmp", mode=0o1777)
-
-        cros_sdk_lib.MigrateStatePaths(chroot, lock)
 
         mounted = False
         if replace_for_update or options.create:
