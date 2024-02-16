@@ -144,10 +144,16 @@ cat <<\EOF | info_run sudo tee "${BOARD_ROOT}/etc/make.conf.user" >/dev/null
 EOF
 info_run sudo chmod 0644 "${BOARD_ROOT}/etc/make.conf.user"
 
+info_run sudo mount --bind /dev "${BOARD_ROOT}/dev"
+
 # Enable locale that some Chrome scripts assume exist.
 info_run sudo sed -i -e '/^#en_US.UTF-8/s:#::' "${BOARD_ROOT}/etc/locale.gen"
-info_run sudo mount --bind /dev "${BOARD_ROOT}/dev"
 info_run sudo chroot "${BOARD_ROOT}" locale-gen -u
+
+# The java-config package atm does not support $ROOT.  Select a default
+# VM ourselves until that gets fixed upstream.
+info_run sudo chroot "${BOARD_ROOT}" eselect java-vm set system openjdk-bin-11
+
 info_run sudo umount "${BOARD_ROOT}/dev"
 
 # b/278101251: /build/amd64-host doesn't include ccache's link tree by default,
