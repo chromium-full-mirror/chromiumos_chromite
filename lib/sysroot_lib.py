@@ -5,7 +5,6 @@
 """Utilities to create sysroots."""
 
 import logging
-import multiprocessing
 import os
 from pathlib import Path
 from typing import (
@@ -766,7 +765,6 @@ class Sysroot:
         config["BOARD_OVERLAY"] = "\n".join(str(x) for x in board_overlays)
         config["PORTDIR_OVERLAY"] = "\n".join(str(x) for x in portdir_overlays)
 
-        config["MAKEOPTS"] = "-j%s" % str(multiprocessing.cpu_count())
         config["ROOT"] = self.path + "/"
         config["PKG_CONFIG"] = self._WrapperPath("pkg-config")
 

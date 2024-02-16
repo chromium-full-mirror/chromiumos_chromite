@@ -43,7 +43,7 @@ _create_host_setup() {
   ( echo "# Automatically generated.  EDIT THIS AND BE SORRY."
     echo
     _make_conf_private "${source_root}"
-    echo 'MAKEOPTS="-j'${NUM_JOBS}'"' ) | sudo_clobber "$host_setup"
+  ) | sudo_clobber "$host_setup"
   sudo chmod 644 "$host_setup"
 }
 
