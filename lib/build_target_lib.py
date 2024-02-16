@@ -65,10 +65,10 @@ class BuildTarget:
         return hash(self.name)
 
     def __str__(self) -> str:
-        return self.name
+        return f"{self.name or 'amd64-host'}:{self.profile}"
 
     @property
-    def name(self):
+    def name(self) -> Optional[str]:
         return self._name
 
     @functools.cached_property
