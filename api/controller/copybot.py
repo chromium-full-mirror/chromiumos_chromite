@@ -78,8 +78,16 @@ def RunCopybot(request, response, _config):
     for po in request.push_options:
         cmd.extend(["--push-option", po.opt])
 
-    cmd.append(f"{request.upstream.url}:{request.upstream.branch}")
-    cmd.append(f"{request.downstream.url}:{request.downstream.branch}")
+    cmd.append(
+        f"{request.upstream.url}:"
+        f"{request.upstream.branch}:"
+        f"{request.upstream.subtree}"
+    )
+    cmd.append(
+        f"{request.downstream.url}:"
+        f"{request.downstream.branch}:"
+        f"{request.downstream.subtree}"
+    )
 
     with tempfile.TemporaryDirectory() as temp_dir:
         json_output_path = Path(temp_dir) / "copybot_output.json"
