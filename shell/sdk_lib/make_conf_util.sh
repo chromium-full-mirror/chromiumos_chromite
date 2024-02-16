@@ -27,15 +27,6 @@ _make_conf_private() {
     echo "source ${make_conf}"
   fi
 
-  local boto_config="${chromeos_overlay}/googlestorage_account.boto"
-  if [[ -e "${boto_config}" ]]; then
-    local gs_fetch_binpkg='/mnt/host/source/chromite/bin/gs_fetch_binpkg'
-    printf 'FETCHCOMMAND_GS="%s --boto \\"%s\\" \\"%s\\" \\"%s\\""\n' \
-      "${gs_fetch_binpkg}" "${boto_config}" \
-      '\${URI}' '\${DISTDIR}/\${FILE}'
-    echo 'RESUMECOMMAND_GS="${FETCHCOMMAND_GS}"'
-  fi
-
   local chromeos_partner_overlay="src/private-overlays/chromeos-partner-overlay"
   chromeos_partner_overlay="${CHROOT_TRUNK_DIR}/${chromeos_partner_overlay}"
 
