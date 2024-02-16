@@ -21,6 +21,8 @@ DEFINE_string board "amd64-host" \
   "The name of the board to set up."
 DEFINE_boolean force "${FLAGS_FALSE}" \
   "Force re-creating board root."
+DEFINE_boolean usepkg "${FLAGS_FALSE}" \
+  "Use binary packages to bootstrap. Only for quick local testing."
 
 FLAGS_HELP="usage: $(basename "$0") [flags]
 
@@ -65,13 +67,17 @@ run_emerge() {
 
 # First, rebuild all packages from scratch. This is needed to make sure
 # we rebuild all chroot packages.
+EARLY_FLAGS=()
+if [[ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]]; then
+  EARLY_FLAGS+=( --usepkg )
+fi
 
 # We build the toolchain by hand to avoid race conditions where the toolchain
 # is used by other packages that we're building.  See https://crbug.com/906289.
-run_emerge "${TOOLCHAIN_PACKAGES[@]}"
+run_emerge "${EARLY_FLAGS[@]}" "${TOOLCHAIN_PACKAGES[@]}"
 
 # Then build everything else.
-run_emerge --verbose --emptytree --with-bdeps=y \
+run_emerge "${EARLY_FLAGS[@]}" --verbose --emptytree --with-bdeps=y \
   --exclude "${TOOLCHAIN_PACKAGES[*]}" \
   "${PACKAGES[@]}" virtual/target-sdk-nobdeps
 info_run sudo eclean -d packages
