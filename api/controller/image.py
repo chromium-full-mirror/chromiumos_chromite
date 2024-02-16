@@ -95,6 +95,7 @@ SUPPORTED_IMAGE_TYPES = {
     common_pb2.IMAGE_TYPE_HPS_FIRMWARE: constants.IMAGE_TYPE_HPS_FIRMWARE,
     common_pb2.IMAGE_TYPE_BASE: constants.IMAGE_TYPE_BASE,
     common_pb2.IMAGE_TYPE_GSC_FIRMWARE: constants.IMAGE_TYPE_GSC_FIRMWARE,
+    common_pb2.IMAGE_TYPE_FLEXOR_KERNEL: constants.IMAGE_TYPE_FLEXOR_KERNEL,
 }
 
 # Built image directory symlink names. These names allow specifying a static
