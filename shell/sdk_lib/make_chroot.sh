@@ -61,14 +61,6 @@ ENTER_CHROOT_ARGS=(
   IGNORE_PREFLIGHT_BINHOST="$IGNORE_PREFLIGHT_BINHOST"
 )
 
-# Invoke enter_chroot.  This can only be used after sudo has been installed.
-enter_chroot() {
-  echo "$(date +%H:%M:%S) [enter_chroot] $*"
-  "${ENTER_CHROOT}" --cache_dir "${FLAGS_cache_dir}" --chroot \
-    "${FLAGS_chroot}" --out_dir "${FLAGS_out_dir}" --nopivot_root -- \
-    "${ENTER_CHROOT_ARGS[@]}" "$@"
-}
-
 # Invoke enter_chroot running the command as root, and w/out sudo.
 # This should be used prior to sudo being merged.
 early_env=()
@@ -133,9 +125,5 @@ create_bootstrap_host_setup "${FLAGS_chroot}"
 
 # Run all the init stuff to setup the env.
 init_setup
-
-# The java-config package atm does not support $ROOT.  Select a default
-# VM ourselves until that gets fixed upstream.
-enter_chroot sudo eselect java-vm set system openjdk-bin-11
 
 command_completed
