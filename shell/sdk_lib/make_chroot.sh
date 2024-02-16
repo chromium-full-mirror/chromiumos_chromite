@@ -43,7 +43,6 @@ switch_to_strict_mode
 ENTER_CHROOT_ARGS=(
   CROS_WORKON_SRCROOT="${CHROOT_TRUNK_DIR}"
   PORTAGE_USERNAME="${SUDO_USER}"
-  IGNORE_PREFLIGHT_BINHOST="$IGNORE_PREFLIGHT_BINHOST"
 )
 
 # Invoke enter_chroot running the command as root, and w/out sudo.

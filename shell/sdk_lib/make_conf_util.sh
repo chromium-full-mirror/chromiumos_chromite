@@ -2,16 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# The default PORTAGE_BINHOST setting selects the preflight
-# binhosts.  We override the setting if the build environment
-# requests it.
-_make_conf_prebuilt() {
-  if [[ -n "$IGNORE_PREFLIGHT_BINHOST" ]]; then
-    echo 'PORTAGE_BINHOST="$FULL_BINHOST"'
-    echo
-  fi
-}
-
 # Include configuration settings for building private overlay
 # packages, if the overlay is present.
 _make_conf_private() {
@@ -48,7 +38,6 @@ _create_host_setup() {
   ( echo "# Automatically generated.  EDIT THIS AND BE SORRY."
     echo
     _make_conf_private
-    _make_conf_prebuilt
     echo 'MAKEOPTS="-j'${NUM_JOBS}'"' ) | sudo_clobber "$host_setup"
   sudo chmod 644 "$host_setup"
 }
