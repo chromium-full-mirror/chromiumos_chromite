@@ -4,25 +4,27 @@
 
 # Include configuration settings for building private overlay
 # packages, if the overlay is present.
+# $1 - Path to source checkout as seen from outside.
 _make_conf_private() {
+  local source_root="$1"
+
   # If the private overlay dir exists, make sure each sub-piece also exists
   # before we try using it.  Otherwise, simply creating an empty dir will
   # lead to weird build errors.
   local chromeos_overlay="src/private-overlays/chromeos-overlay"
-  chromeos_overlay="${CHROOT_TRUNK_DIR}/${chromeos_overlay}"
 
-  if [[ -d "${chromeos_overlay}" ]]; then
+  if [[ -d "${source_root}/${chromeos_overlay}" ]]; then
     local make_conf="${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay"
     make_conf+="/chromeos/config/make.conf.sdk-chromeos"
     echo "source ${make_conf}"
   fi
 
   local chromeos_partner_overlay="src/private-overlays/chromeos-partner-overlay"
-  chromeos_partner_overlay="${CHROOT_TRUNK_DIR}/${chromeos_partner_overlay}"
 
   local overlay
   for overlay in "${chromeos_partner_overlay}" "${chromeos_overlay}"; do
-    if [[ -d "${overlay}" ]]; then
+    if [[ -d "${source_root}/${overlay}" ]]; then
+      overlay="${CHROOT_TRUNK_DIR}/${overlay}"
       echo "PORTDIR_OVERLAY=\"\$PORTDIR_OVERLAY ${overlay}\""
     fi
   done
@@ -33,11 +35,14 @@ _make_conf_private() {
 # Usage:
 # $1 - When outside the chroot, path to the chroot.  Empty when
 #      inside the chroot.
+# $2 - Path to source checkout as seen from outside.
 _create_host_setup() {
-  local host_setup="$1/etc/make.conf.host_setup"
+  local root="$1"
+  local source_root="$2"
+  local host_setup="${root}/etc/make.conf.host_setup"
   ( echo "# Automatically generated.  EDIT THIS AND BE SORRY."
     echo
-    _make_conf_private
+    _make_conf_private "${source_root}"
     echo 'MAKEOPTS="-j'${NUM_JOBS}'"' ) | sudo_clobber "$host_setup"
   sudo chmod 644 "$host_setup"
 }
@@ -48,6 +53,7 @@ _create_host_setup() {
 #
 # Usage:
 #   $1 - Path to chroot as seen from outside
+#   $2 - Path to source checkout as seen from outside
 create_bootstrap_host_setup() {
   _create_host_setup "$@"
 }
@@ -55,5 +61,5 @@ create_bootstrap_host_setup() {
 
 # Create /etc/make.conf.host_setup for normal usage.
 create_host_setup() {
-  _create_host_setup ''
+  _create_host_setup '' "${CHROOT_TRUNK_DIR}"
 }

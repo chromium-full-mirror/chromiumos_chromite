@@ -93,7 +93,7 @@ init_setup () {
 # Create a special /etc/make.conf.host_setup that we use to bootstrap
 # the chroot.  The regular content for the file will be generated the
 # first time we invoke update_chroot (further down in this script).
-create_bootstrap_host_setup "${FLAGS_chroot}"
+create_bootstrap_host_setup "${FLAGS_chroot}" "${GCLIENT_ROOT}"
 
 # Run all the init stuff to setup the env.
 init_setup
