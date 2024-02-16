@@ -18,8 +18,11 @@ def _FindSourceRoot() -> Path:
     while True:
         if (path / ".repo").is_dir():
             return path
-        elif path == root:
+        if path == root:
             break
+        # CitC is one level above the real source root.
+        if (path.parent / ".citc").is_dir():
+            return path
         path = path.parent
     return source_root
 
