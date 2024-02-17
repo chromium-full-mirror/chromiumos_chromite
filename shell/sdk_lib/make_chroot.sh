@@ -91,14 +91,6 @@ init_setup () {
    early_enter_chroot env-update --no-ldconfig
 }
 
-# Pass proxy variables into the environment.
-for type in http ftp all; do
-   value=$(env | grep "${type}_proxy" || true)
-   if [ -n "${value}" ]; then
-      CHROOT_PASSTHRU+=("$value")
-   fi
-done
-
 # Create a special /etc/make.conf.host_setup that we use to bootstrap
 # the chroot.  The regular content for the file will be generated the
 # first time we invoke update_chroot (further down in this script).
