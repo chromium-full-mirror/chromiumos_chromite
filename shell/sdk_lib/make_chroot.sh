@@ -88,7 +88,7 @@ init_setup () {
    # TODO(zbehan): Configure stuff that is usually configured in postinst's,
    # but wasn't. Fix the postinst's.
    info "Running post-inst configuration hacks"
-   early_enter_chroot env-update
+   early_enter_chroot env-update --no-ldconfig
 }
 
 # Pass proxy variables into the environment.
