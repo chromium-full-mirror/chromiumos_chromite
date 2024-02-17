@@ -746,6 +746,19 @@ class ChrootCreator:
         except cros_build_lib.RunCommandError as e:
             cros_build_lib.Die("Creating chroot failed!\n%s", e)
 
+        # TODO(zbehan): Configure stuff that is usually done in postinst's,
+        # but wasn't. Fix the postinst's.
+        # NB: We don't use self.chroot.run because that requires the SDK be
+        # initialized since it uses `cros_sdk` to enter.
+        cros_build_lib.dbg_run(
+            ["chroot", self.chroot.path, "env-update", "--no-ldconfig"],
+            extra_env={
+                # We need to use the PATH that makes sense inside the SDK,
+                # not whatever the host env is using.
+                "PATH": "/bin:/sbin:/usr/bin:/usr/sbin",
+            },
+        )
+
     def init_timezone(self) -> None:
         """Setup the timezone info inside the chroot."""
         tz_path = Path("etc/localtime")
@@ -928,7 +941,7 @@ class ChrootCreator:
                 chroot_path.chmod(0o644)
 
         # Add chromite/sdk/bin and chromite/bin into the path globally. We rely
-        # on 'env-update' getting called later (make_chroot.sh).
+        # on 'env-update' getting called later.
         env_d = etc_dir / "env.d" / "99chromiumos"
         chroot_chromite_bin = (
             constants.CHROOT_SOURCE_ROOT / constants.CHROMITE_BIN_SUBDIR

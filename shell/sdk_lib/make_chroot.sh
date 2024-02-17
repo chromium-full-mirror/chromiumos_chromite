@@ -33,17 +33,6 @@ switch_to_strict_mode
 # shellcheck source=make_conf_util.sh
 . "${SCRIPT_ROOT}"/sdk_lib/make_conf_util.sh
 
-# Run a command within the chroot.  The main usage of this is to avoid the
-# overhead of enter_chroot.  It's when we do not need access to the source
-# tree, don't need the actual chroot profile env, and can run the command as
-# root.  We do have to make sure PATH includes all the right programs as
-# found inside of the chroot since the environment outside of the chroot
-# might be insufficient (like distros with merged /bin /sbin and /usr).
-bare_chroot() {
-  PATH="/bin:/sbin:/usr/bin:/usr/sbin:${PATH}" \
-    chroot "${FLAGS_chroot}" "$@"
-}
-
 init_setup () {
    info "Running init_setup()..."
 
@@ -51,11 +40,6 @@ init_setup () {
    load_environment_whitelist
    "${SCRIPT_ROOT}/sdk_lib/rewrite-sudoers.d.sh" \
      "${FLAGS_chroot}" "${SUDO_USER}" "${ENVIRONMENT_WHITELIST[@]}"
-
-   # TODO(zbehan): Configure stuff that is usually configured in postinst's,
-   # but wasn't. Fix the postinst's.
-   info "Running post-inst configuration hacks"
-   bare_chroot env-update --no-ldconfig
 }
 
 # Create a special /etc/make.conf.host_setup that we use to bootstrap
