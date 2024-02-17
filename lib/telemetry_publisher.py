@@ -7,10 +7,21 @@
 import dataclasses
 import datetime
 import enum
+import functools
 import json
 import logging
+import os
 import time
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    TYPE_CHECKING,
+    Union,
+)
 import urllib.error
 import urllib.request
 
@@ -24,18 +35,163 @@ from chromite.third_party.opentelemetry.sdk import resources
 # somewhere else instead.
 from chromite.api.gen.chromite.telemetry import clientanalytics_pb2
 from chromite.api.gen.chromite.telemetry import trace_span_pb2
+from chromite.lib import locking
+from chromite.lib import path_util
+from chromite.lib.telemetry import trace
 from chromite.utils.telemetry import detector
 from chromite.utils.telemetry import utils
 
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+tracer = trace.get_tracer(__name__)
+
 _DEFAULT_ENDPOINT = "https://play.googleapis.com/log"
 _DEFAULT_TIMEOUT = 15
-_DEAULT_MAX_WAIT_SECS = 60
-_DEFAULT_MAX_BATCH_SIZE = 1000
+_DEAULT_MAX_WAIT_SECS = 20 * 60
+_DEFAULT_MAX_BATCH_SIZE = 20000
 # Preallocated in Clearcut proto to Build.
 _LOG_SOURCE = 2044
 # Preallocated in Clearcut proto to Python clients.
 _CLIENT_TYPE = 33
+
+
+class Error(Exception):
+    """Base error class for the module."""
+
+
+class PublishError(Error):
+    """An error encountered while publishing."""
+
+
+@functools.lru_cache
+def _get_telemetry_dir():
+    """Get the base telemetry log directory."""
+    return path_util.get_log_dir() / "telemetry"
+
+
+@functools.lru_cache
+def _get_publisher_file():
+    """Get the publisher PID file."""
+    return _get_telemetry_dir() / "telemetry_publisher_pid"
+
+
+@functools.lru_cache
+def _get_next_publish_ts_file():
+    """Get the telemetry next publish ts file."""
+    return _get_telemetry_dir() / "next_telemetry_publish_ts"
+
+
+def _can_publish():
+    next_publish = _get_next_publish_ts_file()
+
+    if not next_publish.exists():
+        return True
+
+    next_publish_lock = locking.FileLock(next_publish, locktype=locking.FLOCK)
+    next_publish_ts = None
+    with next_publish_lock.read_lock():
+        if next_publish.exists():
+            try:
+                next_publish_ts = float(next_publish.read_text())
+            except Exception as e:
+                logging.error(e)
+
+    logging.debug("next_publish_ts: %s", next_publish_ts)
+    logging.debug("current time: %s", time.time())
+    if next_publish_ts and time.time() < next_publish_ts:
+        return False
+
+    return True
+
+
+@tracer.start_as_current_span("chromite.lib.telemetry_publisher.publish")
+def publish():
+    """Parse telemetry from files and publish a batch."""
+    publisher_file = _get_publisher_file()
+    next_publish = _get_next_publish_ts_file()
+    publisher_lock = locking.FileLock(publisher_file, locktype=locking.FLOCK)
+    next_publish_lock = locking.FileLock(next_publish, locktype=locking.FLOCK)
+
+    if not _can_publish():
+        # Short circuit publisher file lock when we can't publish anyway.
+        logging.debug("Too soon.")
+        return
+
+    publisher = ClearcutPublisher()
+
+    logging.debug("Acquiring lock.")
+    with publisher_lock.write_lock():
+        if not _can_publish():
+            # Double check we weren't waiting on a now-completed publisher.
+            logging.debug("Too soon.")
+            return
+
+        # Log our PID.
+        publisher_file.write_text(str(os.getpid()))
+
+        # Do the publishing.
+        logging.debug("Begin publish.")
+        pending_files = _parse_files(publisher)
+        logging.debug(
+            "Publishing %s files containing %s spans.",
+            len(pending_files),
+            publisher.queue_len,
+        )
+        try:
+            publisher.publish()
+        except PublishError:
+            publisher_file.unlink()
+            raise
+
+        _post_publish_actions(pending_files)
+
+        # Write out the next publish TS.
+        with next_publish_lock.write_lock():
+            next_publish.write_text(str(publisher.next_publish_ts))
+
+        # Drop the PID file and we're done.
+        publisher_file.unlink()
+        logging.debug("Publish complete.")
+        # TODO: Clear old published files instead of deleting on publish.
+
+
+@tracer.start_as_current_span("chromite.lib.telemetry_publisher._parse_files")
+def _parse_files(publisher: "ClearcutPublisher") -> List["Path"]:
+    """Parse relevant files from the telemetry log dir and queue their spans."""
+    pending_files = []
+    for current in _get_telemetry_dir().rglob("*.otel.traces.json"):
+        logging.debug("Processing: %s", current)
+        # TODO: Check for published file.
+        lines = [x for x in current.read_text().splitlines() if x]
+        if not lines:
+            # Most likely an actively running process.
+            continue
+
+        if publisher.queue(lines):
+            logging.debug("Queued: %s with %s spans", current, len(lines))
+            pending_files.append(current)
+        else:
+            break
+
+    return pending_files
+
+
+@tracer.start_as_current_span(
+    "chromite.lib.telemetry_publisher._post_publish_actions"
+)
+def _post_publish_actions(pending_files: List["Path"]):
+    """Post-publish actions for all published files."""
+    for file in pending_files:
+        # TODO: Write a published file instead.
+        logging.debug("Deleting published: %s", file)
+        file.unlink()
+        try:
+            file.parent.rmdir()
+            file.parent.parent.rmdir()
+        except OSError:
+            pass
 
 
 class TraceSpanDataclassMixin:
@@ -409,14 +565,17 @@ class ClearcutPublisher:
         self,
         endpoint: str = _DEFAULT_ENDPOINT,
         timeout: int = _DEFAULT_TIMEOUT,
-        max_wait_secs: int = _DEAULT_MAX_WAIT_SECS,
         max_batch_size: int = _DEFAULT_MAX_BATCH_SIZE,
+        next_request_ts: Optional[Union[int, float]] = None,
         prefilter: Optional[Callable[[str], str]] = None,
     ) -> None:
         self._endpoint = endpoint
         self._timeout = timeout
-        self._next_request_dt = datetime.datetime.now()
-        self._max_wait_secs = max_wait_secs
+        self._next_request_dt = (
+            datetime.datetime.fromtimestamp(next_request_ts)
+            if next_request_ts
+            else datetime.datetime.now()
+        )
         self._queue = []
         self._max_batch_size = max_batch_size
         self._prefilter = prefilter or utils.Anonymizer()
@@ -429,43 +588,45 @@ class ClearcutPublisher:
 
         return wait_time if wait_time > 0 else 0
 
-    def publish(self, spans: Optional[Iterable[str]] = None) -> bool:
-        """Queue |spans| and publish the full queue."""
-        self.queue(spans or [])
-        while self._queue:
-            if not self._publish_batch():
-                return False
+    @property
+    def next_publish_ts(self):
+        """Get the timestamp the next publish can be made."""
+        return self._next_request_dt.timestamp()
 
-        return True
+    @property
+    def queue_len(self):
+        """Get the number of items in the queue."""
+        return len(self._queue)
 
-    def queue(self, spans: Iterable[str]) -> None:
-        """Add spans to the queue."""
-        self._queue.extend([TraceSpan.parse(self._prefilter(x)) for x in spans])
-
-    def _publish_batch(self, timeout: Optional[int] = None) -> bool:
-        """Publish one batch of spans to clearcut via http api."""
+    @tracer.start_as_current_span(
+        "chromite.lib.telemetry_publisher.ClearcutPublisher.publish"
+    )
+    def publish(self, timeout: Optional[int] = None):
+        """Publish a batch."""
         spans = self._queue[: self._max_batch_size]
         self._queue = self._queue[self._max_batch_size :]
 
-        while True:
-            if self.wait_time > self._max_wait_secs:
-                logging.warning("Wait is too long. This should be weird.")
-                return False
-            elif self.wait_time > 0:
-                time.sleep(self.wait_time)
-                continue
+        log_request = self._prepare_request_body(spans)
+        log_response = self._do_publish_request(log_request, timeout)
 
-            log_request = self._prepare_request_body(spans)
-            log_response = self._do_publish_request(log_request, timeout)
-            if not log_response:
-                return False
+        now = datetime.datetime.now()
+        delta = datetime.timedelta(
+            milliseconds=log_response.next_request_wait_millis
+        )
+        self._next_request_dt = now + delta
 
-            now = datetime.datetime.now()
-            delta = datetime.timedelta(
-                milliseconds=log_response.next_request_wait_millis
-            )
-            self._next_request_dt = now + delta
+    def queue(self, spans: Iterable[str]) -> bool:
+        """Add spans to the queue if not above max batch size."""
+        parsed = [TraceSpan.parse(self._prefilter(x)) for x in spans]
+        if self._can_queue(len(parsed)):
+            self._queue.extend(parsed)
             return True
+
+        return False
+
+    def _can_queue(self, count):
+        """Check if |count| spans can be published in the batch."""
+        return self._max_batch_size - self.queue_len >= count
 
     def _prepare_request_body(
         self, spans: Iterable[TraceSpan]
@@ -488,27 +649,32 @@ class ClearcutPublisher:
         self,
         log_request: clientanalytics_pb2.LogRequest,
         timeout: Optional[int] = None,
-    ) -> Optional[clientanalytics_pb2.LogResponse]:
+    ) -> clientanalytics_pb2.LogResponse:
         req = urllib.request.Request(
             self._endpoint,
             data=log_request.SerializeToString(),
             method="POST",
         )
-        log_response = clientanalytics_pb2.LogResponse()
 
         try:
             with urllib.request.urlopen(
                 req, timeout=timeout or self._timeout
             ) as f:
-                log_response.ParseFromString(f.read())
+                response = f.read()
         except urllib.error.URLError as e:
-            # It is expected that child Pids in build_image which call
-            # sys.exit do not have network re-enabled in that namespace, so
-            # for now, log this error at the debug level.
             logging.debug(e)
-            return None
+            raise PublishError(
+                f"Encountered an error while publishing: {e}"
+            ) from e
+
+        logging.debug("Response:")
+        logging.debug(response)
+
+        log_response = clientanalytics_pb2.LogResponse()
+        try:
+            log_response.ParseFromString(response)
         except proto_msg.DecodeError as e:
             logging.warning("could not decode data into proto: %s", e)
-            return None
+            raise PublishError(f"Unable to decode proto: {e}") from e
 
         return log_response

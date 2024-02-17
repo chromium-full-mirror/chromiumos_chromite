@@ -8,7 +8,13 @@ import logging
 
 from chromite.cli import command
 from chromite.lib import chromite_config
+from chromite.lib import telemetry
+from chromite.lib import telemetry_publisher
 from chromite.lib.telemetry import config
+from chromite.lib.telemetry import trace
+
+
+tracer = trace.get_tracer(__name__)
 
 
 @command.command_decorator("telemetry")
@@ -81,6 +87,9 @@ What we collect:
             action="store_true",
             help="Regenerate UUIDs.",
         )
+        actions.add_argument(
+            "--publish", action="store_true", help="Publish pending telemetry."
+        )
 
     @staticmethod
     def _show_telemetry(cfg: config.Config) -> None:
@@ -97,13 +106,19 @@ What we collect:
 
     def Run(self) -> None:
         """Run cros telemetry."""
-        chromite_config.initialize()
-        cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
+        telemetry.initialize(log_traces=self.options.log_telemetry)
+        self._do_run()
 
+    @tracer.start_as_current_span("cli.cros.cros_telemetry.main")
+    def _do_run(self) -> None:
+        span = trace.get_current_span()
+        cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
         if self.options.enable:
+            span.set_attribute("enable", True)
             cfg.trace_config.update(enabled=True, reason="USER")
             logging.notice("Telemetry enabled successfully.")
         elif self.options.disable:
+            span.set_attribute("disable", True)
             cfg.trace_config.update(enabled=False, reason="USER")
             logging.notice("Telemetry disabled successfully.")
         elif self.options.show:
@@ -115,6 +130,10 @@ What we collect:
             cfg.trace_config.set_dev(False)
             logging.notice("Development flag disabled successfully.")
         elif self.options.regen_ids:
+            span.set_attribute("regen_ids", True)
             cfg.trace_config.gen_id(regen=True)
+        elif self.options.publish:
+            span.set_attribute("publish", True)
+            telemetry_publisher.publish()
 
         cfg.flush()

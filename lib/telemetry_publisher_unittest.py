@@ -218,32 +218,11 @@ def test_max_batch_size(monkeypatch) -> None:
     )
 
     publisher = telemetry_publisher.ClearcutPublisher(max_batch_size=2)
-    publisher.queue([_SPAN, _SPAN, _SPAN])
+    assert not publisher.queue([_SPAN, _SPAN, _SPAN])
+    assert publisher.queue([_SPAN, _SPAN])
 
-    # Verify we only publish a single batch.
-    # pylint: disable=protected-access
-    publisher._publish_batch()
-    assert len(publisher._queue) == 1
-
-
-def test_max_wait_time(monkeypatch) -> None:
-    """Verify max_wait_time is respected."""
-    # Force a 1-hour wait time.
-    response = clientanalytics_pb2.LogResponse(
-        next_request_wait_millis=1000 * 60 * 60
-    )
-    monkeypatch.setattr(
-        telemetry_publisher.ClearcutPublisher,
-        "_do_publish_request",
-        lambda *args, **kwargs: response,
-    )
-
-    # Max wait time = 1 seconds < response's 1 hour.
-    publisher = telemetry_publisher.ClearcutPublisher(
-        max_batch_size=1, max_wait_secs=1
-    )
-    # Should return False on the second call.
-    assert not publisher.publish([_SPAN, _SPAN])
+    publisher.publish()
+    assert not publisher.queue_len
 
 
 def test_next_request_wait(monkeypatch) -> None:
@@ -262,7 +241,26 @@ def test_next_request_wait(monkeypatch) -> None:
     # Shouldn't be a wait time for a freshly initialized instance.
     assert not publisher.wait_time
     # Should publish successfully.
-    assert publisher.publish([_SPAN])
+    assert publisher.queue([_SPAN])
+    publisher.publish()
     # Verify new wait time is close to the 24 hours.
     # If this test takes more than 6 minutes to run we've got issues.
     assert publisher.wait_time > int(60 * 60 * 23.9)
+
+
+def test_extract_from_files(monkeypatch, tmp_path):
+    monkeypatch.setattr(
+        telemetry_publisher, "_get_telemetry_dir", lambda: tmp_path
+    )
+
+    trace_file = tmp_path / "foo.otel.traces.json"
+    span = json.loads(_SPAN)
+    trace_file.write_text(json.dumps(span))
+
+    expected = [telemetry_publisher.TraceSpan.parse(_SPAN)]
+
+    publisher = telemetry_publisher.ClearcutPublisher()
+    # pylint: disable=protected-access
+    telemetry_publisher._parse_files(publisher)
+
+    assert expected == publisher._queue
