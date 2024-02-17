@@ -14,9 +14,6 @@ assert_root_user
 
 DEFINE_string chroot "$DEFAULT_CHROOT_DIR" \
   "Destination dir for the chroot environment."
-DEFINE_string out_dir "${DEFAULT_OUT_DIR}" \
-  "The destination dir for build output and state."
-DEFINE_string cache_dir "" "Directory to store caches within."
 
 # Parse command line flags.
 FLAGS_HELP="usage: $SCRIPT_NAME [flags]"
@@ -32,8 +29,6 @@ umask 022
 # so will die prematurely if 'switch_to_strict_mode' is specified before now.
 # TODO: replace shflags with something less error-prone, or contribute a fix.
 switch_to_strict_mode
-
-[[ -z "${FLAGS_cache_dir}" ]] && die "--cache_dir is required"
 
 # shellcheck source=make_conf_util.sh
 . "${SCRIPT_ROOT}"/sdk_lib/make_conf_util.sh

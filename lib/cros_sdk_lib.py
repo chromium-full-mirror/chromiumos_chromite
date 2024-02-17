@@ -739,10 +739,6 @@ class ChrootCreator:
             self.MAKE_CHROOT,
             "--chroot",
             str(self.chroot.path),
-            "--out_dir",
-            str(self.chroot.out_path),
-            "--cache_dir",
-            str(self.chroot.cache_dir),
         ]
 
         try:
