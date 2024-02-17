@@ -76,10 +76,6 @@ init_setup () {
    "${SCRIPT_ROOT}/sdk_lib/rewrite-sudoers.d.sh" \
      "${FLAGS_chroot}" "${SUDO_USER}" "${ENVIRONMENT_WHITELIST[@]}"
 
-   find "${FLAGS_chroot}/etc/"sudoers* -type f -exec chmod 0440 {} +
-   # Fix bad group for some.
-   chown -R root:root "${FLAGS_chroot}/etc/"sudoers*
-
    # Create directories referred to by our conf files.
    echo "export CHROMEOS_CACHEDIR=/var/cache/chromeos-cache" > \
      "${FLAGS_chroot}/etc/profile.d/chromeos-cachedir.sh"
