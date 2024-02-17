@@ -4,30 +4,15 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# This script sets up a Gentoo chroot environment. The script is passed the
-# path to an empty folder, which will be populated with a Gentoo stage3 and
-# setup for development. Once created, the password is set to PASSWORD (below).
-# One can enter the chrooted environment for work by running enter_chroot.sh.
-
 SCRIPT_ROOT=$(readlink -f "$(dirname "$0")/..")
 # shellcheck source=../common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
 ENTER_CHROOT=$(readlink -f "$(dirname "$0")/enter_chroot.sh")
 
-# Check if the host machine architecture is supported.
-ARCHITECTURE="$(uname -m)"
-if [[ "$ARCHITECTURE" != "x86_64" ]]; then
-  echo "$SCRIPT_NAME: $ARCHITECTURE is not supported as a host machine architecture."
-  exit 1
-fi
-
 # Script must be run outside the chroot and as root.
 assert_outside_chroot
 assert_root_user
-
-# Define command line flags.
-# See http://code.google.com/p/shflags/wiki/Documentation10x
 
 DEFINE_string chroot "$DEFAULT_CHROOT_DIR" \
   "Destination dir for the chroot environment."
