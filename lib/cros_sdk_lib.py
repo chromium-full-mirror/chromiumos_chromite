@@ -948,10 +948,10 @@ PORTAGE_USERNAME="{user}"
 
         profile_d = etc_dir / "profile.d"
         profile_d.mkdir(mode=0o755, parents=True, exist_ok=True)
-        (profile_d / "50-chromiumos-niceties.sh").symlink_to(
-            f"{constants.CHROOT_SOURCE_ROOT}/chromite/sdk/etc/profile.d/"
-            "50-chromiumos-niceties.sh"
-        )
+        for f in ("40-chromeos-cachedir.sh", "50-chromiumos-niceties.sh"):
+            (profile_d / f).symlink_to(
+                f"{constants.CHROOT_SOURCE_ROOT}/chromite/sdk/etc/profile.d/{f}"
+            )
 
         # Enable bash completion.
         bash_completion_d = etc_dir / "bash_completion.d"

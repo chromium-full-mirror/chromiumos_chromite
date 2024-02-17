@@ -75,11 +75,6 @@ init_setup () {
    "${SCRIPT_ROOT}/sdk_lib/rewrite-sudoers.d.sh" \
      "${FLAGS_chroot}" "${SUDO_USER}" "${ENVIRONMENT_WHITELIST[@]}"
 
-   # Create directories referred to by our conf files.
-   echo "export CHROMEOS_CACHEDIR=/var/cache/chromeos-cache" > \
-     "${FLAGS_chroot}/etc/profile.d/chromeos-cachedir.sh"
-   chmod 0644 "${FLAGS_chroot}/etc/profile.d/chromeos-cachedir.sh"
-
    # Run this from w/in the chroot so we use whatever uid/gid
    # these are defined as w/in the chroot.
    bare_chroot chown "${SUDO_USER}:portage" /var/cache/chromeos-chrome
