@@ -967,6 +967,18 @@ PORTAGE_USERNAME="{user}"
         bash_completion_d.mkdir(mode=0o755, parents=True, exist_ok=True)
         (bash_completion_d / "cros").symlink_to(f"{_BASH_COMPLETION_DIR}/cros")
 
+        # Use the standardized upgrade script to setup proxied vars.
+        cros_build_lib.dbg_run(
+            [
+                constants.CHROMITE_SHELL_DIR
+                / "sdk_lib"
+                / "rewrite-sudoers.d.sh",
+                self.chroot.path,
+                user,
+            ]
+            + list(constants.CHROOT_ENVIRONMENT_ALLOWLIST)
+        )
+
     def init_var(self, uid: Optional[int] = None) -> None:
         """Handle /var contents from SDK tarball."""
         if uid is None:

@@ -33,21 +33,9 @@ switch_to_strict_mode
 # shellcheck source=make_conf_util.sh
 . "${SCRIPT_ROOT}"/sdk_lib/make_conf_util.sh
 
-init_setup () {
-   info "Running init_setup()..."
-
-   # Use the standardized upgrade script to setup proxied vars.
-   load_environment_whitelist
-   "${SCRIPT_ROOT}/sdk_lib/rewrite-sudoers.d.sh" \
-     "${FLAGS_chroot}" "${SUDO_USER}" "${ENVIRONMENT_WHITELIST[@]}"
-}
-
 # Create a special /etc/make.conf.host_setup that we use to bootstrap
 # the chroot.  The regular content for the file will be generated the
 # first time we invoke update_chroot (further down in this script).
 create_bootstrap_host_setup "${FLAGS_chroot}" "${GCLIENT_ROOT}"
-
-# Run all the init stuff to setup the env.
-init_setup
 
 command_completed
