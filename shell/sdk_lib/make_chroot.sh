@@ -75,9 +75,8 @@ init_setup () {
    "${SCRIPT_ROOT}/sdk_lib/rewrite-sudoers.d.sh" \
      "${FLAGS_chroot}" "${SUDO_USER}" "${ENVIRONMENT_WHITELIST[@]}"
 
-   # Run this from w/in the chroot so we use whatever uid/gid
-   # these are defined as w/in the chroot.
-   bare_chroot chown "${SUDO_USER}:portage" /var/cache/chromeos-chrome
+   # The portage gid is hardcoded to 250.
+   chown "${SUDO_USER}:250" "${FLAGS_chroot}/var/cache/chromeos-chrome"
 
    # TODO(zbehan): Configure stuff that is usually configured in postinst's,
    # but wasn't. Fix the postinst's.
