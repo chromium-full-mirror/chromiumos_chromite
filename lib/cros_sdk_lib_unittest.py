@@ -17,6 +17,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
+from chromite.lib import path_util
 
 
 # pylint: disable=protected-access
@@ -557,6 +558,16 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         TEST_GID = 9082010
         self.PatchObject(cros_sdk_lib.ChrootCreator, "_make_chroot")
         chown_mock = self.PatchObject(osutils, "Chown")
+        # We have to mock the cachedir lookup because, when run inside the SDK,
+        # it always returns /mnt/host/source/ paths.  This is normally correct,
+        # but we want to assert all paths to chown are safe by virtue of being
+        # relative to the chroot dir.
+        test_cache_dir = str(self.chroot.out_path / "test-cachedir")
+        self.PatchObject(
+            path_util.ChrootPathResolver,
+            "_GetCachePath",
+            return_value=test_cache_dir,
+        )
 
         self.creater.run(
             user=TEST_USER, uid=TEST_UID, group=TEST_GROUP, gid=TEST_GID
@@ -567,6 +578,11 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
                 TEST_UID,
                 group=TEST_GID,
                 recursive=True,
+            ),
+            mock.call(
+                test_cache_dir,
+                TEST_UID,
+                group=constants.PORTAGE_GID,
             ),
             mock.call(
                 Path(
@@ -660,6 +676,16 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         TEST_GID = 100
         self.PatchObject(cros_sdk_lib.ChrootCreator, "_make_chroot")
         chown_mock = self.PatchObject(osutils, "Chown")
+        # We have to mock the cachedir lookup because, when run inside the SDK,
+        # it always returns /mnt/host/source/ paths.  This is normally correct,
+        # but we want to assert all paths to chown are safe by virtue of being
+        # relative to the chroot dir.
+        test_cache_dir = str(self.chroot.out_path / "test-cachedir")
+        self.PatchObject(
+            path_util.ChrootPathResolver,
+            "_GetCachePath",
+            return_value=test_cache_dir,
+        )
 
         self.creater.run(
             user=TEST_USER, uid=TEST_UID, group=TEST_GROUP, gid=TEST_GID
@@ -670,6 +696,11 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
                 TEST_UID,
                 group=TEST_GID,
                 recursive=True,
+            ),
+            mock.call(
+                test_cache_dir,
+                TEST_UID,
+                group=constants.PORTAGE_GID,
             ),
             mock.call(
                 Path(

@@ -954,8 +954,13 @@ PORTAGE_USERNAME="{user}"
         bash_completion_d.mkdir(mode=0o755, parents=True, exist_ok=True)
         (bash_completion_d / "cros").symlink_to(f"{_BASH_COMPLETION_DIR}/cros")
 
-    def init_var(self) -> None:
+    def init_var(self, uid: Optional[int] = None) -> None:
         """Handle /var contents from SDK tarball."""
+        if uid is None:
+            uid_str = os.getenv("SUDO_UID")
+            assert uid_str is not None
+            uid = int(uid_str)
+
         for chroot_path, out_path in (
             ("var/cache", "sdk/cache"),
             ("var/log", "sdk/logs"),
@@ -968,6 +973,9 @@ PORTAGE_USERNAME="{user}"
 
             osutils.SafeMakedirsNonRoot(dst_dir)
             osutils.MoveDirContents(src_dir, dst_dir, allow_nonempty=True)
+
+        cache_dir = self.chroot.full_path(constants.CHROOT_CACHE_ROOT)
+        osutils.Chown(cache_dir, uid, group=constants.PORTAGE_GID)
 
         # Create edb cache stub directories.
         edb_cache_dep = Path(
@@ -1035,7 +1043,7 @@ $ cros_sdk --delete%s
             self.init_group(user=user, group=group, gid=gid)
             self.init_filesystem_basic()
             self.init_etc(user=user)
-            self.init_var()
+            self.init_var(uid=uid)
 
         MountChrootPaths(self.chroot)
 

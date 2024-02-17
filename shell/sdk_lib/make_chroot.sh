@@ -52,9 +52,6 @@ init_setup () {
    "${SCRIPT_ROOT}/sdk_lib/rewrite-sudoers.d.sh" \
      "${FLAGS_chroot}" "${SUDO_USER}" "${ENVIRONMENT_WHITELIST[@]}"
 
-   # The portage gid is hardcoded to 250.
-   chown "${SUDO_USER}:250" "${FLAGS_chroot}/var/cache/chromeos-chrome"
-
    # TODO(zbehan): Configure stuff that is usually configured in postinst's,
    # but wasn't. Fix the postinst's.
    info "Running post-inst configuration hacks"
