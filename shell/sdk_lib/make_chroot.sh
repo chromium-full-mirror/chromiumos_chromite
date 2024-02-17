@@ -8,8 +8,6 @@ SCRIPT_ROOT=$(readlink -f "$(dirname "$0")/..")
 # shellcheck source=../common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
-ENTER_CHROOT=$(readlink -f "$(dirname "$0")/enter_chroot.sh")
-
 # Script must be run outside the chroot and as root.
 assert_outside_chroot
 assert_root_user
@@ -40,22 +38,6 @@ switch_to_strict_mode
 # shellcheck source=make_conf_util.sh
 . "${SCRIPT_ROOT}"/sdk_lib/make_conf_util.sh
 
-ENTER_CHROOT_ARGS=(
-  CROS_WORKON_SRCROOT="${CHROOT_TRUNK_DIR}"
-  PORTAGE_USERNAME="${SUDO_USER}"
-)
-
-# Invoke enter_chroot running the command as root, and w/out sudo.
-# This should be used prior to sudo being merged.
-early_env=()
-early_enter_chroot() {
-  echo "$(date +%H:%M:%S) [early_enter_chroot] $*"
-  "${ENTER_CHROOT}" --chroot "${FLAGS_chroot}" \
-    --out_dir "${FLAGS_out_dir}" --early_make_chroot \
-    --cache_dir "${FLAGS_cache_dir}" --nopivot_root \
-    -- "${ENTER_CHROOT_ARGS[@]}" "${early_env[@]}" "$@"
-}
-
 # Run a command within the chroot.  The main usage of this is to avoid the
 # overhead of enter_chroot.  It's when we do not need access to the source
 # tree, don't need the actual chroot profile env, and can run the command as
@@ -81,7 +63,7 @@ init_setup () {
    # TODO(zbehan): Configure stuff that is usually configured in postinst's,
    # but wasn't. Fix the postinst's.
    info "Running post-inst configuration hacks"
-   early_enter_chroot env-update --no-ldconfig
+   bare_chroot env-update --no-ldconfig
 }
 
 # Create a special /etc/make.conf.host_setup that we use to bootstrap

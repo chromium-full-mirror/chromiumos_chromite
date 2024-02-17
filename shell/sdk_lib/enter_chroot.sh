@@ -35,8 +35,6 @@ DEFINE_string working_dir "${CHROOT_TRUNK_DIR}/src/scripts" \
   "The working directory relative to ${CHROOT_TRUNK_DIR} for the command in \
 chroot, must start with '/' if set."
 
-DEFINE_boolean early_make_chroot "${FLAGS_FALSE}" \
-  "Internal flag.  If set, the command is run as root without sudo."
 DEFINE_boolean verbose "${FLAGS_FALSE}" "Print out actions taken"
 DEFINE_boolean pivot_root "${FLAGS_TRUE}" \
   "Use pivot_root to change the root file system."
@@ -667,9 +665,7 @@ fi
 
 # $@ should now be the command to run without environment variables.
 
-if [ "${FLAGS_early_make_chroot}" -eq "${FLAGS_TRUE}" ]; then
-  cmd=( env -C "${FLAGS_working_dir}" )
-elif [ ! -x "${FLAGS_chroot}/usr/bin/sudo" ]; then
+if [ ! -x "${FLAGS_chroot}/usr/bin/sudo" ]; then
   # Complain that sudo is missing.
   error "Failing since the chroot lacks sudo."
   error "Requested enter_chroot command was: $*"
