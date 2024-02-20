@@ -534,7 +534,9 @@ class Router:
             output_handler = output_handlers[0]
 
             cmd = [
-                "build_api",
+                constants.CHROOT_SOURCE_ROOT
+                / constants.CHROMITE_BIN_SUBDIR
+                / "build_api",
                 "%s/%s" % (service_name, method_name),
                 input_handler.input_arg,
                 chroot_input,

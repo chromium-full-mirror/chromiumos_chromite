@@ -20,6 +20,13 @@ from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 
 
+# The executable we expect to be called when re-execing build_api
+# inside the SDK.
+_BUILD_API_INSIDE = (
+    constants.CHROOT_SOURCE_ROOT / constants.CHROMITE_BIN_SUBDIR / "build_api"
+)
+
+
 class RouterTest(
     cros_test_lib.RunCommandTempDirTestCase, api_config.ApiConfigMixin
 ):
@@ -291,7 +298,7 @@ class RouterTest(
         )
 
         self.assertCommandContains(
-            ["build_api", service_method], enter_chroot=True
+            [_BUILD_API_INSIDE, service_method], enter_chroot=True
         )
 
     def testInsideServiceOutsideMethodInsideChroot(self) -> None:
@@ -368,7 +375,7 @@ class RouterTest(
         )
 
         self.assertCommandContains(
-            ["build_api", service_method], enter_chroot=True
+            [_BUILD_API_INSIDE, service_method], enter_chroot=True
         )
 
     def testReexecNonemptyOutput(self) -> None:
@@ -414,7 +421,7 @@ class RouterTest(
         )
 
         self.assertCommandContains(
-            ["build_api", service_method], enter_chroot=True
+            [_BUILD_API_INSIDE, service_method], enter_chroot=True
         )
 
         # It should be writing the result out to our output file.
@@ -458,7 +465,7 @@ class RouterTest(
         )
 
         self.assertCommandContains(
-            ["build_api", service_method], enter_chroot=True
+            [_BUILD_API_INSIDE, service_method], enter_chroot=True
         )
 
         output_msg = build_api_test_pb2.TestResultMessage()
@@ -488,7 +495,7 @@ class RouterTest(
         )
 
         self.assertCommandContains(
-            ["build_api", service_method], enter_chroot=True
+            [_BUILD_API_INSIDE, service_method], enter_chroot=True
         )
 
         output_msg = build_api_test_pb2.TestResultMessage()
