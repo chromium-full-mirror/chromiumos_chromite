@@ -27,16 +27,16 @@ _FAKE_request = relevancy_pb2.GetRelevantBuildTargetsRequest(
         relevancy_pb2.Path(path="src/overlays/overlay-fake/toolchains.conf"),
     ],
 )
-_REASON_FUNDAMENTAL = relevancy_service.ReasonFundamental(
+_REASON_PATH_RULE = relevancy_service.ReasonPathRule(
     trigger=Path("chromite/bin/baz"),
-    subtree=Path("chromite"),
+    pattern="chromite/.*",
 )
 _RELEVANT_TARGET = relevancy_pb2.GetRelevantBuildTargetsResponse.RelevantTarget(
     build_target=common_pb2.BuildTarget(
         name="fake",
         profile=common_pb2.Profile(name="base"),
     ),
-    reason=_REASON_FUNDAMENTAL.to_proto(),
+    reason=_REASON_PATH_RULE.to_proto(),
 )
 
 
@@ -44,7 +44,7 @@ _RELEVANT_TARGET = relevancy_pb2.GetRelevantBuildTargetsResponse.RelevantTarget(
     ("mocked_results", "expected_response"),
     [
         (
-            [(build_target_lib.BuildTarget("fake"), _REASON_FUNDAMENTAL)],
+            [(build_target_lib.BuildTarget("fake"), _REASON_PATH_RULE)],
             relevancy_pb2.GetRelevantBuildTargetsResponse(
                 build_targets=[_RELEVANT_TARGET],
             ),

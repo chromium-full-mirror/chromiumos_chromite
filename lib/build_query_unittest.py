@@ -200,6 +200,8 @@ def test_use_flags(fake_build_query_overlays) -> None:
         "some_var_private_val",
         "another_var_one_val",
         "another_var_another_val",
+        "kernel-6_1",
+        "bootimage",
     }
 
 
@@ -218,6 +220,7 @@ def test_use_flags_set(fake_build_query_overlays) -> None:
         "masked",
         "not_masked",
         "some_var_baseboard_val",
+        "bootimage",
     }
 
 

@@ -5,9 +5,11 @@
 """Implementation of builder relevancy checks using build_query."""
 
 import dataclasses
+import functools
 import logging
 from pathlib import Path
-from typing import Iterable, Iterator, List, Optional, Tuple
+import re
+from typing import Callable, Iterable, Iterator, List, Optional, Tuple
 
 from chromite.api.controller import controller_util
 from chromite.api.gen.chromite.api import relevancy_pb2
@@ -18,14 +20,61 @@ from chromite.lib import constants
 from chromite.utils import compat
 
 
-# A list of paths in the tree that "belongs to everything" (i.e., we want to
-# consider all build targets relevant for).
-_BELONGS_ALL = [
-    Path("chromite"),
-    Path("src/scripts"),
-    Path("manifest"),
-    Path("manifest-internal"),
+def _bootimage_enabled(build_target: build_target_lib.BuildTarget) -> bool:
+    """Return true if "bootimage" is in use_flags.
+
+    Designed for use with _PATH_RULES below.
+    """
+    return "bootimage" in build_target.board.use_flags
+
+
+# Special rules that can be applied to paths in the tree.  Each regular
+# expression (which matches a file path relative to the source checkout)
+# can map to a function which determines if the change is relevant).
+# The first argument of the callable is the BuildTarget under consideration.
+# Regex groups are applied to the remaining arguments of the function.  If
+# the function returns true, the path is considered relevant.  If it returns
+# false, the path is considered irrelevant.
+#
+# Returns:
+#     True: The change is relevant for this path.
+#     False: The change is not relevant for this path.
+_PATH_RULES: List[Tuple[str, Callable[..., bool]]] = [
+    (r"chromite/.*", lambda _: True),
+    (r"src/scripts/.*", lambda _: True),
+    (
+        r"src/third_party/kernel/v(\d+)\.(\d+)/.*",
+        lambda bt, v1, v2: f"kernel-{v1}_{v2}" in bt.board.use_flags,
+    ),
+    (r"src/third_party/coreboot/.*", _bootimage_enabled),
+    (r"src/platform/depthcharge/.*", _bootimage_enabled),
+    (
+        r"src/third_party/chromiumos-overlay/sys-boot/chromeos-bootimage/.*",
+        _bootimage_enabled,
+    ),
+    (
+        r"src/third_party/chromiumos-overlay/sys-boot/coreboot/.*",
+        _bootimage_enabled,
+    ),
+    (
+        r"src/third_party/chromiumos-overlay/sys-boot/depthcharge/.*",
+        _bootimage_enabled,
+    ),
+    (
+        r"src/third_party/chromiumos-overlay/sys-boot/edk2/.*",
+        _bootimage_enabled,
+    ),
+    (
+        r"src/third_party/chromiumos-overlay/sys-boot/libpayload/.*",
+        _bootimage_enabled,
+    ),
 ]
+
+
+@functools.lru_cache(maxsize=len(_PATH_RULES))
+def _re(pattern: str) -> "re.Pattern[str]":
+    """Lazy & cached regex compiler for _PATH_RULES."""
+    return re.compile(pattern)
 
 
 ReasonPb = relevancy_pb2.GetRelevantBuildTargetsResponse.RelevantTarget.Reason
@@ -44,18 +93,18 @@ class Reason:
 
 
 @dataclasses.dataclass
-class ReasonFundamental(Reason):
-    """The target is relevant as a path is in _BELONGS_ALL."""
+class ReasonPathRule(Reason):
+    """The target is relevant due to a path rule."""
 
-    # The subtree from _BELONGS_ALL.
-    subtree: Path
+    # The pattern that triggered the match.
+    pattern: str
 
     def to_proto(self) -> ReasonPb:
         pb = super().to_proto()
         pb.MergeFrom(
             ReasonPb(
-                build_tool_affected=ReasonPb.BuildToolAffected(
-                    subtree=relevancy_pb2.Path(path=str(self.subtree)),
+                path_rule_affected=ReasonPb.PathRuleAffected(
+                    pattern=self.pattern
                 ),
             )
         )
@@ -63,8 +112,8 @@ class ReasonFundamental(Reason):
 
     def __str__(self) -> str:
         return (
-            f"{self.trigger} modified a path under {self.subtree}, which is "
-            f"considered to be a fundamental path that affects all targets."
+            f"{self.trigger} modified a path which matches {self.pattern}, and "
+            f"the function for that pattern considers this change relevant."
         )
 
 
@@ -317,17 +366,49 @@ def get_relevant_build_targets(
         Tuples for each relevant build target, containing the target and the
         reason.
     """
-    paths = list(paths)
+    considered = list(considered)
 
-    for path in paths:
-        for subtree in _BELONGS_ALL:
-            if compat.path_is_relative_to(path, subtree):
-                reason_fundamental = ReasonFundamental(
-                    trigger=path, subtree=subtree
+    # Path rules are evaluated first, prior to considering any belongs.  Build
+    # targets matched by a path rule are not considered when looking at belongs.
+    paths = set(paths)
+    considered = set(considered)
+    for path in list(paths):
+        for pattern, func in _PATH_RULES:
+            match = _re(pattern).fullmatch(str(path))
+            if match:
+                # If a path matches any path rule, that means we shouldn't
+                # consider the regular belongs logic for that path.  We discard
+                # it from the path set.
+                paths.discard(path)
+
+                logging.debug(
+                    "Using path rule %s to evaluate relevancy for %s",
+                    pattern,
+                    path,
                 )
-                for build_target in considered:
-                    yield build_target, reason_fundamental
-                return
+
+                for build_target in list(considered):
+                    result = func(build_target, *match.groups())
+                    if result:
+                        logging.debug(
+                            "%s is applicable to %s by path rule %s",
+                            path,
+                            build_target,
+                            pattern,
+                        )
+                        considered.discard(build_target)
+                        yield build_target, ReasonPathRule(
+                            trigger=path, pattern=pattern
+                        )
+
+                # Once any path rule matches a path, we shall consider no more
+                # path rules for that path.
+                break
+
+    # If no build targets or no paths remain to consider after applying path
+    # rules, don't bother computing the belongs set.
+    if not considered or not paths:
+        return
 
     belongs = list(_get_belongs_set(paths))
 

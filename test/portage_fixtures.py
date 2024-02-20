@@ -80,7 +80,7 @@ def fake_build_query_overlays(tmp_path):
     baseboard_fake.create_profile(
         make_defaults={
             "ARCH": "amd64",
-            "USE": "some another masked not_masked",
+            "USE": "some another masked not_masked bootimage",
             "USE_EXPAND": "SOME_VAR",
             "SOME_VAR": "baseboard_val",
         },
@@ -95,7 +95,7 @@ def fake_build_query_overlays(tmp_path):
     )
     overlay_fake.create_profile(
         make_defaults={
-            "USE": "fake -another -baseboard_fake_private",
+            "USE": "fake -another -baseboard_fake_private kernel-6_1",
             "SOME_VAR": "-* board_val",
             "ANOTHER_VAR": "one_val another_val",
             "USE_EXPAND": "ANOTHER_VAR",
@@ -198,7 +198,11 @@ def fake_build_query_overlays(tmp_path):
         root_path=tmp_path / "overlay-foo-private",
         name="foo-private",
     )
-    overlay_foo_private.create_profile()
+    overlay_foo_private.create_profile(
+        make_defaults={
+            "USE": "kernel-5_15",
+        },
+    )
 
     overlays = [
         portage_stable,
