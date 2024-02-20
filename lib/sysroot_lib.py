@@ -872,7 +872,7 @@ class Sysroot:
         if accepted_licenses:
             config.append('ACCEPT_LICENSE="%s"' % accepted_licenses)
 
-        return "\n".join(config)
+        return "".join(f"{x}\n" for x in config)
 
     def GenerateBinhostConf(
         self,
