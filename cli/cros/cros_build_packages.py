@@ -449,7 +449,7 @@ class BuildPackagesCommand(command.CliCommand):
             parser.error("--board is required")
 
         if options.chrome:
-            options.internal_chrome = True
+            options.internal = True
             options.use_any_chrome = False
 
         if options.cleanbuild:
