@@ -947,10 +947,21 @@ PORTAGE_BINHOST="$FULL_BINHOST"
 
         # CQ BINHOSTs in the repository are effective if |package_indexes| is
         # not set or |use_cq_prebuilts| is explicitly specified.
+        # Swap the public and private ordering because --useoldpkg-atoms
+        # (i.e. --use-any-chrome) doesn't seem to follow the right to left
+        # convention the rest of portage configs use, instead it seems to
+        # basically do left to right, so it should hopefully mean more chrome
+        # binpkg usages for devs. This isn't a real solution to the chrome
+        # binpkg UX issues, but should hopefully make it somewhat better in
+        # practice for now.
         if use_cq_prebuilts:
             config.extend(
                 self._ContinuousBinhostConfigs(
-                    "CQ", board, expanded_binhost_inheritance, source_root
+                    "CQ",
+                    board,
+                    expanded_binhost_inheritance,
+                    source_root,
+                    swap_public_private=True,
                 )
             )
 
@@ -962,6 +973,7 @@ PORTAGE_BINHOST="$FULL_BINHOST"
         board: Union[str, None],
         expanded_binhost_inheritance: bool,
         source_root: Path,
+        swap_public_private: bool = False,
     ) -> List[str]:
         config = []
         (binhost_public, binhost_internal) = self._ContinuousBinhosts(
@@ -987,6 +999,9 @@ source {binhost_internal}
 PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
 """
             )
+
+        if swap_public_private:
+            config.reverse()
 
         return config
 

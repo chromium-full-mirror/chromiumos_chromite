@@ -523,14 +523,15 @@ class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(
             lines[4], 'PORTAGE_BINHOST="$PORTAGE_BINHOST $POSTSUBMIT_BINHOST"'
         )
+        # Note: Internal and external CQ binhosts are swapped.
         self.assertEqual(
-            lines[5], f"source {self.external_cq_binhost_file_path}"
+            lines[5], f"source {self.internal_cq_binhost_file_path}"
         )
         self.assertEqual(
             lines[6], 'PORTAGE_BINHOST="$PORTAGE_BINHOST $CQ_BINHOST"'
         )
         self.assertEqual(
-            lines[7], f"source {self.internal_cq_binhost_file_path}"
+            lines[7], f"source {self.external_cq_binhost_file_path}"
         )
         self.assertEqual(
             lines[8], 'PORTAGE_BINHOST="$PORTAGE_BINHOST $CQ_BINHOST"'
