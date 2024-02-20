@@ -34,6 +34,7 @@ from chromite.api.gen.chromite.api import sdk_pb2
 from chromite.api.gen.chromite.api import sysroot_pb2
 from chromite.api.gen.chromite.api import test_pb2
 from chromite.api.gen.chromite.api import toolchain_pb2
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_logging as logging
 from chromite.lib import osutils
@@ -333,7 +334,9 @@ class Router(object):
       # Use python3 to prevent vpython being used inside the SDK.
       cmd = [
           'python3',
-          'build_api',
+          os.path.join(
+              constants.CHROOT_SOURCE_ROOT, constants.CHROMITE_BIN_SUBDIR,
+              'build_api'),
           '%s/%s' % (service_name, method_name),
           input_handler.input_arg,
           chroot_input,
