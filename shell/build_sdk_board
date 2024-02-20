@@ -211,6 +211,15 @@ info_run sudo chmod 775 "${PORTAGE_CACHE_DIRS[@]}"
 # Make sure some paths always exist so we can mount on top.
 info_run sudo touch "${BOARD_ROOT}"/etc/{hosts,resolv.conf}
 
+# Initialize basic paths for the shell environment.
+cat << EOF | sudo_clobber "${BOARD_ROOT}/etc/env.d/90cros-sdk"
+CROS_WORKON_SRCROOT="/mnt/host/source"
+EDITOR="/usr/bin/vi"
+EOF
+
+# Make sure /etc/profile.env is up-to-date in the final SDK.
+info_run sudo ROOT="${BOARD_ROOT}" env-update --no-ldconfig
+
 command_completed
 echo "Done!"
 echo "The SYSROOT is: ${BOARD_ROOT}"
