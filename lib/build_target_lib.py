@@ -62,7 +62,7 @@ class BuildTarget:
         return NotImplemented
 
     def __hash__(self) -> int:
-        return hash(self.name)
+        return hash((self.name, self.profile, self._public, self.root))
 
     def __str__(self) -> str:
         return f"{self.name or 'amd64-host'}:{self.profile}"
