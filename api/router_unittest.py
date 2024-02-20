@@ -17,12 +17,19 @@ from chromite.api import message_util
 from chromite.api import router
 from chromite.api.gen.chromite.api import build_api_test_pb2
 from chromite.lib import chroot_lib
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 
 
 assert sys.version_info >= (3, 6), 'This module requires Python 3.6+'
+
+
+# The executable we expect to be called when re-execing build_api
+# inside the SDK.
+_BUILD_API_INSIDE = os.path.join(
+    constants.CHROOT_SOURCE_ROOT, constants.CHROMITE_BIN_SUBDIR, 'build_api')
 
 
 class RouterTest(cros_test_lib.RunCommandTempDirTestCase,
@@ -225,7 +232,7 @@ class RouterTest(cros_test_lib.RunCommandTempDirTestCase,
                       self.binary_input_handler, [self.binary_output_handler],
                       self.binary_config_handler)
 
-    self.assertCommandContains(['build_api', service_method], enter_chroot=True)
+    self.assertCommandContains([_BUILD_API_INSIDE, service_method], enter_chroot=True)
 
   def testInsideServiceOutsideMethodInsideChroot(self):
     """Test inside chroot for outside method raises an error."""
@@ -271,7 +278,7 @@ class RouterTest(cros_test_lib.RunCommandTempDirTestCase,
                       self.binary_input_handler, [self.binary_output_handler],
                       self.binary_config_handler)
 
-    self.assertCommandContains(['build_api', service_method], enter_chroot=True)
+    self.assertCommandContains([_BUILD_API_INSIDE, service_method], enter_chroot=True)
 
   def testReexecNonemptyOutput(self):
     """Test calling an inside chroot method that produced output."""
@@ -303,7 +310,7 @@ class RouterTest(cros_test_lib.RunCommandTempDirTestCase,
                       self.binary_input_handler, [self.binary_output_handler],
                       self.binary_config_handler)
 
-    self.assertCommandContains(['build_api', service_method], enter_chroot=True)
+    self.assertCommandContains([_BUILD_API_INSIDE, service_method], enter_chroot=True)
 
     # It should be writing the result out to our output file.
     output_msg = build_api_test_pb2.TestResultMessage()
@@ -334,7 +341,7 @@ class RouterTest(cros_test_lib.RunCommandTempDirTestCase,
                       self.binary_input_handler, [self.binary_output_handler],
                       self.binary_config_handler)
 
-    self.assertCommandContains(['build_api', service_method], enter_chroot=True)
+    self.assertCommandContains([_BUILD_API_INSIDE, service_method], enter_chroot=True)
 
     output_msg = build_api_test_pb2.TestResultMessage()
     self.binary_output_handler.read_into(output_msg)
@@ -354,7 +361,7 @@ class RouterTest(cros_test_lib.RunCommandTempDirTestCase,
                       self.binary_input_handler, [self.binary_output_handler],
                       self.binary_config_handler)
 
-    self.assertCommandContains(['build_api', service_method], enter_chroot=True)
+    self.assertCommandContains([_BUILD_API_INSIDE, service_method], enter_chroot=True)
 
     output_msg = build_api_test_pb2.TestResultMessage()
     empty_msg = build_api_test_pb2.TestResultMessage()
