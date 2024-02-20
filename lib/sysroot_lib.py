@@ -276,12 +276,15 @@ def _DictToKeyValue(dictionary: Dict) -> str:
 
     Args:
         dictionary: a python dictionary.
+
+    Returns:
+        A string with one key=value pair per-line.
     """
     output = []
     for key in sorted(dictionary.keys()):
         output.append('%s="%s"' % (key, dictionary[key]))
 
-    return "\n".join(output)
+    return "".join(f"{x}\n" for x in output)
 
 
 def _GetMakeConfGenericPath() -> str:
@@ -775,7 +778,7 @@ class Sysroot:
 
         config.update(kwargs)
 
-        return "\n".join((header, _DictToKeyValue(config)))
+        return f"{header}\n" + _DictToKeyValue(config)
 
     def GenerateBoardSetupConfig(
         self, build_target: build_target_lib.BuildTarget

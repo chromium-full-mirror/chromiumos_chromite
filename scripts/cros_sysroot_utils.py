@@ -110,7 +110,7 @@ def main(argv) -> None:
             opts.board,
             build_root=opts.sysroot,
         )
-        output.write("\n" + sysroot.GenerateBoardSetupConfig(build_target))
+        output.write(sysroot.GenerateBoardSetupConfig(build_target))
     elif opts.command == "generate-make-conf":
         output.write(
             "\n" + sysroot.GenerateBoardMakeConf(opts.accepted_licenses)
