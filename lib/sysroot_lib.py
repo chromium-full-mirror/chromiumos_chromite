@@ -963,7 +963,7 @@ PORTAGE_BINHOST="$FULL_BINHOST"
                 )
             )
 
-        return "\n".join(config)
+        return "".join(f"{x}\n" for x in config)
 
     def _ContinuousBinhostConfigs(
         self,

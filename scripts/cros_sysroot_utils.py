@@ -116,4 +116,4 @@ def main(argv) -> None:
             "\n" + sysroot.GenerateBoardMakeConf(opts.accepted_licenses)
         )
     elif opts.command == "generate-binhosts":
-        output.write("\n" + sysroot.GenerateBinhostConf(opts.local_only))
+        output.write(sysroot.GenerateBinhostConf(opts.local_only))
