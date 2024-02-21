@@ -280,10 +280,24 @@ class Crossdev:
             # Run a single, arbitrary target with --fetchonly to try to
             # pre-populate common binpkgs to help avoid race conditions that
             # cause flakes. See b/299321780.
-            target_name = list(targets.keys()).pop()
+            #
+            # Prefer targets that emerge `cross-*/rust`, since that also pulls
+            # in the (hefty) `rust-host` binpkg.
+            cross_rust_arches = (
+                "x86_64-cros-linux-gnu",
+                "armv7a-cros-linux-gnueabihf",
+                "aarch64-cros-linux-gnu",
+            )
+
+            arbitrary_binpkg_target = sorted(
+                targets.keys(),
+                # True > False, so any targets in `cross_rust_arches` will
+                # appear near the end of this list.
+                key=lambda name: (name in cross_rust_arches, name),
+            )[-1]
             cls._UpdateTarget(
-                target_name,
-                targets[target_name],
+                arbitrary_binpkg_target,
+                targets[arbitrary_binpkg_target],
                 usepkg,
                 config_only,
                 fetch_only=True,
