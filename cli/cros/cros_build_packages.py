@@ -227,31 +227,51 @@ class BuildPackagesCommand(command.CliCommand):
         )
 
         # Chrome building related options.
-        group = parser.add_argument_group("Chrome Options")
-        build_shell_bool_style_args(
-            group,
-            "use_any_chrome",
-            True,
-            "Use any Chrome prebuilt available, even if the prebuilt doesn't "
-            "match exactly.",
-            deprecation_note,
-            alternate_name="use-any-chrome",
+        group = parser.add_argument_group(
+            "Chrome Options",
+            description="By default, the build will use any available "
+            "chromeos-chrome binpkg, and build Chromium if no usable binpkg "
+            "can be found. These options alter that behavior.",
         )
-        build_shell_bool_style_args(
-            group,
-            "internal",
-            False,
-            "Build the internal version of chrome (set the chrome_internal USE "
-            "flag).",
-            deprecation_note,
+        exclusive_chrome_group = group.add_mutually_exclusive_group()
+        exclusive_chrome_group.add_argument(
+            "--chrome",
+            action="store_true",
+            help="Ensure Chrome is installed, building from source if "
+            "necessary.",
         )
-        build_shell_bool_style_args(
-            group,
-            "chrome",
-            False,
-            "Ensure chrome instead of chromium. Alias for "
-            "--internal --no-use-any-chrome.",
-            deprecation_note,
+        exclusive_chrome_group.add_argument(
+            "--chromium",
+            action="store_true",
+            help="Ensure Chromium is installed, building from source if "
+            "necessary.",
+        )
+
+        # Legacy Chrome arguments.
+        group.add_argument(
+            "--internal", action="store_true", help=argparse.SUPPRESS
+        )
+        group.add_argument(
+            "--no-internal",
+            "--nointernal",
+            dest="internal",
+            action="store_false",
+            help=argparse.SUPPRESS,
+        )
+        group.add_argument(
+            "--use-any-chrome",
+            "--use_any_chrome",
+            action="store_true",
+            default=True,
+            help=argparse.SUPPRESS,
+        )
+        group.add_argument(
+            "--no-use-any-chrome",
+            "--nouse-any-chrome",
+            "--no-use_any_chrome",
+            "--nouse_any_chrome",
+            action="store_false",
+            help=argparse.SUPPRESS,
         )
 
         # Setup board related options.
@@ -450,6 +470,9 @@ class BuildPackagesCommand(command.CliCommand):
 
         if options.chrome:
             options.internal = True
+            options.use_any_chrome = False
+        elif options.chromium:
+            options.internal = False
             options.use_any_chrome = False
 
         if options.cleanbuild:
