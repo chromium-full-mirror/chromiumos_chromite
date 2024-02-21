@@ -35,7 +35,7 @@
           "arch": "X86_INTERNAL",
           "board_variant": "arc-r",
           "build_cadence": "DAILY_CADENCE",
-          "has_lab_resources": true
+          "has_lab_resources": false
         }
       ],
       "rubik_target_milestone": 103
@@ -51,7 +51,7 @@
           "arch": "UNKNOWN",
           "board_variant": "arc-r-container",
           "build_cadence": "DAILY_CADENCE",
-          "has_lab_resources": true
+          "has_lab_resources": false
         }
       ],
       "rubik_target_milestone": 108
@@ -67,7 +67,7 @@
           "arch": "X86_INTERNAL",
           "board_variant": "arc-t",
           "build_cadence": "DAILY_CADENCE",
-          "has_lab_resources": true
+          "has_lab_resources": false
         }
       ],
       "rubik_target_milestone": 108
@@ -83,7 +83,7 @@
           "arch": "UNKNOWN",
           "board_variant": "arc-v",
           "build_cadence": "DAILY_CADENCE",
-          "has_lab_resources": true
+          "has_lab_resources": false
         }
       ],
       "rubik_target_milestone": 108
@@ -115,7 +115,7 @@
           "arch": "X86_INTERNAL",
           "board_variant": "pi-arc",
           "build_cadence": "DAILY_CADENCE",
-          "has_lab_resources": true
+          "has_lab_resources": false
         }
       ],
       "rubik_target_milestone": 108,
@@ -162,7 +162,7 @@
           "arch": "UNKNOWN",
           "board_variant": "labstation",
           "build_cadence": "DAILY_CADENCE",
-          "has_lab_resources": true
+          "has_lab_resources": false
         }
       ],
       "rubik_target_milestone": 108,
@@ -238,7 +238,7 @@
           "arch": "UNKNOWN",
           "board_variant": "arc-t",
           "build_cadence": "DAILY_CADENCE",
-          "has_lab_resources": true
+          "has_lab_resources": false
         }
       ],
       "rubik_target_milestone": 108,
@@ -272,7 +272,7 @@
           "arch": "X86_INTERNAL",
           "board_variant": "vmtest",
           "build_cadence": "DAILY_CADENCE",
-          "has_lab_resources": true
+          "has_lab_resources": false
         }
       ],
       "rubik_target_milestone": 108,
@@ -538,7 +538,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "connectivitynext",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "asurada-kernelnext",
@@ -645,7 +645,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "connectivitynext",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "atlas-kernelnext",
@@ -921,7 +921,7 @@
       "rubik_target_milestone": 103,
       "board_variant": "borealis",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "brask",
@@ -1161,7 +1161,7 @@
       "stable_target_milestone": 114,
       "board_variant": "labstation",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "brox",
@@ -1937,7 +1937,7 @@
       "stable_target_milestone": 116,
       "board_variant": "arc-t",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "brya-connectivitynext",
@@ -2157,7 +2157,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "connectivitynext",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "brya-gki",
@@ -2386,7 +2386,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "gki",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "brya-hibernate",
@@ -2701,7 +2701,7 @@
       "stable_target_milestone": 120,
       "board_variant": "hibernate",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "brya-kernelnext",
@@ -3303,7 +3303,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "pvs",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "cherry",
@@ -4064,7 +4064,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "arc-t",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "corsola-kernelnext",
@@ -6102,7 +6102,7 @@
       "stable_target_milestone": 119,
       "board_variant": "pvs",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "dedede-pvs-lab",
@@ -6575,7 +6575,7 @@
       "stable_target_milestone": 120,
       "board_variant": "pvs-lab",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "drallion",
@@ -6750,7 +6750,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "connectivitynext",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "elm-kernelnext",
@@ -6868,7 +6868,7 @@
       "rubik_target_milestone": 103,
       "board_variant": "arc-r",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "eve-arm64",
@@ -6890,7 +6890,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "arm64",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "eve-kernelnext",
@@ -6944,7 +6944,7 @@
       "rubik_target_milestone": 103,
       "board_variant": "userdebug",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "excelsior",
@@ -7211,7 +7211,7 @@
       "stable_target_milestone": 86,
       "board_variant": "labstation",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "fizz-moblab",
@@ -7823,7 +7823,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "arc-t",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "guybrush-kernelnext",
@@ -8436,7 +8436,7 @@
       "rubik_target_milestone": 103,
       "board_variant": "arc-r-userdebug",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "hatch-arc-t",
@@ -8677,7 +8677,7 @@
       "stable_target_milestone": 115,
       "board_variant": "arc-t",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "hatch-connectivitynext",
@@ -8807,7 +8807,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "connectivitynext",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "hatch-gki",
@@ -8937,7 +8937,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "gki",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "hatch-kernelnext",
@@ -10676,7 +10676,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "scudo",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "nautilus",
@@ -11616,7 +11616,7 @@
       "stable_target_milestone": 124,
       "board_variant": "arc-t",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "nissa-kernelnext",
@@ -12210,7 +12210,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "pvs",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "nocturne",
@@ -13440,7 +13440,7 @@
       "rubik_target_milestone": 103,
       "board_variant": "arc-r",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "octopus-arc-t",
@@ -14231,7 +14231,7 @@
       "stable_target_milestone": 119,
       "board_variant": "arc-t",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "octopus-kernelnext",
@@ -15336,7 +15336,7 @@
       "rubik_target_milestone": 103,
       "board_variant": "arc-r-userdebug",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "reef",
@@ -15942,7 +15942,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "arc-t",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "skyrim-chausie",
@@ -16036,7 +16036,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "chausie",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "skyrim-kernelnext",
@@ -16277,7 +16277,7 @@
       "rubik_target_milestone": 103,
       "board_variant": "libcamera",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "staryu",
@@ -16545,7 +16545,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "userdebug",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "trogdor",
@@ -16752,7 +16752,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "connectivitynext",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "trogdor-kernelnext",
@@ -16930,7 +16930,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "userdebug",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "volteer",
@@ -17670,7 +17670,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "scudo",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "zork",
@@ -18039,7 +18039,7 @@
       "rubik_target_milestone": 108,
       "board_variant": "connectivitynext",
       "build_cadence": "DAILY_CADENCE",
-      "has_lab_resources": true
+      "has_lab_resources": false
     },
     {
       "name": "zork-kernelnext",
