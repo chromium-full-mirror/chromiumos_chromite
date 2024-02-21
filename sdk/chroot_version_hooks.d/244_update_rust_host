@@ -1,0 +1,28 @@
+#!/bin/bash
+# Copyright 2024 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Workaround for b/326252131: ensure rust-host is up-to-date while
+# a better fix is investigated.
+set -u
+
+# Specifically match on r7, since this workaround should be replaced with
+# something less hacky before we update Rust further.
+equery --quiet l '<dev-lang/rust-host-1.73.0-r7' >/dev/null
+exit_code="$?"
+case "${exit_code}" in
+  0 )
+    sudo emerge -G 'dev-lang/rust-host'
+    ;;
+
+  # `equery` will exit with 3 if it completed successfully but found no matches.
+  3 )
+    # Assume that Rust is sufficiently up-to-date.
+    exit 0
+    ;;
+
+  * )
+    exit "${exit_code}"
+    ;;
+esac
