@@ -17,6 +17,7 @@ import re
 import subprocess
 from typing import List, Optional
 
+from chromite.lib import commandline
 from chromite.utils import file_util
 
 
@@ -160,8 +161,12 @@ def generate_content_for_pkg_file(pkg_file_name: str) -> List[str]:
     return []
 
 
-def replace_placeholders() -> None:
-    """Replace the substitution placeholders in BUILD.bazel.template"""
+def replace_placeholders_in_content() -> List[str]:
+    """Replace the substitution placeholders in BUILD.bazel.template
+
+    Returns:
+        The list of lines after replacing the placeholders.
+    """
     with file_util.Open("BUILD_template.bazel") as template_file:
         template_lines = template_file.readlines()
 
@@ -175,10 +180,50 @@ def replace_placeholders() -> None:
             else:
                 new_content.append(line)
 
-        with file_util.Open("BUILD.bazel", "w") as build_bazel_file:
-            build_bazel_file.writelines(new_content)
+        return new_content
 
 
-def main(_: Optional[List[str]] = None) -> Optional[int]:
+def update_build_bazel_file() -> None:
+    """Replace in BUILD.bazel.template and write to BUILD.bazel"""
+    new_content = replace_placeholders_in_content()
+    with file_util.Open("BUILD.bazel", "w") as build_bazel_file:
+        build_bazel_file.writelines(new_content)
+
+
+def does_generated_match_build_bazel_file() -> bool:
+    """Replace in BUILD.bazel.template and check if it matches BUILD.bazel
+
+    Returns:
+        Whether the generated content matches the existing BUILD.bazel content.
+    """
+    new_content = replace_placeholders_in_content()
+    with file_util.Open("BUILD.bazel", "r") as build_bazel_file:
+        current_content = build_bazel_file.readlines()
+
+    return new_content == current_content
+
+
+def get_parser() -> commandline.ArgumentParser:
+    """Returns the cmdline argparser, populates the options and descriptions."""
+    parser = commandline.ArgumentParser(description=__doc__, dryrun=True)
+
+    parser.add_argument(
+        "--check",
+        dest="check",
+        action="store_true",
+        help="Display files with errors & exit non-zero",
+    )
+
+    return parser
+
+
+def main(argv: Optional[List[str]]) -> Optional[int]:
     """Main."""
-    replace_placeholders()
+    parser = get_parser()
+    opts = parser.parse_args(argv)
+    opts.Freeze()
+
+    if opts.check:
+        return int(not does_generated_match_build_bazel_file())
+    else:
+        update_build_bazel_file()
