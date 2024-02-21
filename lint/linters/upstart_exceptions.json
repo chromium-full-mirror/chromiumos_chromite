@@ -312,6 +312,10 @@
   "moblab-network-init.conf": [
     "mkdir -p /var/log/bootup/"
   ],
+  "modemfwd-helpers.conf": [
+    "chgrp gpio /sys/class/gpio/export",
+    "chmod g+w /sys/class/gpio/export"
+  ],
   "modemfwd.conf": [
     "chown modem:modem /var/cache/modemfwd",
     "chown modem:modem /var/lib/modemfwd",
@@ -319,10 +323,6 @@
     "mkdir -p /var/cache/modemfwd",
     "mkdir -p /var/lib/modemfwd",
     "mkdir -p /var/log/modemfwd"
-  ],
-  "modemfwd-helpers.conf": [
-    "chgrp gpio /sys/class/gpio/export",
-    "chmod g+w /sys/class/gpio/export"
   ],
   "mount-encrypted.conf": [
     "cp -aPZ --remove-destination /run/mount_encrypted/mount-encrypted.log /var/log/ || true"
@@ -339,10 +339,6 @@
     "chown root:root $P2P_DIR",
     "mkdir -p $P2P_DIR"
   ],
-  "ptp4l.conf": [
-    "chown -R ptp:ptp /run/ptp4l",
-    "mkdir -p /run/ptp4l"
-  ],
   "persist-crash-test.conf": [
     "cp -v \"${source}\" /run/crash_reporter/",
     "rm -v \"${source}\""
@@ -353,6 +349,10 @@
   "pstore.conf": [
     "chgrp \"${PSTORE_GROUP}\" \"${path}\"",
     "chmod 0750 \"${path}\""
+  ],
+  "ptp4l.conf": [
+    "chown -R ptp:ptp /run/ptp4l",
+    "mkdir -p /run/ptp4l"
   ],
   "resourced.conf": [
     "chown resourced:resourced $CPUFREQ_GLOB"
@@ -393,12 +393,12 @@
   "seneschal.conf": [
     "mkdir -p /run/arc/sdcard"
   ],
-  "servod.conf": [
-    "mkdir -p /var/lib/servod"
-  ],
   "servod-usb-lock-file.conf": [
     "chmod 444 \"${SERVOD_USB_LOCK_FILE}\"",
     "touch \"${SERVOD_USB_LOCK_FILE}\""
+  ],
+  "servod.conf": [
+    "mkdir -p /var/lib/servod"
   ],
   "sound_card_init.conf": [
     "chown -R sound_card_init:sound_card_init /var/lib/sound_card_init",
@@ -468,19 +468,6 @@
   ],
   "vpd-icc.conf": [
     "mkdir -p /var/cache/display_profiles/vpd"
-  ],
-  "wilco_dtc.conf": [
-    "chown -R wilco_dtc:wilco_dtc \"${RUNTIME_PATH}\"",
-    "chown wilco_dtc:wilco_dtc \"${STORAGE_FILE}\"",
-    "mkdir \"${RUNTIME_PATH}\"",
-    "mkdir -p \"${STORAGE_PATH}\"",
-    "mkdir -p \"${cgroup_dir}\"",
-    "rm -r \"${RUNTIME_PATH}\""
-  ],
-  "wilco_dtc_supportd.conf": [
-    "chown -R wilco_dtc:wilco_dtc /run/wilco_dtc/",
-    "mkdir -p -m 550 \"${VPD_FIELDS_DIR}\"",
-    "mkdir -p -m 755 /run/wilco_dtc/grpc_sockets"
   ],
   "wpasupplicant.conf": [
     "chown wpa:wpa /run/wpa_supplicant",
