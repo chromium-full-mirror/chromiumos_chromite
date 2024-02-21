@@ -16,7 +16,6 @@ packages and any dependencies they might need.
 import argparse
 import logging
 import os
-from typing import Optional
 import urllib.error
 import urllib.request
 
@@ -38,25 +37,11 @@ def build_shell_bool_style_args(
     name: str,
     default_val: bool,
     help_str: str,
-    deprecation_note: str,
-    alternate_name: Optional[str] = None,
 ) -> None:
     """Build the shell boolean input argument equivalent.
 
-    There are two cases which we will need to handle,
-    case 1: A shell boolean arg, which doesn't need to be re-worded in python.
-    case 2: A shell boolean arg, which needs to be re-worded in python.
-    Example below.
-    For Case 1, for a given input arg name 'argA', we create three python
-    arguments.
-    --argA, --noargA, --no-argA. The arguments --argA and --no-argA will be
-    retained after deprecating --noargA.
-    For Case 2, for a given input arg name 'arg_A' we need to use alternate
-    argument name 'arg-A'. we create four python arguments in this case.
-    --arg_A, --noarg_A, --arg-A, --no-arg-A. The first two arguments will be
-    deprecated later.
-    TODO(b/218522717): Remove the creation of --noargA in case 1 and --arg_A and
-    --noarg_A in case 2.
+    For a given input arg name 'argA', we create two python arguments;
+    --argA, and --no-argA.
 
     Args:
         parser: The parser to update.
@@ -64,56 +49,25 @@ def build_shell_bool_style_args(
             name.
         default_val: The default value to assign.
         help_str: The help string for the input argument.
-        deprecation_note: A deprecation note to use.
-        alternate_name: Alternate argument to be used after deprecation.
     """
     arg = f"--{name}"
-    shell_narg = f"--no{name}"
     py_narg = f"--no-{name}"
-    alt_arg = f"--{alternate_name}" if alternate_name else None
-    alt_py_narg = f"--no-{alternate_name}" if alternate_name else None
     default_val_str = f"{help_str} (Default: %(default)s)."
-
-    if alternate_name:
-        parser.add_argument(
-            alt_arg,
-            action="store_true",
-            default=default_val,
-            dest=name,
-            help=default_val_str,
-        )
-        parser.add_argument(
-            alt_py_narg,
-            action="store_false",
-            dest=name,
-            help="Don't " + help_str.lower(),
-        )
+    dest = name.replace("-", "_")
 
     parser.add_argument(
         arg,
         action="store_true",
         default=default_val,
-        dest=name,
-        deprecated=deprecation_note % alt_arg if alternate_name else None,
-        help=default_val_str if not alternate_name else argparse.SUPPRESS,
+        dest=dest,
+        help=default_val_str,
     )
     parser.add_argument(
-        shell_narg,
+        py_narg,
         action="store_false",
-        dest=name,
-        deprecated=deprecation_note % alt_py_narg
-        if alternate_name
-        else py_narg,
-        help=argparse.SUPPRESS,
+        dest=dest,
+        help="Don't " + help_str.lower(),
     )
-
-    if not alternate_name:
-        parser.add_argument(
-            py_narg,
-            action="store_false",
-            dest=name,
-            help="Don't " + help_str.lower(),
-        )
 
 
 tracer = trace.get_tracer(__name__)
@@ -132,7 +86,6 @@ class BuildPackagesCommand(command.CliCommand):
         """
         super().AddParser(parser)
 
-        deprecation_note = "Argument will be removed July 2022. Use %s instead."
         parser.add_argument(
             "-b",
             "--board",
@@ -151,35 +104,27 @@ class BuildPackagesCommand(command.CliCommand):
             "usepkg",
             True,
             "Use binary packages to bootstrap when possible.",
-            deprecation_note,
         )
         build_shell_bool_style_args(
             parser,
             "usepkgonly",
             False,
             "Use binary packages only to bootstrap; abort if any are missing.",
-            deprecation_note,
         )
         build_shell_bool_style_args(
-            parser,
-            "workon",
-            True,
-            "Force-build workon packages.",
-            deprecation_note,
+            parser, "workon", True, "Force-build workon packages."
         )
         build_shell_bool_style_args(
             parser,
             "withrevdeps",
             True,
             "Calculate reverse dependencies on changed ebuilds.",
-            deprecation_note,
         )
         build_shell_bool_style_args(
             parser,
             "cleanbuild",
             False,
             "Delete sysroot if it exists before building.",
-            deprecation_note,
         )
         build_shell_bool_style_args(
             parser,
@@ -187,7 +132,6 @@ class BuildPackagesCommand(command.CliCommand):
             False,
             "Pretend building packages, just display which packages would have "
             "been installed.",
-            deprecation_note,
         )
 
         # The --sysroot flag specifies the environment variables ROOT and
@@ -200,13 +144,6 @@ class BuildPackagesCommand(command.CliCommand):
         parser.add_argument(
             "--sysroot", type="str_path", help="Emerge packages to sysroot."
         )
-        parser.add_argument(
-            "--board_root",
-            type="str_path",
-            dest="sysroot",
-            deprecated=deprecation_note % "--sysroot",
-            help=argparse.SUPPRESS,
-        )
 
         # CPU Governor related options.
         group = parser.add_argument_group("CPU Governor Options")
@@ -215,15 +152,12 @@ class BuildPackagesCommand(command.CliCommand):
             "autosetgov",
             False,
             "Automatically set cpu governor to 'performance'.",
-            deprecation_note,
         )
         build_shell_bool_style_args(
             group,
-            "autosetgov_sticky",
+            "autosetgov-sticky",
             False,
             "Remember --autosetgov setting for future runs.",
-            deprecation_note,
-            alternate_name="autosetgov-sticky",
         )
 
         # Chrome building related options.
@@ -260,7 +194,6 @@ class BuildPackagesCommand(command.CliCommand):
         )
         group.add_argument(
             "--use-any-chrome",
-            "--use_any_chrome",
             action="store_true",
             default=True,
             help=argparse.SUPPRESS,
@@ -268,8 +201,6 @@ class BuildPackagesCommand(command.CliCommand):
         group.add_argument(
             "--no-use-any-chrome",
             "--nouse-any-chrome",
-            "--no-use_any_chrome",
-            "--nouse_any_chrome",
             action="store_false",
             help=argparse.SUPPRESS,
         )
@@ -278,73 +209,49 @@ class BuildPackagesCommand(command.CliCommand):
         group = parser.add_argument_group("Setup Board Config Options")
         build_shell_bool_style_args(
             group,
-            "skip_chroot_upgrade",
+            "skip-chroot-upgrade",
             False,
             "Skip the automatic chroot upgrade; use with care.",
-            deprecation_note,
-            alternate_name="skip-chroot-upgrade",
         )
         build_shell_bool_style_args(
             group,
-            "skip_toolchain_update",
+            "skip-toolchain-update",
             False,
             "Skip automatic toolchain update",
-            deprecation_note,
-            alternate_name="skip-toolchain-update",
         )
         build_shell_bool_style_args(
             group,
-            "skip_setup_board",
+            "skip-setup-board",
             False,
             "Skip running setup_board. Implies "
             "--skip-chroot-upgrade --skip-toolchain-update.",
-            deprecation_note,
-            alternate_name="skip-setup-board",
         )
 
         # Image Type selection related options.
         group = parser.add_argument_group("Image Type Options")
         build_shell_bool_style_args(
-            group,
-            "withdev",
-            True,
-            "Build useful developer friendly utilities.",
-            deprecation_note,
+            group, "withdev", True, "Build useful developer friendly utilities."
         )
         build_shell_bool_style_args(
             group,
             "withdebug",
             True,
             "Build debug versions of Chromium-OS-specific packages.",
-            deprecation_note,
         )
         build_shell_bool_style_args(
-            group,
-            "withfactory",
-            True,
-            "Build factory installer.",
-            deprecation_note,
+            group, "withfactory", True, "Build factory installer."
         )
         build_shell_bool_style_args(
-            group,
-            "withtest",
-            True,
-            "Build packages required for testing.",
-            deprecation_note,
+            group, "withtest", True, "Build packages required for testing."
         )
         build_shell_bool_style_args(
-            group,
-            "withautotest",
-            True,
-            "Build autotest client code.",
-            deprecation_note,
+            group, "withautotest", True, "Build autotest client code."
         )
         build_shell_bool_style_args(
             group,
             "withdebugsymbols",
             False,
             "Install the debug symbols for all packages.",
-            deprecation_note,
         )
 
         # Advanced Options.
@@ -352,17 +259,8 @@ class BuildPackagesCommand(command.CliCommand):
         group.add_argument(
             "--accept-licenses", help="Licenses to append to the accept list."
         )
-        group.add_argument(
-            "--accept_licenses",
-            deprecated=deprecation_note % "--accept-licenses",
-            help=argparse.SUPPRESS,
-        )
         build_shell_bool_style_args(
-            group,
-            "eclean",
-            True,
-            "Run eclean to delete old binpkgs.",
-            deprecation_note,
+            group, "eclean", True, "Run eclean to delete old binpkgs."
         )
         group.add_argument(
             "--jobs",
@@ -378,7 +276,6 @@ class BuildPackagesCommand(command.CliCommand):
             "expandedbinhosts",
             True,
             "Allow expanded binhost inheritance.",
-            deprecation_note,
         )
         group.add_argument(
             "--backtrack",
@@ -395,11 +292,9 @@ class BuildPackagesCommand(command.CliCommand):
         # locally.
         build_shell_bool_style_args(
             group,
-            "reuse_pkgs_from_local_boards",
+            "reuse-pkgs-from-local-boards",
             False,
             "Bootstrap from local packages instead of remote packages.",
-            deprecation_note,
-            alternate_name="reuse-pkgs-from-local-boards",
         )
 
         # --run-goma option is designed to be used on bots.
@@ -419,11 +314,9 @@ class BuildPackagesCommand(command.CliCommand):
         # stopped.
         build_shell_bool_style_args(
             group,
-            "run_goma",
+            "run-goma",
             False,
             "When set, (re)starts goma, builds packages, and then stops goma.",
-            deprecation_note,
-            alternate_name="run-goma",
         )
         # This option is for building chrome remotely.
         # 1) starts reproxy 2) builds chrome with reproxy and 3) stops reproxy
@@ -436,15 +329,10 @@ class BuildPackagesCommand(command.CliCommand):
             False,
             "If set to true, starts RBE reproxy, builds packages, and then "
             "stops reproxy.",
-            deprecation_note,
         )
 
         build_shell_bool_style_args(
-            group,
-            "bazel",
-            False,
-            "Use Bazel to build packages.",
-            deprecation_note,
+            group, "bazel", False, "Use Bazel to build packages."
         )
 
         build_shell_bool_style_args(
@@ -452,7 +340,6 @@ class BuildPackagesCommand(command.CliCommand):
             "bazel_lite",
             False,
             "Perform lite build with a limited set of packages.",
-            deprecation_note,
         )
 
         parser.add_argument("packages", nargs="*", help="Packages to build.")
