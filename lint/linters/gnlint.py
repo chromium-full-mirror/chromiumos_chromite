@@ -856,6 +856,13 @@ def GnLintOrderingWithinTarget(gndata, _gn_path=""):
 
 # List aliases we want people using for install_path.
 INSTALL_PATH_ALIASES = {
+    # Suggestions for "/bin", "/sbin" and "/usr/local/lib" are intentional
+    # per https://crrev.com/c/5182057. If you are touching existing
+    # BUILD.gn and finding it difficult to change the install path, you
+    # can suppress the lint error with:
+    #
+    # gnlint: disable=GnLintInstallPathAlias
+    #
     # executable
     "/bin": "bin",
     "/usr/bin": "bin",
