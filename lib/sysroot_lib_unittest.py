@@ -313,7 +313,9 @@ class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
             return_value=self.make_conf_generic_target,
         )
 
-        self.sysroot.InstallMakeConf()
+        self.sysroot.InstallMakeConf(
+            build_target_lib.BuildTarget("amd64-generic")
+        )
 
         filepath = os.path.join(self.tempdir, sysroot_lib._MAKE_CONF)
         self.assertExists(filepath)

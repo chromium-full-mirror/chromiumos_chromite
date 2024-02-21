@@ -287,6 +287,11 @@ def _DictToKeyValue(dictionary: Dict) -> str:
     return "".join(f"{x}\n" for x in output)
 
 
+def _GetMakeConfHostPath() -> Path:
+    """Get the path to the make.conf.amd64-host file."""
+    return Path(_CHROMIUMOS_CONFIG) / "make.conf.amd64-host"
+
+
 def _GetMakeConfGenericPath() -> str:
     """Get the path to the make.conf.generic-target file."""
     return os.path.join(_CHROMIUMOS_CONFIG, "make.conf.generic-target")
@@ -662,9 +667,20 @@ class Sysroot:
             **args,
         )
 
-    def InstallMakeConf(self) -> None:
-        """Make sure the make.conf file exists and is up to date."""
-        config_file = _GetMakeConfGenericPath()
+    def InstallMakeConf(
+        self,
+        build_target: build_target_lib.BuildTarget,
+    ) -> None:
+        """Make sure the make.conf file exists and is up to date.
+
+        Args:
+            build_target: The BuildTarget to use.
+        """
+        config_file = (
+            _GetMakeConfHostPath()
+            if build_target.is_host()
+            else _GetMakeConfGenericPath()
+        )
         osutils.SafeSymlink(config_file, self.JoinPath(_MAKE_CONF), sudo=True)
 
     def InstallMakeConfSdk(

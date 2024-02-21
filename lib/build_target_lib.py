@@ -50,6 +50,8 @@ class BuildTarget:
         else:
             self.root = get_default_sysroot_path(self.name)
 
+        self.broot = Path(self.root) / "build" / "broot"
+
     def __eq__(self, other: Any) -> bool:
         if self.__class__ is other.__class__:
             return (

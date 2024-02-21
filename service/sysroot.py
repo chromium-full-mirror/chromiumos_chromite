@@ -28,6 +28,7 @@ from typing import (
 import urllib
 
 from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
+from chromite.lib import build_target_lib
 from chromite.lib import cache
 from chromite.lib import chromite_config
 from chromite.lib import constants
@@ -47,7 +48,6 @@ from chromite.service import sdk as sdk_service
 
 if TYPE_CHECKING:
     from chromite.lib import binpkg
-    from chromite.lib import build_target_lib
     from chromite.lib import chroot_lib
 
 
@@ -631,6 +631,13 @@ def Create(
     # running later commands without needing to pass the --board argument.
     if run_configs.set_default:
         cros_build_lib.SetDefaultBoard(target.name)
+
+    # Initialize the per-board BROOT.
+    logging.info("Initializing broot.")
+    build_target = build_target_lib.BuildTarget("amd64-host")
+    build_sysroot = sysroot_lib.Sysroot(target.broot)
+    _CreateSysrootSkeleton(build_sysroot)
+    _InstallConfigs(build_sysroot, build_target)
 
     return sysroot
 
@@ -1425,7 +1432,8 @@ def _InstallConfigs(
         sysroot: The sysroot.
         target: The build target being setup in the sysroot.
     """
-    sysroot.InstallMakeConf()
+    sysroot.InstallMakeConf(target)
+    sysroot.InstallMakeConfSdk(target)
     sysroot.InstallMakeConfBoardSetup(target)
     sysroot.InstallMakeConfUser()
 
