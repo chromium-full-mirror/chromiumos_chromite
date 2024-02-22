@@ -2332,3 +2332,27 @@ def test_read_depgraph_counters_and_combine(data, expected) -> None:
 )
 def test_read_depgraph_counters_no_combine(data, expected) -> None:
     assert portage_util.read_depgraph_counters(data, combine=False) == expected
+
+
+def test_parse_die_hook_status_file(monkeypatch, tmp_path) -> None:
+    status_file = tmp_path / constants.DIE_HOOK_STATUS_FILE_NAME
+    monkeypatch.setattr(
+        portage_util, "get_die_hook_status_file", lambda: status_file
+    )
+    content = """
+foo/bar-1.2.3 src_install
+   \n
+cat/pkg-2-r2\tpkg_post_inst
+another/pkg-3 unknown
+\t
+
+"""
+    expected = [
+        package_info.parse("foo/bar-1.2.3"),
+        package_info.parse("cat/pkg-2-r2"),
+        package_info.parse("another/pkg-3"),
+    ]
+    status_file.write_text(content)
+    result = portage_util.ParseDieHookStatusFile()
+
+    assert sorted(expected) == sorted(result)

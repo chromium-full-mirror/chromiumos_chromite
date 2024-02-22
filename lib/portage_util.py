@@ -2872,7 +2872,10 @@ def PackagesWithTest(
 
 def get_die_hook_status_file() -> Path:
     """Get the die hook status file path."""
-    return path_util.get_log_dir() / constants.DIE_HOOK_STATUS_FILE_NAME
+    return (
+        Path(path_util.FromChrootPath("/tmp"))
+        / constants.DIE_HOOK_STATUS_FILE_NAME
+    )
 
 
 def ParseDieHookStatusFile() -> List[package_info.PackageInfo]:
@@ -2885,14 +2888,14 @@ def ParseDieHookStatusFile() -> List[package_info.PackageInfo]:
     if not status_file.exists():
         return []
 
-    with status_file.read_text(encoding="utf-8") as f:
-        failed_pkgs = []
-        for line in f:
-            if not line.strip():
-                continue
-            cpv, _phase = line.split()
-            failed_pkgs.append(package_info.parse(cpv))
-        return failed_pkgs
+    failed_pkgs = []
+    for line in status_file.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        cpv, _phase = line.split()
+        failed_pkgs.append(package_info.parse(cpv))
+
+    return failed_pkgs
 
 
 def HasPrebuilt(atom, board=None, extra_env=None):
