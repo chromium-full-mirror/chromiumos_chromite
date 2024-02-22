@@ -744,7 +744,7 @@ class VM(device.Device):
         # utility-process, 3 renderers.
         _WaitForProc("chrome", 8)
 
-    def WaitForBoot(self, max_retry=3, sleep=5) -> None:
+    def WaitForBoot(self, max_retry=10, sleep=5) -> None:
         """Wait for the VM to boot up.
 
         Wait for ssh connection to become active, and wait for all expected
