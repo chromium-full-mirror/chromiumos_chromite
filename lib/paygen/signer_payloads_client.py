@@ -523,6 +523,7 @@ class LocalSignerPayloadsClient:
         self._docker_image = docker_image
         self._build = build
         self._work_dir = work_dir
+        self.public_key = None
 
     def _CreateArchive(self, archive_file: str, hashes: List[str]) -> List[str]:
         """Take the hash strings and bundle them in the signer request format.
@@ -674,5 +675,11 @@ class LocalSignerPayloadsClient:
                 == SIGNED_BUILD_METADATA.SIGNING_STATUS_FAILED
             ):
                 raise PaygenSigningError("Paygen signing failed")
+
+        self.public_key = os.path.join(result_dir, "update-payload-key-pub.pem")
+        if not os.path.exists(self.public_key):
+            raise PaygenSigningError(
+                f"Did not find public key in workdir ({self.public_key})."
+            )
 
         return self._ReadSignatures(result_dir, keysets, signing_response)

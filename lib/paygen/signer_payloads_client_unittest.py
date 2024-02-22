@@ -738,6 +738,15 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
             ]
         )
 
+        # Normally the public key would be placed by the signer.
+        with open(
+            os.path.join(
+                client._work_dir, "result_dir", "update-payload-key-pub.pem"
+            ),
+            mode="wb",
+        ) as f:
+            f.write(bytes("abcd", "utf-8"))
+
         hashes = [b"Hash 1", b"Hash 2", b"Hash 3"]
         signatures = client.GetHashSignatures(hashes, (keyset,))
         self.assertEqual(
@@ -747,6 +756,13 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
                 [bytes("abcdabcd", "utf-8")],
                 [bytes("abcdabcdabcd", "utf-8")],
             ],
+        )
+
+        self.assertEqual(
+            client.public_key,
+            os.path.join(
+                client._work_dir, "result_dir", "update-payload-key-pub.pem"
+            ),
         )
 
         expected_signing_config = signing_pb2.BuildTargetSigningConfigs(
@@ -808,6 +824,54 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
                         for i in range(3)
                     ],
                     signing_status=SIGNED_BUILD_METADATA.SIGNING_STATUS_FAILED,
+                )
+            ]
+        )
+
+        # Normally the public key would be placed by the signer.
+        with open(
+            os.path.join(
+                client._work_dir, "result_dir", "update-payload-key-pub.pem"
+            ),
+            mode="wb",
+        ) as f:
+            f.write(bytes("abcd", "utf-8"))
+
+        with self.assertRaises(signer_payloads_client.PaygenSigningError):
+            client.GetHashSignatures(
+                [b"Hash 1", b"Hash 2", b"Hash 3"], (keyset,)
+            )
+
+    @mock.patch.object(image, "SignImage")
+    def testGetHashSignaturesMockSignImageFailureMissingPublicKey(
+        self, mock_sign_image: mock.MagicMock
+    ) -> None:
+        client = self.createStandardClient()
+
+        keyset = "DevPreMPKeys"
+        expected_signature_files = [
+            f"{i}.payload.hash.{keyset}.signed.bin" for i in range(3)
+        ]
+        os.mkdir(os.path.join(self.tempdir, "result_dir"))
+        for i, signature_file in enumerate(expected_signature_files):
+            with open(
+                os.path.join(self.tempdir, "result_dir", signature_file),
+                mode="wb+",
+            ) as f:
+                f.write(bytes("abcd" * (i + 1), "utf-8"))
+
+        artifact_name = lambda n: f"{n}.payload.hash.{keyset}.signed.bin"
+        mock_sign_image.return_value = signing_pb2.BuildTargetSignedArtifacts(
+            archive_artifacts=[
+                signing_pb2.ArchiveArtifacts(
+                    keyset=keyset,
+                    signed_artifacts=[
+                        signing_pb2.SignedArtifact(
+                            signed_artifact_name=artifact_name(i),
+                        )
+                        for i in range(3)
+                    ],
+                    signing_status=SIGNED_BUILD_METADATA.SIGNING_STATUS_PASSED,
                 )
             ]
         )

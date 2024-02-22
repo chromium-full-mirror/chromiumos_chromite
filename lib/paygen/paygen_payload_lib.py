@@ -170,9 +170,7 @@ class PaygenSigner:
                     "A private key should not be passed for official builds."
                 )
             self._private_key = None
-            self.public_key = (
-                constants.CHROMITE_DIR / "ssh_keys" / "update_signer_dev.pub"
-            )
+            self.public_key = None
         else:
             if (
                 self._payload_build
@@ -214,7 +212,12 @@ class PaygenSigner:
 
     def GetHashSignatures(self, *args, **kwargs):
         """Wrapper to forward into signer."""
-        return self._signer.GetHashSignatures(*args, **kwargs)
+        ret = self._signer.GetHashSignatures(*args, **kwargs)
+        # For local signing, the public key is only populated after
+        # signing.
+        if self.local_signing:
+            self.public_key = self._signer.public_key
+        return ret
 
 
 def _payload_file_to_description_file(payload_file: str) -> str:
