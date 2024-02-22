@@ -17,17 +17,14 @@ _make_conf_private() {
     local make_conf="${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay"
     make_conf+="/chromeos/config/make.conf.sdk-chromeos"
     echo "source ${make_conf}"
+    return
   fi
 
   local chromeos_partner_overlay="src/private-overlays/chromeos-partner-overlay"
-
-  local overlay
-  for overlay in "${chromeos_partner_overlay}" "${chromeos_overlay}"; do
-    if [[ -d "${source_root}/${overlay}" ]]; then
-      overlay="${CHROOT_TRUNK_DIR}/${overlay}"
-      echo "PORTDIR_OVERLAY=\"\$PORTDIR_OVERLAY ${overlay}\""
-    fi
-  done
+  if [[ -d "${source_root}/${chromeos_partner_overlay}" ]]; then
+    echo "PORTDIR_OVERLAY=\"\$PORTDIR_OVERLAY" \
+      "${CHROOT_TRUNK_DIR}/${chromeos_partner_overlay}\""
+  fi
 }
 
 # Create /etc/make.conf.host_setup according to parameters.
