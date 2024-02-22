@@ -890,7 +890,7 @@ class ChrootCreator:
         data += 'cd "${CHROOT_CWD:-${HOME}/chromiumos/src/scripts}"\n\n'
         bash_profile.write_text(data, encoding="utf-8")
 
-        osutils.Chown(home, user=uid, group=gid, recursive=True)
+        osutils.Chown(home, uid, group=gid, recursive=True)
 
     def init_filesystem_basic(self) -> None:
         """Setup various dirs & simple config files."""
@@ -970,8 +970,8 @@ PORTAGE_USERNAME="{user}"
             osutils.MoveDirContents(src_dir, dst_dir, allow_nonempty=True)
 
         # Create edb cache stub directories.
-        edb_cache_dep = self.chroot.full_path(
-            constants.CHROOT_EDB_CACHE_ROOT / "dep"
+        edb_cache_dep = Path(
+            self.chroot.full_path(constants.CHROOT_EDB_CACHE_ROOT / "dep")
         )
         osutils.SafeMakedirs(edb_cache_dep, mode=0o2775)
         # Set users/groups.

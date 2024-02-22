@@ -12,6 +12,7 @@ from unittest import mock
 import pytest
 
 from chromite.lib import chroot_lib
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
@@ -555,11 +556,35 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         TEST_GROUP = "a-test-group"
         TEST_GID = 9082010
         self.PatchObject(cros_sdk_lib.ChrootCreator, "_make_chroot")
-        # The files won't be root owned, but they won't be user owned.
-        self.ExpectRootOwnedFiles()
+        chown_mock = self.PatchObject(osutils, "Chown")
 
         self.creater.run(
             user=TEST_USER, uid=TEST_UID, group=TEST_GROUP, gid=TEST_GID
+        )
+        assert chown_mock.call_args_list == [
+            mock.call(
+                Path(self.chroot.full_path("/home/a-test-user")),
+                TEST_UID,
+                group=TEST_GID,
+                recursive=True,
+            ),
+            mock.call(
+                Path(
+                    self.chroot.full_path(
+                        constants.CHROOT_EDB_CACHE_ROOT / "dep"
+                    )
+                ),
+                constants.PORTAGE_UID,
+                group=constants.PORTAGE_GID,
+                recursive=True,
+            ),
+        ]
+        # Make sure all the paths are under the tempdir so we aren't accessing
+        # random paths on the host.  The relative_to call will assert the path
+        # is actually below the path.
+        assert list(
+            Path(x.args[0]).relative_to(self.tempdir)
+            for x in chown_mock.call_args_list
         )
 
         # Check various root files.
@@ -571,9 +596,6 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         )
 
         self.assertExists(user_file)
-        st = user_file.stat()
-        self.assertEqual(st.st_uid, TEST_UID)
-        self.assertEqual(st.st_gid, TEST_GID)
 
         # Check the user/group accounts.
         db = (Path(self.chroot.path) / "etc" / "passwd").read_text(
@@ -616,8 +638,6 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
             self.chroot.full_path(Path("/") / "var" / "cache" / "edb" / "dep")
         )
         self.assertTrue(edb_dep_path.is_dir())
-        self.assertEqual(edb_dep_path.stat().st_uid, 250)
-        self.assertEqual(edb_dep_path.stat().st_gid, 250)
 
         # Check chroot/var/ directories.
         var = Path(self.chroot.path) / "var"
@@ -639,12 +659,29 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         TEST_GROUP = "users"
         TEST_GID = 100
         self.PatchObject(cros_sdk_lib.ChrootCreator, "_make_chroot")
-        # The files won't be root owned, but they won't be user owned.
-        self.ExpectRootOwnedFiles()
+        chown_mock = self.PatchObject(osutils, "Chown")
 
         self.creater.run(
             user=TEST_USER, uid=TEST_UID, group=TEST_GROUP, gid=TEST_GID
         )
+        assert chown_mock.call_args_list == [
+            mock.call(
+                Path(self.chroot.full_path("/home/a-test-user")),
+                TEST_UID,
+                group=TEST_GID,
+                recursive=True,
+            ),
+            mock.call(
+                Path(
+                    self.chroot.full_path(
+                        constants.CHROOT_EDB_CACHE_ROOT / "dep"
+                    )
+                ),
+                constants.PORTAGE_UID,
+                group=constants.PORTAGE_GID,
+                recursive=True,
+            ),
+        ]
 
 
 class ChrootEnterorTests(cros_test_lib.MockTempDirTestCase):
