@@ -17,6 +17,7 @@ import shutil
 import sys
 from typing import Any, List, Optional, Set, Union
 
+from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -24,6 +25,7 @@ from chromite.lib import locking
 from chromite.lib import metrics_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
+from chromite.lib import sysroot_lib
 from chromite.lib import timeout_util
 from chromite.utils import gs_urls_util
 
@@ -699,10 +701,6 @@ class ChrootCreator:
     self._from_chroot_path().
     """
 
-    MAKE_CHROOT = os.path.join(
-        constants.CHROMITE_SHELL_DIR, "sdk_lib/make_chroot.sh"
-    )
-
     # If the host timezone isn't set, we'll use this inside the SDK.
     DEFAULT_TZ = "usr/share/zoneinfo/PST8PDT"
 
@@ -731,21 +729,11 @@ class ChrootCreator:
         """
         self.chroot = chroot
         self.sdk_tarball = sdk_tarball
+        self._sysroot = sysroot_lib.Sysroot(chroot.path)
 
     @metrics_lib.timed("cros_sdk_lib.ChrootCreator._make_chroot")
     def _make_chroot(self) -> None:
         """Create the chroot."""
-        cmd = [
-            self.MAKE_CHROOT,
-            "--chroot",
-            str(self.chroot.path),
-        ]
-
-        try:
-            cros_build_lib.dbg_run(cmd)
-        except cros_build_lib.RunCommandError as e:
-            cros_build_lib.Die("Creating chroot failed!\n%s", e)
-
         # TODO(zbehan): Configure stuff that is usually done in postinst's,
         # but wasn't. Fix the postinst's.
         # NB: We don't use self.chroot.run because that requires the SDK be
@@ -939,6 +927,12 @@ class ChrootCreator:
             if host_path.exists():
                 chroot_path.write_bytes(host_path.read_bytes())
                 chroot_path.chmod(0o644)
+
+        # Setup the SDK make.conf file.
+        build_target = build_target_lib.BuildTarget(
+            constants.CHROOT_BUILDER_BOARD
+        )
+        self._sysroot.InstallMakeConfSdk(build_target)
 
         # Add chromite/sdk/bin and chromite/bin into the path globally. We rely
         # on 'env-update' getting called later.

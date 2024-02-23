@@ -667,6 +667,50 @@ class Sysroot:
         config_file = _GetMakeConfGenericPath()
         osutils.SafeSymlink(config_file, self.JoinPath(_MAKE_CONF), sudo=True)
 
+    def InstallMakeConfSdk(
+        self,
+        build_target: build_target_lib.BuildTarget,
+    ) -> None:
+        """Make sure the make.conf.host_setup file exists and is up to date.
+
+        Args:
+            build_target: The BuildTarget to use.
+        """
+        if not build_target.is_host():
+            return
+
+        chroot_make_conf_sdk = Path(self.path) / _MAKE_CONF_HOST_SETUP
+        contents = ""
+        chromeos_overlay = (
+            constants.SOURCE_ROOT / constants.CHROMEOS_OVERLAY_DIR
+        )
+        partner_overlay = (
+            constants.SOURCE_ROOT / constants.CHROMEOS_PARTNER_OVERLAY_DIR
+        )
+        if chromeos_overlay.is_dir():
+            # Googlers with internal source checkout.
+            make_conf_sdk = (
+                constants.CHROOT_SOURCE_ROOT
+                / constants.CHROMIUMOS_OVERLAY_DIR
+                / "chromeos"
+                / "config"
+                / "make.conf.sdk-chromeos"
+            )
+            contents = f"source {make_conf_sdk}\n"
+        elif partner_overlay.is_dir():
+            # Partners with partner overlay access.
+            partner_overlay = (
+                constants.CHROOT_SOURCE_ROOT
+                / constants.CHROMEOS_PARTNER_OVERLAY_DIR
+            )
+            contents = f'PORTDIR_OVERLAY="$PORTDIR_OVERLAY {partner_overlay}"\n'
+
+        osutils.WriteFile(
+            chroot_make_conf_sdk,
+            f"# DO NOT EDIT\n\n{contents}",
+            sudo=True,
+        )
+
     def InstallMakeConfBoard(
         self,
         accepted_licenses: str = None,

@@ -543,12 +543,6 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
             rc_mock.SetDefaultCmdResult()
             # pylint: disable=protected-access
             self.creater._make_chroot()
-            rc_mock.assertCommandContains(
-                [
-                    "--chroot",
-                    str(self.chroot.path),
-                ]
-            )
 
     def testRun(self) -> None:
         """Verify run works."""
@@ -578,6 +572,11 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
                 TEST_UID,
                 group=TEST_GID,
                 recursive=True,
+            ),
+            mock.call(
+                self.chroot.full_path("/etc/make.conf.host_setup"),
+                user="root",
+                group="root",
             ),
             mock.call(
                 test_cache_dir,
@@ -696,6 +695,11 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
                 TEST_UID,
                 group=TEST_GID,
                 recursive=True,
+            ),
+            mock.call(
+                self.chroot.full_path("/etc/make.conf.host_setup"),
+                user="root",
+                group="root",
             ),
             mock.call(
                 test_cache_dir,

@@ -44,18 +44,6 @@ _create_host_setup() {
   sudo chmod 644 "$host_setup"
 }
 
-# Create /etc/make.conf.host_setup for early bootstrapping of the
-# chroot.  This is done early in make_chroot, and the results are
-# overwritten later in the process.
-#
-# Usage:
-#   $1 - Path to chroot as seen from outside
-#   $2 - Path to source checkout as seen from outside
-create_bootstrap_host_setup() {
-  _create_host_setup "$@"
-}
-
-
 # Create /etc/make.conf.host_setup for normal usage.
 create_host_setup() {
   _create_host_setup '' "${CHROOT_TRUNK_DIR}"
