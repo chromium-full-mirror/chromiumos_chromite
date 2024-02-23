@@ -76,6 +76,13 @@ fi
 # is used by other packages that we're building.  See https://crbug.com/906289.
 run_emerge "${EARLY_FLAGS[@]}" "${TOOLCHAIN_PACKAGES[@]}"
 
+# Build toolchains from source.  Note we always use --nousepkg here even if
+# --usepkg was passed to this script: we need to ensure the toolchains are up
+# to date to be installed in the new SDK.  We will still only update required
+# toolchain packages, not all.
+info_run sudo "${CHROMITE_BIN}/cros_setup_toolchains" --targets all --debug \
+  --nousepkg
+
 # Then build everything else.
 run_emerge "${EARLY_FLAGS[@]}" --verbose --emptytree --with-bdeps=y \
   --exclude "${TOOLCHAIN_PACKAGES[*]}" \
@@ -144,18 +151,6 @@ cat <<\EOF | info_run sudo tee "${BOARD_ROOT}/etc/make.conf.user" >/dev/null
 EOF
 info_run sudo chmod 0644 "${BOARD_ROOT}/etc/make.conf.user"
 
-info_run sudo mount --bind /dev "${BOARD_ROOT}/dev"
-
-# Enable locale that some Chrome scripts assume exist.
-info_run sudo sed -i -e '/^#en_US.UTF-8/s:#::' "${BOARD_ROOT}/etc/locale.gen"
-info_run sudo chroot "${BOARD_ROOT}" locale-gen -u
-
-# The java-config package atm does not support $ROOT.  Select a default
-# VM ourselves until that gets fixed upstream.
-info_run sudo chroot "${BOARD_ROOT}" eselect java-vm set system openjdk-bin-11
-
-info_run sudo umount "${BOARD_ROOT}/dev"
-
 # b/278101251: /build/amd64-host doesn't include ccache's link tree by default,
 # which makes `FEATURES=ccache` quietly fail for host packages. Ensure it's
 # built here.
@@ -219,6 +214,61 @@ EOF
 
 # Make sure /etc/profile.env is up-to-date in the final SDK.
 info_run sudo ROOT="${BOARD_ROOT}" env-update --no-ldconfig
+
+# Next, we run tasks which require running inside a real ROOT.
+
+# We create a bind mount for the board root itself.  Much of chromite expects
+# the chroot to be a mount point, and this useless mount is enough to fool it.
+info_run sudo mount --bind "${BOARD_ROOT}" "${BOARD_ROOT}"
+
+# Setup /proc and /dev.
+info_run sudo mount -t proc proc "${BOARD_ROOT}/proc"
+info_run sudo mount --bind /dev "${BOARD_ROOT}/dev"
+
+# Running emerge inside the SDK will require valid users and groups.  Normally
+# this is handled when creating the SDK, but that hasn't happened yet.
+# Similarly, home directories need to exist.  Mounting these files in from
+# outside should be enough for this early entry.
+info_run sudo mount --bind /etc/passwd "${BOARD_ROOT}/etc/passwd"
+info_run sudo mount --bind /etc/group "${BOARD_ROOT}/etc/group"
+info_run sudo mount --bind /home "${BOARD_ROOT}/home"
+info_run sudo mount --bind /root "${BOARD_ROOT}/root"
+
+# Next, we need to mount in the source tree.  Crossdev will read multilib.eclass
+# from the overlays.
+info_run sudo mount --bind /mnt/host/source "${BOARD_ROOT}/mnt/host/source"
+
+# Mounting PKGDIR into the chroot will provide us with binpkgs we previously
+# built for all the toolchains.  Additionally, it'll make sure we don't pollute
+# the final tarball with any binpkgs as well.
+info_run sudo mount --bind "${PKGDIR}" "${BOARD_ROOT}${PKGDIR}"
+
+# Portage will write into a variety of temporary & cache directories.  Mount
+# these from outside so that we don't pollute the tarball.
+info_run sudo mount --bind /run "${BOARD_ROOT}/run"
+info_run sudo mount --bind /tmp "${BOARD_ROOT}/tmp"
+info_run sudo mount --bind /var/cache "${BOARD_ROOT}/var/cache"
+info_run sudo mount --bind /var/log "${BOARD_ROOT}/var/log"
+
+# Enable locale that some Chrome scripts assume exist.
+info_run sudo sed -i -e '/^#en_US.UTF-8/s:#::' "${BOARD_ROOT}/etc/locale.gen"
+info_run sudo chroot "${BOARD_ROOT}" locale-gen -u
+
+# The java-config package atm does not support $ROOT.  Select a default
+# VM ourselves until that gets fixed upstream.
+info_run sudo chroot "${BOARD_ROOT}" eselect java-vm set system openjdk-bin-11
+
+# Set up toolchains inside the chroot.  Crossdev does not support $ROOT.
+info_run sudo chroot "${BOARD_ROOT}" "${CHROMITE_BIN}/cros_setup_toolchains" \
+  --targets all --debug --no-fetch-binpkg
+
+safe_umount_tree "${BOARD_ROOT}"
+
+# Copy glibc binary package into the new SDK, as it's required by
+# chromite/lib/toolchain.py's ToolchainInstaller.
+GLIBC_BINPKG="${PKGDIR}/$(portageq best_visible / sys-libs/glibc).tbz2"
+info_run sudo mkdir -p "${BOARD_ROOT}${GLIBC_BINPKG%/*}"
+info_run sudo cp -a "${GLIBC_BINPKG}" "${BOARD_ROOT}${GLIBC_BINPKG}"
 
 command_completed
 echo "Done!"
