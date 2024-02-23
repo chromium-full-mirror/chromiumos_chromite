@@ -41,7 +41,7 @@ class BuildTarget:
             public: If true, simulate a public checkout.  By default, enable
                 for boards without a private overlay.
         """
-        self._name = name or None
+        self._name = name or constants.CHROOT_BUILDER_BOARD
         self.profile = profile
         self._public = public
 
@@ -74,10 +74,7 @@ class BuildTarget:
     @functools.cached_property
     def board(self) -> build_query.Board:
         """The build_query.Board corresponding to this target."""
-        board_name = self.name
-        if self.is_host():
-            board_name = "amd64-host"
-        return build_query.Board.get(board_name, profile=self.profile)
+        return build_query.Board.get(self.name, profile=self.profile)
 
     @property
     def public(self) -> bool:
@@ -135,7 +132,7 @@ class BuildTarget:
 
     def is_host(self) -> bool:
         """Check if the build target refers to the host."""
-        return not self.name
+        return self.name.endswith("-host")
 
     def to_proto(self) -> common_pb2.BuildTarget:
         """Convert to a common_pb2.BuildTarget."""
