@@ -51,21 +51,7 @@ eval set -- "${FLAGS_ARGV}"
 # so will die prematurely if 'switch_to_strict_mode' is specified before now.
 switch_to_strict_mode
 
-# shellcheck source=sdk_lib/make_conf_util.sh
-. "${HERE}"/sdk_lib/make_conf_util.sh
-
 info "Updating chroot"
-
-# Create /etc/make.conf.host_setup.  The file content is regenerated
-# from scratch every update.  There are various reasons to do this:
-#  + It's cheap, so this is an easy way to guarantee correct content
-#    after an upgrade.
-#  + Inside make_chroot.sh, we use a temporary version of the file
-#    which must be updated before the script completes; that final
-#    update happens here.
-#  + If the repositories change to add or remove the private
-#    overlay, the file may need to be regenerated.
-create_host_setup
 
 # Clean outdated packages in SDK.
 CONFIG_DIR="${HOME}/.config"

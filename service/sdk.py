@@ -14,6 +14,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import binpkg
+from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -22,6 +23,7 @@ from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import sdk_builder_lib
+from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
 from chromite.service import binhost
 from chromite.utils import gs_urls_util
@@ -433,6 +435,10 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
     cros_sdk_lib.RunChrootVersionHooks()
 
     portage_util.RegenDependencyCache(jobs=arguments.jobs)
+
+    build_target = build_target_lib.BuildTarget(constants.CHROOT_BUILDER_BOARD)
+    sysroot = sysroot_lib.Sysroot(arguments.root)
+    sysroot.InstallMakeConfSdk(build_target)
 
     cmd = [
         constants.CHROMITE_SHELL_DIR / "update_chroot.sh",
