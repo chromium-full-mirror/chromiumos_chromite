@@ -960,6 +960,47 @@ def BuildPackages(
                 sysroot=sysroot.path, jobs=run_configs.jobs
             )
 
+        # Install per-board bdepends packages.
+        logging.info("Updating per-board bdepends")
+
+        sdk_vdb = portage_util.PortageDB()
+        provided = (
+            target.broot / "etc" / "portage" / "profile" / "package.provided"
+        )
+        pkgdir = target.broot / "packages"
+        osutils.SafeMakedirs(provided.parent, sudo=True)
+        osutils.WriteFile(
+            provided,
+            "".join(
+                sorted(
+                    f"{x.package_info.cpvr}\n"
+                    for x in sdk_vdb.InstalledPackages()
+                )
+            ),
+            sudo=True,
+        )
+
+        cmd = [
+            constants.CHROMITE_BIN_DIR / "parallel_emerge",
+            "--root",
+            target.broot,
+            "--sysroot",
+            target.broot,
+            "--with-bdepends=n",
+            "--update",
+            "--deep",
+            "--newuse",
+            "--verbose",
+            "--newrepo",
+        ]
+        if run_configs.usepkg:
+            cmd += ["--getbinpkg", "--usepkg"]
+        cmd += [constants.TARGET_SDK_BROOT]
+        with metrics_lib.timer(f"{metrics_prefix}.Broot"):
+            cros_build_lib.sudo_run(
+                cmd, extra_env={"PKGDIR": str(pkgdir), "USE": ""}
+            )
+
         # Clean out any stale binpkgs we've accumulated. This is done
         # immediately after regenerating the cache in case ebuilds have been
         # removed (e.g. from a revert).
