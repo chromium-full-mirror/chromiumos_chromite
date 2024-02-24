@@ -343,18 +343,17 @@ class BuildPackagesRunConfig:
         if self.packages:
             return self.packages
 
-        packages = ["virtual/target-os"]
+        packages = [constants.TARGET_OS_PKG]
 
         if self.dev_image:
-            packages.append("virtual/target-os-dev")
+            packages.append(constants.TARGET_OS_DEV_PKG)
 
         if self.factory_image:
-            packages.extend(
-                ["virtual/target-os-factory", "virtual/target-os-factory-shim"]
-            )
+            packages.append(constants.TARGET_OS_FACTORY_PKG)
+            packages.append(constants.TARGET_OS_FACTORY_SHIM_PKG)
 
         if self.test_image:
-            packages.append("virtual/target-os-test")
+            packages.append(constants.TARGET_OS_TEST_PKG)
 
         if self.install_auto_test:
             packages.append("chromeos-base/autotest-all")
