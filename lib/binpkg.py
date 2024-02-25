@@ -554,7 +554,15 @@ def UpdateAndSubmitKeyValueFile(
     description = "%s: updating %s" % (kvfile.name, ", ".join(data.keys()))
     # UpdateKeyInLocalFile will print out the keys/values for us.
     print("Revving git file %s" % kvfile)
-    git.CreatePushBranch(prebuilt_branch, kvfile.parent)
+    tracking_branch = git.GetTrackingBranch(kvfile.parent, for_push=True)
+    # We need to give "--set-upstream-to" a value of the form
+    # "${remote}/${branch}". However, GetTrackingBranch returns a "ref"
+    # of the form "refs/remotes/${remote}/${branch}". So we strip off
+    # the prefix.
+    assert tracking_branch.ref.startswith("refs/remotes/")
+    upstream_branch = tracking_branch.ref[len("refs/remotes/") :]
+    git.CreateBranch(kvfile.parent, prebuilt_branch)
+    git.RunGit(kvfile.parent, ["branch", "--set-upstream-to", upstream_branch])
     for key, value in data.items():
         key_value_store.UpdateKeyInLocalFile(kvfile, key, value)
     git.RunGit(kvfile.parent, ["add", kvfile.name])

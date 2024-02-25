@@ -12,6 +12,7 @@ from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import gerrit
+from chromite.lib import git
 from chromite.lib import gs_unittest
 from chromite.lib import osutils
 from chromite.lib import patch as cros_patch
@@ -179,7 +180,22 @@ class UpdateAndSubmitKeyValueFileTest(cros_test_lib.MockTestCase):
         self.gerrit_helper.CreateGerritPatch.return_value = (
             self.mock_gerrit_patch
         )
-        self.PatchObject(binpkg, "git", autospec=True)
+
+        def fake_GetTrackingBranch(
+            _path, _branch=None, for_checkout=True, for_push=False
+        ):
+            assert for_push, "only for_push==True is implemented in this fake"
+            if for_checkout:
+                return git.RemoteRef("cros", "refs/remotes/cros/main")
+            else:
+                return git.RemoteRef("cros", "refs/heads/main")
+
+        self.PatchObject(
+            binpkg.git,
+            "GetTrackingBranch",
+            side_effect=fake_GetTrackingBranch,
+        )
+        self.PatchObject(binpkg.git, "RunGit", autospec=True)
         self.PatchObject(
             binpkg.gerrit, "GetGerritHelper", return_value=self.gerrit_helper
         )
@@ -266,6 +282,13 @@ class UpdateAndSubmitKeyValueFileTest(cros_test_lib.MockTestCase):
         )
         binpkg.git.RunGit.assert_has_calls(
             [
+                mock.call(
+                    abs_file.parent, ["checkout", "-B", mock.ANY, "HEAD"]
+                ),
+                mock.call(
+                    abs_file.parent,
+                    ["branch", "--set-upstream-to", "cros/main"],
+                ),
                 mock.call(abs_file.parent, ["add", abs_file.name]),
                 mock.call(abs_file.parent, ["commit", "-m", mock.ANY]),
             ]
@@ -312,6 +335,13 @@ class UpdateAndSubmitKeyValueFileTest(cros_test_lib.MockTestCase):
         )
         binpkg.git.RunGit.assert_has_calls(
             [
+                mock.call(
+                    abs_file.parent, ["checkout", "-B", mock.ANY, "HEAD"]
+                ),
+                mock.call(
+                    abs_file.parent,
+                    ["branch", "--set-upstream-to", "cros/main"],
+                ),
                 mock.call(abs_file.parent, ["add", abs_file.name]),
                 mock.call(abs_file.parent, ["commit", "-m", mock.ANY]),
             ]
