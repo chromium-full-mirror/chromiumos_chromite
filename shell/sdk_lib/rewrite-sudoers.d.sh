@@ -10,34 +10,37 @@ set -e
 
 cd "${SCRIPT_LOCATION}" || exit 1
 
-if [[ "${UID:-$(id -u)}" != 0 ]]; then
-  # Note that since we're screwing w/ sudo variables, this script
-  # explicitly bounces up to root for everything it does- that way
-  # if anyone introduces a temp depriving in the sudo setup, it can't break
-  # mid upgrade.
-
+# Some chroot upgrade hooks symlink & run us as non-root.
+if [[ $# -eq 0 ]]; then
   # shellcheck source=../common.sh
   . "../common.sh" || exit 1
 
+  assert_inside_chroot
   load_environment_whitelist
-  echo "Rewriting with env list ${ENVIRONMENT_WHITELIST[*]}"
-  exec sudo bash "${REAL_SCRIPT}" / "${USER}" "${ENVIRONMENT_WHITELIST[@]}"
-  exit 1
+
+  set -- / "${USER}" "${ENVIRONMENT_WHITELIST[@]}"
+  echo "Rewriting with env list ${*:3}"
+
+  if [[ "${UID:-$(id -u)}" != 0 ]]; then
+    # Note that since we're screwing w/ sudo variables, this script
+    # explicitly bounces up to root for everything it does- that way
+    # if anyone introduces a temp depriving in the sudo setup, it can't break
+    # mid upgrade.
+
+    exec sudo bash "${REAL_SCRIPT}" "$@"
+  fi
 fi
 
-# Reaching here means we're root.
-
-if [[ $# -lt 2 ]]; then
-  echo "Invoked with wrong number of args; expected root USER [variables]*" >&2
-  exit 1
-fi
+# Reaching here means we have access to the path.
 
 root=$1
 username=$2
 shift 2
-set -- "$@"
 
-cat > "${root}/etc/sudoers.d/90_cros" <<EOF
+file="${root}/etc/sudoers.d/90_cros"
+rm -f "${file}"
+mkdir -p "${file%/*}"
+cat > "${file}" <<EOF
 Defaults env_keep += "$*"
 
 # adm lets users & ebuilds run sudo (e.g. platform2 sysroot test runners).
@@ -50,5 +53,5 @@ ${username} ALL=(ALL) NOPASSWD: ALL
 Defaults verifypw = any
 EOF
 
-chmod 0444 "${root}/etc/sudoers.d/90_cros"
-chown root:root "${root}/etc/sudoers.d/90_cros"
+chmod 0644 "${file}"
+# NB: No need to chown as we we're running as root.
