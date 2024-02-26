@@ -5,9 +5,20 @@
 """CLI for running Chrome OS tests from lib/cros_test.py."""
 
 from chromite.lib import cros_test
+from chromite.lib import telemetry
+from chromite.lib.telemetry import trace
+
+
+tracer = trace.get_tracer(__name__)
 
 
 def main(argv):
     opts = cros_test.ParseCommandLine(argv)
     opts.Freeze()
-    return cros_test.CrOSTest(opts).Run()
+
+    telemetry.initialize(opts.log_telemetry)
+
+    with tracer.start_as_current_span("chromite.scripts.cros_run_test") as span:
+        returncode = cros_test.CrOSTest(opts).Run()
+        span.set_attribute("returncode", returncode)
+        return returncode
