@@ -117,6 +117,10 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
         # Don't write to the chroot.
         self.PatchObject(cros_sdk_lib.ChrootUpdater, "ApplyUpdates")
 
+        # Don't test sdk.Update internals -- sdk_unittest.py handles that.
+        result = sdk.UpdateResult(return_code=0)
+        self.update_mock = self.PatchObject(sdk, "Update", return_value=result)
+
         # A board we have a sysroot for already.
         self.board = "board"
         self.sysroot_path = os.path.join(self.tempdir, "build", self.board)
@@ -163,12 +167,11 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
         get_args_patch.assert_not_called()
 
         # Test update case.
-        script_loc = constants.CHROMITE_SHELL_DIR / "update_chroot.sh"
         config = sysroot.SetupBoardRunConfig(upgrade_chroot=True)
 
         sysroot.Create(target, config, None)
 
-        self.assertCommandContains([script_loc])
+        self.update_mock.assert_called_once()
 
     def test_update_chroot_failure(self) -> None:
         """Test failure handling when update chroot fails."""
@@ -177,7 +180,7 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
             package_info.parse("cat/pkg-1.2-r3"),
         ]
         result = sdk.UpdateResult(return_code=1, failed_pkgs=failed_pkgs)
-        self.PatchObject(sdk, "Update", return_value=result)
+        self.update_mock.return_value = result
 
         try:
             sysroot.Create(
@@ -206,10 +209,13 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
         config = sysroot.SetupBoardRunConfig(force=False)
         sysroot.Create(self.build_target, config, None)
         delete_patch.assert_not_called()
+        self.update_mock.assert_called_once()
+        self.update_mock.reset_mock()
 
         config = sysroot.SetupBoardRunConfig(force=True)
         sysroot.Create(self.build_target, config, None)
         delete_patch.assert_called_once()
+        self.update_mock.assert_called_once()
 
 
 class CreateSimpleChromeSysrootTest(cros_test_lib.RunCommandTempDirTestCase):
