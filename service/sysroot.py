@@ -349,6 +349,7 @@ class BuildPackagesRunConfig:
             packages.append(constants.TARGET_OS_DEV_PKG)
 
         if self.factory_image:
+            # See platform/factory/README.md for context.
             packages.append(constants.TARGET_OS_FACTORY_PKG)
             packages.append(constants.TARGET_OS_FACTORY_SHIM_PKG)
 
