@@ -50,8 +50,8 @@ def initialize(
     # Importing this inside the function to avoid performance overhead from the
     # global package import.
     from chromite.lib import chromite_config
+    from chromite.lib.telemetry import config
     from chromite.lib.telemetry import trace
-    from chromite.utils.telemetry import config
 
     chromite_config.initialize()
     cfg = config.Config(chromite_config.TELEMETRY_CONFIG)

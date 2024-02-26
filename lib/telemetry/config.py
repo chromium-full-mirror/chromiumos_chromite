@@ -7,9 +7,12 @@
 import configparser
 import datetime
 import os
+from pathlib import Path
 import time
 from typing import Literal
 import uuid
+
+from chromite.lib import cros_build_lib
 
 
 ROOT_SECTION_KEY = "root"
@@ -126,23 +129,29 @@ class Config:
     """Telemetry configuration."""
 
     def __init__(self, path: os.PathLike) -> None:
-        self._path = path
+        self._path = Path(path)
         self._config = configparser.ConfigParser()
 
         self._config.read_dict(DEFAULT_CONFIG)
-        if not os.path.exists(path):
+        if not self._path.exists():
             self.flush()
         else:
-            with open(path, "r", encoding="utf-8") as configfile:
+            with self._path.open("r", encoding="utf-8") as configfile:
                 self._config.read_file(configfile)
 
         self._trace_config = TraceConfig(self._config)
         self._root_config = RootConfig(self._config)
 
     def flush(self) -> None:
-        """Flushes the current config to confi file."""
-        with open(self._path, "w", encoding="utf-8") as configfile:
+        """Flushes the current config to config file."""
+
+        tempfile = self._path.with_name(
+            f".tmp-{cros_build_lib.GetRandomString()}"
+        )
+        with tempfile.open("w", encoding="utf-8") as configfile:
             self._config.write(configfile)
+
+        tempfile.rename(self._path)
 
     @property
     def root_config(self) -> RootConfig:

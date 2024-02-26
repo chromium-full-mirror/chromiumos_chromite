@@ -10,7 +10,7 @@ from chromite.cli import command_unittest
 from chromite.cli.cros import cros_telemetry
 from chromite.lib import chromite_config
 from chromite.lib import cros_test_lib
-from chromite.utils.telemetry import config
+from chromite.lib.telemetry import config
 
 
 pytestmark = cros_test_lib.pytestmark_inside_only

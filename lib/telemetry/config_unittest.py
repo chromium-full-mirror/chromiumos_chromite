@@ -7,7 +7,7 @@
 import configparser
 
 from chromite.lib import cros_test_lib
-from chromite.utils.telemetry import config
+from chromite.lib.telemetry import config
 
 
 class ConfigTest(cros_test_lib.TempDirTestCase):

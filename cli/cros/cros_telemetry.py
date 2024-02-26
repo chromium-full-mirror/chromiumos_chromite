@@ -8,7 +8,7 @@ import logging
 
 from chromite.cli import command
 from chromite.lib import chromite_config
-from chromite.utils.telemetry import config
+from chromite.lib.telemetry import config
 
 
 @command.command_decorator("telemetry")

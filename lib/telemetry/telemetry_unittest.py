@@ -13,8 +13,8 @@ import pytest
 
 from chromite.lib import chromite_config
 from chromite.lib import telemetry
+from chromite.lib.telemetry import config
 from chromite.utils import hostname_util
-from chromite.utils.telemetry import config
 from chromite.utils.telemetry import exporter
 
 
