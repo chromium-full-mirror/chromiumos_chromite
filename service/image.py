@@ -1075,6 +1075,49 @@ def _get_auth_args() -> List[str]:
     return args
 
 
+def CallDocker(
+    docker_image: str,
+    docker_args: List[str],
+    entrypoint_args: List[str],
+):
+    """Call the signing docker container with the given args.
+
+    Args:
+        docker_image: docker image to run.
+        docker_args: Args to be passed to docker.
+        entrypoint_args: Args to be passed.
+    """
+    # First, verify that the docker image exists.
+    try:
+        cros_build_lib.run(
+            ["docker", "inspect", "--type=image", docker_image], check=True
+        )
+    except Exception:
+        # TODO (b/295358776) error handling
+        raise
+    auth_args = _get_auth_args()
+
+    # Invoke the signing docker container.
+    cros_build_lib.run(
+        [
+            "docker",
+            "run",
+            # We must run in privileged mode to support /dev/loop*.
+            "--privileged",
+            # Use the hosts networking stack so it has access to the luci
+            # auth proxy.
+            "--network",
+            "host",
+            *auth_args,
+            # Args passed to docker.
+            *docker_args,
+            docker_image,
+            # Args passed into the entrypoint.
+            *entrypoint_args,
+        ]
+    )
+
+
 def SignImage(
     signing_configs: "signing_pb2.BuildTargetSigningConfigs",
     archive_dir: Union[str, Path],
@@ -1093,14 +1136,6 @@ def SignImage(
     Returns:
         Information about the signed artifacts.
     """
-    # First, verify that the docker image exists.
-    try:
-        cros_build_lib.run(
-            ["docker", "inspect", "--type=image", docker_image], check=True
-        )
-    except Exception:
-        # TODO (b/295358776) error handling
-        raise
     # Everything is going to live in a temp dir to be copied over to docker.
     with osutils.TempDir() as tempdir:
         # Serialize the proto to a file.
@@ -1112,8 +1147,6 @@ def SignImage(
         # TODO (b/295358776) Copy all the paths from the configs into the
         # temp dir.
 
-        auth_args = _get_auth_args()
-
         keys_dir = constants.SOURCE_ROOT / "src/platform/signing/keys"
         if not keys_dir.exists():
             raise InvalidArgumentError(
@@ -1121,16 +1154,9 @@ def SignImage(
             )
 
         # Invoke the docker container to sign the artifacts.
-        cros_build_lib.run(
+        CallDocker(
+            docker_image,
             [
-                "docker",
-                "run",
-                # We must run in privileged mode to support /dev/loop*.
-                "--privileged",
-                # Use the hosts networking stack so it has access to the luci
-                # auth proxy.
-                "--network",
-                "host",
                 # Mount the `/dev` directory on the host into `/dev` in the
                 # container.
                 "-v",
@@ -1147,11 +1173,8 @@ def SignImage(
                 # Mount the keyset checkout as a volume.
                 "-v",
                 f"{keys_dir}:/keys",
-                # Specify all the volumes and env variables to pipe in for
-                # luci auth.
-                *auth_args,
-                # Specify the image (and tag).
-                docker_image,
+            ],
+            [
                 # Args that are passed in to the entrypoint.
                 "-i",
                 "/in/proto.bin",
@@ -1161,8 +1184,9 @@ def SignImage(
                 "/out",
                 "-p",
                 "out_proto.bin",
-            ]
+            ],
         )
+
     output = signing_pb2.BuildTargetSignedArtifacts()
     with open(os.path.join(result_path, "out_proto.bin"), "rb") as f:
         output.ParseFromString(f.read())
