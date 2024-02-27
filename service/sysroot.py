@@ -1340,13 +1340,13 @@ in
         )
         union
         filter(
-            "//internal/packages/stage2/target/board/chromiumos/chromeos-base/libhwsec:",
-            kind("ebuild", deps(@portage//target/chromeos-base/libhwsec))
+            "//internal/packages/stage2/target/board/chromiumos/chromeos-base/chaps:",
+            kind("ebuild", deps(@portage//target/chromeos-base/chaps))
         )
         union
         filter(
-            "//internal/packages/stage2/target/board/chromiumos/chromeos-base/featured:",
-            kind("ebuild", deps(@portage//target/chromeos-base/featured))
+            "//internal/packages/stage2/target/board/chromiumos/media-sound/adhd:",
+            kind("ebuild", deps(@portage//target/media-sound/adhd))
         )
     )
                 """,
