@@ -26,9 +26,6 @@ tracer = trace.get_tracer(__name__)
 
 def GetParser():
     """Build the argument parser."""
-    # TODO(crbug.com/922144) Remove underscore separated arguments and the
-    # deprecated message after 2019-06-01.
-    deprecated = "Argument will be removed 2019-06-01. Use %s instead."
     parser = commandline.ArgumentParser(description=__doc__)
 
     parser.add_argument(
@@ -124,27 +121,11 @@ def GetParser():
         default=False,
         help="Don't update toolchain automatically.",
     )
-    # TODO(build): Delete by end of 2023.
-    build.add_argument(
-        "--skip_toolchain_update",
-        action="store_true",
-        default=False,
-        deprecated=deprecated % "--skip-toolchain-update",
-        help="Deprecated form of --skip-toolchain-update.",
-    )
     build.add_argument(
         "--skip-chroot-upgrade",
         action="store_true",
         default=False,
         help="Don't run the chroot upgrade automatically; use with care.",
-    )
-    # TODO(build): Delete by end of 2023.
-    build.add_argument(
-        "--skip_chroot_upgrade",
-        action="store_true",
-        default=False,
-        deprecated=deprecated % "--skip-chroot-upgrade",
-        help="Deprecated form of --skip-chroot-upgrade.",
     )
     build.add_argument(
         "--skip-board-pkg-init",
