@@ -847,7 +847,7 @@ def lookup_binhosts(
         A list of Google Storage URIs of binhosts, sorted by created
         time (descending).
     """
-
+    is_staging = False
     if (
         binhost_lookup_service_data
         and binhost_lookup_service_data.snapshot_shas
@@ -856,6 +856,7 @@ def lookup_binhosts(
         snapshot_shas = binhost_lookup_service_data.snapshot_shas
         get_corresponding_binhosts = False
         private = binhost_lookup_service_data.private
+        is_staging = binhost_lookup_service_data.is_staging
     else:
         # Get snapshot SHAs from the git log.
         snapshot_shas_combined = _get_snapshot_shas()
@@ -902,7 +903,7 @@ def lookup_binhosts(
         get_corresponding_binhosts,
         base_board,
         "base",
-        binhost_lookup_service_data.is_staging,
+        is_staging,
     )
     binhost_gs_uris.reverse()
 
