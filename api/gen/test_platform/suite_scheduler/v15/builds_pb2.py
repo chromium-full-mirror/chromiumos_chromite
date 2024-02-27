@@ -15,7 +15,7 @@ from chromite.third_party.google.protobuf import timestamp_pb2 as google_dot_pro
 from chromite.api.gen.test_platform.suite_scheduler.v15 import events_pb2 as test__platform_dot_suite__scheduler_dot_v15_dot_events__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n.test_platform/suite_scheduler/v15/builds.proto\x12!test_platform.suite_scheduler.v15\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.test_platform/suite_scheduler/v15/events.proto\"\xc2\x02\n\x10\x42uildInformation\x12\x39\n\tbuild_uid\x18\x01 \x01(\x0b\x32&.test_platform.suite_scheduler.v15.UID\x12\x37\n\x07run_uid\x18\x02 \x01(\x0b\x32&.test_platform.suite_scheduler.v15.UID\x12/\n\x0b\x63reate_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0c\n\x04\x62\x62id\x18\x04 \x01(\x03\x12\x14\n\x0c\x62uild_target\x18\x05 \x01(\t\x12\x11\n\tmilestone\x18\x06 \x01(\x03\x12\x0f\n\x07version\x18\x07 \x01(\t\x12\x12\n\nimage_path\x18\x08 \x01(\t\x12\r\n\x05\x62oard\x18\t \x01(\t\x12\x0f\n\x07variant\x18\n \x01(\t\x12\r\n\x05model\x18\x0b \x01(\tBMZKgo.chromium.org/chromiumos/infra/proto/go/test_platform/suite_scheduler/v15b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n.test_platform/suite_scheduler/v15/builds.proto\x12!test_platform.suite_scheduler.v15\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.test_platform/suite_scheduler/v15/events.proto\"\xc2\x02\n\x10\x42uildInformation\x12\x39\n\tbuild_uid\x18\x01 \x01(\x0b\x32&.test_platform.suite_scheduler.v15.UID\x12\x37\n\x07run_uid\x18\x02 \x01(\x0b\x32&.test_platform.suite_scheduler.v15.UID\x12/\n\x0b\x63reate_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0c\n\x04\x62\x62id\x18\x04 \x01(\x03\x12\x14\n\x0c\x62uild_target\x18\x05 \x01(\t\x12\x11\n\tmilestone\x18\x06 \x01(\x03\x12\x0f\n\x07version\x18\x07 \x01(\t\x12\x12\n\nimage_path\x18\x08 \x01(\t\x12\r\n\x05\x62oard\x18\t \x01(\t\x12\x0f\n\x07variant\x18\n \x01(\t\x12\r\n\x05model\x18\x0b \x01(\t\"\xda\x01\n\x05\x42uild\x12\x12\n\nbuild_uuid\x18\x01 \x01(\t\x12\x10\n\x08run_uuid\x18\x02 \x01(\t\x12/\n\x0b\x63reate_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0c\n\x04\x62\x62id\x18\x04 \x01(\x03\x12\x14\n\x0c\x62uild_target\x18\x05 \x01(\t\x12\x11\n\tmilestone\x18\x06 \x01(\x03\x12\x0f\n\x07version\x18\x07 \x01(\t\x12\x12\n\nimage_path\x18\x08 \x01(\t\x12\r\n\x05\x62oard\x18\t \x01(\t\x12\x0f\n\x07variant\x18\n \x01(\tBMZKgo.chromium.org/chromiumos/infra/proto/go/test_platform/suite_scheduler/v15b\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'test_platform.suite_scheduler.v15.builds_pb2', globals())
@@ -25,4 +25,6 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._serialized_options = b'ZKgo.chromium.org/chromiumos/infra/proto/go/test_platform/suite_scheduler/v15'
   _BUILDINFORMATION._serialized_start=167
   _BUILDINFORMATION._serialized_end=489
+  _BUILD._serialized_start=492
+  _BUILD._serialized_end=710
 # @@protoc_insertion_point(module_scope)

@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#chromiumos/test/api/test_case.proto\x12\x13\x63hromiumos.test.api\"\xff\x01\n\x08TestCase\x12,\n\x02id\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.TestCase.Id\x12\x0c\n\x04name\x18\x02 \x01(\t\x12/\n\x04tags\x18\x03 \x03(\x0b\x32!.chromiumos.test.api.TestCase.Tag\x12>\n\x0c\x64\x65pendencies\x18\x04 \x03(\x0b\x32(.chromiumos.test.api.TestCase.Dependency\x1a\x13\n\x02Id\x12\r\n\x05value\x18\x01 \x01(\t\x1a\x14\n\x03Tag\x12\r\n\x05value\x18\x01 \x01(\t\x1a\x1b\n\nDependency\x12\r\n\x05value\x18\x01 \x01(\t\"I\n\x0eTestCaseIdList\x12\x37\n\rtest_case_ids\x18\x01 \x03(\x0b\x32 .chromiumos.test.api.TestCase.Id\"A\n\x0cTestCaseList\x12\x31\n\ntest_cases\x18\x01 \x03(\x0b\x32\x1d.chromiumos.test.api.TestCaseB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#chromiumos/test/api/test_case.proto\x12\x13\x63hromiumos.test.api\"\xe0\x02\n\x08TestCase\x12,\n\x02id\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.TestCase.Id\x12\x0c\n\x04name\x18\x02 \x01(\t\x12/\n\x04tags\x18\x03 \x03(\x0b\x32!.chromiumos.test.api.TestCase.Tag\x12>\n\x0c\x64\x65pendencies\x18\x04 \x03(\x0b\x32(.chromiumos.test.api.TestCase.Dependency\x12\x43\n\x12\x62uild_dependencies\x18\x05 \x03(\x0b\x32\'.chromiumos.test.api.TestCase.BuildDeps\x1a\x13\n\x02Id\x12\r\n\x05value\x18\x01 \x01(\t\x1a\x14\n\x03Tag\x12\r\n\x05value\x18\x01 \x01(\t\x1a\x1b\n\nDependency\x12\r\n\x05value\x18\x01 \x01(\t\x1a\x1a\n\tBuildDeps\x12\r\n\x05value\x18\x01 \x01(\t\"I\n\x0eTestCaseIdList\x12\x37\n\rtest_case_ids\x18\x01 \x03(\x0b\x32 .chromiumos.test.api.TestCase.Id\"A\n\x0cTestCaseList\x12\x31\n\ntest_cases\x18\x01 \x03(\x0b\x32\x1d.chromiumos.test.api.TestCaseB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.api.test_case_pb2', globals())
@@ -22,15 +22,17 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z-go.chromium.org/chromiumos/config/go/test/api'
   _TESTCASE._serialized_start=61
-  _TESTCASE._serialized_end=316
-  _TESTCASE_ID._serialized_start=246
-  _TESTCASE_ID._serialized_end=265
-  _TESTCASE_TAG._serialized_start=267
-  _TESTCASE_TAG._serialized_end=287
-  _TESTCASE_DEPENDENCY._serialized_start=289
-  _TESTCASE_DEPENDENCY._serialized_end=316
-  _TESTCASEIDLIST._serialized_start=318
-  _TESTCASEIDLIST._serialized_end=391
-  _TESTCASELIST._serialized_start=393
-  _TESTCASELIST._serialized_end=458
+  _TESTCASE._serialized_end=413
+  _TESTCASE_ID._serialized_start=315
+  _TESTCASE_ID._serialized_end=334
+  _TESTCASE_TAG._serialized_start=336
+  _TESTCASE_TAG._serialized_end=356
+  _TESTCASE_DEPENDENCY._serialized_start=358
+  _TESTCASE_DEPENDENCY._serialized_end=385
+  _TESTCASE_BUILDDEPS._serialized_start=387
+  _TESTCASE_BUILDDEPS._serialized_end=413
+  _TESTCASEIDLIST._serialized_start=415
+  _TESTCASEIDLIST._serialized_end=488
+  _TESTCASELIST._serialized_start=490
+  _TESTCASELIST._serialized_end=555
 # @@protoc_insertion_point(module_scope)
