@@ -14,7 +14,6 @@ from typing import Optional, Union
 from unittest import mock
 
 from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
-from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
@@ -771,6 +770,7 @@ class BuildPackagesTest(
         config = sysroot.BuildPackagesRunConfig()
 
         with cros_test_lib.LoggingCapturer() as logs:
+            self.lookup_binhosts_mock.return_value = []
             # check for when the binhost was created within the threshold
             sysroot.BuildPackages(self.target, self.sysroot, config)
             self.get_creation_time_since_mock.assert_called_with(
@@ -802,6 +802,7 @@ class BuildPackagesTest(
         config = sysroot.BuildPackagesRunConfig()
 
         with cros_test_lib.LoggingCapturer() as logs:
+            self.lookup_binhosts_mock.return_value = []
             # check that the gs url is formatted correctly when the binhost
             # has a trailing slash
             self.portageq_envvar_mock.return_value = "gs://fake/binhost/"
@@ -836,65 +837,7 @@ class BuildPackagesTest(
 
         sysroot.BuildPackages(self.target, self.sysroot, config)
 
-        self.assertCommandContains(
-            ["PORTAGE_BINHOST=gs://fake/binhost gs://AAAA gs://BBBB"]
-        )
-
-    def testPackageIndexesNone(self) -> None:
-        """Test when the lookup service does not return any binhosts."""
-        pkg_indexes = [
-            binpkg.PackageIndexInfo(
-                build_target=build_target_lib.BuildTarget("board"),
-                snapshot_sha="A",
-                location="gs://AAAA",
-            ),
-            binpkg.PackageIndexInfo(
-                build_target=build_target_lib.BuildTarget("board"),
-                snapshot_sha="B",
-                location="gs://BBBB",
-            ),
-            binpkg.PackageIndexInfo(
-                build_target=build_target_lib.BuildTarget("board"),
-                snapshot_sha="C",
-                location="gs://fake/binhost",
-            ),
-        ]
-        config = sysroot.BuildPackagesRunConfig(package_indexes=pkg_indexes)
-        self.lookup_binhosts_mock.return_value = []
-
-        sysroot.BuildPackages(self.target, self.sysroot, config)
-
-        self.assertCommandContains(
-            ["PORTAGE_BINHOST=gs://fake/binhost gs://AAAA gs://BBBB"]
-        )
-
-    def testPackageIndexesError(self) -> None:
-        """Test when the lookup service errors."""
-        pkg_indexes = [
-            binpkg.PackageIndexInfo(
-                build_target=build_target_lib.BuildTarget("board"),
-                snapshot_sha="A",
-                location="gs://AAAA",
-            ),
-            binpkg.PackageIndexInfo(
-                build_target=build_target_lib.BuildTarget("board"),
-                snapshot_sha="B",
-                location="gs://BBBB",
-            ),
-            binpkg.PackageIndexInfo(
-                build_target=build_target_lib.BuildTarget("board"),
-                snapshot_sha="C",
-                location="gs://fake/binhost",
-            ),
-        ]
-        config = sysroot.BuildPackagesRunConfig(package_indexes=pkg_indexes)
-        self.lookup_binhosts_mock.side_effect = ValueError()
-
-        sysroot.BuildPackages(self.target, self.sysroot, config)
-
-        self.assertCommandContains(
-            ["PORTAGE_BINHOST=gs://fake/binhost gs://AAAA gs://BBBB"]
-        )
+        self.assertCommandContains(["PORTAGE_BINHOST=gs://AAAA gs://BBBB"])
 
     def testEcleanBinpkgs(self) -> None:
         """Test that eclean is called with the expected packages."""
