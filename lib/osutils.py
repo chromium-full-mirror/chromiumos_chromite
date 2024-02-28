@@ -350,14 +350,17 @@ def Chown(
         group: Group to assign the file to.
         recursive: Also chown child files/directories recursively.
     """
-    group = "" if group is None else str(group)
 
     cmd = ["chown"]
     if recursive:
         cmd += ["-R"]
     if user is True:
         user = os_util.get_non_root_user()
-    cmd += [f"{user}:{group}", str(path)]
+
+    # `user:` results in invalid spec on skylab.
+    # TODO: simplify this logic once the old environments are dropped.
+    spec = str(user) if group is None else f"{user}:{group}"
+    cmd += [spec, str(path)]
     cros_build_lib.sudo_run(cmd, print_cmd=False, stderr=True, stdout=True)
 
 

@@ -565,10 +565,14 @@ class TestOsutils(cros_test_lib.MockTempDirTestCase):
 
         new_user = new_group = "root"
 
+        # Verify existing user and group.
+        self.assertEqual(user, User(filename))
+        self.assertEqual(group, Group(filename))
+
         # Change only the user.
         osutils.Chown(filename, user=new_user)
         self.assertEqual(new_user, User(filename))
-        self.assertEqual(new_group, Group(filename))
+        self.assertEqual(group, Group(filename))
 
         # Change both user and group.
         osutils.Chown(filename, user=user, group=group)
@@ -591,7 +595,7 @@ class TestOsutils(cros_test_lib.MockTempDirTestCase):
         # User = True.
         osutils.Chown(filename, user=True)
         self.assertEqual(user, User(filename))
-        self.assertEqual(group, Group(filename))
+        self.assertEqual(new_group, Group(filename))
 
         # Recursive.
         dirname = os.path.join(self.tempdir, "chowntestsdir")
@@ -612,6 +616,10 @@ class TestOsutils(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(user, User(dirname))
         self.assertEqual(group, Group(dirname))
         self.assertEqual(user, User(filename))
+        self.assertEqual(group, Group(filename))
+        # Chown with numeric user.
+        osutils.Chown(filename, user=0)
+        self.assertEqual(new_user, User(filename))
         self.assertEqual(group, Group(filename))
 
 
