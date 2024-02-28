@@ -41,7 +41,6 @@ MOCK_BUILD_TARGET_NAME = "test_build_target"
 MOCK_DATE_STRING = "2023-07-25T08:09:14.842Z"
 MOCK_GENERIC_BUILD_TARGET_NAME = "generic_build_target"
 MOCK_GENERIC_PROFILE = "generic_profile"
-MOCK_GS_BUCKET_NAME = "test_bucket"
 MOCK_GS_URI = "gs://test"
 MOCK_ID_TOKEN = "test_token"
 MOCK_PROFILE = "test_profile"
@@ -890,7 +889,6 @@ class FetchBinhostsTest(
     """Tests for _fetch_binhosts."""
 
     FETCH_BINHOSTS_MOCK_ARGS = (
-        MOCK_GS_BUCKET_NAME,
         [MOCK_SNAPSHOT_SHA],
         MOCK_BUILD_TARGET_NAME,
         MOCK_PROFILE,
@@ -976,7 +974,6 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
 
         result = binhost.lookup_binhosts(
             MOCK_BUILD_TARGET,
-            MOCK_GS_BUCKET_NAME,
             self.BINHOST_LOOKUP_SERVICE_DATA,
         )
 
@@ -1001,12 +998,10 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
 
         result = binhost.lookup_binhosts(
             MOCK_BUILD_TARGET,
-            MOCK_GS_BUCKET_NAME,
             self.BINHOST_LOOKUP_SERVICE_DATA,
         )
 
         self.fetch_binhosts.assert_called_with(
-            MOCK_GS_BUCKET_NAME,
             self.INTERNAL_SNAPSHOT_SHAS,
             MOCK_BUILD_TARGET.name,
             MOCK_BUILD_TARGET.profile,

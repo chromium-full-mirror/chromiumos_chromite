@@ -53,7 +53,8 @@ _LOOKUP_BINHOSTS_ENDPOINT_PROD = "prod-lookup-service-binhosts"
 _BINHOST_LOOKUP_SERVICE_TIMEOUT = 60
 
 # Google storage bucket which contains binhosts.
-_BINHOSTS_GS_BUCKET_NAME = "chromeos-prebuilt"
+_BINHOSTS_GS_BUCKET_NAME_STAGING = "staging-chromeos-prebuilt"
+_BINHOSTS_GS_BUCKET_NAME_PROD = "chromeos-prebuilt"
 
 
 class Error(Exception):
@@ -660,7 +661,6 @@ class SnapshotShas(NamedTuple):
 
 
 def _fetch_binhosts(
-    gs_bucket_name: str,
     snapshot_shas: List[str],
     build_target: str,
     profile: str,
@@ -673,9 +673,6 @@ def _fetch_binhosts(
     """Call the binhost lookup service to get locations of BINHOSTs.
 
     Args:
-        gs_bucket_name: Name of the google storage bucket which contains the
-            binhosts (e.g. "chromeos-prebuilt" in
-            gs://chromeos-prebuilt/binhosts/..).
         snapshot_shas: List of snapshot shas of the binhosts.
         build_target: build target (also known as board) of the binhosts.
         profile: profile associated with the build target.
@@ -697,6 +694,11 @@ def _fetch_binhosts(
         google.protobuf.message.DecodeError: When the protobuf message from the
             API response cannot be parsed.
     """
+    gs_bucket_name = (
+        _BINHOSTS_GS_BUCKET_NAME_STAGING
+        if is_staging
+        else _BINHOSTS_GS_BUCKET_NAME_PROD
+    )
     # Construct and encode the filter parameters.
     lookup_binhosts_request = prebuilts_cloud_pb2.LookupBinhostsRequest(
         gs_bucket_name=gs_bucket_name,
@@ -829,7 +831,6 @@ def _get_snapshot_shas_from_git_log(
 
 def lookup_binhosts(
     build_target: "build_target_lib.BuildTarget",
-    gs_bucket_name: str = _BINHOSTS_GS_BUCKET_NAME,
     binhost_lookup_service_data: Optional[
         prebuilts_cloud_pb2.BinhostLookupServiceData
     ] = None,
@@ -838,9 +839,6 @@ def lookup_binhosts(
 
     Args:
         build_target: Details of the build target.
-        gs_bucket_name: Name of the google storage bucket which contains the
-            binhosts (e.g. "chromeos-prebuilt" in
-            gs://chromeos-prebuilt/binhosts/..).
         binhost_lookup_service_data: Data needed for fetching binhosts.
 
     Returns:
@@ -895,7 +893,6 @@ def lookup_binhosts(
     base_board = board_root.GetBaseArchBoard()
 
     binhost_gs_uris = _fetch_binhosts(
-        gs_bucket_name,
         snapshot_shas,
         build_target.name,
         build_target.profile or "base",
