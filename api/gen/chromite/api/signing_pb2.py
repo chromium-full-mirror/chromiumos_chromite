@@ -15,7 +15,7 @@ from chromite.api.gen.chromite.api import build_api_pb2 as chromite_dot_api_dot_
 from chromite.api.gen.chromiumos import common_pb2 as chromiumos_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/signing.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"\xb6\x01\n\x16\x43reatePreMPKeysRequest\x12\x14\n\x0c\x64ocker_image\x18\x05 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x06 \x01(\t\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x19\n\x11skip_android_keys\x18\x03 \x01(\x08\x12\x0c\n\x04uefi\x18\x04 \x01(\x08\"\x19\n\x17\x43reatePreMPKeysResponse2\x85\x01\n\x0eSigningService\x12`\n\x0f\x43reatePreMPKeys\x12$.chromite.api.CreatePreMPKeysRequest\x1a%.chromite.api.CreatePreMPKeysResponse\"\x00\x1a\x11\xc2\xed\x1a\r\n\x07signing\x10\x02 \x02\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/signing.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"\xc7\x01\n\x16\x43reatePreMPKeysRequest\x12\x14\n\x0c\x64ocker_image\x18\x05 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x06 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x07 \x01(\x08\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x19\n\x11skip_android_keys\x18\x03 \x01(\x08\x12\x0c\n\x04uefi\x18\x04 \x01(\x08\"\x19\n\x17\x43reatePreMPKeysResponse2\x85\x01\n\x0eSigningService\x12`\n\x0f\x43reatePreMPKeys\x12$.chromite.api.CreatePreMPKeysRequest\x1a%.chromite.api.CreatePreMPKeysResponse\"\x00\x1a\x11\xc2\xed\x1a\r\n\x07signing\x10\x02 \x02\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromite.api.signing_pb2', globals())
@@ -26,9 +26,9 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _SIGNINGSERVICE._options = None
   _SIGNINGSERVICE._serialized_options = b'\302\355\032\r\n\007signing\020\002 \002'
   _CREATEPREMPKEYSREQUEST._serialized_start=100
-  _CREATEPREMPKEYSREQUEST._serialized_end=282
-  _CREATEPREMPKEYSRESPONSE._serialized_start=284
-  _CREATEPREMPKEYSRESPONSE._serialized_end=309
-  _SIGNINGSERVICE._serialized_start=312
-  _SIGNINGSERVICE._serialized_end=445
+  _CREATEPREMPKEYSREQUEST._serialized_end=299
+  _CREATEPREMPKEYSRESPONSE._serialized_start=301
+  _CREATEPREMPKEYSRESPONSE._serialized_end=326
+  _SIGNINGSERVICE._serialized_start=329
+  _SIGNINGSERVICE._serialized_end=462
 # @@protoc_insertion_point(module_scope)
