@@ -46,7 +46,7 @@ from chromite.utils import os_util
 _TEMPDIR_ENV_VARS = ("TMPDIR", "TEMP", "TMP")
 
 
-def IsChildProcess(pid, name=None):
+def IsChildProcess(pid: int, name: Optional[str] = None) -> bool:
     """Return True if pid is a child of the current process.
 
     Args:
@@ -62,9 +62,9 @@ def IsChildProcess(pid, name=None):
         cmd, capture_output=True, print_cmd=False, encoding="utf-8"
     ).stdout
     if name is None:
-        match = "(%d)" % pid
+        match = f"({pid})"
     else:
-        match = "-%s(%d)" % (name, pid)
+        match = f"-{name}({pid})"
     return match in pstree
 
 
@@ -74,7 +74,9 @@ def ExpandPath(path: Union[str, os.PathLike]) -> Union[str, os.PathLike]:
     return str(ret) if isinstance(path, str) else ret
 
 
-def IsSubPath(path, other):
+def IsSubPath(
+    path: Union[str, os.PathLike], other: Union[str, os.PathLike]
+) -> bool:
     """Returns whether |path| is a sub path of |other|."""
     path = os.path.abspath(path)
     other = os.path.abspath(other)
@@ -353,7 +355,7 @@ def Chown(
     cmd = ["chown"]
     if recursive:
         cmd += ["-R"]
-    cmd += ["%s:%s" % (user, group), str(path)]
+    cmd += [f"{user}:{group}", str(path)]
     cros_build_lib.sudo_run(cmd, print_cmd=False, stderr=True, stdout=True)
 
 
@@ -615,9 +617,7 @@ def SafeMakedirsNonRoot(path, mode=0o775, user=None):
         user = os_util.get_non_root_user()
 
     if user is None or user == "root":
-        raise MakingDirsAsRoot(
-            "Refusing to create %s as user %s!" % (path, user)
-        )
+        raise MakingDirsAsRoot(f"Refusing to create {path} as user {user}!")
 
     created = False
     should_chown = False
@@ -835,10 +835,11 @@ def RmDir(path, ignore_missing=False, sudo=False) -> None:
         if not sudo:
             raise
 
+    force = "f" if ignore_missing else ""
     # If we're still here, we're falling back to sudo.
     try:
         cros_build_lib.sudo_run(
-            ["rm", "-r%s" % ("f" if ignore_missing else "",), "--", str(path)],
+            ["rm", f"-r{force}", "--", str(path)],
             debug_level=logging.DEBUG,
             stdout=True,
             stderr=True,
@@ -877,7 +878,7 @@ def EmptyDir(path, ignore_missing=False, sudo=False, exclude=()) -> None:
         if ignore_missing:
             return
         raise EmptyDirNonExistentException(
-            "EmptyDir called non-existent: %s" % path
+            f"EmptyDir called non-existent: {path}"
         )
 
     # We don't catch OSError if path is not a directory.
@@ -1302,9 +1303,7 @@ def Mount(
     ):
         e = ctypes.get_errno()
         raise OSError(
-            e,
-            'Could not mount "%s" to "%s": %s'
-            % (source, target, os.strerror(e)),
+            e, f'Could not mount "{source}" to "{target}": {os.strerror(e)}'
         )
 
 
@@ -1387,7 +1386,7 @@ def MountTmpfsDir(
         mount_opts: List of options to pass to `mount`.
         **kwargs: Pass all other args to MountDir.
     """
-    mount_opts = list(mount_opts) + ["size=%s" % size]
+    mount_opts = list(mount_opts) + [f"size={size}"]
     MountDir(name, path, fs_type="tmpfs", mount_opts=mount_opts, **kwargs)
 
 
@@ -1495,7 +1494,7 @@ def SourceEnvironment(script, allowlist, ifs=",", env=None, multiline=False):
         A dictionary containing the values of the allowlisted environment
         variables that are set.
     """
-    dump_script = ['source "%s" >/dev/null' % script, 'IFS="%s"' % ifs]
+    dump_script = [f'source "{script}" >/dev/null', f'IFS="{ifs}"']
     for var in allowlist:
         # Note: If we want to get more exact results out of bash, we should
         # switch to using `declare -p "${var}"`.  It would require writing a
@@ -1571,7 +1570,7 @@ def GetDeviceInfo(device, keyword="model"):
     """
     device_path = os.path.join("/sys", "block", device)
     if not os.path.isdir(device_path):
-        raise ValueError("%s is not a valid device path." % device_path)
+        raise ValueError(f"{device_path} is not a valid device path.")
 
     path_list = ExpandPath(os.path.join(device_path, "device")).split(
         os.path.sep
@@ -1599,7 +1598,7 @@ def GetDeviceSize(device_path, in_bytes=False):
         if d.TYPE == "disk":
             return int(d.SIZE) if in_bytes else d.SIZE
 
-    raise ValueError("No size info of %s is found." % device_path)
+    raise ValueError(f"No size info of {device_path} is found.")
 
 
 @contextlib.contextmanager
@@ -1740,9 +1739,9 @@ class MountOverlayContext:
                     fs_type="overlay",
                     makedirs=False,
                     mount_opts=(
-                        "lowerdir=%s" % self._lower_dir,
-                        "upperdir=%s" % self._upper_dir,
-                        "workdir=%s" % self.tempdir,
+                        f"lowerdir={self._lower_dir}",
+                        f"upperdir={self._upper_dir}",
+                        f"workdir={self.tempdir}",
                     ),
                     quiet=True,
                 )
@@ -1763,8 +1762,8 @@ class MountOverlayContext:
                     fs_type="overlayfs",
                     makedirs=False,
                     mount_opts=(
-                        "lowerdir=%s" % self._lower_dir,
-                        "upperdir=%s" % self._upper_dir,
+                        f"lowerdir={self._lower_dir}",
+                        f"upperdir={self._upper_dir}",
                     ),
                     quiet=True,
                 )
@@ -1868,7 +1867,7 @@ def ResolveSymlinkInRoot(
     while os.path.islink(file_name):
         count += 1
         if count > 128:
-            raise ValueError("Too many link levels for %s." % file_name)
+            raise ValueError(f"Too many link levels for {file_name}.")
         link = os.readlink(file_name)
         if link.startswith("/"):
             file_name = os.path.join(root, link[1:]) if root else link
