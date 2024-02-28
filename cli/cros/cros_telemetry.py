@@ -106,7 +106,10 @@ What we collect:
 
     def Run(self) -> None:
         """Run cros telemetry."""
-        telemetry.initialize(log_traces=self.options.log_telemetry)
+        # Do not publish to avoid fork bomb.
+        telemetry.initialize(
+            log_traces=self.options.log_telemetry, publish=False
+        )
         self._do_run()
 
     @tracer.start_as_current_span("cli.cros.cros_telemetry.main")

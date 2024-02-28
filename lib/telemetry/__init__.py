@@ -30,6 +30,7 @@ TELEMETRY_VERSION = "3"
 def initialize(
     log_traces: bool = False,
     enable: Optional[bool] = None,
+    publish: bool = False,
 ) -> None:
     """Initialize chromite telemetry.
 
@@ -45,7 +46,11 @@ def initialize(
     Args:
         log_traces: Indicates if the traces should be exported to console.
         enable: Indicates if the traces should be enabled.
+        publish: Fork background process to publish telemetry.
     """
+    # Publish in a background process.
+    if publish:
+        _fork_and_publish()
 
     # Importing this inside the function to avoid performance overhead from the
     # global package import.
@@ -83,3 +88,49 @@ def initialize(
         development_mode=cfg.trace_config.dev_flag,
         user_uuid=cfg.trace_config.user_uuid(),
     )
+
+
+def _fork_and_publish():
+    """Fork a (short-lived) daemon publishing process."""
+    if os.fork():
+        # Parent, return to other tasks.
+        return
+
+    from chromite.lib import constants
+
+    # Use a safe cwd.
+    os.chdir(constants.SOURCE_ROOT)
+    # Clear session id to clear controlling TTY.
+    os.setsid()
+    # Make sure we have access to all files it creates.
+    os.umask(0)
+
+    # Second fork to make sure we can't get a controlling TTY.
+    if os.fork():
+        sys.exit()
+
+    import datetime
+
+    from chromite.lib import osutils
+    from chromite.lib import path_util
+
+    # Set up a log file. Timestamp with millisecond precision.
+    now = datetime.datetime.now().isoformat()
+    log_file = path_util.get_log_dir() / "telemetry" / ".publisher_logs" / now
+    osutils.SafeMakedirsNonRoot(log_file.parent)
+
+    # Get rid of stdin, we don't need it anymore.
+    with open("/dev/null", "r", encoding="utf-8") as dev_null:
+        os.dup2(dev_null.fileno(), sys.stdin.fileno())
+
+    # Redirect stdout and stderr to the log file. Start with stderr so errors
+    # changing stdout go to the log file.
+    sys.stderr.flush()
+    sys.stdout.flush()
+    # It's probably unique, but append just in case.
+    with log_file.open("a+", encoding="utf-8") as f:
+        os.dup2(f.fileno(), sys.stderr.fileno())
+        os.dup2(f.fileno(), sys.stdout.fileno())
+
+    # Now we publish.
+    os.execvp("cros", ["cros", "telemetry", "--publish", "--debug"])
