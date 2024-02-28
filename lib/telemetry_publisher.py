@@ -35,7 +35,9 @@ from chromite.third_party.opentelemetry.sdk import resources
 # somewhere else instead.
 from chromite.api.gen.chromite.telemetry import clientanalytics_pb2
 from chromite.api.gen.chromite.telemetry import trace_span_pb2
+from chromite.lib import cros_build_lib
 from chromite.lib import locking
+from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib.telemetry import trace
 from chromite.utils.telemetry import detector
@@ -145,6 +147,7 @@ def publish():
             publisher_file.unlink()
             raise
 
+        logging.debug("Next request: %s", publisher.next_request_dt.isoformat())
         _post_publish_actions(pending_files)
 
         # Write out the next publish TS.
@@ -186,12 +189,21 @@ def _post_publish_actions(pending_files: List["Path"]):
     for file in pending_files:
         # TODO: Write a published file instead.
         logging.debug("Deleting published: %s", file)
-        file.unlink()
         try:
-            file.parent.rmdir()
-            file.parent.parent.rmdir()
-        except OSError:
-            pass
+            osutils.SafeUnlink(file, sudo=True)
+        except cros_build_lib.RunCommandError:
+            # Doesn't exist for some reason.
+            continue
+
+        # Try to clear out any empty parent directories.
+        for parent in file.parents:
+            if _get_telemetry_dir() not in parent.parents:
+                break
+
+            try:
+                parent.rmdir()
+            except OSError:
+                break
 
 
 class TraceSpanDataclassMixin:
@@ -583,25 +595,30 @@ class ClearcutPublisher:
     @property
     def wait_time(self) -> int:
         """Get the wait time until the next publish."""
-        wait_delta = self._next_request_dt - datetime.datetime.now()
+        wait_delta = self.next_request_dt - datetime.datetime.now()
         wait_time = wait_delta.total_seconds()
 
         return wait_time if wait_time > 0 else 0
 
     @property
-    def next_publish_ts(self):
-        """Get the timestamp the next publish can be made."""
-        return self._next_request_dt.timestamp()
+    def next_request_dt(self) -> datetime.datetime:
+        """Get the next request datetime."""
+        return self._next_request_dt
 
     @property
-    def queue_len(self):
+    def next_publish_ts(self) -> float:
+        """Get the timestamp the next publish can be made."""
+        return self.next_request_dt.timestamp()
+
+    @property
+    def queue_len(self) -> int:
         """Get the number of items in the queue."""
         return len(self._queue)
 
     @tracer.start_as_current_span(
         "chromite.lib.telemetry_publisher.ClearcutPublisher.publish"
     )
-    def publish(self, timeout: Optional[int] = None):
+    def publish(self, timeout: Optional[int] = None) -> None:
         """Publish a batch."""
         spans = self._queue[: self._max_batch_size]
         self._queue = self._queue[self._max_batch_size :]
@@ -624,7 +641,7 @@ class ClearcutPublisher:
 
         return False
 
-    def _can_queue(self, count):
+    def _can_queue(self, count: int) -> bool:
         """Check if |count| spans can be published in the batch."""
         return self._max_batch_size - self.queue_len >= count
 
