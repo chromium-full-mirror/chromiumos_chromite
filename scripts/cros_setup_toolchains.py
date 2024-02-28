@@ -268,15 +268,18 @@ class Crossdev:
         return val[target]
 
     @classmethod
-    def UpdateTargets(cls, targets, usepkg, config_only=False) -> None:
+    def UpdateTargets(
+        cls, targets, usepkg, config_only=False, fetch_binpkgs: bool = True
+    ) -> None:
         """Calls crossdev to initialize a cross target.
 
         Args:
             targets: The dict of targets to initialize using crossdev.
             usepkg: Copies the commandline opts.
             config_only: Just update.
+            fetch_binpkgs: Pre-populate binpkgs to help avoid race conditions.
         """
-        if usepkg and not config_only:
+        if usepkg and not config_only and fetch_binpkgs:
             # Run a single, arbitrary target with --fetchonly to try to
             # pre-populate common binpkgs to help avoid race conditions that
             # cause flakes. See b/299321780.
@@ -797,6 +800,7 @@ def UpdateToolchains(
     targets_wanted,
     boards_wanted,
     root="/",
+    fetch_binpkgs: bool = True,
 ) -> None:
     """Performs all steps to create a synchronized toolchain enviroment.
 
@@ -808,6 +812,7 @@ def UpdateToolchains(
         targets_wanted: All the targets to update
         boards_wanted: Load targets from these boards
         root: The root in which to install the toolchains.
+        fetch_binpkgs: Pre-populate binpkgs to help avoid race conditions.
     """
     targets, crossdev_targets, reconfig_targets = {}, {}, {}
     if not hostonly:
@@ -838,7 +843,9 @@ def UpdateToolchains(
         if crossdev_targets:
             logging.info("The following targets need to be re-initialized:")
             logging.info("%s", crossdev_targets)
-            Crossdev.UpdateTargets(crossdev_targets, usepkg)
+            Crossdev.UpdateTargets(
+                crossdev_targets, usepkg, fetch_binpkgs=fetch_binpkgs
+            )
         # Those that were not initialized may need a config update.
         Crossdev.UpdateTargets(reconfig_targets, usepkg, config_only=True)
 
@@ -1496,6 +1503,12 @@ def GetParser():
         default=True,
         help="Do not use prebuilt packages",
     )
+    parser.add_bool_argument(
+        "--fetch-binpkgs",
+        default=True,
+        enabled_desc="Fetch binpkgs if required.",
+        disabled_desc="Don't fetch binary packages.",
+    )
     parser.add_argument(
         "-d",
         "--deleteold",
@@ -1619,6 +1632,7 @@ def main(argv):
                 targets_wanted,
                 boards_wanted,
                 root=root,
+                fetch_binpkgs=options.fetch_binpkgs,
             )
             Crossdev.Save()
 
