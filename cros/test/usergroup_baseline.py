@@ -134,6 +134,7 @@ GROUP_BASELINE = dict(
                 "fwupd",
                 "cros_healthd",
                 "image-burner",
+                "minios",
             },
         ),
         GroupEntry(
