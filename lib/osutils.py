@@ -338,7 +338,7 @@ def Chmod(path: Union[Path, str], mode: int, sudo: bool = False) -> None:
 
 def Chown(
     path: Union[Path, str],
-    user: Union[str, int],
+    user: Union[str, int, bool],
     group: Optional[Union[str, int]] = None,
     recursive: bool = False,
 ) -> None:
@@ -346,7 +346,7 @@ def Chown(
 
     Args:
         path: File/directory to chown.
-        user: User to chown the file to.
+        user: User to chown the file to, or True for the non-root user.
         group: Group to assign the file to.
         recursive: Also chown child files/directories recursively.
     """
@@ -355,6 +355,8 @@ def Chown(
     cmd = ["chown"]
     if recursive:
         cmd += ["-R"]
+    if user is True:
+        user = os_util.get_non_root_user()
     cmd += [f"{user}:{group}", str(path)]
     cros_build_lib.sudo_run(cmd, print_cmd=False, stderr=True, stdout=True)
 

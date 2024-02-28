@@ -30,7 +30,7 @@ from chromite.lib import partial_mock
 from chromite.utils import libc
 
 
-class TestOsutils(cros_test_lib.TempDirTestCase):
+class TestOsutils(cros_test_lib.MockTempDirTestCase):
     """General unittests for the osutils module."""
 
     def testIsSubPath(self) -> None:
@@ -587,6 +587,11 @@ class TestOsutils(cros_test_lib.TempDirTestCase):
         osutils.Chown(filename, user=0, group=0)
         self.assertEqual(new_user, User(filename))
         self.assertEqual(new_group, Group(filename))
+
+        # User = True.
+        osutils.Chown(filename, user=True)
+        self.assertEqual(user, User(filename))
+        self.assertEqual(group, Group(filename))
 
         # Recursive.
         dirname = os.path.join(self.tempdir, "chowntestsdir")
