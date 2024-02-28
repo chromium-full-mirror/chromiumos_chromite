@@ -279,8 +279,7 @@ TARGET_OS_DEV_PKG = "virtual/target-os-dev"
 TARGET_OS_TEST_PKG = "virtual/target-os-test"
 TARGET_OS_FACTORY_PKG = "virtual/target-os-factory"
 TARGET_OS_FACTORY_SHIM_PKG = "virtual/target-os-factory-shim"
-# The virtuals composing a "full" build, e.g. what's built in the cq.
-# Local (developer) builds only use target-os by default.
+# All virtuals used for a full build of a board.
 ALL_TARGET_PACKAGES = (
     TARGET_OS_PKG,
     TARGET_OS_DEV_PKG,
