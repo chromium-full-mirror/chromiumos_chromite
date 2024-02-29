@@ -23,7 +23,6 @@ DEFINE_boolean skip_toolchain_update "${FLAGS_FALSE}" \
   "Don't update the toolchains."
 DEFINE_string toolchain_boards "" \
   "Extra toolchains to setup for the specified boards."
-DEFINE_boolean eclean "${FLAGS_TRUE}" "Run eclean to delete old binpkgs."
 DEFINE_integer backtrack 10 "See emerge --backtrack."
 
 # Parse command line flags
@@ -55,13 +54,6 @@ if [ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_FALSE}" ]; then
 fi
 
 EMERGE_CMD="${CHROMITE_BIN}/parallel_emerge"
-
-# Clean out any stale binpkgs we've accumulated. This is done immediately after
-# regenerating the cache in case ebuilds have been removed (e.g. from a revert).
-if [[ "${FLAGS_eclean}" -eq "${FLAGS_TRUE}" ]]; then
-  info "Cleaning stale binpkgs"
-  get_eclean_exclusions | sudo eclean -e /dev/stdin packages
-fi
 
 EMERGE_FLAGS=( -uNv --backtrack="${FLAGS_backtrack}" )
 if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
@@ -117,10 +109,3 @@ printf '%s\nYES\n' -9 | sudo etc-update
 
 # If the user still has old perl modules installed, update them.
 "${SCRIPTS_DIR}/build_library/perl_rebuild.sh"
-
-# Deep clean any stale binpkgs. This includes any binary packages that do not
-# correspond to a currently installed package (different versions are kept).
-if [[ "${FLAGS_eclean}" -eq "${FLAGS_TRUE}" ]]; then
-  info "Deep cleaning stale binpkgs"
-  get_eclean_exclusions | sudo eclean -e /dev/stdin -d packages
-fi

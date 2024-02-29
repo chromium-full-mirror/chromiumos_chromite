@@ -211,11 +211,6 @@ class UpdateArguments:
         if not self.update_toolchain:
             args += ["--skip_toolchain_update"]
 
-        if self.eclean:
-            args.append("--eclean")
-        else:
-            args.append("--noeclean")
-
         return args
 
 
@@ -455,6 +450,24 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
             check=False,
         )
 
+    # Clean out any stale binpkgs we've accumulated. This is done after
+    # regenerating the cache in case ebuilds have been removed (e.g. revert).
+    if arguments.eclean:
+        logging.info("Cleaning stale binpkgs")
+        eclean_lines = osutils.ReadFile(
+            constants.SOURCE_ROOT
+            / constants.TOOLCHAINS_OVERLAY_DIR
+            / "profiles"
+            / "categories"
+        ).splitlines()
+        crossdev_categories = "/usr/local/portage/crossdev/profiles/categories"
+        if os.path.exists(crossdev_categories):
+            eclean_lines += osutils.ReadFile(crossdev_categories).splitlines()
+        eclean_exclude = {x.split("#", 1)[0] for x in eclean_lines}
+        eclean_exclude_flat = "".join(f"{x}\n" for x in eclean_exclude)
+        eclean_cmd = ["eclean", "-e", "/dev/stdin", "packages"]
+        cros_build_lib.sudo_run(eclean_cmd, input=eclean_exclude_flat)
+
     cmd = [
         constants.CHROMITE_SHELL_DIR / "update_chroot.sh",
         "--script-is-run-only-by-chromite-and-not-users",
@@ -482,6 +495,13 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
     result = cros_build_lib.run(cmd, extra_env=extra_env, check=False)
     failed_pkgs = portage_util.ParseDieHookStatusFile()
     ret = UpdateResult(result.returncode, GetChrootVersion(), failed_pkgs)
+
+    # Deep clean any stale binpkgs. This includes any binary packages that do
+    # not correspond to a currently installed package (different versions are
+    # kept).
+    if arguments.eclean:
+        logging.info("Deep cleaning stale binpkgs")
+        cros_build_lib.sudo_run(eclean_cmd, input=eclean_exclude_flat)
 
     # Generate /usr/bin/remote_toolchain_inputs file for Reclient used by Chrome
     # for distributed builds. go/rbe/dev/x/reclient

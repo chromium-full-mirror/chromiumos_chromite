@@ -390,6 +390,7 @@ CHROMIUMOS_OVERLAY_DIR = "src/third_party/chromiumos-overlay"
 CHROMEOS_OVERLAY_DIR = "src/private-overlays/chromeos-overlay/"
 PORTAGE_STABLE_OVERLAY_DIR = "src/third_party/portage-stable"
 ECLASS_OVERLAY_DIR = "src/third_party/eclass-overlay"
+TOOLCHAINS_OVERLAY_DIR = "src/third_party/toolchains-overlay"
 CHROMEOS_PARTNER_OVERLAY_DIR = "src/private-overlays/chromeos-partner-overlay/"
 PUBLIC_BINHOST_CONF_DIR = os.path.join(
     CHROMIUMOS_OVERLAY_DIR, "chromeos/binhost"
