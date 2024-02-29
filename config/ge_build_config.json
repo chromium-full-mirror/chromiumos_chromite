@@ -1431,6 +1431,15 @@
         },
         {
           "board_name": "brya-arc-t",
+          "name": "xol",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7243,
+          "is_active": true,
+          "is_experimental": false
+        },
+        {
+          "board_name": "brya-arc-t",
           "name": "zavala",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
