@@ -2380,6 +2380,15 @@
         },
         {
           "board_name": "brya-gki",
+          "name": "xol",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7256,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "brya-gki",
           "name": "zavala",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -2686,6 +2695,15 @@
         {
           "board_name": "brya-hibernate",
           "name": "volmar",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7229,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "brya-hibernate",
+          "name": "xol",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7229,
@@ -3298,6 +3316,15 @@
         {
           "board_name": "brya-pvs",
           "name": "volmar",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7263,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "brya-pvs",
+          "name": "xol",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
           "board_id": 7263,
