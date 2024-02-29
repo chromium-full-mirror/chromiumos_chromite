@@ -34,18 +34,6 @@ eval set -- "${FLAGS_ARGV}"
 # so will die prematurely if 'switch_to_strict_mode' is specified before now.
 switch_to_strict_mode
 
-# Clean outdated packages in SDK.
-CONFIG_DIR="${HOME}/.config"
-if [[ "${USER}" == "chrome-bot" ]]; then
-  CONFIG_DIR=$(python -c "import tempfile; print(tempfile.gettempdir())")
-  CONFIG_DIR+="/.config/"
-fi
-if [[ ! -e "${CONFIG_DIR}/chromite/autocop-off" ]] && \
-   [[ "${CROS_CLEAN_OUTDATED_PKGS}" != "0" ]]; then
-  # Use "|| true" to not exit on errors for one command.
-  cros clean-outdated-pkgs --host || true
-fi
-
 # First update the cross-compilers.
 # Note that this uses binpkgs only, unless we pass --nousepkg below.
 if [ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_FALSE}" ]; then
