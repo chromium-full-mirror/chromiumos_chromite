@@ -15,6 +15,7 @@ from chromite.lib import git
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import portage_util
+from chromite.lib.parser import package_info
 
 
 class Error(Exception):
@@ -31,27 +32,15 @@ class NoMatchingFileForDigest(Error):
 
 def _get_cache_file(ebuild_path: Path) -> Path:
     """Find the cache file for |ebuild_path|."""
-    # Trim '.ebuild' from the tail of the path.
-    ebuild_path_no_ext, _ = os.path.splitext(ebuild_path)
-
-    # Ebuild paths look like:
-    # {some_dir}/category/package/package-version
-    # but cache entry paths look like:
-    # {some_dir}/category/package-version
-    # So we need to remove the second to last path element from the ebuild path
-    # to construct the path to the matching edb cache entry.
-    path_head, package_name = os.path.split(ebuild_path_no_ext)
-    path_head, _ = os.path.split(path_head)
-    overlay_head, category = os.path.split(path_head)
-    fixed_path = os.path.join(overlay_head, category, package_name)
-
-    cache_file_relpath = os.path.relpath(fixed_path, "/")
-
-    edb_cache_file_path = (
-        constants.CHROOT_EDB_CACHE_ROOT / "dep" / cache_file_relpath
-    )
+    pinfo = package_info.parse(ebuild_path)
     md5_cache_file_path = (
-        Path(overlay_head) / "metadata" / "md5-cache" / category / package_name
+        ebuild_path.parents[2] / "metadata" / "md5-cache" / pinfo.cpvr
+    )
+    edb_cache_file_path = (
+        constants.CHROOT_EDB_CACHE_ROOT
+        / "dep"
+        / ebuild_path.parents[2].relative_to("/")
+        / pinfo.cpvr
     )
 
     if edb_cache_file_path.is_file():
@@ -60,7 +49,7 @@ def _get_cache_file(ebuild_path: Path) -> Path:
         return md5_cache_file_path
     else:
         raise MissingCacheEntry(
-            f"No cache entry found for package: {package_name}"
+            f"No cache entry found for package: {pinfo.pvr}"
         )
 
 
