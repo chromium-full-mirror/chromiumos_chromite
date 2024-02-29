@@ -6,6 +6,7 @@
 
 import logging
 import os
+from pathlib import Path
 import re
 from typing import List, Mapping, Union
 
@@ -28,7 +29,8 @@ class NoMatchingFileForDigest(Error):
     """No ebuild or eclass file could be found with the given MD5 digest."""
 
 
-def _get_eclasses_for_ebuild(ebuild_path, path_cache, overlay_dirs):
+def _get_cache_file(ebuild_path: Path) -> Path:
+    """Find the cache file for |ebuild_path|."""
     # Trim '.ebuild' from the tail of the path.
     ebuild_path_no_ext, _ = os.path.splitext(ebuild_path)
 
@@ -45,21 +47,27 @@ def _get_eclasses_for_ebuild(ebuild_path, path_cache, overlay_dirs):
 
     cache_file_relpath = os.path.relpath(fixed_path, "/")
 
-    edb_cache_file_path = str(
+    edb_cache_file_path = (
         constants.CHROOT_EDB_CACHE_ROOT / "dep" / cache_file_relpath
     )
-    md5_cache_file_path = os.path.join(
-        overlay_head, "metadata", "md5-cache", category, package_name
+    md5_cache_file_path = (
+        Path(overlay_head) / "metadata" / "md5-cache" / category / package_name
     )
 
-    if os.path.isfile(edb_cache_file_path):
-        cache_entries = _parse_ebuild_cache_entry(edb_cache_file_path)
-    elif os.path.isfile(md5_cache_file_path):
-        cache_entries = _parse_ebuild_cache_entry(md5_cache_file_path)
+    if edb_cache_file_path.is_file():
+        return edb_cache_file_path
+    elif md5_cache_file_path.is_file():
+        return md5_cache_file_path
     else:
         raise MissingCacheEntry(
-            "No cache entry found for package: %s" % package_name
+            f"No cache entry found for package: {package_name}"
         )
+
+
+def _get_eclasses_for_ebuild(ebuild_path, path_cache, overlay_dirs):
+    cache_entries = _parse_ebuild_cache_entry(
+        _get_cache_file(Path(ebuild_path))
+    )
 
     relevant_eclass_paths = []
     for eclass, digest in cache_entries:
@@ -75,10 +83,10 @@ def _get_eclasses_for_ebuild(ebuild_path, path_cache, overlay_dirs):
             except NoMatchingFileForDigest:
                 logging.warning(
                     (
-                        "Package %s has a reference to eclass %s with digest "
+                        "Ebuild %s has a reference to eclass %s with digest "
                         "%s but no matching file could be found."
                     ),
-                    package_name,
+                    ebuild_path,
                     eclass,
                     digest,
                 )

@@ -5,6 +5,9 @@
 """Tests for dependency_lib."""
 
 import os
+from pathlib import Path
+
+import pytest
 
 from chromite.lib import dependency_lib
 from chromite.lib import osutils
@@ -67,3 +70,16 @@ _md5=123456
     result = dependency_lib._parse_ebuild_cache_entry(cache_file)
 
     assert set(expected) == set(result)
+
+
+def test_get_cache_file(tmp_path) -> None:
+    """Verify parsing ebuild filenames to cache filenames."""
+    # pylint: disable=protected-access
+    with pytest.raises(dependency_lib.MissingCacheEntry):
+        dependency_lib._get_cache_file(Path("/overlay/foo/bar/bar-1.ebuild"))
+
+    ebuild = tmp_path / "overlay-o" / "cat" / "foo" / "foo-1.ebuild"
+    cache = tmp_path / "overlay-o" / "metadata" / "md5-cache" / "cat" / "foo-1"
+    cache.parent.mkdir(parents=True)
+    cache.touch()
+    assert dependency_lib._get_cache_file(ebuild) == cache
