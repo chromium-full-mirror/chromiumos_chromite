@@ -101,8 +101,3 @@ if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
   EMERGE_FLAGS+=( virtual/target-sdk-nobdeps )
   info_run sudo -E "${EMERGE_CMD}" "${EMERGE_FLAGS[@]}"
 fi
-
-# Automatically discard all CONFIG_PROTECT'ed files. Those that are
-# protected should not be overwritten until the variable is changed.
-# Autodiscard is option "-9" followed by the "YES" confirmation.
-printf '%s\nYES\n' -9 | sudo etc-update

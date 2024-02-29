@@ -496,6 +496,11 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
     failed_pkgs = portage_util.ParseDieHookStatusFile()
     ret = UpdateResult(result.returncode, GetChrootVersion(), failed_pkgs)
 
+    # Automatically discard all CONFIG_PROTECT'ed files. Those that are
+    # protected should not be overwritten until the variable is changed.
+    # Autodiscard is option "-9" followed by the "YES" confirmation.
+    cros_build_lib.sudo_run(["etc-update", "--automode", "-9"], input="YES\n")
+
     # If the user still has old perl modules installed, update them.
     cros_build_lib.run(
         [constants.CROSUTILS_DIR / "build_library" / "perl_rebuild.sh"]
