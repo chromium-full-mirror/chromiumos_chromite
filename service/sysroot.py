@@ -960,6 +960,17 @@ def BuildPackages(
         # Install per-board bdepends packages.
         logging.info("Updating per-board bdepends")
 
+        # These packages are allowed to live in the broot & SDK as a
+        # transitional measure.  We'll eventually drop this.
+        TEMP_DUPLICATE_PACKAGES = {
+            "chromeos-base/tast-cmd",
+            "chromeos-base/tast-remote-tests",
+            "chromeos-base/tast-remote-tests-cros",
+            "chromeos-base/tast-remote-tests-crosint",
+            "chromeos-base/tast-remote-tests-crosint_intel",
+            "chromeos-base/tast-tests-remote-data",
+            "virtual/tast-remote-tests",
+        }
         sdk_vdb = portage_util.PortageDB()
         provided = (
             target.broot / "etc" / "portage" / "profile" / "package.provided"
@@ -972,6 +983,7 @@ def BuildPackages(
                 sorted(
                     f"{x.package_info.cpvr}\n"
                     for x in sdk_vdb.InstalledPackages()
+                    if x.package_info.cp not in TEMP_DUPLICATE_PACKAGES
                 )
             ),
             sudo=True,
