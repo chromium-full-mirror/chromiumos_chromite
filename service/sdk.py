@@ -496,6 +496,11 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
     failed_pkgs = portage_util.ParseDieHookStatusFile()
     ret = UpdateResult(result.returncode, GetChrootVersion(), failed_pkgs)
 
+    # If the user still has old perl modules installed, update them.
+    cros_build_lib.run(
+        [constants.CROSUTILS_DIR / "build_library" / "perl_rebuild.sh"]
+    )
+
     # Deep clean any stale binpkgs. This includes any binary packages that do
     # not correspond to a currently installed package (different versions are
     # kept).

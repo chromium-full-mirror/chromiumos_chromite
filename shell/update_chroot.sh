@@ -106,6 +106,3 @@ fi
 # protected should not be overwritten until the variable is changed.
 # Autodiscard is option "-9" followed by the "YES" confirmation.
 printf '%s\nYES\n' -9 | sudo etc-update
-
-# If the user still has old perl modules installed, update them.
-"${SCRIPTS_DIR}/build_library/perl_rebuild.sh"
