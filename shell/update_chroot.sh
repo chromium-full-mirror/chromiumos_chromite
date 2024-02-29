@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Copyright 2012 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -16,24 +15,8 @@ fi
 # Discard the 'script-is-run-only-by-chromite-and-not-users' flag.
 shift
 
-# Script must run inside the chroot
-assert_inside_chroot "$@"
-
-# Do not run as root
-assert_not_root_user
-
-# Developer-visible flags.
 DEFINE_boolean usepkg "${FLAGS_TRUE}" \
   "Use binary packages to bootstrap."
-
-FLAGS_HELP="usage: $(basename "$0") [flags]
-Performs an update of the chroot. This script is called as part of
-build_packages, so there is typically no need to call this script directly.
-"
-
-# The following options are advanced options, only available to those willing
-# to read the source code. They are not shown in help output, since they are
-# not needed for the typical developer workflow.
 DEFINE_integer jobs -1 \
   "How many packages to build in parallel at maximum."
 DEFINE_boolean skip_toolchain_update "${FLAGS_FALSE}" \
@@ -50,8 +33,6 @@ eval set -- "${FLAGS_ARGV}"
 # Only now can we die on error.  shflags functions leak non-zero error codes,
 # so will die prematurely if 'switch_to_strict_mode' is specified before now.
 switch_to_strict_mode
-
-info "Updating chroot"
 
 # Clean outdated packages in SDK.
 CONFIG_DIR="${HOME}/.config"
@@ -93,8 +74,6 @@ if [[ "${FLAGS_eclean}" -eq "${FLAGS_TRUE}" ]]; then
   info "Cleaning stale binpkgs"
   get_eclean_exclusions | sudo eclean -e /dev/stdin packages
 fi
-
-info "Updating the SDK"
 
 EMERGE_FLAGS=( -uNv --backtrack="${FLAGS_backtrack}" )
 if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
@@ -157,5 +136,3 @@ if [[ "${FLAGS_eclean}" -eq "${FLAGS_TRUE}" ]]; then
   info "Deep cleaning stale binpkgs"
   get_eclean_exclusions | sudo eclean -e /dev/stdin -d packages
 fi
-
-command_completed
