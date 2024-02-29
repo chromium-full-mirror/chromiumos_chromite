@@ -83,7 +83,7 @@ BACKTRACK_DEFAULT = 10
 
 SYSROOT_ARCHIVE_FILE = "sysroot.tar.zst"
 BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE = "/tmp/allpackages_command.profile.gz"
-BAZEL_ALLPACKAGES_EXEC_LOG_FILE = "/tmp/allpackages_exec.log"
+BAZEL_ALLPACKAGES_EXEC_LOG_FILE = "/tmp/allpackages_exec_compact.log"
 BAZEL_BUILD_EVENT_JSON_FILE_PATH = "/tmp/chromeos_bazel_build_events.json"
 BAZEL_COMMAND = constants.CHROMITE_BIN_DIR / "bazel"
 
@@ -1403,9 +1403,8 @@ in
                 # detect as many failure as possible on the CI builders.
                 # We may need to delete this after launching Alchemy.
                 "--keep_going=%s" % ("false" if bazel_lite else "true"),
-                "--execution_log_binary_file="
+                "--experimental_execution_log_compact_file="
                 + BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
-                "--execution_log_sort=false",
                 "--config=hash_tracer",
                 "--build_event_json_file=%s" % BAZEL_BUILD_EVENT_JSON_FILE_PATH,
             ]
