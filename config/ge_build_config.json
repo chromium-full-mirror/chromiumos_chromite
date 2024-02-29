@@ -3793,6 +3793,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7211,
           "is_active": true,
+          "stable_target_milestone": 125,
           "is_experimental": false
         },
         {
@@ -3802,6 +3803,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7211,
           "is_active": true,
+          "stable_target_milestone": 125,
           "is_experimental": false
         },
         {
@@ -3982,7 +3984,6 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7276,
           "is_active": true,
-          "stable_target_milestone": 125,
           "is_experimental": true
         },
         {
@@ -3992,7 +3993,6 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7276,
           "is_active": true,
-          "stable_target_milestone": 125,
           "is_experimental": true
         },
         {
@@ -4078,7 +4078,6 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "stable_target_milestone": 125,
       "board_variant": "arc-t",
       "build_cadence": "DAILY_CADENCE",
       "has_lab_resources": false
