@@ -44,7 +44,7 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
     """Main."""
     opts = parse_arguments(argv)
 
-    telemetry.initialize(opts.log_telemetry)
+    telemetry.initialize(opts.log_telemetry, publish=True)
 
     with tracer.start_as_current_span("telemetry_poc.main") as span:
         time.sleep(opts.time / 2)
