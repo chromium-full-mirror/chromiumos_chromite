@@ -101,16 +101,17 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
 
         # Touch chroot Tast paths so they'll be included in the tar command.
         for p in self.builder._TAST_SSP_CHROOT_FILES:
-            path = "%s%s" % (self.basedir, p)
+            path = p.get_src(self.chroot)
             osutils.Touch(path, makedirs=True)
             expected_files.append(path)
-            ssp_files.append(path)
+            ssp_files.append(p)
 
         # Skip touching the source Tast files so we can verify they're not
         # included in the tar command.
         for p in self.builder._TAST_SSP_SOURCE_FILES:
-            path = "%s%s" % (self.basedir, p)
-            ssp_files.append(path)
+            ssp_files.append(
+                autotest_util.PathMapping(os.path.join(self.basedir, p.raw_src))
+            )
 
         tar_mock = self.PatchObject(self.builder, "_BuildTarball")
         self.PatchObject(

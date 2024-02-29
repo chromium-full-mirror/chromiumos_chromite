@@ -4,13 +4,42 @@
 
 """Autotest utilities."""
 
+import dataclasses
 import os
-from typing import Optional
+from typing import List, Optional
 
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.utils import matching
+
+
+# Directory within _SERVER_PACKAGE_ARCHIVE where Tast files needed to run
+# with Server-Side Packaging are stored.
+_TAST_SSP_SUBDIR = "tast"
+
+
+@dataclasses.dataclass(frozen=True)
+class PathMapping:
+    """Container for mapping a source path to a destination."""
+
+    raw_src: str
+    raw_dst: Optional[str] = None
+
+    def get_src(self, chroot: chroot_lib.Chroot) -> str:
+        """Get the source path for this mapping."""
+        if self.raw_src.startswith("/"):
+            # It's a chroot path.
+            return str(chroot.full_path(self.raw_src))
+        else:
+            # It's a source tree path.
+            return os.path.join(constants.SOURCE_ROOT, self.raw_src)
+
+    def get_dst(self) -> str:
+        """Get the destination path for this mapping."""
+        if self.raw_dst is not None:
+            return self.raw_dst
+        return os.path.join(_TAST_SSP_SUBDIR, os.path.basename(self.raw_src))
 
 
 class AutotestTarballBuilder:
@@ -23,22 +52,34 @@ class AutotestTarballBuilder:
     _SERVER_PACKAGE_ARCHIVE = "autotest_server_package.tar.bz2"
     _AUTOTEST_ARCHIVE = "autotest.tar.bz2"
 
-    # Directory within _SERVER_PACKAGE_ARCHIVE where Tast files needed to run
-    # with Server-Side Packaging are stored.
-    _TAST_SSP_SUBDIR = "tast"
-
     # Tast files and directories to include in AUTOTEST_SERVER_PACKAGE relative
     # to the build root.
     _TAST_SSP_CHROOT_FILES = [
-        "/usr/bin/tast",  # Main Tast executable.
-        "/usr/bin/remote_test_runner",  # Runs remote tests.
-        "/usr/libexec/tast/bundles",  # Dir containing test bundles.
-        "/usr/share/tast/data",  # Dir containing test data.
-        "/etc/tast/vars",  # Secret variables.
+        # Main Tast executable.
+        PathMapping("/usr/bin/tast"),
+        # Runs remote tests.
+        PathMapping("/usr/bin/remote_test_runner"),
+        # Dir containing test bundles.
+        PathMapping("/usr/libexec/tast/bundles"),
+        # Dir containing test data.
+        PathMapping("/usr/share/tast/data"),
+        # Secret variables.
+        PathMapping("/etc/tast/vars"),
     ]
     # Tast files and directories stored in the source code.
     _TAST_SSP_SOURCE_FILES = [
-        "src/platform/tast/tools/run_tast.sh",  # Helper script to run SSP tast.
+        # Helper script to run SSP tast.
+        PathMapping("src/platform/tast/tools/run_tast.sh"),
+        # Public variables first.
+        PathMapping(
+            "src/platform/tast-tests/vars",
+            "tast/vars/public",
+        ),
+        # Secret variables last.
+        PathMapping(
+            "src/platform/tast-tests-private/vars",
+            "tast/vars/private",
+        ),
     ]
 
     def __init__(
@@ -213,33 +254,23 @@ class AutotestTarballBuilder:
         files = []
         transforms = []
 
-        for path in self._GetTastSspFiles():
-            if not os.path.exists(path):
+        for mapping in self._GetTastSspFiles():
+            src = mapping.get_src(self.chroot)
+            if not os.path.exists(src):
                 continue
 
-            files.append(path)
-            dest = os.path.join(self._TAST_SSP_SUBDIR, os.path.basename(path))
+            files.append(src)
             transforms.append(
-                "--transform=s|^%s|%s|" % (os.path.relpath(path, "/"), dest)
+                "--transform=s|^%s|%s|"
+                % (os.path.relpath(src, "/"), mapping.get_dst())
             )
 
         return files, transforms
 
-    def _GetTastSspFiles(self):
+    def _GetTastSspFiles(self) -> List[PathMapping]:
         """Build out the paths to the tast SSP files.
 
         Returns:
-            list[str] - The paths to the files.
+            The paths to the files.
         """
-        files = []
-        if cros_build_lib.IsInsideChroot():
-            files.extend(self._TAST_SSP_CHROOT_FILES)
-        else:
-            files.extend(
-                self.chroot.full_path(x) for x in self._TAST_SSP_CHROOT_FILES
-            )
-
-        for filename in self._TAST_SSP_SOURCE_FILES:
-            files.append(os.path.join(constants.SOURCE_ROOT, filename))
-
-        return files
+        return self._TAST_SSP_CHROOT_FILES + self._TAST_SSP_SOURCE_FILES
