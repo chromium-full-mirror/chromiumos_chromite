@@ -2160,6 +2160,15 @@
         },
         {
           "board_name": "brya-connectivitynext",
+          "name": "xol",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7259,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "brya-connectivitynext",
           "name": "zavala",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
