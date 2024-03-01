@@ -500,9 +500,9 @@ class VM(device.Device):
             self.qemu_cpu,
             "-usb",
             "-device",
-            "usb-tablet",
-            "-device",
             "nec-usb-xhci",
+            "-device",
+            "usb-tablet",
             "-device",
             "usb-kbd",
             "-device",
@@ -548,6 +548,8 @@ class VM(device.Device):
                 "virt",
                 "-vga",
                 "none",
+                "-bios",
+                "edk2-aarch64-code.fd",
             ]
 
         return qemu_args
