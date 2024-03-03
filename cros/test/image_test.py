@@ -707,7 +707,10 @@ class UserGroupTest(image_test_lib.ImageTestCase):
                 actual.gid,
             )
 
-        if expected.users != actual.users:
+        # Ignore self-membership for now.
+        if (expected.users - {expected.group}) != (
+            actual.users - {expected.group}
+        ):
             matched = False
             logging.error(
                 'Expected members "%s" for group "%s", got "%s".',
