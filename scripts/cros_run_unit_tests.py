@@ -230,10 +230,11 @@ def inner_main(opts: commandline.ArgumentNamespace):
         sysroot, packages, opts.filter_only_cros_workon
     )
 
-    if packages - pkg_with_test:
+    pkg_without_test = packages - pkg_with_test
+    if pkg_without_test:
         logging.warning(
             "The following packages do not have tests:\n  %s",
-            "\n  ".join(sorted(packages - pkg_with_test)),
+            "\n  ".join(sorted(pkg_without_test)),
         )
 
     span.set_attributes(
