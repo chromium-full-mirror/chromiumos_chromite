@@ -570,7 +570,6 @@ def _main(options, argv):
                 manifest_url,
                 buildroot,
                 branch=branchname,
-                git_cache_dir=options.git_cache_dir,
             )
             previous_build_state = GetLastBuildState(root)
 

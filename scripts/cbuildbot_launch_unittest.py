@@ -39,20 +39,18 @@ class CbuildbotLaunchTest(cros_test_lib.MockTestCase):
         CASES = (
             (
                 ["--buildroot", "/buildroot", "daisy-incremental"],
-                (None, "/buildroot", None),
+                (None, "/buildroot"),
             ),
             (
                 [
                     "--buildbot",
                     "--buildroot",
                     "/buildroot",
-                    "--git-cache-dir",
-                    "/git-cache",
                     "-b",
                     "release-R57-9202.B",
                     "daisy-incremental",
                 ],
-                ("release-R57-9202.B", "/buildroot", "/git-cache"),
+                ("release-R57-9202.B", "/buildroot"),
             ),
             (
                 [
@@ -61,24 +59,21 @@ class CbuildbotLaunchTest(cros_test_lib.MockTestCase):
                     "--notests",
                     "--buildroot",
                     "/buildroot",
-                    "--git-cache-dir",
-                    "/git-cache",
                     "--branch",
                     "release-R57-9202.B",
                     "daisy-incremental",
                 ],
-                ("release-R57-9202.B", "/buildroot", "/git-cache"),
+                ("release-R57-9202.B", "/buildroot"),
             ),
         )
 
         for cmd_args, expected in CASES:
-            expected_branch, expected_buildroot, expected_cache_dir = expected
+            expected_branch, expected_buildroot = expected
 
             options = cbuildbot_launch.PreParseArguments(cmd_args)
 
             self.assertEqual(options.branch, expected_branch)
             self.assertEqual(options.buildroot, expected_buildroot)
-            self.assertEqual(options.git_cache_dir, expected_cache_dir)
 
     def testInitialCheckout(self) -> None:
         """Test InitialCheckout with minimum settings."""
@@ -217,7 +212,6 @@ class RunTests(cros_test_lib.RunCommandTestCase):
                 mock.call(
                     EXPECTED_MANIFEST_URL,
                     "/root/repository",
-                    git_cache_dir=None,
                     branch="main",
                 )
             ],
@@ -339,7 +333,6 @@ class RunTests(cros_test_lib.RunCommandTestCase):
                 mock.call(
                     EXPECTED_MANIFEST_URL,
                     "/root/repository",
-                    git_cache_dir="/git-cache",
                     branch="branch",
                 )
             ],
