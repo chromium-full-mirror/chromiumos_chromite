@@ -494,6 +494,9 @@ GROUP_BASELINE = dict(
         GroupEntry(
             group="mmc_service", gid=20208, users={"mmc_service", "bluetooth"}
         ),
+        GroupEntry(
+            group="regmond_senders", gid=20215, users={"chronos", "patchpaneld"}
+        ),
     )
 )
 
