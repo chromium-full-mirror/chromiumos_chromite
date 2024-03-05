@@ -948,17 +948,9 @@ def main(argv) -> None:
     # background-off deletion and not block on it anywhere.
     delete_proc: Optional[multiprocessing.Process] = None
     if replace_for_update or options.delete:
-        random_string = cros_build_lib.GetRandomString()
-        new_out: Optional[Path] = None
-        if options.delete_out_dir:
-            new_out = chroot.out_path.with_name(f".out-delete-{random_string}")
-        delete_chroot = chroot.rename(
-            Path(chroot.path).with_name(f".chroot-delete-{random_string}"),
-            rename_out=new_out,
-        )
         delete_proc = multiprocessing.Process(
             target=functools.partial(
-                delete_chroot.delete,
+                chroot.delete,
                 delete_out_dir=options.delete_out_dir,
                 force=options.force,
             ),
