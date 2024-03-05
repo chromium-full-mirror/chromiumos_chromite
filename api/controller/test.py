@@ -11,7 +11,6 @@ import functools
 import logging
 import os
 import string
-import subprocess
 import traceback
 
 from chromite.third_party.google.protobuf import json_format
@@ -266,16 +265,19 @@ def BuildTestServiceContainers(
         cmd += ["--upload"]
 
         cmd_result = cros_build_lib.run(
-            cmd, check=False, stderr=subprocess.STDOUT, stdout=True
+            cmd,
+            check=False,
+            capture_output=True,
+            encoding="utf-8",
+            errors="replace",
         )
 
         if cmd_result.returncode != 0:
             # When failing, just record a fail response with the builder name.
             logging.debug(
-                "%s build failed.\nStdout:\n%s\nStderr:\n%s",
+                "%s build failed.\nOutput:\n%s",
                 human_name,
                 cmd_result.stdout,
-                cmd_result.stderr,
             )
             result = test_pb2.TestServiceContainerBuildResult()
             result.name = human_name
@@ -289,10 +291,9 @@ def BuildTestServiceContainers(
 
         else:
             logging.debug(
-                "%s build succeeded.\nStdout:\n%s\nStderr:\n%s",
+                "%s build succeeded.\nOutput:\n%s",
                 human_name,
                 cmd_result.stdout,
-                cmd_result.stderr,
             )
             files = os.listdir(tempdir)
             # Iterate through the tempdir to output metadata files.
