@@ -360,7 +360,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             print_cmd=True,
             extra_env={
                 "FEATURES": "-noauto test",
-                "SANDBOX_WRITE": "~/chromiumos",
+                "SANDBOX_WRITE": self._mock_srcdir,
                 "CROS_WORKON_INPLACE": "1",
             },
         )
@@ -400,7 +400,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             print_cmd=True,
             extra_env={
                 "FEATURES": "-noauto",
-                "SANDBOX_WRITE": "~/chromiumos",
+                "SANDBOX_WRITE": self._mock_srcdir,
                 "CROS_WORKON_INPLACE": "1",
             },
         )
@@ -435,7 +435,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             print_cmd=True,
             extra_env={
                 "FEATURES": "-noauto",
-                "SANDBOX_WRITE": "~/chromiumos",
+                "SANDBOX_WRITE": self._mock_srcdir,
                 "CROS_WORKON_INPLACE": "1",
             },
         )

@@ -946,7 +946,7 @@ class WorkonHelper:
             print_cmd=True,
             extra_env={
                 "FEATURES": " ".join(features).strip(),
-                "SANDBOX_WRITE": "~/chromiumos",
+                "SANDBOX_WRITE": self._src_root,
                 "CROS_WORKON_INPLACE": "1",
             },
         )
