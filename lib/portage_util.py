@@ -539,13 +539,16 @@ class EBuild:
         git_commit_cmd = ["commit", "-a", "-m", message]
         cls._RunGit(overlay, git_commit_cmd)
 
-    def __init__(self, path, subdir_support=False) -> None:
+    def __init__(
+        self, path, subdir_support=False, use_flags: Optional[List[str]] = None
+    ) -> None:
         """Sets up data about an ebuild from its path.
 
         Args:
             path: Path to the ebuild.
             subdir_support: Support obsolete CROS_WORKON_SUBDIR.  Intended for
                 branches older than 10363.0.0.
+            use_flags: USE flags to apply.
         """
         self.subdir_support = subdir_support
 
@@ -579,7 +582,7 @@ class EBuild:
         self.is_stable = False
         self.is_manually_uprevved = False
         self.has_test = False
-        self._ReadEBuild(path)
+        self._ReadEBuild(path, use_flags)
 
         # Grab the latest project settings.
         new_vars = None
@@ -609,7 +612,7 @@ class EBuild:
                 self.cros_workon_vars = new_vars
 
     @staticmethod
-    def Classify(ebuild_path):
+    def Classify(ebuild_path, use_flags: Optional[List[str]] = None):
         """Return the workon, stable, and manually uprev status for the ebuild.
 
         workon is determined by whether the ebuild inherits from the
@@ -656,8 +659,22 @@ class EBuild:
                     or line.startswith("multilib_src_test()")
                 ):
                     has_test = True
-                elif line.startswith("RESTRICT=") and "test" in line:
-                    restrict_tests = True
+                elif line.startswith("RESTRICT="):
+                    # Strip off the comments, then extract the value of the
+                    # variable, then strip off any quotes.
+                    value = (
+                        line.split("#", 1)[0].split("=", 1)[1].strip(' \t\n"')
+                    )
+                    try:
+                        node = pms_dependency.parse(value)
+                        # Remember if an earlier RESTRICT line disabled tests.
+                        restrict_tests = (
+                            "test" in node.reduce(use_flags) or restrict_tests
+                        )
+                    except pms_dependency.PmsSyntaxError as e:
+                        logging.warning(
+                            "%s: unable to parse RESTRICT: %s", ebuild_path, e
+                        )
         return EBuildClassifyAttributes(
             is_workon,
             is_stable,
@@ -665,7 +682,7 @@ class EBuild:
             has_test and not restrict_tests,
         )
 
-    def _ReadEBuild(self, path) -> None:
+    def _ReadEBuild(self, path, use_flags: Optional[List[str]] = None) -> None:
         """Determine is_workon, is_stable and is_manually_uprevved settings.
 
         These are determined using the static Classify function.
@@ -675,7 +692,7 @@ class EBuild:
             self.is_stable,
             self.is_manually_uprevved,
             self.has_test,
-        ) = EBuild.Classify(path)
+        ) = EBuild.Classify(path, use_flags)
 
     @staticmethod
     def _GetAutotestTestsFromSettings(settings) -> List[str]:
@@ -2840,7 +2857,10 @@ def _CheckHasTest(cp, sysroot, require_workon: bool = False) -> None:
     except cros_build_lib.RunCommandError as e:
         logging.error("FindEbuildForPackage error %s", e)
         raise failures_lib.PackageBuildFailure(e, "equery", [cp])
-    ebuild = EBuild(path, False)
+    use_flags = ["test"]
+    if sysroot == "/":
+        use_flags += ["cros_host"]
+    ebuild = EBuild(path, False, use_flags)
     if require_workon and not ebuild.is_workon:
         return None
     elif ebuild.has_test:

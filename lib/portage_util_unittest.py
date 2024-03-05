@@ -347,6 +347,38 @@ inherit cros-workon superpower
             attrs = portage_util.EBuild.Classify(ebuild_path)
             self.assertTrue(attrs.is_stable, msg="Failing: %s" % (keywords,))
 
+    def testClassifyTestHost(self) -> None:
+        """Test Classify handling of testable packages for the host."""
+        ebuild_path = os.path.join(self.tempdir, "foo-1.ebuild")
+        TESTS = (
+            (True, ""),
+            (True, "mirror"),
+            (True, "!test? ( test )"),
+            (False, "test"),
+            (False, "cros_host? ( test )"),
+        )
+        flags = ["cros_host", "test"]
+        for exp, val in TESTS:
+            osutils.WriteFile(
+                ebuild_path,
+                "".join(
+                    f"{x}\n" for x in ["src_test() { :; }", f'RESTRICT="{val}"']
+                ),
+            )
+            attrs = portage_util.EBuild.Classify(ebuild_path, flags)
+            self.assertEqual(attrs.has_test, exp, msg=f"Failing: {val}")
+
+    def testClassifyTestParsing(self) -> None:
+        """Test Classify RESTRICT parsing."""
+        ebuild_path = os.path.join(self.tempdir, "foo-1.ebuild")
+        TESTS = (
+            "RESTRICT=",
+            'RESTRICT="bin? ( foo )" # comment',
+        )
+        for val in TESTS:
+            osutils.WriteFile(ebuild_path, f"{val}\n")
+            portage_util.EBuild.Classify(ebuild_path)
+
     def testClassifyEncodingASCII(self) -> None:
         """Test Classify with ASCII file encodings."""
         ebuild_path = os.path.join(self.tempdir, "foo-1.ebuild")
@@ -551,7 +583,7 @@ class StubEBuild(portage_util.EBuild):
         self.is_workon = True
         self.is_stable = True
 
-    def _ReadEBuild(self, path) -> None:
+    def _ReadEBuild(self, path, use_flags=None) -> None:
         pass
 
     def GetCommitId(self, srcdir, ref: str = "HEAD"):
