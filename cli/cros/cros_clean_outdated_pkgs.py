@@ -20,9 +20,9 @@ from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib.parser import package_info
-from chromite.lib.parser import pms_dependency
 from chromite.scripts import cros_setup_toolchains
 from chromite.utils import pms
+from chromite.utils.parser import pms_dependency
 
 
 logging = chromite.ChromiteLogger.getLogger(__name__)

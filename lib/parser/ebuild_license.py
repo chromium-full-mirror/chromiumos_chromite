@@ -45,7 +45,7 @@ Node
 
 import re
 
-from chromite.lib.parser import pms_dependency
+from chromite.utils.parser import pms_dependency
 
 
 # https://projects.gentoo.org/pms/7/pms.html#x1-220003.1.6

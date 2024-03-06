@@ -39,9 +39,9 @@ from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import path_util
 from chromite.lib.parser import package_info
-from chromite.lib.parser import pms_dependency
 from chromite.utils import key_value_store
 from chromite.utils import pms
+from chromite.utils.parser import pms_dependency
 
 
 # Type used for buildroot arguments. Typically this comes from constants such as
