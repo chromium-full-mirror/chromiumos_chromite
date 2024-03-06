@@ -406,13 +406,23 @@ class BuildLinter:
         for package_atom, files in self._fetch_from_linting_artifacts(
             "clang-tidy"
         ).items():
+            interesting_files = 0
             for filepath in files:
                 if filepath.endswith(".json"):
-                    new_diagnostics = self._fetch_tidy_lints_from_json(
-                        Path(filepath), package_atom
-                    )
-                    diagnostics.update(new_diagnostics)
-
+                    if len(Path(filepath).read_text(encoding="utf-8")):
+                        interesting_files += 1
+                        new_diagnostics = self._fetch_tidy_lints_from_json(
+                            Path(filepath), package_atom
+                        )
+                        diagnostics.update(new_diagnostics)
+                    else:
+                        logging.warning("Artifact %s is empty", filepath)
+            logging.info(
+                "Found %d lints from %d Clang Tidy artifacts for %s:",
+                len(diagnostics),
+                interesting_files,
+                package_atom,
+            )
         return diagnostics
 
     def _fetch_tidy_lints_from_json(
@@ -717,15 +727,19 @@ class BuildLinter:
             )
             return {}
         findings = {}
-        logging.info("Looking for artifacts in %s:", base_dir)
+        logging.info("Looking for %s artifacts in %s:", subdir, base_dir)
         for dirpath, _, files in os.walk(base_dir):
             subdir_path = Path(dirpath)
             if subdir_path.match(
                 f"{base_dir}/*/*/cros-artifacts/linting-output/{subdir}"
             ):
-                logging.info("Looking for linting artifacts in %s", subdir_path)
                 package_atom = self._get_package_for_artifact_dir(subdir_path)
                 if not self.packages or package_atom in self.package_atoms:
+                    logging.info(
+                        "Looking in %d linting artifacts in %s",
+                        len(files),
+                        subdir_path,
+                    )
                     full_paths = [str(subdir_path / file) for file in files]
                     findings[package_atom] = sorted(full_paths)
 
