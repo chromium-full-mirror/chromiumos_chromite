@@ -1326,37 +1326,50 @@ def _BazelBuild(
         # Therefore it does not return stage1 targets which we
         # should not build.
         # b/315142814: target-os-dev is dropped temporarily.
+        top_level_packages_to_build = [
+            "virtual/target-os",
+        ]
+        packages_to_exclude = [
+            "chromeos-base/chromeos-chrome",
+            "media-sound/adhd",
+            "chromeos-base/chaps",
+        ]
+        top_level_packages_query = "union".join(
+            [
+                f"""
+    kind("ebuild",
+        deps(@portage//target/{package})
+    )
+    """
+                for package in top_level_packages_to_build
+            ]
+        )
+        exclusion_query = "union".join(
+            [
+                f"""
+        filter(
+            "//internal/packages/stage2/target/board/chromiumos/{package}:",
+            kind("ebuild", deps(@portage//target/{package}))
+        )
+        """
+                for package in packages_to_exclude
+            ]
+        )
+        query_text = f"""
+let targets = {top_level_packages_query}
+in
+    $targets except rdeps(
+        $targets,{exclusion_query}
+    )
+        """
+
         query_result = cros_build_lib.run(
             [
                 BAZEL_COMMAND,
                 "cquery",
                 # Makes it so we don't need to download distfiles or chrome src.
                 "--//bazel/portage:omit_ebuild_src",
-                # pylint: disable=line-too-long
-                """
-let targets =
-    kind("ebuild",
-        deps(@portage//target/virtual/target-os)
-    )
-in
-    $targets except rdeps(
-        $targets,
-        filter(
-            "//internal/packages/stage2/target/board/chromiumos/chromeos-base/chromeos-chrome:",
-            kind("ebuild", deps(@portage//target/chromeos-base/chromeos-chrome))
-        )
-        union
-        filter(
-            "//internal/packages/stage2/target/board/chromiumos/chromeos-base/chaps:",
-            kind("ebuild", deps(@portage//target/chromeos-base/chaps))
-        )
-        union
-        filter(
-            "//internal/packages/stage2/target/board/chromiumos/media-sound/adhd:",
-            kind("ebuild", deps(@portage//target/media-sound/adhd))
-        )
-    )
-                """,
+                query_text,
             ],
             extra_env=extra_env,
             stdout=True,
