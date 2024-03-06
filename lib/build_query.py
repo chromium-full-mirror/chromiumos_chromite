@@ -33,6 +33,7 @@ from chromite.lib import portage_util
 from chromite.lib.parser import package_info
 from chromite.utils import key_value_store
 from chromite.utils.parser import make_defaults
+from chromite.utils.parser import portage_md5_cache
 from chromite.utils.parser import portage_profile_conf
 
 
@@ -541,6 +542,7 @@ class Ebuild(QueryTarget):
     def __init__(self, ebuild_file: Path, overlay: Overlay) -> None:
         self.ebuild_file = ebuild_file
         self.overlay = overlay
+        self._md5_cache = None
 
     @classmethod
     def find_all(
@@ -589,59 +591,34 @@ class Ebuild(QueryTarget):
         return self.overlay.md5_cache_dir / self.package_info.cpvr
 
     @functools.cached_property
-    def vars(self) -> Dict[str, str]:
+    def md5_cache(self) -> portage_md5_cache.Md5Cache:
         """The raw variables from the md5-cache file."""
-        if not self.md5_cache_file.is_file():
-            return {}
-
-        result = {}
-        with open(self.md5_cache_file, encoding="utf-8") as f:
-            for line in f:
-                key, _, value = line.partition("=")
-                result[key] = value.rstrip("\n")
-        return result
+        return portage_md5_cache.Md5Cache(path=self.md5_cache_file)
 
     @property
     def eapi(self) -> int:
         """The EAPI for the package."""
-        return int(self.vars.get("EAPI", 0))
+        return self.md5_cache.eapi
 
     @property
     def iuse(self) -> Set[str]:
         """A set of the flags in IUSE."""
-        iuse = self.vars.get("IUSE")
-        if not iuse:
-            return set()
-        result = set()
-        for var in iuse.split(" "):
-            if var[0] in "-+":
-                var = var[1:]
-            result.add(var)
-        return result
+        return self.md5_cache.iuse
 
     @property
     def iuse_default(self) -> Set[str]:
         """A set of the flags enabled by default in IUSE."""
-        iuse = self.vars.get("IUSE", "")
-        result = set()
-        for var in iuse.split(" "):
-            if var.startswith("+"):
-                var = var[1:]
-                result.add(var)
-        return result
+        return self.md5_cache.iuse_default
 
     @property
     def eclasses(self) -> List[str]:
         """A list of the eclasses inherited by this package and its eclasses."""
-        eclasses = self.vars.get("_eclasses_")
-        if not eclasses:
-            return []
-        return eclasses.split("\t")[::2]
+        return [x.name for x in self.md5_cache.eclasses]
 
     @property
     def keywords(self) -> List[str]:
         """The KEYWORDS of this package."""
-        return self.vars.get("KEYWORDS", "").split()
+        return self.md5_cache.keywords
 
     def get_stability(self, arch: str) -> Stability:
         """Get the stability of this package on a given architecture.
