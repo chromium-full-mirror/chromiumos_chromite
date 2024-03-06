@@ -353,42 +353,46 @@ def test_readonly_sticky(
 
 
 @pytest.mark.parametrize(
-    ["conf_exists", "arglist", "new_conf_exists"],
+    ["orig_config", "arglist", "expected_update_sticky"],
     (
-        (False, [], False),
-        (False, ["--update"], False),
-        (False, ["--no-update"], False),
-        (True, ["--update"], True),
-        (True, ["--no-update"], True),
-        (False, ["--update", "--update-sticky"], True),
-        (True, ["--no-update", "--update-sticky"], False),
-        (True, ["--update", "--update-sticky"], True),
-        (False, ["--no-update", "--update-sticky"], False),
+        (None, [], True),
+        (None, ["--update"], True),
+        (None, ["--no-update"], True),
+        ("0\n", ["--update"], False),
+        ("0\n", ["--no-update"], False),
+        (None, ["--update", "--update-sticky"], True),
+        (None, ["--no-update", "--update-sticky"], False),
+        ("0\n", ["--update", "--update-sticky"], True),
+        ("0\n", ["--no-update", "--update-sticky"], False),
     ),
 )
 def test_update_sticky(
     monkeypatch: "pytest.MonkeyPatch",
     tmp_path: Path,
-    conf_exists: bool,
+    orig_config: Optional[str],
     arglist: List[str],
-    new_conf_exists: bool,
+    expected_update_sticky: bool,
 ) -> None:
     """Test that we write expected update-sticky contents.
 
-    conf_exists: Whether the config file exists originally.
-    arglist: The cros_sdk argument list to test.
-    new_conf_exists: Whether we expect the conf file to exist.
+    Args:
+        monkeypatch: pytest fixture.
+        tmp_path: pytest fixture.
+        orig_config: The original config file contents.
+        arglist: The cros_sdk argument list to test.
+        expected_update_sticky: The expected value for update sticky after
+            parsing arguments.
     """
     conf_file = tmp_path / "fake-conf"
-    if conf_exists:
-        conf_file.touch()
+    if orig_config is not None:
+        conf_file.write_text(orig_config, encoding="utf-8")
     monkeypatch.setattr(chromite_config, "SDK_UPDATE_STICKY_CONFIG", conf_file)
 
     parser, commands = cros_sdk._CreateParser("1", "2")
     options = parser.parse_args(arglist)
     cros_sdk._FinalizeOptions(parser, options, commands)
 
-    assert conf_file.exists() == new_conf_exists
+    assert chromite_config.sdk_update_sticky_enabled() == expected_update_sticky
 
 
 @pytest.mark.parametrize(
@@ -422,9 +426,8 @@ def test_delete_out(
         expected: The expected opts.delete_out_dir.
     """
     conf_file = tmp_path / "update_sticky"
-    if update_sticky:
-        conf_file.touch()
     monkeypatch.setattr(chromite_config, "SDK_UPDATE_STICKY_CONFIG", conf_file)
+    chromite_config.sdk_update_sticky_set(update_sticky)
 
     parser, commands = cros_sdk._CreateParser("1", "2")
     opts = parser.parse_args(args)
@@ -461,9 +464,8 @@ def test_update_with_delete(
         expected: The expected opts.update.
     """
     conf_file = tmp_path / "update_sticky"
-    if update_sticky:
-        conf_file.touch()
     monkeypatch.setattr(chromite_config, "SDK_UPDATE_STICKY_CONFIG", conf_file)
+    chromite_config.sdk_update_sticky_set(update_sticky)
 
     parser, commands = cros_sdk._CreateParser("1", "2")
     opts = parser.parse_args(args)

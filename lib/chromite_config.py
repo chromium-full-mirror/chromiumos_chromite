@@ -4,6 +4,8 @@
 
 """Manage various ~/.config/chromite/ configuration files."""
 
+import logging
+
 from chromite.lib import osutils
 from chromite.utils import os_util
 from chromite.utils import xdg_util
@@ -62,3 +64,33 @@ def initialize() -> None:
             usr = os_util.get_non_root_user()
             if usr:
                 osutils.Chown(current, usr)
+
+
+def sdk_update_sticky_enabled() -> bool:
+    """Return true if the SDK --update flag should be on by default.
+
+    This function will go away once there is no mechanism to opt-out.
+    """
+    try:
+        return SDK_UPDATE_STICKY_CONFIG.read_bytes().strip() != b"0"
+    except FileNotFoundError:
+        return True
+
+
+def sdk_update_sticky_set(value: bool) -> None:
+    """Set the SDK update sticky config.
+
+    This function will go away once there is no mechanism to opt-out.
+    """
+    if value:
+        # Opt-in, just delete the file.
+        osutils.SafeUnlink(SDK_UPDATE_STICKY_CONFIG)
+    else:
+        # Opt-out.
+        logging.warning(
+            "SDK auto-update will soon become mandatory.  Please help us "
+            "understand and address your needs by filing a bug: "
+            # pylint: disable-next=line-too-long
+            "https://issuetracker.google.com/new?component=1037860&template=1955905"
+        )
+        SDK_UPDATE_STICKY_CONFIG.write_text("0\n", encoding="utf-8")

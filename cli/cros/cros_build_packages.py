@@ -446,7 +446,7 @@ def build_packages(opts: commandline.ArgumentNamespace) -> None:
             "workon": opts.workon is True,
             "bazel": opts.bazel is True,
             "sticky_update_enabled": (
-                chromite_config.SDK_UPDATE_STICKY_CONFIG.exists()
+                chromite_config.sdk_update_sticky_enabled()
             ),
         }
     )

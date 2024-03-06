@@ -779,10 +779,9 @@ def _FinalizeOptions(
         # were not provided.
         options.read_only = ro_cfg.exists()
 
-    update_cfg = chromite_config.SDK_UPDATE_STICKY_CONFIG
     if options.update is None:
         # Defer to configuration file.
-        options.update = update_cfg.exists()
+        options.update = chromite_config.sdk_update_sticky_enabled()
 
     # Resolve tri-state --delete-out-dir to a boolean.  This argument is
     # default-on for --delete/--replace, but default-off for --update.
@@ -803,15 +802,7 @@ def _FinalizeOptions(
                 ro_cfg.unlink()
 
     if options.update_sticky:
-        # Notify the user when toggling stickiness.
-        if options.update:
-            if not update_cfg.exists():
-                logging.warning("Making cros_sdk --update sticky")
-            update_cfg.touch()
-        else:
-            if update_cfg.exists():
-                logging.warning("Making cros_sdk --no-update sticky")
-                update_cfg.unlink()
+        chromite_config.sdk_update_sticky_set(options.update)
 
 
 def main(argv) -> None:
