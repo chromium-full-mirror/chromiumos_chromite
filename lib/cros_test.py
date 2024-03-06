@@ -18,11 +18,7 @@ from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import retry_util
 from chromite.lib import vm
-from chromite.lib.telemetry import trace
 from chromite.lib.xbuddy import xbuddy
-
-
-tracer = trace.get_tracer(__name__)
 
 
 # The Lacros sub directory when builds using alternate toolchain.
@@ -110,7 +106,6 @@ class CrOSTest:
             "Time elapsed: %s", datetime.datetime.utcnow() - self.start_time
         )
 
-    @tracer.start_as_current_span("chromite.lib.cros_test.Run")
     def Run(self):
         """Start a VM, build/deploy, run tests, stop the VM."""
         if self._device.should_start_vm:
@@ -132,13 +127,10 @@ class CrOSTest:
         self._Deploy()
 
         returncode = self._RunTests()
-        span = trace.get_current_span()
-        span.set_attribute("returncode", returncode)
 
         self._StopVM()
         return returncode
 
-    @tracer.start_as_current_span("chromite.lib.cros_test._StartVM")
     def _StartVM(self) -> None:
         """Start a VM if necessary.
 
@@ -154,7 +146,6 @@ class CrOSTest:
         if self.start_vm:
             self._device.Start()
 
-    @tracer.start_as_current_span("chromite.lib.cros_test._StopVM")
     def _StopVM(self) -> None:
         """Stop the VM if necessary.
 
@@ -163,7 +154,6 @@ class CrOSTest:
         if self._device and self.start_vm:
             self._device.Stop()
 
-    @tracer.start_as_current_span("chromite.lib.cros_test._Build")
     def _Build(self) -> None:
         """Build chrome."""
         if not self.build:
@@ -175,7 +165,6 @@ class CrOSTest:
             dryrun=self.dryrun,
         )
 
-    @tracer.start_as_current_span("chromite.lib.cros_test._Flash")
     def _Flash(self) -> None:
         """Flash device."""
         if not self.flash:
@@ -250,7 +239,6 @@ class CrOSTest:
         ]
         cros_build_lib.run(flash_cmd, dryrun=self.dryrun)
 
-    @tracer.start_as_current_span("chromite.lib.cros_test._Deploy")
     def _Deploy(self) -> None:
         """Deploy binary files to device."""
         if not self.build and not self.deploy and not self.deploy_lacros:
@@ -379,8 +367,7 @@ class CrOSTest:
             )
             copy_with_retries()
 
-    @tracer.start_as_current_span("chromite.lib.cros_test._RunCatapultTests")
-    def _RunCatapultTests(self) -> cros_build_lib.CompletedProcess:
+    def _RunCatapultTests(self):
         """Run catapult tests matching a pattern using run_tests.
 
         Returns:
@@ -399,8 +386,7 @@ class CrOSTest:
             stream_output=True,
         )
 
-    @tracer.start_as_current_span("chromite.lib.cros_test._RunAutotest")
-    def _RunAutotest(self) -> cros_build_lib.CompletedProcess:
+    def _RunAutotest(self):
         """Run an autotest using test_that.
 
         Returns:
@@ -432,8 +418,7 @@ class CrOSTest:
         cmd += self.autotest
         return cros_build_lib.run(cmd, dryrun=self.dryrun, enter_chroot=True)
 
-    @tracer.start_as_current_span("chromite.lib.cros_test._RunTastTests")
-    def _RunTastTests(self) -> cros_build_lib.CompletedProcess:
+    def _RunTastTests(self):
         """Run Tast tests.
 
         Returns:
@@ -537,36 +522,7 @@ class CrOSTest:
             enter_chroot=need_chroot and not cros_build_lib.IsInsideChroot(),
         )
 
-    @tracer.start_as_current_span("chromite.lib.cros_test._RunHostCmd")
-    def _RunHostCmd(self) -> cros_build_lib.CompletedProcess:
-        """Run a host command.
-
-        Returns:
-            cros_build_lib.CompletedProcess object.
-        """
-
-        extra_env = {}
-        if self.build_dir:
-            extra_env["CHROMIUM_OUTPUT_DIR"] = self.build_dir
-        # Don't raise an exception if the command fails.
-        return cros_build_lib.run(
-            self.args, check=False, dryrun=self.dryrun, extra_env=extra_env
-        )
-
-    @tracer.start_as_current_span("chromite.lib.cros_test._RunVMSanity")
-    def _RunVMSanity(self) -> cros_build_lib.CompletedProcess:
-        """Run vm_sanity on Device.
-
-        Returns:
-            cros_build_lib.CompletedProcess object.
-        """
-
-        return self._device.run(
-            ["/usr/local/autotest/bin/vm_sanity.py"], stream_output=True
-        )
-
-    @tracer.start_as_current_span("chromite.lib.cros_test._RunTests")
-    def _RunTests(self) -> int:
+    def _RunTests(self):
         """Run tests.
 
         Run user-specified tests, catapult tests, tast tests, autotest, or the
@@ -578,7 +534,13 @@ class CrOSTest:
         if self.remote_cmd:
             result = self._RunDeviceCmd()
         elif self.host_cmd:
-            result = self._RunHostCmd()
+            extra_env = {}
+            if self.build_dir:
+                extra_env["CHROMIUM_OUTPUT_DIR"] = self.build_dir
+            # Don't raise an exception if the command fails.
+            result = cros_build_lib.run(
+                self.args, check=False, dryrun=self.dryrun, extra_env=extra_env
+            )
         elif self.catapult_tests:
             result = self._RunCatapultTests()
         elif self.autotest:
@@ -588,16 +550,15 @@ class CrOSTest:
         elif self.chrome_test:
             result = self._RunChromeTest()
         else:
-            result = self._RunVMSanity()
+            result = self._device.run(
+                ["/usr/local/autotest/bin/vm_sanity.py"], stream_output=True
+            )
 
         self._MaybeSaveVMImage(result)
         self._FetchResults()
 
         name = self.args[0] if self.args else "Test process"
         logging.info("%s exited with status code %d.", name, result.returncode)
-
-        span = trace.get_current_span()
-        span.set_attribute("returncode", result.returncode)
 
         return result.returncode
 
@@ -617,7 +578,6 @@ class CrOSTest:
         osutils.SafeMakedirs(self.results_dest_dir)
         self._device.SaveVMImageOnShutdown(self.results_dest_dir)
 
-    @tracer.start_as_current_span("chromite.lib.cros_test._FetchResults")
     def _FetchResults(self) -> None:
         """Fetch results files/directories."""
         if not self.results_src:
@@ -644,8 +604,7 @@ class CrOSTest:
             ["cp", "-L", "-r", "/root/.ssh/", "/home/chronos/user/"]
         )
 
-    @tracer.start_as_current_span("chromite.lib.cros_test._RunDeviceCmd")
-    def _RunDeviceCmd(self) -> cros_build_lib.CompletedProcess:
+    def _RunDeviceCmd(self):
         """Run a command on the device.
 
         Copy src files to /usr/local/cros_test/, change working directory to
@@ -707,14 +666,7 @@ class CrOSTest:
 
         return result
 
-    @tracer.start_as_current_span("chromite.lib.cros_test._RunChromeTest")
-    def _RunChromeTest(self) -> cros_build_lib.CompletedProcess:
-        """Run Chrome tests.
-
-        Returns:
-            cros_build_lib.CompletedProcess object.
-        """
-
+    def _RunChromeTest(self):
         # Stop UI in case the test needs to grab GPU.
         self._device.run(["stop", "ui"])
 
