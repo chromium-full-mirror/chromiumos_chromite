@@ -264,11 +264,12 @@ info_run sudo chroot "${BOARD_ROOT}" "${CHROMITE_BIN}/cros_setup_toolchains" \
 
 safe_umount_tree "${BOARD_ROOT}"
 
-# Copy glibc binary package into the new SDK, as it's required by
+# Copy glibc binary packages into the new SDK, as it's required by
 # chromite/lib/toolchain.py's ToolchainInstaller.
-GLIBC_BINPKG="${PKGDIR}/$(portageq best_visible / sys-libs/glibc).tbz2"
-info_run sudo mkdir -p "${BOARD_ROOT}${GLIBC_BINPKG%/*}"
-info_run sudo cp -a "${GLIBC_BINPKG}" "${BOARD_ROOT}${GLIBC_BINPKG}"
+for glibc_binpkg in "${PKGDIR}"/*/glibc-*.tbz2; do
+  info_run sudo mkdir -p "${BOARD_ROOT}${glibc_binpkg%/*}"
+  info_run sudo cp -a "${glibc_binpkg}" "${BOARD_ROOT}${glibc_binpkg}"
+done
 
 command_completed
 echo "Done!"
