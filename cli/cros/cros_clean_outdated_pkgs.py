@@ -76,6 +76,8 @@ SYSTEM_PACKAGES = {
     # Used by libselinux which is used by a lot of system tools (e.g. tar &
     # coreutils).
     "dev-libs/libpcre2",
+    # Used by cmake.
+    "dev-libs/libuv",
     # Needed by compiler (llvm).
     "dev-libs/libxml2",
     # Many CrOS packages use pkgconf but do not depend on it.
