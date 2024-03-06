@@ -11,6 +11,7 @@ import functools
 import logging
 import os
 import string
+import subprocess
 import traceback
 
 from chromite.third_party.google.protobuf import json_format
@@ -267,7 +268,8 @@ def BuildTestServiceContainers(
         cmd_result = cros_build_lib.run(
             cmd,
             check=False,
-            capture_output=True,
+            stdout=True,
+            stderr=subprocess.STDOUT,
             encoding="utf-8",
             errors="replace",
         )
