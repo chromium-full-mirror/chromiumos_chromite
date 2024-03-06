@@ -185,6 +185,55 @@ class TestMain(cros_test_lib.RunCommandTempDirTestCase):
             },
         )
 
+    def testNightlyCorrect(self) -> None:
+        """Test --target nightly works with ti50-accessor-y-ro-premp."""
+        launch = self.PatchObject(trigger, "LaunchOne")
+        target = "nightly"
+        keyset = "ti50-accessory-nodelocked-ro-premp"
+        archive = "gs://test/file.bin"
+
+        args = [
+            "--archive",
+            archive,
+            "--keyset",
+            keyset,
+            "--target",
+            target,
+        ]
+        self.assertEqual(0, trigger.main(args))
+        launch.assert_called_once_with(
+            False,
+            trigger.GSC_PRODUCTION_JOB,
+            {
+                "archive": archive,
+                "build_target": {
+                    "name": "unknown",
+                },
+                "channel": common_pb2.CHANNEL_UNSPECIFIED,
+                "gsc_instructions": {
+                    "target": sign_image_pb2.GscInstructions.NIGHTLY,
+                },
+                "image_type": common_pb2.IMAGE_TYPE_GSC_FIRMWARE,
+                "keyset": keyset,
+                "signer_type": sign_image_pb2.SIGNER_PRODUCTION,
+            },
+        )
+
+    def testNightlyRequiresTi50AccessoryNodelockedRoPremp(self) -> None:
+        """Test --target nightly requires ti50-accessory-nodelocked-ro-premp."""
+        launch = self.PatchObject(trigger, "LaunchOne")
+        args = [
+            "--archive",
+            "gs://test/file.bin",
+            "--keyset",
+            "test-keyset",
+            "--target",
+            "nightly",
+        ]
+        self.assertEqual(1, trigger.main(args))
+        launch.assert_not_called()
+        self.assertEqual(1, self.log_error.call_count)
+
     def testNodeLockedCatchesBadDeviceId(self) -> None:
         """Test --target node_locked catches bad --device-id."""
         launch = self.PatchObject(trigger, "LaunchOne")

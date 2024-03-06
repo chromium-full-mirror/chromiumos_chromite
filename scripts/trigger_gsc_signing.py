@@ -156,6 +156,13 @@ def main(argv):
 
     passes = True
 
+    if (
+        options.target == "nightly"
+        and options.keyset != "ti50-accessory-nodelocked-ro-premp"
+    ):
+        logging.error("--target nightly can only be built for node locked ros")
+        passes = False
+
     if options.target == "node_locked":
         if not options.dev_ids:
             logging.error("--target node_locked must specify device_id")
