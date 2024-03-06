@@ -23,9 +23,9 @@ from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
-from chromite.lib.parser import ebuild_license
 from chromite.lib.parser import package_info
 from chromite.utils import gs_urls_util
+from chromite.utils.parser import ebuild_license
 
 
 # See https://crbug.com/207004 for discussion.

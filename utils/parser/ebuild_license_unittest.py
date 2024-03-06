@@ -6,7 +6,7 @@
 
 import pytest
 
-from chromite.lib.parser import ebuild_license
+from chromite.utils.parser import ebuild_license
 from chromite.utils.parser import pms_dependency
 
 
