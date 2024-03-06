@@ -643,10 +643,7 @@ class Ebuild(QueryTarget):
     @property
     def keywords(self) -> List[str]:
         """The KEYWORDS of this package."""
-        keywords = self.vars.get("KEYWORDS")
-        if not keywords:
-            return []
-        return keywords.split()
+        return self.vars.get("KEYWORDS", "").split()
 
     def get_stability(self, arch: str) -> Stability:
         """Get the stability of this package on a given architecture.
