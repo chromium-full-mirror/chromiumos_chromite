@@ -614,9 +614,7 @@ class Ebuild(QueryTarget):
             return set()
         result = set()
         for var in iuse.split(" "):
-            if var.startswith("-"):
-                continue
-            if var.startswith("+"):
+            if var[0] in "-+":
                 var = var[1:]
             result.add(var)
         return result
