@@ -709,13 +709,21 @@ class BuildLinter:
     def _fetch_from_linting_artifacts(self, subdir) -> Dict[Text, List[Text]]:
         """Get file from emerge artifact directory."""
         cros_build_lib.AssertInsideChroot()
-        findings = {}
         base_dir = Path(self.sysroot) / BuildLinter.BASE_DIR
+        if not base_dir.exists():
+            logging.warning(
+                "Artifacts could not be found because %s does not exist.",
+                base_dir,
+            )
+            return {}
+        findings = {}
+        logging.info("Looking for artifacts in %s:", base_dir)
         for dirpath, _, files in os.walk(base_dir):
             subdir_path = Path(dirpath)
             if subdir_path.match(
                 f"{base_dir}/*/*/cros-artifacts/linting-output/{subdir}"
             ):
+                logging.info("Looking for linting artifacts in %s", subdir_path)
                 package_atom = self._get_package_for_artifact_dir(subdir_path)
                 if not self.packages or package_atom in self.package_atoms:
                     full_paths = [str(subdir_path / file) for file in files]
