@@ -1331,8 +1331,6 @@ def _BazelBuild(
         ]
         packages_to_exclude = [
             "chromeos-base/chromeos-chrome",
-            "media-sound/adhd",
-            "chromeos-base/chaps",
         ]
         top_level_packages_query = "union".join(
             [
