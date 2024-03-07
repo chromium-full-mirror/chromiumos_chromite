@@ -135,20 +135,6 @@ def is_dep_satisfiable(dep: str, root_path: str, board: str) -> bool:
     return result.returncode == 0
 
 
-def get_depend_and_rdepend(pkg: portage_util.InstalledPackage) -> str:
-    """Returns combined DEPEND and RDEPEND of given |pkg|."""
-    all_deps = []
-    depend = pkg._ReadField("DEPEND")
-    if depend:
-        all_deps.append(depend)
-    rdepend = pkg._ReadField("RDEPEND")
-    if rdepend:
-        all_deps.append(rdepend)
-    if not all_deps:
-        return ""
-    return " ".join(all_deps)
-
-
 @command.command_decorator("clean-outdated-pkgs")
 class CleanOutdatedCommand(command.CliCommand):
     """Runs various portage-related functions."""
@@ -289,7 +275,7 @@ class CleanOutdatedCommand(command.CliCommand):
                     in cros_setup_toolchains.HOST_POST_CROSS_PACKAGES
                 ):
                     continue
-            all_deps = get_depend_and_rdepend(pkg)
+            all_deps = pkg.depend + pkg.rdepend
             if not all_deps:
                 continue
 
@@ -312,7 +298,7 @@ class CleanOutdatedCommand(command.CliCommand):
                 # processed.
                 return tuple(choices)
 
-            parsed_deps = pms_dependency.parse(all_deps).reduce(
+            parsed_deps = all_deps.reduce(
                 use_flags=None,
                 anyof_reduce=anyof_reduce_gatherer,
                 flatten_allof=True,
@@ -355,7 +341,7 @@ class CleanOutdatedCommand(command.CliCommand):
 
         # Now use the compiled slot_dep_sat to find packages that can't be
         # satisfied.
-        def is_depend_slot_satisfiable(depend: str) -> bool:
+        def is_depend_slot_satisfiable(depend: pms_dependency.RootNode) -> bool:
             def anyof_reduce(choices: List[str]) -> Optional[str]:
                 """Reduce func for dep parser."""
                 if not choices:
@@ -382,7 +368,7 @@ class CleanOutdatedCommand(command.CliCommand):
                 # If no deps are satisifable -> return first.
                 return choices[0]
 
-            parsed_deps = pms_dependency.parse(depend).reduce(
+            parsed_deps = depend.reduce(
                 use_flags=None, anyof_reduce=anyof_reduce, flatten_allof=True
             )
             parsed_deps = flatten_deps(parsed_deps)
@@ -412,7 +398,7 @@ class CleanOutdatedCommand(command.CliCommand):
                 ):
                     continue
 
-            all_deps = get_depend_and_rdepend(pkg)
+            all_deps = pkg.depend + pkg.rdepend
             if not all_deps:
                 continue
             if not is_depend_slot_satisfiable(all_deps):

@@ -73,6 +73,23 @@ class RootNode:
             )
         )
 
+    def __add__(self, other):
+        """Return a new node with children merged."""
+        # This only works in subclasses if they don't have additional
+        # properties -- only .children is supported.
+        if type(self) is not type(other):
+            raise TypeError(
+                "unsupported operand type(s) for +: "
+                f"'{self.__class__.__name__}' and '{other.__class__.__name__}'"
+            )
+        ret = self.__class__()
+        ret.children = self.children + other.children
+        return ret
+
+    def __bool__(self):
+        """Whether the current node has any children."""
+        return bool(self.children)
+
     def __str__(self) -> str:
         return " ".join(_dedupe_in_order(str(x) for x in self.children))
 
@@ -149,6 +166,27 @@ class UseNode(RootNode):
             if test
             else []
         )
+
+    def __add__(self, other):
+        """Return a new node with children merged."""
+        # We could probably support different USE flags by constructing a new
+        # parent AllOfNode and adding these as siblings, but that doesn't seem
+        # intuitive, and nothing needs that currently, so wait for someone to
+        # need it.
+        if isinstance(other, UseNode):
+            if self.flag != other.flag:
+                raise TypeError(
+                    "UseNode flags do not match: "
+                    f"'{self.flag}' != '{other.flag}'"
+                )
+        else:
+            raise TypeError(
+                "unsupported operand type(s) for +: "
+                f"'{self.__class__.__name__}' and '{other.__class__.__name__}'"
+            )
+        ret = UseNode(self.flag)
+        ret.children = self.children + other.children
+        return ret
 
     def __str__(self) -> str:
         return (
