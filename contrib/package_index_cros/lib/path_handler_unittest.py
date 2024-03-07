@@ -35,6 +35,7 @@ from chromite.contrib.package_index_cros.lib import path_handler
         ("//gn_target:subtarget", "//gn_target:subtarget", "", None),
         ("-Q/usr/lib", "", "", ValueError),
         ("--arg=$HOME/path", "--arg=$HOME/path", "", None),
+        ("--arg=not-a-path", "--arg=not-a-path", "", None),
     ),
 )
 def test_fix_path_in_argument(

@@ -576,24 +576,20 @@ def fix_path_in_argument(
         chroot_path = arg[2:]
         return ("-I", fixer_callback(chroot_path))
 
-    match = re.match(PathHandler.g_argument_regexes, arg)
-    if not match:
-        if not re.match(PathHandler.g_gn_target_regex, arg):
-            if os.sep in arg:
-                raise ValueError(f"Unknown arg with possible path: {arg}")
-            # TODO: b/328465881 - If `os.sep not in arg`, don't fall through to
-            # assuming it's a gn target.
-
+    if re.match(PathHandler.g_gn_target_regex, arg):
         # Argument is a gn target. Nothing to fix.
-
         return (arg, "")
 
-    if os.sep not in arg:
-        # TODO: b/328465881 - This path seems to be unreachable.
-        # If os.sep is not in arg, then we would not match g_argument_regexes,
-        # since it contains g_path_regex which must contain /.
-        # Thus we would have reached the above if-block, and returned.
-        raise ValueError(f"Unknown arg: {arg}")
+    match = re.match(PathHandler.g_argument_regexes, arg)
+    if not match:
+        if os.sep in arg:
+            raise ValueError(
+                f"Unrecognized arg containing possible path: {arg}"
+            )
+        else:
+            # Arg doesn't seem to contain a path. Nothing to fix.
+            return (arg, "")
+
     prefix = match.group(1)
     chroot_path = match.group(2)
 
