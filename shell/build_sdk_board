@@ -234,6 +234,10 @@ info_run sudo mount --bind /etc/group "${BOARD_ROOT}/etc/group"
 info_run sudo mount --bind /home "${BOARD_ROOT}/home"
 info_run sudo mount --bind /root "${BOARD_ROOT}/root"
 
+# Bring in /etc/localtime so we don't get a confusing time-jump in the logs.
+info_run sudo touch "${BOARD_ROOT}/etc/localtime"
+info_run sudo mount --bind /etc/localtime "${BOARD_ROOT}/etc/localtime"
+
 # Next, we need to mount in the source tree.  Crossdev will read multilib.eclass
 # from the overlays.
 info_run sudo mount --bind /mnt/host/source "${BOARD_ROOT}/mnt/host/source"
@@ -263,6 +267,7 @@ info_run sudo chroot "${BOARD_ROOT}" "${CHROMITE_BIN}/cros_setup_toolchains" \
   --targets all --debug --no-fetch-binpkg
 
 safe_umount_tree "${BOARD_ROOT}"
+info_run sudo rm "${BOARD_ROOT}/etc/localtime"
 
 # Copy glibc binary packages into the new SDK, as it's required by
 # chromite/lib/toolchain.py's ToolchainInstaller.
