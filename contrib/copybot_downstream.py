@@ -264,6 +264,17 @@ class CopybotDownstream:
                 )
         return warning_strings
 
+    def check_if_cl_is_submittable(self, cl: Dict) -> bool:
+        """Ensures all submit_records in a CL have a status of 'OK'
+
+        Args:
+            cl: gerrit CL dict to check
+
+        Returns:
+            true if ready to submit (approved CL), false if not.
+        """
+        return all({s["status"] == "OK" for s in cl["submit_records"]})
+
     def _get_relation_chain_and_info(self) -> Tuple[List[str], Dict]:
         """Gets an ordered list of CLs to downstream and detailed info on each.
 
@@ -290,13 +301,21 @@ class CopybotDownstream:
         # Build a set of all CL numbers
         cl_numbers_set = {cl["_number"] for cl in all_cls}
 
-        # Check if any CLs are NOT owned by the Copybot user
+        # Check if any CLs are NOT owned by the Copybot user. This check can be
+        # skipped if CL has already been manually approved.
         for cl in all_cls:
             if cl["owner"]["email"] != COPYBOT_SERVICE_ACCOUNT:
-                raise RuntimeError(
-                    f"CL {cl['_number']} is not owned by the Copybot service "
-                    "account. Please investigate and re-run script."
-                )
+                if not self.check_if_cl_is_submittable(cl):
+                    raise RuntimeError(
+                        f"CL {cl['_number']} is not owned by the Copybot "
+                        "service account. Please investigate. If this CL "
+                        "is expected, please manually CR+2 to proceed."
+                    )
+                else:
+                    logging.warning(
+                        "Processing non-Copybot CL %s due to prior approval",
+                        cl["_number"],
+                    )
 
         # Take an arbitrary CL number and query its related CLs, which should
         # yield the downstreaming relation chain, including itself. Reverse this
