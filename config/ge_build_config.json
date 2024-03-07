@@ -3658,7 +3658,6 @@
             "bvt-tast-cq",
             "bvt-installer",
             "bvt-arc",
-            "au",
             "bvt-cq",
             "bvt-perbuild",
             "bvt-tast-informational"
@@ -3699,7 +3698,6 @@
             "bvt-tast-cq",
             "bvt-installer",
             "bvt-arc",
-            "au",
             "bvt-cq",
             "bvt-perbuild",
             "bvt-tast-informational"
