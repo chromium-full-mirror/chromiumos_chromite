@@ -18,7 +18,7 @@ def generate_copybot_arg_parser(
 ) -> argparse.Namespace:
     """Create a copybot downstreaming arg parser and return it to the caller."""
     # TODO(b/278748731): Add option to rebase CLs.
-    parser = commandline.ArgumentParser(__doc__, default_log_level="debug")
+    parser = commandline.ArgumentParser(__doc__, default_log_level="info")
     parser.add_argument(
         "--project",
         required=bool(not project),
