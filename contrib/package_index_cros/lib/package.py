@@ -76,7 +76,7 @@ def get_package_support(
     Returns:
         Corresponding PackageSupport enum value.
     """
-    # pylint: disable=protected-access
+    # pylint: disable-next=protected-access
     ebuild_file = ebuild._unstable_ebuild_path
     ebuild_source_info = ebuild.GetSourceInfo(
         setup_data.src_dir,
@@ -220,6 +220,7 @@ class PackageInfo:
     """Data class containing basic info about a package."""
 
     def __init__(self, ebuild: portage_util.EBuild):
+        # pylint: disable-next=protected-access
         self.ebuild_file = ebuild._unstable_ebuild_path
         self.category = ebuild.category
         self.name = ebuild.pkgname
