@@ -78,6 +78,18 @@ def RunCopybot(request, response, _config):
     for po in request.push_options:
         cmd.extend(["--push-option", po.opt])
 
+    for hashtag in request.hashtags:
+        cmd.extend(["--ht", hashtag.ht])
+
+    if request.upstream_limit:
+        cmd.extend(["--upstream-history-limit", request.upstream_limit])
+
+    if request.downstream_limit:
+        cmd.extend(["--downstream-history-limit", request.downstream_limit])
+
+    for include_path in request.include_paths:
+        cmd.extend(["--include-downstream", include_path.include])
+
     cmd.append(
         f"{request.upstream.url}:"
         f"{request.upstream.branch}:"
