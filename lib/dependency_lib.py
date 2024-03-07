@@ -7,7 +7,6 @@
 import logging
 import os
 from pathlib import Path
-import re
 from typing import List, Mapping, Union
 
 from chromite.lib import constants
@@ -16,6 +15,7 @@ from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.lib.parser import package_info
+from chromite.utils.parser import portage_md5_cache
 
 
 class Error(Exception):
@@ -54,20 +54,21 @@ def _get_cache_file(ebuild_path: Path) -> Path:
 
 
 def _get_eclasses_for_ebuild(ebuild_path, path_cache, overlay_dirs):
-    cache_entries = _parse_ebuild_cache_entry(
-        _get_cache_file(Path(ebuild_path))
+    cache_entries = portage_md5_cache.Md5Cache(
+        path=_get_cache_file(Path(ebuild_path)),
+        missing_ok=False,
     )
 
     relevant_eclass_paths = []
-    for eclass, digest in cache_entries:
-        if digest in path_cache:
-            relevant_eclass_paths.append(path_cache[digest])
+    for eclass in cache_entries.eclasses:
+        if eclass.digest in path_cache:
+            relevant_eclass_paths.append(path_cache[eclass.digest])
         else:
             try:
                 eclass_path = _find_matching_eclass_file(
-                    eclass, digest, overlay_dirs
+                    eclass.name, eclass.digest, overlay_dirs
                 )
-                path_cache[digest] = eclass_path
+                path_cache[eclass.digest] = eclass_path
                 relevant_eclass_paths.append(eclass_path)
             except NoMatchingFileForDigest:
                 logging.warning(
@@ -76,8 +77,8 @@ def _get_eclasses_for_ebuild(ebuild_path, path_cache, overlay_dirs):
                         "%s but no matching file could be found."
                     ),
                     ebuild_path,
-                    eclass,
-                    digest,
+                    eclass.name,
+                    eclass.digest,
                 )
                 # If we can't find a matching eclass file then we don't know
                 # exactly which overlay the eclass file is coming from, but we
@@ -86,7 +87,7 @@ def _get_eclasses_for_ebuild(ebuild_path, path_cache, overlay_dirs):
                 # and add all the paths that it could possibly have.
                 relevant_eclass_paths.extend(
                     [
-                        os.path.join(overlay, "eclass", eclass) + ".eclass"
+                        os.path.join(overlay, "eclass", eclass.name) + ".eclass"
                         for overlay in overlay_dirs
                     ]
                 )
@@ -102,30 +103,6 @@ def _find_matching_eclass_file(eclass, digest, overlay_dirs):
     raise NoMatchingFileForDigest(
         "No matching eclass file found: %s %s" % (eclass, digest)
     )
-
-
-def _parse_ebuild_cache_entry(cache_file_path):
-    """Extract the eclasses with their digest from an ebuild's cache file."""
-    eclass_regex = re.compile(r"_eclasses_=(.*)")
-    eclass_clause_regex = (
-        # The eclass name, e.g. cros-workon.
-        r"(?P<eclass>[^\s]+)\s+"
-        # The edb cache files contain the overlay path, the md5 cache file does
-        # not, so optionally parse the path.
-        r"((?P<overlay_path>[^\s]+)\s+)?"
-        # The eclass digest followed by a word boundary -- \b prevents parsing
-        # md5 digests as paths when the next class begins with a-f.
-        r"(?P<digest>[\da-fA-F]+)\b(\s+|$)"
-    )
-
-    cachefile = osutils.ReadFile(cache_file_path)
-    m = eclass_regex.search(cachefile)
-    if not m:
-        return []
-
-    start, end = m.start(1), m.end(1)
-    entries = re.finditer(eclass_clause_regex, cachefile[start:end])
-    return [(c.group("eclass"), c.group("digest")) for c in entries]
 
 
 def get_source_path_mapping(
