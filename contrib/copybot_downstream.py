@@ -82,6 +82,7 @@ class CopybotDownstream:
         self.cq_dry_run = opts.cq_dry_run
         self.stop_at = opts.stop_at
         self.ignore_warnings = opts.ignore_warnings
+        self.repo = opts.repo
         # dict of dicts containing CL info returned by gerrit.
         #   Key - CL Number
         #   Value - Gerrit dictionary data
@@ -284,12 +285,19 @@ class CopybotDownstream:
             A list of Gerrit CL numbers to downstream
             A dictionary of CL detailed info with CL number as key
         """
+        query_params = {
+            "hashtag": f"{self.project}-downstream",
+            "status": "open",
+            "raw": True,
+            "verbose": True,
+            "convert_results": False,
+        }
+
+        if self.repo:
+            query_params.update({"repository": self.repo})
+
         all_cls = self.gerrit_helper.Query(
-            hashtag=f"{self.project}-downstream",
-            status="open",
-            raw=True,
-            verbose=True,
-            convert_results=False,
+            **query_params,
         )
 
         logging.debug(
@@ -317,6 +325,10 @@ class CopybotDownstream:
                         cl["_number"],
                     )
 
+        if len(all_cls) == 0:
+            # Return empty relation chain and CL info dict
+            return [], {}
+
         # Take an arbitrary CL number and query its related CLs, which should
         # yield the downstreaming relation chain, including itself. Reverse this
         # list so index 0 is the bottom of the stack (most-depended-upon CL).
@@ -341,10 +353,20 @@ class CopybotDownstream:
             # If this is true, there are CL(s) present that are not part of the
             # relation chain. This is weird. Report an error and stop.
 
-            raise RuntimeError(
-                "Found CL(s) that belong to a different relation chain: "
-                f"{sorted(cl_numbers_set)}"
+            # Get the set of all repos represented in this group of CLs.
+            repos_set = {cl["project"] for cl in all_cls}
+
+            logging.error(
+                "Found CLs that belong to a different relation chain: [%s]. "
+                "This often happens when CLs from multiple repos are present "
+                "or if a manually-upload CL exists. Found CLs from these "
+                "repos: [%s]. You can use --repo to narrow the batch to a "
+                "specific repository and handle these one-at-a-time.",
+                (", ".join((str(num) for num in sorted(cl_numbers_set)))),
+                ", ".join(repos_set),
             )
+
+            raise RuntimeError("Found multiple relation chains")
 
         if self.limit:
             # Applying the limit here saves a lot of Gerrit API calls

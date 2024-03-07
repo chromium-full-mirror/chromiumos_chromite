@@ -46,6 +46,12 @@ def generate_copybot_arg_parser(
         default=False,
         help="Ignore warnings and proceed with downstreaming action.",
     )
+    parser.add_argument(
+        "--repo",
+        help="Limit search to a specific repo (e.g. "
+        "chromiumos/third_party/zephyr). Useful if changes exist in multiple "
+        "repos under one project",
+    )
 
     #
     # Subcommands
