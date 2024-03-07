@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from chromite.api.gen.chromite.api import build_api_pb2 as chromite_dot_api_dot_build__api__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/copybot.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\"\x86\x08\n\x11RunCopybotRequest\x12\x36\n\x08upstream\x18\x01 \x01(\x0b\x32$.chromite.api.RunCopybotRequest.Repo\x12\x38\n\ndownstream\x18\x02 \x01(\x0b\x32$.chromite.api.RunCopybotRequest.Repo\x12\r\n\x05topic\x18\x03 \x01(\t\x12;\n\x06labels\x18\x04 \x03(\x0b\x32+.chromite.api.RunCopybotRequest.GerritLabel\x12=\n\treviewers\x18\x05 \x03(\x0b\x32*.chromite.api.RunCopybotRequest.GerritUser\x12\x37\n\x03\x63\x63s\x18\x06 \x03(\x0b\x32*.chromite.api.RunCopybotRequest.GerritUser\x12\x17\n\x0fprepend_subject\x18\x07 \x01(\t\x12V\n\x17merge_conflict_behavior\x18\x08 \x01(\x0e\x32\x35.chromite.api.RunCopybotRequest.MergeConflictBehavior\x12\x46\n\x15\x65xclude_file_patterns\x18\t \x03(\x0b\x32\'.chromite.api.RunCopybotRequest.Pattern\x12H\n\x12keep_pseudoheaders\x18\n \x03(\x0b\x32,.chromite.api.RunCopybotRequest.Pseudoheader\x12\x19\n\x11\x61\x64\x64_signed_off_by\x18\x0b \x01(\x08\x12\x0f\n\x07\x64ry_run\x18\x0c \x01(\x08\x12@\n\x0cpush_options\x18\r \x03(\x0b\x32*.chromite.api.RunCopybotRequest.PushOption\x1a\x34\n\x04Repo\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x0e\n\x06\x62ranch\x18\x02 \x01(\t\x12\x0f\n\x07subtree\x18\x03 \x01(\t\x1a\x1a\n\nGerritUser\x12\x0c\n\x04user\x18\x01 \x01(\t\x1a\x1c\n\x0bGerritLabel\x12\r\n\x05label\x18\x01 \x01(\t\x1a\x1a\n\x07Pattern\x12\x0f\n\x07pattern\x18\x01 \x01(\t\x1a\x1c\n\x0cPseudoheader\x12\x0c\n\x04name\x18\x01 \x01(\t\x1a\x19\n\nPushOption\x12\x0b\n\x03opt\x18\x01 \x01(\t\"\x84\x01\n\x15MergeConflictBehavior\x12\'\n#MERGE_CONFLICT_BEHAVIOR_UNSPECIFIED\x10\x00\x12 \n\x1cMERGE_CONFLICT_BEHAVIOR_SKIP\x10\x01\x12 \n\x1cMERGE_CONFLICT_BEHAVIOR_FAIL\x10\x02\"\xfc\x02\n\x12RunCopybotResponse\x12\x46\n\x0e\x66\x61ilure_reason\x18\x01 \x01(\x0e\x32..chromite.api.RunCopybotResponse.FailureReason\x12M\n\x0fmerge_conflicts\x18\x02 \x03(\x0b\x32\x34.chromite.api.RunCopybotResponse.MergeConflictCommit\x1a#\n\x13MergeConflictCommit\x12\x0c\n\x04hash\x18\x01 \x01(\t\"\xa9\x01\n\rFailureReason\x12\x13\n\x0f\x46\x41ILURE_UNKNOWN\x10\x00\x12 \n\x1c\x46\x41ILURE_UPSTREAM_FETCH_ERROR\x10\x01\x12\"\n\x1e\x46\x41ILURE_DOWNSTREAM_FETCH_ERROR\x10\x02\x12!\n\x1d\x46\x41ILURE_DOWNSTREAM_PUSH_ERROR\x10\x03\x12\x1a\n\x16\x46\x41ILURE_MERGE_CONFLITS\x10\x04\x32p\n\x0e\x43opybotService\x12O\n\nRunCopybot\x12\x1f.chromite.api.RunCopybotRequest\x1a .chromite.api.RunCopybotResponse\x1a\r\xc2\xed\x1a\t\n\x07\x63opybotB8Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/copybot.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\"\xef\t\n\x11RunCopybotRequest\x12\x36\n\x08upstream\x18\x01 \x01(\x0b\x32$.chromite.api.RunCopybotRequest.Repo\x12\x38\n\ndownstream\x18\x02 \x01(\x0b\x32$.chromite.api.RunCopybotRequest.Repo\x12\r\n\x05topic\x18\x03 \x01(\t\x12;\n\x06labels\x18\x04 \x03(\x0b\x32+.chromite.api.RunCopybotRequest.GerritLabel\x12=\n\treviewers\x18\x05 \x03(\x0b\x32*.chromite.api.RunCopybotRequest.GerritUser\x12\x37\n\x03\x63\x63s\x18\x06 \x03(\x0b\x32*.chromite.api.RunCopybotRequest.GerritUser\x12\x17\n\x0fprepend_subject\x18\x07 \x01(\t\x12V\n\x17merge_conflict_behavior\x18\x08 \x01(\x0e\x32\x35.chromite.api.RunCopybotRequest.MergeConflictBehavior\x12\x46\n\x15\x65xclude_file_patterns\x18\t \x03(\x0b\x32\'.chromite.api.RunCopybotRequest.Pattern\x12H\n\x12keep_pseudoheaders\x18\n \x03(\x0b\x32,.chromite.api.RunCopybotRequest.Pseudoheader\x12\x19\n\x11\x61\x64\x64_signed_off_by\x18\x0b \x01(\x08\x12\x0f\n\x07\x64ry_run\x18\x0c \x01(\x08\x12@\n\x0cpush_options\x18\r \x03(\x0b\x32*.chromite.api.RunCopybotRequest.PushOption\x12\x39\n\x08hashtags\x18\x0e \x03(\x0b\x32\'.chromite.api.RunCopybotRequest.Hashtag\x12\x16\n\x0eupstream_limit\x18\x0f \x01(\r\x12\x18\n\x10\x64ownstream_limit\x18\x10 \x01(\r\x12\x42\n\rinclude_paths\x18\x11 \x03(\x0b\x32+.chromite.api.RunCopybotRequest.IncludePath\x1a\x34\n\x04Repo\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x0e\n\x06\x62ranch\x18\x02 \x01(\t\x12\x0f\n\x07subtree\x18\x03 \x01(\t\x1a\x1a\n\nGerritUser\x12\x0c\n\x04user\x18\x01 \x01(\t\x1a\x1c\n\x0bGerritLabel\x12\r\n\x05label\x18\x01 \x01(\t\x1a\x1a\n\x07Pattern\x12\x0f\n\x07pattern\x18\x01 \x01(\t\x1a\x1c\n\x0cPseudoheader\x12\x0c\n\x04name\x18\x01 \x01(\t\x1a\x19\n\nPushOption\x12\x0b\n\x03opt\x18\x01 \x01(\t\x1a\x1a\n\x07Hashtag\x12\x0f\n\x07pattern\x18\x01 \x01(\t\x1a\x1a\n\x0bIncludePath\x12\x0b\n\x03opt\x18\x01 \x01(\t\"\x84\x01\n\x15MergeConflictBehavior\x12\'\n#MERGE_CONFLICT_BEHAVIOR_UNSPECIFIED\x10\x00\x12 \n\x1cMERGE_CONFLICT_BEHAVIOR_SKIP\x10\x01\x12 \n\x1cMERGE_CONFLICT_BEHAVIOR_FAIL\x10\x02\"\xfc\x02\n\x12RunCopybotResponse\x12\x46\n\x0e\x66\x61ilure_reason\x18\x01 \x01(\x0e\x32..chromite.api.RunCopybotResponse.FailureReason\x12M\n\x0fmerge_conflicts\x18\x02 \x03(\x0b\x32\x34.chromite.api.RunCopybotResponse.MergeConflictCommit\x1a#\n\x13MergeConflictCommit\x12\x0c\n\x04hash\x18\x01 \x01(\t\"\xa9\x01\n\rFailureReason\x12\x13\n\x0f\x46\x41ILURE_UNKNOWN\x10\x00\x12 \n\x1c\x46\x41ILURE_UPSTREAM_FETCH_ERROR\x10\x01\x12\"\n\x1e\x46\x41ILURE_DOWNSTREAM_FETCH_ERROR\x10\x02\x12!\n\x1d\x46\x41ILURE_DOWNSTREAM_PUSH_ERROR\x10\x03\x12\x1a\n\x16\x46\x41ILURE_MERGE_CONFLITS\x10\x04\x32p\n\x0e\x43opybotService\x12O\n\nRunCopybot\x12\x1f.chromite.api.RunCopybotRequest\x1a .chromite.api.RunCopybotResponse\x1a\r\xc2\xed\x1a\t\n\x07\x63opybotB8Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromite.api.copybot_pb2', globals())
@@ -25,27 +25,31 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _COPYBOTSERVICE._options = None
   _COPYBOTSERVICE._serialized_options = b'\302\355\032\t\n\007copybot'
   _RUNCOPYBOTREQUEST._serialized_start=75
-  _RUNCOPYBOTREQUEST._serialized_end=1105
-  _RUNCOPYBOTREQUEST_REPO._serialized_start=775
-  _RUNCOPYBOTREQUEST_REPO._serialized_end=827
-  _RUNCOPYBOTREQUEST_GERRITUSER._serialized_start=829
-  _RUNCOPYBOTREQUEST_GERRITUSER._serialized_end=855
-  _RUNCOPYBOTREQUEST_GERRITLABEL._serialized_start=857
-  _RUNCOPYBOTREQUEST_GERRITLABEL._serialized_end=885
-  _RUNCOPYBOTREQUEST_PATTERN._serialized_start=887
-  _RUNCOPYBOTREQUEST_PATTERN._serialized_end=913
-  _RUNCOPYBOTREQUEST_PSEUDOHEADER._serialized_start=915
-  _RUNCOPYBOTREQUEST_PSEUDOHEADER._serialized_end=943
-  _RUNCOPYBOTREQUEST_PUSHOPTION._serialized_start=945
-  _RUNCOPYBOTREQUEST_PUSHOPTION._serialized_end=970
-  _RUNCOPYBOTREQUEST_MERGECONFLICTBEHAVIOR._serialized_start=973
-  _RUNCOPYBOTREQUEST_MERGECONFLICTBEHAVIOR._serialized_end=1105
-  _RUNCOPYBOTRESPONSE._serialized_start=1108
-  _RUNCOPYBOTRESPONSE._serialized_end=1488
-  _RUNCOPYBOTRESPONSE_MERGECONFLICTCOMMIT._serialized_start=1281
-  _RUNCOPYBOTRESPONSE_MERGECONFLICTCOMMIT._serialized_end=1316
-  _RUNCOPYBOTRESPONSE_FAILUREREASON._serialized_start=1319
-  _RUNCOPYBOTRESPONSE_FAILUREREASON._serialized_end=1488
-  _COPYBOTSERVICE._serialized_start=1490
-  _COPYBOTSERVICE._serialized_end=1602
+  _RUNCOPYBOTREQUEST._serialized_end=1338
+  _RUNCOPYBOTREQUEST_REPO._serialized_start=952
+  _RUNCOPYBOTREQUEST_REPO._serialized_end=1004
+  _RUNCOPYBOTREQUEST_GERRITUSER._serialized_start=1006
+  _RUNCOPYBOTREQUEST_GERRITUSER._serialized_end=1032
+  _RUNCOPYBOTREQUEST_GERRITLABEL._serialized_start=1034
+  _RUNCOPYBOTREQUEST_GERRITLABEL._serialized_end=1062
+  _RUNCOPYBOTREQUEST_PATTERN._serialized_start=1064
+  _RUNCOPYBOTREQUEST_PATTERN._serialized_end=1090
+  _RUNCOPYBOTREQUEST_PSEUDOHEADER._serialized_start=1092
+  _RUNCOPYBOTREQUEST_PSEUDOHEADER._serialized_end=1120
+  _RUNCOPYBOTREQUEST_PUSHOPTION._serialized_start=1122
+  _RUNCOPYBOTREQUEST_PUSHOPTION._serialized_end=1147
+  _RUNCOPYBOTREQUEST_HASHTAG._serialized_start=1149
+  _RUNCOPYBOTREQUEST_HASHTAG._serialized_end=1175
+  _RUNCOPYBOTREQUEST_INCLUDEPATH._serialized_start=1177
+  _RUNCOPYBOTREQUEST_INCLUDEPATH._serialized_end=1203
+  _RUNCOPYBOTREQUEST_MERGECONFLICTBEHAVIOR._serialized_start=1206
+  _RUNCOPYBOTREQUEST_MERGECONFLICTBEHAVIOR._serialized_end=1338
+  _RUNCOPYBOTRESPONSE._serialized_start=1341
+  _RUNCOPYBOTRESPONSE._serialized_end=1721
+  _RUNCOPYBOTRESPONSE_MERGECONFLICTCOMMIT._serialized_start=1514
+  _RUNCOPYBOTRESPONSE_MERGECONFLICTCOMMIT._serialized_end=1549
+  _RUNCOPYBOTRESPONSE_FAILUREREASON._serialized_start=1552
+  _RUNCOPYBOTRESPONSE_FAILUREREASON._serialized_end=1721
+  _COPYBOTSERVICE._serialized_start=1723
+  _COPYBOTSERVICE._serialized_end=1835
 # @@protoc_insertion_point(module_scope)
