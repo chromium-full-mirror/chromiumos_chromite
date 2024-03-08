@@ -319,13 +319,25 @@ class Crossdev:
                 if config_only and target_name in configured_targets:
                     continue
                 queue.put(
-                    [target_name, targets[target_name], usepkg, config_only]
+                    [
+                        target_name,
+                        targets[target_name],
+                        usepkg,
+                        config_only,
+                        fetch_binpkgs,
+                    ]
                 )
                 started_targets.add(target_name)
 
     @classmethod
     def _UpdateTarget(
-        cls, target_name, target, usepkg, config_only, fetch_only=False
+        cls,
+        target_name,
+        target,
+        usepkg,
+        config_only,
+        fetch_binpkgs=True,
+        fetch_only=False,
     ) -> None:
         """Calls crossdev to initialize a cross target.
 
@@ -335,6 +347,7 @@ class Crossdev:
             usepkg: Copies the commandline opts.
             config_only: Just update.
             fetch_only: Just fetch binpkgs.
+            fetch_binpkgs: Pass --getbinpkg to emerge when usepkg=True.
         """
         configured_targets = cls._CACHE.setdefault("configured_targets", [])
         cmdbase = ["crossdev", "--stable", "--show-fail-log"]
@@ -342,9 +355,9 @@ class Crossdev:
         # Pick stable by default, and override as necessary.
         cmdbase.extend(["-P", "--oneshot"])
         if usepkg:
-            cmdbase.extend(
-                ["-P", "--getbinpkg", "-P", "--usepkgonly", "--without-headers"]
-            )
+            if fetch_binpkgs:
+                cmdbase.extend(["-P", "--getbinpkg"])
+            cmdbase.extend(["-P", "--usepkgonly", "--without-headers"])
             if fetch_only:
                 cmdbase.extend(["-P", "--fetchonly"])
 
