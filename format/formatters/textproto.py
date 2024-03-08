@@ -45,6 +45,7 @@ def Data(
         result = cros_build_lib.run(
             [
                 _find_txtpbfmt(),
+                "-logtostderr",
             ],
             capture_output=True,
             input=data,
