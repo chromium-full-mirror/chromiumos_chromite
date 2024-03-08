@@ -273,6 +273,7 @@ CREATED_BRANCHES = [PATCH_BRANCH, STABLE_EBUILD_BRANCH, MERGE_BRANCH]
 
 # SDK target.
 TARGET_SDK = "virtual/target-sdk"
+TARGET_SDK_BROOT = "virtual/target-sdk-broot"
 # Default OS target packages.
 TARGET_OS_PKG = "virtual/target-os"
 TARGET_OS_DEV_PKG = "virtual/target-os-dev"

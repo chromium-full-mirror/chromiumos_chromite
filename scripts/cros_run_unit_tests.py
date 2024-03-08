@@ -35,7 +35,10 @@ BOARD_VIRTUAL_PACKAGES = (
     constants.TARGET_OS_TEST_PKG,
     constants.TARGET_OS_FACTORY_PKG,
 )
-SDK_VIRTUAL_PACKAGES = (constants.TARGET_SDK,)
+SDK_VIRTUAL_PACKAGES = (
+    constants.TARGET_SDK,
+    constants.TARGET_SDK_BROOT,
+)
 IMPLICIT_TEST_DEPS = ("virtual/implicit-system",)
 
 
