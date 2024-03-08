@@ -242,6 +242,11 @@ info_run sudo mount --bind /root "${BOARD_ROOT}/root"
 info_run sudo touch "${BOARD_ROOT}/etc/localtime"
 info_run sudo mount --bind /etc/localtime "${BOARD_ROOT}/etc/localtime"
 
+# Mount /etc/make.conf.board_setup from the outer SDK, which will ensure that
+# ROOT and other variables are pointed at / instead of /build/amd64-host.
+info_run sudo mount --bind /etc/make.conf.board_setup \
+  "${BOARD_ROOT}/etc/make.conf.board_setup"
+
 # Next, we need to mount in the source tree.  Crossdev will read multilib.eclass
 # from the overlays.
 info_run sudo mount --bind /mnt/host/source "${BOARD_ROOT}/mnt/host/source"
