@@ -608,13 +608,14 @@ def RebuildLibtool(root="/") -> None:
         logging.debug("Libtool is up-to-date; no need to rebuild")
 
 
-def UpdateTargets(targets, usepkg, root="/"):
+def UpdateTargets(targets, usepkg, root="/", fetch_binpkgs: bool = True):
     """Determines which packages need update/unmerge and defers to portage.
 
     Args:
         targets: The list of targets to update
         usepkg: Copies the commandline option
         root: The install root in which we want packages updated.
+        fetch_binpkgs: When true and usepkg is set, add --getbinpkg to emerge.
     """
     # For each target, we do two things. Figure out the list of updates,
     # and figure out the appropriate keywords/masks. Crossdev will initialize
@@ -656,7 +657,9 @@ def UpdateTargets(targets, usepkg, root="/"):
 
     cmd = [EMERGE_CMD, "--oneshot", "--update"]
     if usepkg:
-        cmd.extend(["--getbinpkg", "--usepkgonly"])
+        if fetch_binpkgs:
+            cmd.append("--getbinpkg")
+        cmd.append("--usepkgonly")
     if root != "/":
         cmd.extend(["--sysroot=%s" % root, "--root=%s" % root])
 
@@ -878,7 +881,7 @@ def UpdateToolchains(
 
     # Now update all packages.
     if (
-        UpdateTargets(targets, usepkg, root=root)
+        UpdateTargets(targets, usepkg, root=root, fetch_binpkgs=fetch_binpkgs)
         or crossdev_targets
         or reconfig
     ):
