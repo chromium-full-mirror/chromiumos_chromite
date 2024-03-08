@@ -354,6 +354,9 @@ class Crossdev:
         cmdbase.extend(["--overlays", overlays])
         cmdbase.extend(["--ov-output", CROSSDEV_OVERLAY])
 
+        if logging.root.level >= logging.DEBUG:
+            cmdbase.extend(["-P", "-v"])
+
         cmd = cmdbase + ["-t", target_name]
 
         for pkg in GetTargetPackages(target_name):
