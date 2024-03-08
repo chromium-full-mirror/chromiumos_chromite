@@ -195,16 +195,17 @@ def get_source_path_mapping(
         workon_subtrees = ebuild.GetSourceInfo(buildroot, manifest).subtrees
         results[package].extend(workon_subtrees)
 
-    if board:
-        overlay_directories = portage_util.FindOverlays(
-            overlay_type="both", board=board
-        )
-    else:
-        # If a board is not specified we assume the package is intended for the
-        # SDK, and so we use the overlays for the SDK builder.
-        overlay_directories = portage_util.FindOverlays(
-            overlay_type="both", board=constants.CHROOT_BUILDER_BOARD
-        )
+    if include_eclass or include_overlay:
+        if board:
+            overlay_directories = portage_util.FindOverlays(
+                overlay_type="both", board=board
+            )
+        else:
+            # If a board is not specified we assume the package is intended for
+            # the SDK, and so we use the overlays for the SDK builder.
+            overlay_directories = portage_util.FindOverlays(
+                overlay_type="both", board=constants.CHROOT_BUILDER_BOARD
+            )
 
     # Package's inherited eclass paths.
     if include_eclass:
