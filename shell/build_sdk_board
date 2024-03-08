@@ -270,10 +270,16 @@ safe_umount_tree "${BOARD_ROOT}"
 info_run sudo rm "${BOARD_ROOT}/etc/localtime"
 
 # Copy glibc binary packages into the new SDK, as it's required by
-# chromite/lib/toolchain.py's ToolchainInstaller.
-for glibc_binpkg in "${PKGDIR}"/*/glibc-*.tbz2; do
-  info_run sudo mkdir -p "${BOARD_ROOT}${glibc_binpkg%/*}"
-  info_run sudo cp -a "${glibc_binpkg}" "${BOARD_ROOT}${glibc_binpkg}"
+# chromite/lib/toolchain.py's ToolchainInstaller.  install_libc_for_abi in
+# base_image_util.sh also wants llvm-libunwind and libcxx tarballs.
+BINPKGS=(
+  "${PKGDIR}"/*/glibc-*.tbz2
+  "${PKGDIR}"/*/llvm-libunwind-*.tbz2
+  "${PKGDIR}"/*/libcxx-*.tbz2
+)
+for binpkg in "${BINPKGS[@]}"; do
+  info_run sudo mkdir -p "${BOARD_ROOT}${binpkg%/*}"
+  info_run sudo cp -a "${binpkg}" "${BOARD_ROOT}${binpkg}"
 done
 
 command_completed
