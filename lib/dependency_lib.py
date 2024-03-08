@@ -209,9 +209,16 @@ def get_source_path_mapping(
     # Package's inherited eclass paths.
     if include_eclass:
         eclass_path_cache = {}
+        eclass_overlays = [
+            x
+            for x in overlay_directories
+            if os.path.isdir(os.path.join(x, "eclass"))
+        ]
         for package, ebuild_path in packages_to_ebuild_paths.items():
             eclass_paths = _get_eclasses_for_ebuild(
-                ebuild_path, eclass_path_cache, overlay_directories
+                ebuild_path,
+                eclass_path_cache,
+                eclass_overlays,
             )
             results[package].extend(eclass_paths)
 
