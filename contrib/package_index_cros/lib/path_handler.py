@@ -10,6 +10,7 @@ filesystem.
 """
 
 import dataclasses
+import functools
 import logging
 import os
 import re
@@ -17,6 +18,16 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import setup
+
+
+# _COMMON_NAME_REGEX matches any string that starts with a letter and contains
+# letters, numbers, '.', '-', and '_'.
+# Examples:
+# *  some-name
+# *  some_other.name
+# *  name_number_3
+# It has many uses, such as env var names and path components.
+_COMMON_NAME_REGEX = r"(\w[\w\d\-_\.]*)"
 
 
 class PathNotFixedException(package.PackagePathException):
@@ -430,131 +441,16 @@ class PathHandler:
                 ignorable_dir=ignorable_parent_dir,
             )
 
-    g_common_name_regex = r"(?:\w[\w\d\-_\.]*)"
-    # Matches:
-    # * $ENV_VAR
-    # * ${env_var}
-    g_common_env_var_name_regex = (
-        r"(?:" rf"\$(?:{g_common_name_regex}|{{{g_common_name_regex}}})" r")"
-    )
-    # Matches:
-    # * some-name
-    # * some_other.name
-    # * name_number_3
-    # Name must start with a letter. It can include letters, numbers, '.', '-',
-    # and '_'.
-    g_path_simple_name_regex = g_common_name_regex
-    # Matches:
-    # * {{place_holder}}
-    g_path_placeholder_name_regex = (
-        r"(?:"
-        # {{ is encoded into a single {
-        rf"{{{{{g_path_simple_name_regex}}}}}"
-        rf"{g_path_simple_name_regex}?"
-        r")"
-    )
-    # Matches:
-    # * .
-    # * ..
-    g_path_special_name_regex = r"(?:\.\.?)"
-    # Matches any path name above.
-    g_path_name_regex = (
-        r"(?:"
-        rf"{g_path_simple_name_regex}|"
-        rf"{g_path_special_name_regex}|"
-        rf"{g_path_placeholder_name_regex}|"
-        rf"{g_common_env_var_name_regex}"
-        r")"
-    )
-    # Matches:
-    # * /
-    # * //
-    g_abs_path_prefix_regex = r"(?:\/\/?)"
-    # Matches:
-    # * some/path/
-    # * /some/abs/path
-    # * //some/other/abs/path
-    # * ./some/rel/path
-    # * ../.././some/other/rel/path
-    # * short_path/
-    # Does not match:
-    # * some_path: needs at least one slash
-    g_path_regex = (
-        rf"(?:"
-        # Abs path or nothing
-        rf"{g_abs_path_prefix_regex}?"
-        # First name ending with /
-        rf"{g_path_name_regex}\/"
-        # Any number of names possibly ending with /
-        rf"(?:{g_path_name_regex}\/?)*"
-        r")"
-    )
-
-    g_include_path_arg_prefix_regex = r"(?:-I)"
-    g_colon_arg_prefix_regex = r"(?::)"
-    # Matches:
-    # --i_am_argument=
-    # -another-argument=
-    # argument-without-dashes=
-    g_explicit_arg_prefix_regex = rf"(?:-?-?{g_common_name_regex}=)"
-    # Matches:
-    # * --argument=another-argument=
-    # * --argument=-L
-    g_explicit_repeating_arg_prefix_regex = (
-        rf"(?:"
-        rf"{g_explicit_arg_prefix_regex}"
-        rf"(?:(?:{g_common_name_regex}=)|(?:-\w))"
-        r")"
-    )
-    # Matches:
-    # Msome_proto_name.proto=
-    g_explicit_proto_arg_prefix_regex = r"(?:M[\w_]+\.proto=)"
-
-    # Matches any prefix above.
-    g_argument_prefix_regex = (
-        rf"(?:"
-        rf"{g_include_path_arg_prefix_regex}|"
-        rf"{g_colon_arg_prefix_regex}|"
-        rf"{g_explicit_arg_prefix_regex}|"
-        rf"{g_explicit_repeating_arg_prefix_regex}|"
-        rf"{g_explicit_proto_arg_prefix_regex}"
-        r")"
-    )
-
-    # Matches:
-    # 1. "
-    # 2. \"
-    g_quote_with_escape = r'(?:\\?")?'
-
-    # Captures:
-    # 1. Group 1: arg prefix
-    # 2. Group 2: path
-    g_argument_regexes = (
-        r"^"
-        rf"({g_argument_prefix_regex}?)"
-        # Path may be inside quote marks. Do not capture them.
-        rf"(?:{g_quote_with_escape})({g_path_regex})(?:{g_quote_with_escape})"
-        r"$"
-    )
-
-    # Matches:
-    # //some_target
-    # //some_target:subtarget
-    g_gn_target_regex = (
-        r"^(?:"
-        rf"(?:\/\/{g_common_name_regex})"
-        rf"(?:\:{g_common_name_regex})?"
-        r")$"
-    )
-
 
 def fix_path_in_argument(
     arg: str, fixer_callback: Callable[[str], str]
 ) -> Tuple[str, str]:
     """Parse |arg| into a prefix and a path.
 
-    See |PathHandler.g_path_regex| for acceptable paths.
-    See |g_argument_prefix_regex| for acceptable arguments.
+    If
+    See _argument_regexes
+    See |_PATH_REGEX| for acceptable paths.
+    See |_ARGUMENT_REGEXES| for acceptable arguments.
 
     |fixer_callback| shall have chroot path as an argument and return
     corresponding actual path.
@@ -576,11 +472,11 @@ def fix_path_in_argument(
         chroot_path = arg[2:]
         return ("-I", fixer_callback(chroot_path))
 
-    if re.match(PathHandler.g_gn_target_regex, arg):
+    if _get_gn_target_regex().match(arg):
         # Argument is a gn target. Nothing to fix.
         return (arg, "")
 
-    match = re.match(PathHandler.g_argument_regexes, arg)
+    match = _get_argument_regex().match(arg)
     if not match:
         if os.sep in arg:
             raise ValueError(
@@ -590,11 +486,183 @@ def fix_path_in_argument(
             # Arg doesn't seem to contain a path. Nothing to fix.
             return (arg, "")
 
-    prefix = match.group(1)
-    chroot_path = match.group(2)
+    prefix = match.group("prefix")
+    chroot_path = match.group("path")
 
     if chroot_path[0] == "$":
         # Path starts with env. Do not fix.
         return (arg, "")
 
     return (prefix, fixer_callback(chroot_path))
+
+
+@functools.lru_cache
+def _get_argument_regex() -> re.Pattern:
+    """Return a regex that matches a CLI argument and its path value.
+
+    Returns:
+        A compiled regex, with the following capture groups:
+            prefix: Everything leading up to the value. Examples:
+                *   -I
+                *   :
+                *   -arg=
+                *   --my-arg=
+                *   --my-arg=--another-arg=
+                *   --my-arg=-I
+                *   Mmy_proto.proto=
+                *   empty string
+            value: The argument's value. Must be a path. May be either absolute
+                or relative. Must contain at least one slash (/), or else we
+                won't know it's a path. If the value is contained in double
+                quotes ("like so"), the quotes will be stripped. Examples:
+                *   some/path/
+                *  /some/abs/path
+                *  //some/other/abs/path
+                *  ./some/rel/path
+                *  ../.././some/other/rel/path
+                *  short_path/
+    """
+    # env_var_regex matches an env var usage.
+    # Examples:
+    # *  $ENV_VAR
+    # *  ${env_var}
+    env_var_regex = rf"(\$({_COMMON_NAME_REGEX}|{{{_COMMON_NAME_REGEX}}}))"
+
+    # path_placeholder_component_regex matches a path component in
+    # {{squiggle brackets}}.
+    # Examples:
+    # *  {{place_holder}}
+    # *  {{place_holder}}hello
+    path_placeholder_component_regex = (
+        r"("
+        # f-strings reduce double brackets to single: {{}} becomes {}.
+        rf"{{{{{_COMMON_NAME_REGEX}}}}}"
+        rf"{_COMMON_NAME_REGEX}?"
+        r")"
+    )
+
+    # path_special_component_regex matches special path components: ".", "..".
+    path_special_component_regex = r"(\.\.?)"
+
+    # path_component_regex matches any single path component.
+    # Examples:
+    # *  lib64
+    # *  ..
+    # *  {{place_holder}}
+    # *  ${env-var}
+    path_component_regex = (
+        r"("
+        rf"{_COMMON_NAME_REGEX}|"
+        rf"{path_special_component_regex}|"
+        rf"{path_placeholder_component_regex}|"
+        rf"{env_var_regex}"
+        r")"
+    )
+
+    # abs_path_prefix_regex matches the start of an absolute path.
+    # Examples:
+    # *  /
+    # *  //
+    abs_path_prefix_regex = r"(//?)"
+
+    # path_regex should match any path, absolute or relative, as long as it
+    # contains at least one slash.
+    # Examples:
+    # *  some/path/
+    # *  /some/abs/path
+    # *  //some/other/abs/path
+    # *  ./some/rel/path
+    # *  ../.././some/other/rel/path
+    # *  short_path/
+    # Non-examples:
+    # *  some_path (needs at least one slash)
+    path_regex = (
+        rf"("
+        # May be an absolute path or not.
+        rf"{abs_path_prefix_regex}?"
+        # First component must end with /.
+        rf"{path_component_regex}/"
+        # Additional components may or may not end with /.
+        rf"({path_component_regex}/?)*"
+        r")"
+    )
+
+    # include_path_arg_prefix_regex matches the start of any include arg: "-I".
+    include_path_arg_prefix_regex = r"(-I)"
+
+    # colon_arg_prefix_regex matches the start of an arg indicated by ":".
+    colon_arg_prefix_regex = r"(:)"
+
+    # explicit_arg_prefix_regex matches the start an arg that begins with zero,
+    # one, or two dashes, and ends with "=".
+    # Examples:
+    # *   --i_am_argument=
+    # *   -another-argument=
+    # *   argument-without-dashes=
+    explicit_arg_prefix_regex = rf"(-?-?{_COMMON_NAME_REGEX}=)"
+
+    # explicit_repeating_arg_prefix_regex matches a chain of explicit arg
+    # prefixes.
+    # Examples:
+    # *   --argument=another-argument=
+    # *   --argument=-L
+    explicit_repeating_arg_prefix_regex = (
+        rf"({explicit_arg_prefix_regex}({_COMMON_NAME_REGEX}=|-\w))"
+    )
+
+    # explicit_proto_arg_prefix_regex matches a proto arg prefix.
+    # Examples:
+    # *   Msome_proto_name.proto=
+    explicit_proto_arg_prefix_regex = r"(M[\w_]+\.proto=)"
+
+    # argument_prefix_regex should match any permissible arg prefix.
+    # Examples:
+    # *   -I
+    # *   :
+    # *   --i_am_argument=
+    # *   --argument=another-argument=
+    # *   Msome_proto_name.proto=
+    argument_prefix_regex = (
+        rf"("
+        rf"{include_path_arg_prefix_regex}|"
+        rf"{colon_arg_prefix_regex}|"
+        rf"{explicit_arg_prefix_regex}|"
+        rf"{explicit_repeating_arg_prefix_regex}|"
+        rf"{explicit_proto_arg_prefix_regex}"
+        r")"
+    )
+
+    # quote_with_escape matches a quote char, with or without an escape char.
+    # Examples:
+    # *   "
+    # *   \"
+    quote_with_escape = r'(\\?")'
+
+    # argument_regex matches an argument and its value, as long as the prefix
+    # matches argument_prefix_regex, and the value looks like a path.
+    # If the path value is inside quotes, those won't be captured.
+    # Capture groups: prefix, path
+    argument_regex = re.compile(
+        r"^"
+        rf"(?P<prefix>{argument_prefix_regex}?)"
+        # Path may be inside quote marks. Do not capture them.
+        rf"{quote_with_escape}?"
+        rf"(?P<path>{path_regex})"
+        rf"{quote_with_escape}?"
+        r"$"
+    )
+
+    return argument_regex
+
+
+@functools.lru_cache
+def _get_gn_target_regex() -> re.Pattern:
+    """Return a regex that matches a GN target, possibly with a subtarget.
+
+    Examples:
+        //some_target
+        //some_target:subtarget
+    """
+    return re.compile(
+        r"^" rf"//{_COMMON_NAME_REGEX}" rf"(:{_COMMON_NAME_REGEX})?" r"$"
+    )

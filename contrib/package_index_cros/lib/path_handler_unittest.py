@@ -19,19 +19,9 @@ from chromite.contrib.package_index_cros.lib import path_handler
         "expected_exception",
     ),
     (
+        ('--arg=\\"escaped/path\\"', "--arg=", "escaped/path/fixed", None),
         ("just/a/path", "", "just/a/path/fixed", None),
         ("-Ifoobar", "-I", "foobar/fixed", None),
-        (":/usr/lib", ":", "/usr/lib/fixed", None),
-        (":/trailing/slash/", ":", "/trailing/slash//fixed", None),
-        ("--two-dashes=/usr/lib", "--two-dashes=", "/usr/lib/fixed", None),
-        ("-one-dash=/usr/lib", "-one-dash=", "/usr/lib/fixed", None),
-        ("no-dashes=/usr/lib", "no-dashes=", "/usr/lib/fixed", None),
-        ("wEiRd_-...=/usr/lib", "wEiRd_-...=", "/usr/lib/fixed", None),
-        ("--chain=link=/usr/lib", "--chain=link=", "/usr/lib/fixed", None),
-        ("Mhello.proto=/usr/lib", "Mhello.proto=", "/usr/lib/fixed", None),
-        ('--arg="quoted/path"', "--arg=", "quoted/path/fixed", None),
-        ('--arg=\\"escaped/path\\"', "--arg=", "escaped/path/fixed", None),
-        ("//gn_target", "//gn_target", "", None),
         ("//gn_target:subtarget", "//gn_target:subtarget", "", None),
         ("-Q/usr/lib", "", "", ValueError),
         ("--arg=$HOME/path", "--arg=$HOME/path", "", None),
@@ -55,3 +45,52 @@ def test_fix_path_in_argument(
         )
         assert prefix == expected_prefix
         assert fixed_path == expected_fixed_path
+
+
+@pytest.mark.parametrize(
+    ("test_string", "expect_match", "expected_prefix", "expected_path"),
+    (
+        ("just/a/path", True, "", "just/a/path"),
+        (":/usr/lib", True, ":", "/usr/lib"),
+        ("--two-dashes=/usr/lib", True, "--two-dashes=", "/usr/lib"),
+        ("-one-dash=/usr/lib", True, "-one-dash=", "/usr/lib"),
+        ("no-dashes=/usr/lib", True, "no-dashes=", "/usr/lib"),
+        ("wEiRd_-...=/usr/lib", True, "wEiRd_-...=", "/usr/lib"),
+        ("--chain=link=/usr/lib", True, "--chain=link=", "/usr/lib"),
+        ("--chain=-L/usr/lib", True, "--chain=-L", "/usr/lib"),
+        ("Mhello.proto=/usr/lib", True, "Mhello.proto=", "/usr/lib"),
+        ('--arg="quoted/path"', True, "--arg=", "quoted/path"),
+        ('--arg=\\"escaped/path\\"', True, "--arg=", "escaped/path"),
+        ("--arg=$HOME/path", True, "--arg=", "$HOME/path"),
+        ("--arg=${HOME}/path", True, "--arg=", "${HOME}/path"),
+        ("--arg=/usr/{{lib}}/home", True, "--arg=", "/usr/{{lib}}/home"),
+        ("--arg=usr/.././lib", True, "--arg=", "usr/.././lib"),
+        ("--arg=not-a-path", False, None, None),
+        ("some random string", False, None, None),
+        ("-Q/usr/lib", False, None, None),
+    ),
+)
+def test_argument_regex(
+    test_string: str,
+    expect_match: bool,
+    expected_prefix: Optional[str],
+    expected_path: Optional[str],
+) -> None:
+    """Test cases for _get_argument_regex()."""
+    # pylint: disable-next=protected-access
+    argument_regex = path_handler._get_argument_regex()
+    match = argument_regex.match(test_string)
+    assert bool(match) == expect_match
+    if expect_match:
+        assert match.group("prefix") == expected_prefix
+        assert match.group("path") == expected_path
+
+
+def test_gn_target_regex() -> None:
+    """Test cases for _get_gn_target_regex()."""
+    # pylint: disable-next=protected-access
+    gn_target_regex = path_handler._get_gn_target_regex()
+    for positive_test in ("//gn_target", "//gn_target:subtarget"):
+        assert gn_target_regex.match(positive_test)
+    for negative_test in ("hello", "//with spaces", "//gn_target/path"):
+        assert not gn_target_regex.match(negative_test)
