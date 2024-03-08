@@ -719,12 +719,15 @@ print(json.dumps(pkg_info))
                 binpkg_pkg_info = self.binpkgs_db.get(cp, {}).get(slot)
                 use_mismatch = binpkg_pkg_info.use != target_pkg_info.use
                 if use_mismatch:
+                    target_use = set(target_pkg_info.use.split())
+                    binpkg_use = set(binpkg_pkg_info.use.split())
                     logging.warning(
-                        "USE flags for package %s do not match (Existing='%s', "
-                        "New='%s').",
+                        "USE flags for package %s do not match (%s).",
                         cp,
-                        target_pkg_info.use,
-                        binpkg_pkg_info.use,
+                        " ".join(
+                            ["+" + u for u in binpkg_use - target_use]
+                            + ["-" + u for u in target_use - binpkg_use]
+                        ),
                     )
                 return True, True, use_mismatch, target_pkg_info.root
 
