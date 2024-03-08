@@ -247,6 +247,7 @@ def _ListOverlays(
     return ret
 
 
+@functools.lru_cache(maxsize=None)
 def FindOverlays(
     overlay_type: str,
     board: Optional[str] = None,
