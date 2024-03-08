@@ -4,6 +4,7 @@
 
 """Unit tests for path_handler.py."""
 
+import os
 from typing import Optional
 
 import pytest
@@ -94,3 +95,22 @@ def test_gn_target_regex() -> None:
         assert gn_target_regex.match(positive_test)
     for negative_test in ("hello", "//with spaces", "//gn_target/path"):
         assert not gn_target_regex.match(negative_test)
+
+
+def test_move_path() -> None:
+    """Test cases for path_handler.move_path()."""
+    for path, from_dir, to_dir, expected_result in (
+        ("/usr/lib/foo.txt", "/usr/lib", "/usr/bin", "/usr/bin/foo.txt"),
+        ("usr/lib/foo.txt", "usr/lib", "usr/bin", "usr/bin/foo.txt"),
+        ("/usr/lib/foo.txt", "/usr", "/home", "/home/lib/foo.txt"),
+    ):
+        actual_result = path_handler.move_path(path, from_dir, to_dir)
+        assert os.path.realpath(actual_result) == os.path.realpath(
+            expected_result
+        )
+    for path, from_dir, to_dir in (
+        ("/usr/lib/foo.txt", "/home", "/usr/bin"),
+        ("/usr/lib/foo.txt", "usr/lib", "usr/bin"),
+    ):
+        with pytest.raises(ValueError):
+            path_handler.move_path(path, from_dir, to_dir)
