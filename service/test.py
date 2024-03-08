@@ -191,7 +191,7 @@ def BundleHwqualTarball(
 
     with chroot.tempdir() as autotest_bundle_dir:
         if not autotest_util.AutotestTarballBuilder(
-            archive_basedir, autotest_bundle_dir, chroot
+            archive_basedir, autotest_bundle_dir, chroot, sysroot
         ):
             logging.warning(
                 "could not create autotest bundle, not creating hwqual"

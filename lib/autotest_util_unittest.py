@@ -8,11 +8,13 @@ import os
 from unittest import mock
 
 from chromite.lib import autotest_util
+from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
+from chromite.lib import sysroot_lib
 from chromite.utils import matching
 
 
@@ -41,8 +43,11 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
             path=self.tempdir / "chroot",
             out_path=self.tempdir / "out",
         )
+        self.sysroot = sysroot_lib.Sysroot(
+            build_target_lib.get_default_sysroot_path(self._board)
+        )
         self.builder = autotest_util.AutotestTarballBuilder(
-            self.basedir, self.tempdir, self.chroot
+            self.basedir, self.tempdir, self.chroot, self.sysroot
         )
 
     def testBuildAutotestPackagesTarball(self) -> None:
@@ -101,7 +106,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
 
         # Touch chroot Tast paths so they'll be included in the tar command.
         for p in self.builder._TAST_SSP_CHROOT_FILES:
-            path = p.get_src(self.chroot)
+            path = p.get_src(self.chroot, self.sysroot)
             osutils.Touch(path, makedirs=True)
             expected_files.append(path)
             ssp_files.append(p)

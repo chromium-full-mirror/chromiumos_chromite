@@ -26,11 +26,16 @@ class PathMapping:
     raw_src: str
     raw_dst: Optional[str] = None
 
-    def get_src(self, chroot: chroot_lib.Chroot) -> str:
+    def get_src(
+        self, chroot: chroot_lib.Chroot, sysroot: "sysroot_lib.Sysroot"
+    ) -> str:
         """Get the source path for this mapping."""
         if self.raw_src.startswith("/"):
-            # It's a chroot path.
-            return str(chroot.full_path(self.raw_src))
+            # It's a chroot path.  See if it's in the per-board broot first.
+            path = sysroot.JoinPath("build", "broot", self.raw_src.lstrip("/"))
+            if not chroot.has_path(path):
+                path = self.raw_src
+            return str(chroot.full_path(path))
         else:
             # It's a source tree path.
             return os.path.join(constants.SOURCE_ROOT, self.raw_src)
@@ -87,6 +92,7 @@ class AutotestTarballBuilder:
         archive_basedir: str,
         output_directory: str,
         chroot: chroot_lib.Chroot,
+        sysroot: "sysroot_lib.Sysroot",
     ) -> None:
         """Init function.
 
@@ -95,10 +101,12 @@ class AutotestTarballBuilder:
                 created. This path should contain the `autotest` directory.
             output_directory: The directory where the archives will be written.
             chroot: The Chroot to work with.
+            sysroot: Sysroot to pull per-board files from.
         """
         self.archive_basedir = archive_basedir
         self.output_directory = output_directory
         self.chroot = chroot
+        self.sysroot = sysroot
 
     def BuildAutotestControlFilesTarball(self) -> Optional[str]:
         """Tar up the autotest control files.
@@ -255,7 +263,7 @@ class AutotestTarballBuilder:
         transforms = []
 
         for mapping in self._GetTastSspFiles():
-            src = mapping.get_src(self.chroot)
+            src = mapping.get_src(self.chroot, self.sysroot)
             if not os.path.exists(src):
                 continue
 
