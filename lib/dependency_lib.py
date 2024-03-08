@@ -203,24 +203,26 @@ def get_source_path_mapping(
     # Source paths which are the overlay directories for the given board
     # (packages are board specific).
     if include_overlay:
+        filter_existing = lambda paths: [x for x in paths if os.path.exists(x)]
+
         # The only parts of the overlay that affect every package are the
         # current profile (which lives somewhere in the profiles/ subdir) and a
         # top-level make.conf (if it exists).
-        profile_directories = [
+        profile_directories = filter_existing(
             os.path.join(x, "profiles") for x in overlay_directories
-        ]
-        make_conf_paths = [
+        )
+        make_conf_paths = filter_existing(
             os.path.join(x, "make.conf") for x in overlay_directories
-        ]
+        )
 
         # These directories *might* affect a build, so we include them for now
         # to be safe.
-        metadata_directories = [
+        metadata_directories = filter_existing(
             os.path.join(x, "metadata") for x in overlay_directories
-        ]
-        scripts_directories = [
+        )
+        scripts_directories = filter_existing(
             os.path.join(x, "scripts") for x in overlay_directories
-        ]
+        )
 
         # TODO(b/236161656): Fix.
         # pylint: disable-next=consider-using-dict-items
