@@ -4,11 +4,49 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-set -euox pipefail
+helptext() {
+    echo "usage: test_cros_cogs [-b board_name] [-n workspace_name]"
+    echo ""
+    echo "Create and configure a CoG workspace for ChromeOS tasks."
+    echo ""
+    echo "This script is meant to simplify the steps required, as well as"
+    echo "configuring local utilities to save stateful files outside the"
+    echo "CoG workspace."
+    echo ""
+    echo "Optional arguments:"
+    echo -e "\t-h\t\tPrint this message and exit."
+    echo -e "\t-n <name>\tSpecify the workspace name."
+    echo -e "\t\t\tDefault is randomly generated."
+    echo -e "\t-b <board>\tSpecify the board name to run setup_board for."
+    echo -e "\t\t\tDefault is amd64-generic."
+}
 
 cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
-
 source ./cros_cogs.sh
+
+WORKSPACE_NAME=$(generate_workspace_unique_name)
+BUILD_TARGET="amd64-generic"
+
+while getopts "hn:b:" option; do
+    case ${option} in
+        h)
+            helptext
+            exit
+            ;;
+        n)
+            WORKSPACE_NAME="${OPTARG}"
+            ;;
+        b)
+            BUILD_TARGET="${OPTARG}"
+            ;;
+        *)
+            echo "error: unknown option '${option}'."
+            exit 1
+            ;;
+    esac
+done
+
+set -euox pipefail
 
 # This script runs an 'integration test' of the cog workspace creation and
 # building the chromeos superproject.
@@ -28,15 +66,13 @@ main() {
   gcertstatus --nocheck_ssh --check_remaining=6h --quiet || \
       gcert --nocorpssh
 
-  workspace_name=$(generate_workspace_unique_name)
+  # By default create a new workspace.
+  git citc create "${WORKSPACE_NAME}" chrome-internal/chromeos/superproject
 
-  echo "Generated workspace ${workspace_name}" \
+  echo "Generated workspace ${WORKSPACE_NAME}" \
       chrome-internal/chromeos/superproject
 
-  # By default create a new workspace.
-  git citc create "${workspace_name}" chrome-internal/chromeos/superproject
-
-  workspace_path="/google/cog/cloud/${USER}/${workspace_name}"
+  workspace_path="/google/cog/cloud/${USER}/${WORKSPACE_NAME}"
 
   mountpoint=$(mount_workspace "${workspace_path}")
 
@@ -47,7 +83,7 @@ main() {
   # Let this fail from now on.
   set +e
 
-  cros_sdk -- setup_board --force -b amd64-generic
+  cros_sdk -- setup_board --force -b "${BUILD_TARGET}"
 
   echo "Workspace created at ${mountpoint}."
 }
