@@ -50,6 +50,10 @@ info_run "${SCRIPT_ROOT}/create_sdk_board_root" \
 # Locations we will need
 BOARD_ROOT="/build/${BOARD}"
 
+# First, run chroot upgrade hooks, since this command is designed to be run
+# without update_chroot first.
+info_run "${CHROMITE_BIN}/run_chroot_version_hooks"
+
 eval "$(portageq envvar -v CHOST PKGDIR)"
 
 EMERGE_CMD="${CHROMITE_BIN}/parallel_emerge"
