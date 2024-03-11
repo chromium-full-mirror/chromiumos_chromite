@@ -6,11 +6,12 @@
 
 import os
 from pathlib import Path
-from typing import Any, Dict, Iterable, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import setup
 from chromite.lib import constants
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import git
 from chromite.lib import portage_util
@@ -39,10 +40,14 @@ def _to_ebuild_array(iterable: Iterable[Any]) -> str:
     return f"({joined})"
 
 
-class _PackageTestCase(cros_test_lib.MockTempDirTestCase):
+class PackageTestCase(cros_test_lib.MockTempDirTestCase):
     """Abstract parent class for tests that require mock packages."""
 
     def setUp(self) -> None:
+        # This script should generally run outside the chroot.
+        # This matters for path manipulation.
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
         self.source_root = Path(self.tempdir) / "chromiumos"
         self.PatchObject(
             constants, "_FindSourceRoot", return_value=self.source_root
@@ -149,8 +154,19 @@ CROS_WORKON_SUBTREE={_to_ebuild_array(cros_workon_subtrees)}
             ] = git.ProjectCheckout({"name": project, "local_path": localname})
         return ebuild
 
+    def new_package(
+        self,
+        src_dir_matches: Optional[List[package.TempActualDichotomy]] = None,
+    ) -> package.Package:
+        """Create a Package we can use for testing."""
+        ebuild = self._create_ebuild()
+        pkg = package.Package(self.setup, ebuild)
+        # pylint: disable-next=protected-access
+        pkg._src_dir_matches = src_dir_matches or []
+        return pkg
 
-class GetPackageSupportTestCase(_PackageTestCase):
+
+class GetPackageSupportTestCase(PackageTestCase):
     """Tests for get_package_support()."""
 
     def test_supported_package(self) -> None:

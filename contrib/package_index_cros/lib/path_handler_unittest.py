@@ -9,7 +9,84 @@ from typing import Optional
 
 import pytest
 
+from chromite.contrib.package_index_cros.lib import package
+from chromite.contrib.package_index_cros.lib import package_unittest
 from chromite.contrib.package_index_cros.lib import path_handler
+
+
+class GetPathOutsideOfChrootTestCase(package_unittest.PackageTestCase):
+    """Test cases for path_handler._get_path_outside_of_chroot()."""
+
+    @property
+    def path_handler(self) -> path_handler.PathHandler:
+        """Return a PathHandler we can use for testing."""
+        return path_handler.PathHandler(self.setup)
+
+    def test_neither_chroot_base_dir_nor_base_dir(self) -> None:
+        """Make sure we fail if chroot_base_dir and base_dir are None."""
+        with self.assertRaises(ValueError):
+            # pylint: disable-next=protected-access
+            self.path_handler._get_path_outside_of_chroot(
+                "/some/path",
+                self.new_package(),
+                chroot_base_dir=None,
+                base_dir=None,
+            )
+
+    def test_convert_absolute_path(self) -> None:
+        """Test converting an absolute path from inside to outside."""
+        outside_base_dir = os.path.join(self.setup.chroot.path, "irrelevant")
+        inside_path = "/some/path.txt"
+        expected_result = os.path.join(self.setup.chroot.path, "some/path.txt")
+        # pylint: disable-next=protected-access
+        actual_result = self.path_handler._get_path_outside_of_chroot(
+            inside_path, self.new_package(), base_dir=outside_base_dir
+        )
+        self.assertEqual(actual_result, expected_result)
+
+    def test_convert_relative_path(self) -> None:
+        """Test converting a relative path from inside to outside."""
+        outside_base_dir = os.path.join(self.setup.chroot.path, "base")
+        relative_path = "some/relative/path"
+        expected_result = os.path.join(outside_base_dir, relative_path)
+        # pylint: disable-next=protected-access
+        actual_result = self.path_handler._get_path_outside_of_chroot(
+            relative_path, self.new_package(), base_dir=outside_base_dir
+        )
+        self.assertEqual(actual_result, expected_result)
+
+    def test_source_dir_with_src_dir_match(self) -> None:
+        """Test converting a source path in the package's src_dir_matches."""
+        outside_base_dir = os.path.join(self.setup.chroot.path, "base")
+        my_package = self.new_package(
+            src_dir_matches=[
+                package.TempActualDichotomy(str(self.tempdir / "foobar"), ""),
+                package.TempActualDichotomy(str(self.tempdir / "hello"), ""),
+            ],
+        )
+        expected_result = self.tempdir / "hello" / "path/to/file.txt"
+        expected_result.parent.mkdir(parents=True)
+        expected_result.touch()
+        # pylint: disable-next=protected-access
+        actual_result = self.path_handler._get_path_outside_of_chroot(
+            "//path/to/file.txt",
+            my_package,
+            base_dir=outside_base_dir,
+        )
+        self.assertEqual(actual_result, str(expected_result))
+
+    def test_source_dir_without_src_dir_match(self) -> None:
+        """Test converting a source path with no src_dir_match."""
+        outside_base_dir = os.path.join(self.setup.chroot.path, "base")
+        my_package = self.new_package()
+        self.assertIsNone(
+            # pylint: disable-next=protected-access
+            self.path_handler._get_path_outside_of_chroot(
+                "//path/to/file.txt",
+                my_package,
+                base_dir=outside_base_dir,
+            )
+        )
 
 
 @pytest.mark.parametrize(
