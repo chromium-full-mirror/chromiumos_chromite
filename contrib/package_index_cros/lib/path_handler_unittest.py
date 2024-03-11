@@ -5,6 +5,7 @@
 """Unit tests for path_handler.py."""
 
 import os
+from pathlib import Path
 from typing import Optional
 
 import pytest
@@ -35,9 +36,9 @@ class GetPathOutsideOfChrootTestCase(package_unittest.PackageTestCase):
 
     def test_convert_absolute_path(self) -> None:
         """Test converting an absolute path from inside to outside."""
-        outside_base_dir = os.path.join(self.setup.chroot.path, "irrelevant")
+        outside_base_dir = self.setup.chroot.full_path("/irrelevant")
         inside_path = "/some/path.txt"
-        expected_result = os.path.join(self.setup.chroot.path, "some/path.txt")
+        expected_result = self.setup.chroot.full_path(inside_path)
         # pylint: disable-next=protected-access
         actual_result = self.path_handler._get_path_outside_of_chroot(
             inside_path, self.new_package(), base_dir=outside_base_dir
@@ -46,7 +47,7 @@ class GetPathOutsideOfChrootTestCase(package_unittest.PackageTestCase):
 
     def test_convert_relative_path(self) -> None:
         """Test converting a relative path from inside to outside."""
-        outside_base_dir = os.path.join(self.setup.chroot.path, "base")
+        outside_base_dir = self.setup.chroot.full_path("base")
         relative_path = "some/relative/path"
         expected_result = os.path.join(outside_base_dir, relative_path)
         # pylint: disable-next=protected-access
@@ -57,7 +58,7 @@ class GetPathOutsideOfChrootTestCase(package_unittest.PackageTestCase):
 
     def test_source_dir_with_src_dir_match(self) -> None:
         """Test converting a source path in the package's src_dir_matches."""
-        outside_base_dir = os.path.join(self.setup.chroot.path, "base")
+        outside_base_dir = self.setup.chroot.full_path("base")
         my_package = self.new_package(
             src_dir_matches=[
                 package.TempActualDichotomy(str(self.tempdir / "foobar"), ""),
@@ -77,7 +78,7 @@ class GetPathOutsideOfChrootTestCase(package_unittest.PackageTestCase):
 
     def test_source_dir_without_src_dir_match(self) -> None:
         """Test converting a source path with no src_dir_match."""
-        outside_base_dir = os.path.join(self.setup.chroot.path, "base")
+        outside_base_dir = self.setup.chroot.full_path("base")
         my_package = self.new_package()
         self.assertIsNone(
             # pylint: disable-next=protected-access
@@ -87,6 +88,160 @@ class GetPathOutsideOfChrootTestCase(package_unittest.PackageTestCase):
                 base_dir=outside_base_dir,
             )
         )
+
+
+class FixPathTestCase(package_unittest.PackageTestCase):
+    """Test cases for PathHandler.fix_path() and PathHandler._fix_path()."""
+
+    @property
+    def path_handler(self) -> path_handler.PathHandler:
+        """Return a PathHandler we can use for testing."""
+        return path_handler.PathHandler(self.setup)
+
+    def touch(self, path: str) -> None:
+        """Make a file and its parents."""
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        Path(path).touch()
+
+    def test_fix_conflicting_path(self) -> None:
+        """Test fix_path() where the input is in conflicting_paths."""
+        inside_path = "/usr/foo.txt"
+        outside_path = self.setup.chroot.full_path(inside_path)
+        self.touch(outside_path)
+
+        expected_fixed_path = self.setup.chroot.full_path("another/path.txt")
+        # If expected_fixed_path doesn't exist, fix_path() will raise an error.
+        self.touch(expected_fixed_path)
+
+        result = self.path_handler.fix_path(
+            inside_path,
+            self.new_package(),
+            conflicting_paths={outside_path: expected_fixed_path},
+        )
+        self.assertEqual(
+            result,
+            path_handler.FixedPath(
+                original=outside_path, actual=expected_fixed_path
+            ),
+        )
+
+    def test_fix_nonexistent_path(self) -> None:
+        """Test fix_path() where the input path does not exist."""
+        inside_path = "/does/not/exist.txt"
+        outside_path = self.setup.chroot.full_path(inside_path)
+
+        # Make sure that the would-be response path exists. Otherwise we might
+        # accidentally be testing a different code path, in which we raise a
+        # PathNotFixedException because the fixed path doesn't exist.
+        outside_fixed_path = self.setup.chroot.full_path("another/path.txt")
+        self.touch(outside_fixed_path)
+
+        with self.assertRaises(path_handler.PathNotFixedException):
+            self.path_handler.fix_path(
+                inside_path,
+                self.new_package(),
+                conflicting_paths={outside_path: outside_fixed_path},
+            )
+
+    def test_fix_path_in_temp_dir_with_src_dir_match(self) -> None:
+        """Test fix_path() where the input file is in the temp dir.
+
+        The only fixing here should be converting outside->inside.
+        """
+        pkg = self.new_package()
+        outside_path = os.path.join(pkg.temp_dir, "a/file.txt")
+        self.touch(outside_path)
+        inside_path = self.setup.chroot.chroot_path(outside_path)
+
+        expected_fixed_path = os.path.join(pkg.temp_dir, "b/file.txt")
+        self.touch(expected_fixed_path)
+
+        # pylint: disable-next=protected-access
+        pkg._src_dir_matches = [
+            # irrelevant/file.txt won't exist, so we expect this to be ignored.
+            package.TempActualDichotomy(
+                temp=os.path.join(pkg.temp_dir, "a"),
+                actual=os.path.join(pkg.temp_dir, "irrelevant"),
+            ),
+            package.TempActualDichotomy(
+                temp=os.path.join(pkg.temp_dir, "a"),
+                actual=os.path.join(pkg.temp_dir, "b"),
+            ),
+        ]
+
+        result = self.path_handler.fix_path(inside_path, pkg)
+        self.assertEqual(
+            result,
+            path_handler.FixedPath(
+                original=outside_path,
+                actual=expected_fixed_path,
+            ),
+        )
+
+    def test_fix_path_in_temp_path_with_no_src_dir_match(self) -> None:
+        """Test fix_path() where no fixed path exists in pkg.src_dir_matches."""
+        pkg = self.new_package()
+        outside_path = os.path.join(pkg.temp_dir, "some/file.txt")
+        self.touch(outside_path)
+        inside_path = self.setup.chroot.full_path(outside_path)
+
+        # pylint: disable-next=protected-access
+        pkg._src_dir_matches = [
+            # irrelevant/file.txt won't exist, so we expect this to be ignored.
+            package.TempActualDichotomy(
+                temp=os.path.join(pkg.temp_dir, "a"),
+                actual=os.path.join(pkg.temp_dir, "irrelevant"),
+            )
+        ]
+
+        with self.assertRaises(path_handler.PathNotFixedException):
+            self.path_handler.fix_path(inside_path, pkg)
+
+    def test_fix_path_outside_temp_dir(self) -> None:
+        """Test fix_path() where the input file is outside the temp dir.
+
+        The only fixing here should be converting the inside path to outside.
+        """
+        inside_path = "/foo/bar.txt"
+        outside_path = self.setup.chroot.full_path(inside_path)
+        self.touch(outside_path)
+        pkg = self.new_package()
+        self.assertEqual(
+            self.path_handler.fix_path(inside_path, pkg),
+            path_handler.FixedPath(original=outside_path, actual=outside_path),
+        )
+
+    def test_fix_path_in_build_dir_in_temp_dir(self) -> None:
+        """Test fix_path() where the input is in build_dir, nested in temp_dir.
+
+        The only fixing here should be converting the inside path to outside.
+        """
+        pkg = self.new_package()
+        # pylint: disable-next=protected-access
+        pkg._build_dir = os.path.join(pkg.temp_dir, "build", "out", "Default")
+
+        outside_path = os.path.join(pkg.build_dir, "some/file.txt")
+        self.touch(outside_path)
+        inside_path = self.setup.chroot.chroot_path(outside_path)
+
+        self.assertEqual(
+            self.path_handler.fix_path(inside_path, pkg),
+            path_handler.FixedPath(original=outside_path, actual=outside_path),
+        )
+
+    def test_fix_path_but_fixed_path_does_not_exist(self) -> None:
+        """Test fix_path() where the path we want to return does not exist."""
+        pkg = self.new_package()
+        outside_path = os.path.join(pkg.temp_dir, "some/path.txt")
+        self.touch(outside_path)
+        inside_path = self.setup.chroot.chroot_path(outside_path)
+
+        with self.assertRaises(path_handler.PathNotFixedException):
+            self.path_handler.fix_path(
+                inside_path,
+                pkg,
+                conflicting_paths={outside_path: "/fake/path.txt"},
+            )
 
 
 @pytest.mark.parametrize(

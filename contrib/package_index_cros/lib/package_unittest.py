@@ -14,6 +14,7 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import git
+from chromite.lib import path_util
 from chromite.lib import portage_util
 
 
@@ -49,14 +50,29 @@ class PackageTestCase(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self.source_root = Path(self.tempdir) / "chromiumos"
+        self.source_root.mkdir()
+        self.PatchObject(git.ManifestCheckout, "Cached", return_value=MANIFEST)
         self.PatchObject(
             constants, "_FindSourceRoot", return_value=self.source_root
+        )
+        self.PatchObject(
+            path_util,
+            "DetermineCheckout",
+            return_value=path_util.CheckoutInfo(
+                type=path_util.CheckoutType.REPO,
+                root=str(self.source_root),
+                chrome_src_dir=None,
+            ),
         )
 
         self.src_dir = self.source_root / "src"
         self.overlay_dir = self.src_dir / "third_party" / "chromiumos-overlay"
-        self.setup = setup.Setup("amd64-generic")
-        self.setup.src_dir = self.src_dir
+        self.setup = setup.Setup(
+            "amd64-generic",
+            chroot_dir=str(self.tempdir / "chroot"),
+            chroot_out_dir=str(self.tempdir / "out"),
+        )
+        os.makedirs(self.setup.board_dir)
 
         # self._mock_paths_to_checkouts will hold return values for
         # Manifest.FindCheckoutFromPath(). We'll populate it as we create
@@ -94,9 +110,9 @@ class PackageTestCase(cros_test_lib.MockTempDirTestCase):
         cros_workon_localnames: Tuple[str] = ("platform2",),
         cros_workon_projects: Tuple[str] = ("chromiumos/platform2",),
         cros_workon_commits: Tuple[str] = ("deadb33f",),
-        cros_workon_subtrees: Tuple[str] = ("common-mk some-source-dir .gn ",),
+        cros_workon_subtrees: Tuple[str] = ("common-mk some-source-dir .gn",),
         additional_ebuild_contents: str = "",
-    ) -> Path:
+    ) -> portage_util.EBuild:
         """Create an ebuild we can use to set up a Package.
 
         Args:
@@ -161,8 +177,33 @@ CROS_WORKON_SUBTREE={_to_ebuild_array(cros_workon_subtrees)}
         """Create a Package we can use for testing."""
         ebuild = self._create_ebuild()
         pkg = package.Package(self.setup, ebuild)
-        # pylint: disable-next=protected-access
-        pkg._src_dir_matches = src_dir_matches or []
+
+        temp_dir = os.path.join(
+            self.setup.board_dir,
+            "tmp/portage",
+            pkg.package_info.category,
+            f"{pkg.package_info.name}-{pkg.package_info.version}",
+            "work",
+        )
+        Path(temp_dir).mkdir(parents=True)
+
+        build_dir = os.path.join(
+            self.setup.board_dir,
+            "var/cache/portage",
+            pkg.package_info.category,
+            pkg.package_info.name,
+            "out/Default",
+        )
+        Path(build_dir).mkdir(parents=True)
+        (Path(build_dir) / "args.gn").touch()
+
+        with self.PatchObject(
+            package.Package,
+            "_get_source_dirs_to_temp_source_dirs_map",
+            return_value=src_dir_matches or [],
+        ):
+            pkg.initialize()
+
         return pkg
 
 
@@ -180,7 +221,7 @@ class GetPackageSupportTestCase(PackageTestCase):
         ebuild = self._create_ebuild(
             category="virtual",
             # No GN build should mean no support.
-            cros_workon_subtrees=("no", "gn", "build"),
+            cros_workon_subtrees=("no gn build",),
         )
         package_support = package.get_package_support(ebuild, self.setup)
         assert package_support.is_supported()
