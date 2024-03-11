@@ -82,10 +82,12 @@ def RunCopybot(request, response, _config):
         cmd.extend(["--ht", hashtag.ht])
 
     if request.upstream_limit:
-        cmd.extend(["--upstream-history-limit", request.upstream_limit])
+        cmd.extend(["--upstream-history-limit", str(request.upstream_limit)])
 
     if request.downstream_limit:
-        cmd.extend(["--downstream-history-limit", request.downstream_limit])
+        cmd.extend(
+            ["--downstream-history-limit", str(request.downstream_limit)]
+        )
 
     for include_path in request.include_paths:
         cmd.extend(["--include-downstream", include_path.include])
