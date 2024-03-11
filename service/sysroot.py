@@ -1328,9 +1328,12 @@ def _BazelBuild(
         # b/315142814: target-os-dev is dropped temporarily.
         top_level_packages_to_build = [
             "virtual/target-os",
+            "virtual/target-os-test",
         ]
         packages_to_exclude = [
             "chromeos-base/chromeos-chrome",
+            "media-gfx/deqp",
+            "media-libs/clvk",
         ]
         top_level_packages_query = "union".join(
             [
