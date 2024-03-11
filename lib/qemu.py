@@ -19,7 +19,7 @@ from chromite.lib import cipd
 from chromite.lib import osutils
 
 
-_CIPD_VER = "6i7V2YPdDeTNm-tQ3A_j2Cb-hJXLB3qgrYKuePPds1sC"
+_CIPD_VER = "yMWjzGoPwH7DHT0MWf2QVXHc1S_zPe_mav939e7ru0QC"
 
 
 def InstallFromCipd(cache_dir: Optional[str] = None) -> Path:
