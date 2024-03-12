@@ -160,6 +160,24 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
 
         self.checkArtifacts(relevant_artifacts, retrieved_artifact_paths)
 
+    def testStripPackageVersion(self) -> Text:
+        examples = [
+            ("category/my-package", "category/my-package"),
+            ("category/my-package-9999", "category/my-package"),
+            ("category/my-package-0.1.2-r7", "category/my-package"),
+            ("category/my-package-0.1.2", "category/my-package"),
+            ("my-package", "my-package"),
+            ("my-package-9999", "my-package"),
+            ("my-package-0.1.2-r7", "my-package"),
+            ("my-package-0.1.2", "my-package"),
+            ("package", "package"),
+            ("package-9999", "package"),
+            ("package-0.1.2-r7", "package"),
+            ("package-0.1.2", "package"),
+        ]
+        for package, expected in examples:
+            self.assertEqual(toolchain.strip_package_version(package), expected)
+
     def testFetchFromLintingArtifacts(self) -> None:
         bl = toolchain.BuildLinter(
             [

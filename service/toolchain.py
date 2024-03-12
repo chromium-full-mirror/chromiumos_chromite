@@ -115,6 +115,26 @@ def emerge_and_upload_lints(board: str, start_time: int) -> str:
     return gs_file
 
 
+def strip_package_version(package: Text) -> Text:
+    """Removes version numbers from package names.
+
+    Examples:
+        >>> strip_package_version("my-package")
+        "my-package"
+        >>> strip_package_version("my-package-9999")
+        "my-package"
+        >>> strip_package_version("my-package-0.1.2-r7")
+        "my-package"
+        >>> strip_package_version("my-package-0.1.2")
+        "my-package"
+    """
+    NUMBER = re.compile(r"r?[\d\.]+")
+    parts = package.split("-")
+    while NUMBER.match(parts[-1]):
+        parts = parts[:-1]
+    return "-".join(parts)
+
+
 class BuildLinter:
     """Provides functions to support endpoints for the Build Linters recipe."""
 
@@ -742,7 +762,12 @@ class BuildLinter:
                     )
                     full_paths = [str(subdir_path / file) for file in files]
                     findings[package_atom] = sorted(full_paths)
-
+                else:
+                    logging.info(
+                        "Ignoring artifacts for %s not in %s",
+                        package_atom,
+                        self.package_atoms,
+                    )
         return findings
 
     def _get_package_for_artifact_dir(self, artifact_dir: Path) -> Text:
@@ -751,7 +776,7 @@ class BuildLinter:
         # .../{category}/{package}/cros-artifacts/linting-output/{linter}
         package_path = artifact_dir.parents[2]
         category = package_path.parent.name
-        package = package_path.name.rsplit("-", 1)[0]
+        package = strip_package_version(package_path.name)
         package_atom = f"{category}/{package}"
         return package_atom
 
