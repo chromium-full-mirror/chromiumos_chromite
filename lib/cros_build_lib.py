@@ -1118,7 +1118,9 @@ class CompressionType(enum.IntEnum):
 
 
 def FindCompressor(
-    compression: CompressionType, chroot: Optional[Union[Path, str]] = None
+    compression: CompressionType,
+    chroot: Optional[Union[Path, str]] = None,
+    root: Union[Path, str] = "/",
 ) -> str:
     """Locate a compressor utility program (possibly in a chroot).
 
@@ -1130,6 +1132,7 @@ def FindCompressor(
     Args:
         compression: The type of compression desired.
         chroot: Optional path to a chroot to search.
+        root: Optional path to a root to search to override the default root.
 
     Returns:
         Path to a compressor.
@@ -1153,12 +1156,12 @@ def FindCompressor(
     roots = []
     if chroot:
         roots.append(chroot)
-    roots.append("/")
+    roots.append(root)
 
     for prog in possible_progs:
-        for root in roots:
+        for r in roots:
             for subdir in ["", "usr"]:
-                path = os.path.join(root, subdir, "bin", prog)
+                path = os.path.join(r, subdir, "bin", prog)
                 if os.path.exists(path):
                     return path
 

@@ -14,7 +14,7 @@ from pathlib import Path
 import shutil
 import signal
 import subprocess
-from typing import Any
+from typing import Any, List
 from unittest import mock
 
 from chromite.lib import constants
@@ -1473,3 +1473,81 @@ class ClearShadowLocksTests(
                 logs,
                 "Unable to clear shadow-utils lockfiles, path does not exist",
             )
+
+
+class FindCompressorTests(cros_test_lib.TempDirTestCase):
+    """Tests for `FindCompressor`."""
+
+    def _test_comp(
+        self, comps: List[str], comp_type: cros_build_lib.CompressionType
+    ) -> None:
+        """Helper for FindCompressor testing."""
+        for comp in comps:
+            comp_root = self.tempdir / comp
+            comp_path = comp_root / "bin" / comp
+            osutils.Touch(comp_path, makedirs=True, mode=0o755)
+            self.assertEqual(
+                comp_path,
+                Path(cros_build_lib.FindCompressor(comp_type, root=comp_root)),
+            )
+
+    def testFindCompressorXz(self) -> None:
+        """Test FindCompressor with xz."""
+        self.assertEqual(
+            str(constants.CHROMITE_SCRIPTS_DIR / "xz_auto"),
+            cros_build_lib.FindCompressor(cros_build_lib.CompressionType.XZ),
+        )
+
+    def testFindCompressorGzip(self) -> None:
+        """Test FindCompressor with gzip."""
+        comps = ("pigz", "gzip")
+        self._test_comp(comps, cros_build_lib.CompressionType.GZIP)
+
+    def testFindCompressorGzipNotFound(self) -> None:
+        """Test FindCompressor with missing xz."""
+        self.assertEqual(
+            "gzip",
+            cros_build_lib.FindCompressor(
+                cros_build_lib.CompressionType.GZIP, root=self.tempdir
+            ),
+        )
+
+    def testFindCompressorBzip2(self) -> None:
+        """Test FindCompressor with bzip2."""
+        comps = ("lbzip2", "pbzip2", "bzip2")
+        self._test_comp(comps, cros_build_lib.CompressionType.BZIP2)
+
+    def testFindCompressorBzip2NotFound(self) -> None:
+        """Test FindCompressor with missing bzip2."""
+        self.assertEqual(
+            "bzip2",
+            cros_build_lib.FindCompressor(
+                cros_build_lib.CompressionType.BZIP2, root=self.tempdir
+            ),
+        )
+
+    def testFindCompressorZstd(self) -> None:
+        """Test FindCompressor with zstd."""
+        comps = ("zstdmt", "zstd")
+        self._test_comp(comps, cros_build_lib.CompressionType.ZSTD)
+
+    def testFindCompressorZstdNotFound(self) -> None:
+        """Test FindCompressor with missing zstd."""
+        self.assertEqual(
+            "zstd",
+            cros_build_lib.FindCompressor(
+                cros_build_lib.CompressionType.ZSTD, root=self.tempdir
+            ),
+        )
+
+    def testFindCompressorNone(self) -> None:
+        """Test FindCompressor for none type."""
+        self.assertEqual(
+            "cat",
+            cros_build_lib.FindCompressor(cros_build_lib.CompressionType.NONE),
+        )
+
+    def testFindCompressorInvalid(self) -> None:
+        """Test FindCompressor with invalid compression type."""
+        with self.assertRaises(ValueError):
+            cros_build_lib.FindCompressor(888)
