@@ -1551,3 +1551,31 @@ class FindCompressorTests(cros_test_lib.TempDirTestCase):
         """Test FindCompressor with invalid compression type."""
         with self.assertRaises(ValueError):
             cros_build_lib.FindCompressor(888)
+
+
+class CompressFileTests(
+    cros_test_lib.TempDirTestCase, cros_test_lib.RunCommandTestCase
+):
+    """Tests for `CompressFile`."""
+
+    def testCompressFile(self) -> None:
+        """Test CompressFile with options."""
+        self.PatchObject(
+            cros_build_lib,
+            "CompressionExtToType",
+            return_value=cros_build_lib.CompressionType.ZSTD,
+        )
+        self.PatchObject(
+            cros_build_lib, "FindCompressor", return_value="<foobar comp>"
+        )
+
+        # Run test.
+        cros_build_lib.CompressFile(
+            self.tempdir / "infile", self.tempdir / "outfile"
+        )
+
+        # Verify.
+        self.rc.assertCommandContains(
+            ["<foobar comp>", "-c", self.tempdir / "infile"],
+            stdout=self.tempdir / "outfile",
+        )
