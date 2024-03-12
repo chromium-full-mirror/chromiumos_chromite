@@ -7,8 +7,10 @@
 import os
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
+import uuid
 
 from chromite.contrib.package_index_cros.lib import package
+from chromite.contrib.package_index_cros.lib import path_handler
 from chromite.contrib.package_index_cros.lib import setup
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -43,6 +45,11 @@ def _to_ebuild_array(iterable: Iterable[Any]) -> str:
 
 class PackageTestCase(cros_test_lib.MockTempDirTestCase):
     """Abstract parent class for tests that require mock packages."""
+
+    @property
+    def path_handler(self) -> path_handler.PathHandler:
+        """Return a PathHandler we can use for testing."""
+        return path_handler.PathHandler(self.setup)
 
     def touch(self, path: str) -> None:
         """Make a file and its parents."""
@@ -209,6 +216,41 @@ CROS_WORKON_SUBTREE={_to_ebuild_array(cros_workon_subtrees)}
             pkg.initialize()
 
         return pkg
+
+    def add_src_dir_match(
+        self,
+        pkg: package.Package,
+        temp_path: str,
+        *,
+        actual_path: Optional[str] = None,
+        make_actual_dir: bool = False,
+    ) -> package.TempActualDichotomy:
+        """Set a src_dir_match in the given package's temp dirs.
+
+        Args:
+            pkg: The package to modify.
+            temp_path: Relative path within the package's temp_dir to
+                use as the src_dir_match's temp source dir.
+            actual_path: Relative path within the test case's temp dir (NOTE:
+                not the package's temp_dir!) to use as the src_dir_match's
+                actual dir. If None, a random dirname will be used.
+            make_actual_dir: If True, create the actual_path as a dir.
+
+        Returns:
+            The TempActualDichotomy that was created.
+        """
+        assert not os.path.isabs(temp_path)
+        if actual_path:
+            assert not os.path.isabs(actual_path)
+        dichotomy = package.TempActualDichotomy(
+            temp=os.path.join(pkg.temp_dir, temp_path),
+            actual=str(self.source_root / (actual_path or str(uuid.uuid4()))),
+        )
+        if make_actual_dir:
+            os.makedirs(dichotomy.actual)
+        # pylint: disable-next=protected-access
+        pkg._src_dir_matches.append(dichotomy)
+        return dichotomy
 
 
 class GetPackageSupportTestCase(PackageTestCase):

@@ -9,18 +9,12 @@ from typing import Optional
 
 import pytest
 
-from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import package_unittest
 from chromite.contrib.package_index_cros.lib import path_handler
 
 
 class GetPathOutsideOfChrootTestCase(package_unittest.PackageTestCase):
     """Test cases for path_handler._get_path_outside_of_chroot()."""
-
-    @property
-    def path_handler(self) -> path_handler.PathHandler:
-        """Return a PathHandler we can use for testing."""
-        return path_handler.PathHandler(self.setup)
 
     def test_neither_chroot_base_dir_nor_base_dir(self) -> None:
         """Make sure we fail if chroot_base_dir and base_dir are None."""
@@ -56,21 +50,26 @@ class GetPathOutsideOfChrootTestCase(package_unittest.PackageTestCase):
         self.assertEqual(actual_result, expected_result)
 
     def test_source_dir_with_src_dir_match(self) -> None:
-        """Test converting a source path in the package's src_dir_matches."""
+        """Test converting a source path in the package's src_dir_matches.
+
+        Source paths are specified by the "//" prefix. In this case, if any of
+        the package's src_dir_matches' `temp` dirs contains a subdir equal to
+        the given source dir, then that will be returned.
+        """
         outside_base_dir = self.setup.chroot.full_path("base")
-        my_package = self.new_package(
-            src_dir_matches=[
-                package.TempActualDichotomy(str(self.tempdir / "foobar"), ""),
-                package.TempActualDichotomy(str(self.tempdir / "hello"), ""),
-            ],
-        )
-        expected_result = self.tempdir / "hello" / "path/to/file.txt"
-        expected_result.parent.mkdir(parents=True)
-        expected_result.touch()
+        pkg = self.new_package()
+
+        # foobar won't contain the given source path, so it will be ignored.
+        self.add_src_dir_match(pkg, "foobar")
+
+        dichotomy = self.add_src_dir_match(pkg, "hello")
+        expected_result = os.path.join(dichotomy.temp, "path/to/file.txt")
+        self.touch(expected_result)
+
         # pylint: disable-next=protected-access
         actual_result = self.path_handler._get_path_outside_of_chroot(
             "//path/to/file.txt",
-            my_package,
+            pkg,
             base_dir=outside_base_dir,
         )
         self.assertEqual(actual_result, str(expected_result))
@@ -91,11 +90,6 @@ class GetPathOutsideOfChrootTestCase(package_unittest.PackageTestCase):
 
 class FixPathTestCase(package_unittest.PackageTestCase):
     """Test cases for PathHandler.fix_path() and PathHandler._fix_path()."""
-
-    @property
-    def path_handler(self) -> path_handler.PathHandler:
-        """Return a PathHandler we can use for testing."""
-        return path_handler.PathHandler(self.setup)
 
     def test_fix_conflicting_path(self) -> None:
         """Test fix_path() where the input is in conflicting_paths."""
@@ -150,18 +144,14 @@ class FixPathTestCase(package_unittest.PackageTestCase):
         expected_fixed_path = os.path.join(pkg.temp_dir, "b/file.txt")
         self.touch(expected_fixed_path)
 
-        # pylint: disable-next=protected-access
-        pkg._src_dir_matches = [
-            # irrelevant/file.txt won't exist, so we expect this to be ignored.
-            package.TempActualDichotomy(
-                temp=os.path.join(pkg.temp_dir, "a"),
-                actual=os.path.join(pkg.temp_dir, "irrelevant"),
-            ),
-            package.TempActualDichotomy(
-                temp=os.path.join(pkg.temp_dir, "a"),
-                actual=os.path.join(pkg.temp_dir, "b"),
-            ),
-        ]
+        # irrelevant/file.txt won't exist, so we expect this to be ignored.
+        self.add_src_dir_match(pkg, "a", actual_path="irrelevant")
+
+        # In contrast, we will create b/file.txt. Thus, we expect fix_path() to
+        # return that path.
+        dichotomy = self.add_src_dir_match(pkg, "a", actual_path="b")
+        expected_fixed_path = os.path.join(dichotomy.actual, "file.txt")
+        self.touch(expected_fixed_path)
 
         result = self.path_handler.fix_path(inside_path, pkg)
         self.assertEqual(
@@ -179,14 +169,8 @@ class FixPathTestCase(package_unittest.PackageTestCase):
         self.touch(outside_path)
         inside_path = self.setup.chroot.full_path(outside_path)
 
-        # pylint: disable-next=protected-access
-        pkg._src_dir_matches = [
-            # irrelevant/file.txt won't exist, so we expect this to be ignored.
-            package.TempActualDichotomy(
-                temp=os.path.join(pkg.temp_dir, "a"),
-                actual=os.path.join(pkg.temp_dir, "irrelevant"),
-            )
-        ]
+        # irrelevant/file.txt won't exist, so we expect this to be ignored.
+        self.add_src_dir_match(pkg, "a", actual_path="irrelevant")
 
         with self.assertRaises(path_handler.PathNotFixedException):
             self.path_handler.fix_path(inside_path, pkg)
@@ -241,11 +225,6 @@ class FixPathTestCase(package_unittest.PackageTestCase):
 class FixPathFromBasedirTestCase(package_unittest.PackageTestCase):
     """Test cases for PathHandler._fix_path_from_basedir()."""
 
-    @property
-    def path_handler(self) -> path_handler.PathHandler:
-        """Return a PathHandler we can use for testing."""
-        return path_handler.PathHandler(self.setup)
-
     def test_no_recursion(self) -> None:
         """Test a simple case: no ignorable_dir, no recursion."""
         pkg = self.new_package()
@@ -253,19 +232,11 @@ class FixPathFromBasedirTestCase(package_unittest.PackageTestCase):
         self.touch(outside_path)
         inside_path = self.setup.chroot.chroot_path(outside_path)
 
-        # `$TMP/a` gets fixed to `$TMP/b`, so `a/file.txt` becomes `b/file.txt`.
-        expected_fixed_path = os.path.join(pkg.temp_dir, "b/file.txt")
-
-        # The fixed path doesnt need to exist, but its basedir does.
-        self.touch(os.path.join(pkg.temp_dir, "b"))
-
-        # pylint: disable-next=protected-access
-        pkg._src_dir_matches = [
-            package.TempActualDichotomy(
-                temp=os.path.join(pkg.temp_dir, "a"),
-                actual=os.path.join(pkg.temp_dir, "b"),
-            ),
-        ]
+        # The fixed path doesn't need to exist, but its basedir does.
+        dichotomy = self.add_src_dir_match(
+            pkg, "a", actual_path="b", make_actual_dir=True
+        )
+        expected_fixed_path = os.path.join(dichotomy.actual, "file.txt")
 
         self.assertEqual(
             # pylint: disable-next=protected-access
@@ -283,18 +254,13 @@ class FixPathFromBasedirTestCase(package_unittest.PackageTestCase):
         self.touch(outside_path)
         inside_path = self.setup.chroot.chroot_path(outside_path)
 
-        # `$TMP/a/b` gets fixed to `$TMP/x/y`. The relative path `c/file.txt`
-        # will be unchanged.
-        expected_fixed_path = os.path.join(pkg.temp_dir, "x/y/c/file.txt")
-        self.touch(os.path.join(pkg.temp_dir, "x/y"))
-
-        # pylint: disable-next=protected-access
-        pkg._src_dir_matches = [
-            package.TempActualDichotomy(
-                temp=os.path.join(pkg.temp_dir, "a/b"),
-                actual=os.path.join(pkg.temp_dir, "x/y"),
-            ),
-        ]
+        # `$TMP/a/b` gets fixed to `$TMP/x/y`.
+        # We'll find this even though it's two dirs above the input file.
+        # The fixed path doesn't need to exist.
+        dichotomy = self.add_src_dir_match(
+            pkg, "a/b", actual_path="x/y", make_actual_dir=True
+        )
+        expected_fixed_path = os.path.join(dichotomy.actual, "c/file.txt")
 
         self.assertEqual(
             # pylint: disable-next=protected-access
@@ -320,17 +286,12 @@ class FixPathFromBasedirTestCase(package_unittest.PackageTestCase):
         self.touch(outside_path)
         inside_path = self.setup.chroot.chroot_path(outside_path)
 
-        # `$TMP/a/b` gets fixed to `$TMP/x/y`. However, we wont be able to find
-        # that fix, because it's above the input path's basedir.
-        self.touch(os.path.join(pkg.temp_dir, "x/y"))
-
-        # pylint: disable-next=protected-access
-        pkg._src_dir_matches = [
-            package.TempActualDichotomy(
-                temp=os.path.join(pkg.temp_dir, "a/b"),
-                actual=os.path.join(pkg.temp_dir, "x/y"),
-            ),
-        ]
+        # `$TMP/a/b` gets fixed to `$TMP/x/y`, which does exist.
+        # However, we wont be able to find that fix, because it's above the
+        # input path's basedir, and we don't have an ignorable_dir.
+        self.add_src_dir_match(
+            pkg, "a/b", actual_path="x/y", make_actual_dir=True
+        )
 
         with self.assertRaises(path_handler.PathNotFixedException):
             # pylint: disable-next=protected-access
@@ -343,17 +304,10 @@ class FixPathFromBasedirTestCase(package_unittest.PackageTestCase):
         self.touch(outside_path)
         inside_path = self.setup.chroot.chroot_path(outside_path)
 
-        # `$TMP/a` gets fixed to `$TMP/x`. However, we wont be able to find that
-        # fix, because it's above the ignorable_dir's basedir.
-        self.touch(os.path.join(pkg.temp_dir, "x"))
-
-        # pylint: disable-next=protected-access
-        pkg._src_dir_matches = [
-            package.TempActualDichotomy(
-                temp=os.path.join(pkg.temp_dir, "a"),
-                actual=os.path.join(pkg.temp_dir, "x"),
-            ),
-        ]
+        # `$TMP/a` gets fixed to `$TMP/x`, which does exist.
+        # However, we wont be able to find that fix, because it's above the
+        # ignorable_dir.
+        self.add_src_dir_match(pkg, "a", actual_path="x", make_actual_dir=True)
 
         with self.assertRaises(path_handler.PathNotFixedException):
             # pylint: disable-next=protected-access
