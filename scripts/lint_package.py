@@ -450,11 +450,6 @@ def get_arg_parser() -> commandline.ArgumentParser:
         help="Disable golint linter.",
     )
     parser.add_argument(
-        "--iwyu",
-        action="store_true",
-        help="Enable include-what-you-use linter.",
-    )
-    parser.add_argument(
         "packages",
         nargs="*",
         help="package(s) to emerge and retrieve lints for",
@@ -546,7 +541,6 @@ def main(argv: List[str]) -> None:
                         use_clippy=opts.clippy,
                         use_tidy=opts.tidy,
                         use_golint=opts.golint,
-                        use_iwyu=opts.iwyu,
                     )
                 )
         else:
@@ -554,7 +548,6 @@ def main(argv: List[str]) -> None:
                 use_clippy=opts.clippy,
                 use_tidy=opts.tidy,
                 use_golint=opts.golint,
-                use_iwyu=opts.iwyu,
             )
 
     if opts.filter_names:
