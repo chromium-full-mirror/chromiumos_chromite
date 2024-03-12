@@ -31,12 +31,19 @@ def _get_trace_dir():
 
     now = datetime.datetime.now()
     date = now.strftime("%Y-%m-%d")
-    time = now.strftime("%H-%M-%S")
+    time = now.strftime("%H_%M_%S")
     pid = os.getpid()
     script = os.path.basename(sys.argv[0])
+    # Identify (most) cros commands to facilitate manual browsing.
+    if (
+        script == "cros"
+        and len(sys.argv) > 1
+        and not sys.argv[1].startswith("-")
+    ):
+        script = f"{script}-{os.path.basename(sys.argv[1])}"
 
     path /= date
-    path /= f"{script}--{time}--{pid}"
+    path /= f"{time}--{script}--{pid}"
 
     osutils.SafeMakedirsNonRoot(path)
 
