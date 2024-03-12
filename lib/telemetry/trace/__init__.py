@@ -153,7 +153,7 @@ def initialize(
         if batch:
             path = _get_trace_path()
             tracer_provider.add_span_processor(
-                otel_export.BatchSpanProcessor(
+                otel_export.SimpleSpanProcessor(
                     exporter.ChromiteFileExporter(path)
                 )
             )
