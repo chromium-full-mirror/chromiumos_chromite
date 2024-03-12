@@ -9,11 +9,11 @@ from typing import Optional
 
 import pytest
 
-from chromite.contrib.package_index_cros.lib import package_unittest
 from chromite.contrib.package_index_cros.lib import path_handler
+from chromite.contrib.package_index_cros.lib import testing_utils
 
 
-class GetPathOutsideOfChrootTestCase(package_unittest.PackageTestCase):
+class GetPathOutsideOfChrootTestCase(testing_utils.TestCase):
     """Test cases for path_handler._get_path_outside_of_chroot()."""
 
     def test_neither_chroot_base_dir_nor_base_dir(self) -> None:
@@ -88,7 +88,7 @@ class GetPathOutsideOfChrootTestCase(package_unittest.PackageTestCase):
         )
 
 
-class FixPathTestCase(package_unittest.PackageTestCase):
+class FixPathTestCase(testing_utils.TestCase):
     """Test cases for PathHandler.fix_path() and PathHandler._fix_path()."""
 
     def test_fix_conflicting_path(self) -> None:
@@ -222,7 +222,7 @@ class FixPathTestCase(package_unittest.PackageTestCase):
             )
 
 
-class FixPathFromBasedirTestCase(package_unittest.PackageTestCase):
+class FixPathFromBasedirTestCase(testing_utils.TestCase):
     """Test cases for PathHandler._fix_path_from_basedir()."""
 
     def test_no_recursion(self) -> None:
