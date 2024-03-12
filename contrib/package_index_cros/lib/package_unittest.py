@@ -44,6 +44,11 @@ def _to_ebuild_array(iterable: Iterable[Any]) -> str:
 class PackageTestCase(cros_test_lib.MockTempDirTestCase):
     """Abstract parent class for tests that require mock packages."""
 
+    def touch(self, path: str) -> None:
+        """Make a file and its parents."""
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        Path(path).touch()
+
     def setUp(self) -> None:
         # This script should generally run outside the chroot.
         # This matters for path manipulation.
@@ -194,8 +199,7 @@ CROS_WORKON_SUBTREE={_to_ebuild_array(cros_workon_subtrees)}
             pkg.package_info.name,
             "out/Default",
         )
-        Path(build_dir).mkdir(parents=True)
-        (Path(build_dir) / "args.gn").touch()
+        self.touch(os.path.join(build_dir, "args.gn"))
 
         with self.PatchObject(
             package.Package,

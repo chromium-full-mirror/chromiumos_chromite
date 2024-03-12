@@ -5,7 +5,6 @@
 """Unit tests for path_handler.py."""
 
 import os
-from pathlib import Path
 from typing import Optional
 
 import pytest
@@ -97,11 +96,6 @@ class FixPathTestCase(package_unittest.PackageTestCase):
     def path_handler(self) -> path_handler.PathHandler:
         """Return a PathHandler we can use for testing."""
         return path_handler.PathHandler(self.setup)
-
-    def touch(self, path: str) -> None:
-        """Make a file and its parents."""
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        Path(path).touch()
 
     def test_fix_conflicting_path(self) -> None:
         """Test fix_path() where the input is in conflicting_paths."""
@@ -241,6 +235,132 @@ class FixPathTestCase(package_unittest.PackageTestCase):
                 inside_path,
                 pkg,
                 conflicting_paths={outside_path: "/fake/path.txt"},
+            )
+
+
+class FixPathFromBasedirTestCase(package_unittest.PackageTestCase):
+    """Test cases for PathHandler._fix_path_from_basedir()."""
+
+    @property
+    def path_handler(self) -> path_handler.PathHandler:
+        """Return a PathHandler we can use for testing."""
+        return path_handler.PathHandler(self.setup)
+
+    def test_no_recursion(self) -> None:
+        """Test a simple case: no ignorable_dir, no recursion."""
+        pkg = self.new_package()
+        outside_path = os.path.join(pkg.temp_dir, "a/file.txt")
+        self.touch(outside_path)
+        inside_path = self.setup.chroot.chroot_path(outside_path)
+
+        # `$TMP/a` gets fixed to `$TMP/b`, so `a/file.txt` becomes `b/file.txt`.
+        expected_fixed_path = os.path.join(pkg.temp_dir, "b/file.txt")
+
+        # The fixed path doesnt need to exist, but its basedir does.
+        self.touch(os.path.join(pkg.temp_dir, "b"))
+
+        # pylint: disable-next=protected-access
+        pkg._src_dir_matches = [
+            package.TempActualDichotomy(
+                temp=os.path.join(pkg.temp_dir, "a"),
+                actual=os.path.join(pkg.temp_dir, "b"),
+            ),
+        ]
+
+        self.assertEqual(
+            # pylint: disable-next=protected-access
+            self.path_handler._fix_path_from_basedir(inside_path, pkg),
+            path_handler.FixedPath(
+                original=outside_path,
+                actual=expected_fixed_path,
+            ),
+        )
+
+    def test_recursion(self) -> None:
+        """Test a case that requires recursion, thanks to ignorable_dir."""
+        pkg = self.new_package()
+        outside_path = os.path.join(pkg.temp_dir, "a/b/c/file.txt")
+        self.touch(outside_path)
+        inside_path = self.setup.chroot.chroot_path(outside_path)
+
+        # `$TMP/a/b` gets fixed to `$TMP/x/y`. The relative path `c/file.txt`
+        # will be unchanged.
+        expected_fixed_path = os.path.join(pkg.temp_dir, "x/y/c/file.txt")
+        self.touch(os.path.join(pkg.temp_dir, "x/y"))
+
+        # pylint: disable-next=protected-access
+        pkg._src_dir_matches = [
+            package.TempActualDichotomy(
+                temp=os.path.join(pkg.temp_dir, "a/b"),
+                actual=os.path.join(pkg.temp_dir, "x/y"),
+            ),
+        ]
+
+        self.assertEqual(
+            # pylint: disable-next=protected-access
+            self.path_handler._fix_path_from_basedir(
+                inside_path,
+                pkg,
+                ignorable_dir=os.path.join(pkg.temp_dir, "a"),
+            ),
+            path_handler.FixedPath(
+                original=outside_path,
+                actual=expected_fixed_path,
+            ),
+        )
+
+    def test_cannot_recurse_because_no_ignorable_dir(self) -> None:
+        """Test a case that is unfixable because we're not recursing.
+
+        This test case should be almost identical to test_recursion(), except
+        without passing the ignorable_dir kwarg, and we expect an exception.
+        """
+        pkg = self.new_package()
+        outside_path = os.path.join(pkg.temp_dir, "a/b/c/file.txt")
+        self.touch(outside_path)
+        inside_path = self.setup.chroot.chroot_path(outside_path)
+
+        # `$TMP/a/b` gets fixed to `$TMP/x/y`. However, we wont be able to find
+        # that fix, because it's above the input path's basedir.
+        self.touch(os.path.join(pkg.temp_dir, "x/y"))
+
+        # pylint: disable-next=protected-access
+        pkg._src_dir_matches = [
+            package.TempActualDichotomy(
+                temp=os.path.join(pkg.temp_dir, "a/b"),
+                actual=os.path.join(pkg.temp_dir, "x/y"),
+            ),
+        ]
+
+        with self.assertRaises(path_handler.PathNotFixedException):
+            # pylint: disable-next=protected-access
+            self.path_handler._fix_path_from_basedir(inside_path, pkg)
+
+    def test_fixable_path_is_above_ignorable_dir(self) -> None:
+        """Test a case that is unfixable because ignorable_dir is too deep."""
+        pkg = self.new_package()
+        outside_path = os.path.join(pkg.temp_dir, "a/b/c/file.txt")
+        self.touch(outside_path)
+        inside_path = self.setup.chroot.chroot_path(outside_path)
+
+        # `$TMP/a` gets fixed to `$TMP/x`. However, we wont be able to find that
+        # fix, because it's above the ignorable_dir's basedir.
+        self.touch(os.path.join(pkg.temp_dir, "x"))
+
+        # pylint: disable-next=protected-access
+        pkg._src_dir_matches = [
+            package.TempActualDichotomy(
+                temp=os.path.join(pkg.temp_dir, "a"),
+                actual=os.path.join(pkg.temp_dir, "x"),
+            ),
+        ]
+
+        with self.assertRaises(path_handler.PathNotFixedException):
+            # pylint: disable-next=protected-access
+            self.path_handler._fix_path_from_basedir(
+                inside_path,
+                pkg,
+                ignorable_dir=os.path.join(pkg.temp_dir, "a/b/c"),
             )
 
 

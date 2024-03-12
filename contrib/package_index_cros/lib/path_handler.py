@@ -152,9 +152,7 @@ class PathHandler:
             PathNotFixedException: Actual path does not exist.
         """
         if not path or not os.path.exists(path):
-            raise PathNotFixedException(
-                pkg, "Given path does not exist", path, path
-            )
+            raise PathNotFixedException(pkg, "Given path does not exist", path)
 
         def fix() -> str:
             if path in conflicting_paths:
@@ -264,7 +262,7 @@ class PathHandler:
                 chroot_path_base_dir = os.path.dirname(chroot_path_base_dir)
 
         raise PathNotFixedException(
-            pkg, "Failed for fix from base dir", chroot_path, chroot_path
+            pkg, "Failed for fix from base dir", chroot_path
         )
 
     def fix_path(
@@ -303,7 +301,7 @@ class PathHandler:
         )
         if path is None:
             raise PathNotFixedException(
-                pkg, "Cannot convert path to outside", path, path
+                pkg, "Cannot convert path to outside", path
             )
         return self._fix_path(path, pkg, conflicting_paths=conflicting_paths)
 
@@ -362,7 +360,7 @@ class PathHandler:
         )
         if path is None:
             raise PathNotFixedException(
-                pkg, "Cannot convert path to outside", path, path
+                pkg, "Cannot convert path to outside", path
             )
 
         try:
