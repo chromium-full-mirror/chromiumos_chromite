@@ -45,6 +45,7 @@ def minimal_sysroot(overlay_stack, tmp_path_factory):
     return overlay, cr.test.Sysroot(path, base, overlays=[overlay])
 
 
+@pytest.mark.skip(reason="b/329269265: Fails due to Permission denied error")
 def test_emerge_against_fake_sysroot(minimal_sysroot) -> None:
     """Test that a basic `emerge` operation works against a test sysroot."""
     overlay, sysroot = minimal_sysroot
