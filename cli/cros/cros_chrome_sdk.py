@@ -1587,6 +1587,12 @@ class ChromeSDKCommand(command.CliCommand):
         # so we let dcheck_always_on use the default value for Simple Chrome.
         gn_args.pop("dcheck_always_on", None)
 
+        # "rbe_cfg_dir" and "rbe_exec_root" defined in chromeos-chrome ebuild
+        # is only relevant for builds done within chroot via portage. So we
+        # need to remove them and use the ones defined in chromium.
+        gn_args.pop("rbe_cfg_dir", None)
+        gn_args.pop("rbe_exec_root", None)
+
         # Disable ThinLTO and CFI for simplechrome. Tryjob machines do not have
         # enough file descriptors to use. crbug.com/789607
         if not options.thinlto:
