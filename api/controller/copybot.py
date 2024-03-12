@@ -79,7 +79,7 @@ def RunCopybot(request, response, _config):
         cmd.extend(["--push-option", po.opt])
 
     for hashtag in request.hashtags:
-        cmd.extend(["--ht", hashtag.ht])
+        cmd.extend(["--ht", hashtag.hashtag])
 
     if request.upstream_limit:
         cmd.extend(["--upstream-history-limit", str(request.upstream_limit)])
