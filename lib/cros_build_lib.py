@@ -1243,6 +1243,7 @@ def CompressionExtToType(file_name: Union[Path, str]) -> CompressionType:
 def CompressFile(
     infile: Union[str, "os.PathLike[str]"],
     outfile: Union[str, "os.PathLike[str]"],
+    compression_level: Optional[int] = None,
 ) -> CompletedProcess:
     """Compress a file using compressor specified by |outfile| suffix.
 
@@ -1250,11 +1251,17 @@ def CompressFile(
         infile: File to compress.
         outfile: Name of output file. Compression used is based on the
             type of suffix of the name specified (e.g.: .bz2).
+        compression_level: Optional compression level.
+            Please use a level the target compression utility supports.
     """
     comp_type = CompressionExtToType(outfile)
     assert comp_type and comp_type != CompressionType.NONE
     comp = FindCompressor(comp_type)
-    return run([comp, "-c", infile], stdout=outfile)
+    cmd = [comp, "-c"]
+    if compression_level is not None:
+        cmd += [f"-{compression_level}"]
+    cmd += [infile]
+    return run(cmd, stdout=outfile)
 
 
 def UncompressFile(

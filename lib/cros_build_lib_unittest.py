@@ -1559,7 +1559,7 @@ class CompressFileTests(
     """Tests for `CompressFile`."""
 
     def testCompressFile(self) -> None:
-        """Test CompressFile with options."""
+        """Test CompressFile."""
         self.PatchObject(
             cros_build_lib,
             "CompressionExtToType",
@@ -1577,5 +1577,63 @@ class CompressFileTests(
         # Verify.
         self.rc.assertCommandContains(
             ["<foobar comp>", "-c", self.tempdir / "infile"],
+            stdout=self.tempdir / "outfile",
+        )
+
+    def testCompressFileWithCompressionLevel(self) -> None:
+        """Test CompressFile with compression level."""
+        self.PatchObject(
+            cros_build_lib,
+            "CompressionExtToType",
+            return_value=cros_build_lib.CompressionType.ZSTD,
+        )
+        self.PatchObject(
+            cros_build_lib, "FindCompressor", return_value="<foobar comp>"
+        )
+
+        # Run test.
+        cros_build_lib.CompressFile(
+            self.tempdir / "infile",
+            self.tempdir / "outfile",
+            compression_level=123,
+        )
+
+        # Verify.
+        self.rc.assertCommandContains(
+            [
+                "<foobar comp>",
+                "-c",
+                "-123",
+                self.tempdir / "infile",
+            ],
+            stdout=self.tempdir / "outfile",
+        )
+
+    def testCompressFileWithZeroCompressionLevel(self) -> None:
+        """Test CompressFile with compression level as 0."""
+        self.PatchObject(
+            cros_build_lib,
+            "CompressionExtToType",
+            return_value=cros_build_lib.CompressionType.ZSTD,
+        )
+        self.PatchObject(
+            cros_build_lib, "FindCompressor", return_value="<foobar comp>"
+        )
+
+        # Run test.
+        cros_build_lib.CompressFile(
+            self.tempdir / "infile",
+            self.tempdir / "outfile",
+            compression_level=0,
+        )
+
+        # Verify.
+        self.rc.assertCommandContains(
+            [
+                "<foobar comp>",
+                "-c",
+                "-0",
+                self.tempdir / "infile",
+            ],
             stdout=self.tempdir / "outfile",
         )
