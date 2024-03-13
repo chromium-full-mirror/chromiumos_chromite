@@ -68,8 +68,6 @@ class AutotestTarballBuilder:
         PathMapping("/usr/libexec/tast/bundles"),
         # Dir containing test data.
         PathMapping("/usr/share/tast/data"),
-        # Secret variables.
-        PathMapping("/etc/tast/vars"),
     ]
     # Tast files and directories stored in the source code.
     _TAST_SSP_SOURCE_FILES = [
