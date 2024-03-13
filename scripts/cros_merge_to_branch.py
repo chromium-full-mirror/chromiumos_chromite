@@ -13,7 +13,7 @@ Chromium OS that already has the changes you want merged to the branch in it
 i.e. if you want to push changes to crosutils.git, you must have src/scripts
 checked out. If this isn't true e.g. you are running this script from a
 minilayout or trying to upload an internal change from a non-internal checkout,
-you must specify some extra options: use the --nomirror option and use -e to
+you must specify some extra options: use the --no-mirror option and use -e to
 specify your email address. This tool will then check out the git repo fresh
 using the credentials for the -e/email you specified and upload the change. Note
 you can always use this method but it's slower than the "mirrored" method and
@@ -63,21 +63,19 @@ def _GetParser():
         "-e",
         "--email",
         help="use this email instead of the email you would "
-        "upload changes as; required w/--nomirror",
+        "upload changes as; required w/--no-mirror",
     )
-    parser.add_argument(
-        "--nomirror",
-        default=True,
-        dest="mirror",
-        action="store_false",
-        help="checkout git repo directly; requires --email",
+    parser.add_bool_argument(
+        "--mirror",
+        True,
+        "Use local repo checkout as a cache.",
+        "Checkout git repo directly.  Might require --email.",
     )
-    parser.add_argument(
-        "--nowipe",
-        default=True,
-        dest="wipe",
-        action="store_false",
-        help="do not wipe the work directory after finishing",
+    parser.add_bool_argument(
+        "--wipe",
+        True,
+        "Wipe the work directory when finished.",
+        "Do not wipe the work directory when finished",
     )
     parser.add_argument("change", nargs="+", help="CLs to merge")
     parser.add_argument("branch", help="the branch to merge to")
@@ -189,7 +187,7 @@ def _SetupWorkDirectoryForPatch(work_dir, patch, branch, manifest, email):
         reference = os.path.join(constants.SOURCE_ROOT, path)
         if not os.path.isdir(reference):
             logging.error("Unable to locate git checkout: %s", reference)
-            logging.error("Did you mean to use --nomirror?")
+            logging.error("Did you mean to use --no-mirror?")
             # This will do a "raise OSError" with the right values.
             os.open(reference, os.O_DIRECTORY)
         # Use the email if email wasn't specified.
@@ -233,7 +231,7 @@ def _ManifestContainsAllPatches(manifest, patches):
         if not manifest.FindCheckouts(patch.project):
             logging.error(
                 "Your manifest does not have the repository %s for "
-                "change %s. Please re-run with --nomirror and "
+                "change %s. Please re-run with --no-mirror and "
                 "--email set",
                 patch.project,
                 patch.gerrit_number,
@@ -271,7 +269,7 @@ def main(argv):
                     "Unable to locate ChromiumOS checkout: %s",
                     constants.SOURCE_ROOT,
                 )
-                logging.error("Did you mean to use --nomirror?")
+                logging.error("Did you mean to use --no-mirror?")
                 return 1
             raise
         if not _ManifestContainsAllPatches(manifest, patches):
@@ -280,7 +278,7 @@ def main(argv):
         if not options.email:
             chromium_email = "%s@chromium.org" % os.environ["USER"]
             logging.notice(
-                "--nomirror set without email, using %s", chromium_email
+                "--no-mirror set without email, using %s", chromium_email
             )
             options.email = chromium_email
 
@@ -344,9 +342,9 @@ def main(argv):
             )
         else:
             logging.error(
-                "--nowipe not set thus deleting the work directory. If you "
+                "--no-wipe not set thus deleting the work directory. If you "
                 "wish to debug this, re-run the script with change(s) "
-                "%s and --nowipe by running:\n  %s %s %s --nowipe",
+                "%s and --no-wipe by running:\n  %s %s %s --no-wipe",
                 " ".join(bad_changes),
                 sys.argv[0],
                 " ".join(bad_changes),
