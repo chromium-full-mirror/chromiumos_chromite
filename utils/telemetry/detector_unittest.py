@@ -4,7 +4,6 @@
 
 """The tests for resource detector classes."""
 
-import datetime
 import getpass
 import logging
 import os
@@ -14,22 +13,7 @@ import sys
 
 from chromite.third_party.opentelemetry.sdk import resources
 
-from chromite.lib import cros_build_lib
-from chromite.lib import git
-from chromite.lib import workon_helper
 from chromite.utils.telemetry import detector
-
-
-class ManifestCheckoutMock:
-    """Mock class for git.ManifestCheckout."""
-
-    def __init__(self, *args, **kwargs) -> None:
-        pass
-
-    @property
-    def manifest_branch(self):
-        """Test value for the manifest branch."""
-        return "snapshot"
 
 
 def mock_exists(path: os.PathLike, val: bool):
@@ -260,71 +244,3 @@ def test_system_info_to_capture_host_type_unknown(monkeypatch) -> None:
     assert attrs[resources.OS_DESCRIPTION] == platform.platform()
     assert attrs[detector.CPU_ARCHITECTURE] == platform.machine()
     assert attrs[detector.CPU_NAME] == platform.processor()
-
-
-def test_sdk_state_to_capture_manifest_info(monkeypatch) -> None:
-    """Test that Sdk detector captures manifest sync info."""
-
-    manifest_mtime = datetime.datetime.now(tz=datetime.timezone.utc)
-    commit = git.CommitEntry(
-        sha="commitsha",
-        commit_date=datetime.datetime.now(),
-        change_id="change-id-1",
-    )
-
-    monkeypatch.setattr(git, "FindRepoDir", lambda _: "/source/.repo")
-    monkeypatch.setattr(git, "ManifestCheckout", ManifestCheckoutMock)
-    monkeypatch.setattr(git, "GetLastCommit", lambda _: commit)
-    monkeypatch.setattr(
-        os.path, "getmtime", lambda _: manifest_mtime.timestamp()
-    )
-    monkeypatch.setattr(workon_helper, "ListAllWorkedOnAtoms", lambda: {})
-
-    sdk_detector = detector.SDKSourceDetector()
-    resource = sdk_detector.detect().attributes
-
-    assert resource["manifest_branch"] == "snapshot"
-    assert resource["manifest_commit_date"] == commit.commit_date.isoformat()
-    assert resource["manifest_change_id"] == commit.change_id
-    assert resource["manifest_commit_sha"] == commit.sha
-    assert resource["manifest_sync_date"] == manifest_mtime.isoformat()
-
-
-def test_sdk_state_to_capture_empty(monkeypatch) -> None:
-    """Test that Sdk detector handles None for repo dir."""
-
-    monkeypatch.setattr(git, "FindRepoDir", lambda _: None)
-    monkeypatch.setattr(workon_helper, "ListAllWorkedOnAtoms", lambda: {})
-    monkeypatch.setattr(cros_build_lib, "IsInsideChroot", lambda: False)
-
-    sdk_detector = detector.SDKSourceDetector()
-    resource = sdk_detector.detect().attributes
-
-    assert len(resource) == 1
-    assert not resource["inside_sdk"]
-
-
-def test_sdk_state_to_all_workon_atoms(monkeypatch) -> None:
-    """Test that sdk state detector captures all workon packages."""
-
-    workon_atoms = {
-        "kevin": [
-            "chromeos-base/dcad",
-        ],
-        "betty": ["chromeos-base/libbrillo", "chromeos-base/chaps"],
-    }
-    monkeypatch.setattr(git, "FindRepoDir", lambda _: None)
-    monkeypatch.setattr(
-        workon_helper, "ListAllWorkedOnAtoms", lambda: workon_atoms
-    )
-    monkeypatch.setattr(cros_build_lib, "IsInsideChroot", lambda: True)
-
-    sdk_detector = detector.SDKSourceDetector()
-    resource = sdk_detector.detect().attributes
-
-    # inside_sdk is always set.
-    assert len(resource) == 3
-    assert resource["inside_sdk"]
-    # Check the workon entries.
-    assert list(resource["workon_kevin"]) == workon_atoms["kevin"]
-    assert list(resource["workon_betty"]) == workon_atoms["betty"]

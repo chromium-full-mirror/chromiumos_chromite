@@ -104,6 +104,7 @@ def initialize(
     )
 
     from chromite.lib import telemetry
+    from chromite.lib.telemetry import cros_detector
     from chromite.lib.telemetry import exporter
     from chromite.lib.telemetry.trace import chromite_tracer
     from chromite.utils import hostname_util
@@ -126,10 +127,10 @@ def initialize(
             otel_resources.ProcessResourceDetector(),  # type: ignore[no-untyped-call]
             otel_resources.OTELResourceDetector(),  # type: ignore[no-untyped-call]
             detector.ProcessDetector(),
-            detector.SDKSourceDetector(),  # type: ignore[no-untyped-call]
+            cros_detector.SDKSourceDetector(),  # type: ignore[no-untyped-call]
             detector.SystemDetector(),  # type: ignore[no-untyped-call]
-            detector.DevelopmentDetector(force_dev=development_mode),
-            detector.UserDetector(user_uuid=user_uuid),
+            cros_detector.DevelopmentDetector(force_dev=development_mode),
+            cros_detector.UserDetector(user_uuid=user_uuid),
         ]
     )
 
