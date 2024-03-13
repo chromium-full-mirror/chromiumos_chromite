@@ -702,6 +702,13 @@ QUICK_PROVISION_PAYLOAD_KERNEL = "full_dev_part_KERN.bin.gz"
 QUICK_PROVISION_PAYLOAD_ROOTFS = "full_dev_part_ROOT.bin.gz"
 QUICK_PROVISION_PAYLOAD_MINIOS = "full_dev_part_MINIOS.bin.gz"
 
+# Payloads used for provision/flash.
+# For bandwidth-constrained networks, use these payloads.
+FULL_PAYLOAD_KERN = "full_KERN.bin.zst"
+FULL_PAYLOAD_ROOT = "full_ROOT.bin.zst"
+FULL_PAYLOAD_MINIOS = "full_MINIOS.bin.zst"
+STATEFUL_PAYLOAD = "stateful.zst"
+
 # Mock build and stage IDs.
 MOCK_STAGE_ID = 313377
 MOCK_BUILD_ID = 31337
