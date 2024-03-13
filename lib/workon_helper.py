@@ -10,7 +10,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import Iterable, List
+from typing import Iterable, List, Set
 
 from chromite.lib import build_target_lib
 from chromite.lib import constants
@@ -84,7 +84,7 @@ def _IsWorkonEbuild(include_chrome, ebuild_path, ebuild_contents=None):
     return False
 
 
-def _GetLinesFromFile(path, line_prefix, line_suffix):
+def _GetLinesFromFile(path: Path, line_prefix, line_suffix) -> Set[str]:
     """Get a unique set of lines from a file, stripping off a prefix and suffix.
 
     Rejects lines that do not start with |line_prefix| or end with
@@ -98,14 +98,14 @@ def _GetLinesFromFile(path, line_prefix, line_suffix):
         line_suffix: suffix of line to look for and strip if found.
 
     Returns:
-        A list of filtered lines from the file at |path|.
+        A set of filtered lines from the file at |path|.
     """
-    if not os.path.exists(path):
+    if not path.exists():
         return set()
 
     # Note that there is an opportunity to race with the file system here.
     lines = set()
-    for line in osutils.ReadFile(path).splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         if not line.startswith(line_prefix) or not line.endswith(line_suffix):
             logging.warning("Filtering out malformed line: %s", line)
             continue
@@ -392,22 +392,20 @@ class WorkonHelper:
 
         # If portage didn't know about that package, try and autocomplete it.
         if ebuild_path is None:
-            possible_ebuilds = set()
-            for ebuild in (
-                portage_util.EbuildToCP(ebuild)
-                for ebuild in self._GetWorkonEbuilds(filter_on_arch=False)
-            ):
-                if package_fragment in ebuild:
-                    possible_ebuilds.add(ebuild)
+            possible_atoms = set()
+            for ebuild in self._GetWorkonEbuilds(filter_on_arch=False):
+                pkg_atom = portage_util.EbuildToCP(ebuild)
+                if package_fragment in pkg_atom:
+                    possible_atoms.add(pkg_atom)
 
             # Also autocomplete from the worked-on list, in case the ebuild was
             # deleted.
             if find_stale:
-                for ebuild in self._GetWorkedOnAtoms():
-                    if package_fragment in ebuild:
-                        possible_ebuilds.add(ebuild)
+                for pkg_atom in self._GetWorkedOnAtoms():
+                    if package_fragment in pkg_atom:
+                        possible_atoms.add(pkg_atom)
 
-            if not possible_ebuilds:
+            if not possible_atoms:
                 # Try finding the packages affected by a given path.
                 path_atoms = sorted(self._GetPathAtoms(package_fragment))
                 if not path_atoms:
@@ -442,13 +440,12 @@ class WorkonHelper:
                 return path_atoms[0]
 
             # We want some consistent order for making our selection below.
-            possible_ebuilds = sorted(possible_ebuilds)
-
-            if len(possible_ebuilds) > 1:
+            possible_atoms = sorted(possible_atoms)
+            if len(possible_atoms) > 1:
                 logging.warning("Multiple autocompletes found:")
-                for possible_ebuild in possible_ebuilds:
-                    logging.warning("  %s", possible_ebuild)
-            autocompleted_package = portage_util.EbuildToCP(possible_ebuilds[0])
+                for possible_atom in possible_atoms:
+                    logging.warning("  %s", possible_atom)
+            autocompleted_package = portage_util.EbuildToCP(possible_atoms[0])
             # Sanity check to avoid infinite loop.
             if package_fragment == autocompleted_package:
                 logging.error("Resolved %s to itself", package_fragment)
@@ -570,9 +567,9 @@ class WorkonHelper:
 
         return workon_atoms
 
-    def _GetWorkedOnAtoms(self):
-        """Returns a list of CP atoms that we're currently working on."""
-        return _GetLinesFromFile(self.workon_file_path, "=", "-9999")
+    def _GetWorkedOnAtoms(self) -> Set[str]:
+        """Returns the set of package atoms that we're currently working on."""
+        return _GetLinesFromFile(Path(self.workon_file_path), "=", "-9999")
 
     def _FindEbuildForPackage(self, package):
         """Find an ebuild for a given atom (accepting even masked ebuilds).
@@ -757,6 +754,7 @@ class WorkonHelper:
         else:
             atoms = self._GetCanonicalAtoms(packages)
         atoms = set(atoms)
+        logging.debug("Atoms: %s", sorted(atoms))
 
         # Read out what atoms we're already working on.
         existing_atoms = self._GetWorkedOnAtoms()
