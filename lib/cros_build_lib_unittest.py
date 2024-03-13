@@ -1575,8 +1575,8 @@ class CompressFileTests(
         )
 
         # Verify.
-        self.rc.assertCommandContains(
-            ["<foobar comp>", "-c", self.tempdir / "infile"],
+        self.rc.assertCommandCalled(
+            ["<foobar comp>", "-c", "--", self.tempdir / "infile"],
             stdout=self.tempdir / "outfile",
         )
 
@@ -1599,11 +1599,12 @@ class CompressFileTests(
         )
 
         # Verify.
-        self.rc.assertCommandContains(
+        self.rc.assertCommandCalled(
             [
                 "<foobar comp>",
                 "-c",
                 "-123",
+                "--",
                 self.tempdir / "infile",
             ],
             stdout=self.tempdir / "outfile",
@@ -1633,6 +1634,7 @@ class CompressFileTests(
                 "<foobar comp>",
                 "-c",
                 "-0",
+                "--",
                 self.tempdir / "infile",
             ],
             stdout=self.tempdir / "outfile",

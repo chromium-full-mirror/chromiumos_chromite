@@ -1260,7 +1260,7 @@ def CompressFile(
     cmd = [comp, "-c"]
     if compression_level is not None:
         cmd += [f"-{compression_level}"]
-    cmd += [infile]
+    cmd += ["--", infile]
     return run(cmd, stdout=outfile)
 
 
