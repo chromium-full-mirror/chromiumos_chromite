@@ -852,12 +852,11 @@ class VM(device.Device):
             default=None,
             help="Disable KVM, use software emulation.",
         )
-        parser.add_argument(
-            "--no-display",
-            dest="display",
-            action="store_false",
-            default=True,
-            help="Do not display video output.",
+        parser.add_bool_argument(
+            "--display",
+            True,
+            "Enable display (VNC on port 5900)",
+            "Disable display",
         )
         parser.add_argument(
             "--ssh-port", type=int, help="ssh port to communicate with VM."
