@@ -17,6 +17,7 @@ from chromite.lib import chromite_config
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
+from chromite.lib import partial_mock
 from chromite.lib import retry_util
 from chromite.scripts import cros_sdk
 
@@ -66,6 +67,17 @@ class CrosSdkUtilsTest(cros_test_lib.MockTempDirTestCase):
             self.tempdir / "tar",
             cros_sdk.FetchRemoteTarballs(self.tempdir, ["gs://x/tar"]),
         )
+
+    def testLogPathHolders(self) -> None:
+        """Check log_path_holders handling."""
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.AddCmdResult(
+            partial_mock.ListRegex(f"lsof.*{self.tempdir}"),
+            0,
+            stdout="123\n456\n",
+        )
+        rc.AddCmdResult(["ps", "123"], 0, stdout="foo\n")
+        cros_sdk.log_path_holders(self.tempdir, ignore_pids={"456"})
 
 
 class CrosSdkParserCommandLineTest(cros_test_lib.MockTestCase):

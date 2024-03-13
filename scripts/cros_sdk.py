@@ -22,7 +22,7 @@ import pwd
 import re
 import shlex
 import sys
-from typing import List, Optional, Tuple
+from typing import Iterable, List, Optional, Tuple
 import urllib.parse
 
 from chromite.cbuildbot import cbuildbot_alerts
@@ -87,6 +87,30 @@ def get_sdk_tarball_urls(
         )
         for compressor in COMPRESSION_PREFERENCE
     ]
+
+
+def log_path_holders(path: Path, ignore_pids: Iterable[int] = ()) -> None:
+    """Log details about processes holding references to `path`."""
+    result = cros_build_lib.dbg_run(
+        ["lsof", "-t", "-n", "-f", "--", path],
+        capture_output=True,
+        check=False,
+        encoding="utf-8",
+    )
+    if result.returncode:
+        return
+
+    pids = [x for x in result.stdout.split() if x not in ignore_pids]
+    if not pids:
+        return
+    result = cros_build_lib.dbg_run(
+        ["ps"] + pids,
+        capture_output=True,
+        check=False,
+        encoding="utf-8",
+    )
+    if not result.returncode:
+        logging.warning("Active processes:\n%s", result.stdout.rstrip())
 
 
 def FetchRemoteTarballs(storage_dir: Path, urls: List[str]) -> Path:
@@ -967,6 +991,7 @@ def main(argv) -> None:
                 "Waiting for SDK deletion.  If you have SDK shells open, "
                 "please close them."
             )
+            log_path_holders(chroot.lock_path, {str(delete_proc.pid)})
             delete_proc.join()
         if delete_proc.exitcode != 0:
             cros_build_lib.Die(
