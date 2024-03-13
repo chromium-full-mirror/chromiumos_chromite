@@ -112,6 +112,7 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
         cros_workon_commits: Tuple[str] = ("deadb33f",),
         cros_workon_subtrees: Tuple[str] = ("common-mk some-source-dir .gn",),
         additional_ebuild_contents: str = "",
+        create_9999_ebuild: bool = True,
     ) -> portage_util.EBuild:
         """Create an ebuild we can use to set up a Package.
 
@@ -124,6 +125,7 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
             cros_workon_commits: Mock cros_workon value for the ebuild.
             cros_workon_subtrees: Mock cros_workon value for the ebuild.
             additional_ebuild_contents: Any thing else to add to the ebuild.
+            create_9999_ebuild: If True, also create a -9999 (unstable) ebuild.
 
         Returns:
             The newly created Ebuild file.
@@ -148,8 +150,10 @@ CROS_WORKON_SUBTREE={_to_ebuild_array(cros_workon_subtrees)}
         ebuild_dir.mkdir(parents=True)
 
         stable_ebuild_name = f"{package_name}-{stable_version}.ebuild"
-        unstable_ebuild_name = f"{package_name}-9999.ebuild"
-        for ebuild_filename in (stable_ebuild_name, unstable_ebuild_name):
+        ebuild_files_to_make = [stable_ebuild_name]
+        if create_9999_ebuild:
+            ebuild_files_to_make.append(f"{package_name}-9999.ebuild")
+        for ebuild_filename in ebuild_files_to_make:
             ebuild_path = ebuild_dir / ebuild_filename
             ebuild_path.touch()
             ebuild_path.write_text(ebuild_contents)
@@ -170,12 +174,13 @@ CROS_WORKON_SUBTREE={_to_ebuild_array(cros_workon_subtrees)}
             ] = git.ProjectCheckout({"name": project, "local_path": localname})
         return ebuild
 
-    def new_package(
+    def new_package(  # pylint: disable=docstring-misnamed-args
         self,
         src_dir_matches: Optional[List[package.TempActualDichotomy]] = None,
+        **create_ebuild_kwargs: Any,
     ) -> package.Package:
         """Create a Package we can use for testing."""
-        ebuild = self._create_ebuild()
+        ebuild = self._create_ebuild(**create_ebuild_kwargs)
         pkg = package.Package(self.setup, ebuild)
 
         temp_dir = os.path.join(

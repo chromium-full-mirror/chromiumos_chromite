@@ -5,10 +5,12 @@
 """Unit tests for path_handler.py."""
 
 import os
-from typing import Optional
+from typing import Optional, Tuple
 
 import pytest
 
+from chromite.contrib.package_index_cros.lib import constants
+from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import path_handler
 from chromite.contrib.package_index_cros.lib import testing_utils
 
@@ -315,6 +317,188 @@ class FixPathFromBasedirTestCase(testing_utils.TestCase):
                 inside_path,
                 pkg,
                 ignorable_dir=os.path.join(pkg.temp_dir, "a/b/c"),
+            )
+
+
+class FixPathWithIgnoresTestCase(testing_utils.TestCase):
+    """Test cases for PathHandler.fix_path_with_ignores()."""
+
+    def _get_input_paths(
+        self,
+        pkg: package.Package,
+        relative_path: str = "a/b/c/file.txt",
+        create: bool = True,
+        in_build_dir_instead_of_temp_dir: bool = False,
+    ) -> Tuple[str, str]:
+        """Return an outside path and its chroot equivalent to use as input.
+
+        Args:
+            pkg: The package containing the files.
+            relative_path: The filepath, relative to the package's temp_dir.
+                (Unless in_build_dir_instead_of_temp_dir is True; see below.)
+            create: If True, create the (outside) file on the filesystem.
+            in_build_dir_instead_of_temp_dir: Normally, the path will be inside
+                the package's temp_dir. But if this kwarg is True, then it will
+                instead be inside the package's build_dir.
+
+        Returns:
+            A tuple (outside_path, inside_path), where outside_path is a
+            host-absolute path pointing to a file inside the package's temp (or
+            build) directory, and inside_path is the chroot path pointing to
+            that same file.
+        """
+        root_dir = pkg.temp_dir
+        if in_build_dir_instead_of_temp_dir:
+            root_dir = pkg.build_dir
+        outside_path = os.path.join(root_dir, relative_path)
+        inside_path = self.setup.chroot.chroot_path(outside_path)
+        if create:
+            self.touch(outside_path)
+        return (outside_path, inside_path)
+
+    def test_ignore_generated(self) -> None:
+        """Test ignoring failures for inputs inside pkg.build_dir."""
+        pkg = self.new_package()
+        outside_path, inside_path = self._get_input_paths(
+            pkg, create=False, in_build_dir_instead_of_temp_dir=True
+        )
+
+        # Normally we expect fixing to fail, since the original path doesn't
+        # exist on the filesystem.
+        with self.assertRaises(path_handler.PathNotFixedException):
+            self.path_handler.fix_path_with_ignores(inside_path, pkg)
+
+        # ignore_generated is particularly aggressive. It ignores all failures,
+        # without resorting to _fix_path_from_basedir().
+        # In this case, it won't even check whether the original path exists.
+        self.assertEqual(
+            self.path_handler.fix_path_with_ignores(
+                inside_path, pkg, ignore_generated=True
+            ),
+            path_handler.FixedPath(original=outside_path, actual=outside_path),
+        )
+
+    def test_ignore_stable(self) -> None:
+        """Test ignoring failures for stable packages."""
+        pkg = self.new_package(
+            additional_ebuild_contents="CROS_WORKON_OUTOFTREE_BUILD=1",
+            create_9999_ebuild=False,
+        )
+        (outside_path, inside_path) = self._get_input_paths(pkg)
+        dichotomy = self.add_src_dir_match(pkg, "a/b/c", make_actual_dir=True)
+
+        # Normally we expect fixing to fail, since we didn't create file.txt in
+        # the actual dir on the filesystem.
+        with self.assertRaises(path_handler.PathNotFixedException):
+            self.path_handler.fix_path_with_ignores(inside_path, pkg)
+
+        # When we use ignore_stable, it should instead check the file's basedir,
+        # which does have a src_dir_match.
+        self.assertEqual(
+            self.path_handler.fix_path_with_ignores(
+                inside_path, pkg, ignore_stable=True
+            ),
+            path_handler.FixedPath(
+                original=outside_path,
+                actual=os.path.join(dichotomy.actual, "file.txt"),
+            ),
+        )
+
+        # Finally, ignore_stable isn't a panacea. If the input path's basedir
+        # doesn't have a src_dir_match, it should still fail.
+        with self.assertRaises(path_handler.PathNotFixedException):
+            self.path_handler.fix_path_with_ignores(
+                "/some/path", pkg, ignore_stable=True
+            )
+
+    def test_ignore_highly_volatile(self) -> None:
+        """Test ignoring failures for highly volatile packages."""
+        pkg = self.new_package()
+        self.PatchObject(constants, "HIGHLY_VOLATILE_PACKAGES", pkg.full_name)
+        (outside_path, inside_path) = self._get_input_paths(pkg)
+        dichotomy = self.add_src_dir_match(pkg, "a/b/c", make_actual_dir=True)
+
+        # Normally we expect fixing to fail, since we didn't create file.txt in
+        # the actual dir on the filesystem.
+        with self.assertRaises(path_handler.PathNotFixedException):
+            self.path_handler.fix_path_with_ignores(inside_path, pkg)
+
+        # When we use ignore_highly_volatile, it should instead check the file's
+        # basedir, which does have a src_dir_match.
+        self.assertEqual(
+            self.path_handler.fix_path_with_ignores(
+                inside_path, pkg, ignore_highly_volatile=True
+            ),
+            path_handler.FixedPath(
+                original=outside_path,
+                actual=os.path.join(dichotomy.actual, "file.txt"),
+            ),
+        )
+
+        # Finally, ignore_highly_volatile isn't a panacea. If the input path's
+        # basedir doesn't have a src_dir_match, it should still fail.
+        with self.assertRaises(path_handler.PathNotFixedException):
+            self.path_handler.fix_path_with_ignores(
+                "/some/path", pkg, ignore_highly_volatile=True
+            )
+
+    def test_ignorable_dirs(self) -> None:
+        """Test ignoring failures in certain dirs."""
+        pkg = self.new_package()
+        (outside_path, inside_path) = self._get_input_paths(pkg)
+        dichotomy = self.add_src_dir_match(pkg, "a", make_actual_dir=True)
+
+        # Normally we expect fixing to fail, since we didn't create file.txt in
+        # the actual dir on the filesystem.
+        with self.assertRaises(path_handler.PathNotFixedException):
+            self.path_handler.fix_path_with_ignores(inside_path, pkg)
+
+        # When we use ignorable_dirs, it should walk up the filetree until it
+        # finds the src_dir_match at a/.
+        self.assertEqual(
+            self.path_handler.fix_path_with_ignores(
+                inside_path, pkg, ignorable_dirs=[dichotomy.temp]
+            ),
+            path_handler.FixedPath(
+                original=outside_path,
+                actual=os.path.join(dichotomy.actual, "b/c/file.txt"),
+            ),
+        )
+
+    def test_ignorable_extensions(self) -> None:
+        """Test ignoring failures with certain extensions."""
+        pkg = self.new_package()
+        (outside_path, inside_path) = self._get_input_paths(pkg)
+        dichotomy = self.add_src_dir_match(pkg, "a/b/c", make_actual_dir=True)
+
+        # Normally we expect fixing to fail, since we didn't create file.txt in
+        # the actual dir on the filesystem.
+        with self.assertRaises(path_handler.PathNotFixedException):
+            self.path_handler.fix_path_with_ignores(inside_path, pkg)
+
+        # When we ignore the ".txt" extension, it should ignore the failure, and
+        # instead try to match from the basedir, which does exist.
+        self.assertEqual(
+            self.path_handler.fix_path_with_ignores(
+                inside_path, pkg, ignorable_extensions=[".md", ".txt", ".js"]
+            ),
+            path_handler.FixedPath(
+                original=outside_path,
+                actual=os.path.join(dichotomy.actual, "file.txt"),
+            ),
+        )
+
+        # If we ignore other extensions but not ".txt", it should still fail.
+        with self.assertRaises(path_handler.PathNotFixedException):
+            self.path_handler.fix_path_with_ignores(
+                inside_path, pkg, ignorable_extensions=[".md", ".py", ".js"]
+            )
+
+        # Finally, ignorable_extensions isn't a panacea. If the input path's
+        # basedir doesn't have a src_dir_match, it should still fail.
+        with self.assertRaises(path_handler.PathNotFixedException):
+            self.path_handler.fix_path_with_ignores(
+                "/some/path", pkg, ignorable_extensions=[".md", ".txt", ".js"]
             )
 
 

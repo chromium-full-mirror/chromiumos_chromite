@@ -242,21 +242,8 @@ class Package:
             chromeos-base/cryptohome.
         package_info: Various package info extracted from ebuild, like category
             and version. See |PackageInfo|.
-        is_highly_volatile: Bool indicating whether the package's sources are
-            patched on build. If true, then one should not expect an exact match
-            between temp and actual sources.
         dependencies: List of package names on which this package depends.
-        temp_dir: Base path to a dir with all temporary sources.
-        build_dir: Path to a dir with build. Is expected to contain args.gn.
-        src_dir_matches: List of tuples (temp, actual). Represents a possible
-            match between temporary and actual source dirs/files. The list is
-            sorted by depth: match is better when closer to desired path.
     """
-
-    highly_volatile_packages = [
-        # Libchrome has a number of patches applied on top of checkout.
-        "chromeos-base/libchrome"
-    ]
 
     # Package categories whose sources are in src dir and not in
     # src/third_party.
@@ -280,15 +267,6 @@ class Package:
         self.setup = setup_data
         self.full_name = ebuild.package
         self.package_info = PackageInfo(ebuild)
-
-        self.is_highly_volatile = (
-            os.path.isdir(
-                os.path.join(
-                    os.path.dirname(self.package_info.ebuild_file), "files"
-                )
-            )
-            or self.full_name in Package.highly_volatile_packages
-        )
         self.dependencies = deps or []
 
         # Attributes that will be set up later, during initialize().
@@ -298,6 +276,18 @@ class Package:
         self._temp_dir: Optional[str] = None
         self._build_dir: Optional[str] = None
         self._src_dir_matches: Optional[List[TempActualDichotomy]] = None
+
+    @property
+    def is_highly_volatile(self) -> bool:
+        """Return whether this package is considered highly volatile."""
+        return (
+            os.path.isdir(
+                os.path.join(
+                    os.path.dirname(self.package_info.ebuild_file), "files"
+                )
+            )
+            or self.full_name in constants.HIGHLY_VOLATILE_PACKAGES
+        )
 
     @property
     def temp_dir(self) -> str:

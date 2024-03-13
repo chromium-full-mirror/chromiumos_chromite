@@ -26,3 +26,10 @@ TEMPORARY_UNSUPPORTED_PACKAGES_WITH_TESTS = {}
 
 # Set of packages failing test run. To be skipped for test run.
 PACKAGES_FAILING_TESTS = {}
+
+# Packages (defined by their atom) to hard-code as "highly volatile", in the
+# context of deciding which failures to ignore.
+HIGHLY_VOLATILE_PACKAGES = {
+    # Libchrome has a number of patches applied on top of checkout.
+    "chromeos-base/libchrome",
+}
