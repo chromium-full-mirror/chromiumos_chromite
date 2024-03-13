@@ -787,50 +787,6 @@ class VM(device.Device):
             help="Format of the VM image (raw, qcow2, ...).",
         )
         parser.add_argument(
-            "--qemu-path",
-            type="str_path",
-            help="Path of qemu binary to launch with --start.",
-        )
-        parser.add_argument(
-            "--qemu-m",
-            type=str,
-            default="8G",
-            help="Memory argument that will be passed to qemu.",
-        )
-        parser.add_argument(
-            "--qemu-smp",
-            type=int,
-            default="0",
-            help="SMP argument that will be passed to qemu. (0 "
-            "means auto-detection.)",
-        )
-        parser.add_argument(
-            "--qemu-cpu",
-            type=str,
-            help="CPU argument that will be passed to qemu.",
-        )
-        parser.add_argument(
-            "--qemu-bios-path",
-            type="str_path",
-            help="Path of directory with qemu bios files.",
-        )
-        parser.add_argument(
-            "--qemu-hostfwd",
-            action="append",
-            help="Ports to forward from the VM to the host in the "
-            "QEMU hostfwd format, eg tcp:127.0.0.1:12345-:54321 to "
-            "forward port 54321 on the VM to 12345 on the host.",
-        )
-        parser.add_argument(
-            "--qemu-args",
-            action="append",
-            help="Additional args to pass to qemu. Note that if "
-            "you want to pass an argument that starts with a "
-            "dash, e.g. -display you will need to enclose it "
-            "in quotes and add a space at the beginning: "
-            '" -display ..."',
-        )
-        parser.add_argument(
             "--copy-on-write",
             action="store_true",
             default=False,
@@ -838,12 +794,6 @@ class VM(device.Device):
             "by the normal boot image. All filesystem changes "
             "will instead be reflected in the temporary "
             "image.",
-        )
-        parser.add_argument(
-            "--qemu-img-path",
-            type="str_path",
-            help="Path to qemu-img binary used to create temporary "
-            "copy-on-write images.",
         )
         parser.add_argument(
             "--disable-kvm",
@@ -883,4 +833,65 @@ class VM(device.Device):
             "Wait for the VM to boot after starting.",
             "Don't wait for the VM to boot after starting.",
         )
+
+        group = parser.add_argument_group("QEMU Options")
+        group.add_argument(
+            "--qemu-path",
+            metavar="PATH",
+            type="str_path",
+            help="Path of qemu binary to launch with --start.",
+        )
+        group.add_argument(
+            "--qemu-m",
+            metavar="MEM",
+            type=str,
+            default="8G",
+            help="Memory argument that will be passed to qemu.",
+        )
+        group.add_argument(
+            "--qemu-smp",
+            metavar="NCPUS",
+            type=int,
+            default="0",
+            help="SMP argument that will be passed to qemu. (0 "
+            "means auto-detection.)",
+        )
+        group.add_argument(
+            "--qemu-cpu",
+            metavar="CPU",
+            type=str,
+            help="CPU argument that will be passed to qemu.",
+        )
+        group.add_argument(
+            "--qemu-bios-path",
+            metavar="PATH",
+            type="str_path",
+            help="Path of directory with qemu bios files.",
+        )
+        group.add_argument(
+            "--qemu-hostfwd",
+            metavar="PORTS",
+            action="append",
+            help="Ports to forward from the VM to the host in the "
+            "QEMU hostfwd format, eg tcp:127.0.0.1:12345-:54321 to "
+            "forward port 54321 on the VM to 12345 on the host.",
+        )
+        group.add_argument(
+            "--qemu-args",
+            metavar="ARGS",
+            action="append",
+            help="Additional args to pass to qemu. Note that if "
+            "you want to pass an argument that starts with a "
+            "dash, e.g. -display you will need to enclose it "
+            "in quotes and add a space at the beginning: "
+            '" -display ..."',
+        )
+        group.add_argument(
+            "--qemu-img-path",
+            metavar="PATH",
+            type="str_path",
+            help="Path to qemu-img binary used to create temporary "
+            "copy-on-write images.",
+        )
+
         return parser
