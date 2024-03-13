@@ -196,6 +196,7 @@ class BuildPackagesRunConfig:
         use_flags: Optional[List[str]] = None,
         use_goma: bool = False,
         use_remoteexec: bool = False,
+        reproxy_cfg_file: str = "",
         incremental_build: bool = True,
         package_indexes: Optional[List["binpkg.PackageIndexInfo"]] = None,
         dryrun: bool = False,
@@ -233,6 +234,7 @@ class BuildPackagesRunConfig:
             use_flags: A list of use flags to set.
             use_goma: Whether to enable goma.
             use_remoteexec: Whether to use RBE for remoteexec.
+            reproxy_cfg_file: Config file for remoteexec
             incremental_build: Whether to treat the build as an incremental
                 build or a fresh build. Always treating it as an incremental
                 build is safe, but certain operations can be faster when we know
@@ -271,6 +273,7 @@ class BuildPackagesRunConfig:
         self.use_flags = use_flags
         self.use_goma = use_goma
         self.use_remoteexec = use_remoteexec
+        self.reproxy_cfg_file = reproxy_cfg_file
         self.is_incremental = incremental_build
         self.package_indexes = package_indexes or []
         self.dryrun = dryrun
@@ -335,6 +338,7 @@ class BuildPackagesRunConfig:
 
         if self.use_remoteexec:
             env["USE_REMOTEEXEC"] = "true"
+            env["REPROXY_CFG_FILE"] = self.reproxy_cfg_file
 
         return env
 

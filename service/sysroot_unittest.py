@@ -657,6 +657,21 @@ class BuildPackagesRunConfigTest(
 
         self.assertIn("--jobs=10", flags)
 
+    def testGetBuildPackagesRemoteExec(self) -> None:
+        """Test the `cros build-packages` with remote execution."""
+        # Test the default config.
+        instance = sysroot.BuildPackagesRunConfig()
+
+        instance.use_remoteexec = True
+        reproxy_cfg_file = "reproxy_release.cfg"
+        instance.reproxy_cfg_file = reproxy_cfg_file
+
+        extra_env = instance.GetExtraEnv()
+
+        self.assertNotIn("USE_GOMA", extra_env)
+        self.assertEqual(extra_env.get("USE_REMOTEEXEC"), "true")
+        self.assertEqual(extra_env.get("REPROXY_CFG_FILE"), reproxy_cfg_file)
+
 
 class BuildPackagesTest(
     cros_test_lib.RunCommandTestCase, cros_test_lib.LoggingTestCase

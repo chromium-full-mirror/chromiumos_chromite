@@ -1087,6 +1087,7 @@ class InstallPackagesTest(
             use_flags=[],
             use_goma=False,
             use_remoteexec=False,
+            reproxy_cfg_file="",
             incremental_build=False,
             dryrun=False,
             backtrack=sysroot_controller.DEFAULT_BACKTRACK,
@@ -1336,4 +1337,47 @@ class InstallPackagesTest(
         self.assertTrue(rc)
         self.assertNotEqual(
             controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE, rc
+        )
+
+    def testReclientBuild(self) -> None:
+        """Test successful reclient build."""
+        # Prevent argument validation error.
+        self.PatchObject(
+            sysroot_lib.Sysroot, "IsToolchainInstalled", return_value=True
+        )
+
+        in_proto = self._InputProto(
+            build_target=self.build_target,
+            sysroot_path=self.sysroot,
+            # package_indexes=package_indexes,
+        )
+        cfg_file_name = "reproxy_release.cfg"
+        in_proto.remoteexec_config.reproxy_cfg_file = cfg_file_name
+
+        out_proto = self._OutputProto()
+        rc_patch = self.PatchObject(sysroot_service, "BuildPackagesRunConfig")
+        self.PatchObject(sysroot_service, "BuildPackages")
+
+        rc = sysroot_controller.InstallPackages(
+            in_proto, out_proto, self.api_config
+        )
+        self.assertFalse(rc)
+        rc_patch.assert_called_with(
+            use_any_chrome=False,
+            usepkg=True,
+            install_debug_symbols=True,
+            packages=[],
+            package_indexes=[],
+            use_flags=[],
+            use_goma=False,
+            use_remoteexec=True,
+            reproxy_cfg_file=cfg_file_name,
+            incremental_build=False,
+            dryrun=False,
+            backtrack=sysroot_controller.DEFAULT_BACKTRACK,
+            workon=False,
+            bazel=False,
+            bazel_lite=False,
+            noclean=False,
+            binhost_lookup_service_data=MOCK_BINHOST_LOOKUP_SERVICE_DATA,
         )

@@ -368,6 +368,9 @@ def InstallPackages(
     )
 
     use_remoteexec = request.HasField("remoteexec_config")
+    reproxy_cfg_file = ""
+    if use_remoteexec:
+        reproxy_cfg_file = request.remoteexec_config.reproxy_cfg_file
 
     # Testing if Goma will support unknown compilers now.
     use_goma = request.flags.use_goma and not use_remoteexec
@@ -423,6 +426,7 @@ def InstallPackages(
         use_flags=use_flags,
         use_goma=use_goma,
         use_remoteexec=use_remoteexec,
+        reproxy_cfg_file=reproxy_cfg_file,
         incremental_build=False,
         dryrun=dryrun,
         backtrack=DEFAULT_BACKTRACK,
