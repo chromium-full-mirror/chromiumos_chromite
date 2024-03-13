@@ -971,10 +971,17 @@ class BaseParser:
             self.add_common_argument_to_group(
                 self.debug_group,
                 "--no-color",
-                "--nocolor",
                 action="store_false",
                 dest="color",
                 help="Do not colorize output (or `export NOCOLOR=true`).",
+            )
+            # Backwards compat.
+            self.add_common_argument_to_group(
+                self.debug_group,
+                "--nocolor",
+                action="store_false",
+                dest="color",
+                help=argparse.SUPPRESS,
             )
             self.add_common_argument_to_group(
                 self.debug_group,
