@@ -402,6 +402,14 @@ class Crossdev:
 
         configured_targets.append(target_name)
 
+    @classmethod
+    def Clean(cls, target: str) -> None:
+        # --force is required otherwise crossdev will prompt for confirmation.
+        cros_build_lib.run(["crossdev", "--clean", target, "--force"])
+        cls._CACHE["configured_targets"] = [
+            x for x in cls._CACHE.get("configured_targets", []) if x != target
+        ]
+
 
 def GetTargetPackages(target):
     """Returns a list of packages for a given target."""
@@ -1526,6 +1534,12 @@ def GetParser():
         disabled_desc="Don't fetch binary packages.",
     )
     parser.add_argument(
+        "--clean",
+        action="store_true",
+        default=False,
+        help="Remove selected toolchains.",
+    )
+    parser.add_argument(
         "-d",
         "--deleteold",
         action="store_true",
@@ -1605,6 +1619,7 @@ def main(argv):
         options.cfg_name,
         options.show_packages,
         options.create_packages,
+        options.clean,
     )
     if sum(bool(x) for x in conflicting_options) > 1:
         parser.error(
@@ -1631,6 +1646,12 @@ def main(argv):
         cros_build_lib.AssertInsideChroot()
         Crossdev.Load(False)
         CreatePackages(targets_wanted, options.output_dir)
+    elif options.clean:
+        cros_build_lib.AssertInsideChroot()
+        Crossdev.Load(False)
+        for target in ExpandTargets(targets_wanted):
+            Crossdev.Clean(target)
+        Crossdev.Save()
     else:
         cros_build_lib.AssertInsideChroot()
         # This has to be always run as root.

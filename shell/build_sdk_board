@@ -55,8 +55,24 @@ BOARD_ROOT="/build/${BOARD}"
 info_run "${CHROMITE_BIN}/run_chroot_version_hooks"
 
 eval "$(portageq envvar -v CHOST PKGDIR)"
-
 EMERGE_CMD="${CHROMITE_BIN}/parallel_emerge"
+
+run_emerge() {
+  info_run sudo -E "${EMERGE_CMD}" "$@"
+}
+
+# Sanitize old crossdev toolchains to ensure we don't carry binpkgs from old
+# SDKs.  We can skip this with --usepkg for user convenience.
+if [[ "${FLAGS_usepkg}" -eq "${FLAGS_FALSE}" ]]; then
+  # Clean PKGDIR to ensure no binpkgs get carried from old tarballs.
+  # shellcheck disable=SC2154  # PKGDIR is defined via eval above
+  info_run sudo rm -rf "${PKGDIR}"/*
+
+  # Uninstall all cross-compilers.
+  info_run sudo "${CHROMITE_BIN}/cros_setup_toolchains" --clean --targets all \
+    --debug
+fi
+
 mapfile -t TOOLCHAIN_PACKAGES < \
   <("${CHROMITE_BIN}/cros_setup_toolchains" --show-packages host)
 # Sanity check we got some valid results.
@@ -64,10 +80,6 @@ if [[ ${#TOOLCHAIN_PACKAGES[@]} -eq 0 ]]; then
   die_notrace "cros_setup_toolchains failed"
 fi
 PACKAGES=( system virtual/target-sdk )
-
-run_emerge() {
-  info_run sudo -E "${EMERGE_CMD}" "$@"
-}
 
 # First, rebuild all packages from scratch. This is needed to make sure
 # we rebuild all chroot packages.
@@ -90,7 +102,7 @@ info_run sudo "${CHROMITE_BIN}/cros_setup_toolchains" --targets all --debug \
 # Then build everything else.
 run_emerge "${EARLY_FLAGS[@]}" --verbose --emptytree --with-bdeps=y \
   --exclude "${TOOLCHAIN_PACKAGES[*]}" \
-  "${PACKAGES[@]}" virtual/target-sdk-nobdeps
+  "${PACKAGES[@]}" virtual/target-sdk-nobdeps virtual/target-sdk-post-cross
 info_run sudo eclean -d packages
 
 # Next, install our rebuilt packages into our separate root.
