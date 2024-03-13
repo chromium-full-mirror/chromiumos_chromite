@@ -98,6 +98,7 @@ def _UploadChangeToBranch(work_dir, patch, branch, draft, dryrun):
         A list of all the gerrit URLs found.
     """
     upload_type = "drafts" if draft else "for"
+    orig_sha1 = patch.sha1
     # Download & set up the patch if need be.
     patch.Fetch(work_dir)
     # Apply the actual change.
@@ -126,7 +127,7 @@ def _UploadChangeToBranch(work_dir, patch, branch, draft, dryrun):
                 reviewers.add("@".join(ele[-3:-1]))
             continue
         msg.append(line)
-    msg += ["(cherry picked from commit %s)" % patch.sha1]
+    msg += [f"(cherry picked from commit {orig_sha1})"]
     git.RunGit(
         work_dir,
         ["commit", "--amend", "-F", "-"],
