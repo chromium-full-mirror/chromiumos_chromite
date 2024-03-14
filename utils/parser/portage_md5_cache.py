@@ -9,6 +9,8 @@ import functools
 from pathlib import Path
 from typing import Dict, List, Optional, Set
 
+from chromite.utils.parser import pms_dependency
+
 
 @dataclasses.dataclass(frozen=True)
 class Eclass:
@@ -140,3 +142,8 @@ class Md5Cache:
     def properties(self) -> Set[str]:
         """The PROPERTIES of this package."""
         return set(self.vars.get("PROPERTIES", "").split())
+
+    @property
+    def restrict(self) -> pms_dependency.RootNode:
+        """The RESTRICT of this package."""
+        return pms_dependency.parse(self.vars.get("RESTRICT", ""))

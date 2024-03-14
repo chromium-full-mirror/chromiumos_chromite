@@ -20,6 +20,7 @@ from chromite.lib import osutils
 from chromite.lib import partial_mock
 from chromite.lib import portage_util
 from chromite.lib.parser import package_info
+from chromite.utils.parser import portage_md5_cache
 
 
 MANIFEST = git.ManifestCheckout.Cached(constants.SOURCE_ROOT)
@@ -380,6 +381,24 @@ inherit cros-workon superpower
             osutils.WriteFile(ebuild_path, f"{val}\n")
             portage_util.EBuild.Classify(ebuild_path)
 
+    def testClassifyTestParsingCache(self) -> None:
+        """Test Classify RESTRICT parsing with a cache file."""
+        ebuild_path = os.path.join(self.tempdir, "foo-1.ebuild")
+        # We want a diff value in the ebuild so the cache overrides.
+        osutils.WriteFile(ebuild_path, "src_test() { :; }\nRESTRICT=test\n")
+        flags = ["test", "foo"]
+
+        TESTS = (
+            (True, ""),
+            (False, "RESTRICT=test"),
+            (True, "RESTRICT=!test? ( test )"),
+            (False, "RESTRICT=foo? ( test )"),
+        )
+        for exp, val in TESTS:
+            cache = portage_md5_cache.Md5Cache(data=val)
+            attrs = portage_util.EBuild.Classify(ebuild_path, flags, cache)
+            assert attrs.has_test == exp
+
     def testClassifyEncodingASCII(self) -> None:
         """Test Classify with ASCII file encodings."""
         ebuild_path = os.path.join(self.tempdir, "foo-1.ebuild")
@@ -584,7 +603,7 @@ class StubEBuild(portage_util.EBuild):
         self.is_workon = True
         self.is_stable = True
 
-    def _ReadEBuild(self, path, use_flags=None) -> None:
+    def _ReadEBuild(self, path, use_flags=None, cache=None) -> None:
         pass
 
     def GetCommitId(self, srcdir, ref: str = "HEAD"):

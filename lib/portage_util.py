@@ -42,6 +42,7 @@ from chromite.lib.parser import package_info
 from chromite.utils import key_value_store
 from chromite.utils import pms
 from chromite.utils.parser import pms_dependency
+from chromite.utils.parser import portage_md5_cache
 
 
 # Type used for buildroot arguments. Typically this comes from constants such as
@@ -568,7 +569,11 @@ class EBuild:
         cls._RunGit(overlay, git_commit_cmd)
 
     def __init__(
-        self, path, subdir_support=False, use_flags: Optional[List[str]] = None
+        self,
+        path,
+        subdir_support=False,
+        use_flags: Optional[List[str]] = None,
+        cache_file: Optional[Path] = None,
     ) -> None:
         """Sets up data about an ebuild from its path.
 
@@ -577,8 +582,13 @@ class EBuild:
             subdir_support: Support obsolete CROS_WORKON_SUBDIR.  Intended for
                 branches older than 10363.0.0.
             use_flags: USE flags to apply.
+            cache_file: Path to the ebuild's md5-cache file.  We assume it
+                exists and is up-to-date already.
         """
         self.subdir_support = subdir_support
+        self._ebuild_cache = (
+            portage_md5_cache.Md5Cache(path=cache_file) if cache_file else None
+        )
 
         self.overlay, self.category, self.pkgname, filename = path.rsplit(
             "/", 3
@@ -610,7 +620,7 @@ class EBuild:
         self.is_stable = False
         self.is_manually_uprevved = False
         self.has_test = False
-        self._ReadEBuild(path, use_flags)
+        self._ReadEBuild(path, use_flags, self._ebuild_cache)
 
         # Grab the latest project settings.
         new_vars = None
@@ -640,7 +650,11 @@ class EBuild:
                 self.cros_workon_vars = new_vars
 
     @staticmethod
-    def Classify(ebuild_path, use_flags: Optional[List[str]] = None):
+    def Classify(
+        ebuild_path,
+        use_flags: Optional[List[str]] = None,
+        ebuild_cache: Optional[portage_md5_cache.Md5Cache] = None,
+    ):
         """Return the workon, stable, and manually uprev status for the ebuild.
 
         workon is determined by whether the ebuild inherits from the
@@ -703,6 +717,11 @@ class EBuild:
                         logging.warning(
                             "%s: unable to parse RESTRICT: %s", ebuild_path, e
                         )
+
+        # If we have a cache file, trust it over any ad-hoc ebuild parsing.
+        if ebuild_cache:
+            restrict_tests = "test" in ebuild_cache.restrict.reduce(use_flags)
+
         return EBuildClassifyAttributes(
             is_workon,
             is_stable,
@@ -710,7 +729,12 @@ class EBuild:
             has_test and not restrict_tests,
         )
 
-    def _ReadEBuild(self, path, use_flags: Optional[List[str]] = None) -> None:
+    def _ReadEBuild(
+        self,
+        path,
+        use_flags: Optional[List[str]] = None,
+        cache: Optional[portage_md5_cache.Md5Cache] = None,
+    ) -> None:
         """Determine is_workon, is_stable and is_manually_uprevved settings.
 
         These are determined using the static Classify function.
@@ -720,7 +744,7 @@ class EBuild:
             self.is_stable,
             self.is_manually_uprevved,
             self.has_test,
-        ) = EBuild.Classify(path, use_flags)
+        ) = EBuild.Classify(path, use_flags, cache)
 
     @staticmethod
     def _GetAutotestTestsFromSettings(settings) -> List[str]:
@@ -2888,7 +2912,9 @@ def _CheckHasTest(cp, sysroot, require_workon: bool = False) -> None:
     use_flags = ["test"]
     if sysroot == "/":
         use_flags += ["cros_host"]
-    ebuild = EBuild(path, False, use_flags)
+    ebuild = EBuild(
+        path, False, use_flags, cache_file=get_cache_file(Path(path))
+    )
     if require_workon and not ebuild.is_workon:
         return None
     elif ebuild.has_test:
