@@ -37,3 +37,7 @@ def main(argv) -> None:
     paygen_stateful_payload_lib.GenerateStatefulPayload(
         opts.image_path, opts.output_dir
     )
+
+    paygen_stateful_payload_lib.GenerateZstdStatefulPayload(
+        opts.image_path, opts.output_dir
+    )
