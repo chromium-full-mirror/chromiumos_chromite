@@ -2,16 +2,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Script to generate Chromium OS quick provision payloads."""
+"""Script to generate ChromiumOS provision payloads."""
 
 import os
 
 from chromite.lib import commandline
-from chromite.lib import constants
-from chromite.lib import cros_build_lib
-from chromite.lib import osutils
 from chromite.lib import parallel
-from chromite.lib.paygen import partition_lib
+from chromite.lib.paygen import paygen_provision_payload
 from chromite.lib.paygen import paygen_stateful_payload_lib
 
 
@@ -43,44 +40,20 @@ def ParseArguments(argv):
     return opts
 
 
-def CreateKernelQuickProvisionPayload(image, output) -> None:
-    with osutils.TempDir() as temp_dir:
-        # Extract kernel.
-        kern = os.path.join(temp_dir, "kern")
-        partition_lib.ExtractKernel(image, os.path.join(temp_dir, kern))
-        # Compress kernel.
-        cros_build_lib.CompressFile(
-            kern, os.path.join(output, constants.QUICK_PROVISION_PAYLOAD_KERNEL)
-        )
-
-
-def CreateRootQuickProvisionPayload(image, output) -> None:
-    with osutils.TempDir() as temp_dir:
-        # Extract root.
-        root = os.path.join(temp_dir, "root")
-        partition_lib.ExtractRoot(image, os.path.join(temp_dir, root))
-        # Compress root.
-        cros_build_lib.CompressFile(
-            root, os.path.join(output, constants.QUICK_PROVISION_PAYLOAD_ROOTFS)
-        )
-
-
-def CreateStatefulQuickProvisionPayload(image, output) -> None:
-    # Create stateful quick provision payload.
-    paygen_stateful_payload_lib.GenerateStatefulPayload(image, output)
-    # Change output ownership of file.
-
-
 def main(argv) -> None:
     opts = ParseArguments(argv)
 
     parallel.RunParallelSteps(
         [
             # Stateful generation is usually the slowest.
-            lambda: CreateStatefulQuickProvisionPayload(
+            lambda: paygen_stateful_payload_lib.GenerateStatefulPayload(
                 opts.image, opts.output
             ),
-            lambda: CreateKernelQuickProvisionPayload(opts.image, opts.output),
-            lambda: CreateRootQuickProvisionPayload(opts.image, opts.output),
+            lambda: paygen_stateful_payload_lib.GenerateZstdStatefulPayload(
+                opts.image, opts.output
+            ),
+            lambda: paygen_provision_payload.GenerateProvisionPayloads(
+                opts.image, opts.output
+            ),
         ]
     )
