@@ -207,6 +207,9 @@ def inner_main(opts: commandline.ArgumentNamespace):
     if opts.packages:
         packages |= set(opts.packages.split())
 
+    # Need to regen caches before we start inspecting ebuilds.
+    portage_util.RegenDependencyCache(sysroot=sysroot)
+
     # If no packages were specified, use all testable packages.
     if not (opts.packages or opts.package_file) and not opts.empty_sysroot:
         workon = workon_helper.WorkonHelper(sysroot)
