@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Library for handling Chrome OS partition."""
+"""Utilities to handle/generate CrOS stateful payloads."""
 
 import logging
 import os
