@@ -698,7 +698,9 @@
         }
       ],
       "rubik_target_milestone": 108,
-      "build_cadence": "DAILY_CADENCE"
+      "board_variant": "signingnext",
+      "build_cadence": "DAILY_CADENCE",
+      "has_lab_resources": true
     },
     {
       "name": "aurora",
