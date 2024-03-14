@@ -1083,12 +1083,24 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
                 partial_mock.HasString(
                     constants.QUICK_PROVISION_PAYLOAD_KERNEL
                 ),
+                compression_level=None,
             ),
             mock.call(
                 partial_mock.HasString("rootfs.bin"),
                 partial_mock.HasString(
                     constants.QUICK_PROVISION_PAYLOAD_ROOTFS
                 ),
+                compression_level=None,
+            ),
+            mock.call(
+                partial_mock.HasString("kernel.bin"),
+                partial_mock.HasString(constants.FULL_PAYLOAD_KERN),
+                compression_level=19,
+            ),
+            mock.call(
+                partial_mock.HasString("rootfs.bin"),
+                partial_mock.HasString(constants.FULL_PAYLOAD_ROOT),
+                compression_level=19,
             ),
         ]
         compress_file_mock.assert_has_calls(calls)
@@ -1126,12 +1138,36 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
                 partial_mock.HasString(
                     constants.QUICK_PROVISION_PAYLOAD_KERNEL
                 ),
+                compression_level=None,
             ),
             mock.call(
                 partial_mock.HasString("rootfs.bin"),
                 partial_mock.HasString(
                     constants.QUICK_PROVISION_PAYLOAD_ROOTFS
                 ),
+                compression_level=None,
+            ),
+            mock.call(
+                partial_mock.HasString("minios.bin"),
+                partial_mock.HasString(
+                    constants.QUICK_PROVISION_PAYLOAD_MINIOS
+                ),
+                compression_level=None,
+            ),
+            mock.call(
+                partial_mock.HasString("kernel.bin"),
+                partial_mock.HasString(constants.FULL_PAYLOAD_KERN),
+                compression_level=19,
+            ),
+            mock.call(
+                partial_mock.HasString("rootfs.bin"),
+                partial_mock.HasString(constants.FULL_PAYLOAD_ROOT),
+                compression_level=19,
+            ),
+            mock.call(
+                partial_mock.HasString("minios.bin"),
+                partial_mock.HasString(constants.FULL_PAYLOAD_MINIOS),
+                compression_level=19,
             ),
         ]
         compress_file_mock.assert_has_calls(calls)

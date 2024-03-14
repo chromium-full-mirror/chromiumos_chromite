@@ -11,8 +11,9 @@ import collections
 import glob
 import logging
 import os
+from pathlib import Path
 import shutil
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import Dict, List, Mapping, Optional, TYPE_CHECKING, Union
 
 from chromite.lib import autotest_util
 from chromite.lib import constants
@@ -800,6 +801,10 @@ def GenerateQuickProvisionPayloads(
             kernel_part: constants.QUICK_PROVISION_PAYLOAD_KERNEL,
             rootfs_part: constants.QUICK_PROVISION_PAYLOAD_ROOTFS,
         }
+        zstd_mapping = {
+            kernel_part: constants.FULL_PAYLOAD_KERN,
+            rootfs_part: constants.FULL_PAYLOAD_ROOT,
+        }
 
         if partition_lib.HasMiniOSPartitions(target_image_path):
             minios_part = "minios.bin"
@@ -807,12 +812,33 @@ def GenerateQuickProvisionPayloads(
                 target_image_path, os.path.join(temp_dir, minios_part)
             )
             mapping[minios_part] = constants.QUICK_PROVISION_PAYLOAD_MINIOS
+            zstd_mapping[minios_part] = constants.FULL_PAYLOAD_MINIOS
 
-        for partition, payload in mapping.items():
-            source = os.path.join(temp_dir, partition)
-            dest = os.path.join(archive_dir, payload)
-            cros_build_lib.CompressFile(source, dest)
-            payloads.append(dest)
+        def CompressMappings(
+            mapping: Mapping[Union[Path, str], Union[Path, str]],
+            compression_level: Optional[int] = None,
+        ) -> List[Union[Path, str]]:
+            """Compresses a mapping of payloads.
+
+            Args:
+                mapping: The mapping to process.
+                compression_level: Optional compression level.
+
+            Returns:
+                A list of compressed payload paths.
+            """
+            compressed_payloads = []
+            for partition, payload in mapping.items():
+                source = os.path.join(temp_dir, partition)
+                dest = os.path.join(archive_dir, payload)
+                cros_build_lib.CompressFile(
+                    source, dest, compression_level=compression_level
+                )
+                compressed_payloads.append(dest)
+            return compressed_payloads
+
+        payloads.extend(CompressMappings(mapping))
+        payloads.extend(CompressMappings(zstd_mapping, compression_level=19))
 
     return payloads
 
