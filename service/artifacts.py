@@ -11,9 +11,8 @@ import collections
 import glob
 import logging
 import os
-from pathlib import Path
 import shutil
-from typing import Dict, List, Mapping, Optional, TYPE_CHECKING, Union
+from typing import Dict, List, Optional, TYPE_CHECKING
 
 from chromite.lib import autotest_util
 from chromite.lib import constants
@@ -21,8 +20,8 @@ from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import portage_util
-from chromite.lib.paygen import partition_lib
 from chromite.lib.paygen import paygen_payload_lib
+from chromite.lib.paygen import paygen_provision_payload
 from chromite.lib.paygen import paygen_stateful_payload_lib
 
 
@@ -569,7 +568,11 @@ def BundleTestUpdatePayloads(
         delta=True,
         dlc=True,
     )
-    payloads.extend(GenerateQuickProvisionPayloads(image_path, output_dir))
+    payloads.extend(
+        paygen_provision_payload.GenerateProvisionPayloads(
+            image_path, output_dir
+        )
+    )
 
     return payloads
 
@@ -771,79 +774,6 @@ def GenerateTestPayloads(
         steps, return_values=True, max_parallel=2
     )
     return [i for sl in gen_files for i in sl]
-
-
-def GenerateQuickProvisionPayloads(
-    target_image_path: str, archive_dir: str
-) -> List[str]:
-    """Generates payloads needed for quick_provision script.
-
-    Args:
-        target_image_path: The path to the image to extract the partitions.
-        archive_dir: Where to store partitions when generated.
-
-    Returns:
-        The artifacts that were produced.
-    """
-    payloads = []
-    with osutils.TempDir() as temp_dir:
-        # These partitions are mainly used by quick_provision.
-        kernel_part = "kernel.bin"
-        rootfs_part = "rootfs.bin"
-        partition_lib.ExtractKernel(
-            target_image_path, os.path.join(temp_dir, kernel_part)
-        )
-        partition_lib.ExtractRoot(
-            target_image_path,
-            os.path.join(temp_dir, rootfs_part),
-            truncate=False,
-        )
-
-        # Partition to payload mapping.
-        mapping = {
-            kernel_part: constants.QUICK_PROVISION_PAYLOAD_KERNEL,
-            rootfs_part: constants.QUICK_PROVISION_PAYLOAD_ROOTFS,
-        }
-        zstd_mapping = {
-            kernel_part: constants.FULL_PAYLOAD_KERN,
-            rootfs_part: constants.FULL_PAYLOAD_ROOT,
-        }
-
-        if partition_lib.HasMiniOSPartitions(target_image_path):
-            minios_part = "minios.bin"
-            partition_lib.ExtractMiniOS(
-                target_image_path, os.path.join(temp_dir, minios_part)
-            )
-            mapping[minios_part] = constants.QUICK_PROVISION_PAYLOAD_MINIOS
-            zstd_mapping[minios_part] = constants.FULL_PAYLOAD_MINIOS
-
-        def CompressMappings(
-            mapping: Mapping[Union[Path, str], Union[Path, str]],
-            compression_level: Optional[int] = None,
-        ) -> List[Union[Path, str]]:
-            """Compresses a mapping of payloads.
-
-            Args:
-                mapping: The mapping to process.
-                compression_level: Optional compression level.
-
-            Returns:
-                A list of compressed payload paths.
-            """
-            compressed_payloads = []
-            for partition, payload in mapping.items():
-                source = os.path.join(temp_dir, partition)
-                dest = os.path.join(archive_dir, payload)
-                cros_build_lib.CompressFile(
-                    source, dest, compression_level=compression_level
-                )
-                compressed_payloads.append(dest)
-            return compressed_payloads
-
-        payloads.extend(CompressMappings(mapping))
-        payloads.extend(CompressMappings(zstd_mapping, compression_level=19))
-
-    return payloads
 
 
 def BundleTastFiles(

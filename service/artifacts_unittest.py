@@ -17,10 +17,8 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import parallel
-from chromite.lib import partial_mock
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
-from chromite.lib.paygen import partition_lib
 from chromite.lib.paygen import paygen_payload_lib
 from chromite.lib.paygen import paygen_stateful_payload_lib
 from chromite.service import artifacts
@@ -1057,124 +1055,6 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         )
         paygen_mock.assert_called_once_with(self.target_image, self.tempdir)
         paygen_mock2.assert_called_once_with(self.target_image, self.tempdir)
-
-    def testGenerateQuickProvisionPayloads(self) -> None:
-        """Verifies correct files are created for quick_provision script."""
-        extract_kernel_mock = self.PatchObject(partition_lib, "ExtractKernel")
-        extract_root_mock = self.PatchObject(partition_lib, "ExtractRoot")
-        has_minios_mock = self.PatchObject(
-            partition_lib, "HasMiniOSPartitions", return_value=False
-        )
-        compress_file_mock = self.PatchObject(cros_build_lib, "CompressFile")
-
-        artifacts.GenerateQuickProvisionPayloads(
-            self.target_image, self.tempdir
-        )
-
-        extract_kernel_mock.assert_called_once_with(
-            self.target_image, partial_mock.HasString("kernel.bin")
-        )
-        extract_root_mock.assert_called_once_with(
-            self.target_image,
-            partial_mock.HasString("rootfs.bin"),
-            truncate=False,
-        )
-        has_minios_mock.assert_called_once()
-
-        calls = [
-            mock.call(
-                partial_mock.HasString("kernel.bin"),
-                partial_mock.HasString(
-                    constants.QUICK_PROVISION_PAYLOAD_KERNEL
-                ),
-                compression_level=None,
-            ),
-            mock.call(
-                partial_mock.HasString("rootfs.bin"),
-                partial_mock.HasString(
-                    constants.QUICK_PROVISION_PAYLOAD_ROOTFS
-                ),
-                compression_level=None,
-            ),
-            mock.call(
-                partial_mock.HasString("kernel.bin"),
-                partial_mock.HasString(constants.FULL_PAYLOAD_KERN),
-                compression_level=19,
-            ),
-            mock.call(
-                partial_mock.HasString("rootfs.bin"),
-                partial_mock.HasString(constants.FULL_PAYLOAD_ROOT),
-                compression_level=19,
-            ),
-        ]
-        compress_file_mock.assert_has_calls(calls)
-
-    def testGenerateQuickProvisionPayloadsWithMiniOS(self) -> None:
-        """Verifies correct files are created for quick_provision script."""
-        extract_kernel_mock = self.PatchObject(partition_lib, "ExtractKernel")
-        extract_root_mock = self.PatchObject(partition_lib, "ExtractRoot")
-        extract_minios_mock = self.PatchObject(partition_lib, "ExtractMiniOS")
-        has_minios_mock = self.PatchObject(
-            partition_lib, "HasMiniOSPartitions", return_value=True
-        )
-        compress_file_mock = self.PatchObject(cros_build_lib, "CompressFile")
-
-        artifacts.GenerateQuickProvisionPayloads(
-            self.target_image, self.tempdir
-        )
-
-        extract_kernel_mock.assert_called_once_with(
-            self.target_image, partial_mock.HasString("kernel.bin")
-        )
-        extract_root_mock.assert_called_once_with(
-            self.target_image,
-            partial_mock.HasString("rootfs.bin"),
-            truncate=False,
-        )
-        extract_minios_mock.assert_called_once_with(
-            self.target_image, partial_mock.HasString("minios.bin")
-        )
-        has_minios_mock.assert_called_once()
-
-        calls = [
-            mock.call(
-                partial_mock.HasString("kernel.bin"),
-                partial_mock.HasString(
-                    constants.QUICK_PROVISION_PAYLOAD_KERNEL
-                ),
-                compression_level=None,
-            ),
-            mock.call(
-                partial_mock.HasString("rootfs.bin"),
-                partial_mock.HasString(
-                    constants.QUICK_PROVISION_PAYLOAD_ROOTFS
-                ),
-                compression_level=None,
-            ),
-            mock.call(
-                partial_mock.HasString("minios.bin"),
-                partial_mock.HasString(
-                    constants.QUICK_PROVISION_PAYLOAD_MINIOS
-                ),
-                compression_level=None,
-            ),
-            mock.call(
-                partial_mock.HasString("kernel.bin"),
-                partial_mock.HasString(constants.FULL_PAYLOAD_KERN),
-                compression_level=19,
-            ),
-            mock.call(
-                partial_mock.HasString("rootfs.bin"),
-                partial_mock.HasString(constants.FULL_PAYLOAD_ROOT),
-                compression_level=19,
-            ),
-            mock.call(
-                partial_mock.HasString("minios.bin"),
-                partial_mock.HasString(constants.FULL_PAYLOAD_MINIOS),
-                compression_level=19,
-            ),
-        ]
-        compress_file_mock.assert_has_calls(calls)
 
 
 class BundleTastFilesTest(cros_test_lib.MockTempDirTestCase):
