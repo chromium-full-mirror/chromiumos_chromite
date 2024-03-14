@@ -741,7 +741,10 @@ def GenerateTestPayloads(
         return [
             paygen_stateful_payload_lib.GenerateStatefulPayload(
                 target_image_path, archive_dir
-            )
+            ),
+            paygen_stateful_payload_lib.GenerateZstdStatefulPayload(
+                target_image_path, archive_dir
+            ),
         ]
 
     steps = []

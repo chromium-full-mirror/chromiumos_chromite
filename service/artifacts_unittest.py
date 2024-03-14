@@ -1049,10 +1049,14 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
         paygen_mock = self.PatchObject(
             paygen_stateful_payload_lib, "GenerateStatefulPayload"
         )
+        paygen_mock2 = self.PatchObject(
+            paygen_stateful_payload_lib, "GenerateZstdStatefulPayload"
+        )
         artifacts.GenerateTestPayloads(
             self.chroot, self.target_image, self.tempdir, stateful=True
         )
         paygen_mock.assert_called_once_with(self.target_image, self.tempdir)
+        paygen_mock2.assert_called_once_with(self.target_image, self.tempdir)
 
     def testGenerateQuickProvisionPayloads(self) -> None:
         """Verifies correct files are created for quick_provision script."""
