@@ -129,6 +129,10 @@ class SourceDirectoryDoesNotExistError(Error, FileNotFoundError):
     """Error when at least one of an ebuild's sources does not exist."""
 
 
+class MissingCacheEntry(Error, FileNotFoundError):
+    """No on-disk cache entry could be found for a package."""
+
+
 @functools.lru_cache(maxsize=None)
 def _GetKnownOverlays(buildroot: BuildrootType) -> Dict[str, Dict]:
     """Return the list of overlays for a buildroot irrespective of board.
@@ -375,6 +379,29 @@ def GetOverlayName(overlay: str) -> Optional[str]:
         except IOError:
             # Not all overlays have a repo_name, so don't make a fuss.
             return None
+
+
+def get_cache_file(ebuild_path: Path) -> Path:
+    """Find the cache file for |ebuild_path|."""
+    pinfo = package_info.parse(ebuild_path)
+    md5_cache_file_path = (
+        ebuild_path.parents[2] / "metadata" / "md5-cache" / pinfo.cpvr
+    )
+    edb_cache_file_path = (
+        constants.CHROOT_EDB_CACHE_ROOT
+        / "dep"
+        / ebuild_path.parents[2].relative_to("/")
+        / pinfo.cpvr
+    )
+
+    if edb_cache_file_path.is_file():
+        return edb_cache_file_path
+    elif md5_cache_file_path.is_file():
+        return md5_cache_file_path
+    else:
+        raise MissingCacheEntry(
+            f"No cache entry found for package: {pinfo.pvr}"
+        )
 
 
 def _GetSysrootTool(

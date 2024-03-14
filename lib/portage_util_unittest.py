@@ -6,6 +6,7 @@
 
 import json
 import os
+from pathlib import Path
 
 import pytest
 
@@ -2388,3 +2389,15 @@ another/pkg-3 unknown
     result = portage_util.ParseDieHookStatusFile()
 
     assert sorted(expected) == sorted(result)
+
+
+def test_get_cache_file(tmp_path) -> None:
+    """Verify parsing ebuild filenames to cache filenames."""
+    with pytest.raises(portage_util.MissingCacheEntry):
+        portage_util.get_cache_file(Path("/overlay/foo/bar/bar-1.ebuild"))
+
+    ebuild = tmp_path / "overlay-o" / "cat" / "foo" / "foo-1.ebuild"
+    cache = tmp_path / "overlay-o" / "metadata" / "md5-cache" / "cat" / "foo-1"
+    cache.parent.mkdir(parents=True)
+    cache.touch()
+    assert portage_util.get_cache_file(ebuild) == cache

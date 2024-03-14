@@ -14,7 +14,6 @@ from chromite.lib import git
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import portage_util
-from chromite.lib.parser import package_info
 from chromite.utils.parser import portage_md5_cache
 
 
@@ -22,40 +21,13 @@ class Error(Exception):
     """Base error class for the module."""
 
 
-class MissingCacheEntry(Error):
-    """No on-disk cache entry could be found for a package."""
-
-
 class NoMatchingFileForDigest(Error):
     """No ebuild or eclass file could be found with the given MD5 digest."""
 
 
-def _get_cache_file(ebuild_path: Path) -> Path:
-    """Find the cache file for |ebuild_path|."""
-    pinfo = package_info.parse(ebuild_path)
-    md5_cache_file_path = (
-        ebuild_path.parents[2] / "metadata" / "md5-cache" / pinfo.cpvr
-    )
-    edb_cache_file_path = (
-        constants.CHROOT_EDB_CACHE_ROOT
-        / "dep"
-        / ebuild_path.parents[2].relative_to("/")
-        / pinfo.cpvr
-    )
-
-    if edb_cache_file_path.is_file():
-        return edb_cache_file_path
-    elif md5_cache_file_path.is_file():
-        return md5_cache_file_path
-    else:
-        raise MissingCacheEntry(
-            f"No cache entry found for package: {pinfo.pvr}"
-        )
-
-
 def _get_eclasses_for_ebuild(ebuild_path, path_cache, overlay_dirs):
     cache_entries = portage_md5_cache.Md5Cache(
-        path=_get_cache_file(Path(ebuild_path)),
+        path=portage_util.get_cache_file(Path(ebuild_path)),
         missing_ok=False,
     )
 
