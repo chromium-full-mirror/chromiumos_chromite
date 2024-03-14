@@ -249,6 +249,7 @@ def test_next_request_wait(monkeypatch) -> None:
 
 
 def test_extract_from_files(monkeypatch, tmp_path):
+    """Test extracting spans from files."""
     monkeypatch.setattr(
         telemetry_publisher, "_get_telemetry_dir", lambda: tmp_path
     )
@@ -264,3 +265,133 @@ def test_extract_from_files(monkeypatch, tmp_path):
     telemetry_publisher._parse_files(publisher)
 
     assert expected == publisher._queue
+
+
+def test_telemetry_file_publishing_succeeded(tmp_path):
+    """Test TelemetryFile.publishing_succeeded."""
+    f = tmp_path / "foo.otel.traces.json"
+    f.touch()
+
+    telemetry_file = telemetry_publisher.TelemetryFile(f)
+
+    # Precondition checks.
+    assert f.exists()
+    assert telemetry_file.is_publishable
+    assert not telemetry_file.is_published
+
+    # "Publish".
+    telemetry_file.publishing_succeeded()
+
+    # Postcondition checks.
+    assert telemetry_file.is_published
+    assert not telemetry_file.is_publishable
+    # pylint: disable=protected-access
+    assert telemetry_file._published_file.exists()
+    assert telemetry_file._published_file.parent == tmp_path
+
+    telemetry_file.delete(age=0)
+
+    # Delete postcondition checks.
+    assert not f.exists()
+    assert not telemetry_file._published_file.exists()
+
+
+def test_telemetry_file_parsing_failed(tmp_path):
+    """Test TelemetryFile.parsing_failed."""
+    f = tmp_path / "foo.otel.traces.json"
+    f.touch()
+
+    telemetry_file = telemetry_publisher.TelemetryFile(f)
+
+    # Precondition checks.
+    assert f.exists()
+    assert telemetry_file.is_publishable
+    assert not telemetry_file.is_failed_parsing
+
+    # "Fail parsing".
+    telemetry_file.parsing_failed()
+
+    # Postcondition checks.
+    assert not telemetry_file.is_publishable
+    assert telemetry_file.is_failed_parsing
+    # pylint: disable=protected-access
+    assert telemetry_file._parse_failed_file.exists()
+    assert telemetry_file._parse_failed_file.parent == tmp_path
+
+    telemetry_file.delete(age=0)
+
+    # Delete postcondition checks.
+    assert not f.exists()
+    assert not telemetry_file._parse_failed_file.exists()
+
+
+def test_telemetry_file_publishing_failed(tmp_path):
+    """Test TelemetryFile.publishing_failed."""
+    f = tmp_path / "foo.otel.traces.json"
+    f.touch()
+
+    telemetry_file = telemetry_publisher.TelemetryFile(f)
+
+    # Precondition checks.
+    assert f.exists()
+    assert telemetry_file.is_publishable
+    assert not telemetry_file.is_failed_publishing
+
+    # "Fail publishing".
+    telemetry_file.publishing_failed()
+
+    # Postcondition checks.
+    assert not telemetry_file.is_publishable
+    assert telemetry_file.is_failed_publishing
+    # pylint: disable=protected-access
+    assert telemetry_file._publish_failed_file.exists()
+    assert telemetry_file._publish_failed_file.parent == tmp_path
+
+    telemetry_file.delete(age=0)
+
+    # Delete postcondition checks.
+    assert not f.exists()
+    assert not telemetry_file._publish_failed_file.exists()
+
+
+def test_telemetry_file_in_progress(tmp_path):
+    """Test the in-progress file from the exporter."""
+    f = tmp_path / "foo.otel.traces.json"
+    f.touch()
+    in_progress = f.with_name(f".{f.name}.in-progress")
+
+    telemetry_file = telemetry_publisher.TelemetryFile(f)
+
+    # Precondition checks.
+    assert f.exists()
+    assert not in_progress.exists()
+    assert telemetry_file.is_publishable
+
+    in_progress.touch()
+    assert in_progress.exists()
+    assert not telemetry_file.is_publishable
+
+    telemetry_file.delete(age=0)
+
+    # Delete postcondition checks.
+    assert not f.exists()
+    assert not in_progress.exists()
+
+
+def test_telemetry_file_spans(tmp_path):
+    """Test TelemetryFile.spans."""
+    f = tmp_path / "foo.otel.traces.json"
+    f.touch()
+
+    telemetry_file = telemetry_publisher.TelemetryFile(f)
+    assert not telemetry_file.spans
+
+    # TelemetryFile currently doesn't do any validation/parsing of the span
+    # contents, so we can write arbitrary data to test the splitting.
+    f.write_text("a\nb\nc\nd\n \n\t\n", encoding="utf-8")
+    # spans is a cached property to avoid extraneous reads. This can be changed,
+    # just have a test to make sure changes to it are tested.
+    assert not telemetry_file.spans
+    # Make a new one to test the "spans" we wrote.
+    telemetry_file = telemetry_publisher.TelemetryFile(f)
+    assert len(telemetry_file.spans) == 4

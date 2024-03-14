@@ -58,9 +58,16 @@ _LOG_SOURCE = 2044
 # Preallocated in Clearcut proto to Python clients.
 _CLIENT_TYPE = 33
 
+# How long to keep telemetry before deleting.
+_TELEMETRY_PURGE_AGE = 7 * 24 * 60 * 60
+
 
 class Error(Exception):
     """Base error class for the module."""
+
+
+class ParseSpanError(Error):
+    """Error parsing a span."""
 
 
 class PublishError(Error):
@@ -76,13 +83,13 @@ def _get_telemetry_dir():
 @functools.lru_cache
 def _get_publisher_file():
     """Get the publisher PID file."""
-    return _get_telemetry_dir() / "telemetry_publisher_pid"
+    return _get_telemetry_dir() / ".telemetry_publisher_pid"
 
 
 @functools.lru_cache
 def _get_next_publish_ts_file():
     """Get the telemetry next publish ts file."""
-    return _get_telemetry_dir() / "next_telemetry_publish_ts"
+    return _get_telemetry_dir() / ".telemetry_next_publish_ts"
 
 
 def _can_publish():
@@ -133,17 +140,23 @@ def publish():
         # Log our PID.
         publisher_file.write_text(str(os.getpid()))
 
-        # Do the publishing.
-        logging.debug("Begin publish.")
+        logging.debug("Parsing files.")
         pending_files = _parse_files(publisher)
+
+        span = trace.get_current_span()
+        span.set_attribute("file_count", len(pending_files))
+        span.set_attribute("span_count", publisher.queue_len)
         logging.debug(
             "Publishing %s files containing %s spans.",
             len(pending_files),
             publisher.queue_len,
         )
+
+        # Do the publishing.
         try:
             publisher.publish()
         except PublishError:
+            _post_publish_failure_actions(pending_files)
             publisher_file.unlink()
             raise
 
@@ -156,24 +169,36 @@ def publish():
 
         # Drop the PID file and we're done.
         publisher_file.unlink()
-        logging.debug("Publish complete.")
-        # TODO: Clear old published files instead of deleting on publish.
+
+    logging.notice("Publish complete.")
 
 
 @tracer.start_as_current_span("chromite.lib.telemetry_publisher._parse_files")
-def _parse_files(publisher: "ClearcutPublisher") -> List["Path"]:
+def _parse_files(publisher: "ClearcutPublisher") -> List["TelemetryFile"]:
     """Parse relevant files from the telemetry log dir and queue their spans."""
     pending_files = []
-    for current in _get_telemetry_dir().rglob("*.otel.traces.json"):
+    for current in _get_telemetry_files():
         logging.debug("Processing: %s", current)
-        # TODO: Check for published file.
-        lines = [x for x in current.read_text().splitlines() if x]
-        if not lines:
-            # Most likely an actively running process.
+
+        if not current.is_publishable:
             continue
 
-        if publisher.queue(lines):
-            logging.debug("Queued: %s with %s spans", current, len(lines))
+        if not current.spans:
+            # This should be redundant since is_publishable checks for the
+            # in-progress file, but just in case there's a race condition...
+            continue
+
+        try:
+            queued = publisher.queue(current.spans)
+        except ParseSpanError as e:
+            logging.warning(e)
+            current.parsing_failed()
+            continue
+
+        if queued:
+            logging.debug(
+                "Queued: %s with %s spans", current, len(current.spans)
+            )
             pending_files.append(current)
         else:
             break
@@ -184,25 +209,143 @@ def _parse_files(publisher: "ClearcutPublisher") -> List["Path"]:
 @tracer.start_as_current_span(
     "chromite.lib.telemetry_publisher._post_publish_actions"
 )
-def _post_publish_actions(pending_files: List["Path"]):
+def _post_publish_actions(pending_files: List["TelemetryFile"]):
     """Post-publish actions for all published files."""
     for file in pending_files:
-        # TODO: Write a published file instead.
-        logging.debug("Deleting published: %s", file)
-        try:
-            osutils.SafeUnlink(file, sudo=True)
-        except cros_build_lib.RunCommandError:
-            # Doesn't exist for some reason.
-            continue
+        file.publishing_succeeded()
 
-        # Try to clear out any empty parent directories.
-        for parent in file.parents:
+    for file in _get_telemetry_files():
+        file.delete(age=_TELEMETRY_PURGE_AGE)
+
+
+def _post_publish_failure_actions(pending_files: Iterable["TelemetryFile"]):
+    """Anything that needs to be done on a publishing failure."""
+    for file in pending_files:
+        file.publishing_failed()
+
+
+def _get_telemetry_files() -> Iterable["TelemetryFile"]:
+    """Get all telemetry files on disk."""
+    for current in _get_telemetry_dir().rglob("*.otel.traces.json"):
+        yield TelemetryFile(current)
+
+
+class TelemetryFile:
+    """Telemetry file class."""
+
+    def __init__(self, path: "Path"):
+        self._path = path
+
+    def __str__(self):
+        return str(self._path)
+
+    @functools.cached_property
+    def spans(self):
+        """Get the spans from the file."""
+        return [
+            x.strip() for x in self._path.read_text().splitlines() if x.strip()
+        ]
+
+    # Metadata file properties used to track the status of the telemetry.
+    def _metadata_file(self, metadata_type):
+        return self._path.with_name(f".{self._path.name}.{metadata_type}")
+
+    @property
+    def _published_file(self):
+        return self._metadata_file("published")
+
+    @property
+    def _publish_failed_file(self):
+        return self._metadata_file("publish-failed")
+
+    @property
+    def _parse_failed_file(self):
+        return self._metadata_file("parse-failed")
+
+    @property
+    def _in_progress_file(self):
+        return self._metadata_file("in-progress")
+
+    # Telemetry status properties.
+    @property
+    def is_published(self):
+        return self._published_file.exists()
+
+    @property
+    def is_failed_publishing(self):
+        return self._publish_failed_file.exists()
+
+    @property
+    def is_failed_parsing(self):
+        return self._parse_failed_file.exists()
+
+    @property
+    def is_pending(self):
+        return self._in_progress_file.exists()
+
+    @property
+    def is_publishable(self) -> bool:
+        return self._path.exists() and not (
+            self.is_published
+            or self.is_pending
+            or self.is_failed_publishing
+            or self.is_failed_parsing
+        )
+
+    # Actions performed on the various results.
+    def parsing_failed(self) -> None:
+        """To be called when the file could not be parsed."""
+        self._parse_failed_file.touch()
+
+    def publishing_failed(self) -> None:
+        """To be called on failing to publish."""
+        # TODO: Add retry mechanism to accommodate external failures: network
+        #  flakes, clearcut outages, etc.
+        self._publish_failed_file.touch()
+
+    def publishing_succeeded(self) -> None:
+        """To be called on successfully being published."""
+        self._published_file.touch()
+
+    def _is_younger_than(self, age: int) -> bool:
+        return (time.time() - self._path.stat().st_mtime) < age
+
+    def delete(self, age: int):
+        """Delete the telemetry and relevant metadata if older than |age|.
+
+        Args:
+            age: The age in seconds to serve as the cutoff for keeping the file.
+        """
+        if age and self._is_younger_than(age):
+            return
+
+        def _delete(f: "Path"):
+            if not f.exists():
+                return
+            try:
+                osutils.SafeUnlink(f, sudo=True)
+            except cros_build_lib.RunCommandError as e:
+                # Doesn't exist for some reason.
+                logging.warning("Unable to delete %s:", f)
+                logging.warning(e)
+
+        # Delete the file itself plus all metadata files.
+        _delete(self._path)
+        _delete(self._publish_failed_file)
+        _delete(self._published_file)
+        _delete(self._parse_failed_file)
+        _delete(self._in_progress_file)
+
+        # Try to clear out empty parent directories.
+        for parent in self._path.parents:
             if _get_telemetry_dir() not in parent.parents:
+                # At or above telemetry dir.
                 break
 
             try:
                 parent.rmdir()
             except OSError:
+                # It's not empty.
                 break
 
 
@@ -634,7 +777,17 @@ class ClearcutPublisher:
 
     def queue(self, spans: Iterable[str]) -> bool:
         """Add spans to the queue if not above max batch size."""
-        parsed = [TraceSpan.parse(self._prefilter(x)) for x in spans]
+        try:
+            parsed = [TraceSpan.parse(self._prefilter(x)) for x in spans]
+        except Exception as e:  # pylint: disable=broad-except
+            # We don't want a single malformed file to interrupt the publishing
+            # process, so catch Exception and raise a ParseError instead.
+            logging.warning("Error parsing a span:")
+            logging.warning(spans)
+            raise ParseSpanError(
+                "Unable to parse a span, see logs for details."
+            ) from e
+
         if self._can_queue(len(parsed)):
             self._queue.extend(parsed)
             return True

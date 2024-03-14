@@ -30,7 +30,7 @@ class ChromiteFileExporter(export.SpanExporter):
         ),
     ):
         self.final_location = out_file
-        self.in_progress = out_file.parent / f"{out_file.name}.in_progress"
+        self.in_progress = out_file.parent / f".{out_file.name}.in-progress"
         self._exporter = export.ConsoleSpanExporter(
             out=self.in_progress.open("w"), formatter=formatter
         )
