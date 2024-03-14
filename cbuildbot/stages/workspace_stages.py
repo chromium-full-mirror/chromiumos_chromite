@@ -887,7 +887,12 @@ class WorkspaceDebugSymbolsStage(
         self.UploadDebugTarball()
 
         # Upload debug/breakpad tarball.
-        self.UploadDebugBreakpadTarball()
+        try:
+            self.UploadDebugBreakpadTarball()
+        except failures_lib.BuildScriptFailure:
+            # b/320599065: Temporarily ignore debugbreakpad upload failures.
+            logging.PrintBuildbotStepWarnings()
+            logging.warning("Uploading DebugBreakpad failed, ignoring..")
 
         # Upload them to crash server.
         if self._run.config.upload_symbols:
