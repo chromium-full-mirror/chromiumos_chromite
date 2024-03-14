@@ -701,6 +701,7 @@ MINIOS_PRIORITY = "minios_priority"
 QUICK_PROVISION_PAYLOAD_KERNEL = "full_dev_part_KERN.bin.gz"
 QUICK_PROVISION_PAYLOAD_ROOTFS = "full_dev_part_ROOT.bin.gz"
 QUICK_PROVISION_PAYLOAD_MINIOS = "full_dev_part_MINIOS.bin.gz"
+QUICK_PROVISION_PAYLOAD_STATEFUL = "stateful.tgz"
 
 # Payloads used for provision/flash.
 # For bandwidth-constrained networks, use these payloads.

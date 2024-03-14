@@ -977,7 +977,7 @@ class StatefulUpdater(PartitionUpdaterBase):
         elif self._image_type == ImageType.REMOTE_DIRECTORY:
             generator_cls = GsFileCopier
             self._image = os.path.join(
-                self._image, paygen_stateful_payload_lib.STATEFUL_FILE
+                self._image, constants.QUICK_PROVISION_PAYLOAD_STATEFUL
             )
         else:
             raise ValueError(f"Invalid image type {self._image_type}")

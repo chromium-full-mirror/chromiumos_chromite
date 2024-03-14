@@ -15,9 +15,6 @@ from chromite.lib import image_lib
 from chromite.lib import osutils
 
 
-STATEFUL_FILE = "stateful.tgz"
-
-
 def _generate_stateful_payload(
     image_path: Union[Path, str],
     output: Union[Path, int, str],
@@ -88,7 +85,9 @@ def GenerateStatefulPayload(
     if isinstance(output, int):
         output_gz = output
     else:
-        output_gz = os.path.join(output, STATEFUL_FILE)
+        output_gz = os.path.join(
+            output, constants.QUICK_PROVISION_PAYLOAD_STATEFUL
+        )
 
     _generate_stateful_payload(
         image_path, output_gz, cros_build_lib.CompressionType.GZIP
