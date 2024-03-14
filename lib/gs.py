@@ -1083,6 +1083,21 @@ wheel: <
                     **kwargs,
                 )
             except cros_build_lib.RunCommandError as e:
+                if any(
+                    text in e.result.stderr
+                    for text in [
+                        # No .boto file exists
+                        "ServiceException: 401 Anonymous caller",
+                        # .boto exists but doesn't have gcloud credentials
+                        "You might have an outdated .boto file.",
+                    ]
+                ):
+                    docs_url = (
+                        "https://www.chromium.org/chromium-os/developer-"
+                        "library/reference/tools/gsutil/"
+                        "#configure-authentication-boto"
+                    )
+                    print(f"Not logged in. See {docs_url} for instructions.")
                 raise GSCommandError(e.msg, e.result, e.exception)
 
     def Copy(
