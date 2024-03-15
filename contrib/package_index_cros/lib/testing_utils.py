@@ -104,8 +104,8 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
 
     def _create_ebuild(
         self,
-        category: str = "chromeos-base",
         package_name: str = "my-package",
+        category: str = "chromeos-base",
         stable_version: str = "1.0.0-r1",
         cros_workon_localnames: Tuple[str] = ("platform2",),
         cros_workon_projects: Tuple[str] = ("chromiumos/platform2",),

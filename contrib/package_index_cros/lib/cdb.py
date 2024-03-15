@@ -55,7 +55,7 @@ class Cdb:
 
     def __init__(
         self,
-        cdb_data: List,
+        cdb_data: List[Dict[str, List[str]]],
         pkg: package.Package,
         setup_data: setup.Setup,
         package_to_include_args: Dict[str, _IncludePathOrder],
