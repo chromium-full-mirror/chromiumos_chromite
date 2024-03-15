@@ -11578,6 +11578,15 @@
         },
         {
           "board_name": "nissa-arc-t",
+          "name": "glassway",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7278,
+          "is_active": true,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-arc-t",
           "name": "gothrax",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -12174,6 +12183,16 @@
         },
         {
           "board_name": "nissa-pvs",
+          "name": "glassway",
+          "cq_test_enabled": false,
+          "release_builder_test_pool": "bvt",
+          "board_id": 7268,
+          "is_active": true,
+          "stable_target_milestone": 125,
+          "is_experimental": true
+        },
+        {
+          "board_name": "nissa-pvs",
           "name": "gothrax",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -12372,6 +12391,7 @@
         }
       ],
       "rubik_target_milestone": 108,
+      "stable_target_milestone": 125,
       "board_variant": "pvs",
       "build_cadence": "DAILY_CADENCE",
       "has_lab_resources": false
