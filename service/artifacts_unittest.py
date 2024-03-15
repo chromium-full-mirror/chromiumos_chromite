@@ -10,6 +10,7 @@ import shutil
 from unittest import mock
 
 from chromite.lib import autotest_util
+from chromite.lib import autotest_util_unittest
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
@@ -80,6 +81,7 @@ class BundleAutotestFilesTest(cros_test_lib.MockTempDirTestCase):
             "_BuildTarball",
             side_effect=lambda _, path, **kwargs: osutils.Touch(path),
         )
+        autotest_util_unittest.create_tast_layout(self.chroot, self.sysroot)
 
         result = artifacts.BundleAutotestFiles(
             self.chroot, self.sysroot, self.output_dir

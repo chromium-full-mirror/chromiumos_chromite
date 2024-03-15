@@ -13,9 +13,33 @@ from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
-from chromite.lib import osutils
 from chromite.lib import sysroot_lib
 from chromite.utils import matching
+
+
+def create_tast_layout(
+    chroot: chroot_lib.Chroot,
+    _sysroot: sysroot_lib.Sysroot,
+) -> None:
+    """Create a layout that matches a real public tast install."""
+    D = cros_test_lib.Directory
+    filesystem = (
+        D(
+            "usr",
+            (
+                D("bin", ("tast", "remote_test_runner")),
+                D(
+                    "libexec",
+                    (D("tast", (D("bundles", (D("remote", ("cros",)),)),)),),
+                ),
+                D(
+                    "share",
+                    (D("tast", (D("data", (D("go.chromium.org", ()),)),)),),
+                ),
+            ),
+        ),
+    )
+    cros_test_lib.CreateOnDiskHierarchy(chroot.path, filesystem)
 
 
 class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
@@ -93,7 +117,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
 
     def testBuildAutotestServerPackageTarball(self) -> None:
         """Verify generating the autotest server package tarball is correct."""
-        file_list = [
+        control_file_list = [
             "autotest/server/site_tests/testA/control",
             "autotest/server/site_tests/testB/control",
         ]
@@ -101,21 +125,23 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
             self.tempdir, self.builder._SERVER_PACKAGE_ARCHIVE
         )
 
-        expected_files = list(file_list)
+        create_tast_layout(self.chroot, self.sysroot)
+        expected_files = list(control_file_list)
         ssp_files = []
 
-        # Touch chroot Tast paths so they'll be included in the tar command.
+        # All the chroot files should exist.
         for p in self.builder._TAST_SSP_CHROOT_FILES:
             path = p.get_src(self.chroot, self.sysroot)
-            osutils.Touch(path, makedirs=True)
             expected_files.append(path)
             ssp_files.append(p)
 
-        # Skip touching the source Tast files so we can verify they're not
-        # included in the tar command.
+        # Verify skipping of source files.
         for p in self.builder._TAST_SSP_SOURCE_FILES:
             ssp_files.append(
-                autotest_util.PathMapping(os.path.join(self.basedir, p.raw_src))
+                autotest_util.PathMapping(
+                    os.path.join(self.basedir, p.raw_src),
+                    missing_ok=True,
+                )
             )
 
         tar_mock = self.PatchObject(self.builder, "_BuildTarball")
@@ -124,7 +150,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
         )
         # Pass a copy of the file list so the code under test can't mutate it.
         self.PatchObject(
-            matching, "FindFilesMatching", return_value=list(file_list)
+            matching, "FindFilesMatching", return_value=control_file_list
         )
 
         self.builder.BuildAutotestServerPackageTarball()

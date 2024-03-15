@@ -5,6 +5,7 @@
 """Autotest utilities."""
 
 import dataclasses
+import logging
 import os
 from typing import List, Optional
 
@@ -25,6 +26,7 @@ class PathMapping:
 
     raw_src: str
     raw_dst: Optional[str] = None
+    missing_ok: bool = False
 
     def get_src(
         self, chroot: chroot_lib.Chroot, sysroot: "sysroot_lib.Sysroot"
@@ -82,6 +84,7 @@ class AutotestTarballBuilder:
         PathMapping(
             "src/platform/tast-tests-private/vars",
             "tast/vars/private",
+            True,
         ),
     ]
 
@@ -263,7 +266,10 @@ class AutotestTarballBuilder:
         for mapping in self._GetTastSspFiles():
             src = mapping.get_src(self.chroot, self.sysroot)
             if not os.path.exists(src):
-                continue
+                if mapping.missing_ok:
+                    continue
+                logging.error("%s: unable to locate tast input", src)
+                raise FileNotFoundError(src)
 
             files.append(src)
             transforms.append(
