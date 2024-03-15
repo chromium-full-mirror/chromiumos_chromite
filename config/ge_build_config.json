@@ -137,6 +137,40 @@
       "stable_target_milestone": 122
     },
     {
+      "name": "brya-arcnext",
+      "configs": [
+        {
+          "builder": "RELEASE",
+          "experimental": true,
+          "leader_board": false,
+          "board_group": "",
+          "arch": "UNKNOWN",
+          "board_variant": "arcnext",
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
+        }
+      ],
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 133
+    },
+    {
+      "name": "brya-lvm-rootfs",
+      "configs": [
+        {
+          "builder": "RELEASE",
+          "experimental": true,
+          "leader_board": false,
+          "board_group": "",
+          "arch": "UNKNOWN",
+          "board_variant": "lvm-rootfs",
+          "build_cadence": "THRICE_PER_WEEK_CADENCE",
+          "has_lab_resources": true
+        }
+      ],
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 124
+    },
+    {
       "name": "bubs",
       "configs": [
         {
