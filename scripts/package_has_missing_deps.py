@@ -101,6 +101,7 @@ VIRTUALS = {
         "media-libs/mesa",
         "media-libs/mesa-amd",
         "media-libs/mesa-freedreno",
+        "media-libs/mesa-img",
         "media-libs/mesa-iris",
         "media-libs/mesa-llvmpipe",
         "media-libs/mesa-panfrost",
