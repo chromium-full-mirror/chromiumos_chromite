@@ -596,7 +596,7 @@ class SecurityTestConfigTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandContains([check2, self.image, config2])
 
 
-class GetImageDiskPartitionInfoTests(cros_test_lib.RunCommandTestCase):
+class GetImageDiskPartitionInfoTests(cros_test_lib.RunCommandTempDirTestCase):
     """Tests the GetImageDiskPartitionInfo function."""
 
     SAMPLE_PARTED = """/foo/chromiumos_qemu_image.bin:\
@@ -673,11 +673,15 @@ EEC571FFB6E1)
      4050879           1          Sec GPT header
 """
 
+    def setUp(self) -> None:
+        self.WriteTempFile("foo", "non-empty file")
+        self._image_path = os.path.join(self.tempdir, "foo")
+
     def testCgpt(self) -> None:
         """Tests that we can list all partitions with `cgpt` correctly."""
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
         self.rc.AddCmdResult(partial_mock.Ignore(), stdout=self.SAMPLE_CGPT)
-        partitions = image_lib.GetImageDiskPartitionInfo("...")
+        partitions = image_lib.GetImageDiskPartitionInfo(self._image_path)
         part_dict = {p.name: p for p in partitions}
         self.assertEqual(part_dict["STATE"].start, 983564288)
         self.assertEqual(part_dict["STATE"].size, 1073741824)
@@ -692,7 +696,7 @@ EEC571FFB6E1)
     def testNormalPath(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self.rc.AddCmdResult(partial_mock.Ignore(), stdout=self.SAMPLE_PARTED)
-        partitions = image_lib.GetImageDiskPartitionInfo("_ignored")
+        partitions = image_lib.GetImageDiskPartitionInfo(self._image_path)
         part_dict = {p.name: p for p in partitions}
         self.assertEqual(12, len(partitions))
         self.assertEqual(1, part_dict["STATE"].number)
@@ -701,7 +705,7 @@ EEC571FFB6E1)
     def testKeyedByNumber(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self.rc.AddCmdResult(partial_mock.Ignore(), stdout=self.SAMPLE_PARTED)
-        partitions = image_lib.GetImageDiskPartitionInfo("_ignored")
+        partitions = image_lib.GetImageDiskPartitionInfo(self._image_path)
         part_dict = {p.number: p for p in partitions}
         self.assertEqual(12, len(part_dict))
         self.assertEqual("STATE", part_dict[1].name)
@@ -712,7 +716,7 @@ EEC571FFB6E1)
     def testChangeUnitInsideChroot(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
         self.rc.AddCmdResult(partial_mock.Ignore(), stdout=self.SAMPLE_CGPT)
-        partitions = image_lib.GetImageDiskPartitionInfo("_ignored")
+        partitions = image_lib.GetImageDiskPartitionInfo(self._image_path)
         part_dict = {p.name: p for p in partitions}
         self.assertEqual(part_dict["STATE"].start, 983564288)
         self.assertEqual(part_dict["STATE"].size, 1073741824)

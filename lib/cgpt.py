@@ -5,6 +5,7 @@
 """Read disk information from a CrOS image using cgpt."""
 
 import collections
+import os
 
 from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
@@ -52,6 +53,9 @@ class Disk:
             RunCommandError: if error running cgpt command
             CgptError: if error parsing out output of cgpt command
         """
+
+        if not os.path.getsize(image_file):
+            raise Error(f"File {image_file} is empty")
         # If 'cgpt' binary doesn't exist in path, try within chroot.
         enter_chroot = osutils.Which("cpgt") is None
         if enter_chroot:

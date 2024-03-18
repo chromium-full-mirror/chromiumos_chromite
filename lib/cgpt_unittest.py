@@ -4,6 +4,7 @@
 
 """Test chromite.lib.cgpt"""
 
+import os
 from unittest import mock
 
 from chromite.lib import cgpt
@@ -68,18 +69,29 @@ CGPT_SHOW_OUTPUT = """start        size    part  contents
     13861032           1          Sec GPT header"""
 
 
-class TestDisk(cros_test_lib.RunCommandTestCase):
+class TestDisk(cros_test_lib.RunCommandTempDirTestCase):
     """Test Disk class."""
+
+    def setUp(self) -> None:
+        self.WriteTempFile("foo", "non-empty file")
+        self._image_path = os.path.join(self.tempdir, "foo")
+        self.WriteTempFile("empty_foo", "")
+        self._empty_image_path = os.path.join(self.tempdir, "empty_foo")
 
     def getMockDisk(self):
         """Returns new Disk based on CGPT_SHOW_OUTPUT."""
         self.rc.SetDefaultCmdResult(stdout=CGPT_SHOW_OUTPUT)
-        return cgpt.Disk.FromImage("foo")
+        return cgpt.Disk.FromImage(self._image_path)
 
     def testDiskFromImageEmpty(self) -> None:
         """Test ReadGpt when cgpt doesn't return an expected list."""
         with self.assertRaises(cgpt.Error):
-            cgpt.Disk.FromImage("foo")
+            cgpt.Disk.FromImage(self._image_path)
+
+    def testDiskFromImageEmptyImage(self) -> None:
+        """Test FromImage when given a path to an empty image file."""
+        with self.assertRaises(cgpt.Error):
+            cgpt.Disk.FromImage(self._empty_image_path)
 
     def testDiskFromImage(self) -> None:
         """Test ReadGpt with mock cgpt output."""
@@ -90,7 +102,7 @@ class TestDisk(cros_test_lib.RunCommandTestCase):
 
         which_mock.assert_called_once()
         self.assertCommandCalled(
-            ["cgpt", "show", "-n", "foo"],
+            ["cgpt", "show", "-n", self._image_path],
             enter_chroot=False,
             chroot_args=mock.ANY,
             capture_output=True,

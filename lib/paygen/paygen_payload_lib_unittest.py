@@ -1615,8 +1615,14 @@ class GenerateUpdatePayloadTest(PaygenLibTest):
             "LookupImageType",
             return_value=partition_lib.CROS_IMAGE,
         )
+
+        def _prep_image(_, image_file):
+            self.WriteTempFile(os.path.basename(image_file), "non-empty")
+
         prep_image_mock = self.PatchObject(
-            paygen_payload_lib.PaygenPayload, "_PrepareImage"
+            paygen_payload_lib.PaygenPayload,
+            "_PrepareImage",
+            side_effect=_prep_image,
         )
         prep_part_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_PreparePartitions"
