@@ -734,3 +734,40 @@ class GetFixedFileTestCase(testing_utils.TestCase):
             do_file_contents_differ=True,
             expected_exception=cdb.FileFieldException,
         )
+
+
+class GetFixOutputTestCase(testing_utils.TestCase):
+    """Test cases for Cdb._get_fix_output()."""
+
+    def test_no_output_field(self) -> None:
+        """Make sure we fail if the cdb_entry has no "output" field."""
+        cdb_entry = {"arguments": ["/path/to/clang++"]}
+        _cdb = cdb.Cdb([cdb_entry], self.new_package(), self.setup, {})
+        with self.assertRaises(ValueError):
+            _cdb._get_fix_output(cdb_entry)
+
+    def test_fix_output(self) -> None:
+        """Make sure we fix the output field."""
+        inside_path = "/original/output/path"
+        outside_path = self.setup.chroot.full_path(inside_path)
+        self.touch(outside_path)
+
+        fix_path_with_ignores_mock = self.PatchObject(
+            path_handler.PathHandler,
+            "fix_path_with_ignores",
+            return_value=path_handler.FixedPath(
+                original=outside_path, actual="/fixed/output/path"
+            ),
+        )
+
+        pkg = self.new_package()
+        cdb_entry = {"output": inside_path}
+        _cdb = cdb.Cdb([cdb_entry], pkg, self.setup, {})
+        self.assertEqual(_cdb._get_fix_output(cdb_entry), "/fixed/output/path")
+        fix_path_with_ignores_mock.assert_called_with(
+            inside_path,
+            pkg,
+            conflicting_paths={},
+            ignore_generated=True,
+            ignore_highly_volatile=True,
+        )
