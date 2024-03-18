@@ -10532,24 +10532,6 @@
         },
         {
           "board_name": "rex",
-          "name": "rex4es",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7205,
-          "is_active": true,
-          "is_experimental": true
-        },
-        {
-          "board_name": "rex",
-          "name": "rex4es_ec_ish",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7205,
-          "is_active": true,
-          "is_experimental": true
-        },
-        {
-          "board_name": "rex",
           "name": "rex_ec_ish",
           "cq_test_enabled": false,
           "release_builder_test_pool": "bvt",
@@ -10575,15 +10557,6 @@
           "board_id": 7205,
           "is_active": true,
           "stable_target_milestone": 121,
-          "is_experimental": true
-        },
-        {
-          "board_name": "rex",
-          "name": "screebo4es",
-          "cq_test_enabled": false,
-          "release_builder_test_pool": "bvt",
-          "board_id": 7205,
-          "is_active": true,
           "is_experimental": true
         }
       ],
