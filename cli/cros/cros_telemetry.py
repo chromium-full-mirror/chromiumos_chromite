@@ -56,18 +56,18 @@ What we collect:
         actions = parser.add_mutually_exclusive_group(required=True)
         actions.add_argument(
             "--enable",
-            help="Enable telemetry collection.",
             action="store_true",
+            help="Enable telemetry collection.",
         )
         actions.add_argument(
             "--disable",
-            help="Disable telemetry collection.",
             action="store_true",
+            help="Disable telemetry collection.",
         )
         actions.add_argument(
             "--show",
-            help="Show telemetry related information.",
             action="store_true",
+            help="Show telemetry related information.",
         )
         actions.add_argument(
             "--start-dev",
