@@ -18,6 +18,16 @@ from chromite.contrib.package_index_cros.lib import path_handler
 from chromite.contrib.package_index_cros.lib import setup
 
 
+def _fix_arguments_compiler(compiler: str) -> str:
+    """Fix a cdb argument that should contain the compiler executable."""
+    if compiler.endswith("clang++"):
+        return "clang++"
+    elif compiler.endswith("clang"):
+        return "clang"
+    else:
+        raise NotImplementedError(f"Unknown compiler: '{compiler}'")
+
+
 class CdbException(Exception):
     """Exception to indicate failure while fixing Cdb."""
 
@@ -162,7 +172,7 @@ class Cdb:
             compiler, *arguments = entry["command"].split(" ")
 
         # First argument is always a compiler.
-        actual_arguments = [self._fix_arguments_compiler(compiler)]
+        actual_arguments = [_fix_arguments_compiler(compiler)]
         actual_include_args = _IncludePathOrder(
             local=set(), generated=set(), chroot=set()
         )
@@ -221,9 +231,9 @@ class Cdb:
             )
 
         actual_arguments.extend(Cdb.g_clang_additional_args)
-        actual_arguments.extend(actual_include_args.local)
-        actual_arguments.extend(actual_include_args.generated)
-        actual_arguments.extend(actual_include_args.chroot)
+        actual_arguments.extend(sorted(actual_include_args.local))
+        actual_arguments.extend(sorted(actual_include_args.generated))
+        actual_arguments.extend(sorted(actual_include_args.chroot))
 
         return actual_arguments
 
@@ -294,14 +304,6 @@ class Cdb:
                 ),
             )
         return fixed_path
-
-    def _fix_arguments_compiler(self, compiler: str) -> str:
-        if compiler.endswith("clang++"):
-            return "clang++"
-        elif compiler.endswith("clang"):
-            return "clang"
-        else:
-            raise NotImplementedError(f"Unknown compiler: '{compiler}'")
 
 
 class CdbGenerator:

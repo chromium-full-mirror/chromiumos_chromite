@@ -177,11 +177,12 @@ CROS_WORKON_SUBTREE={_to_ebuild_array(cros_workon_subtrees)}
     def new_package(  # pylint: disable=docstring-misnamed-args
         self,
         src_dir_matches: Optional[List[package.TempActualDichotomy]] = None,
+        dependencies: Optional[List[package.PackageDependency]] = None,
         **create_ebuild_kwargs: Any,
     ) -> package.Package:
         """Create a Package we can use for testing."""
         ebuild = self._create_ebuild(**create_ebuild_kwargs)
-        pkg = package.Package(self.setup, ebuild)
+        pkg = package.Package(self.setup, ebuild, deps=dependencies)
 
         temp_dir = os.path.join(
             self.setup.board_dir,
@@ -237,7 +238,7 @@ CROS_WORKON_SUBTREE={_to_ebuild_array(cros_workon_subtrees)}
             assert not os.path.isabs(actual_path)
         dichotomy = package.TempActualDichotomy(
             temp=os.path.join(pkg.temp_dir, temp_path),
-            actual=str(self.source_root / (actual_path or str(uuid.uuid4()))),
+            actual=str(self.tempdir / (actual_path or str(uuid.uuid4()))),
         )
         if make_actual_dir:
             os.makedirs(dichotomy.actual)
