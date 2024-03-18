@@ -7,6 +7,7 @@
 import filecmp
 import os
 from typing import Optional
+from unittest import mock
 
 import pytest
 
@@ -771,3 +772,95 @@ class GetFixOutputTestCase(testing_utils.TestCase):
             ignore_generated=True,
             ignore_highly_volatile=True,
         )
+
+
+class FixTestCase(testing_utils.TestCase):
+    """Test cases for Cdb.fix()."""
+
+    def _mock_fix_path_with_ignores(
+        self,
+        return_path: str = "/fixed/path",
+    ) -> mock.Mock:
+        """Mock out PathHandler.fix_path_with_ignores().
+
+        Args:
+            return_path: The path that the mock should return.
+
+        Returns:
+            The patched method mock.
+        """
+        return self.PatchObject(
+            path_handler.PathHandler,
+            "fix_path_with_ignores",
+            return_value=return_path,
+        )
+
+    def test_fix_all_fields(self) -> None:
+        """Make sure we fix all the expected fields."""
+        pkg = self.new_package()
+        cdb_build_dir = str(self.tempdir / "cdb_build_dir")
+        os.mkdir(cdb_build_dir)
+
+        # The original directory path should always be the package's build_dir.
+        # The fixed directory path should always be the CDB's build_path.
+        outside_unfixed_directory_path = pkg.build_dir
+        self.touch(outside_unfixed_directory_path)
+        inside_unfixed_directory_path = self.setup.chroot.chroot_path(
+            outside_unfixed_directory_path
+        )
+        expected_fixed_directory_path = cdb_build_dir
+
+        outside_unfixed_file_path = os.path.join(
+            pkg.build_dir, "some_dir/my_file.txt"
+        )
+        self.touch(outside_unfixed_file_path)
+        inside_unfixed_file_path = self.setup.chroot.chroot_path(
+            outside_unfixed_file_path
+        )
+        # Normally, paths in the package's build_dir should be fixed with only
+        # two changes: chroot paths should be converted to host-absolute paths,
+        # and they should be moved from the package's build_dir to the CDB's
+        # build_dir. However, in the case of the "file" field, it should also
+        # be made relative to the "directory" field (which is also the CDB's
+        # build_dir).
+        expected_fixed_file_path = "some_dir/my_file.txt"
+
+        outside_unfixed_include_path = os.path.join(pkg.build_dir, "include_me")
+        self.touch(outside_unfixed_include_path)
+        inside_unfixed_include_path = self.setup.chroot.chroot_path(
+            outside_unfixed_include_path
+        )
+        inside_unfixed_include_arg = f"-I{inside_unfixed_include_path}"
+        # Since the include path is in the package's build_dir, we expect it to
+        # be moved to the CDB's build_dir.
+        expected_fixed_include_path = os.path.join(cdb_build_dir, "include_me")
+        expected_fixed_include_arg = f"-I{expected_fixed_include_path}"
+
+        outside_unfixed_output_path = os.path.join(pkg.build_dir, "out_path")
+        self.touch(outside_unfixed_output_path)
+        inside_unfixed_output_path = self.setup.chroot.chroot_path(
+            outside_unfixed_output_path
+        )
+        # Since the output path is in the package's build_dir, we expect it to
+        # be moved to the CDB's build_dir.
+        expected_fixed_output_path = os.path.join(cdb_build_dir, "out_path")
+
+        cdb_entry = {
+            "directory": inside_unfixed_directory_path,
+            "file": inside_unfixed_file_path,
+            "arguments": ["/path/to/clang++", inside_unfixed_include_arg],
+            "output": inside_unfixed_output_path,
+        }
+        _cdb = cdb.Cdb(
+            [cdb_entry], pkg, self.setup, {}, result_build_dir=cdb_build_dir
+        )
+        result = _cdb.fix()
+        self.assertEqual(result, _cdb)
+
+        expected_fixed_cdb_entry = {
+            "directory": expected_fixed_directory_path,
+            "file": expected_fixed_file_path,
+            "command": f"clang++ -stdlib=libc++ {expected_fixed_include_arg}",
+            "output": expected_fixed_output_path,
+        }
+        self.assertEqual(_cdb.data, [expected_fixed_cdb_entry])
