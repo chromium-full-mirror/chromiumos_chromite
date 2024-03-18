@@ -4,6 +4,7 @@
 
 """Unit tests for cdb.py."""
 
+import filecmp
 import os
 from typing import Optional
 
@@ -599,3 +600,137 @@ class FixPathTestCase(testing_utils.TestCase):
         # The actual file shouldn't move.
         self.assertTrue(os.path.isfile(outside_path))
         self.assertFalse(os.path.isfile(expected_return_path))
+
+
+class GetFixedFileTestCase(testing_utils.TestCase):
+    """Test cases for Cdb._get_fixed_file()."""
+
+    def _generic_test_case(
+        self,
+        *,
+        does_cdb_entry_have_file: bool = True,
+        does_original_file_exist: bool = True,
+        does_actual_file_exist: bool = True,
+        is_actual_filepath_identical_to_original: bool = False,
+        do_file_contents_differ: bool = False,
+        is_package_highly_volatile: bool = False,
+        expected_exception: Optional[Exception] = None,
+    ) -> None:
+        """Generic test case for Cdb._get_fixed_file.
+
+        By default, this function will create a package, and a CDB entry for
+        which the "file" field points to a path inside the chroot. The host-
+        absolute version of that path will be created on the filesystem.
+        PathHandler will be mocked to easily return a desired actual_path, which
+        will also be created. Cdb._get_fixed_file() will be called on the CDB
+        entry; it should return the mocked actual_path.
+
+        Args:
+            does_cdb_entry_have_file: If True, then the cdb_entry under test
+                will have a "file" field. Otherwise, cdb_entry will not contain
+                the "file" field, which should raise an exception.
+            does_original_file_exist: If True, then the original file -- that
+                is, the host-absolute version of the CDB entry's "file" value --
+                will be created on the filesystem.
+            does_actual_file_exist: If True, then the actual file (which will be
+                returned by a mock method) will be created on the filesystem.
+            is_actual_filepath_identical_to_original: If True, then the mocked
+                actual filepath will be the same as the host-absolute original
+                filepath. Otherwise, it will be a different path.
+            do_file_contents_differ: If True, then the actual and original
+                filepaths will have different contents.
+            is_package_highly_volatile: If True, then the package will be
+                considered "highly volatile".
+            expected_exception: If not None, then Cdb._get_fixed_file() should
+                raise this exception.
+        """
+        pkg = self.new_package()
+        if is_package_highly_volatile:
+            self.PatchObject(
+                constants, "HIGHLY_VOLATILE_PACKAGES", [pkg.full_name]
+            )
+
+        inside_path = "/some/file.txt"
+        outside_path = self.setup.chroot.full_path(inside_path)
+
+        mock_actual_filepath: str
+        if is_actual_filepath_identical_to_original:
+            mock_actual_filepath = outside_path
+        else:
+            mock_actual_filepath = str(self.tempdir / "path/to/fixed/file.txt")
+        fix_path_with_ignores_mock = self.PatchObject(
+            path_handler.PathHandler,
+            "fix_path_with_ignores",
+            return_value=path_handler.FixedPath(
+                original=outside_path, actual=mock_actual_filepath
+            ),
+        )
+
+        if does_original_file_exist:
+            self.touch(outside_path)
+        if does_actual_file_exist:
+            self.touch(mock_actual_filepath)
+        if do_file_contents_differ:
+            self.assertTrue(does_actual_file_exist)
+            self.assertFalse(is_actual_filepath_identical_to_original)
+            with open(mock_actual_filepath, mode="w", encoding="utf-8") as f:
+                f.write("file contents!")
+            self.assertFalse(filecmp.cmp(outside_path, mock_actual_filepath))
+
+        cdb_entry = {"arguments": ["/file/to/clang++"]}
+        if does_cdb_entry_have_file:
+            cdb_entry["file"] = inside_path
+        _cdb = cdb.Cdb([cdb_entry], pkg, self.setup, {})
+        if expected_exception:
+            with self.assertRaises(expected_exception):
+                _cdb._get_fixed_file(cdb_entry)
+        else:
+            self.assertEqual(
+                _cdb._get_fixed_file(cdb_entry), mock_actual_filepath
+            )
+            fix_path_with_ignores_mock.assert_called_with(
+                inside_path,
+                pkg,
+                conflicting_paths={},
+                ignore_generated=True,
+                ignore_highly_volatile=True,
+            )
+
+    def test_no_file_in_entry(self) -> None:
+        """Test a case where the entry does not have a 'file'."""
+        self._generic_test_case(
+            does_cdb_entry_have_file=False,
+            expected_exception=ValueError,
+        )
+
+    def test_original_file_is_equal_to_actual_file(self) -> None:
+        """Test a simple case where the fixed path equals the original.
+
+        Note that "original" is a weird word here. FixedPath converts an inside
+        path to an outside path before it stores it as the "original". So really
+        we're checking whether the fixed path is the OUTSIDE version of the
+        chroot path we passed in.
+        """
+        self._generic_test_case(is_actual_filepath_identical_to_original=True)
+
+    def test_original_file_does_not_exist(self) -> None:
+        """Test that it's OK if the original file doesn't exist."""
+        self._generic_test_case(does_original_file_exist=False)
+
+    def test_fixed_file_does_not_exist(self) -> None:
+        """Test that it's OK if the fixed file doesn't exist."""
+        self._generic_test_case(does_actual_file_exist=False)
+
+    def test_differing_files_volatile_package(self) -> None:
+        """Test that differing files are OK for a volatile package."""
+        self._generic_test_case(
+            do_file_contents_differ=True,
+            is_package_highly_volatile=True,
+        )
+
+    def test_differing_files_non_volatile_package(self) -> None:
+        """Test that different files are not OK for a non-volatile package."""
+        self._generic_test_case(
+            do_file_contents_differ=True,
+            expected_exception=cdb.FileFieldException,
+        )
