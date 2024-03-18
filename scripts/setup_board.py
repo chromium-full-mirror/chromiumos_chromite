@@ -115,11 +115,17 @@ def GetParser():
         default=False,
         help="Don't print warnings when board already exists.",
     )
+    build.add_bool_argument(
+        "--setup-toolchains",
+        default=False,
+        enabled_desc="Setup or update toolchains for the board.",
+        disabled_desc="Use currently installed toolchain versions.",
+    )
     build.add_argument(
         "--skip-toolchain-update",
-        action="store_true",
-        default=False,
-        help="Don't update toolchain automatically.",
+        action="store_false",
+        dest="toolchain_update",
+        deprecated="Alias for --no-toolchain-update",
     )
     build.add_argument(
         "--skip-chroot-upgrade",
@@ -180,7 +186,7 @@ def _ParseArgs(args):
         jobs=opts.jobs,
         regen_configs=opts.regen_configs,
         quiet=opts.quiet,
-        update_toolchain=not opts.skip_toolchain_update,
+        update_toolchain=opts.setup_toolchains,
         upgrade_chroot=not opts.skip_chroot_upgrade,
         init_board_pkgs=not opts.skip_board_pkg_init,
         local_build=opts.reuse_local,

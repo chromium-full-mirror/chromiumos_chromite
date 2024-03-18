@@ -123,7 +123,7 @@ class SetupBoardRunConfig:
         jobs: Optional[int] = None,
         regen_configs: bool = False,
         quiet: bool = False,
-        update_toolchain: bool = True,
+        update_toolchain: bool = False,
         upgrade_chroot: bool = True,
         init_board_pkgs: bool = True,
         local_build: bool = False,

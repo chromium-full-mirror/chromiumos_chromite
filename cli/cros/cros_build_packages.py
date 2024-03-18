@@ -216,14 +216,13 @@ class BuildPackagesCommand(command.CliCommand):
             group,
             "skip-toolchain-update",
             False,
-            "Skip automatic toolchain update",
+            "Deprecated (flag is ignored if passed).",
         )
         build_shell_bool_style_args(
             group,
             "skip-setup-board",
             False,
-            "Skip running setup_board. Implies "
-            "--skip-chroot-upgrade --skip-toolchain-update.",
+            "Skip running setup_board. Implies --skip-chroot-upgrade.",
         )
 
         # Image Type selection related options.
@@ -371,7 +370,6 @@ class BuildPackagesCommand(command.CliCommand):
             usepkg=options.usepkg,
             jobs=options.jobs,
             quiet=True,
-            update_toolchain=not options.skip_toolchain_update,
             upgrade_chroot=not options.skip_chroot_upgrade,
             local_build=options.reuse_pkgs_from_local_boards,
             expanded_binhost_inheritance=options.expandedbinhosts,

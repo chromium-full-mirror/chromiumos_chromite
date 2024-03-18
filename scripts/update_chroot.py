@@ -65,14 +65,12 @@ def get_parser() -> commandline.ArgumentParser:
         "--skip-toolchain-update",
         dest="update_toolchain",
         action="store_false",
-        default=True,
-        help="Don't update toolchain automatically.",
+        help="Deprecated (flag is ignored if passed.)",
     )
     group.add_argument(
         "--skip_toolchain_update",
         dest="update_toolchain",
         action="store_false",
-        default=True,
         deprecated=deprecated % "--skip-toolchain-update",
         help=argparse.SUPPRESS,
     )
@@ -110,7 +108,6 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
         toolchain_targets=opts.toolchain_boards,
         jobs=opts.jobs,
         backtrack=opts.backtrack,
-        update_toolchain=opts.update_toolchain,
         eclean=opts.eclean,
     )
     result = sdk_service.Update(update_args)

@@ -142,7 +142,6 @@ def get_parser() -> commandline.ArgumentParser:
 
     # TODO(b/277992359): Consider possibly relevant flags from build_packages:
     #  * --rebuild_revdeps=no: don't rebuild reverse dependencies.
-    #  * --skip-toolchain-update? Likely no - the SDK is our toolchain.
     #  * --withdebugsymbols
     #  * --backtrack
     #  * --bazel  "Use Bazel to build packages"

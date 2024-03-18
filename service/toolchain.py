@@ -9,17 +9,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
-from typing import (
-    Dict,
-    Iterable,
-    List,
-    NamedTuple,
-    Optional,
-    Set,
-    Text,
-    Tuple,
-    Union,
-)
+from typing import Dict, Iterable, List, NamedTuple, Optional, Set, Text, Tuple
 
 from chromite.lib import chroot_util
 from chromite.lib import cros_build_lib
@@ -741,24 +731,3 @@ class BuildLinter:
             return ""
         # Note: line numbers are 1 indexed
         return "\n".join(file_contents[line_start - 1 : line_end])
-
-
-def setup_toolchains(
-    include_boards: Optional[List[str]] = None,
-    targets: Iterable[str] = (),
-    sysroot: Optional[Union[str, "os.PathLike[str]"]] = None,
-) -> None:
-    """Run `cros_setup_toolchains` with the specified args."""
-    cmd = ["cros_setup_toolchains"]
-    if include_boards:
-        cmd.extend(["--include-boards", ",".join(include_boards)])
-    targets_arg = ",".join(targets)
-    if targets_arg:
-        cmd.extend(["--targets", targets_arg])
-    if sysroot:
-        cmd.extend(["--sysroot", str(sysroot)])
-    cros_build_lib.sudo_run(
-        cmd,
-        preserve_env=True,
-        enter_chroot=True,
-    )

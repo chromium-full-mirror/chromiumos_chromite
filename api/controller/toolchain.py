@@ -18,7 +18,6 @@ from chromite.api.gen.chromite.api import toolchain_pb2
 from chromite.api.gen.chromiumos import builder_config_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import build_target_lib
-from chromite.lib import cros_build_lib
 from chromite.lib import toolchain as toolchain_lib
 from chromite.lib import toolchain_util
 from chromite.service import toolchain
@@ -493,12 +492,9 @@ def SetupToolchains(
     config: "api_config.ApiConfig",
 ) -> None:
     """Run `cros_setup_toolchains`."""
-    del response, config  # Unused.
-    cros_build_lib.AssertInsideChroot()
-    include_boards = [bt.name for bt in request.boards]
-    targets = [x.target for x in request.targets]
-    toolchain.setup_toolchains(
-        include_boards=include_boards,
-        targets=targets,
-        sysroot=request.sysroot_path or None,
+    del request, response, config  # Unused.
+    logging.warning(
+        "Toolchains are pre-installed in the SDK tarball.  If you have no need "
+        "to support branches R123 and older, you may remove the call to this "
+        "Build API endpoint from your recipe."
     )

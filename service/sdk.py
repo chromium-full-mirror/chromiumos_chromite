@@ -151,7 +151,7 @@ class UpdateArguments:
         toolchain_changed: bool = False,
         jobs: Optional[int] = None,
         backtrack: Optional[int] = None,
-        update_toolchain: bool = True,
+        update_toolchain: bool = False,
         eclean: bool = True,
         use_snapshot_binhosts: bool = False,
         log_installed_packages: bool = False,
@@ -164,7 +164,7 @@ class UpdateArguments:
             toolchain_targets: The list of build targets whose toolchains should
                 be updated.
             toolchain_changed: Whether a toolchain change has occurred. Implies
-                build_source.
+                build_source and update_toolchain.
             jobs: Max number of simultaneous packages to build.
             backtrack: emerge --backtrack value.
             update_toolchain: Update the toolchain?
@@ -179,7 +179,7 @@ class UpdateArguments:
         self.toolchain_targets = toolchain_targets
         self.jobs = jobs
         self.backtrack = backtrack
-        self.update_toolchain = update_toolchain
+        self.update_toolchain = update_toolchain or toolchain_changed
         self.eclean = eclean
         self.use_snapshot_binhosts = use_snapshot_binhosts
         self.log_installed_packages = log_installed_packages
