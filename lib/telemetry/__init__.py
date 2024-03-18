@@ -4,6 +4,7 @@
 
 """The chromite telemetry library."""
 
+import logging
 import os
 import sys
 from typing import Optional
@@ -54,7 +55,13 @@ def initialize(
     from chromite.lib.telemetry import config
     from chromite.lib.telemetry import trace
 
-    chromite_config.initialize()
+    if not chromite_config.initialize():
+        # Error initializing as non-root user, e.g. b/327285178.
+        # This is weird, bail, we're probably not losing out on much anyway.
+        # TODO(build): Figure out root cause and document/handle cases.
+        logging.debug("Skipping telemetry initialization.")
+        return
+
     cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
     if enable is not None:
         cfg.trace_config.update(enabled=enable, reason="USER")

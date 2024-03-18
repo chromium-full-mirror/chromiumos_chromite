@@ -6,6 +6,7 @@
 
 import logging
 
+from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.utils import os_util
 from chromite.utils import xdg_util
@@ -46,24 +47,38 @@ ALL_CONFIGS = {
 }
 
 
-def initialize() -> None:
+def initialize() -> bool:
     """Initialize the config dir for use.
 
     Code does not need to invoke this all the time, but can be helpful when
     creating new config files with default content.
+
+    Returns:
+        False if there was an error chown-ing a file to the non-root user. True
+        otherwise (i.e. on success).
     """
     osutils.SafeMakedirsNonRoot(DIR)
 
     # Files that can safely be created as empty files. They will be owned by the
     # non-root user if possible, and otherwise chowned to the non-root user at
     # first opportunity.
+    chown_error = False
     for current in (GERRIT_CONFIG, TELEMETRY_CONFIG):
         if not current.exists():
             current.touch()
+
         if current.owner() == "root":
             usr = os_util.get_non_root_user()
             if usr:
-                osutils.Chown(current, usr)
+                try:
+                    osutils.Chown(current, usr)
+                except cros_build_lib.RunCommandError as e:
+                    # e.g. b/327285178.
+                    logging.warning(e)
+                    chown_error = True
+                    continue
+
+    return not chown_error
 
 
 def sdk_update_sticky_enabled() -> bool:
