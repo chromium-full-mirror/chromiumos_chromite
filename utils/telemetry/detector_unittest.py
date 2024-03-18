@@ -14,6 +14,7 @@ import sys
 
 from chromite.third_party.opentelemetry.sdk import resources
 
+from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import workon_helper
 from chromite.utils.telemetry import detector
@@ -294,11 +295,13 @@ def test_sdk_state_to_capture_empty(monkeypatch) -> None:
 
     monkeypatch.setattr(git, "FindRepoDir", lambda _: None)
     monkeypatch.setattr(workon_helper, "ListAllWorkedOnAtoms", lambda: {})
+    monkeypatch.setattr(cros_build_lib, "IsInsideChroot", lambda: False)
 
     sdk_detector = detector.SDKSourceDetector()
     resource = sdk_detector.detect().attributes
 
-    assert not resource
+    assert len(resource) == 1
+    assert not resource["inside_sdk"]
 
 
 def test_sdk_state_to_all_workon_atoms(monkeypatch) -> None:
@@ -314,10 +317,14 @@ def test_sdk_state_to_all_workon_atoms(monkeypatch) -> None:
     monkeypatch.setattr(
         workon_helper, "ListAllWorkedOnAtoms", lambda: workon_atoms
     )
+    monkeypatch.setattr(cros_build_lib, "IsInsideChroot", lambda: True)
 
     sdk_detector = detector.SDKSourceDetector()
     resource = sdk_detector.detect().attributes
 
-    assert len(resource) == 2
+    # inside_sdk is always set.
+    assert len(resource) == 3
+    assert resource["inside_sdk"]
+    # Check the workon entries.
     assert list(resource["workon_kevin"]) == workon_atoms["kevin"]
     assert list(resource["workon_betty"]) == workon_atoms["betty"]

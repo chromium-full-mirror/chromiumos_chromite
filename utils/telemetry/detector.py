@@ -15,6 +15,7 @@ from typing import Sequence
 
 from chromite.third_party.opentelemetry.sdk import resources
 
+from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import workon_helper
 
@@ -196,6 +197,8 @@ class SDKSourceDetector(resources.ResourceDetector):
         if workon_atoms:
             for board, atoms in workon_atoms.items():
                 resource[f"workon_{board}"] = atoms
+
+        resource["inside_sdk"] = cros_build_lib.IsInsideChroot()
 
         return resources.Resource(resource)
 
