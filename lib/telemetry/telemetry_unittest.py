@@ -14,8 +14,8 @@ import pytest
 from chromite.lib import chromite_config
 from chromite.lib import telemetry
 from chromite.lib.telemetry import config
+from chromite.lib.telemetry import exporter
 from chromite.utils import hostname_util
-from chromite.utils.telemetry import exporter
 
 
 def _spy_add_span_processor(processors):
@@ -54,7 +54,7 @@ def test_no_exporter_for_non_google_host(
     cfg.trace_config.update(enabled=True, reason="USER")
     cfg.flush()
 
-    telemetry.initialize()
+    telemetry.initialize(publish=False)
 
     assert len(processors) == 0
 
@@ -66,7 +66,7 @@ def test_console_exporter_for_non_google_host_on_debug(
     del telemetry_config
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: False)
 
-    telemetry.initialize(log_traces=True)
+    telemetry.initialize(log_traces=True, publish=False)
 
     assert len(processors) == 1
     assert processors[0].span_exporter.__class__ == export.ConsoleSpanExporter
@@ -79,7 +79,7 @@ def test_console_exporter_for_google_host_on_debug(
     del telemetry_config
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
 
-    telemetry.initialize(log_traces=True)
+    telemetry.initialize(log_traces=True, publish=False)
 
     assert len(processors) == 1
     assert processors[0].span_exporter.__class__ == export.ConsoleSpanExporter
@@ -91,7 +91,7 @@ def test_initialize_to_display_notice_to_user_on_google_host(
     """Test initialize display notice to user."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
 
-    telemetry.initialize()
+    telemetry.initialize(publish=False)
 
     cfg = config.Config(telemetry_config)
     assert len(processors) == 0
@@ -105,7 +105,7 @@ def test_initialize_to_display_notice_and_print_spans_to_user_on_google_host(
     """Test initialize display notice to user and print span on debug."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
 
-    telemetry.initialize(log_traces=True)
+    telemetry.initialize(log_traces=True, publish=False)
 
     cfg = config.Config(telemetry_config)
     assert len(processors) == 1
@@ -124,12 +124,12 @@ def test_initialize_to_update_enabled_on_count_down_complete(
     cfg.root_config.update(notice_countdown=-1)
     cfg.flush()
 
-    telemetry.initialize()
+    telemetry.initialize(publish=False)
 
     cfg = config.Config(telemetry_config)
     assert len(processors) == 1
     assert (
-        processors[0].span_exporter.__class__ == exporter.ClearcutSpanExporter
+        processors[0].span_exporter.__class__ == exporter.ChromiteFileExporter
     )
     assert not capsys.readouterr().err.startswith(telemetry.NOTICE)
     assert cfg.trace_config.enabled
@@ -146,7 +146,7 @@ def test_initialize_to_skip_notice_when_trace_enabled_is_present(
     cfg.trace_config.update(enabled=False, reason="USER")
     cfg.flush()
 
-    telemetry.initialize()
+    telemetry.initialize(publish=False)
 
     cfg = config.Config(telemetry_config)
     assert len(processors) == 0
@@ -168,7 +168,7 @@ def test_initialize_to_set_parent_from_traceparent_env(
     cfg.trace_config.update(enabled=False, reason="USER")
     cfg.flush()
 
-    telemetry.initialize()
+    telemetry.initialize(publish=False)
 
     with trace_api.get_tracer(__name__).start_as_current_span("test") as span:
         ctx = span.get_span_context()
@@ -191,7 +191,7 @@ def test_initialize_to_skip_notice_if_tracecontext_present_in_env(
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
     monkeypatch.setattr(os, "environ", parent)
 
-    telemetry.initialize()
+    telemetry.initialize(publish=False)
 
     cfg = config.Config(telemetry_config)
     assert len(processors) == 0

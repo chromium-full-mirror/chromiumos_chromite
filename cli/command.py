@@ -140,7 +140,7 @@ class CliCommand(abc.ABC):
 
     # Whether to initialize telemetry.
     use_telemetry = False
-    publish_telemetry = False
+    publish_telemetry = True
 
     def __init__(self, options) -> None:
         self.options = options

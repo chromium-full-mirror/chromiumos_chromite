@@ -69,7 +69,7 @@ def initialize(
     log_traces: bool = False,
     development_mode: bool = False,
     user_uuid: str = "",
-    batch: bool = False,
+    batch: bool = True,
 ) -> None:
     """Initialize opentelemetry tracing.
 
