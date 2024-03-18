@@ -8,7 +8,6 @@ import logging
 
 from chromite.cli import command
 from chromite.lib import chromite_config
-from chromite.lib import telemetry
 from chromite.lib import telemetry_publisher
 from chromite.lib.telemetry import config
 from chromite.lib.telemetry import trace
@@ -46,6 +45,10 @@ What we collect:
 * Data about the ChromiumOS checkout itself.
 * Machine specs, e.g. CPU count, amount of memory.
 """
+
+    use_telemetry = True
+    # Do not publish to avoid fork bomb.
+    publish_telemetry = False
 
     @classmethod
     def AddParser(cls, parser) -> None:
@@ -118,10 +121,6 @@ What we collect:
 
     def Run(self) -> None:
         """Run cros telemetry."""
-        # Do not publish to avoid fork bomb.
-        telemetry.initialize(
-            log_traces=self.options.log_telemetry, publish=False
-        )
         self._do_run()
 
     @tracer.start_as_current_span("cli.cros.cros_telemetry.main")

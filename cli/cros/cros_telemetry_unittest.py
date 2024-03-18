@@ -34,6 +34,7 @@ class TelemetryCommandTest(cros_test_lib.MockTempDirTestCase):
         config_initialize_mock = self.PatchObject(chromite_config, "initialize")
         with mock.patch("chromite.lib.chromite_config.TELEMETRY_CONFIG", file):
             cmd = MockTelemetryCommand(["--enable"])
+            cmd.inst.initialize_telemetry()
             cmd.inst.Run()
 
         cfg = config.Config(path=file)
@@ -50,6 +51,7 @@ class TelemetryCommandTest(cros_test_lib.MockTempDirTestCase):
         config_initialize_mock = self.PatchObject(chromite_config, "initialize")
         with mock.patch("chromite.lib.chromite_config.TELEMETRY_CONFIG", file):
             cmd = MockTelemetryCommand(["--disable"])
+            cmd.inst.initialize_telemetry()
             cmd.inst.Run()
 
         cfg = config.Config(path=file)

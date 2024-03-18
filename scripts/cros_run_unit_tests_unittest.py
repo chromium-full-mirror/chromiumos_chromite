@@ -45,6 +45,7 @@ class CrosRunUnitTestsTest(cros_test_lib.MockTestCase):
 @mock.patch(
     "chromite.lib.portage_util.PackagesWithTest", return_value=set(("foo/bar",))
 )
+@mock.patch("chromite.lib.telemetry.initialize", return_value=None)
 @pytest.mark.parametrize(
     "test_args",
     (
@@ -54,7 +55,7 @@ class CrosRunUnitTestsTest(cros_test_lib.MockTestCase):
         ["--board", "amd64-generic", "--packages", "foo/bar"],
     ),
 )
-def test_failure_code(_, __, ___, run_mock, test_args: List[str]) -> None:
+def test_failure_code(_, __, ___, ____, run_mock, test_args: List[str]) -> None:
     """Assert we propagate command failures as return codes."""
     run_mock.AddCmdResult(
         partial_mock.In(str(constants.CHROMITE_BIN_DIR / "parallel_emerge")),

@@ -97,6 +97,7 @@ def main(argv):
         namespace.command_class.ProcessOptions(parser, namespace)
         subcommand = namespace.command_class(namespace)
         namespace.Freeze()
+        subcommand.initialize_telemetry()
         try:
             code = _RunSubCommand(subcommand)
         except (commandline.ChrootRequiredError, commandline.ExecRequiredError):

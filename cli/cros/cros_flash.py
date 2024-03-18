@@ -15,7 +15,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import dev_server_wrapper
 from chromite.lib import path_util
 from chromite.lib import sudo
-from chromite.lib import telemetry
 from chromite.lib.telemetry import trace
 from chromite.utils import timer
 
@@ -79,6 +78,7 @@ Note: When flashing a signed image, ssh connection to the device will be lost
 
     # Override base class property to use cache related commandline options.
     use_caching_options = True
+    use_telemetry = True
 
     # The default reboot timeout.
     DEFAULT_REBOOT_TIMEOUT = datetime.timedelta(seconds=300)
@@ -322,9 +322,6 @@ Note: When flashing a signed image, ssh connection to the device will be lost
         # operation.ProgressBarOperation, which is run in RunParallelSteps,
         # can interfere with prompting for the sudo password.
         # TODO(b/302557861): stop using `losetup`.
-
-        telemetry.initialize(log_traces=self.options.log_telemetry)
-
         previous_strict_sudo = cros_build_lib.STRICT_SUDO
         try:
             cros_build_lib.STRICT_SUDO = True

@@ -46,7 +46,6 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import namespaces
 from chromite.lib import path_util
-from chromite.lib import telemetry
 from chromite.lib.telemetry import trace
 from chromite.service import image
 from chromite.utils import timer
@@ -204,6 +203,8 @@ def build_shell_string_style_args(
 @command.command_decorator("build-image")
 class BuildImageCommand(command.CliCommand):
     """Build a ChromiumOS image."""
+
+    use_telemetry = True
 
     @classmethod
     def AddParser(cls, parser: commandline.ArgumentParser) -> None:
@@ -444,8 +445,6 @@ class BuildImageCommand(command.CliCommand):
             logging.warning("Unable to translate CWD to a chroot path.")
         commandline.RunInsideChroot(self, chroot_args=chroot_args)
         commandline.RunAsRootUser(sys.argv, preserve_env=True)
-
-        telemetry.initialize(log_traces=self.options.log_telemetry)
 
         result = None
 

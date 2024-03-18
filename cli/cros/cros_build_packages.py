@@ -25,7 +25,6 @@ from chromite.lib import chromite_config
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import sysroot_lib
-from chromite.lib import telemetry
 from chromite.lib.telemetry import trace
 from chromite.service import sysroot
 from chromite.utils import timer
@@ -75,6 +74,8 @@ def build_shell_bool_style_args(
 @command.command_decorator("build-packages")
 class BuildPackagesCommand(command.CliCommand):
     """Update the set of binary packages used by ChromiumOS."""
+
+    use_telemetry = True
 
     @classmethod
     def AddParser(cls, parser: commandline.ArgumentParser):
@@ -407,7 +408,6 @@ class BuildPackagesCommand(command.CliCommand):
     def Run(self) -> None:
         commandline.RunInsideChroot()
 
-        telemetry.initialize(log_traces=self.options.log_telemetry)
         try:
             build_packages(self.options)
         except sysroot_lib.PackageInstallError as e:

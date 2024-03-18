@@ -9,7 +9,6 @@ import logging
 from chromite.cli import command
 from chromite.cli import deploy
 from chromite.lib import commandline
-from chromite.lib import telemetry
 from chromite.lib.telemetry import trace
 from chromite.utils import timer
 
@@ -43,6 +42,7 @@ For more information of cros build usage:
 """
 
     use_dryrun_options = True
+    use_telemetry = True
 
     @classmethod
     def AddParser(cls, parser) -> None:
@@ -137,8 +137,6 @@ For more information of cros build usage:
     def Run(self) -> None:
         """Run cros deploy."""
         commandline.RunInsideChroot(self)
-
-        telemetry.initialize(log_traces=self.options.log_telemetry)
 
         with timer.Timer() as t:
             deploy.Deploy(
