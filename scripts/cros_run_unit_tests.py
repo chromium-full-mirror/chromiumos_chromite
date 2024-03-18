@@ -152,9 +152,7 @@ def determine_packages(sysroot, virtual_packages):
     deps, _bdeps = cros_extract_deps.ExtractDeps(
         sysroot, virtual_packages, include_bdepend=False
     )
-    return set(
-        "%s/%s" % (atom["category"], atom["name"]) for atom in deps.values()
-    )
+    return set(f"{atom['category']}/{atom['name']}" for atom in deps.values())
 
 
 def get_keep_going():
@@ -231,7 +229,7 @@ def inner_main(opts: commandline.ArgumentNamespace):
     for cp in packages & skipped_packages:
         logging.info("Skipping package %s.", cp)
 
-    packages = packages - skipped_packages
+    packages -= skipped_packages
     pkg_with_test = portage_util.PackagesWithTest(
         sysroot, packages, opts.filter_only_cros_workon
     )
