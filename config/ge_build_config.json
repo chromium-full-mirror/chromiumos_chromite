@@ -10588,7 +10588,7 @@
           "board_id": 7205,
           "is_active": true,
           "stable_target_milestone": 121,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "rex",
@@ -10597,7 +10597,7 @@
           "release_builder_test_pool": "bvt",
           "board_id": 7205,
           "is_active": true,
-          "is_experimental": true
+          "is_experimental": false
         },
         {
           "board_name": "rex",
@@ -10617,7 +10617,7 @@
           "board_id": 7205,
           "is_active": true,
           "stable_target_milestone": 121,
-          "is_experimental": true
+          "is_experimental": false
         }
       ],
       "rubik_target_milestone": 108,
