@@ -7,6 +7,7 @@
 import datetime
 import os
 
+from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import workon_helper
@@ -43,6 +44,9 @@ def test_sdk_state_to_capture_manifest_info(monkeypatch) -> None:
     )
     monkeypatch.setattr(workon_helper, "ListAllWorkedOnAtoms", lambda: {})
     monkeypatch.setattr(cros_build_lib, "IsInsideChroot", lambda: True)
+    monkeypatch.setattr(
+        chroot_lib.Chroot, "tarball_version", "2024.03.12.050012"
+    )
 
     sdk_detector = cros_detector.SDKSourceDetector()
     resource = sdk_detector.detect().attributes
@@ -53,6 +57,7 @@ def test_sdk_state_to_capture_manifest_info(monkeypatch) -> None:
     assert resource["manifest_commit_sha"] == commit.sha
     assert resource["manifest_sync_date"] == manifest_mtime.isoformat()
     assert resource["inside_sdk"]
+    assert resource["chroot_tarball_version"] == "2024.03.12.050012"
 
 
 def test_sdk_state_to_capture_empty(monkeypatch) -> None:
@@ -82,13 +87,14 @@ def test_sdk_state_to_all_workon_atoms(monkeypatch) -> None:
     monkeypatch.setattr(
         workon_helper, "ListAllWorkedOnAtoms", lambda: workon_atoms
     )
+    monkeypatch.setattr(cros_build_lib, "IsInsideChroot", lambda: False)
 
     sdk_detector = cros_detector.SDKSourceDetector()
     resource = sdk_detector.detect().attributes
 
     # inside_sdk is always set.
     assert len(resource) == 3
-    assert resource["inside_sdk"]
+    assert not resource["inside_sdk"]
     # Check the workon entries.
     assert list(resource["workon_kevin"]) == workon_atoms["kevin"]
     assert list(resource["workon_betty"]) == workon_atoms["betty"]

@@ -10,6 +10,7 @@ from pathlib import Path
 
 from chromite.third_party.opentelemetry.sdk import resources
 
+from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import workon_helper
@@ -41,6 +42,11 @@ class SDKSourceDetector(resources.ResourceDetector):
                 resource[f"workon_{board}"] = atoms
 
         resource["inside_sdk"] = cros_build_lib.IsInsideChroot()
+        if cros_build_lib.IsInsideChroot():
+            # Only fetch when inside the SDK since we don't know whether the
+            # chroot in the default location, or even initialized.
+            chroot = chroot_lib.Chroot()
+            resource["chroot_tarball_version"] = chroot.tarball_version
 
         return resources.Resource(resource)
 
