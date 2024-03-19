@@ -604,17 +604,6 @@ def CreateParser(
         "the SDK only if needed, even if --download explicitly passed.",
     )
     group.add_argument(
-        "--bootstrap",
-        action="store_true",
-        default=False,
-        help="Build everything from scratch, including the sdk.  "
-        "Use this only if you need to validate a change "
-        "that affects SDK creation itself (toolchain and "
-        "build are typically the only folk who need this).  "
-        "Note this will quite heavily slow down the build.  "
-        "This option implies --create.",
-    )
-    group.add_argument(
         "-r",
         "--replace",
         action="store_true",
@@ -716,9 +705,6 @@ def _FinalizeOptions(
     # Expand out the aliases...
     if options.replace:
         options.delete = options.create = True
-
-    if options.bootstrap:
-        options.create = True
 
     # If a command is not given, default to enter.
     # pylint: disable=protected-access
@@ -917,9 +903,7 @@ def main(argv) -> None:
             )
 
     if not options.sdk_version:
-        sdk_version = version_conf.get_default_version(
-            bootstrap=options.bootstrap
-        )
+        sdk_version = version_conf.get_default_version()
     else:
         sdk_version = options.sdk_version
     if options.buildbot_log_version:

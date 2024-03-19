@@ -177,13 +177,6 @@ def test_freeze_options() -> None:
         options.enter = False
 
 
-def test_bootstrap_alias() -> None:
-    """Test the bootstrap/create alias."""
-    options = _PARSER.parse_args(["--bootstrap"])
-    cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
-    assert options.create
-
-
 def test_replace_alias() -> None:
     """Test the replace -> delete/create alias."""
     options = _PARSER.parse_args(["--replace"])
@@ -219,7 +212,6 @@ def test_implied_enter(arglist: List[str]) -> None:
     "command",
     (
         "--create",
-        "--bootstrap",
         "--replace",
         "--delete",
         "--download",
