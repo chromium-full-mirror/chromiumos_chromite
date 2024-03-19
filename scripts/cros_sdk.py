@@ -39,7 +39,6 @@ from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import process_util
 from chromite.lib import retry_util
-from chromite.utils import key_value_store
 from chromite.utils import xdg_util
 
 
@@ -464,8 +463,8 @@ def _ReExecuteIfNeeded(argv, opts) -> None:
         os.execvp(cmd[0], cmd)
 
 
-def _CreateParser(
-    sdk_latest_version: str, bootstrap_latest_version: str
+def CreateParser(
+    version_conf: cros_sdk_lib.SdkVersionConfig,
 ) -> Tuple[argparse.ArgumentParser, argparse._ArgumentGroup]:
     """Generate and return the parser with all the options."""
     usage = (
@@ -534,7 +533,10 @@ def _CreateParser(
         help=(
             "Use this sdk version.  For prebuilt, current is %r"
             ", for bootstrapping it is %r."
-            % (sdk_latest_version, bootstrap_latest_version)
+            % (
+                version_conf.get_default_version(),
+                version_conf.get_default_version(bootstrap=True),
+            )
         ),
     )
     parser.add_argument(
@@ -832,24 +834,19 @@ def _FinalizeOptions(
 def main(argv) -> None:
     # Turn on strict sudo checks.
     cros_build_lib.STRICT_SUDO = True
-    conf = key_value_store.LoadFile(
-        constants.SDK_VERSION_FILE_FULL_PATH,
-        ignore_missing=True,
-    )
-    sdk_latest_version = conf.get("SDK_LATEST_VERSION", "<unknown>")
-    bootstrap_frozen_version = conf.get("BOOTSTRAP_FROZEN_VERSION", "<unknown>")
-    sdk_bucket: Optional[str] = conf.get("SDK_BUCKET", None)
 
-    # Use latest SDK for bootstrapping if requested. Use a frozen version of SDK
-    # for bootstrapping if BOOTSTRAP_FROZEN_VERSION is set.
-    bootstrap_latest_version = (
-        sdk_latest_version
-        if bootstrap_frozen_version == "<unknown>"
-        else bootstrap_frozen_version
-    )
-    parser, commands = _CreateParser(
-        sdk_latest_version, bootstrap_latest_version
-    )
+    try:
+        version_conf = cros_sdk_lib.SdkVersionConfig.load()
+    except FileNotFoundError:
+        cros_build_lib.Die(
+            "No SDK version was found. "
+            "Are you in a Chromium source tree instead of ChromiumOS?\n\n"
+            "Please change to a directory inside your ChromiumOS source tree\n"
+            "and retry.  If you need to setup a ChromiumOS source tree, see\n"
+            "  https://dev.chromium.org/chromium-os/developer-guide"
+        )
+
+    parser, commands = CreateParser(version_conf)
     options = parser.parse_args(argv)
 
     # Some basic checks first, before we ask for sudo credentials.
@@ -872,18 +869,6 @@ def main(argv) -> None:
     _ReportMissing(osutils.FindMissingBinaries(NEEDED_TOOLS))
     if options.proxy_sim:
         _ReportMissing(osutils.FindMissingBinaries(PROXY_NEEDED_TOOLS))
-
-    if (
-        sdk_latest_version == "<unknown>"
-        or bootstrap_latest_version == "<unknown>"
-    ):
-        cros_build_lib.Die(
-            "No SDK version was found. "
-            "Are you in a Chromium source tree instead of Chromium OS?\n\n"
-            "Please change to a directory inside your Chromium OS source tree\n"
-            "and retry.  If you need to setup a Chromium OS source tree, see\n"
-            "  https://dev.chromium.org/chromium-os/developer-guide"
-        )
 
     _ReExecuteIfNeeded([sys.argv[0]] + argv, options)
 
@@ -932,10 +917,8 @@ def main(argv) -> None:
             )
 
     if not options.sdk_version:
-        sdk_version = (
-            bootstrap_latest_version
-            if options.bootstrap
-            else sdk_latest_version
+        sdk_version = version_conf.get_default_version(
+            bootstrap=options.bootstrap
         )
     else:
         sdk_version = options.sdk_version
@@ -978,7 +961,7 @@ def main(argv) -> None:
         if options.sdk_url:
             urls = [options.sdk_url]
         else:
-            urls = get_sdk_tarball_urls(sdk_version, bucket=sdk_bucket)
+            urls = get_sdk_tarball_urls(sdk_version, bucket=version_conf.bucket)
 
     sdk_cache = Path(chroot.cache_dir) / "sdks"
     if options.download or options.create or replace_for_update:

@@ -16,10 +16,16 @@ import pytest  # type: ignore
 from chromite.lib import chromite_config
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import partial_mock
 from chromite.lib import retry_util
 from chromite.scripts import cros_sdk
+
+
+_PARSER, _COMMANDS = cros_sdk.CreateParser(
+    cros_sdk_lib.SdkVersionConfig("1", "2")
+)
 
 
 class CrosSdkUtilsTest(cros_test_lib.MockTempDirTestCase):
@@ -88,9 +94,6 @@ class CrosSdkParserCommandLineTest(cros_test_lib.MockTestCase):
     # A typical sys.argv[0] that cros_sdk sees.
     ARGV0 = "/home/chronos/chromiumos/chromite/bin/cros_sdk"
 
-    def setUp(self) -> None:
-        self.parser, _ = cros_sdk._CreateParser("1", "2")
-
     def testSudoCommand(self) -> None:
         """Verify basic sudo command building works."""
         # Stabilize the env for testing.
@@ -120,7 +123,7 @@ class CrosSdkParserCommandLineTest(cros_test_lib.MockTestCase):
         """Verify reexec command line building."""
         # Stub sudo logic since we tested it above already.
         self.PatchObject(cros_sdk, "_SudoCommand", return_value=["sudo"])
-        opts = self.parser.parse_args([])
+        opts = _PARSER.parse_args([])
         new_cmd = cros_sdk._BuildReExecCommand([self.ARGV0], opts)
         assert new_cmd == ["sudo", "--", sys.executable, self.ARGV0]
 
@@ -130,12 +133,12 @@ class CrosSdkParserCommandLineTest(cros_test_lib.MockTestCase):
         self.PatchObject(cros_sdk, "_SudoCommand", return_value=["sudo"])
 
         # Strace args passed, but not enabled.
-        opts = self.parser.parse_args(["--strace-arguments=-s4096 -v"])
+        opts = _PARSER.parse_args(["--strace-arguments=-s4096 -v"])
         new_cmd = cros_sdk._BuildReExecCommand([self.ARGV0], opts)
         assert new_cmd == ["sudo", "--", sys.executable, self.ARGV0]
 
         # Strace enabled.
-        opts = self.parser.parse_args(["--strace"])
+        opts = _PARSER.parse_args(["--strace"])
         new_cmd = cros_sdk._BuildReExecCommand([self.ARGV0], opts)
         assert new_cmd == [
             "sudo",
@@ -147,9 +150,7 @@ class CrosSdkParserCommandLineTest(cros_test_lib.MockTestCase):
         ]
 
         # Strace enabled w/args.
-        opts = self.parser.parse_args(
-            ["--strace", "--strace-arguments=-s4096 -v"]
-        )
+        opts = _PARSER.parse_args(["--strace", "--strace-arguments=-s4096 -v"])
         new_cmd = cros_sdk._BuildReExecCommand([self.ARGV0], opts)
         assert new_cmd == [
             "sudo",
@@ -168,9 +169,8 @@ class CrosSdkParserCommandLineTest(cros_test_lib.MockTestCase):
 
 def test_freeze_options() -> None:
     """Test that we can't change options after finalization."""
-    parser, commands = cros_sdk._CreateParser("1", "2")
-    options = parser.parse_args([])
-    cros_sdk._FinalizeOptions(parser, options, commands)
+    options = _PARSER.parse_args([])
+    cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
 
     with pytest.raises(Exception):
         options.enter = True
@@ -179,26 +179,23 @@ def test_freeze_options() -> None:
 
 def test_bootstrap_alias() -> None:
     """Test the bootstrap/create alias."""
-    parser, commands = cros_sdk._CreateParser("1", "2")
-    options = parser.parse_args(["--bootstrap"])
-    cros_sdk._FinalizeOptions(parser, options, commands)
+    options = _PARSER.parse_args(["--bootstrap"])
+    cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
     assert options.create
 
 
 def test_replace_alias() -> None:
     """Test the replace -> delete/create alias."""
-    parser, commands = cros_sdk._CreateParser("1", "2")
-    options = parser.parse_args(["--replace"])
-    cros_sdk._FinalizeOptions(parser, options, commands)
+    options = _PARSER.parse_args(["--replace"])
+    cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
     assert options.delete
     assert options.create
 
 
 def test_implied_download() -> None:
     """Test that create implies download."""
-    parser, commands = cros_sdk._CreateParser("1", "2")
-    options = parser.parse_args(["--create"])
-    cros_sdk._FinalizeOptions(parser, options, commands)
+    options = _PARSER.parse_args(["--create"])
+    cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
     assert options.download
 
 
@@ -213,9 +210,8 @@ def test_implied_download() -> None:
 )
 def test_implied_enter(arglist: List[str]) -> None:
     """Test for implicit --enter."""
-    parser, commands = cros_sdk._CreateParser("1", "2")
-    options = parser.parse_args(arglist)
-    cros_sdk._FinalizeOptions(parser, options, commands)
+    options = _PARSER.parse_args(arglist)
+    cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
     assert options.enter
 
 
@@ -231,9 +227,8 @@ def test_implied_enter(arglist: List[str]) -> None:
 )
 def test_commands(command: str) -> None:
     """Test options that don't imply --enter."""
-    parser, commands = cros_sdk._CreateParser("1", "2")
-    options = parser.parse_args([command])
-    cros_sdk._FinalizeOptions(parser, options, commands)
+    options = _PARSER.parse_args([command])
+    cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
     assert not options.enter
 
 
@@ -247,21 +242,19 @@ def test_commands(command: str) -> None:
 )
 def test_conflicting_args(arglist: List[str]) -> None:
     """Test args that conflict raise an error."""
-    parser, commands = cros_sdk._CreateParser("1", "2")
-    options = parser.parse_args(arglist)
+    options = _PARSER.parse_args(arglist)
     with pytest.raises(SystemExit):
-        cros_sdk._FinalizeOptions(parser, options, commands)
+        cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
 
 
 def test_chroot_ready() -> None:
     """Ensure no implicit create when chroot is ready."""
-    parser, commands = cros_sdk._CreateParser("1", "2")
-    options = parser.parse_args([])
+    options = _PARSER.parse_args([])
 
     with mock.patch(
         "chromite.lib.cros_sdk_lib.IsChrootReady", return_value=True
     ):
-        cros_sdk._FinalizeOptions(parser, options, commands)
+        cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
 
     assert not options.create
     assert options.enter
@@ -269,13 +262,12 @@ def test_chroot_ready() -> None:
 
 def test_chroot_not_ready() -> None:
     """Test implicit create when chroot isn't ready."""
-    parser, commands = cros_sdk._CreateParser("1", "2")
-    options = parser.parse_args([])
+    options = _PARSER.parse_args([])
 
     with mock.patch(
         "chromite.lib.cros_sdk_lib.IsChrootReady", return_value=False
     ):
-        cros_sdk._FinalizeOptions(parser, options, commands)
+        cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
 
     assert options.create
     assert options.enter
@@ -317,9 +309,8 @@ def test_readonly_configuration(
         chromite_config, "SDK_READONLY_STICKY_CONFIG", conf_file
     )
 
-    parser, commands = cros_sdk._CreateParser("1", "2")
-    options = parser.parse_args(arglist)
-    cros_sdk._FinalizeOptions(parser, options, commands)
+    options = _PARSER.parse_args(arglist)
+    cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
     assert options.read_only == expect_ro
 
 
@@ -357,9 +348,8 @@ def test_readonly_sticky(
         chromite_config, "SDK_READONLY_STICKY_CONFIG", conf_file
     )
 
-    parser, commands = cros_sdk._CreateParser("1", "2")
-    options = parser.parse_args(arglist)
-    cros_sdk._FinalizeOptions(parser, options, commands)
+    options = _PARSER.parse_args(arglist)
+    cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
 
     assert conf_file.exists() == expect_conf_exists
 
@@ -400,9 +390,8 @@ def test_update_sticky(
         conf_file.write_text(orig_config, encoding="utf-8")
     monkeypatch.setattr(chromite_config, "SDK_UPDATE_STICKY_CONFIG", conf_file)
 
-    parser, commands = cros_sdk._CreateParser("1", "2")
-    options = parser.parse_args(arglist)
-    cros_sdk._FinalizeOptions(parser, options, commands)
+    options = _PARSER.parse_args(arglist)
+    cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
 
     assert chromite_config.sdk_update_sticky_enabled() == expected_update_sticky
 
@@ -441,9 +430,8 @@ def test_delete_out(
     monkeypatch.setattr(chromite_config, "SDK_UPDATE_STICKY_CONFIG", conf_file)
     chromite_config.sdk_update_sticky_set(update_sticky)
 
-    parser, commands = cros_sdk._CreateParser("1", "2")
-    opts = parser.parse_args(args)
-    cros_sdk._FinalizeOptions(parser, opts, commands)
+    opts = _PARSER.parse_args(args)
+    cros_sdk._FinalizeOptions(_PARSER, opts, _COMMANDS)
 
     assert opts.delete_out_dir is expected
 
@@ -479,8 +467,7 @@ def test_update_with_delete(
     monkeypatch.setattr(chromite_config, "SDK_UPDATE_STICKY_CONFIG", conf_file)
     chromite_config.sdk_update_sticky_set(update_sticky)
 
-    parser, commands = cros_sdk._CreateParser("1", "2")
-    opts = parser.parse_args(args)
-    cros_sdk._FinalizeOptions(parser, opts, commands)
+    opts = _PARSER.parse_args(args)
+    cros_sdk._FinalizeOptions(_PARSER, opts, _COMMANDS)
 
     assert opts.update is expected

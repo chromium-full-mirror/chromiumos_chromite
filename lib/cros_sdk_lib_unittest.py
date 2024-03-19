@@ -4,9 +4,11 @@
 
 """Test the cros_sdk_lib module."""
 
+import io
 import os
 from pathlib import Path
 import stat
+from typing import Optional
 from unittest import mock
 
 import pytest
@@ -56,6 +58,68 @@ class VersionHookTestCase(cros_test_lib.TempDirTestCase):
         self.deprecated_versions = (6, 7, 8)
         self.invalid_versions = (13,)
         self.success_versions = (9, 10, 11, 12)
+
+
+class TestVersionConfig:
+    """Test SdkVersionConfig container."""
+
+    @pytest.mark.parametrize(
+        ["latest_version", "bootstrap_version", "bootstrap", "expected_value"],
+        [
+            ("123", None, False, "123"),
+            ("123", None, True, "123"),
+            ("123", "122", False, "123"),
+            ("123", "122", True, "122"),
+        ],
+    )
+    def test_default_version(
+        self,
+        latest_version: str,
+        bootstrap_version: Optional[str],
+        bootstrap: bool,
+        expected_value: str,
+    ) -> None:
+        """Test get_default_version method."""
+        assert (
+            cros_sdk_lib.SdkVersionConfig(
+                latest_version=latest_version,
+                bootstrap_version=bootstrap_version,
+            ).get_default_version(bootstrap=bootstrap)
+            == expected_value
+        )
+
+    @pytest.mark.parametrize(
+        ["contents", "expected_value"],
+        [
+            (
+                'SDK_LATEST_VERSION="123"\n',
+                cros_sdk_lib.SdkVersionConfig(latest_version="123"),
+            ),
+            (
+                'SDK_LATEST_VERSION="123"\nFROZEN_BOOTSTRAP_VERSION="122"\n',
+                cros_sdk_lib.SdkVersionConfig(
+                    latest_version="123", bootstrap_version="122"
+                ),
+            ),
+            (
+                """\
+SDK_LATEST_VERSION="123"
+FROZEN_BOOTSTRAP_VERSION="122"
+SDK_BUCKET="foo"
+""",
+                cros_sdk_lib.SdkVersionConfig(
+                    latest_version="123", bootstrap_version="122", bucket="foo"
+                ),
+            ),
+        ],
+    )
+    def test_parse_file(
+        self, contents: str, expected_value: cros_sdk_lib.SdkVersionConfig
+    ):
+        assert (
+            cros_sdk_lib.SdkVersionConfig.from_file(io.StringIO(contents))
+            == expected_value
+        )
 
 
 class TestGetFileSystemDebug(cros_test_lib.RunCommandTestCase):

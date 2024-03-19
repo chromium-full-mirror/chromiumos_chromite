@@ -4,10 +4,14 @@
 
 """Utilities for setting up and cleaning up the chroot environment."""
 
+from __future__ import annotations
+
 import ast
 import collections
+import dataclasses
 import functools
 import grp
+import io
 import logging
 import os
 from pathlib import Path
@@ -28,6 +32,7 @@ from chromite.lib import path_util
 from chromite.lib import sysroot_lib
 from chromite.lib import timeout_util
 from chromite.utils import gs_urls_util
+from chromite.utils import key_value_store
 
 
 # Version file location inside chroot.
@@ -254,6 +259,56 @@ def IsChrootReady(chroot):
     """
     version = GetChrootVersion(chroot)
     return version is not None and version > 0
+
+
+@dataclasses.dataclass(frozen=True)
+class SdkVersionConfig:
+    """Container for configs found in sdk_version.conf."""
+
+    latest_version: str
+    bootstrap_version: Optional[str] = None
+    bucket: Optional[str] = None
+
+    @classmethod
+    def from_file(
+        cls, file: Union[str, "os.PathLike[str]", io.TextIOWrapper]
+    ) -> SdkVersionConfig:
+        """Load a SdkVersionConfig from a sdk_version.conf file.
+
+        Args:
+            file: The file path or file-like object to load.
+
+        Returns:
+            A SdkVersionConfig.
+        """
+        conf = key_value_store.LoadFile(file)
+        return cls(
+            latest_version=conf["SDK_LATEST_VERSION"],
+            bootstrap_version=conf.get("BOOTSTRAP_FROZEN_VERSION"),
+            bucket=conf.get("SDK_BUCKET"),
+        )
+
+    @classmethod
+    def load(cls) -> SdkVersionConfig:
+        """Convenience method to call from_file() with default path.
+
+        Returns:
+            A SdkVersionConfig.
+        """
+        return cls.from_file(constants.SDK_VERSION_FILE_FULL_PATH)
+
+    def get_default_version(self, bootstrap: bool = False) -> str:
+        """Get the default version that should be used.
+
+        Args:
+            bootstrap: If true, provide the bootstrap version if defined.
+
+        Returns:
+            The SDK version to be used.
+        """
+        if bootstrap and self.bootstrap_version:
+            return self.bootstrap_version
+        return self.latest_version
 
 
 def get_sdk_gs_url(
