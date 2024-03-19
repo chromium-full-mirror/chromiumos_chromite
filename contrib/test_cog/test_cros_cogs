@@ -83,7 +83,7 @@ main() {
   # Let this fail from now on.
   set +e
 
-  cros_sdk -- setup_board --force -b "${BUILD_TARGET}"
+  cros_sdk --update --update-sticky -- setup_board --force -b "${BUILD_TARGET}"
 
   echo "Workspace created at ${mountpoint}."
 }
