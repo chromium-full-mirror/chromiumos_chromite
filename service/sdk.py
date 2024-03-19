@@ -82,7 +82,7 @@ class CreateArguments:
 
         Args:
             replace: Whether an existing chroot should be deleted.
-            bootstrap: Whether to build the SDK from source.
+            bootstrap: Use the SDK bootstrap version.
             chroot: chroot_lib.Chroot object representing the paths for the
                 chroot to create.
             sdk_version: Specific SDK version to use, e.g. 2022.01.20.073008.
@@ -90,9 +90,14 @@ class CreateArguments:
                 creation.
         """
         self.replace = replace
-        self.bootstrap = bootstrap
         self.chroot = chroot or chroot_lib.Chroot()
-        self.sdk_version = sdk_version
+        if sdk_version:
+            self.sdk_version = sdk_version
+        else:
+            version_conf = cros_sdk_lib.SdkVersionConfig.load()
+            self.sdk_version = version_conf.get_default_version(
+                bootstrap=bootstrap
+            )
         self.ccache_disable = ccache_disable
 
     def GetEntryArgList(self) -> List[str]:
@@ -114,6 +119,8 @@ class CreateArguments:
         if self.chroot.cache_dir:
             args.extend(["--cache-dir", self.chroot.cache_dir])
 
+        args.extend(["--sdk-version", self.sdk_version])
+
         return args
 
     def GetArgList(self) -> List[str]:
@@ -129,13 +136,7 @@ class CreateArguments:
         else:
             args.append("--create")
 
-        if self.bootstrap:
-            args.append("--bootstrap")
-
         args.extend(self.GetEntryArgList())
-
-        if self.sdk_version:
-            args.extend(["--sdk-version", self.sdk_version])
 
         return args
 

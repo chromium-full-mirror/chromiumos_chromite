@@ -13,6 +13,7 @@ from chromite.lib import binpkg
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import gs
 from chromite.lib import osutils
@@ -97,6 +98,13 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
 
     def _GetArgsList(self, **kwargs):
         """Helper to simplify getting the argument list."""
+        self.PatchObject(
+            cros_sdk_lib.SdkVersionConfig,
+            "load",
+            return_value=cros_sdk_lib.SdkVersionConfig(
+                "LATEST_VER", "BOOTSTRAP_VER"
+            ),
+        )
         instance = sdk.CreateArguments(**kwargs)
         return instance.GetArgList()
 
@@ -112,10 +120,11 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
                 str(constants.DEFAULT_OUT_PATH),
                 "--read-only",
                 "--read-only-sticky",
+                "--sdk-version",
+                "foo",
             ],
             sdk.CreateArguments(
                 replace=True,
-                bootstrap=True,
                 sdk_version="foo",
                 ccache_disable=True,
             ).GetEntryArgList(),
@@ -140,23 +149,20 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
                 "--sdk-version",
                 "foo",
             ],
-            self._GetArgsList(
-                replace=False,
-                bootstrap=False,
-                sdk_version="foo",
-            ),
+            self._GetArgsList(replace=False, sdk_version="foo"),
         )
 
         self.assertListEqual(
             [
                 "--create",
-                "--bootstrap",
                 "--chroot",
                 constants.DEFAULT_CHROOT_PATH,
                 "--out-dir",
                 str(constants.DEFAULT_OUT_PATH),
                 "--read-only",
                 "--read-only-sticky",
+                "--sdk-version",
+                "BOOTSTRAP_VER",
             ],
             self._GetArgsList(replace=False, bootstrap=True),
         )
