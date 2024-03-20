@@ -7,7 +7,6 @@
 import logging
 import os
 import sys
-from typing import Optional
 
 
 NOTICE = """
@@ -89,6 +88,10 @@ def initialize(publish: bool = True) -> None:
 
 def _fork_and_publish():
     """Fork a (short-lived) daemon publishing process."""
+    if os.environ.get("CHROMITE_INSIDE_PYTEST") == "1":
+        # Skip in tests.
+        return
+
     if os.fork():
         # Parent, return to other tasks.
         return
@@ -130,4 +133,5 @@ def _fork_and_publish():
         os.dup2(f.fileno(), sys.stdout.fileno())
 
     # Now we publish.
-    os.execvp("cros", ["cros", "telemetry", "--publish", "--debug"])
+    script = constants.CHROMITE_SCRIPTS_DIR / "publish_telemetry"
+    os.execv(script, [script, "--debug"])

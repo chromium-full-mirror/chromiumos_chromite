@@ -8,7 +8,6 @@ import logging
 
 from chromite.cli import command
 from chromite.lib import chromite_config
-from chromite.lib import telemetry_publisher
 from chromite.lib.telemetry import config
 from chromite.lib.telemetry import trace
 
@@ -47,8 +46,6 @@ What we collect:
 """
 
     use_telemetry = True
-    # Do not publish to avoid fork bomb.
-    publish_telemetry = False
 
     @classmethod
     def AddParser(cls, parser) -> None:
@@ -100,9 +97,6 @@ What we collect:
             action="store_true",
             help="Stop writing telemetry to files and doing batch uploading.",
         )
-        actions.add_argument(
-            "--publish", action="store_true", help="Publish pending telemetry."
-        )
 
     @staticmethod
     def _show_telemetry(cfg: config.Config) -> None:
@@ -150,8 +144,5 @@ What we collect:
             cfg.trace_config.set_batch(True)
         elif self.options.stop_batch:
             cfg.trace_config.set_batch(False)
-        elif self.options.publish:
-            span.set_attribute("publish", True)
-            telemetry_publisher.publish()
 
         cfg.flush()
