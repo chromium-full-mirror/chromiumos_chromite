@@ -157,7 +157,7 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
 
     opts = parse_arguments(argv)
 
-    telemetry.initialize(log_traces=opts.log_telemetry)
+    telemetry.initialize()
 
     try:
         return execute(opts)

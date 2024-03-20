@@ -170,7 +170,7 @@ def main(argv):
 
     commandline.RunInsideChroot()
 
-    telemetry.initialize(log_traces=opts.log_telemetry)
+    telemetry.initialize()
 
     with tracer.start_as_current_span("scripts.cros_run_unit_tests"):
         with (

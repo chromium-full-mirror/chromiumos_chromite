@@ -28,10 +28,7 @@ SERVICE_NAME = "chromite"
 TELEMETRY_VERSION = "3"
 
 
-def initialize(
-    log_traces: bool = False,
-    publish: bool = True,
-) -> None:
+def initialize(publish: bool = True) -> None:
     """Initialize chromite telemetry.
 
     The function accepts a config path and handles the initialization of
@@ -41,10 +38,9 @@ def initialize(
 
     Examples:
         opts = parse_args(argv)
-        telemetry.initialize(opts.log_telemetry)
+        telemetry.initialize()
 
     Args:
-        log_traces: Indicates if the traces should be exported to console.
         publish: Fork background process to publish telemetry.
     """
     # Importing this inside the function to avoid performance overhead from the
@@ -86,7 +82,6 @@ def initialize(
 
     trace.initialize(
         enabled=cfg.trace_config.enabled,
-        log_traces=log_traces,
         development_mode=cfg.trace_config.dev_flag,
         user_uuid=cfg.trace_config.user_uuid(),
     )

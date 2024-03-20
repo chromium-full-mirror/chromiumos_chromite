@@ -66,7 +66,6 @@ def _get_trace_path():
 
 def initialize(
     enabled: bool = False,
-    log_traces: bool = False,
     development_mode: bool = False,
     user_uuid: str = "",
     batch: bool = True,
@@ -78,7 +77,6 @@ def initialize(
 
     Args:
         enabled: Indicates is the traces should be enabled.
-        log_traces: Indicates if the traces should be printed to console.
         development_mode: Mark the telemetry as in development, so it can be
             easily identified as such later, e.g. filtered out of queries.
         user_uuid: The user's UUID.
@@ -141,13 +139,6 @@ def initialize(
         otel_trace_sdk.TracerProvider(resource=resource)
     )
     otel_trace_api.set_tracer_provider(tracer_provider)
-
-    if log_traces:
-        tracer_provider.add_span_processor(
-            otel_export.BatchSpanProcessor(
-                otel_export.ConsoleSpanExporter(out=sys.stderr)
-            )
-        )
 
     if not hostname_util.is_google_host():
         return

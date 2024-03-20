@@ -8,7 +8,6 @@ import os
 
 from chromite.third_party.opentelemetry import trace as trace_api
 from chromite.third_party.opentelemetry.sdk import trace as trace_sdk
-from chromite.third_party.opentelemetry.sdk.trace import export
 import pytest
 
 from chromite.lib import chromite_config
@@ -59,32 +58,6 @@ def test_no_exporter_for_non_google_host(
     assert len(processors) == 0
 
 
-def test_console_exporter_for_non_google_host_on_debug(
-    monkeypatch, processors, telemetry_config
-) -> None:
-    """Test initialize to print span to console on debug on non google host."""
-    del telemetry_config
-    monkeypatch.setattr(hostname_util, "is_google_host", lambda: False)
-
-    telemetry.initialize(log_traces=True, publish=False)
-
-    assert len(processors) == 1
-    assert processors[0].span_exporter.__class__ == export.ConsoleSpanExporter
-
-
-def test_console_exporter_for_google_host_on_debug(
-    monkeypatch, processors, telemetry_config
-) -> None:
-    """Test initialize to print span to console on debug."""
-    del telemetry_config
-    monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
-
-    telemetry.initialize(log_traces=True, publish=False)
-
-    assert len(processors) == 1
-    assert processors[0].span_exporter.__class__ == export.ConsoleSpanExporter
-
-
 def test_initialize_to_display_notice_to_user_on_google_host(
     capsys, monkeypatch, processors, telemetry_config
 ) -> None:
@@ -105,11 +78,10 @@ def test_initialize_to_display_notice_and_print_spans_to_user_on_google_host(
     """Test initialize display notice to user and print span on debug."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
 
-    telemetry.initialize(log_traces=True, publish=False)
+    telemetry.initialize(publish=False)
 
     cfg = config.Config(telemetry_config)
-    assert len(processors) == 1
-    assert processors[0].span_exporter.__class__ == export.ConsoleSpanExporter
+    assert not processors
     assert capsys.readouterr().err.startswith(telemetry.NOTICE)
     assert cfg.root_config.notice_countdown == 9
 
@@ -165,7 +137,7 @@ def test_initialize_to_set_parent_from_traceparent_env(
     monkeypatch.setattr(os, "environ", parent)
 
     cfg = config.Config(telemetry_config)
-    cfg.trace_config.update(enabled=False, reason="USER")
+    cfg.trace_config.update(enabled=True, reason="USER")
     cfg.flush()
 
     telemetry.initialize(publish=False)

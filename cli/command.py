@@ -220,6 +220,5 @@ class CliCommand(abc.ABC):
         """Hook to initialize telemetry."""
         if self.use_telemetry:
             telemetry.initialize(
-                log_traces=self.options.log_telemetry,
                 publish=self.publish_telemetry,
             )

@@ -983,12 +983,6 @@ class BaseParser:
                 dest="color",
                 help=argparse.SUPPRESS,
             )
-            self.add_common_argument_to_group(
-                self.debug_group,
-                "--log-telemetry",
-                action="store_true",
-                help="Log telemetry spans.",
-            )
 
         if self.caching:
             self.caching_group = self.add_argument_group("Caching Options")
