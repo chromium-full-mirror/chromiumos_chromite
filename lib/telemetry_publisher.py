@@ -160,12 +160,12 @@ def publish():
             publisher_file.unlink()
             raise
 
-        logging.debug("Next request: %s", publisher.next_request_dt.isoformat())
-        _post_publish_actions(pending_files)
-
         # Write out the next publish TS.
         with next_publish_lock.write_lock():
             next_publish.write_text(str(publisher.next_publish_ts))
+
+        logging.debug("Next request: %s", publisher.next_request_dt.isoformat())
+        _post_publish_actions(pending_files)
 
         # Drop the PID file and we're done.
         publisher_file.unlink()
@@ -765,6 +765,11 @@ class ClearcutPublisher:
         """Publish a batch."""
         spans = self._queue[: self._max_batch_size]
         self._queue = self._queue[self._max_batch_size :]
+
+        if not spans:
+            # Skip publishing nothing.
+            self._next_request_dt = datetime.datetime.now()
+            return
 
         log_request = self._prepare_request_body(spans)
         log_response = self._do_publish_request(log_request, timeout)
