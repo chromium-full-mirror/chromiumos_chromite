@@ -14,6 +14,7 @@ import hashlib
 import logging
 import os
 from pathlib import Path
+import pwd
 import re
 import shutil
 import stat
@@ -613,7 +614,7 @@ class MakingDirsAsRoot(Exception):
     """Raised when creating directories as root."""
 
 
-def SafeMakedirsNonRoot(path, mode=0o775, user=None):
+def SafeMakedirsNonRoot(path, mode=0o775, user=None) -> bool:
     """Create directories and make sure they are not owned by root.
 
     See SafeMakedirs for the arguments and returns.
@@ -627,18 +628,28 @@ def SafeMakedirsNonRoot(path, mode=0o775, user=None):
     created = False
     should_chown = False
     try:
-        created = SafeMakedirs(path, mode=mode, user=user)
-        if not created:
-            # Sometimes, the directory exists, but is owned by root. As a HACK,
-            # we will chown it to the requested user.
-            stat_info = os.stat(path)
-            should_chown = stat_info.st_uid == 0
+        created = SafeMakedirs(path, mode=mode)
     except OSError as e:
         if e.errno == errno.EACCES:
-            # Sometimes, (a prefix of the) path we're making the directory in
-            # may be owned by root, and so we fail. As a HACK, use da power to
-            # create directory and then chown it.
+            # Create as root and then chown.
             created = should_chown = SafeMakedirs(path, mode=mode, sudo=True)
+
+    if not should_chown:
+        # Check the owner when we aren't already sure.
+        owner_id = os.stat(path).st_uid
+        if not owner_id:
+            # Owned by root, need to chown.
+            should_chown = True
+        else:
+            # Check owner's name in the pwd.
+            try:
+                should_chown = user != pwd.getpwuid(owner_id).pw_name
+            except KeyError as e:
+                # Unexpected, but worth handling, assume chown necessary.
+                logging.debug(
+                    "Unexpected owner, couldn't identify %s: %s", owner_id, e
+                )
+                should_chown = True
 
     if should_chown:
         Chown(path, user=user)
