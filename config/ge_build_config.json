@@ -328,6 +328,23 @@
       "stable_target_milestone": 101
     },
     {
+      "name": "rex-kernelnext",
+      "configs": [
+        {
+          "builder": "RELEASE",
+          "experimental": true,
+          "leader_board": false,
+          "board_group": "",
+          "arch": "UNKNOWN",
+          "board_variant": "kernelnext",
+          "build_cadence": "DAILY_CADENCE",
+          "has_lab_resources": true
+        }
+      ],
+      "rubik_target_milestone": 108,
+      "stable_target_milestone": 125
+    },
+    {
       "name": "tael",
       "configs": [
         {
