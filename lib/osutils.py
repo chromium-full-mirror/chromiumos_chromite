@@ -337,6 +337,10 @@ def Chmod(path: Union[Path, str], mode: int, sudo: bool = False) -> None:
     cros_build_lib.sudo_run(["chmod", f"{mode:o}", "--", str(path)])
 
 
+class UnknownNonRootUserError(Exception):
+    """Unknown non-root user."""
+
+
 def Chown(
     path: Union[Path, str],
     user: Union[str, int, bool],
@@ -357,6 +361,9 @@ def Chown(
         cmd += ["-R"]
     if user is True:
         user = os_util.get_non_root_user()
+        if user is None:
+            # Raise exception to make the case clear.
+            raise UnknownNonRootUserError("No non-root user available.")
 
     # `user:` results in invalid spec on skylab.
     # TODO: simplify this logic once the old environments are dropped.
