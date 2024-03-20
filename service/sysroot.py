@@ -1333,6 +1333,9 @@ def _BazelBuild(
         top_level_packages_to_build = [
             "virtual/target-os",
             "virtual/target-os-test",
+            "virtual/target-os-dev",
+            "virtual/target-os-factory",
+            "virtual/target-os-factory-shim",
         ]
         packages_to_exclude = [
             "chromeos-base/chromeos-chrome",
