@@ -20,6 +20,7 @@ from chromite.lib import parallel
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib.paygen import paygen_payload_lib
+from chromite.lib.paygen import paygen_provision_payload
 from chromite.lib.paygen import paygen_stateful_payload_lib
 from chromite.service import artifacts
 
@@ -1183,3 +1184,183 @@ class BundleGceTarballTest(cros_test_lib.MockTempDirTestCase):
         # Verify the symlink points the the test image.
         disk_raw = os.path.join(call_tempdir, "disk.raw")
         self.assertEqual(os.readlink(disk_raw), self.image_file)
+
+
+class BundleTestUpdatePayloadsTest(cros_test_lib.MockTempDirTestCase):
+    """BundleTestUpdatePayloads tests."""
+
+    def setUp(self) -> None:
+        # Drop str() wrapping, once functions/methods can handle Paths.
+        self.target_image = str(
+            self.tempdir
+            / "link"
+            / "R37-5952.0.2014_06_12_2302-a1"
+            / "chromiumos_test_image.bin"
+        )
+        osutils.Touch(self.target_image, makedirs=True)
+
+        # Drop str() wrapping, once functions/methods can handle Paths.
+        self.sample_dlc_image = str(
+            self.tempdir
+            / "link"
+            / "R37-5952.0.2014_06_12_2302-a1"
+            / "dlc"
+            / "sample-dlc"
+            / "package"
+            / "dlc.img"
+        )
+        osutils.Touch(self.sample_dlc_image, makedirs=True)
+
+        self.PatchObject(
+            parallel, "RunParallelSteps", lambda x, **kwargs: [a() for a in x]
+        )
+
+        self.PatchObject(portage_util, "GetBoardUseFlags", return_value=["dlc"])
+
+        self.chroot = chroot_lib.Chroot(
+            self.tempdir / "chroot", out_path=self.tempdir / "out"
+        )
+
+    def testBundledGeneration(self) -> None:
+        """Test BundleTestUpdatePayloads produces correct values."""
+        cros_payload_full = (
+            self.tempdir
+            / "chromeos_R37-5952.0.2014_06_12_2302-a1_link_full_dev.bin"
+        )
+        minios_payload_full = (
+            self.tempdir
+            / "minios_R37-5952.0.2014_06_12_2302-a1_link_full_dev.bin"
+        )
+        dlc_payload_full = self.tempdir / (
+            "dlc_sample-dlc_package_R37-"
+            "5952.0.2014_06_12_2302-a1_link_full_dev.bin"
+        )
+        cros_payload_delta = self.tempdir / (
+            "chromeos_R37-5952.0.2014_06_12_2302-a1_R37-"
+            "5952.0.2014_06_12_2302-a1_link_delta_dev.bin"
+        )
+        minios_payload_delta = self.tempdir / (
+            "minios_R37-5952.0.2014_06_12_2302-a1_R37-"
+            "5952.0.2014_06_12_2302-a1_link_delta_dev.bin"
+        )
+        dlc_payload_delta = self.tempdir / (
+            "dlc_sample-dlc_package_R37-5952.0.2014_06_12_2302-a1_R37-"
+            "5952.0.2014_06_12_2302-a1_link_delta_dev.bin"
+        )
+
+        paygen_mock = self.PatchObject(
+            paygen_payload_lib,
+            "GenerateUpdatePayload",
+            side_effect=[
+                [str(cros_payload_full)],  # Generate CrOS Full
+                [str(minios_payload_full)],  # Generate MiniOS Full
+                [str(cros_payload_delta)],  # Generate CrOS Delta
+                [str(minios_payload_delta)],  # Generate MiniOS Delta
+                [str(dlc_payload_full)],  # Generate DLC Full
+                [str(dlc_payload_delta)],  # Generate DLC Delta
+            ],
+        )
+
+        stateful_payload = self.tempdir / "stateful.tgz"
+        paygen_mock_stateful_1 = self.PatchObject(
+            paygen_stateful_payload_lib,
+            "GenerateStatefulPayload",
+            side_effect=[str(stateful_payload)],
+        )
+
+        stateful_zst_payload = self.tempdir / "stateful.zst"
+        paygen_mock_stateful_2 = self.PatchObject(
+            paygen_stateful_payload_lib,
+            "GenerateZstdStatefulPayload",
+            side_effect=[str(stateful_zst_payload)],
+        )
+
+        kern_provision_payload = self.tempdir / constants.FULL_PAYLOAD_KERN
+        root_provision_payload = self.tempdir / constants.FULL_PAYLOAD_ROOT
+        stateful_provision_payload = self.tempdir / constants.STATEFUL_PAYLOAD
+
+        gen_provision_payload_ret = [
+            str(kern_provision_payload),
+            str(root_provision_payload),
+            str(stateful_provision_payload),
+        ]
+        paygen_provision_mock = self.PatchObject(
+            paygen_provision_payload,
+            "GenerateProvisionPayloads",
+            side_effect=[
+                gen_provision_payload_ret,
+            ],
+        )
+
+        gen = artifacts.BundleTestUpdatePayloads(
+            self.chroot,
+            self.target_image,
+            str(self.tempdir),
+        )
+
+        expected_gen = (
+            artifacts.ExtendBinPaths(str(cros_payload_full))
+            + artifacts.ExtendBinPaths(str(minios_payload_full))
+            + artifacts.ExtendBinPaths(str(cros_payload_delta))
+            + artifacts.ExtendBinPaths(str(minios_payload_delta))
+            + artifacts.ExtendBinPaths(str(dlc_payload_full))
+            + artifacts.ExtendBinPaths(str(dlc_payload_delta))
+            + [str(stateful_payload), str(stateful_zst_payload)]
+            + gen_provision_payload_ret
+        )
+
+        self.assertEqual(
+            gen,
+            expected_gen,
+        )
+        paygen_mock.assert_has_calls(
+            [
+                mock.call(
+                    self.chroot,
+                    self.target_image,
+                    str(cros_payload_full),
+                ),
+                mock.call(
+                    self.chroot,
+                    self.target_image,
+                    str(minios_payload_full),
+                    minios=True,
+                ),
+                mock.call(
+                    self.chroot,
+                    self.target_image,
+                    str(cros_payload_delta),
+                    src_image=self.target_image,
+                ),
+                mock.call(
+                    self.chroot,
+                    self.target_image,
+                    str(minios_payload_delta),
+                    src_image=self.target_image,
+                    minios=True,
+                ),
+                mock.call(
+                    self.chroot,
+                    self.sample_dlc_image,
+                    str(dlc_payload_full),
+                ),
+                mock.call(
+                    self.chroot,
+                    self.sample_dlc_image,
+                    str(dlc_payload_delta),
+                    src_image=self.sample_dlc_image,
+                ),
+            ]
+        )
+        paygen_mock_stateful_1.assert_called_once_with(
+            self.target_image,
+            str(self.tempdir),
+        )
+        paygen_mock_stateful_2.assert_called_once_with(
+            self.target_image,
+            str(self.tempdir),
+        )
+        paygen_provision_mock.assert_called_once_with(
+            self.target_image,
+            str(self.tempdir),
+        )
