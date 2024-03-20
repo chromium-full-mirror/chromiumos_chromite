@@ -711,7 +711,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "ambassador-factory-ambassador-14265.B-factorybranch"
     ],
@@ -733,7 +733,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "asurada-factory-asurada-13929.B-factorybranch"
     ],
@@ -755,7 +755,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "atlas-factory-atlas-11907.B-factorybranch"
     ],
@@ -777,7 +777,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "brask-factory-brya-14517.B-factorybranch",
       "brya-factory-brya-14517.B-factorybranch"
@@ -823,7 +823,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 24h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "brask-factory-brya-15231.B-factorybranch",
       "brya-factory-brya-15231.B-factorybranch",
@@ -849,7 +849,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 24h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "brya-factory-brya-15684.B-factorybranch"
     ],
@@ -871,7 +871,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "cherry-factory-cherry-14455.B-factorybranch"
     ],
@@ -893,7 +893,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "coral-factory-coral-10122.B-factorybranch"
     ],
@@ -915,7 +915,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "corsola-factory-corsola-15196.B-factorybranch",
       "staryu-factory-corsola-15196.B-factorybranch"
@@ -939,7 +939,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "dedede-factory-dedede-13683.B-factorybranch"
     ],
@@ -961,7 +961,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "drallion-factory-drallion-13080.B-factorybranch"
     ],
@@ -983,7 +983,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "endeavour-factory-endeavour-13295.B-factorybranch"
     ],
@@ -1005,7 +1005,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "eve-factory-eve-9667.B-factorybranch"
     ],
@@ -1049,7 +1049,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "fizz-factory-fizz-10167.B-factorybranch"
     ],
@@ -1071,7 +1071,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "gale-factory-gale-8743.19.B-factorybranch"
     ],
@@ -1093,7 +1093,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "kevin-factory-gru-8652.B-factorybranch"
     ],
@@ -1115,7 +1115,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "bob-factory-gru-9017.B-factorybranch",
       "gru-factory-gru-9017.B-factorybranch"
@@ -1139,7 +1139,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "grunt-factory-grunt-11164.135.B-factorybranch"
     ],
@@ -1161,7 +1161,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "grunt-factory-grunt-11164.B-factorybranch"
     ],
@@ -1183,7 +1183,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "guybrush-factory-guybrush-14908.B-factorybranch"
     ],
@@ -1273,7 +1273,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 24h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "jacuzzi-factory-kukui-14374.B-factorybranch",
       "kukui-factory-kukui-14374.B-factorybranch"
@@ -1297,7 +1297,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "mistral-factory-mistral-12361.B-factorybranch"
     ],
@@ -1319,7 +1319,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "kalista-factory-nami-10715.B-factorybranch",
       "nami-factory-nami-10715.B-factorybranch"
@@ -1343,7 +1343,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 24h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "nissa-factory-nissa-15199.B-factorybranch"
     ],
@@ -1365,7 +1365,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "nocturne-factory-nocturne-11066.B-factorybranch"
     ],
@@ -1387,7 +1387,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "elm-factory-oak-8182.B-factorybranch",
       "hana-factory-oak-8182.B-factorybranch"
@@ -1433,7 +1433,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "nautilus-factory-poppy-10504.B-factorybranch"
     ],
@@ -1455,7 +1455,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "puff-factory-puff-13329.B-factorybranch",
       "puff-moblab-factory-puff-13329.B-factorybranch"
@@ -1479,7 +1479,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "puff-factory-puff-13813.B-factorybranch"
     ],
@@ -1501,7 +1501,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "rammus-factory-rammus-11289.B-factorybranch"
     ],
@@ -1523,7 +1523,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "pyro-factory-reef-8811.B-factorybranch",
       "reef-factory-reef-8811.B-factorybranch",
@@ -1551,7 +1551,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "sarien-factory-sarien-12033.B-factorybranch"
     ],
@@ -1573,7 +1573,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "scarlet-factory-scarlet-10211.B-factorybranch"
     ],
@@ -1595,7 +1595,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 24h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "skyrim-factory-skyrim-15384.B-factorybranch"
     ],
@@ -1617,7 +1617,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 720h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "soraka-factory-soraka-10323.39.B-factorybranch"
     ],
@@ -1639,7 +1639,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 24h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "strongbad-factory-strongbad-13963.B-factorybranch",
       "trogdor-factory-strongbad-13963.B-factorybranch"
@@ -1663,7 +1663,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "strongbad-factory-trogdor-13443.B-factorybranch",
       "trogdor-factory-trogdor-13443.B-factorybranch"
@@ -1687,7 +1687,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 24h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "strongbad-factory-trogdor-15210.B-factorybranch",
       "trogdor-factory-trogdor-15210.B-factorybranch"
@@ -1711,7 +1711,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "volteer-factory-volteer-13600.B-factorybranch"
     ],
@@ -1733,7 +1733,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "zork-factory-zork-13427.B-factorybranch"
     ],
@@ -1755,7 +1755,7 @@
     "_template": "buildspec",
     "build_timeout": 43200,
     "display_label": "factory",
-    "schedule": "with 168h interval",
+    "schedule": "triggered",
     "slave_configs": [
       "zork-factory-zork-13700.B-factorybranch"
     ],
