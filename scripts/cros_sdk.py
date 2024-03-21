@@ -530,14 +530,8 @@ def CreateParser(
     )
     parser.add_argument(
         "--sdk-version",
-        help=(
-            "Use this sdk version.  For prebuilt, current is %r"
-            ", for bootstrapping it is %r."
-            % (
-                version_conf.get_default_version(),
-                version_conf.get_default_version(bootstrap=True),
-            )
-        ),
+        default=version_conf.get_default_version(),
+        help="Use this sdk version.",
     )
     parser.add_argument(
         "--goma-dir",
@@ -902,22 +896,18 @@ def main(argv) -> None:
                 chroot_version,
             )
 
-    if not options.sdk_version:
-        sdk_version = version_conf.get_default_version()
-    else:
-        sdk_version = options.sdk_version
     if options.buildbot_log_version:
-        cbuildbot_alerts.PrintBuildbotStepText(sdk_version)
+        cbuildbot_alerts.PrintBuildbotStepText(options.sdk_version)
 
     replace_for_update = False
 
     if options.update:
-        replace_for_update = sdk_version != chroot.tarball_version
+        replace_for_update = options.sdk_version != chroot.tarball_version
         if replace_for_update:
             logging.notice(
                 "Replacing the chroot for version update %s -> %s",
                 chroot.tarball_version,
-                sdk_version,
+                options.sdk_version,
             )
         else:
             logging.debug("--update: Replace not required")
@@ -945,7 +935,9 @@ def main(argv) -> None:
         if options.sdk_url:
             urls = [options.sdk_url]
         else:
-            urls = get_sdk_tarball_urls(sdk_version, bucket=version_conf.bucket)
+            urls = get_sdk_tarball_urls(
+                options.sdk_version, bucket=version_conf.bucket
+            )
 
     sdk_cache = Path(chroot.cache_dir) / "sdks"
     if options.download or options.create or replace_for_update:
