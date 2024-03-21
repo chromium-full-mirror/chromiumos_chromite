@@ -199,7 +199,10 @@ class ProtofilesLib:
 
         new_ebuild_path = package_path / new_package_info.ebuild
         old_ebuild_path = package_path / old_filename
-        shutil.move(old_ebuild_path, new_ebuild_path)
+        # TODO(python3.9): In python 3.9, shutil.move() accepts
+        #   Path object. Remove the typecast to string, once python
+        #   version moves to 3.9.
+        shutil.move(str(old_ebuild_path), str(new_ebuild_path))
 
         self._ReplaceHashes(new_ebuild_path, commit_hashes, tree_hashes)
 

@@ -739,7 +739,10 @@ def _CopyDirContents(
             if move:
                 if to_path.is_file() or to_path.is_symlink():
                     SafeUnlink(to_path)
-                shutil.move(from_path, to_path)
+                # TODO(python3.9): In python 3.9, shutil.move() accepts
+                #   Path object. Remove the typecast to string, once python
+                #   version moves to 3.9.
+                shutil.move(str(from_path), str(to_path))
             elif symlinks:
                 to_path.symlink_to(os.readlink(from_path))
             else:
@@ -767,15 +770,15 @@ def _CopyDirContents(
                     # TODO(python3.9): In python 3.9, shutil.move() accepts
                     #   Path object. Remove the typecast to string, once python
                     #   version moves to 3.9.
-                    shutil.move(
-                        str(from_path),
-                        str(to_path),
-                    )
+                    shutil.move(str(from_path), str(to_path))
             else:
                 shutil.copytree(from_path, to_path, symlinks=symlinks)
         elif from_path.is_file():
             if move:
-                shutil.move(from_path, to_path)
+                # TODO(python3.9): In python 3.9, shutil.move() accepts
+                #   Path object. Remove the typecast to string, once python
+                #   version moves to 3.9.
+                shutil.move(str(from_path), str(to_path))
             else:
                 shutil.copy2(from_path, to_path)
 
@@ -2062,7 +2065,10 @@ def rotate_log_file(
             ts = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
             new_path = path.parent / f"{path.stem}-copy-{ts}{path.suffix}"
             try:
-                shutil.move(path, new_path)
+                # TODO(python3.9): In python 3.9, shutil.move() accepts
+                #   Path object. Remove the typecast to string, once python
+                #   version moves to 3.9.
+                shutil.move(str(path), str(new_path))
             except PermissionError:
                 cros_build_lib.sudo_run(["mv", str(path), str(new_path)])
             logging.debug("moved old logs to file: %s", new_path)
