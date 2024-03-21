@@ -64,10 +64,10 @@ def _load_runtime_context(func: _F) -> _F:
                     ))()
 
                 except StopIteration:  # pylint: disable=broad-except
-                    logger.debug(
-                        "Failed to load context: %s", configured_context
-                    )
-                    logger.debug("Creating and returning a new context.")
+                    # logger.debug(
+                    #     "Failed to load context: %s", configured_context
+                    # )
+                    # logger.debug("Creating and returning a new context.")
                     _RUNTIME_CONTEXT = ContextVarsRuntimeContext()
                 except Exception:  # pylint: disable=broad-except
                     logger.exception(
