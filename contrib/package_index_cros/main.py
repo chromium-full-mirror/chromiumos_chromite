@@ -21,9 +21,8 @@ def _build_parser():
     parser = commandline.ArgumentParser(
         usage="%(prog)s [options] package [package...]",
         description=textwrap.dedent(
-            """\
-        Generate compile commands and gn targets for given packages in current
-        or given directory."""
+            "Generate compile commands for given packages in current or given"
+            "directory."
         ),
         epilog=textwrap.dedent(
             """\
@@ -136,23 +135,6 @@ def _build_parser():
         ),
     )
 
-    gn_targets_args = parser.add_mutually_exclusive_group()
-    gn_targets_args.add_argument(
-        "--gn-targets",
-        "--gn_targets",
-        "-t",
-        type=str,
-        dest="gn_targets_file",
-        default=None,
-        help=textwrap.dedent(
-            """\
-    Output file for gn targets json.
-    Default: gn_targets.json in current directory.
-    If --build-dir is specified, paths will refer to this
-    directory."""
-        ),
-    )
-
     build_dir_args = parser.add_mutually_exclusive_group()
     build_dir_args.add_argument(
         "--build-dir",
@@ -186,9 +168,6 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     if args.compile_commands_file:
         args.compile_commands_file = os.path.abspath(args.compile_commands_file)
 
-    if args.gn_targets_file:
-        args.gn_targets_file = os.path.abspath(args.gn_targets_file)
-
     if args.build_dir:
         args.build_dir = os.path.abspath(args.build_dir)
 
@@ -206,7 +185,6 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     )
     _conductor.do_magic(
         cdb_output_file=args.compile_commands_file,
-        targets_output_file=args.gn_targets_file,
         build_output_dir=args.build_dir,
         fail_fast=args.fail_fast,
     )

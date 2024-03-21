@@ -16,7 +16,6 @@ page. The script should help to reuse [`package_index`] for ChromeOS purposes.
 Currently, it is able to generate, fix and merge:
 
 - compile_commands.json
-- gn_targets.json
 - build dir (generated source files, ninja artifacts etc)
 
 ## Usage

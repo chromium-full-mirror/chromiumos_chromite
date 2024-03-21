@@ -62,29 +62,6 @@ class CrosSdk:
         ]
         return self._exec(ninja_cmd, capture_output=True).stdout
 
-    def generate_gn_targets(
-        self, chroot_root_dir: str, chroot_build_dir: str
-    ) -> str:
-        """Call `gn desc` and return gn targets as a string.
-
-        Args:
-            chroot_root_dir: A package's dir containing the uppermost .gn file
-                inside the chroot.
-            chroot_build_dir: A package's build dir inside the chroot.
-
-        Raises:
-            cros_build_lib.CalledProcessError: Command failed.
-        """
-        gn_desc_cmd = [
-            "gn",
-            "desc",
-            f"--root={chroot_root_dir}",
-            chroot_build_dir,
-            "*",
-            "--format=json",
-        ]
-        return self._exec(gn_desc_cmd, capture_output=True).stdout
-
     def generate_dependency_tree(self, package_names: List[str]):
         """Generate the dependency tree for the given packages.
 

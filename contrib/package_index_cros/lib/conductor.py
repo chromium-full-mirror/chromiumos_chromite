@@ -13,7 +13,6 @@ from chromite.contrib.package_index_cros.lib import build_dir
 from chromite.contrib.package_index_cros.lib import cdb
 from chromite.contrib.package_index_cros.lib import constants
 from chromite.contrib.package_index_cros.lib import cros_sdk
-from chromite.contrib.package_index_cros.lib import gn_targets
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import package_sleuth
 from chromite.contrib.package_index_cros.lib import setup
@@ -80,7 +79,6 @@ class Conductor:
         self,
         *,
         cdb_output_file: Optional[str] = None,
-        targets_output_file: Optional[str] = None,
         build_output_dir: Optional[str] = None,
         fail_fast: bool = False,
     ):
@@ -117,15 +115,6 @@ class Conductor:
                 fail_fast=fail_fast,
             ).generate(self.packages, cdb_output_file)
             logging.info("Generated cdb file: %s", cdb_output_file)
-
-        if targets_output_file:
-            gn_targets.GnTargetsGenerator(
-                self.setup,
-                result_build_dir=build_output_dir,
-                file_conflicts=build_dir_conflicts,
-                fail_fast=fail_fast,
-            ).generate(self.packages, targets_output_file)
-            logging.info("Generated targets file: %s", targets_output_file)
 
         logging.info("Done")
 
