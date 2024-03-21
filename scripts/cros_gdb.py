@@ -749,9 +749,10 @@ def main(argv) -> None:
         "inf_args",
         nargs=argparse.REMAINDER,
         help=(
-            "Arguments for gdb to pass to the program being"
-            " debugged. These are positional and must come at the end"
-            " of the command line.  This will not work if attaching"
+            "Full path (including /build/$board unless --board is specified)"
+            " of the program followed by arguments for gdb to pass to the"
+            " program being debugged. These are positional and must come at the"
+            " end of the command line.  This will not work if attaching"
             " to an already running program."
         ),
     )
