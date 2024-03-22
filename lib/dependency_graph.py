@@ -113,6 +113,46 @@ class PackageNode:
         )
         return f"PackageNode<{data}>"
 
+    def diff(self, other: "PackageNode"):
+        """Log the differences between self and |other|."""
+        logging.info("Comparing %s and %s", self, other)
+        if self.pkg_info != other.pkg_info:
+            logging.info("pkg_info: %s != %s", self.pkg_info, other.pkg_info)
+        if self.root != other.root:
+            logging.info("root: %s != %s", self.root, other.root)
+
+        # Helper function for outputting deps and sources.
+        def _cmp_sets(mine, others):
+            _fmt_deps = lambda deps: "\n".join([f"\t\t{x}" for x in deps])
+            self_only = mine - others
+            if self_only:
+                logging.info("\tself only:")
+                logging.info(_fmt_deps(self_only))
+            other_only = others - mine
+            if other_only:
+                logging.info("\tother only:")
+                logging.info(_fmt_deps(other_only))
+
+        my_deps = self._deps
+        other_deps = set(other.dependencies)
+        if my_deps != other_deps:
+            logging.info("Dependencies:")
+            _cmp_sets(my_deps, other_deps)
+
+        my_rev_deps = self._rev_deps
+        other_rev_deps = set(other.reverse_dependencies)
+        if my_rev_deps != other_rev_deps:
+            logging.info("Reverse Dependencies:")
+            _cmp_sets(my_rev_deps, other_rev_deps)
+
+        my_sources = set(self.source_paths)
+        other_sources = set(other.source_paths)
+        if my_sources != other_sources:
+            logging.info("Source paths:")
+            _cmp_sets(my_sources, other_sources)
+
+        logging.info("Comparing %s and %s complete.", self, other)
+
     @property
     def dependencies(self) -> Iterable["PackageNode"]:
         """Get the packages this one depends on."""
@@ -387,6 +427,12 @@ class DependencyGraph:
                 # Ignore if re-adding.
                 return
             else:
+                logging.debug("Adding node already in the root:")
+                logging.debug(
+                    "Existing: %r", self._pkg_dict[node.name][node.root]
+                )
+                logging.debug("New: %r", node)
+                self._pkg_dict[node.name][node.root].diff(node)
                 raise NodeCollisionError(
                     f"Different node already exists for {node}."
                 )
