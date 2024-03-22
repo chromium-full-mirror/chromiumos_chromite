@@ -10,6 +10,7 @@ import os
 from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import git
+from chromite.lib import path_util
 from chromite.lib import workon_helper
 from chromite.lib.telemetry import cros_detector
 
@@ -58,6 +59,7 @@ def test_sdk_state_to_capture_manifest_info(monkeypatch) -> None:
     assert resource["manifest_sync_date"] == manifest_mtime.isoformat()
     assert resource["inside_sdk"]
     assert resource["chroot_tarball_version"] == "2024.03.12.050012"
+    assert resource["checkout_type"] == "REPO"
 
 
 def test_sdk_state_to_capture_empty(monkeypatch) -> None:
@@ -70,8 +72,9 @@ def test_sdk_state_to_capture_empty(monkeypatch) -> None:
     sdk_detector = cros_detector.SDKSourceDetector()
     resource = sdk_detector.detect().attributes
 
-    assert len(resource) == 1
+    assert len(resource) == 2
     assert not resource["inside_sdk"]
+    assert resource["checkout_type"]
 
 
 def test_sdk_state_to_all_workon_atoms(monkeypatch) -> None:
@@ -93,8 +96,25 @@ def test_sdk_state_to_all_workon_atoms(monkeypatch) -> None:
     resource = sdk_detector.detect().attributes
 
     # inside_sdk is always set.
-    assert len(resource) == 3
+    assert len(resource) == 4
     assert not resource["inside_sdk"]
+    assert resource["checkout_type"]
     # Check the workon entries.
     assert list(resource["workon_kevin"]) == workon_atoms["kevin"]
     assert list(resource["workon_betty"]) == workon_atoms["betty"]
+
+
+def test_sdk_state_to_capture_non_repo_checkout(monkeypatch) -> None:
+    cog_checkout_info = path_util.CheckoutInfo(
+        path_util.CheckoutType.CITC, None, None
+    )
+    monkeypatch.setattr(
+        path_util, "DetermineCheckout", lambda: cog_checkout_info
+    )
+
+    sdk_detector = cros_detector.SDKSourceDetector()
+    resource = sdk_detector.detect().attributes
+
+    assert len(resource) == 3
+    assert resource["inside_sdk"]
+    assert resource["checkout_type"] == "CITC"

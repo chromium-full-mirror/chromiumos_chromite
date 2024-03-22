@@ -13,6 +13,7 @@ from chromite.third_party.opentelemetry.sdk import resources
 from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import git
+from chromite.lib import path_util
 from chromite.lib import workon_helper
 
 
@@ -22,19 +23,27 @@ class SDKSourceDetector(resources.ResourceDetector):
     def detect(self) -> resources.Resource:
         resource = {}
 
-        repo = git.FindRepoDir(".")
-        manifest_repo = Path(repo) / "manifests" if repo else None
+        checkout_info = path_util.DetermineCheckout()
+        resource["checkout_type"] = checkout_info.type.name
 
-        if manifest_repo:
-            branch = git.ManifestCheckout(manifest_repo).manifest_branch
-            commit = git.GetLastCommit(manifest_repo)
-            resource["manifest_branch"] = branch if branch else None
-            resource["manifest_commit_date"] = commit.commit_date.isoformat()
-            resource["manifest_change_id"] = commit.change_id
-            resource["manifest_commit_sha"] = commit.sha
-            resource["manifest_sync_date"] = datetime.datetime.fromtimestamp(
-                os.path.getmtime(manifest_repo), tz=datetime.timezone.utc
-            ).isoformat()
+        if checkout_info.type == path_util.CheckoutType.REPO:
+            repo = git.FindRepoDir(".")
+            manifest_repo = Path(repo) / "manifests" if repo else None
+
+            if manifest_repo:
+                branch = git.ManifestCheckout(manifest_repo).manifest_branch
+                commit = git.GetLastCommit(manifest_repo)
+                resource["manifest_branch"] = branch if branch else None
+                resource[
+                    "manifest_commit_date"
+                ] = commit.commit_date.isoformat()
+                resource["manifest_change_id"] = commit.change_id
+                resource["manifest_commit_sha"] = commit.sha
+                resource[
+                    "manifest_sync_date"
+                ] = datetime.datetime.fromtimestamp(
+                    os.path.getmtime(manifest_repo), tz=datetime.timezone.utc
+                ).isoformat()
 
         workon_atoms = workon_helper.ListAllWorkedOnAtoms()
         if workon_atoms:
