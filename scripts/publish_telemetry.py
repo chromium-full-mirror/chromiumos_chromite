@@ -7,6 +7,7 @@
 from typing import List, Optional
 
 from chromite.lib import commandline
+from chromite.lib import telemetry
 from chromite.lib import telemetry_publisher
 
 
@@ -30,4 +31,14 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     """Main."""
     # We still want --help and the logging options.
     parse_arguments(argv)
+
+    if not telemetry_publisher.can_publish():
+        # Early return to allow initializing telemetry only when publishing.
+        return
+
+    # Enable telemetry here so the telemetry is limited to actual publishes.
+    # This is largely just a QOL improvement for browsing telemetry locally
+    # when every command is generating telemetry.
+    # Disable publish to prevent fork bomb.
+    telemetry.initialize(publish=False)
     telemetry_publisher.publish()

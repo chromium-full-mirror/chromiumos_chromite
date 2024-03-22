@@ -92,7 +92,7 @@ def _get_next_publish_ts_file():
     return _get_telemetry_dir() / ".telemetry_next_publish_ts"
 
 
-def _can_publish():
+def can_publish():
     next_publish = _get_next_publish_ts_file()
 
     if not next_publish.exists():
@@ -123,7 +123,7 @@ def publish():
     publisher_lock = locking.FileLock(publisher_file, locktype=locking.FLOCK)
     next_publish_lock = locking.FileLock(next_publish, locktype=locking.FLOCK)
 
-    if not _can_publish():
+    if not can_publish():
         # Short circuit publisher file lock when we can't publish anyway.
         logging.debug("Too soon.")
         return
@@ -132,7 +132,7 @@ def publish():
 
     logging.debug("Acquiring lock.")
     with publisher_lock.write_lock():
-        if not _can_publish():
+        if not can_publish():
             # Double check we weren't waiting on a now-completed publisher.
             logging.debug("Too soon.")
             return
