@@ -783,26 +783,6 @@ def uprev_parallels_desktop(_build_targets, _refs, chroot):
     return result
 
 
-@uprevs_versioned_package("chromeos-base/chromeos-dtc-vm")
-def uprev_sludge(_build_targets, _refs, chroot):
-    """Updates sludge VM - chromeos-base/chromeos-dtc-vm.
-
-    See: uprev_versioned_package.
-    """
-    package = "chromeos-dtc-vm"
-    package_path = os.path.join(
-        "src",
-        "private-overlays",
-        "project-wilco-private",
-        "chromeos-base",
-        package,
-    )
-    version_pin_src_path = _get_version_pin_src_path(package_path)
-    version_no_rev = osutils.ReadFile(version_pin_src_path).strip()
-
-    return uprev_lib.uprev_ebuild_from_pin(package_path, version_no_rev, chroot)
-
-
 @uprevs_versioned_package("chromeos-base/borealis-dlc")
 def uprev_borealis_dlc(_build_targets, _refs, chroot):
     """Updates shared borealis-dlc ebuild - chromeos-base/borealis-dlc.
