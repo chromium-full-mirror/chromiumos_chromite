@@ -155,47 +155,6 @@ def test_initialize_to_skip_notice_when_trace_enabled_is_present(
     assert cfg.trace_config.enabled_reason == "USER"
 
 
-def test_initialize_to_enable_telemetry_based_on_optin(
-    capsys, monkeypatch, processors, telemetry_config
-) -> None:
-    """Test initialize enable telemetry based on optin."""
-    monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
-
-    cfg = config.Config(telemetry_config)
-    cfg.trace_config.update(enabled=False, reason="AUTO")
-    cfg.flush()
-
-    telemetry.initialize(enable=True)
-
-    cfg = config.Config(telemetry_config)
-    assert len(processors) == 1
-    assert (
-        processors[0].span_exporter.__class__ == exporter.ClearcutSpanExporter
-    )
-    assert not capsys.readouterr().err.startswith(telemetry.NOTICE)
-    assert cfg.trace_config.enabled
-    assert cfg.trace_config.enabled_reason == "USER"
-
-
-def test_initialize_to_disable_telemetry_based_on_optin(
-    capsys, monkeypatch, processors, telemetry_config
-) -> None:
-    """Test initialize disable telemetry based on optin."""
-    monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
-
-    cfg = config.Config(telemetry_config)
-    cfg.trace_config.update(enabled=True, reason="AUTO")
-    cfg.flush()
-
-    telemetry.initialize(enable=False)
-
-    cfg = config.Config(telemetry_config)
-    assert len(processors) == 0
-    assert not capsys.readouterr().err.startswith(telemetry.NOTICE)
-    assert not cfg.trace_config.enabled
-    assert cfg.trace_config.enabled_reason == "USER"
-
-
 def test_initialize_to_set_parent_from_traceparent_env(
     monkeypatch, telemetry_config
 ) -> None:

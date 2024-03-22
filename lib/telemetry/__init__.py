@@ -30,7 +30,6 @@ TELEMETRY_VERSION = "3"
 
 def initialize(
     log_traces: bool = False,
-    enable: Optional[bool] = None,
     publish: bool = False,
 ) -> None:
     """Initialize chromite telemetry.
@@ -46,7 +45,6 @@ def initialize(
 
     Args:
         log_traces: Indicates if the traces should be exported to console.
-        enable: Indicates if the traces should be enabled.
         publish: Fork background process to publish telemetry.
     """
     # Importing this inside the function to avoid performance overhead from the
@@ -63,9 +61,6 @@ def initialize(
         return
 
     cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
-    if enable is not None:
-        cfg.trace_config.update(enabled=enable, reason="USER")
-        cfg.flush()
 
     if (
         not cfg.trace_config.has_enabled()
