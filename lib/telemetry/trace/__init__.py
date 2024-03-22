@@ -129,7 +129,9 @@ def initialize(
             detector.ProcessDetector(),
             cros_detector.SDKSourceDetector(),  # type: ignore[no-untyped-call]
             detector.SystemDetector(),  # type: ignore[no-untyped-call]
-            cros_detector.DevelopmentDetector(force_dev=development_mode),
+            cros_detector.DevelopmentDetector(
+                force_dev=development_mode, batch_publishing=batch
+            ),
             cros_detector.UserDetector(user_uuid=user_uuid),
         ]
     )
