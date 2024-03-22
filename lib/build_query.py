@@ -88,11 +88,11 @@ class QueryTarget(abc.ABC):
         yield from ()
 
 
+@dataclasses.dataclass(frozen=True)
 class Overlay(QueryTarget):
     """An overlay, e.g., src/third_party/chromiumos-overlay."""
 
-    def __init__(self, path: Union[str, "os.PathLike[str]"]) -> None:
-        self.path = Path(path)
+    path: Path
 
     @classmethod
     def find_all(
@@ -101,7 +101,7 @@ class Overlay(QueryTarget):
         overlays: str = constants.BOTH_OVERLAYS,
     ) -> Iterator[Overlay]:
         for overlay_path in portage_util.FindOverlays(overlays, board=board):
-            yield cls(overlay_path)
+            yield cls(Path(overlay_path))
 
     def tree(self) -> Iterator[Overlay]:
         yield from self.parents
@@ -247,11 +247,6 @@ class Overlay(QueryTarget):
 
     def __repr__(self) -> str:
         return str(self.path)
-
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, Overlay):
-            return False
-        return self.path == other.path
 
 
 @functools.lru_cache(maxsize=None)
@@ -712,9 +707,18 @@ class Board(QueryTarget):
     @property
     def overlays(self) -> Iterator[Overlay]:
         """All overlays accessible to this board."""
+        visited: Set[Overlay] = set()
+
+        def _rec(overlay: Overlay) -> None:
+            if overlay in visited:
+                return
+            visited.add(overlay)
+            yield overlay
+            for parent in overlay.parents:
+                yield from _rec(parent)
+
         if self.top_level_overlay:
-            yield self.top_level_overlay
-            yield from self.top_level_overlay.parents
+            yield from _rec(self.top_level_overlay)
 
     @property
     def top_level_profile(self) -> Optional[Profile]:

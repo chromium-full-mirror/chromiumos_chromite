@@ -90,6 +90,7 @@
 
 **Attributes:**
 
+* `path` (`Path`)
 * `board_name` (`Optional[str]`): If this overlay is a top-level overlay for a board, the name of that
         board.  Otherwise, this is None.
 
