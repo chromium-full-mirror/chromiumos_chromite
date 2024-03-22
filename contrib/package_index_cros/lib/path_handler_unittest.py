@@ -465,42 +465,6 @@ class FixPathWithIgnoresTestCase(testing_utils.TestCase):
             ),
         )
 
-    def test_ignorable_extensions(self) -> None:
-        """Test ignoring failures with certain extensions."""
-        pkg = self.new_package()
-        (outside_path, inside_path) = self._get_input_paths(pkg)
-        dichotomy = self.add_src_dir_match(pkg, "a/b/c", make_actual_dir=True)
-
-        # Normally we expect fixing to fail, since we didn't create file.txt in
-        # the actual dir on the filesystem.
-        with self.assertRaises(path_handler.PathNotFixedException):
-            self.path_handler.fix_path_with_ignores(inside_path, pkg)
-
-        # When we ignore the ".txt" extension, it should ignore the failure, and
-        # instead try to match from the basedir, which does exist.
-        self.assertEqual(
-            self.path_handler.fix_path_with_ignores(
-                inside_path, pkg, ignorable_extensions=[".md", ".txt", ".js"]
-            ),
-            path_handler.FixedPath(
-                original=outside_path,
-                actual=os.path.join(dichotomy.actual, "file.txt"),
-            ),
-        )
-
-        # If we ignore other extensions but not ".txt", it should still fail.
-        with self.assertRaises(path_handler.PathNotFixedException):
-            self.path_handler.fix_path_with_ignores(
-                inside_path, pkg, ignorable_extensions=[".md", ".py", ".js"]
-            )
-
-        # Finally, ignorable_extensions isn't a panacea. If the input path's
-        # basedir doesn't have a src_dir_match, it should still fail.
-        with self.assertRaises(path_handler.PathNotFixedException):
-            self.path_handler.fix_path_with_ignores(
-                "/some/path", pkg, ignorable_extensions=[".md", ".txt", ".js"]
-            )
-
 
 @pytest.mark.parametrize(
     (

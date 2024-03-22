@@ -315,7 +315,6 @@ class PathHandler:
         ignore_generated: bool = False,
         ignore_stable: bool = False,
         ignorable_dirs: Optional[List[str]] = None,
-        ignorable_extensions: Optional[List[str]] = None,
     ) -> FixedPath:
         """Fix a path (like |fix_path|), but ignore some failures.
 
@@ -341,8 +340,6 @@ class PathHandler:
                 volatile (may contain patches which create/delete files).
             ignorable_dirs: Do not fail if path is inside one of given dirs
                 outside of chroot (aka has a dir as prefix).
-            ignorable_extensions: Do not fail if path ends with one of given
-                extensions.
 
         Raises:
             PathNotFixedException: |path| cannot resolve to an actual path.
@@ -352,8 +349,6 @@ class PathHandler:
             conflicting_paths = {}
         if ignorable_dirs is None:
             ignorable_dirs = []
-        if ignorable_extensions is None:
-            ignorable_extensions = []
 
         path = self._get_path_outside_of_chroot(
             chroot_path, pkg, base_dir=pkg.build_dir
@@ -399,16 +394,6 @@ class PathHandler:
                 if ignorable_dirs:
                     logging.debug(
                         "%s: Failed to fix path in ignorable dir: %s",
-                        pkg.full_name,
-                        chroot_path,
-                    )
-                    return True
-                if ignorable_extensions and any(
-                    chroot_path.endswith(ignorable_ext)
-                    for ignorable_ext in ignorable_extensions
-                ):
-                    logging.debug(
-                        "%s: Failed to fix path with ignorable extension: %s",
                         pkg.full_name,
                         chroot_path,
                     )
