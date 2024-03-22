@@ -211,11 +211,25 @@ def _parse_files(publisher: "ClearcutPublisher") -> List["TelemetryFile"]:
 )
 def _post_publish_actions(pending_files: List["TelemetryFile"]):
     """Post-publish actions for all published files."""
+    # Mark the just published files as published.
     for file in pending_files:
         file.publishing_succeeded()
 
-    for file in _get_telemetry_files():
+    # Clean out old telemetry files.
+    # We need to convert it to a list because deletions can cause problems for
+    # the rglob iterator.
+    for file in list(_get_telemetry_files()):
         file.delete(age=_TELEMETRY_PURGE_AGE)
+
+    # Clean out old publisher logs.
+    publisher_logs = _get_telemetry_dir() / ".publisher_logs"
+    cutoff = time.time() - _TELEMETRY_PURGE_AGE
+    for file in publisher_logs.iterdir():
+        if file.stat().st_mtime < cutoff:
+            try:
+                osutils.SafeUnlink(file, sudo=True)
+            except cros_build_lib.RunCommandError as e:
+                logging.warning("Error deleting %s: %s", file, e)
 
 
 def _post_publish_failure_actions(pending_files: Iterable["TelemetryFile"]):
