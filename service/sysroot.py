@@ -1457,6 +1457,22 @@ def _InstallConfigs(
     sysroot.InstallMakeConfBoardSetup(target)
     sysroot.InstallMakeConfUser()
 
+    if target.is_host():
+        make_profile = sysroot.JoinPath("etc", "portage", "make.profile")
+        osutils.SafeUnlink(make_profile, sudo=True)
+        osutils.SafeSymlink(
+            constants.SOURCE_ROOT
+            / constants.CHROMIUMOS_OVERLAY_DIR
+            / "profiles"
+            / "default"
+            / "linux"
+            / "amd64"
+            / "10.0"
+            / "sdk",
+            make_profile,
+            sudo=True,
+        )
+
 
 def _InstallPortageConfigs(
     sysroot: sysroot_lib.Sysroot,
