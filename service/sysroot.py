@@ -79,7 +79,7 @@ _PACKAGE_LIST = List[Optional[str]]
 
 # The default to use for --backtrack everywhere. Must be manually changed in
 # update_chroot.
-BACKTRACK_DEFAULT = 10
+BACKTRACK_DEFAULT = 30
 
 SYSROOT_ARCHIVE_FILE = "sysroot.tar.zst"
 BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE = "/tmp/allpackages_command.profile.gz"
