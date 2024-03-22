@@ -16,6 +16,7 @@ import pytest
 
 import chromite as cr
 from chromite.lib import build_query
+from chromite.lib import osutils
 from chromite.test import portage_testables
 
 
@@ -189,9 +190,13 @@ def fake_build_query_overlays(tmp_path):
         ],
     )
     overlay_faux_private.create_profile(
+        path=Path("symlinked"),
         profile_parents=[
             overlay_fake_private.profiles[Path("base")],
         ],
+    )
+    osutils.SafeSymlink(
+        "symlinked", overlay_faux_private.path / "profiles" / "base"
     )
 
     overlay_foo_private = portage_testables.Overlay(

@@ -232,21 +232,21 @@ def _belongs(
     path = constants.SOURCE_ROOT / path
 
     for overlay in overlays:
-        if (
-            compat.path_is_relative_to(path, overlay.profiles_dir)
-            and path.parent != overlay.profiles_dir
-        ):
-            logging.debug("%s is a profile", path)
-            profile_path = path.parent.relative_to(overlay.profiles_dir)
-            # Profiles may contain directories.  See PMS: PROFILE-FILE-DIRS.
-            if profile_path.name.startswith(
-                "package."
-            ) or profile_path.name.startswith("use."):
-                profile_path = profile_path.parent
-            profile = overlay.get_profile(profile_path)
-            if profile:
-                yield profile
-            return
+        if compat.path_is_relative_to(path, overlay.profiles_dir):
+            # Iterate through all profiles in this overlay.  We must consider
+            # not only the profile which is a parent path of this path, but
+            # also any profiles which symlink to this profile, since portage
+            # permits profiles to be symlinks.  If the path is relative to the
+            # profiles directory but isn't relative to any profile, we consider
+            # it an overlay change instead of a profile change.
+            is_profile = False
+            for profile in overlay.profiles:
+                if compat.path_is_relative_to(path, profile.path.resolve()):
+                    is_profile = True
+                    logging.debug("%s changes profile %s", path, profile)
+                    yield profile
+            if is_profile:
+                return
         for ebuild in overlay.ebuilds:
             if compat.path_is_relative_to(path, ebuild.ebuild_file.parent):
                 logging.debug("%s changes ebuild files for %s", path, ebuild)

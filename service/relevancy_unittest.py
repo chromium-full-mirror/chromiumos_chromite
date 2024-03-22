@@ -65,6 +65,11 @@ def mock_source_info(monkeypatch: "pytest.MonkeyPatch", tmp_path: Path) -> None:
             "faux",
             relevancy.ReasonProfile,
         ),
+        (
+            "overlay-faux-private/profiles/symlinked/make.defaults",
+            "faux",
+            relevancy.ReasonProfile,
+        ),
         ("overlay-fake/profiles/base/make.defaults", "foo", None),
         ("overlay-fake/metadata/layout.conf", "fake", relevancy.ReasonOverlay),
         (
