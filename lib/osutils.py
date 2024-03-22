@@ -641,7 +641,7 @@ def SafeMakedirsNonRoot(path, mode=0o775, user=None) -> bool:
             # Create as root and then chown.
             created = should_chown = SafeMakedirs(path, mode=mode, sudo=True)
 
-    if not should_chown:
+    if os.path.exists(path) and not should_chown:
         # Check the owner when we aren't already sure.
         owner_id = os.stat(path).st_uid
         if not owner_id:
