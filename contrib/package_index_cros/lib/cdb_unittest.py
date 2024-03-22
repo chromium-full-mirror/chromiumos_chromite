@@ -5,14 +5,16 @@
 """Unit tests for cdb.py."""
 
 import filecmp
+import json
 import os
-from typing import Optional
+from typing import Any, Optional
 from unittest import mock
 
 import pytest
 
 from chromite.contrib.package_index_cros.lib import cdb
 from chromite.contrib.package_index_cros.lib import constants
+from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import path_handler
 from chromite.contrib.package_index_cros.lib import testing_utils
@@ -864,3 +866,346 @@ class FixTestCase(testing_utils.TestCase):
             "output": expected_fixed_output_path,
         }
         self.assertEqual(_cdb.data, [expected_fixed_cdb_entry])
+
+
+class GenerateCdbForPackageTestCase(testing_utils.TestCase):
+    """Test cases for CdbGenerator._generate_cdb_for_package()."""
+
+    _cdb_entry = {
+        "argument": ["clang++"],
+        "file": "/some/file",
+        "dir": "/some/dir",
+    }
+
+    def _mock_generate_compile_commands(self, stdout: Any) -> mock.Mock:
+        """Mock out the return value for CrosSdk.generate_compile_commands().
+
+        Args:
+            stdout: The raw string that CrosSdk.generate_compile_commands()
+                should return. Typically this is a json.dumps()'d version of the
+                object you actually want to return.
+        """
+        return self.PatchObject(
+            cros_sdk.CrosSdk, "generate_compile_commands", return_value=stdout
+        )
+
+    def test_basic(self) -> None:
+        """Basic test case: initialize a cdb.Cdb."""
+        result_build_dir = str(self.tempdir / "cdb_build_dir")
+        file_conflicts = {"/path1": "/path2", "/path3": "/path4"}
+        cdb_generator = cdb.CdbGenerator(
+            self.setup,
+            result_build_dir=result_build_dir,
+            file_conflicts=file_conflicts,
+        )
+        packages_to_include_args = {
+            "chromeos-base/some-package": cdb._IncludePathOrder(
+                local={"-Isome/local/path"},
+                generated={"-Isome/generated/path"},
+                chroot=set(),
+            )
+        }
+        self._mock_generate_compile_commands(json.dumps([self._cdb_entry]))
+
+        _cdb = cdb_generator._generate_cdb_for_package(
+            self.new_package(), packages_to_include_args
+        )
+        self.assertEqual(_cdb.data, [self._cdb_entry])
+        self.assertEqual(_cdb.package_to_include_args, packages_to_include_args)
+        self.assertEqual(_cdb.build_dir, result_build_dir)
+        self.assertEqual(_cdb.file_conflicts, file_conflicts)
+
+    def test_empty_compile_commands(self) -> None:
+        """Test case for when the generated compilation database is empty.
+
+        Importantly, generation shouldn't fail. It should complain, and then
+        return a Cdb with no compile commands.
+        """
+        cdb_generator = cdb.CdbGenerator(self.setup)
+        pkg = self.new_package()
+        self._mock_generate_compile_commands(json.dumps([]))
+        with self.assertLogs(level="ERROR"):
+            _cdb = cdb_generator._generate_cdb_for_package(pkg, {})
+        self.assertEqual(_cdb.data, [])
+
+    def test_unexpected_cdb_json(self) -> None:
+        """Test case for when the generated compilation database looks wrong."""
+        cdb_generator = cdb.CdbGenerator(self.setup)
+        pkg = self.new_package()
+        for raw_compdb in (
+            self._cdb_entry,
+            str([self._cdb_entry]),
+            123,
+            True,
+            None,
+        ):
+            self._mock_generate_compile_commands(json.dumps(raw_compdb))
+            with self.assertRaises(ValueError):
+                cdb_generator._generate_cdb_for_package(pkg, {})
+
+
+class GenerateResultCdbTestCase(testing_utils.TestCase):
+    """Test cases for CdbGenerator._generate_result_cdb()."""
+
+    def test_two_successful_packages(self) -> None:
+        """Test generating a Cdbs for two packages.
+
+        We expect the following behavior:
+        1.  CdbGenerator.package_status should show each package as a success.
+        2.  Each Cdb's packages_to_include_args should be the same object. In
+            particular, the first package's _IncludePathOrder should be passed
+            into the second package's Cdb.
+        3.  The return value should be equal to the concatenation of each Cdb's
+            (fixed) compile commands.
+        """
+        cdb_build_dir = str(self.tempdir / "cdb_build_dir")
+        os.mkdir(cdb_build_dir)
+
+        # Set up the first package.
+        # The first package will use two cdb entries, just to demonstrate that
+        # we fix all the entries.
+        first_pkg = self.new_package(package_name="first-package")
+
+        # Each cdb entry has a "file" field. In order for those to be fixable,
+        # the original file should be a chroot path inside the package's temp
+        # dir; we should create it (outside the chroot); and the package needs a
+        # src_dir_match pointing to the original file's parent dir.
+        # The expected fixed file should have the same filename, but inside the
+        # src_dir_match's actual dir. It, too, should exist.
+        first_pkg_actual_dir = self.add_src_dir_match(
+            first_pkg, "x", make_actual_dir=True
+        ).actual
+
+        first_pkg_unfixed_file_1 = self.setup.chroot.chroot_path(
+            os.path.join(first_pkg.temp_dir, "x/file1.txt")
+        )
+        self.touch(self.setup.chroot.full_path(first_pkg_unfixed_file_1))
+        first_pkg_expected_fixed_file_1 = os.path.join(
+            first_pkg_actual_dir, "file1.txt"
+        )
+        self.touch(first_pkg_expected_fixed_file_1)
+
+        # Now the second cdb entry's "file" field.
+        first_pkg_unfixed_file_2 = self.setup.chroot.chroot_path(
+            os.path.join(first_pkg.temp_dir, "x/file2.md")
+        )
+        self.touch(self.setup.chroot.full_path(first_pkg_unfixed_file_2))
+        first_pkg_expected_fixed_file_2 = os.path.join(
+            first_pkg_actual_dir, "file2.md"
+        )
+        self.touch(first_pkg_expected_fixed_file_2)
+
+        # We want to demonstrate that include paths get passed along to packages
+        # that depend on this one.
+        # One of our cdb entries will have an include arg (-I/some/path).
+        # We'll manage that by making it a "local" include path: the original
+        # path should be inside the package's build_dir (inside the chroot), and
+        # we should create it (outside the chroot).
+        # The fixed path will have the same filename, but inside the
+        # cdb_build_dir. It, too, must exist.
+        first_pkg_unfixed_include_path = os.path.join(
+            self.setup.chroot.chroot_path(first_pkg.build_dir),
+            "some-local-path",
+        )
+        self.touch(self.setup.chroot.full_path(first_pkg_unfixed_include_path))
+        first_pkg_unfixed_include_arg = f"-I{first_pkg_unfixed_include_path}"
+        first_pkg_expected_fixed_include_path = os.path.join(
+            cdb_build_dir, "some-local-path"
+        )
+        self.touch(first_pkg_expected_fixed_include_path)
+
+        # These are the cdb_entries for the first package. We'll mock the stdout
+        # of CrosSdk.generate_compile_commands to return these as JSON.
+        first_pkg_unfixed_cdb_entries = [
+            {
+                "arguments": ["path/to/clang++", first_pkg_unfixed_include_arg],
+                "file": first_pkg_unfixed_file_1,
+                "directory": self.setup.chroot.chroot_path(first_pkg.build_dir),
+            },
+            {
+                "arguments": ["path/to/clang++"],
+                "file": first_pkg_unfixed_file_2,
+                "directory": self.setup.chroot.chroot_path(first_pkg.build_dir),
+            },
+        ]
+        first_pkg_cdb_stdout = json.dumps(first_pkg_unfixed_cdb_entries)
+
+        # These are the first package's expected cdb entries after fixing.
+        first_pkg_expected_fixed_cdb_entries = [
+            {
+                "command": (
+                    "clang++ -stdlib=libc++ "
+                    f"-I{first_pkg_expected_fixed_include_path}"
+                ),
+                "file": os.path.relpath(
+                    first_pkg_expected_fixed_file_1, cdb_build_dir
+                ),
+                "directory": cdb_build_dir,
+            },
+            {
+                "command": "clang++ -stdlib=libc++",
+                "file": os.path.relpath(
+                    first_pkg_expected_fixed_file_2, cdb_build_dir
+                ),
+                "directory": cdb_build_dir,
+            },
+        ]
+
+        # Now set up the second package.
+        # This one will depend on the first package. That will allow us to
+        # verify that include paths get passed along.
+        # For simplicity, this package will only use one cdb entry, and no
+        # include paths (other than the one from its dependency)
+        second_pkg = self.new_package(
+            package_name="second-package",
+            dependencies=[
+                package.PackageDependency(
+                    name=first_pkg.full_name, types=["buildtime"]
+                )
+            ],
+        )
+
+        # Set up the cdb entry's "file", as above.
+        second_pkg_unfixed_file = self.setup.chroot.chroot_path(
+            os.path.join(second_pkg.temp_dir, "y/file3.cpp")
+        )
+        self.touch(self.setup.chroot.full_path(second_pkg_unfixed_file))
+        second_pkg_actual_dir = self.add_src_dir_match(
+            second_pkg, "y", make_actual_dir=True
+        ).actual
+        second_pkg_expected_fixed_file = os.path.join(
+            second_pkg_actual_dir, "file3.cpp"
+        )
+        self.touch(second_pkg_expected_fixed_file)
+
+        second_pkg_unfixed_cdb_entries = [
+            {
+                "arguments": ["path/to/clang++"],
+                "file": second_pkg_unfixed_file,
+                "directory": self.setup.chroot.chroot_path(
+                    second_pkg.build_dir
+                ),
+            }
+        ]
+        second_pkg_cdb_stdout = json.dumps(second_pkg_unfixed_cdb_entries)
+
+        second_pkg_expected_fixed_cdb_entries = [
+            {
+                "command": (
+                    "clang++ -stdlib=libc++ "
+                    f"-I{first_pkg_expected_fixed_include_path}"
+                ),
+                "file": os.path.relpath(
+                    second_pkg_expected_fixed_file, cdb_build_dir
+                ),
+                "directory": cdb_build_dir,
+            }
+        ]
+
+        # generate_compile_commands will be called twice, once for each package.
+        self.PatchObject(
+            cros_sdk.CrosSdk,
+            "generate_compile_commands",
+            side_effect=[first_pkg_cdb_stdout, second_pkg_cdb_stdout],
+        )
+
+        # Call the function under test.
+        cdb_generator = cdb.CdbGenerator(
+            self.setup, result_build_dir=cdb_build_dir, fail_fast=True
+        )
+        result_cdb_data = cdb_generator._generate_result_cdb(
+            [first_pkg, second_pkg]
+        )
+
+        # Make assertions about the output.
+        self.assertEqual(
+            cdb_generator.package_status["success"],
+            [first_pkg.full_name, second_pkg.full_name],
+        )
+        self.assertEqual(
+            result_cdb_data,
+            [
+                *first_pkg_expected_fixed_cdb_entries,
+                *second_pkg_expected_fixed_cdb_entries,
+            ],
+        )
+
+    def test_fail_fast(self) -> None:
+        """Test failing on an early package, with fail_fast=True."""
+        # The first package is going to fail because the file doesn't exist.
+        first_pkg = self.new_package(package_name="first-package")
+        first_pkg_cdb_entry = {
+            "arguments": ["path/to/clang++"],
+            "file": "/some/random/path",
+            "directory": self.setup.chroot.chroot_path(first_pkg.build_dir),
+        }
+
+        # The second package isn't going to have any compile commands, so it
+        # should pass.
+        second_pkg = self.new_package(package_name="second-package")
+
+        self.PatchObject(
+            cros_sdk.CrosSdk,
+            "generate_compile_commands",
+            side_effect=[
+                json.dumps([first_pkg_cdb_entry]),
+                json.dumps([]),
+            ],
+        )
+        cdb_generator = cdb.CdbGenerator(self.setup, fail_fast=True)
+        with self.assertRaises(path_handler.PathNotFixedException):
+            cdb_generator._generate_result_cdb([first_pkg, second_pkg])
+
+    def test_dont_fail_fast(self) -> None:
+        """Test failing on an early package, with fail_fast=False."""
+        # The first package is going to fail because the file doesn't exist.
+        first_pkg = self.new_package(package_name="first-package")
+        first_pkg_cdb_entry = {
+            "arguments": ["path/to/clang++"],
+            "file": "/some/random/path",
+            "directory": self.setup.chroot.chroot_path(first_pkg.build_dir),
+        }
+
+        # The second package isn't going to have any compile commands, so it
+        # should pass.
+        second_pkg = self.new_package(package_name="second-package")
+
+        self.PatchObject(
+            cros_sdk.CrosSdk,
+            "generate_compile_commands",
+            side_effect=[
+                json.dumps([first_pkg_cdb_entry]),
+                json.dumps([]),
+            ],
+        )
+        cdb_generator = cdb.CdbGenerator(self.setup, fail_fast=False)
+        cdb_generator._generate_result_cdb([first_pkg, second_pkg])
+        self.assertEqual(
+            cdb_generator.package_status["failed_exception"],
+            [first_pkg.full_name],
+        )
+        self.assertEqual(
+            cdb_generator.package_status["success"], [second_pkg.full_name]
+        )
+
+
+class GenerateTestCase(testing_utils.TestCase):
+    """Test cases for CdbGenerator.generate()."""
+
+    def test_write_to_file(self) -> None:
+        """Test that when CdbGenerator.generate() writes the cdb to a file."""
+        result_cdb = [
+            {
+                "command": "clang++ -stdlib=libc++",
+                "file": "some/file",
+                "directory": "some/directory",
+            }
+        ]
+        self.PatchObject(
+            cdb.CdbGenerator, "_generate_result_cdb", return_value=result_cdb
+        )
+        pkg = self.new_package()
+        result_file = str(self.tempdir / "compilation_database.json")
+        cdb.CdbGenerator(self.setup).generate([pkg], result_file)
+        with open(result_file, encoding="utf-8") as f:
+            self.assertEqual(json.load(f), result_cdb)
