@@ -7,7 +7,7 @@
 import filecmp
 import json
 import os
-from typing import Any, Optional
+from typing import Any, Dict, Iterable, Optional, Union
 from unittest import mock
 
 import pytest
@@ -23,19 +23,77 @@ from chromite.contrib.package_index_cros.lib import testing_utils
 # pylint: disable=protected-access
 
 
+def _make_command_dict(
+    directory: Optional[str] = "some/directory",
+    file: Optional[str] = "some/file",
+    arguments: Optional[Iterable[str]] = ("/path/to/clang++", "some-args"),
+    command: Optional[str] = "/path/to/clang++ some-args",
+    output: Optional[str] = "some/output/file",
+) -> Dict[str, Union[str, Iterable[str]]]:
+    """Generate a dict that can be parsed into a cdb.Command.
+
+    If any of the args is None, it will be excluded from the dict.
+    """
+    d = {}
+    if directory is not None:
+        d["directory"] = directory
+    if file is not None:
+        d["file"] = file
+    if arguments is not None:
+        # Note: `arguments` is listed as an Iterable instead of a List, because
+        # the default value needed to be an immutable value besides None.
+        # But really it should be a list.
+        d["arguments"] = list(arguments)
+    if command is not None:
+        d["command"] = command
+    if output is not None:
+        d["output"] = output
+    return d
+
+
+def _make_command(**kwargs: Optional[Union[str, Iterable[str]]]) -> cdb.Command:
+    """Generate a cdb.Command."""
+    command_dict = _make_command_dict(**kwargs)
+    return cdb.parse_compile_command(command_dict)
+
+
+class ParseCompileCommandTestCase(testing_utils.TestCase):
+    """Test cases for parsing compilation database JSON into Commands."""
+
+    def test_basic(self) -> None:
+        """Make sure we can create a cdb.Command object from a dict."""
+        command = _make_command()
+        self.assertEqual(command.directory, "some/directory")
+        self.assertEqual(command.file, "some/file")
+        self.assertEqual(command.arguments, ["/path/to/clang++", "some-args"])
+        self.assertEqual(command.command, "/path/to/clang++ some-args")
+        self.assertEqual(command.output, "some/output/file")
+
+    def test_require_directory(self) -> None:
+        """Test failing if the cdb command JSON has no directory."""
+        command_dict = _make_command_dict(directory=None)
+        with self.assertRaises(ValueError):
+            cdb.parse_compile_command(command_dict)
+
+    def test_require_arguments_or_command(self) -> None:
+        """Test failing if the cdb command JSON has no arguments or commands."""
+        command_dict = _make_command_dict(arguments=None, command=None)
+        with self.assertRaises(ValueError):
+            cdb.parse_compile_command(command_dict)
+
+        # If the JSON had either arguments or command, it would be OK.
+        _make_command(arguments=None)
+        _make_command(command=None)
+
+    def test_require_file(self) -> None:
+        """Test failing if the cdb command JSON has no file."""
+        command_dict = _make_command_dict(file=None)
+        with self.assertRaises(ValueError):
+            cdb.parse_compile_command(command_dict)
+
+
 class GetFixedDirectoryTestCase(testing_utils.TestCase):
     """Test cases for cdb._get_fixed_directory()."""
-
-    def test_no_directory(self) -> None:
-        """Test a call where the cdb entry doesn't contain 'directory'."""
-        cdb_entry = {
-            "arguments": ["/usr/bin/clang++", "-Irelative", "etc"],
-            "file": "file.cc",
-        }
-        cdb_data = [cdb_entry]
-        _cdb = cdb.Cdb(cdb_data, self.new_package(), self.setup, {})
-        with self.assertRaises(ValueError):
-            _cdb._get_fixed_directory(cdb_entry)
 
     def test_not_build_dir(self) -> None:
         """Test a call where the directory doesn't point to pkg.build_dir."""
@@ -45,27 +103,25 @@ class GetFixedDirectoryTestCase(testing_utils.TestCase):
         # like build dirs but don't actually match this package.
         package_1 = self.new_package(package_name="package-1")
         package_2 = self.new_package(package_name="package-2")
-        cdb_entry = {
-            "directory": self.setup.chroot.chroot_path(package_1.build_dir),
-            "arguments": ["/usr/bin/clang++", "-Irelative", "etc"],
-            "file": "file.cc",
-        }
-        cdb_data = [cdb_entry]
-        _cdb = cdb.Cdb(cdb_data, package_2, self.setup, {})
+        cdb_command = _make_command(
+            directory=self.setup.chroot.chroot_path(package_1.build_dir),
+            arguments=["/usr/bin/clang++", "-Irelative", "etc"],
+            file="file.cc",
+        )
+        _cdb = cdb.Cdb([cdb_command], package_2, self.setup, {})
         with self.assertRaises(cdb.DirectoryFieldException):
-            _cdb._get_fixed_directory(cdb_entry)
+            _cdb._get_fixed_directory(cdb_command)
 
     def test_success(self) -> None:
         """Test a basic, correct call."""
         pkg = self.new_package()
-        cdb_entry = {
-            "directory": self.setup.chroot.chroot_path(pkg.build_dir),
-            "arguments": ["/usr/bin/clang++", "-Irelative", "etc"],
-            "file": "file.cc",
-        }
-        cdb_data = [cdb_entry]
-        _cdb = cdb.Cdb(cdb_data, pkg, self.setup, {})
-        fixed = _cdb._get_fixed_directory(cdb_entry)
+        cdb_command = _make_command(
+            directory=self.setup.chroot.chroot_path(pkg.build_dir),
+            arguments=["/usr/bin/clang++", "-Irelative", "etc"],
+            file="file.cc",
+        )
+        _cdb = cdb.Cdb([cdb_command], pkg, self.setup, {})
+        fixed = _cdb._get_fixed_directory(cdb_command)
         self.assertEqual(fixed, pkg.build_dir)
 
 
@@ -97,53 +153,12 @@ def test_fix_arguments_compiler(
 class GetFixedArgumentsTestCase(testing_utils.TestCase):
     """Test cases for cdb._get_fixed_arguments()."""
 
-    def test_require_arguments_or_command(self) -> None:
-        """Test failing if the entry has neither arguments nor commands."""
-        entry_with_arguments = {"arguments": ["clang", "args"]}
-        entry_with_command = {"command": "clang command"}
-        entry_with_both = {
-            "arguments": ["clang", "args"],
-            "command": "clang command",
-        }
-        entry_with_neither = {}
-        cdb_data = [
-            entry_with_arguments,
-            entry_with_command,
-            entry_with_both,
-            entry_with_neither,
-        ]
-        _cdb = cdb.Cdb(cdb_data, self.new_package(), self.setup, {})
-
-        # This test case passes in bogus args/commands that won't be modified,
-        # besides adding the standard "-stdlib=libc++".
-        self.assertEqual(
-            _cdb._get_fixed_arguments(entry_with_arguments),
-            ["clang", "args", "-stdlib=libc++"],
-        )
-        # If `command` is used, it should be converted to a list.
-        self.assertEqual(
-            _cdb._get_fixed_arguments(entry_with_command),
-            ["clang", "command", "-stdlib=libc++"],
-        )
-        # If both `arguments` and `command` are present, `arguments` should be
-        # prioritized.
-        self.assertEqual(
-            _cdb._get_fixed_arguments(entry_with_both),
-            ["clang", "args", "-stdlib=libc++"],
-        )
-        with self.assertRaises(ValueError):
-            _cdb._get_fixed_arguments(entry_with_neither)
-
     def test_fix_compiler(self) -> None:
         """Make sure we're fixing the first arg as a compiler."""
-        cdb_entry = {
-            "arguments": [
-                "/path/to/clang++",
-            ]
-        }
-        _cdb = cdb.Cdb([cdb_entry], self.new_package(), self.setup, {})
+        command = _make_command(arguments=["/path/to/clang++"])
+        _cdb = cdb.Cdb([command], self.new_package(), self.setup, {})
         self.assertEqual(
-            _cdb._get_fixed_arguments(cdb_entry),
+            _cdb._get_fixed_arguments(command),
             ["clang++", "-stdlib=libc++"],
         )
 
@@ -161,9 +176,11 @@ class GetFixedArgumentsTestCase(testing_utils.TestCase):
         inside_path = self.setup.chroot.chroot_path(outside_path)
 
         cdb_build_dir = self.tempdir / "cdb_build_dir"
-        cdb_entry = {"arguments": ["/path/to/clang++", f"-I{inside_path}"]}
+        command = _make_command(
+            arguments=["/path/to/clang++", f"-I{inside_path}"]
+        )
         _cdb = cdb.Cdb(
-            [cdb_entry],
+            [command],
             pkg,
             self.setup,
             {},
@@ -186,7 +203,7 @@ class GetFixedArgumentsTestCase(testing_utils.TestCase):
         # When we use ignore_highly_volatile, it should instead check the file's
         # basedir, which does have a src_dir_match.
         self.assertEqual(
-            _cdb._get_fixed_arguments(cdb_entry),
+            _cdb._get_fixed_arguments(command),
             ["clang++", "-stdlib=libc++", f"-I{expected_fixed_path}"],
         )
 
@@ -203,9 +220,11 @@ class GetFixedArgumentsTestCase(testing_utils.TestCase):
         inside_path = self.setup.chroot.chroot_path(outside_path)
 
         cdb_build_dir = self.tempdir / "cdb_build_dir"
-        cdb_entry = {"arguments": ["/path/to/clang++", f"-I{inside_path}"]}
+        command = _make_command(
+            arguments=["/path/to/clang++", f"-I{inside_path}"]
+        )
         _cdb = cdb.Cdb(
-            [cdb_entry],
+            [command],
             pkg,
             self.setup,
             {},
@@ -224,7 +243,7 @@ class GetFixedArgumentsTestCase(testing_utils.TestCase):
         # package's build_dir to the cdb's build_dir.
         expected_fixed_path = cdb_build_dir / "a/b/c/file.txt"
         self.assertEqual(
-            _cdb._get_fixed_arguments(cdb_entry),
+            _cdb._get_fixed_arguments(command),
             ["clang++", "-stdlib=libc++", f"-I{expected_fixed_path}"],
         )
 
@@ -244,9 +263,11 @@ class GetFixedArgumentsTestCase(testing_utils.TestCase):
         inside_path = self.setup.chroot.chroot_path(outside_path)
 
         cdb_build_dir = self.tempdir / "cdb_build_dir"
-        cdb_entry = {"arguments": ["/path/to/clang++", f"-I{inside_path}"]}
+        command = _make_command(
+            arguments=["/path/to/clang++", f"-I{inside_path}"]
+        )
         _cdb = cdb.Cdb(
-            [cdb_entry],
+            [command],
             pkg,
             self.setup,
             {},
@@ -269,7 +290,7 @@ class GetFixedArgumentsTestCase(testing_utils.TestCase):
         # When we use ignore_stable, it should instead check the file's basedir,
         # which does have a src_dir_match.
         self.assertEqual(
-            _cdb._get_fixed_arguments(cdb_entry),
+            _cdb._get_fixed_arguments(command),
             ["clang++", "-stdlib=libc++", f"-I{expected_fixed_path}"],
         )
 
@@ -285,9 +306,11 @@ class GetFixedArgumentsTestCase(testing_utils.TestCase):
         inside_path = self.setup.chroot.chroot_path(outside_path)
 
         cdb_build_dir = self.tempdir / "cdb_build_dir"
-        cdb_entry = {"arguments": ["/path/to/clang++", f"-I{inside_path}"]}
+        command = _make_command(
+            arguments=["/path/to/clang++", f"-I{inside_path}"]
+        )
         _cdb = cdb.Cdb(
-            [cdb_entry],
+            [command],
             pkg,
             self.setup,
             {},
@@ -312,7 +335,7 @@ class GetFixedArgumentsTestCase(testing_utils.TestCase):
         self.setup.ignorable_dirs = [dichotomy.temp]
         expected_fixed_path = os.path.join(dichotomy.actual, "b/c/file.txt")
         self.assertEqual(
-            _cdb._get_fixed_arguments(cdb_entry),
+            _cdb._get_fixed_arguments(command),
             ["clang++", "-stdlib=libc++", f"-I{expected_fixed_path}"],
         )
 
@@ -386,14 +409,16 @@ class GetFixedArgumentsTestCase(testing_utils.TestCase):
             ],
         )
 
-        # Mock out the cdb_entry we'll try to fix.
+        # Mock out the command object we'll try to fix.
         # The actual arguments don't matter (besides clang++). What's important
         # is that we call it enough times to get all the mock return values.
-        cdb_entry = {"arguments": ["/path/to/clang++", "a", "b", "c", "d", "e"]}
-        _cdb = cdb.Cdb(
-            [cdb_entry], main_package, self.setup, package_to_include_args
+        command = _make_command(
+            arguments=["/path/to/clang++", "a", "b", "c", "d", "e"]
         )
-        _cdb._get_fixed_arguments(cdb_entry)
+        _cdb = cdb.Cdb(
+            [command], main_package, self.setup, package_to_include_args
+        )
+        _cdb._get_fixed_arguments(command)
 
         self.assertEqual(
             package_to_include_args[main_package.full_name].local,
@@ -465,16 +490,18 @@ class GetFixedArgumentsTestCase(testing_utils.TestCase):
             ],
         )
 
-        # Mock out the cdb_entry we'll try to fix.
+        # Mock out the command object we'll try to fix.
         # The actual arguments don't matter (besides clang++). What's important
         # is that we call it enough times to get all the mock return values.
-        cdb_entry = {"arguments": ["/path/to/clang++", "a", "b", "c", "d", "e"]}
+        command = _make_command(
+            arguments=["/path/to/clang++", "a", "b", "c", "d", "e"]
+        )
         _cdb = cdb.Cdb(
-            [cdb_entry], main_package, self.setup, package_to_include_args
+            [command], main_package, self.setup, package_to_include_args
         )
 
         self.assertEqual(
-            _cdb._get_fixed_arguments(cdb_entry),
+            _cdb._get_fixed_arguments(command),
             [
                 "clang++",
                 "--not-an-include-arg=/some/other/path",
@@ -496,10 +523,12 @@ class GetFixedArgumentsTestCase(testing_utils.TestCase):
             "fix_path_in_argument",
             side_effect=[("-I", "/some/random/path")],
         )
-        cdb_entry = {"arguments": ["/path/to/clang++", "/some/unfixed/path"]}
-        _cdb = cdb.Cdb([cdb_entry], main_package, self.setup, {})
+        command = _make_command(
+            arguments=["/path/to/clang++", "/some/unfixed/path"]
+        )
+        _cdb = cdb.Cdb([command], main_package, self.setup, {})
         with self.assertRaises(NotImplementedError):
-            _cdb._get_fixed_arguments(cdb_entry)
+            _cdb._get_fixed_arguments(command)
 
 
 class FixPathTestCase(testing_utils.TestCase):
@@ -611,7 +640,6 @@ class GetFixedFileTestCase(testing_utils.TestCase):
     def _generic_test_case(
         self,
         *,
-        does_cdb_entry_have_file: bool = True,
         does_original_file_exist: bool = True,
         does_actual_file_exist: bool = True,
         is_actual_filepath_identical_to_original: bool = False,
@@ -621,20 +649,17 @@ class GetFixedFileTestCase(testing_utils.TestCase):
     ) -> None:
         """Generic test case for Cdb._get_fixed_file.
 
-        By default, this function will create a package, and a CDB entry for
+        By default, this function will create a package, and a CDB command for
         which the "file" field points to a path inside the chroot. The host-
         absolute version of that path will be created on the filesystem.
         PathHandler will be mocked to easily return a desired actual_path, which
         will also be created. Cdb._get_fixed_file() will be called on the CDB
-        entry; it should return the mocked actual_path.
+        command; it should return the mocked actual_path.
 
         Args:
-            does_cdb_entry_have_file: If True, then the cdb_entry under test
-                will have a "file" field. Otherwise, cdb_entry will not contain
-                the "file" field, which should raise an exception.
             does_original_file_exist: If True, then the original file -- that
-                is, the host-absolute version of the CDB entry's "file" value --
-                will be created on the filesystem.
+                is, the host-absolute version of the CDB command's "file" value
+                -- will be created on the filesystem.
             does_actual_file_exist: If True, then the actual file (which will be
                 returned by a mock method) will be created on the filesystem.
             is_actual_filepath_identical_to_original: If True, then the mocked
@@ -680,16 +705,14 @@ class GetFixedFileTestCase(testing_utils.TestCase):
                 f.write("file contents!")
             self.assertFalse(filecmp.cmp(outside_path, mock_actual_filepath))
 
-        cdb_entry = {"arguments": ["/file/to/clang++"]}
-        if does_cdb_entry_have_file:
-            cdb_entry["file"] = inside_path
-        _cdb = cdb.Cdb([cdb_entry], pkg, self.setup, {})
+        command = _make_command(file=inside_path)
+        _cdb = cdb.Cdb([command], pkg, self.setup, {})
         if expected_exception:
             with self.assertRaises(expected_exception):
-                _cdb._get_fixed_file(cdb_entry)
+                _cdb._get_fixed_file(command)
         else:
             self.assertEqual(
-                _cdb._get_fixed_file(cdb_entry), mock_actual_filepath
+                _cdb._get_fixed_file(command), mock_actual_filepath
             )
             fix_path_with_ignores_mock.assert_called_with(
                 inside_path,
@@ -698,13 +721,6 @@ class GetFixedFileTestCase(testing_utils.TestCase):
                 ignore_generated=True,
                 ignore_highly_volatile=True,
             )
-
-    def test_no_file_in_entry(self) -> None:
-        """Test a case where the entry does not have a 'file'."""
-        self._generic_test_case(
-            does_cdb_entry_have_file=False,
-            expected_exception=ValueError,
-        )
 
     def test_original_file_is_equal_to_actual_file(self) -> None:
         """Test a simple case where the fixed path equals the original.
@@ -743,11 +759,11 @@ class GetFixOutputTestCase(testing_utils.TestCase):
     """Test cases for Cdb._get_fix_output()."""
 
     def test_no_output_field(self) -> None:
-        """Make sure we fail if the cdb_entry has no "output" field."""
-        cdb_entry = {"arguments": ["/path/to/clang++"]}
-        _cdb = cdb.Cdb([cdb_entry], self.new_package(), self.setup, {})
+        """Make sure we fail if the command has no "output" field."""
+        command = _make_command(output=None)
+        _cdb = cdb.Cdb([command], self.new_package(), self.setup, {})
         with self.assertRaises(ValueError):
-            _cdb._get_fix_output(cdb_entry)
+            _cdb._get_fix_output(command)
 
     def test_fix_output(self) -> None:
         """Make sure we fix the output field."""
@@ -764,9 +780,9 @@ class GetFixOutputTestCase(testing_utils.TestCase):
         )
 
         pkg = self.new_package()
-        cdb_entry = {"output": inside_path}
-        _cdb = cdb.Cdb([cdb_entry], pkg, self.setup, {})
-        self.assertEqual(_cdb._get_fix_output(cdb_entry), "/fixed/output/path")
+        command = _make_command(output=inside_path)
+        _cdb = cdb.Cdb([command], pkg, self.setup, {})
+        self.assertEqual(_cdb._get_fix_output(command), "/fixed/output/path")
         fix_path_with_ignores_mock.assert_called_with(
             inside_path,
             pkg,
@@ -847,35 +863,43 @@ class FixTestCase(testing_utils.TestCase):
         # be moved to the CDB's build_dir.
         expected_fixed_output_path = os.path.join(cdb_build_dir, "out_path")
 
-        cdb_entry = {
-            "directory": inside_unfixed_directory_path,
-            "file": inside_unfixed_file_path,
-            "arguments": ["/path/to/clang++", inside_unfixed_include_arg],
-            "output": inside_unfixed_output_path,
-        }
+        command = _make_command(
+            directory=inside_unfixed_directory_path,
+            file=inside_unfixed_file_path,
+            arguments=["/path/to/clang++", inside_unfixed_include_arg],
+            output=inside_unfixed_output_path,
+        )
         _cdb = cdb.Cdb(
-            [cdb_entry], pkg, self.setup, {}, result_build_dir=cdb_build_dir
+            [command], pkg, self.setup, {}, result_build_dir=cdb_build_dir
         )
         result = _cdb.fix()
         self.assertEqual(result, _cdb)
 
-        expected_fixed_cdb_entry = {
-            "directory": expected_fixed_directory_path,
-            "file": expected_fixed_file_path,
-            "command": f"clang++ -stdlib=libc++ {expected_fixed_include_arg}",
-            "output": expected_fixed_output_path,
-        }
-        self.assertEqual(_cdb.data, [expected_fixed_cdb_entry])
+        expected_fixed_cdb_command = cdb.Command(
+            arguments=None,
+            directory=expected_fixed_directory_path,
+            file=expected_fixed_file_path,
+            command=f"clang++ -stdlib=libc++ {expected_fixed_include_arg}",
+            output=expected_fixed_output_path,
+        )
+        self.assertEqual(_cdb.commands, [expected_fixed_cdb_command])
 
 
 class GenerateCdbForPackageTestCase(testing_utils.TestCase):
     """Test cases for CdbGenerator._generate_cdb_for_package()."""
 
-    _cdb_entry = {
-        "argument": ["clang++"],
+    _cdb_command_dict = {
+        "arguments": ["clang++"],
         "file": "/some/file",
-        "dir": "/some/dir",
+        "directory": "/some/dir",
     }
+    _cdb_command = cdb.Command(
+        arguments=["clang++"],
+        file="/some/file",
+        directory="/some/dir",
+        command=None,
+        output=None,
+    )
 
     def _mock_generate_compile_commands(self, stdout: Any) -> mock.Mock:
         """Mock out the return value for CrosSdk.generate_compile_commands().
@@ -905,12 +929,14 @@ class GenerateCdbForPackageTestCase(testing_utils.TestCase):
                 chroot=set(),
             )
         }
-        self._mock_generate_compile_commands(json.dumps([self._cdb_entry]))
+        self._mock_generate_compile_commands(
+            json.dumps([self._cdb_command_dict])
+        )
 
         _cdb = cdb_generator._generate_cdb_for_package(
             self.new_package(), packages_to_include_args
         )
-        self.assertEqual(_cdb.data, [self._cdb_entry])
+        self.assertEqual(_cdb.commands, [self._cdb_command])
         self.assertEqual(_cdb.package_to_include_args, packages_to_include_args)
         self.assertEqual(_cdb.build_dir, result_build_dir)
         self.assertEqual(_cdb.file_conflicts, file_conflicts)
@@ -926,15 +952,15 @@ class GenerateCdbForPackageTestCase(testing_utils.TestCase):
         self._mock_generate_compile_commands(json.dumps([]))
         with self.assertLogs(level="ERROR"):
             _cdb = cdb_generator._generate_cdb_for_package(pkg, {})
-        self.assertEqual(_cdb.data, [])
+        self.assertEqual(_cdb.commands, [])
 
     def test_unexpected_cdb_json(self) -> None:
         """Test case for when the generated compilation database looks wrong."""
         cdb_generator = cdb.CdbGenerator(self.setup)
         pkg = self.new_package()
         for raw_compdb in (
-            self._cdb_entry,
-            str([self._cdb_entry]),
+            self._cdb_command_dict,
+            str([self._cdb_command_dict]),
             123,
             True,
             None,
@@ -962,11 +988,11 @@ class GenerateResultCdbTestCase(testing_utils.TestCase):
         os.mkdir(cdb_build_dir)
 
         # Set up the first package.
-        # The first package will use two cdb entries, just to demonstrate that
-        # we fix all the entries.
+        # The first package will use two cdb commands, just to demonstrate that
+        # we fix all the commands.
         first_pkg = self.new_package(package_name="first-package")
 
-        # Each cdb entry has a "file" field. In order for those to be fixable,
+        # Each cdb command has a "file" field. In order for those to be fixable,
         # the original file should be a chroot path inside the package's temp
         # dir; we should create it (outside the chroot); and the package needs a
         # src_dir_match pointing to the original file's parent dir.
@@ -985,7 +1011,7 @@ class GenerateResultCdbTestCase(testing_utils.TestCase):
         )
         self.touch(first_pkg_expected_fixed_file_1)
 
-        # Now the second cdb entry's "file" field.
+        # Now the second cdb command's "file" field.
         first_pkg_unfixed_file_2 = self.setup.chroot.chroot_path(
             os.path.join(first_pkg.temp_dir, "x/file2.md")
         )
@@ -997,7 +1023,7 @@ class GenerateResultCdbTestCase(testing_utils.TestCase):
 
         # We want to demonstrate that include paths get passed along to packages
         # that depend on this one.
-        # One of our cdb entries will have an include arg (-I/some/path).
+        # One of our cdb commands will have an include arg (-I/some/path).
         # We'll manage that by making it a "local" include path: the original
         # path should be inside the package's build_dir (inside the chroot), and
         # we should create it (outside the chroot).
@@ -1014,47 +1040,59 @@ class GenerateResultCdbTestCase(testing_utils.TestCase):
         )
         self.touch(first_pkg_expected_fixed_include_path)
 
-        # These are the cdb_entries for the first package. We'll mock the stdout
-        # of CrosSdk.generate_compile_commands to return these as JSON.
-        first_pkg_unfixed_cdb_entries = [
-            {
-                "arguments": ["path/to/clang++", first_pkg_unfixed_include_arg],
-                "file": first_pkg_unfixed_file_1,
-                "directory": self.setup.chroot.chroot_path(first_pkg.build_dir),
-            },
-            {
-                "arguments": ["path/to/clang++"],
-                "file": first_pkg_unfixed_file_2,
-                "directory": self.setup.chroot.chroot_path(first_pkg.build_dir),
-            },
-        ]
-        first_pkg_cdb_stdout = json.dumps(first_pkg_unfixed_cdb_entries)
+        # These are the cdb_commands for the first package. We'll mock the
+        # stdout of CrosSdk.generate_compile_commands to return these as JSON.
+        first_pkg_unfixed_cdb_stdout = json.dumps(
+            [
+                {
+                    "arguments": [
+                        "path/to/clang++",
+                        first_pkg_unfixed_include_arg,
+                    ],
+                    "file": first_pkg_unfixed_file_1,
+                    "directory": self.setup.chroot.chroot_path(
+                        first_pkg.build_dir
+                    ),
+                },
+                {
+                    "arguments": ["path/to/clang++"],
+                    "file": first_pkg_unfixed_file_2,
+                    "directory": self.setup.chroot.chroot_path(
+                        first_pkg.build_dir
+                    ),
+                },
+            ]
+        )
 
-        # These are the first package's expected cdb entries after fixing.
-        first_pkg_expected_fixed_cdb_entries = [
-            {
-                "command": (
+        # These are the first package's expected cdb commands after fixing.
+        first_pkg_expected_fixed_cdb_commands = [
+            cdb.Command(
+                arguments=None,
+                command=(
                     "clang++ -stdlib=libc++ "
                     f"-I{first_pkg_expected_fixed_include_path}"
                 ),
-                "file": os.path.relpath(
+                file=os.path.relpath(
                     first_pkg_expected_fixed_file_1, cdb_build_dir
                 ),
-                "directory": cdb_build_dir,
-            },
-            {
-                "command": "clang++ -stdlib=libc++",
-                "file": os.path.relpath(
+                directory=cdb_build_dir,
+                output=None,
+            ),
+            cdb.Command(
+                arguments=None,
+                command="clang++ -stdlib=libc++",
+                file=os.path.relpath(
                     first_pkg_expected_fixed_file_2, cdb_build_dir
                 ),
-                "directory": cdb_build_dir,
-            },
+                directory=cdb_build_dir,
+                output=None,
+            ),
         ]
 
         # Now set up the second package.
         # This one will depend on the first package. That will allow us to
         # verify that include paths get passed along.
-        # For simplicity, this package will only use one cdb entry, and no
+        # For simplicity, this package will only use one cdb command, and no
         # include paths (other than the one from its dependency)
         second_pkg = self.new_package(
             package_name="second-package",
@@ -1065,7 +1103,7 @@ class GenerateResultCdbTestCase(testing_utils.TestCase):
             ],
         )
 
-        # Set up the cdb entry's "file", as above.
+        # Set up the cdb command's "file", as above.
         second_pkg_unfixed_file = self.setup.chroot.chroot_path(
             os.path.join(second_pkg.temp_dir, "y/file3.cpp")
         )
@@ -1078,42 +1116,48 @@ class GenerateResultCdbTestCase(testing_utils.TestCase):
         )
         self.touch(second_pkg_expected_fixed_file)
 
-        second_pkg_unfixed_cdb_entries = [
-            {
-                "arguments": ["path/to/clang++"],
-                "file": second_pkg_unfixed_file,
-                "directory": self.setup.chroot.chroot_path(
-                    second_pkg.build_dir
-                ),
-            }
-        ]
-        second_pkg_cdb_stdout = json.dumps(second_pkg_unfixed_cdb_entries)
+        second_pkg_unfixed_cdb_stdout = json.dumps(
+            [
+                {
+                    "arguments": ["path/to/clang++"],
+                    "file": second_pkg_unfixed_file,
+                    "directory": self.setup.chroot.chroot_path(
+                        second_pkg.build_dir
+                    ),
+                }
+            ]
+        )
 
-        second_pkg_expected_fixed_cdb_entries = [
-            {
-                "command": (
+        second_pkg_expected_fixed_cdb_commands = [
+            cdb.Command(
+                arguments=None,
+                command=(
                     "clang++ -stdlib=libc++ "
                     f"-I{first_pkg_expected_fixed_include_path}"
                 ),
-                "file": os.path.relpath(
+                file=os.path.relpath(
                     second_pkg_expected_fixed_file, cdb_build_dir
                 ),
-                "directory": cdb_build_dir,
-            }
+                directory=cdb_build_dir,
+                output=None,
+            ),
         ]
 
         # generate_compile_commands will be called twice, once for each package.
         self.PatchObject(
             cros_sdk.CrosSdk,
             "generate_compile_commands",
-            side_effect=[first_pkg_cdb_stdout, second_pkg_cdb_stdout],
+            side_effect=[
+                first_pkg_unfixed_cdb_stdout,
+                second_pkg_unfixed_cdb_stdout,
+            ],
         )
 
         # Call the function under test.
         cdb_generator = cdb.CdbGenerator(
             self.setup, result_build_dir=cdb_build_dir, fail_fast=True
         )
-        result_cdb_data = cdb_generator._generate_result_cdb(
+        result_cdb_commands = cdb_generator._generate_result_cdb(
             [first_pkg, second_pkg]
         )
 
@@ -1123,10 +1167,10 @@ class GenerateResultCdbTestCase(testing_utils.TestCase):
             [first_pkg.full_name, second_pkg.full_name],
         )
         self.assertEqual(
-            result_cdb_data,
+            result_cdb_commands,
             [
-                *first_pkg_expected_fixed_cdb_entries,
-                *second_pkg_expected_fixed_cdb_entries,
+                *first_pkg_expected_fixed_cdb_commands,
+                *second_pkg_expected_fixed_cdb_commands,
             ],
         )
 
@@ -1134,7 +1178,7 @@ class GenerateResultCdbTestCase(testing_utils.TestCase):
         """Test failing on an early package, with fail_fast=True."""
         # The first package is going to fail because the file doesn't exist.
         first_pkg = self.new_package(package_name="first-package")
-        first_pkg_cdb_entry = {
+        first_pkg_cdb_command = {
             "arguments": ["path/to/clang++"],
             "file": "/some/random/path",
             "directory": self.setup.chroot.chroot_path(first_pkg.build_dir),
@@ -1148,7 +1192,7 @@ class GenerateResultCdbTestCase(testing_utils.TestCase):
             cros_sdk.CrosSdk,
             "generate_compile_commands",
             side_effect=[
-                json.dumps([first_pkg_cdb_entry]),
+                json.dumps([first_pkg_cdb_command]),
                 json.dumps([]),
             ],
         )
@@ -1160,7 +1204,7 @@ class GenerateResultCdbTestCase(testing_utils.TestCase):
         """Test failing on an early package, with fail_fast=False."""
         # The first package is going to fail because the file doesn't exist.
         first_pkg = self.new_package(package_name="first-package")
-        first_pkg_cdb_entry = {
+        first_pkg_cdb_command = {
             "arguments": ["path/to/clang++"],
             "file": "/some/random/path",
             "directory": self.setup.chroot.chroot_path(first_pkg.build_dir),
@@ -1174,7 +1218,7 @@ class GenerateResultCdbTestCase(testing_utils.TestCase):
             cros_sdk.CrosSdk,
             "generate_compile_commands",
             side_effect=[
-                json.dumps([first_pkg_cdb_entry]),
+                json.dumps([first_pkg_cdb_command]),
                 json.dumps([]),
             ],
         )
@@ -1194,18 +1238,31 @@ class GenerateTestCase(testing_utils.TestCase):
 
     def test_write_to_file(self) -> None:
         """Test that when CdbGenerator.generate() writes the cdb to a file."""
-        result_cdb = [
-            {
-                "command": "clang++ -stdlib=libc++",
-                "file": "some/file",
-                "directory": "some/directory",
-            }
-        ]
         self.PatchObject(
-            cdb.CdbGenerator, "_generate_result_cdb", return_value=result_cdb
+            cdb.CdbGenerator,
+            "_generate_result_cdb",
+            return_value=[
+                cdb.Command(
+                    command="clang++ -stdlib=libc++",
+                    file="some/file",
+                    directory="some/directory",
+                    arguments=None,
+                    output=None,
+                ),
+            ],
         )
         pkg = self.new_package()
         result_file = str(self.tempdir / "compilation_database.json")
         cdb.CdbGenerator(self.setup).generate([pkg], result_file)
         with open(result_file, encoding="utf-8") as f:
-            self.assertEqual(json.load(f), result_cdb)
+            file_contents = json.load(f)
+        self.assertEqual(
+            file_contents,
+            [
+                {
+                    "command": "clang++ -stdlib=libc++",
+                    "file": "some/file",
+                    "directory": "some/directory",
+                }
+            ],
+        )

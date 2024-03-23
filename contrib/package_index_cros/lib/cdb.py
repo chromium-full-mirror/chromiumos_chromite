@@ -10,7 +10,7 @@ import filecmp
 import json
 import logging
 import os
-from typing import Any, DefaultDict, Dict, List, Optional, Set
+from typing import Any, DefaultDict, Dict, List, Optional, Set, Tuple, Union
 
 from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import package
@@ -30,6 +30,10 @@ def _fix_arguments_compiler(compiler: str) -> str:
 
 class CdbException(Exception):
     """Exception to indicate failure while fixing Cdb."""
+
+
+class EmptyCompileCommandsException(Exception):
+    """Exception to indicate that a compile commands JSON had no commands."""
 
 
 class DirectoryFieldException(CdbException, package.PackagePathException):
@@ -58,6 +62,85 @@ class _IncludePathOrder:
     chroot: Set[str]
 
 
+@dataclasses.dataclass
+class Command:
+    """Dataclass to represent a single CDB command object.
+
+    For more information on CDB command objects, see the official spec:
+    https://clang.llvm.org/docs/JSONCompilationDatabase.html
+    """
+
+    directory: str
+    file: str
+    arguments: Optional[List[str]]
+    # Yes, it's confusing that the "Command" object has a "command" field.
+    # That's an upstream problem. See the spec.
+    command: Optional[str]
+    output: Optional[str]
+
+    def get_compiler_and_arguments(self) -> Tuple[str, List[str]]:
+        """Return the compiler that this command uses, and the args it takes."""
+        argv: List[str]
+        if self.arguments is not None:
+            argv = self.arguments
+        else:
+            argv = self.command.split()
+        return argv[0], argv[1:]
+
+    def to_dict(self) -> Dict[str, Union[str, List[str]]]:
+        """Make a dict representation of this command."""
+        d = {}
+        d["directory"] = self.directory
+        d["file"] = self.file
+        if self.arguments is not None:
+            d["arguments"] = self.arguments
+        if self.command is not None:
+            d["command"] = self.command
+        if self.output is not None:
+            d["output"] = self.output
+        return d
+
+
+def parse_compile_command(
+    command_dict: Dict[str, Union[str, List[str]]]
+) -> Command:
+    """Parse a single dict containing a compile command JSON into a Command."""
+    for key in command_dict:
+        if key not in ("directory", "file", "arguments", "command", "output"):
+            raise CdbException(f"Unexpected CDB key {key} in {command_dict}")
+    if "directory" not in command_dict:
+        raise ValueError(
+            f"Directory field missing from CDB command: {command_dict}"
+        )
+    if "file" not in command_dict:
+        raise ValueError(f"File field missing from CDB command: {command_dict}")
+    if "arguments" not in command_dict and "command" not in command_dict:
+        raise ValueError(
+            "Arguments and command fields both missing from CDB command: "
+            f"{command_dict}"
+        )
+    return Command(
+        directory=command_dict["directory"],
+        file=command_dict["file"],
+        arguments=command_dict.get("arguments"),
+        command=command_dict.get("command"),
+        output=command_dict.get("output"),
+    )
+
+
+def parse_cdb_json(raw_json: str) -> List[Command]:
+    """Parse a raw compilation database JSON string into Command objects."""
+    command_dicts = json.loads(raw_json)
+    if command_dicts == []:
+        raise EmptyCompileCommandsException()
+    if not isinstance(command_dicts, list):
+        raise ValueError(
+            f"Unexpected compilation DB format {type(command_dicts)}: "
+            f"{command_dicts}"
+        )
+    return [parse_compile_command(d) for d in command_dicts]
+
+
 class Cdb:
     """Responsible for fixing paths in compile commands database."""
 
@@ -65,7 +148,7 @@ class Cdb:
 
     def __init__(
         self,
-        cdb_data: List[Dict[str, List[str]]],
+        commands: List[Command],
         pkg: package.Package,
         setup_data: setup.Setup,
         package_to_include_args: Dict[str, _IncludePathOrder],
@@ -76,7 +159,7 @@ class Cdb:
         """Initialize a new Cdb instance.
 
         Args:
-            cdb_data: loaded of compile_commands.json for |pkg|.
+            commands: Command objects that make up the compilation database.
             pkg: package to work with.
             setup_data: setup data (board, dirs, etc).
             package_to_include_args: maps packages to their include dirs. Is
@@ -88,7 +171,7 @@ class Cdb:
                 chroot dir that conflicts between packages, and result_path is
                 the corresponding artifact in |result_build_dir|.
         """
-        self.data = cdb_data
+        self.commands = commands
         self.package = pkg
         self.setup = setup_data
         self.path_handler = path_handler.PathHandler(self.setup)
@@ -129,26 +212,23 @@ class Cdb:
                 self.package.full_name,
             )
 
-        for entry in self.data:
-            entry["directory"] = self._get_fixed_directory(entry)
+        for command in self.commands:
+            command.directory = self._get_fixed_directory(command)
 
-            entry["file"] = os.path.relpath(
-                self._get_fixed_file(entry), entry["directory"]
+            command.file = os.path.relpath(
+                self._get_fixed_file(command), command.directory
             )
 
-            entry["command"] = " ".join(self._get_fixed_arguments(entry))
-            if "arguments" in entry:
-                del entry["arguments"]
+            command.command = " ".join(self._get_fixed_arguments(command))
+            command.arguments = None
 
-            if "output" in entry:
-                entry["output"] = self._get_fix_output(entry)
+            if command.output is not None:
+                command.output = self._get_fix_output(command)
 
         return self
 
-    def _get_fixed_directory(self, entry: Dict) -> str:
-        if "directory" not in entry:
-            raise ValueError(f"Directory field is missing from {entry}")
-        directory = self.path_handler.from_chroot(entry["directory"])
+    def _get_fixed_directory(self, command: Command) -> str:
+        directory = self.path_handler.from_chroot(command.directory)
         if directory != self.package.build_dir:
             raise DirectoryFieldException(
                 self.package,
@@ -158,18 +238,8 @@ class Cdb:
             )
         return self.build_dir
 
-    def _get_fixed_arguments(self, entry: Dict) -> List[str]:
-        # Each entry has either command or arguments. If it's arguments then
-        # substitute it with command.
-        if "arguments" not in entry and "command" not in entry:
-            raise ValueError(
-                f"Arguments and command fields are missing from entry: {entry}"
-            )
-
-        if "arguments" in entry:
-            compiler, *arguments = entry["arguments"]
-        else:
-            compiler, *arguments = entry["command"].split(" ")
+    def _get_fixed_arguments(self, command: Command) -> List[str]:
+        compiler, arguments = command.get_compiler_and_arguments()
 
         # First argument is always a compiler.
         actual_arguments = [_fix_arguments_compiler(compiler)]
@@ -237,12 +307,9 @@ class Cdb:
 
         return actual_arguments
 
-    def _get_fixed_file(self, entry: Dict) -> str:
-        if "file" not in entry:
-            raise ValueError(f"File field is missing from entry: {entry}")
-
+    def _get_fixed_file(self, command: Command) -> str:
         fixed_path = self._fix_path(
-            entry["file"], ignore_generated=True, ignore_highly_volatile=True
+            command.file, ignore_generated=True, ignore_highly_volatile=True
         )
 
         if fixed_path.original != fixed_path.actual:
@@ -275,12 +342,12 @@ class Cdb:
 
         return fixed_path.actual
 
-    def _get_fix_output(self, entry: Dict) -> str:
-        if "output" not in entry:
-            raise ValueError(f"Output field is missing in entry: {entry}")
+    def _get_fix_output(self, command: Command) -> str:
+        if command.output is None:
+            raise ValueError(f"Output field is missing in command: {command}")
 
         actual_file = self._fix_path(
-            entry["output"], ignore_generated=True, ignore_highly_volatile=True
+            command.output, ignore_generated=True, ignore_highly_volatile=True
         ).actual
 
         return actual_file
@@ -338,24 +405,22 @@ class CdbGenerator:
         ] = collections.defaultdict(list)
 
     def _generate_cdb_for_package(
-        self, pkg: package.Package, packages_to_include_args: Dict
+        self,
+        pkg: package.Package,
+        packages_to_include_args: Dict[str, _IncludePathOrder],
     ) -> Cdb:
+        """Create the compilation database for a given package."""
         logging.debug("%s: Generating compile commands", pkg.full_name)
         cdb_str = cros_sdk.CrosSdk(self.setup).generate_compile_commands(
             path_handler.PathHandler(self.setup).to_chroot(pkg.build_dir)
         )
-
-        cdb_data = json.loads(cdb_str)
-        if not cdb_data:
+        try:
+            compile_commands = parse_cdb_json(cdb_str)
+        except EmptyCompileCommandsException:
             logging.error("%s: Compile commands are empty", pkg.full_name)
-
-        if not isinstance(cdb_data, list):
-            raise ValueError(
-                f"Unexpected cdb_data format {type(cdb_data)}: {cdb_data}"
-            )
-
+            compile_commands: List[Command] = []
         return Cdb(
-            cdb_data,
+            compile_commands,
             pkg,
             self.setup,
             packages_to_include_args,
@@ -363,20 +428,20 @@ class CdbGenerator:
             file_conflicts=self.file_conflicts,
         )
 
-    def _generate_result_cdb(self, packages: List[package.Package]) -> List:
-        result_cdb_data = []
+    def _generate_result_cdb(
+        self,
+        packages: List[package.Package],
+    ) -> List[Command]:
+        result_cdb_commands = []
 
         packages_to_include_args: Dict[str, _IncludePathOrder] = {}
         for pkg in packages:
             try:
-                cdb_data = (
-                    self._generate_cdb_for_package(
-                        pkg, packages_to_include_args
-                    )
-                    .fix()
-                    .data
+                cdb = self._generate_cdb_for_package(
+                    pkg, packages_to_include_args
                 )
-                result_cdb_data.extend(cdb_data)
+                cdb.fix()
+                result_cdb_commands.extend(cdb.commands)
             except (CdbException, package.PackagePathException) as e:
                 self.package_status["failed_exception"].append(pkg.full_name)
                 logging.warning(
@@ -389,7 +454,7 @@ class CdbGenerator:
             else:
                 self.package_status["success"].append(pkg.full_name)
 
-        return result_cdb_data
+        return result_cdb_commands
 
     def generate(
         self, packages: List[package.Package], result_cdb_file: str
@@ -397,17 +462,19 @@ class CdbGenerator:
         """Generate, fix, and merge compile databases for the given packages.
 
         Raises:
-            CdbException or field specific exception: Failed to fix cdb entry.
+            CdbException or field specific exception: Failed to fix cdb command.
         """
         if not result_cdb_file:
             raise ValueError(result_cdb_file)
 
-        result_cdb = self._generate_result_cdb(packages)
+        cdb_commands = self._generate_result_cdb(packages)
 
         logging.info(
             "Package CDB Statuses:\n%s",
             json.dumps(self.package_status, indent=2),
         )
 
-        with open(result_cdb_file, "w", encoding="utf-8") as output:
-            json.dump(result_cdb, output, indent=2)
+        with open(result_cdb_file, "w", encoding="utf-8") as f:
+            json.dump(
+                [command.to_dict() for command in cdb_commands], f, indent=2
+            )
