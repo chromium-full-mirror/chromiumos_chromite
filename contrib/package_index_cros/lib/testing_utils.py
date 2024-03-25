@@ -49,6 +49,7 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
         # This matters for path manipulation.
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
+        self.build_target = "amd64-generic"
         self.source_root = Path(self.tempdir) / "chromiumos"
         self.source_root.mkdir()
         self.PatchObject(git.ManifestCheckout, "Cached", return_value=MANIFEST)
@@ -68,7 +69,7 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
         self.src_dir = self.source_root / "src"
         self.overlay_dir = self.src_dir / "third_party" / "chromiumos-overlay"
         self.setup = setup.Setup(
-            "amd64-generic",
+            self.build_target,
             chroot_dir=str(self.tempdir / "chroot"),
             chroot_out_dir=str(self.tempdir / "out"),
         )
