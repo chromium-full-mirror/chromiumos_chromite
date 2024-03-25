@@ -29,7 +29,6 @@ x86_internal_release_boards = frozenset(
         "majolica",
         "mancomb",
         "poppy",
-        "sludge",
         "tatl",
         "wristpin",
     ]
@@ -84,7 +83,6 @@ scribe_boards = frozenset(
 
 termina_boards = frozenset(
     [
-        "sludge",
         "tatl",
         "tael",
     ]
