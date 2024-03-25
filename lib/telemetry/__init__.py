@@ -30,7 +30,7 @@ TELEMETRY_VERSION = "3"
 
 def initialize(
     log_traces: bool = False,
-    publish: bool = False,
+    publish: Optional[bool] = None,
 ) -> None:
     """Initialize chromite telemetry.
 
@@ -81,7 +81,7 @@ def initialize(
         cfg.flush()
 
     # Publish pending telemetry in a background process.
-    if publish:
+    if publish or (publish is None and cfg.trace_config.batch):
         _fork_and_publish()
 
     trace.initialize(
