@@ -5,7 +5,7 @@
 """This module provides functionality to work with the CrOS SDK."""
 
 import logging
-from typing import List, Union
+from typing import Dict, List, Optional, Union
 
 from chromite.contrib.package_index_cros.lib import constants
 from chromite.contrib.package_index_cros.lib import path_handler
@@ -20,17 +20,17 @@ class CrosSdk:
         self,
         cmd: Union[List[str], str],
         *,
+        extra_env: Optional[Dict[str, str]] = None,
         with_sudo: bool = False,
     ) -> cros_build_lib.CompletedProcess:
         """Execute a command inside the chroot."""
         logging.debug("Executing: '%s'", cmd)
-        shell = isinstance(cmd, str)
         run_func = (
             self.setup.chroot.sudo_run if with_sudo else self.setup.chroot.run
         )
         return run_func(
             cmd,
-            shell=shell,
+            extra_env=extra_env,
             capture_output=True,
             encoding="utf-8",
             check=True,
@@ -75,20 +75,17 @@ class CrosSdk:
             cros_build_lib.CalledProcessError: Command failed.
         """
 
-        features = []
+        extra_env = {}
         if self.setup.with_tests:
-            features.append("test")
+            extra_env["FEATURES"] = "test"
         log_level = logging.getLevelName(logging.getLogger().level).lower()
-        cmd = " ".join(
-            [
-                f'FEATURES="{" ".join(features)}"',
-                path_handler.PathHandler(self.setup).to_chroot(
-                    constants.PRINT_DEPS_SCRIPT_PATH
-                ),
-                self.setup.board,
-                *package_names,
-                f"--log-level={log_level}",
-            ]
-        )
+        cmd = [
+            path_handler.PathHandler(self.setup).to_chroot(
+                constants.PRINT_DEPS_SCRIPT_PATH
+            ),
+            self.setup.board,
+            *package_names,
+            f"--log-level={log_level}",
+        ]
         logging.info(cmd)
-        return self._exec(cmd, with_sudo=True).stdout
+        return self._exec(cmd, extra_env=extra_env, with_sudo=True).stdout

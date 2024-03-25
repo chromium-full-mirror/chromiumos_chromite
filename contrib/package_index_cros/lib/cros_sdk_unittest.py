@@ -34,7 +34,6 @@ class CrosSdkTestCase(testing_utils.TestCase):
             enter_chroot=True,
             chroot_args=self.setup.chroot.get_enter_args(),
             extra_env={},
-            shell=False,
             capture_output=True,
             encoding="utf-8",
             check=True,
@@ -58,23 +57,19 @@ class CrosSdkTestCase(testing_utils.TestCase):
                 ["chromeos-base/pkg1", "chromeos-base/pkg2"]
             )
 
-        features = "test" if with_tests else ""
-        executable = self.setup.chroot.chroot_path(
-            constants.PRINT_DEPS_SCRIPT_PATH
-        )
+        expected_command = [
+            "sudo",
+            "--",
+            self.setup.chroot.chroot_path(constants.PRINT_DEPS_SCRIPT_PATH),
+            self.build_target,
+            "chromeos-base/pkg1",
+            "chromeos-base/pkg2",
+            "--log-level=info",
+        ]
+        if with_tests:
+            expected_command.insert(1, "FEATURES=test")
         rc.assertCommandCalled(
-            [
-                "sudo",
-                "--",
-                # Because shell=True is passed into run(), the command is
-                # treated as the `-c` flag value for `/bin/bash`.
-                "/bin/bash",
-                "-c",
-                (
-                    f'FEATURES="{features}" {executable} {self.build_target} '
-                    "chromeos-base/pkg1 chromeos-base/pkg2 --log-level=info"
-                ),
-            ],
+            expected_command,
             enter_chroot=True,
             chroot_args=self.setup.chroot.get_enter_args(),
             capture_output=True,
