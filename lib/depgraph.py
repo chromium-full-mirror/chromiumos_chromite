@@ -1096,6 +1096,17 @@ def _create_graph_from_deps(
     for pkg_cpv, pkg_instances in deps.items():
         pkg_info = package_info.parse(pkg_cpv)
         for pkg_data in pkg_instances:
+            if pkg_data["action"] == "uninstall":
+                # Skip uninstalls. Necessary for portage, but not for our
+                # depgraph analysis right now.
+                logging.debug("Skipping uninstall of %s", pkg_info)
+                continue
+            elif pkg_data["root"] in node_dict[pkg_info]:
+                # In some cases packages get listed twice. "uninstall" should
+                # be the only case, but log it for debugging just in case.
+                logging.debug("Two instances of a package for the same root:")
+                logging.debug(pkg_instances)
+
             node = dependency_graph.PackageNode(
                 pkg_info, pkg_data["root"], src_paths.get(pkg_info.cpvr)
             )
@@ -1105,10 +1116,16 @@ def _create_graph_from_deps(
     for pkg_cpv, pkg_instances in deps.items():
         pkg_info = package_info.parse(pkg_cpv)
         for pkg_data in pkg_instances:
+            if pkg_data["action"] == "uninstall":
+                # Skip uninstalls.
+                continue
             pkg_node = node_dict[pkg_info][pkg_data["root"]]
             for dep_cpv, pkg_deps in pkg_data["deps"].items():
                 dep_info = package_info.parse(dep_cpv)
                 for dep_data in pkg_deps:
+                    if dep_data["action"] == "uninstall":
+                        # Skip uninstalls.
+                        continue
                     dep_node = node_dict[dep_info][dep_data["root"]]
                     pkg_node.add_dependency(dep_node)
 

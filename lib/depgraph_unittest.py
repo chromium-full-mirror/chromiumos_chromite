@@ -64,6 +64,20 @@ def _get_trees():
                 "deptypes": [],
                 "deps": {},
                 "root": sysroot,
+            },
+            {
+                "action": "uninstall",
+                "deptypes": [],
+                "deps": {},
+                "root": sysroot,
+            },
+        ],
+        "sysroot/uninstall-dep-1": [
+            {
+                "action": "uninstall",
+                "deptypes": [],
+                "deps": {},
+                "root": sysroot,
             }
         ],
         "sysroot/bdep-1": [
@@ -109,7 +123,21 @@ def _get_trees():
                 "action": "merge",
                 "deps": {},
                 "root": sysroot,
-            }
+            },
+            {
+                "action": "uninstall",
+                "deps": {
+                    "sysroot/uninstall-dep-1": deps["sysroot/uninstall-dep-1"],
+                },
+                "root": sysroot,
+            },
+        ],
+        "sysroot/uninstall-dep-1": [
+            {
+                "action": "uninstall",
+                "deps": {},
+                "root": sysroot,
+            },
         ],
         "sysroot/bdep-1": [
             {
@@ -262,6 +290,12 @@ def test_get_sysroot_dependency_graph(monkeypatch) -> None:
     )
     assert not graph.get_nodes(
         ["sysroot/both-1"], dependency_graph.RootType.SDK
+    )
+    # We currently skip uninstalls.
+    assert "sysroot/uninstall-dep-1" not in graph
+    assert (
+        "sysroot/uninstall-dep-1"
+        not in graph.get_nodes(["sysroot/dep-1"])[0].dependencies
     )
 
 
