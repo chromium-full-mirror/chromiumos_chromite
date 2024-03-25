@@ -20,21 +20,19 @@ class CrosSdk:
         self,
         cmd: Union[List[str], str],
         *,
-        capture_output: bool = False,
         with_sudo: bool = False,
     ) -> cros_build_lib.CompletedProcess:
         """Execute a command inside the chroot."""
         logging.debug("Executing: '%s'", cmd)
         shell = isinstance(cmd, str)
-        encoding = "utf-8" if capture_output else None
         run_func = (
             self.setup.chroot.sudo_run if with_sudo else self.setup.chroot.run
         )
         return run_func(
             cmd,
             shell=shell,
-            capture_output=capture_output,
-            encoding=encoding,
+            capture_output=True,
+            encoding="utf-8",
             check=True,
             print_cmd=False,
         )
@@ -60,7 +58,7 @@ class CrosSdk:
             "cc",
             "cxx",
         ]
-        return self._exec(ninja_cmd, capture_output=True).stdout
+        return self._exec(ninja_cmd).stdout
 
     def generate_dependency_tree(self, package_names: List[str]):
         """Generate the dependency tree for the given packages.
@@ -93,4 +91,4 @@ class CrosSdk:
             ]
         )
         logging.info(cmd)
-        return self._exec(cmd, capture_output=True, with_sudo=True).stdout
+        return self._exec(cmd, with_sudo=True).stdout
