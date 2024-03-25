@@ -1964,6 +1964,19 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 constants.CHROME_PN, "UNVETTED_AFDO_FILE"
             )
         )
+
+        logging.info("Verifying that Chrome was successfully installed...")
+        # This hands back a non-zero exit code if it couldn't find any matches.
+        self.chroot.run(
+            [
+                f"equery-{self.build_target}",
+                "l",
+                "chromeos-base/chromeos-chrome",
+            ],
+            check=True,
+        )
+        logging.info("Chrome build was successful.")
+
         return _CompressAFDOFiles(
             [profile_path], None, self.output_dir, XZ_COMPRESSION_SUFFIX
         )
