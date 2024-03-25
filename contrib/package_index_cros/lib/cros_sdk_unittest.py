@@ -37,7 +37,6 @@ class CrosSdkTestCase(testing_utils.TestCase):
             capture_output=True,
             encoding="utf-8",
             check=True,
-            print_cmd=False,
         )
 
     def _test_generate_dependency_tree(self, with_tests: bool) -> None:
@@ -75,7 +74,6 @@ class CrosSdkTestCase(testing_utils.TestCase):
             capture_output=True,
             encoding="utf-8",
             check=True,
-            print_cmd=False,
         )
 
     def test_generate_dependency_tree(self) -> None:

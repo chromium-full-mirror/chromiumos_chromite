@@ -24,7 +24,6 @@ class CrosSdk:
         with_sudo: bool = False,
     ) -> cros_build_lib.CompletedProcess:
         """Execute a command inside the chroot."""
-        logging.debug("Executing: '%s'", cmd)
         run_func = (
             self.setup.chroot.sudo_run if with_sudo else self.setup.chroot.run
         )
@@ -34,7 +33,6 @@ class CrosSdk:
             capture_output=True,
             encoding="utf-8",
             check=True,
-            print_cmd=False,
         )
 
     def __init__(self, setup_data: setup.Setup):
