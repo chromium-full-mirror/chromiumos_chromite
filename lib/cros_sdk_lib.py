@@ -1064,27 +1064,6 @@ PORTAGE_USERNAME="{user}"
             recursive=True,
         )
 
-    def print_success_summary(self) -> None:
-        """Show a summary of the chroot to the user."""
-        chroot_opt = ""
-        if Path(constants.DEFAULT_CHROOT_PATH) != Path(self.chroot.path):
-            chroot_opt = (
-                f" --chroot={cros_build_lib.ShellQuote(self.chroot.path)} "
-                f"--out-dir={cros_build_lib.ShellQuote(self.chroot.out_path)}"
-            )
-        logging.info(
-            """
-All set up.  To enter the chroot, run:
-$ cros_sdk --enter%s
-
-CAUTION: Do *NOT* rm -rf the chroot directory; if there are stale bind mounts
-you may end up deleting your source tree too.  To unmount & delete cleanly, use:
-$ cros_sdk --delete%s
-""",
-            chroot_opt,
-            chroot_opt,
-        )
-
     @metrics_lib.timed("cros_sdk_lib.ChrootCreator.run")
     def run(
         self,
@@ -1122,8 +1101,6 @@ $ cros_sdk --delete%s
         MountChrootPaths(self.chroot)
 
         self._make_chroot()
-
-        self.print_success_summary()
 
 
 @metrics_lib.timed("cros_sdk_lib.CreateChroot")
