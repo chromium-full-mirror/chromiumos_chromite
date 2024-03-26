@@ -111,6 +111,7 @@ def test_sdk_state_to_capture_non_repo_checkout(monkeypatch) -> None:
     monkeypatch.setattr(
         path_util, "DetermineCheckout", lambda: cog_checkout_info
     )
+    monkeypatch.setattr(workon_helper, "ListAllWorkedOnAtoms", lambda: {})
 
     sdk_detector = cros_detector.SDKSourceDetector()
     resource = sdk_detector.detect().attributes
