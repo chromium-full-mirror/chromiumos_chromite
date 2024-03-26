@@ -986,7 +986,10 @@ def BuildPackages(
             "--newrepo",
         ]
         if run_configs.usepkg:
-            cmd += ["--getbinpkg", "--usepkg"]
+            # TODO: We don't upload binpkgs for broots anywhere, so enabling
+            # this flag doesn't gain us anything, but slows down slightly.
+            # cmd += ["--getbinpkg"]
+            cmd += ["--usepkg"]
         cmd += [constants.TARGET_SDK_BROOT]
         with metrics_lib.timer(f"{metrics_prefix}.Broot"):
             cros_build_lib.sudo_run(
