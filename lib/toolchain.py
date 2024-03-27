@@ -250,7 +250,7 @@ class ToolchainInstaller:
         # Verify we can install the required packages.
         if not tc_info.gcc_version or not tc_info.libc_version:
             raise UnknownToolchainError(
-                "Cannot find toolchain to install into board " "root."
+                "Cannot find toolchain to install into board root."
             )
 
         logging.info("Installing toolchain to the board root: %s", sysroot.path)
@@ -277,7 +277,7 @@ class ToolchainInstaller:
                 "-k",
                 "--root",
                 sysroot.path,
-                "=%s" % tc_info.libc_cpf,
+                f"={tc_info.libc_cpf}",
             ]
             try:
                 cros_build_lib.sudo_run(cmd)
@@ -313,7 +313,7 @@ class ToolchainInstaller:
         compressor = cros_build_lib.FindCompressor(compression)
         compressor_algo = Path(compressor).name
         if compressor_algo == "pbzip2":
-            compressor = "%s --ignore-trailing-garbage=1" % compressor
+            compressor = f"{compressor} --ignore-trailing-garbage=1"
         elif compressor_algo.startswith("zstd"):
             compressor += " -f"
 
