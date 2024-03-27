@@ -6,6 +6,7 @@
 
 import os
 from pathlib import Path
+import re
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 import uuid
 
@@ -29,6 +30,73 @@ def _to_ebuild_array(iterable: Iterable[Any]) -> str:
     quoted = [f'"{x}"' for x in iterable]
     joined = " ".join(quoted)
     return f"({joined})"
+
+
+def _get_overlay_repo_layout_conf_contents(overlay_dir: Path) -> str:
+    """Return suitable contents for an overlay repository's layout.conf.
+
+    This is useful so that portage_util can find our overlays.
+    """
+    repo_name = _get_overlay_repo_name(overlay_dir)
+    masters = _get_overlay_masters(overlay_dir)
+    return f"repo-name = {repo_name}\nmasters = {masters}"
+
+
+def _get_overlay_repo_name(overlay_dir: Path) -> str:
+    """Get the "repo-name" value for an overlay repository's layout.conf."""
+    dirname = overlay_dir.name
+    # "overlay-amd64-generic" -> "amd64-generic"
+    m = re.match(r"^overlay-([\w-]+)$", overlay_dir.name)
+    if m:
+        return m.group(1)
+    # "chromiumos-overlay" -> "chromiumos"
+    m = re.match(r"^([\w-]+)-overlay$", overlay_dir.name)
+    if m:
+        return m.group(1)
+    raise ValueError(f"Unexpected overlay dirname: {dirname}")
+
+
+def _get_overlay_masters(overlay_dir: Path) -> str:
+    """Get the "masters" value for an overlay repository's layout.conf."""
+    # Normally, everything would inherit from portage-stable and eclass-overlay.
+    # But we're not setting those up for these tests.
+    masters = []
+    # chromiumos doesn't inherit chromiumos, but everything else does.
+    if overlay_dir.name != "chromiumos-overlay":
+        masters.append("chromiumos")
+    # someboard-private inherits someboard.
+    m = re.match(r"overlay-([\w-]+)-private", overlay_dir.name)
+    if m:
+        masters.append(m.group(1))
+    return " ".join(masters)
+
+
+def _get_ebuild_contents(
+    cros_workon_localnames: Iterable[str],
+    cros_workon_projects: Iterable[str],
+    cros_workon_commits: Iterable[str],
+    cros_workon_subtrees: Iterable[str],
+    is_9999_ebuild: bool,
+    additional_ebuild_contents: str = "",
+) -> str:
+    """Return file contents for a package's ebuild."""
+    keywords = "~*" if is_9999_ebuild else "*"
+    return f"""# Copyright 2024 The ChromiumOS Authors
+# Distributed under the terms of the GNU General Public License v2
+# Note: this is a fake ebuild made for testing.
+
+EAPI=7
+
+CROS_WORKON_LOCALNAME={_to_ebuild_array(cros_workon_localnames)}
+CROS_WORKON_PROJECT={_to_ebuild_array(cros_workon_projects)}
+CROS_WORKON_COMMIT={_to_ebuild_array(cros_workon_commits)}
+CROS_WORKON_SUBTREE={_to_ebuild_array(cros_workon_subtrees)}
+
+inherit cros-workon
+
+KEYWORDS="{keywords}"
+
+{additional_ebuild_contents}"""
 
 
 class TestCase(cros_test_lib.MockTempDirTestCase):
@@ -65,9 +133,6 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
                 chrome_src_dir=None,
             ),
         )
-
-        self.src_dir = self.source_root / "src"
-        self.overlay_dir = self.src_dir / "third_party" / "chromiumos-overlay"
         self.setup = setup.Setup(
             self.build_target,
             chroot_dir=str(self.tempdir / "chroot"),
@@ -78,12 +143,8 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
         # self._mock_paths_to_checkouts will hold return values for
         # Manifest.FindCheckoutFromPath(). We'll populate it as we create
         # ebuilds.
-        self._mock_paths_to_checkouts: Dict[str, git.ProjectCheckout] = {
-            str(self.overlay_dir): {
-                "name": "chromiumos/overlays/chromiumos-overlay",
-                "local_path": "src/third_party/chromiumos-overlay",
-            },
-        }
+        self._mock_paths_to_checkouts: Dict[str, git.ProjectCheckout] = {}
+        self._setup_overlays()
 
         def _FindCheckoutFromPath(
             path: str, strict: bool = True
@@ -103,6 +164,58 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
             MANIFEST, "FindCheckoutFromPath", side_effect=_FindCheckoutFromPath
         )
 
+    @property
+    def chromiumos_overlay_dir(self) -> Path:
+        """Return the path to the checkout's chromiumos-overlay repo."""
+        return self.source_root / "src" / "third_party" / "chromiumos-overlay"
+
+    @property
+    def public_board_overlay_dir(self) -> Path:
+        """Return the path to the board-specific public overlay repo."""
+        return (
+            self.source_root
+            / "src"
+            / "overlays"
+            / f"overlay-{self.build_target}"
+        )
+
+    @property
+    def private_board_overlay_dir(self) -> Path:
+        """Return the path to the board-specific private overlay repo."""
+        return (
+            self.source_root
+            / "src"
+            / "private-overlays"
+            / f"overlay-{self.build_target}-private"
+        )
+
+    @property
+    def _all_overlay_dirs(self) -> Tuple[Path]:
+        """Return a list of all overlay repos the checkout uses."""
+        return (
+            self.chromiumos_overlay_dir,
+            self.private_board_overlay_dir,
+            # Even if we're not using public_board_overlay_dir, it needs to
+            # exist if private_board_overlay_dir exists, or else portage_util
+            # will raise an error.
+            self.public_board_overlay_dir,
+        )
+
+    def _setup_overlays(self) -> None:
+        """Create overlay dirs and make sure we can find them."""
+        for overlay_dir in self._all_overlay_dirs:
+            overlay_dir.mkdir(parents=True)
+            layout_conf_file = overlay_dir / "metadata" / "layout.conf"
+            self.touch(layout_conf_file)
+            repo_name = _get_overlay_repo_name(overlay_dir)
+            layout_conf_file.write_text(
+                _get_overlay_repo_layout_conf_contents(overlay_dir)
+            )
+            self._mock_paths_to_checkouts[str(overlay_dir)] = {
+                "name": f"chromiumos/overlays/{repo_name}",
+                "local_path": str(overlay_dir.relative_to(self.source_root)),
+            }
+
     def _create_ebuild(
         self,
         package_name: str = "my-package",
@@ -114,6 +227,7 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
         cros_workon_subtrees: Tuple[str] = ("common-mk some-source-dir .gn",),
         additional_ebuild_contents: str = "",
         create_9999_ebuild: bool = True,
+        private: bool = False,
     ) -> portage_util.EBuild:
         """Create an ebuild we can use to set up a Package.
 
@@ -127,37 +241,40 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
             cros_workon_subtrees: Mock cros_workon value for the ebuild.
             additional_ebuild_contents: Any thing else to add to the ebuild.
             create_9999_ebuild: If True, also create a -9999 (unstable) ebuild.
+            private: If True, create the ebuild in the private overlay dir.
+                Otherwise, create it in the chromiumos-overlay dir.
 
         Returns:
-            The newly created Ebuild file.
+            The EBuild for newly created stable .ebuild file.
 
         Raises:
             FileExistsError: If the mock ebuild has already been created.
         """
-        ebuild_contents = f"""# Copyright 2024 The ChromiumOS Authors
-# Distributed under the terms of the GNU General Public License v2
-# Note: this is a fake ebuild made for testing.
-
-EAPI=7
-
-CROS_WORKON_LOCALNAME={_to_ebuild_array(cros_workon_localnames)}
-CROS_WORKON_PROJECT={_to_ebuild_array(cros_workon_projects)}
-CROS_WORKON_COMMIT={_to_ebuild_array(cros_workon_commits)}
-CROS_WORKON_SUBTREE={_to_ebuild_array(cros_workon_subtrees)}
-
-{additional_ebuild_contents}"""
-
-        ebuild_dir = self.overlay_dir / category / package_name
+        overlay_dir = (
+            self.private_board_overlay_dir
+            if private
+            else self.chromiumos_overlay_dir
+        )
+        ebuild_dir = overlay_dir / category / package_name
         ebuild_dir.mkdir(parents=True)
 
-        stable_ebuild_name = f"{package_name}-{stable_version}.ebuild"
-        ebuild_files_to_make = [stable_ebuild_name]
-        if create_9999_ebuild:
-            ebuild_files_to_make.append(f"{package_name}-9999.ebuild")
-        for ebuild_filename in ebuild_files_to_make:
+        for ebuild_version in [stable_version, "9999"]:
+            is_9999_ebuild = ebuild_version == "9999"
+            if is_9999_ebuild and not create_9999_ebuild:
+                continue
+            ebuild_filename = f"{package_name}-{ebuild_version}.ebuild"
             ebuild_path = ebuild_dir / ebuild_filename
             ebuild_path.touch()
+            ebuild_contents = _get_ebuild_contents(
+                cros_workon_localnames,
+                cros_workon_projects,
+                cros_workon_commits,
+                cros_workon_subtrees,
+                is_9999_ebuild=is_9999_ebuild,
+                additional_ebuild_contents=additional_ebuild_contents,
+            )
             ebuild_path.write_text(ebuild_contents)
+        stable_ebuild_name = f"{package_name}-{stable_version}.ebuild"
         ebuild = portage_util.EBuild(str(ebuild_dir / stable_ebuild_name))
 
         for project, localname in zip(
@@ -168,7 +285,7 @@ CROS_WORKON_SUBTREE={_to_ebuild_array(cros_workon_subtrees)}
                 subdir = ""
             else:
                 subdir = "third_party"
-            source_path = self.src_dir / subdir / localname
+            source_path = self.source_root / "src" / subdir / localname
             source_path.mkdir(parents=True, exist_ok=True)
             self._mock_paths_to_checkouts[
                 str(source_path)
@@ -192,8 +309,9 @@ CROS_WORKON_SUBTREE={_to_ebuild_array(cros_workon_subtrees)}
             f"{pkg.package_info.name}-{pkg.package_info.version}",
             "work",
         )
-        Path(temp_dir).mkdir(parents=True)
-
+        # Since some paths might be reused by multiple packages, it's OK if they
+        # already exist.
+        Path(temp_dir).mkdir(parents=True, exist_ok=True)
         build_dir = os.path.join(
             self.setup.board_dir,
             "var/cache/portage",

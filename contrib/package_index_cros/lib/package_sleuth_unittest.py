@@ -14,6 +14,49 @@ from chromite.contrib.package_index_cros.lib import testing_utils
 # pylint: disable=protected-access
 
 
+class ListEbuildsTestCase(testing_utils.TestCase):
+    """Test cases for package_sleuth._list_ebuilds()."""
+
+    @property
+    def package_sleuth(self) -> package_sleuth.PackageSleuth:
+        """Return a PackageSleuth object for testing."""
+        return package_sleuth.PackageSleuth(self.setup)
+
+    def test_find_ebuilds_for_one_package_in_multiple_overlays(self) -> None:
+        """Test that we find both public and private ebuilds for one pkg."""
+        public_ebuild = self._create_ebuild()
+        private_ebuild = self._create_ebuild(private=True)
+        ebuilds = self.package_sleuth._list_ebuilds(
+            ["chromeos-base/my-package"]
+        )
+        ebuild_paths = [ebuild.ebuild_path for ebuild in ebuilds]
+        self.assertCountEqual(
+            ebuild_paths,
+            [public_ebuild.ebuild_path, private_ebuild.ebuild_path],
+        )
+
+    def test_find_ebuilds_for_multiple_packages(self) -> None:
+        """Test that we find ebuilds for all given packages."""
+        pkg1_ebuild = self._create_ebuild(package_name="pkg1")
+        pkg2_ebuild = self._create_ebuild(package_name="pkg2")
+        ebuilds = self.package_sleuth._list_ebuilds(
+            ["chromeos-base/pkg1", "chromeos-base/pkg2"]
+        )
+        ebuild_paths = [ebuild.ebuild_path for ebuild in ebuilds]
+        self.assertCountEqual(
+            ebuild_paths, [pkg1_ebuild.ebuild_path, pkg2_ebuild.ebuild_path]
+        )
+
+    def test_some_ebuilds_not_found(self) -> None:
+        """Make sure it's OK if some packages' ebuilds aren't found."""
+        pkg1_ebuild = self._create_ebuild(package_name="pkg1")
+        ebuilds = self.package_sleuth._list_ebuilds(
+            ["chromeos-base/pkg1", "chromeos-base/pkg2"]
+        )
+        ebuild_paths = [ebuild.ebuild_path for ebuild in ebuilds]
+        self.assertCountEqual(ebuild_paths, [pkg1_ebuild.ebuild_path])
+
+
 class FilterPackagesDependenciesTestCase(testing_utils.TestCase):
     """Test cases for package_sleuth._filter_packages_dependencies()."""
 
