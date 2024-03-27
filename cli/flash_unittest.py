@@ -69,6 +69,11 @@ class USBImagerTest(cros_test_lib.MockTempDirTestCase):
                 "remote/taco-paladin/R36/test",
             ),
         )
+        # To prevent flaky tests, patch this code. It currently attempts to
+        # create files at the same path, potentially leading to conflicts.
+        self.PatchObject(
+            dev_server_wrapper.DevServerWrapper, "CreateStaticDirectory"
+        )
         self.PatchObject(os.path, "exists", return_value=True)
         self.PatchObject(os.path, "getsize", return_value=200)
         self.isgpt_mock = self.PatchObject(
