@@ -11,7 +11,7 @@ For coreboot Downstreaming Rotation: go/coreboot:downstreaming
 """
 
 import argparse
-from collections import defaultdict
+import collections
 import logging
 import re
 from typing import Callable, Dict, List, NamedTuple, Tuple
@@ -164,7 +164,7 @@ class CopybotDownstream:
                 key: contributor type
                 value : List[str] Contributor
         """
-        contributors = defaultdict(list)
+        contributors = collections.defaultdict(list)
         for line in message.splitlines():
             for contributor_type in filters:
                 contributor_text = self._extract_footer_value(
@@ -523,7 +523,7 @@ class CopybotDownstream:
             logging.info("No %s CLs to downstream!", self.project)
             return 0
 
-        all_warnings = defaultdict(list)
+        all_warnings = collections.defaultdict(list)
 
         for change_num, change in self.cl_info.items():
             warnings = self._check_cl(change)
