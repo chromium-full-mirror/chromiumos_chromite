@@ -1436,13 +1436,9 @@ in
                 "--experimental_profile_include_target_label",
                 "--experimental_profile_include_primary_output",
                 # --keep_going to keep building packages even after a failure to
-                # detect as many failure as possible on the CI builders, but
-                # only for bazel builders (which are non-critical) to avoid
-                # making people wait longer in critical bazel-lite builders.
+                # detect as many failure as possible on the CI builders.
                 # We may need to delete this after launching Alchemy.
-                #
-                # Temporarily disabled due to b/330892334.
-                # "--keep_going=%s" % ("false" if bazel_lite else "true"),
+                "--keep_going=%s" % ("false" if bazel_lite else "true"),
                 "--experimental_execution_log_compact_file="
                 + BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
                 "--config=hash_tracer",
