@@ -83,6 +83,8 @@ class LogsArchiver:
             osutils.SafeMakedirs(dest_filepath.parent)
             cros_build_lib.CompressFile(path, dest_filepath)
 
+            osutils.SafeUnlink(path)
+
             result.append(log_label)
 
         return result
