@@ -153,7 +153,7 @@ class UpdateArguments:
         jobs: Optional[int] = None,
         backtrack: Optional[int] = None,
         update_toolchain: bool = False,
-        eclean: bool = True,
+        eclean: bool = False,
         use_snapshot_binhosts: bool = False,
         log_installed_packages: bool = False,
     ) -> None:

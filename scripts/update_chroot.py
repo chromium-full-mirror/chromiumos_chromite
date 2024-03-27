@@ -43,7 +43,7 @@ def get_parser() -> commandline.ArgumentParser:
     # bool extension yet.
     parser.add_bool_argument(
         "--eclean",
-        True,
+        False,
         "Clean out old SDK binpkgs.",
         "Do not clean out SDK binpkgs.",
     )
