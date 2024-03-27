@@ -697,7 +697,9 @@ def BuildPrebuilts(
 
     # --no-read-only: build_sdk_board updates various SDK build cache files
     # which otherwise tend to be read-only.
-    chroot.run(cmd, check=True, chroot_args=["--no-read-only"])
+    # --no-update: We expect the caller already called SdkService/Create with
+    # the desired version (bootstrap version) and don't want to auto-update.
+    chroot.run(cmd, check=True, chroot_args=["--no-read-only", "--no-update"])
 
     host_prebuilts_dir = Path("/var/lib/portage/pkgs")
     target_prebuilts_dir = (
