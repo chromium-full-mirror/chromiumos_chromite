@@ -11,7 +11,6 @@ from typing import Dict, List, Optional
 
 from chromite.contrib.package_index_cros.lib import build_dir
 from chromite.contrib.package_index_cros.lib import cdb
-from chromite.contrib.package_index_cros.lib import constants
 from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import package_sleuth
@@ -34,40 +33,19 @@ class Conductor:
         self.cros_sdk = cros_sdk.CrosSdk(self.setup)
         self.packages: Optional[List[package.Package]] = None
 
-    def prepare(
-        self, package_names: List[str], *, ignore_unsupported: bool = False
-    ) -> None:
+    def prepare(self, package_names: List[str]) -> None:
         """Find relevant packages.
 
         Args:
             package_names: If non-empty, then fetch these packages and their
                 dependencies. Otherwise, fetch all available packages.
-            ignore_unsupported: If True, don't process any packages marked as
-                unsupported, nor their dependencies.
         """
         if not os.path.isdir(self.setup.board_dir):
             raise FileNotFoundError(f"Board is not set up: {self.setup.board}")
 
-        if ignore_unsupported:
-            unsupported_packages = constants.TEMPORARY_UNSUPPORTED_PACKAGES
-            if self.setup.with_tests:
-                unsupported_packages.update(
-                    constants.TEMPORARY_UNSUPPORTED_PACKAGES_WITH_TESTS
-                )
-            supported_packages = [
-                pn for pn in package_names if not pn in unsupported_packages
-            ]
-
-            logging.warning(
-                "Unsupported input packages: %s",
-                (set(package_names).difference(supported_packages)),
-            )
-        else:
-            supported_packages = package_names
-
         sleuth = package_sleuth.PackageSleuth(self.setup)
         packages_list = sleuth.list_packages(
-            packages_names=supported_packages
+            packages_names=package_names
         ).supported
 
         if not packages_list:

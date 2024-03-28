@@ -81,19 +81,6 @@ def _build_parser():
     )
 
     parser.add_argument(
-        "--ignore-unsupported",
-        "--ignore_unsupported",
-        action="store_true",
-        default=False,
-        dest="ignore_unsupported",
-        help=textwrap.dedent(
-            """\
-    Ignore unsupported packages from the list of specified
-    packages when doing dependency resolution."""
-        ),
-    )
-
-    parser.add_argument(
         "--chroot",
         type=str,
         default="",
@@ -180,9 +167,7 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     )
 
     _conductor = conductor.Conductor(_setup)
-    _conductor.prepare(
-        package_names=args.packages, ignore_unsupported=args.ignore_unsupported
-    )
+    _conductor.prepare(package_names=args.packages)
     _conductor.do_magic(
         cdb_output_file=args.compile_commands_file,
         build_output_dir=args.build_dir,
