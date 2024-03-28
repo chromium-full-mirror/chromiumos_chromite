@@ -53,75 +53,32 @@ class PackageSleuth:
         return packages
 
     def _list_packages_with_deps(
-        self, packages_names: List[str]
+        self, package_names: List[str]
     ) -> SupportedUnsupportedPackages:
-        """Return a list of packages and their transitive dependencies."""
+        """Return a list of supported packages and their transitive deps."""
+        # _get_packages_dependencies() should return a dict with a key for each
+        # transitive dependency of each package.
+        package_to_dependencies = self._get_packages_dependencies(package_names)
+
         packages = SupportedUnsupportedPackages(supported=[], unsupported=[])
-
-        ebuilds = self._list_ebuilds(packages_names)
-        dependencies = self._get_packages_dependencies(
-            [
-                e.package
-                for e in ebuilds
-                if package.get_package_support(e, self.setup).is_supported()
-            ]
-        )
-
-        # packages_to_list is a list of package names to list, taken from
-        # current dependencies that don't have corresponding ebuilds yet.
-        listed_packages = set(e.package for e in ebuilds)
-        packages_to_list = [
-            package_name
-            for package_name in dependencies
-            if package_name not in listed_packages
-        ]
-
-        # Repeating while we have packages without ebuilds and newly found
-        # dependencies without corresponding ebuild.
-        while packages_to_list:
-            # It's not necessary that |new_ebuilds| == |packages_to_list|.
-            # new_ebuilds can be less, or even empty.
-            new_ebuilds = self._list_ebuilds(packages_to_list)
-            if not new_ebuilds:
-                break
-
-            # TODO: Some packages need specific USE flag for emerge (e.g.
-            # arc-base needs USE=arcpp or USE=arcvm). Without them emerge fails
-            # and cros-sdk raises an exception.
-            new_dependencies = self._get_packages_dependencies(
-                [
-                    e.package
-                    for e in ebuilds
-                    if package.get_package_support(e, self.setup).is_supported()
-                ]
-            )
-
-            ebuilds += new_ebuilds
-            dependencies.update(new_dependencies)
-            listed_packages.update([e.package for e in new_ebuilds])
-
-            packages_to_list = [
-                package_name
-                for package_name in new_dependencies
-                if package_name not in listed_packages
-            ]
-
+        ebuilds = self._list_ebuilds(list(package_to_dependencies))
         for ebuild in ebuilds:
-            package_supported = package.get_package_support(ebuild, self.setup)
-            if package_supported.is_unsupported():
+            package_support = package.get_package_support(ebuild, self.setup)
+            if package_support.is_supported():
+                packages.supported.append(
+                    package.Package(
+                        self.setup,
+                        ebuild,
+                        package_to_dependencies[ebuild.package],
+                    )
+                )
+            else:
                 logging.warning(
                     "%s: Not supported: %s",
                     ebuild.package,
-                    package_supported.name,
+                    package_support.name,
                 )
                 packages.unsupported.append(ebuild.package)
-            else:
-                packages.supported.append(
-                    package.Package(
-                        self.setup, ebuild, dependencies[ebuild.package]
-                    )
-                )
-
         return packages
 
     def _list_ebuilds(self, packages_names: List[str]) -> portage_util.EBuild:
