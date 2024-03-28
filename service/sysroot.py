@@ -16,6 +16,7 @@ import re
 import shutil
 import tempfile
 from typing import (
+    Callable,
     Dict,
     Generator,
     Iterator,
@@ -221,6 +222,7 @@ class BuildPackagesRunConfig:
         binhost_lookup_service_data: Optional[
             prebuilts_cloud_pb2.BinhostLookupServiceData
         ] = None,  # pylint: disable=line-too-long
+        timeout: datetime.datetime = None,
     ) -> None:
         """Init method.
 
@@ -266,6 +268,8 @@ class BuildPackagesRunConfig:
             noclean: Whether to set the noclean FEATURES flag.
             binhost_lookup_service_data: Data needed to fetch binhosts from the
                 binhost lookup service.
+            timeout: If set, the main build command will be aborted after this
+                datetime.
         """
         self.usepkg = usepkg
         self.install_debug_symbols = install_debug_symbols
@@ -296,6 +300,7 @@ class BuildPackagesRunConfig:
         self.bazel_lite = bazel_lite
         self.noclean = noclean
         self.binhost_lookup_service_data = binhost_lookup_service_data
+        self.timeout = timeout
 
     def GetUseFlags(self) -> Optional[str]:
         """Get the use flags as a single string."""
@@ -1035,18 +1040,30 @@ def BuildPackages(
                         }
                     )
 
+                    timeout = (
+                        (
+                            run_configs.timeout - datetime.datetime.utcnow()
+                        ).total_seconds()
+                        if run_configs.timeout
+                        else None
+                    )
+
                     if run_configs.bazel:
                         _BazelBuild(
                             packages,
                             target.name,
                             run_configs.bazel_lite,
                             extra_env,
+                            timeout,
+                            _PrintProcessTree,
                         )
                     else:
                         cros_build_lib.sudo_run(
                             emerge_cmd + emerge_flags + packages,
                             preserve_env=True,
                             extra_env=extra_env,
+                            cmd_timeout=timeout,
+                            pre_timeout_hook=_PrintProcessTree,
                         )
                 logging.info("Builds complete.")
             except cros_build_lib.RunCommandError as e:
@@ -1329,11 +1346,22 @@ def _GetFailedPackages(
     return list(failed_packages)
 
 
+def _PrintProcessTree() -> None:
+    """Print the process tree"""
+    logging.info(
+        "The build process is about to be aborted because of a timeout. "
+        "Printing the process tree."
+    )
+    cros_build_lib.run(["pstree", "-Apal"])
+
+
 def _BazelBuild(
     packages: List[str],
     target_name: str,
     bazel_lite: bool,
     extra_env: Dict[str, str],
+    timeout: int,
+    pre_timeout_hook: Callable,
 ) -> None:
     """Build packages with Bazel.
 
@@ -1344,6 +1372,10 @@ def _BazelBuild(
         bazel_lite: Whether to perform lite build, which targets a reduced
             set of packages and skips sysroot installation.
         extra_env: Environment in which commands should be executed.
+        timeout: If set, aborts the command after the specified number of
+            seconds.
+        pre_timeout_hook: A callable object which will be run before the
+            timeout.
     """
 
     # Bazel needs amd64-host sysroot with sdk/bootstrap profile.
@@ -1449,6 +1481,8 @@ in
             ]
             + targets,
             extra_env=extra_env,
+            cmd_timeout=timeout,
+            pre_timeout_hook=pre_timeout_hook,
         )
     except cros_build_lib.RunCommandError:
         failed_packages = _GetFailedPackages(

@@ -345,6 +345,27 @@ class TestRunCommandNoMock(cros_test_lib.TestCase):
         )
         self.assertEqual(result.stdout, "-asdf")
 
+    def testCmdTimeout(self) -> None:
+        """Verify cmd_timeout arg is handled correctly."""
+        m = mock.Mock()
+
+        # The command successfully runs without hitting the timeout.
+        result = cros_build_lib.run(
+            ["sleep", "0"], cmd_timeout=1, pre_timeout_hook=m.pre_timeout_hook
+        )
+        self.assertEqual(0, result.returncode)
+        m.pre_timeout_hook.assert_not_called()
+
+        # Raises an exception and runs the hook when hitting the timeout.
+        self.assertRaises(
+            cros_build_lib.RunCommandError,
+            cros_build_lib.run,
+            ["sleep", "1"],
+            cmd_timeout=0,
+            pre_timeout_hook=m.pre_timeout_hook,
+        )
+        m.pre_timeout_hook.assert_called_once()
+
 
 def _ForceLoggingLevel(functor):
     def inner(*args, **kwargs):
@@ -392,11 +413,12 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         # Restore hidden ENVs.
         os.environ.update(self._old_envs)
 
-    def _Communicate(self, stdin):
+    def _Communicate(self, stdin, timeout=None):
         """Used by mocked _Popen for communicate method.
 
         This allows us to capture what was passed on input.
         """
+        del timeout  # To suppress the unused argument lint error.
         self.stdin = stdin
         return self.stdout, self.stderr
 

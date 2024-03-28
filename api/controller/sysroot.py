@@ -4,6 +4,7 @@
 
 """Sysroot controller."""
 
+import datetime
 import logging
 import os
 from pathlib import Path
@@ -36,6 +37,8 @@ if TYPE_CHECKING:
 _ACCEPTED_LICENSES = "@CHROMEOS"
 
 DEFAULT_BACKTRACK = 30
+
+_BUILD_PACKAGES_TIMEOUT_MARGIN = datetime.timedelta(minutes=10)
 
 
 def _GetGomaLogDirectory():
@@ -411,6 +414,15 @@ def InstallPackages(
     noclean = request.flags.skip_clean_package_dirs
     binhost_lookup_service_data = request.binhost_lookup_service_data
 
+    timeout = None
+    # Ignore invalid timestamps (e.g. the internal value of the timestamp is 0
+    # when the proto is filled with default values)
+    if request.timeout_timestamp and request.timeout_timestamp.ToSeconds() != 0:
+        timeout = (
+            request.timeout_timestamp.ToDatetime()
+            - _BUILD_PACKAGES_TIMEOUT_MARGIN
+        )
+
     if not target_sysroot.IsToolchainInstalled():
         cros_build_lib.Die("Toolchain must first be installed.")
 
@@ -435,6 +447,7 @@ def InstallPackages(
         bazel_lite=bazel_lite,
         noclean=noclean,
         binhost_lookup_service_data=binhost_lookup_service_data,
+        timeout=timeout,
     )
 
     try:

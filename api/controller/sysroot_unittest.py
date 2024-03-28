@@ -1096,6 +1096,7 @@ class InstallPackagesTest(
             bazel_lite=False,
             noclean=False,
             binhost_lookup_service_data=MOCK_BINHOST_LOOKUP_SERVICE_DATA,
+            timeout=None,
         )
 
     def testSuccessWithGomaLogs(self) -> None:
@@ -1380,4 +1381,5 @@ class InstallPackagesTest(
             bazel_lite=False,
             noclean=False,
             binhost_lookup_service_data=MOCK_BINHOST_LOOKUP_SERVICE_DATA,
+            timeout=None,
         )

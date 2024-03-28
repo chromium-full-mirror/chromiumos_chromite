@@ -616,6 +616,8 @@ def run(
     encoding=None,
     errors=None,
     dryrun=False,
+    cmd_timeout=None,
+    pre_timeout_hook=None,
     **kwargs,
 ) -> CompletedProcess:
     """Runs a command.
@@ -676,6 +678,10 @@ def run(
         errors: How to handle errors when |encoding| is used.  Defaults to
             'strict', but 'ignore' and 'replace' are common settings.
         dryrun: Only log the command,and return a stub result.
+        cmd_timeout: If set, aborts the command after the specified number of
+            seconds.
+        pre_timeout_hook: A callable object which will be run before aborting
+            the command process because of |cmd_timeout|.
 
     Returns:
         A CompletedProcess object.
@@ -922,7 +928,18 @@ def run(
 
         try:
             try:
-                (cmd_result.stdout, cmd_result.stderr) = proc.communicate(input)
+                (cmd_result.stdout, cmd_result.stderr) = proc.communicate(
+                    input, timeout=cmd_timeout
+                )
+            except subprocess.TimeoutExpired:
+                if pre_timeout_hook:
+                    pre_timeout_hook()
+                _KillChildProcess(
+                    proc, int_timeout, kill_timeout, cmd, None, None, None
+                )
+                raise _TerminateRunCommandError(
+                    f"Timed out after {cmd_timeout} seconds", cmd_result
+                )
             finally:
                 if old_sigint is not None:
                     signal.signal(signal.SIGINT, old_sigint)
