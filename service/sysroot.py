@@ -83,6 +83,7 @@ BACKTRACK_DEFAULT = 30
 
 SYSROOT_ARCHIVE_FILE = "sysroot.tar.zst"
 BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE = "/tmp/allpackages_command.profile.gz"
+BAZEL_ALLPACKAGES_ACTION_LOGS_FILE = "/tmp/allpackages_action_logs.tar.gz"
 BAZEL_ALLPACKAGES_EXEC_LOG_FILE = "/tmp/allpackages_exec_compact.log"
 BAZEL_BUILD_EVENT_JSON_FILE_PATH = "/tmp/chromeos_bazel_build_events.json"
 BAZEL_COMMAND = constants.CHROMITE_BIN_DIR / "bazel"
@@ -1481,6 +1482,7 @@ in
                 "--experimental_execution_log_compact_file="
                 + BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
                 "--config=hash_tracer",
+                "--config=collect_logs",
                 "--build_event_json_file=%s" % BAZEL_BUILD_EVENT_JSON_FILE_PATH,
             ]
             + targets,
@@ -1500,6 +1502,19 @@ in
                 encoding="utf-8",
             )
         raise
+
+    # Postprocess the output.
+    cros_build_lib.run(
+        [
+            BAZEL_COMMAND,
+            "run",
+            "//bazel/portage/tools/process_artifacts",
+            "--",
+            "--build-events-jsonl=%s" % BAZEL_BUILD_EVENT_JSON_FILE_PATH,
+            "--archive-logs=%s" % BAZEL_ALLPACKAGES_ACTION_LOGS_FILE,
+        ],
+        extra_env=extra_env,
+    )
 
 
 def _CreateSysrootSkeleton(sysroot: sysroot_lib.Sysroot) -> None:
@@ -1812,6 +1827,7 @@ def CollectBazelPerformanceArtifacts(
     """
     chroot_raw_artifacts = [
         BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
+        BAZEL_ALLPACKAGES_ACTION_LOGS_FILE,
         BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
         BAZEL_BUILD_EVENT_JSON_FILE_PATH,
     ]
