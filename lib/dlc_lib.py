@@ -101,6 +101,7 @@ DLC_NAME_KEY = "DLC_NAME"
 DLC_APPID_KEY = "DLC_RELEASE_APPID"
 
 SQUASHFS_TYPE = "squashfs"
+EXT2_TYPE = "ext2"
 EXT4_TYPE = "ext4"
 
 _MAX_ID_NAME = 80
@@ -815,38 +816,55 @@ class DlcGenerator:
             ]
         )
 
-    def CreateExt4Image(self) -> None:
-        """Create an ext4 image."""
+    def CreateExtImage(self, ext_type: str) -> None:
+        """Create an ext image.
+
+        Args:
+            ext_type: The ext[N] type.
+        """
+        if ext_type not in (EXT2_TYPE, EXT4_TYPE):
+            raise Error("Unsupported ext type given: %s" % ext_type)
+
         with osutils.TempDir(prefix="dlc_") as temp_dir:
             mount_point = os.path.join(temp_dir, "mount_point")
+            preallocated_bytes = (
+                self.ebuild_params.pre_allocated_blocks * self._BLOCK_SIZE
+            )
             # Create a raw image file.
             osutils.AllocateFile(
-                self.dest_image, self._BLOCKS * self._BLOCK_SIZE, makedirs=True
+                self.dest_image, preallocated_bytes, makedirs=True
             )
-            # Create an ext4 file system on the raw image.
-            cros_build_lib.run(
-                [
-                    "/sbin/mkfs.ext4",
-                    "-b",
-                    str(self._BLOCK_SIZE),
-                    "-O",
-                    "^has_journal",
-                    self.dest_image,
-                ],
-                capture_output=True,
-            )
-            # Create the mount_point directory.
+            if ext_type == EXT2_TYPE:
+                cros_build_lib.run(
+                    [
+                        "/sbin/mkfs.ext2",
+                        "-b",
+                        str(self._BLOCK_SIZE),
+                        self.dest_image,
+                    ],
+                    capture_output=True,
+                )
+            elif ext_type == EXT4_TYPE:
+                cros_build_lib.run(
+                    [
+                        "/sbin/mkfs.ext4",
+                        "-b",
+                        str(self._BLOCK_SIZE),
+                        "-O",
+                        "^has_journal",
+                        self.dest_image,
+                    ],
+                    capture_output=True,
+                )
             osutils.SafeMakedirs(mount_point)
-            # Mount the ext4 image.
-            osutils.MountDir(
-                self.dest_image, mount_point, mount_opts=("loop", "rw")
-            )
+            with osutils.MountDirContext(
+                self.dest_image,
+                mount_point,
+                fs_type=ext_type,
+                mount_opts=("loop", "rw"),
+            ):
+                self.SetupDlcImageFiles(mount_point, sudo=True)
 
-            try:
-                self.SetupDlcImageFiles(mount_point)
-            finally:
-                # Unmount the ext4 image.
-                osutils.UmountDir(mount_point)
             # Shrink to minimum size.
             cros_build_lib.run(
                 ["/sbin/e2fsck", "-y", "-f", self.dest_image],
@@ -918,27 +936,41 @@ class DlcGenerator:
             osutils.RmDir(squashfs_root, sudo=True)
             osutils.RmDir(squashfs_out, sudo=True)
 
-    def SetupDlcImageFiles(self, dlc_dir: str) -> None:
+    def SetupDlcImageFiles(self, dlc_dir: str, sudo: bool = False) -> None:
         """Prepares the directory dlc_dir with all the files a DLC needs.
 
         Args:
             dlc_dir: The path to where to setup files inside the DLC.
+            sudo: Run through sudo.
         """
         dlc_root_dir = os.path.join(dlc_dir, self._DLC_ROOT_DIR)
-        osutils.SafeMakedirs(dlc_root_dir)
-        osutils.CopyDirContents(self.src_dir, dlc_root_dir, symlinks=True)
-        self.PrepareLsbRelease(dlc_dir)
-        self.AddLicensingFile(dlc_dir)
-        self.CollectExtraResources(dlc_dir)
+        osutils.SafeMakedirs(dlc_root_dir, sudo=sudo)
+        if sudo:
+            cros_build_lib.sudo_run(
+                [
+                    "cp",
+                    "-dR",
+                    self.src_dir.rstrip("/") + "/.",
+                    dlc_root_dir,
+                ],
+                debug_level=logging.DEBUG,
+                stderr=True,
+            )
+        else:
+            osutils.CopyDirContents(self.src_dir, dlc_root_dir, symlinks=True)
+        self.PrepareLsbRelease(dlc_dir, sudo=sudo)
+        self.AddLicensingFile(dlc_dir, sudo=sudo)
+        self.CollectExtraResources(dlc_dir, sudo=sudo)
         self.SquashOwnerships(dlc_dir)
 
-    def PrepareLsbRelease(self, dlc_dir: str) -> None:
+    def PrepareLsbRelease(self, dlc_dir: str, sudo: bool = False) -> None:
         """Prepare the file /etc/lsb-release in the DLC module.
 
         This file is used dropping some identification parameters for the DLC.
 
         Args:
             dlc_dir: The path to the mounted point during image creation.
+            sudo: Use sudo to write the file.
 
         Raises:
             Error: if key from lsb-release is missing.
@@ -979,15 +1011,16 @@ class DlcGenerator:
         )
 
         lsb_release = os.path.join(dlc_dir, LSB_RELEASE)
-        osutils.SafeMakedirs(os.path.dirname(lsb_release))
+        osutils.SafeMakedirs(os.path.dirname(lsb_release), sudo=sudo)
         content = "".join("%s=%s\n" % (k, v) for k, v in fields)
-        osutils.WriteFile(lsb_release, content)
+        osutils.WriteFile(lsb_release, content, sudo=sudo)
 
-    def AddLicensingFile(self, dlc_dir: str) -> None:
+    def AddLicensingFile(self, dlc_dir: str, sudo: bool = False) -> None:
         """Add the licensing file for this DLC.
 
         Args:
             dlc_dir: The path to the mounted point during image creation.
+            sudo: Run through sudo.
 
         Raises:
             Error: if license file is missing.
@@ -1012,19 +1045,20 @@ class DlcGenerator:
         # The first (and only) item contains the values for |self.fullnamerev|.
         if licenses:
             _, license_txt = next(iter(licenses.items()))
-            osutils.WriteFile(license_path, license_txt)
+            osutils.WriteFile(license_path, license_txt, sudo=sudo)
         else:
             logging.info(
                 "LICENSE text is empty. Skipping LICENSE file creation."
             )
 
-    def CollectExtraResources(self, dlc_dir: str) -> None:
+    def CollectExtraResources(self, dlc_dir: str, sudo: bool = False) -> None:
         """Collect the extra resources needed by the DLC module.
 
         Look at the documentation around _EXTRA_RESOURCES.
 
         Args:
             dlc_dir: The path to the mounted point during image creation.
+            sudo: Run through sudo.
         """
         if self.board == MAGIC_BOARD:
             logging.info("Skipping extra collection since magic board.")
@@ -1033,14 +1067,27 @@ class DlcGenerator:
         for r in _EXTRA_RESOURCES:
             source_path = os.path.join(self.sysroot, r)
             target_path = os.path.join(dlc_dir, r)
-            osutils.SafeMakedirs(os.path.dirname(target_path))
-            shutil.copyfile(source_path, target_path)
+            osutils.SafeMakedirs(os.path.dirname(target_path), sudo=sudo)
+            if sudo:
+                cros_build_lib.sudo_run(
+                    [
+                        "cp",
+                        source_path,
+                        target_path,
+                    ],
+                    debug_level=logging.DEBUG,
+                    stderr=True,
+                )
+            else:
+                shutil.copyfile(source_path, target_path)
 
     def CreateImage(self) -> None:
         """Create the image and copy the DLC files to it."""
         logging.debug("Creating the DLC image.")
-        if self.ebuild_params.fs_type == EXT4_TYPE:
-            self.CreateExt4Image()
+        if self.ebuild_params.fs_type == EXT2_TYPE:
+            self.CreateExtImage(EXT2_TYPE)
+        elif self.ebuild_params.fs_type == EXT4_TYPE:
+            self.CreateExtImage(EXT4_TYPE)
         elif self.ebuild_params.fs_type == SQUASHFS_TYPE:
             self.CreateSquashfsImage()
         else:

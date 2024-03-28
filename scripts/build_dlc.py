@@ -98,7 +98,7 @@ def GetParser():
         "--fs-type",
         metavar="FS_TYPE",
         default=dlc_lib.SQUASHFS_TYPE,
-        choices=(dlc_lib.SQUASHFS_TYPE, dlc_lib.EXT4_TYPE),
+        choices=(dlc_lib.SQUASHFS_TYPE, dlc_lib.EXT2_TYPE, dlc_lib.EXT4_TYPE),
         help="File system type of the image.",
     )
     one_dlc.add_argument(
@@ -206,8 +206,14 @@ def ValidateArguments(parser, opts, req_flags, invalid_flags) -> None:
                 "in the `cros build-image` phase." % invalid_flags
             )
 
-    if opts.fs_type == dlc_lib.EXT4_TYPE:
-        parser.error("ext4 unsupported for DLC, see https://crbug.com/890060")
+    if opts.fs_type not in (
+        dlc_lib.EXT2_TYPE,
+        dlc_lib.EXT4_TYPE,
+        dlc_lib.SQUASHFS_TYPE,
+    ):
+        parser.error(
+            "Unsupported filesystem type (%s) given for DLC." % opts.fs_type
+        )
 
     if opts.id:
         dlc_lib.ValidateDlcIdentifier(opts.id)

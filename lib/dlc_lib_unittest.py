@@ -561,26 +561,60 @@ class DlcGeneratorTest(
         self.assertCommandContains(["chown", "-R", "0:0"])
         self.assertCommandContains(["find"])
 
-    def testCreateExt4Image(self) -> None:
-        """Test CreateExt4Image to make sure it runs with valid parameters."""
-        copy_dir_mock = self.PatchObject(osutils, "CopyDirContents")
-        mount_mock = self.PatchObject(osutils, "MountDir")
+    def testCreateExt2Image(self) -> None:
+        """Test CreateExtImage to create ext2 DLC."""
+        mount_mock = self.PatchObject(
+            osutils, "MountDirContext", side_effect=osutils.MountDirContext
+        )
         umount_mock = self.PatchObject(osutils, "UmountDir")
 
-        self.GetDlcGenerator(fs_type=dlc_lib.EXT4_TYPE).CreateExt4Image()
+        self.GetDlcGenerator().CreateExtImage(dlc_lib.EXT2_TYPE)
+        self.assertCommandContains(["/sbin/mkfs.ext2", "-b", "4096"])
+        self.assertCommandContains(["/sbin/e2fsck", "-y", "-f"])
+        self.assertCommandContains(["/sbin/resize2fs", "-M"])
+        self.assertCommandContains(
+            [
+                "cp",
+                "-dR",
+                partial_mock.HasString("src/."),
+                partial_mock.HasString("root"),
+            ]
+        )
+        mount_mock.assert_called_once_with(
+            mock.ANY,
+            partial_mock.HasString("mount_point"),
+            fs_type=dlc_lib.EXT2_TYPE,
+            mount_opts=("loop", "rw"),
+        )
+        umount_mock.assert_called_once_with(
+            partial_mock.HasString("mount_point")
+        )
+
+    def testCreateExt4Image(self) -> None:
+        """Test CreateExtImage to create ext4 DLC."""
+        mount_mock = self.PatchObject(
+            osutils, "MountDirContext", side_effect=osutils.MountDirContext
+        )
+        umount_mock = self.PatchObject(osutils, "UmountDir")
+
+        self.GetDlcGenerator().CreateExtImage(dlc_lib.EXT4_TYPE)
         self.assertCommandContains(
             ["/sbin/mkfs.ext4", "-b", "4096", "-O", "^has_journal"]
         )
         self.assertCommandContains(["/sbin/e2fsck", "-y", "-f"])
         self.assertCommandContains(["/sbin/resize2fs", "-M"])
-        copy_dir_mock.assert_called_once_with(
-            partial_mock.HasString("src"),
-            partial_mock.HasString("root"),
-            symlinks=True,
+        self.assertCommandContains(
+            [
+                "cp",
+                "-dR",
+                partial_mock.HasString("src/."),
+                partial_mock.HasString("root"),
+            ]
         )
         mount_mock.assert_called_once_with(
             mock.ANY,
             partial_mock.HasString("mount_point"),
+            fs_type=dlc_lib.EXT4_TYPE,
             mount_opts=("loop", "rw"),
         )
         umount_mock.assert_called_once_with(
