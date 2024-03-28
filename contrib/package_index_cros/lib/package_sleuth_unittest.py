@@ -6,7 +6,7 @@
 
 import copy
 import json
-from typing import Any, Dict, Iterable
+from typing import Any, Dict, Iterable, List
 from unittest import mock
 
 import pytest
@@ -14,7 +14,9 @@ import pytest
 from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import package_sleuth
+from chromite.contrib.package_index_cros.lib import setup
 from chromite.contrib.package_index_cros.lib import testing_utils
+from chromite.lib import portage_util
 
 
 # pylint: disable=protected-access
@@ -146,6 +148,88 @@ class GetPackagesDependenciesTestCase(testing_utils.TestCase):
             self.package_sleuth._get_packages_dependencies(
                 ["chromeos-base/pkg1", "chromeos-base/pkg2"]
             )
+
+
+class ListPackagesWithDepsTestCase(testing_utils.TestCase):
+    """Test cases for PackageSleuth._list_packages_with_deps()."""
+
+    def _mock_get_package_support(
+        self, supported_package_names: List[str]
+    ) -> mock.Mock:
+        """Mock out which packages will be considered supported/unsupported.
+
+        Any packages not listed in `supported_package_names` will be considered
+        unsupported.
+        """
+
+        def get_package_support(
+            ebuild: portage_util.EBuild,
+            setup_data: setup.Setup,
+        ) -> package.PackageSupport:
+            """Mock version of package.get_package_support()."""
+            del setup_data  # Unused.
+            if ebuild.package in supported_package_names:
+                return package.PackageSupport.SUPPORTED
+            return package.PackageSupport.NO_GN_BUILD
+
+        return self.PatchObject(
+            package, "get_package_support", side_effect=get_package_support
+        )
+
+    def test_no_packages(self) -> None:
+        """Test a basic case where an empty list is provided.
+
+        This scenario isn't expected in practice, but it's a useful smoke test.
+        """
+        self.PatchObject(
+            package_sleuth.PackageSleuth,
+            "_get_packages_dependencies",
+            return_value={},
+        )
+        self.assertEqual(
+            self.package_sleuth._list_packages_with_deps([]),
+            package_sleuth.SupportedUnsupportedPackages(
+                supported=[], unsupported=[]
+            ),
+        )
+
+    def test_sort_supported_unsupported(self) -> None:
+        """Test sorting the supported packages from the unsupported ones."""
+        # "chromeos-base/main-package" is the package we'll feed into
+        # _list_packages_with_deps. It will be considered Supported, and it will
+        # depend on "chromeos-base/supported" and "chromeos-base/unsupported".
+        self._create_ebuild(package_name="main-package")
+        self._create_ebuild(package_name="supported")
+        self._create_ebuild(package_name="unsupported")
+        self._mock_get_package_support(
+            ["chromeos-base/main-package", "chromeos-base/supported"]
+        )
+        self.PatchObject(
+            package_sleuth.PackageSleuth,
+            "_get_packages_dependencies",
+            return_value={
+                "chromeos-base/main-package": [
+                    package.PackageDependency(
+                        "chromeos-base/supported", ["runtime"]
+                    ),
+                    package.PackageDependency(
+                        "chromeos-base/unsupported", ["runtime"]
+                    ),
+                ],
+                "chromeos-base/supported": [],
+                "chromeos-base/unsupported": [],
+            },
+        )
+        supported_unsupported = self.package_sleuth._list_packages_with_deps(
+            ["chromeos-base/main-package"]
+        )
+        self.assertCountEqual(
+            [pkg.full_name for pkg in supported_unsupported.supported],
+            ["chromeos-base/supported", "chromeos-base/main-package"],
+        )
+        self.assertEqual(
+            supported_unsupported.unsupported, ["chromeos-base/unsupported"]
+        )
 
 
 class FilterPackagesDependenciesTestCase(testing_utils.TestCase):
