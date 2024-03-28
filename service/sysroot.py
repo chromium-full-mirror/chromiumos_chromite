@@ -1546,7 +1546,7 @@ def _InstallConfigs(
         target: The build target being setup in the sysroot.
     """
     sysroot.InstallMakeConf(target)
-    sysroot.InstallMakeConfSdk(target)
+    sysroot.InstallMakeConfSdk(target, public_only=False)
     sysroot.InstallMakeConfBoardSetup(target)
     sysroot.InstallMakeConfUser()
     sysroot.write_build_target_config(target)
