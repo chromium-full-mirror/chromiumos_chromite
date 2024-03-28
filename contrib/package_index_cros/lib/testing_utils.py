@@ -11,6 +11,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 import uuid
 
 from chromite.contrib.package_index_cros.lib import package
+from chromite.contrib.package_index_cros.lib import package_sleuth
 from chromite.contrib.package_index_cros.lib import path_handler
 from chromite.contrib.package_index_cros.lib import setup
 from chromite.lib import constants
@@ -106,6 +107,11 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
     def path_handler(self) -> path_handler.PathHandler:
         """Return a PathHandler we can use for testing."""
         return path_handler.PathHandler(self.setup)
+
+    @property
+    def package_sleuth(self) -> package_sleuth.PackageSleuth:
+        """Return a PackageSleuth object for testing."""
+        return package_sleuth.PackageSleuth(self.setup)
 
     def touch(self, path: str) -> None:
         """Make a file and its parents."""

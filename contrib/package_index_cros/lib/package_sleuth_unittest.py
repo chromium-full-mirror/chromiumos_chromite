@@ -4,8 +4,14 @@
 
 """Unit tests for package_sleuth.py."""
 
+import copy
+import json
+from typing import Any, Dict, Iterable
+from unittest import mock
+
 import pytest
 
+from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import package_sleuth
 from chromite.contrib.package_index_cros.lib import testing_utils
@@ -14,13 +20,46 @@ from chromite.contrib.package_index_cros.lib import testing_utils
 # pylint: disable=protected-access
 
 
-class ListEbuildsTestCase(testing_utils.TestCase):
-    """Test cases for package_sleuth._list_ebuilds()."""
+def _create_deptree_stdout(
+    package_name_to_deps: Dict[str, Iterable[package.PackageDependency]]
+) -> str:
+    """Generate a valid-looking dependency tree stdout.
 
-    @property
-    def package_sleuth(self) -> package_sleuth.PackageSleuth:
-        """Return a PackageSleuth object for testing."""
-        return package_sleuth.PackageSleuth(self.setup)
+    The output should resemble the stdout of the print_deps script, such as:
+    {
+        "category/key-from-input-dict": {
+            "action": "merge"
+            "deps": {
+                "category/value-from-input-dict": {
+                    "action": "merge",
+                    "deps": {},
+                    "deptypes": ["values-from-input-dict", ...],
+                    "root": "/build/amd64-generic"
+                },
+                ...
+            },
+            "root": "/build/amd64-generic"
+        },
+        ...
+    }
+    """
+    deptree_dict: Dict[str, Any] = {}
+    blank_dep_object = {
+        "action": "merge",
+        "deps": {},
+        "root": "/build/amd64-generic/",
+    }
+    for package_name, dependencies in package_name_to_deps.items():
+        deptree_dict[package_name] = copy.deepcopy(blank_dep_object)
+        for dependency in dependencies:
+            dep_object = copy.deepcopy(blank_dep_object)
+            dep_object["deptypes"] = dependency.types
+            deptree_dict[package_name]["deps"][dependency.name] = dep_object
+    return json.dumps(deptree_dict)
+
+
+class ListEbuildsTestCase(testing_utils.TestCase):
+    """Test cases for PackageSleuth._list_ebuilds()."""
 
     def test_find_ebuilds_for_one_package_in_multiple_overlays(self) -> None:
         """Test that we find both public and private ebuilds for one pkg."""
@@ -57,8 +96,60 @@ class ListEbuildsTestCase(testing_utils.TestCase):
         self.assertCountEqual(ebuild_paths, [pkg1_ebuild.ebuild_path])
 
 
+class GetPackagesDependenciesTestCase(testing_utils.TestCase):
+    """Test cases for PackageSleuth._get_packages_dependencies()."""
+
+    def mock_generate_dependency_tree_stdout(
+        self,
+        package_name_to_dependencies: Dict[str, package.PackageDependency],
+    ) -> mock.Mock:
+        """Mock out the response from cros_sdk.generate_dependency_tree()."""
+        stdout = _create_deptree_stdout(package_name_to_dependencies)
+        return self.PatchObject(
+            cros_sdk.CrosSdk, "generate_dependency_tree", return_value=stdout
+        )
+
+    def test_multiple_packages(self) -> None:
+        """Test getting the depgraph for a few packages.
+
+        This test creates some package dependencies, and mocks the stdout of
+        cros_sdk.CrosSdk.generate_dependency_tree() to return that output. Then
+        we expect PackageSleuth._get_packages_dependencies() to reconstruct the
+        dependencies from that stdout.
+        """
+        # We'll only pass pkg1 and pkg2 into the function. Since the depgraph is
+        # recursive, the print_deps script should also contain their
+        # dependencies (in this case pkg3). Then, _get_packages_dependencies()
+        # should parse them into the return value.
+        original_pkg_to_deps = {
+            "chromeos-base/pkg1": [
+                package.PackageDependency("chromeos-base/pkg2", ["runtime"]),
+                package.PackageDependency("chromeos-base/pkg3", ["buildtime"]),
+            ],
+            "chromeos-base/pkg2": [
+                package.PackageDependency(
+                    "chromeos-base/pkg3", ["buildtime, runtime"]
+                )
+            ],
+            "chromeos-base/pkg3": [],
+        }
+        self.mock_generate_dependency_tree_stdout(original_pkg_to_deps)
+        returned_pkg_to_deps = self.package_sleuth._get_packages_dependencies(
+            ["chromeos-base/pkg1", "chromeos-base/pkg2"]
+        )
+        self.assertEqual(returned_pkg_to_deps, original_pkg_to_deps)
+
+    def test_some_packages_missing_deps(self) -> None:
+        """Test a case where some packages are missing their deps."""
+        self.mock_generate_dependency_tree_stdout({"chromeos-base/pkg1": []})
+        with self.assertRaises(ValueError):
+            self.package_sleuth._get_packages_dependencies(
+                ["chromeos-base/pkg1", "chromeos-base/pkg2"]
+            )
+
+
 class FilterPackagesDependenciesTestCase(testing_utils.TestCase):
-    """Test cases for package_sleuth._filter_packages_dependencies()."""
+    """Test cases for PackageSleuth._filter_packages_dependencies()."""
 
     def test_update_dependencies(self):
         """Make sure each package's dependencies are updated in-place."""
