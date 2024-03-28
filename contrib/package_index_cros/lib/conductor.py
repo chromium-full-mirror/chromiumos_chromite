@@ -18,6 +18,14 @@ from chromite.contrib.package_index_cros.lib import package_sleuth
 from chromite.contrib.package_index_cros.lib import setup
 
 
+class NoSupportedPackagesException(ValueError):
+    """Raised when there are no supported packages to work on."""
+
+
+class DuplicatePackagesException(ValueError):
+    """Raise when we are trying to work on duplicate packages."""
+
+
 class Conductor:
     """Helper class to orchestrate the whole process."""
 
@@ -38,7 +46,7 @@ class Conductor:
                 unsupported, nor their dependencies.
         """
         if not os.path.isdir(self.setup.board_dir):
-            raise Exception(f"Board is not set up: {self.setup.board}")
+            raise FileNotFoundError(f"Board is not set up: {self.setup.board}")
 
         if ignore_unsupported:
             unsupported_packages = constants.TEMPORARY_UNSUPPORTED_PACKAGES
@@ -63,9 +71,11 @@ class Conductor:
         ).supported
 
         if not packages_list:
-            raise ValueError("No packages to work with.")
+            raise NoSupportedPackagesException("No packages to work with.")
         if len(packages_list) != len(set(p.full_name for p in packages_list)):
-            raise ValueError(f"Duplicates among packages: {packages_list}")
+            raise DuplicatePackagesException(
+                f"Duplicates among packages: {packages_list}"
+            )
 
         logging.info(
             "The following packages are going forward: %s",

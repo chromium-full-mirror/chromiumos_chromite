@@ -10,6 +10,8 @@ import re
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 import uuid
 
+from chromite.contrib.package_index_cros.lib import conductor
+from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import package_sleuth
 from chromite.contrib.package_index_cros.lib import path_handler
@@ -104,6 +106,11 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
     """Abstract parent class for tests that require mock packages."""
 
     @property
+    def cros_sdk(self) -> cros_sdk.CrosSdk:
+        """Return a cros_sdk.CrosSdk object for testing."""
+        return cros_sdk.CrosSdk(self.setup)
+
+    @property
     def path_handler(self) -> path_handler.PathHandler:
         """Return a PathHandler we can use for testing."""
         return path_handler.PathHandler(self.setup)
@@ -112,6 +119,11 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
     def package_sleuth(self) -> package_sleuth.PackageSleuth:
         """Return a PackageSleuth object for testing."""
         return package_sleuth.PackageSleuth(self.setup)
+
+    @property
+    def conductor(self) -> conductor.Conductor:
+        """Return a Conductor object for testing."""
+        return conductor.Conductor(self.setup)
 
     def touch(self, path: str) -> None:
         """Make a file and its parents."""

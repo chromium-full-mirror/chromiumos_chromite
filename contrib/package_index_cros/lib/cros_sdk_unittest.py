@@ -7,18 +7,12 @@
 import logging
 
 from chromite.contrib.package_index_cros.lib import constants
-from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import testing_utils
 from chromite.lib import cros_test_lib
 
 
 class CrosSdkTestCase(testing_utils.TestCase):
     """Test cases for cros_sdk.CrosSdk."""
-
-    @property
-    def cros_sdk(self) -> cros_sdk.CrosSdk:
-        """Return a cros_sdk.CrosSdk object for testing."""
-        return cros_sdk.CrosSdk(self.setup)
 
     def test_generate_compile_commands(self) -> None:
         """Test case for cros_sdk.CrosSdk.generate_compile_commands()."""
