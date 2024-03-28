@@ -40,7 +40,6 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         replace=False,
         current=False,
         use_cq_prebuilts=False,
-        package_indexes=None,
     ):
         """Helper to build and input proto instance."""
         proto = sysroot_pb2.SysrootCreateRequest()
@@ -54,8 +53,6 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             proto.flags.chroot_current = current
         if use_cq_prebuilts:
             proto.flags.use_cq_prebuilts = use_cq_prebuilts
-        if package_indexes:
-            proto.package_indexes.extend(package_indexes)
 
         return proto
 
@@ -152,7 +149,6 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         rc_patch.assert_called_with(
             force=force,
             upgrade_chroot=upgrade_chroot,
-            package_indexes=[],
             use_cq_prebuilts=use_cq_prebuilts,
             backtrack=sysroot_controller.DEFAULT_BACKTRACK,
         )
@@ -166,22 +162,6 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         force = True
         upgrade_chroot = False
         use_cq_prebuilts = True
-        package_indexes = [
-            common_pb2.PackageIndexInfo(
-                snapshot_sha="SHA",
-                snapshot_number=5,
-                build_target=common_pb2.BuildTarget(name=board),
-                location="LOCATION",
-                profile=common_pb2.Profile(name=profile),
-            ),
-            common_pb2.PackageIndexInfo(
-                snapshot_sha="SHA2",
-                snapshot_number=4,
-                build_target=common_pb2.BuildTarget(name=board),
-                location="LOCATION2",
-                profile=common_pb2.Profile(name=profile),
-            ),
-        ]
 
         in_proto = self._InputProto(
             build_target=board,
@@ -189,7 +169,6 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             replace=force,
             current=not upgrade_chroot,
             use_cq_prebuilts=use_cq_prebuilts,
-            package_indexes=package_indexes,
         )
         out_proto = self._OutputProto()
         sysroot_controller.Create(in_proto, out_proto, self.api_config)
@@ -197,10 +176,6 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         # Not default value checks.
         rc_patch.assert_called_with(
             force=force,
-            package_indexes=[
-                controller_util.deserialize_package_index_info(x)
-                for x in package_indexes
-            ],
             upgrade_chroot=upgrade_chroot,
             use_cq_prebuilts=use_cq_prebuilts,
             backtrack=sysroot_controller.DEFAULT_BACKTRACK,
@@ -834,7 +809,6 @@ class InstallPackagesTest(
         goma_log_dir=None,
         goma_stats_file=None,
         goma_counterz_file=None,
-        package_indexes=None,
         packages=None,
         bazel=False,
         binhost_lookup_service_data=MOCK_BINHOST_LOOKUP_SERVICE_DATA,
@@ -858,8 +832,6 @@ class InstallPackagesTest(
             instance.goma_config.stats_file = goma_stats_file
         if goma_counterz_file:
             instance.goma_config.counterz_file = goma_counterz_file
-        if package_indexes:
-            instance.package_indexes.extend(package_indexes)
         if packages:
             for pkg in packages:
                 pkg_info = package_info.parse(pkg)
@@ -1037,67 +1009,6 @@ class InstallPackagesTest(
         )
         self.assertFalse(rc)
         self.assertFalse(out_proto.failed_package_data)
-
-    def testSuccessPackageIndexes(self) -> None:
-        """Test successful call with package_indexes."""
-        # Prevent argument validation error.
-        self.PatchObject(
-            sysroot_lib.Sysroot, "IsToolchainInstalled", return_value=True
-        )
-        package_indexes = [
-            common_pb2.PackageIndexInfo(
-                snapshot_sha="SHA",
-                snapshot_number=5,
-                build_target=common_pb2.BuildTarget(name="board"),
-                location="LOCATION",
-                profile=common_pb2.Profile(name="profile"),
-            ),
-            common_pb2.PackageIndexInfo(
-                snapshot_sha="SHA2",
-                snapshot_number=4,
-                build_target=common_pb2.BuildTarget(name="board"),
-                location="LOCATION2",
-                profile=common_pb2.Profile(name="profile"),
-            ),
-        ]
-
-        in_proto = self._InputProto(
-            build_target=self.build_target,
-            sysroot_path=self.sysroot,
-            package_indexes=package_indexes,
-        )
-
-        out_proto = self._OutputProto()
-        rc_patch = self.PatchObject(sysroot_service, "BuildPackagesRunConfig")
-        self.PatchObject(sysroot_service, "BuildPackages")
-
-        rc = sysroot_controller.InstallPackages(
-            in_proto, out_proto, self.api_config
-        )
-        self.assertFalse(rc)
-        rc_patch.assert_called_with(
-            use_any_chrome=False,
-            usepkg=True,
-            install_debug_symbols=True,
-            packages=[],
-            package_indexes=[
-                controller_util.deserialize_package_index_info(x)
-                for x in package_indexes
-            ],
-            use_flags=[],
-            use_goma=False,
-            use_remoteexec=False,
-            reproxy_cfg_file="",
-            incremental_build=False,
-            dryrun=False,
-            backtrack=sysroot_controller.DEFAULT_BACKTRACK,
-            workon=False,
-            bazel=False,
-            bazel_lite=False,
-            noclean=False,
-            binhost_lookup_service_data=MOCK_BINHOST_LOOKUP_SERVICE_DATA,
-            timeout=None,
-        )
 
     def testSuccessWithGomaLogs(self) -> None:
         """Test successful call with goma."""
@@ -1350,7 +1261,6 @@ class InstallPackagesTest(
         in_proto = self._InputProto(
             build_target=self.build_target,
             sysroot_path=self.sysroot,
-            # package_indexes=package_indexes,
         )
         cfg_file_name = "reproxy_release.cfg"
         in_proto.remoteexec_config.reproxy_cfg_file = cfg_file_name
@@ -1368,7 +1278,6 @@ class InstallPackagesTest(
             usepkg=True,
             install_debug_symbols=True,
             packages=[],
-            package_indexes=[],
             use_flags=[],
             use_goma=False,
             use_remoteexec=True,

@@ -220,14 +220,9 @@ def Create(request, response, _config):
     build_target = controller_util.ParseBuildTarget(
         request.build_target, request.profile
     )
-    package_indexes = [
-        controller_util.deserialize_package_index_info(x)
-        for x in request.package_indexes
-    ]
     run_configs = sysroot.SetupBoardRunConfig(
         force=replace_sysroot,
         upgrade_chroot=update_chroot,
-        package_indexes=package_indexes,
         use_cq_prebuilts=use_cq_prebuilts,
         backtrack=DEFAULT_BACKTRACK,
     )
@@ -391,11 +386,6 @@ def InstallPackages(
         for x in request.packages
     ]
 
-    package_indexes = [
-        controller_util.deserialize_package_index_info(x)
-        for x in request.package_indexes
-    ]
-
     # Calculate which packages would have been merged, but don't install
     # anything.
     dryrun = request.flags.dryrun
@@ -434,7 +424,6 @@ def InstallPackages(
         usepkg=not compile_source,
         install_debug_symbols=True,
         packages=packages,
-        package_indexes=package_indexes,
         use_flags=use_flags,
         use_goma=use_goma,
         use_remoteexec=use_remoteexec,
