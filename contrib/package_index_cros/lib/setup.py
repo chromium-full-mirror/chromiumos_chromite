@@ -6,7 +6,6 @@
 
 import os
 from pathlib import Path
-from typing import List, Optional
 
 from chromite.contrib.package_index_cros.lib import (
     constants as package_index_constants,
@@ -25,7 +24,6 @@ class Setup:
         self,
         board: str,
         *,
-        skip_packages: Optional[List[str]] = None,
         with_tests: bool = False,
         chroot_dir: str = "",
         chroot_out_dir: str = "",
@@ -34,7 +32,6 @@ class Setup:
 
         Args:
             board: The build target being worked on.
-            skip_packages: A list of fully-named packages to ignore.
             with_tests: Whether to build tests alongside packages.
             chroot_dir: Absolute path to the local chroot directory.
             chroot_out_dir: Absolute path to the local chroot's out dir.
@@ -102,7 +99,6 @@ class Setup:
             self.chroot.full_path(os.path.join("/usr", "share", "cros-camera")),
         ]
 
-        self.skip_packages = skip_packages or []
         self.with_tests = with_tests
 
     @property

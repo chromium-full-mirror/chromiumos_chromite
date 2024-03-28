@@ -70,17 +70,6 @@ def _build_parser():
     )
 
     parser.add_argument(
-        "--skip-packages",
-        "--skip_packages",
-        type=str,
-        default="",
-        dest="skip_packages",
-        help="""\
-    String with space-separated list of full named
-    packages to be ignored and skipped.""",
-    )
-
-    parser.add_argument(
         "--chroot",
         type=str,
         default="",
@@ -160,7 +149,6 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
 
     _setup = setup.Setup(
         args.board,
-        skip_packages=args.skip_packages.split(" "),
         with_tests=args.with_tests,
         chroot_dir=args.chroot_dir,
         chroot_out_dir=args.chroot_out_dir,
