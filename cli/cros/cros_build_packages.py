@@ -324,10 +324,23 @@ class BuildPackagesCommand(command.CliCommand):
         # 2022.  Use --reclient-dir and --reproxy-cfg input options instead.
         build_shell_bool_style_args(
             group,
-            "run_remoteexec",
+            "run-remoteexec",
             False,
             "If set to true, starts RBE reproxy, builds packages, and then "
             "stops reproxy.",
+        )
+        deprecated_note = "Flag will be removed Jan 2025. Use %s instead."
+        group.add_argument(
+            "--run_remoteexec",
+            action="store_true",
+            deprecated=deprecated_note % "--run-remoteexec",
+            help=argparse.SUPPRESS,
+        )
+        group.add_argument(
+            "--no-run_remoteexec",
+            action="store_false",
+            deprecated=deprecated_note % "--no-run-remoteexec",
+            help=argparse.SUPPRESS,
         )
 
         build_shell_bool_style_args(
@@ -336,9 +349,21 @@ class BuildPackagesCommand(command.CliCommand):
 
         build_shell_bool_style_args(
             group,
-            "bazel_lite",
+            "bazel-lite",
             False,
             "Perform lite build with a limited set of packages.",
+        )
+        group.add_argument(
+            "--bazel_lite",
+            action="store_true",
+            deprecated=deprecated_note % "--bazel-lite",
+            help=argparse.SUPPRESS,
+        )
+        group.add_argument(
+            "--no-bazel_lite",
+            action="store_false",
+            deprecated=deprecated_note % "--no-bazel-lite",
+            help=argparse.SUPPRESS,
         )
 
         parser.add_argument("packages", nargs="*", help="Packages to build.")
