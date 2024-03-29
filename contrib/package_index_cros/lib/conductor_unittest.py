@@ -4,9 +4,11 @@
 
 """Unit tests for conductor.py."""
 
+import itertools
 import shutil
 
 from chromite.contrib.package_index_cros.lib import conductor
+from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import package_sleuth
 from chromite.contrib.package_index_cros.lib import testing_utils
 
@@ -67,3 +69,77 @@ class PrepareTestCase(testing_utils.TestCase):
         _conductor.prepare(["chromeos-base/some-package"])
         self.assertEqual(_conductor.packages, [pkg1, pkg2])
         get_sorted_packages_mock.assert_called_with([pkg1, pkg2])
+
+
+# pylint: disable=protected-access
+class GetSortedPackagesTestCase(testing_utils.TestCase):
+    """Test cases for conductor._get_sorted_packages()."""
+
+    def test_circular_dependencies(self) -> None:
+        """Test failing if we have circular dependencies."""
+        pkg1 = self.new_package(
+            package_name="pkg1",
+            dependencies=[
+                package.PackageDependency(name="chromeos-base/pkg2", types=[])
+            ],
+        )
+        pkg2 = self.new_package(
+            package_name="pkg2",
+            dependencies=[
+                package.PackageDependency(name="chromeos-base/pkg1", types=[])
+            ],
+        )
+        with self.assertRaises(ValueError):
+            conductor._get_sorted_packages([pkg1, pkg2])
+
+    def test_missing_dependencies(self) -> None:
+        """Test failing if some packages' dependencies aren't provided."""
+        pkg = self.new_package(
+            dependencies=[
+                package.PackageDependency(
+                    name="chromeos-base/some-pkg", types=[]
+                )
+            ]
+        )
+        with self.assertRaises(Exception):
+            conductor._get_sorted_packages([pkg])
+
+    def test_sort(self) -> None:
+        """Test sorting the most independent packages first."""
+        independent_pkg = self.new_package(package_name="independent")
+        lower_middle_pkg = self.new_package(
+            package_name="lower-middle",
+            dependencies=[
+                package.PackageDependency(
+                    name=independent_pkg.full_name, types=[]
+                )
+            ],
+        )
+        upper_middle_pkg = self.new_package(
+            package_name="upper-middle",
+            dependencies=[
+                package.PackageDependency(
+                    name=lower_middle_pkg.full_name, types=[]
+                ),
+                package.PackageDependency(
+                    name=independent_pkg.full_name, types=[]
+                ),
+            ],
+        )
+        most_dependent_pkg = self.new_package(
+            package_name="most-dependent",
+            dependencies=[
+                package.PackageDependency(
+                    name=upper_middle_pkg.full_name, types=[]
+                )
+            ],
+        )
+        expected_sorted_packages = [
+            independent_pkg,
+            lower_middle_pkg,
+            upper_middle_pkg,
+            most_dependent_pkg,
+        ]
+        for permutation in itertools.permutations(expected_sorted_packages):
+            result = conductor._get_sorted_packages(permutation)
+            self.assertEqual(result, expected_sorted_packages)

@@ -114,15 +114,29 @@ def _get_sorted_packages(
 
     More independent packages go first.
     """
-    result_packages = []
     packages_dict = {p.full_name: p for p in packages_list}
 
+    # in_degrees is a dict where each key is a package's full name, and each
+    # value is the number of packages that depend on it.
     in_degrees = {p.full_name: 0 for p in packages_list}
     for p in packages_list:
         for dep in p.dependencies:
             in_degrees[dep.name] = in_degrees[dep.name] + 1
 
-    queue = [p_name for p_name in in_degrees if in_degrees[p_name] == 0]
+    # result_packages is the list we'll return. Ultimately it should start with
+    # the most independent packages (those that have no dependencies), and end
+    # with the most dependent (those that no other packages depend on). But for
+    # the sake of our algorithm, we'll construct it in the reverse order, and
+    # then reverse it.
+    result_packages: List[package.Package] = []
+
+    # `queue` contains the names of packages that are ready to be appended to
+    # result_packages. In other words, a package's name belongs in queue if and
+    # only if no packages that aren't in result_packages depend on it.
+    queue: List[str] = [
+        p_name for p_name in in_degrees if in_degrees[p_name] == 0
+    ]
+
     while queue:
         p_name = queue.pop(0)
         result_packages.append(packages_dict[p_name])
