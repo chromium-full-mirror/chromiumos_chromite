@@ -1514,6 +1514,11 @@ def needs_chrome_source(
     else:
         # Check chrome itself.
         if builds_chrome:
+            logging.info(
+                "Checking for chrome prebuilt with cpvr %s and USE flags %s",
+                chrome_cpvr,
+                useflags,
+            )
             has_chrome_prebuilt = has_prebuilt(
                 chrome_cpvr,
                 build_target=build_target,
@@ -1525,6 +1530,12 @@ def needs_chrome_source(
         for pkg, builds_pkg in builds_follower.items():
             if not builds_pkg:
                 continue
+            logging.info(
+                "Checking for chrome follower prebuilt with cpvr "
+                "%s and USE flags %s",
+                pkg,
+                useflags,
+            )
             prebuilt = has_prebuilt(
                 pkg, build_target=build_target, useflags=useflags
             )

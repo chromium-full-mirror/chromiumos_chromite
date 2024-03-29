@@ -320,6 +320,13 @@ class DepGraphGenerator:
         package = self.package_db.get(pkg_cpf)
         logging.debug("Checking if %s can use a prebuilt: %s", pkg_cpf, package)
         if package:
+            logging.debug(
+                "Checking whether the following package is a binpkg: %s",
+                repr(package),
+            )
+            # pylint: disable=protected-access
+            logging.debug("Package IUSE: %s", (package._metadata["IUSE"],))
+            logging.debug("Package USE: %s", (package._metadata["USE"],))
             return package.type_name == "binary"
 
         return False
