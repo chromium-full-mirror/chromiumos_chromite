@@ -80,7 +80,7 @@ class BuildDirMerger:
                 return
 
             if dest.exists() and not filecmp.cmp(source, dest):
-                new_basename = f"{new_package.package_info.name}_{dest.name}"
+                new_basename = f"{new_package.ebuild.pkgname}_{dest.name}"
                 dest = dest.parent / new_basename
                 logging.debug(
                     "%s: Copying conflicting file with package prefix: "

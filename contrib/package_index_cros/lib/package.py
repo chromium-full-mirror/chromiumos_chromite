@@ -213,20 +213,6 @@ class TempActualDichotomy:
     actual: str
 
 
-class PackageInfo:
-    """Data class containing basic info about a package."""
-
-    def __init__(self, ebuild: portage_util.EBuild):
-        # pylint: disable-next=protected-access
-        self.ebuild_file = ebuild._unstable_ebuild_path
-        self.category = ebuild.category
-        self.name = ebuild.pkgname
-        self.version = ebuild.version_no_rev
-        # Extract revision from |version| formatted like
-        # "|version_no_rev|-|revision|"
-        self.revision = ebuild.version[len(ebuild.version_no_rev) + 1 :]
-
-
 class Package:
     """A portage package, with access to paths associated with the package.
 
@@ -237,8 +223,8 @@ class Package:
         setup: Config settings from setting up this run.
         full_name: The package's category+package name, such as
             chromeos-base/cryptohome.
-        package_info: Various package info extracted from ebuild, like category
-            and version. See |PackageInfo|.
+        ebuild: The EBuild that defines this package. Includes lots of data,
+            like filepath, category, pkgname, and version.
         dependencies: List of package names on which this package depends.
     """
 
@@ -262,9 +248,14 @@ class Package:
             raise UnsupportedPackageException(ebuild.package, package_support)
 
         self.setup = setup_data
+        self.ebuild = ebuild
         self.full_name = ebuild.package
-        self.package_info = PackageInfo(ebuild)
         self.dependencies = deps or []
+
+        # TODO (b/319258767): Stop relying on the unstable ebuild path. Use
+        # whatever ebuild version we get.
+        # pylint: disable-next=protected-access
+        self.unstable_ebuild_path = ebuild._unstable_ebuild_path
 
         # Attributes that will be set up later, during initialize().
         # In general, these properties should be accessed by their corresponding
@@ -280,7 +271,9 @@ class Package:
         return (
             os.path.isdir(
                 os.path.join(
-                    os.path.dirname(self.package_info.ebuild_file), "files"
+                    # pylint: disable-next=protected-access
+                    os.path.dirname(self.unstable_ebuild_path),
+                    "files",
                 )
             )
             or self.full_name in constants.HIGHLY_VOLATILE_PACKAGES
@@ -344,7 +337,9 @@ class Package:
     def is_built_from_actual_sources(self) -> bool:
         out_of_tree_build = (
             _check_ebuild_var(
-                self.package_info.ebuild_file, "CROS_WORKON_OUTOFTREE_BUILD"
+                # pylint: disable-next=protected-access
+                self.unstable_ebuild_path,
+                "CROS_WORKON_OUTOFTREE_BUILD",
             )
             or "0"
         ) == "1"
@@ -377,8 +372,8 @@ class Package:
 
         return [
             "9999",
-            f"{self.package_info.version}-{self.package_info.revision}",
-            self.package_info.version,
+            self.ebuild.version,
+            self.ebuild.version_no_rev,
         ]
 
     def _get_temp_dir(self) -> str:
@@ -396,8 +391,8 @@ class Package:
         for version_suffix in self._get_ordered_version_suffixes():
             temp_dir = os.path.join(
                 base_dir,
-                self.package_info.category,
-                f"{self.package_info.name}-{version_suffix}",
+                self.ebuild.category,
+                f"{self.ebuild.pkgname}-{version_suffix}",
                 "work",
             )
 
@@ -424,8 +419,8 @@ class Package:
                 "var",
                 "cache",
                 "portage",
-                self.package_info.category,
-                self.package_info.name,
+                self.ebuild.category,
+                self.ebuild.pkgname,
                 "out",
                 "Default",
             ),
@@ -453,7 +448,7 @@ class Package:
         """
         for version in self._get_ordered_version_suffixes():
             source_dir = os.path.join(
-                self.temp_dir, f"{self.package_info.name}-{version}"
+                self.temp_dir, f"{self.ebuild.pkgname}-{version}"
             )
             if os.path.isdir(source_dir):
                 return source_dir
@@ -468,17 +463,23 @@ class Package:
         # Base dir is either src or src/third_party, depending on the package's
         # category.
         source_base_dir = self.setup.src_dir
-        if self.package_info.category not in Package.src_categories:
+        if self.ebuild.category not in Package.src_categories:
             source_base_dir = os.path.join(source_base_dir, "third_party")
 
         # CROS_WORKON_SRCPATH and CROS_WORKON_LOCALNAME declare paths relative
         # to base source dir.
         source_dirs = _check_ebuild_var(
-            self.package_info.ebuild_file, "CROS_WORKON_SRCPATH", ""
+            # pylint: disable-next=protected-access
+            self.unstable_ebuild_path,
+            "CROS_WORKON_SRCPATH",
+            "",
         )
         if not source_dirs:
             source_dirs = _check_ebuild_var(
-                self.package_info.ebuild_file, "CROS_WORKON_LOCALNAME", ""
+                # pylint: disable-next=protected-access
+                self.unstable_ebuild_path,
+                "CROS_WORKON_LOCALNAME",
+                "",
             )
 
         if not source_dirs:
@@ -503,7 +504,8 @@ class Package:
 
         # CROS_WORKON_DESTDIR declares abs paths in |temp_source_basedir|.
         dest_dirs = _check_ebuild_var(
-            self.package_info.ebuild_file,
+            # pylint: disable-next=protected-access
+            self.unstable_ebuild_path,
             "CROS_WORKON_DESTDIR",
             temp_source_basedir,
         )

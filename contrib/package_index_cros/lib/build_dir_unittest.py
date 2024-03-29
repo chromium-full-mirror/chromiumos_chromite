@@ -11,11 +11,11 @@ from chromite.contrib.package_index_cros.lib import build_dir
 from chromite.contrib.package_index_cros.lib import setup
 
 
-class _MockPackageInfo:
-    """Stand-in for package.PackageInfo for testing."""
+class _MockEBuild:
+    """Stand-in for portage_util.EBuild for testing."""
 
-    def __init__(self, name: str) -> None:
-        self.name = name
+    def __init__(self, pkgname: str) -> None:
+        self.pkgname = pkgname
 
 
 class _MockPackage:
@@ -32,7 +32,7 @@ class _MockPackage:
         self.category = category
         self.name = name
         self.full_name = f"{category}/{name}"
-        self.package_info = _MockPackageInfo(name)
+        self.ebuild = _MockEBuild(name)
         self.build_dir = pkg_build_dir
         self.build_dir.mkdir(parents=True, exist_ok=True)
 

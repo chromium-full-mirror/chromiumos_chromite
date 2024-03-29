@@ -323,8 +323,8 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
         temp_dir = os.path.join(
             self.setup.board_dir,
             "tmp/portage",
-            pkg.package_info.category,
-            f"{pkg.package_info.name}-{pkg.package_info.version}",
+            pkg.ebuild.category,
+            f"{pkg.ebuild.pkgname}-{pkg.ebuild.version_no_rev}",
             "work",
         )
         # Since some paths might be reused by multiple packages, it's OK if they
@@ -333,8 +333,8 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
         build_dir = os.path.join(
             self.setup.board_dir,
             "var/cache/portage",
-            pkg.package_info.category,
-            pkg.package_info.name,
+            pkg.ebuild.category,
+            pkg.ebuild.pkgname,
             "out/Default",
         )
         self.touch(os.path.join(build_dir, "args.gn"))
