@@ -31,7 +31,6 @@ import urllib
 from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
 from chromite.lib import build_target_lib
 from chromite.lib import cache
-from chromite.lib import chromite_config
 from chromite.lib import constants
 from chromite.lib import cpupower_helper
 from chromite.lib import cros_build_lib
@@ -888,14 +887,7 @@ def BuildPackages(
     logging.info("Bootstraping depot_tools")
     cros_build_lib.run([constants.DEPOT_TOOLS_DIR / "ensure_bootstrap"])
 
-    if (
-        not chromite_config.AUTO_COP_CONFIG_OFF.is_file()
-        and os.environ.get("CROS_CLEAN_OUTDATED_PKGS") != "0"
-    ):
-        logging.debug(
-            "clean-outdated-pkgs config does not exist: %s",
-            chromite_config.AUTO_COP_CONFIG_OFF,
-        )
+    if os.environ.get("CROS_CLEAN_OUTDATED_PKGS") != "0":
         cop_command = [
             "cros",
             "clean-outdated-pkgs",

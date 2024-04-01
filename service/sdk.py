@@ -15,7 +15,6 @@ from typing import Dict, List, Optional, Tuple, Union
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import binpkg
 from chromite.lib import build_target_lib
-from chromite.lib import chromite_config
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -437,10 +436,7 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
     sysroot = sysroot_lib.Sysroot(arguments.root)
     sysroot.InstallMakeConfSdk(build_target)
 
-    if (
-        not chromite_config.AUTO_COP_CONFIG_OFF.is_file()
-        and os.environ.get("CROS_CLEAN_OUTDATED_PKGS") != "0"
-    ):
+    if os.environ.get("CROS_CLEAN_OUTDATED_PKGS") != "0":
         # Set check=False to allow cop to fail.
         cros_build_lib.run(
             [
