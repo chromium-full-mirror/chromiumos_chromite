@@ -287,6 +287,7 @@ class CopybotDownstream:
         """
         query_params = {
             "hashtag": f"{self.project}-downstream",
+            "-hashtag": "copybot-skip",
             "status": "open",
             "raw": True,
             "verbose": True,
