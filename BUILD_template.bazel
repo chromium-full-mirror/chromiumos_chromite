@@ -144,8 +144,8 @@ pkg_files(
 pkg_files(
     name = "__build_dlc_files__",
     srcs = glob(
-        # This list covers the invocation of chromite/bin/build_dlc from
-        # chromeos-languagepacks and other ebuilds that inherit dlc.
+        # This list covers the invocation of chromite/bin/build_dlc from ebuilds
+        # that inherit dlc.
         #
         # We manually maintain this list here (rather than dynamically computing
         # it) to prevent unknowing inclusion of additional Chromite dependencies
