@@ -33,44 +33,6 @@ from chromite.utils import timer
 tracer = trace.get_tracer(__name__)
 
 
-def build_shell_bool_style_args(
-    parser: commandline.ArgumentParser,
-    name: str,
-    default_val: bool,
-    help_str: str,
-) -> None:
-    """Build the shell boolean input argument equivalent.
-
-    For a given input arg name 'argA', we create two python arguments;
-    --argA, and --no-argA.
-
-    Args:
-        parser: The parser to update.
-        name: The input argument name. This will be used as 'dest' variable
-            name.
-        default_val: The default value to assign.
-        help_str: The help string for the input argument.
-    """
-    arg = f"--{name}"
-    py_narg = f"--no-{name}"
-    default_val_str = f"{help_str} (Default: %(default)s)."
-    dest = name.replace("-", "_")
-
-    parser.add_argument(
-        arg,
-        action="store_true",
-        default=default_val,
-        dest=dest,
-        help=default_val_str,
-    )
-    parser.add_argument(
-        py_narg,
-        action="store_false",
-        dest=dest,
-        help="Don't " + help_str.lower(),
-    )
-
-
 @command.command_decorator("build-packages")
 class BuildPackagesCommand(command.CliCommand):
     """Update the set of binary packages used by ChromiumOS."""
@@ -99,39 +61,41 @@ class BuildPackagesCommand(command.CliCommand):
             help="The portage configuration profile to use. Profile "
             "must be located in overlay-board/profiles.",
         )
-        build_shell_bool_style_args(
-            parser,
-            "usepkg",
+        parser.add_bool_argument(
+            "--usepkg",
             True,
-            "Use binary packages to bootstrap when possible.",
+            "Use binary packages when available.",
+            "Don't use binary packages.",
         )
-        build_shell_bool_style_args(
-            parser,
-            "usepkgonly",
+        parser.add_bool_argument(
+            "--usepkgonly",
             False,
-            "Use binary packages only to bootstrap; abort if any are missing.",
+            "Only use binary packages; abort if any are missing.",
+            "Prefer binary packages, but build from source if needed.",
         )
-        build_shell_bool_style_args(
-            parser, "workon", True, "Force-build workon packages."
+        parser.add_bool_argument(
+            "--workon",
+            True,
+            "Force-build workon packages.",
+            "Don't force-build workon packages.",
         )
-        build_shell_bool_style_args(
-            parser,
-            "withrevdeps",
+        parser.add_bool_argument(
+            "--withrevdeps",
             True,
             "Calculate reverse dependencies on changed ebuilds.",
+            "Don't calculate reverse dependencies.",
         )
-        build_shell_bool_style_args(
-            parser,
-            "cleanbuild",
+        parser.add_bool_argument(
+            "--cleanbuild",
             False,
             "Delete sysroot if it exists before building.",
+            "Re-use existing sysroot state.",
         )
-        build_shell_bool_style_args(
-            parser,
-            "pretend",
+        parser.add_bool_argument(
+            "--pretend",
             False,
-            "Pretend building packages, just display which packages would have "
-            "been installed.",
+            "Only display which packages would be installed.",
+            "Build packages like normal.",
         )
 
         # The --sysroot flag specifies the environment variables ROOT and
@@ -147,17 +111,17 @@ class BuildPackagesCommand(command.CliCommand):
 
         # CPU Governor related options.
         group = parser.add_argument_group("CPU Governor Options")
-        build_shell_bool_style_args(
-            group,
-            "autosetgov",
+        group.add_bool_argument(
+            "--autosetgov",
             False,
-            "Automatically set cpu governor to 'performance'.",
+            "Automatically set cpu governor to 'performance' when building.",
+            "Do not change the cpu governor.",
         )
-        build_shell_bool_style_args(
-            group,
-            "autosetgov-sticky",
+        group.add_bool_argument(
+            "--autosetgov-sticky",
             False,
             "Remember --autosetgov setting for future runs.",
+            "Only change the cpu governor for this run.",
         )
 
         # Chrome building related options.
@@ -207,50 +171,63 @@ class BuildPackagesCommand(command.CliCommand):
 
         # Setup board related options.
         group = parser.add_argument_group("Setup Board Config Options")
-        build_shell_bool_style_args(
-            group,
-            "skip-chroot-upgrade",
+        group.add_bool_argument(
+            "--skip-chroot-upgrade",
             False,
             "Skip the automatic chroot upgrade; use with care.",
+            "Upgrade the chroot first.",
         )
-        build_shell_bool_style_args(
-            group,
-            "skip-toolchain-update",
+        group.add_bool_argument(
+            "--skip-toolchain-update",
             False,
             "Deprecated (flag is ignored if passed).",
+            "Deprecated (flag is ignored if passed).",
         )
-        build_shell_bool_style_args(
-            group,
-            "skip-setup-board",
+        group.add_bool_argument(
+            "--skip-setup-board",
             False,
             "Skip running setup_board. Implies --skip-chroot-upgrade.",
+            "Automatically setup the board before building.",
         )
 
         # Image Type selection related options.
         group = parser.add_argument_group("Image Type Options")
-        build_shell_bool_style_args(
-            group, "withdev", True, "Build useful developer friendly utilities."
-        )
-        build_shell_bool_style_args(
-            group,
-            "withdebug",
+        group.add_bool_argument(
+            "--withdev",
             True,
-            "Build debug versions of Chromium-OS-specific packages.",
+            "Build useful developer friendly utilities.",
+            "Omit extra dev image related packages.",
         )
-        build_shell_bool_style_args(
-            group, "withfactory", True, "Build factory installer."
+        group.add_bool_argument(
+            "--withdebug",
+            True,
+            "Build debug versions of CrOS-specific packages. "
+            "Enables DCHECK, USE=cros-debug, etc...",
+            "Build release versions of CrOS-specific packages.",
         )
-        build_shell_bool_style_args(
-            group, "withtest", True, "Build packages required for testing."
+        group.add_bool_argument(
+            "--withfactory",
+            True,
+            "Build factory installer.",
+            "Omit factory related packages.",
         )
-        build_shell_bool_style_args(
-            group, "withautotest", True, "Build autotest client code."
+        group.add_bool_argument(
+            "--withtest",
+            True,
+            "Build packages required for testing.",
+            "Omit test image related packages.",
         )
-        build_shell_bool_style_args(
-            group,
-            "withdebugsymbols",
+        group.add_bool_argument(
+            "--withautotest",
+            True,
+            "Build autotest client code.",
+            "Omit autotest related packages.",
+        )
+        group.add_bool_argument(
+            "--withdebugsymbols",
             False,
             "Install the debug symbols for all packages.",
+            "Skip debug symbol install -- faster, but debugging is difficult.",
         )
 
         # Advanced Options.
@@ -258,8 +235,11 @@ class BuildPackagesCommand(command.CliCommand):
         group.add_argument(
             "--accept-licenses", help="Licenses to append to the accept list."
         )
-        build_shell_bool_style_args(
-            group, "eclean", True, "Run eclean to delete old binpkgs."
+        group.add_bool_argument(
+            "--eclean",
+            True,
+            "Run eclean to delete old binpkgs.",
+            "Don't run eclean.",
         )
         group.add_argument(
             "--jobs",
@@ -270,11 +250,11 @@ class BuildPackagesCommand(command.CliCommand):
                 "%(default)s)"
             ),
         )
-        build_shell_bool_style_args(
-            group,
-            "expandedbinhosts",
+        group.add_bool_argument(
+            "--expandedbinhosts",
             True,
             "Allow expanded binhost inheritance.",
+            "Don't expand binhosts.",
         )
         group.add_argument(
             "--backtrack",
@@ -289,11 +269,11 @@ class BuildPackagesCommand(command.CliCommand):
         # when you are not able to use remote binary packages, since remote
         # binary packages are usually more up to date than anything you have
         # locally.
-        build_shell_bool_style_args(
-            group,
-            "reuse-pkgs-from-local-boards",
+        group.add_bool_argument(
+            "--reuse-pkgs-from-local-boards",
             False,
             "Bootstrap from local packages instead of remote packages.",
+            "Only pull remote binpkgs.",
         )
 
         # --run-goma option is designed to be used on bots.
@@ -311,23 +291,22 @@ class BuildPackagesCommand(command.CliCommand):
         # is an expected commandline sequence. If you set --run-goma flag while
         # compiler_proxy is already running, the existing compiler_proxy will be
         # stopped.
-        build_shell_bool_style_args(
-            group,
-            "run-goma",
+        group.add_bool_argument(
+            "--run-goma",
             False,
-            "When set, (re)starts goma, builds packages, and then stops goma.",
+            "(Re)start goma, build packages, and then stop goma.",
+            "Don't use goma to build.",
         )
         # This option is for building chrome remotely.
         # 1) starts reproxy 2) builds chrome with reproxy and 3) stops reproxy
         # so logs/stats can be collected.
         # Note: RECLIENT_DIR and REPROXY_CFG env var will be deprecated July
         # 2022.  Use --reclient-dir and --reproxy-cfg input options instead.
-        build_shell_bool_style_args(
-            group,
-            "run-remoteexec",
+        group.add_bool_argument(
+            "--run-remoteexec",
             False,
-            "If set to true, starts RBE reproxy, builds packages, and then "
-            "stops reproxy.",
+            "Start RBE reproxy, build packages, and then stop reproxy.",
+            "Don't use RBE to build.",
         )
         deprecated_note = "Flag will be removed Jan 2025. Use %s instead."
         group.add_argument(
@@ -343,15 +322,18 @@ class BuildPackagesCommand(command.CliCommand):
             help=argparse.SUPPRESS,
         )
 
-        build_shell_bool_style_args(
-            group, "bazel", False, "Use Bazel to build packages."
+        group.add_bool_argument(
+            "--bazel",
+            False,
+            "Use Bazel to build packages.",
+            "Use portage (emerge) to build packages.",
         )
 
-        build_shell_bool_style_args(
-            group,
-            "bazel-lite",
+        group.add_bool_argument(
+            "--bazel-lite",
             False,
             "Perform lite build with a limited set of packages.",
+            "Build all packages.",
         )
         group.add_argument(
             "--bazel_lite",
