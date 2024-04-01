@@ -39,22 +39,6 @@ def get_parser() -> commandline.ArgumentParser:
         help=argparse.SUPPRESS,
     )
 
-    # Not really a common argument, but argument_group doesn't have our custom
-    # bool extension yet.
-    parser.add_bool_argument(
-        "--eclean",
-        False,
-        "Clean out old SDK binpkgs.",
-        "Do not clean out SDK binpkgs.",
-    )
-    parser.add_argument(
-        "--noeclean",
-        dest="eclean",
-        action="store_false",
-        deprecated=deprecated % "--no-eclean",
-        help=argparse.SUPPRESS,
-    )
-
     group = parser.add_argument_group("Advanced Build Modification Options")
     group.add_argument(
         "--jobs",
@@ -108,7 +92,6 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
         toolchain_targets=opts.toolchain_boards,
         jobs=opts.jobs,
         backtrack=opts.backtrack,
-        eclean=opts.eclean,
     )
     result = sdk_service.Update(update_args)
     return result.return_code
