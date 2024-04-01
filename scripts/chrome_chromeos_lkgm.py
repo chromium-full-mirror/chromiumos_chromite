@@ -188,7 +188,7 @@ class ChromeLKGMCommitter:
     _PRESUBMIT_BOTS = (
         "chromeos-betty-pi-arc-chrome",
         "chromeos-brya-chrome-skylab",
-        "chromeos-jacuzzi-chrome-skylab",
+        "chromeos-jacuzzi-chrome",
         "chromeos-reven-chrome",
         "chromeos-volteer-chrome-skylab",
     )
