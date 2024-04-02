@@ -16,6 +16,7 @@ import logging
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import portage_util
+from chromite.lib import sysroot_lib
 from chromite.lib import telemetry
 from chromite.lib.telemetry import trace
 from chromite.service import sysroot
@@ -93,6 +94,11 @@ def GetParser():
         disabled_desc=(
             "Disable --public on a normally-public board (e.g., amd64-generic)."
         ),
+    )
+    target.add_argument(
+        "--reuse-configs",
+        action="store_true",
+        help="Reuse the build target configs from the existing sysroot.",
     )
 
     # Arguments related to the build itself.
@@ -178,12 +184,33 @@ def _ParseArgs(args):
 
     # Translate raw options to config objects.
     name = "%s_%s" % (opts.board, opts.variant) if opts.variant else opts.board
+
     opts.build_target = build_target_lib.BuildTarget(
         name,
         build_root=opts.board_root,
         profile=opts.profile,
         public=opts.public,
     )
+    if opts.reuse_configs:
+        sysroot_path = (
+            opts.board_root or build_target_lib.get_default_sysroot_path(name)
+        )
+        sysroot_inst = sysroot_lib.Sysroot(sysroot_path)
+        if not sysroot_inst.Exists():
+            parser.error(
+                "--reuse-configs can only be used with an existing sysroot."
+            )
+        try:
+            opts.build_target = sysroot_inst.build_target
+        except sysroot_lib.NoBuildTargetFileError:
+            logging.exception("No build target configuration file.")
+            parser.error(
+                "The sysroot does not have a build target configuration "
+                "file, it probably just predates the file. If this error "
+                "persists after setting up the board without using "
+                "--reuse-configs please file a bug for the CrOS Build team."
+            )
+
     update_chroot = opts.update_chroot
     if update_chroot is None:
         update_chroot = opts.setup_toolchains

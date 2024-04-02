@@ -7,6 +7,8 @@
 from __future__ import annotations
 
 import functools
+import json
+import logging
 import os
 from pathlib import Path
 import re
@@ -20,6 +22,10 @@ from chromite.lib import portage_util
 
 class Error(Exception):
     """Base module error class."""
+
+
+class InvalidSerializedBuildTarget(Error):
+    """Given an invalid serialization of a build target."""
 
 
 class BuildTarget:
@@ -71,6 +77,7 @@ class BuildTarget:
 
     @property
     def name(self) -> Optional[str]:
+        """Build target name, a.k.a. board."""
         return self._name
 
     @functools.cached_property
@@ -142,6 +149,43 @@ class BuildTarget:
             name=self.name,
             profile=common_pb2.Profile(name=self.profile),
         )
+
+    def to_json(self) -> str:
+        """Convert to a json dict."""
+        return json.dumps(
+            {
+                "name": self.name,
+                "profile": self.profile,
+                "root": str(self.root),
+                "public": self._public,
+            }
+        )
+
+    @classmethod
+    def from_json(cls, serialized: str) -> BuildTarget:
+        """Create an instance from a json string."""
+        try:
+            data = json.loads(serialized)
+        except json.JSONDecodeError as e:
+            logging.exception("Unable to parse the build target.")
+            raise InvalidSerializedBuildTarget(
+                "Unable to parse the build target."
+            ) from e
+
+        try:
+            return cls(
+                name=data["name"],
+                profile=data.get("profile", "base"),
+                build_root=data.get("root"),
+                public=data.get("public"),
+            )
+        except TypeError as e:
+            msg = (
+                "Unable to create a build target from the given "
+                f"serialization: {serialized}"
+            )
+            logging.exception(msg)
+            raise InvalidSerializedBuildTarget(msg) from e
 
 
 def get_default_sysroot_path(build_target_name: Optional[str] = None) -> str:

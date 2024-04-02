@@ -1525,6 +1525,7 @@ def _InstallConfigs(
     sysroot.InstallMakeConfSdk(target)
     sysroot.InstallMakeConfBoardSetup(target)
     sysroot.InstallMakeConfUser()
+    sysroot.write_build_target_config(target)
 
     if target.is_host():
         make_profile = sysroot.JoinPath("etc", "portage", "make.profile")

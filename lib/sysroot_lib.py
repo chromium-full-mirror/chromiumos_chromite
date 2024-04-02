@@ -128,6 +128,7 @@ _MAKE_CONF_BOARD_SETUP = "etc/make.conf.board_setup"
 _MAKE_CONF_BOARD = "etc/make.conf.board"
 _MAKE_CONF_USER = "etc/make.conf.user"
 _MAKE_CONF_HOST_SETUP = "etc/make.conf.host_setup"
+_BUILD_TARGET_CONFIG = "etc/portage/build_target.json"
 
 _CACHE_PATH = "var/cache/edb/chromeos"
 
@@ -164,6 +165,10 @@ _ARCH_MAPPING = {
 
 class Error(Exception):
     """Module base error class."""
+
+
+class NoBuildTargetFileError(Exception):
+    """No build target config file."""
 
 
 # This error is meant to be used with `cros build-packages`.  This exists here
@@ -445,6 +450,19 @@ class Sysroot:
         return (
             self.GetCachedField(CACHED_FIELD_PROFILE_OVERRIDE)
             or DEFAULT_PROFILE
+        )
+
+    @property
+    def build_target(self) -> build_target_lib.BuildTarget:
+        """Get the build target used to create the sysroot."""
+        p = Path(self.path) / _BUILD_TARGET_CONFIG
+        if not p.exists():
+            raise NoBuildTargetFileError(
+                "The build target file does not exist."
+            )
+
+        return build_target_lib.BuildTarget.from_json(
+            osutils.ReadFile(p, sudo=True)
         )
 
     @property
@@ -784,6 +802,15 @@ class Sysroot:
         link_path = self.JoinPath(_MAKE_CONF_USER)
         if not os.path.exists(link_path):
             osutils.SafeSymlink(make_user, link_path, sudo=True)
+
+    def write_build_target_config(
+        self, build_target: build_target_lib.BuildTarget
+    ):
+        """Write the build target config file."""
+        path = Path(self.path) / _BUILD_TARGET_CONFIG
+        osutils.WriteFile(
+            path, build_target.to_json(), makedirs=True, sudo=True
+        )
 
     def _GenerateConfig(
         self,

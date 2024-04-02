@@ -185,6 +185,19 @@ baz
         """Test the profile_name property when no value is set."""
         self.assertEqual(sysroot_lib.DEFAULT_PROFILE, self.sysroot.profile_name)
 
+    def test_build_target(self) -> None:
+        """Test the build_target property."""
+        build_target = build_target_lib.BuildTarget(
+            name="board", profile="profile", build_root=self.sysroot.path
+        )
+        self.sysroot.write_build_target_config(build_target)
+        self.assertEqual(build_target, self.sysroot.build_target)
+
+    def test_build_target_no_config(self) -> None:
+        """Test the build_target raises exception when no config written."""
+        with self.assertRaises(sysroot_lib.NoBuildTargetFileError):
+            _ = self.sysroot.build_target
+
     def testBoardOverlay(self) -> None:
         """Test the board_overlay property."""
         board_overlays, _portdir_overlays = self._writeOverlays()
@@ -364,6 +377,20 @@ class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
 
         filepath = os.path.join(self.tempdir, sysroot_lib._MAKE_CONF_USER)
         self.assertExists(filepath)
+
+    def test_write_build_target_config(self) -> None:
+        """Test write_build_target_config."""
+        target = build_target_lib.BuildTarget(name="board", profile="profile")
+        self.sysroot.write_build_target_config(target)
+
+        path = self.tempdir / sysroot_lib._BUILD_TARGET_CONFIG
+        self.assertExists(path)
+
+        retrieved = build_target_lib.BuildTarget.from_json(
+            osutils.ReadFile(path, sudo=True)
+        )
+
+        assert retrieved == target == self.sysroot.build_target
 
 
 class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):

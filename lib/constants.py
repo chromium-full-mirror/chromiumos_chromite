@@ -387,6 +387,10 @@ VALID_BUILD_TYPES = (
     GENERIC_TYPE,
 )
 
+PUBLIC_OVERLAYS_DIR = "src/overlays"
+PUBLIC_OVERLAYS_PATH = SOURCE_ROOT / PUBLIC_OVERLAYS_DIR
+PRIVATE_OVERLAYS_DIR = "src/private-overlays"
+PRIVATE_OVERLAYS_PATH = SOURCE_ROOT / PRIVATE_OVERLAYS_DIR
 CHROMIUMOS_OVERLAY_DIR = "src/third_party/chromiumos-overlay"
 CHROMEOS_OVERLAY_DIR = "src/private-overlays/chromeos-overlay/"
 PORTAGE_STABLE_OVERLAY_DIR = "src/third_party/portage-stable"
