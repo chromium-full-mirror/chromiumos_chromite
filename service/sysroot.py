@@ -1402,8 +1402,6 @@ def _BazelBuild(
         ]
         packages_to_exclude = [
             "chromeos-base/chromeos-chrome",
-            "media-gfx/deqp",
-            "media-libs/clvk",
         ]
         top_level_packages_query = "union".join(
             [
