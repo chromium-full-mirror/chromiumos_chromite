@@ -6,52 +6,64 @@
 
 from chromite.lib import cros_test_lib
 from chromite.lint.linters import upstart
-from chromite.utils.parser import upstart as upstart_parser
 
 
 class CheckForRequiredLinesTest(cros_test_lib.TestCase):
     """Test the functionality of the required lines check."""
 
+    def _getTestRequiredLines(self):
+        """Create a test set for use with CheckForRequiredLines."""
+        return {"one", "two", "three"}
+
     def testOneNotPresent(self) -> None:
         """Check the case some are present and some are not."""
-        job = upstart_parser.parse(
-            """
-            author ""
-            description ""
-            """
-        )
-        self.assertFalse(
+        self.assertEqual(
             upstart.CheckForRequiredLines(
-                job,
+                """one
+two""",
                 "test-string",
+                self._getTestRequiredLines(),
             ),
+            False,
         )
 
     def testNonePresent(self) -> None:
         """Check the case none are present."""
-        job = upstart_parser.parse("")
-        self.assertFalse(
+        self.assertEqual(
             upstart.CheckForRequiredLines(
-                job,
+                """four
+five
+six""",
                 "test-string",
+                self._getTestRequiredLines(),
             ),
+            False,
         )
 
     def testAllPresent(self) -> None:
         """Check the case all are present."""
-        job = upstart_parser.parse(
-            """
-            author ""
-            description ""
-            oom score 10
-            """
+        self.assertEqual(
+            upstart.CheckForRequiredLines(
+                """three
+two
+one""",
+                "test-string",
+                self._getTestRequiredLines(),
+            ),
+            True,
         )
 
-        self.assertTrue(
+    def testPrefix(self) -> None:
+        """Check the case one is a prefix match but not a true match."""
+        self.assertEqual(
             upstart.CheckForRequiredLines(
-                job,
+                """three
+two-with-extra
+one""",
                 "test-string",
+                self._getTestRequiredLines(),
             ),
+            False,
         )
 
 
@@ -60,21 +72,21 @@ class ExtractCommandsTest(cros_test_lib.TestCase):
 
     def testEmpty(self) -> None:
         """Make sure an empty string doesn't break anything."""
-        job = upstart_parser.parse("")
-        self.assertEqual(list(upstart.ExtractCommands(job)), [])
+        self.assertEqual(list(upstart.ExtractCommands("")), [])
 
     def testMultipleSingleLineCommands(self) -> None:
         """Check that single-line commands are handled as expected."""
-        job = upstart_parser.parse(
-            """
+        self.assertEqual(
+            list(
+                upstart.ExtractCommands(
+                    """
 pre-start script
   mkdir -p /run/upstart-test; `chmod 0750 /run/upstart-test`
   echo test && $(chown test:test /run/upstart-test)
 end script
 """
-        )
-        self.assertEqual(
-            list(upstart.ExtractCommands(job)),
+                )
+            ),
             [
                 ["mkdir", "-p", "/run/upstart-test"],
                 ["`chmod", "0750", "/run/upstart-test`"],
@@ -84,8 +96,10 @@ end script
 
     def testMultilineCommands(self) -> None:
         """Check that multi-line commands are handled as expected."""
-        job = upstart_parser.parse(
-            """
+        self.assertEqual(
+            list(
+                upstart.ExtractCommands(
+                    """
 pre-start script
   mkdir \
     -p \
@@ -98,9 +112,8 @@ pre-start script
     /run/upstart-test) && touch /run/upstart-test/done
 end script
 """
-        )
-        self.assertEqual(
-            list(upstart.ExtractCommands(job)),
+                )
+            ),
             [
                 ["mkdir", "-p", "/run/upstart-test"],
                 ["`chmod", "0750", "/run/upstart-test`"],
@@ -117,8 +130,10 @@ end script
 
     def testDisable(self) -> None:
         """Check that commands with '# croslint: disable' are ignored"""
-        job = upstart_parser.parse(
-            """
+        self.assertEqual(
+            list(
+                upstart.ExtractCommands(
+                    """
 pre-start script
   mkdir \
     -p \
@@ -131,9 +146,8 @@ pre-start script
     /run/upstart-test
 end script
 """
-        )
-        self.assertEqual(
-            list(upstart.ExtractCommands(job)),
+                )
+            ),
             [
                 ["mkdir", "-p", "/run/upstart-test"],
                 ["chown", "test:test", "/run/upstart-test"],

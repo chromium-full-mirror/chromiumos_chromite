@@ -13,7 +13,6 @@ import re
 from typing import Dict, Generator, List
 
 from chromite.lint import linters
-from chromite.utils.parser import upstart
 
 
 _DOC_RESOURCE_URL = (
@@ -52,15 +51,9 @@ def GetIgnoreLookup() -> Dict[str, List[str]]:
         return json.load(fp)
 
 
-def ExtractCommands(job: upstart.Job) -> Generator[List[str], None, None]:
+def ExtractCommands(text: str) -> Generator[List[str], None, None]:
     """Finds and normalizes audited commands."""
-    text = "\n"
-    for stanza in ("main", "pre-start", "post-start", "pre-stop", "post-stop"):
-        data = getattr(job, stanza.replace("-", ""))
-        if data is not None:
-            text += data + "\n"
-
-    for match in _AUDITED_SHELL_COMMAND_REGEX.finditer(text):
+    for match in _AUDITED_SHELL_COMMAND_REGEX.finditer(text, re.S):
         # Skip comments.
         if match.group("comment"):
             continue
@@ -81,30 +74,43 @@ def ExtractCommands(job: upstart.Job) -> Generator[List[str], None, None]:
         yield cmd
 
 
-def CheckForRequiredLines(job: upstart.Job, full_path: Path) -> bool:
+def CheckForRequiredLines(
+    text: str, full_path: Path, tokens_to_find=None
+) -> bool:
     """Check the upstart config for required clause."""
     ret = True
+    if not tokens_to_find:
+        tokens_to_find = {
+            "author",
+            "description",
+            "oom",
+        }
+    for line in text.splitlines():
+        tokens = line.split()
+        try:
+            token = tokens[0]
+        except IndexError:
+            continue
 
-    tokens_to_find = {
-        "author",
-        "description",
-        "oom",
-    }
-
-    for token in tokens_to_find:
-        if getattr(job, token) is None:
+        if tokens[0:3] == ["oom", "score", "-1000"]:
+            logging.error('Use "oom score never" instead of "oom score -1000".')
             ret = False
-            logging.error(
-                '%s: Missing "%s" clause\nPlease see:\n%s',
-                full_path,
-                token,
-                _DOC_RESOURCE_URL,
-            )
 
-    if job.oom == "-1000":
+        try:
+            tokens_to_find.remove(token)
+        except KeyError:
+            continue
+
+        if not tokens_to_find:
+            break
+    if tokens_to_find:
+        logging.error(
+            'Missing clauses from upstart script "%s": %s\nPlease see:\n%s',
+            full_path,
+            ", ".join(tokens_to_find),
+            _DOC_RESOURCE_URL,
+        )
         ret = False
-        logging.error('Use "oom score never" instead of "oom score -1000".')
-
     return ret
 
 
@@ -114,21 +120,15 @@ def Data(
     relaxed: bool,
 ) -> bool:
     """Check an upstart conf file for linter errors."""
-    try:
-        job = upstart.parse(data)
-    except upstart.Error as e:
-        logging.error("%s: unable to parse: %s", path, e)
-        return False
-
     ret = True
-    if not CheckForRequiredLines(job, path) and not relaxed:
+    if not CheckForRequiredLines(data, path) and not relaxed:
         ret = False
 
     label = os.path.basename(path)
     ignore_set = set(GetIgnoreLookup().get(label, [])) if relaxed else ()
 
     found = []
-    for cmd in ExtractCommands(job):
+    for cmd in ExtractCommands(data):
         norm_cmd = " ".join(cmd)
         if norm_cmd not in ignore_set:
             found.append(norm_cmd)
