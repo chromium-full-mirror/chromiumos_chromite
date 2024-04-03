@@ -245,6 +245,7 @@ pkg_files(
             "utils/libc.py",
             "utils/memoize.py",
             "utils/os_util.py",
+            "utils/parser/**",
             "utils/parser/shebang.py",
             "utils/path_filter.py",
             "utils/pformat.py",

@@ -112,6 +112,7 @@ def generate_content_for_pkg_file(pkg_file_name: str) -> List[str]:
                 "bin/cros",
                 "bin/cros.py",
                 "lint/linters/**",
+                "utils/parser/**",
             ],
         )
     elif pkg_file_name == "__generate_reclient_inputs_files__":
