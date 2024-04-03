@@ -21,6 +21,7 @@ from chromite.lint import linters
     (
         """
 cache-format = md5-dict
+eapis-banned = 0 1 2 3 4 5 6
 masters = portage-stable chromiumos eclass-overlay mobbase
 profile-formats = portage-2 profile-default-eapi
 profile_eapi_when_unspecified = 5-progress
@@ -85,12 +86,13 @@ def test_eapis_banned() -> None:
         return list(linters.portage_layout_conf._check_eapis_banned(settings))
 
     # Handle missing key gracefully.
-    assert not _get()
+    assert _get()
 
     # Handle empty key.
-    assert not _get("")
+    assert _get("")
 
     # Check valid values.
+    assert not _get("0 1 2 3 4")
     assert not _get("0 1 2 3 4 5 6")
 
     # Require older versions if we use it at all.
