@@ -1482,24 +1482,6 @@ def _DeployDLCImage(
             check=False,
         )
 
-        # Copy metadata to device.
-        # TODO(b/290961240): To be removed once the transition to compressed
-        # metadata is complete.
-        dest_meta_dir = Path("/") / dlc_lib.DLC_META_DIR / dlc_id / dlc_package
-        src_meta_dir = os.path.join(
-            src_dlc_dir,
-            dlc_package,
-            dlc_lib.DLC_TMP_META_DIR,
-        )
-        device.CopyToDevice(
-            src_meta_dir + "/",
-            dest_meta_dir,
-            mode="rsync",
-            recursive=True,
-            remote_sudo=True,
-            mkpath=True,
-        )
-
         logging.notice("Deploy the DLC image for %s", dlc_id)
         dlc_img_path_src = os.path.join(
             src_dlc_dir,

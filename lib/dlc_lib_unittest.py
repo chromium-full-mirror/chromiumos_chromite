@@ -1492,36 +1492,22 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
 
         output = self.tempdir / "output"
         dlc_lib.InstallDlcImages(board=_BOARD, sysroot=sysroot, rootfs=output)
-        self.assertEqual(
-            osutils.ReadFile(
-                output
-                / dlc_lib.DLC_META_DIR
-                / _ID
-                / _PACKAGE
-                / dlc_lib.IMAGELOADER_JSON
-            ),
-            imageloader_json_data,
-        )
-        self.assertEqual(
-            osutils.ReadFile(
-                output
-                / dlc_lib.DLC_META_DIR
-                / _ID
-                / _PACKAGE
-                / dlc_lib.DLC_VERITY_TABLE
-            ),
-            verity_table_data,
-        )
+
         self.assertNotExists(
-            osutils.ReadFile(
-                output / dlc_lib.DLC_META_DIR / _ID / _PACKAGE / foobar_file
-            ),
+            output / dlc_lib.DLC_META_DIR / _ID / _PACKAGE / foobar_file
         )
         self.assertExists(
             output
             / dlc_lib.DLC_META_DIR
             / f"{dlc_lib.DLC_META_FILE_PREFIX}{_ID}"
         )
+        parsed = dlc_lib.DlcMetadata(
+            metadata_path=output / dlc_lib.DLC_META_DIR
+        ).LoadDestMetadata(_ID)
+        self.assertEqual(
+            json.dumps(parsed[_ID]["manifest"]), imageloader_json_data
+        )
+        self.assertEqual(parsed[_ID]["table"], verity_table_data)
 
 
 class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):

@@ -1399,61 +1399,6 @@ def IsLoadPinVerityDigestAllowed(dlc_id: str, dlc_build_dir: str) -> bool:
     return IsFieldAllowed(dlc_id, dlc_build_dir, "loadpin-verity-digest")
 
 
-def InstallArtifactsMeta(sysroot: str, rootfs: str) -> None:
-    """Installs the artifacts DLC meta(data) into rootfs
-
-    Args:
-        sysroot: Path to directory containing DLC images, e.g /build/<board>.
-        rootfs: Path to the platform rootfs.
-    """
-    artifacts_meta_dir = os.path.join(sysroot, DLC_BUILD_DIR_ARTIFACTS_META)
-    if not os.path.exists(artifacts_meta_dir):
-        logging.info("Artifacts meta directory missing, ignoring.")
-        return
-
-    artifacts_meta_dlc_ids = sorted(os.listdir(artifacts_meta_dir))
-    if not artifacts_meta_dlc_ids:
-        logging.info("There are no artifacts meta DLC(s), ignoring.")
-        return
-
-    logging.info(
-        "Detected artifacts meta for %d DLCs.", len(artifacts_meta_dlc_ids)
-    )
-
-    # TODO(b/290961240): Remove copying individual imageloader.json
-    # and table files after fully migrated to used the compressed
-    # metadata (replace this code with a `pass` for future usage).
-    for artifacts_meta_dlc_id in artifacts_meta_dlc_ids:
-        # Only support single package for artifacts meta DLC(s).
-        if rootfs:
-            src_path = os.path.join(
-                artifacts_meta_dir, artifacts_meta_dlc_id, DLC_PACKAGE
-            )
-            dst_path = os.path.join(
-                rootfs, DLC_META_DIR, artifacts_meta_dlc_id, DLC_PACKAGE
-            )
-            osutils.SafeMakedirs(dst_path, sudo=True)
-            # Copy the metadata files to rootfs.
-            logging.debug(
-                "Copying DLC(%s) metadata from %s to %s: ",
-                artifacts_meta_dlc_id,
-                src_path,
-                dst_path,
-            )
-            # Use sudo_run since osutils.CopyDirContents doesn't support
-            # sudo.
-            cros_build_lib.sudo_run(
-                [
-                    "cp",
-                    "-dR",
-                    src_path.rstrip("/") + "/.",
-                    dst_path,
-                ],
-                debug_level=logging.DEBUG,
-                stderr=True,
-            )
-
-
 def InstallDlcImages(
     sysroot: str,
     board: str,
@@ -1489,7 +1434,6 @@ def InstallDlcImages(
         Error: in case anything goes wrong, check error message.
     """
     # Handle the artifacts meta DLC(s).
-    InstallArtifactsMeta(sysroot, rootfs)
     build_dir = os.path.join(sysroot, DLC_BUILD_DIR)
     build_dir_scaled = os.path.join(sysroot, DLC_BUILD_DIR_SCALED)
     build_dir_artifacts_meta = os.path.join(
@@ -1564,9 +1508,19 @@ def InstallDlcImages(
 
         artifacts_meta_dir = os.path.join(sysroot, DLC_BUILD_DIR_ARTIFACTS_META)
         if os.path.exists(artifacts_meta_dir):
-            dlc_all.extend(
-                (x, artifacts_meta_dir) for x in os.listdir(artifacts_meta_dir)
-            )
+            artifacts_meta_dlc_ids = os.listdir(artifacts_meta_dir)
+            if artifacts_meta_dlc_ids:
+                dlc_all.extend(
+                    (x, artifacts_meta_dir) for x in artifacts_meta_dlc_ids
+                )
+                logging.info(
+                    "Detected artifacts meta for %d DLCs.",
+                    len(artifacts_meta_dlc_ids),
+                )
+            else:
+                logging.info("There are no artifacts meta DLC(s), ignoring.")
+        else:
+            logging.info("Artifacts meta directory missing, ignoring.")
 
         for scaled in (False, True):
             dlc_build_dir = build_dir_scaled if scaled else build_dir
@@ -1620,6 +1574,9 @@ def BuildDlcs(
     Raises:
         Error: if issues encountered during any DLC generation.
     """
+    if rootfs:
+        # Create metadata directory in rootfs.
+        osutils.SafeMakedirs(os.path.join(rootfs, DLC_META_DIR), sudo=True)
     for scaled in (False, True):
         dlc_build_dir = build_dir_scaled if scaled else build_dir
 
@@ -1699,44 +1656,16 @@ def BuildDlcs(
                 if os.path.isdir(os.path.join(dlc_id_path, direct))
             ]
             for d_package in dlc_packages:
-                # Create metadata directory in rootfs.
-                # TODO(b/290961240): Remove copying individual imageloader.json
-                # and table files after fully migrated to used the compressed
-                # metadata.
                 if rootfs:
-                    meta_rootfs = os.path.join(
-                        rootfs, DLC_META_DIR, d_id, d_package
-                    )
-                    osutils.SafeMakedirs(meta_rootfs, sudo=True)
-                    # Copy the metadata files to rootfs.
                     meta_dir_src = os.path.join(
                         dlc_build_dir, d_id, d_package, DLC_TMP_META_DIR
                     )
-                    logging.debug(
-                        "Copying DLC(%s) metadata from %s to %s: ",
-                        d_id,
-                        meta_dir_src,
-                        meta_rootfs,
-                    )
-                    # Use sudo_run since osutils.CopyDirContents doesn't support
-                    # sudo.
-                    cros_build_lib.sudo_run(
-                        [
-                            "cp",
-                            "-dR",
-                            meta_dir_src.rstrip("/") + "/.",
-                            meta_rootfs,
-                        ],
-                        print_cmd=False,
-                        stderr=True,
-                    )
-
                     # Only allow if explicitly set when emerge'ing the DLC
                     # ebuild.
                     if IsLoadPinVerityDigestAllowed(d_id, dlc_build_dir):
                         # Append the DLC root dm-verity digest.
                         root_hexdigest = verity.ExtractRootHexdigest(
-                            os.path.join(meta_rootfs, DLC_VERITY_TABLE)
+                            os.path.join(meta_dir_src, DLC_VERITY_TABLE)
                         )
                         if not root_hexdigest:
                             raise Error(
@@ -1778,12 +1707,6 @@ def BuildDlcs(
                             "%s.",
                             d_id,
                         )
-
-                else:
-                    logging.debug(
-                        "rootfs value was not provided. Copying metadata "
-                        "skipped."
-                    )
 
 
 def GenerateDlc(
