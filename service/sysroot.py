@@ -1042,6 +1042,12 @@ def BuildPackages(
                         if run_configs.timeout
                         else None
                     )
+                    logging.info(
+                        "Timeout datetime is %s. "
+                        "The build comand will be aborted after %s seconds.",
+                        run_configs.timeout,
+                        str(timeout),
+                    )
 
                     if run_configs.bazel:
                         _BazelBuild(
