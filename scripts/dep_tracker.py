@@ -88,6 +88,7 @@ class DepTracker:
             self._pool = multiprocessing.Pool(jobs)
             self._imap = self._pool.map
         else:
+            self._pool = None
             self._imap = map
 
         self._files = {}
@@ -100,7 +101,8 @@ class DepTracker:
 
     def __del__(self) -> None:
         """Destructor method to free up self._pool resource."""
-        self._pool.close()
+        if self._pool is not None:
+            self._pool.close()
 
     def Init(self) -> None:
         """Generates the initial list of files."""
