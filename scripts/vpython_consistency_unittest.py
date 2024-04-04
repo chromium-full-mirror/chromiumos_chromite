@@ -30,8 +30,6 @@ _INPUTS = [
 # The list of exceptions in the format emitted by assertions in this test. I.e.,
 # <wheel>: <path> wants <old-version> but <path> has <latest-version>
 _EXCEPTIONS = {
-    "infra/python/wheels/pytest-py3: scripts/run_tests.vpython3"
-    " wants 5.4.3 but scripts/mypy has 7.3.1",
     "infra/python/wheels/mypy-extensions-py3: scripts/black"
     " wants 0.4.3 but scripts/mypy has 1.0.0",
     "infra/python/wheels/tomli-py3: scripts/black"
