@@ -1355,6 +1355,8 @@ def _ProcessSysrootWrappers(_target, output_dir, srcpath) -> None:
         # but only the extracted toolchain.
         os.unlink(sysroot_wrapper)
         shutil.copy(sysroot_wrapper[:-6] + "noccache", sysroot_wrapper)
+        # Same for the `.elf` file.
+        os.unlink(sysroot_wrapper + ".elf")
         shutil.copy(
             sysroot_wrapper[:-6] + "noccache.elf", sysroot_wrapper + ".elf"
         )
