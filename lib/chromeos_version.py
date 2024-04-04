@@ -66,7 +66,7 @@ class VersionInfo:
             if isinstance(version_file, str):
                 version_file = Path(version_file)
             self.version_file = version_file
-            logging.debug("Using VERSION _FILE = %s", version_file)
+            logging.debug("Using VERSION_FILE = %s", version_file)
             self._LoadFromFile()
         else:
             match = re.search(self.VER_PATTERN, version_string)
