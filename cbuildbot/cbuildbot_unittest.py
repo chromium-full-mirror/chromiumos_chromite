@@ -9,6 +9,7 @@ import builtins
 import glob
 import optparse  # pylint: disable=deprecated-module
 import os
+import unittest
 
 import pytest  # pylint: disable=import-error
 
@@ -227,6 +228,7 @@ class InterfaceTest(cros_test_lib.MockTestCase, cros_test_lib.LoggingTestCase):
     def assertDieSysExit(self, *args, **kwargs) -> None:
         self.assertRaises(cros_build_lib.DieSystemExit, *args, **kwargs)
 
+    @unittest.skip("b/332793700 - virtualenv isn't in SDK anymore")
     def testDepotTools(self) -> None:
         """Test that the entry point used by depot_tools works."""
         path = os.path.join(
