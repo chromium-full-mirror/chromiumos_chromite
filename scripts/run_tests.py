@@ -16,6 +16,9 @@ $ ./run_tests lib/osutils_unittest.py
 $ ./run_tests lib/osutils_unittest.py::TestOsutils
 # Run a single test.
 $ ./run_tests lib/osutils_unittest.py::TestOsutils::testIsSubPath
+
+# Use -- to pass options down to pytest.
+$ ./run_tests -- --help
 # List all tests that'd be run.
 $ ./run_tests -- --collect-only
 """
@@ -68,6 +71,11 @@ def main(argv) -> None:
         )
 
     jobs = opts.jobs
+
+    if opts.pdb:
+        jobs = 0
+        pytest_args += ["--pdb"]
+
     if jobs is None:
         # Default to running in a single process under --quickstart. User args
         # can still override this. Cap it at 64 by default to prevent the
@@ -163,6 +171,11 @@ def get_parser():
         type=int,
         default=None,
         help="Number of tests to run in parallel.",
+    )
+    parser.add_argument(
+        "--pdb",
+        action="store_true",
+        help="Automatically enable Python debugger on failure (implies -j0).",
     )
     parser.add_argument(
         "--quickstart",
