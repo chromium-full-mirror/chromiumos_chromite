@@ -127,11 +127,17 @@ def GetParser():
         dest="toolchain_update",
         deprecated="Alias for --no-toolchain-update",
     )
+    build.add_bool_argument(
+        "--update-chroot",
+        default=None,
+        enabled_desc="Call update_chroot.",
+        disabled_desc="Don't call update_chroot.",
+    )
     build.add_argument(
         "--skip-chroot-upgrade",
-        action="store_true",
-        default=False,
-        help="Don't run the chroot upgrade automatically; use with care.",
+        action="store_false",
+        dest="update_chroot",
+        deprecated="Alias for --no-update-chroot.",
     )
     build.add_argument(
         "--skip-board-pkg-init",
@@ -178,6 +184,9 @@ def _ParseArgs(args):
         profile=opts.profile,
         public=opts.public,
     )
+    update_chroot = opts.update_chroot
+    if update_chroot is None:
+        update_chroot = opts.setup_toolchains
 
     opts.run_config = sysroot.SetupBoardRunConfig(
         set_default=opts.default,
@@ -187,7 +196,7 @@ def _ParseArgs(args):
         regen_configs=opts.regen_configs,
         quiet=opts.quiet,
         update_toolchain=opts.setup_toolchains,
-        upgrade_chroot=not opts.skip_chroot_upgrade,
+        upgrade_chroot=update_chroot,
         init_board_pkgs=not opts.skip_board_pkg_init,
         local_build=opts.reuse_local,
         expanded_binhost_inheritance=opts.expanded_binhost_inheritance,
