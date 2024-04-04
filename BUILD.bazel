@@ -241,7 +241,6 @@ pkg_files(
             "utils/gs_urls_util.py",
             "utils/hostname_util.py",
             "utils/key_value_store.py",
-            "utils/lazy_loader.py",
             "utils/libc.py",
             "utils/memoize.py",
             "utils/os_util.py",

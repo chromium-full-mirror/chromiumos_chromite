@@ -41,7 +41,7 @@ def test_breakout_files_by_tool() -> None:
     items = list(tool_map.items())
     assert len(items) == 1
     key, value = items[0]
-    assert key.func == formatters.whitespace.Data.func
+    assert key is formatters.whitespace.Data
     assert value == [Path("foo.md")]
 
 
@@ -51,7 +51,7 @@ def test_breakout_files_by_tool_order() -> None:
     items = list(tool_map.items())
     assert len(items) == 1
     key, value = items[0]
-    assert key.func == formatters.whitespace.Data.func
+    assert key is formatters.whitespace.Data
     assert value == [Path("OWNERS.css")]
 
 

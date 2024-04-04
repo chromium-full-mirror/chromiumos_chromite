@@ -755,9 +755,7 @@ class GnLintTests(LintTestCase):
 
     def testInternalMisquotingUsage(self) -> None:
         """Verify we raise an internal exception if we're mistreating quotes."""
-        # type(...) shenanigans because chromite.utils.lazy_loader gets in the
-        # way otherwise.
-        with self.assertRaises(type(linters.gnlint.InternalLinterError())):
+        with self.assertRaises(linters.gnlint.InternalLinterError):
             linters.gnlint.GnLintInstallPathAlias(
                 CreateInstallPathTestData("executable", "unquoted")
             )
