@@ -33,6 +33,8 @@ class Job:
     poststart: Optional[str] = None
     prestop: Optional[str] = None
     poststop: Optional[str] = None
+    start: Optional[str] = None
+    stop: Optional[str] = None
 
     def __eq__(self, other: "Job") -> bool:
         return (
@@ -45,10 +47,73 @@ class Job:
             and self.poststart == other.poststart
             and self.prestop == other.prestop
             and self.poststop == other.poststop
+            and self.start == other.start
+            and self.stop == other.stop
         )
 
     def __ne__(self, other: "Job") -> bool:
         return not self == other
+
+
+def _parse_exec(line: str) -> str:
+    """Parse 'exec' lines."""
+    m = re.match(r"^\s*exec\s+(.*)$", line)
+    if not m:
+        raise JobSyntaxError(f"Invalid exec line: {line}")
+    return m.group(1)
+
+
+def _parse_script(ilines: Iterator[str]) -> str:
+    """Parse 'script' stanzas."""
+    stanza = ""
+    for line in ilines:
+        if line.strip() == "end script":
+            return stanza
+        stanza += line + "\n"
+    raise JobSyntaxError("Missing 'end script'")
+
+
+def _parse_start_stop(line: str, ilines: Iterator[str]) -> str:
+    """Parse 'start' and 'stop' stanzas."""
+    tokens = line.split()
+    if (
+        len(tokens) < 3
+        or tokens[0] not in {"start", "stop"}
+        or tokens[1] != "on"
+    ):
+        raise JobSyntaxError(f"Expected 'on' after '{tokens[0]}'", line)
+
+    m = re.match(r"^\s*(start|stop)\s+on\s+(.*)$", line)
+
+    # This only checks () balance and consumes whole lines for it.
+    def _parse(buf: str) -> str:
+        i = 0
+        # Number of open (unbalanced) parens.
+        p = 0
+        buf = buf.split("#", 1)[0].strip()
+        while True:
+            if i == len(buf):
+                if p == 0:
+                    break
+                try:
+                    buf += " " + next(ilines).split("#", 1)[0].strip()
+                except StopIteration:
+                    raise JobSyntaxError("Premature EOL reached")
+
+            c = buf[i]
+            if c == "(":
+                p += 1
+            elif c == ")":
+                p -= 1
+                if p < 0:
+                    raise JobSyntaxError(
+                        f"Unbalanced paren in '{tokens[0]}'", buf
+                    )
+            i += 1
+
+        return buf
+
+    return _parse(m.group(2))
 
 
 def parse(contents: str) -> Job:
@@ -83,22 +148,6 @@ def parse(contents: str) -> Job:
                     raise JobSyntaxError("Premature EOL reached")
 
             yield line
-
-    def _parse_exec(line: str) -> str:
-        """Parse 'exec' lines."""
-        m = re.match(r"^\s*exec\s+(.*)$", line)
-        if not m:
-            raise JobSyntaxError(f"Invalid exec line: {line}")
-        return m.group(1)
-
-    def _parse_script(ilines: Iterator[str]) -> str:
-        """Parse 'script' stanzas."""
-        stanza = ""
-        for line in ilines:
-            if line.strip() == "end script":
-                return stanza
-            stanza += line + "\n"
-        raise JobSyntaxError("Missing 'end script'")
 
     ilines = _iter_lines(contents.splitlines())
     for line in ilines:
@@ -151,6 +200,8 @@ def parse(contents: str) -> Job:
                     f"More than one '{token}' stanza found", line
                 )
             setattr(ret, attr, value)
+        elif tokens[0] in {"start", "stop"}:
+            setattr(ret, tokens[0], _parse_start_stop(line, ilines))
         elif tokens[0] in (
             "cgroup",
             "chdir",
@@ -170,8 +221,6 @@ def parse(contents: str) -> Job:
             "normal",
             "reload",
             "respawn",
-            "start",
-            "stop",
             "setgid",
             "setuid",
             "task",

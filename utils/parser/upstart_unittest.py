@@ -52,6 +52,15 @@ end script
     ("oom never", upstart.Job(oom="never")),
     ("oom score -100", upstart.Job(oom="-100")),
     ("oom score never", upstart.Job(oom="never")),
+    (
+        """
+start on (yes and # comment
+  no)
+stop on (no \
+  or yes)
+     """,
+        upstart.Job(start="(yes and no)", stop="(no   or yes)"),
+    ),
 )
 
 
@@ -80,6 +89,14 @@ BAD_TEST_CASES = (
     "pre-stop",
     "post-start",
     "post-stop",
+    # Bad start/stop stanzas.
+    "start",
+    "start never",
+    "start on (",
+    "start on )",
+    "stop",
+    "stop never",
+    "stop on (()))",
     # Bad script stanzas.
     "script",
     # Multiple exec lines.
