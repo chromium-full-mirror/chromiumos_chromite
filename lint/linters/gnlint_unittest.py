@@ -55,7 +55,7 @@ class UtilityTests(cros_test_lib.MockTestCase):
         """Make sure outputting results doesn't crash."""
         self.PatchObject(
             linters.gnlint,
-            "CheckGnFile",
+            "CheckGnData",
             return_value=[
                 linters.gnlint.LintResult(
                     "LintFunc", Path("foo.gn"), None, "msg!", logging.ERROR
@@ -68,14 +68,14 @@ class UtilityTests(cros_test_lib.MockTestCase):
 class FilesystemUtilityTests(cros_test_lib.TestCase):
     """Tests for utility funcs that access the filesystem."""
 
-    def testCheckGnFile(self) -> None:
-        """Check CheckGnFile tails down correctly."""
+    def testCheckGnData(self) -> None:
+        """Check CheckGnData tails down correctly."""
         content = "# gn file\n"
         ret = linters.gnlint.CheckGnData(content, Path("asdf.gn"))
         self.assertEqual(ret, [])
 
     def testGnFileOption(self) -> None:
-        """Check CheckGnFile processes file options correctly."""
+        """Check CheckGnData processes file options correctly."""
         static_library_with_visibility_flag = (
             'static_library("a") {\n'
             '  cflags = [ "-fvisibility=default" ]\n'
