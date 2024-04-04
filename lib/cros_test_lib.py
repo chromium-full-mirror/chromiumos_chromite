@@ -33,6 +33,7 @@ from typing import (
 import unittest
 from unittest import mock
 
+from chromite.cli import command
 from chromite.lib import cache
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -2007,6 +2008,19 @@ class RunCommandTestCase(MockTestCase):
 
 class RunCommandTempDirTestCase(RunCommandTestCase, TempDirTestCase):
     """Convenience class mixing TempDirTestCase and RunCommandTestCase"""
+
+
+class FakeCliCommand(command.CliCommand):
+    """Test-only CliCommand subclass with an empty Run() method.
+
+    This class is intended to be used in unit tests that require a CliCommand,
+    but do not care about the Run() method's implementation. This CliCommand
+    subclass is necessary because CliCommand is an abstract base class with an
+    abstract Run() method, and thus, cannot be instantiated directly.
+    """
+
+    def Run(self) -> None:
+        pass
 
 
 class main(TestProgram):

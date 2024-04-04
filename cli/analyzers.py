@@ -4,7 +4,6 @@
 
 """Shared helpers for cros analyzer commands (fix, lint, format)."""
 
-from abc import ABC
 import logging
 import os
 from pathlib import Path
@@ -40,7 +39,7 @@ def HasUncommittedChanges(files: List[str]) -> bool:
     return bool(working_status)
 
 
-class AnalyzerCommand(ABC, command.CliCommand):
+class AnalyzerCommand(command.CliCommand):
     """Shared argument parsing for cros analyzers (fix, lint, format)."""
 
     # Additional aliases to offer for the "--inplace" option.

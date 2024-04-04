@@ -13,6 +13,7 @@ Commands can be either imported directly or looked up using this module's
 ListCommands() function.
 """
 
+import abc
 import importlib
 import logging
 import os
@@ -116,7 +117,7 @@ def command_decorator(name):
     return inner_decorator
 
 
-class CliCommand:
+class CliCommand(abc.ABC):
     """All CLI commands must derive from this class.
 
     This class provides the abstract interface for all CLI commands. When
@@ -202,9 +203,9 @@ class CliCommand:
                 help=" ".join(help_strings),
             )
 
+    @abc.abstractmethod
     def Run(self) -> None:
         """The command to run."""
-        raise NotImplementedError()
 
     def TranslateToChrootArgv(self):
         """Hook to get the argv for reexecution inside the chroot.

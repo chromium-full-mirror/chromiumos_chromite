@@ -17,7 +17,6 @@ from typing import Callable, List, Optional, Union
 
 import pytest
 
-from chromite.cli import command
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -1042,7 +1041,7 @@ class TestRunInsideChroot(cros_test_lib.MockTestCase):
         )
 
         # Mocked CliCommand object to pass to RunInsideChroot.
-        self.cmd = command.CliCommand(argparse.Namespace())
+        self.cmd = cros_test_lib.FakeCliCommand(argparse.Namespace())
         self.cmd.options.log_level = "info"
 
         def _inside_args_patch(*_args):
