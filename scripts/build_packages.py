@@ -2,18 +2,15 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Wrapper to call "cros build-packages".
+"""Deprecated entry point for `cros build-packages`.
 
-Eventually, this script will hard-error instead of calling "cros build-packages"
-after the notice.
+This will be deleted soon.
 """
 
-import logging
 import sys
 from typing import List, Optional
 
 from chromite.lib import cros_build_lib
-from chromite.scripts import cros
 
 
 def main(argv: Optional[List[str]]) -> Optional[int]:
@@ -21,8 +18,7 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
     argv = argv or sys.argv[1:]
     new_argv = ["build-packages", *argv]
     new_command_str = cros_build_lib.CmdToStr(["cros", *new_argv])
-    logging.notice(
+    cros_build_lib.Die(
         "build_packages has been renamed to `cros build-packages`.  Please call"
-        f" as `{new_command_str}`.  This will eventually turn into an error."
+        f" as `{new_command_str}`."
     )
-    return cros.main(new_argv)
