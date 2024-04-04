@@ -457,7 +457,11 @@ class SymbolsTest(image_test_lib.ImageTestCase):
         except exceptions.ELFError:
             raise ValueError("%s is not an ELF file." % file_name)
 
-        imp, exp = parseelf.ParseELFSymbols(elf)
+        try:
+            imp, exp = parseelf.ParseELFSymbols(elf)
+        except exceptions.ELFError as e:
+            self.fail(f"{file_name}: Unable to parse ELF symbols: {e}")
+
         self._known_symtabs[file_name] = imp, exp
         return imp, exp
 
