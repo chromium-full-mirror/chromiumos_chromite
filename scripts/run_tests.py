@@ -191,11 +191,11 @@ def get_parser():
         action="store_true",
         help="Include network tests.",
     )
-    parser.add_argument(
-        "--no-precache",
-        dest="precache",
-        action="store_false",
-        help="Skip precaching packages from the network.",
+    parser.add_bool_argument(
+        "--precache",
+        True,
+        "Cache packages from the network before running tests.",
+        "Skip precaching packages from the network.",
     )
     parser.add_argument(
         "--no-chroot",
