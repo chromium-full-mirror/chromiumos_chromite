@@ -150,6 +150,11 @@ def Create(
         bootstrap=bootstrap,
         chroot=chroot,
         sdk_version=sdk_version,
+        # Non-force is supposed to prevent human users from making mistakes when
+        # replacing or deleting the chroot. Since the build API is usually not
+        # used by humans, it should be safe to assume force if we're replacing
+        # the chroot.
+        force=replace,
         ccache_disable=ccache_disable,
     )
 

@@ -75,6 +75,7 @@ class CreateArguments:
         bootstrap: bool = False,
         chroot: Optional["chroot_lib.Chroot"] = None,
         sdk_version: Optional[str] = None,
+        force: bool = False,
         ccache_disable: bool = False,
     ) -> None:
         """Create arguments init.
@@ -85,6 +86,9 @@ class CreateArguments:
             chroot: chroot_lib.Chroot object representing the paths for the
                 chroot to create.
             sdk_version: Specific SDK version to use, e.g. 2022.01.20.073008.
+            force: Force delete of the current SDK chroot when replacing, even
+                if obtaining the write lock fails. Applies only if replace is
+                True.
             ccache_disable: Whether ccache should be disabled after chroot
                 creation.
         """
@@ -97,6 +101,7 @@ class CreateArguments:
             self.sdk_version = version_conf.get_default_version(
                 bootstrap=bootstrap
             )
+        self.force = force
         self.ccache_disable = ccache_disable
 
     def GetEntryArgList(self) -> List[str]:
@@ -134,6 +139,8 @@ class CreateArguments:
             args.extend(["--replace", "--delete-out-dir"])
         else:
             args.append("--create")
+        if self.force:
+            args.append("--force")
 
         args.extend(self.GetEntryArgList())
 

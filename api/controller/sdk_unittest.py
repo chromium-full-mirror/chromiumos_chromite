@@ -109,6 +109,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             bootstrap=False,
             chroot=mock.ANY,
             sdk_version=mock.ANY,
+            force=True,
             ccache_disable=mock.ANY,
         )
 
@@ -131,6 +132,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             bootstrap=True,
             chroot=mock.ANY,
             sdk_version="foo",
+            force=False,
             ccache_disable=True,
         )
 

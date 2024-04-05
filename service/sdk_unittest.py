@@ -136,6 +136,13 @@ class CreateArgumentsTest(cros_test_lib.MockTestCase):
         self.assertIn("--replace", self._GetArgsList(replace=True))
         self.assertIn("--create", self._GetArgsList(replace=False))
 
+        # Check the variations of force.
+        for replace in (True, False):
+            self.assertNotIn("--force", self._GetArgsList(replace=replace))
+            self.assertIn(
+                "--force", self._GetArgsList(replace=replace, force=True)
+            )
+
         # Check the other flags get added when the correct argument passed.
         self.assertListEqual(
             [
