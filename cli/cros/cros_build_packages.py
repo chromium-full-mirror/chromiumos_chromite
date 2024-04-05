@@ -173,7 +173,7 @@ class BuildPackagesCommand(command.CliCommand):
         group = parser.add_argument_group("Setup Board Config Options")
         group.add_bool_argument(
             "--skip-chroot-upgrade",
-            False,
+            True,
             "Skip the automatic chroot upgrade; use with care.",
             "Upgrade the chroot first.",
         )
