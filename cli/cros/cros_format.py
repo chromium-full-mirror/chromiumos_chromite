@@ -84,7 +84,10 @@ _TOOL_MAP = collections.OrderedDict(
         (frozenset({"*.go"}), (formatters.go.Data,)),
         (frozenset({"*.json", "*.jsonproto"}), (formatters.json.Data,)),
         # TODO(build): Add a formatter for this.
-        (frozenset({"*.ebuild", "*.eclass"}), (formatters.whitespace.Data,)),
+        (
+            frozenset({"*.bashrc", "*.ebuild", "*.eclass"}),
+            (formatters.whitespace.Data,),
+        ),
         # TODO(build): Add a formatter for this.
         (frozenset({"*.md"}), (formatters.whitespace.Data,)),
         (frozenset({"*.mojom"}), (formatters.mojom.Data,)),
