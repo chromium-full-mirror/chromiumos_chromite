@@ -625,12 +625,6 @@ def CreateParser(
         enabled_desc="Update the SDK upon entry",
         disabled_desc="Do not update the SDK upon entry",
     )
-    group.add_bool_argument(
-        "--update-sticky",
-        default=False,
-        enabled_desc="Remember the --[no-]update setting for future runs.",
-        disabled_desc="Leave --[no-]update stickiness alone.",
-    )
     group.add_argument(
         "--download",
         action="store_true",
@@ -723,6 +717,12 @@ def _FinalizeOptions(
     if options.delete:
         options.update = False
 
+    # We resolve the default for --update after considering --enter default, as
+    # "cros_sdk" should enter the SDK, whereas "cros_sdk --update" should update
+    # if required, but not actually enter.
+    if options.update is None:
+        options.update = True
+
     if options.force and not options.delete:
         parser.error("Specifying --force without --delete does not make sense.")
 
@@ -771,12 +771,6 @@ def _FinalizeOptions(
             "--no-read-only does not make sense."
         )
 
-    if options.update is None and options.update_sticky:
-        parser.error(
-            "Specifying --update-sticky without --update or --no-update "
-            "does not make sense."
-        )
-
     chromite_config.initialize()
     osutils.SafeMakedirsNonRoot(xdg_util.CACHE_HOME)
     ro_cfg = chromite_config.SDK_READONLY_STICKY_CONFIG
@@ -784,10 +778,6 @@ def _FinalizeOptions(
         # Defer to sticky configuration file only if --read-only/--no-read-only
         # were not provided.
         options.read_only = ro_cfg.exists()
-
-    if options.update is None:
-        # Defer to configuration file.
-        options.update = chromite_config.sdk_update_sticky_enabled()
 
     # Resolve tri-state --delete-out-dir to a boolean.  This argument is
     # default-on for --delete/--replace, but default-off for --update.
@@ -806,9 +796,6 @@ def _FinalizeOptions(
             if ro_cfg.exists():
                 logging.warning("Making cros_sdk --no-read-only sticky")
                 ro_cfg.unlink()
-
-    if options.update_sticky:
-        chromite_config.sdk_update_sticky_set(options.update)
 
 
 def main(argv) -> None:

@@ -5,7 +5,6 @@
 """Tests for cros_sdk."""
 
 import os
-from pathlib import Path
 import re
 import sys
 from typing import List, Optional
@@ -347,81 +346,25 @@ def test_readonly_sticky(
 
 
 @pytest.mark.parametrize(
-    ["orig_config", "arglist", "expected_update_sticky"],
+    ["args", "expected"],
     (
-        (None, [], True),
-        (None, ["--update"], True),
-        (None, ["--no-update"], True),
-        ("0\n", ["--update"], False),
-        ("0\n", ["--no-update"], False),
-        (None, ["--update", "--update-sticky"], True),
-        (None, ["--no-update", "--update-sticky"], False),
-        ("0\n", ["--update", "--update-sticky"], True),
-        ("0\n", ["--no-update", "--update-sticky"], False),
-    ),
-)
-def test_update_sticky(
-    monkeypatch: "pytest.MonkeyPatch",
-    tmp_path: Path,
-    orig_config: Optional[str],
-    arglist: List[str],
-    expected_update_sticky: bool,
-) -> None:
-    """Test that we write expected update-sticky contents.
-
-    Args:
-        monkeypatch: pytest fixture.
-        tmp_path: pytest fixture.
-        orig_config: The original config file contents.
-        arglist: The cros_sdk argument list to test.
-        expected_update_sticky: The expected value for update sticky after
-            parsing arguments.
-    """
-    conf_file = tmp_path / "fake-conf"
-    if orig_config is not None:
-        conf_file.write_text(orig_config, encoding="utf-8")
-    monkeypatch.setattr(chromite_config, "SDK_UPDATE_STICKY_CONFIG", conf_file)
-
-    options = _PARSER.parse_args(arglist)
-    cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
-
-    assert chromite_config.sdk_update_sticky_enabled() == expected_update_sticky
-
-
-@pytest.mark.parametrize(
-    ["args", "update_sticky", "expected"],
-    (
-        (["--replace"], False, True),
-        (["--update"], False, False),
-        (["--replace", "--no-delete-out-dir"], False, False),
-        (["--update", "--delete-out-dir"], False, True),
-        (["--replace"], True, True),
-        (["--update"], True, False),
-        (["--replace", "--no-delete-out-dir"], True, False),
-        (["--update", "--delete-out-dir"], True, True),
-        ([], True, False),
+        (["--replace"], True),
+        (["--update"], False),
+        (["--replace", "--no-delete-out-dir"], False),
+        (["--update", "--delete-out-dir"], True),
+        ([], False),
     ),
 )
 def test_delete_out(
-    tmp_path: Path,
-    monkeypatch: "pytest.MonkeyPatch",
     args,
-    update_sticky,
     expected,
 ) -> None:
     """Test the resolved value for --delete-out-dir/--no-delete-out-dir.
 
     Args:
-        tmp_path: pytest fixture.
-        monkeypatch: pytest fixture.
         args: The command line args.
-        update_sticky: True if sticky update config exists.
         expected: The expected opts.delete_out_dir.
     """
-    conf_file = tmp_path / "update_sticky"
-    monkeypatch.setattr(chromite_config, "SDK_UPDATE_STICKY_CONFIG", conf_file)
-    chromite_config.sdk_update_sticky_set(update_sticky)
-
     opts = _PARSER.parse_args(args)
     cros_sdk._FinalizeOptions(_PARSER, opts, _COMMANDS)
 
@@ -429,36 +372,23 @@ def test_delete_out(
 
 
 @pytest.mark.parametrize(
-    ["args", "update_sticky", "expected"],
+    ["args", "expected"],
     (
-        (["--delete"], False, False),
-        (["--delete"], True, False),
-        (["--delete", "--update"], False, False),
-        (["--delete", "--update"], True, False),
-        (["--update"], False, True),
-        ([], True, True),
+        (["--delete"], False),
+        (["--delete", "--update"], False),
+        ([], True),
     ),
 )
 def test_update_with_delete(
-    tmp_path: Path,
-    monkeypatch: "pytest.MonkeyPatch",
     args,
-    update_sticky,
     expected,
 ) -> None:
     """cros_sdk --delete should disable --update behavior.
 
     Args:
-        tmp_path: pytest fixture.
-        monkeypatch: pytest fixture.
         args: The command line args.
-        update_sticky: True if sticky update config exists.
         expected: The expected opts.update.
     """
-    conf_file = tmp_path / "update_sticky"
-    monkeypatch.setattr(chromite_config, "SDK_UPDATE_STICKY_CONFIG", conf_file)
-    chromite_config.sdk_update_sticky_set(update_sticky)
-
     opts = _PARSER.parse_args(args)
     cros_sdk._FinalizeOptions(_PARSER, opts, _COMMANDS)
 

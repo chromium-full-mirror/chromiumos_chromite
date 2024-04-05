@@ -30,8 +30,6 @@ AUTO_SET_GOV_CONFIG = DIR / "autosetgov"
 
 SDK_READONLY_STICKY_CONFIG = DIR / "sdk-readonly-sticky"
 
-SDK_UPDATE_STICKY_CONFIG = DIR / "sdk-update-sticky"
-
 TELEMETRY_CONFIG = DIR / "telemetry.cfg"
 
 # Mapping of names to constants to simplify unit test mocking.
@@ -40,7 +38,6 @@ ALL_CONFIGS = {
     "CHROME_SDK_BASHRC": CHROME_SDK_BASHRC.name,
     "GERRIT_CONFIG": GERRIT_CONFIG.name,
     "SDK_READONLY_STICKY_CONFIG": SDK_READONLY_STICKY_CONFIG.name,
-    "SDK_UPDATE_STICKY_CONFIG": SDK_UPDATE_STICKY_CONFIG.name,
     "TELEMETRY_CONFIG": TELEMETRY_CONFIG.name,
 }
 
@@ -77,33 +74,3 @@ def initialize() -> bool:
                     continue
 
     return not chown_error
-
-
-def sdk_update_sticky_enabled() -> bool:
-    """Return true if the SDK --update flag should be on by default.
-
-    This function will go away once there is no mechanism to opt-out.
-    """
-    try:
-        return SDK_UPDATE_STICKY_CONFIG.read_bytes().strip() != b"0"
-    except FileNotFoundError:
-        return True
-
-
-def sdk_update_sticky_set(value: bool) -> None:
-    """Set the SDK update sticky config.
-
-    This function will go away once there is no mechanism to opt-out.
-    """
-    if value:
-        # Opt-in, just delete the file.
-        osutils.SafeUnlink(SDK_UPDATE_STICKY_CONFIG)
-    else:
-        # Opt-out.
-        logging.warning(
-            "SDK auto-update will soon become mandatory.  Please help us "
-            "understand and address your needs by filing a bug: "
-            # pylint: disable-next=line-too-long
-            "https://issuetracker.google.com/new?component=1037860&template=1955905"
-        )
-        SDK_UPDATE_STICKY_CONFIG.write_text("0\n", encoding="utf-8")
