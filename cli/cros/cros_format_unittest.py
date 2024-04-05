@@ -4,6 +4,7 @@
 
 """This module tests the cros format command."""
 
+import os
 from pathlib import Path
 from typing import List
 from unittest import mock
@@ -172,35 +173,35 @@ def test_inplace_file(tmp_path) -> None:
 def test_missing_file(tmp_path) -> None:
     """Check behavior with missing files."""
     file = tmp_path / "foo.py"
-    assert _call_cros_format([str(file)]) == 1
+    assert _call_cros_format([str(file)]) == os.EX_NOINPUT
 
 
 def test_unicode_error(tmp_path) -> None:
     """Check binary files don't crash."""
     file = tmp_path / "foo.txt"
     file.write_bytes(b"\xff")
-    assert _call_cros_format([str(file)]) == 1
+    assert _call_cros_format([str(file)]) == os.EX_DATAERR
 
 
 def test_parse_error_json(tmp_path) -> None:
     """Check JSON parsing errors don't crash."""
     file = tmp_path / "foo.json"
     file.write_bytes(b"{")
-    assert _call_cros_format([str(file)]) == 1
+    assert _call_cros_format([str(file)]) == os.EX_DATAERR
 
 
 def test_parse_error_python(tmp_path) -> None:
     """Check Python parsing errors don't crash."""
     file = tmp_path / "foo.py"
     file.write_bytes(b"'")
-    assert _call_cros_format([str(file)]) == 1
+    assert _call_cros_format([str(file)]) == os.EX_DATAERR
 
 
 def test_parse_error_xml(tmp_path) -> None:
     """Check XML parsing errors don't crash."""
     file = tmp_path / "foo.xml"
     file.write_bytes(b"<")
-    assert _call_cros_format([str(file)]) == 1
+    assert _call_cros_format([str(file)]) == os.EX_DATAERR
 
 
 def _write_and_commit_space_file(file: Path) -> None:

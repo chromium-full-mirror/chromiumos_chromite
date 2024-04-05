@@ -204,15 +204,16 @@ def _Dispatcher(
             old_data = osutils.ReadFile(path)
         except FileNotFoundError:
             logging.error("%s: file does not exist", path)
-            return DispatcherResult(1, None)
+            return DispatcherResult(os.EX_NOINPUT, None)
         except UnicodeDecodeError:
             logging.error("%s: file is not UTF-8 compatible", path)
-            return DispatcherResult(1, None)
+            return DispatcherResult(os.EX_DATAERR, None)
+
     try:
         new_data = tool(old_data, path=path)
     except formatters.ParseError as e:
         logging.error("%s: parsing error: %s", e.args[0], e.__cause__)
-        return DispatcherResult(1, None)
+        return DispatcherResult(os.EX_DATAERR, None)
     if new_data == old_data:
         return DispatcherResult(0, None)
 
@@ -249,6 +250,14 @@ class FormatCommand(analyzers.AnalyzerCommand):
     """Run the right formatter on the specified files."""
 
     EPILOG = """
+Exit status:
+ 0 - All inputs are correctly formatted, or
+     the inputs had no known formatting method, or
+     the inputs werereformatted & successfully updated.
+ 1 - Some inputs need to be formatted.
+65 - (EX_DATA ERR) Syntax errors prevented parsing & formatting.
+66 - (EX_NOINPUT) Inputs could not be read (file not found).
+
 For some file formats, see the CrOS style guide:
 https://www.chromium.org/chromium-os/developer-library/reference/style-guides/style-guides/
 
@@ -346,7 +355,7 @@ Supported files: %s
             for task_ret, task_file in parallel.RunTasksInProcessPool(
                 dispatcher, tasks, processes=self.options.jobs
             ):
-                ret += task_ret
+                ret = max(ret, task_ret)
                 if task_file:
                     misformatted_files.append(str(task_file))
 
@@ -356,4 +365,4 @@ Supported files: %s
                 cros_build_lib.CmdToStr(misformatted_files),
             )
 
-        return 1 if ret else 0
+        return ret
