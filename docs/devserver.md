@@ -99,4 +99,4 @@ See [xBuddy for Devserver].
 There are many things that can be done to improve this system. Feel free to make
 suggestions and submit patches.
 
-[xBuddy for Devserver]: https://chromium.googlesource.com/chromiumos/docs/+/HEAD/xbuddy.md#Devserver-RPC_xbuddy
+[xBuddy for Devserver]: https://www.chromium.org/chromium-os/developer-library/reference/tools/xbuddy/

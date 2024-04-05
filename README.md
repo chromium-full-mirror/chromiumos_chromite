@@ -9,10 +9,10 @@ Chromite development.
 
 Before you get started on Chromite, we recommend that you go through ChromeOS
 developer guides at
-[external (first)](https://chromium.googlesource.com/chromiumos/docs/+/HEAD/developer_guide.md)
+[external (first)](https://www.chromium.org/chromium-os/developer-library/guides/development/developer-guide/)
 and then [goto/chromeos-building](http://goto/chromeos-building) for internal.
 The
-[Gerrit starter guide](https://chromium.googlesource.com/chromiumos/docs/+/HEAD/git_and_gerrit_intro.md)
+[Gerrit starter guide](https://www.chromium.org/chromium-os/developer-library/guides/development/git-and-gerrit-intro/)
 may also be helpful. You should flash a built image on a test device (Ask around
 for one!).
 

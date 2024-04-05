@@ -70,7 +70,7 @@ Examples:
   cros flash usb:// xbuddy://remote/eve/latest-stable/signed
 
   For more information and known problems/fixes, please see:
-  https://chromium.googlesource.com/chromiumos/docs/+/HEAD/cros_flash.md
+  https://www.chromium.org/chromium-os/developer-library/reference/tools/cros-flash/
 
 Note: When flashing a signed image, ssh connection to the device will be lost
   and flash must be invoked with --no-stateful-update.

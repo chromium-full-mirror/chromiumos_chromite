@@ -27,7 +27,7 @@ details.
 ## Local usage
 
 NOTE: same chroot notation used as in
-[ChromiumOS](https://chromium.googlesource.com/chromiumos/docs/+/HEAD/developer_guide.md#typography-conventions).
+[ChromiumOS](https://www.chromium.org/chromium-os/developer-library/guides/development/developer-guide/#typography-conventions).
 
 Side effect of the `compile_commands.json` generator is that it can be used
 locally with clangd.

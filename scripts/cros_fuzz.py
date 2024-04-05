@@ -752,8 +752,8 @@ def DownloadFuzzerCorpus(fuzzer, dest_directory=None):
         logging.error(
             "gsutil failed to download the corpus. You may need to log in. "
             "See:\n"
-            "https://chromium.googlesource.com/chromiumos/docs/+/HEAD/gsutil.md"
-            "#setup\n"
+            "https://www.chromium.org/chromium-os/developer-library/reference/"
+            "tools/gsutil/\n"
             "for instructions on doing this."
         )
         raise exception

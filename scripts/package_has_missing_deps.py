@@ -703,8 +703,8 @@ def main(argv: Optional[List[str]]) -> None:
             print(
                 """\
 For more information about DEPEND vs. RDEPEND in ebuilds see:
-https://chromium.googlesource.com/chromiumos/docs/+/HEAD/portage/\
-ebuild_faq.md#dependency-types"""
+https://www.chromium.org/chromium-os/developer-library/guides/portage/\
+ebuild-faq/#what-are-depend-bdepend-and-rdepend"""
             )
         sys.exit(1)
 

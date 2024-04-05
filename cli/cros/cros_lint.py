@@ -687,7 +687,7 @@ class LintCommand(analyzers.AnalyzerCommand):
 
     EPILOG = """
 For some file formats, see the CrOS style guide:
-https://chromium.googlesource.com/chromiumos/docs/+/HEAD/styleguide/
+https://www.chromium.org/chromium-os/developer-library/reference/style-guides/style-guides/
 
 Supported files: %s
 
