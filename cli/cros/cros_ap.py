@@ -13,6 +13,7 @@ from chromite.cli import command
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
+from chromite.lib import path_util
 from chromite.lib.firmware import dut
 from chromite.lib.firmware import firmware_config
 from chromite.lib.firmware import firmware_lib
@@ -344,6 +345,29 @@ e.g.:
             )
         except firmware_lib.Error as e:
             cros_build_lib.Die(e)
+
+    def TranslateToChrootArgv(self):
+        """Get reexec args for cros ap flash."""
+        argv = super().TranslateToChrootArgv()
+        image = Path(self.options.image)
+        if image.exists():
+            # The image path is an outside the SDK path, translate it.
+            chroot_path = path_util.ToChrootPath(image)
+            if "-i" in argv:
+                # Update -i some/path.
+                argv[argv.index("-i") + 1] = chroot_path
+            elif "--image" in argv:
+                # Update --image some/path.
+                argv[argv.index("--image") + 1] = chroot_path
+            else:
+                # Update --image=some/path.
+                for arg in argv[:]:
+                    if arg.startswith("--image="):
+                        argv.remove(arg)
+                        argv.extend(["--image", chroot_path])
+                        break
+
+        return argv
 
 
 @subcommand_decorator("clean")
