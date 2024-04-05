@@ -27,6 +27,7 @@ import logging
 import os
 import sys
 
+import debugpy  # pylint: disable=import-error
 import pytest  # pylint: disable=import-error
 
 from chromite.api import compile_build_api_proto
@@ -39,6 +40,9 @@ from chromite.lib import namespaces
 from chromite.lib import qemu
 from chromite.lint import linters
 from chromite.scripts import clang_format
+
+
+DEBUGGER_PORT = 5678
 
 
 def main(argv) -> None:
@@ -62,6 +66,9 @@ def main(argv) -> None:
 
     if opts.quick:
         logging.info("Skipping test namespacing due to --quickstart.")
+    elif opts.wait_for_debugger:
+        # Namespacing renders the debugger TCP port inaccessible from outside.
+        logging.info("Skipping test namespacing due to --wait-for-debugger.")
     else:
         # Namespacing is enabled by default because tests may break each other
         # or interfere with parts of the running system if not isolated in a
@@ -77,10 +84,14 @@ def main(argv) -> None:
         pytest_args += ["--pdb"]
 
     if jobs is None:
-        # Default to running in a single process under --quickstart. User args
-        # can still override this. Cap it at 64 by default to prevent the
-        # overhead from spawning too many nodes.
-        jobs = 0 if opts.quick else min(os.cpu_count(), 64)
+        # Default to running in a single process under --quickstart or
+        # --wait-for-debugger. User args can still override this. Cap it at 64
+        # by default to prevent the overhead from spawning too many nodes.
+        jobs = (
+            0
+            if opts.quick or opts.wait_for_debugger
+            else min(os.cpu_count(), 64)
+        )
     pytest_args = ["-n", str(jobs)] + pytest_args
 
     # Check the environment.  https://crbug.com/1015450
@@ -95,6 +106,17 @@ def main(argv) -> None:
             f"The root directory has broken ownership: {st.st_uid}:{st.st_gid}"
             " (should be 0:0)\nFix with: sudo chown 0:0 /"
         )
+
+    if opts.wait_for_debugger:
+        # Breakpoints can be set using the breakpoint() built-in function.
+        # Restricting the test runner to a single test case or _unittest.py
+        # file is recommended.
+        logging.notice(
+            f"Waiting for a debugger to connect to port {DEBUGGER_PORT}..."
+        )
+        debugpy.listen(("localhost", DEBUGGER_PORT))
+        debugpy.wait_for_client()
+        logging.notice("Debugger connected.")
 
     logging.debug("Running: pytest %s", cros_build_lib.CmdToStr(pytest_args))
     sys.exit(pytest.main(pytest_args))
@@ -176,6 +198,14 @@ def get_parser():
         "--pdb",
         action="store_true",
         help="Automatically enable Python debugger on failure (implies -j0).",
+    )
+    parser.add_argument(
+        "--wait-for-debugger",
+        action="store_true",
+        help=(
+            f"Wait for a debugger to connect to port {DEBUGGER_PORT} (implies "
+            "--quickstart)."
+        ),
     )
     parser.add_argument(
         "--quickstart",

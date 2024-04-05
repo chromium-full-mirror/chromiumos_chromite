@@ -237,3 +237,9 @@ wheel: <
   name: "infra/python/wheels/flask-py3"
   version: "version:2.0.2"
 >
+
+# scripts/run_tests.py flag --wait-for-debugger requires this
+wheel: <
+ name: "infra/python/wheels/debugpy/${vpython_platform}"
+ version: "version:1.6.7"
+>
