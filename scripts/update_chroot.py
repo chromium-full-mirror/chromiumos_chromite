@@ -12,6 +12,7 @@ import argparse
 from typing import List, Optional
 
 from chromite.lib import commandline
+from chromite.lib import cros_build_lib
 from chromite.service import sdk as sdk_service
 from chromite.service import sysroot
 from chromite.utils import timer
@@ -37,6 +38,11 @@ def get_parser() -> commandline.ArgumentParser:
         action="store_false",
         deprecated=deprecated % "--no-usepkg",
         help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Allow manual update_chroot.",
     )
 
     group = parser.add_argument_group("Advanced Build Modification Options")
@@ -86,6 +92,15 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     parser = get_parser()
     opts = parser.parse_args(argv)
     opts.Freeze()
+
+    if not opts.force:
+        cros_build_lib.Die(
+            "Automatic chroot upgrade is done by `cros_sdk --update` (normally "
+            "enabled by default), and there's generally no need to manually "
+            "call update_chroot.  If you really want to update your SDK "
+            "packages (thereby invalidating your chroot), pass --force to "
+            "this command."
+        )
 
     update_args = sdk_service.UpdateArguments(
         build_source=not opts.usepkg,
