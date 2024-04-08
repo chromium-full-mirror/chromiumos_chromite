@@ -176,7 +176,7 @@ GROUP_BASELINE = dict(
                 "chronos",
                 "arc-camera",
                 "dlm",
-                "rtanalytics",
+                "cfm-firmware-updaters",
                 "crosvm",
                 "cfm-monitor",
                 "smdisplay",
