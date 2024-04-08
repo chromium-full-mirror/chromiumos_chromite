@@ -205,6 +205,42 @@ Unit tests must clean up after themselves and in particular must not leak child
 processes after running. There is no guaranteed order in which tests are run or
 that tests are even run in the same process.
 
+### Debugging unit tests
+
+Pass flag
+[`--pdb`](https://docs.pytest.org/en/6.2.x/usage.html#dropping-to-pdb-python-debugger-at-the-start-of-a-test)
+to pytest in order to start an interactive Python debugger on errors or
+`KeyboardInterrupt` (e.g. Ctrl+C):
+```shell
+$ ./run_tests -- --pdb
+```
+The easiest way to set breakpoints is via the
+[`breakpoint()`](https://docs.python.org/3/library/functions.html#breakpoint)
+built-in function.
+
+If you wish to attach an external debugger, invoke `./run_tests` with the
+`--wait-for-debugger` flag. It is recommended to first set any desired
+breakpoints with the `breakpoint()` built-in function, and to narrow down the
+test runner to a specific unit test, e.g.
+```shell
+$ ./run_tests --wait-for-debugger lib/portage_util_unittest.py
+```
+You may attach your external debugger as soon as `run_tests` prints a line that
+looks like this:
+```
+16:51:38: NOTICE: Waiting for a debugger to connect to port 5678...
+```
+As an example, you may attach the VSCode built-in
+[debugger](https://code.visualstudio.com/docs/editor/debugging), which requires
+the
+[Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+extension. Bring up the "Run and Debug" view, then attach the debugger using
+the
+[`Python: Attach`](https://chromium.googlesource.com/chromiumos/chromite/+/97144c1b68e1c888512de8af23b2016808e3b236/.vscode/launch.json#24)
+launch configuration. See
+[screencast](https://screencast.googleplex.com/cast/NTUyNjU1NDk5Mjk2NzY4MHxjZDlhNmE0NS01Mw)
+(Googlers only).
+
 ### Commit Queue
 
 Once you mark your CL as Commit-Queue +1 (dry run) or +2 (full run) on the
