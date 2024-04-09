@@ -754,6 +754,7 @@ class EBuildRevWorkonTest(cros_test_lib.MockTempDirTestCase):
         The 'other' directory is changed in git, but there is no
         CROS_WORKON_SUBTREE in the build, so any change causes an uprev.
         """
+        # pylint: disable=attribute-defined-outside-init
         self.git_files_changed = ["other"]
         self.createRevWorkOnMocks(self._mock_ebuild, rev=True)
         self.m_ebuild.cros_workon_vars = portage_util.EBuild.GetCrosWorkonVars(
@@ -805,13 +806,23 @@ class EBuildRevWorkonTest(cros_test_lib.MockTempDirTestCase):
         self.assertNotExists(self.revved_ebuild_path)
 
     def testRevMissingEBuild(self) -> None:
+        # pylint: disable=attribute-defined-outside-init
         self.revved_ebuild_path = self.m_ebuild.ebuild_path
+        # Normally self.createRevWorkOnMocks writes two files to disk:
+        # test_package-0.0.1-r1.ebuild and test_package-9999.ebuild. The
+        # following line causes self.createRevWorkOnMocks to only write the
+        # latter. This ensures that the RevWorkonEBuild target will be the
+        # unstable ebuild file (*-9999.ebuild).
         self.m_ebuild.ebuild_path = self.m_ebuild._unstable_ebuild_path
         self.m_ebuild.current_revision = 0
+        # Mark as unstable because we are targeting the unstable ebuild file.
         self.m_ebuild.is_stable = False
 
         self.createRevWorkOnMocks(
-            self._mock_ebuild[0:1] + self._mock_ebuild[2:], rev=True
+            # Drop the CROS_WORKON_COMMIT line because our actual unstable
+            # ebuild files do not declare that variable.
+            self._mock_ebuild[0:1] + self._mock_ebuild[2:],
+            rev=True,
         )
         result = self.m_ebuild.RevWorkOnEBuild(self.tempdir, MANIFEST)
 
@@ -827,6 +838,22 @@ class EBuildRevWorkonTest(cros_test_lib.MockTempDirTestCase):
         result = self.m_ebuild.RevWorkOnEBuild(
             self.tempdir, MANIFEST, new_version="777.0.0"
         )
+        self.assertEqual(result[0], "category/test_package-777.0.0-r1")
+        self.assertExists(self.revved_ebuild_path_forced_version)
+        self.assertEqual(
+            self._revved_ebuild,
+            osutils.ReadFile(self.revved_ebuild_path_forced_version),
+        )
+
+    def testUprevWorkOnEBuildNewChromeosVersionScriptVersion(self) -> None:
+        """Test uprev when new version set in chromeos-version.sh."""
+        self.createRevWorkOnMocks(self._mock_ebuild, rev=True)
+
+        # This emulates a chromeos-version.sh script that echoes "777.0.0".
+        self.PatchObject(
+            portage_util.EBuild, "GetVersion", return_value="777.0.0"
+        )
+        result = self.m_ebuild.RevWorkOnEBuild(self.tempdir, MANIFEST)
         self.assertEqual(result[0], "category/test_package-777.0.0-r1")
         self.assertExists(self.revved_ebuild_path_forced_version)
         self.assertEqual(

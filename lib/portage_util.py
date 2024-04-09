@@ -1245,16 +1245,34 @@ class EBuild:
             old_version,
         )
 
-        revision = (
-            1
-            if new_version is not None and new_version != stable_version_no_rev
-            else self.current_revision + 1
-        )
-        version = f"{new_version or stable_version_no_rev}-r{revision}"
-        new_stable_ebuild_path = "%s-%s.ebuild" % (
-            self._ebuild_path_no_version,
-            version,
-        )
+        if new_version or not self.is_stable:
+            revision = (
+                1
+                if new_version != stable_version_no_rev
+                else self.current_revision + 1
+            )
+            version = f"{new_version or stable_version_no_rev}-r{revision}"
+            new_stable_ebuild_path = "%s-%s.ebuild" % (
+                self._ebuild_path_no_version,
+                version,
+            )
+        else:
+            current_pkg_info = package_info.parse(Path(self.ebuild_path))
+            stable_version_pkg_info = current_pkg_info.with_version(
+                stable_version_no_rev
+            )
+            # Use {stable_version}-r1 if there's a new version, otherwise
+            # revbump the current stable ebuild.
+            new_stable_pkg = (
+                stable_version_pkg_info.revision_bump()
+                if stable_version_pkg_info > current_pkg_info.with_rev0()
+                else current_pkg_info.revision_bump()
+            )
+            version = new_stable_pkg.vr
+            new_stable_ebuild_path = "%s-%s.ebuild" % (
+                self._ebuild_path_no_version,
+                new_stable_pkg.vr,
+            )
 
         info = self.GetSourceInfo(
             srcroot, manifest, reject_self_repo=reject_self_repo
