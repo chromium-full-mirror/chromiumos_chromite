@@ -41,15 +41,15 @@ DEFAULT_BACKTRACK = 30
 _BUILD_PACKAGES_TIMEOUT_MARGIN = datetime.timedelta(minutes=10)
 
 
-def _GetGomaLogDirectory():
-    """Get goma's log directory based on the env variables.
+def _GetBuildLogDirectory():
+    """Get build log directory based on the env variables.
 
     Returns:
-        a string of a directory name where goma's log may exist, or None if no
+        a string of a directory name where build log may exist, or None if no
         potential directories exist.
     """
     # TODO(crbug.com/1045001): Replace environment variable with query to
-    # goma object after goma refactoring allows this.
+    # an object after a refactoring allows this.
     candidates = [
         "GLOG_log_dir",
         "GOOGLE_LOG_DIR",
@@ -456,10 +456,11 @@ def InstallPackages(
 
         return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
     finally:
+        log_source_dir = _GetBuildLogDirectory()
+
         # Copy goma logs to specified directory if there is a goma_config and
         # it contains a log_dir to store artifacts.
         if request.goma_config.log_dir.dir:
-            log_source_dir = _GetGomaLogDirectory()
             archiver = goma_lib.LogsArchiver(
                 log_source_dir,
                 dest_dir=request.goma_config.log_dir.dir,
@@ -477,6 +478,7 @@ def InstallPackages(
 
         if request.remoteexec_config.log_dir.dir:
             archiver = remoteexec_lib.LogsArchiver(
+                build_log_dir=Path(log_source_dir),
                 dest_dir=Path(request.remoteexec_config.log_dir.dir),
             )
             archived_logs = archiver.archive()

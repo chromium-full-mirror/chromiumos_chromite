@@ -4,25 +4,32 @@
 
 """Unittests for remoteexec_lib.py"""
 
+import datetime
+import getpass
+import gzip
+import json
+import os
 from pathlib import Path
+import time
 
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import remoteexec_lib
+from chromite.utils import hostname_util
 
 
-class TestLogArchiver(cros_test_lib.RunCommandTempDirTestCase):
+class TestLogArchiver(cros_test_lib.MockTempDirTestCase):
     """Tests for remoteexec_lib."""
 
     def setUp(self) -> None:
-        self.src_dir = self.tempdir / "src_dir"
-        self.dest_dir = self.tempdir / "dest_dir"
+        self.src_dir = self.tempdir / "remoteexec_src_dir"
+        self.dest_dir = self.tempdir / "remoteexec_dest_dir"
 
         osutils.SafeMakedirs(self.src_dir)
         osutils.SafeMakedirs(self.dest_dir)
 
-        self.archiver = remoteexec_lib.LogsArchiver(self.dest_dir)
-        self.archiver.src_dir_for_testing = self.src_dir
+        self.archiver = remoteexec_lib.LogsArchiver(self.src_dir, self.dest_dir)
+        self.archiver.remoteexec_log_dir_for_testing = self.src_dir
 
     def _create_file(self, package_name: str, filename: str) -> Path:
         path = self.src_dir / f"reclient-{package_name}" / filename
@@ -44,7 +51,7 @@ class TestLogArchiver(cros_test_lib.RunCommandTempDirTestCase):
             self._create_file("chromeos-chrome", "test.INFO"),
         ]
 
-        archive_files = self.archiver.archive()
+        archive_files = self.archiver.archive_remoteexec_logs()
 
         self.assertEqual(
             archive_files,
@@ -63,3 +70,68 @@ class TestLogArchiver(cros_test_lib.RunCommandTempDirTestCase):
 
         for file in uninteresting_log_files:
             self.assertExists(file)
+
+    def testNinjaLogArchive(self) -> None:
+        """Test successful archive of ninja logs."""
+        ninja_log_path = os.path.join(self.src_dir, "ninja_log")
+        osutils.WriteFile(ninja_log_path, "Ninja Log Content\n")
+        timestamp = datetime.datetime(2024, 4, 1, 12, 0, 0)
+        mtime = time.mktime(timestamp.timetuple())
+        os.utime(ninja_log_path, ((time.time(), mtime)))
+
+        osutils.WriteFile(
+            os.path.join(self.src_dir, "ninja_command"), "ninja_command"
+        )
+        osutils.WriteFile(os.path.join(self.src_dir, "ninja_cwd"), "ninja_cwd")
+        osutils.WriteFile(
+            os.path.join(self.src_dir, "ninja_env"),
+            "key1=value1\0key2=value2\0",
+        )
+        osutils.WriteFile(os.path.join(self.src_dir, "ninja_exit"), "0")
+
+        archived_results = self.archiver.archive_ninja_log()
+
+        username = getpass.getuser()
+        pid = os.getpid()
+        hostname = hostname_util.get_host_name()
+        ninjalog_filename = "ninja_log.%s.%s.20240401-120000.%d.gz" % (
+            username,
+            hostname,
+            pid,
+        )
+        # Verify the archived files in the dest_dir
+        archived_dir_files = os.listdir(self.dest_dir)
+        self.assertCountEqual(
+            archived_dir_files,
+            [
+                ninjalog_filename,
+            ],
+        )
+        # Verify the archived_tuple result.
+        self.assertEqual(
+            archived_results,
+            [
+                ninjalog_filename,
+            ],
+        )
+
+        # Verify content of ninja_log file.
+        ninjalog_path = os.path.join(self.dest_dir, ninjalog_filename)
+
+        with gzip.open(ninjalog_path, "rt", encoding="utf-8") as gzip_file:
+            ninja_log_content = gzip_file.read()
+
+        content, eof, metadata_json = ninja_log_content.split("\n", 3)
+        self.assertEqual("Ninja Log Content", content)
+        self.assertEqual("# end of ninja log", eof)
+        metadata = json.loads(metadata_json)
+        self.assertEqual(
+            metadata,
+            {
+                "platform": "chromeos",
+                "cmdline": ["ninja_command"],
+                "cwd": "ninja_cwd",
+                "exit": 0,
+                "env": {"key1": "value1", "key2": "value2"},
+            },
+        )
