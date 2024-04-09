@@ -335,7 +335,7 @@ class PaygenPayload:
             Name of the payload file, name of the
             description file.
         """
-        self.rand = not self.static or self.payload.minios
+        self.rand = not self.static or (self.payload and self.payload.minios)
         rand = f"-{cros_build_lib.GetRandomString()}" if self.rand else ""
         self.rand_suffix = rand
 
@@ -1146,12 +1146,12 @@ class PaygenPayload:
 
         props_map["appid"] = appid
 
-        if self.payload.tgt_image.build:
+        if self.payload and self.payload.tgt_image.build:
             props_map["target_version"] = self.payload.tgt_image.build.version
         else:
             props_map["target_version"] = "99999.0.0"
 
-        if self.payload.src_image:
+        if self.payload and self.payload.src_image:
             if self.payload.src_image.build:
                 props_map[
                     "source_version"
