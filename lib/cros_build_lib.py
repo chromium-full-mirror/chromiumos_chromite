@@ -695,13 +695,6 @@ def run(
     # https://docs.pytest.org/en/latest/example/simple.html#writing-well-integrated-assertion-helpers
     __tracebackhide__ = operator.methodcaller("errisinstance", RunCommandError)
 
-    # Handle backwards compatible settings.
-    stdout_file_mode = "w+b"
-    if "append_to_file" in kwargs:
-        # TODO(vapier): Enable this warning once chromite & users migrate.
-        # logging.warning('run: append_to_file is now part of stdout')
-        if kwargs.pop("append_to_file"):
-            stdout_file_mode = "a+b"
     assert not kwargs, "Unknown arguments to run: %s" % (list(kwargs),)
 
     if capture_output:
@@ -749,7 +742,7 @@ def run(
     if isinstance(stdout, (str, os.PathLike)):
         # We explicitly close this handle below before returning.
         # pylint: disable=consider-using-with
-        popen_stdout = open(stdout, stdout_file_mode)
+        popen_stdout = open(stdout, "w+b")
         log_stdout_to_file = True
     elif hasattr(stdout, "fileno"):
         popen_stdout = stdout

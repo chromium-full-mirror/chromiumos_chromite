@@ -938,17 +938,9 @@ class TestRunCommandOutput(
         self.assertIs(ret.stdout, None)
         self.assertIs(ret.stderr, None)
 
-        # Without append
+        # Without append.
         ret = cros_build_lib.run(["echo", "monkeys2"], stdout=log)
         self.assertEqual(osutils.ReadFile(log), "monkeys2\n")
-        self.assertIs(ret.stdout, None)
-        self.assertIs(ret.stderr, None)
-
-        # With append
-        ret = cros_build_lib.run(
-            ["echo", "monkeys3"], append_to_file=True, stdout=log
-        )
-        self.assertEqual(osutils.ReadFile(log), "monkeys2\nmonkeys3\n")
         self.assertIs(ret.stdout, None)
         self.assertIs(ret.stderr, None)
 
