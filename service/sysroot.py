@@ -1654,7 +1654,7 @@ def _ChooseProfile(
         sysroot: The sysroot for which the profile is being chosen.
     """
     choose_profile = [
-        "cros_choose_profile",
+        constants.CHROMITE_BIN_DIR / "cros_choose_profile",
         "--board",
         target.name,
         "--board-root",
