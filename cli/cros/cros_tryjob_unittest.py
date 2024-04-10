@@ -99,8 +99,8 @@ class TryjobTestPrintKnownConfigs(TryjobTest):
                 self.site_config, production=False, build_config_fragments=[]
             )
 
-        # We have at least 100 lines of output, and no error out.
-        self.assertGreater(len(output.GetStdoutLines()), 100)
+        # We have at least 10 lines of output, and no error out.
+        self.assertGreater(len(output.GetStdoutLines()), 10)
         self.assertEqual("", output.GetStderr())
 
     def testListProduction(self) -> None:
@@ -110,8 +110,8 @@ class TryjobTestPrintKnownConfigs(TryjobTest):
                 self.site_config, production=True, build_config_fragments=[]
             )
 
-        # We have at least 100 lines of output, and no error out.
-        self.assertGreater(len(output.GetStdoutLines()), 100)
+        # We have at least 10 lines of output, and no error out.
+        self.assertGreater(len(output.GetStdoutLines()), 10)
         self.assertEqual("", output.GetStderr())
 
     def testListTryjobsEmpty(self) -> None:

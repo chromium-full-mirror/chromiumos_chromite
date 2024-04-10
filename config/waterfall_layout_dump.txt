@@ -1,114 +1,13 @@
 == factory ==
-  factory-ambassador-14265.B-buildspec
-    ambassador-factory-ambassador-14265.B-factorybranch
-  factory-asurada-13929.B-buildspec
-    asurada-factory-asurada-13929.B-factorybranch
-  factory-atlas-11907.B-buildspec
-    atlas-factory-atlas-11907.B-factorybranch
-  factory-brya-14517.B-buildspec
-    brask-factory-brya-14517.B-factorybranch
-    brya-factory-brya-14517.B-factorybranch
-  factory-brya-14909.124.B-buildspec
-    brya-factory-brya-14909.124.B-factorybranch
-  factory-brya-15231.B-buildspec
-    brask-factory-brya-15231.B-factorybranch
-    brya-factory-brya-15231.B-factorybranch
-    constitution-factory-brya-15231.B-factorybranch
-  factory-brya-15684.B-buildspec
-    brya-factory-brya-15684.B-factorybranch
-  factory-cherry-14455.B-buildspec
-    cherry-factory-cherry-14455.B-factorybranch
-  factory-coral-10122.B-buildspec
-    coral-factory-coral-10122.B-factorybranch
-  factory-corsola-15196.B-buildspec
-    corsola-factory-corsola-15196.B-factorybranch
-    staryu-factory-corsola-15196.B-factorybranch
-  factory-dedede-13683.B-buildspec
-    dedede-factory-dedede-13683.B-factorybranch
-  factory-drallion-13080.B-buildspec
-    drallion-factory-drallion-13080.B-factorybranch
-  factory-endeavour-13295.B-buildspec
-    endeavour-factory-endeavour-13295.B-factorybranch
-  factory-eve-9667.B-buildspec
-    eve-factory-eve-9667.B-factorybranch
   factory-excelsior-12812.B-buildspec
     excelsior-factory-excelsior-12812.B-factorybranch
-  factory-fizz-10167.B-buildspec
-    fizz-factory-fizz-10167.B-factorybranch
-  factory-gale-8743.19.B-buildspec
-    gale-factory-gale-8743.19.B-factorybranch
-  factory-gru-8652.B-buildspec
-    kevin-factory-gru-8652.B-factorybranch
-  factory-gru-9017.B-buildspec
-    bob-factory-gru-9017.B-factorybranch
-    gru-factory-gru-9017.B-factorybranch
-  factory-grunt-11164.135.B-buildspec
-    grunt-factory-grunt-11164.135.B-factorybranch
-  factory-grunt-11164.B-buildspec
-    grunt-factory-grunt-11164.B-factorybranch
-  factory-guybrush-14908.B-buildspec
-    guybrush-factory-guybrush-14908.B-factorybranch
   factory-hatch-12692.B-buildspec
     hatch-factory-hatch-12692.B-factorybranch
-  factory-keeby-14162.B-buildspec
-    keeby-factory-keeby-14162.B-factorybranch
   factory-kukui-12587.B-buildspec
     jacuzzi-factory-kukui-12587.B-factorybranch
     kukui-factory-kukui-12587.B-factorybranch
-  factory-kukui-14374.B-buildspec
-    jacuzzi-factory-kukui-14374.B-factorybranch
-    kukui-factory-kukui-14374.B-factorybranch
-  factory-mistral-12361.B-buildspec
-    mistral-factory-mistral-12361.B-factorybranch
-  factory-nami-10715.B-buildspec
-    kalista-factory-nami-10715.B-factorybranch
-    nami-factory-nami-10715.B-factorybranch
-  factory-nissa-15199.B-buildspec
-    nissa-factory-nissa-15199.B-factorybranch
-  factory-nocturne-11066.B-buildspec
-    nocturne-factory-nocturne-11066.B-factorybranch
-  factory-oak-8182.B-buildspec
-    elm-factory-oak-8182.B-factorybranch
-    hana-factory-oak-8182.B-factorybranch
   factory-octopus-11512.B-buildspec
     octopus-factory-octopus-11512.B-factorybranch
-  factory-poppy-10504.B-buildspec
-    nautilus-factory-poppy-10504.B-factorybranch
-  factory-puff-13329.B-buildspec
-    puff-factory-puff-13329.B-factorybranch
-    puff-moblab-factory-puff-13329.B-factorybranch
-  factory-puff-13813.B-buildspec
-    puff-factory-puff-13813.B-factorybranch
-  factory-rammus-11289.B-buildspec
-    rammus-factory-rammus-11289.B-factorybranch
-  factory-reef-8811.B-buildspec
-    pyro-factory-reef-8811.B-factorybranch
-    reef-factory-reef-8811.B-factorybranch
-    sand-factory-reef-8811.B-factorybranch
-    snappy-factory-reef-8811.B-factorybranch
-  factory-sarien-12033.B-buildspec
-    sarien-factory-sarien-12033.B-factorybranch
-  factory-scarlet-10211.B-buildspec
-    scarlet-factory-scarlet-10211.B-factorybranch
-  factory-skyrim-15384.B-buildspec
-    skyrim-factory-skyrim-15384.B-factorybranch
-  factory-soraka-10323.39.B-buildspec
-    soraka-factory-soraka-10323.39.B-factorybranch
-  factory-strongbad-13963.B-buildspec
-    strongbad-factory-strongbad-13963.B-factorybranch
-    trogdor-factory-strongbad-13963.B-factorybranch
-  factory-trogdor-13443.B-buildspec
-    strongbad-factory-trogdor-13443.B-factorybranch
-    trogdor-factory-trogdor-13443.B-factorybranch
-  factory-trogdor-15210.B-buildspec
-    strongbad-factory-trogdor-15210.B-factorybranch
-    trogdor-factory-trogdor-15210.B-factorybranch
-  factory-volteer-13600.B-buildspec
-    volteer-factory-volteer-13600.B-factorybranch
-  factory-zork-13427.B-buildspec
-    zork-factory-zork-13427.B-factorybranch
-  factory-zork-13700.B-buildspec
-    zork-factory-zork-13700.B-factorybranch
 
 == release ==
   master-release
@@ -119,159 +18,27 @@
   luci-scheduler-updater
 
 == tryjob ==
-  ambassador-factory-ambassador-14265.B-factorybranch-tryjob
   amd64-generic-full-tryjob
-  asurada-factory-asurada-13929.B-factorybranch-tryjob
-  atlas-factory-atlas-11907.B-factorybranch-tryjob
   atlas-master-factorybranch-tryjob
-  bob-factory-gru-9017.B-factorybranch-tryjob
-  brask-factory-brya-14517.B-factorybranch-tryjob
-  brask-factory-brya-15231.B-factorybranch-tryjob
-  brya-factory-brya-14517.B-factorybranch-tryjob
-  brya-factory-brya-14909.124.B-factorybranch-tryjob
-  brya-factory-brya-15231.B-factorybranch-tryjob
-  brya-factory-brya-15684.B-factorybranch-tryjob
-  cherry-factory-cherry-14455.B-factorybranch-tryjob
   config-updater-tryjob
-  constitution-factory-brya-15231.B-factorybranch-tryjob
-  coral-factory-coral-10122.B-factorybranch-tryjob
   coral-master-factorybranch-tryjob
-  corsola-factory-corsola-15196.B-factorybranch-tryjob
-  dedede-factory-dedede-13683.B-factorybranch-tryjob
-  drallion-factory-drallion-13080.B-factorybranch-tryjob
   drallion-master-factorybranch-tryjob
-  elm-factory-oak-8182.B-factorybranch-tryjob
-  endeavour-factory-endeavour-13295.B-factorybranch-tryjob
-  eve-factory-eve-9667.B-factorybranch-tryjob
   eve-master-factorybranch-tryjob
   eve-release-tryjob
   excelsior-factory-excelsior-12812.B-factorybranch-tryjob
-  factory-ambassador-14265.B-buildspec-tryjob
-    ambassador-factory-ambassador-14265.B-factorybranch-tryjob
-  factory-asurada-13929.B-buildspec-tryjob
-    asurada-factory-asurada-13929.B-factorybranch-tryjob
-  factory-atlas-11907.B-buildspec-tryjob
-    atlas-factory-atlas-11907.B-factorybranch-tryjob
-  factory-brya-14517.B-buildspec-tryjob
-    brask-factory-brya-14517.B-factorybranch-tryjob
-    brya-factory-brya-14517.B-factorybranch-tryjob
-  factory-brya-14909.124.B-buildspec-tryjob
-    brya-factory-brya-14909.124.B-factorybranch-tryjob
-  factory-brya-15231.B-buildspec-tryjob
-    brask-factory-brya-15231.B-factorybranch-tryjob
-    brya-factory-brya-15231.B-factorybranch-tryjob
-    constitution-factory-brya-15231.B-factorybranch-tryjob
-  factory-brya-15684.B-buildspec-tryjob
-    brya-factory-brya-15684.B-factorybranch-tryjob
-  factory-cherry-14455.B-buildspec-tryjob
-    cherry-factory-cherry-14455.B-factorybranch-tryjob
-  factory-coral-10122.B-buildspec-tryjob
-    coral-factory-coral-10122.B-factorybranch-tryjob
-  factory-corsola-15196.B-buildspec-tryjob
-    corsola-factory-corsola-15196.B-factorybranch-tryjob
-    staryu-factory-corsola-15196.B-factorybranch-tryjob
-  factory-dedede-13683.B-buildspec-tryjob
-    dedede-factory-dedede-13683.B-factorybranch-tryjob
-  factory-drallion-13080.B-buildspec-tryjob
-    drallion-factory-drallion-13080.B-factorybranch-tryjob
-  factory-endeavour-13295.B-buildspec-tryjob
-    endeavour-factory-endeavour-13295.B-factorybranch-tryjob
-  factory-eve-9667.B-buildspec-tryjob
-    eve-factory-eve-9667.B-factorybranch-tryjob
   factory-excelsior-12812.B-buildspec-tryjob
     excelsior-factory-excelsior-12812.B-factorybranch-tryjob
-  factory-fizz-10167.B-buildspec-tryjob
-    fizz-factory-fizz-10167.B-factorybranch-tryjob
-  factory-gale-8743.19.B-buildspec-tryjob
-    gale-factory-gale-8743.19.B-factorybranch-tryjob
-  factory-gru-8652.B-buildspec-tryjob
-    kevin-factory-gru-8652.B-factorybranch-tryjob
-  factory-gru-9017.B-buildspec-tryjob
-    bob-factory-gru-9017.B-factorybranch-tryjob
-    gru-factory-gru-9017.B-factorybranch-tryjob
-  factory-grunt-11164.135.B-buildspec-tryjob
-    grunt-factory-grunt-11164.135.B-factorybranch-tryjob
-  factory-grunt-11164.B-buildspec-tryjob
-    grunt-factory-grunt-11164.B-factorybranch-tryjob
-  factory-guybrush-14908.B-buildspec-tryjob
-    guybrush-factory-guybrush-14908.B-factorybranch-tryjob
   factory-hatch-12692.B-buildspec-tryjob
     hatch-factory-hatch-12692.B-factorybranch-tryjob
-  factory-keeby-14162.B-buildspec-tryjob
-    keeby-factory-keeby-14162.B-factorybranch-tryjob
   factory-kukui-12587.B-buildspec-tryjob
     jacuzzi-factory-kukui-12587.B-factorybranch-tryjob
     kukui-factory-kukui-12587.B-factorybranch-tryjob
-  factory-kukui-14374.B-buildspec-tryjob
-    jacuzzi-factory-kukui-14374.B-factorybranch-tryjob
-    kukui-factory-kukui-14374.B-factorybranch-tryjob
-  factory-mistral-12361.B-buildspec-tryjob
-    mistral-factory-mistral-12361.B-factorybranch-tryjob
-  factory-nami-10715.B-buildspec-tryjob
-    kalista-factory-nami-10715.B-factorybranch-tryjob
-    nami-factory-nami-10715.B-factorybranch-tryjob
-  factory-nissa-15199.B-buildspec-tryjob
-    nissa-factory-nissa-15199.B-factorybranch-tryjob
-  factory-nocturne-11066.B-buildspec-tryjob
-    nocturne-factory-nocturne-11066.B-factorybranch-tryjob
-  factory-oak-8182.B-buildspec-tryjob
-    elm-factory-oak-8182.B-factorybranch-tryjob
-    hana-factory-oak-8182.B-factorybranch-tryjob
   factory-octopus-11512.B-buildspec-tryjob
     octopus-factory-octopus-11512.B-factorybranch-tryjob
-  factory-poppy-10504.B-buildspec-tryjob
-    nautilus-factory-poppy-10504.B-factorybranch-tryjob
-  factory-puff-13329.B-buildspec-tryjob
-    puff-factory-puff-13329.B-factorybranch-tryjob
-    puff-moblab-factory-puff-13329.B-factorybranch-tryjob
-  factory-puff-13813.B-buildspec-tryjob
-    puff-factory-puff-13813.B-factorybranch-tryjob
-  factory-rammus-11289.B-buildspec-tryjob
-    rammus-factory-rammus-11289.B-factorybranch-tryjob
-  factory-reef-8811.B-buildspec-tryjob
-    pyro-factory-reef-8811.B-factorybranch-tryjob
-    reef-factory-reef-8811.B-factorybranch-tryjob
-    sand-factory-reef-8811.B-factorybranch-tryjob
-    snappy-factory-reef-8811.B-factorybranch-tryjob
-  factory-sarien-12033.B-buildspec-tryjob
-    sarien-factory-sarien-12033.B-factorybranch-tryjob
-  factory-scarlet-10211.B-buildspec-tryjob
-    scarlet-factory-scarlet-10211.B-factorybranch-tryjob
-  factory-skyrim-15384.B-buildspec-tryjob
-    skyrim-factory-skyrim-15384.B-factorybranch-tryjob
-  factory-soraka-10323.39.B-buildspec-tryjob
-    soraka-factory-soraka-10323.39.B-factorybranch-tryjob
-  factory-strongbad-13963.B-buildspec-tryjob
-    strongbad-factory-strongbad-13963.B-factorybranch-tryjob
-    trogdor-factory-strongbad-13963.B-factorybranch-tryjob
-  factory-trogdor-13443.B-buildspec-tryjob
-    strongbad-factory-trogdor-13443.B-factorybranch-tryjob
-    trogdor-factory-trogdor-13443.B-factorybranch-tryjob
-  factory-trogdor-15210.B-buildspec-tryjob
-    strongbad-factory-trogdor-15210.B-factorybranch-tryjob
-    trogdor-factory-trogdor-15210.B-factorybranch-tryjob
-  factory-volteer-13600.B-buildspec-tryjob
-    volteer-factory-volteer-13600.B-factorybranch-tryjob
-  factory-zork-13427.B-buildspec-tryjob
-    zork-factory-zork-13427.B-factorybranch-tryjob
-  factory-zork-13700.B-buildspec-tryjob
-    zork-factory-zork-13700.B-factorybranch-tryjob
   fail-build
-  fizz-factory-fizz-10167.B-factorybranch-tryjob
-  gale-factory-gale-8743.19.B-factorybranch-tryjob
-  gru-factory-gru-9017.B-factorybranch-tryjob
-  grunt-factory-grunt-11164.135.B-factorybranch-tryjob
-  grunt-factory-grunt-11164.B-factorybranch-tryjob
-  guybrush-factory-guybrush-14908.B-factorybranch-tryjob
-  hana-factory-oak-8182.B-factorybranch-tryjob
   hatch-factory-hatch-12692.B-factorybranch-tryjob
   jacuzzi-factory-kukui-12587.B-factorybranch-tryjob
-  jacuzzi-factory-kukui-14374.B-factorybranch-tryjob
-  kalista-factory-nami-10715.B-factorybranch-tryjob
-  keeby-factory-keeby-14162.B-factorybranch-tryjob
-  kevin-factory-gru-8652.B-factorybranch-tryjob
   kukui-factory-kukui-12587.B-factorybranch-tryjob
-  kukui-factory-kukui-14374.B-factorybranch-tryjob
   luci-scheduler-updater-tryjob
   master-buildspec-tryjob
     atlas-master-factorybranch-tryjob
@@ -286,37 +53,10 @@
     amd64-generic-full-tryjob
   master-release-tryjob
     eve-release-tryjob
-  mistral-factory-mistral-12361.B-factorybranch-tryjob
   mistral-master-factorybranch-tryjob
-  nami-factory-nami-10715.B-factorybranch-tryjob
-  nautilus-factory-poppy-10504.B-factorybranch-tryjob
-  nissa-factory-nissa-15199.B-factorybranch-tryjob
-  nocturne-factory-nocturne-11066.B-factorybranch-tryjob
   octopus-factory-octopus-11512.B-factorybranch-tryjob
   octopus-master-factorybranch-tryjob
-  puff-factory-puff-13329.B-factorybranch-tryjob
-  puff-factory-puff-13813.B-factorybranch-tryjob
-  puff-moblab-factory-puff-13329.B-factorybranch-tryjob
-  pyro-factory-reef-8811.B-factorybranch-tryjob
-  rammus-factory-rammus-11289.B-factorybranch-tryjob
   rammus-master-factorybranch-tryjob
-  reef-factory-reef-8811.B-factorybranch-tryjob
-  sand-factory-reef-8811.B-factorybranch-tryjob
-  sarien-factory-sarien-12033.B-factorybranch-tryjob
   sarien-master-factorybranch-tryjob
-  scarlet-factory-scarlet-10211.B-factorybranch-tryjob
-  skyrim-factory-skyrim-15384.B-factorybranch-tryjob
-  snappy-factory-reef-8811.B-factorybranch-tryjob
-  soraka-factory-soraka-10323.39.B-factorybranch-tryjob
-  staryu-factory-corsola-15196.B-factorybranch-tryjob
-  strongbad-factory-strongbad-13963.B-factorybranch-tryjob
-  strongbad-factory-trogdor-13443.B-factorybranch-tryjob
-  strongbad-factory-trogdor-15210.B-factorybranch-tryjob
   success-build
   sync-test-cbuildbot-tryjob
-  trogdor-factory-strongbad-13963.B-factorybranch-tryjob
-  trogdor-factory-trogdor-13443.B-factorybranch-tryjob
-  trogdor-factory-trogdor-15210.B-factorybranch-tryjob
-  volteer-factory-volteer-13600.B-factorybranch-tryjob
-  zork-factory-zork-13427.B-factorybranch-tryjob
-  zork-factory-zork-13700.B-factorybranch-tryjob
