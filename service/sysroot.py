@@ -83,6 +83,7 @@ BACKTRACK_DEFAULT = 30
 
 SYSROOT_ARCHIVE_FILE = "sysroot.tar.zst"
 BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE = "/tmp/allpackages_command.profile.gz"
+BAZEL_ALLPACKAGES_CQUERY_PROFILE_FILE = "/tmp/allpackages_cquery.profile.gz"
 BAZEL_ALLPACKAGES_ACTION_LOGS_FILE = "/tmp/allpackages_action_logs.tar.gz"
 BAZEL_ALLPACKAGES_EXEC_LOG_FILE = "/tmp/allpackages_exec_compact.log"
 BAZEL_BUILD_EVENT_JSON_FILE_PATH = "/tmp/chromeos_bazel_build_events.json"
@@ -1443,8 +1444,7 @@ in
             [
                 BAZEL_COMMAND,
                 "cquery",
-                # Makes it so we don't need to download distfiles or chrome src.
-                "--//bazel/portage:omit_ebuild_src",
+                "--profile=" + BAZEL_ALLPACKAGES_CQUERY_PROFILE_FILE,
                 query_text,
             ],
             extra_env=extra_env,
@@ -1828,6 +1828,7 @@ def CollectBazelPerformanceArtifacts(
     """
     chroot_raw_artifacts = [
         BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
+        BAZEL_ALLPACKAGES_CQUERY_PROFILE_FILE,
         BAZEL_ALLPACKAGES_ACTION_LOGS_FILE,
         BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
         BAZEL_BUILD_EVENT_JSON_FILE_PATH,
