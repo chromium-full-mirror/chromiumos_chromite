@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Copyright 2022 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -18,7 +17,7 @@ import subprocess
 import sys
 from typing import Callable, List
 
-import detect_indent
+from chromite.ide_tooling.scripts import detect_indent
 
 
 MNT_HOST_SOURCE_RE = r"(?:\.\.(?:/\.\.)*)?/mnt/host/source/(.*)"
@@ -217,10 +216,15 @@ def generate(
     return converted
 
 
-def main() -> None:
+def main(argv: List[str]) -> None:
+    """Main function to convert the compilation database.
+
+    Args:
+        argv: Command-line args passed into the script, i.e. sys.argv[1:].
+    """
     text = sys.stdin.read()
     data = json.loads(text)
-    external_trunk_path = sys.argv[1]
+    external_trunk_path = argv[0]
     if not os.path.exists(external_trunk_path):
         # The external_trunk_path points to the chromiumos trunk path *outside*
         # chroot, and it may not exist inside chroot, where the script is run
@@ -232,7 +236,3 @@ def main() -> None:
         )
     indent = detect_indent.detect_indentation(text)
     json.dump(generate(data, external_trunk_path), sys.stdout, indent=indent)
-
-
-if __name__ == "__main__":
-    main()
