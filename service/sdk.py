@@ -610,6 +610,59 @@ def _uprev_local_host_prebuilts_files(
     return modified_paths
 
 
+def _find_newest_ebuild(in_dir: Path) -> Tuple[Path, package_info.PackageInfo]:
+    """Find the ebuild in `in_dir` with the newest version.
+
+    Raises:
+        ValueError if the given directory contains no ebuilds, or if the
+        ebuilds in the directory could not be parsed.
+    """
+    ebuilds = ((x, package_info.parse(x)) for x in in_dir.glob("*.ebuild"))
+    return max(ebuilds, key=lambda x: x[1])
+
+
+def uprev_toolchain_virtuals(
+    chromiumos_overlay: Path = constants.SOURCE_ROOT
+    / constants.CHROMIUMOS_OVERLAY_DIR,
+) -> List[Path]:
+    """Uprev virtual packages to match their in-tree versions."""
+    # List of host package -> virtual package to keep in sync.
+    virtuals_to_sync = [
+        (
+            chromiumos_overlay / "dev-lang/rust",
+            chromiumos_overlay / "virtual/rust",
+        )
+    ]
+
+    updated_files = []
+    for host_package_dir, virtual_package_dir in virtuals_to_sync:
+        _, host_info = _find_newest_ebuild(host_package_dir)
+        virtual_path, virtual_info = _find_newest_ebuild(virtual_package_dir)
+        if host_info.pvr == virtual_info.pvr:
+            logging.info(
+                "No need to uprev %s; no new updates to its host path.",
+                virtual_path,
+            )
+            continue
+
+        logging.info(
+            "Max version for %s is %s, but virtual is at %s; updating...",
+            host_package_dir,
+            host_info.version,
+            virtual_info.version,
+        )
+        new_virtual_info = package_info.PackageInfo(
+            virtual_info.category,
+            virtual_info.package,
+            host_info.version,
+            host_info.revision,
+        )
+        new_virtual_path = virtual_path.parent / new_virtual_info.ebuild
+        virtual_path.rename(new_virtual_path)
+        updated_files.extend((virtual_path, new_virtual_path))
+    return updated_files
+
+
 def uprev_sdk_and_prebuilts(
     sdk_version: str,
     toolchain_tarball_template: str,

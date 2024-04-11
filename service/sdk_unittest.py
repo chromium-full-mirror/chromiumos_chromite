@@ -866,3 +866,80 @@ source make.conf.host_setup
 
     def test_update_sdk_bucket_to_default_value(self) -> None:
         self._test_update("chromeos-prebuilt", "chromiumos-sdk", "")
+
+
+class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
+    """Tests for `uprev_toolchain_virtuals`."""
+
+    def write_versions(
+        self,
+        dev_lang_rust_versions: List[str],
+        virtual_rust_versions: List[str],
+    ) -> Path:
+        chromiumos_overlay = self.tempdir
+        dev_lang_rust = chromiumos_overlay / "dev-lang" / "rust"
+        dev_lang_rust.mkdir(parents=True)
+        for ver in dev_lang_rust_versions:
+            (dev_lang_rust / f"rust-{ver}.ebuild").touch()
+
+        virtual_rust = chromiumos_overlay / "virtual" / "rust"
+        virtual_rust.mkdir(parents=True)
+        for ver in virtual_rust_versions:
+            (virtual_rust / f"rust-{ver}.ebuild").touch()
+        return chromiumos_overlay
+
+    def test_nop_update(self):
+        chromiumos_overlay = self.write_versions(
+            dev_lang_rust_versions=["1.77.0"],
+            virtual_rust_versions=["1.77.0"],
+        )
+        updated_files = sdk.uprev_toolchain_virtuals(chromiumos_overlay)
+        self.assertEqual(updated_files, [])
+
+    def test_downgrade(self):
+        chromiumos_overlay = self.write_versions(
+            dev_lang_rust_versions=["1.77.0"],
+            virtual_rust_versions=["1.77.1"],
+        )
+        updated_files = sdk.uprev_toolchain_virtuals(chromiumos_overlay)
+        new_virtual = (
+            chromiumos_overlay / "virtual" / "rust" / "rust-1.77.0.ebuild"
+        )
+        old_virtual = (
+            chromiumos_overlay / "virtual" / "rust" / "rust-1.77.1.ebuild"
+        )
+        self.assertEqual(updated_files, [old_virtual, new_virtual])
+        self.assertFalse(old_virtual.exists())
+        self.assertTrue(new_virtual.exists())
+
+    def test_revision_upgrade(self):
+        chromiumos_overlay = self.write_versions(
+            dev_lang_rust_versions=["1.77.0-r1"],
+            virtual_rust_versions=["1.77.0"],
+        )
+        updated_files = sdk.uprev_toolchain_virtuals(chromiumos_overlay)
+        new_virtual = (
+            chromiumos_overlay / "virtual" / "rust" / "rust-1.77.0-r1.ebuild"
+        )
+        old_virtual = (
+            chromiumos_overlay / "virtual" / "rust" / "rust-1.77.0.ebuild"
+        )
+        self.assertEqual(updated_files, [old_virtual, new_virtual])
+        self.assertFalse(old_virtual.exists())
+        self.assertTrue(new_virtual.exists())
+
+    def test_highest_is_picked_of_multiple_versions(self):
+        chromiumos_overlay = self.write_versions(
+            dev_lang_rust_versions=["1.77.0", "1.77.0-r3"],
+            virtual_rust_versions=["1.77.0", "1.77.0-r2"],
+        )
+        updated_files = sdk.uprev_toolchain_virtuals(chromiumos_overlay)
+        new_virtual = (
+            chromiumos_overlay / "virtual" / "rust" / "rust-1.77.0-r3.ebuild"
+        )
+        old_virtual = (
+            chromiumos_overlay / "virtual" / "rust" / "rust-1.77.0-r2.ebuild"
+        )
+        self.assertEqual(updated_files, [old_virtual, new_virtual])
+        self.assertFalse(old_virtual.exists())
+        self.assertTrue(new_virtual.exists())

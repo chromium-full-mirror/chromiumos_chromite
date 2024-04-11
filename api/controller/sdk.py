@@ -241,6 +241,7 @@ def Uprev(
         request.binhost_gs_bucket,
         sdk_gs_bucket=request.sdk_gs_bucket or None,
     )
+    modified_files += sdk.uprev_toolchain_virtuals()
 
     # Populate the UprevResponse object with the modified files.
     for modified_file in modified_files:
