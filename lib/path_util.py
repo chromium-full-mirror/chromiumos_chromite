@@ -364,6 +364,16 @@ def DetermineCheckout(cwd=None) -> CheckoutInfo:
             checkout_type = CheckoutType.CITC
             break
 
+    if (
+        checkout_type == CheckoutType.UNKNOWN
+        and cros_build_lib.IsInsideChroot()
+        and (constants.SOURCE_ROOT / ".supermanifest").exists()
+    ):
+        # We can safely assume .repo and .gclient are in the mounted checkout in
+        # the chroot, but .citc will not be since it's in the host's parent path
+        # and doesn't get mounted.
+        checkout_type = CheckoutType.CITC
+
     if checkout_type != CheckoutType.UNKNOWN:
         # TODO(vapier): Change this function to pathlib Path.
         root = str(path)
