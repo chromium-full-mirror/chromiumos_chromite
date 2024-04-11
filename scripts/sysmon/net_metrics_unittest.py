@@ -4,10 +4,6 @@
 
 """Unit tests for net_metrics."""
 
-# pylint: disable=protected-access
-
-from __future__ import absolute_import
-
 import socket
 from unittest import mock
 
@@ -16,6 +12,8 @@ import psutil  # pylint: disable=import-error
 from chromite.lib import cros_test_lib
 from chromite.scripts.sysmon import net_metrics
 
+
+# pylint: disable=protected-access
 
 snetio = psutil._common.snetio
 snicstats = psutil._common.snicstats

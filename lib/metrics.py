@@ -9,8 +9,6 @@ friendly to developers. It also provides import safety, in case ts_mon is not
 deployed with your code.
 """
 
-from __future__ import division
-
 import collections
 import contextlib
 from functools import wraps

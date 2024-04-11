@@ -4,8 +4,6 @@
 
 """Library to generate a DLC (Downloadable Content) artifact."""
 
-from __future__ import division
-
 import functools
 import hashlib
 import json

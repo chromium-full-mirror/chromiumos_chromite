@@ -8,8 +8,6 @@ This module implements the concept of an operation, which has regular progress
 updates, verbose text display and perhaps some errors.
 """
 
-from __future__ import division
-
 import collections
 import contextlib
 import fcntl

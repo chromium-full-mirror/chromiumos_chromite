@@ -16,8 +16,6 @@ Documentation for the Portage log system can be found at:
 https://wiki.gentoo.org/wiki/Portage_log
 """
 
-from __future__ import absolute_import
-
 from collections import defaultdict
 import re
 

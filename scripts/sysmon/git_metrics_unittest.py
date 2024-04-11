@@ -4,10 +4,6 @@
 
 """Unit tests for git_metrics."""
 
-# pylint: disable=protected-access
-
-from __future__ import absolute_import
-
 import os
 import subprocess
 from unittest import mock
@@ -15,6 +11,9 @@ from unittest import mock
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.scripts.sysmon import git_metrics
+
+
+# pylint: disable=protected-access
 
 
 class TestGitMetricCollector(cros_test_lib.TestCase):

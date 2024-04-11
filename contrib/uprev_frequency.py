@@ -7,8 +7,6 @@
 TODO(evanhernandez): Move this to scripts/ once it has been hardened.
 """
 
-from __future__ import division
-
 import collections
 import datetime
 import logging

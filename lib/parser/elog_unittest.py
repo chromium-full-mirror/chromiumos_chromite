@@ -4,8 +4,6 @@
 
 """Tests for elog summary parser"""
 
-from __future__ import absolute_import
-
 from chromite.lib import cros_test_lib
 from chromite.lib.parser import elog
 

@@ -4,8 +4,6 @@
 
 """uprev_lib tests."""
 
-from __future__ import division
-
 import os
 import pathlib
 from unittest import mock

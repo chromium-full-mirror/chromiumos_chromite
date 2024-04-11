@@ -4,14 +4,13 @@
 
 """Unit tests for git_metrics."""
 
-# pylint: disable=protected-access
-
-from __future__ import absolute_import
-
 from unittest import mock
 
 from chromite.lib import cros_test_lib
 from chromite.scripts.sysmon import mainlib
+
+
+# pylint: disable=protected-access
 
 
 class TestTimedCallback(cros_test_lib.TestCase):

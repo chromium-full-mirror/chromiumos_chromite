@@ -4,16 +4,15 @@
 
 """Unit tests for proc_metrics."""
 
-# pylint: disable=protected-access
-
-from __future__ import absolute_import
-
 from unittest import mock
 
 import psutil  # pylint: disable=import-error
 
 from chromite.lib import cros_test_lib
 from chromite.scripts.sysmon import proc_metrics
+
+
+# pylint: disable=protected-access
 
 
 def _mock_process(name, cmdline, parent=None, num_threads=10):

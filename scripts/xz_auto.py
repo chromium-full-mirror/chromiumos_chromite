@@ -4,8 +4,6 @@
 
 """Run xz from PATH with a thread for each core in the system."""
 
-from __future__ import division
-
 import functools
 import getopt
 import os

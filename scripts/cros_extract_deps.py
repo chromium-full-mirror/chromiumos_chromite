@@ -7,8 +7,6 @@
 This produces JSON output for other tools to process.
 """
 
-from __future__ import absolute_import
-
 import sys
 
 from chromite.lib import build_target_lib

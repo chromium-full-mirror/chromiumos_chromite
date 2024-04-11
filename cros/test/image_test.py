@@ -7,8 +7,6 @@
 This module should only be imported inside the chroot.
 """
 
-from __future__ import division
-
 import collections
 import errno
 import fnmatch

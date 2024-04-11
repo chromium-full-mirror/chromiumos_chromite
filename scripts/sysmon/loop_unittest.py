@@ -4,15 +4,14 @@
 
 """Unit tests for loop."""
 
-# pylint: disable=protected-access
-
-from __future__ import absolute_import
-
 import contextlib
 from unittest import mock
 
 from chromite.lib import cros_test_lib
 from chromite.scripts.sysmon import loop
+
+
+# pylint: disable=protected-access
 
 
 class _MockTime:

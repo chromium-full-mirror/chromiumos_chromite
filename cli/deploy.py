@@ -8,8 +8,6 @@ Integration tests for this file can be found at cli/cros/tests/cros_vm_tests.py.
 See that file for more information.
 """
 
-from __future__ import division
-
 import bz2
 import fnmatch
 import functools

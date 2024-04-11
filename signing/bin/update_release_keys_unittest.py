@@ -4,9 +4,6 @@
 
 """Tests for update_release_keys."""
 
-from __future__ import absolute_import
-from __future__ import division
-
 import logging
 import os
 from unittest import mock

@@ -6,7 +6,6 @@
 
 # pylint: disable=protected-access
 
-from __future__ import absolute_import
 
 from unittest import mock
 

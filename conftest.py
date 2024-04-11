@@ -9,8 +9,6 @@ by pytest:
 https://docs.pytest.org/en/latest/explanation/fixtures.html
 """
 
-from __future__ import division
-
 import multiprocessing
 import os
 from unittest import mock

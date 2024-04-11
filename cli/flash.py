@@ -4,8 +4,6 @@
 
 """Install/copy the image to the device."""
 
-from __future__ import division
-
 import logging
 import os
 import re

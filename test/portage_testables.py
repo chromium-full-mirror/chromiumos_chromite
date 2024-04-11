@@ -4,8 +4,6 @@
 
 """Utilities for setting up Portage objects for testing."""
 
-from __future__ import division
-
 import itertools
 import os
 from pathlib import Path
