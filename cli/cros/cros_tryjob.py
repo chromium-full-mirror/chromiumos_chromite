@@ -189,6 +189,11 @@ def RunLocal(options):
     Returns:
         Exit code of build as an int.
     """
+    logging.warning(
+        "Local tryjobs are being deprecated in 2024. Please open a "
+        "go/cros-try-bug if remote tryjobs cannot meet your use case. Follow "
+        "b/333917859 for deprecation timeline."
+    )
     if cros_build_lib.IsInsideChroot():
         cros_build_lib.Die("Local tryjobs cannot be started inside the chroot.")
 
