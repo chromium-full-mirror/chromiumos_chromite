@@ -477,6 +477,7 @@ CHROOT_ENVIRONMENT_ALLOWLIST = (
     "SSH_AUTH_SOCK",
     "TMUX",
     "USE",
+    "USE_PINNED_CHROMITE",
     "all_proxy",
     "ftp_proxy",
     "http_proxy",
