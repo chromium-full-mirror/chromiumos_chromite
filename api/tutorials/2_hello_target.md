@@ -32,7 +32,7 @@ This time we'll just look at the HelloRequest message, as it's the only
 part that needs changes.
 We'll add a new string field to pass our target.
 
-`chromite/infra/proto/src/chromite/api/hello.proto`:
+`infra/proto_branched/src/chromite/api/hello.proto`:
 ```protobuf
 // HelloService/Hello request and response messages.
 message HelloRequest {
@@ -44,7 +44,7 @@ Since we've updated the proto, we'll need to regenerate the protobuf bindings
 again.
 
 ```shell script
-$> cd ~/chromiumos/chromite/infra/proto
+$> cd ~/chromiumos/infra/proto_branched
 $> ./generate.sh
 $> cd ~/chromiumos/chromite/api
 $> ./compile_build_api_proto

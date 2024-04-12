@@ -8,7 +8,7 @@ Welcome to the Build API.
 
 The Build API is a CLI-only, proto based API to execute build steps. It was
 created to provide a stable interface for the CI builders. The proto files (in
-[chromite/infra/proto](#chromite/infra/proto/)) define the services/RPCs
+[infra/proto_branched](#infra/proto_branched/)) define the services/RPCs
 provided by the API. The modules in [controller/](./controller/) are the entry
 points for the RPCs defined in the proto files.
 
@@ -81,7 +81,7 @@ specific topics.
 
 ## Directory Reference
 
-### chromite/infra/proto/
+### infra/proto_branched/
 
 **Make sure you've consulted the Build and CI teams when considering making
 breaking changes that affect the Build API.**
@@ -109,10 +109,10 @@ When making changes to the proto, you must:
 
 1. Change the proto.
     1. Make your changes.
-        * `chromite/infra/proto` or `infra/proto` can be used,
-          `chromite/infra/proto` is recommended for simplicity.
-        * Your changes will need to be in `chromite/infra/proto` to update the
-          chromite bindings after your proto changes are committed.
+        * Edit the proto in `infra/proto_branched`.
+        * You can make and submit changes in `infra/proto` instead, but they
+          will need to be in `infra/proto_branched` to generate the chromite
+          bindings.
     2. Run `generate.sh`.
     3. Commit those changes as a single CL.
 2. Update the chromite proto.
@@ -130,8 +130,8 @@ When making changes to the proto, you must:
 Use `Cq-Depend:` to declare the CL dependencies between the infra/proto and
 chromite changes.
 
-The chromite/infra/proto repo is branched and reflects the Build API for the
-branch in question. The infra/proto repo is unbranched, and is what is used by
+The `infra/proto_branched` repo is branched and reflects the Build API for the
+branch in question. The `infra/proto` repo is unbranched, and is what is used by
 recipes.
 
 #### Deprecations

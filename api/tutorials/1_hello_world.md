@@ -30,11 +30,11 @@ Our conventions dictate the names for the request and response messages are
 `<rpc-name>Request` and `<rpc-name>Response`, so `HelloRequest` and
 `HelloResponse`.
 
-The Build API proto lives in `chromite/infra/proto/src/chromite/api`,
+The Build API proto lives in `infra/proto_branched/src/chromite/api`,
 so we'll create `hello.proto` there.
 In addition to our messages, we need to add in some boilerplate proto config.
 
-`chromite/infra/proto/src/chromite/api/hello.proto`:
+`infra/proto_branched/src/chromite/api/hello.proto`:
 ```protobuf
 // Proto config.
 syntax = "proto3";
@@ -99,7 +99,7 @@ the service and method options, then add the required configurations.
 The full, new contents of our `hello.proto` shown below, with comments on the
 additions.
 
-`chromite/infra/proto/src/chromite/api/hello.proto`:
+`infra/proto_branched/src/chromite/api/hello.proto`:
 ```protobuf
 // Proto config.
 syntax = "proto3";
@@ -144,12 +144,8 @@ The `generate.sh` script handles the proto generation for the infra/proto repo,
 and the `compile_build_api_proto` script handles the proto generation for the
 Build API.
 
-Note: `infra/proto` is a completely different repo than chromite, which is why
-this has to be done twice.
-The details about the repos are beyond the scope of this tutorial.
-
 ```shell script
-$> cd ~/chromiumos/chromite/infra/proto
+$> cd ~/chromiumos/infra/proto_branched
 $> ./generate.sh
 $> cd ~/chromiumos/chromite/api
 $> ./compile_build_api_proto

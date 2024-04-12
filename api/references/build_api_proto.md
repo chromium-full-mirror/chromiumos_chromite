@@ -57,19 +57,19 @@ For the most part, the proto lives in the
 The [Build API README](../README.md) has some information about specific
 directories used by the Build API.
 
-### infra/proto vs chromite/infra/proto
+### infra/proto vs infra/proto_branched
 
 The `infra/proto` repo itself appears twice in the chromiumos checkout;
-`infra/proto/` and `chromite/infra/proto`.
+`infra/proto/` and `infra/proto_branched`.
 The `infra/proto` checkout is always at ToT.
-The `chromite/infra/proto` checkout is branched along with chromite.
+The `infra/proto_branched` checkout is branched along with chromite.
 
 These two checkouts reflect the two versions of proto that would be used for the
 checkout.
 The CI recipes code will always be using ToT, while chromite has to use branched
 proto to ensure the implementation and proto match.
 Chromite also currently commits its compiled proto to ensure it has a version of
-the proto that works with its vendored protobuf library, so while it doesn't
-need the branched `chromite/infra/proto` to compile its proto, the checkout
-ensures we have a human readable version of the proto being used by chromite in
-the repository.
+the proto that works with its vendored protobuf library.
+In addition to ensuring the proto bindings can be regenerated if changes are
+needed, `infra/proto_branched` also provides a human readable version of the
+proto being used by chromite on the branch.

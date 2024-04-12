@@ -68,11 +68,11 @@ When not populated, the Build API will use the default chroot location.
 If you're a person for whom the default will not work locally, you probably
 already know because you had to manually set it up that way.
 If you care to check it out, the Chroot message definition is in
-`chromite/infra/proto/src/chromiumos/common.proto`.
+`infra/proto_branched/src/chromiumos/common.proto`.
 
 With all that in mind, let's update our endpoint to execute inside the SDK.
 
-`chromite/infra/proto/src/chromite/api/hello.proto`:
+`infra/proto_branched/src/chromite/api/hello.proto`:
 ```protobuf
 // Proto config.
 syntax = "proto3";
@@ -109,7 +109,7 @@ service HelloService {
 And now let's regenerate the protobuf bindings.
 
 ```shell script
-$> cd ~/chromiumos/chromite/infra/proto
+$> cd ~/chromiumos/infra/proto_branched
 $> ./generate.sh
 $> cd ~/chromiumos/chromite/api
 $> ./compile_build_api_proto
@@ -133,7 +133,7 @@ We'll use some of these here to implement our new functionality.
 
 #### Proto Changes
 
-`chromite/infra/proto/src/chromite/api/hello.proto`:
+`infra/proto_branched/src/chromite/api/hello.proto`:
 ```protobuf
 // Proto config.
 syntax = "proto3";
@@ -260,7 +260,7 @@ Finally, the faux success function needs to reflect our new response.
 First, we'll regenerate the compiled proto to pick up our changes.
 
 ```shell script
-$> cd ~/chromiumos/chromite/infra/proto
+$> cd ~/chromiumos/infra/proto_branched
 $> ./generate.sh
 $> cd ~/chromiumos/chromite/api
 $> ./compile_build_api_proto

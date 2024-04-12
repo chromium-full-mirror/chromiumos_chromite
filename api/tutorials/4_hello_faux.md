@@ -104,7 +104,7 @@ Before we go further, let's update our endpoint to not just print our message,
 but also return it.
 Below is our full, new `hello.proto`, with the added line commented.
 
-`chromite/infra/proto/src/chromite/api/hello.proto`:
+`infra/proto_branched/src/chromite/api/hello.proto`:
 ```protobuf
 // Proto config.
 syntax = "proto3";
@@ -136,7 +136,7 @@ service HelloService {
 Next we need to regenerate the protobuf bindings again.
 
 ```shell script
-$> cd ~/chromiumos/chromite/infra/proto
+$> cd ~/chromiumos/infra/proto_branched
 $> ./generate.sh
 $> cd ~/chromiumos/chromite/api
 $> ./compile_build_api_proto
