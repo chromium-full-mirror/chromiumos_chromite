@@ -18,6 +18,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import dependency_graph
 from chromite.lib import git
 from chromite.lib import osutils
+from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 
@@ -660,6 +661,14 @@ class WorkonHelper:
         Args:
             atoms: iterable of atoms to ensure are in the manifest.
         """
+        # If this is a Cog checkout, we do not care about local manifests at
+        # this time, as external access to Cider is a long ways down the road.
+        # A strategy to equate a Cog superproject checkout to a local manifest
+        # is also a requirement to re-enable this.
+        # TODO: b/334950349 - Support workon modifications of local manifests
+        if path_util.DetermineCheckout().type == path_util.CheckoutType.CITC:
+            return
+
         manifest = git.ManifestCheckout.Cached(self._src_root)
 
         should_repo_sync = False
