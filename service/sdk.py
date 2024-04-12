@@ -651,9 +651,7 @@ def uprev_toolchain_virtuals(
             host_info.version,
             virtual_info.version,
         )
-        new_virtual_info = package_info.PackageInfo(
-            virtual_info.category,
-            virtual_info.package,
+        new_virtual_info = virtual_info.with_version(
             host_info.version,
             host_info.revision,
         )

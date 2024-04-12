@@ -400,13 +400,11 @@ class PackageInfo:
 
     def revision_bump(self) -> PackageInfo:
         """Get a PackageInfo instance with an incremented revision."""
-        return PackageInfo(
-            self.category, self.package, self.version, self.revision + 1
-        )
+        return self.with_version(self.version, self.revision + 1)
 
-    def with_version(self, version: str) -> PackageInfo:
+    def with_version(self, version: str, revision: int = 0) -> PackageInfo:
         """Get a PackageInfo instance with the new, specified version."""
-        return PackageInfo(self.category, self.package, version)
+        return PackageInfo(self.category, self.package, version, revision)
 
     def with_rev0(self) -> PackageInfo:
         """Get a -r0 instance of the package."""

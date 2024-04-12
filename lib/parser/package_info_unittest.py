@@ -225,3 +225,11 @@ def test_with_version_with_revision() -> None:
     pkg2 = pkg.with_version("2")
     assert pkg.cpf == "foo/bar-1-r1"
     assert pkg2.cpf == "foo/bar-2"
+
+
+def test_with_version_with_specified_revision() -> None:
+    """Test the with_version method with a revision arg specified."""
+    pkg = package_info.PackageInfo("foo", "bar", "1", "1")
+    pkg2 = pkg.with_version("2", revision=3)
+    assert pkg.cpf == "foo/bar-1-r1"
+    assert pkg2.cpf == "foo/bar-2-r3"
