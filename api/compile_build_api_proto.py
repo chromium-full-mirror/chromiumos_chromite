@@ -64,7 +64,7 @@ class ProtocVersion(enum.Enum):
 
     def get_proto_dir(self) -> Path:
         """Get the proto directory for the target protoc."""
-        return constants.CHROMITE_DIR / "infra" / "proto"
+        return constants.SOURCE_ROOT / "infra" / "proto_branched"
 
     def get_protoc_command(self, cipd_root: Optional[Path] = None) -> Path:
         """Get protoc command path."""
