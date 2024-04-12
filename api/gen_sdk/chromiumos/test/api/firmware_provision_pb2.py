@@ -15,7 +15,7 @@ from chromite.api.gen_sdk.chromiumos.build.api import firmware_config_pb2 as chr
 from chromite.api.gen_sdk.chromiumos.test.lab.api import ip_endpoint_pb2 as chromiumos_dot_test_dot_lab_dot_api_dot_ip__endpoint__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n,chromiumos/test/api/firmware_provision.proto\x12\x13\x63hromiumos.test.api\x1a*chromiumos/build/api/firmware_config.proto\x1a)chromiumos/test/lab/api/ip_endpoint.proto\"i\n FirmwareProvisionStartupMetadata\x12\x45\n\x14\x63\x61\x63he_server_address\x18\x01 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpointB\x02\x18\x01\"a\n FirmwareProvisionInstallMetadata\x12=\n\x0f\x66irmware_config\x18\x01 \x01(\x0b\x32$.chromiumos.build.api.FirmwareConfigB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n,chromiumos/test/api/firmware_provision.proto\x12\x13\x63hromiumos.test.api\x1a*chromiumos/build/api/firmware_config.proto\x1a)chromiumos/test/lab/api/ip_endpoint.proto\"i\n FirmwareProvisionStartupMetadata\x12\x45\n\x14\x63\x61\x63he_server_address\x18\x01 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpointB\x02\x18\x01\"a\n FirmwareProvisionInstallMetadata\x12=\n\x0f\x66irmware_config\x18\x01 \x01(\x0b\x32$.chromiumos.build.api.FirmwareConfig\"\x8e\x01\n\x19\x46irmwareProvisionResponse\x12\x15\n\rerror_message\x18\x01 \x01(\t\x12\x15\n\rap_ro_version\x18\x02 \x01(\t\x12\x15\n\rap_rw_version\x18\x03 \x01(\t\x12\x15\n\rec_ro_version\x18\x04 \x01(\t\x12\x15\n\rec_rw_version\x18\x05 \x01(\tB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -30,4 +30,6 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_FIRMWAREPROVISIONSTARTUPMETADATA']._serialized_end=261
   _globals['_FIRMWAREPROVISIONINSTALLMETADATA']._serialized_start=263
   _globals['_FIRMWAREPROVISIONINSTALLMETADATA']._serialized_end=360
+  _globals['_FIRMWAREPROVISIONRESPONSE']._serialized_start=363
+  _globals['_FIRMWAREPROVISIONRESPONSE']._serialized_end=505
 # @@protoc_insertion_point(module_scope)
