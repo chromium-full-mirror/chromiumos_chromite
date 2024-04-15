@@ -43,11 +43,13 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         chroot_path=None,
         sdk_version=None,
         ccache_disable=False,
+        no_delete_out_dir=False,
     ):
         """Helper to build a create request message."""
         request = sdk_pb2.CreateRequest()
         request.flags.no_replace = no_replace
         request.flags.bootstrap = bootstrap
+        request.flags.no_delete_out_dir = no_delete_out_dir
 
         if cache_path:
             request.chroot.cache_dir = cache_path
@@ -102,6 +104,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         request = self._GetRequest(
             no_replace=False,
             bootstrap=False,
+            no_delete_out_dir=False,
         )
         sdk_controller.Create(request, self.response, self.api_config)
         args_patch.assert_called_with(
@@ -111,6 +114,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             sdk_version=mock.ANY,
             force=True,
             ccache_disable=mock.ANY,
+            no_delete_out_dir=False,
         )
 
     def testTrueArguments(self) -> None:
@@ -125,6 +129,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             bootstrap=True,
             sdk_version="foo",
             ccache_disable=True,
+            no_delete_out_dir=True,
         )
         sdk_controller.Create(request, self.response, self.api_config)
         args_patch.assert_called_with(
@@ -134,6 +139,7 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             sdk_version="foo",
             force=False,
             ccache_disable=True,
+            no_delete_out_dir=True,
         )
 
 

@@ -136,6 +136,7 @@ def Create(
         An error code, None otherwise.
     """
     replace = not request.flags.no_replace
+    no_delete_out_dir = request.flags.no_delete_out_dir
     bootstrap = request.flags.bootstrap
     chroot = controller_util.ParseChroot(request.chroot)
 
@@ -156,6 +157,7 @@ def Create(
         # the chroot.
         force=replace,
         ccache_disable=ccache_disable,
+        no_delete_out_dir=no_delete_out_dir,
     )
 
     try:

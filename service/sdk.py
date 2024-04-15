@@ -77,6 +77,7 @@ class CreateArguments:
         sdk_version: Optional[str] = None,
         force: bool = False,
         ccache_disable: bool = False,
+        no_delete_out_dir: bool = False,
     ) -> None:
         """Create arguments init.
 
@@ -91,6 +92,7 @@ class CreateArguments:
                 True.
             ccache_disable: Whether ccache should be disabled after chroot
                 creation.
+            no_delete_out_dir: If True, `out` directory will be preserved.
         """
         self.replace = replace
         self.chroot = chroot or chroot_lib.Chroot()
@@ -103,6 +105,7 @@ class CreateArguments:
             )
         self.force = force
         self.ccache_disable = ccache_disable
+        self.no_delete_out_dir = no_delete_out_dir
 
     def GetEntryArgList(self) -> List[str]:
         """Get the list of command line arguments to simply enter the chroot.
@@ -136,7 +139,11 @@ class CreateArguments:
         args = []
 
         if self.replace:
-            args.extend(["--replace", "--delete-out-dir"])
+            args.append("--replace")
+            if self.no_delete_out_dir:
+                args.append("--no-delete-out-dir")
+            else:
+                args.append("--delete-out-dir")
         else:
             args.append("--create")
         if self.force:
