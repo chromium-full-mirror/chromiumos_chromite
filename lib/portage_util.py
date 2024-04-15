@@ -1312,6 +1312,7 @@ class EBuild:
                     "--",
                     self._unstable_ebuild_path,
                     os.path.join(os.path.dirname(self.ebuild_path), "files"),
+                    os.path.join(os.path.dirname(self.ebuild_path), "cros"),
                 ],
             )
             return bool(output)
