@@ -102,7 +102,8 @@ info_run sudo "${CHROMITE_BIN}/cros_setup_toolchains" --targets all --debug \
 # Then build everything else.
 run_emerge "${EARLY_FLAGS[@]}" --verbose --emptytree --with-bdeps=y \
   --exclude "${TOOLCHAIN_PACKAGES[*]}" \
-  "${PACKAGES[@]}" virtual/target-sdk-nobdeps virtual/target-sdk-post-cross
+  "${PACKAGES[@]}" virtual/target-sdk-nobdeps virtual/target-sdk-post-cross \
+  virtual/target-sdk-broot
 info_run sudo eclean -d packages
 
 # Next, install our rebuilt packages into our separate root.
