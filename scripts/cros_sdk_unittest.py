@@ -14,11 +14,9 @@ import pytest  # type: ignore
 
 from chromite.lib import chromite_config
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import partial_mock
-from chromite.lib import retry_util
 from chromite.scripts import cros_sdk
 
 
@@ -51,26 +49,6 @@ class CrosSdkUtilsTest(cros_test_lib.MockTempDirTestCase):
                 "123",
                 bucket="staging-chromiumos-sdk",
             ),
-        )
-
-    def testFetchRemoteTarballsEmpty(self) -> None:
-        """Test FetchRemoteTarballs with no results."""
-        m = self.PatchObject(retry_util, "RunCurl")
-        with self.assertRaises(ValueError):
-            cros_sdk.FetchRemoteTarballs(self.tempdir, [])
-        m.return_value = cros_build_lib.CompletedProcess(stdout=b"Foo: bar\n")
-        with self.assertRaises(ValueError):
-            cros_sdk.FetchRemoteTarballs(self.tempdir, ["gs://x.tar"])
-
-    def testFetchRemoteTarballsSuccess(self) -> None:
-        """Test FetchRemoteTarballs with a successful download."""
-        curl = cros_build_lib.CompletedProcess(
-            stdout=(b"HTTP/1.0 200\n" b"Foo: bar\n" b"Content-Length: 100\n")
-        )
-        self.PatchObject(retry_util, "RunCurl", return_value=curl)
-        self.assertEqual(
-            self.tempdir / "tar",
-            cros_sdk.FetchRemoteTarballs(self.tempdir, ["gs://x/tar"]),
         )
 
     def testLogPathHolders(self) -> None:

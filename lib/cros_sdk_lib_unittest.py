@@ -20,6 +20,7 @@ from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
+from chromite.lib import retry_util
 
 
 # pylint: disable=protected-access
@@ -930,6 +931,30 @@ def test_require_outside_decorator_outside_chroot(
         pass
 
     outside()
+
+
+class FetchRemoteTarballsTest(cros_test_lib.MockTempDirTestCase):
+    """Tests fetch_remote_tarballs function."""
+
+    def test_fetch_remote_tarballs_empty(self) -> None:
+        """Test fetch_remote_tarballs with no results."""
+        m = self.PatchObject(retry_util, "RunCurl")
+        with self.assertRaises(ValueError):
+            cros_sdk_lib.fetch_remote_tarballs(self.tempdir, [])
+        m.return_value = cros_build_lib.CompletedProcess(stdout=b"Foo: bar\n")
+        with self.assertRaises(ValueError):
+            cros_sdk_lib.fetch_remote_tarballs(self.tempdir, ["gs://x.tar"])
+
+    def test_fetch_remote_tarballs_success(self) -> None:
+        """Test fetch_remote_tarballs with a successful download."""
+        curl = cros_build_lib.CompletedProcess(
+            stdout=(b"HTTP/1.0 200\n" b"Foo: bar\n" b"Content-Length: 100\n")
+        )
+        self.PatchObject(retry_util, "RunCurl", return_value=curl)
+        self.assertEqual(
+            self.tempdir / "tar",
+            cros_sdk_lib.fetch_remote_tarballs(self.tempdir, ["gs://x/tar"]),
+        )
 
 
 class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):

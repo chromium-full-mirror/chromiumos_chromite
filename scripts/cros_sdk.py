@@ -19,11 +19,9 @@ import multiprocessing
 import os
 from pathlib import Path
 import pwd
-import re
 import shlex
 import sys
 from typing import Iterable, List, Optional, Tuple
-import urllib.parse
 
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import chromite_config
@@ -38,7 +36,6 @@ from chromite.lib import namespaces
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import process_util
-from chromite.lib import retry_util
 from chromite.utils import xdg_util
 
 
@@ -110,98 +107,6 @@ def log_path_holders(path: Path, ignore_pids: Iterable[int] = ()) -> None:
     )
     if not result.returncode:
         logging.warning("Active processes:\n%s", result.stdout.rstrip())
-
-
-def FetchRemoteTarballs(storage_dir: Path, urls: List[str]) -> Path:
-    """Fetch a tarball given by url, and place it in |storage_dir|.
-
-    Args:
-        storage_dir: Path in which to save the tarball.
-        urls: List of URLs to try to download. Download will stop on first
-            success.
-
-    Returns:
-        Full path to the downloaded file.
-
-    Raises:
-        ValueError: None of the URLs worked.
-    """
-    # Note we track content length ourselves since certain versions of curl
-    # fail if asked to resume a complete file.
-    # https://sourceforge.net/tracker/?func=detail&atid=100976&aid=3482927&group_id=976
-    status_re = re.compile(rb"^HTTP/[0-9]+(\.[0-9]+)? 200")
-    # pylint: disable=undefined-loop-variable
-    for url in urls:
-        logging.notice("Downloading tarball %s ...", url.rsplit("/", 1)[-1])
-        parsed = urllib.parse.urlparse(url)
-        tarball_name = os.path.basename(parsed.path)
-        if parsed.scheme in ("", "file"):
-            if os.path.exists(parsed.path):
-                return parsed.path
-            continue
-        content_length = 0
-        logging.debug("Attempting download from %s", url)
-        result = retry_util.RunCurl(
-            ["-I", url],
-            print_cmd=False,
-            debug_level=logging.NOTICE,
-            capture_output=True,
-        )
-        successful = False
-        for header in result.stdout.splitlines():
-            # We must walk the output to find the 200 code for use cases where
-            # a proxy is involved and may have pushed down the actual header.
-            if status_re.match(header):
-                successful = True
-            elif header.lower().startswith(b"content-length:"):
-                content_length = int(header.split(b":", 1)[-1].strip())
-                if successful:
-                    break
-        if successful:
-            break
-    else:
-        raise ValueError("No valid URLs found!")
-
-    osutils.SafeMakedirsNonRoot(storage_dir)
-    tarball_dest = storage_dir / tarball_name
-    lock_file = tarball_dest.with_name(f".{tarball_dest.name}.lock")
-
-    with locking.FileLock(lock_file) as lock:
-        lock.write_lock(f"{tarball_dest} download lock")
-        current_size = 0
-        if os.path.exists(tarball_dest):
-            current_size = os.path.getsize(tarball_dest)
-            if current_size > content_length:
-                osutils.SafeUnlink(tarball_dest)
-                current_size = 0
-
-        if current_size < content_length:
-            retry_util.RunCurl(
-                [
-                    "--fail",
-                    "-L",
-                    "-y",
-                    "30",
-                    "-C",
-                    "-",
-                    "--output",
-                    tarball_dest,
-                    url,
-                ],
-                print_cmd=False,
-                debug_level=logging.NOTICE,
-            )
-
-    # Cleanup old tarballs now since we've successfully fetched; only cleanup
-    # the tarballs for our prefix, or unknown ones. This gets a bit tricky
-    # because we might have partial overlap between known prefixes.
-    for p in Path(storage_dir).glob("cros-sdk-*"):
-        if p.name == tarball_name:
-            continue
-        logging.info("Cleaning up old tarball: %s", p)
-        osutils.SafeUnlink(p)
-
-    return tarball_dest
 
 
 def _SudoCommand():
@@ -928,7 +833,7 @@ def main(argv) -> None:
 
     sdk_cache = Path(chroot.cache_dir) / "sdks"
     if options.download or options.create or replace_for_update:
-        sdk_tarball = FetchRemoteTarballs(sdk_cache, urls)
+        sdk_tarball = cros_sdk_lib.fetch_remote_tarballs(sdk_cache, urls)
 
     if delete_proc:
         delete_proc.join(timeout=15)
