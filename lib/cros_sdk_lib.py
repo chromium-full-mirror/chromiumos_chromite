@@ -314,6 +314,20 @@ class SdkVersionConfig:
         return self.latest_version
 
 
+def get_prefetch_sdk_versions() -> Set[str]:
+    """Get a reasonable set of SDK versions to have cached locally.
+
+    At the moment, this only returns the current version in sdk_version.conf,
+    however, this is subject to change in the future, and more versions will
+    be added to this set.
+
+    Returns:
+        A set of SDK versions.
+    """
+    result = {SdkVersionConfig.load().latest_version}
+    return result
+
+
 def get_sdk_gs_url(
     suburl: str = "",
     for_gsutil: bool = False,
@@ -455,8 +469,11 @@ def fetch_remote_tarballs(storage_dir: Path, urls: List[str]) -> Path:
     # Cleanup old tarballs now since we've successfully fetched; only cleanup
     # the tarballs for our prefix, or unknown ones. This gets a bit tricky
     # because we might have partial overlap between known prefixes.
+    prefetch_versions = get_prefetch_sdk_versions()
     for p in Path(storage_dir).glob("cros-sdk-*"):
         if p.name == tarball_name:
+            continue
+        if any(p.name.startswith(f"cros-sdk-{x}") for x in prefetch_versions):
             continue
         logging.info("Cleaning up old tarball: %s", p)
         osutils.SafeUnlink(p)

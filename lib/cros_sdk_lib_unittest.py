@@ -933,6 +933,21 @@ def test_require_outside_decorator_outside_chroot(
     outside()
 
 
+def test_get_prefetch_versions(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Test the get_prefetch_versions function."""
+    fake_version_conf = tmp_path / "sdk_version.conf"
+    fake_version_conf.write_text(
+        "SDK_LATEST_VERSION='1.2.3'\n", encoding="utf-8"
+    )
+    monkeypatch.setattr(
+        constants, "SDK_VERSION_FILE_FULL_PATH", fake_version_conf
+    )
+    assert cros_sdk_lib.get_prefetch_sdk_versions() == {"1.2.3"}
+
+
 class FetchRemoteTarballsTest(cros_test_lib.MockTempDirTestCase):
     """Tests fetch_remote_tarballs function."""
 
