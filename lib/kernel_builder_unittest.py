@@ -49,6 +49,7 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
             [emerge_board, "--jobs=777", "--onlydeps", "kernel"],
             enter_chroot=True,
             extra_env=extra_env,
+            clear_env=["INSTALL_MASK"],
         )
         self.assertCommandCalled(
             [emerge_board, "--jobs=777", "--buildpkgonly", "kernel"],
@@ -95,6 +96,7 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
             [emerge_board, "--jobs=777", "--onlydeps", "kernel"],
             enter_chroot=True,
             extra_env=extra_env,
+            clear_env=["INSTALL_MASK"],
         )
         self.assertCommandCalled(
             [emerge_board, "--jobs=777", "--buildpkgonly", "kernel"],

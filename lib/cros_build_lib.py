@@ -605,6 +605,7 @@ def run(
     shell=False,
     env=None,
     extra_env=None,
+    clear_env=None,
     ignore_sigint=False,
     chroot_args=None,
     debug_level=logging.INFO,
@@ -656,6 +657,12 @@ def run(
             In enter_chroot=True case, these are specified on the post-entry
             side, and so are often more useful.  This dictionary is not used to
             clear any entries though.
+        clear_env: Clears the specified environment variables from the process'
+            new environment. The variable is omitted from the environment
+            regardless if it's contained in 'env' or 'extra_env'. When
+            enter_chroot=True, the variable will only be omitted from the
+            enter_chroot processes. The environment for the 'cmd' processes is
+            untouched. This is currently a limitation of the 'cros_sdk' command.
         ignore_sigint: If True, we'll ignore signal.SIGINT before calling the
             child. This is the desired behavior if we know our child will handle
             Ctrl-C.  If we don't do this, I think we and the child will both get
@@ -709,6 +716,8 @@ def run(
 
     if encoding is not None and errors is None:
         errors = "strict"
+
+    clear_env = clear_env or []
 
     # Set default for variables.
     popen_stdout = None
@@ -842,13 +851,20 @@ def run(
             wrapper += chroot_args
 
         if extra_env:
-            wrapper.extend("%s=%s" % (k, v) for k, v in extra_env.items())
+            wrapper.extend(
+                "%s=%s" % (k, v)
+                for k, v in extra_env.items()
+                if not k in clear_env
+            )
 
         cmd = wrapper + ["--"] + cmd
 
     for var in constants.ENV_PASSTHRU:
         if var not in env and var in os.environ:
             env[var] = os.environ[var]
+
+    for var in clear_env:
+        env.pop(var, None)
 
     # Print out the command before running.
     if dryrun or print_cmd or log_output:

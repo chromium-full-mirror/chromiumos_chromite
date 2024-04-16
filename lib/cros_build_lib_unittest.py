@@ -727,6 +727,76 @@ class TestRunCommand(cros_test_lib.MockTestCase):
     @mock.patch(
         "chromite.lib.cros_build_lib._get_trace_context", return_value={}
     )
+    def testClearEnvWorks(self, _trace_context_mock) -> None:
+        """Test run(..., clear_env=["PATH"]) works."""
+
+        ## This is a little bit circular, since the same logic is used to
+        ## compute the value inside, but at least it checks that this happens.
+        total_env = os.environ.copy()
+        # The core run code forces this too.
+        total_env["LC_MESSAGES"] = "C"
+        # PATH should always be in our test environment, so we use that as our
+        # test variable.
+        total_env.pop("PATH")
+
+        # This is a simple case, copied from testReturnCodeZeroWithArrayCmd()
+        self.proc_mock.returncode = 0
+        cmd_list = ["foo", "bar", "roger"]
+
+        # Run.  We expect the env= to be passed through from sp
+        # (subprocess.Popen) to rc (run).
+        self._TestCmd(
+            cmd_list,
+            cmd_list,
+            sp_kv=dict(env=total_env),
+            rc_kv=dict(clear_env=["PATH"]),
+        )
+
+    @mock.patch(
+        "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
+    )
+    @mock.patch(
+        "chromite.lib.cros_build_lib._get_trace_context", return_value={}
+    )
+    def testChrootClearEnvWorks(
+        self, _inchroot_mock, _trace_context_mock
+    ) -> None:
+        """Test run(..., enter_chroot=True, clear_env=a) works."""
+        # We'll put this bogus environment together, just to make sure
+        # subprocess.Popen gets passed it.
+        env = {"Tom": "Jerry", "Itchy": "Scratchy"}
+        extra_env = {
+            "Pinky": "Brain",
+            "Yakko": "Dot",
+        }
+        total_env = {
+            "Tom": "Jerry",
+            "Itchy": "Scratchy",
+            "Pinky": "Brain",
+            "LC_MESSAGES": "C",
+        }
+
+        # This is a simple case, copied from testReturnCodeZeroWithArrayCmd()
+        self.proc_mock.returncode = 0
+        cmd_list = ["foo", "bar", "roger"]
+
+        # Run.  We expect the env= to be passed through from sp
+        # (subprocess.Popen) to rc (run).
+        self._TestCmd(
+            cmd_list,
+            ["cros_sdk", "Pinky=Brain", "--"] + cmd_list,
+            sp_kv=dict(env=total_env),
+            rc_kv=dict(
+                env=env,
+                extra_env=extra_env,
+                enter_chroot=True,
+                clear_env=["Yakko"],
+            ),
+        )
+
+    @mock.patch(
+        "chromite.lib.cros_build_lib._get_trace_context", return_value={}
+    )
     def testExtraEnvTooWorks(self, _trace_context_mock) -> None:
         """Test run(..., env=xy, extra_env=z) works."""
         # We'll put this bogus environment together, just to make sure

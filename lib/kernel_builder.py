@@ -154,6 +154,10 @@ class Builder:
                 [emerge, self.jobs, "--onlydeps", kernel],
                 enter_chroot=True,
                 extra_env=extra_env,
+                # build-image sets a very aggressive INSTALL_MASK that isn't
+                # suitable for building build time dependencies. We clear
+                # it out so we use the defaults defined by the profile.
+                clear_env=["INSTALL_MASK"],
             )
         except cros_build_lib.RunCommandError as e:
             raise KernelBuildError(
