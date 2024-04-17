@@ -908,7 +908,7 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
         old_virtual = (
             chromiumos_overlay / "virtual" / "rust" / "rust-1.77.1.ebuild"
         )
-        self.assertEqual(updated_files, [old_virtual, new_virtual])
+        self.assertEqual(updated_files, [new_virtual])
         self.assertFalse(old_virtual.exists())
         self.assertTrue(new_virtual.exists())
 
@@ -924,7 +924,7 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
         old_virtual = (
             chromiumos_overlay / "virtual" / "rust" / "rust-1.77.0.ebuild"
         )
-        self.assertEqual(updated_files, [old_virtual, new_virtual])
+        self.assertEqual(updated_files, [new_virtual])
         self.assertFalse(old_virtual.exists())
         self.assertTrue(new_virtual.exists())
 
@@ -940,6 +940,6 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
         old_virtual = (
             chromiumos_overlay / "virtual" / "rust" / "rust-1.77.0-r2.ebuild"
         )
-        self.assertEqual(updated_files, [old_virtual, new_virtual])
+        self.assertEqual(updated_files, [new_virtual])
         self.assertFalse(old_virtual.exists())
         self.assertTrue(new_virtual.exists())

@@ -664,7 +664,7 @@ def uprev_toolchain_virtuals(
         )
         new_virtual_path = virtual_path.parent / new_virtual_info.ebuild
         virtual_path.rename(new_virtual_path)
-        updated_files.extend((virtual_path, new_virtual_path))
+        updated_files.append(new_virtual_path)
     return updated_files
 
 
