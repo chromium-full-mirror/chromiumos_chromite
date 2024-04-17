@@ -4,6 +4,7 @@
 
 """SDK chroot operations."""
 
+import logging
 import os
 from pathlib import Path
 from typing import Dict, Optional, TYPE_CHECKING, Union
@@ -199,6 +200,22 @@ def Update(
     build_source = request.flags.build_source
     targets = [target.name for target in request.toolchain_targets]
     toolchain_changed = request.flags.toolchain_changed
+    force_update = request.flags.force_update
+
+    should_update_sdk = False
+    for name, value in [
+        ("build_source", build_source),
+        ("toolchain_changed", toolchain_changed),
+        ("force_update", force_update),
+    ]:
+        if value:
+            logging.info("Updating SDK due to %s = True", name)
+            should_update_sdk = True
+
+    if not should_update_sdk:
+        logging.info("SDK update skipped.")
+        response.skipped = True
+        return None
 
     args = sdk.UpdateArguments(
         build_source=build_source,
