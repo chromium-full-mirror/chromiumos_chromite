@@ -293,6 +293,36 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
                 matching_logs, "Failed to detect USE flag mismatch."
             )
 
+    def testRunDifferentSubSlot(self) -> None:
+        self.SetupVartree(
+            [
+                (
+                    "foo/app1-1.2.3-r4",
+                    "0",
+                    "",
+                    "1413309336",
+                    "/usr/local/",
+                    "cros-debug",
+                ),
+            ]
+        )
+        app1 = "foo/app1-1.2.5-r5"
+        # Setup the bintree with a newer version of the package.
+        self.SetupBintree(
+            [
+                # cpv, slot, rdeps_raw, build_time, root, use
+                (app1, "0/1.2.5-r5", "", "1413309336", "/build/board", ""),
+            ]
+        )
+
+        installs, listed, num_updates, _, pkg_root, _ = self.scanner.Run(
+            self.device, "/", ["app1"], True, True, True
+        )
+        self.ValidatePkgs(installs, [app1])
+        self.ValidatePkgs(listed, [app1])
+        self.assertEqual(num_updates, 1)
+        self.assertEqual(pkg_root, {app1: "/usr/local/"})
+
     def testRunUpdatedBuildTime(self) -> None:
         self.SetupVartree(self._VARTREE)
         app1 = "foo/app1-1.2.3-r4"

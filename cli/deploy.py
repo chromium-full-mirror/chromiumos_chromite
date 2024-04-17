@@ -67,10 +67,32 @@ class CpvInfo(NamedTuple):
 
     cpv: Dict[str, package_info.CPV]
     slot: str
+    subslot: str
     rdep_raw: str
     build_time: int
     root: str
     use: str
+
+    @classmethod
+    def from_raw(
+        cls,
+        cpv: Dict[str, package_info.CPV],
+        slot: str,
+        rdep_raw: str,
+        build_time: int,
+        root: str,
+        use: str,
+    ):
+        """Constructs a new CpvInfo from the raw VDB values"""
+
+        parts = slot.split("/")
+        slot = parts[0]
+        if len(parts) > 1:
+            subslot = parts[1]
+        else:
+            # The PMS says an empty sub-slot is the same as the slot.
+            subslot = slot
+        return cls(cpv, slot, subslot, rdep_raw, build_time, root, use)
 
 
 class DeployError(Exception):
@@ -394,7 +416,7 @@ print(json.dumps(pkg_info))
         """
         db = {}
         logging.debug("Populating package DB...")
-        for cpv, slot, rdeps_raw, build_time, root, use in cpv_info:
+        for cpv, slot, _subslot, rdeps_raw, build_time, root, use in cpv_info:
             cp = self._GetCP(cpv)
             cp_slots = db.setdefault(cp, {})
             if slot in cp_slots:
@@ -513,7 +535,10 @@ print(json.dumps(pkg_info))
 
         try:
             self.target_db = self._BuildDB(
-                [CpvInfo(*cpv_info) for cpv_info in json.loads(result.stdout)],
+                [
+                    CpvInfo.from_raw(*cpv_info)
+                    for cpv_info in json.loads(result.stdout)
+                ],
                 process_rdeps,
                 process_rev_rdeps,
             )
@@ -534,7 +559,7 @@ print(json.dumps(pkg_info))
                 cpv, ["SLOT", "RDEPEND", "BUILD_TIME", "ROOT", "USE"]
             )
             binpkgs_info.append(
-                CpvInfo(cpv, slot, rdep_raw, build_time, root, use)
+                CpvInfo.from_raw(cpv, slot, rdep_raw, build_time, root, use)
             )
 
         try:
@@ -809,15 +834,6 @@ print(json.dumps(pkg_info))
             )
             num_processed = 0
             for slot, pkg_info in cp_slots.items():
-                if required_slot and "/" not in slot:
-                    logging.debug(
-                        " Dropping subslot from required_slot (%s) "
-                        "because package does not have a subslot (%s)",
-                        required_slot,
-                        slot,
-                    )
-                    required_slot = required_slot.split("/", 1)[0]
-
                 if not required_slot:
                     logging.debug(" Including because no required_slot")
                 elif slot == required_slot:
