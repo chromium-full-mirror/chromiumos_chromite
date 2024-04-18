@@ -62,7 +62,7 @@ def generate_kernel_artifacts(kernel_home: Path) -> Dict[str, str]:
         result = cros_build_lib.dbg_run(
             cmd, capture_output=True, encoding="utf-8"
         )
-        name = f"{file.parent.name}_{file.stem}.gcov"
+        name = file.relative_to(kernel_home).parent / f"{file.stem}.gcov"
         data[name] = result.stdout
 
     return data
@@ -156,4 +156,7 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
     if opts.kernel_home:
         data = generate_kernel_artifacts(opts.kernel_home)
         for filename, content in data.items():
+            (opts.output_dir / filename.parent).mkdir(
+                exist_ok=True, parents=True
+            )
             (opts.output_dir / filename).write_text(content, encoding="utf-8")

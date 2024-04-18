@@ -30,9 +30,9 @@ def test_generate_kernel_artifacts_success(
         tmp_path
     )
     expected = {
-        "dir1_file1.gcov": "foo",
-        "dir2_file1.gcov": "foo",
-        "dir2_file2.gcov": "foo",
+        Path("dir1/file1.gcov"): "foo",
+        Path("dir2/file1.gcov"): "foo",
+        Path("dir2/file2.gcov"): "foo",
     }
     assert result == expected
 
