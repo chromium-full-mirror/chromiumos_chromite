@@ -452,10 +452,9 @@ ENV_PASSTHRU = (
 )
 
 # List of variables to proxy into the chroot from the host, and to
-# have sudo export if existent. Anytime this list is modified, a new
-# chroot_version_hooks.d upgrade script that symlinks to 153_rewrite_sudoers.d
-# should be created.
+# have sudo export if existent.
 CHROOT_ENVIRONMENT_ALLOWLIST = (
+    "BAZEL_USE_REMOTE_CACHING",
     "CHROMEOS_OFFICIAL",
     "CHROMEOS_VERSION_AUSERVER",
     "CHROMEOS_VERSION_DEVSERVER",
