@@ -261,10 +261,16 @@ First, we'll regenerate the compiled proto to pick up our changes.
 
 ```shell script
 $> cd ~/chromiumos/infra/proto_branched
-$> ./generate.sh
+$> ./generate.sh --allow-breaking
 $> cd ~/chromiumos/chromite/api
 $> ./compile_build_api_proto
 ```
+
+Note that this time we invoked `./generate.sh` with flag `--allow-breaking`.
+This is necessary because we modified existing fields in our proto, namely
+`target` and `messages` in `HelloRequest` and `HelloResponse`, respectively. By
+default, `./generate.sh` checks for breaking protobuffer changes, and fails if
+an existing field is deleted. Flag `--allow-breaking` overrides this behavior.
 
 Next we need to create the targets file for the request, and our output
 directory.
