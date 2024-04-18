@@ -21,7 +21,8 @@ import resource
 import shutil
 import sys
 from typing import Any, List, Optional, Set, Union
-import urllib
+import urllib.parse
+import urllib.request
 
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
@@ -317,14 +318,29 @@ class SdkVersionConfig:
 def get_prefetch_sdk_versions() -> Set[str]:
     """Get a reasonable set of SDK versions to have cached locally.
 
-    At the moment, this only returns the current version in sdk_version.conf,
-    however, this is subject to change in the future, and more versions will
-    be added to this set.
+    This set includes:
+    1. The current version in sdk_version.conf.
+    2. If the user is tracking snapshot or main, the version from
+       cros-sdk-latest.conf.
 
     Returns:
         A set of SDK versions.
     """
     result = {SdkVersionConfig.load().latest_version}
+    checkout = path_util.DetermineCheckout()
+    if checkout.tracks_main:
+        url = get_sdk_latest_conf_file_url()
+        try:
+            with urllib.request.urlopen(url) as f:
+                data = key_value_store.LoadData(f.read().decode("utf-8"))
+        except urllib.error.URLError as e:
+            logging.warning(
+                "GET %s (error %s): ignoring for SDK prefetch version.",
+                url,
+                e,
+            )
+        else:
+            result.add(data["LATEST_SDK"])
     return result
 
 

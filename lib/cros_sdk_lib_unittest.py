@@ -4,12 +4,14 @@
 
 """Test the cros_sdk_lib module."""
 
+import contextlib
 import io
 import os
 from pathlib import Path
 import stat
 from typing import Optional
 from unittest import mock
+import urllib.request
 
 import pytest
 
@@ -933,6 +935,13 @@ def test_require_outside_decorator_outside_chroot(
     outside()
 
 
+@contextlib.contextmanager
+def fake_urlopen(url):
+    """Fake urlopen function which pretends to fetch cros-sdk-latest.conf."""
+    del url
+    yield io.BytesIO(b'LATEST_SDK="2.3.4"\n')
+
+
 def test_get_prefetch_versions(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -945,7 +954,14 @@ def test_get_prefetch_versions(
     monkeypatch.setattr(
         constants, "SDK_VERSION_FILE_FULL_PATH", fake_version_conf
     )
-    assert cros_sdk_lib.get_prefetch_sdk_versions() == {"1.2.3"}
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    fake_checkout_info = path_util.CheckoutInfo(
+        path_util.CheckoutType.CITC, "", ""
+    )
+    with mock.patch.object(
+        path_util, "DetermineCheckout", return_value=fake_checkout_info
+    ):
+        assert cros_sdk_lib.get_prefetch_sdk_versions() == {"1.2.3", "2.3.4"}
 
 
 class FetchRemoteTarballsTest(cros_test_lib.MockTempDirTestCase):
