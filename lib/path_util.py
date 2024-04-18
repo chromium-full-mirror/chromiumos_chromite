@@ -4,7 +4,7 @@
 
 """Handle path inference and translation."""
 
-import collections
+import dataclasses
 import enum
 import os
 from pathlib import Path
@@ -38,9 +38,17 @@ class CheckoutType(enum.IntEnum):
     UNKNOWN = enum.auto()
 
 
-CheckoutInfo = collections.namedtuple(
-    "CheckoutInfo", ["type", "root", "chrome_src_dir"]
-)
+@dataclasses.dataclass
+class CheckoutInfo:
+    """A container which describes the source checkout.
+
+    Call DetermineCheckout to auto-detect the checkout.
+    """
+
+    type: CheckoutType
+    # TODO: Change these to a Path.
+    root: str
+    chrome_src_dir: str
 
 
 class ChrootPathResolver:
