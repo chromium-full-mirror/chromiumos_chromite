@@ -50,6 +50,20 @@ class CheckoutInfo:
     root: str
     chrome_src_dir: str
 
+    @property
+    def tracks_main(self) -> bool:
+        """True if it looks like the checkout roughly tracks the main branch."""
+        # For now, we assume CitC always tracks main.
+        if self.type == CheckoutType.CITC:
+            return True
+        # Browser checkouts don't track our main branch (different tree).
+        if self.type == CheckoutType.GCLIENT:
+            return False
+        repo_manifest = git.ManifestCheckout.Cached(self.root)
+        if repo_manifest.manifest_branch in ("snapshot", "main"):
+            return True
+        return False
+
 
 class ChrootPathResolver:
     """Perform path resolution to/from the chroot.
