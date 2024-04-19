@@ -19,68 +19,12 @@ from chromite.lib.firmware import firmware_config
 from chromite.lib.firmware import firmware_lib
 
 
-# All known ap subcommands.
-SUBCOMMANDS = {}
-
-
-def subcommand_decorator(name):
-    """Decorator that validates and registers subcommands."""
-
-    def inner_decorator(original_class):
-        """Inner decorator that actually wraps the class."""
-        assert hasattr(original_class, "__doc__"), f"{name}: missing docstring"
-
-        assert issubclass(
-            original_class, command.CliCommand
-        ), f"{original_class}: subcommands must derive from CliCommand"
-
-        SUBCOMMANDS[name] = original_class
-
-        return original_class
-
-    return inner_decorator
-
-
 @command.command_decorator("ap")
-class APCommand(command.CliCommand):
+class APCommand(command.CommandGroup):
     """Execute an AP-related command."""
 
-    EPILOG = "Use `cros ${subcommand} --help` to see command-specific help."
 
-    @classmethod
-    def AddParser(cls, parser) -> None:
-        """Add AP specific subcommands and options."""
-        super(APCommand, cls).AddParser(parser)
-        subparsers = parser.add_subparsers(
-            title="AP subcommands", dest="ap_command"
-        )
-        subparsers.required = True
-
-        for name, subcommand_class in SUBCOMMANDS.items():
-            sub_parser = subparsers.add_parser(
-                name,
-                description=subcommand_class.__doc__,
-                caching=parser.caching,
-                dryrun=True,
-                help=subcommand_class.__doc__,
-                formatter_class=parser.formatter_class,
-            )
-            subcommand_class.AddParser(sub_parser)
-
-    @classmethod
-    def ProcessOptions(cls, parser, options) -> None:
-        """Post process options."""
-        sub_class = SUBCOMMANDS[options.ap_command]
-        sub_class.ProcessOptions(parser, options)
-
-    def Run(self):
-        """The main handler of this CLI."""
-        cls = SUBCOMMANDS[self.options.ap_command]
-        subcmd = cls(self.options)
-        return subcmd.Run()
-
-
-@subcommand_decorator("build")
+@APCommand.subcommand("build", dryrun=True)
 class BuildSubcommand(command.CliCommand):
     """Build the AP Firmware for the requested build target."""
 
@@ -129,7 +73,7 @@ To build the AP Firmware only for foo-variant:
             cros_build_lib.Die(e)
 
 
-@subcommand_decorator("read")
+@APCommand.subcommand("read", dryrun=True)
 class ReadSubcommand(command.CliCommand):
     """Read the AP Firmware from a device."""
 
@@ -243,7 +187,7 @@ To read a specific region from DUT via SERVO on default port(9999):
                 )
 
 
-@subcommand_decorator("flash")
+@APCommand.subcommand("flash", dryrun=True)
 class FlashSubcommand(command.CliCommand):
     """Update the AP Firmware on a device."""
 
@@ -370,7 +314,7 @@ e.g.:
         return argv
 
 
-@subcommand_decorator("clean")
+@APCommand.subcommand("clean", dryrun=True)
 class CleanSubcommand(command.CliCommand):
     """Clean up dependencies and artifacts for the requested build target."""
 
