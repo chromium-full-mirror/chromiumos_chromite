@@ -337,7 +337,7 @@ class RawPartitionUpdaterTest(cros_test_lib.MockTempDirTestCase):
             remote_access.TEST_IP
         ) as device:
             self.rsh_mock.AddCmdResult(
-                [partial_mock.In("which"), "gzip"], returncode=0
+                partial_mock.In("which gzip"), returncode=0
             )
             self.rsh_mock.AddCmdResult(
                 self.path_env
@@ -361,7 +361,7 @@ class RawPartitionUpdaterTest(cros_test_lib.MockTempDirTestCase):
             remote_access.TEST_IP
         ) as device:
             self.rsh_mock.AddCmdResult(
-                [partial_mock.In("which"), "gzip"], returncode=0
+                partial_mock.In("which gzip"), returncode=0
             )
             self.rsh_mock.AddCmdResult(
                 self.path_env

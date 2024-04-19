@@ -1016,10 +1016,13 @@ class RemoteDevice:
         """Checks if the given |binary| exists on the device.
 
         This will cache the result and assume that $PATH does not have entries
-        added ore removed for the life of the connection.
+        added or removed for the life of the connection.
         """
         result = self.agent.RemoteSh(
-            ["PATH=%s:$PATH which" % DEV_BIN_PATHS, binary], check=False
+            f"PATH={cros_build_lib.ShellQuote(DEV_BIN_PATHS)}:$PATH which "
+            f"{cros_build_lib.ShellQuote(binary)}",
+            check=False,
+            shell=True,
         )
         return result.returncode == 0
 
@@ -1230,10 +1233,12 @@ class RemoteDevice:
         """
         tmp_file = os.path.join(path, ".tmp.remote_access.is.writable")
         result = self.agent.RemoteSh(
-            ["touch", tmp_file, "&&", "rm", tmp_file],
+            f"touch {cros_build_lib.ShellQuote(tmp_file)} && "
+            f"rm {cros_build_lib.ShellQuote(tmp_file)}",
             check=False,
             remote_sudo=True,
             capture_output=True,
+            shell=True,
         )
         return result.returncode == 0
 
