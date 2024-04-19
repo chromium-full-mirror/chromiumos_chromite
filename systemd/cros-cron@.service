@@ -1,0 +1,7 @@
+[Unit]
+Description=cros cron in %I source tree
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=%I/chromite/bin/cros cron run

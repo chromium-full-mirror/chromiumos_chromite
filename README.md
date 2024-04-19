@@ -128,6 +128,10 @@ Those may freely use Chromite APIs (e.g. chromite.lib.*).
 
 This folder contains the chromite-specific infra repos.
 
+### chromite/systemd
+
+Systemd unit files for services provided by chromite.
+
 ### chromite/test
 
 This folder contains test-only utilities and helper functions used to make

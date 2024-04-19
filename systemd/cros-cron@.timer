@@ -1,0 +1,17 @@
+[Unit]
+Description=cros cron timer in %I source tree
+
+[Timer]
+Unit=cros-cron@%i.service
+
+# Start 2 minutes after the first user login.
+OnStartupSec=2m
+
+# Re-run 50 minutes after finishing.
+OnUnitInactiveSec=50m
+
+# All starts will have a random delay of up to 5 minutes.
+RandomizedDelaySec=5m
+
+[Install]
+WantedBy=default.target
