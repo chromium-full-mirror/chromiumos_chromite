@@ -758,7 +758,7 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
             return
 
         if msg is None:
-            msg = "%s does not starts with %s" % (s, prefix)
+            msg = "%s does not start with %s" % (s, prefix)
 
         raise self.failureException(msg)
 
@@ -774,7 +774,7 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
             return
 
         if msg is None:
-            msg = "%s does not starts with %s" % (s, suffix)
+            msg = "%s does not end with %s" % (s, suffix)
 
         raise self.failureException(msg)
 
