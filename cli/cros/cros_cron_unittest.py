@@ -4,13 +4,20 @@
 
 """Tests for the "cros cron" command."""
 
+import functools
 from pathlib import Path
 from typing import List
 from unittest import mock
 
+import pytest
+
 from chromite.cli.cros import cros_cron
 from chromite.lib import commandline
 from chromite.lib import cros_sdk_lib
+
+
+# pylint is unaware of pytest fixtures.
+# pylint: disable=redefined-outer-name
 
 
 def test_prefetch_sdks(tmp_path: Path) -> None:
@@ -58,3 +65,66 @@ def test_cros_cron_run(tmp_path: Path) -> None:
     with mock.patch.object(cros_cron, "prefetch_sdks") as prefetch_sdks:
         _main(["run", "--cache-dir", str(tmp_path)])
         prefetch_sdks.assert_called_once_with(tmp_path)
+
+
+@pytest.fixture
+def has_systemd(monkeypatch: pytest.MonkeyPatch):
+    """Fixture which mocks out the system having/not having systemd."""
+
+    def factory(enable_systemd: bool) -> None:
+        monkeypatch.setattr(
+            cros_cron,
+            "detect_systemd",
+            functools.partial(lambda x: x, enable_systemd),
+        )
+
+    return factory
+
+
+def test_cros_cron_enable(run_mock, has_systemd, outside_sdk):
+    """Test the "cros cron enable" command."""
+    del outside_sdk
+    has_systemd(True)
+    _main(["enable"])
+    timer_unit, service_unit = cros_cron.get_systemd_units()
+    run_mock.assertCommandCalled(["systemctl", "enable", "--user", timer_unit])
+    run_mock.assertCommandCalled(["systemctl", "start", "--user", timer_unit])
+    run_mock.assertCommandCalled(["systemctl", "start", "--user", service_unit])
+    run_mock.assertCommandCalled(["loginctl", "enable-linger"])
+
+
+def test_cros_cron_disable(run_mock, has_systemd, outside_sdk):
+    """Test the "cros cron disable" command."""
+    del outside_sdk
+    has_systemd(True)
+    _main(["disable"])
+    timer_unit, _ = cros_cron.get_systemd_units()
+    run_mock.assertCommandCalled(["systemctl", "disable", "--user", timer_unit])
+    run_mock.assertCommandCalled(["systemctl", "stop", "--user", timer_unit])
+
+
+def test_cros_cron_status(run_mock, has_systemd, outside_sdk):
+    """Test the "cros cron status" command."""
+    del outside_sdk
+    has_systemd(True)
+    _main(["status"])
+    timer_unit, service_unit = cros_cron.get_systemd_units()
+    run_mock.assertCommandCalled(
+        ["systemctl", "status", "--user", timer_unit, service_unit],
+        check=False,
+    )
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ["enable"],
+        ["disable"],
+        ["status"],
+    ],
+)
+def test_cros_cron_no_systemd(has_systemd, args, outside_sdk):
+    """Test commands that should fail without systemd."""
+    del outside_sdk
+    has_systemd(False)
+    assert _main(args) != 0
