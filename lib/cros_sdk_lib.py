@@ -403,13 +403,19 @@ def get_sdk_latest_conf_file_url(**kwargs: Any) -> str:
     return get_sdk_gs_url(suburl="cros-sdk-latest.conf", **kwargs)
 
 
-def fetch_remote_tarballs(storage_dir: Path, urls: List[str]) -> Path:
+def fetch_remote_tarballs(
+    storage_dir: Path,
+    urls: List[str],
+    prefetch_versions: Optional[Set[str]] = None,
+) -> Path:
     """Fetch a tarball given by url, and place it in |storage_dir|.
 
     Args:
         storage_dir: Path in which to save the tarball.
         urls: List of URLs to try to download. Download will stop on first
             success.
+        prefetch_versions: Set of SDK versions which should not be discarded.
+            If not specified, get_prefetch_sdk_versions() will be used.
 
     Returns:
         Full path to the downloaded file.
@@ -485,7 +491,7 @@ def fetch_remote_tarballs(storage_dir: Path, urls: List[str]) -> Path:
     # Cleanup old tarballs now since we've successfully fetched; only cleanup
     # the tarballs for our prefix, or unknown ones. This gets a bit tricky
     # because we might have partial overlap between known prefixes.
-    prefetch_versions = get_prefetch_sdk_versions()
+    prefetch_versions = prefetch_versions or get_prefetch_sdk_versions()
     for p in Path(storage_dir).glob("cros-sdk-*"):
         if p.name == tarball_name:
             continue
