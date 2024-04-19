@@ -18,6 +18,7 @@ import importlib
 import logging
 import os
 import sys
+from typing import Any, Callable, Dict, Optional, Type
 
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -222,3 +223,83 @@ class CliCommand(abc.ABC):
             telemetry.initialize(
                 publish=self.publish_telemetry,
             )
+
+
+class CommandGroup(CliCommand):
+    """Base class to implement a command which exposes many subcommands."""
+
+    # _SUBCOMMANDS is shared amongst child classes.  Maps id(cls) to subcommands
+    # for that class.
+    _SUBCOMMANDS: Dict[int, Dict[str, Type[CliCommand]]] = {}
+    EPILOG = "Run a subcommand with --help for help on specific commands."
+
+    @classmethod
+    def subcommand(
+        cls, name: str, **kwargs: Any
+    ) -> Callable[[Type[CliCommand]], Type[CliCommand]]:
+        """Decorator to register a subcommand in this group."""
+        cls._SUBCOMMANDS.setdefault(id(cls), {})
+
+        def _decorator(klass):
+            if name in cls._SUBCOMMANDS[id(cls)]:
+                raise ValueError(f"Subcommand already registered: {name}")
+            if not klass.__doc__:
+                raise ValueError(f"Subcommand must have a docstring: {name}")
+            if not issubclass(klass, CliCommand):
+                raise ValueError(
+                    f"Subcommand must derive from CliCommand: {name}"
+                )
+            cls._SUBCOMMANDS[id(cls)][name] = klass
+            klass.name = name
+            klass.parser_options = kwargs
+            return klass
+
+        return _decorator
+
+    @classmethod
+    def get_subcommand_class(
+        cls, options: commandline.ArgumentNamespace
+    ) -> Type[CliCommand]:
+        """Get the subcommand class that was selected."""
+        # We tag the class id in the subcommand destination as the options
+        # namespace is shared amongst all CommandGroups.
+        return cls._SUBCOMMANDS.get(id(cls), {})[
+            getattr(options, f"_sub_{id(cls)}")
+        ]
+
+    @classmethod
+    def AddParser(cls, parser: commandline.ArgumentParser) -> None:
+        """Add subcommands and options."""
+        super(CommandGroup, cls).AddParser(parser)
+        subparsers = parser.add_subparsers(
+            title="Subcommands",
+            dest=f"_sub_{id(cls)}",
+            required=True,
+            metavar="SUBCOMMAND",
+        )
+
+        for name, klass in cls._SUBCOMMANDS.get(id(cls), {}).items():
+            sub_parser = subparsers.add_parser(
+                name,
+                description=klass.__doc__,
+                help=klass.__doc__,
+                formatter_class=parser.formatter_class,
+                **klass.parser_options,
+            )
+            klass.AddParser(sub_parser)
+
+    @classmethod
+    def ProcessOptions(
+        cls,
+        parser: commandline.ArgumentParser,
+        options: commandline.ArgumentNamespace,
+    ) -> None:
+        """Post-process options."""
+        klass = cls.get_subcommand_class(options)
+        klass.ProcessOptions(parser, options)
+
+    def Run(self) -> Optional[int]:
+        """The main handler of this CLI."""
+        klass = self.get_subcommand_class(self.options)
+        subcmd = klass(self.options)
+        return subcmd.Run()

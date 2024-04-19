@@ -7,6 +7,9 @@
 import argparse
 import importlib
 import os
+from typing import List, Optional
+
+import pytest
 
 from chromite.cli import command
 from chromite.lib import commandline
@@ -138,3 +141,72 @@ class CommandTest(cros_test_lib.MockTestCase):
         # Pick some commands that are likely to not go away.
         self.assertIn("chrome-sdk", cros_commands)
         self.assertIn("flash", cros_commands)
+
+
+class MainGroup(command.CommandGroup):
+    """Some group of commands."""
+
+
+@MainGroup.subcommand("subgroup")
+class SubGroup(command.CommandGroup):
+    """A nested group under a group."""
+
+
+@SubGroup.subcommand("subcmd", caching=True, dryrun=True)
+class SubSubCommand(command.CliCommand):
+    """A subcommand in the nested group."""
+
+    def Run(self) -> Optional[int]:
+        """The main handler of this CLI."""
+        if self.options.dryrun:
+            return 79
+        return 42
+
+
+@MainGroup.subcommand("mainsub")
+class MainSub(command.CliCommand):
+    """Another subcommand with custom options."""
+
+    @classmethod
+    def AddParser(cls, parser: commandline.ArgumentParser) -> None:
+        """Add custom options."""
+        parser.add_argument("--return-value", type=int, default=12)
+
+    def Run(self) -> Optional[int]:
+        """The main handler of this CLI."""
+        return self.options.return_value
+
+
+@pytest.mark.parametrize(
+    ["args", "expected_return_code"],
+    [
+        (["--help"], 0),
+        (["subgroup", "--help"], 0),
+        (["subgroup", "subcmd", "--help"], 0),
+        (["mainsub", "--help"], 0),
+        (["subgroup", "subcmd"], 42),
+        (["subgroup", "subcmd", "--dry-run"], 79),
+        (["mainsub"], 12),
+        (["mainsub", "--return-value", "21"], 21),
+    ],
+)
+def test_command_group(args: List[str], expected_return_code: int) -> None:
+    """Test CommandGroup helper."""
+
+    def _main(args: List[str]) -> int:
+        """Helper to call MainGroup with options."""
+        parser = commandline.ArgumentParser()
+        MainGroup.AddParser(parser)
+        try:
+            opts = parser.parse_args(args)
+        except SystemExit as e:
+            return e.code or 0
+        MainGroup.ProcessOptions(parser, opts)
+        opts.Freeze()
+        cmd = MainGroup(opts)
+        try:
+            return cmd.Run() or 0
+        except SystemExit as e:
+            return e.code or 0
+
+    assert _main(args) == expected_return_code
