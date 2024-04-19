@@ -136,7 +136,6 @@ def Create(
     Returns:
         An error code, None otherwise.
     """
-    replace = not request.flags.no_replace
     no_delete_out_dir = request.flags.no_delete_out_dir
     bootstrap = request.flags.bootstrap
     chroot = controller_util.ParseChroot(request.chroot)
@@ -148,15 +147,13 @@ def Create(
         return controller.RETURN_CODE_VALID_INPUT
 
     args = sdk.CreateArguments(
-        replace=replace,
         bootstrap=bootstrap,
         chroot=chroot,
         sdk_version=sdk_version,
         # Non-force is supposed to prevent human users from making mistakes when
         # replacing or deleting the chroot. Since the build API is usually not
-        # used by humans, it should be safe to assume force if we're replacing
-        # the chroot.
-        force=replace,
+        # used by humans, it should be safe to assume force.
+        force=True,
         ccache_disable=ccache_disable,
         no_delete_out_dir=no_delete_out_dir,
     )

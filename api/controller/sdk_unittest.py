@@ -37,7 +37,6 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 
     def _GetRequest(
         self,
-        no_replace=False,
         bootstrap=False,
         cache_path=None,
         chroot_path=None,
@@ -47,7 +46,6 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     ):
         """Helper to build a create request message."""
         request = sdk_pb2.CreateRequest()
-        request.flags.no_replace = no_replace
         request.flags.bootstrap = bootstrap
         request.flags.no_delete_out_dir = no_delete_out_dir
 
@@ -102,13 +100,11 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         # Flag translation tests.
         # Test all false values in the message.
         request = self._GetRequest(
-            no_replace=False,
             bootstrap=False,
             no_delete_out_dir=False,
         )
         sdk_controller.Create(request, self.response, self.api_config)
         args_patch.assert_called_with(
-            replace=True,
             bootstrap=False,
             chroot=mock.ANY,
             sdk_version=mock.ANY,
@@ -125,7 +121,6 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 
         # Test all True values in the message.
         request = self._GetRequest(
-            no_replace=True,
             bootstrap=True,
             sdk_version="foo",
             ccache_disable=True,
@@ -133,11 +128,10 @@ class SdkCreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         )
         sdk_controller.Create(request, self.response, self.api_config)
         args_patch.assert_called_with(
-            replace=False,
             bootstrap=True,
             chroot=mock.ANY,
             sdk_version="foo",
-            force=False,
+            force=True,
             ccache_disable=True,
             no_delete_out_dir=True,
         )

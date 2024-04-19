@@ -71,7 +71,6 @@ class CreateArguments:
 
     def __init__(
         self,
-        replace: bool = False,
         bootstrap: bool = False,
         chroot: Optional["chroot_lib.Chroot"] = None,
         sdk_version: Optional[str] = None,
@@ -82,19 +81,16 @@ class CreateArguments:
         """Create arguments init.
 
         Args:
-            replace: Whether an existing chroot should be deleted.
             bootstrap: Use the SDK bootstrap version.
             chroot: chroot_lib.Chroot object representing the paths for the
                 chroot to create.
             sdk_version: Specific SDK version to use, e.g. 2022.01.20.073008.
             force: Force delete of the current SDK chroot when replacing, even
-                if obtaining the write lock fails. Applies only if replace is
-                True.
+                if obtaining the write lock fails.
             ccache_disable: Whether ccache should be disabled after chroot
                 creation.
             no_delete_out_dir: If True, `out` directory will be preserved.
         """
-        self.replace = replace
         self.chroot = chroot or chroot_lib.Chroot()
         if sdk_version:
             self.sdk_version = sdk_version
@@ -136,16 +132,12 @@ class CreateArguments:
         Returns:
             The list of the corresponding command line arguments.
         """
-        args = []
+        args = ["--replace"]
 
-        if self.replace:
-            args.append("--replace")
-            if self.no_delete_out_dir:
-                args.append("--no-delete-out-dir")
-            else:
-                args.append("--delete-out-dir")
+        if self.no_delete_out_dir:
+            args.append("--no-delete-out-dir")
         else:
-            args.append("--create")
+            args.append("--delete-out-dir")
         if self.force:
             args.append("--force")
 
@@ -311,28 +303,6 @@ def Create(arguments: CreateArguments) -> Optional[int]:
         cros_build_lib.run([cros_sdk] + arguments.GetArgList())
     except cros_build_lib.RunCommandError as e:
         raise SdkCreateError(f"Error creating the SDK: {str(e)}") from e
-
-    version = GetChrootVersion(arguments.chroot.path)
-    if not arguments.replace:
-        # Force replace scenarios. Only needed when we're not already replacing
-        # it.
-        if not version:
-            # Force replace when we can't get a version for a chroot that
-            # exists, since something must have gone wrong.
-            logging.notice("Replacing broken chroot.")
-            arguments.replace = True
-            return Create(arguments)
-        elif not cros_sdk_lib.IsChrootVersionValid(arguments.chroot.path):
-            # Force replace when the version is not valid, i.e. ahead of the
-            # chroot version hooks.
-            logging.notice("Replacing chroot ahead of current checkout.")
-            arguments.replace = True
-            return Create(arguments)
-        elif not cros_sdk_lib.IsChrootDirValid(arguments.chroot.path):
-            # Force replace when the permissions or owner are not correct.
-            logging.notice("Replacing chroot with invalid permissions.")
-            arguments.replace = True
-            return Create(arguments)
 
     disable_arg = "true" if arguments.ccache_disable else "false"
     ccache_cmd = [cros_sdk]
