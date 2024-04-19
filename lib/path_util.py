@@ -47,8 +47,8 @@ class CheckoutInfo:
 
     type: CheckoutType
     # TODO: Change these to a Path.
-    root: str
-    chrome_src_dir: str
+    root: Optional[str]
+    chrome_src_dir: Optional[str]
 
     @property
     def tracks_main(self) -> bool:
@@ -58,6 +58,8 @@ class CheckoutInfo:
             return True
         # Browser checkouts don't track our main branch (different tree).
         if self.type == CheckoutType.GCLIENT:
+            return False
+        if not self.root:
             return False
         repo_manifest = git.ManifestCheckout.Cached(self.root)
         if repo_manifest.manifest_branch in ("snapshot", "main"):

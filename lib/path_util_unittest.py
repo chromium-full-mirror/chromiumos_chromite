@@ -143,7 +143,9 @@ class TestCheckoutInfoTracksMain(cros_test_lib.TestCase):
 
     def test_track_main_repo(self) -> None:
         """A repo checkout to the "snapshot" branch should track main."""
-        info = path_util.CheckoutInfo(path_util.CheckoutType.REPO, "", "")
+        info = path_util.CheckoutInfo(
+            path_util.CheckoutType.REPO, "/path/to/source", ""
+        )
         mock_obj = mock.Mock()
         mock_obj.manifest_branch = "snapshot"
         with mock.patch.object(
@@ -153,7 +155,9 @@ class TestCheckoutInfoTracksMain(cros_test_lib.TestCase):
 
     def test_track_stable_repo(self) -> None:
         """A repo checkout to the "stable" branch should not track main."""
-        info = path_util.CheckoutInfo(path_util.CheckoutType.REPO, "", "")
+        info = path_util.CheckoutInfo(
+            path_util.CheckoutType.REPO, "/path/to/source", ""
+        )
         mock_obj = mock.Mock()
         mock_obj.manifest_branch = "stable"
         with mock.patch.object(
