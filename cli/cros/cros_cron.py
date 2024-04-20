@@ -20,6 +20,7 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
 from chromite.lib import osutils
+from chromite.lib import path_util
 from chromite.utils import xdg_util
 
 
@@ -77,6 +78,18 @@ def get_systemd_units() -> str:
     )
 
 
+def prefetch_repo(checkout: path_util.CheckoutInfo) -> None:
+    """Prefetch git objects to speed up repo sync."""
+    assert checkout.type == path_util.CheckoutType.REPO
+    assert checkout.repo_binary
+    assert checkout.root
+
+    cros_build_lib.run(
+        [checkout.repo_binary, "sync", "--optimized-fetch", "--network-only"],
+        cwd=checkout.root,
+    )
+
+
 def prefetch_sdks(cache_dir: Path) -> None:
     """Prefetch SDK tarballs.
 
@@ -107,6 +120,12 @@ class RunSub(command.CliCommand):
     @classmethod
     def AddParser(cls, parser: commandline.ArgumentParser) -> None:
         parser.add_bool_argument(
+            "--prefetch-repo",
+            True,
+            "Prefetch git objects",
+            "Don't prefetch git objects",
+        )
+        parser.add_bool_argument(
             "--prefetch-sdks",
             True,
             "Prefetch SDK tarballs",
@@ -114,6 +133,15 @@ class RunSub(command.CliCommand):
         )
 
     def Run(self) -> Optional[int]:
+        if self.options.prefetch_repo:
+            checkout = path_util.DetermineCheckout(constants.SOURCE_ROOT)
+            if checkout.type == path_util.CheckoutType.REPO:
+                prefetch_repo(checkout)
+            else:
+                logging.warning(
+                    "Skipping repo prefetch, source tree does not look to be "
+                    "created with repo."
+                )
         if self.options.prefetch_sdks:
             prefetch_sdks(Path(self.options.cache_dir))
 

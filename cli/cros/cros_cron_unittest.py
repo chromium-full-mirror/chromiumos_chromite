@@ -14,10 +14,32 @@ import pytest
 from chromite.cli.cros import cros_cron
 from chromite.lib import commandline
 from chromite.lib import cros_sdk_lib
+from chromite.lib import path_util
 
 
 # pylint is unaware of pytest fixtures.
 # pylint: disable=redefined-outer-name
+
+FAKE_REPO_CHECKOUT = path_util.CheckoutInfo(
+    path_util.CheckoutType.REPO, "/path/to/source", ""
+)
+FAKE_CITC_CHECKOUT = path_util.CheckoutInfo(
+    path_util.CheckoutType.CITC, "/path/to/source", ""
+)
+
+
+def test_prefetch_repo(run_mock) -> None:
+    """Test the prefetch_repo function."""
+    cros_cron.prefetch_repo(FAKE_REPO_CHECKOUT)
+    run_mock.assertCommandCalled(
+        [
+            Path("/path/to/source/.repo/repo/repo"),
+            "sync",
+            "--optimized-fetch",
+            "--network-only",
+        ],
+        cwd="/path/to/source",
+    )
 
 
 def test_prefetch_sdks(tmp_path: Path) -> None:
@@ -62,8 +84,29 @@ def _main(args: List[str]) -> int:
 
 def test_cros_cron_run(tmp_path: Path) -> None:
     """Test the "cros cron run" command."""
-    with mock.patch.object(cros_cron, "prefetch_sdks") as prefetch_sdks:
+    with mock.patch.object(
+        path_util, "DetermineCheckout", return_value=FAKE_REPO_CHECKOUT
+    ), mock.patch.object(
+        cros_cron, "prefetch_repo"
+    ) as prefetch_repo, mock.patch.object(
+        cros_cron, "prefetch_sdks"
+    ) as prefetch_sdks:
         _main(["run", "--cache-dir", str(tmp_path)])
+        prefetch_repo.assert_called_once_with(FAKE_REPO_CHECKOUT)
+        prefetch_sdks.assert_called_once_with(tmp_path)
+
+
+def test_cros_cron_run_citc(tmp_path: Path) -> None:
+    """Test the "cros cron run" command for a CitC checkout."""
+    with mock.patch.object(
+        path_util, "DetermineCheckout", return_value=FAKE_CITC_CHECKOUT
+    ), mock.patch.object(
+        cros_cron, "prefetch_repo"
+    ) as prefetch_repo, mock.patch.object(
+        cros_cron, "prefetch_sdks"
+    ) as prefetch_sdks:
+        _main(["run", "--cache-dir", str(tmp_path)])
+        prefetch_repo.assert_not_called()
         prefetch_sdks.assert_called_once_with(tmp_path)
 
 
