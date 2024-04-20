@@ -428,7 +428,6 @@ def fetch_remote_tarballs(
     # https://sourceforge.net/tracker/?func=detail&atid=100976&aid=3482927&group_id=976
     status_re = re.compile(rb"^HTTP/[0-9]+(\.[0-9]+)? 200")
     for url in urls:
-        logging.notice("Downloading tarball %s ...", url.rsplit("/", 1)[-1])
         parsed = urllib.parse.urlparse(url)
         tarball_name = os.path.basename(parsed.path)
         if parsed.scheme in ("", "file"):
@@ -472,6 +471,7 @@ def fetch_remote_tarballs(
                 current_size = 0
 
         if current_size < content_length:
+            logging.notice("Downloading tarball %s ...", tarball_dest.name)
             retry_util.RunCurl(
                 [
                     "--fail",
