@@ -66,6 +66,13 @@ class CheckoutInfo:
             return True
         return False
 
+    @property
+    def repo_binary(self) -> Optional[Path]:
+        """The path to the repo tool for this checkout."""
+        if self.type != CheckoutType.REPO or not self.root:
+            return None
+        return Path(self.root) / ".repo" / "repo" / "repo"
+
 
 class ChrootPathResolver:
     """Perform path resolution to/from the chroot.

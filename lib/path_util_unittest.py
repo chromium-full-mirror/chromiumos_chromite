@@ -7,7 +7,10 @@
 import itertools
 import os
 from pathlib import Path
+from typing import Optional
 from unittest import mock
+
+import pytest
 
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
@@ -164,6 +167,30 @@ class TestCheckoutInfoTracksMain(cros_test_lib.TestCase):
             git.ManifestCheckout, "Cached", return_value=mock_obj
         ):
             assert not info.tracks_main
+
+
+@pytest.mark.parametrize(
+    ["checkout", "expected_binary"],
+    [
+        (
+            path_util.CheckoutInfo(
+                path_util.CheckoutType.REPO, FAKE_SOURCE_PATH, None
+            ),
+            Path(FAKE_SOURCE_PATH) / ".repo" / "repo" / "repo",
+        ),
+        (
+            path_util.CheckoutInfo(
+                path_util.CheckoutType.CITC, FAKE_SOURCE_PATH, None
+            ),
+            None,
+        ),
+    ],
+)
+def test_checkout_repo_binary(
+    checkout: path_util.CheckoutInfo, expected_binary: Optional[Path]
+):
+    """Test the CheckoutInfo.repo_binary property."""
+    assert checkout.repo_binary == expected_binary
 
 
 class FindCacheDirTest(cros_test_lib.MockTempDirTestCase):
