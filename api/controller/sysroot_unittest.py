@@ -1291,4 +1291,5 @@ class InstallPackagesTest(
             noclean=False,
             binhost_lookup_service_data=MOCK_BINHOST_LOOKUP_SERVICE_DATA,
             timeout=None,
+            bazel_use_remote_execution=False,
         )

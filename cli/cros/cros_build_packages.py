@@ -347,6 +347,13 @@ class BuildPackagesCommand(command.CliCommand):
             help=argparse.SUPPRESS,
         )
 
+        group.add_bool_argument(
+            "--bazel-use-remote-execution",
+            False,
+            "Execute Bazel actions remotely.",
+            "Execute Bazel actions locally.",
+        )
+
         parser.add_argument("packages", nargs="*", help="Packages to build.")
         return parser
 
@@ -408,6 +415,7 @@ class BuildPackagesCommand(command.CliCommand):
             backtrack=options.backtrack,
             bazel=options.bazel,
             bazel_lite=options.bazel_lite,
+            bazel_use_remote_execution=options.bazel_use_remote_execution,
         )
 
     @timer.timed("Elapsed time (cros build-packages)")

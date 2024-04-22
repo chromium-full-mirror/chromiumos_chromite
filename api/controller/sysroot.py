@@ -401,6 +401,9 @@ def InstallPackages(
         request.bazel_targets == sysroot_pb2.InstallPackagesRequest.LITE
     )
 
+    # Execute Bazel actions remotely (for actions not set as no-remote-exec)
+    bazel_use_remote_execution = request.flags.bazel_use_remote_execution
+
     noclean = request.flags.skip_clean_package_dirs
     binhost_lookup_service_data = request.binhost_lookup_service_data
 
@@ -437,6 +440,7 @@ def InstallPackages(
         noclean=noclean,
         binhost_lookup_service_data=binhost_lookup_service_data,
         timeout=timeout,
+        bazel_use_remote_execution=bazel_use_remote_execution,
     )
 
     try:

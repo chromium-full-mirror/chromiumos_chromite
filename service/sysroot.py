@@ -219,6 +219,7 @@ class BuildPackagesRunConfig:
             prebuilts_cloud_pb2.BinhostLookupServiceData
         ] = None,  # pylint: disable=line-too-long
         timeout: datetime.datetime = None,
+        bazel_use_remote_execution: bool = False,
     ) -> None:
         """Init method.
 
@@ -264,6 +265,8 @@ class BuildPackagesRunConfig:
                 binhost lookup service.
             timeout: If set, the main build command will be aborted after this
                 datetime.
+            bazel_use_remote_execution: Whether Bazel builds should execute
+                Bazel actions remotely.
         """
         self.usepkg = usepkg
         self.install_debug_symbols = install_debug_symbols
@@ -294,6 +297,7 @@ class BuildPackagesRunConfig:
         self.noclean = noclean
         self.binhost_lookup_service_data = binhost_lookup_service_data
         self.timeout = timeout
+        self.bazel_use_remote_execution = bazel_use_remote_execution
 
     def GetUseFlags(self) -> Optional[str]:
         """Get the use flags as a single string."""
@@ -1056,6 +1060,7 @@ def BuildPackages(
                             packages,
                             target.name,
                             run_configs.bazel_lite,
+                            run_configs.bazel_use_remote_execution,
                             extra_env,
                             timeout,
                             _PrintProcessTree,
@@ -1362,6 +1367,7 @@ def _BazelBuild(
     packages: List[str],
     target_name: str,
     bazel_lite: bool,
+    bazel_use_remote_execution: bool,
     extra_env: Dict[str, str],
     timeout: int,
     pre_timeout_hook: Callable,
@@ -1374,6 +1380,8 @@ def _BazelBuild(
         target_name: Target board, for example, `amd64-generic`.
         bazel_lite: Whether to perform lite build, which targets a reduced
             set of packages and skips sysroot installation.
+        bazel_use_remote_execution: Whether Bazel builds should execute
+            Bazel actions remotely.
         extra_env: Environment in which commands should be executed.
         timeout: If set, aborts the command after the specified number of
             seconds.
@@ -1463,25 +1471,28 @@ in
 
     build_success = False
     try:
+        cmd = [
+            BAZEL_COMMAND,
+            "build",
+            "--profile=" + BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
+            "--noslim_profile",
+            "--experimental_profile_include_target_label",
+            "--experimental_profile_include_primary_output",
+            # --keep_going to keep building packages even after a failure to
+            # detect as many failure as possible on the CI builders.
+            # We may need to delete this after launching Alchemy.
+            "--keep_going=%s" % ("false" if bazel_lite else "true"),
+            "--experimental_execution_log_compact_file="
+            + BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
+            "--config=hash_tracer",
+            "--config=collect_logs",
+            "--build_event_json_file=%s" % BAZEL_BUILD_EVENT_JSON_FILE_PATH,
+        ]
+        if bazel_use_remote_execution:
+            cmd += ["--config:rbe_exec"]
+        cmd += targets
         cros_build_lib.run(
-            [
-                BAZEL_COMMAND,
-                "build",
-                "--profile=" + BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
-                "--noslim_profile",
-                "--experimental_profile_include_target_label",
-                "--experimental_profile_include_primary_output",
-                # --keep_going to keep building packages even after a failure to
-                # detect as many failure as possible on the CI builders.
-                # We may need to delete this after launching Alchemy.
-                "--keep_going=%s" % ("false" if bazel_lite else "true"),
-                "--experimental_execution_log_compact_file="
-                + BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
-                "--config=hash_tracer",
-                "--config=collect_logs",
-                "--build_event_json_file=%s" % BAZEL_BUILD_EVENT_JSON_FILE_PATH,
-            ]
-            + targets,
+            cmd,
             extra_env=extra_env,
             cmd_timeout=timeout,
             pre_timeout_hook=pre_timeout_hook,
