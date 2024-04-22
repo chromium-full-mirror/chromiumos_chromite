@@ -245,8 +245,8 @@ ANDROID_SYMBOLS_URL_TEMPLATE = (
 )
 ANDROID_SYMBOLS_FILE = "android-symbols.zip"
 
-GOB_COOKIE_PATH = os.path.expanduser("~/.git-credential-cache/cookie")
-GITCOOKIES_PATH = os.path.expanduser("~/.gitcookies")
+GOB_COOKIE_PATH = Path("~/.git-credential-cache/cookie").expanduser()
+GITCOOKIES_PATH = Path("~/.gitcookies").expanduser()
 
 # Timestamps in the JSON from GoB's web interface is of the form 'Tue
 # Dec 02 17:48:06 2014' and is assumed to be in UTC.

@@ -19,7 +19,7 @@ import os
 import re
 import socket
 import sys
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, Optional, Tuple, Union
 import urllib.parse
 import urllib.request
 import warnings
@@ -149,7 +149,11 @@ def _QueryString(param_dict, first_param=None):
     return "+".join(q)
 
 
-def GetCookies(host, path, cookie_paths=None):
+def GetCookies(
+    host: str,
+    path: str,
+    cookie_paths: Optional[Iterable[Union[str, os.PathLike]]] = None,
+) -> Dict[str, str]:
     """Returns cookies that should be set on a request.
 
     Used by CreateHttpReq for any requests that do not already specify a Cookie

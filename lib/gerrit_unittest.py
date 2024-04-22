@@ -79,7 +79,7 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
         )
         project_prefix = "test-%s/" % (cros_build_lib.GetRandomString(),)
         cookies_path = os.environ.get(
-            "CROS_TEST_COOKIES_PATH", constants.GITCOOKIES_PATH
+            "CROS_TEST_COOKIES_PATH", str(constants.GITCOOKIES_PATH)
         )
         # "o" is the cookie name that GoB uses in its instructions.
         cookie_names_str = os.environ.get("CROS_TEST_COOKIE_NAMES", "o")
