@@ -133,6 +133,9 @@ class RunSub(command.CliCommand):
         )
 
     def Run(self) -> Optional[int]:
+        cros_build_lib.AssertOutsideChroot()
+        cros_build_lib.AssertNonRootUser()
+
         if self.options.prefetch_repo:
             checkout = path_util.DetermineCheckout(constants.SOURCE_ROOT)
             if checkout.type == path_util.CheckoutType.REPO:

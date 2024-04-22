@@ -82,8 +82,9 @@ def _main(args: List[str]) -> int:
         return e.code or 0
 
 
-def test_cros_cron_run(tmp_path: Path) -> None:
+def test_cros_cron_run(tmp_path: Path, outside_sdk) -> None:
     """Test the "cros cron run" command."""
+    del outside_sdk
     with mock.patch.object(
         path_util, "DetermineCheckout", return_value=FAKE_REPO_CHECKOUT
     ), mock.patch.object(
@@ -96,8 +97,9 @@ def test_cros_cron_run(tmp_path: Path) -> None:
         prefetch_sdks.assert_called_once_with(tmp_path)
 
 
-def test_cros_cron_run_citc(tmp_path: Path) -> None:
+def test_cros_cron_run_citc(tmp_path: Path, outside_sdk) -> None:
     """Test the "cros cron run" command for a CitC checkout."""
+    del outside_sdk
     with mock.patch.object(
         path_util, "DetermineCheckout", return_value=FAKE_CITC_CHECKOUT
     ), mock.patch.object(
