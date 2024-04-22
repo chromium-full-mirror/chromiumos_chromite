@@ -66,8 +66,7 @@ def get_parser() -> commandline.ArgumentParser:
     """Return a command line parser."""
     parser = commandline.ArgumentParser(description=__doc__)
 
-    subparsers = parser.add_subparsers(dest="subcommand")
-    subparsers.required = True
+    subparsers = parser.add_subparsers(dest="subcommand", required=True)
 
     subparser = subparsers.add_parser(
         "attach", help="Attach a disk image to a loopback device."

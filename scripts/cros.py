@@ -33,8 +33,9 @@ def GetOptions(cmd_name=None):
         caching=True, default_log_level="notice"
     )
 
-    subparsers = parser.add_subparsers(title="Subcommands", dest="subcommand")
-    subparsers.required = True
+    subparsers = parser.add_subparsers(
+        title="Subcommands", dest="subcommand", required=True
+    )
 
     # We add all the commands so `cros --help ...` looks reasonable.
     # We add them in order also so the --help output is stable for users.

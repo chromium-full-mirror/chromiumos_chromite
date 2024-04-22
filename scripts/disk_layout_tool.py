@@ -484,11 +484,9 @@ def GetParser():
         "validate": Validate,
     }
 
-    # Subparsers are required by default under Python 2.  Python 3 changed to
-    # not required, but didn't include a required option until 3.7.  Setting
-    # the required member works in all versions (and setting dest name).
-    subparsers = parser.add_subparsers(title="Commands", dest="command")
-    subparsers.required = True
+    subparsers = parser.add_subparsers(
+        title="Commands", dest="command", required=True
+    )
 
     for name, func in sorted(action_map.items()):
         # Turn the func's docstring into something we can show the user.

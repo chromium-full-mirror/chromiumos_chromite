@@ -1099,8 +1099,7 @@ def get_parser() -> commandline.ArgumentParser:
     parser = commandline.ArgumentParser(
         description=__doc__, default_log_level="notice"
     )
-    subparsers = parser.add_subparsers(dest="subcommand")
-    subparsers.required = True
+    subparsers = parser.add_subparsers(dest="subcommand", required=True)
 
     launch_parser = subparsers.add_parser("launch")
     SetupLaunchParser(launch_parser)

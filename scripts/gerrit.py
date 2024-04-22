@@ -1468,11 +1468,7 @@ def GetParser(
 
     actions = _GetActions()
 
-    # Subparsers are required by default under Python 2.  Python 3 changed to
-    # not required, but didn't include a required option until 3.7.  Setting
-    # the required member works in all versions (and setting dest name).
-    subparsers = parser.add_subparsers(dest="action")
-    subparsers.required = True
+    subparsers = parser.add_subparsers(dest="action", required=True)
     for cmd, cls in actions.items():
         # Format the full docstring by removing the file level indentation.
         description = re.sub(r"^  ", "", cls.__doc__, flags=re.M)
