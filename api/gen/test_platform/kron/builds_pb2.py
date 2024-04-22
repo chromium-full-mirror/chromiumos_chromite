@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from chromite.third_party.google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1ftest_platform/kron/builds.proto\x12\x12test_platform.kron\x1a\x1fgoogle/protobuf/timestamp.proto\"\xda\x01\n\x05\x42uild\x12\x12\n\nbuild_uuid\x18\x01 \x01(\t\x12\x10\n\x08run_uuid\x18\x02 \x01(\t\x12/\n\x0b\x63reate_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0c\n\x04\x62\x62id\x18\x04 \x01(\x03\x12\x14\n\x0c\x62uild_target\x18\x05 \x01(\t\x12\x11\n\tmilestone\x18\x06 \x01(\x03\x12\x0f\n\x07version\x18\x07 \x01(\t\x12\x12\n\nimage_path\x18\x08 \x01(\t\x12\r\n\x05\x62oard\x18\t \x01(\t\x12\x0f\n\x07variant\x18\n \x01(\tB>Z<go.chromium.org/chromiumos/infra/proto/go/test_platform/kronb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1ftest_platform/kron/builds.proto\x12\x12test_platform.kron\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf5\x01\n\x05\x42uild\x12\x12\n\nbuild_uuid\x18\x01 \x01(\t\x12\x10\n\x08run_uuid\x18\x02 \x01(\t\x12/\n\x0b\x63reate_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0c\n\x04\x62\x62id\x18\x04 \x01(\x03\x12\x14\n\x0c\x62uild_target\x18\x05 \x01(\t\x12\x11\n\tmilestone\x18\x06 \x01(\x03\x12\x0f\n\x07version\x18\x07 \x01(\t\x12\x12\n\nimage_path\x18\x08 \x01(\t\x12\r\n\x05\x62oard\x18\t \x01(\t\x12\x0f\n\x07variant\x18\n \x01(\t\x12\x19\n\x11release_orch_bbid\x18\x0b \x01(\x03\x42>Z<go.chromium.org/chromiumos/infra/proto/go/test_platform/kronb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'test_platform.kron.builds_pb2', globals())
@@ -23,5 +23,5 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z<go.chromium.org/chromiumos/infra/proto/go/test_platform/kron'
   _BUILD._serialized_start=89
-  _BUILD._serialized_end=307
+  _BUILD._serialized_end=334
 # @@protoc_insertion_point(module_scope)
