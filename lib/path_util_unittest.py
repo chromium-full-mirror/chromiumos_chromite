@@ -37,12 +37,12 @@ class DetermineCheckoutTest(cros_test_lib.MockTempDirTestCase):
         self.rc_mock.SetDefaultCmdResult()
 
     def RunTest(
-        self, dir_struct, cwd, expected_root, expected_type, expected_src
+        self, dir_struct, subdir, expected_root, expected_type, expected_src
     ) -> None:
         """Run a test with specific parameters and expected results."""
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, dir_struct)
-        cwd = os.path.join(self.tempdir, cwd)
-        checkout_info = path_util.DetermineCheckout(cwd)
+        search_path = self.tempdir / subdir
+        checkout_info = path_util.DetermineCheckout(search_path)
         full_root = expected_root
         if expected_root is not None:
             full_root = os.path.join(self.tempdir, expected_root)
@@ -193,26 +193,33 @@ def test_checkout_repo_binary(
     assert checkout.repo_binary == expected_binary
 
 
-class FindCacheDirTest(cros_test_lib.MockTempDirTestCase):
+class FindCacheDirTest(cros_test_lib.TestCase):
     """Test cache dir specification and finding functionality."""
 
-    def setUp(self) -> None:
+    @pytest.fixture(autouse=True)
+    def init_temp_dir(
+        self,
+        tmp_path: Path,
+        run_mock: cros_test_lib.RunCommandMock,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
         dir_struct = [
             "repo/.repo/",
             "repo/manifest/",
             "gclient/.gclient",
         ]
-        cros_test_lib.CreateOnDiskHierarchy(self.tempdir, dir_struct)
-        self.repo_root = os.path.join(self.tempdir, "repo")
-        self.gclient_root = os.path.join(self.tempdir, "gclient")
-        self.nocheckout_root = os.path.join(self.tempdir, "nothing")
+        cros_test_lib.CreateOnDiskHierarchy(tmp_path, dir_struct)
+        # pylint: disable=attribute-defined-outside-init
+        self.repo_root = tmp_path / "repo"
+        self.gclient_root = tmp_path / "gclient"
+        self.nocheckout_root = tmp_path / "nothing"
 
-        self.rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
-        self.cwd_mock = self.PatchObject(os, "getcwd")
+        self.rc_mock = run_mock
+        self.monkeypatch = monkeypatch
 
     def testRepoRoot(self) -> None:
         """Test when we are inside a repo checkout."""
-        self.cwd_mock.return_value = self.repo_root
+        self.monkeypatch.setattr(constants, "SOURCE_ROOT", self.repo_root)
         self.assertEqual(
             path_util.FindCacheDir(),
             os.path.join(self.repo_root, path_util.GENERAL_CACHE_DIR),
@@ -220,7 +227,7 @@ class FindCacheDirTest(cros_test_lib.MockTempDirTestCase):
 
     def testGclientRoot(self) -> None:
         """Test when we are inside a gclient checkout."""
-        self.cwd_mock.return_value = self.gclient_root
+        self.monkeypatch.setattr(constants, "SOURCE_ROOT", self.gclient_root)
         self.assertEqual(
             path_util.FindCacheDir(),
             os.path.join(
@@ -230,7 +237,7 @@ class FindCacheDirTest(cros_test_lib.MockTempDirTestCase):
 
     def testTempdir(self) -> None:
         """Test when we are not in any checkout."""
-        self.cwd_mock.return_value = self.nocheckout_root
+        self.monkeypatch.setattr(constants, "SOURCE_ROOT", self.nocheckout_root)
         self.assertStartsWith(
             path_util.FindCacheDir(), os.path.expanduser("~/")
         )

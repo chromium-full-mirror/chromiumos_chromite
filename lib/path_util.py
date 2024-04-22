@@ -366,12 +366,18 @@ class ChrootPathResolver:
         )
 
 
-def DetermineCheckout(cwd=None) -> CheckoutInfo:
+def DetermineCheckout(
+    search_path: Optional[Union[str, "os.PathLike[str]"]] = None
+) -> CheckoutInfo:
     """Gather information on the checkout we are in.
 
     There are several checkout types, as defined by CheckoutType.
-    This function determines what checkout type |cwd| is in, for example, if
-    |cwd| belongs to a `repo` checkout.
+    This function determines what checkout type the provided path is in, for
+    example, it may belong to a `repo` checkout.
+
+    Args:
+        search_path: The path to a checkout or any file or directory in it to
+            look upwards from.
 
     Returns:
         CheckoutInfo object with these attributes:
@@ -383,8 +389,8 @@ def DetermineCheckout(cwd=None) -> CheckoutInfo:
     checkout_type = CheckoutType.UNKNOWN
     root, path = None, None
 
-    cwd = cwd or os.getcwd()
-    for path in osutils.IteratePathParents(cwd):
+    search_path = search_path or constants.SOURCE_ROOT
+    for path in osutils.IteratePathParents(search_path):
         if (path / ".gclient").exists():
             checkout_type = CheckoutType.GCLIENT
             break

@@ -5,6 +5,7 @@
 """Unit tests for CrOSTest."""
 
 import os
+from pathlib import Path
 from unittest import mock
 
 import pytest  # pylint: disable=import-error
@@ -127,7 +128,7 @@ class CrOSTester(CrOSTesterBase):
         chrome_src_dir = os.path.join(chrome_root, "src")
         osutils.SafeMakedirs(chrome_src_dir)
         osutils.Touch(os.path.join(chrome_root, ".gclient"))
-        self.PatchObject(os, "getcwd", return_value=chrome_root)
+        self.PatchObject(constants, "SOURCE_ROOT", new=Path(chrome_root))
         self.PatchObject(
             cros_chrome_sdk.SDKFetcher,
             "GetCachedFullVersion",

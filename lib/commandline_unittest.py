@@ -14,10 +14,12 @@ import pickle
 import signal
 import sys
 from typing import Callable, List, Optional, Union
+from unittest import mock
 
 import pytest
 
 from chromite.lib import commandline
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
@@ -737,43 +739,33 @@ class SplitExtendActionTest(cros_test_lib.TestCase):
         self._CheckArgs(["a b  c", "", "x", " k "], ["a", "b", "c", "x", "k"])
 
 
-class CacheTest(cros_test_lib.MockTempDirTestCase):
-    """Test cache dir default / override functionality."""
+@pytest.mark.parametrize(
+    ["args", "expected_cache_dir"],
+    [
+        ([], Path("repo/.cache")),
+        (["--cache-dir", "/fake/cache/dir"], Path("/fake/cache/dir")),
+    ],
+)
+def test_cache_dir(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    args: List[str],
+    expected_cache_dir: Path,
+) -> None:
+    """Test parsing --cache-dir."""
+    dir_struct = [
+        "repo/.repo/",
+    ]
+    cros_test_lib.CreateOnDiskHierarchy(tmp_path, dir_struct)
+    monkeypatch.setattr(constants, "SOURCE_ROOT", tmp_path / "repo")
+    parser = commandline.ArgumentParser(caching=True)
 
-    CACHE_DIR = "/fake/cache/dir"
-
-    def setUp(self) -> None:
-        self.PatchObject(commandline.ArgumentParser, "ConfigureCacheDir")
-        dir_struct = [
-            "repo/.repo/",
-        ]
-        cros_test_lib.CreateOnDiskHierarchy(self.tempdir, dir_struct)
-        self.repo_root = os.path.join(self.tempdir, "repo")
-        self.cwd_mock = self.PatchObject(os, "getcwd")
-        self.parser = commandline.ArgumentParser(caching=True)
-
-    def _CheckCall(
-        self, cwd_retval, args_to_parse, expected, assert_func
-    ) -> None:
-        self.cwd_mock.return_value = cwd_retval
-        self.parser.parse_args(args_to_parse)
-        cache_dir_mock = self.parser.ConfigureCacheDir
-        self.assertEqual(1, cache_dir_mock.call_count)
-        assert_func(cache_dir_mock.call_args[0][0], expected)
-
-    def testRepoRootNoOverride(self) -> None:
-        """Test default cache location when in a repo checkout."""
-        self._CheckCall(
-            self.repo_root, [], self.repo_root, self.assertStartsWith
-        )
-
-    def testRepoRootWithOverride(self) -> None:
-        """User provided cache location overrides repo checkout default."""
-        self._CheckCall(
-            self.repo_root,
-            ["--cache-dir", self.CACHE_DIR],
-            self.CACHE_DIR,
-            self.assertEqual,
+    with mock.patch.object(
+        commandline.ArgumentParser, "ConfigureCacheDir"
+    ) as cache_dir_mock:
+        parser.parse_args(args)
+        cache_dir_mock.assert_called_once_with(
+            str(tmp_path / expected_cache_dir)
         )
 
 

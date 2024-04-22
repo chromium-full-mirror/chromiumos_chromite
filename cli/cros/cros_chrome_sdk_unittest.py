@@ -6,6 +6,7 @@
 
 import copy
 import os
+from pathlib import Path
 import shutil
 import threading
 from unittest import mock
@@ -654,7 +655,7 @@ class RunThroughTest(
     def testClearSDKCache(self) -> None:
         """Verifies cache directories are removed with --clear-sdk-cache."""
         # Ensure we have checkout type GCLIENT.
-        self.PatchObject(os, "getcwd", return_value=self.chrome_root)
+        self.PatchObject(constants, "SOURCE_ROOT", new=Path(self.chrome_root))
 
         # Use the default cache location.
         self.SetupCommandMock(
