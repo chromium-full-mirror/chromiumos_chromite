@@ -28,6 +28,22 @@ def _bootimage_enabled(build_target: build_target_lib.BuildTarget) -> bool:
     return "bootimage" in build_target.board.use_flags
 
 
+# Chromite subdirectiories we know are irrelevant to build targets (e.g.,
+# developer tooling).
+_CHROMITE_IRRELEVANT = "|".join(
+    re.escape(x)
+    for x in (
+        "cidb",
+        "cli",
+        "config",
+        "contrib",
+        "format",
+        "ide_tooling",
+        "systemd",
+        "test",
+    )
+)
+
 # Special rules that can be applied to paths in the tree.  Each regular
 # expression (which matches a file path relative to the source checkout)
 # can map to a function which determines if the change is relevant).
@@ -40,6 +56,8 @@ def _bootimage_enabled(build_target: build_target_lib.BuildTarget) -> bool:
 #     True: The change is relevant for this path.
 #     False: The change is not relevant for this path.
 _PATH_RULES: List[Tuple[str, Callable[..., bool]]] = [
+    (r"chromite/.*_unittest\.py", lambda _: False),
+    (rf"chromite/(?:{_CHROMITE_IRRELEVANT})/.*", lambda _: False),
     (r"chromite/.*", lambda _: True),
     (r"src/scripts/.*", lambda _: True),
     (
