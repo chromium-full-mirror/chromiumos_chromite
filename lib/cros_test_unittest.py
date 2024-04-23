@@ -379,7 +379,7 @@ class CrOSTesterMiscTests(CrOSTesterBase):
                     "/usr/local/telemetry/src/third_party/catapult/"
                     "telemetry/bin/run_tests"
                 ),
-                "--browser=system",
+                "'--browser=system'",
                 "testAddResults",
             ]
         )
@@ -396,7 +396,7 @@ class CrOSTesterMiscTests(CrOSTesterBase):
                     "/usr/local/telemetry/src/third_party/catapult/"
                     "telemetry/bin/run_tests"
                 ),
-                "--browser=system-guest",
+                "'--browser=system-guest'",
                 "testAddResults",
             ]
         )
@@ -426,8 +426,10 @@ class CrOSTesterMiscTests(CrOSTesterBase):
         )
         # Ensure command runs in the target directory.
         self.assertCommandContains(
-            "cd /usr/local/cros_test && crypto_unittests "
-            "--test-launcher-print-test-stdio=always"
+            [
+                "cd /usr/local/cros_test && crypto_unittests "
+                "--test-launcher-print-test-stdio=always"
+            ]
         )
         # Ensure target directory is removed at the end of the test.
         self.assertCommandContains(["rm", "-rf", "/usr/local/cros_test"])
@@ -442,7 +444,7 @@ class CrOSTesterMiscTests(CrOSTesterBase):
 
         # Ensure command runs in the autotest directory.
         self.assertCommandContains(
-            "cd /usr/local/autotest && ./bin/vm_sanity.py"
+            ["cd /usr/local/autotest && ./bin/vm_sanity.py"]
         )
 
     def testRunDeviceCmdWithoutSrcFiles(self) -> None:
@@ -828,8 +830,8 @@ class CrOSTesterChromeTest(CrOSTesterBase):
                 "--",
                 "dbus-send",
                 "--system",
-                "--type=method_call",
-                "--dest=org.chromium.PowerManager",
+                "'--type=method_call'",
+                "'--dest=org.chromium.PowerManager'",
                 "/org/chromium/PowerManager",
                 "org.chromium.PowerManager.HandleUserActivity",
                 "int32:0",

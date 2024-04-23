@@ -699,7 +699,7 @@ class CrOSTest:
             " ".join(test_args),
         )
         result = self._device.run(
-            command, stream_output=True, remote_user="chronos"
+            command, stream_output=True, shell=True, remote_user="chronos"
         )
         return result
 
