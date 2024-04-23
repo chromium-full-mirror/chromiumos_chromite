@@ -86,6 +86,7 @@ BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE = "/tmp/allpackages_command.profile.gz"
 BAZEL_ALLPACKAGES_CQUERY_PROFILE_FILE = "/tmp/allpackages_cquery.profile.gz"
 BAZEL_ALLPACKAGES_ACTION_LOGS_FILE = "/tmp/allpackages_action_logs.tar.gz"
 BAZEL_ALLPACKAGES_EXEC_LOG_FILE = "/tmp/allpackages_exec_compact.log"
+BAZEL_ALLPACKAGES_PREBUILTS_FILE = "/tmp/prebuilts.bzl"
 BAZEL_BUILD_EVENT_JSON_FILE_PATH = "/tmp/chromeos_bazel_build_events.json"
 BAZEL_COMMAND = constants.CHROMITE_BIN_DIR / "bazel"
 
@@ -1491,6 +1492,7 @@ in
             + BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
             "--config=hash_tracer",
             "--config=collect_logs",
+            "--config=collect_ebuild_metadata",
             "--build_event_json_file=%s" % BAZEL_BUILD_EVENT_JSON_FILE_PATH,
         ]
         if bazel_use_remote_execution:
@@ -1527,6 +1529,7 @@ in
                     "--build-events-jsonl=%s"
                     % BAZEL_BUILD_EVENT_JSON_FILE_PATH,
                     "--archive-logs=%s" % BAZEL_ALLPACKAGES_ACTION_LOGS_FILE,
+                    "--prebuilts=%s" % BAZEL_ALLPACKAGES_PREBUILTS_FILE,
                 ],
                 extra_env=extra_env,
             )
@@ -1847,6 +1850,7 @@ def CollectBazelPerformanceArtifacts(
         BAZEL_ALLPACKAGES_CQUERY_PROFILE_FILE,
         BAZEL_ALLPACKAGES_ACTION_LOGS_FILE,
         BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
+        BAZEL_ALLPACKAGES_PREBUILTS_FILE,
         BAZEL_BUILD_EVENT_JSON_FILE_PATH,
     ]
     raw_artifacts = [
