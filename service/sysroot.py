@@ -890,12 +890,17 @@ def BuildPackages(
             "clean-outdated-pkgs",
             f"--board={target.name}",
         ]
-        # Set check=False to allow cop to fail.
-        cros_build_lib.sudo_run(
-            cop_command,
-            preserve_env=True,
-            check=False,
-        )
+        try:
+            cros_build_lib.sudo_run(
+                cop_command,
+                preserve_env=True,
+            )
+        except Exception as e:
+            cmd_as_str = " ".join(cop_command)
+            logging.error(
+                'While cleaning outdated packages with "%s": %s', cmd_as_str, e
+            )
+            raise e
 
     extra_env = run_configs.GetExtraEnv()
     extra_env["PKGDIR"] = f"{sysroot.path}/packages"

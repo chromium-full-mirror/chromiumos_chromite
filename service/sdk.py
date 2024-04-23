@@ -418,15 +418,19 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
     sysroot.InstallMakeConfSdk(build_target)
 
     if os.environ.get("CROS_CLEAN_OUTDATED_PKGS") != "0":
-        # Set check=False to allow cop to fail.
-        cros_build_lib.run(
-            [
-                constants.CHROMITE_BIN_DIR / "cros",
-                "clean-outdated-pkgs",
-                "--host",
-            ],
-            check=False,
-        )
+        cop_command = [
+            constants.CHROMITE_BIN_DIR / "cros",
+            "clean-outdated-pkgs",
+            "--host",
+        ]
+        try:
+            cros_build_lib.run(cop_command)
+        except Exception as e:
+            cmd_as_str = " ".join(cop_command)
+            logging.error(
+                'While cleaning outdated packages with "%s": %s', cmd_as_str, e
+            )
+            raise e
 
     cmd = [
         constants.CHROMITE_SHELL_DIR / "update_chroot.sh",
