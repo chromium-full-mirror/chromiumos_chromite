@@ -1157,6 +1157,16 @@ class ManifestCheckoutTest(cros_test_lib.TempDirTestCase):
         self.assertEqual(branches, ["origin/release-R23-2913.B"])
 
 
+def test_get_manifests_branch_from_file(tmp_path: Path) -> None:
+    """Test GetManifestsBranch when the directory is not a git repo."""
+    dir_struct = [
+        ".repo/manifests/default.xml",
+    ]
+    cros_test_lib.CreateOnDiskHierarchy(tmp_path, dir_struct)
+    # pylint: disable-next=protected-access
+    assert git.ManifestCheckout._GetManifestsBranch(tmp_path) is None
+
+
 class ManifestHashTest(cros_test_lib.TestCase):
     """Tests for _GetManifestHash functionality."""
 

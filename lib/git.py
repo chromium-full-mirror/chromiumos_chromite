@@ -644,7 +644,12 @@ class ManifestCheckout(Manifest):
         )
 
     @functools.cached_property
-    def manifest_branch(self) -> str:
+    def manifest_branch(self) -> Optional[str]:
+        """The manifest branch this checkout is tracking.
+
+        Note that when repo was initialized from a file instead of a git
+        repository, this will return None.
+        """
         return self._GetManifestsBranch(self.root)
 
     @staticmethod
@@ -779,17 +784,26 @@ class ManifestCheckout(Manifest):
         attrs["local_path"] = os.path.join(self.root, attrs["path"])
 
     @staticmethod
-    def _GetManifestsBranch(root: Union[str, "os.PathLike[str]"]) -> str:
+    def _GetManifestsBranch(
+        root: Union[str, "os.PathLike[str]"]
+    ) -> Optional[str]:
         """Get the tracking branch of the manifest repository.
 
         Returns:
-            The branch name.
+            The branch name, or None if the checkout is not from a git repo.
         """
         # Suppress the normal "if it ain't refs/heads, we don't want none o'
         # that" check for the merge target; repo writes the ambiguous form of
         # the branch target for `repo init -u url -b some-branch` usages (aka,
         # 'main' instead of 'refs/heads/main').
-        path = os.path.join(root, ".repo", "manifests")
+        path = Path(root) / ".repo" / "manifests"
+
+        # repo can be initialized with a file instead of a git repo (e.g., via
+        # repo init -u file://....  In that case, we return None, as we don't
+        # track a branch.
+        if not (path / ".git").is_dir():
+            return None
+
         current_branch = GetCurrentBranch(path)
         if current_branch != "default":
             raise OSError(
