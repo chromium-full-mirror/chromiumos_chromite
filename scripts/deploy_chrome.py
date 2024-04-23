@@ -621,8 +621,7 @@ class DeployChrome:
         try:
             # Umount the existing mount on mount_dir if present first.
             self.device.run(
-                _UMOUNT_DIR_IF_MOUNTPOINT_CMD % {"dir": self.options.mount_dir},
-                shell=True,
+                _UMOUNT_DIR_IF_MOUNTPOINT_CMD % {"dir": self.options.mount_dir}
             )
         except cros_build_lib.RunCommandError as e:
             logging.error("Failed to umount %s", self.options.mount_dir)

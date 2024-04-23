@@ -410,7 +410,6 @@ class RemoteAccess:
         remote_sudo=False,
         remote_user=None,
         ssh_error_ok=False,
-        shell: bool = False,
         **kwargs,
     ):
         """Run a sh command on the remote device through ssh.
@@ -426,7 +425,6 @@ class RemoteAccess:
                 itself fails (return code 255).
             remote_sudo: If set, run the command in remote shell with sudo.
             remote_user: If set, run the command as the specified user.
-            shell: If set, the command is interpreted to be run in a shell.
             **kwargs: See cros_build_lib.run documentation.
 
         Returns:
@@ -461,18 +459,16 @@ class RemoteAccess:
                 # Prepend sudo to cmd.
                 ssh_cmd.append("sudo")
 
-            if shell:
-                if not isinstance(cmd, str):
-                    raise TypeError(
-                        f"cmd ({cmd!r}) must be a str with shell=True"
+            if isinstance(cmd, str):
+                if kwargs.get("shell"):
+                    ssh_cmd = "%s %s" % (
+                        " ".join(ssh_cmd),
+                        cros_build_lib.ShellQuote(cmd),
                     )
-                ssh_cmd.append(cmd)
+                else:
+                    ssh_cmd += [cmd]
             else:
-                if isinstance(cmd, str):
-                    raise TypeError(
-                        f"cmd ({cmd!r}) cannot be a str with shell=False"
-                    )
-                ssh_cmd.extend((cros_build_lib.ShellQuote(x) for x in cmd))
+                ssh_cmd += cmd
 
         try:
             return cros_build_lib.run(ssh_cmd, **kwargs)
