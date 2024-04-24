@@ -288,6 +288,9 @@ info_run sudo chroot "${BOARD_ROOT}" eselect java-vm set system openjdk-bin-11
 info_run sudo chroot "${BOARD_ROOT}" "${CHROMITE_BIN}/cros_setup_toolchains" \
   --targets all --debug --no-fetch-binpkg
 
+# Generate /usr/bin/remote_toolchain_inputs.
+info_run sudo chroot "${BOARD_ROOT}" "${CHROMITE_BIN}/generate_reclient_inputs"
+
 safe_umount_tree "${BOARD_ROOT}"
 info_run sudo rm "${BOARD_ROOT}/etc/localtime"
 
