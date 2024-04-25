@@ -316,11 +316,16 @@ class SdkUpdateTest(
         self.response = sdk_pb2.UpdateResponse()
 
     def _GetRequest(
-        self, build_source=False, targets=None, use_snapshot_binhosts=False
+        self,
+        build_source: bool = False,
+        targets: List[str] = None,
+        use_snapshot_binhosts: bool = False,
+        force_update: bool = True,
     ):
         """Helper to simplify building a request instance."""
         request = sdk_pb2.UpdateRequest()
         request.flags.build_source = build_source
+        request.flags.force_update = force_update
         request.use_snapshot_binhosts = use_snapshot_binhosts
 
         for target in targets or []:
@@ -478,6 +483,16 @@ class SdkUpdateTest(
             use_snapshot_binhosts=True,
             log_installed_packages=True,
         )
+
+    def testNoForcedUpdate(self):
+        """When force_update=False, the Update service should not be called."""
+        mock_obj = self.PatchObject(sdk_service, "Update")
+        request = self._GetRequest(force_update=False)
+
+        sdk_controller.Update(request, self.response, self.api_config)
+
+        self.assertTrue(self.response.skipped)
+        mock_obj.assert_not_called()
 
 
 class CreateManifestFromSdkTest(
