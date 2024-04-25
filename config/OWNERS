@@ -1,5 +1,5 @@
 # CI Team
-include ../OWNERS.ci
+include chromiumos/owners:v1:/infra/OWNERS.ci
 
 # Release TPgM lead
 bhthompson@chromium.org
