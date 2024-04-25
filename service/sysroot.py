@@ -937,7 +937,11 @@ def BuildPackages(
         binhosts = target_binhosts + chrome_binhosts
 
     extra_env["PORTAGE_BINHOST"] = " ".join(binhosts)
-    _LogBinhostAge(binhosts, date_threshold=30)
+
+    if logging.getLogger().isEnabledFor(logging.DEBUG):
+        # Logging binhost ages requires multiple remote requests, so only do it
+        # with logging level >= debug.
+        _LogBinhostAge(binhosts, date_threshold=30)
 
     with cpupower_helper.ModifyCpuGovernor(
         run_configs.autosetgov, run_configs.autosetgov_sticky
