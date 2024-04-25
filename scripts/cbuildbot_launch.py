@@ -621,9 +621,21 @@ def _main(options, argv):
 
 
 def main(argv):
-    cros_build_lib.Die("cbuildbot is no longer supported; see b/266847445")
+    known_cbb_configs = set(
+        # TODO(b/312367018): Remove gWifi builder.
+        "gwifi-release",
+        # TODO(b/241108061): Remove factory builders.
+        "factory-octopus-11512.B-buildspec",
+        "factory-kukui-12587.B-buildspec",
+        "factory-hatch-12692.B-buildspec",
+        "factory-excelsior-12812.B-buildspec",
+    )
 
     options = PreParseArguments(argv)
+
+    if not options.build_config_name in known_cbb_configs:
+        cros_build_lib.Die("cbuildbot is no longer supported; see b/266847445")
+
     metric_fields = {
         "branch_name": options.branch or "main",
         "build_config": options.build_config_name,
