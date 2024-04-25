@@ -621,6 +621,8 @@ def _main(options, argv):
 
 
 def main(argv):
+    cros_build_lib.Die("cbuildbot is no longer supported; see b/266847445")
+
     options = PreParseArguments(argv)
     metric_fields = {
         "branch_name": options.branch or "main",
