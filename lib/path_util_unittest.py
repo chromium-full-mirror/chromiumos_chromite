@@ -245,6 +245,70 @@ class FindCacheDirTest(cros_test_lib.TestCase):
         )
 
 
+class FindConfigDirTest(cros_test_lib.TestCase):
+    """Test cache dir specification and finding functionality."""
+
+    @pytest.fixture(autouse=True)
+    def init_temp_dir(
+        self,
+        tmp_path: Path,
+        run_mock: cros_test_lib.RunCommandMock,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        dir_struct = [
+            "repo/.repo/",
+            "repo/manifest/",
+            "gclient/.gclient",
+            "cog/chrome-internal/",
+            "cog/.citc/",
+        ]
+        cros_test_lib.CreateOnDiskHierarchy(tmp_path, dir_struct)
+        osutils.WriteFile(tmp_path / "cog" / ".citc" / "workspace_id", "user/1")
+        # pylint: disable=attribute-defined-outside-init
+        self.repo_root = tmp_path / "repo"
+        self.gclient_root = tmp_path / "gclient"
+        self.nocheckout_root = tmp_path / "nothing"
+        self.cog_root = tmp_path / "cog" / "chrome-internal"
+
+        self.rc_mock = run_mock
+        self.monkeypatch = monkeypatch
+
+    def testRepoRoot(self) -> None:
+        """Test when we are inside a repo checkout."""
+        self.monkeypatch.setattr(constants, "SOURCE_ROOT", self.repo_root)
+        self.assertEqual(
+            path_util.find_config_dir_for_checkout(),
+            self.repo_root / path_util.GENERAL_CONFIG_DIR,
+        )
+
+    def testGclientRoot(self) -> None:
+        """Test when we are inside a gclient checkout."""
+        self.monkeypatch.setattr(constants, "SOURCE_ROOT", self.gclient_root)
+        self.assertEqual(
+            path_util.find_config_dir_for_checkout(),
+            self.gclient_root / "src" / "build" / path_util.GENERAL_CONFIG_DIR,
+        )
+
+    def testCitcRoot(self) -> None:
+        """Test when we are inside a Cog checkout."""
+        self.monkeypatch.setattr(constants, "SOURCE_ROOT", self.cog_root)
+        self.monkeypatch.setattr(
+            cros_build_lib, "AssertOutsideChroot", lambda: True
+        )
+        self.assertEqual(
+            path_util.find_config_dir_for_checkout(),
+            Path("~/.config/chromite/cog/user/1").expanduser(),
+        )
+
+    def testTempdir(self) -> None:
+        """Test when we are not in any checkout."""
+        self.monkeypatch.setattr(constants, "SOURCE_ROOT", self.nocheckout_root)
+        self.assertEqual(
+            path_util.find_config_dir_for_checkout(),
+            Path("~/.config/chromite/unknown_checkout").expanduser(),
+        )
+
+
 class GetLogDirTest(cros_test_lib.MockTestCase):
     """get_log_dir tests."""
 

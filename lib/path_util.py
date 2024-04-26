@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 from typing import Callable, Iterator, List, Optional, Union
 
+from chromite.lib import chromite_config
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import git
@@ -20,6 +21,7 @@ from chromite.utils import xdg_util
 
 GENERAL_CACHE_DIR = ".cache"
 CHROME_CACHE_DIR = "cros_cache"
+GENERAL_CONFIG_DIR = ".config"
 
 
 class CheckoutType(enum.IntEnum):
@@ -461,6 +463,48 @@ def GetCacheDir() -> str:
 def get_cache_dir() -> Path:
     """Returns the current cache dir Path."""
     return Path(GetCacheDir())
+
+
+def get_global_config_dir() -> Path:
+    """Returns a config directory location which is shared on host machine.
+
+    Any usage of this directory will be shared across any number of checkouts on
+    a given host machine.
+
+    Returns:
+        A Path to a global config dir.
+    """
+    return chromite_config.DIR
+
+
+def find_config_dir_for_checkout() -> Path:
+    """Returns a config directory Path based on the checkout type.
+
+    Paths provided from this method are unique to each checkout. For use cases
+    where a config file is expected to apply to all operations on a given host,
+    regardless of checkout location or type, please use get_global_config_dir()
+    or chromite_config.DIR directly.
+
+    Returns:
+        A checkout-specific Path for config files.
+    """
+    checkout = DetermineCheckout()
+    if checkout.type == CheckoutType.REPO:
+        return Path(checkout.root) / GENERAL_CONFIG_DIR
+    elif checkout.type == CheckoutType.GCLIENT:
+        return Path(checkout.chrome_src_dir) / "build" / GENERAL_CONFIG_DIR
+    elif checkout.type == CheckoutType.CITC:
+        # Cog checkouts shouldn't contain config files. We still need them to be
+        # separated by checkout; so, we provide a unique config path for each
+        # checkout.
+        return get_global_config_dir() / "cog" / read_workspace_id()
+    elif checkout.type == CheckoutType.UNKNOWN:
+        # Unknown checkout types do not have a known source root or identifier,
+        # so we specify a subdir to prevent conflating checkout-specific configs
+        # with global-to-host-machine chromite configs.
+        return get_global_config_dir() / "unknown_checkout"
+    else:
+        raise AssertionError("Unexpected type %s" % checkout.type)
 
 
 def get_log_dir() -> Path:
