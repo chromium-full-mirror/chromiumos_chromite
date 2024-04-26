@@ -1590,6 +1590,9 @@ def _InstallConfigs(
             sudo=True,
         )
 
+        # Initialize the configs.
+        workon_helper.WorkonHelper(sysroot.path, friendly_name="host")
+
 
 def _InstallPortageConfigs(
     sysroot: sysroot_lib.Sysroot,
