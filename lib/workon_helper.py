@@ -134,7 +134,7 @@ def _WriteLinesToFile(path, lines, line_prefix, line_suffix) -> None:
         osutils.WriteFile(path, contents, makedirs=True)
 
 
-def GetWorkonPath(source_root=constants.SOURCE_ROOT, sub_path=None):
+def GetWorkonPath(sub_path=None):
     """Get the path to files related to packages we're working locally on.
 
     Args:
@@ -144,7 +144,7 @@ def GetWorkonPath(source_root=constants.SOURCE_ROOT, sub_path=None):
     Returns:
         path to the workon root directory or file within the root directory.
     """
-    ret = os.path.join(source_root, ".config/cros_workon")
+    ret = path_util.find_config_dir_for_checkout() / "cros_workon"
     if sub_path:
         ret = os.path.join(ret, sub_path)
 
@@ -179,17 +179,14 @@ def _FilterWorkonOnlyEbuilds(ebuilds):
     return result
 
 
-def ListAllWorkedOnAtoms(src_root=constants.SOURCE_ROOT):
+def ListAllWorkedOnAtoms():
     """Get a list of all atoms we're currently working on.
-
-    Args:
-        src_root: path to source root inside chroot.
 
     Returns:
         Dictionary of atoms marked as worked on (e.g. ['chromeos-base/shill'])
         for each system.
     """
-    workon_dir = GetWorkonPath(source_root=src_root)
+    workon_dir = GetWorkonPath()
     if not os.path.isdir(workon_dir):
         return {}
 
@@ -275,7 +272,7 @@ class WorkonHelper:
     @property
     def workon_file_path(self):
         """Returns path to the file holding our currently worked on atoms."""
-        return GetWorkonPath(source_root=self._src_root, sub_path=self._system)
+        return GetWorkonPath(sub_path=self._system)
 
     @property
     def masked_file_path(self):

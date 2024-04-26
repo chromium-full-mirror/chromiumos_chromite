@@ -14,6 +14,7 @@ from chromite.lib import cros_test_lib
 from chromite.lib import dependency_graph
 from chromite.lib import depgraph
 from chromite.lib import osutils
+from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib import unittest_lib
@@ -112,7 +113,14 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         """Set up a test environment."""
         self._valid_atoms = {}
         self._mock_srcdir = os.path.join(self.tempdir, "src")
-        workon_dir = workon_helper.GetWorkonPath(source_root=self._mock_srcdir)
+        # We should probably mock the workon dir as well.
+        self._config_dir = os.path.join(self.tempdir, ".config")
+        self.PatchObject(
+            path_util,
+            "find_config_dir_for_checkout",
+            return_value=Path(self._config_dir),
+        )
+        workon_dir = workon_helper.GetWorkonPath()
         self._sysroot = os.path.join(self.tempdir, "sysroot")
         osutils.SafeMakedirs(self._sysroot)
         osutils.SafeMakedirs(self._mock_srcdir)
@@ -206,6 +214,12 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         # make.conf needs to exist to correctly read back config.
         unittest_lib.create_stub_make_conf(self._sysroot)
 
+        self.PatchObject(
+            path_util,
+            "find_config_dir_for_checkout",
+            return_value=Path(self._config_dir),
+        )
+
         # Create helpers for the host or board.
         return workon_helper.WorkonHelper(
             self._sysroot, name, src_root=self._mock_srcdir
@@ -218,9 +232,7 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
             atoms: list of atom strings (e.g. ['sys-apps/dbus', 'foo-cat/bar']).
             system: string system to consider (either 'host' or a board name).
         """
-        workon_path = workon_helper.GetWorkonPath(
-            source_root=self._mock_srcdir, sub_path=system
-        )
+        workon_path = workon_helper.GetWorkonPath(sub_path=system)
         mask_path = workon_path + ".mask"
 
         if atoms:
@@ -597,18 +609,18 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         helper = self.CreateHelper()
         self.assertEqual(
             {},
-            workon_helper.ListAllWorkedOnAtoms(src_root=self._mock_srcdir),
+            workon_helper.ListAllWorkedOnAtoms(),
         )
         helper.StartWorkingOnPackages([WORKON_ONLY_ATOM])
         self.assertEqual(
             {BOARD: [WORKON_ONLY_ATOM]},
-            workon_helper.ListAllWorkedOnAtoms(src_root=self._mock_srcdir),
+            workon_helper.ListAllWorkedOnAtoms(),
         )
         host_helper = self.CreateHelper(host=True)
         host_helper.StartWorkingOnPackages([HOST_ATOM])
         self.assertEqual(
             {BOARD: [WORKON_ONLY_ATOM], "host": [HOST_ATOM]},
-            workon_helper.ListAllWorkedOnAtoms(src_root=self._mock_srcdir),
+            workon_helper.ListAllWorkedOnAtoms(),
         )
 
     def testCanListWorkedOnAtoms(self) -> None:
