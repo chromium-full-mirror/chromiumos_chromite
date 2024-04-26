@@ -435,7 +435,7 @@ def fetch_remote_tarballs(
                 return parsed.path
             continue
         content_length = 0
-        logging.debug("Attempting download from %s", url)
+        logging.notice("Checking download of %s...", url)
         result = retry_util.RunCurl(
             ["-I", url],
             print_cmd=False,
