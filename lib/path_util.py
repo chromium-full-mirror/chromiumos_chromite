@@ -577,3 +577,66 @@ def ExpandDirectories(files: List[Path]) -> Iterator[Path]:
                 yield from (x for x in f.rglob("*") if x.is_file())
         else:
             yield f
+
+
+def read_workspace_id() -> str:
+    """Read citc workspace ID for path construction.
+
+    This is only expected to work outside the chroot, unless we bind mount
+    .citc into the chroot.
+
+    Returns:
+        The current workspace's ID (in the form of ${USER}/<int>).
+    """
+    cros_build_lib.AssertOutsideChroot()
+    checkout = DetermineCheckout()
+    assert checkout.type == CheckoutType.CITC
+    id_path = Path(checkout.root).parent / ".citc" / "workspace_id"
+    return id_path.read_text(encoding="utf-8")
+
+
+def is_citc_checkout() -> bool:
+    """Determine if the checkout is a Cog/citc checkout.
+
+    Returns:
+        True if a citc checkout, false otherwise.
+    """
+    checkout = DetermineCheckout()
+    return checkout.type == CheckoutType.CITC
+
+
+def get_citc_workspace_path() -> Path:
+    """Get the base path for stateful files in a citc checkout.
+
+    This is only expected to work outside the chroot, unless we bind mount
+    .citc into the chroot.
+
+    Returns:
+        Path to workspace-specific files (e.g. chroot, config files).
+    """
+    # If running in a citc client, set default output paths to ~/.
+    return get_global_cog_base_dir() / "workspaces" / read_workspace_id()
+
+
+def get_citc_chroot_path() -> Path:
+    """Get path to chroot filesystem for a citc workspace.
+
+    This is only expected to work outside the chroot, unless we bind mount
+    .citc into the chroot.
+
+    Returns:
+        Path to chroot/ folder for a given workspace.
+    """
+    return get_citc_workspace_path() / constants.DEFAULT_CHROOT_DIR
+
+
+def get_citc_out_path() -> Path:
+    """Get path to chroot build artifacts for a citc workspace.
+
+    This is only expected to work outside the chroot, unless we bind mount
+    .citc into the chroot.
+
+    Returns:
+        Path to out/ folder for a given workspace.
+    """
+    return get_citc_workspace_path() / constants.DEFAULT_OUT_DIR

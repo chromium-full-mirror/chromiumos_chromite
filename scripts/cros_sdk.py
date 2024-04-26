@@ -643,19 +643,11 @@ def _FinalizeOptions(
         else options.out_dir
     )
 
-    checkout = path_util.DetermineCheckout()
-    if checkout.type == path_util.CheckoutType.CITC:
-        # If running in a citc client, set default output paths to ~/.
-        workspace_id_path = (
-            Path(checkout.root).parent / ".citc" / "workspace_id"
-        )
-        workspace_id = workspace_id_path.read_text(encoding="utf-8")
-        workspace_path = (
-            path_util.get_global_cog_base_dir() / "workspaces" / workspace_id
-        )
+    if path_util.is_citc_checkout():
+        workspace_path = path_util.get_citc_workspace_path()
         workspace_path.mkdir(parents=True, exist_ok=True)
-        chroot_path = workspace_path / constants.DEFAULT_CHROOT_DIR
-        out_path = workspace_path / constants.DEFAULT_OUT_DIR
+        chroot_path = path_util.get_citc_chroot_path()
+        out_path = path_util.get_citc_out_path()
 
     options.chroot = osutils.ExpandPath(chroot_path)
     options.out_dir = osutils.ExpandPath(out_path)

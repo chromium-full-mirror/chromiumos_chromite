@@ -13,11 +13,13 @@ from unittest import mock
 import pytest
 
 from chromite.lib import constants
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import git
 from chromite.lib import osutils
 from chromite.lib import partial_mock
 from chromite.lib import path_util
+from chromite.utils import xdg_util
 
 
 FAKE_SOURCE_PATH = "/path/to/source/tree"
@@ -915,3 +917,64 @@ def test_expand_directories_file(tmp_path) -> None:
     result = list(path_util.ExpandDirectories([file_path]))
 
     assert result == [file_path]
+
+
+def test_get_citc_chroot_path(monkeypatch) -> None:
+    monkeypatch.setattr(path_util, "read_workspace_id", lambda: "user/1")
+    monkeypatch.setattr(
+        path_util,
+        "DetermineCheckout",
+        lambda: path_util.CheckoutInfo(
+            path_util.CheckoutType.CITC, FAKE_SOURCE_PATH, ""
+        ),
+    )
+    assert (
+        path_util.get_citc_chroot_path()
+        == xdg_util.STATE_HOME
+        / "cros"
+        / "cog"
+        / "workspaces"
+        / "user"
+        / "1"
+        / constants.DEFAULT_CHROOT_DIR
+    )
+
+
+def test_get_citc_out_path(monkeypatch) -> None:
+    monkeypatch.setattr(path_util, "read_workspace_id", lambda: "user/1")
+    monkeypatch.setattr(
+        path_util,
+        "DetermineCheckout",
+        lambda: path_util.CheckoutInfo(
+            path_util.CheckoutType.CITC, FAKE_SOURCE_PATH, ""
+        ),
+    )
+    assert (
+        path_util.get_citc_out_path()
+        == xdg_util.STATE_HOME
+        / "cros"
+        / "cog"
+        / "workspaces"
+        / "user"
+        / "1"
+        / constants.DEFAULT_OUT_DIR
+    )
+
+
+def test_get_citc_path_raises_error_inside_chroot(monkeypatch) -> None:
+    monkeypatch.setattr(cros_build_lib, "AssertOutsideChroot", lambda: False)
+    with pytest.raises(AssertionError):
+        path_util.get_citc_workspace_path()
+
+
+def test_get_citc_path_raises_error_repo_checkout(monkeypatch) -> None:
+    monkeypatch.setattr(cros_build_lib, "AssertOutsideChroot", lambda: True)
+    monkeypatch.setattr(
+        path_util,
+        "DetermineCheckout",
+        lambda: path_util.CheckoutInfo(
+            path_util.CheckoutType.REPO, FAKE_SOURCE_PATH, None
+        ),
+    )
+    with pytest.raises(AssertionError):
+        path_util.get_citc_workspace_path()
