@@ -144,7 +144,8 @@ info_run sudo rm -rf \
 # Setup host make.conf. This includes any overlay that we may be using and a
 # pointer to pre-built packages.
 cros_overlay="${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay"
-info_run sudo mkdir -p "${BOARD_ROOT}/etc/portage"
+info_run sudo mkdir -p \
+  "${BOARD_ROOT}"/etc/portage/package.{accept_keywords,env,mask,use}
 info_run sudo ln -sf \
   "${cros_overlay}/chromeos/config/make.conf.amd64-host" \
   "${BOARD_ROOT}/etc/make.conf"
@@ -306,6 +307,15 @@ for binpkg in "${BINPKGS[@]}"; do
   info_run sudo mkdir -p "${BOARD_ROOT}${binpkg%/*}"
   info_run sudo cp -a "${binpkg}" "${BOARD_ROOT}${binpkg}"
 done
+
+# Setup workon files so they'll be available for broot w/read-only SDK.
+# Do this at the end so the configs aren't used by emerge steps above.
+info_run sudo ln -sf \
+  "${BOARD_ROOT}/etc/portage/package.accept_keywords/cros-workon" \
+  "/mnt/host/source/.config/cros_workon/host"
+info_run sudo ln -sf \
+  "${BOARD_ROOT}/etc/portage/package.mask/cros-workon" \
+  "/mnt/host/source/.config/cros_workon/host.mask"
 
 command_completed
 echo "Done!"
