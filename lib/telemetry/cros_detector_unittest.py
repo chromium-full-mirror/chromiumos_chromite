@@ -4,11 +4,19 @@
 
 """cros_detector unittests."""
 
+from __future__ import annotations
+
 import datetime
 import os
+from pathlib import Path
+from typing import Any, Optional
+
+import pytest
 
 from chromite.lib import chroot_lib
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import cros_test_lib
 from chromite.lib import git
 from chromite.lib import path_util
 from chromite.lib import workon_helper
@@ -21,13 +29,21 @@ class ManifestCheckoutMock:
     def __init__(self, *args, **kwargs) -> None:
         pass
 
+    @classmethod
+    def Cached(cls, *args: Any, **kwargs: Any) -> ManifestCheckoutMock:
+        del args
+        del kwargs
+        return cls()
+
     @property
-    def manifest_branch(self):
+    def manifest_branch(self) -> Optional[str]:
         """Test value for the manifest branch."""
         return "snapshot"
 
 
-def test_sdk_state_to_capture_manifest_info(monkeypatch) -> None:
+def test_sdk_state_to_capture_manifest_info(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Test that Sdk detector captures manifest sync info."""
 
     manifest_mtime = datetime.datetime.now(tz=datetime.timezone.utc)
@@ -37,7 +53,12 @@ def test_sdk_state_to_capture_manifest_info(monkeypatch) -> None:
         change_id="change-id-1",
     )
 
-    monkeypatch.setattr(git, "FindRepoDir", lambda _: "/source/.repo")
+    dir_struct = [
+        ".repo/manifests/.git/",
+    ]
+    cros_test_lib.CreateOnDiskHierarchy(tmp_path, dir_struct)
+
+    monkeypatch.setattr(constants, "SOURCE_ROOT", tmp_path)
     monkeypatch.setattr(git, "ManifestCheckout", ManifestCheckoutMock)
     monkeypatch.setattr(git, "GetLastCommit", lambda _: commit)
     monkeypatch.setattr(

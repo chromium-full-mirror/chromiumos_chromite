@@ -26,14 +26,20 @@ class SDKSourceDetector(resources.ResourceDetector):
         checkout_info = path_util.DetermineCheckout()
         resource["checkout_type"] = checkout_info.type.name
 
-        if checkout_info.type == path_util.CheckoutType.REPO:
-            repo = git.FindRepoDir(".")
+        if (
+            checkout_info.type == path_util.CheckoutType.REPO
+            and checkout_info.root
+        ):
+            repo = git.FindRepoDir(checkout_info.root)
             manifest_repo = Path(repo) / "manifests" if repo else None
 
-            if manifest_repo:
-                branch = git.ManifestCheckout(manifest_repo).manifest_branch
+            if manifest_repo and (manifest_repo / ".git").is_dir():
+                manifest_checkout = git.ManifestCheckout.Cached(
+                    checkout_info.root
+                )
+                branch = manifest_checkout.manifest_branch or ""
                 commit = git.GetLastCommit(manifest_repo)
-                resource["manifest_branch"] = branch if branch else None
+                resource["manifest_branch"] = branch
                 resource[
                     "manifest_commit_date"
                 ] = commit.commit_date.isoformat()
