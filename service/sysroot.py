@@ -29,6 +29,7 @@ from typing import (
 import urllib
 
 from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
+from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import cache
 from chromite.lib import constants
@@ -47,7 +48,6 @@ from chromite.service import sdk as sdk_service
 
 
 if TYPE_CHECKING:
-    from chromite.lib import binpkg
     from chromite.lib import chroot_lib
 
 
@@ -1016,7 +1016,7 @@ def BuildPackages(
         # immediately after regenerating the cache in case ebuilds have been
         # removed (e.g. from a revert).
         if run_configs.eclean:
-            _CleanStaleBinpkgs(sysroot.path)
+            binpkg.CleanStaleBinpkgs(sysroot.path)
 
         emerge_cmd = _GetEmergeCommand(sysroot.path)
         emerge_flags = run_configs.GetEmergeFlags()
@@ -1154,29 +1154,6 @@ def _LogBinhostAge(binhosts: List[str], date_threshold: int) -> None:
                 "Please repo sync for the latest build artifacts.",
                 binhost,
             )
-
-
-def _CleanStaleBinpkgs(sysroot: Union[str, os.PathLike]) -> None:
-    """Clean any accumulated stale binpkgs.
-
-    Args:
-        sysroot: The sysroot to clean stale binpkgs for.
-
-    Raises:
-        cros_build_lib.RunCommandError
-    """
-    logging.info("Cleaning stale binpkgs.")
-    exclude_pkgs = [
-        x.package_info.atom
-        for x in portage_util.PortageDB().InstalledPackages()
-        if x.category.startswith("cross-")
-    ]
-    with tempfile.NamedTemporaryFile(mode="w") as f:
-        f.write("\n".join(exclude_pkgs))
-        f.flush()
-        portage_util.CleanOutdatedBinaryPackages(
-            sysroot, deep=True, exclusion_file=f.name
-        )
 
 
 def _GetCrosWorkonPackages(sysroot: Union[str, os.PathLike]) -> _PACKAGE_LIST:

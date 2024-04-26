@@ -29,6 +29,7 @@ from chromite.lib import git
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import parallel
+from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.utils import gs_urls_util
 from chromite.utils import key_value_store
@@ -526,6 +527,29 @@ def FetchTarballs(binhost_urls, pkgdir) -> None:
             if not os.path.exists(category_dir):
                 os.makedirs(category_dir)
             queue.put((urls.values(), category_dir))
+
+
+def CleanStaleBinpkgs(root: Union[str, os.PathLike]) -> None:
+    """Clean any accumulated stale binpkgs.
+
+    Args:
+        root: The root to clean stale binpkgs for.
+
+    Raises:
+        cros_build_lib.RunCommandError
+    """
+    logging.info("Cleaning stale binpkgs.")
+    exclude_pkgs = [
+        x.package_info.atom
+        for x in portage_util.PortageDB().InstalledPackages()
+        if x.category.startswith("cross-")
+    ]
+    with tempfile.NamedTemporaryFile(mode="w") as f:
+        f.write("\n".join(exclude_pkgs))
+        f.flush()
+        portage_util.CleanOutdatedBinaryPackages(
+            root, deep=True, exclusion_file=f.name
+        )
 
 
 def UpdateAndSubmitKeyValueFile(

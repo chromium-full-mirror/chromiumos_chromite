@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import chromite
 from chromite.cli import command
+from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -549,6 +550,8 @@ class CleanOutdatedCommand(command.CliCommand):
                     # Reinstall portage-utils in case it was removed.
                     self.ensure_portage_utils_version(PORTAGE_UTILS_VERSION)
 
+                binpkg.CleanStaleBinpkgs(root_path)
+
         if self.options.board:
             root_path = build_target_lib.get_default_sysroot_path(
                 self.options.board
@@ -583,6 +586,8 @@ class CleanOutdatedCommand(command.CliCommand):
                     self.purge_packages(
                         board=self.options.board, pkgs=slot_conflict_pkgs
                     )
+
+                binpkg.CleanStaleBinpkgs(root_path)
 
     @classmethod
     def AddParser(cls, parser: commandline.ArgumentParser) -> None:
