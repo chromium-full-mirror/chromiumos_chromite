@@ -8,6 +8,7 @@ import functools
 import os
 from typing import Optional, Union
 
+from chromite.format import formatters
 from chromite.lib import cipd
 from chromite.lib import cros_build_lib
 
@@ -37,10 +38,16 @@ def Data(
     Returns:
         Formatted data.
     """
-    result = cros_build_lib.run(
-        [_find_gn(), "format", "--stdin"],
-        capture_output=True,
-        input=data,
-        encoding="utf-8",
-    )
-    return result.stdout
+    try:
+        result = cros_build_lib.run(
+            [_find_gn(), "format", "--stdin"],
+            capture_output=True,
+            input=data,
+            encoding="utf-8",
+        )
+        return result.stdout
+    except cros_build_lib.RunCommandError as e:
+        # `gn` exits with 1 for every failure, so assume syntax error.
+        if e.returncode == 1:
+            raise formatters.ParseError(path) from e
+        raise
