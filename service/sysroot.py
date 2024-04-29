@@ -1498,6 +1498,9 @@ in
             "--config=collect_logs",
             "--config=collect_ebuild_metadata",
             "--build_event_json_file=%s" % BAZEL_BUILD_EVENT_JSON_FILE_PATH,
+            # The two following flags enable data for Latency Processor.
+            "--experimental_enable_execution_graph_log",
+            "--experimental_execution_graph_log_dep_type=all",
         ]
         if bazel_use_remote_execution:
             cmd += ["--config:rbe_exec"]
