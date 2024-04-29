@@ -723,6 +723,8 @@ class EBuild:
         if ebuild_cache:
             eclasses = {x.name for x in ebuild_cache.eclasses}
             is_workon = "cros-workon" in eclasses
+            if EBuild._ECLASS_IMPLIES_TEST & eclasses:
+                has_test = True
             restrict_tests = "test" in ebuild_cache.restrict.reduce(use_flags)
 
         return EBuildClassifyAttributes(
