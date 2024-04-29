@@ -102,6 +102,7 @@ class SubdirectorySet(enum.Enum):
             source / "config",
             source / "test_platform",
             source / "device",
+            source / "ide_query",
             chromeos_config_path / "proto" / "chromiumos",
         ]
         return subdirs
