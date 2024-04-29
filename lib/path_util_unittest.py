@@ -1026,9 +1026,16 @@ def test_get_citc_out_path(monkeypatch) -> None:
 
 
 def test_get_citc_path_raises_error_inside_chroot(monkeypatch) -> None:
+    monkeypatch.delenv("CROS_COG_WORKSPACE_ID", raising=False)
     monkeypatch.setattr(cros_build_lib, "AssertOutsideChroot", lambda: False)
     with pytest.raises(AssertionError):
         path_util.get_citc_workspace_path()
+
+
+def test_get_citc_path_from_env_var(monkeypatch) -> None:
+    monkeypatch.setattr(cros_build_lib, "AssertOutsideChroot", lambda: False)
+    monkeypatch.setenv("CROS_COG_WORKSPACE_ID", "user/1")
+    assert path_util.read_workspace_id() == "user/1"
 
 
 def test_get_citc_path_raises_error_repo_checkout(monkeypatch) -> None:

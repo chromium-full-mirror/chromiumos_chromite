@@ -626,12 +626,16 @@ def ExpandDirectories(files: List[Path]) -> Iterator[Path]:
 def read_workspace_id() -> str:
     """Read citc workspace ID for path construction.
 
-    This is only expected to work outside the chroot, unless we bind mount
-    .citc into the chroot.
+    From the host, the file should be available in the checkout's path and will
+    be read. From the chroot, the contents of workspace_id will be read and
+    added to /etc/env.d/99chromiumos as a chroot-specific env var.
 
     Returns:
         The current workspace's ID (in the form of ${USER}/<int>).
     """
+    workspace_id = os.getenv("CROS_COG_WORKSPACE_ID")
+    if workspace_id:
+        return workspace_id
     cros_build_lib.AssertOutsideChroot()
     checkout = DetermineCheckout()
     assert checkout.type == CheckoutType.CITC
@@ -652,9 +656,6 @@ def is_citc_checkout() -> bool:
 def get_citc_workspace_path() -> Path:
     """Get the base path for stateful files in a citc checkout.
 
-    This is only expected to work outside the chroot, unless we bind mount
-    .citc into the chroot.
-
     Returns:
         Path to workspace-specific files (e.g. chroot, config files).
     """
@@ -665,9 +666,6 @@ def get_citc_workspace_path() -> Path:
 def get_citc_chroot_path() -> Path:
     """Get path to chroot filesystem for a citc workspace.
 
-    This is only expected to work outside the chroot, unless we bind mount
-    .citc into the chroot.
-
     Returns:
         Path to chroot/ folder for a given workspace.
     """
@@ -676,9 +674,6 @@ def get_citc_chroot_path() -> Path:
 
 def get_citc_out_path() -> Path:
     """Get path to chroot build artifacts for a citc workspace.
-
-    This is only expected to work outside the chroot, unless we bind mount
-    .citc into the chroot.
 
     Returns:
         Path to out/ folder for a given workspace.

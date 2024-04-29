@@ -1128,12 +1128,19 @@ class ChrootCreator:
         chroot_chromite_bin = (
             constants.CHROOT_SOURCE_ROOT / constants.CHROMITE_BIN_SUBDIR
         )
-        env_d.write_text(
-            f"""\
+        env_d_contents = f"""\
 PATH="{constants.CHROOT_SOURCE_ROOT}/chromite/sdk/bin:{chroot_chromite_bin}"
 CROS_WORKON_SRCROOT="{constants.CHROOT_SOURCE_ROOT}"
 PORTAGE_USERNAME="{user}"
-""",
+"""
+        if path_util.is_citc_checkout():
+            cog_workspace_id = path_util.read_workspace_id()
+            env_d_contents += f"""\
+CROS_COG_WORKSPACE_ID="{cog_workspace_id}"
+"""
+        env_d_contents += "\n"
+        env_d.write_text(
+            env_d_contents,
             encoding="utf-8",
         )
 
