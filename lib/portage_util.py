@@ -473,6 +473,7 @@ class EBuild:
         "cros-firmware",
         "cros-go",  # defines src_test
         "cros-rust",  # defines src_test
+        "platform",  # defines src_test
         "tast-bundle",  # inherits cros-go
     }
 
