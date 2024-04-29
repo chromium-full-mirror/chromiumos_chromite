@@ -1480,7 +1480,7 @@ in
             "--experimental_execution_graph_log_dep_type=all",
         ]
         if bazel_use_remote_execution:
-            cmd += ["--config:rbe_exec"]
+            cmd += ["--config=rbe_exec"]
         cmd += targets
         cros_build_lib.run(
             cmd,
