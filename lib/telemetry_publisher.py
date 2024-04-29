@@ -11,6 +11,7 @@ import functools
 import json
 import logging
 import os
+import socket
 import time
 from typing import (
     Any,
@@ -850,8 +851,8 @@ class ClearcutPublisher:
                 req, timeout=timeout or self._timeout
             ) as f:
                 response = f.read()
-        except urllib.error.URLError as e:
-            logging.debug(e)
+        except (urllib.error.URLError, socket.timeout) as e:
+            logging.exception(e)
             raise PublishError(
                 f"Encountered an error while publishing: {e}"
             ) from e
