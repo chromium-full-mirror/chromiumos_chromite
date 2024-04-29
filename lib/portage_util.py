@@ -720,6 +720,8 @@ class EBuild:
 
         # If we have a cache file, trust it over any ad-hoc ebuild parsing.
         if ebuild_cache:
+            eclasses = {x.name for x in ebuild_cache.eclasses}
+            is_workon = "cros-workon" in eclasses
             restrict_tests = "test" in ebuild_cache.restrict.reduce(use_flags)
 
         return EBuildClassifyAttributes(

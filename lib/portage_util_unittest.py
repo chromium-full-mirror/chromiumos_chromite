@@ -399,6 +399,23 @@ inherit cros-workon superpower
             attrs = portage_util.EBuild.Classify(ebuild_path, flags, cache)
             assert attrs.has_test == exp
 
+    def testClassifyWorkonCache(self) -> None:
+        """Test Classify cros-workon parsing with a cache file."""
+        ebuild_path = os.path.join(self.tempdir, "foo-1.ebuild")
+        # We want a diff value in the ebuild so the cache overrides.
+        osutils.WriteFile(ebuild_path, "inherit cros-workon\n")
+
+        TESTS = (
+            (False, ""),
+            (True, "_eclasses_=cros-workon\tabcdef"),
+        )
+        for exp, val in TESTS:
+            cache = portage_md5_cache.Md5Cache(data=val)
+            attrs = portage_util.EBuild.Classify(
+                ebuild_path, ebuild_cache=cache
+            )
+            assert attrs.is_workon == exp
+
     def testClassifyEncodingASCII(self) -> None:
         """Test Classify with ASCII file encodings."""
         ebuild_path = os.path.join(self.tempdir, "foo-1.ebuild")
