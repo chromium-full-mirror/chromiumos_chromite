@@ -2,7 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# ChromeOS UI Team
+# People familiar with Chrome-on-ChromeOS test/build infra.
 achuith@chromium.org
+alvinjia@google.com
 bpastene@chromium.org
-stevenjb@chromium.org
+yoshiki@chromium.org
