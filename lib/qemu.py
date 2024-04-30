@@ -19,7 +19,8 @@ from chromite.lib import cipd
 from chromite.lib import osutils
 
 
-_CIPD_VER = "yMWjzGoPwH7DHT0MWf2QVXHc1S_zPe_mav939e7ru0QC"
+# https://chrome-infra-packages.appspot.com/p/chromiumos/infra/tools/qemu
+_CIPD_VER = "hjdiqbUKaq8gP05T5Rx-PdWv9syXf4MTWB3Q8vNGXfAC"
 
 
 def InstallFromCipd(cache_dir: Optional[str] = None) -> Path:
