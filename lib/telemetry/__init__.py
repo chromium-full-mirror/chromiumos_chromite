@@ -31,6 +31,8 @@ SERVICE_NAME = "chromite"
 # changes in chromite.
 TELEMETRY_VERSION = "3"
 
+_INITIALIZED = False
+
 
 def initialize(publish: bool = True) -> None:
     """Initialize chromite telemetry.
@@ -47,6 +49,11 @@ def initialize(publish: bool = True) -> None:
     Args:
         publish: Fork background process to publish telemetry.
     """
+    global _INITIALIZED  # pylint: disable=global-statement
+    if _INITIALIZED:
+        return
+    _INITIALIZED = True
+
     # Importing this inside the function to avoid performance overhead from the
     # global package import.
     from chromite.lib import chromite_config
