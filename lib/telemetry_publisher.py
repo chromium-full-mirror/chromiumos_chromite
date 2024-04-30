@@ -93,11 +93,32 @@ def _get_next_publish_ts_file():
     return _get_telemetry_dir() / ".telemetry_next_publish_ts"
 
 
-def can_publish():
-    next_publish = _get_next_publish_ts_file()
-
-    if not next_publish.exists():
+@functools.lru_cache
+def _has_internet() -> bool:
+    """Check internet connection."""
+    try:
+        # Try to connect to a Google DNS server as a quick internet-works check.
+        socket.setdefaulttimeout(3)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(
+            ("8.8.8.8", 53)
+        )
         return True
+    except socket.error as e:
+        logging.debug("No internet detected.")
+        logging.exception(e)
+        return False
+
+
+def can_publish():
+    """Check if publishing is possible."""
+    next_publish = _get_next_publish_ts_file()
+    if not next_publish.exists():
+        # No timestamp recorded, we can publish if we have internet access.
+        # The internet check is mostly meant to avoid attempting to publish when
+        # the network is disabled, e.g. the network sandbox used by cros
+        # build-image, but generally avoiding trying to publish when it's doomed
+        # to fail is nice.
+        return _has_internet()
 
     next_publish_lock = locking.FileLock(next_publish, locktype=locking.FLOCK)
     next_publish_ts = None
@@ -111,9 +132,11 @@ def can_publish():
     logging.debug("next_publish_ts: %s", next_publish_ts)
     logging.debug("current time: %s", time.time())
     if next_publish_ts and time.time() < next_publish_ts:
+        logging.debug("Too soon to publish again.")
         return False
 
-    return True
+    # The next publish timestamp has passed, we can publish if we have internet.
+    return _has_internet()
 
 
 @tracer.start_as_current_span("chromite.lib.telemetry_publisher.publish")
@@ -126,7 +149,6 @@ def publish():
 
     if not can_publish():
         # Short circuit publisher file lock when we can't publish anyway.
-        logging.debug("Too soon.")
         return
 
     publisher = ClearcutPublisher()
@@ -135,7 +157,6 @@ def publish():
     with publisher_lock.write_lock():
         if not can_publish():
             # Double check we weren't waiting on a now-completed publisher.
-            logging.debug("Too soon.")
             return
 
         # Log our PID.
