@@ -21,6 +21,7 @@ from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
+from chromite.lib.parser import package_info
 
 
 if cros_build_lib.IsInsideChroot():
@@ -446,7 +447,20 @@ class WorkonHelper:
                 logging.warning("Multiple autocompletes found:")
                 for possible_atom in possible_atoms:
                     logging.warning("  %s", possible_atom)
-            autocompleted_package = portage_util.EbuildToCP(possible_atoms[0])
+            # If only provided a $PN, prefer that first.
+            pn_possible_atoms = [
+                x
+                for x in possible_atoms
+                if package_info.parse(x).package == package_fragment
+            ]
+            if pn_possible_atoms:
+                autocompleted_package = portage_util.EbuildToCP(
+                    pn_possible_atoms[0]
+                )
+            else:
+                autocompleted_package = portage_util.EbuildToCP(
+                    possible_atoms[0]
+                )
             # Sanity check to avoid infinite loop.
             if package_fragment == autocompleted_package:
                 logging.error("Resolved %s to itself", package_fragment)
