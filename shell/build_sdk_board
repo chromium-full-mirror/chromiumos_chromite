@@ -311,11 +311,11 @@ done
 # Setup workon files so they'll be available for broot w/read-only SDK.
 # Do this at the end so the configs aren't used by emerge steps above.
 info_run sudo ln -sf \
-  "${BOARD_ROOT}/etc/portage/package.accept_keywords/cros-workon" \
-  "/mnt/host/source/.config/cros_workon/host"
+  "/mnt/host/source/.config/cros_workon/host" \
+  "${BOARD_ROOT}/etc/portage/package.accept_keywords/cros-workon"
 info_run sudo ln -sf \
-  "${BOARD_ROOT}/etc/portage/package.mask/cros-workon" \
-  "/mnt/host/source/.config/cros_workon/host.mask"
+  "/mnt/host/source/.config/cros_workon/host.mask" \
+  "${BOARD_ROOT}/etc/portage/package.mask/cros-workon"
 
 command_completed
 echo "Done!"
