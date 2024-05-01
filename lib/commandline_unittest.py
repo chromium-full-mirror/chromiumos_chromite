@@ -24,6 +24,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
+from chromite.lib import telemetry
 from chromite.utils import gs_urls_util
 
 
@@ -960,12 +961,15 @@ class ParseArgsTest(cros_test_lib.TestCase):
         self.assertEqual(opts.color, False)
 
 
-class ScriptWrapperMainTest(cros_test_lib.MockTestCase):
+class ScriptWrapperMainTest(cros_test_lib.MockTempDirTestCase):
     """Test the behavior of the ScriptWrapperMain function."""
 
     def setUp(self) -> None:
         self.PatchObject(sys, "exit")
         self.lastTargetFound = None
+        self.telemetry_patch = self.PatchObject(
+            telemetry, "initialize", return_value=None
+        )
 
     SYS_ARGV = ["/cmd", "/cmd", "arg1", "arg2"]
     CMD_ARGS = ["/cmd", "arg1", "arg2"]
@@ -1019,6 +1023,67 @@ class ScriptWrapperMainTest(cros_test_lib.MockTestCase):
         rc.assertCommandContains(enter_chroot=True)
         rc.assertCommandContains(self.CMD_ARGS)
         rc.assertCommandContains(chroot_args=self.CHROOT_ARGS)
+
+    def _telemetry_config(
+        self,
+        script_enabled: bool = True,
+        publish: bool = True,
+        constant_enabled: bool = True,
+    ) -> None:
+        scripts = [] if script_enabled else ["my_script"]
+        publishes = [] if publish else ["my_script"]
+        self.PatchObject(constants, "TELEMETRY_DISABLED_SCRIPTS", scripts)
+        self.PatchObject(
+            constants, "TELEMETRY_PUBLISH_DISABLED_SCRIPTS", publishes
+        )
+        self.PatchObject(commandline, "TELEMETRY_ENABLED", constant_enabled)
+
+    def _telemetry_call_script_wrapper_main(
+        self, disable_telemetry: bool = False
+    ) -> None:
+        """Boilerplate call to ScriptWrapperMain."""
+        target_argv = ["--arg", "val"]
+        if disable_telemetry:
+            target_argv.append("--disable-telemetry")
+        wrapper_argv = ["scripts/my_script"] + target_argv
+
+        def find_target(_file):
+            def target(argv):
+                self.assertListEqual(target_argv, argv)
+
+            return target
+
+        commandline.ScriptWrapperMain(find_target, wrapper_argv)
+
+    def test_telemetry_enabled(self) -> None:
+        """Test telemetry enabled configuration."""
+        self._telemetry_config()
+        self._telemetry_call_script_wrapper_main()
+        self.telemetry_patch.assert_called_once_with(publish=True)
+
+    def test_telemetry_script_disabled(self) -> None:
+        """Test telemetry configuration with disabled script."""
+        self._telemetry_config(script_enabled=False)
+        self._telemetry_call_script_wrapper_main()
+        self.telemetry_patch.assert_not_called()
+
+    def test_telemetry_publishing_disabled(self) -> None:
+        """Test telemetry configuration with publishing disabled."""
+        self._telemetry_config(publish=False)
+        self._telemetry_call_script_wrapper_main()
+        self.telemetry_patch.assert_called_once_with(publish=False)
+
+    def test_telemetry_escape_hatch(self) -> None:
+        """Test telemetry configuration with escape hatch enabled."""
+        self._telemetry_config(constant_enabled=False)
+        self._telemetry_call_script_wrapper_main()
+        self.telemetry_patch.assert_not_called()
+
+    def test_telemetry_cli_disable(self) -> None:
+        """Test telemetry configuration with cli flag disable."""
+        self._telemetry_config()
+        self._telemetry_call_script_wrapper_main(disable_telemetry=True)
+        self.telemetry_patch.assert_not_called()
 
 
 class TestRunInsideChroot(cros_test_lib.MockTestCase):

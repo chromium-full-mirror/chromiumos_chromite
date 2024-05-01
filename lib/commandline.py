@@ -28,10 +28,20 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
+from chromite.lib import telemetry
 from chromite.lib import terminal
+from chromite.lib.telemetry import trace
 from chromite.utils import attrs_freezer
 from chromite.utils import gs_urls_util
 from chromite.utils import path_filter
+
+
+# Setting this to False causes telemetry to be disabled for all scripts. This
+# is intended to be the knob for disabling telemetry on branches. See the
+# telemetry config in lib/constants.py for per-script configuration.
+TELEMETRY_ENABLED = False
+
+tracer = trace.get_tracer(__name__)
 
 
 class DeviceScheme(enum.IntEnum):
@@ -1051,6 +1061,19 @@ class BaseParser:
                 ),
             )
 
+        if hasattr(self, "add_argument"):
+            add_arg = self.add_argument
+        else:
+            add_arg = self.add_option
+        # This is used to disable telemetry in ScriptWrapperMain before
+        # arguments are actually parsed.
+        add_arg(
+            "--disable-telemetry",
+            action="store_true",
+            default=False,
+            help=argparse.SUPPRESS,
+        )
+
     def SetupLogging(self, opts):
         """Sets up logging based on |opts|."""
         value = opts.log_level.upper()
@@ -1578,7 +1601,35 @@ def ScriptWrapperMain(
 
     signal.signal(signal.SIGTERM, _DefaultHandler)
 
-    _execute_target(target, argv, name)
+    # Telemetry setup.
+    # The basename of the executed script with extensions stripped. Chromite
+    # wrapper symlinks will never have an extension by convention, but other
+    # usages of ScriptWrapperMain can, and |name| will have the extension.
+    # |target_name| allows all scripts to be basename-sans-extension in the
+    # config so they are more uniform (and so hopefully the config is less
+    # confusing).
+    target_name = os.path.basename(target_path)
+    # Check if the specific script is disabled.
+    script_enabled = target_name not in constants.TELEMETRY_DISABLED_SCRIPTS
+    # Check if telemetry has been disabled in the CLI.
+    cli_enabled = "--disable-telemetry" not in argv
+    if TELEMETRY_ENABLED and script_enabled and cli_enabled:
+        publish_enabled = (
+            target_name not in constants.TELEMETRY_PUBLISH_DISABLED_SCRIPTS
+        )
+        telemetry.initialize(publish=publish_enabled)
+
+    with tracer.start_as_current_span(f"script_wrapper_main.{name}") as span:
+        span.set_attributes(
+            {
+                "target": target_path,
+                "name": name,
+                "function": getattr(target, "__name__", str(target)),
+                "argv": argv[1:],
+            }
+        )
+
+        _execute_target(target, argv, name)
 
 
 def _execute_target(
