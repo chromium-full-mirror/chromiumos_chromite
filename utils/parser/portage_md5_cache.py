@@ -95,6 +95,26 @@ class Md5Cache:
         return set(self.vars.get("DEFINED_PHASES", "").split())
 
     @property
+    def depend(self) -> pms_dependency.RootNode:
+        """The DEPEND of this package."""
+        return pms_dependency.parse(self.vars.get("DEPEND", ""))
+
+    @property
+    def bdepend(self) -> pms_dependency.RootNode:
+        """The BDEPEND of this package."""
+        return pms_dependency.parse(self.vars.get("BDEPEND", ""))
+
+    @property
+    def pdepend(self) -> pms_dependency.RootNode:
+        """The PDEPEND of this package."""
+        return pms_dependency.parse(self.vars.get("PDEPEND", ""))
+
+    @property
+    def rdepend(self) -> pms_dependency.RootNode:
+        """The RDEPEND of this package."""
+        return pms_dependency.parse(self.vars.get("RDEPEND", ""))
+
+    @property
     def iuse(self) -> Set[str]:
         """A set of the flags in IUSE."""
         iuse = self.vars.get("IUSE")
