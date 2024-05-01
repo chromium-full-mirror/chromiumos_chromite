@@ -282,6 +282,77 @@ class TestProcMetrics(cros_test_lib.TestCase):
                         "...",
                     ],
                 ),
+                _mock_process(
+                    name="cadvisor",
+                    cmdline=["/usr/bin/cadvisor", "-logtostderr", "..."],
+                ),
+                _mock_process(
+                    name="cts-tradefed",
+                    cmdline=[
+                        "/bin/bash",
+                        "/tmp/autotest-tradefed-install/.../cts-tradefed",
+                        "...",
+                    ],
+                ),
+                _mock_process(
+                    name="gts-tradefed",
+                    cmdline=[
+                        "/bin/bash",
+                        "/tmp/autotest-tradefed-install/.../gts-tradefed",
+                        "...",
+                    ],
+                ),
+                _mock_process(name="pause", cmdline=["/puase"]),
+                _mock_process(
+                    name="node_exporter", cmdline=["/bin/node_exporter", "..."]
+                ),
+                _mock_process(
+                    name="process-exporter",
+                    cmdline=["/bin/process-exporter", "..."],
+                ),
+                _mock_process(
+                    name="prometheus", cmdline=["/bin/prometheus", "..."]
+                ),
+                _mock_process(
+                    name="test_that",
+                    cmdline=["/bin/bin/python3", "/usr/bin/test_that", "..."],
+                ),
+                _mock_process(
+                    name="shivas", cmdline=["/opt/infra-tools/shivas", "..."]
+                ),
+                _mock_process(name="tast", cmdline=["/usr/bin/tast", "..."]),
+                _mock_process(name="cros-dut", cmdline=["cros-dut", "..."]),
+                _mock_process(
+                    name="containerd-shim-runc-v2",
+                    cmdline=["/usr/bin/containerd-shim-runc-v2", "..."],
+                ),
+                _mock_process(
+                    name="crosint",
+                    cmdline=["/usr/libexec/tast/bundles/remote/crosint", "..."],
+                ),
+                _mock_process(name="cros-test", cmdline=["cros-test"]),
+                _mock_process(
+                    name="cros-provision", cmdline=["cros-provision", "..."]
+                ),
+                _mock_process(
+                    name="cros-tool-runner",
+                    cmdline=["/home/chromeos-test/.../cros-tool-runner", "..."],
+                ),
+                _mock_process(
+                    name="fluent-bit",
+                    cmdline=["/fluent-bit/bin/fluent-bit", "..."],
+                ),
+                _mock_process(
+                    name="drone-prober",
+                    cmdline=["/opt/infra-tools/drone-prober", "..."],
+                ),
+                _mock_process(
+                    name="labpack", cmdline=["/home/.../labpack", "..."]
+                ),
+                _mock_process(
+                    name="cros-fw-provision",
+                    cmdline=["cros-fw-provision", "..."],
+                ),
             ]
             proc_metrics.collect_proc_info()
 
@@ -291,21 +362,36 @@ class TestProcMetrics(cros_test_lib.TestCase):
         calls.extend(_expected_calls_for("autoserv"))
         calls.extend(_expected_calls_for("bbagent"))
         calls.extend(_expected_calls_for("cache-downloader"))
+        calls.extend(_expected_calls_for("cadvisor"))
         calls.extend(_expected_calls_for("cipd"))
         calls.extend(_expected_calls_for("cloudtail"))
         calls.extend(_expected_calls_for("common-tls"))
+        calls.extend(_expected_calls_for("containerd-shim-runc-v2"))
+        calls.extend(_expected_calls_for("cros-dut"))
+        calls.extend(_expected_calls_for("crosint"))
+        calls.extend(_expected_calls_for("cros-fw-provision"))
+        calls.extend(_expected_calls_for("cros-provision"))
+        calls.extend(_expected_calls_for("cros-test"))
+        calls.extend(_expected_calls_for("cros-tool-runner"))
+        calls.extend(_expected_calls_for("cts-tradefed"))
         calls.extend(_expected_calls_for("curl"))
         calls.extend(_expected_calls_for("dnsmasq"))
         calls.extend(_expected_calls_for("drone-agent"))
+        calls.extend(_expected_calls_for("drone-prober"))
         calls.extend(_expected_calls_for("fleet-tlw"))
+        calls.extend(_expected_calls_for("fluent-bit"))
         calls.extend(_expected_calls_for("getty"))
         calls.extend(_expected_calls_for("gs_offloader"))
         calls.extend(_expected_calls_for("gsutil"))
+        calls.extend(_expected_calls_for("gts-tradefed"))
         calls.extend(_expected_calls_for("java"))
         calls.extend(_expected_calls_for("k8s_system"))
+        calls.extend(_expected_calls_for("labpack"))
         calls.extend(_expected_calls_for("labservice"))
         calls.extend(_expected_calls_for("lxc-attach"))
         calls.extend(_expected_calls_for("lxc-start"))
+        calls.extend(_expected_calls_for("node_exporter"))
+        calls.extend(_expected_calls_for("pause"))
         calls.extend(_expected_calls_for("podman-pull"))
         calls.extend(_expected_calls_for("podman-run"))
         calls.extend(_expected_calls_for("phosphorus-fetch-crashes"))
@@ -314,11 +400,16 @@ class TestProcMetrics(cros_test_lib.TestCase):
         calls.extend(_expected_calls_for("phosphorus-upload-to-gs"))
         calls.extend(_expected_calls_for("phosphorus-upload-to-tko"))
         calls.extend(_expected_calls_for("phosphorus-other"))
+        calls.extend(_expected_calls_for("prometheus"))
+        calls.extend(_expected_calls_for("process-exporter"))
         calls.extend(_expected_calls_for("recipe"))
+        calls.extend(_expected_calls_for("shivas"))
         calls.extend(_expected_calls_for("sshd"))
         calls.extend(_expected_calls_for("swarming_bot"))
         calls.extend(_expected_calls_for("swarming_sub_task"))
         calls.extend(_expected_calls_for("sysmon"))
+        calls.extend(_expected_calls_for("tast"))
+        calls.extend(_expected_calls_for("test_that"))
         calls.extend(_expected_calls_for("tko_proxy"))
         calls.extend(_expected_calls_for("other"))
         setter.assert_has_calls(calls)

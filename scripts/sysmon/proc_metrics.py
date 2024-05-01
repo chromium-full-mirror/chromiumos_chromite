@@ -75,12 +75,44 @@ class _ProcessMetricsCollector:
                 "cache-downloader",
                 test_func=partial(_is_process_name, "downloader"),
             ),
+            _ProcessMetric(
+                "cadvisor", test_func=partial(_is_process_name, "cadvisor")
+            ),
             _ProcessMetric("cipd", test_func=partial(_is_process_name, "cipd")),
             _ProcessMetric(
                 "cloudtail", test_func=partial(_is_process_name, "cloudtail")
             ),
             _ProcessMetric(
                 "common-tls", test_func=partial(_is_process_name, "common-tls")
+            ),
+            _ProcessMetric(
+                "containerd-shim-runc-v2",
+                test_func=partial(_is_process_name, "containerd-shim-runc-v2"),
+            ),
+            _ProcessMetric(
+                "cros-dut", test_func=partial(_is_process_name, "cros-dut")
+            ),
+            _ProcessMetric(
+                "crosint", test_func=partial(_is_process_name, "crosint")
+            ),
+            _ProcessMetric(
+                "cros-fw-provision",
+                test_func=partial(_is_process_name, "cros-fw-provision"),
+            ),
+            _ProcessMetric(
+                "cros-provision",
+                test_func=partial(_is_process_name, "cros-provision"),
+            ),
+            _ProcessMetric(
+                "cros-test", test_func=partial(_is_process_name, "cros-test")
+            ),
+            _ProcessMetric(
+                "cros-tool-runner",
+                test_func=partial(_is_process_name, "cros-tool-runner"),
+            ),
+            _ProcessMetric(
+                "cts-tradefed",
+                test_func=partial(_is_process_name, "cts-tradefed"),
             ),
             _ProcessMetric("curl", test_func=partial(_is_process_name, "curl")),
             _ProcessMetric(
@@ -91,7 +123,14 @@ class _ProcessMetricsCollector:
                 test_func=partial(_is_process_name, "drone-agent"),
             ),
             _ProcessMetric(
+                "drone-prober",
+                test_func=partial(_is_process_name, "drone-prober"),
+            ),
+            _ProcessMetric(
                 "fleet-tlw", test_func=partial(_is_process_name, "fleet-tlw")
+            ),
+            _ProcessMetric(
+                "fluent-bit", test_func=partial(_is_process_name, "fluent-bit")
             ),
             _ProcessMetric(
                 "getty", test_func=partial(_is_process_name, "getty")
@@ -101,8 +140,15 @@ class _ProcessMetricsCollector:
                 test_func=partial(_is_process_name, "gs_offloader.py"),
             ),
             _ProcessMetric("gsutil", test_func=_is_gsutil),
+            _ProcessMetric(
+                "gts-tradefed",
+                test_func=partial(_is_process_name, "gts-tradefed"),
+            ),
             _ProcessMetric("java", test_func=partial(_is_process_name, "java")),
             _ProcessMetric("k8s_system", test_func=_is_k8s_system),
+            _ProcessMetric(
+                "labpack", test_func=partial(_is_process_name, "labpack")
+            ),
             _ProcessMetric(
                 "labservice", test_func=partial(_is_process_name, "labservice")
             ),
@@ -111,6 +157,13 @@ class _ProcessMetricsCollector:
             ),
             _ProcessMetric(
                 "lxc-start", test_func=partial(_is_process_name, "lxc-start")
+            ),
+            _ProcessMetric(
+                "node_exporter",
+                test_func=partial(_is_process_name, "node_exporter"),
+            ),
+            _ProcessMetric(
+                "pause", test_func=partial(_is_process_name, "pause")
             ),
             _ProcessMetric(
                 "podman-pull",
@@ -153,7 +206,18 @@ class _ProcessMetricsCollector:
                 "phosphorus-other",
                 test_func=partial(_is_process_name, "phosphorus"),
             ),
+            _ProcessMetric(
+                "prometheus",
+                test_func=partial(_is_process_name, "prometheus"),
+            ),
+            _ProcessMetric(
+                "process-exporter",
+                test_func=partial(_is_process_name, "process-exporter"),
+            ),
             _ProcessMetric("recipe", test_func=_is_recipe),
+            _ProcessMetric(
+                "shivas", test_func=partial(_is_process_name, "shivas")
+            ),
             _ProcessMetric("sshd", test_func=partial(_is_process_name, "sshd")),
             _ProcessMetric("swarming_bot", test_func=_is_swarming_bot),
             _ProcessMetric(
@@ -162,6 +226,10 @@ class _ProcessMetricsCollector:
             _ProcessMetric(
                 "sysmon",
                 test_func=partial(_is_python_module, "chromite.scripts.sysmon"),
+            ),
+            _ProcessMetric("tast", test_func=partial(_is_process_name, "tast")),
+            _ProcessMetric(
+                "test_that", test_func=partial(_is_process_name, "test_that")
             ),
             _ProcessMetric("tko_proxy", test_func=_is_tko_proxy),
         ]
