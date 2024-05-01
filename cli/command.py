@@ -23,7 +23,6 @@ from typing import Any, Callable, Dict, Optional, Type
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.lib import telemetry
 
 
 # Paths for finding and importing subcommand modules.
@@ -139,9 +138,6 @@ class CliCommand(abc.ABC):
     # Indicates whether command uses filter related commandline options.
     use_filter_options = False
 
-    # Whether to initialize telemetry.
-    use_telemetry = False
-
     def __init__(self, options) -> None:
         self.options = options
 
@@ -215,11 +211,6 @@ class CliCommand(abc.ABC):
         to chroot paths.
         """
         return sys.argv[:]
-
-    def initialize_telemetry(self):
-        """Hook to initialize telemetry."""
-        if self.use_telemetry:
-            telemetry.initialize()
 
 
 class CommandGroup(CliCommand):

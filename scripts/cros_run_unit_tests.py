@@ -19,7 +19,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
-from chromite.lib import telemetry
 from chromite.lib import workon_helper
 from chromite.lib.telemetry import trace
 from chromite.scripts import cros_extract_deps
@@ -157,8 +156,6 @@ def main(argv):
     opts = ParseArgs(argv)
 
     commandline.RunInsideChroot()
-
-    telemetry.initialize()
 
     with tracer.start_as_current_span("scripts.cros_run_unit_tests"):
         with (

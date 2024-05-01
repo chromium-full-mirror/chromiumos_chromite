@@ -45,8 +45,6 @@ What we collect:
 * Machine specs, e.g. CPU count, amount of memory.
 """
 
-    use_telemetry = True
-
     @classmethod
     def AddParser(cls, parser) -> None:
         super(cls, TelemetryCommand).AddParser(parser)

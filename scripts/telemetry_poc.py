@@ -9,7 +9,6 @@ import time
 from typing import List, Optional
 
 from chromite.lib import commandline
-from chromite.lib import telemetry
 from chromite.lib.telemetry import trace
 
 
@@ -43,8 +42,6 @@ def parse_arguments(argv: List) -> argparse.Namespace:
 def main(argv: Optional[List[str]]) -> Optional[int]:
     """Main."""
     opts = parse_arguments(argv)
-
-    telemetry.initialize()
 
     with tracer.start_as_current_span("telemetry_poc.main") as span:
         time.sleep(opts.time / 2)

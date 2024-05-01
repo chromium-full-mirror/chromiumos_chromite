@@ -42,7 +42,6 @@ For more information of cros build usage:
 """
 
     use_dryrun_options = True
-    use_telemetry = True
 
     @classmethod
     def AddParser(cls, parser) -> None:

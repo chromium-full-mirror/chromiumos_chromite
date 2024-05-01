@@ -16,9 +16,9 @@ def test_main(_, tmp_path) -> None:
     """Smoke test."""
     # Missing --board fails.
     with pytest.raises(SystemExit):
-        setup_board.inner_main([])
+        setup_board.main([])
 
     # Point to an empty root just in case we try to touch something.
-    setup_board.inner_main(
+    setup_board.main(
         ["-b", "amd64-generic", "--board-root", str(tmp_path / "empty")]
     )

@@ -17,7 +17,6 @@ from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
-from chromite.lib import telemetry
 from chromite.lib.telemetry import trace
 from chromite.service import sysroot
 
@@ -235,11 +234,6 @@ def _ParseArgs(args):
 
 def main(argv):
     commandline.RunInsideChroot()
-    telemetry.initialize()
-    inner_main(argv)
-
-
-def inner_main(argv):
     opts = _ParseArgs(argv)
     with tracer.start_as_current_span("chromite.scripts.setup_board") as span:
         try:

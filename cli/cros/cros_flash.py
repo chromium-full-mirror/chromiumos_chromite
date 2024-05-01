@@ -78,7 +78,6 @@ Note: When flashing a signed image, ssh connection to the device will be lost
 
     # Override base class property to use cache related commandline options.
     use_caching_options = True
-    use_telemetry = True
 
     # The default reboot timeout.
     DEFAULT_REBOOT_TIMEOUT = datetime.timedelta(seconds=300)

@@ -204,8 +204,6 @@ def build_shell_string_style_args(
 class BuildImageCommand(command.CliCommand):
     """Build a ChromiumOS image."""
 
-    use_telemetry = True
-
     @classmethod
     def AddParser(cls, parser: commandline.ArgumentParser) -> None:
         """Build the parser.

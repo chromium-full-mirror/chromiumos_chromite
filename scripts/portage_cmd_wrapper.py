@@ -17,7 +17,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
-from chromite.lib import telemetry
 from chromite.lib.parser import package_info
 from chromite.lib.telemetry import trace
 
@@ -156,8 +155,6 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
     commandline.RunInsideChroot()
 
     opts = parse_arguments(argv)
-
-    telemetry.initialize()
 
     try:
         return execute(opts)

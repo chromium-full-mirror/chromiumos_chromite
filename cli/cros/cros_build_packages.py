@@ -36,8 +36,6 @@ tracer = trace.get_tracer(__name__)
 class BuildPackagesCommand(command.CliCommand):
     """Update the set of binary packages used by ChromiumOS."""
 
-    use_telemetry = True
-
     @classmethod
     def AddParser(cls, parser: commandline.ArgumentParser):
         """Build the parser.
