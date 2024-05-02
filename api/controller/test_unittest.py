@@ -7,6 +7,7 @@
 import datetime
 import os
 from typing import Union
+import unittest
 
 from chromite.third_party.google.protobuf import json_format
 
@@ -94,6 +95,7 @@ class DebugInfoTestTest(
                 input_msg, output_msg, self.api_config
             )
 
+    @unittest.skip("Waiting for b/338269229 to rollout")
     def testDebugInfoTest(self) -> None:
         """Call DebugInfoTest with valid sysroot_path."""
         request = self._GetInput(sysroot_path=self.full_sysroot_path)
