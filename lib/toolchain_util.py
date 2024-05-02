@@ -104,6 +104,14 @@ _CHROMIUMOS_OVERLAY = os.path.join(
     constants.SOURCE_ROOT, constants.CHROMIUMOS_OVERLAY_DIR
 )
 
+# Full path to toolchain-utils from within the chroot.
+_TOOLCHAIN_UTILS = os.path.join(
+    constants.SOURCE_ROOT, "src/third_party/toolchain-utils"
+)
+
+# Full path to afdo_tools executables from within the chroot.
+_AFDO_TOOLS_DIR = os.path.join(_TOOLCHAIN_UTILS, "py/bin/afdo_redaction")
+
 # RegExps
 AFDO_ARTIFACT_EBUILD_REGEX = (
     r'(?P<bef>\b%s\b=)(?P<name>("[^"]*"|.*))(?P<aft>.*)'
@@ -1038,7 +1046,11 @@ class _CommonPrepareBundle:
             redacted_temp = input_path + ".redacted.temp"
             with open(current_input_file, "rb") as f:
                 self.chroot.run(
-                    ["redact_textual_afdo_profile"],
+                    [
+                        os.path.join(
+                            _AFDO_TOOLS_DIR, "redact_textual_afdo_profile.py"
+                        )
+                    ],
                     input=f,
                     stdout=redacted_temp,
                     print_cmd=True,
@@ -1050,7 +1062,7 @@ class _CommonPrepareBundle:
             removed_temp = input_path + ".removed.temp"
             self.chroot.run(
                 [
-                    "remove_indirect_calls",
+                    os.path.join(_AFDO_TOOLS_DIR, "remove_indirect_calls.py"),
                     "--input=" + self.chroot.chroot_path(current_input_file),
                     "--output=" + self.chroot.chroot_path(removed_temp),
                 ],
@@ -1065,7 +1077,7 @@ class _CommonPrepareBundle:
             reduced_tmp = input_path + ".reduced.tmp"
             self.chroot.run(
                 [
-                    "remove_cold_functions",
+                    os.path.join(_AFDO_TOOLS_DIR, "remove_cold_functions.py"),
                     "--input=" + self.chroot.chroot_path(current_input_file),
                     "--output=" + self.chroot.chroot_path(reduced_tmp),
                     "--number=" + str(reduce_functions),
