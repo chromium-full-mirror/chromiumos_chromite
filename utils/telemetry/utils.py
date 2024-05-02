@@ -16,9 +16,11 @@ class Anonymizer:
         self, replacements: Optional[Sequence[Tuple[Pattern[str], str]]] = None
     ) -> None:
         self._replacements = list(replacements or [])
-        self._replacements.append(
-            (re.compile(re.escape(getpass.getuser())), "<user>")
-        )
+        if getpass.getuser() != "root":
+            # Substituting the root user doesn't actually anonymize anything.
+            self._replacements.append(
+                (re.compile(re.escape(getpass.getuser())), "<user>")
+            )
 
     def __call__(self, *args, **kwargs):
         return self.apply(*args, **kwargs)

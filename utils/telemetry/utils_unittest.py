@@ -10,13 +10,13 @@ import re
 from chromite.utils.telemetry import utils
 
 
-def test_default_anonymizer_to_remove_username_from_path() -> None:
+def test_default_anonymizer_to_remove_username_from_path(monkeypatch) -> None:
     """Test that default Anonymizer redacts username."""
-    text = "/home/%s/docs" % getpass.getuser()
+    monkeypatch.setattr(getpass, "getuser", lambda: "user")
 
     a = utils.Anonymizer()
+    output = a.apply("/home/user/docs")
 
-    output = a.apply(text)
     assert output == "/home/<user>/docs"
 
 
@@ -40,3 +40,14 @@ def test_anonymizer_to_apply_multiple_replacements() -> None:
     output = a.apply(text)
 
     assert output == "hello xd. how is t. t"
+
+
+def test_default_anonymizer_skip_root(monkeypatch) -> None:
+    """Test the anonymizer skips the root user."""
+    monkeypatch.setattr(getpass, "getuser", lambda: "root")
+
+    text = "/root/home service.sysroot.SetupBoard"
+    a = utils.Anonymizer()
+    output = a.apply(text)
+
+    assert output == text
