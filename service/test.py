@@ -228,21 +228,6 @@ def BundleHwqualTarball(
     return artifact_path
 
 
-def DebugInfoTest(sysroot_path: str) -> bool:
-    """Run the debug info tests.
-
-    Args:
-        sysroot_path: The sysroot being tested.
-
-    Returns:
-        True iff all tests passed, False otherwise.
-    """
-    cmd = ["debug_info_test", os.path.join(sysroot_path, "usr/lib/debug")]
-    result = cros_build_lib.run(cmd, enter_chroot=True, check=False)
-
-    return result.returncode == 0
-
-
 def ChromiteUnitTest() -> bool:
     """Run chromite unittests.
 

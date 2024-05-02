@@ -37,38 +37,6 @@ from chromite.service import packages as packages_service
 from chromite.service import test
 
 
-@faux.empty_success
-@faux.empty_completed_unsuccessfully_error
-def DebugInfoTest(request, _response, config):
-    """Run the debug info tests."""
-    sysroot_path = request.sysroot.path
-    target_name = request.sysroot.build_target.name
-
-    if not sysroot_path:
-        if target_name:
-            sysroot_path = build_target_lib.get_default_sysroot_path(
-                target_name
-            )
-        else:
-            cros_build_lib.Die(
-                "The sysroot path or the sysroot's build target name "
-                "must be provided."
-            )
-
-    # We could get away with out this, but it's a cheap check.
-    sysroot = sysroot_lib.Sysroot(sysroot_path)
-    if not sysroot.Exists():
-        cros_build_lib.Die("The provided sysroot does not exist.")
-
-    if config.validate_only:
-        return controller.RETURN_CODE_VALID_INPUT
-
-    if test.DebugInfoTest(sysroot_path):
-        return controller.RETURN_CODE_SUCCESS
-    else:
-        return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
-
-
 def _BuildTargetUnitTestFailedResponse(_request, response, _config) -> None:
     """Add failed packages to a failed response."""
     packages = ["foo/bar", "cat/pkg"]

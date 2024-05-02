@@ -7,7 +7,6 @@
 import datetime
 import os
 from typing import Union
-import unittest
 
 from chromite.third_party.google.protobuf import json_format
 
@@ -26,83 +25,6 @@ from chromite.lib import osutils
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
 from chromite.service import test as test_service
-
-
-class DebugInfoTestTest(
-    cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
-):
-    """Tests for the DebugInfoTest function."""
-
-    def setUp(self) -> None:
-        self.board = "board"
-        self.chroot_path = os.path.join(self.tempdir, "chroot")
-        self.sysroot_path = "/build/board"
-        self.full_sysroot_path = os.path.join(
-            self.chroot_path, self.sysroot_path.lstrip(os.sep)
-        )
-        osutils.SafeMakedirs(self.full_sysroot_path)
-
-    def _GetInput(self, sysroot_path=None, build_target=None):
-        """Helper to build an input message instance."""
-        proto = test_pb2.DebugInfoTestRequest()
-        if sysroot_path:
-            proto.sysroot.path = sysroot_path
-        if build_target:
-            proto.sysroot.build_target.name = build_target
-        return proto
-
-    def _GetOutput(self):
-        """Helper to get an empty output message instance."""
-        return test_pb2.DebugInfoTestResponse()
-
-    def testValidateOnly(self) -> None:
-        """Verify a validate-only call does not execute any logic."""
-        patch = self.PatchObject(test_service, "DebugInfoTest")
-        input_msg = self._GetInput(sysroot_path=self.full_sysroot_path)
-        test_controller.DebugInfoTest(
-            input_msg, self._GetOutput(), self.validate_only_config
-        )
-        patch.assert_not_called()
-
-    def testMockError(self) -> None:
-        """Test mock error call does not execute any logic, returns error."""
-        patch = self.PatchObject(test_service, "DebugInfoTest")
-
-        input_msg = self._GetInput(sysroot_path=self.full_sysroot_path)
-        rc = test_controller.DebugInfoTest(
-            input_msg, self._GetOutput(), self.mock_error_config
-        )
-        patch.assert_not_called()
-        self.assertEqual(controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY, rc)
-
-    def testMockCall(self) -> None:
-        """Test mock call does not execute any logic, returns success."""
-        patch = self.PatchObject(test_service, "DebugInfoTest")
-
-        input_msg = self._GetInput(sysroot_path=self.full_sysroot_path)
-        rc = test_controller.DebugInfoTest(
-            input_msg, self._GetOutput(), self.mock_call_config
-        )
-        patch.assert_not_called()
-        self.assertEqual(controller.RETURN_CODE_SUCCESS, rc)
-
-    def testNoBuildTargetNoSysrootFails(self) -> None:
-        """Test missing build target name and sysroot path fails."""
-        input_msg = self._GetInput()
-        output_msg = self._GetOutput()
-        with self.assertRaises(cros_build_lib.DieSystemExit):
-            test_controller.DebugInfoTest(
-                input_msg, output_msg, self.api_config
-            )
-
-    @unittest.skip("Waiting for b/338269229 to rollout")
-    def testDebugInfoTest(self) -> None:
-        """Call DebugInfoTest with valid sysroot_path."""
-        request = self._GetInput(sysroot_path=self.full_sysroot_path)
-
-        test_controller.DebugInfoTest(
-            request, self._GetOutput(), self.api_config
-        )
 
 
 class BuildTargetUnitTestTest(

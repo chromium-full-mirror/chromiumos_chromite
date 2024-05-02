@@ -185,22 +185,6 @@ class BuildTargetUnitTestTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertTrue(result.success)
 
 
-class DebugInfoTestTest(cros_test_lib.RunCommandTestCase):
-    """DebugInfoTest tests."""
-
-    def testSuccess(self) -> None:
-        """Test command success."""
-        self.assertTrue(test.DebugInfoTest("/sysroot/path"))
-        self.assertCommandContains(
-            ["debug_info_test", "/sysroot/path/usr/lib/debug"]
-        )
-
-    def testFailure(self) -> None:
-        """Test command failure."""
-        self.rc.SetDefaultCmdResult(returncode=1)
-        self.assertFalse(test.DebugInfoTest("/sysroot/path"))
-
-
 class SimpleChromeWorkflowTestTest(cros_test_lib.MockTempDirTestCase):
     """Unit tests for SimpleChromeWorkflowTest."""
 
