@@ -498,6 +498,7 @@ GROUP_BASELINE = dict(
         GroupEntry(
             group="regmond_senders", gid=20215, users={"chronos", "patchpaneld"}
         ),
+        GroupEntry(group="intel-pmt", gid=431, users={"heartd"}),
     )
 )
 
