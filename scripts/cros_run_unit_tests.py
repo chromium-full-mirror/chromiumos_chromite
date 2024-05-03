@@ -68,6 +68,7 @@ def ParseArgs(argv):
     )
 
     parser.add_argument(
+        "-p",
         "--pretend",
         default=False,
         action="store_true",
