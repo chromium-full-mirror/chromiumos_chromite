@@ -6,6 +6,7 @@
 
 import logging
 import os
+import re
 
 from chromite.lib import chromeos_version
 from chromite.lib import commandline
@@ -340,7 +341,7 @@ def main(argv) -> None:
 
     package_list = None
     if options.packages:
-        package_list = options.packages.split(":")
+        package_list = re.split(r"[:\s]", options.packages)
 
     overlays = []
     if options.overlays:
