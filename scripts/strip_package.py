@@ -5,18 +5,19 @@
 """Strip packages and place them in <sysroot>/stripped-packages."""
 
 import os
-import sys
+import site
 from typing import List
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import install_mask
 
 
 # The builder module lives in the devserver path.
 # pylint: disable=import-error,wrong-import-position
-sys.path.append("/usr/lib/devserver/")
+site.addsitedir(constants.SOURCE_ROOT / "src" / "platform" / "dev")
 import builder
 
 
