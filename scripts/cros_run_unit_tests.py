@@ -102,11 +102,6 @@ def ParseArgs(argv):
         ),
     )
     parser.add_argument(
-        "--nowithdebug",
-        action="store_true",
-        help="Don't build the tests with USE=cros-debug",
-    )
-    parser.add_argument(
         "--assume-empty-sysroot",
         default=False,
         action="store_true",
@@ -256,10 +251,6 @@ def inner_main(opts: commandline.ArgumentNamespace):
         return 0
 
     env = {}
-    if opts.nowithdebug:
-        use_flags = os.environ.get("USE", "")
-        use_flags += " -cros-debug"
-        env["USE"] = use_flags
 
     features_flags = os.environ.get("FEATURES", "")
     if features_flags:
