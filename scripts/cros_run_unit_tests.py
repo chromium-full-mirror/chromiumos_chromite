@@ -73,15 +73,15 @@ def ParseArgs(argv):
         action="store_true",
         help="Show the list of packages to be tested and return.",
     )
-    parser.add_argument(
-        "--noinstalled_only",
-        dest="installed",
-        default=True,
-        action="store_false",
-        help=(
+    parser.add_bool_argument(
+        "--installed-only",
+        True,
+        (
             "Test all testable packages, even if they are not "
             "currently installed."
         ),
+        "Test only installed testable packages.",
+        dest="installed",
     )
     parser.add_argument(
         "--package_file",
