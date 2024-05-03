@@ -237,6 +237,11 @@ class StandardBoolTest(cros_test_lib.TestCase):
             self.parser.add_argument("--verbose", type=bool)
         self.assertIn("Use `add_bool_argument()`", str(context.exception))
 
+    def testDest(self) -> None:
+        """Check dest= handling."""
+        self.parser.add_bool_argument("--dest", None, "", "", dest="xyz")
+        assert self.parser.parse_args(["--no-dest"]).xyz is False
+
 
 def test_add_bool_argument_in_group() -> None:
     """Test using add_bool_argument in an argument group."""

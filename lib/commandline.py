@@ -1318,6 +1318,7 @@ class ArgumentParser(BaseParser, argparse.ArgumentParser):
         default: Optional[bool],
         enabled_desc: str,
         disabled_desc: str,
+        dest: Optional[str] = None,
     ) -> None:
         """Adds a boolean argument conforming to chromite recommendations.
 
@@ -1338,6 +1339,7 @@ class ArgumentParser(BaseParser, argparse.ArgumentParser):
                 is treated as tristate.
             enabled_desc: The help text to use for "--my-bool".
             disabled_desc: The help text to use for "--no-my-bool".
+            dest: The name to store in the returned namespace.
         """
         if not flag.startswith("--"):
             raise ValueError(f"Bool flag `{flag}` must start with `--`")
@@ -1346,7 +1348,8 @@ class ArgumentParser(BaseParser, argparse.ArgumentParser):
         enabled_desc += " (DEFAULT)" if default is True else ""
         disabled_desc += " (DEFAULT)" if default is False else ""
         flag = flag.lstrip("-")
-        dest = flag.replace("-", "_")
+        if dest is None:
+            dest = flag.replace("-", "_")
         self.add_argument(
             f"--{flag}", action="store_true", default=default, help=enabled_desc
         )
