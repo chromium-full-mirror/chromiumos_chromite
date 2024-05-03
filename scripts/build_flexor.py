@@ -5,7 +5,6 @@
 """A script to generate Flexor kernel images."""
 
 import logging
-import os
 import shutil
 import tempfile
 from typing import List, Optional
@@ -18,7 +17,7 @@ from chromite.lib import flexor
 
 def get_parser() -> commandline.ArgumentParser:
     """Creates an argument parser and returns it."""
-    parser = commandline.ArgumentParser(description=__doc__)
+    parser = commandline.ArgumentParser(description=__doc__, jobs=True)
     parser.add_argument(
         "--board", "-b", "--build-target", required=True, help="The board name."
     )
@@ -65,13 +64,6 @@ def get_parser() -> commandline.ArgumentParser:
         help="Force the kernel to be rebuilt when repacking with "
         "debug flags. Use with --mod-for-dev in case kernel is "
         "not already built or needs to be rebuilt.",
-    )
-    parser.add_argument(
-        "--jobs",
-        type=int,
-        default=os.cpu_count(),
-        help="Number of packages to build in parallel. "
-        "(Default: %(default)s)",
     )
     return parser
 

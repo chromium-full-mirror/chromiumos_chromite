@@ -278,14 +278,7 @@ class DepTracker:
 def ParseArgs(argv):
     """Return parsed commandline arguments."""
 
-    parser = commandline.ArgumentParser()
-    parser.add_argument(
-        "-j",
-        "--jobs",
-        type=int,
-        default=multiprocessing.cpu_count(),
-        help="number of simultaneous jobs.",
-    )
+    parser = commandline.ArgumentParser(description=__doc__, jobs=True)
     parser.add_argument(
         "--sysroot",
         type="str_path",

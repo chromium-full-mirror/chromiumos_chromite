@@ -909,7 +909,7 @@ def FindBreakpadDir(board, sysroot=None):
 
 
 def main(argv):
-    parser = commandline.ArgumentParser(description=__doc__)
+    parser = commandline.ArgumentParser(description=__doc__, jobs=True)
 
     parser.add_argument(
         "--board", default=None, help="board to generate symbols for"
@@ -945,9 +945,6 @@ def main(argv):
         action="store_false",
         default=True,
         help="do not clean out breakpad dir before running",
-    )
-    parser.add_argument(
-        "--jobs", type=int, default=None, help="limit number of parallel jobs"
     )
     parser.add_argument(
         "--strip_cfi",

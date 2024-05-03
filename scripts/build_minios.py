@@ -7,7 +7,6 @@
 And inserting them into the Chromium OS images.
 """
 
-import os
 import tempfile
 
 from chromite.lib import commandline
@@ -17,7 +16,7 @@ from chromite.lib import minios
 
 def GetParser():
     """Creates an argument parser and returns it."""
-    parser = commandline.ArgumentParser(description=__doc__)
+    parser = commandline.ArgumentParser(description=__doc__, jobs=True)
     parser.add_argument(
         "--board", "-b", "--build-target", required=True, help="The board name."
     )
@@ -69,13 +68,6 @@ def GetParser():
         help="Force the kernel to be rebuilt when repacking with "
         "debug flags. Use with --mod-for-dev in case kernel is "
         "not already built or needs to be rebuilt.",
-    )
-    parser.add_argument(
-        "--jobs",
-        type=int,
-        default=os.cpu_count(),
-        help="Number of packages to build in parallel. "
-        "(Default: %(default)s)",
     )
     return parser
 

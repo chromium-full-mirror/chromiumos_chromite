@@ -874,6 +874,7 @@ class BaseParser:
             dryrun: Whether to make --dry-run available.
             filter: If given, set up a filter for --include and --exclude paths.
                 The resulting filter is in opts.filter.
+            jobs: Whether to make --jobs available.
         """
         self.debug_enabled = False
         self.caching_group = None
@@ -893,6 +894,7 @@ class BaseParser:
         self.caching = kwargs.get("caching", False)
         self.dryrun_enabled = kwargs.get("dryrun", False)
         self.filter_enabled = kwargs.get("filter", False)
+        self.jobs_enabled = kwargs.get("jobs", False)
         self._cros_defaults = {}
 
     @staticmethod
@@ -906,6 +908,7 @@ class BaseParser:
             "caching",
             "dryrun",
             "filter",
+            "jobs",
         ]
         for key in parser_keys:
             kwarg_dict.pop(key, None)
@@ -1036,6 +1039,17 @@ class BaseParser:
                 dest="filter",
                 type=path_filter.include,
                 help="Include files matching PATTERN.",
+            )
+        if self.jobs_enabled:
+            self.add_argument(
+                "-j",
+                "--jobs",
+                type=int,
+                default=os.cpu_count(),
+                help=(
+                    "The limit for the number of possible concurrent jobs. "
+                    "(Default: %(default)s)"
+                ),
             )
 
     def SetupLogging(self, opts):

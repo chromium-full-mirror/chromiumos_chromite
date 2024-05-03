@@ -6,7 +6,6 @@
 
 import contextlib
 import logging
-import multiprocessing
 import os
 from typing import Set
 
@@ -48,7 +47,7 @@ def ParseArgs(argv):
     Args:
         argv: array of arguments passed to the script.
     """
-    parser = commandline.ArgumentParser(description=__doc__)
+    parser = commandline.ArgumentParser(description=__doc__, jobs=True)
 
     target = parser.add_mutually_exclusive_group(required=True)
 
@@ -118,13 +117,6 @@ def ParseArgs(argv):
             "without assuming that any packages have actually "
             "been merged yet."
         ),
-    )
-    parser.add_argument(
-        "-j",
-        "--jobs",
-        type=int,
-        default=multiprocessing.cpu_count(),
-        help="The limit for the number of possible concurrent jobs.",
     )
     parser.add_argument(
         "--no-testable-packages-ok",

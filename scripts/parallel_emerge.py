@@ -14,7 +14,6 @@ arguments as well as setting reasonable defaults for parallelism.
 
 import argparse
 import logging
-import multiprocessing
 import os
 
 from chromite.lib import build_target_lib
@@ -41,7 +40,9 @@ def ParallelEmergeArgParser():
         commandline.ArgumentParser that captures arguments specific to
         parallel_emerge.
     """
-    parser = commandline.ArgumentParser(description=__doc__, dryrun=True)
+    parser = commandline.ArgumentParser(
+        description=__doc__, dryrun=True, jobs=True
+    )
 
     board_group = parser.add_mutually_exclusive_group()
     board_group.add_argument(
@@ -82,12 +83,6 @@ def ParallelEmergeArgParser():
         default=None,
         dest="root_deps",
         help=argparse.SUPPRESS,
-    )
-    parser.add_argument(
-        "-j",
-        "--jobs",
-        default=multiprocessing.cpu_count(),
-        metavar="PARALLEL_JOBCOUNT",
     )
 
     parser.add_argument(

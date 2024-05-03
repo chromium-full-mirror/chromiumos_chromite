@@ -24,7 +24,6 @@ bundled, but there will be no attempt to upload / distribute them.
 """
 
 import argparse
-import os
 from pathlib import Path
 import sys
 from typing import List, Optional, Protocol
@@ -73,7 +72,9 @@ class Options(Protocol):
 
 def get_parser() -> commandline.ArgumentParser:
     """Returns the cmdline argparser, populates the options and descriptions."""
-    parser = commandline.ArgumentParser(description=__doc__, dryrun=True)
+    parser = commandline.ArgumentParser(
+        description=__doc__, dryrun=True, jobs=True
+    )
 
     parser.add_bool_argument(
         "--clean",
@@ -123,14 +124,6 @@ def get_parser() -> commandline.ArgumentParser:
         nargs="*",
         default=["virtual/target-sdk-subtools"],
         help="Packages to build before looking for export candidates.",
-    )
-
-    parser.add_argument(
-        "--jobs",
-        "-j",
-        type=int,
-        default=os.cpu_count(),
-        help="Number of packages to build in parallel. (Default: %(default)s)",
     )
 
     parser.add_argument(

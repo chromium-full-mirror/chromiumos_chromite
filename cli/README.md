@@ -102,6 +102,10 @@ more details.  It also enables:
 *   `--include=<pattern>`: Paths to include in the filter.
 *   `--exclude=<pattern>`: Paths to exclude from the filter.
 
+The `jobs=` option (disabled by default) enables:
+
+*   `-j`, `--jobs`: Run multiple tasks in parallel using all available cpus.
+
 ### Standard Arguments
 
 Generally scripts are welcome to use any arguments they need.

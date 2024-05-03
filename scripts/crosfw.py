@@ -209,7 +209,9 @@ def ParseCmdline(argv):
         The parsed options object
     """
     parser = commandline.ArgumentParser(
-        description=__doc__, default_log_level="notice"
+        description=__doc__,
+        default_log_level="notice",
+        jobs=True,
     )
     parser.add_argument(
         "-B",
@@ -240,13 +242,6 @@ def ParseCmdline(argv):
         action="store_true",
         default=False,
         help="Run distclean and reconfigure before building",
-    )
-    parser.add_argument(
-        "-j",
-        "--jobs",
-        type=int,
-        default=os.cpu_count(),
-        help="Select the number of CPUs to use (defaults to all)",
     )
     parser.add_argument(
         "-I",

@@ -334,7 +334,7 @@ def _InstallOne(sysroot, debug, args) -> None:
 
 def GetParser():
     """Build the argument parser."""
-    parser = commandline.ArgumentParser(description=__doc__)
+    parser = commandline.ArgumentParser(description=__doc__, jobs=True)
     parser.add_argument("--board", help="Board name (required).", required=True)
     parser.add_argument(
         "--all",
@@ -362,13 +362,6 @@ def GetParser():
         action="store_true",
         default=False,
         help="Clear the binhost cache.",
-    )
-    advanced.add_argument(
-        "-j",
-        "--jobs",
-        default=multiprocessing.cpu_count(),
-        type=int,
-        help="Number of processes to run in parallel.",
     )
     advanced.add_argument(
         "--list",
