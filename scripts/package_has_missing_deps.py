@@ -538,14 +538,6 @@ def get_parser() -> commandline.ArgumentParser:
         help="Try to match missing libraries",
     )
 
-    parser.add_argument(
-        "-j",
-        "--jobs",
-        default=None,
-        type=int,
-        help="Number of parallel processes",
-    )
-
     parser.set_defaults(format=OutputFormat.AUTO)
     parser.add_argument(
         "--format",
@@ -565,8 +557,6 @@ def parse_arguments(argv: List[str]) -> argparse.Namespace:
         parser.error("Do not specify a package when setting --board-info")
     if opts.image and not opts.build_info:
         parser.error("--image requires --board-info")
-    if opts.build_info or len(opts.package) == 1:
-        opts.jobs = 1
     if opts.format is OutputFormat.AUTO:
         if sys.stdout.isatty():
             opts.format = OutputFormat.PRETTY
