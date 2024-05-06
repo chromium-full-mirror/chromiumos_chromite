@@ -77,18 +77,17 @@ _PREBUILT_MAKE_CONF = {
 
 
 class BuildTarget:
-    """A board/variant/profile tuple."""
+    """A board/profile tuple."""
 
-    def __init__(self, board_variant, profile=None) -> None:
-        self.board_variant = board_variant
-        self.board, _, self.variant = board_variant.partition("_")
+    def __init__(self, board, profile=None) -> None:
+        self.board = board
         self.profile = profile
 
     def __str__(self) -> str:
         if self.profile:
-            return "%s_%s" % (self.board_variant, self.profile)
+            return "%s_%s" % (self.board, self.profile)
         else:
-            return self.board_variant
+            return self.board
 
     def __eq__(self, other: Any) -> bool:
         return str(other) == str(self)
@@ -196,7 +195,7 @@ def GenerateUploadDict(base_local_path, base_remote_path, pkgs):
 
 
 def GetBoardOverlay(build_path, target):
-    """Get the path to the board variant.
+    """Get the path to the board.
 
     Args:
         build_path: The path to the root of the build directory.
@@ -205,9 +204,8 @@ def GetBoardOverlay(build_path, target):
     Returns:
         The last overlay configured for the given board as a string.
     """
-    board = target.board_variant
     overlays = portage_util.FindOverlays(
-        constants.BOTH_OVERLAYS, board, buildroot=build_path
+        constants.BOTH_OVERLAYS, target.board, buildroot=build_path
     )
     # We only care about the last entry.
     return overlays[-1]
@@ -700,7 +698,7 @@ LATEST_SDK=\"{latest_sdk}\""""
         updated_binhosts = set()
         for target in self._GetTargets():
             board_path = self._chroot.full_path(
-                _BOARD_PATH % {"board": target.board_variant}
+                _BOARD_PATH % {"board": target.board}
             )
             package_path = os.path.join(board_path, "packages")
             url_suffix = _REL_BOARD_PATH % {
@@ -1100,14 +1098,14 @@ def main(argv) -> None:
         if target:
             acl = portage_util.FindOverlayFile(
                 _GOOGLESTORAGE_GSUTIL_FILE,
-                board=target.board_variant,
+                board=target.board,
                 buildroot=options.build_path,
             )
             if acl is None:
                 cros_build_lib.Die(
                     "No Google Storage ACL file %s found in %s overlay.",
                     _GOOGLESTORAGE_GSUTIL_FILE,
-                    target.board_variant,
+                    target.board,
                 )
 
     binhost_conf_dir = None
