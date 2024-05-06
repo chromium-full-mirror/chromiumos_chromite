@@ -22,9 +22,7 @@ class ParseArgsTest(cros_test_lib.TestCase):
             cros_choose_profile.ParseArgs([])
 
         with self.assertRaises(SystemExit):
-            cros_choose_profile.ParseArgs(
-                ["--profile", "profile", "--variant", "variant"]
-            )
+            cros_choose_profile.ParseArgs(["--profile", "profile"])
 
 
 class BoardTest(cros_test_lib.TestCase):
@@ -34,36 +32,24 @@ class BoardTest(cros_test_lib.TestCase):
         """Set up the boards with the different construction variations."""
         # For readability's sake.
         Board = cros_choose_profile.Board
-        self.board_variant1 = Board(board="board_variant")
-        self.board_variant2 = Board(board="board", variant="variant")
-        self.board_variant3 = Board(board_root="/build/board_variant")
-        self.board_variant4 = Board(
-            board="board_variant", board_root="/build/ignored_value"
-        )
+        self.board1 = Board(board="board_variant")
+        self.board2 = Board(board="board")
+        self.board3 = Board(board_root="/build/board")
+        self.board4 = Board(board="board", board_root="/build/ignored_value")
 
     def testBoardVariant(self) -> None:
-        """Board.{board, variant, board_variant} building tests."""
-        self.assertEqual("board", self.board_variant1.board)
-        self.assertEqual("variant", self.board_variant1.variant)
-        self.assertEqual("board_variant", self.board_variant1.board_variant)
-
-        self.assertEqual("board", self.board_variant2.board)
-        self.assertEqual("variant", self.board_variant2.variant)
-        self.assertEqual("board_variant", self.board_variant2.board_variant)
-
-        self.assertEqual("board", self.board_variant3.board)
-        self.assertEqual("variant", self.board_variant3.variant)
-        self.assertEqual("board_variant", self.board_variant3.board_variant)
-
-        self.assertEqual("board", self.board_variant4.board)
-        self.assertEqual("variant", self.board_variant4.variant)
-        self.assertEqual("board_variant", self.board_variant4.board_variant)
+        """Board.board building tests."""
+        self.assertEqual("board_variant", self.board1.board)
+        self.assertEqual("board", self.board2.board)
+        self.assertEqual("board", self.board3.board)
+        self.assertEqual("board", self.board4.board)
 
     def testRoot(self) -> None:
         """Board.root tests."""
-        self.assertEqual(self.board_variant1.root, self.board_variant2.root)
-        self.assertEqual(self.board_variant1.root, self.board_variant3.root)
-        self.assertEqual(self.board_variant1.root, self.board_variant4.root)
+        self.assertEqual("/build/board_variant", self.board1.root)
+        self.assertEqual("/build/board", self.board2.root)
+        self.assertEqual("/build/board", self.board3.root)
+        self.assertEqual("/build/board", self.board4.root)
 
 
 class ProfileTest(cros_test_lib.TempDirTestCase):

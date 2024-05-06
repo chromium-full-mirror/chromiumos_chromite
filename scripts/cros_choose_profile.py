@@ -115,7 +115,7 @@ def ChooseProfile(board, profile) -> None:
         return
     elif current_profile is not None:
         # It exists and is changing, emit warning.
-        fmt = {"board": board.board_variant, "profile": profile.name}
+        fmt = {"board": board.board, "profile": profile.name}
         msg = (
             "You are switching profiles for a board that is already setup. "
             "This can cause trouble for Portage. If you experience problems "
@@ -192,13 +192,11 @@ class Board:
     def __init__(
         self,
         board: Optional[str] = None,
-        variant: Optional[str] = None,
         board_root: Optional[str] = None,
     ) -> None:
         """Board constructor.
 
-        board [+ variant] is given preference when both board and board_root are
-        provided.
+        board is given preference when both board and board_root are provided.
 
         Preconditions:
             Either board and build_root are not None, or board_root is not None.
@@ -207,7 +205,6 @@ class Board:
 
         Args:
             board: The board name.
-            variant: The variant name. TODO: Deprecate?
             board_root: The boards fully qualified build directory path.
         """
         if not board and not board_root:
@@ -216,25 +213,13 @@ class Board:
                 "Either board or board_root must be provided."
             )
         elif board:
-            # The board and variant can be specified separately, or can both be
-            # contained in the board name, separated by an underscore.
-            board_split = board.split("_")
-            variant_default = variant
-
             self._board_root = None
         else:
             self._board_root = os.path.normpath(board_root)
 
-            board_split = os.path.basename(self._board_root).split("_")
-            variant_default = None
+            board = os.path.basename(self._board_root)
 
-        self.board = board_split.pop(0)
-        self.variant = board_split.pop(0) if board_split else variant_default
-
-        if self.variant:
-            self.board_variant = "%s_%s" % (self.board, self.variant)
-        else:
-            self.board_variant = self.board
+        self.board = board
 
         self.make_profile = self.MAKE_PROFILE % {"board_root": self.root}
         # This must come after the arguments required to build each variant of
@@ -247,7 +232,7 @@ class Board:
         if self._board_root:
             return self._board_root
 
-        return build_target_lib.get_default_sysroot_path(self.board_variant)
+        return build_target_lib.get_default_sysroot_path(self.board)
 
     @property
     @PathPrefixDecorator
@@ -267,9 +252,7 @@ class Board:
 
 def _GetBoard(opts):
     """Factory method to build a Board from the parsed CLI arguments."""
-    return Board(
-        board=opts.board, variant=opts.variant, board_root=opts.board_root
-    )
+    return Board(board=opts.board, board_root=opts.board_root)
 
 
 def GetParser():
@@ -290,7 +273,6 @@ def GetParser():
     parser.add_argument(
         "-p", "--profile", help="The portage configuration profile to use."
     )
-    parser.add_argument("--variant", help="Board variant.")
 
     group = parser.add_argument_group("Advanced options")
     group.add_argument(
