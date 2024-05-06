@@ -78,7 +78,6 @@ def GetParser():
         help="The portage configuration profile to use. Profile "
         "must be located in overlay-board/profiles.",
     )
-    target.add_argument("--variant", help="Board variant.")
     target.add_argument("--board-root", type="str_path", help="Board root.")
     target.add_bool_argument(
         "--public",
@@ -183,17 +182,16 @@ def _ParseArgs(args):
     opts = parser.parse_args(args)
 
     # Translate raw options to config objects.
-    name = "%s_%s" % (opts.board, opts.variant) if opts.variant else opts.board
-
     opts.build_target = build_target_lib.BuildTarget(
-        name,
+        opts.board,
         build_root=opts.board_root,
         profile=opts.profile,
         public=opts.public,
     )
     if opts.reuse_configs:
         sysroot_path = (
-            opts.board_root or build_target_lib.get_default_sysroot_path(name)
+            opts.board_root
+            or build_target_lib.get_default_sysroot_path(opts.board)
         )
         sysroot_inst = sysroot_lib.Sysroot(sysroot_path)
         if not sysroot_inst.Exists():
