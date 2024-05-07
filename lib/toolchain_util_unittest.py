@@ -1851,7 +1851,7 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
             [
                 os.path.join(
                     toolchain_util._AFDO_TOOLS_DIR,
-                    "redact_textual_afdo_profile.py",
+                    "redact_profile.py",
                 )
             ],
             [

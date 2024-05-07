@@ -1046,11 +1046,7 @@ class _CommonPrepareBundle:
             redacted_temp = input_path + ".redacted.temp"
             with open(current_input_file, "rb") as f:
                 self.chroot.run(
-                    [
-                        os.path.join(
-                            _AFDO_TOOLS_DIR, "redact_textual_afdo_profile.py"
-                        )
-                    ],
+                    [os.path.join(_AFDO_TOOLS_DIR, "redact_profile.py")],
                     input=f,
                     stdout=redacted_temp,
                     print_cmd=True,
