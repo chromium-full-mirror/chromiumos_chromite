@@ -2346,7 +2346,7 @@ oof
         self.assertEqual(modified[2], old_ebuild_path)
         self.assertEqual(modified[3], new_ebuild_path)
 
-        tarfile_path = f"starbase-artifacts-{version_id}/{self.tarfile_name}"
+        tarfile_path = f"starbase-head-{version_id}/{self.tarfile_name}"
 
         # Check that the new ebuild file contains the expected content.
         new_ebuild_content = self.ebuild_content_format % tarfile_path

@@ -1213,7 +1213,7 @@ def starbase_find_and_uprev(
     rev0_ebuild_path = package_dir / rev0_pkg.ebuild
     for line in osutils.ReadText(rev0_ebuild_path).splitlines():
         if line.startswith("SRC_URI="):
-            src_uri_dir = f"${{DISTFILES}}/starbase-artifacts-{version_id}"
+            src_uri_dir = f"${{DISTFILES}}/starbase-head-{version_id}"
             new_line = f'SRC_URI="{src_uri_dir}/{tarfile_name}"'
             logging.info("Replacing %s with %s", line, new_line)
             lines.append(new_line)
@@ -1321,11 +1321,11 @@ def uprev_starbase_artifacts(
 
     The tar file stored at this GS path:
 
-    GS_MIRROR/distfiles/starbase/VERSION_ID/TARFILE_NAME
+    GS_MIRROR/distfiles/starbase-head-VERSION_ID/TARFILE_NAME
 
     For instance:
 
-    GS_MIRROR/distfiles/starbase/20230101-r00-rc001/starbase-foobar.tar.zst
+    GS_MIRROR/distfiles/starbase-head-20230101-r00-rc001/starbase-foobar.tar.zst
 
     Note that each directory can contain multiple tar files.  The "refs"
     parameter is a list with one element for each tar file (or package).  Only
