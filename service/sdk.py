@@ -200,19 +200,11 @@ class UpdateArguments:
         else:
             args.append("--usepkg")
 
-        if self.toolchain_targets:
-            args.extend(
-                ["--toolchain_boards", ",".join(self.toolchain_targets)]
-            )
-
         if self.jobs is not None:
             args.append(f"--jobs={self.jobs}")
 
         if self.backtrack is not None:
             args.append(f"--backtrack={self.backtrack}")
-
-        if not self.update_toolchain:
-            args += ["--skip_toolchain_update"]
 
         return args
 
@@ -431,6 +423,19 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
                 'While cleaning outdated packages with "%s": %s', cmd_as_str, e
             )
             raise e
+
+    if arguments.update_toolchain:
+        logging.info("Updating cross-compilers")
+        cmd = [
+            constants.CHROMITE_BIN_DIR / "cros_setup_toolchains",
+        ]
+        if arguments.toolchain_targets:
+            cmd += [f"--include-boards={','.join(arguments.toolchain_targets)}"]
+
+        # This should really only be skipped while bootstrapping.
+        if arguments.build_source:
+            cmd += ["--nousepkg"]
+        cros_build_lib.sudo_run(cmd)
 
     cmd = [
         constants.CHROMITE_SHELL_DIR / "update_chroot.sh",

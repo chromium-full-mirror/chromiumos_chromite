@@ -19,10 +19,6 @@ DEFINE_boolean usepkg "${FLAGS_TRUE}" \
   "Use binary packages to bootstrap."
 DEFINE_integer jobs -1 \
   "How many packages to build in parallel at maximum."
-DEFINE_boolean skip_toolchain_update "${FLAGS_FALSE}" \
-  "Don't update the toolchains."
-DEFINE_string toolchain_boards "" \
-  "Extra toolchains to setup for the specified boards."
 DEFINE_integer backtrack 10 "See emerge --backtrack."
 
 # Parse command line flags
@@ -32,26 +28,6 @@ eval set -- "${FLAGS_ARGV}"
 # Only now can we die on error.  shflags functions leak non-zero error codes,
 # so will die prematurely if 'switch_to_strict_mode' is specified before now.
 switch_to_strict_mode
-
-# First update the cross-compilers.
-# Note that this uses binpkgs only, unless we pass --nousepkg below.
-if [ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_FALSE}" ]; then
-  info "Updating cross-compilers"
-  TOOLCHAIN_FLAGS=()
-
-  if [[ -n ${FLAGS_toolchain_boards} ]]; then
-    TOOLCHAIN_FLAGS+=(
-      "--include-boards=${FLAGS_toolchain_boards}"
-    )
-  fi
-
-  # This should really only be skipped while bootstrapping.
-  if [ "${FLAGS_usepkg}" -eq "${FLAGS_FALSE}" ]; then
-    TOOLCHAIN_FLAGS+=( --nousepkg )
-  fi
-  # Expand the path before sudo, as root doesn't have the same path magic.
-  info_run sudo -E "$(type -p cros_setup_toolchains)" "${TOOLCHAIN_FLAGS[@]}"
-fi
 
 EMERGE_CMD="${CHROMITE_BIN}/parallel_emerge"
 

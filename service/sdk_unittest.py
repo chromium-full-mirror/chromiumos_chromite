@@ -6,7 +6,7 @@
 
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import binpkg
@@ -232,20 +232,6 @@ class UpdateArgumentsTest(cros_test_lib.TestCase):
         args = self._GetArgList(build_source=False)
         self.assertNotIn("--nousepkg", args)
         self.assertIn("--usepkg", args)
-
-    def testToolchainTargets(self) -> None:
-        """Test the toolchain boards argument."""
-        expected = ["--toolchain_boards", "board1,board2"]
-        result = self._GetArgList(toolchain_targets=["board1", "board2"])
-        for arg in expected:
-            self.assertIn(arg, result)
-
-    def testNoToolchainTargets(self) -> None:
-        """Test no toolchain boards argument."""
-        self.assertEqual(
-            ["--usepkg", "--skip_toolchain_update"],
-            self._GetArgList(build_source=False, toolchain_targets=None),
-        )
 
 
 class get_latest_version_test(cros_test_lib.MockTestCase):
@@ -503,6 +489,34 @@ class UpdateTest(
                 logs,
                 "PORTAGE_BINHOST: ",
             )
+
+    def _find_toolchain_call(self) -> Optional[Tuple]:
+        """Find the cros_setup_toolchains call."""
+        for call_args, call_kwargs in self.rc.call_args_list:
+            if (
+                constants.CHROMITE_BIN_DIR / "cros_setup_toolchains"
+                in call_args[0]
+            ):
+                return call_args, call_kwargs
+        return None
+
+    def testToolchainUpdate(self) -> None:
+        """Test toolchain updates are handled correctly."""
+        sdk.Update(sdk.UpdateArguments(update_toolchain=True))
+        call = self._find_toolchain_call()
+        assert call is not None
+
+    def testNoToolchainUpdate(self) -> None:
+        """Test skipping toolchain updates are handled correctly."""
+        self.rc.AddCmdResult(
+            partial_mock.In(
+                str(constants.CHROMITE_BIN_DIR / "cros_setup_toolchains")
+            ),
+            returncode=1,
+        )
+        sdk.Update(sdk.UpdateArguments(update_toolchain=False))
+        call = self._find_toolchain_call()
+        assert call is None
 
 
 class BuildSdkToolchainTest(cros_test_lib.RunCommandTestCase):
