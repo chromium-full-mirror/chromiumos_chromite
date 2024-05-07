@@ -953,7 +953,7 @@ def Which(
     return None
 
 
-def FindMissingBinaries(needed_tools: List[str]) -> List[str]:
+def FindMissingBinaries(needed_tools: Iterable[str]) -> List[str]:
     """Verifies that the required tools are present on the system.
 
     This is especially important for scripts that are intended to run
