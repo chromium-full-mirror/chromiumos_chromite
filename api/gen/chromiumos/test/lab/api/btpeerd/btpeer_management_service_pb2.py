@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from chromite.third_party.google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n?chromiumos/test/lab/api/btpeerd/btpeer_management_service.proto\x12\x1f\x63hromiumos.test.lab.api.btpeerd\x1a\x1fgoogle/protobuf/timestamp.proto\"\x13\n\x11\x44\x65viceInfoRequest\"\x9a\x01\n\x12\x44\x65viceInfoResponse\x12\x10\n\x08mac_eth0\x18\x01 \x01(\t\x12\x14\n\x0cipv4_address\x18\x02 \x01(\t\x12\x12\n\nos_version\x18\x03 \x01(\t\x12\x15\n\rbluez_version\x18\x04 \x01(\t\x12\x19\n\x11\x63hameleond_commit\x18\x05 \x01(\t\x12\x16\n\x0e\x62tpeerd_commit\x18\x06 \x01(\t\"q\n\x11SystemdUnitStatus\x12\n\n\x02id\x18\x01 \x01(\t\x12\x14\n\x0c\x61\x63tive_state\x18\x02 \x01(\t\x12:\n\x16state_change_timestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x15\n\x13\x44\x65viceStatusRequest\"\xa7\x02\n\x14\x44\x65viceStatusResponse\x12R\n\x16\x62tpeerd_service_status\x18\x01 \x01(\x0b\x32\x32.chromiumos.test.lab.api.btpeerd.SystemdUnitStatus\x12U\n\x19\x63hameleond_service_status\x18\x02 \x01(\x0b\x32\x32.chromiumos.test.lab.api.btpeerd.SystemdUnitStatus\x12T\n\x18\x62luetooth_service_status\x18\x03 \x01(\x0b\x32\x32.chromiumos.test.lab.api.btpeerd.SystemdUnitStatus\x12\x0e\n\x06uptime\x18\x04 \x01(\t\"\x0f\n\rRebootRequest\"\x10\n\x0eRebootResponse\"j\n\x1eSetActiveBluetoothStackRequest\x12H\n\x0f\x62luetooth_stack\x18\x01 \x01(\x0e\x32/.chromiumos.test.lab.api.btpeerd.BluetoothStack\"8\n\x1fSetActiveBluetoothStackResponse\x12\x15\n\rstack_changed\x18\x01 \x01(\x08\"t\n!SetActiveBluetoothStackAPIRequest\x12O\n\x13\x62luetooth_stack_api\x18\x01 \x01(\x0e\x32\x32.chromiumos.test.lab.api.btpeerd.BluetoothStackAPI\"U\n\"SetActiveBluetoothStackAPIResponse\x12\x19\n\x11stack_api_changed\x18\x01 \x01(\x08\x12\x14\n\x0cservice_port\x18\x02 \x01(\x05\" \n\x1eGetActiveBluetoothStackRequest\"k\n\x1fGetActiveBluetoothStackResponse\x12H\n\x0f\x62luetooth_stack\x18\x01 \x01(\x0e\x32/.chromiumos.test.lab.api.btpeerd.BluetoothStack\"#\n!GetActiveBluetoothStackAPIRequest\"u\n\"GetActiveBluetoothStackAPIResponse\x12O\n\x13\x62luetooth_stack_api\x18\x01 \x01(\x0e\x32\x32.chromiumos.test.lab.api.btpeerd.BluetoothStackAPI*c\n\x0e\x42luetoothStack\x12\x1b\n\x17\x42LUETOOTH_STACK_UNKNOWN\x10\x00\x12\x19\n\x15\x42LUETOOTH_STACK_BLUEZ\x10\x01\x12\x19\n\x15\x42LUETOOTH_STACK_FLOSS\x10\x02*\x7f\n\x11\x42luetoothStackAPI\x12\x1f\n\x1b\x42LUETOOTH_STACK_API_UNKNOWN\x10\x00\x12\"\n\x1e\x42LUETOOTH_STACK_API_CHAMELEOND\x10\x01\x12%\n!BLUETOOTH_STACK_API_PANDORA_FLOSS\x10\x02\x32\x94\x08\n\x17\x42tpeerManagementService\x12w\n\nDeviceInfo\x12\x32.chromiumos.test.lab.api.btpeerd.DeviceInfoRequest\x1a\x33.chromiumos.test.lab.api.btpeerd.DeviceInfoResponse\"\x00\x12}\n\x0c\x44\x65viceStatus\x12\x34.chromiumos.test.lab.api.btpeerd.DeviceStatusRequest\x1a\x35.chromiumos.test.lab.api.btpeerd.DeviceStatusResponse\"\x00\x12k\n\x06Reboot\x12..chromiumos.test.lab.api.btpeerd.RebootRequest\x1a/.chromiumos.test.lab.api.btpeerd.RebootResponse\"\x00\x12\x9e\x01\n\x17GetActiveBluetoothStack\x12?.chromiumos.test.lab.api.btpeerd.GetActiveBluetoothStackRequest\x1a@.chromiumos.test.lab.api.btpeerd.GetActiveBluetoothStackResponse\"\x00\x12\x9e\x01\n\x17SetActiveBluetoothStack\x12?.chromiumos.test.lab.api.btpeerd.SetActiveBluetoothStackRequest\x1a@.chromiumos.test.lab.api.btpeerd.SetActiveBluetoothStackResponse\"\x00\x12\xa7\x01\n\x1aGetActiveBluetoothStackAPI\x12\x42.chromiumos.test.lab.api.btpeerd.GetActiveBluetoothStackAPIRequest\x1a\x43.chromiumos.test.lab.api.btpeerd.GetActiveBluetoothStackAPIResponse\"\x00\x12\xa7\x01\n\x1aSetActiveBluetoothStackAPI\x12\x42.chromiumos.test.lab.api.btpeerd.SetActiveBluetoothStackAPIRequest\x1a\x43.chromiumos.test.lab.api.btpeerd.SetActiveBluetoothStackAPIResponse\"\x00\x42;Z9go.chromium.org/chromiumos/config/go/test/lab/api/btpeerdb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n?chromiumos/test/lab/api/btpeerd/btpeer_management_service.proto\x12\x1f\x63hromiumos.test.lab.api.btpeerd\x1a\x1fgoogle/protobuf/timestamp.proto\"\x13\n\x11\x44\x65viceInfoRequest\"\xa9\x01\n\x12\x44\x65viceInfoResponse\x12\x10\n\x08mac_eth0\x18\x01 \x01(\t\x12\x14\n\x0cipv4_address\x18\x02 \x01(\t\x12\x12\n\nos_version\x18\x03 \x01(\t\x12\x15\n\rbluez_version\x18\x04 \x01(\t\x12\x19\n\x11\x63hameleond_commit\x18\x05 \x01(\t\x12\x16\n\x0e\x62tpeerd_commit\x18\x06 \x01(\t\x12\r\n\x05model\x18\x07 \x01(\t\"q\n\x11SystemdUnitStatus\x12\n\n\x02id\x18\x01 \x01(\t\x12\x14\n\x0c\x61\x63tive_state\x18\x02 \x01(\t\x12:\n\x16state_change_timestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x15\n\x13\x44\x65viceStatusRequest\"\xa7\x02\n\x14\x44\x65viceStatusResponse\x12R\n\x16\x62tpeerd_service_status\x18\x01 \x01(\x0b\x32\x32.chromiumos.test.lab.api.btpeerd.SystemdUnitStatus\x12U\n\x19\x63hameleond_service_status\x18\x02 \x01(\x0b\x32\x32.chromiumos.test.lab.api.btpeerd.SystemdUnitStatus\x12T\n\x18\x62luetooth_service_status\x18\x03 \x01(\x0b\x32\x32.chromiumos.test.lab.api.btpeerd.SystemdUnitStatus\x12\x0e\n\x06uptime\x18\x04 \x01(\t\"\x0f\n\rRebootRequest\"\x10\n\x0eRebootResponse\"j\n\x1eSetActiveBluetoothStackRequest\x12H\n\x0f\x62luetooth_stack\x18\x01 \x01(\x0e\x32/.chromiumos.test.lab.api.btpeerd.BluetoothStack\"8\n\x1fSetActiveBluetoothStackResponse\x12\x15\n\rstack_changed\x18\x01 \x01(\x08\"t\n!SetActiveBluetoothStackAPIRequest\x12O\n\x13\x62luetooth_stack_api\x18\x01 \x01(\x0e\x32\x32.chromiumos.test.lab.api.btpeerd.BluetoothStackAPI\"U\n\"SetActiveBluetoothStackAPIResponse\x12\x19\n\x11stack_api_changed\x18\x01 \x01(\x08\x12\x14\n\x0cservice_port\x18\x02 \x01(\x05\" \n\x1eGetActiveBluetoothStackRequest\"k\n\x1fGetActiveBluetoothStackResponse\x12H\n\x0f\x62luetooth_stack\x18\x01 \x01(\x0e\x32/.chromiumos.test.lab.api.btpeerd.BluetoothStack\"#\n!GetActiveBluetoothStackAPIRequest\"u\n\"GetActiveBluetoothStackAPIResponse\x12O\n\x13\x62luetooth_stack_api\x18\x01 \x01(\x0e\x32\x32.chromiumos.test.lab.api.btpeerd.BluetoothStackAPI*c\n\x0e\x42luetoothStack\x12\x1b\n\x17\x42LUETOOTH_STACK_UNKNOWN\x10\x00\x12\x19\n\x15\x42LUETOOTH_STACK_BLUEZ\x10\x01\x12\x19\n\x15\x42LUETOOTH_STACK_FLOSS\x10\x02*\x7f\n\x11\x42luetoothStackAPI\x12\x1f\n\x1b\x42LUETOOTH_STACK_API_UNKNOWN\x10\x00\x12\"\n\x1e\x42LUETOOTH_STACK_API_CHAMELEOND\x10\x01\x12%\n!BLUETOOTH_STACK_API_PANDORA_FLOSS\x10\x02\x32\x94\x08\n\x17\x42tpeerManagementService\x12w\n\nDeviceInfo\x12\x32.chromiumos.test.lab.api.btpeerd.DeviceInfoRequest\x1a\x33.chromiumos.test.lab.api.btpeerd.DeviceInfoResponse\"\x00\x12}\n\x0c\x44\x65viceStatus\x12\x34.chromiumos.test.lab.api.btpeerd.DeviceStatusRequest\x1a\x35.chromiumos.test.lab.api.btpeerd.DeviceStatusResponse\"\x00\x12k\n\x06Reboot\x12..chromiumos.test.lab.api.btpeerd.RebootRequest\x1a/.chromiumos.test.lab.api.btpeerd.RebootResponse\"\x00\x12\x9e\x01\n\x17GetActiveBluetoothStack\x12?.chromiumos.test.lab.api.btpeerd.GetActiveBluetoothStackRequest\x1a@.chromiumos.test.lab.api.btpeerd.GetActiveBluetoothStackResponse\"\x00\x12\x9e\x01\n\x17SetActiveBluetoothStack\x12?.chromiumos.test.lab.api.btpeerd.SetActiveBluetoothStackRequest\x1a@.chromiumos.test.lab.api.btpeerd.SetActiveBluetoothStackResponse\"\x00\x12\xa7\x01\n\x1aGetActiveBluetoothStackAPI\x12\x42.chromiumos.test.lab.api.btpeerd.GetActiveBluetoothStackAPIRequest\x1a\x43.chromiumos.test.lab.api.btpeerd.GetActiveBluetoothStackAPIResponse\"\x00\x12\xa7\x01\n\x1aSetActiveBluetoothStackAPI\x12\x42.chromiumos.test.lab.api.btpeerd.SetActiveBluetoothStackAPIRequest\x1a\x43.chromiumos.test.lab.api.btpeerd.SetActiveBluetoothStackAPIResponse\"\x00\x42;Z9go.chromium.org/chromiumos/config/go/test/lab/api/btpeerdb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.lab.api.btpeerd.btpeer_management_service_pb2', globals())
@@ -22,40 +22,40 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z9go.chromium.org/chromiumos/config/go/test/lab/api/btpeerd'
-  _BLUETOOTHSTACK._serialized_start=1452
-  _BLUETOOTHSTACK._serialized_end=1551
-  _BLUETOOTHSTACKAPI._serialized_start=1553
-  _BLUETOOTHSTACKAPI._serialized_end=1680
+  _BLUETOOTHSTACK._serialized_start=1467
+  _BLUETOOTHSTACK._serialized_end=1566
+  _BLUETOOTHSTACKAPI._serialized_start=1568
+  _BLUETOOTHSTACKAPI._serialized_end=1695
   _DEVICEINFOREQUEST._serialized_start=133
   _DEVICEINFOREQUEST._serialized_end=152
   _DEVICEINFORESPONSE._serialized_start=155
-  _DEVICEINFORESPONSE._serialized_end=309
-  _SYSTEMDUNITSTATUS._serialized_start=311
-  _SYSTEMDUNITSTATUS._serialized_end=424
-  _DEVICESTATUSREQUEST._serialized_start=426
-  _DEVICESTATUSREQUEST._serialized_end=447
-  _DEVICESTATUSRESPONSE._serialized_start=450
-  _DEVICESTATUSRESPONSE._serialized_end=745
-  _REBOOTREQUEST._serialized_start=747
-  _REBOOTREQUEST._serialized_end=762
-  _REBOOTRESPONSE._serialized_start=764
-  _REBOOTRESPONSE._serialized_end=780
-  _SETACTIVEBLUETOOTHSTACKREQUEST._serialized_start=782
-  _SETACTIVEBLUETOOTHSTACKREQUEST._serialized_end=888
-  _SETACTIVEBLUETOOTHSTACKRESPONSE._serialized_start=890
-  _SETACTIVEBLUETOOTHSTACKRESPONSE._serialized_end=946
-  _SETACTIVEBLUETOOTHSTACKAPIREQUEST._serialized_start=948
-  _SETACTIVEBLUETOOTHSTACKAPIREQUEST._serialized_end=1064
-  _SETACTIVEBLUETOOTHSTACKAPIRESPONSE._serialized_start=1066
-  _SETACTIVEBLUETOOTHSTACKAPIRESPONSE._serialized_end=1151
-  _GETACTIVEBLUETOOTHSTACKREQUEST._serialized_start=1153
-  _GETACTIVEBLUETOOTHSTACKREQUEST._serialized_end=1185
-  _GETACTIVEBLUETOOTHSTACKRESPONSE._serialized_start=1187
-  _GETACTIVEBLUETOOTHSTACKRESPONSE._serialized_end=1294
-  _GETACTIVEBLUETOOTHSTACKAPIREQUEST._serialized_start=1296
-  _GETACTIVEBLUETOOTHSTACKAPIREQUEST._serialized_end=1331
-  _GETACTIVEBLUETOOTHSTACKAPIRESPONSE._serialized_start=1333
-  _GETACTIVEBLUETOOTHSTACKAPIRESPONSE._serialized_end=1450
-  _BTPEERMANAGEMENTSERVICE._serialized_start=1683
-  _BTPEERMANAGEMENTSERVICE._serialized_end=2727
+  _DEVICEINFORESPONSE._serialized_end=324
+  _SYSTEMDUNITSTATUS._serialized_start=326
+  _SYSTEMDUNITSTATUS._serialized_end=439
+  _DEVICESTATUSREQUEST._serialized_start=441
+  _DEVICESTATUSREQUEST._serialized_end=462
+  _DEVICESTATUSRESPONSE._serialized_start=465
+  _DEVICESTATUSRESPONSE._serialized_end=760
+  _REBOOTREQUEST._serialized_start=762
+  _REBOOTREQUEST._serialized_end=777
+  _REBOOTRESPONSE._serialized_start=779
+  _REBOOTRESPONSE._serialized_end=795
+  _SETACTIVEBLUETOOTHSTACKREQUEST._serialized_start=797
+  _SETACTIVEBLUETOOTHSTACKREQUEST._serialized_end=903
+  _SETACTIVEBLUETOOTHSTACKRESPONSE._serialized_start=905
+  _SETACTIVEBLUETOOTHSTACKRESPONSE._serialized_end=961
+  _SETACTIVEBLUETOOTHSTACKAPIREQUEST._serialized_start=963
+  _SETACTIVEBLUETOOTHSTACKAPIREQUEST._serialized_end=1079
+  _SETACTIVEBLUETOOTHSTACKAPIRESPONSE._serialized_start=1081
+  _SETACTIVEBLUETOOTHSTACKAPIRESPONSE._serialized_end=1166
+  _GETACTIVEBLUETOOTHSTACKREQUEST._serialized_start=1168
+  _GETACTIVEBLUETOOTHSTACKREQUEST._serialized_end=1200
+  _GETACTIVEBLUETOOTHSTACKRESPONSE._serialized_start=1202
+  _GETACTIVEBLUETOOTHSTACKRESPONSE._serialized_end=1309
+  _GETACTIVEBLUETOOTHSTACKAPIREQUEST._serialized_start=1311
+  _GETACTIVEBLUETOOTHSTACKAPIREQUEST._serialized_end=1346
+  _GETACTIVEBLUETOOTHSTACKAPIRESPONSE._serialized_start=1348
+  _GETACTIVEBLUETOOTHSTACKAPIRESPONSE._serialized_end=1465
+  _BTPEERMANAGEMENTSERVICE._serialized_start=1698
+  _BTPEERMANAGEMENTSERVICE._serialized_end=2742
 # @@protoc_insertion_point(module_scope)
