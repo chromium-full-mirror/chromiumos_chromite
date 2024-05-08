@@ -762,7 +762,8 @@ def main(argv) -> None:
             cros_build_lib.Die(
                 "Your chroot directory (%s) doesn't look like a chroot, nor a "
                 "safe place to make one.  If you really want to trash this "
-                "directory, pass --force.",
+                "directory, pass --force and --delete (or --no-delete-out-dir "
+                "if you want to keep the out directory).",
                 chroot.path,
             )
 
