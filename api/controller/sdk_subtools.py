@@ -26,7 +26,7 @@ from chromite.service import sdk_subtools
 @faux.empty_success
 @validate.validation_complete
 def BuildSdkSubtools(
-    _request: sdk_subtools_pb2.BuildSdkSubtoolsRequest,
+    request: sdk_subtools_pb2.BuildSdkSubtoolsRequest,
     response: sdk_subtools_pb2.BuildSdkSubtoolsResponse,
     config: api_config.ApiConfig,
 ) -> Optional[int]:
@@ -43,8 +43,17 @@ def BuildSdkSubtools(
 
     sdk_subtools.setup_base_sdk(build_target, setup_chroot=True, sudo=True)
 
+    if request.packages:
+        packages = [
+            controller_util.deserialize_package_info(x).atom
+            for x in request.packages
+        ]
+    else:
+        # TODO: Drop the default once we always have a value passed.
+        packages = ["virtual/target-sdk-subtools"]
+
     try:
-        sdk_subtools.update_packages(["virtual/target-sdk-subtools"])
+        sdk_subtools.update_packages(packages)
     except sysroot_lib.PackageInstallError as e:
         if not e.failed_packages:
             # No packages to report, so just exit with an error code.

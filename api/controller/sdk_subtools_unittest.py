@@ -25,7 +25,11 @@ def make_request(
     chroot_path: Union[str, os.PathLike, None] = "fake_chroot_path"
 ) -> sdk_subtools_pb2.BuildSdkSubtoolsRequest:
     """Helper to build a build request message."""
-    request = sdk_subtools_pb2.BuildSdkSubtoolsRequest()
+    request = sdk_subtools_pb2.BuildSdkSubtoolsRequest(
+        packages=[
+            common_pb2.PackageInfo(category="app-foo", package_name="bar"),
+        ],
+    )
     if chroot_path is not None:
         request.chroot.path = os.fspath(chroot_path)
     return request
@@ -110,7 +114,7 @@ def test_build_success_no_bundles(mock_service: MockService) -> None:
     """Test a successful call with zero bundles available."""
     response = build_sdk_subtools(make_request())
     mock_service["setup_base_sdk"].assert_called_once()
-    mock_service["update_packages"].assert_called_once()
+    mock_service["update_packages"].assert_called_once_with(["app-foo/bar"])
     mock_service["bundle_and_prepare_upload"].assert_called_once()
     assert not response.failed_package_data
 
