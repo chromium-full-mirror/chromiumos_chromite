@@ -199,20 +199,12 @@ def Update(
     toolchain_changed = request.flags.toolchain_changed
     force_update = request.flags.force_update
 
-    should_update_sdk = False
-    for name, value in [
-        ("build_source", build_source),
-        ("toolchain_changed", toolchain_changed),
-        ("force_update", force_update),
-    ]:
-        if value:
-            logging.info("Updating SDK due to %s = True", name)
-            should_update_sdk = True
-
-    if not should_update_sdk:
+    if not force_update:
         logging.info("SDK update skipped.")
         response.skipped = True
         return None
+
+    logging.info("Updating SDK due to force_update = True")
 
     args = sdk.UpdateArguments(
         build_source=build_source,
