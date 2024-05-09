@@ -1491,7 +1491,16 @@ def ExtractTarball(
     except FileNotFoundError as e:
         raise TarballError(str(e))
     if comp_type != CompressionType.NONE:
-        cmd += ["--use-compress-program", ShellQuote(FindCompressor(comp_type))]
+        # Special case pzstd when decompressing because it is the same as zstd,
+        # unless the input was created with pzstd, then it's faster.  We can't
+        # put it in FindCompressor as the default tool as pzstd will create
+        # larger archives, and our API doesn't have a way to communicate whether
+        # the caller is OK with that overhead.
+        if comp_type == CompressionType.ZSTD and osutils.Which("pzstd"):
+            compressor = "pzstd"
+        else:
+            compressor = FindCompressor(comp_type)
+        cmd += ["--use-compress-program", ShellQuote(compressor)]
 
     # If caller requires the list of extracted files, get verbose.
     if return_extracted_files:
