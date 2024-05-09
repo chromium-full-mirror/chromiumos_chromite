@@ -1041,12 +1041,13 @@ class _CommonPrepareBundle:
         self.chroot.run(cmd_to_text, print_cmd=True)
 
         current_input_file = input_to_text_temp
+        chroot_afdo_tools_dir = self.chroot.chroot_path(_AFDO_TOOLS_DIR)
         if redact:
             # Call the redaction script.
             redacted_temp = input_path + ".redacted.temp"
             with open(current_input_file, "rb") as f:
                 self.chroot.run(
-                    [os.path.join(_AFDO_TOOLS_DIR, "redact_profile.py")],
+                    [os.path.join(chroot_afdo_tools_dir, "redact_profile.py")],
                     input=f,
                     stdout=redacted_temp,
                     print_cmd=True,
@@ -1058,7 +1059,9 @@ class _CommonPrepareBundle:
             removed_temp = input_path + ".removed.temp"
             self.chroot.run(
                 [
-                    os.path.join(_AFDO_TOOLS_DIR, "remove_indirect_calls.py"),
+                    os.path.join(
+                        chroot_afdo_tools_dir, "remove_indirect_calls.py"
+                    ),
                     "--input=" + self.chroot.chroot_path(current_input_file),
                     "--output=" + self.chroot.chroot_path(removed_temp),
                 ],
@@ -1073,7 +1076,9 @@ class _CommonPrepareBundle:
             reduced_tmp = input_path + ".reduced.tmp"
             self.chroot.run(
                 [
-                    os.path.join(_AFDO_TOOLS_DIR, "remove_cold_functions.py"),
+                    os.path.join(
+                        chroot_afdo_tools_dir, "remove_cold_functions.py"
+                    ),
                     "--input=" + self.chroot.chroot_path(current_input_file),
                     "--output=" + self.chroot.chroot_path(reduced_tmp),
                     "--number=" + str(reduce_functions),

@@ -1773,6 +1773,9 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
         reduced_temp = input_path_inchroot + ".reduced.tmp"
         reduce_functions = 70000
         output_path = self.chroot.full_path("android.prof.output.afdo")
+        chroot_afdo_tools_dir = self.chroot.chroot_path(
+            toolchain_util._AFDO_TOOLS_DIR
+        )
         expected_commands = [
             [
                 "llvm-profdata",
@@ -1784,16 +1787,12 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
                 input_to_text,
             ],
             [
-                os.path.join(
-                    toolchain_util._AFDO_TOOLS_DIR, "remove_indirect_calls.py"
-                ),
+                os.path.join(chroot_afdo_tools_dir, "remove_indirect_calls.py"),
                 "--input=" + input_to_text,
                 "--output=" + removed_temp,
             ],
             [
-                os.path.join(
-                    toolchain_util._AFDO_TOOLS_DIR, "remove_cold_functions.py"
-                ),
+                os.path.join(chroot_afdo_tools_dir, "remove_cold_functions.py"),
                 "--input=" + removed_temp,
                 "--output=" + reduced_temp,
                 "--number=" + str(reduce_functions),
@@ -1838,6 +1837,9 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
             self.chroot.full_path(input_to_text), "", makedirs=True
         )
 
+        chroot_afdo_tools_dir = self.chroot.chroot_path(
+            toolchain_util._AFDO_TOOLS_DIR
+        )
         expected_commands = [
             [
                 "llvm-profdata",
@@ -1848,23 +1850,14 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
                 "-output",
                 input_to_text,
             ],
+            [os.path.join(chroot_afdo_tools_dir, "redact_profile.py")],
             [
-                os.path.join(
-                    toolchain_util._AFDO_TOOLS_DIR,
-                    "redact_profile.py",
-                )
-            ],
-            [
-                os.path.join(
-                    toolchain_util._AFDO_TOOLS_DIR, "remove_indirect_calls.py"
-                ),
+                os.path.join(chroot_afdo_tools_dir, "remove_indirect_calls.py"),
                 "--input=" + redacted_temp,
                 "--output=" + removed_temp,
             ],
             [
-                os.path.join(
-                    toolchain_util._AFDO_TOOLS_DIR, "remove_cold_functions.py"
-                ),
+                os.path.join(chroot_afdo_tools_dir, "remove_cold_functions.py"),
                 "--input=" + removed_temp,
                 "--output=" + reduced_temp,
                 "--number=" + str(reduce_functions),
