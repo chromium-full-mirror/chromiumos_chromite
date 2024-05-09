@@ -2454,3 +2454,236 @@ def test_get_cache_file(tmp_path) -> None:
     cache.parent.mkdir(parents=True)
     cache.touch()
     assert portage_util.get_cache_file(ebuild) == cache
+
+
+class AnalyzeEmergeFailureTest(cros_test_lib.TestCase):
+    """Test emerge failure analysis."""
+
+    def testSlotConflictErrors(self):
+        """Test detect multi version slot conflicts."""
+        result = portage_util.analyze_emerge_failure(
+            AnalyzeEmergeFailureReasons.MULTIVERSION_ERROR
+        )
+        result.sort(key=lambda e: e.pkg)
+
+        self.assertEqual(result[0].pkg, "chromeos-base/patchpanel:0")
+        self.assertEqual(
+            result[0].kind, portage_util.ErrorKind.MULTI_VERSION_CONFLICT
+        )
+        self.assertEqual(result[1].pkg, "chromeos-base/system_api:0")
+        self.assertEqual(
+            result[1].kind, portage_util.ErrorKind.MULTI_VERSION_CONFLICT
+        )
+
+    def testEbuildMaskedError(self):
+        """Detect EBUILD_MASKED error from output log."""
+        result = portage_util.analyze_emerge_failure(
+            AnalyzeEmergeFailureReasons.MASKED_PACKAGE_ERROR
+        )
+
+        self.assertListEqual(
+            result,
+            [
+                portage_util.PortageError(
+                    kind=portage_util.ErrorKind.EBUILD_MASKED,
+                    pkg="media-sound/adhd-0.0.7-r3267",
+                    reason="masked by: package.mask",
+                ),
+            ],
+        )
+
+    def testUseFlagUnsatisfiableError(self):
+        """Detect USE_FLAG_UNSATISFIABLE in output log."""
+        result = portage_util.analyze_emerge_failure(
+            AnalyzeEmergeFailureReasons.USE_FLAG_UNSATISFIABLE
+        )
+
+        # pylint: disable=line-too-long
+        reason = """The following REQUIRED_USE flag constraints are unsatisfied:
+    at-most-one-of ( kernel-4_19 kernel-5_4 kernel-5_10 kernel-5_15 kernel-upstream )
+
+  The above constraints are a subset of the following complete expression:
+    at-most-one-of ( kernel-4_19 kernel-5_4 kernel-5_10 kernel-5_15 kernel-upstream ) cfi? ( thinlto ) cfi_diag? ( cfi ) cfi_recover? ( cfi_diag )"""
+
+        self.assertListEqual(
+            result,
+            [
+                portage_util.PortageError(
+                    kind=portage_util.ErrorKind.USE_FLAG_UNSATISFIABLE,
+                    pkg="sys-kernel/linux-firmware-0.0.1-r701::chromiumos",
+                    reason=reason,
+                ),
+            ],
+        )
+
+    def testDependencyUnsatisfiableError(self):
+        """Detect DEPENDENCY_UNSATISFIABLE in output log."""
+        result = portage_util.analyze_emerge_failure(
+            AnalyzeEmergeFailureReasons.NO_EBUILD_ERROR
+        )
+
+        self.assertListEqual(
+            result,
+            [
+                portage_util.PortageError(
+                    kind=portage_util.ErrorKind.DEPENDENCY_UNSATISFIABLE,
+                    pkg="dev-python/test-package",
+                    reason="",
+                ),
+            ],
+        )
+
+    def testEbuildMissingForUseError(self):
+        """Test detect EBUILD_MISSING_FOR_USE_FLAG from output log."""
+        result = portage_util.analyze_emerge_failure(
+            AnalyzeEmergeFailureReasons.EBUILD_MISSING_FOR_USE
+        )
+
+        self.assertListEqual(
+            result,
+            [
+                portage_util.PortageError(
+                    kind=portage_util.ErrorKind.EBUILD_MISSING_FOR_USE_FLAG,
+                    pkg="chromeos-base/trunks",
+                    reason="",
+                ),
+            ],
+        )
+
+
+class AnalyzeEmergeFailureReasons:
+    """Class to hold all the failure data for AnalyzeEmergeFailureTest.
+
+    This is just to make the test class and the file more readable and IDE
+    friendly (the class is collapsible).
+    """
+
+    # pylint: disable=line-too-long
+    NO_EBUILD_ERROR = """
+emerge: there are no ebuilds to satisfy \"dev-python/test-package\" for /build/volteer/.
+"""
+
+    MULTIVERSION_ERROR = """
+!!! Multiple package instances within a single package slot have been pulled
+!!! into the dependency graph, resulting in a slot conflict:
+
+chromeos-base/system_api:0 for /build/octopus/
+
+  (chromeos-base/system_api-0.0.1-r5420:0/0.0.1-r5420::chromiumos, installed in '/build/octopus/') pulled in by
+    chromeos-base/system_api:0/0.0.1-r5420= required by (chromeos-base/libiioservice_ipc-0.0.1-r490:0/0.0.1-r490::chromiumos, binary scheduled for merge to '/build/octopus/')
+                            ^^^^^^^^^^^^^^^
+    (and 38 more with the same problem)
+
+  (chromeos-base/system_api-0.0.1-r5419:0/0.0.1-r5419::chromiumos, binary scheduled for merge to '/build/octopus/') pulled in by
+    chromeos-base/system_api:0/0.0.1-r5419= required by (chromeos-base/patchpanel-client-0.0.1-r707:0/0.0.1-r707::chromiumos, binary scheduled for merge to '/build/octopus/')
+                            ^^^^^^^^^^^^^^^
+    (and 3 more with the same problem)
+
+chromeos-base/patchpanel:0 for /build/octopus/
+
+  (chromeos-base/patchpanel-0.0.2-r1054:0/0.0.2-r1054::chromiumos, ebuild scheduled for merge to '/build/octopus/') pulled in by
+    (no parents that aren't satisfied by other packages in this slot)
+
+  (chromeos-base/patchpanel-0.0.2-r1052:0/0.0.2-r1052::chromiumos, binary scheduled for merge to '/build/octopus/') pulled in by
+    chromeos-base/patchpanel:0/0.0.2-r1052= required by (chromeos-base/dns-proxy-0.0.1-r699:0/0::chromiumos, binary scheduled for merge to '/build/octopus/')
+                            ^^^^^^^^^^^^^^^
+    (and 1 more with the same problem)
+
+NOTE: Use the '--verbose-conflicts' option to display parents omitted above
+"""
+
+    MASKED_PACKAGE_ERROR = """
+It may be possible to solve this problem by using package.mask to
+prevent one of those packages from being selected. However, it is also
+possible that conflicting dependencies exist such that they are
+impossible to satisfy simultaneously.  If such a conflict exists in
+the dependencies of two different packages, then those packages can
+not be installed simultaneously. You may want to try a larger value of
+the --backtrack option, such as --backtrack=30, in order to see if
+that will solve this conflict automatically.
+
+For more information, see MASKED PACKAGES section in the emerge man
+page or refer to the Gentoo Handbook.
+
+
+!!! The following binary packages have been ignored due to non matching USE:
+
+    =chromeos-base/chromeos-firmware-null-0.0.3-r197 -cros_ec -has_chromeos_config_bsp_private # for /build/octopus/
+
+NOTE: The --binpkg-respect-use=n option will prevent emerge
+      from ignoring these binary packages if possible.
+      Using --binpkg-respect-use=y will silence this warning.
+
+!!! All ebuilds that could satisfy "media-sound/adhd:0/0.0.7-r3267=" for /build/octopus/ have been masked.
+!!! One of the following masked packages is required to complete your request:
+- media-sound/adhd-0.0.7-r3267::chromiumos (masked by: package.mask)
+
+(dependency required by "chromeos-base/power_manager-0.0.2-r4956::chromiumos" [binary])
+(dependency required by "chromeos-base/update_engine-0.0.3-r4786::chromiumos" [binary])
+(dependency required by "virtual/target-chromium-os-1-r265::chromiumos" [installed])
+(dependency required by "virtual/target-chrome-os-1.3-r45::chromeos" [installed])
+(dependency required by "virtual/target-os-1.3-r3::chromeos" [ebuild])
+(dependency required by "virtual/target-os" [argument])
+For more information, see the MASKED PACKAGES section in the emerge
+man page or refer to the Gentoo Handbook.
+"""
+
+    SIGTERM_ERROR = """
+died with <Signals.SIGTERM: 15>; command: sudo --preserve-env 'USE=-cros-debug -lto' diagnostics
+Merging board packages failed
+"""
+
+    USE_FLAG_UNSATISFIABLE = """
+!!! The following binary packages have been ignored due to non matching USE:
+
+    =chromeos-base/cros-camera-0.0.1-r1805 -arcvm -cheets # for /build/kukui64/
+
+NOTE: The --binpkg-respect-use=n option will prevent emerge
+      from ignoring these binary packages if possible.
+      Using --binpkg-respect-use=y will silence this warning.
+
+!!! The ebuild selected to satisfy "sys-kernel/linux-firmware" for /build/kukui64/ has unmet requirements.
+- sys-kernel/linux-firmware-0.0.1-r701::chromiumos USE="kernel-4_19 kernel-5_10 -asan -cfi -cfi_diag -cfi_recover -coverage -cros_host -fuzzer -kernel-5_15 -kernel-5_4 -kernel-upstream -msan -thinlto -tsan -ubsan" LINUX_FIRMWARE="ath10k_qca6174a-3 cros-pd keyspan_usb qca6174a-3-bt rt2870 rtl8153 -adreno-630 -adreno-660 -adsp_apl -adsp_cnl -adsp_glk -adsp_kbl -adsp_skl -amd_ucode -amdgpu_carrizo -amdgpu_dimgrey_cavefish -amdgpu_gc_10_3_7 -amdgpu_gc_11_0_1 -amdgpu_gc_11_0_4 -amdgpu_green_sardine -amdgpu_navy_flounder -amdgpu_picasso -amdgpu_raven2 -amdgpu_renoir -amdgpu_sienna_cichlid -amdgpu_stoney -amdgpu_vega12 -amdgpu_yellow_carp -ath10k_qca6174a-5 -ath10k_wcn3990 -ath11k_wcn6750 -ath11k_wcn6855 -ath3k-all -ath3k-ar3011 -ath3k-ar3012 -ath9k_htc -bcm4354-bt -brcmfmac-all -brcmfmac4354-sdio -brcmfmac4356-pcie -brcmfmac4371-pcie -fw_sst -fw_sst2 -i915_adl -i915_bxt -i915_cnl -i915_glk -i915_jsl -i915_kbl -i915_skl -i915_tgl -ibt-hw -ibt_9260 -ibt_9560 -ibt_ax200 -ibt_ax201 -ibt_ax203 -ibt_ax211 -ice -ipu3_fw -iwlwifi-100 -iwlwifi-1000 -iwlwifi-105 -iwlwifi-135 -iwlwifi-2000 -iwlwifi-2030 -iwlwifi-3160 -iwlwifi-3945 -iwlwifi-4965 -iwlwifi-5000 -iwlwifi-5150 -iwlwifi-6000 -iwlwifi-6005 -iwlwifi-6030 -iwlwifi-6050 -iwlwifi-7260 -iwlwifi-7265 -iwlwifi-7265D -iwlwifi-9000 -iwlwifi-9260 -iwlwifi-QuZ -iwlwifi-all -iwlwifi-cc -iwlwifi-so -iwlwifi-so-a0-hr -marvell-mwlwifi -marvell-pcie8897 -marvell-pcie8997 -mt7921e -mt7921e-bt -mt7922 -mt7922-bt -mt8173-vpu -nvidia-xusb -qca-wcn3990-bt -qca-wcn3991-bt -qca-wcn6750-bt -qca-wcn685x-bt -qca6174a-5-bt -rockchip-dptx -rtl8107e-1 -rtl8107e-2 -rtl8125a-3 -rtl8125b-1 -rtl8125b-2 -rtl8168fp-3 -rtl8168g-1 -rtl8168g-2 -rtl8168h-1 -rtl8168h-2 -rtl_bt-8822ce-uart -rtl_bt-8822ce-usb -rtl_bt-8852ae-usb -rtl_bt-8852ce-usb -rtw8822c -rtw8852a -rtw8852c -venus-52 -venus-54 -venus-vpu-2" VIDEO_CARDS="-amdgpu (-radeon)"
+
+  The following REQUIRED_USE flag constraints are unsatisfied:
+    at-most-one-of ( kernel-4_19 kernel-5_4 kernel-5_10 kernel-5_15 kernel-upstream )
+
+  The above constraints are a subset of the following complete expression:
+    at-most-one-of ( kernel-4_19 kernel-5_4 kernel-5_10 kernel-5_15 kernel-upstream ) cfi? ( thinlto ) cfi_diag? ( cfi ) cfi_recover? ( cfi_diag )
+
+(dependency required by "virtual/target-chromium-os-1-r265::chromiumos" [ebuild])
+(dependency required by "virtual/target-chrome-os-1.3-r45::chromeos" [ebuild])
+(dependency required by "virtual/target-os-1.3-r3::chromeos" [ebuild])
+(dependency required by "virtual/target-os" [argument])
+"""
+
+    EBUILD_MISSING_FOR_USE = """
+!!! The following binary packages have been ignored due to non matching USE:
+
+    =chromeos-base/trunks-0.0.1-r3602 -cr50_onboard cros-debug tpm2_simulator # for /build/brya-cbx/
+    =chromeos-base/trunks-0.0.1-r3602 -cr50_onboard cros-debug tpm2_simulator # for /build/brya-cbx/
+
+NOTE: The --binpkg-respect-use=n option will prevent emerge
+      from ignoring these binary packages if possible.
+      Using --binpkg-respect-use=y will silence this warning.
+violated_atom.use not set:
+chromeos-base/trunks:=
+violated_atom.use not set:
+chromeos-base/trunks:=
+violated_atom.use not set:
+chromeos-base/trunks:=
+violated_atom.use not set:
+chromeos-base/trunks:=
+violated_atom.use not set:
+chromeos-base/trunks:=
+violated_atom.use not set:
+chromeos-base/trunks:=
+violated_atom.use not set:
+chromeos-base/trunks:=
+
+emerge: there are no ebuilds built with USE flags to satisfy "chromeos-base/trunks:=[test?]" for /build/brya-cbx/.
+!!! One of the following packages is required to complete your request:
+- chromeos-base/trunks-0.0.1-r3602::chromiumos (Change USE: +test)
+(dependency required by "chromeos-base/libhwsec-0.0.1-r869::chromiumos[-test]" [ebuild])
+(dependency required by "libhwsec" [argument])
+"""
