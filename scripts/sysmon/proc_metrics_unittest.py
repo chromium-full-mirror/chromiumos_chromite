@@ -171,6 +171,7 @@ class TestProcMetrics(cros_test_lib.TestCase):
                         "console",
                     ],
                 ),
+                _mock_process(name="gzip", cmdline=["gzip", "-d"]),
                 _mock_process(
                     name="sshd", cmdline=["sshd:", "chromeos-test", "[priv]"]
                 ),
@@ -313,6 +314,7 @@ class TestProcMetrics(cros_test_lib.TestCase):
                 _mock_process(
                     name="prometheus", cmdline=["/bin/prometheus", "..."]
                 ),
+                _mock_process(name="tar", cmdline=["/bin/tar", "..."]),
                 _mock_process(
                     name="test_that",
                     cmdline=["/bin/bin/python3", "/usr/bin/test_that", "..."],
@@ -381,6 +383,7 @@ class TestProcMetrics(cros_test_lib.TestCase):
         calls.extend(_expected_calls_for("fleet-tlw"))
         calls.extend(_expected_calls_for("fluent-bit"))
         calls.extend(_expected_calls_for("getty"))
+        calls.extend(_expected_calls_for("gzip"))
         calls.extend(_expected_calls_for("gs_offloader"))
         calls.extend(_expected_calls_for("gsutil"))
         calls.extend(_expected_calls_for("gts-tradefed"))
@@ -409,6 +412,7 @@ class TestProcMetrics(cros_test_lib.TestCase):
         calls.extend(_expected_calls_for("swarming_sub_task"))
         calls.extend(_expected_calls_for("sysmon"))
         calls.extend(_expected_calls_for("tast"))
+        calls.extend(_expected_calls_for("tar"))
         calls.extend(_expected_calls_for("test_that"))
         calls.extend(_expected_calls_for("tko_proxy"))
         calls.extend(_expected_calls_for("other"))

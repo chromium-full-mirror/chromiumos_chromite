@@ -135,6 +135,7 @@ class _ProcessMetricsCollector:
             _ProcessMetric(
                 "getty", test_func=partial(_is_process_name, "getty")
             ),
+            _ProcessMetric("gzip", test_func=partial(_is_process_name, "gzip")),
             _ProcessMetric(
                 "gs_offloader",
                 test_func=partial(_is_process_name, "gs_offloader.py"),
@@ -228,6 +229,7 @@ class _ProcessMetricsCollector:
                 test_func=partial(_is_python_module, "chromite.scripts.sysmon"),
             ),
             _ProcessMetric("tast", test_func=partial(_is_process_name, "tast")),
+            _ProcessMetric("tar", test_func=partial(_is_process_name, "tar")),
             _ProcessMetric(
                 "test_that", test_func=partial(_is_process_name, "test_that")
             ),
