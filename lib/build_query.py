@@ -717,8 +717,10 @@ class Board(QueryTarget):
             for parent in overlay.parents:
                 yield from _rec(parent)
 
-        if self.top_level_overlay:
-            yield from _rec(self.top_level_overlay)
+        if self.private_overlay:
+            yield from _rec(self.private_overlay)
+        if self.public_overlay:
+            yield from _rec(self.public_overlay)
 
     @property
     def top_level_profile(self) -> Optional[Profile]:
