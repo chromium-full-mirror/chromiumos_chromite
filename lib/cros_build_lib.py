@@ -1361,7 +1361,7 @@ def CreateTarball(
     # Using 'raw' hole detection instead of 'seek' isn't that much slower, but
     # will provide much better results when archiving large disk images that are
     # not fully sparse.
-    comp = FindCompressor(compression, chroot=chroot)
+    compressor = [FindCompressor(compression, chroot=chroot)]
     cmd = (
         ["tar"]
         + extra_args
@@ -1369,7 +1369,7 @@ def CreateTarball(
             "--sparse",
             "--hole-detection=raw",
             "--use-compress-program",
-            comp,
+            CmdToStr(compressor),
             "-c",
         ]
     )
@@ -1488,7 +1488,7 @@ def ExtractTarball(
     except FileNotFoundError as e:
         raise TarballError(str(e))
     if comp_type != CompressionType.NONE:
-        cmd += ["--use-compress-program", FindCompressor(comp_type)]
+        cmd += ["--use-compress-program", ShellQuote(FindCompressor(comp_type))]
 
     # If caller requires the list of extracted files, get verbose.
     if return_extracted_files:
