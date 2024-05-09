@@ -83,7 +83,7 @@ GE_BUILD_CONFIG_FILE = os.path.join(
 SDK_TOOLCHAINS_OUTPUT = "tmp/toolchain-pkgs"
 SDK_OVERLAYS_OUTPUT = "tmp/sdk-overlays"
 # The filename of the SDK tarball created during SDK builder runs.
-SDK_TARBALL_NAME = "built-sdk.tar.xz"
+SDK_TARBALL_NAME = "built-sdk.tar.zst"
 
 AUTOTEST_BUILD_PATH = "usr/local/build/autotest"
 UNITTEST_PKG_PATH = "tmp/test-packages"
