@@ -39,8 +39,9 @@ from chromite.lib import process_util
 from chromite.utils import xdg_util
 
 
-# Which compression algos the SDK tarball uses.  We've used xz since 2012.
-COMPRESSION_PREFERENCE = ("xz",)
+# Which compression algos the SDK tarball uses.  We've used xz since 2012, and
+# zst since 2024.
+COMPRESSION_PREFERENCE = ("xz", "zst")
 
 # Proxy simulator configuration.
 PROXY_HOST_IP = "192.168.240.1"
@@ -74,7 +75,10 @@ def get_sdk_tarball_urls(
         bucket: The Google Storage bucket containing the SDK tarball, if not the
             standard SDK bucket.
     """
-    extension = {"xz": "tar.xz"}
+    extension = {
+        "xz": "tar.xz",
+        "zst": "tar.zst",
+    }
     return [
         cros_sdk_lib.get_sdk_tarball_url(
             version,

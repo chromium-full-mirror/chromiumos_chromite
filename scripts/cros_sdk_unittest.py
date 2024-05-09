@@ -34,6 +34,8 @@ class CrosSdkUtilsTest(cros_test_lib.MockTempDirTestCase):
             [
                 "https://storage.googleapis.com/chromiumos-sdk/"
                 "cros-sdk-123.tar.xz",
+                "https://storage.googleapis.com/chromiumos-sdk/"
+                "cros-sdk-123.tar.zst",
             ],
             cros_sdk.get_sdk_tarball_urls("123"),
         )
@@ -44,6 +46,8 @@ class CrosSdkUtilsTest(cros_test_lib.MockTempDirTestCase):
             [
                 "https://storage.googleapis.com/staging-chromiumos-sdk/"
                 "cros-sdk-123.tar.xz",
+                "https://storage.googleapis.com/staging-chromiumos-sdk/"
+                "cros-sdk-123.tar.zst",
             ],
             cros_sdk.get_sdk_tarball_urls(
                 "123",
