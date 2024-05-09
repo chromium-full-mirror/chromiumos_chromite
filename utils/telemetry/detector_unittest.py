@@ -188,7 +188,7 @@ MemTotal: 35 kB
 def test_system_info_to_capture_host_type_bot(monkeypatch) -> None:
     """Test that SystemDetector captures host type as chromeos-bot."""
 
-    monkeypatch.setattr(getpass, "getuser", lambda: "chromeos-bot")
+    monkeypatch.setattr(getpass, "getuser", lambda: detector.CROS_BOT_USER)
     monkeypatch.setattr(Path, "exists", mock_exists(detector.DMI_PATH, True))
     monkeypatch.setattr(
         Path,

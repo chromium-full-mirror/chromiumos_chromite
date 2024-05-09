@@ -27,7 +27,7 @@ PROCESS_ENV = "process.env"
 OS_NAME = "os.name"
 DMI_PATH = Path("/sys/class/dmi/id/product_name")
 GCE_DMI = "Google Compute Engine"
-CROS_BOT_USER = "chromeos-bot"
+CROS_BOT_USER = "chrome-bot"
 PROC_MEMINFO_PATH = Path("/proc/meminfo")
 
 
@@ -68,7 +68,7 @@ class SystemDetector(resources.ResourceDetector):
         host_type = "UNKNOWN"
 
         if DMI_PATH.exists():
-            host_type = DMI_PATH.read_text(encoding="utf-8")
+            host_type = DMI_PATH.read_text(encoding="utf-8").strip()
 
         if host_type == GCE_DMI and getpass.getuser() == CROS_BOT_USER:
             host_type = "chromeos-bot"
