@@ -1403,6 +1403,17 @@ class TarballTests(cros_test_lib.TempDirTestCase):
             # Check to see that tar's error message is printed in the exception.
             self.assertIn("No such file or directory", e.args[0])
 
+    def testCustomCompressor(self) -> None:
+        """Create a tarfile with a custom compressor program."""
+        # The "compressor" will write a unique string.
+        cros_build_lib.CreateTarball(
+            self.tarball_path,
+            self.inputDir,
+            inputs=self.inputs,
+            compressor=["echo", "hi bye"],
+        )
+        assert osutils.ReadFile(self.tarball_path) == "hi bye\n"
+
     def test_IsTarball(self) -> None:
         """Test IsTarball helper function."""
         self.assertTrue(cros_build_lib.IsTarball("file.tar"))

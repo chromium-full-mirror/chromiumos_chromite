@@ -1320,6 +1320,7 @@ def CreateTarball(
     cwd: Union[Path, str],
     sudo: Optional[bool] = False,
     compression: CompressionType = CompressionType.XZ,
+    compressor: Optional[List[str]] = None,
     chroot: Optional[Union[Path, str]] = None,
     inputs: Optional[List[str]] = None,
     timeout: int = 300,
@@ -1335,6 +1336,7 @@ def CreateTarball(
         sudo: Whether to run with "sudo".
         compression: The type of compression desired.  See the FindCompressor
             function for details.
+        compressor: Override |compression| options and use this tool.
         chroot: Optionally used for searching the compressor. See
             FindCompressor().
         inputs: A list of files or directories relative to `cwd` to add to the
@@ -1358,10 +1360,11 @@ def CreateTarball(
 
     # Use a separate compression program - this enables parallel compression
     # in some cases.
+    if compressor is None:
+        compressor = [FindCompressor(compression, chroot=chroot)]
     # Using 'raw' hole detection instead of 'seek' isn't that much slower, but
     # will provide much better results when archiving large disk images that are
     # not fully sparse.
-    compressor = [FindCompressor(compression, chroot=chroot)]
     cmd = (
         ["tar"]
         + extra_args
