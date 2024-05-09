@@ -103,6 +103,10 @@ class CreateTarballForSdkTest(cros_test_lib.TempDirTestCase):
         sdk_builder_lib.CreateTarballForSdk(tarball_path, board_location)
         self.assertTrue(tarball_path.exists())
 
+        zst_tarball_path = tarball_path.with_suffix(".zst")
+        sdk_builder_lib.CreateTarballForSdk(zst_tarball_path, board_location)
+        self.assertExists(zst_tarball_path)
+
         # Check the contents of the tarball.
         t = self.tempdir / "extracted"
         t.mkdir(parents=True)

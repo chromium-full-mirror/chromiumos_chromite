@@ -47,11 +47,19 @@ def CreateTarballForSdk(tarball_path: Path, board_location: Path) -> None:
     extra_args = ["--anchored"]
     extra_args.extend("--exclude=./%s/*" % x for x in exclude_paths)
     # Options for maximum compression.
-    extra_env = {"XZ_OPT": "-e9"}
+    extra_env = {}
+    compressor = None
+    compression = cros_build_lib.CompressionExtToType(tarball_path)
+    if compression == cros_build_lib.CompressionType.XZ:
+        extra_env["XZ_OPT"] = "-e9"
+    elif compression == cros_build_lib.CompressionType.ZSTD:
+        compressor = ["pzstd", "--ultra", "-22"]
     with timer.timer("Create tarball"):
         cros_build_lib.CreateTarball(
             tarball_path,
             board_location,
+            compression=compression,
+            compressor=compressor,
             sudo=True,
             extra_args=extra_args,
             extra_env=extra_env,
