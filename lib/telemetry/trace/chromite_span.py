@@ -4,6 +4,8 @@
 
 """Chromite's Span class and related functionality."""
 
+import signal
+import subprocess
 import types
 from typing import Any, Dict, Optional, Union
 
@@ -67,12 +69,8 @@ class ChromiteSpan(otel_trace_api.Span):
         # Create a mutable dict from the passed attributes or create a new dict
         # if empty or null. This ensures that the passed dict is not mutated.
         attributes = dict(attributes or {})
-        if hasattr(exception, "failed_packages") and isinstance(
-            exception.failed_packages, list
-        ):
-            attributes["failed_packages"] = [
-                str(f) for f in exception.failed_packages
-            ]
+        attributes.update(self._record_failed_packages_error(exception))
+        attributes.update(self._record_called_process_error(exception))
 
         self._inner.record_exception(
             exception,
@@ -80,6 +78,34 @@ class ChromiteSpan(otel_trace_api.Span):
             timestamp=timestamp,
             escaped=escaped,
         )
+
+    def _record_failed_packages_error(self, exception: Exception) -> Dict:
+        """Generate attributes for a PackageInstallError or similar."""
+        attributes = {}
+
+        failed_packages = getattr(exception, "failed_packages", None)
+        if isinstance(failed_packages, (list, tuple)):
+            attributes["failed_packages"] = [str(f) for f in failed_packages]
+
+        return attributes
+
+    def _record_called_process_error(self, exception: Exception) -> Dict:
+        """Generate attributes for a CalledProcessError."""
+        attributes = {}
+        if not isinstance(exception, subprocess.CalledProcessError):
+            # Not a CalledProcessError.
+            return attributes
+
+        if exception.returncode and exception.returncode < 0:
+            # Died with a signal (probably), record signal info.
+            attributes["signal_number"] = -exception.returncode
+            try:
+                signal_name = signal.Signals(-exception.returncode).name
+            except ValueError:
+                signal_name = "Unknown"
+            attributes["signal_name"] = signal_name
+
+        return attributes
 
     def __enter__(self) -> "ChromiteSpan":
         return self
