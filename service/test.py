@@ -894,71 +894,113 @@ def FindAllMetadataFiles(
     # If it's useful, we could make the chroot param optional to run in the SDK.
     cros_build_lib.AssertOutsideChroot()
     return [
-        _FindAutotestMetadataFile(chroot, sysroot),
-        _FindTastLocalMetadataFile(chroot, sysroot),
-        _FindTastLocalPrivateMetadataFile(chroot, sysroot),
-        _FindTastRemoteMetadataFile(chroot),
-        _FindGtestMetadataFile(chroot, sysroot),
+        *_FindAutotestMetadataFiles(chroot, sysroot),
+        *_FindTastMetadataFiles(chroot, sysroot),
+        *_FindGtestMetadataFiles(chroot, sysroot),
     ]
 
 
-def _FindAutotestMetadataFile(
+def _FindAutotestMetadataFiles(
     chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
-) -> str:
-    """Find the full path to the Autotest test metadata file.
+) -> List[str]:
+    """Find the full paths to any Autotest test metadata files.
 
-    This file is installed during the chromeos-base/autotest ebuild.
+    These files are installed during the chromeos-base/autotest ebuild.
     """
-    return chroot.full_path(
+    file = chroot.full_path(
         sysroot.JoinPath(
             "usr", "local", "build", "autotest", "autotest_metadata.pb"
         )
     )
+    return [file]
 
 
-def _FindTastLocalMetadataFile(
+def _FindTastMetadataFiles(
     chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
-) -> str:
-    """Find the full path to the Tast local test metadata file.
+) -> List[str]:
+    """Find the full paths to all Tast test metadata files.
 
-    This file is installed during the tast-bundle eclass.
+    These files are installed during the tast-bundle eclass.
     """
-    return chroot.full_path(
-        sysroot.JoinPath("usr", "share", "tast", "metadata", "local", "cros.pb")
-    )
+    usr_dir = os.path.join("usr", "share", "tast", "metadata")
+    build_dir = os.path.join("build", "share", "tast", "metadata")
+    return [
+        # Public: local and remote
+        chroot.full_path(sysroot.JoinPath(usr_dir, "local", "cros.pb")),
+        chroot.full_path(sysroot.JoinPath(usr_dir, "remote", "cros.pb")),
+        # Private: local and remote
+        chroot.full_path(sysroot.JoinPath(build_dir, "local", "crosint.pb")),
+        chroot.full_path(sysroot.JoinPath(usr_dir, "remote", "crosint.pb")),
+        # Intel: local and remote
+        chroot.full_path(
+            sysroot.JoinPath(build_dir, "local", "crosint_intel.pb")
+        ),
+        chroot.full_path(
+            sysroot.JoinPath(usr_dir, "remote", "crosint_intel.pb")
+        ),
+    ]
 
 
-def _FindTastLocalPrivateMetadataFile(
+def _FindGtestMetadataFiles(
     chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
-) -> str:
-    """Find the full path to the Tast local private test metadata file.
+) -> List[str]:
+    """Find the full paths to any Gtest/Crosier test metadata files.
 
-    This file is installed during the tast-bundle eclass.
+    These files are installed during the tast-bundle eclass.
     """
-    return chroot.full_path(
-        sysroot.JoinPath(
-            "build", "share", "tast", "metadata", "local", "crosint.pb"
-        )
-    )
-
-
-def _FindTastRemoteMetadataFile(chroot: "chroot_lib.Chroot") -> str:
-    """Find the full path to the Tast remote test metadata file.
-
-    This file is installed during the tast-bundle eclass.
-    """
-    return chroot.full_path(
-        "usr", "share", "tast", "metadata", "remote", "cros.pb"
-    )
-
-
-def _FindGtestMetadataFile(
-    chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
-) -> str:
-    """Find the full path to the Gtest/Crosier test metadata file.
-
-    This file is installed during the tast-bundle eclass.
-    """
-    return chroot.full_path(
+    file = chroot.full_path(
         sysroot.JoinPath("usr", "local", "build", "gtest", "gtest_metadata.pb")
     )
+    return [file]
+
+
+def FindAllHarnessMetadataFiles(
+    chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
+) -> List[str]:
+    """Find the full paths to all test harness metadata paths."""
+    # Right now there's no use case for this function inside the chroot.
+    # If it's useful, we could make the chroot param optional to run in the SDK.
+    cros_build_lib.AssertOutsideChroot()
+    return _FindTastHarnessMetadataFiles(chroot, sysroot)
+
+
+def _FindTastHarnessMetadataFiles(
+    chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
+) -> List[str]:
+    """Find the full paths to all Tast test metadata files.
+
+    These files are installed during the tast-bundle eclass.
+    """
+    usr_dir = os.path.join("usr", "share", "tast", "metadata")
+    build_dir = os.path.join("build", "share", "tast", "metadata")
+    return [
+        # Public: local and remote
+        chroot.full_path(
+            sysroot.JoinPath(usr_dir, "local", "cros_local_harness.pb")
+        ),
+        chroot.full_path(
+            sysroot.JoinPath(usr_dir, "remote", "cros_remote_harness.pb")
+        ),
+        # Private: local and remote
+        chroot.full_path(
+            sysroot.JoinPath(build_dir, "local", "crosint_local_harness.pb")
+        ),
+        chroot.full_path(
+            sysroot.JoinPath(usr_dir, "remote", "crosint_remote_harness.pb")
+        ),
+        # Intel: local and remote
+        chroot.full_path(
+            sysroot.JoinPath(
+                build_dir,
+                "local",
+                "crosint_intel_local_harness.pb",
+            )
+        ),
+        chroot.full_path(
+            sysroot.JoinPath(
+                usr_dir,
+                "remote",
+                "crosint_intel_remote_harness.pb",
+            )
+        ),
+    ]

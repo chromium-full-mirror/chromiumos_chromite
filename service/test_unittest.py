@@ -875,8 +875,8 @@ class GatherCodeCoverageGolangTests(cros_test_lib.MockTempDirTestCase):
 class FindMetadataTestCase(cros_test_lib.MockTestCase):
     """Test case for functions to find metadata files."""
 
-    build_target_name = "coral"
-    sysroot_path = "/build/coral"
+    build_target_name = "fake"
+    sysroot_path = "/build/fake"
     chroot_path = Path("/usr/chroot")
     out_path = Path("/usr/out")
 
@@ -893,15 +893,58 @@ class FindMetadataTestCase(cros_test_lib.MockTestCase):
         expected = [
             self.chroot.full_path(f)
             for f in (
-                "/build/coral/usr/local/build/autotest/autotest_metadata.pb",
-                "/build/coral/usr/share/tast/metadata/local/cros.pb",
-                "/build/coral/build/share/tast/metadata/local/crosint.pb",
-                "/usr/share/tast/metadata/remote/cros.pb",
-                "/build/coral/usr/local/build/gtest/gtest_metadata.pb",
+                "/build/fake/usr/local/build/autotest/autotest_metadata.pb",
+                "/build/fake/usr/share/tast/metadata/local/cros.pb",
+                "/build/fake/build/share/tast/metadata/local/crosint.pb",
+                "/build/fake/build/share/tast/metadata/local/crosint_intel.pb",
+                "/build/fake/usr/share/tast/metadata/remote/cros.pb",
+                "/build/fake/usr/share/tast/metadata/remote/crosint.pb",
+                "/build/fake/usr/share/tast/metadata/remote/crosint_intel.pb",
+                "/build/fake/usr/local/build/gtest/gtest_metadata.pb",
             )
         ]
 
         actual = test.FindAllMetadataFiles(self.chroot, self.sysroot)
+        self.assertEqual(sorted(actual), sorted(expected))
+
+
+class FindHarnessMetadataTestCase(cros_test_lib.MockTestCase):
+    """Test case for functions to find harness metadata files."""
+
+    build_target_name = "fake_board"
+    sysroot_path = "/build/fake_board"
+    chroot_path = Path("/usr/chroot")
+    out_path = Path("/usr/out")
+
+    def setUp(self) -> None:
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+        self.sysroot = sysroot_lib.Sysroot(self.sysroot_path)
+        self.chroot = chroot_lib.Chroot(
+            self.chroot_path, out_path=self.out_path
+        )
+        self.PatchObject(cros_build_lib, "AssertOutsideChroot")
+
+    def testFindAllHarnessMetadataFiles(self) -> None:
+        """Test case for Sysroot.FindAllHarnessMetadataFiles."""
+        tast_usr = "/build/fake_board/usr/share/tast/metadata/"
+        tast_build = "/build/fake_board/build/share/tast/metadata/"
+        expected = [
+            self.chroot.full_path(f)
+            for f in (
+                os.path.join(tast_usr, "local/cros_local_harness.pb"),
+                os.path.join(tast_build, "local/crosint_local_harness.pb"),
+                os.path.join(
+                    tast_build, "local/crosint_intel_local_harness.pb"
+                ),
+                os.path.join(tast_usr, "remote/cros_remote_harness.pb"),
+                os.path.join(tast_usr, "remote/crosint_remote_harness.pb"),
+                os.path.join(
+                    tast_usr, "remote/crosint_intel_remote_harness.pb"
+                ),
+            )
+        ]
+
+        actual = test.FindAllHarnessMetadataFiles(self.chroot, self.sysroot)
         self.assertEqual(sorted(actual), sorted(expected))
 
 
