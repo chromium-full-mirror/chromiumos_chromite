@@ -369,7 +369,7 @@ def get_sdk_gs_url(
 
 def get_sdk_tarball_url(
     sdk_version: str,
-    file_extension: str = "tar.xz",
+    file_extension: str = "tar.zst",
     **kwargs: Any,
 ) -> str:
     """Return a Google Storage URL pointing to an SDK tarball.
@@ -390,7 +390,7 @@ def get_sdk_manifest_url(sdk_version: str, **kwargs: Any) -> str:
         sdk_version: The SDK version to fetch a manifest for.
         **kwargs: Additional keyword arguments for get_sdk_gs_url().
     """
-    manifest_basename = f"cros-sdk-{sdk_version}.tar.xz.Manifest"
+    manifest_basename = f"cros-sdk-{sdk_version}.tar.zst.Manifest"
     return get_sdk_gs_url(suburl=manifest_basename, **kwargs)
 
 

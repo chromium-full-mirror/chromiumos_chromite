@@ -42,7 +42,7 @@ from chromite.utils import xdg_util
 
 # Which compression algos the SDK tarball uses.  We've used xz since 2012, and
 # zst since 2024.
-COMPRESSION_PREFERENCE = ("xz", "zst")
+COMPRESSION_PREFERENCE = ("zst", "xz")
 
 # Proxy simulator configuration.
 PROXY_HOST_IP = "192.168.240.1"

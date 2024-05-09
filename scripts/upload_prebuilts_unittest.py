@@ -701,9 +701,9 @@ class TestSdk(cros_test_lib.MockTestCase):
         tc_upload_path=None,
     ) -> None:
         """Make sure we can upload just an SDK tarball"""
-        tar = "sdk.tar.xz"
+        tar = "sdk.tar.zst"
         ver = "1234.08.01.5678"
-        vtar = "cros-sdk-%s.tar.xz" % ver
+        vtar = "cros-sdk-%s.tar.zst" % ver
 
         upload_calls = [
             mock.call(
