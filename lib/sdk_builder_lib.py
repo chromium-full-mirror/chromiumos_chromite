@@ -12,6 +12,7 @@ from chromite.lib import chromeos_version
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
+from chromite.utils import timer
 
 
 def CleanupMakeConfBoardSetup(board_location: Path) -> None:
@@ -47,13 +48,14 @@ def CreateTarballForSdk(tarball_path: Path, board_location: Path) -> None:
     extra_args.extend("--exclude=./%s/*" % x for x in exclude_paths)
     # Options for maximum compression.
     extra_env = {"XZ_OPT": "-e9"}
-    cros_build_lib.CreateTarball(
-        tarball_path,
-        board_location,
-        sudo=True,
-        extra_args=extra_args,
-        extra_env=extra_env,
-    )
+    with timer.timer("Create tarball"):
+        cros_build_lib.CreateTarball(
+            tarball_path,
+            board_location,
+            sudo=True,
+            extra_args=extra_args,
+            extra_env=extra_env,
+        )
     # Make the tarball readable by all users.
     osutils.Chmod(tarball_path, 0o644, sudo=True)
 
