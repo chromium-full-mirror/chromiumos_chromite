@@ -401,7 +401,14 @@ class PaygenPayload:
                 Same values as _GetDlcImageParams()
             """
             mount_point = os.path.join(self.work_dir, "mount-point")
-            osutils.MountDir(image, mount_point, mount_opts=("ro",))
+            try:
+                osutils.MountDir(image, mount_point, mount_opts=("ro",))
+            except cros_build_lib.RunCommandError:
+                # If mount fails, fallback to using `squashfs` filesystem type.
+                osutils.MountDir(
+                    image, mount_point, fs_type="squashfs", mount_opts=("ro",)
+                )
+
             try:
                 lsb_release = utils.ReadLsbRelease(mount_point)
             finally:
