@@ -942,7 +942,7 @@ def Die(message, *args, **kwargs) -> NoReturn:
     raise DieSystemExit(1)
 
 
-def GetSysrootToolPath(sysroot, tool_name):
+def GetSysrootToolPath(sysroot: str, tool_name: str) -> str:
     """Returns the path to the sysroot specific version of a tool.
 
     Does not check that the tool actually exists.
@@ -955,7 +955,13 @@ def GetSysrootToolPath(sysroot, tool_name):
         string path to tool inside the sysroot.
     """
     if sysroot == "/":
-        return os.path.join(sysroot, "usr", "bin", tool_name)
+        # Search both /usr/bin and /usr/sbin within the sysroot, since some
+        # tools are in each for the SDK.
+        return osutils.Which(
+            tool_name,
+            path=os.pathsep.join(["/usr/bin", "/usr/sbin"]),
+            root=sysroot,
+        )
 
     return os.path.join(sysroot, "build", "bin", tool_name)
 
