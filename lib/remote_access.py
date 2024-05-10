@@ -17,7 +17,6 @@ import subprocess
 import tempfile
 import time
 from typing import List, Optional, Union
-import warnings
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -461,20 +460,11 @@ class RemoteAccess:
                 # Prepend sudo to cmd.
                 ssh_cmd.append("sudo")
 
-            # TODO(b/269266992): Delete test-only logic & always make this
-            # fatal.
-            fatal_only_in_test = True
             if isinstance(cmd, str):
                 if not kwargs.pop("shell", None):
-                    if fatal_only_in_test:
-                        assert "PYTEST_CURRENT_TEST" not in os.environ
-                        warnings.warn(
-                            "remote_run: String command requires shell=True"
-                        )
-                    else:
-                        raise ValueError(
-                            "Cannot run a string command without a shell"
-                        )
+                    raise ValueError(
+                        "Cannot run a string command without a shell"
+                    )
                 ssh_cmd += [cmd]
             else:
                 if kwargs.pop("shell", False):
