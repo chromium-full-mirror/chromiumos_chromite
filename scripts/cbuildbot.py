@@ -45,6 +45,7 @@ from chromite.lib import tee
 from chromite.lib import timeout_util
 from chromite.lib import ts_mon_config
 from chromite.utils import hostname_util
+from chromite.utils import shell_util
 
 
 _DEFAULT_LOG_DIR = "cbuildbot_logs"
@@ -109,7 +110,7 @@ def _IsDistributedBuilder(options, chrome_rev, build_config):
 def _RunBuildStagesWrapper(options, site_config, build_config) -> None:
     """Helper function that wraps RunBuildStages()."""
     logging.info(
-        "cbuildbot was executed with args %s", cros_build_lib.CmdToStr(sys.argv)
+        "cbuildbot was executed with args %s", shell_util.cmd_to_str(sys.argv)
     )
 
     chrome_rev = build_config["chrome_rev"]

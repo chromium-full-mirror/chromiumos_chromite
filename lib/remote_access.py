@@ -26,6 +26,7 @@ from chromite.lib import parallel
 from chromite.lib import timeout_util
 from chromite.scripts import cros_set_lsb_release
 from chromite.utils import memoize
+from chromite.utils import shell_util
 
 
 _path = os.path.dirname(os.path.realpath(__file__))
@@ -467,7 +468,7 @@ class RemoteAccess:
                 if kwargs.get("shell"):
                     ssh_cmd = "%s %s" % (
                         " ".join(ssh_cmd),
-                        cros_build_lib.ShellQuote(cmd),
+                        shell_util.quote(cmd),
                     )
                 else:
                     if fatal_only_in_test:
@@ -543,7 +544,7 @@ class RemoteAccess:
         ssh_cmd.append("-N")
         ssh_cmd.append(self.target_ssh_url)
 
-        logging.log(self.debug_level, "%s", cros_build_lib.CmdToStr(ssh_cmd))
+        logging.log(self.debug_level, "%s", shell_util.cmd_to_str(ssh_cmd))
 
         return RemoteAccess._mockable_popen(ssh_cmd)
 
@@ -1038,8 +1039,8 @@ class RemoteDevice:
         added or removed for the life of the connection.
         """
         result = self.agent.RemoteSh(
-            f"PATH={cros_build_lib.ShellQuote(DEV_BIN_PATHS)}:$PATH which "
-            f"{cros_build_lib.ShellQuote(binary)}",
+            f"PATH={shell_util.quote(DEV_BIN_PATHS)}:$PATH which "
+            f"{shell_util.quote(binary)}",
             check=False,
             shell=True,
         )
@@ -1252,8 +1253,8 @@ class RemoteDevice:
         """
         tmp_file = os.path.join(path, ".tmp.remote_access.is.writable")
         result = self.agent.RemoteSh(
-            f"touch {cros_build_lib.ShellQuote(tmp_file)} && "
-            f"rm {cros_build_lib.ShellQuote(tmp_file)}",
+            f"touch {shell_util.quote(tmp_file)} && "
+            f"rm {shell_util.quote(tmp_file)}",
             check=False,
             remote_sudo=True,
             capture_output=True,
@@ -1460,8 +1461,7 @@ class RemoteDevice:
 
             new_cmd = []
             flat_vars = [
-                "%s=%s" % (k, cros_build_lib.ShellQuote(v))
-                for k, v in extra_env.items()
+                "%s=%s" % (k, shell_util.quote(v)) for k, v in extra_env.items()
             ]
 
             # If the vars are too large for the command line, do it indirectly.

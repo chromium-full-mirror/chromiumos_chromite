@@ -24,6 +24,7 @@ from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import toolchain
 from chromite.utils import key_value_store
+from chromite.utils import shell_util
 
 
 if cros_build_lib.IsInsideChroot():
@@ -250,7 +251,7 @@ class Crossdev:
                 ).stdout.splitlines()
                 # List of tuples split at the first '=', converted into dict.
                 conf = {
-                    k: cros_build_lib.ShellUnquote(v)
+                    k: shell_util.unquote(v)
                     for k, v in (x.split("=", 1) for x in out)
                 }
                 conf["crosspkgs"] = conf["crosspkgs"].split()

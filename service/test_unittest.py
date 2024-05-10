@@ -27,6 +27,7 @@ from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
 from chromite.service import test
 from chromite.utils import code_coverage_util
+from chromite.utils import shell_util
 
 
 class PartialDict:
@@ -202,7 +203,7 @@ class SimpleChromeWorkflowTestTest(cros_test_lib.MockTempDirTestCase):
         self.write_mock = self.PatchObject(osutils, "WriteFile")
 
         self.PatchObject(
-            cros_build_lib, "CmdToStr", return_value="CmdToStr value"
+            shell_util, "cmd_to_str", return_value="CmdToStr value"
         )
         self.PatchObject(shutil, "copy2")
 

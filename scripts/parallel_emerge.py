@@ -18,7 +18,7 @@ import os
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
-from chromite.lib import cros_build_lib
+from chromite.utils import shell_util
 
 
 class LookupBoardSysroot(argparse.Action):
@@ -152,7 +152,7 @@ def main(argv) -> None:
         emerge_args.append("--verbose")
 
     cmd = ["emerge"] + emerge_args
-    cmd_str = cros_build_lib.CmdToStr(cmd)
+    cmd_str = shell_util.cmd_to_str(cmd)
     if parsed_args.get("dryrun"):
         logging.notice("Would have run: %s", cmd_str)
         return

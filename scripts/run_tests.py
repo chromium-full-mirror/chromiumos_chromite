@@ -40,6 +40,7 @@ from chromite.lib import namespaces
 from chromite.lib import qemu
 from chromite.lint import linters
 from chromite.scripts import clang_format
+from chromite.utils import shell_util
 
 
 DEBUGGER_PORT = 5678
@@ -118,7 +119,7 @@ def main(argv) -> None:
         debugpy.wait_for_client()
         logging.notice("Debugger connected.")
 
-    logging.debug("Running: pytest %s", cros_build_lib.CmdToStr(pytest_args))
+    logging.debug("Running: pytest %s", shell_util.cmd_to_str(pytest_args))
     sys.exit(pytest.main(pytest_args))
 
 

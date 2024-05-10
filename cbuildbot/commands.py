@@ -37,6 +37,7 @@ from chromite.lib.paygen import filelib
 from chromite.scripts import pushimage
 from chromite.service import artifacts as artifacts_service
 from chromite.utils import pformat
+from chromite.utils import shell_util
 
 
 _PACKAGE_FILE = "%(buildroot)s/src/scripts/cbuildbot_package.list"
@@ -1500,7 +1501,7 @@ def PushImages(
         log_cmd.append("--buildroot=%s" % buildroot)
 
     log_cmd.append(archive_url)
-    logging.info("Running: %s", cros_build_lib.CmdToStr(log_cmd))
+    logging.info("Running: %s", shell_util.cmd_to_str(log_cmd))
 
     try:
         return pushimage.PushImage(

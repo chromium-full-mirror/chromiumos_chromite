@@ -22,6 +22,7 @@ from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
+from chromite.utils import shell_util
 
 
 if cros_build_lib.IsInsideChroot():
@@ -941,7 +942,7 @@ class WorkonHelper:
                 lines = [
                     (
                         f"declare -x {v}="
-                        f"{cros_build_lib.ShellQuote(os.environ.get(v, ''))}"
+                        f"{shell_util.quote(os.environ.get(v, ''))}"
                         f"{os.linesep}"
                     )
                     for v in EBUILD_PASS_THROUGH_VARS

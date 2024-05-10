@@ -7,7 +7,6 @@
 import builtins
 import contextlib
 import datetime
-import difflib
 import logging
 import os
 from pathlib import Path
@@ -31,98 +30,6 @@ class RunCommandErrorStrTest(cros_test_lib.TestCase):
         result = cros_build_lib.run(["ls", "/does/not/exist"], check=False)
         rce = cros_build_lib.RunCommandError("\x81", result)
         str(rce)
-
-
-class CmdToStrTest(cros_test_lib.TestCase):
-    """Test the CmdToStr function."""
-
-    def setUp(self) -> None:
-        self.differ = difflib.Differ()
-
-    def _assertEqual(self, func, test_input, test_output, result) -> None:
-        """Like assertEqual but with built-in diff support."""
-        msg = "Expected %s to translate %r to %r, but got %r" % (
-            func,
-            test_input,
-            test_output,
-            result,
-        )
-        self.assertEqual(test_output, result, msg)
-
-    def _testData(self, functor, tests, check_type=True) -> None:
-        """Process an iterable of test data."""
-        for test_output, test_input in tests:
-            result = functor(test_input)
-            self._assertEqual(functor.__name__, test_input, test_output, result)
-
-            if check_type:
-                # Also make sure the result is a string, otherwise the %r output
-                # will include a "u" prefix and that is not good for logging.
-                self.assertEqual(type(test_output), str)
-
-    def testShellQuote(self) -> None:
-        """Basic ShellQuote tests."""
-        # Tuples of (expected output string, input data).
-        tests_quote = (
-            ("''", ""),
-            ("a", "a"),
-            ("'a b c'", "a b c"),
-            ("'a\tb'", "a\tb"),
-            ("'a\nb'", "a\nb"),
-            ("'/a$file'", "/a$file"),
-            ("'/a#file'", "/a#file"),
-            ("""'b"c'""", 'b"c'),
-            ("'a@()b'", "a@()b"),
-            ("j%k", "j%k"),
-            (r'''"s'a\$va\\rs"''', r"s'a$va\rs"),
-            (r'''"\\'\\\""''', r'''\'\"'''),
-            (r'''"'\\\$"''', r"""'\$"""),
-        )
-
-        bytes_quote = (
-            # Since we allow passing bytes down, quote them too.
-            ("bytes", b"bytes"),
-            ("'by tes'", b"by tes"),
-            ("bytes", "bytes"),
-            ("'by tes'", "by tes"),
-        )
-
-        # Expected input output specific to ShellUnquote. This string cannot be
-        # produced by ShellQuote but is still a valid bash escaped string.
-        tests_unquote = ((r"""\$""", r'''"\\$"'''),)
-
-        def aux(s):
-            return cros_build_lib.ShellUnquote(cros_build_lib.ShellQuote(s))
-
-        # We can only go one way bytes->string.
-        self._testData(cros_build_lib.ShellQuote, bytes_quote)
-        self._testData(aux, [(x, x) for x, _ in bytes_quote], False)
-
-        self._testData(cros_build_lib.ShellQuote, tests_quote)
-        self._testData(cros_build_lib.ShellUnquote, tests_unquote)
-
-        # Test that the operations are reversible.
-        self._testData(aux, [(x, x) for x, _ in tests_quote], False)
-        self._testData(aux, [(x, x) for _, x in tests_quote], False)
-
-    def testShellQuoteOjbects(self) -> None:
-        """Test objects passed to ShellQuote."""
-        self.assertEqual("/", cros_build_lib.ShellQuote(Path("/")))
-        self.assertEqual("None", cros_build_lib.ShellQuote(None))
-        self.assertNotEqual("", cros_build_lib.ShellQuote)
-
-    def testCmdToStr(self) -> None:
-        # Dict of expected output strings to input lists.
-        tests = (
-            (r"a b", ["a", "b"]),
-            (r"'a b' c", ["a b", "c"]),
-            (r'''a "b'c"''', ["a", "b'c"]),
-            (r'''a "/'\$b" 'a b c' "xy'z"''', ["a", "/'$b", "a b c", "xy'z"]),
-            ("", []),
-            ("a b c", [b"a", "b", "c"]),
-            ("bad None cmd", ["bad", None, "cmd"]),
-        )
-        self._testData(cros_build_lib.CmdToStr, tests)
 
 
 class TestCalledProcessError(cros_test_lib.TestCase):

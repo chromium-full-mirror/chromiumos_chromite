@@ -12,6 +12,7 @@ from chromite.lib import chromeos_version
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
+from chromite.utils import shell_util
 from chromite.utils import timer
 
 
@@ -92,7 +93,7 @@ def write_os_release(
 
     lines = []
     for key, value in sorted(entries.items()):
-        lines.append(f"{key}={cros_build_lib.ShellQuote(value)}\n")
+        lines.append(f"{key}={shell_util.quote(value)}\n")
 
     osutils.WriteFile(
         output_path, "".join(lines), encoding="utf-8", sudo=True, makedirs=True

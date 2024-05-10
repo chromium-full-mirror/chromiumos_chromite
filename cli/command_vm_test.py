@@ -16,6 +16,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import remote_access
 from chromite.lib import vm
 from chromite.utils import outcap
+from chromite.utils import shell_util
 
 
 class Error(Exception):
@@ -54,7 +55,7 @@ def test_command_decorator(command_name):
 
         def Wrapper(command_test) -> None:
             """Wrapper for the test function."""
-            command = cros_build_lib.CmdToStr(
+            command = shell_util.cmd_to_str(
                 command_test.BuildCommand(command_name)
             )
             logging.info("Running test for %s.", command)

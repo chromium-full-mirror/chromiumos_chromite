@@ -17,6 +17,7 @@ from chromite.lib import gob_util
 from chromite.lib import parallel
 from chromite.lib import patch as cros_patch
 from chromite.lib import retry_util
+from chromite.utils import shell_util
 
 
 class GerritException(Exception):
@@ -262,7 +263,7 @@ class GerritHelper:
         except cros_build_lib.RunCommandError:
             logging.error(
                 'Command "%s" failed.',
-                cros_build_lib.CmdToStr(cmd),
+                shell_util.cmd_to_str(cmd),
                 exc_info=True,
             )
 

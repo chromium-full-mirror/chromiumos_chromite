@@ -19,12 +19,12 @@ from typing import Callable, Dict, List, NamedTuple, Optional
 from chromite.cli import analyzers
 from chromite.cli import command
 from chromite.format import formatters
-from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import path_util
 from chromite.utils import path_filter
+from chromite.utils import shell_util
 from chromite.utils.parser import shebang
 
 
@@ -362,7 +362,7 @@ Supported files: %s
         if misformatted_files:
             logging.notice(
                 "You can fix formatting errors by running:\n  cros format %s",
-                cros_build_lib.CmdToStr(misformatted_files),
+                shell_util.cmd_to_str(misformatted_files),
             )
 
         return ret

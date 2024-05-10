@@ -7,6 +7,7 @@
 from chromite.contrib.portage_explorer import spiderlib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.utils import shell_util
 
 
 def execute(output: spiderlib.SpiderOutput) -> None:
@@ -24,7 +25,7 @@ def execute(output: spiderlib.SpiderOutput) -> None:
             )
             if make_defaults_path.exists():
                 command = (
-                    f"source {cros_build_lib.ShellQuote(make_defaults_path)};"
+                    f"source {shell_util.quote(make_defaults_path)};"
                     "echo ${USE}"
                 )
                 source_use = cros_build_lib.dbg_run(

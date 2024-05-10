@@ -12,13 +12,13 @@ from chromite.cbuildbot import commands
 from chromite.cli import command
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
-from chromite.lib import cros_build_lib
 from chromite.lib import dev_server_wrapper
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import remote_access
 from chromite.lib.paygen import paygen_payload_lib
 from chromite.lib.paygen import paygen_stateful_payload_lib
+from chromite.utils import shell_util
 
 
 MOBLAB_STATIC_DIR = "/mnt/moblab/static"
@@ -292,7 +292,7 @@ NOTES:
             # Stage the image from the moblab, as port 8080 might not be
             # reachable from the developer's system.
             res = device.run(
-                ["curl", "--fail", cros_build_lib.ShellQuote(stage_url)],
+                ["curl", "--fail", shell_util.quote(stage_url)],
                 check=False,
             )
             if res.returncode == 0:

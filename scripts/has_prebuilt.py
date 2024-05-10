@@ -17,6 +17,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib.parser import package_info
+from chromite.utils import shell_util
 
 
 if cros_build_lib.IsInsideChroot():
@@ -116,7 +117,7 @@ def main(argv) -> None:
 
         generator = depgraph.DepGraphGenerator()
         logging.debug(
-            "Initializing depgraph with: %s", cros_build_lib.CmdToStr(args)
+            "Initializing depgraph with: %s", shell_util.cmd_to_str(args)
         )
         generator.Initialize(args)
 

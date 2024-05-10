@@ -36,6 +36,7 @@ from chromite.lib import namespaces
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import process_util
+from chromite.utils import shell_util
 from chromite.utils import xdg_util
 
 
@@ -367,7 +368,7 @@ def _ReExecuteIfNeeded(argv, opts) -> None:
     if osutils.IsNonRootUser():
         cmd = _BuildReExecCommand(argv, opts)
         logging.debug(
-            "Reexecing self via sudo:\n%s", cros_build_lib.CmdToStr(cmd)
+            "Reexecing self via sudo:\n%s", shell_util.cmd_to_str(cmd)
         )
         os.execvp(cmd[0], cmd)
 

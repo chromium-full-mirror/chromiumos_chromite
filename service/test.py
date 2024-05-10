@@ -32,6 +32,7 @@ from chromite.lib import image_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.utils import code_coverage_util
+from chromite.utils import shell_util
 
 
 if TYPE_CHECKING:
@@ -409,7 +410,7 @@ def _BuildChrome(
         )
         osutils.WriteFile(
             os.path.join(goma.goma_log_dir, "ninja_command"),
-            cros_build_lib.CmdToStr(sdk_cmd.GetNinjaCommand()),
+            shell_util.cmd_to_str(sdk_cmd.GetNinjaCommand()),
         )
     else:
         extra_env = None

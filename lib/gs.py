@@ -33,6 +33,7 @@ from chromite.lib import signals
 from chromite.lib import timeout_util
 from chromite.utils import gs_urls_util
 from chromite.utils import key_value_store
+from chromite.utils import shell_util
 
 
 # This bucket has the allAuthenticatedUsers:READER ACL.
@@ -1054,7 +1055,7 @@ wheel: <
             logging.debug(
                 "%s: would've run: %s",
                 self.__class__.__name__,
-                cros_build_lib.CmdToStr(cmd),
+                shell_util.cmd_to_str(cmd),
             )
         else:
             if "PYTEST_CURRENT_TEST" in os.environ:

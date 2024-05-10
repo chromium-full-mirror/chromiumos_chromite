@@ -28,6 +28,7 @@ from chromite.lib import qemu
 from chromite.lib import remote_access
 from chromite.lib import retry_util
 from chromite.lib import toolchain
+from chromite.utils import shell_util
 
 
 class GdbException(Exception):
@@ -533,7 +534,7 @@ To install the debug symbols for all available packages, run:
                 ssh_cmd.extend(["--multi", "stdio"])
                 target_type = "extended-remote"
 
-            ssh_cmd = cros_build_lib.CmdToStr(ssh_cmd)
+            ssh_cmd = shell_util.cmd_to_str(ssh_cmd)
 
             if self.in_chroot:
                 if inferior_cmd:
