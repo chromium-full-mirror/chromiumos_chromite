@@ -1405,12 +1405,14 @@ class TarballTests(cros_test_lib.TempDirTestCase):
 
     def testCustomCompressor(self) -> None:
         """Create a tarfile with a custom compressor program."""
-        # The "compressor" will write a unique string.
+        # The "compressor" will write a unique string, and then read+discard all
+        # of input to avoid races where the compressor exits before tar writes
+        # all of the data to it.
         cros_build_lib.CreateTarball(
             self.tarball_path,
             self.inputDir,
             inputs=self.inputs,
-            compressor=["echo", "hi bye"],
+            compressor=["sh", "-c", "echo hi bye; cat >/dev/null"],
         )
         assert osutils.ReadFile(self.tarball_path) == "hi bye\n"
 
