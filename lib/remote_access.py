@@ -483,15 +483,7 @@ class RemoteAccess:
                     ssh_cmd += [cmd]
             else:
                 if kwargs.pop("shell", False):
-                    if fatal_only_in_test:
-                        assert "PYTEST_CURRENT_TEST" not in os.environ
-                        warnings.warn(
-                            "remote_run: List command requires shell=False"
-                        )
-                    else:
-                        raise ValueError(
-                            "Cannot run a list command with a shell"
-                        )
+                    raise ValueError("Cannot run a list command with a shell")
                 ssh_cmd += cmd
 
         try:
