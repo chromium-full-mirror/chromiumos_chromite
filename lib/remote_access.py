@@ -460,6 +460,9 @@ class RemoteAccess:
                 # Prepend sudo to cmd.
                 ssh_cmd.append("sudo")
 
+            # TODO(b/269266992): Delete test-only logic & always make this
+            # fatal.
+            fatal_only_in_test = True
             if isinstance(cmd, str):
                 if kwargs.get("shell"):
                     ssh_cmd = "%s %s" % (
@@ -467,9 +470,6 @@ class RemoteAccess:
                         cros_build_lib.ShellQuote(cmd),
                     )
                 else:
-                    # TODO(b/269266992): Delete test-only logic & always make
-                    # this fatal.
-                    fatal_only_in_test = True
                     if fatal_only_in_test:
                         assert "PYTEST_CURRENT_TEST" not in os.environ
                         warnings.warn(
@@ -481,6 +481,16 @@ class RemoteAccess:
                         )
                     ssh_cmd += [cmd]
             else:
+                if kwargs.pop("shell", False):
+                    if fatal_only_in_test:
+                        assert "PYTEST_CURRENT_TEST" not in os.environ
+                        warnings.warn(
+                            "remote_run: List command requires shell=False"
+                        )
+                    else:
+                        raise ValueError(
+                            "Cannot run a list command with a shell"
+                        )
                 ssh_cmd += cmd
 
         try:
