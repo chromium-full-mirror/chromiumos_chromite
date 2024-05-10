@@ -22,6 +22,7 @@ oom score never
 import FOO
 export BAR
 env MOO
+env VAR='yes'
 
 exec /bin/true \\
   --version
@@ -41,6 +42,9 @@ end script
         upstart.Job(
             "me",
             "desc",
+            {"MOO": "", "VAR": "yes"},
+            {"BAR"},
+            {"FOO"},
             "never",
             "/bin/true   --version",
             "  prestart\n",
@@ -78,8 +82,17 @@ BAD_TEST_CASES = (
     # Bad description lines.
     "description",
     "description YES",
+    # Bad env lines.
+    "env",
+    "env F B",
     # Bad exec lines.
     "exec",
+    # Bad export lines.
+    "export",
+    "export A B",
+    # Bad import lines.
+    "import",
+    "import A B",
     # Bad oom lines.
     "oom",
     "oom sc0re",

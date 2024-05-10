@@ -6,7 +6,9 @@
 
 import dataclasses
 import re
-from typing import Iterator, List, Optional
+from typing import Dict, Iterator, List, Optional, Set
+
+from chromite.utils import shell_util
 
 
 class Error(Exception):
@@ -27,6 +29,9 @@ class Job:
 
     author: Optional[str] = None
     description: Optional[str] = None
+    env: Dict[str, str] = dataclasses.field(default_factory=dict)
+    exports: Set[str] = dataclasses.field(default_factory=set)
+    imports: Set[str] = dataclasses.field(default_factory=set)
     oom: Optional[str] = None
     main: Optional[str] = None
     prestart: Optional[str] = None
@@ -41,6 +46,9 @@ class Job:
             isinstance(other, Job)
             and self.author == other.author
             and self.description == other.description
+            and self.env == other.env
+            and self.exports == other.exports
+            and self.imports == other.imports
             and self.oom == other.oom
             and self.main == other.main
             and self.prestart == other.prestart
@@ -61,6 +69,28 @@ def _parse_exec(line: str) -> str:
     if not m:
         raise JobSyntaxError(f"Invalid exec line: {line}")
     return m.group(1)
+
+
+def _parse_env(env: Dict[str, str], line: str) -> None:
+    """Parse 'env' lines."""
+    # Can take the form of:
+    #   env FOO
+    #   env FOO=
+    #   env FOO=bar
+    #   env FOO='bar'
+    #   env FOO="bar"
+    m = re.match(r"^\s*env\s+(?P<key>[^\s=]+)(=(?P<val>.*))?$", line)
+    if not m:
+        raise JobSyntaxError(f"Invalid env line: {line}")
+    key = m.groupdict()["key"]
+    val = m.groupdict()["val"]
+    if val is None:
+        val = ""
+    else:
+        val = shell_util.unquote(val)
+    if key in env:
+        raise JobSyntaxError(f"Duplicate env var declared: {line}")
+    env[key] = val
 
 
 def _parse_script(ilines: Iterator[str]) -> str:
@@ -169,12 +199,22 @@ def parse(contents: str) -> Job:
                 raise JobSyntaxError(f"Invalid oom line: {line}")
             else:
                 ret.oom = tokens[2]
+        elif tokens[0] == "env":
+            _parse_env(ret.env, line)
         elif tokens[0] == "exec":
             if ret.main is not None:
                 raise JobSyntaxError(
                     "More than one main exec/script stanza found"
                 )
             ret.main = _parse_exec(line)
+        elif tokens[0] == "export":
+            if len(tokens) != 2:
+                raise JobSyntaxError(f"Invalid export line: {line}")
+            ret.exports.add(tokens[1])
+        elif tokens[0] == "import":
+            if len(tokens) != 2:
+                raise JobSyntaxError(f"Invalid import line: {line}")
+            ret.imports.add(tokens[1])
         elif tokens[0] == "script":
             if ret.main is not None:
                 raise JobSyntaxError(
@@ -209,10 +249,7 @@ def parse(contents: str) -> Job:
             "console",
             "debug",
             "emits",
-            "env",
             "expect",
-            "export",
-            "import",
             "instance",
             "kill",
             "limit",
