@@ -275,27 +275,6 @@ class BuildPackagesCommand(command.CliCommand):
             "Only pull remote binpkgs.",
         )
 
-        # --run-goma option is designed to be used on bots.
-        # If you're trying to build packages with goma in your local dev env,
-        # this is *not* the option you're looking for.  Please see comments
-        # below.  This option; 1) starts goma, 2) builds packages (expecting
-        # that goma is used), then 3) stops goma explicitly.
-        # 4) is a request from the goma team, so that stats/logs can be taken.
-        # Note: GOMA_DIR is expected to be passed via env var.
-        #
-        # In local dev env cases, compiler_proxy is expected to keep running.
-        # In such a case;
-        #   $ python ${GOMA_DIR}/goma_ctl.py ensure_start
-        #   $ cros build-image (... and options without --run-goma ...)
-        # is an expected commandline sequence. If you set --run-goma flag while
-        # compiler_proxy is already running, the existing compiler_proxy will be
-        # stopped.
-        group.add_bool_argument(
-            "--run-goma",
-            False,
-            "(Re)start goma, build packages, and then stop goma.",
-            "Don't use goma to build.",
-        )
         # This option is for building chrome remotely.
         # 1) starts reproxy 2) builds chrome with reproxy and 3) stops reproxy
         # so logs/stats can be collected.
@@ -394,7 +373,6 @@ class BuildPackagesCommand(command.CliCommand):
             usepkg=options.usepkg,
             install_debug_symbols=options.withdebugsymbols,
             packages=options.packages,
-            use_goma=options.run_goma,
             use_remoteexec=options.run_remoteexec,
             incremental_build=options.withrevdeps,
             dryrun=options.pretend,

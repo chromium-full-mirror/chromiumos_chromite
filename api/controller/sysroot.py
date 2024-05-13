@@ -21,7 +21,6 @@ from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import cros_build_lib
-from chromite.lib import goma_lib
 from chromite.lib import metrics_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
@@ -370,9 +369,6 @@ def InstallPackages(
     if use_remoteexec:
         reproxy_cfg_file = request.remoteexec_config.reproxy_cfg_file
 
-    # Testing if Goma will support unknown compilers now.
-    use_goma = request.flags.use_goma and not use_remoteexec
-
     target_sysroot = sysroot_lib.Sysroot(request.sysroot.path)
     build_target = controller_util.ParseBuildTarget(
         request.sysroot.build_target
@@ -428,7 +424,6 @@ def InstallPackages(
         install_debug_symbols=True,
         packages=packages,
         use_flags=use_flags,
-        use_goma=use_goma,
         use_remoteexec=use_remoteexec,
         reproxy_cfg_file=reproxy_cfg_file,
         incremental_build=False,
@@ -461,24 +456,6 @@ def InstallPackages(
         return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
     finally:
         log_source_dir = _GetBuildLogDirectory()
-
-        # Copy goma logs to specified directory if there is a goma_config and
-        # it contains a log_dir to store artifacts.
-        if request.goma_config.log_dir.dir:
-            archiver = goma_lib.LogsArchiver(
-                log_source_dir,
-                dest_dir=request.goma_config.log_dir.dir,
-                stats_file=request.goma_config.stats_file,
-                counterz_file=request.goma_config.counterz_file,
-            )
-            archiver_tuple = archiver.Archive()
-            if archiver_tuple.stats_file:
-                response.goma_artifacts.stats_file = archiver_tuple.stats_file
-            if archiver_tuple.counterz_file:
-                response.goma_artifacts.counterz_file = (
-                    archiver_tuple.counterz_file
-                )
-            response.goma_artifacts.log_files[:] = archiver_tuple.log_files
 
         if request.remoteexec_config.log_dir.dir:
             archiver = remoteexec_lib.LogsArchiver(

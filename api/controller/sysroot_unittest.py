@@ -792,12 +792,6 @@ class InstallPackagesTest(
             sysroot_lib.Sysroot, "portage_logdir", new=self.portage_dir
         )
         osutils.SafeMakedirs(self.portage_dir)
-        # Set up goma directories.
-        self.goma_dir = os.path.join(self.tempdir, "goma_dir")
-        osutils.SafeMakedirs(self.goma_dir)
-        self.goma_out_dir = os.path.join(self.tempdir, "goma_out_dir")
-        osutils.SafeMakedirs(self.goma_out_dir)
-        os.environ["GLOG_log_dir"] = self.goma_dir
 
     def _InputProto(
         self,
@@ -805,10 +799,6 @@ class InstallPackagesTest(
         sysroot_path=None,
         build_source=False,
         use_cq_prebuilts=False,
-        goma_dir=None,
-        goma_log_dir=None,
-        goma_stats_file=None,
-        goma_counterz_file=None,
         packages=None,
         bazel=False,
         binhost_lookup_service_data=MOCK_BINHOST_LOOKUP_SERVICE_DATA,
@@ -824,14 +814,6 @@ class InstallPackagesTest(
             instance.flags.build_source = build_source
         if use_cq_prebuilts:
             instance.flags.use_cq_prebuilts = use_cq_prebuilts
-        if goma_dir:
-            instance.goma_config.goma_dir = goma_dir
-        if goma_log_dir:
-            instance.goma_config.log_dir.dir = goma_log_dir
-        if goma_stats_file:
-            instance.goma_config.stats_file = goma_stats_file
-        if goma_counterz_file:
-            instance.goma_config.counterz_file = goma_counterz_file
         if packages:
             for pkg in packages:
                 pkg_info = package_info.parse(pkg)
@@ -848,29 +830,6 @@ class InstallPackagesTest(
     def _OutputProto(self):
         """Helper to build an empty output proto instance."""
         return sysroot_pb2.InstallPackagesResponse()
-
-    def _CreateGomaLogFile(
-        self,
-        goma_log_dir: Union[str, os.PathLike],
-        name: str,
-        timestamp: datetime.datetime,
-    ) -> None:
-        """Creates a log file for testing.
-
-        Args:
-            goma_log_dir: Directory where the file will be created.
-            name: Log file 'base' name that is combined with the timestamp.
-            timestamp: Timestamp that is written to the file.
-        """
-        path = os.path.join(
-            goma_log_dir,
-            "%s.host.log.INFO.%s"
-            % (name, timestamp.strftime("%Y%m%d-%H%M%S.%f")),
-        )
-        osutils.WriteFile(
-            path,
-            timestamp.strftime("Goma log file created at: %Y/%m/%d %H:%M:%S"),
-        )
 
     def _CreatePortageLogFile(
         self,
@@ -1010,171 +969,6 @@ class InstallPackagesTest(
         self.assertFalse(rc)
         self.assertFalse(out_proto.failed_package_data)
 
-    def testSuccessWithGomaLogs(self) -> None:
-        """Test successful call with goma."""
-        self._CreateGomaLogFile(
-            self.goma_dir,
-            "compiler_proxy",
-            datetime.datetime(2018, 9, 21, 12, 0, 0),
-        )
-        self._CreateGomaLogFile(
-            self.goma_dir,
-            "compiler_proxy-subproc",
-            datetime.datetime(2018, 9, 21, 12, 1, 0),
-        )
-        self._CreateGomaLogFile(
-            self.goma_dir, "gomacc", datetime.datetime(2018, 9, 21, 12, 2, 0)
-        )
-
-        # Prevent argument validation error.
-        self.PatchObject(
-            sysroot_lib.Sysroot, "IsToolchainInstalled", return_value=True
-        )
-
-        in_proto = self._InputProto(
-            build_target=self.build_target,
-            sysroot_path=self.sysroot,
-            goma_dir=self.goma_dir,
-            goma_log_dir=self.goma_out_dir,
-        )
-
-        out_proto = self._OutputProto()
-        self.PatchObject(sysroot_service, "BuildPackages")
-
-        rc = sysroot_controller.InstallPackages(
-            in_proto, out_proto, self.api_config
-        )
-        self.assertFalse(rc)
-        self.assertFalse(out_proto.failed_package_data)
-
-        expected = [
-            "compiler_proxy-subproc.host.log.INFO.20180921-120100.000000.gz",
-            "compiler_proxy.host.log.INFO.20180921-120000.000000.gz",
-            "gomacc.host.log.INFO.20180921-120200.000000.tar.gz",
-        ]
-        self.assertCountEqual(out_proto.goma_artifacts.log_files, expected)
-
-    def testSuccessWithGomaLogsAndStatsCounterzFiles(self) -> None:
-        """Test successful call with goma including stats and counterz files."""
-        self._CreateGomaLogFile(
-            self.goma_dir,
-            "compiler_proxy",
-            datetime.datetime(2018, 9, 21, 12, 0, 0),
-        )
-        self._CreateGomaLogFile(
-            self.goma_dir,
-            "compiler_proxy-subproc",
-            datetime.datetime(2018, 9, 21, 12, 1, 0),
-        )
-        self._CreateGomaLogFile(
-            self.goma_dir, "gomacc", datetime.datetime(2018, 9, 21, 12, 2, 0)
-        )
-        # Create stats and counterz files.
-        osutils.WriteFile(
-            os.path.join(self.goma_dir, "stats.binaryproto"),
-            "File: stats.binaryproto",
-        )
-        osutils.WriteFile(
-            os.path.join(self.goma_dir, "counterz.binaryproto"),
-            "File: counterz.binaryproto",
-        )
-
-        # Prevent argument validation error.
-        self.PatchObject(
-            sysroot_lib.Sysroot, "IsToolchainInstalled", return_value=True
-        )
-
-        in_proto = self._InputProto(
-            build_target=self.build_target,
-            sysroot_path=self.sysroot,
-            goma_dir=self.goma_dir,
-            goma_log_dir=self.goma_out_dir,
-            goma_stats_file="stats.binaryproto",
-            goma_counterz_file="counterz.binaryproto",
-        )
-
-        out_proto = self._OutputProto()
-        self.PatchObject(sysroot_service, "BuildPackages")
-
-        rc = sysroot_controller.InstallPackages(
-            in_proto, out_proto, self.api_config
-        )
-        self.assertFalse(rc)
-        self.assertFalse(out_proto.failed_package_data)
-        expected_logs = [
-            "compiler_proxy-subproc.host.log.INFO.20180921-120100.000000.gz",
-            "compiler_proxy.host.log.INFO.20180921-120000.000000.gz",
-            "gomacc.host.log.INFO.20180921-120200.000000.tar.gz",
-        ]
-        self.assertCountEqual(out_proto.goma_artifacts.log_files, expected_logs)
-
-        # Verify that the output dir has 5 files -- since there should be 3 log
-        # files, the stats file, and the counterz file.
-        output_files = os.listdir(self.goma_out_dir)
-        expected_output = [
-            "stats.binaryproto",
-            "counterz.binaryproto",
-            "compiler_proxy-subproc.host.log.INFO.20180921-120100.000000.gz",
-            "compiler_proxy.host.log.INFO.20180921-120000.000000.gz",
-            "gomacc.host.log.INFO.20180921-120200.000000.tar.gz",
-        ]
-        self.assertCountEqual(output_files, expected_output)
-        self.assertEqual(
-            out_proto.goma_artifacts.counterz_file, "counterz.binaryproto"
-        )
-        self.assertEqual(
-            out_proto.goma_artifacts.stats_file, "stats.binaryproto"
-        )
-
-    def testFailureMissingGomaStatsCounterzFiles(self) -> None:
-        """Test successful call with goma including stats and counterz files."""
-        self._CreateGomaLogFile(
-            self.goma_dir,
-            "compiler_proxy",
-            datetime.datetime(2018, 9, 21, 12, 0, 0),
-        )
-        self._CreateGomaLogFile(
-            self.goma_dir,
-            "compiler_proxy-subproc",
-            datetime.datetime(2018, 9, 21, 12, 1, 0),
-        )
-        self._CreateGomaLogFile(
-            self.goma_dir, "gomacc", datetime.datetime(2018, 9, 21, 12, 2, 0)
-        )
-        # Note that stats and counterz files are not created, but are specified
-        # in the proto below.
-
-        # Prevent argument validation error.
-        self.PatchObject(
-            sysroot_lib.Sysroot, "IsToolchainInstalled", return_value=True
-        )
-
-        in_proto = self._InputProto(
-            build_target=self.build_target,
-            sysroot_path=self.sysroot,
-            goma_dir=self.goma_dir,
-            goma_log_dir=self.goma_out_dir,
-            goma_stats_file="stats.binaryproto",
-            goma_counterz_file="counterz.binaryproto",
-        )
-
-        out_proto = self._OutputProto()
-        self.PatchObject(sysroot_service, "BuildPackages")
-
-        rc = sysroot_controller.InstallPackages(
-            in_proto, out_proto, self.api_config
-        )
-        self.assertFalse(rc)
-        self.assertFalse(out_proto.failed_package_data)
-        expected_logs = [
-            "compiler_proxy-subproc.host.log.INFO.20180921-120100.000000.gz",
-            "compiler_proxy.host.log.INFO.20180921-120000.000000.gz",
-            "gomacc.host.log.INFO.20180921-120200.000000.tar.gz",
-        ]
-        self.assertCountEqual(out_proto.goma_artifacts.log_files, expected_logs)
-        self.assertFalse(out_proto.goma_artifacts.counterz_file)
-        self.assertFalse(out_proto.goma_artifacts.stats_file)
-
     def testFailureOutputHandling(self) -> None:
         """Test failed package handling."""
         # Prevent argument validation error.
@@ -1279,7 +1073,6 @@ class InstallPackagesTest(
             install_debug_symbols=True,
             packages=[],
             use_flags=[],
-            use_goma=False,
             use_remoteexec=True,
             reproxy_cfg_file=cfg_file_name,
             incremental_build=False,

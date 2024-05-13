@@ -87,30 +87,29 @@ def setup_base_sdk(
 def _run_system_emerge(
     emerge_cmd: List[Union[str, Path]],
     extra_env: Dict[str, str],
-    use_goma: bool,
     reason: str,
 ) -> None:
     """Runs an emerge command, updating the live system."""
     extra_env = extra_env.copy()
-    with sysroot.RemoteExecution(use_goma):
-        logging.info("Merging %s now.", reason)
-        try:
-            # TODO(b/277992359): Bazel.
-            cros_build_lib.sudo_run(
-                emerge_cmd,
-                preserve_env=True,
-                extra_env=extra_env,
-            )
-            logging.info("Merging %s complete.", reason)
-        except cros_build_lib.RunCommandError as e:
-            failed_pkgs = portage_util.ParseDieHookStatusFile()
-            logging.error("Merging %s failed on %s", reason, failed_pkgs)
-            raise sysroot_lib.PackageInstallError(
-                f"Merging {reason} failed",
-                e.result,
-                exception=e,
-                packages=failed_pkgs,
-            ) from e
+
+    logging.info("Merging %s now.", reason)
+    try:
+        # TODO(b/277992359): Bazel.
+        cros_build_lib.sudo_run(
+            emerge_cmd,
+            preserve_env=True,
+            extra_env=extra_env,
+        )
+        logging.info("Merging %s complete.", reason)
+    except cros_build_lib.RunCommandError as e:
+        failed_pkgs = portage_util.ParseDieHookStatusFile()
+        logging.error("Merging %s failed on %s", reason, failed_pkgs)
+        raise sysroot_lib.PackageInstallError(
+            f"Merging {reason} failed",
+            e.result,
+            exception=e,
+            packages=failed_pkgs,
+        ) from e
 
 
 def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
@@ -152,7 +151,6 @@ def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
         _run_system_emerge(
             cmd,
             extra_env,
-            config.use_goma,
             reason="subtools builder SDK packages",
         )
 

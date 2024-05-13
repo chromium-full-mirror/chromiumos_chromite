@@ -4,7 +4,6 @@
 
 """Sysroot service."""
 
-import contextlib
 import datetime
 import glob
 import json
@@ -19,7 +18,6 @@ from typing import (
     Callable,
     Dict,
     Generator,
-    Iterator,
     List,
     NamedTuple,
     Optional,
@@ -35,7 +33,6 @@ from chromite.lib import cache
 from chromite.lib import constants
 from chromite.lib import cpupower_helper
 from chromite.lib import cros_build_lib
-from chromite.lib import goma_lib
 from chromite.lib import gs
 from chromite.lib import metrics_lib
 from chromite.lib import osutils
@@ -193,7 +190,6 @@ class BuildPackagesRunConfig:
         install_debug_symbols: bool = False,
         packages: Optional[List[str]] = None,
         use_flags: Optional[List[str]] = None,
-        use_goma: bool = False,
         use_remoteexec: bool = False,
         reproxy_cfg_file: str = "",
         incremental_build: bool = True,
@@ -232,7 +228,6 @@ class BuildPackagesRunConfig:
             packages: The list of packages to install, by default install all
                 packages for the target.
             use_flags: A list of use flags to set.
-            use_goma: Whether to enable goma.
             use_remoteexec: Whether to use RBE for remoteexec.
             reproxy_cfg_file: Config file for remoteexec
             incremental_build: Whether to treat the build as an incremental
@@ -273,7 +268,6 @@ class BuildPackagesRunConfig:
         self.install_debug_symbols = install_debug_symbols
         self.packages = packages
         self.use_flags = use_flags
-        self.use_goma = use_goma
         self.use_remoteexec = use_remoteexec
         self.reproxy_cfg_file = reproxy_cfg_file
         self.is_incremental = incremental_build
@@ -335,9 +329,6 @@ class BuildPackagesRunConfig:
         features = self.get_features()
         if features:
             env["FEATURES"] = features
-
-        if self.use_goma:
-            env["USE_GOMA"] = "true"
 
         if self.use_remoteexec:
             env["USE_REMOTEEXEC"] = "true"
@@ -1036,62 +1027,62 @@ def BuildPackages(
                 f"--rebuild-exclude={sdk_pkgs}",
             ]
         )
-        with RemoteExecution(run_configs.use_goma):
-            logging.info("Merging board packages now.")
-            try:
-                with metrics_lib.timer(f"{metrics_prefix}.emerge"):
-                    packages = run_configs.GetPackages()
 
-                    span = trace.get_current_span()
-                    span.set_attributes(
-                        {
-                            "board": target.name,
-                            "packages": packages,
-                            "bazel": run_configs.bazel,
-                        }
-                    )
+        logging.info("Merging board packages now.")
+        try:
+            with metrics_lib.timer(f"{metrics_prefix}.emerge"):
+                packages = run_configs.GetPackages()
 
-                    timeout = (
-                        (
-                            run_configs.timeout - datetime.datetime.utcnow()
-                        ).total_seconds()
-                        if run_configs.timeout
-                        else None
-                    )
-                    logging.info(
-                        "Timeout datetime is %s. "
-                        "The build comand will be aborted after %s seconds.",
-                        run_configs.timeout,
-                        str(timeout),
-                    )
+                span = trace.get_current_span()
+                span.set_attributes(
+                    {
+                        "board": target.name,
+                        "packages": packages,
+                        "bazel": run_configs.bazel,
+                    }
+                )
 
-                    if run_configs.bazel:
-                        _BazelBuild(
-                            packages,
-                            target.name,
-                            run_configs.bazel_lite,
-                            run_configs.bazel_use_remote_execution,
-                            extra_env,
-                            timeout,
-                            _PrintProcessTree,
-                        )
-                    else:
-                        cros_build_lib.sudo_run(
-                            emerge_cmd + emerge_flags + packages,
-                            preserve_env=True,
-                            extra_env=extra_env,
-                            cmd_timeout=timeout,
-                            pre_timeout_hook=_PrintProcessTree,
-                        )
-                logging.info("Builds complete.")
-            except cros_build_lib.RunCommandError as e:
-                failed_pkgs = portage_util.ParseDieHookStatusFile()
-                raise sysroot_lib.PackageInstallError(
-                    "Merging board packages failed",
-                    e.result,
-                    exception=e,
-                    packages=failed_pkgs,
-                ) from e
+                timeout = (
+                    (
+                        run_configs.timeout - datetime.datetime.utcnow()
+                    ).total_seconds()
+                    if run_configs.timeout
+                    else None
+                )
+                logging.info(
+                    "Timeout datetime is %s. "
+                    "The build comand will be aborted after %s seconds.",
+                    run_configs.timeout,
+                    str(timeout),
+                )
+
+                if run_configs.bazel:
+                    _BazelBuild(
+                        packages,
+                        target.name,
+                        run_configs.bazel_lite,
+                        run_configs.bazel_use_remote_execution,
+                        extra_env,
+                        timeout,
+                        _PrintProcessTree,
+                    )
+                else:
+                    cros_build_lib.sudo_run(
+                        emerge_cmd + emerge_flags + packages,
+                        preserve_env=True,
+                        extra_env=extra_env,
+                        cmd_timeout=timeout,
+                        pre_timeout_hook=_PrintProcessTree,
+                    )
+            logging.info("Builds complete.")
+        except cros_build_lib.RunCommandError as e:
+            failed_pkgs = portage_util.ParseDieHookStatusFile()
+            raise sysroot_lib.PackageInstallError(
+                "Merging board packages failed",
+                e.result,
+                exception=e,
+                packages=failed_pkgs,
+            ) from e
 
         if run_configs.install_debug_symbols:
             logging.info("Fetching the debug symbols.")
@@ -2031,46 +2022,6 @@ def GatherSymbolFiles(
                 )
         else:
             raise ValueError("Unexpected input to GatherSymbolFiles: ", p)
-
-
-@contextlib.contextmanager
-def RemoteExecution(use_goma: bool) -> Iterator[None]:
-    """A context manager to start goma instance.
-
-    The context manager depending on the input argument will decide to start
-    the goma instance.
-
-    Args:
-        use_goma: If true, start the goma instance.
-
-    Yields:
-        Iterator.
-    """
-    goma_dir = Path(os.environ.get("GOMA_DIR", Path.home() / "goma"))
-    goma_tmp_dir = os.environ.get("GOMA_TMP_DIR")
-    glog_log_dir = os.environ.get("GLOG_log_dir")
-    goma_instance = None
-
-    try:
-        if use_goma:
-            logging.info("Starting goma compiler_proxy.")
-            goma_instance = goma_lib.Goma(
-                goma_dir,
-                goma_tmp_dir,
-                stage_name="BuildPackages",
-                log_dir=glog_log_dir,
-            )
-    except ValueError:
-        logging.warning("Remote execution initialization error.")
-
-    try:
-        if goma_instance:
-            goma_instance.Restart()
-        yield
-    finally:
-        if goma_instance:
-            logging.info("Stopping goma compiler_proxy.")
-            goma_instance.Stop()
 
 
 def ArchiveSysroot(

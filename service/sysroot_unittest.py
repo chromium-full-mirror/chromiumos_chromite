@@ -21,7 +21,6 @@ from chromite.lib import cpupower_helper
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
-from chromite.lib import goma_lib
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import partial_mock
@@ -509,7 +508,6 @@ class BuildPackagesRunConfigTest(
 
         extra_env = instance.GetExtraEnv()
 
-        self.assertNotIn("USE_GOMA", extra_env)
         self.assertNotIn("USE_REMOTEEXEC", extra_env)
 
         # Test when use_flags are specified.
@@ -665,7 +663,6 @@ class BuildPackagesRunConfigTest(
 
         extra_env = instance.GetExtraEnv()
 
-        self.assertNotIn("USE_GOMA", extra_env)
         self.assertEqual(extra_env.get("USE_REMOTEEXEC"), "true")
         self.assertEqual(extra_env.get("REPROXY_CFG_FILE"), reproxy_cfg_file)
 
@@ -1441,76 +1438,6 @@ def test_CollectBazelPerformanceArtifacts(monkeypatch, tmp_path) -> None:
     for expected_file in expected_files:
         assert str(expected_file) in archived_files
         assert expected_file.exists()
-
-
-class RemoteExecutionTest(cros_test_lib.MockLoggingTestCase):
-    """Unittests for remote execution context manager."""
-
-    def setUp(self) -> None:
-        self.goma_mock = self.PatchObject(goma_lib, "Goma", autospec=True)
-        self.goma_instance = self.goma_mock.return_value
-
-    def testGomaDir(self) -> None:
-        """Test the case where GOMA env variable is defined."""
-        os.environ.update(
-            {
-                "GOMA_DIR": "goma/path",
-                "GOMA_TMP_DIR": "goma/tmp/dir",
-                "GLOG_log_dir": "glog/log/dir",
-            }
-        )
-
-        with sysroot.RemoteExecution(use_goma=True):
-            self.goma_mock.assert_called_once_with(
-                Path("goma/path"),
-                "goma/tmp/dir",
-                stage_name="BuildPackages",
-                log_dir="glog/log/dir",
-            )
-        self.goma_instance.Restart.assert_called_once()
-        self.goma_instance.Stop.assert_called_once()
-
-    def testGomaHomeDir(self) -> None:
-        """Test the case where Home Path is used."""
-        self.PatchObject(Path, "home", return_value=Path("home"))
-
-        with sysroot.RemoteExecution(use_goma=True):
-            self.goma_mock.assert_called_once_with(
-                Path("home/goma"),
-                None,
-                stage_name="BuildPackages",
-                log_dir=None,
-            )
-        self.goma_instance.Restart.assert_called_once()
-        self.goma_instance.Stop.assert_called_once()
-
-    def testGomaException(self) -> None:
-        """Test the case where GOMA interface raises exception."""
-        self.goma_mock.side_effect = ValueError()
-
-        with cros_test_lib.LoggingCapturer() as log:
-            with sysroot.RemoteExecution(use_goma=True):
-                self.AssertLogsMatch(log, ".*initialization error.*")
-        self.goma_instance.Restart.assert_not_called()
-        self.goma_instance.Stop.assert_not_called()
-
-    def testNoRemoteExec(self) -> None:
-        """Test the case where no remoteexec is requested with env variable."""
-        os.environ.update(
-            {
-                "GOMA_DIR": "goma/path",
-            }
-        )
-
-        with sysroot.RemoteExecution(use_goma=False):
-            pass
-        self.goma_mock.assert_not_called()
-
-    def testNoRemoteExecNoEnv(self) -> None:
-        """Test case where no remoteexec is requested without env variable."""
-        with sysroot.RemoteExecution(use_goma=False):
-            pass
-        self.goma_mock.assert_not_called()
 
 
 class ArchiveSysrootTest(cros_test_lib.TempDirTestCase):
