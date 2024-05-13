@@ -2292,7 +2292,7 @@ oof
 """
     manifest_content = f"DIST {tarfile_name} 7 BLAH 123 SHA512 42"
 
-    def test_uprev(self) -> None:
+    def uprev(self, version_id) -> None:
         """Test that the ebuild is modified and uprevved."""
 
         # Create ebuild directory.
@@ -2321,7 +2321,6 @@ oof
 
         # Create mock ebuild to be uprevved.
         self.WriteTempFile(rev0_ebuild_path, old_ebuild_content)
-        version_id = "20230101-r42-rc123"
         manifest_path = os.path.join(package_path, "Manifest")
         self.WriteTempFile(manifest_path, self.manifest_content)
 
@@ -2346,9 +2345,15 @@ oof
         self.assertEqual(modified[2], old_ebuild_path)
         self.assertEqual(modified[3], new_ebuild_path)
 
-        tarfile_path = f"starbase-head-{version_id}/{self.tarfile_name}"
+        tarfile_path = f"starbase-{version_id}/{self.tarfile_name}"
 
         # Check that the new ebuild file contains the expected content.
         new_ebuild_content = self.ebuild_content_format % tarfile_path
         found_content = osutils.ReadFile(new_ebuild_path)
         self.assertEqual(new_ebuild_content, found_content)
+
+    def test_uprev_head(self) -> None:
+        self.uprev("head-20230101-r42-rc123")
+
+    def test_uprev_release(self) -> None:
+        self.uprev("release-20230101-r42-rc123")

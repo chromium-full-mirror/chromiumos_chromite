@@ -1213,7 +1213,7 @@ def starbase_find_and_uprev(
     rev0_ebuild_path = package_dir / rev0_pkg.ebuild
     for line in osutils.ReadText(rev0_ebuild_path).splitlines():
         if line.startswith("SRC_URI="):
-            src_uri_dir = f"${{DISTFILES}}/starbase-head-{version_id}"
+            src_uri_dir = f"${{DISTFILES}}/starbase-{version_id}"
             new_line = f'SRC_URI="{src_uri_dir}/{tarfile_name}"'
             logging.info("Replacing %s with %s", line, new_line)
             lines.append(new_line)
@@ -1315,17 +1315,20 @@ def uprev_starbase_artifacts(
 
     VERSION_ID = the version ID of the tar file, which is also the version ID
     of the Rapid "release candidate" of the workflow that generated and
-    uploaded the file.
+    uploaded the file. VERSION_ID will contain the prefix starbase-HEAD for
+    version built at HEAD or starbase-release for released version.
 
     GS_MIRROR = gs://chromeos-localmirror-private
 
     The tar file stored at this GS path:
 
-    GS_MIRROR/distfiles/starbase-head-VERSION_ID/TARFILE_NAME
+    GS_MIRROR/distfiles/starbase-VERSION_ID/TARFILE_NAME
 
     For instance:
 
     GS_MIRROR/distfiles/starbase-head-20230101-r00-rc001/starbase-foobar.tar.zst
+    or
+    GS_MIRROR/distfiles/starbase-release-20230101-r00-rc001/starbase-foobar.tar.zst
 
     Note that each directory can contain multiple tar files.  The "refs"
     parameter is a list with one element for each tar file (or package).  Only
