@@ -108,6 +108,13 @@ VIRTUALS = {
         "media-libs/mesa-reven",
         "x11-drivers/opengles-headers",
     ),
+    "virtual/tflite-stable-delegate-deps": (
+        "chromeos-base/intel-npu-umd",
+        "chromeos-base/intel-openvino",
+        "chromeos-base/mtk-apu-firmware",
+        "chromeos-base/mtk-apu-lib",
+        "chromeos-base/mtk-neuron",
+    ),
     "virtual/vulkan-icd": (
         "media-libs/img-ddk",
         "media-libs/img-ddk-bin",
