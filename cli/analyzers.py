@@ -149,9 +149,3 @@ class AnalyzerCommand(command.CliCommand):
             # stash and rebase changes. See also b/290714959.
             if HasUncommittedChanges(options.files):
                 parser.error("In-place may clobber uncommitted changes.")
-
-        if not options.files:
-            # Running with no arguments is allowed to make the repo upload hook
-            # simple, but print a warning so that if someone runs this manually
-            # they are aware that nothing was changed.
-            logging.warning("No files provided.  Doing nothing.")
