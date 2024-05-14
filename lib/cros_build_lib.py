@@ -1357,6 +1357,8 @@ def ExtractTarball(
         comp_type = CompressionDetectType(tarball_path)
     except FileNotFoundError as e:
         raise TarballError(str(e))
+    if comp_type == CompressionType.NONE:
+        comp_type = CompressionExtToType(tarball_path)
     if comp_type != CompressionType.NONE:
         # Special case pzstd when decompressing because it is the same as zstd,
         # unless the input was created with pzstd, then it's faster.  We can't

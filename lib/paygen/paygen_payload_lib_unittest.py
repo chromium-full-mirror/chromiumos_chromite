@@ -511,6 +511,10 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
                     download_file,
                     "--directory",
                     str(self.tempdir),
+                    "--use-compress-program",
+                    cros_build_lib.FindCompressor(
+                        cros_build_lib.CompressionType.XZ
+                    ),
                     test_extract_file,
                 ],
                 capture_output=True,
