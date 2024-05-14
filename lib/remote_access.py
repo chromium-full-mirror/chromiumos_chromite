@@ -790,6 +790,10 @@ class RemoteAccess:
             # TODO: Implement scp with remote sudo.
             raise NotImplementedError("Cannot run scp with sudo!")
 
+        for key in ("chmod", "chown", "relative", "mkpath"):
+            if kwargs.pop(key, None) is not None:
+                raise NotImplementedError(f"Cannot run scp with '{key}'")
+
         compress = kwargs.pop("compress", False)
 
         kwargs.setdefault("debug_level", self.debug_level)
