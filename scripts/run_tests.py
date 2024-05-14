@@ -21,6 +21,8 @@ $ ./run_tests lib/osutils_unittest.py::TestOsutils::testIsSubPath
 $ ./run_tests -- --help
 # List all tests that'd be run.
 $ ./run_tests -- --collect-only
+# Run only the tests that failed last run.
+$ ./run_tests -- --lf
 """
 
 import logging
