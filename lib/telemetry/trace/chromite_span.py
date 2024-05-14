@@ -60,6 +60,10 @@ class ChromiteSpan(otel_trace_api.Span):
         timestamp: Optional[int] = None,
         escaped: bool = False,
     ) -> None:
+        # Record STATUS_COKE_OK for sys.exit(0).
+        if isinstance(exception, SystemExit) and exception.code == 0:
+            self.set_status(status=otel_trace_api.StatusCode.OK)
+
         # Create a mutable dict from the passed attributes or create a new dict
         # if empty or null. This ensures that the passed dict is not mutated.
         attributes = dict(attributes or {})
