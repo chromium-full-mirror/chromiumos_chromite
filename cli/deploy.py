@@ -497,7 +497,8 @@ print(json.dumps(pkg_info))
             The executable that should be used for Python.
         """
         result = device.agent.RemoteSh(
-            "ls -1 /usr/lib/python-exec/python*/emerge"
+            "ls -1 /usr/lib/python-exec/python*/emerge",
+            shell=True,
         )
         emerge_bins = [Path(x) for x in result.stdout.splitlines()]
         if not emerge_bins:
