@@ -53,9 +53,9 @@ class TraceConfig:
         elif KEY_DEV in self._config[TRACE_SECTION_KEY]:
             del self._config[TRACE_SECTION_KEY][KEY_DEV]
 
-    def gen_id(self, regen=False) -> None:
+    def gen_id(self, regen=False) -> bool:
         """[Re]generate UUIDs."""
-        if regen or self._uuid_stale():
+        if self.enabled and (regen or self._uuid_stale()):
             self._config.set(
                 TRACE_SECTION_KEY, KEY_USER_UUID, str(uuid.uuid4())
             )
@@ -64,6 +64,10 @@ class TraceConfig:
                 KEY_USER_UUID_TIMESTAMP,
                 str(int(time.time())),
             )
+
+            return True
+
+        return False
 
     def set_batch(self, enabled: bool) -> None:
         """Set or delete the batch flag."""

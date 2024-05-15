@@ -13,7 +13,6 @@ import pytest
 from chromite.lib import chromite_config
 from chromite.lib import telemetry
 from chromite.lib.telemetry import config
-from chromite.lib.telemetry import exporter
 from chromite.utils import hostname_util
 
 
@@ -59,35 +58,21 @@ def test_no_exporter_for_non_google_host(
 
 
 def test_initialize_to_display_notice_to_user_on_google_host(
-    capsys, monkeypatch, processors, telemetry_config
+    capsys, monkeypatch, telemetry_config
 ) -> None:
     """Test initialize display notice to user."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
 
-    telemetry.initialize(publish=False)
+    # pylint: disable-next=protected-access
+    telemetry._handle_notice(config.Config(telemetry_config))
 
     cfg = config.Config(telemetry_config)
-    assert len(processors) == 0
-    assert capsys.readouterr().err.startswith(telemetry.NOTICE)
-    assert cfg.root_config.notice_countdown == 9
-
-
-def test_initialize_to_display_notice_and_print_spans_to_user_on_google_host(
-    capsys, monkeypatch, processors, telemetry_config
-) -> None:
-    """Test initialize display notice to user and print span on debug."""
-    monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
-
-    telemetry.initialize(publish=False)
-
-    cfg = config.Config(telemetry_config)
-    assert not processors
     assert capsys.readouterr().err.startswith(telemetry.NOTICE)
     assert cfg.root_config.notice_countdown == 9
 
 
 def test_initialize_to_update_enabled_on_count_down_complete(
-    capsys, monkeypatch, processors, telemetry_config
+    capsys, monkeypatch, telemetry_config
 ) -> None:
     """Test initialize auto enable telemetry on countdown complete."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
@@ -96,20 +81,16 @@ def test_initialize_to_update_enabled_on_count_down_complete(
     cfg.root_config.update(notice_countdown=-1)
     cfg.flush()
 
-    telemetry.initialize(publish=False)
+    telemetry._handle_notice(cfg)  # pylint: disable=protected-access
 
     cfg = config.Config(telemetry_config)
-    assert len(processors) == 1
-    assert (
-        processors[0].span_exporter.__class__ == exporter.ChromiteFileExporter
-    )
     assert not capsys.readouterr().err.startswith(telemetry.NOTICE)
     assert cfg.trace_config.enabled
     assert cfg.trace_config.enabled_reason == "AUTO"
 
 
 def test_initialize_to_skip_notice_when_trace_enabled_is_present(
-    capsys, monkeypatch, processors, telemetry_config
+    capsys, monkeypatch, telemetry_config
 ) -> None:
     """Test initialize to skip notice on enabled flag present."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
@@ -118,10 +99,9 @@ def test_initialize_to_skip_notice_when_trace_enabled_is_present(
     cfg.trace_config.update(enabled=False, reason="USER")
     cfg.flush()
 
-    telemetry.initialize(publish=False)
+    telemetry._handle_notice(cfg)  # pylint: disable=protected-access
 
     cfg = config.Config(telemetry_config)
-    assert len(processors) == 0
     assert not capsys.readouterr().err.startswith(telemetry.NOTICE)
     assert not cfg.trace_config.enabled
     assert cfg.trace_config.enabled_reason == "USER"
@@ -163,7 +143,8 @@ def test_initialize_to_skip_notice_if_tracecontext_present_in_env(
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
     monkeypatch.setattr(os, "environ", parent)
 
-    telemetry.initialize(publish=False)
+    # pylint: disable-next=protected-access
+    telemetry._handle_notice(config.Config(telemetry_config))
 
     cfg = config.Config(telemetry_config)
     assert len(processors) == 0

@@ -7,6 +7,11 @@
 import logging
 import os
 import sys
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from chromite.lib.telemetry import config
 
 
 NOTICE = """
@@ -57,6 +62,24 @@ def initialize(publish: bool = True) -> None:
 
     cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
 
+    _handle_notice(cfg)
+    _refresh_configs(cfg)
+
+    # Publish pending telemetry in a background process.
+    if publish:
+        _fork_and_publish()
+
+    trace.initialize(
+        enabled=cfg.trace_config.enabled,
+        development_mode=cfg.trace_config.dev_flag,
+        user_uuid=cfg.trace_config.user_uuid(),
+    )
+
+
+def _handle_notice(cfg: "config.Config") -> None:
+    """Print the telemetry notice and update counter as needed."""
+    from chromite.lib.telemetry import trace
+
     if (
         not cfg.trace_config.has_enabled()
         and trace.TRACEPARENT_ENVVAR not in os.environ
@@ -71,22 +94,14 @@ def initialize(publish: bool = True) -> None:
 
         cfg.flush()
 
-    if cfg.trace_config.enabled:
-        cfg.trace_config.gen_id()
+
+def _refresh_configs(cfg: "config.Config") -> None:
+    """Do config updates and flush."""
+    if cfg.trace_config.gen_id():
         cfg.flush()
 
-    # Publish pending telemetry in a background process.
-    if publish:
-        _fork_and_publish()
 
-    trace.initialize(
-        enabled=cfg.trace_config.enabled,
-        development_mode=cfg.trace_config.dev_flag,
-        user_uuid=cfg.trace_config.user_uuid(),
-    )
-
-
-def _fork_and_publish():
+def _fork_and_publish() -> None:
     """Fork a (short-lived) daemon publishing process."""
     if os.environ.get("CHROMITE_INSIDE_PYTEST") == "1":
         # Skip in tests.
