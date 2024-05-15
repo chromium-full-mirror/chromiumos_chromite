@@ -20,6 +20,7 @@ from chromite.cli import analyzers
 from chromite.cli import command
 from chromite.format import formatters
 from chromite.lib import cros_build_lib
+from chromite.lib import ensure_bootstrap
 from chromite.lib import git
 from chromite.lib import osutils
 from chromite.lib import parallel
@@ -313,6 +314,7 @@ Supported files: %s
         else:
             ret = 0
             # Run the tool in parallel on the files.
+            ensure_bootstrap.for_format()
             for task_ret, task_file in parallel.RunTasksInProcessPool(
                 dispatcher, tasks, processes=self.options.jobs
             ):

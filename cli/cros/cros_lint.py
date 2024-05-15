@@ -21,6 +21,7 @@ from chromite.cli import command
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import ensure_bootstrap
 from chromite.lib import git
 from chromite.lib import json_lib
 from chromite.lib import osutils
@@ -780,6 +781,7 @@ NB: Not all linters work with `--commit` yet.
             return dispatcher(tool, files[0])
         else:
             # Run the tool in parallel on the files.
+            ensure_bootstrap.for_lint()
             return sum(
                 parallel.RunTasksInProcessPool(
                     dispatcher, tasks, processes=self.options.jobs
