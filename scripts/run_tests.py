@@ -32,16 +32,11 @@ import sys
 import debugpy  # pylint: disable=import-error
 import pytest  # pylint: disable=import-error
 
-from chromite.api import compile_build_api_proto
-from chromite.format import formatters
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.lib import gs
+from chromite.lib import ensure_bootstrap
 from chromite.lib import namespaces
-from chromite.lib import qemu
-from chromite.lint import linters
-from chromite.scripts import clang_format
 from chromite.utils import shell_util
 
 
@@ -65,7 +60,8 @@ def main(argv) -> None:
         pytest_args += ["-m", "not network_test or network_test"]
 
     if opts.precache:
-        precache()
+        logging.notice("Caching tools from network (cipd/vpython/etc...)")
+        ensure_bootstrap.for_everything()
 
     if opts.quick:
         logging.info("Skipping test namespacing due to --quickstart.")
@@ -123,36 +119,6 @@ def main(argv) -> None:
 
     logging.debug("Running: pytest %s", shell_util.cmd_to_str(pytest_args))
     sys.exit(pytest.main(pytest_args))
-
-
-def precache() -> None:
-    """Do some network-dependent stuff before we disallow network access."""
-    # pylint: disable=protected-access
-    logging.notice("Caching tools from network (cipd/vpython/etc...)")
-
-    # This is a cheesy hack to make sure gsutil is populated in the cache before
-    # we run tests. This is a partial workaround for crbug.com/468838.
-    gs.GSContext.InitializeCache()
-    # Ensure protoc is installed for api/compile_build_api_proto_unittest.
-    compile_build_api_proto.InstallProtoc(
-        compile_build_api_proto.ProtocVersion.CHROMITE
-    )
-    # Ensure various tools are available.
-    cros_build_lib.dbg_run(
-        [constants.CHROMITE_DIR / "scripts" / "black", "--version"],
-        capture_output=True,
-    )
-    cros_build_lib.dbg_run(
-        [constants.CHROMITE_DIR / "scripts" / "isort", "--version"],
-        capture_output=True,
-    )
-    formatters.gn._find_gn()
-    formatters.star._find_buildifier()
-    formatters.textproto._find_txtpbfmt()
-    linters.shell._find_shellcheck()
-    qemu.InstallFromCipd()
-    with clang_format.ClangFormat():
-        pass
 
 
 def re_execute_inside_chroot(argv) -> None:
