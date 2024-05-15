@@ -10,8 +10,6 @@
   },
   "python.formatting.blackPath": "${workspaceFolder}/scripts/black",
   "python.formatting.provider": "black",
-  "python.linting.pylintEnabled": true,
-  "python.linting.pylintPath": "${workspaceFolder}/scripts/pylint",
   "python.testing.cwd": "${workspaceFolder}",
   "python.testing.nosetestsEnabled": false,
   "python.testing.pytestEnabled": false,
