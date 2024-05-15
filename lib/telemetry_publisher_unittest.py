@@ -8,6 +8,7 @@ import json
 
 from chromite.api.gen.chromite.telemetry import clientanalytics_pb2
 from chromite.api.gen.chromite.telemetry import trace_span_pb2
+from chromite.lib import osutils
 from chromite.lib import telemetry_publisher
 
 
@@ -83,7 +84,7 @@ _SPAN = """\
 }"""
 
 
-def test_from_json_to_proto():
+def test_from_json_to_proto() -> None:
     """Test parsing a json span and populating a proto."""
     trace_span = telemetry_publisher.TraceSpan()
     trace_span.from_json(_SPAN)
@@ -248,7 +249,7 @@ def test_next_request_wait(monkeypatch) -> None:
     assert publisher.wait_time > int(60 * 60 * 23.9)
 
 
-def test_extract_from_files(monkeypatch, tmp_path):
+def test_extract_from_files(monkeypatch, tmp_path) -> None:
     """Test extracting spans from files."""
     monkeypatch.setattr(
         telemetry_publisher, "_get_telemetry_dir", lambda: tmp_path
@@ -267,7 +268,7 @@ def test_extract_from_files(monkeypatch, tmp_path):
     assert expected == publisher._queue
 
 
-def test_telemetry_file_publishing_succeeded(tmp_path):
+def test_telemetry_file_publishing_succeeded(tmp_path) -> None:
     """Test TelemetryFile.publishing_succeeded."""
     f = tmp_path / "foo.otel.traces.json"
     f.touch()
@@ -296,7 +297,7 @@ def test_telemetry_file_publishing_succeeded(tmp_path):
     assert not telemetry_file._published_file.exists()
 
 
-def test_telemetry_file_parsing_failed(tmp_path):
+def test_telemetry_file_parsing_failed(tmp_path) -> None:
     """Test TelemetryFile.parsing_failed."""
     f = tmp_path / "foo.otel.traces.json"
     f.touch()
@@ -325,7 +326,7 @@ def test_telemetry_file_parsing_failed(tmp_path):
     assert not telemetry_file._parse_failed_file.exists()
 
 
-def test_telemetry_file_publishing_failed(tmp_path):
+def test_telemetry_file_publishing_failed(tmp_path) -> None:
     """Test TelemetryFile.publishing_failed."""
     f = tmp_path / "foo.otel.traces.json"
     f.touch()
@@ -354,7 +355,7 @@ def test_telemetry_file_publishing_failed(tmp_path):
     assert not telemetry_file._publish_failed_file.exists()
 
 
-def test_telemetry_file_in_progress(tmp_path):
+def test_telemetry_file_in_progress(tmp_path) -> None:
     """Test the in-progress file from the exporter."""
     f = tmp_path / "foo.otel.traces.json"
     f.touch()
@@ -378,7 +379,7 @@ def test_telemetry_file_in_progress(tmp_path):
     assert not in_progress.exists()
 
 
-def test_telemetry_file_spans(tmp_path):
+def test_telemetry_file_spans(tmp_path) -> None:
     """Test TelemetryFile.spans."""
     f = tmp_path / "foo.otel.traces.json"
     f.touch()
@@ -395,3 +396,29 @@ def test_telemetry_file_spans(tmp_path):
     # Make a new one to test the "spans" we wrote.
     telemetry_file = telemetry_publisher.TelemetryFile(f)
     assert len(telemetry_file.spans) == 4
+
+
+def test_other_telemetry_dirs(tmp_path, monkeypatch) -> None:
+    """Test other telemetry data handling."""
+    other = tmp_path / "other"
+    f = other / "nested" / "foo.otel.traces.json"
+    telemetry_dir = tmp_path / "telemetry"
+    expected_file = telemetry_dir / f.relative_to(other)
+
+    osutils.SafeMakedirs(f.parent, sudo=True)
+    osutils.WriteFile(f, _SPAN, sudo=True)
+    osutils.SafeMakedirsNonRoot(telemetry_dir)
+
+    monkeypatch.setattr(
+        telemetry_publisher, "_get_telemetry_dir", lambda: telemetry_dir
+    )
+    monkeypatch.setattr(
+        telemetry_publisher, "_get_other_telemetry_dirs", lambda: [other]
+    )
+    # pylint: disable-next=protected-access
+    telemetry_publisher._move_other_telemetry_files()
+
+    assert not f.exists()
+    assert expected_file.exists()
+    assert expected_file.read_text(encoding="utf-8") == _SPAN
+    assert expected_file.stat().st_uid

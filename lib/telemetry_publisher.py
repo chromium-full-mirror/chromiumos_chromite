@@ -76,19 +76,26 @@ class PublishError(Error):
 
 
 @functools.lru_cache
-def _get_telemetry_dir():
+def _get_telemetry_dir() -> "Path":
     """Get the base telemetry log directory."""
     return path_util.get_log_dir() / "telemetry"
 
 
+def _get_other_telemetry_dirs() -> List["Path"]:
+    """Get other directories with telemetry and their telemetry_dir mapping."""
+    return [
+        path_util.get_log_dir() / "portage" / "telemetry",
+    ]
+
+
 @functools.lru_cache
-def _get_publisher_file():
+def _get_publisher_file() -> "Path":
     """Get the publisher PID file."""
     return _get_telemetry_dir() / ".telemetry_publisher_pid"
 
 
 @functools.lru_cache
-def _get_next_publish_ts_file():
+def _get_next_publish_ts_file() -> "Path":
     """Get the telemetry next publish ts file."""
     return _get_telemetry_dir() / ".telemetry_next_publish_ts"
 
@@ -262,8 +269,33 @@ def _post_publish_failure_actions(pending_files: Iterable["TelemetryFile"]):
 
 def _get_telemetry_files() -> Iterable["TelemetryFile"]:
     """Get all telemetry files on disk."""
+    _move_other_telemetry_files()
     for current in _get_telemetry_dir().rglob("*.otel.traces.json"):
         yield TelemetryFile(current)
+
+
+def _move_other_telemetry_files():
+    """Move other telemetry files into the standard telemetry directory."""
+    # Make a copy of each file in our telemetry directory, and then delete from
+    # the source location to make sure we don't re-copy them since we don't need
+    # them at the source location anymore. We can't use osutils.MoveDirContents
+    # since there may be in-progress files we don't want to disrupt.
+    # Note: These semantics were selected because the portage emerge telemetry
+    # use case was the only use case when written. Portage copies the directory
+    # structure we use in the standard telemetry directory, but under
+    # /var/log/portage/telemetry, and always writes the files as root.
+    for source in _get_other_telemetry_dirs():
+        for f in source.rglob("*.otel.traces.json"):
+            # Write the file to the same relative location.
+            dest = _get_telemetry_dir() / f.relative_to(source)
+            osutils.SafeMakedirsNonRoot(dest.parent)
+            osutils.WriteFile(
+                dest,
+                osutils.ReadFile(f, encoding="utf-8", sudo=True),
+                encoding="utf-8",
+            )
+            osutils.Chown(dest, user=True)
+            osutils.SafeUnlink(f, sudo=True)
 
 
 class TelemetryFile:
