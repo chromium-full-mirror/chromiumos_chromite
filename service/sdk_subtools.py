@@ -78,6 +78,12 @@ def setup_base_sdk(
         with cros_sdk_lib.ChrootReadWrite():
             osutils.WriteFile(SUBTOOLS_CHROOT_VERSION_FILE, content, sudo=sudo)
 
+    # A normal SDK is setup with public-only PORTDIR_OVERLAY.  We want to be
+    # able to build private packages in the subtools builder.
+    with cros_sdk_lib.ChrootReadWrite():
+        sdk_sysroot = sysroot_lib.Sysroot("/")
+        sdk_sysroot.InstallMakeConfSdk(build_target, public_only=False)
+
     if setup_chroot:
         logging.info("Setting up subtools SDK in %s.", build_target.root)
         osutils.SafeMakedirs(SUBTOOLS_EXPORTS_CONFIG_DIR, sudo=sudo)
