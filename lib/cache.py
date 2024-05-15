@@ -28,24 +28,6 @@ class Error(Exception):
     """Raised on fatal errors."""
 
 
-def EntryLock(f):
-    """Decorator that provides monitor access control."""
-
-    def new_f(self, *args, **kwargs):
-        # Ensure we don't have a read lock before potentially blocking while
-        # trying to access the monitor.
-        if self.read_locked:
-            raise AssertionError(
-                "Cannot call %s while holding a read lock." % f.__name__
-            )
-
-        with self._entry_lock:
-            self._entry_lock.write_lock()
-            return f(self, *args, **kwargs)
-
-    return new_f
-
-
 def WriteLock(f):
     """Decorator that takes a write lock."""
 
@@ -82,9 +64,7 @@ class CacheReference:
         self._cache = cache
         self.key = key
         self.acquired = False
-        self.read_locked = False
         self._lock = cache._LockForKey(key)
-        self._entry_lock = cache._LockForKey(key, suffix=".entry_lock")
 
     @property
     def path(self) -> "os.PathLike[str]":
@@ -115,7 +95,6 @@ class CacheReference:
 
         self.acquired = False
         self._lock.__exit__(None, None, None)
-        self.read_locked = False
 
     def __enter__(self):
         self.Acquire()
@@ -126,7 +105,6 @@ class CacheReference:
 
     def _ReadLock(self) -> None:
         self._lock.read_lock()
-        self.read_locked = True
 
     @WriteLock
     def _Assign(self, path) -> None:
@@ -140,17 +118,14 @@ class CacheReference:
     def _Remove(self) -> None:
         self._cache._Remove(self.key)
         osutils.SafeUnlink(self._lock.path)
-        osutils.SafeUnlink(self._entry_lock.path)
 
     def _Exists(self):
         return self._cache._KeyExists(self.key)
 
-    @EntryLock
     def Assign(self, path) -> None:
         """Insert a file or a directory into the cache at the referenced key."""
         self._Assign(path)
 
-    @EntryLock
     def AssignText(self, text) -> None:
         """Create a file containing |text| and assign it to the key.
 
@@ -159,12 +134,10 @@ class CacheReference:
         """
         self._AssignText(text)
 
-    @EntryLock
     def Remove(self) -> None:
         """Removes the entry from the cache."""
         self._Remove()
 
-    @EntryLock
     def Exists(self, lock=False):
         """Tests for existence of entry.
 
@@ -177,7 +150,6 @@ class CacheReference:
             return True
         return False
 
-    @EntryLock
     def SetDefault(self, default_path, lock=False) -> None:
         """Assigns default_path if the entry doesn't exist.
 
