@@ -44,7 +44,7 @@ def Data(
         while not path.is_dir():
             path = path.parent
     result = cros_build_lib.run(
-        [_find_rustfmt(), "--edition", "2018"],
+        [_find_rustfmt(), "--edition", "2021"],
         capture_output=True,
         cwd=path,
         input=data,
