@@ -34,6 +34,7 @@ from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cpupower_helper
 from chromite.lib import cros_build_lib
+from chromite.lib import ensure_bootstrap
 from chromite.lib import gs
 from chromite.lib import metrics_lib
 from chromite.lib import osutils
@@ -878,6 +879,9 @@ def BuildPackages(
 
     logging.info("Bootstraping depot_tools")
     cros_build_lib.run([constants.DEPOT_TOOLS_DIR / "ensure_bootstrap"])
+
+    logging.info("Bootstrapping chromite tools")
+    ensure_bootstrap.for_everything()
 
     if os.environ.get("CROS_CLEAN_OUTDATED_PKGS") != "0":
         cop_command = [
