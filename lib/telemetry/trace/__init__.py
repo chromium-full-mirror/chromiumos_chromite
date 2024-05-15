@@ -109,6 +109,10 @@ def initialize(
     # Need this to globally mark telemetry initialized to enable real imports.
     # pylint: disable=global-statement
     global _TRACING_INITIALIZED
+
+    if not hostname_util.is_google_host():
+        return
+
     default_resource = otel_resources.Resource.create(
         {
             otel_resources.SERVICE_NAME: telemetry.SERVICE_NAME,
@@ -134,9 +138,6 @@ def initialize(
         otel_trace_sdk.TracerProvider(resource=resource)
     )
     otel_trace_api.set_tracer_provider(tracer_provider)
-
-    if not hostname_util.is_google_host():
-        return
 
     if enabled:
         path = _get_trace_path()

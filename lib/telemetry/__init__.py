@@ -52,6 +52,10 @@ def initialize(publish: bool = True) -> None:
     from chromite.lib import chromite_config
     from chromite.lib.telemetry import config
     from chromite.lib.telemetry import trace
+    from chromite.utils import hostname_util
+
+    if not hostname_util.is_google_host():
+        return
 
     if not chromite_config.initialize():
         # Error initializing as non-root user, e.g. b/327285178.

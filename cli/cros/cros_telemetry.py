@@ -108,6 +108,7 @@ What we collect:
     @tracer.start_as_current_span("cli.cros.cros_telemetry.main")
     def _do_run(self) -> None:
         span = trace.get_current_span()
+        chromite_config.initialize()
         cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
         if self.options.enable:
             span.set_attribute("enable", True)
