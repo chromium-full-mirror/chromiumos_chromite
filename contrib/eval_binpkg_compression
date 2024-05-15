@@ -108,7 +108,7 @@ def run_stats(output, *args, **kwargs):
             if x.startswith("ru_")
         )
         data["wall_clock"] = stop_time - start_time
-        with output.open("wb") as fp:
+        with output.open("w", encoding="utf-8") as fp:
             json.dump(data, fp)
         # We forked above, so use _exit here.
         # pylint: disable=protected-access
@@ -236,7 +236,7 @@ def unpack_binpkgs(
             tar_file.parent.mkdir(parents=True, exist_ok=True)
             run_stats(
                 Path(f"{tar_file}.decompress.json"),
-                ["pbzip2", "-dc", f"-p{threads_decompress}"],
+                ["zstd", "-dc", f"-p{threads_decompress}"],
                 stdin=data_file.open("rb"),
                 stdout=temp_file.open("wb"),
             )
