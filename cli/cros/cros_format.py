@@ -87,6 +87,7 @@ _TOOL_MAP = collections.OrderedDict(
         (frozenset({"*.ebuild", "*.eclass"}), (formatters.whitespace.Data,)),
         # TODO(build): Add a formatter for this.
         (frozenset({"*.md"}), (formatters.whitespace.Data,)),
+        (frozenset({"*.mojom"}), (formatters.mojom.Data,)),
         # TODO(build): Add a formatter for this (minijail seccomp policies).
         (frozenset({"*.policy"}), (formatters.whitespace.Data,)),
         (frozenset({"*.proto"}), (formatters.proto.Data,)),

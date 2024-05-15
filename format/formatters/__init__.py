@@ -12,6 +12,7 @@ __all__ = [
     "gn",
     "go",
     "json",
+    "mojom",
     "portage_layout_conf",
     "proto",
     "python",
