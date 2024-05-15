@@ -548,9 +548,9 @@ def FetchCentralizedSuites(
 
 def _FetchMetadataResponse(_request, response, _config) -> Optional[int]:
     """Populate the response with sample data."""
-    for fp in ("/metadata/foo.txt", "/metadata/bar.jsonproto"):
+    for path in ("/metadata/foo.txt", "/metadata/bar.jsonproto"):
         response.filepaths.add(
-            path=common_pb2.Path(path=fp, location=common_pb2.Path.OUTSIDE)
+            path=common_pb2.Path(path=path, location=common_pb2.Path.OUTSIDE)
         )
     return controller.RETURN_CODE_SUCCESS
 
@@ -572,6 +572,40 @@ def FetchMetadata(
     chroot = controller_util.ParseChroot(request.chroot)
     sysroot = controller_util.ParseSysroot(request.sysroot)
     for path in test.FindAllMetadataFiles(chroot, sysroot):
+        response.filepaths.add(
+            path=common_pb2.Path(path=path, location=common_pb2.Path.OUTSIDE)
+        )
+    return controller.RETURN_CODE_SUCCESS
+
+
+def _FetchTestHarnessMetadataResponse(
+    _request, response, _config
+) -> Optional[int]:
+    """Populate the response with sample data."""
+    for path in ("/metadata/foo.txt", "/metadata/bar.jsonproto"):
+        response.filepaths.add(
+            path=common_pb2.Path(path=path, location=common_pb2.Path.OUTSIDE)
+        )
+    return controller.RETURN_CODE_SUCCESS
+
+
+@faux.success(_FetchTestHarnessMetadataResponse)
+@faux.empty_error
+@validate.exists("chroot.path")
+@validate.require("sysroot.path")
+@validate.validation_complete
+def FetchTestHarnessMetadata(
+    request: artifacts_pb2.FetchTestHarnessMetadataRequest,
+    response: artifacts_pb2.FetchTestHarnessMetadataResponse,
+    _config: "api_config.ApiConfig",
+) -> Optional[int]:
+    """FetchTestHarnessMetadata returns the paths to harness metadata files.
+
+    This implements ArtifactsService.TestFetchHarnessMetadata.
+    """
+    chroot = controller_util.ParseChroot(request.chroot)
+    sysroot = controller_util.ParseSysroot(request.sysroot)
+    for path in test.FindAllHarnessMetadataFiles(chroot, sysroot):
         response.filepaths.add(
             path=common_pb2.Path(path=path, location=common_pb2.Path.OUTSIDE)
         )

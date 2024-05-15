@@ -1204,25 +1204,26 @@ class FetchMetadataTestCase(
 ):
     """Unittests for FetchMetadata."""
 
-    sysroot_path = "/build/coral"
+    sysroot_path = "/build/fake"
     chroot_name = "chroot"
 
     def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
         self.chroot = chroot_lib.Chroot(
-            path=self.tempdir / "chroot",
-            out_path=self.tempdir / "out",
+            path=os.path.join(self.tempdir, "fake_chroot")
         )
-        pathlib.Path(self.chroot.path).touch()
-        self.chroot.out_path.touch()
+        osutils.SafeMakedirs(self.chroot.path)
         self.expected_filepaths = [
             self.chroot.full_path(fp)
             for fp in (
-                "/build/coral/usr/local/build/autotest/autotest_metadata.pb",
-                "/build/coral/usr/share/tast/metadata/local/cros.pb",
-                "/build/coral/build/share/tast/metadata/local/crosint.pb",
-                "/usr/share/tast/metadata/remote/cros.pb",
-                "/build/coral/usr/local/build/gtest/gtest_metadata.pb",
+                "/build/fake/usr/local/build/autotest/autotest_metadata.pb",
+                "/build/fake/usr/share/tast/metadata/local/cros.pb",
+                "/build/fake/build/share/tast/metadata/local/crosint.pb",
+                "/build/fake/build/share/tast/metadata/local/crosint_intel.pb",
+                "/build/fake/usr/share/tast/metadata/remote/cros.pb",
+                "/build/fake/usr/share/tast/metadata/remote/crosint.pb",
+                "/build/fake/usr/share/tast/metadata/remote/crosint_intel.pb",
+                "/build/fake/usr/local/build/gtest/gtest_metadata.pb",
             )
         ]
         self.PatchObject(cros_build_lib, "AssertOutsideChroot")
@@ -1236,7 +1237,6 @@ class FetchMetadataTestCase(
             request.sysroot.path = self.sysroot_path
         if use_chroot:
             request.chroot.path = self.chroot.path
-            request.chroot.out_path = str(self.chroot.out_path)
         return request
 
     def testValidateOnly(self) -> None:
@@ -1275,6 +1275,107 @@ class FetchMetadataTestCase(
         request = self.createFetchMetadataRequest(use_chroot=True)
         response = artifacts_pb2.FetchMetadataResponse()
         artifacts.FetchMetadata(request, response, self.api_config)
+        actual_filepaths = [fp.path.path for fp in response.filepaths]
+        self.assertEqual(
+            sorted(actual_filepaths), sorted(self.expected_filepaths)
+        )
+        self.assertTrue(
+            all(
+                fp.path.location == common_pb2.Path.OUTSIDE
+                for fp in response.filepaths
+            )
+        )
+
+
+class FetchTestHarnessMetadataTestCase(
+    cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
+):
+    """Unittests for FetchTestHarnessMetadata."""
+
+    sysroot_path = "/build/fake_board"
+    chroot_name = "chroot"
+
+    def setUp(self) -> None:
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+        self.chroot = chroot_lib.Chroot(
+            path=os.path.join(self.tempdir, "fake_chroot")
+        )
+        osutils.SafeMakedirs(self.chroot.path)
+
+        tast_usr = "/build/fake_board/usr/share/tast/metadata/"
+        tast_build = "/build/fake_board/build/share/tast/metadata/"
+        self.expected_filepaths = [
+            self.chroot.full_path(fp)
+            for fp in (
+                os.path.join(tast_usr, "local/cros_local_harness.pb"),
+                os.path.join(tast_build, "local/crosint_local_harness.pb"),
+                os.path.join(
+                    tast_build, "local/crosint_intel_local_harness.pb"
+                ),
+                os.path.join(tast_usr, "remote/cros_remote_harness.pb"),
+                os.path.join(tast_usr, "remote/crosint_remote_harness.pb"),
+                os.path.join(
+                    tast_usr, "remote/crosint_intel_remote_harness.pb"
+                ),
+            )
+        ]
+        self.PatchObject(cros_build_lib, "AssertOutsideChroot")
+
+    def createFetchTestHarnessMetadataRequest(
+        self, use_sysroot_path=True, use_chroot=True
+    ):
+        """Construct a FetchTestHarnessMetadataRequest for use in test cases."""
+        request = artifacts_pb2.FetchTestHarnessMetadataRequest()
+        if use_sysroot_path:
+            request.sysroot.path = self.sysroot_path
+        if use_chroot:
+            request.chroot.path = self.chroot.path
+        return request
+
+    def testValidateOnly(self) -> None:
+        """Check that a validate only call does not execute any logic."""
+        patch = self.PatchObject(controller_util, "ParseSysroot")
+        request = self.createFetchTestHarnessMetadataRequest()
+        response = artifacts_pb2.FetchTestHarnessMetadataResponse()
+        artifacts.FetchTestHarnessMetadata(
+            request, response, self.validate_only_config
+        )
+        patch.assert_not_called()
+
+    def testMockCall(self) -> None:
+        """Test a mock call does not execute logic, returns mocked value."""
+        patch = self.PatchObject(controller_util, "ParseSysroot")
+        request = self.createFetchTestHarnessMetadataRequest()
+        response = artifacts_pb2.FetchTestHarnessMetadataResponse()
+        artifacts.FetchTestHarnessMetadata(
+            request, response, self.mock_call_config
+        )
+        patch.assert_not_called()
+        self.assertGreater(len(response.filepaths), 0)
+
+    def testNoSysrootPath(self) -> None:
+        """Check that a request with no sysroot.path results in failure."""
+        request = self.createFetchTestHarnessMetadataRequest(
+            use_sysroot_path=False
+        )
+        response = artifacts_pb2.FetchTestHarnessMetadataResponse()
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            artifacts.FetchMetadata(request, response, self.api_config)
+
+    def testNoChroot(self) -> None:
+        """Check that a request with no chroot results in failure."""
+        request = self.createFetchTestHarnessMetadataRequest(use_chroot=False)
+        response = artifacts_pb2.FetchTestHarnessMetadataResponse()
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            artifacts.FetchTestHarnessMetadata(
+                request, response, self.api_config
+            )
+
+    def testSuccess(self) -> None:
+        """Check that a well-formed request yields the expected results."""
+        request = self.createFetchTestHarnessMetadataRequest(use_chroot=True)
+        response = artifacts_pb2.FetchTestHarnessMetadataResponse()
+        artifacts.FetchTestHarnessMetadata(request, response, self.api_config)
         actual_filepaths = [fp.path.path for fp in response.filepaths]
         self.assertEqual(
             sorted(actual_filepaths), sorted(self.expected_filepaths)
