@@ -67,7 +67,7 @@ Usage:  $0 -c|--count <search_string>
      to find logs that contain String1 and String2 but not String3
 
      search_string : What to search for in build_cmd logs.
-     when_string   : Which dremel table, such as last7days, last1days, etc.
+     when_string   : Which table, such as last7days, last1days, etc.
                      (default=last3days)
      limit_string  : Limits numbers of rows to this value (default=30).
      field_limit   : Show <field_limit> characters of stdout starting with
@@ -76,7 +76,7 @@ Usage:  $0 -c|--count <search_string>
      case_sensitive: Match (or for 'ns', don't match) case sensitive.
                      Note that case-insensitive is the default.
      by_date       : Group counts by date. Ignored when -s given.
-     verbose       : Show dremel query before executing it.
+     verbose       : Show query before executing it.
 HELP_USAGE
   exit 0
 }
@@ -204,7 +204,7 @@ if [[ -n ${count_data} ]]; then
     echo "QUERY: ${query}"
     echo "Executing..."
   fi
-  echo "${query}" | dremel --min_completion_ratio 1
+  echo "${query}" | f1-sql
   exit 0
 fi
 
@@ -261,7 +261,7 @@ if [[ -n ${join_1} ]]; then
     echo "QUERY: ${query}"
     echo "Executing..."
   fi
-  echo "${query}" | dremel --min_completion_ratio 1
+  echo "${query}" | f1-sql
   exit 0
 fi
 
@@ -345,4 +345,4 @@ if [ "${verbose}" -eq 1 ]; then
   echo "QUERY: ${query}"
   echo "Executing..."
 fi
-echo "${query}" | dremel --min_completion_ratio 1
+echo "${query}" | f1-sql
