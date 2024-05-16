@@ -84,6 +84,7 @@ BAZEL_ALLPACKAGES_CQUERY_PROFILE_FILE = "/tmp/allpackages_cquery.profile.gz"
 BAZEL_ALLPACKAGES_ACTION_LOGS_FILE = "/tmp/allpackages_action_logs.tar.gz"
 BAZEL_ALLPACKAGES_EXEC_LOG_FILE = "/tmp/allpackages_exec.log"
 BAZEL_ALLPACKAGES_PREBUILTS_FILE = "/tmp/prebuilts.bzl"
+BAZEL_ALLPACKAGES_GRAPH_LOG_FILE = "/tmp/allpackages_graph.log"
 BAZEL_BUILD_EVENT_JSON_FILE_PATH = "/tmp/chromeos_bazel_build_events.json"
 BAZEL_COMMAND = constants.CHROMITE_BIN_DIR / "bazel"
 
@@ -1468,9 +1469,13 @@ in
             "--config=collect_logs",
             "--config=collect_ebuild_metadata",
             "--build_event_json_file=%s" % BAZEL_BUILD_EVENT_JSON_FILE_PATH,
-            # The two following flags enable data for Latency Processor.
+            # TODO(b/340476082): Switch back to uploading to BEP for Latency
+            # Processor once Bazel's incomplete execlog data issue is fixed and
+            # we stop needing the graph log for our analysis pipeline.
             "--experimental_enable_execution_graph_log",
             "--experimental_execution_graph_log_dep_type=all",
+            "--experimental_execution_graph_log_path=%s"
+            % BAZEL_ALLPACKAGES_GRAPH_LOG_FILE,
         ]
         if bazel_use_remote_execution:
             cmd += ["--config=rbe_exec"]
@@ -1831,6 +1836,7 @@ def CollectBazelPerformanceArtifacts(
         BAZEL_ALLPACKAGES_ACTION_LOGS_FILE,
         BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
         BAZEL_ALLPACKAGES_PREBUILTS_FILE,
+        BAZEL_ALLPACKAGES_GRAPH_LOG_FILE,
         BAZEL_BUILD_EVENT_JSON_FILE_PATH,
     ]
     raw_artifacts = [
