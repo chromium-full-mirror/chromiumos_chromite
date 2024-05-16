@@ -5,13 +5,20 @@
 """Strip packages and place them in <sysroot>/stripped-packages."""
 
 import os
+import site
 from typing import List
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.lib import gmerge_binhost
 from chromite.lib import install_mask
+
+
+# The builder module lives in the devserver path.
+# pylint: disable=import-error,wrong-import-position
+site.addsitedir(constants.SOURCE_ROOT / "src" / "platform" / "dev")
+import builder
 
 
 def create_parser() -> commandline.ArgumentParser:
@@ -57,8 +64,6 @@ def main(argv: List[str]) -> int:
 
     os.environ["DEFAULT_INSTALL_MASK"] = "\n".join(install_mask.DEFAULT)
 
-    if not gmerge_binhost.update_gmerge_binhost(
-        sysroot, options.packages, options.deep
-    ):
+    if not builder.UpdateGmergeBinhost(sysroot, options.packages, options.deep):
         return 1
     return 0

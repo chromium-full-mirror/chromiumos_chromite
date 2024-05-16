@@ -17,8 +17,8 @@ class StripPackageTest(cros_test_lib.MockTestCase):
 
     def setUp(self) -> None:
         self.sysroot_path = "/build/testboard"
-        self.gmerge_binhost_mock = self.PatchObject(
-            strip_package.gmerge_binhost, "update_gmerge_binhost"
+        self.builder_mock = self.PatchObject(
+            strip_package.builder, "UpdateGmergeBinhost"
         )
         self.PatchObject(
             build_target_lib,
@@ -29,23 +29,19 @@ class StripPackageTest(cros_test_lib.MockTestCase):
     def testDefaultSysroot(self) -> None:
         """Test the base case."""
         strip_package.main(["--board=testboard", "foo"])
-        self.gmerge_binhost_mock.assert_called_with(
-            self.sysroot_path, ["foo"], False
-        )
+        self.builder_mock.assert_called_with(self.sysroot_path, ["foo"], False)
 
     def testMultiplePkg(self) -> None:
         """Test multiple package input."""
         strip_package.main(["--board=testboard", "foo", "foo1"])
-        self.gmerge_binhost_mock.assert_called_with(
+        self.builder_mock.assert_called_with(
             self.sysroot_path, ["foo", "foo1"], False
         )
 
     def testCustomSysroot(self) -> None:
         """Test user given custom sysroot path."""
         strip_package.main(["--sysroot=/build/sysroot", "foo"])
-        self.gmerge_binhost_mock.assert_called_with(
-            "/build/sysroot", ["foo"], False
-        )
+        self.builder_mock.assert_called_with("/build/sysroot", ["foo"], False)
 
     def testInstallMask(self) -> None:
         """Test install mask environment variable."""
@@ -58,6 +54,4 @@ class StripPackageTest(cros_test_lib.MockTestCase):
     def testDeepOption(self) -> None:
         """Test Deep option."""
         strip_package.main(["--board=testboard", "--deep", "foo"])
-        self.gmerge_binhost_mock.assert_called_with(
-            self.sysroot_path, ["foo"], True
-        )
+        self.builder_mock.assert_called_with(self.sysroot_path, ["foo"], True)
