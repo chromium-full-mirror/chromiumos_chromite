@@ -16,7 +16,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import locking
 from chromite.lib import osutils
 from chromite.lib import signals
-from chromite.lib import sudo
 from chromite.utils import memoize
 
 
@@ -447,7 +446,7 @@ class Cgroup:
         """Set a cgroup file in this namespace to a specific value"""
         name = self._LimitName(key, True)
         try:
-            return sudo.SetFileContents(name, value, cwd=os.path.dirname(name))
+            osutils.WriteFile(name, value, sudo=True)
         except cros_build_lib.RunCommandError as e:
             if e.exception is not None:
                 # Command failed before the exec itself; convert ENOENT
