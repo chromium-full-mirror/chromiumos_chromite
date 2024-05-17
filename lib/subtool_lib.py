@@ -9,6 +9,7 @@ https://crsrc.org/o/src/config/proto/chromiumos/build/api/subtools.proto
 """
 
 import dataclasses
+import functools
 import hashlib
 import json
 import logging
@@ -614,21 +615,28 @@ class Subtool:
             )
         logger.notice("Contents provided by %s", self.source_packages)
 
+    @functools.cached_property
+    def private_packages(self) -> List[str]:
+        """List of private ebuilds (as cpvr) used for this subtool."""
+        if not self._source_ebuilds or self._unmatched_paths:
+            self._match_ebuilds()
+
+        source_ebuilds = list(self._source_ebuilds)
+        overlays = portage_util.FindOverlaysForPackages(*source_ebuilds)
+        private = set(overlays) - _KNOWN_PUBLIC_OVERLAYS
+        ebuilds_idx = [i for i, v in enumerate(overlays) if v in private]
+        return [source_ebuilds[i] for i in ebuilds_idx]
+
     def _validate_cipd_prefix(self) -> None:
         """Raise an error if the cipd_prefix is missing, but required."""
         if self.package.HasField("cipd_prefix"):
             return
 
-        source_ebuilds = list(self._source_ebuilds)
-        overlays = portage_util.FindOverlaysForPackages(*source_ebuilds)
-        private = set(overlays) - _KNOWN_PUBLIC_OVERLAYS
-        if private:
-            culprit_idx = [i for i, v in enumerate(overlays) if v in private]
-            culprits = [source_ebuilds[i] for i in culprit_idx]
+        if self.private_packages:
             raise ManifestInvalidError(
                 "Contents may come from private sources."
                 " An explicit `cipd_prefix` must be provided."
-                f" {culprits} comes from {private}.",
+                f" ({self.private_packages=})",
                 self,
             )
 
@@ -668,6 +676,7 @@ class InstalledSubtools:
         config_dir: Path,
         work_root: Path,
         glob: str = SUBTOOLS_EXPORTS_GLOB,
+        private_only: bool = False,
     ) -> None:
         logger.notice(
             "Loading subtools from %s/%s with Protobuf library v%s",
@@ -679,6 +688,8 @@ class InstalledSubtools:
         self.subtools = [
             Subtool.from_file(f, work_root) for f in config_dir.glob(glob)
         ]
+        if private_only:
+            self.subtools = [x for x in self.subtools if x.private_packages]
 
     def bundle_all(self) -> None:
         """Read .textprotos and bundle blobs into `work_root`."""

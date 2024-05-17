@@ -66,7 +66,10 @@ def BuildSdkSubtools(
 
         return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
 
-    (bundles, _) = sdk_subtools.bundle_and_prepare_upload()
+    (bundles, _) = sdk_subtools.bundle_and_prepare_upload(
+        upload_filter=request.upload_filter,
+        private_only=request.private_only,
+    )
     response.bundle_paths.extend(
         common_pb2.Path(path=str(b), location=common_pb2.Path.INSIDE)
         for b in bundles

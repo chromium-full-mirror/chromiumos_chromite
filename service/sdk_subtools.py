@@ -157,12 +157,15 @@ def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
 
 def bundle_and_prepare_upload(
     upload_filter: Optional[List[str]] = None,
+    private_only: bool = False,
 ) -> Tuple[List[Path], subtool_lib.InstalledSubtools]:
     """Searches for configured subtools, bundles, and prepares upload metadata.
 
     Args:
         upload_filter: If provided, uploads only subtools whose `name` proto
             field value is in the list. If None, uploads everything.
+        private_only: When true, only bundle subtools produced from private
+            packages.
 
     Returns:
         A tuple: the list of upload metadata paths, and the InstalledSubtools
@@ -173,6 +176,7 @@ def bundle_and_prepare_upload(
     subtools = subtool_lib.InstalledSubtools(
         config_dir=SUBTOOLS_EXPORTS_CONFIG_DIR,
         work_root=SUBTOOLS_BUNDLE_WORK_DIR,
+        private_only=private_only,
     )
     subtools.bundle_all()
     return (subtools.prepare_uploads(upload_filter), subtools)
