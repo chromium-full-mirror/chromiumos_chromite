@@ -110,7 +110,7 @@ class Package:
 
     @functools.cached_property
     def is_metapackage(self) -> bool:
-        return self.path.parent.name == "virtual"
+        return self.category == "virtual"
 
     @functools.cached_property
     def is_workon(self) -> bool:
@@ -267,7 +267,7 @@ def general_bump_eapi(
     """Update EAPI for normal (non-virtual & non-cros-workon) packages."""
     log_prefix = "general EAPI update"
 
-    if pkg.is_workon or pkg.category == "virtual":
+    if pkg.is_workon or pkg.is_metapackage:
         return False
 
     files = list(pkg.iterebuilds(symlinks=True))
@@ -324,7 +324,7 @@ def virtual_bump_eapi(
     force: bool = False,  # pylint: disable=unused-argument
 ) -> bool:
     """Update EAPI for virtual packages."""
-    if pkg.category != "virtual":
+    if not pkg.is_metapackage:
         return False
 
     files = list(pkg.iterebuilds(symlinks=True))
@@ -387,7 +387,7 @@ def set_license(
     )
 
     # If the LICENSE= line already exists, replace it.
-    # If it doesn't, try to insert it just before the SLOT= line.=
+    # If it doesn't, try to insert it just before the SLOT= line.
     lines = [
         'LICENSE="metapackage"' if x.startswith("LICENSE=") else x
         for x in lines
