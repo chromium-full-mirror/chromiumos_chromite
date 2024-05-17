@@ -68,7 +68,6 @@ def initialize(
     enabled: bool = False,
     development_mode: bool = False,
     user_uuid: str = "",
-    batch: bool = True,
 ) -> None:
     """Initialize opentelemetry tracing.
 
@@ -80,7 +79,6 @@ def initialize(
         development_mode: Mark the telemetry as in development, so it can be
             easily identified as such later, e.g. filtered out of queries.
         user_uuid: The user's UUID.
-        batch: Write telemetry to files for batch publishing.
     """
 
     # The opentelemetry imports are moved inside this function to reduce the
@@ -107,7 +105,6 @@ def initialize(
     from chromite.lib.telemetry.trace import chromite_tracer
     from chromite.utils import hostname_util
     from chromite.utils.telemetry import detector
-    from chromite.utils.telemetry import exporter as utils_exporter
 
     # Need this to globally mark telemetry initialized to enable real imports.
     # pylint: disable=global-statement
@@ -127,9 +124,7 @@ def initialize(
             detector.ProcessDetector(),
             cros_detector.SDKSourceDetector(),  # type: ignore[no-untyped-call]
             detector.SystemDetector(),  # type: ignore[no-untyped-call]
-            cros_detector.DevelopmentDetector(
-                force_dev=development_mode, batch_publishing=batch
-            ),
+            cros_detector.DevelopmentDetector(force_dev=development_mode),
             cros_detector.UserDetector(user_uuid=user_uuid),
         ]
     )
@@ -144,19 +139,10 @@ def initialize(
         return
 
     if enabled:
-        if batch:
-            path = _get_trace_path()
-            tracer_provider.add_span_processor(
-                otel_export.SimpleSpanProcessor(
-                    exporter.ChromiteFileExporter(path)
-                )
-            )
-        else:
-            tracer_provider.add_span_processor(
-                otel_export.BatchSpanProcessor(
-                    utils_exporter.ClearcutSpanExporter()
-                )
-            )
+        path = _get_trace_path()
+        tracer_provider.add_span_processor(
+            otel_export.SimpleSpanProcessor(exporter.ChromiteFileExporter(path))
+        )
 
     if TRACEPARENT_ENVVAR in os.environ:
         ctx = tracecontext.TraceContextTextMapPropagator().extract(os.environ)

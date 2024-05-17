@@ -73,12 +73,10 @@ class DevelopmentDetector(resources.ResourceDetector):
         self,
         *args,
         force_dev: bool = False,
-        batch_publishing: bool = False,
         **kwargs,
     ) -> None:
         super().__init__(*args, **kwargs)
         self.force_dev = force_dev
-        self.batch_publishing = batch_publishing
 
     def detect(self) -> resources.Resource:
         resource = {
@@ -87,7 +85,6 @@ class DevelopmentDetector(resources.ResourceDetector):
                 or os.environ.get("CHROMITE_TELEMETRY_IGNORE") == "1"
             ),
             "development.tag": os.environ.get("CHROMITE_TELEMETRY_TAG", ""),
-            "development.batch_publishing": self.batch_publishing,
         }
 
         return resources.Resource(resource)

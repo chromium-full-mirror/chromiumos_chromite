@@ -24,7 +24,6 @@ DEFAULT_CONFIG = {
     ROOT_SECTION_KEY: {NOTICE_COUNTDOWN_KEY: 10},
     TRACE_SECTION_KEY: {},
 }
-BATCH_PUBLISHING_ENABLED_KEY = "batch_publishing"
 # The "telemetry in development" config to allow publishing the telemetry, but
 # easily filtering it out later.
 KEY_DEV = "development"
@@ -68,19 +67,6 @@ class TraceConfig:
             return True
 
         return False
-
-    def set_batch(self, enabled: bool) -> None:
-        """Set or delete the batch flag."""
-        self._config.set(
-            TRACE_SECTION_KEY, BATCH_PUBLISHING_ENABLED_KEY, str(enabled)
-        )
-
-    @property
-    def batch(self) -> bool:
-        """Check if batch uploads are configured."""
-        return self._config[TRACE_SECTION_KEY].getboolean(
-            BATCH_PUBLISHING_ENABLED_KEY, False
-        )
 
     def _uuid_stale(self):
         """Check if the UUID is stale or doesn't exist."""

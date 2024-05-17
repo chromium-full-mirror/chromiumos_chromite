@@ -87,16 +87,6 @@ What we collect:
             action="store_true",
             help="Regenerate UUIDs.",
         )
-        actions.add_argument(
-            "--batch",
-            action="store_true",
-            help="Write telemetry to files and do batch uploading.",
-        )
-        actions.add_argument(
-            "--stop-batch",
-            action="store_true",
-            help="Stop writing telemetry to files and doing batch uploading.",
-        )
 
     @staticmethod
     def _show_telemetry(cfg: config.Config) -> None:
@@ -108,8 +98,6 @@ What we collect:
             )
             if cfg.trace_config.dev_flag:
                 print(f"{config.KEY_DEV} = True")
-            if cfg.trace_config.batch:
-                print(f"{config.BATCH_PUBLISHING_ENABLED_KEY} = True")
         else:
             print(f"notice_countdown = {cfg.root_config.notice_countdown}")
 
@@ -140,9 +128,5 @@ What we collect:
         elif self.options.regen_ids:
             span.set_attribute("regen_ids", True)
             cfg.trace_config.gen_id(regen=True)
-        elif self.options.batch:
-            cfg.trace_config.set_batch(True)
-        elif self.options.stop_batch:
-            cfg.trace_config.set_batch(False)
 
         cfg.flush()
