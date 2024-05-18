@@ -12,6 +12,7 @@ import re
 from typing import Iterable, List, Optional
 
 from chromite.lib import commandline
+from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib.parser import package_info
 
@@ -410,6 +411,121 @@ def set_license(
     return True
 
 
+# We can drop versions older than this.
+PYTHON_MIN_VERSION = 8
+
+# We need to make sure we include at least this version.
+PYTHON_WANT_VERSION = 11
+
+
+def update_python_compat(
+    pkg: Package,
+    dryrun: bool = False,
+    force: bool = False,
+) -> bool:
+    """Make sure PYTHON_COMPAT contains new enough settings."""
+    del force
+    log_prefix = "PYTHON_COMPAT update"
+
+    if pkg.is_workon:
+        src_ebuild = pkg.workon_ebuild
+    else:
+        files = list(pkg.iterebuilds(symlinks=True))
+        if len(files) not in (1, 2):
+            # If the ebuilds don't have PYTHON_COMPAT, don't warn.
+            src_ebuild = next(pkg.iterebuilds())
+            if get_var(src_ebuild.lines, "PYTHON_COMPAT") is not None:
+                logging.error(
+                    "%s: %s: too many ebuilds found: %s",
+                    pkg.cp,
+                    log_prefix,
+                    [x.cpv for x in files],
+                )
+            return False
+        if files[0].is_symlink:
+            files = [files[1], files[0]]
+        src_ebuild = files[0]
+    lines = src_ebuild.lines
+
+    var = get_var(lines, "PYTHON_COMPAT")
+    if var is None:
+        # Many packages don't use python at all.
+        return False
+
+    # Expand the bash braces.
+    result = cros_build_lib.dbg_run(
+        f"v={var}; echo -n ${{v[@]}}",
+        capture_output=True,
+        shell=True,
+        encoding="utf-8",
+        check=False,
+    )
+    if result.returncode:
+        logging.error(
+            "%s: %s: unable to parse variable: %s",
+            pkg.cp,
+            log_prefix,
+            var,
+        )
+        return False
+
+    # Calculate the new PYTHON_COMPAT.
+    python_compat = result.stdout.split()
+    non_python = sorted(
+        x for x in python_compat if not x.startswith("python3_")
+    )
+    python_vers = sorted(
+        int(x.split("_")[1]) for x in python_compat if x.startswith("python3_")
+    )
+    python_min_ver = python_vers[0]
+    python_max_ver = python_vers[-1]
+    if python_max_ver >= PYTHON_WANT_VERSION:
+        return False
+
+    if pkg.is_workon:
+        if get_var(lines, "CROS_WORKON_MANUAL_UPREV"):
+            logging.error(
+                "%s: %s: skipping CROS_WORKON_MANUAL_UPREV", pkg.cp, log_prefix
+            )
+            return False
+
+    non_python_var = " ".join(non_python)
+    if non_python_var:
+        non_python_var = " " + non_python_var
+    new_var = (
+        "( "
+        f"python3_{{{python_min_ver}..{PYTHON_WANT_VERSION}}}{non_python_var}"
+        " )"
+    )
+
+    cpv = src_ebuild.cpv
+    logging.notice(
+        "%s: changing PYTHON_COMPAT from %s to %s", cpv, var, new_var
+    )
+
+    # Update the ebuild with the new value.
+    matching_lines = []
+    for i, line in enumerate(lines):
+        if line.lstrip().startswith("PYTHON_COMPAT="):
+            matching_lines += [(i, line)]
+    if len(matching_lines) != 1:
+        logging.error(
+            "%s: %s: could not find single matching line to update",
+            cpv,
+            log_prefix,
+        )
+        return False
+    i, line = matching_lines[0]
+    lines[i] = line.split("=", 1)[0] + "=" + new_var
+    src_ebuild.write_lines(lines, dryrun=dryrun)
+
+    if not pkg.is_workon:
+        ebuild_bump(pkg, files, dryrun=dryrun)
+    git_add(pkg, dryrun=dryrun)
+
+    return True
+
+
 @enum.unique
 class RunMode(enum.Enum):
     """Which cleanup task to run."""
@@ -419,6 +535,7 @@ class RunMode(enum.Enum):
     CROS_WORKON_EAPI = enum.auto()
     GENERAL_EAPI = enum.auto()
     META_LICENSE = enum.auto()
+    PYTHON_COMPAT = enum.auto()
 
 
 ACTION_MAP = {
@@ -427,6 +544,7 @@ ACTION_MAP = {
     RunMode.META_LICENSE: (set_license, "set LICENSE=metapackage"),
     RunMode.CROS_WORKON_EAPI: (cros_workon_bump_eapi, "update to EAPI=7"),
     RunMode.GENERAL_EAPI: (general_bump_eapi, "update to EAPI=7"),
+    RunMode.PYTHON_COMPAT: (update_python_compat, "update PYTHON_COMPAT"),
 }
 
 
