@@ -112,22 +112,51 @@ What we collect:
         cfg = config.Config(chromite_config.TELEMETRY_CONFIG)
         if self.options.enable:
             span.set_attribute("enable", True)
-            cfg.trace_config.update(enabled=True, reason="USER")
-            logging.notice("Telemetry enabled successfully.")
+            _enable(cfg)
         elif self.options.disable:
             span.set_attribute("disable", True)
-            cfg.trace_config.update(enabled=False, reason="USER")
-            logging.notice("Telemetry disabled successfully.")
+            _disable(cfg)
         elif self.options.show:
             self._show_telemetry(cfg)
         elif self.options.start_dev:
-            cfg.trace_config.set_dev(True)
-            logging.notice("Development flag enabled successfully.")
+            _start_dev(cfg)
         elif self.options.stop_dev:
-            cfg.trace_config.set_dev(False)
-            logging.notice("Development flag disabled successfully.")
+            _stop_dev(cfg)
         elif self.options.regen_ids:
             span.set_attribute("regen_ids", True)
-            cfg.trace_config.gen_id(regen=True)
+            _regen_ids(cfg)
 
-        cfg.flush()
+
+def _disable(cfg) -> None:
+    """Disable telemetry."""
+    cfg.trace_config.update(enabled=False, reason="USER")
+    cfg.flush()
+    logging.notice("Telemetry disabled successfully.")
+
+
+def _enable(cfg) -> None:
+    """Enable telemetry."""
+    cfg.trace_config.update(enabled=True, reason="USER")
+    cfg.flush()
+    logging.notice("Telemetry enabled successfully.")
+
+
+def _regen_ids(cfg) -> None:
+    """Regen UUID(s)."""
+    cfg.trace_config.gen_id(regen=True)
+    cfg.flush()
+    logging.notice("Regenerated IDs.")
+
+
+def _start_dev(cfg) -> None:
+    """Enable telemetry development flag (spans ignored in queries)."""
+    cfg.trace_config.set_dev(True)
+    cfg.flush()
+    logging.notice("Development flag enabled successfully.")
+
+
+def _stop_dev(cfg) -> None:
+    """Disable telemetry development flag."""
+    cfg.trace_config.set_dev(False)
+    cfg.flush()
+    logging.notice("Development flag disabled successfully.")

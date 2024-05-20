@@ -4,23 +4,12 @@
 
 """This module tests the cros build command."""
 
-from unittest import mock
-
-from chromite.cli import command_unittest
 from chromite.cli.cros import cros_telemetry
-from chromite.lib import chromite_config
 from chromite.lib import cros_test_lib
 from chromite.lib.telemetry import config
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
-
-
-class MockTelemetryCommand(command_unittest.MockCommand):
-    """Mock out the telemetry command."""
-
-    TARGET = "chromite.cli.cros.cros_telemetry.TelemetryCommand"
-    TARGET_CLASS = cros_telemetry.TelemetryCommand
+# pylint: disable=protected-access
 
 
 class TelemetryCommandTest(cros_test_lib.MockTempDirTestCase):
@@ -30,14 +19,9 @@ class TelemetryCommandTest(cros_test_lib.MockTempDirTestCase):
         """Test that telemetry is marked as enabled in cfg."""
         file = self.tempdir / "telemetry.cfg"
 
-        config_initialize_mock = self.PatchObject(chromite_config, "initialize")
-        with mock.patch("chromite.lib.chromite_config.TELEMETRY_CONFIG", file):
-            cmd = MockTelemetryCommand(["--enable"])
-            cmd.inst.initialize_telemetry()
-            cmd.inst.Run()
+        cros_telemetry._enable(config.Config(path=file))
 
         cfg = config.Config(path=file)
-        self.assertTrue(config_initialize_mock.called)
         self.assertTrue(cfg.trace_config.has_enabled())
         self.assertTrue(cfg.trace_config.enabled)
         self.assertEqual("USER", cfg.trace_config.enabled_reason)
@@ -46,14 +30,27 @@ class TelemetryCommandTest(cros_test_lib.MockTempDirTestCase):
         """Test that telemetry is marked as disabled in cfg."""
         file = self.tempdir / "telemetry.cfg"
 
-        config_initialize_mock = self.PatchObject(chromite_config, "initialize")
-        with mock.patch("chromite.lib.chromite_config.TELEMETRY_CONFIG", file):
-            cmd = MockTelemetryCommand(["--disable"])
-            cmd.inst.initialize_telemetry()
-            cmd.inst.Run()
+        cros_telemetry._disable(config.Config(path=file))
 
         cfg = config.Config(path=file)
-        self.assertTrue(config_initialize_mock.called)
         self.assertTrue(cfg.trace_config.has_enabled())
         self.assertFalse(cfg.trace_config.enabled)
         self.assertEqual("USER", cfg.trace_config.enabled_reason)
+
+    def testToggleDev(self) -> None:
+        """Test toggling the development flag."""
+        file = self.tempdir / "telemetry.cfg"
+
+        # Off by default.
+        cfg = config.Config(path=file)
+        self.assertFalse(cfg.trace_config.dev_flag)
+
+        # Enable.
+        cros_telemetry._start_dev(config.Config(path=file))
+        cfg = config.Config(path=file)
+        self.assertTrue(cfg.trace_config.dev_flag)
+
+        # Disable.
+        cros_telemetry._stop_dev(config.Config(path=file))
+        cfg = config.Config(path=file)
+        self.assertFalse(cfg.trace_config.dev_flag)
