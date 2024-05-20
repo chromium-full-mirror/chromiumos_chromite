@@ -74,10 +74,7 @@ HOST_PACKAGES = (
 # These packages are also installed into the host SDK.  However, they require
 # the cross-compilers to be installed first (because they need them to actually
 # build), so we have to delay their installation.
-HOST_POST_CROSS_PACKAGES = (
-    "virtual/target-sdk-post-cross",
-    "dev-embedded/hps-sdk",
-)
+HOST_POST_CROSS_PACKAGES = ("virtual/target-sdk-post-cross",)
 
 # New packages that we're in the process of adding to the SDK.  Since the SDK
 # bot hasn't had a chance to run yet, there are no binary packages available,
