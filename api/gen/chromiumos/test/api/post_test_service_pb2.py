@@ -15,7 +15,7 @@ from chromite.api.gen.chromiumos.test.lab.api import ip_endpoint_pb2 as chromium
 from chromite.third_party.google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+chromiumos/test/api/post_test_service.proto\x12\x13\x63hromiumos.test.api\x1a)chromiumos/test/lab/api/ip_endpoint.proto\x1a\x19google/protobuf/any.proto\"y\n\x16PostTestStartUpRequest\x12\x37\n\ndut_server\x18\x01 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpoint\x12&\n\x08metadata\x18\x02 \x01(\x0b\x32\x14.google.protobuf.Any\"\xcb\x01\n\x17PostTestStartUpResponse\x12\x43\n\x06status\x18\x01 \x01(\x0e\x32\x33.chromiumos.test.api.PostTestStartUpResponse.Status\"k\n\x06Status\x12\x16\n\x12STATUS_UNSPECIFIED\x10\x00\x12\x12\n\x0eSTATUS_SUCCESS\x10\x01\x12\x1a\n\x16STATUS_INVALID_REQUEST\x10\x02\x12\x19\n\x15STATUS_STARTUP_FAILED\x10\x03\"C\n\x12RunActivityRequest\x12-\n\x07request\x18\x01 \x01(\x0b\x32\x1c.chromiumos.test.api.Request\"\xf5\x01\n\x07Request\x12\x44\n\x13get_fw_info_request\x18\x01 \x01(\x0b\x32%.chromiumos.test.api.GetFWInfoRequestH\x00\x12Q\n\x1aget_files_from_dut_request\x18\x02 \x01(\x0b\x32+.chromiumos.test.api.GetFilesFromDUTRequestH\x00\x12\x46\n\x14get_gfx_info_request\x18\x03 \x01(\x0b\x32&.chromiumos.test.api.GetGfxInfoRequestH\x00\x42\t\n\x07request\"\x7f\n\x14RunActivitiesRequest\x12.\n\x08requests\x18\x01 \x03(\x0b\x32\x1c.chromiumos.test.api.Request\x12\x37\n\ndut_server\x18\x02 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpoint\"T\n\x15RunActivitiesResponse\x12;\n\tresponses\x18\x01 \x03(\x0b\x32(.chromiumos.test.api.RunActivityResponse\"\x12\n\x10GetFWInfoRequest\"\'\n\x16GetFilesFromDUTRequest\x12\r\n\x05\x66iles\x18\x01 \x03(\t\"\x13\n\x11GetGfxInfoRequest\"\x88\x02\n\x13RunActivityResponse\x12\x46\n\x14get_fw_info_response\x18\x01 \x01(\x0b\x32&.chromiumos.test.api.GetFWInfoResponseH\x00\x12S\n\x1bget_files_from_dut_response\x18\x02 \x01(\x0b\x32,.chromiumos.test.api.GetFilesFromDUTResponseH\x00\x12H\n\x15get_gfx_info_response\x18\x03 \x01(\x0b\x32\'.chromiumos.test.api.GetGfxInfoResponseH\x00\x42\n\n\x08response\"m\n\x11GetFWInfoResponse\x12\x0f\n\x07ro_fwid\x18\x01 \x01(\t\x12\x0f\n\x07rw_fwid\x18\x02 \x01(\t\x12\x16\n\x0ekernel_version\x18\x03 \x01(\t\x12\x0e\n\x06gsc_ro\x18\x04 \x01(\t\x12\x0e\n\x06gsc_rw\x18\x05 \x01(\t\"I\n\x17GetFilesFromDUTResponse\x12.\n\x08\x66ile_map\x18\x01 \x03(\x0b\x32\x1c.chromiumos.test.api.FileMap\"3\n\x07\x46ileMap\x12\x11\n\tfile_name\x18\x01 \x01(\t\x12\x15\n\rfile_location\x18\x02 \x01(\t\"\x92\x01\n\x12GetGfxInfoResponse\x12J\n\ngfx_labels\x18\x01 \x03(\x0b\x32\x36.chromiumos.test.api.GetGfxInfoResponse.GfxLabelsEntry\x1a\x30\n\x0eGfxLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x32\xd9\x01\n\x0fPostTestService\x12\x64\n\x07StartUp\x12+.chromiumos.test.api.PostTestStartUpRequest\x1a,.chromiumos.test.api.PostTestStartUpResponse\x12`\n\x0bRunActivity\x12\'.chromiumos.test.api.RunActivityRequest\x1a(.chromiumos.test.api.RunActivityResponseB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+chromiumos/test/api/post_test_service.proto\x12\x13\x63hromiumos.test.api\x1a)chromiumos/test/lab/api/ip_endpoint.proto\x1a\x19google/protobuf/any.proto\"y\n\x16PostTestStartUpRequest\x12\x37\n\ndut_server\x18\x01 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpoint\x12&\n\x08metadata\x18\x02 \x01(\x0b\x32\x14.google.protobuf.Any\"\xcb\x01\n\x17PostTestStartUpResponse\x12\x43\n\x06status\x18\x01 \x01(\x0e\x32\x33.chromiumos.test.api.PostTestStartUpResponse.Status\"k\n\x06Status\x12\x16\n\x12STATUS_UNSPECIFIED\x10\x00\x12\x12\n\x0eSTATUS_SUCCESS\x10\x01\x12\x1a\n\x16STATUS_INVALID_REQUEST\x10\x02\x12\x19\n\x15STATUS_STARTUP_FAILED\x10\x03\"C\n\x12RunActivityRequest\x12-\n\x07request\x18\x01 \x01(\x0b\x32\x1c.chromiumos.test.api.Request\"\xbd\x02\n\x07Request\x12\x44\n\x13get_fw_info_request\x18\x01 \x01(\x0b\x32%.chromiumos.test.api.GetFWInfoRequestH\x00\x12Q\n\x1aget_files_from_dut_request\x18\x02 \x01(\x0b\x32+.chromiumos.test.api.GetFilesFromDUTRequestH\x00\x12\x46\n\x14get_gfx_info_request\x18\x03 \x01(\x0b\x32&.chromiumos.test.api.GetGfxInfoRequestH\x00\x12\x46\n\x14get_avl_info_request\x18\x04 \x01(\x0b\x32&.chromiumos.test.api.GetAvlInfoRequestH\x00\x42\t\n\x07request\"\x7f\n\x14RunActivitiesRequest\x12.\n\x08requests\x18\x01 \x03(\x0b\x32\x1c.chromiumos.test.api.Request\x12\x37\n\ndut_server\x18\x02 \x01(\x0b\x32#.chromiumos.test.lab.api.IpEndpoint\"T\n\x15RunActivitiesResponse\x12;\n\tresponses\x18\x01 \x03(\x0b\x32(.chromiumos.test.api.RunActivityResponse\"\x12\n\x10GetFWInfoRequest\"\'\n\x16GetFilesFromDUTRequest\x12\r\n\x05\x66iles\x18\x01 \x03(\t\"\x13\n\x11GetGfxInfoRequest\"\x13\n\x11GetAvlInfoRequest\"\xd2\x02\n\x13RunActivityResponse\x12\x46\n\x14get_fw_info_response\x18\x01 \x01(\x0b\x32&.chromiumos.test.api.GetFWInfoResponseH\x00\x12S\n\x1bget_files_from_dut_response\x18\x02 \x01(\x0b\x32,.chromiumos.test.api.GetFilesFromDUTResponseH\x00\x12H\n\x15get_gfx_info_response\x18\x03 \x01(\x0b\x32\'.chromiumos.test.api.GetGfxInfoResponseH\x00\x12H\n\x15get_avl_info_response\x18\x04 \x01(\x0b\x32\'.chromiumos.test.api.GetAvlInfoResponseH\x00\x42\n\n\x08response\"m\n\x11GetFWInfoResponse\x12\x0f\n\x07ro_fwid\x18\x01 \x01(\t\x12\x0f\n\x07rw_fwid\x18\x02 \x01(\t\x12\x16\n\x0ekernel_version\x18\x03 \x01(\t\x12\x0e\n\x06gsc_ro\x18\x04 \x01(\t\x12\x0e\n\x06gsc_rw\x18\x05 \x01(\t\"I\n\x17GetFilesFromDUTResponse\x12.\n\x08\x66ile_map\x18\x01 \x03(\x0b\x32\x1c.chromiumos.test.api.FileMap\"3\n\x07\x46ileMap\x12\x11\n\tfile_name\x18\x01 \x01(\t\x12\x15\n\rfile_location\x18\x02 \x01(\t\"\x92\x01\n\x12GetGfxInfoResponse\x12J\n\ngfx_labels\x18\x01 \x03(\x0b\x32\x36.chromiumos.test.api.GetGfxInfoResponse.GfxLabelsEntry\x1a\x30\n\x0eGfxLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"c\n\x12GetAvlInfoResponse\x12\x16\n\x0e\x61vl_part_model\x18\x01 \x01(\t\x12\x19\n\x11\x61vl_part_firmware\x18\x02 \x01(\t\x12\x1a\n\x12\x61vl_component_type\x18\x03 \x01(\t2\xd9\x01\n\x0fPostTestService\x12\x64\n\x07StartUp\x12+.chromiumos.test.api.PostTestStartUpRequest\x1a,.chromiumos.test.api.PostTestStartUpResponse\x12`\n\x0bRunActivity\x12\'.chromiumos.test.api.RunActivityRequest\x1a(.chromiumos.test.api.RunActivityResponseB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.api.post_test_service_pb2', globals())
@@ -34,29 +34,33 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _RUNACTIVITYREQUEST._serialized_start=467
   _RUNACTIVITYREQUEST._serialized_end=534
   _REQUEST._serialized_start=537
-  _REQUEST._serialized_end=782
-  _RUNACTIVITIESREQUEST._serialized_start=784
-  _RUNACTIVITIESREQUEST._serialized_end=911
-  _RUNACTIVITIESRESPONSE._serialized_start=913
-  _RUNACTIVITIESRESPONSE._serialized_end=997
-  _GETFWINFOREQUEST._serialized_start=999
-  _GETFWINFOREQUEST._serialized_end=1017
-  _GETFILESFROMDUTREQUEST._serialized_start=1019
-  _GETFILESFROMDUTREQUEST._serialized_end=1058
-  _GETGFXINFOREQUEST._serialized_start=1060
-  _GETGFXINFOREQUEST._serialized_end=1079
-  _RUNACTIVITYRESPONSE._serialized_start=1082
-  _RUNACTIVITYRESPONSE._serialized_end=1346
-  _GETFWINFORESPONSE._serialized_start=1348
-  _GETFWINFORESPONSE._serialized_end=1457
-  _GETFILESFROMDUTRESPONSE._serialized_start=1459
-  _GETFILESFROMDUTRESPONSE._serialized_end=1532
-  _FILEMAP._serialized_start=1534
-  _FILEMAP._serialized_end=1585
-  _GETGFXINFORESPONSE._serialized_start=1588
-  _GETGFXINFORESPONSE._serialized_end=1734
-  _GETGFXINFORESPONSE_GFXLABELSENTRY._serialized_start=1686
-  _GETGFXINFORESPONSE_GFXLABELSENTRY._serialized_end=1734
-  _POSTTESTSERVICE._serialized_start=1737
-  _POSTTESTSERVICE._serialized_end=1954
+  _REQUEST._serialized_end=854
+  _RUNACTIVITIESREQUEST._serialized_start=856
+  _RUNACTIVITIESREQUEST._serialized_end=983
+  _RUNACTIVITIESRESPONSE._serialized_start=985
+  _RUNACTIVITIESRESPONSE._serialized_end=1069
+  _GETFWINFOREQUEST._serialized_start=1071
+  _GETFWINFOREQUEST._serialized_end=1089
+  _GETFILESFROMDUTREQUEST._serialized_start=1091
+  _GETFILESFROMDUTREQUEST._serialized_end=1130
+  _GETGFXINFOREQUEST._serialized_start=1132
+  _GETGFXINFOREQUEST._serialized_end=1151
+  _GETAVLINFOREQUEST._serialized_start=1153
+  _GETAVLINFOREQUEST._serialized_end=1172
+  _RUNACTIVITYRESPONSE._serialized_start=1175
+  _RUNACTIVITYRESPONSE._serialized_end=1513
+  _GETFWINFORESPONSE._serialized_start=1515
+  _GETFWINFORESPONSE._serialized_end=1624
+  _GETFILESFROMDUTRESPONSE._serialized_start=1626
+  _GETFILESFROMDUTRESPONSE._serialized_end=1699
+  _FILEMAP._serialized_start=1701
+  _FILEMAP._serialized_end=1752
+  _GETGFXINFORESPONSE._serialized_start=1755
+  _GETGFXINFORESPONSE._serialized_end=1901
+  _GETGFXINFORESPONSE_GFXLABELSENTRY._serialized_start=1853
+  _GETGFXINFORESPONSE_GFXLABELSENTRY._serialized_end=1901
+  _GETAVLINFORESPONSE._serialized_start=1903
+  _GETAVLINFORESPONSE._serialized_end=2002
+  _POSTTESTSERVICE._serialized_start=2005
+  _POSTTESTSERVICE._serialized_end=2222
 # @@protoc_insertion_point(module_scope)
