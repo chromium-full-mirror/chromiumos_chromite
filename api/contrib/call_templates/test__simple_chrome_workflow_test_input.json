@@ -1,9 +1,5 @@
 {
   "chrome_root": "/path/to/chrome",
-  "goma_config": {
-    "chromeos_goma_dir": "/path/to/chromeos/goma/dir",
-    "goma_dir": "/path/to/goma"
-  },
   "sysroot": {
     "build_target": {
       "name": "%(build_target)s"

@@ -320,9 +320,6 @@ class RunThroughTest(
             autospec=True,
             side_effect=self.SourceEnvironmentMock,
         )
-        self.rc_mock.AddCmdResult(
-            cros_chrome_sdk.ChromeSDKCommand.GOMACC_PORT_CMD, stdout="8088"
-        )
 
         # Initialized by SetupCommandMock.
         self.cmd_mock = None
@@ -343,13 +340,9 @@ class RunThroughTest(
 
     def testIt(self) -> None:
         """Test a runthrough of the script."""
-        self.PatchObject(
-            cros_chrome_sdk.ChromeSDKCommand, "_GomaDir", side_effect=["XXXX"]
-        )
         self.SetupCommandMock()
-        with cros_test_lib.LoggingCapturer() as logs:
+        with cros_test_lib.LoggingCapturer():
             self.cmd_mock.inst.Run()
-            self.AssertLogsContain(logs, "Goma:", inverted=True)
 
     def testManyBoards(self) -> None:
         """Test a runthrough when multiple boards are specified via --boards."""
@@ -456,18 +449,6 @@ class RunThroughTest(
         with cros_test_lib.LoggingCapturer():
             self.cmd_mock.inst.Run()
 
-    def testGomaError(self) -> None:
-        """We print an error message when GomaError is raised."""
-        self.SetupCommandMock(extra_args=["--goma", "--no-use-remoteexec"])
-        with cros_test_lib.LoggingCapturer() as logs:
-            self.PatchObject(
-                cros_chrome_sdk.ChromeSDKCommand,
-                "_SetupGoma",
-                side_effect=cros_chrome_sdk.GomaError(),
-            )
-            self.cmd_mock.inst.Run()
-            self.AssertLogsContain(logs, "Goma:")
-
     def testSpecificComponent(self) -> None:
         """Verify SDKFetcher.Prepare() handles |components| param properly."""
         sdk = cros_chrome_sdk.SDKFetcher(
@@ -487,46 +468,13 @@ class RunThroughTest(
                 return True
         return False
 
-    def testGomaInPath(self) -> None:
-        """Verify that we do indeed add Goma to the PATH."""
-        self.PatchObject(
-            cros_chrome_sdk.ChromeSDKCommand, "_GomaDir", side_effect=["XXXX"]
-        )
-        self.SetupCommandMock(extra_args=["--goma", "--no-use-remoteexec"])
-        self.cmd_mock.inst.Run()
-
-        self.assertIn("use_goma = true", self.cmd_mock.env["GN_ARGS"])
-
     def testRbeIsDefault(self) -> None:
-        """Verify that we do not add Goma to the PATH."""
         self.SetupCommandMock()
         self.cmd_mock.inst.Run()
 
-        self.assertIn("use_goma = false", self.cmd_mock.env["GN_ARGS"])
         self.assertIn("use_remoteexec = true", self.cmd_mock.env["GN_ARGS"])
-        wrapper_path = os.path.join(
-            self.chrome_root,
-            "src",
-            "build",
-            "args",
-            "chromeos",
-            "rewrapper_%s" % SDKFetcherMock.BOARD,
-        )
-        self.assertIn(
-            'rbe_cros_cc_wrapper = "%s"' % wrapper_path,
-            self.cmd_mock.env["GN_ARGS"],
-        )
-
-    def testNoUseRemoteExecDoesNotFallbackToGoma(self) -> None:
-        """Verify that we do not add Goma to the PATH."""
-        self.SetupCommandMock(extra_args=["--no-use-remoteexec"])
-        self.cmd_mock.inst.Run()
-
-        self.assertIn("use_goma = false", self.cmd_mock.env["GN_ARGS"])
-        self.assertIn("use_remoteexec = false", self.cmd_mock.env["GN_ARGS"])
 
     def testUseRBELacros(self) -> None:
-        """Verify that we do not add Goma to the PATH."""
         self.SetupCommandMock(extra_args=["--is-lacros", "--version=1234.0.0"])
         lkgm_file = os.path.join(
             self.chrome_src_dir, constants.PATH_TO_CHROME_LKGM
@@ -536,20 +484,7 @@ class RunThroughTest(
 
         self.cmd_mock.inst.Run()
 
-        self.assertIn("use_goma = false", self.cmd_mock.env["GN_ARGS"])
         self.assertIn("use_remoteexec = true", self.cmd_mock.env["GN_ARGS"])
-        wrapper_path = os.path.join(
-            self.chrome_root,
-            "src",
-            "build",
-            "args",
-            "chromeos",
-            "rewrapper_%s" % SDKFetcherMock.BOARD,
-        )
-        self.assertIn(
-            'rbe_cros_cc_wrapper = "%s"' % wrapper_path,
-            self.cmd_mock.env["GN_ARGS"],
-        )
 
     def testGnArgsStalenessCheckNoMatch(self) -> None:
         """Verifies the GN args are checked for staleness with a mismatch."""
@@ -751,64 +686,6 @@ class RunThroughTest(
             self.assertExists(nacl_toolchain_dir)
 
 
-class GomaTest(
-    cros_test_lib.MockTempDirTestCase, cros_test_lib.LoggingTestCase
-):
-    """Test Goma setup functionality."""
-
-    def setUp(self) -> None:
-        self.rc_mock = cros_test_lib.RunCommandMock()
-        self.rc_mock.SetDefaultCmdResult()
-        self.StartPatcher(self.rc_mock)
-
-        self.cmd_mock = MockChromeSDKCommand(
-            ["--board", SDKFetcherMock.BOARD, "true"],
-            base_args=["--cache-dir", str(self.tempdir)],
-        )
-        self.StartPatcher(self.cmd_mock)
-
-    def VerifyGomaError(self) -> None:
-        self.assertRaises(
-            cros_chrome_sdk.GomaError, self.cmd_mock.inst._SetupGoma
-        )
-
-    def testNoGomaPort(self) -> None:
-        """We print an error when gomacc is not returning a port."""
-        self.rc_mock.AddCmdResult(
-            cros_chrome_sdk.ChromeSDKCommand.GOMACC_PORT_CMD
-        )
-        self.VerifyGomaError()
-
-    def testGomaccError(self) -> None:
-        """We print an error when gomacc exits with nonzero returncode."""
-        self.rc_mock.AddCmdResult(
-            cros_chrome_sdk.ChromeSDKCommand.GOMACC_PORT_CMD, returncode=1
-        )
-        self.VerifyGomaError()
-
-    def testSetupError(self) -> None:
-        """We print an error when we can't fetch Goma."""
-        self.rc_mock.AddCmdResult(
-            cros_chrome_sdk.ChromeSDKCommand.GOMACC_PORT_CMD, returncode=1
-        )
-        self.VerifyGomaError()
-
-    def testGomaStart(self) -> None:
-        """Test that we start Goma if it's not already started."""
-        # Duplicate return values.
-        self.PatchObject(
-            cros_chrome_sdk.ChromeSDKCommand, "_GomaDir", side_effect=["XXXX"]
-        )
-        self.PatchObject(
-            cros_chrome_sdk.ChromeSDKCommand,
-            "_GomaPort",
-            side_effect=["XXXX", "XXXX"],
-        )
-        goma_dir, goma_port = self.cmd_mock.inst._SetupGoma()
-        self.assertEqual(goma_port, "XXXX")
-        self.assertTrue(bool(goma_dir))
-
-
 class VersionTest(
     gs_unittest.AbstractGSContextTest, cros_test_lib.LoggingTestCase
 ):
@@ -951,7 +828,6 @@ class PathVerifyTest(
             osutils, "SourceEnvironment", side_effect=SourceEnvironmentMock
         )
         file_list = (
-            "goma/goma_ctl.py",
             "clang/clang",
             "chromite/parallel_emerge",
         )
@@ -962,10 +838,9 @@ class PathVerifyTest(
             osutils.Touch(p, makedirs=True, mode=0o755)
 
         with cros_test_lib.LoggingCapturer() as logs:
-            cros_chrome_sdk.ChromeSDKCommand._VerifyGoma(None)
             cros_chrome_sdk.ChromeSDKCommand._VerifyChromiteBin(None)
 
-        for msg in ["managed Goma", "default Chromite"]:
+        for msg in ["default Chromite"]:
             self.AssertLogsMatch(logs, msg)
 
 

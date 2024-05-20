@@ -14,7 +14,7 @@ import functools
 import logging
 import os
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -23,10 +23,6 @@ from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import timeout_util
 from chromite.utils import key_value_store
-
-
-if TYPE_CHECKING:
-    from chromite.lib import goma_lib
 
 
 class Error(Exception):
@@ -47,7 +43,6 @@ class Chroot:
         cache_dir: Optional[str] = None,
         chrome_root: Optional[str] = None,
         env: Optional[Dict[str, str]] = None,
-        goma: Optional["goma_lib.Goma"] = None,
     ) -> None:
         """Initialize.
 
@@ -57,7 +52,6 @@ class Chroot:
             cache_dir: Path to a directory that will be used for caching files.
             chrome_root: Root of the Chrome browser source checkout.
             env: Extra environment settings to use.
-            goma: Interface for utilizing goma.
         """
         # Strip trailing / by going to Path and back to str for consistency.
         # TODO(vapier): Switch this to Path instead of str.
@@ -66,7 +60,6 @@ class Chroot:
         self._is_default_path = not bool(path)
         self._is_default_out_path = not out_path
         self._env = env
-        self.goma = goma
         # String in proto are '' when not set, but testing and comparing is much
         # easier when the "unset" value is consistent, so do an explicit "or
         # None".
@@ -219,7 +212,6 @@ class Chroot:
             cache_dir=self.cache_dir,
             chrome_root=self.chrome_root,
             env=self.env,
-            goma=self.goma,
         )
         _rename(self.lock_path, new_chroot.lock_path)
         return new_chroot
@@ -304,21 +296,12 @@ class Chroot:
             args.extend([f"--cache{sep}dir", self.cache_dir])
         if self.chrome_root:
             args.extend([f"--chrome{sep}root", self.chrome_root])
-        if self.goma:
-            args.extend(
-                [
-                    f"--goma{sep}dir",
-                    str(self.goma.linux_goma_dir),
-                ]
-            )
 
         return args
 
     @property
     def env(self) -> Dict[str, str]:
         env = self._env.copy() if self._env else {}
-        if self.goma:
-            env.update(self.goma.GetChrootExtraEnv())
 
         return env
 

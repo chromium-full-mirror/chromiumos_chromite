@@ -497,7 +497,6 @@ class SimpleChromeWorkflowTestTest(
         sysroot_path=None,
         build_target=None,
         chrome_root=None,
-        goma_config=None,
     ):
         proto = test_pb2.SimpleChromeWorkflowTestRequest()
         if sysroot_path:
@@ -506,8 +505,6 @@ class SimpleChromeWorkflowTestTest(
             proto.sysroot.build_target.name = build_target
         if chrome_root:
             proto.chrome_root = chrome_root
-        if goma_config:
-            proto.goma_config = goma_config
         return proto
 
     def setUp(self) -> None:

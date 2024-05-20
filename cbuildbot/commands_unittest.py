@@ -197,13 +197,11 @@ class ChromeSDKTest(cros_test_lib.RunCommandTempDirTestCase):
     def testNinjaOptions(self) -> None:
         """Test that running ninja with non-default options."""
         self.MockGetDefaultTarget()
-        custom_inst = commands.ChromeSDK(self.CWD, self.BOARD, goma=True)
+        custom_inst = commands.ChromeSDK(self.CWD, self.BOARD)
         custom_inst.Ninja(debug=True)
         self.assertCommandContains(
             [
                 "autoninja",
-                "-j",
-                "80",
                 "-C",
                 "out_%s/Debug" % self.BOARD,
                 "chromiumos_preflight",

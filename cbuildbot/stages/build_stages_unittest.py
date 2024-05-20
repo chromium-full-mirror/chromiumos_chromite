@@ -27,7 +27,6 @@ from chromite.lib import parallel
 from chromite.lib import parallel_unittest
 from chromite.lib import partial_mock
 from chromite.lib import path_util
-from chromite.utils import hostname_util
 
 
 # pylint: disable=too-many-ancestors
@@ -548,63 +547,6 @@ EC (RW) version: reef_v1.1.5909-bd1f0c9
         self._mock_configurator = _HookRunCommandCrosConfigHost
         self.RunTestsWithBotId("amd64-generic-full", options_tests=False)
         self.assertTrue(self._run.attrs.metadata.GetDict()["unibuild"])
-
-    def testGoma(self) -> None:
-        self.PatchObject(
-            build_stages.BuildPackagesStage,
-            "_ShouldEnableGoma",
-            return_value=True,
-        )
-        self._Prepare("amd64-generic-full")
-        # Set stub dir name to enable goma.
-        with osutils.TempDir() as goma_dir:
-            goma_dir = Path(goma_dir)
-            self._run.options.goma_dir = goma_dir
-            self._run.options.chromeos_goma_dir = goma_dir
-
-            stage = self.ConstructStage()
-            chroot_args = stage._SetupGomaIfNecessary()
-            self.assertEqual(
-                [
-                    "--goma_dir",
-                    str(goma_dir),
-                ],
-                chroot_args,
-            )
-            portage_env = stage._portage_extra_env
-            self.assertEqual(
-                portage_env.get("GOMA_DIR", ""), os.path.expanduser("~/goma")
-            )
-            self.assertEqual(portage_env.get("USE_GOMA", ""), "true")
-
-    def testGomaOnBotWithoutCertFile(self) -> None:
-        self.PatchObject(
-            build_stages.BuildPackagesStage,
-            "_ShouldEnableGoma",
-            return_value=True,
-        )
-        self.PatchObject(hostname_util, "host_is_ci_builder", return_value=True)
-        self._Prepare("amd64-generic-full")
-        # Set stub dir name to enable goma.
-        with osutils.TempDir() as goma_dir:
-            self._run.options.goma_dir = goma_dir
-            stage = self.ConstructStage()
-            self._run.options.chromeos_goma_dir = goma_dir
-            chroot_args = stage._SetupGomaIfNecessary()
-            self.assertEqual(
-                [
-                    "--goma_dir",
-                    str(goma_dir),
-                ],
-                chroot_args,
-            )
-            portage_env = stage._portage_extra_env
-            self.assertEqual(
-                portage_env.get("GOMA_DIR", ""), os.path.expanduser("~/goma")
-            )
-            self.assertEqual(
-                portage_env.get("GOMA_GCE_SERVICE_ACCOUNT", ""), "default"
-            )
 
 
 class BuildImageStageMock(partial_mock.PartialMock):

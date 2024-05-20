@@ -179,7 +179,6 @@ def test_implied_download() -> None:
         [],
         ["--enter"],
         ["--working-dir", "."],
-        ["--goma-dir", ".", "emerge", "baz"],
     ),
 )
 def test_implied_enter(arglist: List[str]) -> None:

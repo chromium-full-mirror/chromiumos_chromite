@@ -507,11 +507,6 @@ class Router:
                 )
             )
 
-            # Parse goma.
-            chroot.goma = field_handler.handle_goma(
-                input_msg, chroot.path, chroot.out_path
-            )
-
             # Build inside-chroot paths for the input, output, and config
             # messages.
             new_input = os.path.join(tempdir, self.REEXEC_INPUT_FILE)

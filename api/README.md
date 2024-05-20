@@ -64,7 +64,6 @@ is the first link listed before the sub-steps.
     2. SysrootService/InstallPackages endpoint
         1. Unless you've manually set them up locally, drop the:
             1. `chrome_dir` in the chroot message.
-            2. `goma` configs in the chroot message, if present.
 5. Ensure prerequisites are satisfied.
     * If in doubt, you can run every endpoint the builder ran up through the
       endpoint you want to run, though this may be time-consuming.

@@ -20,7 +20,6 @@ from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import failures_lib
-from chromite.lib import goma_lib
 from chromite.lib import metadata_lib
 from chromite.lib import metrics
 from chromite.lib import osutils
@@ -136,36 +135,6 @@ def WriteTagMetadata(builder_run) -> None:
     builder_run.attrs.metadata.UpdateKeyDictWithDict(
         constants.METADATA_TAGS, tags
     )
-
-
-def _UploadAndLinkGomaLogIfNecessary(
-    stage_name, cbb_config_name, goma_dir, goma_tmp_dir
-) -> None:
-    """Uploads the logs for goma, if needed.
-
-    Also create a link to the visualizer.
-
-    If |goma_tmp_dir| is given, |goma_dir| must not be None.
-
-    Args:
-        stage_name: Name of the stage where goma is used.
-        cbb_config_name: Name of cbb_config used for the build.
-        goma_dir: Path to goma installed directory.
-        goma_tmp_dir: Goma's working directory.
-    """
-    if not goma_tmp_dir:
-        return
-
-    goma = goma_lib.Goma(goma_dir, goma_tmp_dir=goma_tmp_dir)
-    # Just in case, stop the goma. E.g. In case of timeout, we do not want to
-    # keep goma compiler_proxy running.
-    goma.Stop()
-    goma_urls = goma.UploadLogs(cbb_config_name)
-    if goma_urls:
-        for label, url in goma_urls:
-            cbuildbot_alerts.PrintBuildbotLink(
-                "%s %s" % (stage_name, label), url
-            )
 
 
 class BuildStartStage(generic_stages.BuilderStage):
@@ -819,22 +788,6 @@ class ReportStage(
 
         results_lib.Results.Report(
             sys.stdout, current_version=(self._run.attrs.release_tag or "")
-        )
-
-        # Upload goma log if used for BuildPackage and TestSimpleChrome.
-        _UploadAndLinkGomaLogIfNecessary(
-            "BuildPackages",
-            self._run.config.name,
-            self._run.options.goma_dir,
-            self._run.attrs.metadata.GetValueWithDefault("goma_tmp_dir"),
-        )
-        _UploadAndLinkGomaLogIfNecessary(
-            "TestSimpleChromeWorkflow",
-            self._run.config.name,
-            self._run.options.goma_dir,
-            self._run.attrs.metadata.GetValueWithDefault(
-                "goma_tmp_dir_for_simple_chrome"
-            ),
         )
 
         if self.buildstore.AreClientsReady():

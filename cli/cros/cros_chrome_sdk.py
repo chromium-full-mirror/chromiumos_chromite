@@ -823,10 +823,6 @@ class SDKFetcher:
             memoize.SafeRun(ref.Release for ref in key_map.values())
 
 
-class GomaError(Exception):
-    """Indicates error with setting up Goma."""
-
-
 @command.command_decorator(COMMAND_NAME)
 class ChromeSDKCommand(command.CliCommand):
     """Set up an environment for building Chrome on Chrome OS.
@@ -864,11 +860,6 @@ class ChromeSDKCommand(command.CliCommand):
         "GOLD_SET",
         "USE",
     )
-
-    SDK_GOMA_PORT_ENV = "SDK_GOMA_PORT"
-    SDK_GOMA_DIR_ENV = "SDK_GOMA_DIR"
-
-    GOMACC_PORT_CMD = ["./gomacc", "port"]
 
     # Override base class property to use cache related commandline options.
     use_caching_options = True
@@ -1003,31 +994,6 @@ class ChromeSDKCommand(command.CliCommand):
             action="store_false",
             dest="gn_gen",
             help='Do not run "gn gen", warns if args.gn is stale.',
-        )
-        parser.add_argument(
-            "--goma",
-            action="store_true",
-            default=False,
-            help="Enables Goma in the shell by adding it to the PATH and "
-            "set use_goma=true to GN_ARGS.",
-            deprecated="Goma is deprecated. "
-            "Please use --use-remoteexec instead.",
-        )
-        parser.add_argument(
-            "--nostart-goma",
-            action="store_false",
-            default=True,
-            dest="start_goma",
-            help="Skip starting goma and hope somebody else starts goma later.",
-            deprecated="Goma is deprecated. "
-            "Please use --use-remoteexec instead.",
-        )
-        parser.add_argument(
-            "--gomadir",
-            type="str_path",
-            help="Use the goma installation at the specified PATH.",
-            deprecated="Goma is deprecated. "
-            "Please use --use-remoteexec instead.",
         )
         parser.add_bool_argument(
             "--use-remoteexec",
@@ -1327,12 +1293,12 @@ class ChromeSDKCommand(command.CliCommand):
         env["LD_host"] = env["CXX_host"]
 
     def _AbsolutizeBinaryPath(self, binary, tc_path):
-        """Modify toolchain path for goma build.
+        """Modify toolchain path for remoteexec build.
 
         This function absolutizes the path to the given toolchain binary, which
         will then be relativized in build/toolchain/cros/BUILD.gn. This ensures
         the paths are the same across different machines & checkouts, which
-        improves cache hit rate in distributed build systems (i.e. goma).
+        improves cache hit rate in distributed build systems (i.e. reclient).
 
         Args:
             binary: Name of toolchain binary.
@@ -1347,43 +1313,7 @@ class ChromeSDKCommand(command.CliCommand):
             return os.path.join(tc_path, "bin", binary)
         return binary
 
-    def _GenerateReclientWrapper(self, board):
-        """Generate a wrapper for reclient.
-
-        This function generates a wrapper script for the rewrapper to make it
-        passed with --gomacc-path (rewrapper_<board>).
-        The wrapper adds a flag to preserve symlinks which are used by CrOS
-        clang.
-
-        Args:
-            board: Target board name to be used as a config and wrapper name.
-
-        Returns:
-            Absolute path to the wrapper script to be used as --gomacc-path.
-        """
-        shared_dir = os.path.join(self.options.chrome_src, self._BUILD_ARGS_DIR)
-
-        # TODO(b:190741226): remove the wrapper if the compiler wrapper supports
-        #                    flags for reclient.
-        wrapper_path = os.path.join(shared_dir, "rewrapper_%s" % board)
-        wrapper_content = [
-            "#!/bin/sh\n",
-            "%(rewrapper_dir)s/rewrapper -preserve_symlink=true "
-            '-exec_root="%(chrome_src)s" "$@"\n'
-            % {
-                "rewrapper_dir": os.path.join(
-                    self.options.chrome_src, "buildtools", "reclient"
-                ),
-                "chrome_src": self.options.chrome_src,
-            },
-        ]
-        osutils.WriteFile(wrapper_path, wrapper_content, chmod=0o755)
-        Log("generated rewrapper wrapper %s", wrapper_path, silent=self.silent)
-        return wrapper_path
-
-    def _SetupEnvironment(
-        self, board, sdk_ctx, options, goma_dir=None, goma_port=None
-    ):
+    def _SetupEnvironment(self, board, sdk_ctx, options):
         """Sets environment variables to export to the SDK shell."""
         if options.chroot:
             sysroot = os.path.join(options.chroot, "build", board)
@@ -1481,13 +1411,7 @@ class ChromeSDKCommand(command.CliCommand):
         for var in [self.sdk.SDK_VERSION_ENV, self.sdk.SDK_BOARD_ENV]:
             env[var.lstrip("%")] = os.environ[var]
 
-        # Export Goma information.
-        if goma_dir:
-            env[self.SDK_GOMA_DIR_ENV] = goma_dir
-        if goma_port:
-            env[self.SDK_GOMA_PORT_ENV] = goma_port
-
-        # SYSROOT is necessary for Goma and the sysroot wrapper.
+        # SYSROOT is necessary for remoteexec and the sysroot wrapper.
         env["SYSROOT"] = sysroot
 
         gn_args["target_sysroot"] = sysroot
@@ -1570,16 +1494,6 @@ class ChromeSDKCommand(command.CliCommand):
 
         gn_args["use_remoteexec"] = options.use_remoteexec
 
-        # Enable goma if requested.
-        if not options.goma or options.use_remoteexec:
-            # If --nogoma option is explicitly set, disable goma, even if it is
-            # used in the original GN_ARGS.
-            gn_args["use_goma"] = False
-            gn_args.pop("goma_dir", None)
-        elif goma_dir:
-            gn_args["use_goma"] = True
-            gn_args["goma_dir"] = goma_dir
-
         gn_args.pop("internal_khronos_glcts_tests", None)  # crbug.com/588080
 
         # The ebuild sets dcheck_always_on to false to avoid a default value of
@@ -1599,11 +1513,6 @@ class ChromeSDKCommand(command.CliCommand):
             gn_args["use_thin_lto"] = False
         if not options.cfi:
             gn_args["is_cfi"] = False
-        # When using Goma and ThinLTO, distribute ThinLTO code generation on
-        # Goma.
-        gn_args["use_goma_thin_lto"] = gn_args.get(
-            "use_goma", False
-        ) and gn_args.get("use_thin_lto", False)
         # We need to remove the flag -Wl,-plugin-opt,-import-instr-limit=$num
         # from cros_target_extra_ldflags if options.thinlto is not set.
         # The format of ld flags is something like
@@ -1635,8 +1544,6 @@ class ChromeSDKCommand(command.CliCommand):
                 "--gn-extra-args to specify a non default value.",
                 symbol_level,
             )
-
-        gn_args["rbe_cros_cc_wrapper"] = self._GenerateReclientWrapper(board)
 
         if options.gn_extra_args:
             gn_args.update(gn_helpers.FromGNArgs(options.gn_extra_args))
@@ -1670,25 +1577,6 @@ class ChromeSDKCommand(command.CliCommand):
         return env
 
     @staticmethod
-    def _VerifyGoma(user_rc) -> None:
-        """Verify that the user has no goma installations set up in user_rc.
-
-        If the user does have a goma installation set up, verify that it's for
-        ChromeOS.
-
-        Args:
-            user_rc: User-supplied rc file.
-        """
-        user_env = osutils.SourceEnvironment(user_rc, ["PATH"])
-        goma_ctl = osutils.Which("goma_ctl.py", user_env.get("PATH"))
-        if goma_ctl is not None:
-            logging.warning(
-                "%s is adding Goma to the PATH. Using that Goma instead of the "
-                "managed Goma install.",
-                user_rc,
-            )
-
-    @staticmethod
     def _VerifyChromiteBin(user_rc) -> None:
         """Verify that the user has not set a chromite bin/ dir in user_rc.
 
@@ -1720,7 +1608,6 @@ class ChromeSDKCommand(command.CliCommand):
         if not os.path.exists(user_rc):
             osutils.Touch(user_rc, makedirs=True)
 
-        self._VerifyGoma(user_rc)
         self._VerifyChromiteBin(user_rc)
 
         # We need a temporary rc file to 'wrap' the user configuration file,
@@ -1743,57 +1630,6 @@ class ChromeSDKCommand(command.CliCommand):
             rc_file = os.path.join(tempdir, "rcfile")
             osutils.WriteFile(rc_file, contents)
             yield rc_file
-
-    def _GomaPort(self, goma_dir):
-        """Returns current active Goma port."""
-        port = cros_build_lib.run(
-            self.GOMACC_PORT_CMD,
-            cwd=goma_dir,
-            debug_level=logging.DEBUG,
-            check=False,
-            encoding="utf-8",
-            capture_output=True,
-        ).stdout.strip()
-        return port
-
-    def _GomaDir(self, goma_dir):
-        """Returns current active Goma directory."""
-        if not goma_dir:
-            goma_dir_cmd = ["goma_ctl", "goma_dir"]
-            goma_dir = cros_build_lib.run(
-                goma_dir_cmd, check=False, capture_output=True, encoding="utf-8"
-            ).stdout.strip()
-        if goma_dir and os.path.exists(os.path.join(goma_dir, "gomacc")):
-            return goma_dir
-
-    def _SetupGoma(self):
-        """Find installed Goma and start Goma.
-
-        Returns:
-            A tuple (dir, port) containing the path to the cached goma/ dir and
-            the Goma port.
-        """
-        goma_dir = self._GomaDir(self.options.gomadir)
-        if not goma_dir:
-            raise GomaError(
-                "Failed to find the Goma client."
-                " Please confirm depot_tools is in PATH,"
-                " and you do not set GOMA_DIR."
-            )
-
-        port = None
-        if self.options.start_goma:
-            Log("Starting Goma.", silent=self.silent)
-            cros_build_lib.dbg_run(
-                [os.path.join(goma_dir, "goma_ctl.py"), "ensure_start"],
-                extra_env={"GOMA_ARBITRARY_TOOLCHAIN_SUPPORT": "true"},
-            )
-            port = self._GomaPort(goma_dir)
-            Log("Goma is started on port %s", port, silent=self.silent)
-            if not port:
-                raise GomaError("No Goma port detected")
-
-        return goma_dir, port
 
     def Run(self):
         """Perform the command."""
@@ -1893,23 +1729,13 @@ class ChromeSDKCommand(command.CliCommand):
         if self.options.download_vm:
             components.append(constants.TEST_IMAGE_TAR)
 
-        goma_dir = None
-        goma_port = None
-        if self.options.goma and not self.options.use_remoteexec:
-            try:
-                goma_dir, goma_port = self._SetupGoma()
-            except GomaError as e:
-                logging.error("Goma: %s.  Bypass by running with --nogoma.", e)
-
         with self.sdk.Prepare(
             components,
             version=prepare_version,
             target_tc=self.options.target_tc,
             toolchain_url=self.options.toolchain_url,
         ) as ctx:
-            env = self._SetupEnvironment(
-                board, ctx, self.options, goma_dir=goma_dir, goma_port=goma_port
-            )
+            env = self._SetupEnvironment(board, ctx, self.options)
             if not self.options.use_shell:
                 return 0
             with self._GetRCFile(env, self.options.bashrc) as rcfile:

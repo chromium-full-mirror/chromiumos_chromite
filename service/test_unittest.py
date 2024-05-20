@@ -11,7 +11,6 @@ import shutil
 from typing import Any, List
 from unittest import mock
 
-from chromite.api.gen.chromiumos import common_pb2
 from chromite.cbuildbot import commands
 from chromite.lib import autotest_util
 from chromite.lib import build_target_lib
@@ -19,7 +18,6 @@ from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
-from chromite.lib import goma_lib
 from chromite.lib import image_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
@@ -194,8 +192,6 @@ class SimpleChromeWorkflowTestTest(cros_test_lib.MockTempDirTestCase):
         self.sysroot_path = "/chroot/path/sysroot/path"
         self.build_target = "board"
 
-        self.goma_mock = self.PatchObject(goma_lib, "Goma")
-
         self.chrome_sdk_run_mock = self.PatchObject(commands.ChromeSDK, "Run")
 
         # SimpleChromeTest workflow creates directories based on objects that
@@ -208,23 +204,6 @@ class SimpleChromeWorkflowTestTest(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(shutil, "copy2")
 
     def testSimpleChromeWorkflowTest(self) -> None:
-        goma_test_dir = os.path.join(self.tempdir, "goma_test_dir")
-        chromeos_goma_dir = os.path.join(self.tempdir, "chromeos_goma_dir")
-        goma_config = common_pb2.GomaConfig(
-            goma_dir=goma_test_dir,
-        )
-        osutils.SafeMakedirs(goma_test_dir)
-        osutils.SafeMakedirs(chromeos_goma_dir)
-        goma = goma_lib.Goma(
-            goma_config.goma_dir,
-            stage_name="BuildApiTestSimpleChrome",
-            chromeos_goma_dir=chromeos_goma_dir,
-        )
-
-        mock_goma_log_dir = os.path.join(self.tempdir, "goma_log_dir")
-        osutils.SafeMakedirs(mock_goma_log_dir)
-        goma.goma_log_dir = mock_goma_log_dir
-
         # For this test, we avoid running test._VerifySDKEnvironment because use
         # of other mocks prevent creating the SDK dir that _VerifySDKEnvironment
         # checks for
@@ -237,10 +216,10 @@ class SimpleChromeWorkflowTestTest(cros_test_lib.MockTempDirTestCase):
         )
 
         test.SimpleChromeWorkflowTest(
-            self.sysroot_path, self.build_target, self.chrome_root, goma
+            self.sysroot_path, self.build_target, self.chrome_root
         )
         # Verify ninja_cmd calls.
-        ninja_calls = [mock.call(), mock.call(debug=False)]
+        ninja_calls = [mock.call(debug=False)]
         ninja_cmd.assert_has_calls(ninja_calls)
 
         # Verify calls with args to chrome_sdk_run made by service/test.py.
@@ -255,9 +234,6 @@ class SimpleChromeWorkflowTestTest(cros_test_lib.MockTempDirTestCase):
                 "-c",
                 ('%s gen "%s" --args="$GN_ARGS"' % (gn_dir, board_out_dir)),
             ]
-        )
-        self.chrome_sdk_run_mock.assert_any_call(
-            ["env", "--null"], run_args=mock.ANY
         )
         self.chrome_sdk_run_mock.assert_any_call(
             "ninja command", run_args=mock.ANY
@@ -289,11 +265,6 @@ class SimpleChromeWorkflowTestTest(cros_test_lib.MockTempDirTestCase):
                 "--build-dir=out_board/Release",
             ]
         )
-
-        # Verify goma mock was started and stopped.
-        # TODO(crbug/1065172): Invalid assertions that were previously mocked.
-        # self.goma_mock.Start.assert_called_once()
-        # self.goma_mock.Stop.assert_called_once()
 
 
 class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):

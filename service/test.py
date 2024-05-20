@@ -32,13 +32,11 @@ from chromite.lib import image_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.utils import code_coverage_util
-from chromite.utils import shell_util
 
 
 if TYPE_CHECKING:
     from chromite.lib import build_target_lib
     from chromite.lib import chroot_lib
-    from chromite.lib import goma_lib
     from chromite.lib import sysroot_lib
     from chromite.lib.parser import package_info
 
@@ -292,7 +290,6 @@ def SimpleChromeWorkflowTest(
     sysroot_path: str,
     build_target_name: str,
     chrome_root: str,
-    goma: Optional["goma_lib.Goma"],
 ) -> None:
     """Execute SimpleChrome workflow tests
 
@@ -300,25 +297,17 @@ def SimpleChromeWorkflowTest(
         sysroot_path: The sysroot path for testing Chrome.
         build_target_name: Board build target
         chrome_root: Path to Chrome source root.
-        goma: Goma object or None.
     """
     board_dir = "out_%s" % build_target_name
 
     out_board_dir = os.path.join(chrome_root, board_dir, "Release")
-    use_goma = goma is not None
-    extra_args = []
 
     with osutils.TempDir(prefix="chrome-sdk-cache") as tempdir:
         sdk_cmd = _InitSimpleChromeSDK(
-            tempdir, build_target_name, sysroot_path, chrome_root, use_goma
+            tempdir, build_target_name, sysroot_path, chrome_root
         )
 
-        if goma:
-            extra_args.extend(
-                ["--nostart-goma", "--gomadir", goma.linux_goma_dir]
-            )
-
-        _BuildChrome(sdk_cmd, chrome_root, out_board_dir, goma)
+        _BuildChrome(sdk_cmd, chrome_root, out_board_dir)
         _TestDeployChrome(sdk_cmd, out_board_dir)
         _VMTestChrome(build_target_name, sdk_cmd)
 
@@ -328,7 +317,6 @@ def _InitSimpleChromeSDK(
     build_target_name: str,
     sysroot_path: str,
     chrome_root: str,
-    use_goma: bool,
 ) -> commands.ChromeSDK:
     """Create ChromeSDK object for executing 'cros chrome-sdk' commands.
 
@@ -337,7 +325,6 @@ def _InitSimpleChromeSDK(
         build_target_name: Board build target.
         sysroot_path: Sysroot for Chrome to use.
         chrome_root: Path to Chrome.
-        use_goma: Whether to use goma.
 
     Returns:
         A ChromeSDK object.
@@ -349,7 +336,6 @@ def _InitSimpleChromeSDK(
         constants.SOURCE_ROOT,
         build_target_name,
         chrome_src=chrome_root,
-        goma=use_goma,
         extra_args=extra_args,
         cache_dir=cache_dir,
     )
@@ -373,7 +359,6 @@ def _BuildChrome(
     sdk_cmd: commands.ChromeSDK,
     chrome_root: str,
     out_board_dir: str,
-    goma: Optional["goma_lib.Goma"],
 ) -> None:
     """Build Chrome with SimpleChrome environment.
 
@@ -381,7 +366,6 @@ def _BuildChrome(
         sdk_cmd: sdk_cmd to run cros chrome-sdk commands.
         chrome_root: Path to Chrome.
         out_board_dir: Path to board directory.
-        goma: Goma object or None
     """
     # Validate fetching of the SDK and setting everything up.
     sdk_cmd.Run(["true"])
@@ -395,48 +379,10 @@ def _BuildChrome(
 
     _VerifySDKEnvironment(out_board_dir)
 
-    if goma:
-        # If goma is enabled, start goma compiler_proxy here, and record
-        # several information just before building Chrome is started.
-        goma.Start()
-        extra_env = goma.GetExtraEnv()
-        ninja_env_path = os.path.join(goma.goma_log_dir, "ninja_env")
-        sdk_cmd.Run(
-            ["env", "--null"],
-            run_args={"extra_env": extra_env, "stdout": ninja_env_path},
-        )
-        osutils.WriteFile(
-            os.path.join(goma.goma_log_dir, "ninja_cwd"), sdk_cmd.cwd
-        )
-        osutils.WriteFile(
-            os.path.join(goma.goma_log_dir, "ninja_command"),
-            shell_util.cmd_to_str(sdk_cmd.GetNinjaCommand()),
-        )
-    else:
-        extra_env = None
+    extra_env = None
 
-    result = None
-    try:
-        # Build chromium.
-        result = sdk_cmd.Ninja(run_args={"extra_env": extra_env})
-    finally:
-        # In teardown, if goma is enabled, stop the goma compiler proxy,
-        # and record/copy some information to log directory, which will be
-        # uploaded to the goma's server in a later stage.
-        if goma:
-            goma.Stop()
-            ninja_log_path = os.path.join(
-                chrome_root, sdk_cmd.GetNinjaLogPath()
-            )
-            if os.path.exists(ninja_log_path):
-                shutil.copy2(
-                    ninja_log_path, os.path.join(goma.goma_log_dir, "ninja_log")
-                )
-            if result:
-                osutils.WriteFile(
-                    os.path.join(goma.goma_log_dir, "ninja_exit"),
-                    str(result.returncode),
-                )
+    # Build chromium.
+    sdk_cmd.Ninja(run_args={"extra_env": extra_env})
 
 
 def _TestDeployChrome(sdk_cmd: commands.ChromeSDK, out_board_dir: str) -> None:

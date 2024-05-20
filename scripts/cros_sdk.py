@@ -30,7 +30,6 @@ from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
-from chromite.lib import goma_lib
 from chromite.lib import locking
 from chromite.lib import namespaces
 from chromite.lib import osutils
@@ -443,12 +442,6 @@ def CreateParser(
         default=version_conf.get_default_version(),
         help="Use this sdk version.",
     )
-    parser.add_argument(
-        "--goma-dir",
-        "--goma_dir",
-        type="dir_exists",
-        help="Goma installed directory to mount into the chroot.",
-    )
     parser.add_bool_argument(
         "--delete-out-dir",
         default=None,
@@ -744,20 +737,11 @@ def main(argv) -> None:
     # |options| cannot be modified after this.
     _FinalizeOptions(parser, options, commands)
 
-    goma = (
-        goma_lib.Goma(
-            options.goma_dir, chroot_dir=options.chroot, out_dir=options.out_dir
-        )
-        if options.goma_dir
-        else None
-    )
-
     chroot = chroot_lib.Chroot(
         path=options.chroot,
         out_path=options.out_dir,
         cache_dir=options.cache_dir,
         chrome_root=options.chrome_root,
-        goma=goma,
     )
 
     if not chroot.path_is_valid():

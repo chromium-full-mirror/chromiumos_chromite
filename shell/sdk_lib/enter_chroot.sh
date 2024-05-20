@@ -18,11 +18,13 @@ assert_root_user
 
 # Define command line flags
 # See http://code.google.com/p/shflags/wiki/Documentation10x
+# shellcheck disable=SC2154 # Is used under FLAGS_<name>
 DEFINE_string chroot "${DEFAULT_CHROOT_DIR}" \
   "The destination dir for the chroot environment." "d"
-# shellcheck disable=SC2034 # Mostly here for plumbing. Not used.
+# shellcheck disable=SC2034,SC2154 # Mostly here for plumbing. Not used.
 DEFINE_string out_dir "${DEFAULT_OUT_DIR}" \
   "The destination dir for build output and state."
+# shellcheck disable=SC2154 # Mostly here for plumbing. Not used.
 DEFINE_string trunk "${GCLIENT_ROOT}" \
   "The source trunk to bind mount within the chroot." "s"
 DEFINE_string chrome_root "" \
@@ -30,7 +32,7 @@ DEFINE_string chrome_root "" \
 DEFINE_string chrome_root_mount "/home/${SUDO_USER}/chrome_root" \
   "The mount point of the chrome broswer source in the chroot."
 DEFINE_string cache_dir "" "Directory to use for caching."
-DEFINE_string goma_dir "" "Goma installed directory."
+# shellcheck disable=SC2154 # Mostly here for plumbing. Not used.
 DEFINE_string working_dir "${CHROOT_TRUNK_DIR}/src/scripts" \
   "The working directory relative to ${CHROOT_TRUNK_DIR} for the command in \
 chroot, must start with '/' if set."
@@ -55,7 +57,7 @@ neither the command nor args should include single quotes.  For example:
 
 Otherwise, provides an interactive shell.
 "
-
+# shellcheck disable=SC2034
 CROS_LOG_PREFIX=cros_sdk:enter_chroot
 SUDO_HOME=$(eval echo "~${SUDO_USER}")
 
@@ -87,7 +89,6 @@ FILES_TO_COPY_TO_CHROOT=(
   .gdata_cred.txt             # User/password for Google Docs on chromium.org
   .gdata_token                # Auth token for Google Docs on chromium.org
   .googleapikeys              # Google API keys for Chrome
-  .goma_client_oauth2_config  # Auth token for Goma
   .inputrc                    # Preserve command line customizations
 )
 if [[ "${SUDO_USER}" == "chrome-bot" ]]; then
@@ -480,13 +481,6 @@ setup_env() {
       fi
     done
 
-    if [[ -n "${FLAGS_goma_dir}" ]]; then
-      debug "Mounting goma"
-      # $HOME/goma is the default directory for goma.
-      # It is used by goma if GOMA_DIR is not provide.
-      setup_mount "${FLAGS_goma_dir}" "/home/${SUDO_USER}/goma"
-    fi
-
     # Mount additional directories as specified in .local_mounts file.
     local local_mounts="${FLAGS_trunk}/src/scripts/.local_mounts"
     if [[ -f "${local_mounts}" ]]; then
@@ -637,6 +631,7 @@ CHROOT_PASSTHRU=(
 
 # Add the whitelisted environment variables to CHROOT_PASSTHRU.
 load_environment_whitelist
+# shellcheck disable=SC2154  # Is used directly below.
 for var in "${ENVIRONMENT_WHITELIST[@]}" ; do
   [ "${!var+set}" = "set" ] && CHROOT_PASSTHRU+=( "${var}=${!var}" )
 done

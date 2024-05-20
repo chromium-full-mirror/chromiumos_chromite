@@ -457,7 +457,6 @@ def Build(
     chrome_root=None,
     noretry=False,
     chroot_args=None,
-    run_goma=False,
     disable_revdep_logic=False,
 ) -> None:
     """Wrapper around build_packages.
@@ -476,8 +475,6 @@ def Build(
         chrome_root: The directory where chrome is stored.
         noretry: Deprecated.
         chroot_args: The args to the chroot.
-        run_goma: Set `build_package --run-goma` option, which starts and stops
-            goma server in chroot while building packages.
         disable_revdep_logic: Pass --nowithrevdeps to build_packages, disabling
             the reverse dependency calculation step.
     """
@@ -499,9 +496,6 @@ def Build(
 
     if disable_revdep_logic:
         cmd.append("--no-withrevdeps")
-
-    if run_goma:
-        cmd.append("--run-goma")
 
     if not chroot_args:
         chroot_args = []
@@ -531,7 +525,6 @@ def LegacyBuild(
     chrome_root=None,
     noretry=False,
     chroot_args=None,
-    run_goma=False,
     disable_revdep_logic=False,
 ) -> None:
     """Wrapper around legacy build_packages.
@@ -553,8 +546,6 @@ def LegacyBuild(
         chrome_root: The directory where chrome is stored.
         noretry: Do not retry package failures.
         chroot_args: The args to the chroot.
-        run_goma: Set ./build_package --run_goma option, which starts and stops
-            goma server in chroot while building packages.
         disable_revdep_logic: Pass --nowithrevdeps to build_packages, disabling
             the reverse dependency calculation step.
     """
@@ -579,9 +570,6 @@ def LegacyBuild(
 
     if disable_revdep_logic:
         cmd.append("--nowithrevdeps")
-
-    if run_goma:
-        cmd.append("--run_goma")
 
     if not chroot_args:
         chroot_args = []
@@ -2275,15 +2263,12 @@ def SyncChrome(
 class ChromeSDK:
     """Wrapper for the 'cros chrome-sdk' command."""
 
-    DEFAULT_GOMA_JOBS = "80"
-
     def __init__(
         self,
         cwd,
         board,
         extra_args=None,
         chrome_src=None,
-        goma=False,
         debug_log=True,
         cache_dir=None,
         target_tc=None,
@@ -2296,7 +2281,6 @@ class ChromeSDK:
             board: The board to run chrome-sdk for.
             extra_args: Extra args to pass in on the command line.
             chrome_src: Path to pass in with --chrome-src.
-            goma: If True, run using goma.
             debug_log: If set, run with debug log-level.
             cache_dir: Specify non-default cache directory.
             target_tc: Override target toolchain.
@@ -2307,7 +2291,6 @@ class ChromeSDK:
         self.extra_args = extra_args or []
         if chrome_src:
             self.extra_args += ["--chrome-src", chrome_src]
-        self.goma = goma
         self.debug_log = debug_log
         self.cache_dir = cache_dir
         self.target_tc = target_tc
@@ -2361,8 +2344,6 @@ class ChromeSDK:
             Command line to run "ninja".
         """
         cmd = ["autoninja"]
-        if self.goma:
-            cmd += ["-j", self.DEFAULT_GOMA_JOBS]
         cmd += [
             "-C",
             self._GetOutDirectory(debug=debug),

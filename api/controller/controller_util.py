@@ -18,7 +18,6 @@ from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
-from chromite.lib import goma_lib
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
 
@@ -98,45 +97,6 @@ def ParseSysroot(sysroot_message: sysroot_pb2.Sysroot) -> sysroot_lib.Sysroot:
     assert isinstance(sysroot_message, sysroot_pb2.Sysroot)
 
     return sysroot_lib.Sysroot(sysroot_message.path)
-
-
-def ParseGomaConfig(goma_message, chroot_path, out_path):
-    """Parse a goma config message."""
-    assert isinstance(goma_message, common_pb2.GomaConfig)
-
-    if not goma_message.goma_dir:
-        return None
-
-    # Parse the goma config.
-    chromeos_goma_dir = goma_message.chromeos_goma_dir or None
-    if goma_message.goma_approach == common_pb2.GomaConfig.RBE_STAGING:
-        goma_approach = goma_lib.GomaApproach(
-            "?staging", "staging-goma.chromium.org", True
-        )
-    elif goma_message.goma_approach == common_pb2.GomaConfig.RBE_PROD:
-        goma_approach = goma_lib.GomaApproach(
-            "?prod", "goma.chromium.org", True
-        )
-    else:
-        goma_approach = goma_lib.GomaApproach(
-            "?cros", "goma.chromium.org", True
-        )
-
-    # Note that we are not specifying the goma log_dir so that goma will create
-    # and use a tmp dir for the logs.
-    stats_filename = goma_message.stats_file or None
-    counterz_filename = goma_message.counterz_file or None
-
-    return goma_lib.Goma(
-        goma_message.goma_dir,
-        stage_name="BuildAPI",
-        chromeos_goma_dir=chromeos_goma_dir,
-        chroot_dir=chroot_path,
-        out_dir=out_path,
-        goma_approach=goma_approach,
-        stats_filename=stats_filename,
-        counterz_filename=counterz_filename,
-    )
 
 
 def ParseBuildTarget(

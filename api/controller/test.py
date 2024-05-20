@@ -28,7 +28,6 @@ from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.lib import goma_lib
 from chromite.lib import metrics_lib
 from chromite.lib import osutils
 from chromite.lib import sysroot_lib
@@ -335,20 +334,11 @@ def RulesCrosUnitTest(_request, _response, _config):
 @validate.validation_complete
 def SimpleChromeWorkflowTest(request, _response, _config):
     """Run SimpleChromeWorkflow tests."""
-    if request.goma_config.goma_dir:
-        chromeos_goma_dir = request.goma_config.chromeos_goma_dir or None
-        goma = goma_lib.Goma(
-            request.goma_config.goma_dir,
-            stage_name="BuildApiTestSimpleChrome",
-            chromeos_goma_dir=chromeos_goma_dir,
-        )
-    else:
-        goma = None
+
     return test.SimpleChromeWorkflowTest(
         request.sysroot.path,
         request.sysroot.build_target.name,
         request.chrome_root,
-        goma,
     )
 
 
