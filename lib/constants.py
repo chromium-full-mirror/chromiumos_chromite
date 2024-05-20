@@ -483,6 +483,7 @@ CHROOT_ENVIRONMENT_ALLOWLIST = (
     "http_proxy",
     "https_proxy",
     "no_proxy",
+    "traceparent",
 )
 
 # Paths for Chrome LKGM which are relative to the Chromium base url.
