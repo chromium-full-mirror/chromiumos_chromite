@@ -1523,14 +1523,13 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
             rootfs: The rootfs to construct DLC in.
             powerwash_safe: Boolean indicating if powerwash safety.
         """
-        p = os.path.join(
-            rootfs, dlc_lib.DLC_META_DIR, dlc_id, dlc_lib.DLC_PACKAGE
-        )
+        p = os.path.join(rootfs, dlc_id, dlc_lib.DLC_PACKAGE)
         osutils.SafeMakedirs(p)
         with open(
             os.path.join(p, dlc_lib.IMAGELOADER_JSON), "w", encoding="utf-8"
         ) as fp:
             json.dump({dlc_lib.POWERWASH_SAFE_KEY: powerwash_safe}, fp)
+        osutils.WriteFile(os.path.join(p, dlc_lib.DLC_VERITY_TABLE), "")
 
     def testMissingMeta(self) -> None:
         """Test missing meta rootfs for UniquePowerwashSafeDlcsInRootfs."""
@@ -1553,6 +1552,10 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
     def testInvalidDlc(self) -> None:
         """Test invalid DLC in rootfs for unique set."""
         self.constructDlc("-foo", self.tempdir, True)
+        metadata_dir = os.path.join(self.tempdir, dlc_lib.DLC_META_DIR)
+        with dlc_lib.DlcMetadata(metadata_dir) as metadata:
+            metadata.Create([("-foo", self.tempdir)])
+
         with self.assertRaises(dlc_lib.Error) as e:
             dlc_lib.UniquePowerwashSafeDlcsInRootfs(self.tempdir)
         self.assertEqual(
@@ -1565,6 +1568,10 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
     def testPowerwashSafeDlc(self) -> None:
         """Test rootfs with powerwash safe DLC for unique set"""
         self.constructDlc("foo", self.tempdir, True)
+        metadata_dir = os.path.join(self.tempdir, dlc_lib.DLC_META_DIR)
+        with dlc_lib.DlcMetadata(metadata_dir) as metadata:
+            metadata.Create([("foo", self.tempdir)])
+
         self.assertEqual(
             dlc_lib.UniquePowerwashSafeDlcsInRootfs(self.tempdir),
             {"foo"},
@@ -1574,6 +1581,10 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
         """Test rootfs with powerwash safe DLCs for unique set."""
         self.constructDlc("foo", self.tempdir, True)
         self.constructDlc("bar", self.tempdir, True)
+        metadata_dir = os.path.join(self.tempdir, dlc_lib.DLC_META_DIR)
+        with dlc_lib.DlcMetadata(metadata_dir) as metadata:
+            metadata.Create([("foo", self.tempdir), ("bar", self.tempdir)])
+
         self.assertEqual(
             dlc_lib.UniquePowerwashSafeDlcsInRootfs(self.tempdir),
             {"foo", "bar"},
@@ -1583,6 +1594,10 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
         """Test rootfs with no powerwash safe DLCs for unique set."""
         self.constructDlc("foo", self.tempdir, False)
         self.constructDlc("bar", self.tempdir, False)
+        metadata_dir = os.path.join(self.tempdir, dlc_lib.DLC_META_DIR)
+        with dlc_lib.DlcMetadata(metadata_dir) as metadata:
+            metadata.Create([("foo", self.tempdir), ("bar", self.tempdir)])
+
         self.assertEqual(
             dlc_lib.UniquePowerwashSafeDlcsInRootfs(self.tempdir),
             set(),
@@ -1592,6 +1607,10 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
         """Test rootfs with mixed powerwash safe DLCs for unique set."""
         self.constructDlc("foo", self.tempdir, True)
         self.constructDlc("bar", self.tempdir, False)
+        metadata_dir = os.path.join(self.tempdir, dlc_lib.DLC_META_DIR)
+        with dlc_lib.DlcMetadata(metadata_dir) as metadata:
+            metadata.Create([("foo", self.tempdir), ("bar", self.tempdir)])
+
         self.assertEqual(
             dlc_lib.UniquePowerwashSafeDlcsInRootfs(self.tempdir),
             {"foo"},
@@ -1616,6 +1635,10 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
     def testCreationOfPowerwashSafeFileInRootfsWithDlc(self) -> None:
         """Test rootfs with powerwash safe DLC for meta file creation."""
         self.constructDlc("foo", self.tempdir, True)
+        metadata_dir = os.path.join(self.tempdir, dlc_lib.DLC_META_DIR)
+        with dlc_lib.DlcMetadata(metadata_dir) as metadata:
+            metadata.Create([("foo", self.tempdir)])
+
         dlc_lib.CreatePowerwashSafeFileInRootfs(self.tempdir)
         powerwash_safe_file_content = osutils.ReadFile(
             os.path.join(
@@ -1635,6 +1658,17 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
         self.constructDlc("there", self.tempdir, False)
         self.constructDlc("world", self.tempdir, True)
         self.constructDlc("a", self.tempdir, True)
+        metadata_dir = os.path.join(self.tempdir, dlc_lib.DLC_META_DIR)
+        with dlc_lib.DlcMetadata(metadata_dir) as metadata:
+            metadata.Create(
+                [
+                    ("hello", self.tempdir),
+                    ("there", self.tempdir),
+                    ("world", self.tempdir),
+                    ("a", self.tempdir),
+                ]
+            )
+
         dlc_lib.CreatePowerwashSafeFileInRootfs(self.tempdir)
         powerwash_safe_file_content = osutils.ReadFile(
             os.path.join(

@@ -148,19 +148,14 @@ def UniquePowerwashSafeDlcsInRootfs(rootfs: str) -> Set[str]:
         os.path.exists(rootfs_meta_path),
         f"Missing metadata path: {rootfs_meta_path}",
     )
-    for dlc_id in os.listdir(rootfs_meta_path):
-        rootfs_meta_json_path = os.path.join(
-            rootfs_meta_path, dlc_id, DLC_PACKAGE, IMAGELOADER_JSON
-        )
-        if not os.path.exists(rootfs_meta_json_path):
-            continue
-        ValidateDlcIdentifier(dlc_id)
-        if GetValueInJsonFile(
-            json_path=rootfs_meta_json_path,
-            key=POWERWASH_SAFE_KEY,
-            default_value=False,
-        ):
-            unique_powerwash_safe_dlc_ids.add(dlc_id)
+
+    metadata = DlcMetadata(metadata_path=rootfs_meta_path, sudo=False)
+    for file_id in metadata.ListFiles():
+        parsed = metadata.LoadDestMetadata(file_id)
+        for dlc_id in parsed:
+            ValidateDlcIdentifier(dlc_id)
+            if parsed[dlc_id]["manifest"].get(POWERWASH_SAFE_KEY, False):
+                unique_powerwash_safe_dlc_ids.add(dlc_id)
 
     return unique_powerwash_safe_dlc_ids
 
