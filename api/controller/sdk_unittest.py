@@ -701,6 +701,10 @@ class uprev_test(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             sdk_service,
             "uprev_sdk_and_prebuilts",
         )
+        self._uprev_virtuals_patch = self.PatchObject(
+            sdk_service,
+            "uprev_toolchain_virtuals",
+        )
 
     def new_request(
         self,
@@ -766,6 +770,7 @@ class uprev_test(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             self._binhost_gs_bucket,
             sdk_gs_bucket=sdk_gs_bucket,
         )
+        self._uprev_virtuals_patch.assert_called_once()
 
     def test_without_version(self) -> None:
         """Test the endpoint with `version` not specified.
