@@ -21,13 +21,14 @@ DATA = [
             "/HEAD:src/platform2/shill/shill_main.cc"
         ),
     ),
-    # public path and corp CS - link to cs/chromeos_public
+    # public path and corp CS - link to internal CS
     (
         ["--show", "--internal", "../src/platform2/shill/shill_main.cc"],
         {},
         "src/platform2",
         "shill/shill_main.cc",
-        "http://cs/chromeos_public/src/platform2/shill/shill_main.cc",
+        "http://cs/h/chrome-internal/chromeos/superproject/+/main:"
+        "src/platform2/shill/shill_main.cc",
     ),
     # public path and Gitiles - external link to chromium.googlesource.com
     (
@@ -46,22 +47,24 @@ DATA = [
             "/shill/shill_main.cc"
         ),
     ),
-    # private path and public CS - link to cs/chromeos_internal
+    # private path and public CS - link to internal CS
     # (public CS is not available)
     (
         ["--show", "--public", "../src/project/module/hello_world.f"],
         {"remote_alias": "cros-internal"},
         "src/project",
         "module/hello_world.f",
-        "http://cs/chromeos_internal/src/project/module/hello_world.f",
+        "http://cs/h/chrome-internal/chromeos/superproject/+/main:"
+        "src/project/module/hello_world.f",
     ),
-    # private path and corp CS - link to cs/chromeos_internal
+    # private path and corp CS - link to internal CS
     (
         ["--show", "--internal", "../src/project/module/hello_world.f"],
         {"remote_alias": "cros-internal"},
         "src/project",
         "module/hello_world.f",
-        "http://cs/chromeos_internal/src/project/module/hello_world.f",
+        "http://cs/h/chrome-internal/chromeos/superproject/+/main:"
+        "src/project/module/hello_world.f",
     ),
     # private path and Gitiles - link to chrome-internal.googlesource.com
     (

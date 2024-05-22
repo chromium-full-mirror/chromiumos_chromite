@@ -81,20 +81,7 @@ class InternalCS(CodeSearch):
         line = f";l={opts.line}" if opts.line else ""
         sha = f';rcl={attrs["sha"]}' if opts.upstream_sha else ""
         return (
-            "http://cs/chromeos_public/"
-            + f"{checkout_path}/{relative_path}{line}{sha}"
-        )
-
-
-class PrivateCS(CodeSearch):
-    """format returns a url to the code specified"""
-
-    @classmethod
-    def format(cls, attrs, opts, checkout_path, relative_path):
-        line = f";l={opts.line}" if opts.line else ""
-        sha = f';rcl={attrs["sha"]}' if opts.upstream_sha else ""
-        return (
-            "http://cs/chromeos_internal/"
+            "http://cs/h/chrome-internal/chromeos/superproject/+/main:"
             + f"{checkout_path}/{relative_path}{line}{sha}"
         )
 
@@ -147,7 +134,7 @@ def GetParser():
         "--show",
         action="store_true",
         default=False,
-        help="Output the link to stdout rather than copying it to the"
+        help="Output the link to stdout rather than copying it to the "
         "clipboard.",
     )
 
@@ -173,7 +160,7 @@ def GenerateLink(attrs, opts, checkout_path, relative_path):
         base = Gitiles
     elif attrs.get("remote_alias") == "cros-internal":
         # Private repos not on public CS, so force internal private.
-        base = PrivateCS
+        base = InternalCS
     elif opts.public_link:
         base = PublicCS
     else:
