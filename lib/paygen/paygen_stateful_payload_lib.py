@@ -7,7 +7,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import List, Optional, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -19,7 +19,7 @@ def _generate_stateful_payload(
     image_path: Union[Path, str],
     output: Union[Path, int, str],
     compression: cros_build_lib.CompressionType,
-    extra_env: Optional[Dict[str, str]] = None,
+    compressor: Optional[List[str]] = None,
 ) -> None:
     """Generates a stateful update payload given a path/fd and compression.
 
@@ -27,7 +27,7 @@ def _generate_stateful_payload(
         image_path: Path to the image.
         output: Path or fd to the output target.
         compression: The compression to use.
-        extra_env: Dictionary containing the extra environment variable(s).
+        compressor: Explicitly specify the compressor to use.
     """
     logging.info("Generating stateful update payload.")
 
@@ -47,6 +47,7 @@ def _generate_stateful_payload(
                 ".",
                 sudo=True,
                 compression=compression,
+                compressor=compressor,
                 inputs=inputs,
                 extra_args=[
                     "--selinux",
@@ -54,7 +55,6 @@ def _generate_stateful_payload(
                     "--transform=s,^dev_image,dev_image_new,",
                     "--transform=s,^var_overlay,var_new,",
                 ],
-                extra_env=extra_env,
             )
         except:
             logging.error("Failed to create stateful update file")
@@ -119,7 +119,7 @@ def GenerateZstdStatefulPayload(
         image_path,
         output_zstd,
         cros_build_lib.CompressionType.ZSTD,
-        extra_env={"ZSTD_CLEVEL": "19"},
+        compressor=["zstdmt", "-19"],
     )
 
     return output_zstd

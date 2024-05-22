@@ -49,13 +49,13 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             sudo=True,
             compression=cros_build_lib.CompressionType.GZIP,
             inputs=["dev_image", "var_overlay", "unencrypted"],
+            compressor=None,
             extra_args=[
                 "--selinux",
                 "--directory=%s" % os.path.join(self.tempdir, "dir-1"),
                 "--transform=s,^dev_image,dev_image_new,",
                 "--transform=s,^var_overlay,var_new,",
             ],
-            extra_env=None,
         )
 
     def testGenerateStatefulPayloadWhenDirsMissing(self) -> None:
@@ -80,6 +80,7 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             ".",
             sudo=True,
             compression=cros_build_lib.CompressionType.GZIP,
+            compressor=None,
             inputs=["dev_image", "var_overlay"],
             extra_args=[
                 "--selinux",
@@ -87,7 +88,6 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
                 "--transform=s,^dev_image,dev_image_new,",
                 "--transform=s,^var_overlay,var_new,",
             ],
-            extra_env=None,
         )
 
     def testGenerateStatefulPayloadIntoFileDescriptor(self) -> None:
@@ -111,6 +111,7 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             ".",
             sudo=True,
             compression=cros_build_lib.CompressionType.GZIP,
+            compressor=None,
             inputs=["dev_image", "var_overlay", "unencrypted"],
             extra_args=[
                 "--selinux",
@@ -118,7 +119,6 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
                 "--transform=s,^dev_image,dev_image_new,",
                 "--transform=s,^var_overlay,var_new,",
             ],
-            extra_env=None,
         )
 
     def testGenerateZstdStatefulPayload(self) -> None:
@@ -143,6 +143,7 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             ".",
             sudo=True,
             compression=cros_build_lib.CompressionType.ZSTD,
+            compressor=["zstdmt", "-19"],
             inputs=["dev_image", "var_overlay", "unencrypted"],
             extra_args=[
                 "--selinux",
@@ -150,7 +151,6 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
                 "--transform=s,^dev_image,dev_image_new,",
                 "--transform=s,^var_overlay,var_new,",
             ],
-            extra_env={"ZSTD_CLEVEL": "19"},
         )
 
     def testGenerateZstdStatefulPayloadWhenDirsMissing(self) -> None:
@@ -175,6 +175,7 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             ".",
             sudo=True,
             compression=cros_build_lib.CompressionType.ZSTD,
+            compressor=["zstdmt", "-19"],
             inputs=["dev_image", "var_overlay"],
             extra_args=[
                 "--selinux",
@@ -182,7 +183,6 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
                 "--transform=s,^dev_image,dev_image_new,",
                 "--transform=s,^var_overlay,var_new,",
             ],
-            extra_env={"ZSTD_CLEVEL": "19"},
         )
 
     def testGenerateZstdStatefulPayloadIntoFileDescriptor(self) -> None:
@@ -206,6 +206,7 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             ".",
             sudo=True,
             compression=cros_build_lib.CompressionType.ZSTD,
+            compressor=["zstdmt", "-19"],
             inputs=["dev_image", "var_overlay", "unencrypted"],
             extra_args=[
                 "--selinux",
@@ -213,5 +214,4 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
                 "--transform=s,^dev_image,dev_image_new,",
                 "--transform=s,^var_overlay,var_new,",
             ],
-            extra_env={"ZSTD_CLEVEL": "19"},
         )
