@@ -1532,7 +1532,7 @@ class FindCompressorTests(cros_test_lib.TempDirTestCase):
 
     def testFindCompressorZstd(self) -> None:
         """Test FindCompressor with zstd."""
-        comps = ("zstdmt", "zstd")
+        comps = ("pzstd", "zstdmt", "zstd")
         self._test_comp(comps, cros_build_lib.CompressionType.ZSTD)
 
     def testFindCompressorZstdNotFound(self) -> None:

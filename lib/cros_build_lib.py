@@ -1044,7 +1044,7 @@ def FindCompressor(
     elif compression == CompressionType.BZIP2:
         possible_progs = ["lbzip2", "pbzip2", "bzip2"]
     elif compression == CompressionType.ZSTD:
-        possible_progs = ["zstdmt", "zstd"]
+        possible_progs = ["pzstd", "zstdmt", "zstd"]
     elif compression == CompressionType.NONE:
         return "cat"
     else:
@@ -1367,15 +1367,7 @@ def ExtractTarball(
     if comp_type == CompressionType.NONE:
         comp_type = CompressionExtToType(tarball_path)
     if comp_type != CompressionType.NONE:
-        # Special case pzstd when decompressing because it is the same as zstd,
-        # unless the input was created with pzstd, then it's faster.  We can't
-        # put it in FindCompressor as the default tool as pzstd will create
-        # larger archives, and our API doesn't have a way to communicate whether
-        # the caller is OK with that overhead.
-        if comp_type == CompressionType.ZSTD and osutils.Which("pzstd"):
-            compressor = "pzstd"
-        else:
-            compressor = FindCompressor(comp_type)
+        compressor = FindCompressor(comp_type)
         cmd += ["--use-compress-program", shell_util.quote(compressor)]
 
     # If caller requires the list of extracted files, get verbose.
