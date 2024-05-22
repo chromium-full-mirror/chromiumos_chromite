@@ -596,22 +596,14 @@ def _uprev_local_host_prebuilts_files(
     return modified_paths
 
 
-def _find_newest_stable_ebuild(
-    in_dir: Path,
-) -> Tuple[Path, package_info.PackageInfo]:
+def _find_newest_ebuild(in_dir: Path) -> Tuple[Path, package_info.PackageInfo]:
     """Find the ebuild in `in_dir` with the newest version.
 
-    This skips 9999 ebuilds.
-
     Raises:
-        ValueError if the given directory contains no non-9999 ebuilds, or if
-        the ebuilds in the directory could not be parsed.
+        ValueError if the given directory contains no ebuilds, or if the
+        ebuilds in the directory could not be parsed.
     """
-    ebuilds = (
-        (x, package_info.parse(x))
-        for x in in_dir.glob("*.ebuild")
-        if not x.name.endswith("-9999.ebuild")
-    )
+    ebuilds = ((x, package_info.parse(x)) for x in in_dir.glob("*.ebuild"))
     return max(ebuilds, key=lambda x: x[1])
 
 
@@ -630,10 +622,8 @@ def uprev_toolchain_virtuals(
 
     updated_files = []
     for host_package_dir, virtual_package_dir in virtuals_to_sync:
-        _, host_info = _find_newest_stable_ebuild(host_package_dir)
-        virtual_path, virtual_info = _find_newest_stable_ebuild(
-            virtual_package_dir
-        )
+        _, host_info = _find_newest_ebuild(host_package_dir)
+        virtual_path, virtual_info = _find_newest_ebuild(virtual_package_dir)
         if host_info.pvr == virtual_info.pvr:
             logging.info(
                 "No need to uprev %s; no new updates to its host path.",
