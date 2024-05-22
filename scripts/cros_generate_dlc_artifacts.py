@@ -219,7 +219,7 @@ def GenerateDlcArtifacts(opts: commandline.ArgumentNamespace) -> None:
             tarball_path=meta_out,
             cwd=artifacts.meta,
             compression=cros_build_lib.CompressionType.ZSTD,
-            extra_env={"ZSTD_CLEVEL": "9"},
+            compressor=["zstdmt", "-9"],
         )
 
         # Handle the image.
