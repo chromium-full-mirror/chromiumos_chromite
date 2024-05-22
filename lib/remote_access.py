@@ -1548,7 +1548,7 @@ class RemoteDevice:
         elif compression == cros_build_lib.CompressionType.BZIP2:
             prog = "bzip2"
         elif compression == cros_build_lib.CompressionType.ZSTD:
-            prog = "zstd"
+            prog = "pzstd"
         elif compression == cros_build_lib.CompressionType.NONE:
             return ["cat"]
         else:

@@ -518,7 +518,7 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
         self.rsh_mock.AddCmdResult(partial_mock.In("xz"), returncode=0)
         self.rsh_mock.AddCmdResult(partial_mock.In("bzip2"), returncode=0)
         self.rsh_mock.AddCmdResult(partial_mock.In("gzip"), returncode=0)
-        self.rsh_mock.AddCmdResult(partial_mock.In("zstd"), returncode=0)
+        self.rsh_mock.AddCmdResult(partial_mock.In("pzstd"), returncode=0)
         with remote_access.RemoteDeviceHandler(remote_access.TEST_IP) as device:
             self.assertEqual(
                 ["xz", "--decompress", "--stdout"],
@@ -533,7 +533,7 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
                 device.GetDecompressor(cros_build_lib.CompressionType.GZIP),
             )
             self.assertEqual(
-                ["zstd", "--decompress", "--stdout"],
+                ["pzstd", "--decompress", "--stdout"],
                 device.GetDecompressor(cros_build_lib.CompressionType.ZSTD),
             )
             self.assertEqual(
