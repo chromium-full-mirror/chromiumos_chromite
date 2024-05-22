@@ -137,7 +137,7 @@ class Converter:
             return []
 
         if "=" in option:
-            flag, value = option.split("=", 2)
+            flag, value = option.split("=", 1)
             return [flag + "=" + self.convert_clang_option_value(value)]
 
         if "/" in option:
