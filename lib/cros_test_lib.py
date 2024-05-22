@@ -46,6 +46,7 @@ from chromite.lib import terminal
 from chromite.lib import timeout_util
 from chromite.utils import memoize
 from chromite.utils import outcap
+from chromite.utils import shell_util
 
 
 # Define custom pytestmarks, allowing us to run/skip tests by category.
@@ -204,8 +205,18 @@ def VerifyTarball(
         AssertionError when there is any divergence between the tarball and the
         structure specified by 'dir_struct'.
     """
+    compression_type = cros_build_lib.CompressionDetectType(tarball)
+    compressor = cros_build_lib.FindCompressor(compression_type)
     result = cros_build_lib.run(
-        ["tar", "-tf", tarball], capture_output=True, encoding="utf-8"
+        [
+            "tar",
+            "--use-compress-program",
+            shell_util.quote(compressor),
+            "-tf",
+            tarball,
+        ],
+        capture_output=True,
+        encoding="utf-8",
     )
     contents = result.stdout.splitlines()
     normalized = set()

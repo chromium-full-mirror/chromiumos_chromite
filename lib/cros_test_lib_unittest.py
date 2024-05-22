@@ -127,9 +127,9 @@ class TruthTableTest(cros_test_lib.TestCase):
 class VerifyTarballTest(cros_test_lib.MockTempDirTestCase):
     """Test tarball verification functionality."""
 
-    TARBALL = "fake_tarball"
-
     def setUp(self) -> None:
+        self.tarball = self.tempdir / "fake_tarball.tar"
+        self.tarball.write_bytes(b"ustar\0")
         self.rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
 
     def _MockTarList(self, files) -> None:
@@ -139,7 +139,7 @@ class VerifyTarballTest(cros_test_lib.MockTempDirTestCase):
             files: A list of contents to return.
         """
         self.rc_mock.AddCmdResult(
-            partial_mock.ListRegex("tar -tf"), stdout="\n".join(files)
+            partial_mock.ListRegex("tar .*-tf"), stdout="\n".join(files)
         )
 
     def testNormPath(self) -> None:
@@ -147,7 +147,7 @@ class VerifyTarballTest(cros_test_lib.MockTempDirTestCase):
         tar_contents = ["./", "./foo/", "./foo/./a", "./foo/./b"]
         dir_struct = [Dir(".", []), Dir("foo", ["a", "b"])]
         self._MockTarList(tar_contents)
-        cros_test_lib.VerifyTarball(self.TARBALL, dir_struct)
+        cros_test_lib.VerifyTarball(self.tarball, dir_struct)
 
     def testDuplicate(self) -> None:
         """Test duplicate detection."""
@@ -157,7 +157,7 @@ class VerifyTarballTest(cros_test_lib.MockTempDirTestCase):
         self.assertRaises(
             AssertionError,
             cros_test_lib.VerifyTarball,
-            self.TARBALL,
+            self.tarball,
             dir_struct,
         )
 
