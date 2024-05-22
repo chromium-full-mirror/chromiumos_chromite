@@ -22,6 +22,7 @@ DEFAULT = {
     "*.rlib",
     "*/.keep*",
     "/build/bin",
+    "/build/firmware",
     "/build/initramfs",
     "/build/lib",
     "/build/lib64",
