@@ -18,7 +18,9 @@ import pytest
 from chromite.api.gen.chromiumos.build.api import subtools_pb2
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
+from chromite.lib import gs
 from chromite.lib import partial_mock
+from chromite.lib import portage_util
 from chromite.lib import subtool_lib
 from chromite.lib import unittest_lib
 from chromite.lib.parser import package_info
@@ -52,6 +54,20 @@ FAKE_BELONGS_PACKAGE = "some-category/some-package-0.1-r2"
 # Default overlay reported for `equery list` invocations. A real "public"
 # overlay is used to avoid tripping private-sources checks.
 FAKE_OVERLAY = "amd64-host"
+
+# A proto for a package which should be exported to GCS.
+GCS_PACKAGE_PROTO = subtools_pb2.SubtoolPackage(
+    name="my_subtool",
+    type=subtools_pb2.SubtoolPackage.EXPORT_GCS,
+    max_files=100,
+    paths=[TEST_PATH_MAPPING],
+    gcs_export_options=subtools_pb2.SubtoolPackage.GcsExportOptions(
+        bucket="some_bucket",
+        prefix="some_prefix",
+        # pylint: disable-next=line-too-long
+        archive_format=subtools_pb2.SubtoolPackage.GcsExportOptions.ARCHIVE_FORMAT_TAR_ZST,
+    ),
+)
 
 
 @dataclasses.dataclass
@@ -946,7 +962,10 @@ def test_upload_skips_empty_metadata(tmp_path: Path, caplog) -> None:
     # valid, JSON file.
     (tmp_path / subtool_lib.UPLOAD_METADATA_FILE).write_bytes(b"{}")
     subtool_lib.BundledSubtools([tmp_path]).upload(False)
-    assert "No valid cipd_package in bundle metadata. Skipping." in caplog.text
+    assert (
+        "Metadata not recognized as either CIPD or GCS.  Skipping."
+        in caplog.text
+    )
 
 
 def test_extract_hash_from_elf(tmp_path: Path) -> None:
@@ -973,3 +992,82 @@ def test_extract_hash_from_data(tmp_path: Path) -> None:
         subtool_lib.extract_hash(abc, file_type)
         == "fb78992e561929a6967d5328f49413fa99048d06"
     )
+
+
+def test_gs_url(tmp_path: Path) -> None:
+    """Test getting the URL for a EXPORT_GCS package."""
+    subtool = subtool_lib.Subtool(
+        message=text_format.MessageToString(GCS_PACKAGE_PROTO),
+        path=tmp_path / "my_subtool.proto",
+        work_root=tmp_path,
+    )
+    assert subtool.url == (
+        "https://storage.cloud.google.com/some_bucket/some_prefix/my_subtool"
+    )
+
+
+def test_gcs_prepare_upload(tmp_path: Path) -> None:
+    """Test prepare_upload() for a EXPORT_GCS package."""
+    subtool = subtool_lib.Subtool(
+        message=text_format.MessageToString(GCS_PACKAGE_PROTO),
+        path=tmp_path / "my_subtool.proto",
+        work_root=tmp_path,
+    )
+    subtool.bundle()
+    with mock.patch.object(
+        portage_util,
+        "FindPackageNamesForFiles",
+        return_value=[package_info.parse("cat/pkg-1.2.3-r4")],
+    ):
+        subtool.prepare_upload()
+    metadata_contents = (
+        subtool.metadata_dir / subtool_lib.UPLOAD_METADATA_FILE
+    ).read_text(encoding="utf-8")
+    metadata = subtool_lib.UploadMetadata.from_dict(
+        json.loads(metadata_contents)
+    )
+    assert metadata.gcs_metadata.package_name == "my_subtool"
+    assert metadata.gcs_metadata.version == "1.2.3-r4"
+    assert (
+        metadata.gcs_metadata.compression == cros_build_lib.CompressionType.ZSTD
+    )
+
+
+@pytest.mark.parametrize(
+    ["exists", "dryrun"],
+    [
+        (True, True),
+        (True, False),
+        (False, True),
+        (False, False),
+    ],
+)
+def test_gcs_bundle_and_upload(
+    tmp_path: Path, exists: bool, dryrun: bool
+) -> None:
+    """End-to-end test bundling and uploading a GCS_EXPORT package."""
+    subtool = subtool_lib.Subtool(
+        message=text_format.MessageToString(GCS_PACKAGE_PROTO),
+        path=tmp_path / "my_subtool.proto",
+        work_root=tmp_path,
+    )
+
+    subtool.bundle()
+
+    with mock.patch.object(
+        portage_util,
+        "FindPackageNamesForFiles",
+        return_value=[package_info.parse("cat/pkg-1.2.3-r4")],
+    ):
+        subtool.prepare_upload()
+
+    uploader = subtool_lib.BundledSubtools([subtool.metadata_dir])
+
+    with mock.patch.object(
+        gs.GSContext, "Exists", return_value=exists
+    ), mock.patch.object(gs.GSContext, "Copy") as copy:
+        uploader.upload(use_production=False, dryrun=dryrun)
+        if dryrun or exists:
+            copy.assert_not_called()
+        else:
+            copy.assert_called_once()

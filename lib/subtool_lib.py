@@ -27,9 +27,12 @@ import chromite
 from chromite.api.gen.chromiumos.build.api import subtools_pb2
 from chromite.lib import cipd
 from chromite.lib import cros_build_lib
+from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import portage_util
+from chromite.lib.parser import package_info
 from chromite.licensing import licenses_lib
+from chromite.utils import gs_urls_util
 
 
 try:
@@ -121,6 +124,18 @@ _KNOWN_PUBLIC_OVERLAYS = frozenset(
 # Digest from hashlib to use for hashing files and accumulating hashes.
 _DIGEST = "sha1"
 
+# Mapping from proto ARCHIVE_FORMAT_* to CompressionType.
+_ARCHIVE_FORMAT_MAP = {
+    subtools_pb2.SubtoolPackage.GcsExportOptions.ARCHIVE_FORMAT_TAR_ZST: (
+        cros_build_lib.CompressionType.ZSTD
+    ),
+}
+
+# Mapping from CompressionType to extension used.
+_COMPRESSION_EXTENSIONS = {
+    cros_build_lib.CompressionType.ZSTD: ".tar.zst",
+}
+
 
 @dataclasses.dataclass
 class CipdMetadata:
@@ -148,6 +163,33 @@ class CipdMetadata:
 
 
 @dataclasses.dataclass
+class GcsMetadata:
+    """Metadata for packages which get uploaded to a GS bucket.
+
+    This is reconstructed as a Dict. Essentially it maps keys to a metadata
+    subtype. Members should not be removed and the reader must be able to handle
+    any prior structure.
+
+    IMPORTANT: Always include type annotations.
+
+    Attributes:
+        bucket: The bucket to upload to.
+        package_name: The package name.
+        digest: A unique hash of the content of the package.
+        version: A version number to use for subdirectory name.
+        compression: The compression to use for the tarball.
+        prefix: An optional subdirectory in that bucket to use.
+    """
+
+    bucket: str
+    package_name: str
+    version: str
+    digest: str
+    compression: cros_build_lib.CompressionType
+    prefix: Optional[str] = None
+
+
+@dataclasses.dataclass
 class UploadMetadata:
     """Structure of the serialized upload metadata.
 
@@ -166,12 +208,16 @@ class UploadMetadata:
 
     upload_metadata_version: int = 1
     cipd_package: CipdMetadata = dataclasses.field(default_factory=CipdMetadata)
+    gcs_metadata: Optional[GcsMetadata] = None
 
     @staticmethod
     def from_dict(d: Dict[str, Dict[str, Any]]) -> "UploadMetadata":
         metadata = UploadMetadata()
         # Fields are never removed, and all have default values, so just unpack.
         metadata.cipd_package = CipdMetadata(**d.get("cipd_package", {}))
+        gcs_metadata = d.get("gcs_metadata")
+        if gcs_metadata:
+            metadata.gcs_metadata = GcsMetadata(**gcs_metadata)
         return metadata
 
 
@@ -334,6 +380,8 @@ class Subtool:
     @property
     def cipd_package(self) -> str:
         """Full path to the CIPD package name."""
+        assert self.package.type == subtools_pb2.SubtoolPackage.EXPORT_CIPD
+
         prefix = (
             self.package.cipd_prefix
             if self.package.HasField("cipd_prefix")
@@ -342,14 +390,49 @@ class Subtool:
         return f"{prefix.rstrip('/')}/{self.package.name}"
 
     @property
+    def url(self) -> str:
+        """A URL where the package can be found.
+
+        This should be a URL for humans to go click on, and not necessarily the
+        exact URL where the package will be uploaded.
+        """
+        if self.package.type == subtools_pb2.SubtoolPackage.EXPORT_CIPD:
+            return f"http://go/cipd/p/{self.cipd_package}"
+        elif self.package.type == subtools_pb2.SubtoolPackage.EXPORT_GCS:
+            suburl = self.package.name
+            if self.package.gcs_export_options.prefix:
+                suburl = f"{self.package.gcs_export_options.prefix}/{suburl}"
+            return gs_urls_util.GetGsURL(
+                bucket=self.package.gcs_export_options.bucket,
+                suburl=suburl,
+                public=False,
+            )
+        raise NotImplementedError(
+            f"URL not implemented for {self.package.type}"
+        )
+
+    @property
     def summary(self) -> str:
         """A one-line summary describing this package."""
-        return f"{self.package.name} (http://go/cipd/p/{self.cipd_package})"
+        return f"{self.package.name} ({self.url})"
 
     @property
     def source_packages(self) -> List[str]:
         """The list of packages that contributed files during bundling."""
         return sorted(self._source_ebuilds)
+
+    @functools.cached_property
+    def manifest_package(self) -> package_info.PackageInfo:
+        """The package which installed the textproto config for this subtool."""
+        packages = portage_util.FindPackageNamesForFiles(
+            str(self.manifest_path)
+        )
+        if len(packages) != 1:
+            raise ValueError(
+                f"Expected {self.manifest_path} to belong to exactly one "
+                f"source package.  Belongs to: {packages}"
+            )
+        return packages[0]
 
     def stamp(self, kind: Literal["bundled", "uploaded"]) -> Path:
         """Returns the path to a "stamp" file that tracks export progress."""
@@ -381,15 +464,35 @@ class Subtool:
         CHANGE_REVISION_ONLY = subtools_pb2.SubtoolPackage.CHANGE_REVISION_ONLY
 
         metadata = UploadMetadata()
-        metadata.cipd_package.package = self.cipd_package
-        metadata.cipd_package.refs = ["latest"]
-        metadata.cipd_package.tags = {
-            BUILDER_TAG: "sdk_subtools",
-            EBUILD_TAG: ",".join(self.source_packages),
-            SUBTOOLS_HASH_TAG: self._calculate_digest(),
-        }
-        if self.package.upload_trigger == CHANGE_REVISION_ONLY:
-            metadata.cipd_package.search_tags = [BUILDER_TAG, EBUILD_TAG]
+        if self.package.type == subtools_pb2.SubtoolPackage.EXPORT_CIPD:
+            metadata.cipd_package.package = self.cipd_package
+            metadata.cipd_package.refs = ["latest"]
+            metadata.cipd_package.tags = {
+                BUILDER_TAG: "sdk_subtools",
+                EBUILD_TAG: ",".join(self.source_packages),
+                SUBTOOLS_HASH_TAG: self._calculate_digest(),
+            }
+            if self.package.upload_trigger == CHANGE_REVISION_ONLY:
+                metadata.cipd_package.search_tags = [BUILDER_TAG, EBUILD_TAG]
+        elif self.package.type == subtools_pb2.SubtoolPackage.EXPORT_GCS:
+            compression = _ARCHIVE_FORMAT_MAP.get(
+                self.package.gcs_export_options.archive_format
+            )
+            if not compression:
+                raise NotImplementedError(
+                    "Unsupported archive format: "
+                    f"{self.package.gcs_export_options.archive_format}"
+                )
+            metadata.gcs_metadata = GcsMetadata(
+                package_name=self.package.name,
+                bucket=self.package.gcs_export_options.bucket,
+                prefix=self.package.gcs_export_options.prefix or None,
+                version=self.manifest_package.vr,
+                digest=self._calculate_digest(),
+                compression=compression,
+            )
+        else:
+            raise NotImplementedError(f"Unknown type: {self.package.type}")
 
         metadata_path = self.metadata_dir / UPLOAD_METADATA_FILE
         with metadata_path.open("w", encoding="utf-8") as fp:
@@ -629,6 +732,9 @@ class Subtool:
 
     def _validate_cipd_prefix(self) -> None:
         """Raise an error if the cipd_prefix is missing, but required."""
+        if self.package.type != subtools_pb2.SubtoolPackage.EXPORT_CIPD:
+            return
+
         if self.package.HasField("cipd_prefix"):
             return
 
@@ -748,14 +854,39 @@ class BundledSubtools:
     ) -> None:
         """Uploads a single bundle."""
         with (path / UPLOAD_METADATA_FILE).open("rb") as fp:
-            cipd_package = UploadMetadata.from_dict(json.load(fp)).cipd_package
-
-        if not cipd_package.package:
+            metadata = UploadMetadata.from_dict(json.load(fp))
+        if metadata.cipd_package.package:
+            self._upload_bundle_cipd(
+                path=path,
+                use_production=use_production,
+                dryrun=dryrun,
+                cipd_package=metadata.cipd_package,
+            )
+        elif metadata.gcs_metadata:
+            bucket_override = None
+            if not use_production:
+                bucket_override = "staging-chromiumos-sdk"
+            self._upload_bundle_gcs(
+                path=path,
+                bucket_override=bucket_override,
+                dryrun=dryrun,
+                gcs_metadata=metadata.gcs_metadata,
+            )
+        else:
             logger.warning(
-                "%s: No valid cipd_package in bundle metadata. Skipping.", path
+                "%s: Metadata not recognized as either CIPD or GCS.  Skipping.",
+                path,
             )
             return
 
+    def _upload_bundle_cipd(
+        self,
+        path: Path,
+        use_production: bool,
+        dryrun: bool,
+        cipd_package: CipdMetadata,
+    ) -> None:
+        """Uploads a single bundle to CIPD."""
         service_url = None if use_production else cipd.STAGING_SERVICE_URL
         search_tags = cipd_package.tags
         if cipd_package.search_tags:
@@ -809,3 +940,62 @@ class BundledSubtools:
         )
         self.uploaded_subtool_names.append(package_shortname)
         self.uploaded_instances_markdown.append(f"[{package_shortname}]({url})")
+
+    def _upload_bundle_gcs(
+        self,
+        path: Path,
+        dryrun: bool,
+        gcs_metadata: GcsMetadata,
+        bucket_override: Optional[str] = None,
+    ) -> None:
+        """Uploads a single bundle to GCS."""
+        bucket = bucket_override or gcs_metadata.bucket
+
+        url_parts = []
+        if gcs_metadata.prefix:
+            url_parts.append(gcs_metadata.prefix)
+        url_parts.append(gcs_metadata.package_name)
+        url_parts.append(gcs_metadata.version)
+
+        extension = _COMPRESSION_EXTENSIONS.get(gcs_metadata.compression)
+        if not extension:
+            raise ValueError(f"Unknown compression: {gcs_metadata.compression}")
+
+        filename = f"{gcs_metadata.digest}{extension}"
+        url_parts.append(filename)
+
+        gs_uri = gs_urls_util.GetGsURL(
+            bucket=bucket,
+            suburl="/".join(url_parts),
+            for_gsutil=True,
+        )
+
+        logger.debug("URI for %s: %s", gcs_metadata.package_name, gs_uri)
+
+        context = gs.GSContext()
+        if context.Exists(gs_uri):
+            logger.notice(
+                "%s: Exists in GCS.  Skipping.",
+                gs_uri,
+            )
+            return
+
+        dest_tarball = path / filename
+        cros_build_lib.CreateTarball(
+            dest_tarball,
+            path / "bundle",
+            compression=gcs_metadata.compression,
+        )
+
+        if dryrun:
+            logger.notice(
+                "Dry run: would've uploaded %s to %s",
+                dest_tarball,
+                gs_uri,
+            )
+        else:
+            context.Copy(dest_tarball, gs_uri)
+
+        http_url = gs_urls_util.GsUrlToHttp(gs_uri, public=False)
+        self.uploaded_subtool_names.append(path.name)
+        self.uploaded_instances_markdown.append(f"[{path.name}]({http_url})")
