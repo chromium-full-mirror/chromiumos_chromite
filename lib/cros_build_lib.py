@@ -1087,6 +1087,7 @@ def CompressionDetectType(
         (b"\x1f\x8b", CompressionType.GZIP),
         (b"\xfd\x37\x7a\x58\x5a\x00", CompressionType.XZ),
         (b"\x28\xb5\x2f\xfd", CompressionType.ZSTD),
+        (b"\x50\x2a\x4d\x18", CompressionType.ZSTD),
     )
     for magic, ctype in MAGIC_TO_TYPE:
         if data.startswith(magic):
