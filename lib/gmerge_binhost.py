@@ -68,6 +68,7 @@ def _filter_install_mask_from_package(in_path: str, out_path: str) -> None:
             tmp_out_path,
             tmpd_sysroot,
             compression=cros_build_lib.CompressionType.ZSTD,
+            compressor=["zstdmt"],
         )
 
         # Copy package metadata over to new package file.
