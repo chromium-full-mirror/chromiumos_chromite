@@ -601,7 +601,7 @@ def FetchTestHarnessMetadata(
 ) -> Optional[int]:
     """FetchTestHarnessMetadata returns the paths to harness metadata files.
 
-    This implements ArtifactsService.TestFetchHarnessMetadata.
+    This implements ArtifactsService.FetchTestHarnessMetadata.
     """
     chroot = controller_util.ParseChroot(request.chroot)
     sysroot = controller_util.ParseSysroot(request.sysroot)

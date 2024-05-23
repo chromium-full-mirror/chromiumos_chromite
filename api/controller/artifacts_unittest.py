@@ -1360,7 +1360,9 @@ class FetchTestHarnessMetadataTestCase(
         )
         response = artifacts_pb2.FetchTestHarnessMetadataResponse()
         with self.assertRaises(cros_build_lib.DieSystemExit):
-            artifacts.FetchMetadata(request, response, self.api_config)
+            artifacts.FetchTestHarnessMetadata(
+                request, response, self.api_config
+            )
 
     def testNoChroot(self) -> None:
         """Check that a request with no chroot results in failure."""
