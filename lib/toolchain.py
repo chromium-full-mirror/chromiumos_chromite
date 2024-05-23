@@ -310,12 +310,15 @@ class ToolchainInstaller:
             libc_path: The location of the libc archive.
         """
         compression = cros_build_lib.CompressionDetectType(libc_path)
-        compressor = cros_build_lib.FindCompressor(compression)
-        compressor_algo = Path(compressor).name
-        if compressor_algo == "pbzip2":
-            compressor = f"{compressor} --ignore-trailing-garbage=1"
-        elif compressor_algo.startswith("zstd"):
-            compressor += " -f"
+        if compression == cros_build_lib.CompressionType.ZSTD:
+            # We manually use "zstdmt -f" here, as pzstd trips up with the extra
+            # xpak data.
+            compressor = "zstdmt -f"
+        else:
+            compressor = cros_build_lib.FindCompressor(compression)
+            compressor_algo = Path(compressor).name
+            if compressor_algo == "pbzip2":
+                compressor = f"{compressor} --ignore-trailing-garbage=1"
 
         with osutils.TempDir(sudo_rm=True) as tempdir:
             # Extract to the temporary directory.
