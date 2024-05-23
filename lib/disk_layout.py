@@ -7,7 +7,6 @@
 import copy
 import json
 import logging
-import math
 import os
 from pathlib import Path
 import re
@@ -51,26 +50,6 @@ class MismatchedRootfsFormatError(Error):
 
 class MismatchedRootfsBlocksError(Error):
     """Rootfs partitions have different numbers of reserved erase blocks"""
-
-
-class MissingEraseBlockFieldError(Error):
-    """Partition has reserved erase blocks but not other fields needed"""
-
-
-class ExcessFailureProbabilityError(Error):
-    """Chances are high that the partition will have too many bad blocks"""
-
-
-class UnalignedPartitionError(Error):
-    """Partition size does not divide erase block size"""
-
-
-class ExpandNandImpossibleError(Error):
-    """Partition is raw NAND and marked with the incompatible expand feature"""
-
-
-class ExcessPartitionSizeError(Error):
-    """Partitions sum to more than the size of the whole device"""
 
 
 COMMON_LAYOUT = "common"
@@ -216,23 +195,6 @@ def GetScriptShell() -> str:
     )
 
     return script_shell
-
-
-def Combinations(n: int, k: int) -> int:
-    """Calculate the binomial coefficient, i.e., "n choose k"
-
-    This calculates the number of ways that k items can be chosen from
-    a set of size n. For example, if there are n blocks and k of them
-    are bad, then this returns the number of ways that the bad blocks
-    can be distributed over the device.
-    See http://en.wikipedia.org/wiki/Binomial_coefficient
-
-    For convenience to the caller, this function allows impossible cases
-    as input and returns 0 for them.
-    """
-    if k < 0 or n < k:
-        return 0
-    return math.factorial(n) // (math.factorial(k) * math.factorial(n - k))
 
 
 class DiskLayout:
@@ -502,12 +464,7 @@ class DiskLayout:
                 "size",
                 "fs_size",
                 "fs_options",
-                "erase_block_size",
                 "hybrid_mbr",
-                "reserved_erase_blocks",
-                "max_bad_erase_blocks",
-                "external_gpt",
-                "page_size",
                 "size_min",
                 "fs_size_min",
             )
@@ -606,31 +563,6 @@ class DiskLayout:
                                     metadata["fs_align"],
                                 )
                             )
-                        if part.get("format") == "ubi":
-                            part_meta = self._getMetadataPartition(layout)
-                            page_size = ParseHumanNumber(part_meta["page_size"])
-                            eb_size = ParseHumanNumber(
-                                part_meta["erase_block_size"]
-                            )
-                            ubi_eb_size = eb_size - 2 * page_size
-                            if (part["fs_bytes"] % ubi_eb_size) != 0:
-                                # Trim fs_bytes to multiple of UBI eraseblock
-                                # size.
-                                fs_bytes = part["fs_bytes"] - (
-                                    part["fs_bytes"] % ubi_eb_size
-                                )
-                                raise InvalidSizeError(
-                                    'File system size: "%s" (%d bytes) is not '
-                                    "a multiple of UBI erase block size (%d). "
-                                    'Please set "fs_size" to "%s" in the '
-                                    '"common" layout instead.'
-                                    % (
-                                        part["fs_size"],
-                                        part["fs_bytes"],
-                                        ubi_eb_size,
-                                        ProduceHumanNumber(fs_bytes),
-                                    )
-                                )
 
                     if "fs_blocks" in part:
                         max_fs_blocks = (
@@ -664,12 +596,6 @@ class DiskLayout:
                                     part["bytes"],
                                 )
                             )
-                    if "erase_block_size" in part:
-                        part["erase_block_size"] = ParseHumanNumber(
-                            part["erase_block_size"]
-                        )
-                    if "page_size" in part:
-                        part["page_size"] = ParseHumanNumber(part["page_size"])
 
                     part.setdefault("features", [])
                     unknown_features = set(part["features"]) - valid_features
@@ -757,17 +683,6 @@ class DiskLayout:
                 return partition
 
         return {}
-
-    def _HasBadEraseBlocks(self, partitions: Dict[Any, Any]) -> bool:
-        return "max_bad_erase_blocks" in self._getMetadataPartition(partitions)
-
-    def _HasExternalGpt(self, partitions: Dict[Any, Any]) -> bool:
-        """Returns True is 'external_gpt' property is defined in metadata.
-
-        Args:
-            partitions:
-        """
-        return self._getMetadataPartition(partitions).get("external_gpt", False)
 
     def _getPartitionByLabel(
         self, partitions: Dict[Any, Any], label: str
@@ -1167,30 +1082,6 @@ class DiskLayout:
 
         return partition["num"]
 
-    def GetReservedEraseBlocks(self, image_type: str, num: int) -> int:
-        """Returns the number of erase blocks reserved in the partition.
-
-        Args:
-            image_type: Type of image eg base/test/dev/factory_install.
-            num: Number of the partition you want to read from.
-
-        Returns:
-            Number of reserved erase blocks.
-
-        Raises:
-            InvalidLayoutError: If the image type is not supported.
-        """
-        try:
-            partitions = self._image_partitions[image_type]
-        except KeyError:
-            raise InvalidLayoutError("Unknown layout: %s" % image_type)
-        partition = self._getPartitionByNumber(partitions, num)
-
-        if "reserved_erase_blocks" in partition:
-            return partition["reserved_erase_blocks"]
-        else:
-            return 0
-
     def _DumpLayout(self, image_type: str) -> None:
         """Prints out a human readable disk layout in on-disk order.
 
@@ -1275,7 +1166,7 @@ class DiskLayout:
             "primary_entry_array_padding_bytes", 0
         )
 
-    def _GetPartitionStartByteOffset(self, partitions: Dict[Any, Any]) -> int:
+    def _GetPartitionStartByteOffset(self) -> int:
         """Return the first usable location (LBA) for partitions.
 
         This value is the byte offset after the PMBR, the primary GPT header,
@@ -1285,20 +1176,11 @@ class DiskLayout:
         normal (no padding between the primary GPT header and its partition
         entry array) case.
 
-        Args:
-            partitions: List of partitions to process
-
         Returns:
             A suitable byte offset for partitions.
         """
 
-        if self._HasExternalGpt(partitions):
-            # If the GPT is external, then the offset of the partitions' actual
-            # data will be 0, and we don't need to make space at the beginning
-            # for the GPT.
-            return 0
-        else:
-            return START_SECTOR + self._GetPrimaryEntryArrayPaddingBytes()
+        return START_SECTOR + self._GetPrimaryEntryArrayPaddingBytes()
 
     def GetTableTotals(self, partitions: Dict[Any, Any]) -> Dict[Any, Any]:
         """Calculates total sizes/counts for a partition table.
@@ -1311,7 +1193,7 @@ class DiskLayout:
         """
 
         fs_block_align_losses = 0
-        start_sector = self._GetPartitionStartByteOffset(partitions)
+        start_sector = self._GetPartitionStartByteOffset()
         ret = {
             "expand_count": 0,
             "expand_min": 0,
@@ -1371,45 +1253,6 @@ class DiskLayout:
 
         return ret
 
-    def GetFullPartitionSize(
-        self, partition: Dict[Any, Any], metadata: Dict[Any, Any]
-    ) -> int:
-        """Get the size of partition including metadata/reserved space in bytes.
-
-        The partition only has to be bigger for raw NAND devices. Formula:
-        - Add UBI per-block metadata (2 pages) if partition is UBI
-        - Round up to erase block size
-        - Add UBI per-partition metadata (4 blocks) if partition is UBI
-        - Add reserved erase blocks
-        """
-
-        erase_block_size = metadata.get("erase_block_size", 0)
-        size = partition["bytes"]
-
-        if erase_block_size == 0:
-            return size
-
-        # See "Flash space overhead" in
-        # http://www.linux-mtd.infradead.org/doc/ubi.html
-        # for overhead calculations.
-        is_ubi = partition.get("format") == "ubi"
-        reserved_erase_blocks = partition.get("reserved_erase_blocks", 0)
-        page_size = metadata.get("page_size", 0)
-
-        if is_ubi:
-            ubi_block_size = erase_block_size - 2 * page_size
-            erase_blocks = (size + ubi_block_size - 1) // ubi_block_size
-            size += erase_blocks * 2 * page_size
-
-        erase_blocks = (size + erase_block_size - 1) // erase_block_size
-        size = erase_blocks * erase_block_size
-
-        if is_ubi:
-            size += erase_block_size * 4
-
-        size += reserved_erase_blocks * erase_block_size
-        return size
-
     def WriteLayoutFunction(
         self, slines: str, func: str, image_type: str
     ) -> None:
@@ -1431,7 +1274,6 @@ class DiskLayout:
             partitions = self._image_partitions[image_type]
         except KeyError:
             raise InvalidLayoutError("Unknown layout: %s" % image_type)
-        metadata = self._getMetadataPartition(partitions)
         partition_totals = self.GetTableTotals(partitions)
         fs_align_snippet = [
             "if [ $(( curr %% %d )) -gt 0 ]; then"
@@ -1443,39 +1285,12 @@ class DiskLayout:
 
         lines = [
             "write_%s_table() {" % func,
-        ]
-
-        if self._HasExternalGpt(partitions):
-            # Read GPT from device to get size, then wipe it out and operate
-            # on GPT in tmpfs. We don't rely on cgpt's ability to deal
-            # directly with the GPT on SPI NOR flash because rewriting the
-            # table so many times would take a long time (>30min).
-            # Also, wiping out the previous GPT with create_image won't work
-            # for NAND and there's no equivalent via cgpt.
-            lines += [
-                "gptfile=$(mktemp)",
-                "flashrom -r -iRW_GPT:${gptfile}",
-                "gptsize=$(stat ${gptfile} --format %s)",
-                "dd if=/dev/zero of=${gptfile} bs=${gptsize} count=1",
-                'target="-D %d ${gptfile}"' % metadata["bytes"],
-            ]
-        else:
-            lines += [
-                'local target="$1"',
-                'create_image "${target}" %d'
-                % partition_totals["min_disk_size"],
-            ]
-
-        lines += [
+            'local target="$1"',
+            'create_image "${target}" %d' % partition_totals["min_disk_size"],
             "local blocks",
             'block_size=$(blocksize "${target}")',
             'numsecs=$(numsectors "${target}")',
-        ]
-
-        # ${target} is referenced unquoted because it may expand into multiple
-        # arguments in the case of NAND
-        lines += [
-            "local curr=%d" % self._GetPartitionStartByteOffset(partitions),
+            "local curr=%d" % self._GetPartitionStartByteOffset(),
             "# Make sure Padding is block_size aligned.",
             "if [ $(( %d & (block_size - 1) )) -gt 0 ]; then"
             % self._GetPrimaryEntryArrayPaddingBytes(),
@@ -1496,7 +1311,7 @@ class DiskLayout:
             if partition.get("num") == "metadata":
                 continue
 
-            partition["var"] = self.GetFullPartitionSize(partition, metadata)
+            partition["var"] = partition["bytes"]
             if "expand" in partition["features"]:
                 stateful = partition
                 continue
@@ -1605,9 +1420,6 @@ class DiskLayout:
                 "install_hybrid_mbr ${target} %d" % efi_partitions[0]["num"]
             ]
         lines += ["${GPT} show ${target}"]
-
-        if self._HasExternalGpt(partitions):
-            lines += ["flashrom -w -iRW_GPT:${gptfile} --noverify-all"]
 
         slines += "%s\n}\n\n" % "\n  ".join(lines)
 
@@ -1757,141 +1569,6 @@ class DiskLayout:
                         % (reserved_erase_blocks, new_reserved_erase_blocks)
                     )
 
-    def CheckReservedEraseBlocks(self, partitions: Dict[Any, Any]) -> None:
-        """Checks that the reserved_erase_blocks in each partition is good.
-
-        This function checks that a reasonable value was given for the reserved
-        erase block count. In particular, it checks that there's a less than
-        1 in 100k probability that, if the manufacturer's maximum bad erase
-        block count is met, and assuming bad blocks are uniformly randomly
-        distributed, then more bad blocks will fall in this partition than are
-        reserved. Smaller partitions need a larger reserve percentage.
-
-        We take the number of reserved blocks as a parameter in disk_layout.json
-        rather than just calculating the value so that it can be tweaked
-        explicitly along with others in squeezing the image onto flash. But
-        we check it so that users have an easy method for determining what's
-        acceptable--just try out a new value and do `cros build-image`.
-
-        Args:
-            partitions: The partition to validate.
-
-        Raises:
-            ExcessFailureProbabilityError: If excessive probablity exists for
-                failure.
-            MissingEraseBlockFieldError: If unable to check for erased blocks.
-        """
-        for partition in partitions:
-            if "reserved_erase_blocks" in partition or partition.get(
-                "format"
-            ) in (
-                "ubi",
-                "nand",
-            ):
-                if partition.get("bytes", 0) == 0:
-                    continue
-                metadata = self._getMetadataPartition(partitions)
-                if (
-                    not self._HasBadEraseBlocks(partitions)
-                    or "reserved_erase_blocks" not in partition
-                    or "bytes" not in metadata
-                    or "erase_block_size" not in metadata
-                    or "page_size" not in metadata
-                ):
-                    raise MissingEraseBlockFieldError(
-                        "unable to check if partition %s will have too many "
-                        "bad blocks due to missing metadata field"
-                        % partition["label"]
-                    )
-
-                reserved = partition["reserved_erase_blocks"]
-                erase_block_size = metadata["erase_block_size"]
-                device_erase_blocks = metadata["bytes"] // erase_block_size
-                device_bad_blocks = metadata["max_bad_erase_blocks"]
-                distributions = Combinations(
-                    device_erase_blocks, device_bad_blocks
-                )
-                partition_erase_blocks = partition["bytes"] // erase_block_size
-                # The idea is to calculate the number of ways that there could
-                # be reserved or more bad blocks inside the partition, assuming
-                # that there are device_bad_blocks in the device in total
-                # (the worst case). To get the probability, we divide this
-                # count by the total number of ways that the bad blocks can be
-                # distribute on the whole device. To find the first number, we
-                # sum over increasing values for the count of bad blocks within
-                # the partition the number of ways that those bad blocks can be
-                # inside the partition, multiplied by the number of ways that
-                # the remaining blocks can be distributed outside of the
-                # partition.
-                ways_for_failure = sum(
-                    Combinations(partition_erase_blocks, partition_bad_blocks)
-                    * Combinations(
-                        device_erase_blocks - partition_erase_blocks,
-                        device_bad_blocks - partition_bad_blocks,
-                    )
-                    for partition_bad_blocks in range(
-                        reserved + 1, device_bad_blocks + 1
-                    )
-                )
-                probability = ways_for_failure / distributions
-                if probability > 0.00001:
-                    raise ExcessFailureProbabilityError(
-                        "excessive probability %f of too many "
-                        "bad blocks in partition %s"
-                        % (probability, partition["label"])
-                    )
-
-    def CheckSimpleNandProperties(self, partitions: Dict[Any, Any]) -> None:
-        """Checks that NAND partitions are erase-block-aligned and not expand.
-
-        Args:
-            partitions: The partition to validate.
-
-        Raises:
-            UnalignedPartitionError: if the partition size is not aligned with
-                erase block size.
-            ExpandNandImpossibleError: If expand partition is specified for
-                NAND.
-        """
-        if not self._HasBadEraseBlocks(partitions):
-            return
-        metadata = self._getMetadataPartition(partitions)
-        erase_block_size = metadata["erase_block_size"]
-        for partition in partitions:
-            if partition["bytes"] % erase_block_size != 0:
-                raise UnalignedPartitionError(
-                    "partition size %s does not divide erase block size %s"
-                    % (partition["bytes"], erase_block_size)
-                )
-            if "expand" in partition["features"]:
-                raise ExpandNandImpossibleError(
-                    "expand partitions may not be used with raw NAND"
-                )
-
-    def CheckTotalSize(self, partitions: Dict[Any, Any]) -> None:
-        """Checks that the sum size of all partitions fits within the device.
-
-        Args:
-            partitions: The partition to evaluate.
-
-        Raises:
-            ExcessPartitionSizeError: if the total partition size is greater
-                than the capacity.
-        """
-        metadata = self._getMetadataPartition(partitions)
-        if "bytes" not in metadata:
-            return
-        capacity = metadata["bytes"]
-        total = sum(
-            self.GetFullPartitionSize(partition, metadata)
-            for partition in partitions
-            if partition.get("num") != "metadata"
-        )
-        if total > capacity:
-            raise ExcessPartitionSizeError(
-                "capacity = %d, total=%d" % (capacity, total)
-            )
-
     def Validate(self, image_type: str) -> None:
         """Validates a layout file.
 
@@ -1917,6 +1594,3 @@ class DiskLayout:
         except KeyError:
             raise InvalidLayoutError("Unknown layout: %s" % image_type)
         self.CheckRootfsPartitionsMatch(partitions)
-        self.CheckTotalSize(partitions)
-        self.CheckSimpleNandProperties(partitions)
-        self.CheckReservedEraseBlocks(partitions)
