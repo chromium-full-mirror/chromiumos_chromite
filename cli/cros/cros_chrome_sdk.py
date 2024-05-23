@@ -1174,6 +1174,7 @@ class ChromeSDKCommand(command.CliCommand):
                         "cros_nacl_helper_arm32_(ar|cc|cxx|ld|readelf|sysroot)",
                         "(custom|host|v8_snapshot)_toolchain",
                         "rbe_cros_cc_wrapper",
+                        "reclient_cros_cc_wrapper",
                         "system_libdir",
                         "target_sysroot",
                         "arm_(float_abi|use_neon)",
@@ -1501,10 +1502,12 @@ class ChromeSDKCommand(command.CliCommand):
         # so we let dcheck_always_on use the default value for Simple Chrome.
         gn_args.pop("dcheck_always_on", None)
 
-        # "rbe_cfg_dir" and "rbe_exec_root" defined in chromeos-chrome ebuild
-        # is only relevant for builds done within chroot via portage. So we
-        # need to remove them and use the ones defined in chromium.
+        # "rbe_cfg_dir"/"reclient_cfg_dir" and "rbe_exec_root" defined in
+        # chromeos-chrome ebuild are only relevant for builds done within
+        # chroot via portage. So we need to remove them and use the ones defined
+        # in chromium.
         gn_args.pop("rbe_cfg_dir", None)
+        gn_args.pop("reclient_cfg_dir", None)
         gn_args.pop("rbe_exec_root", None)
 
         # Disable ThinLTO and CFI for simplechrome. Tryjob machines do not have
