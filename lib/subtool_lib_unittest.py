@@ -692,17 +692,25 @@ def test_ebuild_match_globs_files(template_proto: Wrapper) -> None:
     assert subtool.source_packages[0].startswith("sys-apps/baselayout-")
 
 
-def test_ebuild_match_recursive_glob(template_proto: Wrapper) -> None:
+@pytest.mark.parametrize(
+    ("glob", "expected_files"),
+    (
+        ("**/*.conf", ["<license>", "aliases.conf", "i386.conf"]),
+        (
+            "/usr/**",
+            ["<license>", "fstab", "group", "issue.devfix", "passwd", "shadow"],
+        ),
+    ),
+)
+def test_ebuild_match_recursive_glob(
+    glob: str, expected_files: List[str], template_proto: Wrapper
+) -> None:
     """Test that queries can match real package contents; recursive glob."""
     template_proto.set_paths(
-        [path_mapping("**/*.conf", dest="/", ebuild_filter="baselayout")]
+        [path_mapping(glob, dest="/", ebuild_filter="baselayout")]
     )
     subtool = template_proto.create(writes_files=True)
-    assert bundle_result(subtool, has_ebuild_match=True) == [
-        "<license>",
-        "aliases.conf",
-        "i386.conf",
-    ]
+    assert bundle_result(subtool, has_ebuild_match=True) == expected_files
     assert subtool.source_packages[0].startswith("sys-apps/baselayout-")
 
 

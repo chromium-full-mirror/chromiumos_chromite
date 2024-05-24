@@ -9,6 +9,7 @@ https://crsrc.org/o/src/config/proto/chromiumos/build/api/subtools.proto
 """
 
 import dataclasses
+import fnmatch
 import functools
 import hashlib
 import json
@@ -656,9 +657,10 @@ class Subtool:
         """Matches `glob` against files installed by a portage package."""
         package = get_installed_package(mapping.ebuild_filter, self)
         for _file_type, relative_path in package.ListContents():
-            path = Path(f"/{relative_path}")
-            if path.match(glob):
-                self._copy_into_bundle(path, destdir, strip, mapping)
+            if fnmatch.fnmatch(relative_path, glob):
+                self._copy_into_bundle(
+                    Path("/") / relative_path, destdir, strip, mapping
+                )
 
         # Assumes something added. The entry is invalid (error raised) if not.
         self._source_ebuilds.add(package.package_info.cpvr)
