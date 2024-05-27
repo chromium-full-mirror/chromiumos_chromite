@@ -432,6 +432,11 @@ GROUP_BASELINE = dict(
             users={"crosvm", "cups-proxy", "pluginvm"},
         ),
         GroupEntry(
+            group="ip-peripheral",
+            gid=20143,
+            users={"ip-peripheral", "meet_camerad"},
+        ),
+        GroupEntry(
             group="usbprinter",
             gid=20155,
             users={
@@ -439,7 +444,11 @@ GROUP_BASELINE = dict(
                 _SCANNER_DAEMON,
             },
         ),
-        GroupEntry(group="hotline", gid=20157, users={"hotline", "hotlog"}),
+        GroupEntry(
+            group="hotline",
+            gid=20157,
+            users={"hotline", "hotlog", "meet_camerad"},
+        ),
         GroupEntry(
             group="traced-producer",
             gid=20162,
