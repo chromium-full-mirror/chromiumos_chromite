@@ -8,6 +8,7 @@ import os
 import shutil
 
 from chromite.lib import commandline
+from chromite.lib import compression_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import sudo
@@ -81,7 +82,9 @@ class GenerateTidyWarnings:
 
     def _CreateTarball(self) -> None:
         tarball_path = os.path.join(self.options.out_dir, self.options.out_file)
-        cros_build_lib.CreateTarball(tarball_path, self.warnings_dir, sudo=True)
+        compression_lib.create_tarball(
+            tarball_path, self.warnings_dir, sudo=True
+        )
 
     def Perform(self) -> None:
         """Generate the warnings files."""

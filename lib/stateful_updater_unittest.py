@@ -8,6 +8,7 @@ import os
 import shutil
 from unittest import mock
 
+from chromite.lib import compression_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
@@ -55,10 +56,10 @@ class StatefulUpdaterTest(cros_test_lib.MockTempDirTestCase):
         for d in stateful_dirs:
             osutils.SafeMakedirs(os.path.join(tmp_stateful, d))
 
-        cros_build_lib.CreateTarball(
+        compression_lib.create_tarball(
             self._payload,
             tmp_stateful,
-            compression=cros_build_lib.CompressionType.GZIP,
+            compression=compression_lib.CompressionType.GZIP,
             inputs=stateful_dirs,
         )
         self.assertExists(self._payload)

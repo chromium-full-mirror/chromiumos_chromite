@@ -14,6 +14,7 @@ from unittest import mock
 from chromite.api.gen.chromite.api import payload_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import chroot_lib
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -512,8 +513,8 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
                     "--directory",
                     str(self.tempdir),
                     "--use-compress-program",
-                    cros_build_lib.FindCompressor(
-                        cros_build_lib.CompressionType.XZ
+                    compression_lib.find_compressor(
+                        compression_lib.CompressionType.XZ
                     ),
                     test_extract_file,
                 ],

@@ -12,6 +12,7 @@ from typing import List
 
 import portage  # pylint: disable=import-error
 
+from chromite.lib import compression_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 
@@ -64,10 +65,10 @@ def _filter_install_mask_from_package(in_path: str, out_path: str) -> None:
 
         tmp_out_path = Path(tmpd) / Path(out_path).name
         # Build filtered version of package.
-        cros_build_lib.CreateTarball(
+        compression_lib.create_tarball(
             tmp_out_path,
             tmpd_sysroot,
-            compression=cros_build_lib.CompressionType.ZSTD,
+            compression=compression_lib.CompressionType.ZSTD,
             compressor=["zstdmt"],
         )
 

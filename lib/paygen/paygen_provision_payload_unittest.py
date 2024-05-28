@@ -7,8 +7,8 @@
 from unittest import mock
 
 from chromite.lib import chroot_lib
+from chromite.lib import compression_lib
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import parallel_unittest
@@ -52,7 +52,7 @@ class GenerateProvisionPayloadsTest(cros_test_lib.MockTempDirTestCase):
         has_minios_mock = self.PatchObject(
             partition_lib, "HasMiniOSPartitions", return_value=False
         )
-        compress_file_mock = self.PatchObject(cros_build_lib, "CompressFile")
+        compress_file_mock = self.PatchObject(compression_lib, "compress_file")
 
         paygen_provision_payload.GenerateProvisionPayloads(
             self.target_image, self.tempdir
@@ -104,7 +104,7 @@ class GenerateProvisionPayloadsTest(cros_test_lib.MockTempDirTestCase):
         has_minios_mock = self.PatchObject(
             partition_lib, "HasMiniOSPartitions", return_value=True
         )
-        compress_file_mock = self.PatchObject(cros_build_lib, "CompressFile")
+        compress_file_mock = self.PatchObject(compression_lib, "compress_file")
 
         paygen_provision_payload.GenerateProvisionPayloads(
             self.target_image, self.tempdir

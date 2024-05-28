@@ -9,8 +9,8 @@ import os
 from pathlib import Path
 from typing import List, Optional, Union
 
+from chromite.lib import compression_lib
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 from chromite.lib import image_lib
 from chromite.lib import osutils
 
@@ -18,7 +18,7 @@ from chromite.lib import osutils
 def _generate_stateful_payload(
     image_path: Union[Path, str],
     output: Union[Path, int, str],
-    compression: cros_build_lib.CompressionType,
+    compression: compression_lib.CompressionType,
     compressor: Optional[List[str]] = None,
 ) -> None:
     """Generates a stateful update payload given a path/fd and compression.
@@ -42,7 +42,7 @@ def _generate_stateful_payload(
             inputs = ["dev_image", "var_overlay"]
             if os.path.exists(os.path.join(stateful_dir, "unencrypted")):
                 inputs += ["unencrypted"]
-            cros_build_lib.CreateTarball(
+            compression_lib.create_tarball(
                 output,
                 ".",
                 sudo=True,
@@ -90,7 +90,7 @@ def GenerateStatefulPayload(
         )
 
     _generate_stateful_payload(
-        image_path, output_gz, cros_build_lib.CompressionType.GZIP
+        image_path, output_gz, compression_lib.CompressionType.GZIP
     )
 
     return output_gz
@@ -118,7 +118,7 @@ def GenerateZstdStatefulPayload(
     _generate_stateful_payload(
         image_path,
         output_zstd,
-        cros_build_lib.CompressionType.ZSTD,
+        compression_lib.CompressionType.ZSTD,
         compressor=["zstdmt", "-19"],
     )
 

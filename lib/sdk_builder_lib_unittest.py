@@ -7,7 +7,7 @@
 from pathlib import Path
 
 from chromite.lib import chromeos_version
-from chromite.lib import cros_build_lib
+from chromite.lib import compression_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import sdk_builder_lib
 
@@ -110,7 +110,7 @@ class CreateTarballForSdkTest(cros_test_lib.TempDirTestCase):
         # Check the contents of the tarball.
         t = self.tempdir / "extracted"
         t.mkdir(parents=True)
-        cros_build_lib.ExtractTarball(tarball_path, t)
+        compression_lib.extract_tarball(tarball_path, t)
         self.assertEqual(
             (t / "bin/example").read_text(encoding="utf-8"), "example file\n"
         )

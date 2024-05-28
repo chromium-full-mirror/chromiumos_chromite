@@ -18,6 +18,7 @@ import tempfile
 import time
 from typing import List, Optional, Union
 
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
@@ -1532,7 +1533,7 @@ class RemoteDevice:
 
         Args:
             compression: The type of compression desired. See
-                cros_build_lib.CompressionType.*.
+                compression_lib.CompressionType.*.
 
         Returns:
             command to a decompressor as a string list.
@@ -1541,15 +1542,15 @@ class RemoteDevice:
             ValueError: If compression is unknown.
         """
 
-        if compression == cros_build_lib.CompressionType.XZ:
+        if compression == compression_lib.CompressionType.XZ:
             prog = "xz"
-        elif compression == cros_build_lib.CompressionType.GZIP:
+        elif compression == compression_lib.CompressionType.GZIP:
             prog = "gzip"
-        elif compression == cros_build_lib.CompressionType.BZIP2:
+        elif compression == compression_lib.CompressionType.BZIP2:
             prog = "bzip2"
-        elif compression == cros_build_lib.CompressionType.ZSTD:
+        elif compression == compression_lib.CompressionType.ZSTD:
             prog = "pzstd"
-        elif compression == cros_build_lib.CompressionType.NONE:
+        elif compression == compression_lib.CompressionType.NONE:
             return ["cat"]
         else:
             raise ValueError(f"Unknown compression: {compression}")

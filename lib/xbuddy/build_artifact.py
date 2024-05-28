@@ -11,6 +11,7 @@ import pickle
 import shutil
 import traceback
 
+from chromite.lib import compression_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
 from chromite.lib import osutils
@@ -526,14 +527,14 @@ class BundledArtifact(Artifact):
         extension and extracts the tarball into the install_path.
         """
         try:
-            return cros_build_lib.ExtractTarball(
+            return compression_lib.extract_tarball(
                 self.install_path,
                 self.install_dir,
                 files_to_extract=self._files_to_extract,
                 excluded_files=self._exclude,
                 return_extracted_files=True,
             )
-        except cros_build_lib.TarballError as e:
+        except compression_lib.TarballError as e:
             raise ArtifactDownloadError(str(e))
 
 

@@ -10,7 +10,7 @@ import shutil
 from typing import List
 
 from chromite.lib import commandline
-from chromite.lib import cros_build_lib
+from chromite.lib import compression_lib
 from chromite.lib import dlc_lib
 from chromite.lib import osutils
 
@@ -215,10 +215,10 @@ def GenerateDlcArtifacts(opts: commandline.ArgumentNamespace) -> None:
         meta_out = os.path.join(output_dir, _META_OUT_FILE)
 
         logging.info("Emitting the metadata into %s", meta_out)
-        cros_build_lib.CreateTarball(
+        compression_lib.create_tarball(
             tarball_path=meta_out,
             cwd=artifacts.meta,
-            compression=cros_build_lib.CompressionType.ZSTD,
+            compression=compression_lib.CompressionType.ZSTD,
             compressor=["zstdmt", "-9"],
         )
 

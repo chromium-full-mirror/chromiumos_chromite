@@ -23,6 +23,7 @@ from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import build_target_lib
 from chromite.lib import chromeos_version
 from chromite.lib import chroot_lib
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import failures_lib
@@ -1150,8 +1151,8 @@ def GenerateDebugTarballInsideChroot(
     if chroot_compression:
         compression_chroot = os.path.join(buildroot, "chroot")
 
-    compression = cros_build_lib.CompressionExtToType(debug_tarball)
-    cros_build_lib.CreateTarball(
+    compression = compression_lib.CompressionType.from_extension(debug_tarball)
+    compression_lib.create_tarball(
         debug_tarball,
         board_dir,
         sudo=True,
@@ -1192,11 +1193,11 @@ def GenerateDebugTarballOutsideChroot(
     """
     cros_build_lib.AssertOutsideChroot()
 
-    # Originally this called cros_build_lib.CreateTarball(), but ToT changes to
-    # paths within the chroot meant we stopped being able to execute outside the
-    # chroot. Since cbuildbot code is going away shortly anyway, we've done a
-    # quick-fix to call tar directly rather than updating
-    # cros_build_lib.CreateTarball() to support `enter_chroot`.
+    # Originally this called compression_lib.create_tarball(), but ToT changes
+    # to paths within the chroot meant we stopped being able to execute outside
+    # the chroot. Since cbuildbot code is going away shortly anyway, we've done
+    # a quick-fix to call tar directly rather than updating
+    # compression_lib.create_tarball() to support `enter_chroot`.
 
     # Generate debug tarball. This needs to run as root because some of the
     # symbols are only readable by root.
@@ -1221,8 +1222,8 @@ def GenerateDebugTarballOutsideChroot(
     if chroot_compression:
         compression_chroot = os.path.join(buildroot, "chroot")
 
-    compression = cros_build_lib.CompressionExtToType(debug_tarball)
-    compressor = cros_build_lib.FindCompressor(
+    compression = compression_lib.CompressionType.from_extension(debug_tarball)
+    compressor = compression_lib.find_compressor(
         compression, chroot=compression_chroot
     )
     if compressor.startswith("/bin/"):
@@ -1603,17 +1604,17 @@ def BuildTarball(
         tarball_path: Path of output tar archive file.
         cwd: Current working directory when tar command is executed.
         compressed: Whether or not the tarball should be compressed with pbzip2.
-        **kwargs: Keyword arguments to pass to CreateTarball.
+        **kwargs: Keyword arguments to pass to create_tarball.
 
     Returns:
-        Return value of cros_build_lib.CreateTarball.
+        Return value of compression_lib.create_tarball.
     """
-    compressor = cros_build_lib.CompressionType.NONE
+    compressor = compression_lib.CompressionType.NONE
     chroot = None
     if compressed:
-        compressor = cros_build_lib.CompressionType.BZIP2
+        compressor = compression_lib.CompressionType.BZIP2
         chroot = os.path.join(buildroot, "chroot")
-    return cros_build_lib.CreateTarball(
+    return compression_lib.create_tarball(
         tarball_path,
         cwd,
         compression=compressor,
@@ -1876,8 +1877,8 @@ def BuildStandaloneArchive(archive_dir, image_dir, artifact_info):
         extensions, plus the appropriate .tar.gz or other suffix.
     archive - "tar" or "zip". If omitted, files will be uploaded
         directly, without being archived together.
-    compress - a value cros_build_lib.CompressionStrToType knows about. Only
-        useful for tar. If omitted, an uncompressed tar will be created.
+    compress - a value compression_lib.CompressionType.from_str knows about.
+        Only useful for tar. If omitted, an uncompressed tar will be created.
 
     Args:
         archive_dir: Directory to store image zip.
@@ -1913,7 +1914,7 @@ def BuildStandaloneArchive(archive_dir, image_dir, artifact_info):
     inputs = artifact_info["paths"]
     archive = artifact_info["archive"]
     compress = artifact_info.get("compress")
-    compress_type = cros_build_lib.CompressionStrToType(compress)
+    compress_type = compression_lib.CompressionType.from_str(compress)
     if compress_type is None:
         raise ValueError("unknown compression type: %s" % compress)
 
@@ -1927,7 +1928,7 @@ def BuildStandaloneArchive(archive_dir, image_dir, artifact_info):
         if "output" not in artifact_info and compress:
             filename = "%s.%s" % (filename, compress)
         extra_env = {"XZ_OPT": "-1"}
-        cros_build_lib.CreateTarball(
+        compression_lib.create_tarball(
             os.path.join(archive_dir, filename),
             image_dir,
             inputs=inputs,

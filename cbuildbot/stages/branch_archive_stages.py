@@ -18,6 +18,7 @@ from chromite.cbuildbot import cbuildbot_alerts
 from chromite.cbuildbot import commands
 from chromite.cbuildbot.stages import generic_stages
 from chromite.cbuildbot.stages import workspace_stages
+from chromite.lib import compression_lib
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -252,13 +253,13 @@ class FactoryArchiveStage(WorkspaceArchiveBase):
         with osutils.TempDir(prefix="test_image_dir") as tempdir:
             tarball_path = os.path.join(tempdir, constants.TEST_IMAGE_TAR)
 
-            cros_build_lib.CreateTarball(
+            compression_lib.create_tarball(
                 tarball_path,
                 inputs=[constants.TEST_IMAGE_BIN],
                 cwd=self.GetImageDirSymlink(
                     pointer="latest", buildroot=self._build_root
                 ),
-                compression=cros_build_lib.CompressionType.XZ,
+                compression=compression_lib.CompressionType.XZ,
             )
 
             self.UploadBranchArtifact(tarball_path)

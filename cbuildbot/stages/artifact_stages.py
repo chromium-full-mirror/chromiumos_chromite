@@ -15,6 +15,7 @@ import shutil
 from chromite.cbuildbot import commands
 from chromite.cbuildbot import prebuilts
 from chromite.cbuildbot.stages import generic_stages
+from chromite.lib import compression_lib
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -326,7 +327,9 @@ class ArchiveStage(
             )
             files = glob.glob(os.path.join(image_dir, "*.sh"))
             files = [os.path.basename(f) for f in files]
-            cros_build_lib.CreateTarball(tarball_path, image_dir, inputs=files)
+            compression_lib.create_tarball(
+                tarball_path, image_dir, inputs=files
+            )
             self._upload_queue.put([constants.IMAGE_SCRIPTS_TAR])
 
         def PushImage() -> None:

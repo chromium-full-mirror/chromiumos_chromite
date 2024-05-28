@@ -17,8 +17,8 @@ import shutil
 from typing import Any, Callable, Iterable, List, Optional, Tuple
 
 from chromite.lib import alerts
+from chromite.lib import compression_lib
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 from chromite.lib import gob_util
 from chromite.lib import gs
 from chromite.lib import osutils
@@ -390,7 +390,7 @@ def _CompressAFDOFiles(
                 "file %s to compress does not exist" % input_path
             )
         output_path = os.path.join(output_dir, compressed)
-        cros_build_lib.CompressFile(input_path, output_path)
+        compression_lib.compress_file(input_path, output_path)
         logging.info(
             "_CompressAFDOFiles produced %s, size %.1fMB",
             output_path,
@@ -931,8 +931,8 @@ class _CommonPrepareBundle:
         # Decompress the files.
         cwp_local = os.path.splitext(cwp_compressed)[0]
         bench_local = os.path.splitext(bench_compressed)[0]
-        cros_build_lib.UncompressFile(cwp_compressed, cwp_local)
-        cros_build_lib.UncompressFile(bench_compressed, bench_local)
+        compression_lib.decompress_file(cwp_compressed, cwp_local)
+        compression_lib.decompress_file(bench_compressed, bench_local)
 
         # Merge profiles.
         merge_weights = [
@@ -1246,7 +1246,7 @@ class _CommonPrepareBundle:
             )
 
             self.gs_context.Copy(copy_from, copy_to)
-            cros_build_lib.UncompressFile(copy_to, copy_to_uncompressed)
+            compression_lib.decompress_file(copy_to, copy_to_uncompressed)
             afdo_files.append(copy_to_uncompressed)
 
         afdo_files.append(unmerged_profile)
@@ -2139,7 +2139,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         now = datetime.datetime.strftime(datetime.datetime.now(), "%Y%m%d")
         name = f"{self.build_target}.{now}.{tarball}.tar.xz"
         output_compressed = os.path.join(self.output_dir, name)
-        cros_build_lib.CreateTarball(
+        compression_lib.create_tarball(
             output_compressed, destination, inputs=files
         )
         return output_compressed

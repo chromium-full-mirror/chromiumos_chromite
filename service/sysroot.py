@@ -30,6 +30,7 @@ from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
 from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import cache
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cpupower_helper
 from chromite.lib import cros_build_lib
@@ -804,15 +805,15 @@ def CreateChromeEbuildEnv(
     result_path = os.path.join(output_dir, constants.CHROME_ENV_TAR)
     with osutils.TempDir() as tempdir:
         # Convert from bzip2 to tar format.
-        bzip2 = cros_build_lib.FindCompressor(
-            cros_build_lib.CompressionType.BZIP2
+        bzip2 = compression_lib.find_compressor(
+            compression_lib.CompressionType.BZIP2
         )
         tempdir_tar_path = os.path.join(tempdir, constants.CHROME_ENV_FILE)
         cros_build_lib.run(
             [bzip2, "-d", env_bzip, "-c"], stdout=tempdir_tar_path
         )
 
-        cros_build_lib.CreateTarball(result_path, tempdir)
+        compression_lib.create_tarball(result_path, tempdir)
 
     return result_path
 
@@ -1714,14 +1715,14 @@ def BundleDebugSymbols(
     )
     result = None
     try:
-        result = cros_build_lib.CreateTarball(
+        result = compression_lib.create_tarball(
             tarball_path,
             debug_dir,
-            compression=cros_build_lib.CompressionType.GZIP,
+            compression=compression_lib.CompressionType.GZIP,
             sudo=True,
             extra_args=[exclude_breakpad_tar_arg, exclude_vmlinux_tar_arg],
         )
-    except cros_build_lib.TarballError:
+    except compression_lib.TarballError:
         pass
     if not result or result.returncode:
         # We don't abort here, because the tar may still be somewhat intact.
@@ -1800,7 +1801,7 @@ def BundleBreakpadSymbols(
         tarball_path = os.path.join(
             output_dir, constants.BREAKPAD_DEBUG_SYMBOLS_TAR
         )
-        result = cros_build_lib.CreateTarball(tarball_path, dest_tmpdir)
+        result = compression_lib.create_tarball(tarball_path, dest_tmpdir)
         if result.returncode != 0:
             logging.error(
                 "Error (%d) when creating tarball %s from %s",
@@ -1992,7 +1993,7 @@ def GatherSymbolFiles(
                             source_file_name=filename,
                         )
 
-        elif cros_build_lib.IsTarball(p):
+        elif compression_lib.is_tarball(p):
             tardir = tempfile.mkdtemp(dir=tempdir)
             cache.Untar(os.path.realpath(p), tardir)
             for sym in GatherSymbolFiles(tardir, destdir, [tardir]):
@@ -2053,8 +2054,10 @@ def ArchiveSysroot(
     osutils.SafeMakedirs(output_dir)
     archive_path = Path(output_dir) / SYSROOT_ARCHIVE_FILE
 
-    compression_type = cros_build_lib.CompressionExtToType(SYSROOT_ARCHIVE_FILE)
-    cros_build_lib.CreateTarball(
+    compression_type = compression_lib.CompressionType.from_extension(
+        SYSROOT_ARCHIVE_FILE
+    )
+    compression_lib.create_tarball(
         archive_path,
         sysroot_path,
         compression=compression_type,
@@ -2084,7 +2087,7 @@ def ExtractSysroot(
     if not sysroot_path.is_dir():
         return None
 
-    cros_build_lib.ExtractTarball(
+    compression_lib.extract_tarball(
         Path(sysroot_archive),
         sysroot_path,
         sudo=True,

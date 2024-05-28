@@ -16,6 +16,7 @@ from unittest import mock
 from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cpupower_helper
 from chromite.lib import cros_build_lib
@@ -1042,7 +1043,7 @@ STACK CFI 1234
         for filename in files_in_tarball:
             self.createSymbolFile(os.path.join(tarball_dir, filename))
         temp_tarball_file_path = os.path.join(self.tempdir, "symfiles.tar")
-        cros_build_lib.CreateTarball(temp_tarball_file_path, tarball_dir)
+        compression_lib.create_tarball(temp_tarball_file_path, tarball_dir)
         # Now that we've created the tarball, remove the .sym files in
         # the tarball dir and move the tarball to that dir.
         for filename in files_in_tarball:
@@ -1122,7 +1123,7 @@ STACK CFI 1234
             # createSymbolFile for files whether they end with .sym or not.
             self.createSymbolFile(os.path.join(tarball_dir, filename))
         temp_tarball_file_path = os.path.join(self.tempdir, "symfiles.tar")
-        cros_build_lib.CreateTarball(temp_tarball_file_path, tarball_dir)
+        compression_lib.create_tarball(temp_tarball_file_path, tarball_dir)
         # Now that we've created the tarball, remove the .sym files in
         # the tarball dir and move the tarball to that dir.
         for filename in files_in_tarball:
@@ -1371,8 +1372,8 @@ class BundleDebugSymbolsTest(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(os.path, "isdir", return_value=True)
 
         create_tarball_patch = self.PatchObject(
-            cros_build_lib,
-            "CreateTarball",
+            compression_lib,
+            "create_tarball",
             return_value=cros_build_lib.CompletedProcess(
                 returncode=0, stdout=""
             ),

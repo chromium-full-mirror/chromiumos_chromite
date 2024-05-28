@@ -33,6 +33,7 @@ from chromite.third_party.gn_helpers import gn_helpers
 from chromite.cli.cros import cros_chrome_sdk
 from chromite.lib import chrome_util
 from chromite.lib import commandline
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import failures_lib
@@ -1253,10 +1254,10 @@ def _UploadStagingDir(
         staging_dir,
         staging_tarball_path,
     )
-    cros_build_lib.CreateTarball(
+    compression_lib.create_tarball(
         staging_tarball_path,
         staging_dir,
-        compression=cros_build_lib.CompressionType.ZSTD,
+        compression=compression_lib.CompressionType.ZSTD,
         extra_env={"ZSTD_CLEVEL": "9"},
     )
     logging.info(
@@ -1332,9 +1333,11 @@ def _PrepareStagingDir(
                 os.path.join(staging_dir, "system"), ignore_missing=True
             )
         else:
-            compression = cros_build_lib.CompressionDetectType(pkg_path)
-            compressor = cros_build_lib.FindCompressor(compression)
-            if compression == cros_build_lib.CompressionType.ZSTD:
+            compression = compression_lib.CompressionType.detect_from_file(
+                pkg_path
+            )
+            compressor = compression_lib.find_compressor(compression)
+            if compression == compression_lib.CompressionType.ZSTD:
                 compressor += " -f"
             cros_build_lib.dbg_run(
                 [

@@ -47,7 +47,7 @@ import os
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
-from chromite.lib import cros_build_lib
+from chromite.lib import compression_lib
 from chromite.licensing import licenses_lib
 
 
@@ -183,8 +183,8 @@ def main(args) -> None:
         if not opts.output:
             parser.error("--compress-output requires --output")
         if (
-            cros_build_lib.CompressionExtToType(opts.output)
-            == cros_build_lib.CompressionType.NONE
+            compression_lib.CompressionType.from_extension(opts.output)
+            == compression_lib.CompressionType.NONE
         ):
             parser.error(
                 "if --compress-output is specified, --output must end in "

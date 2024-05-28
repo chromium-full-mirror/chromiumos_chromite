@@ -15,6 +15,7 @@ from chromite.cbuildbot import commands
 from chromite.lib import autotest_util
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -307,13 +308,13 @@ class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):
     def test_bundle_e2e_code_coverage_throws_exception(self) -> None:
         """Verify bundle_e2e_code_coverage throws exception."""
         self.PatchObject(
-            cros_build_lib,
-            "CreateTarball",
-            side_effect=cros_build_lib.TarballError("err"),
+            compression_lib,
+            "create_tarball",
+            side_effect=compression_lib.TarballError("err"),
         )
         (self.cov_dir / "abc.gcov").write_text("some text", encoding="utf-8")
 
-        with self.assertRaises(cros_build_lib.TarballError):
+        with self.assertRaises(compression_lib.TarballError):
             test.bundle_e2e_code_coverage(
                 self.chroot, self.sysroot, self.output_dir
             )
@@ -335,7 +336,9 @@ class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):
         """Verify that we can create tarball in bundle_e2e_code_coverage."""
         create_tarball_result = cros_build_lib.CompletedProcess(returncode=0)
         self.PatchObject(
-            cros_build_lib, "CreateTarball", return_value=create_tarball_result
+            compression_lib,
+            "create_tarball",
+            return_value=create_tarball_result,
         )
         json_file = self.cov_dir / "coverage.json"
         content = json.dumps(
@@ -419,7 +422,7 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         self.assertIsNone(result)
 
     def testCreateTarballIsCalled1Time(self) -> None:
-        """Test that CreateTarball is called once."""
+        """Test that create_tarball is called once."""
         gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=gather_result
@@ -440,14 +443,16 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
 
         create_tarball_result = cros_build_lib.CompletedProcess(returncode=1)
-        CreateTarball_mock = self.PatchObject(
-            cros_build_lib, "CreateTarball", return_value=create_tarball_result
+        create_tarball_mock = self.PatchObject(
+            compression_lib,
+            "create_tarball",
+            return_value=create_tarball_result,
         )
 
         test.BundleCodeCoverageLlvmJson(
             "brya", self.chroot, self.sysroot, self.output_dir
         )
-        CreateTarball_mock.assert_called_once()
+        create_tarball_mock.assert_called_once()
 
     def testGenerateZeroCoverageLlvmCalled1Time(self) -> None:
         """Test that GenerateZeroCoverageLlvm is called once."""
@@ -482,7 +487,7 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         GenerateZeroCoverageLlvm_mock.assert_called_once()
 
     def testShouldReturnNoneWhenCreateTarballFails(self) -> None:
-        """Test that None is returned when CreateTarball fails."""
+        """Test that None is returned when create_tarball fails."""
         gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=gather_result
@@ -490,7 +495,9 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
         create_tarball_result = cros_build_lib.CompletedProcess(returncode=1)
         self.PatchObject(
-            cros_build_lib, "CreateTarball", return_value=create_tarball_result
+            compression_lib,
+            "create_tarball",
+            return_value=create_tarball_result,
         )
 
         result = test.BundleCodeCoverageLlvmJson(
@@ -521,7 +528,9 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
         create_tarball_result = cros_build_lib.CompletedProcess(returncode=0)
         self.PatchObject(
-            cros_build_lib, "CreateTarball", return_value=create_tarball_result
+            compression_lib,
+            "create_tarball",
+            return_value=create_tarball_result,
         )
 
         result = test.BundleCodeCoverageLlvmJson(
@@ -581,7 +590,7 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         self.assertIsNone(result)
 
     def testCreateTarballIsCalled1Time(self) -> None:
-        """Test that CreateTarball is called once."""
+        """Test that create_tarball is called once."""
         gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=gather_result
@@ -602,14 +611,16 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
 
         create_tarball_result = cros_build_lib.CompletedProcess(returncode=1)
-        CreateTarball_mock = self.PatchObject(
-            cros_build_lib, "CreateTarball", return_value=create_tarball_result
+        create_tarball_mock = self.PatchObject(
+            compression_lib,
+            "create_tarball",
+            return_value=create_tarball_result,
         )
 
         test.BundleCodeCoverageRustLlvmJson(
             "brya", self.chroot, self.sysroot, self.output_dir
         )
-        CreateTarball_mock.assert_called_once()
+        create_tarball_mock.assert_called_once()
 
     def testGenerateZeroCoverageLlvmCalled1Time(self) -> None:
         """Test that GenerateZeroCoverageLlvm is called once."""
@@ -644,7 +655,7 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         GenerateZeroCoverageLlvm_mock.assert_called_once()
 
     def testShouldReturnNoneWhenCreateTarballFails(self) -> None:
-        """Test that None is returned when CreateTarball fails."""
+        """Test that None is returned when create_tarball fails."""
         gather_result = test.GatherCodeCoverageLlvmJsonFileResult({})
         self.PatchObject(
             test, "GatherCodeCoverageLlvmJsonFile", return_value=gather_result
@@ -652,7 +663,9 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
         create_tarball_result = cros_build_lib.CompletedProcess(returncode=1)
         self.PatchObject(
-            cros_build_lib, "CreateTarball", return_value=create_tarball_result
+            compression_lib,
+            "create_tarball",
+            return_value=create_tarball_result,
         )
 
         result = test.BundleCodeCoverageRustLlvmJson(
@@ -683,7 +696,9 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
         create_tarball_result = cros_build_lib.CompletedProcess(returncode=0)
         self.PatchObject(
-            cros_build_lib, "CreateTarball", return_value=create_tarball_result
+            compression_lib,
+            "create_tarball",
+            return_value=create_tarball_result,
         )
 
         result = test.BundleCodeCoverageRustLlvmJson(

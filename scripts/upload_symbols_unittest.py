@@ -314,11 +314,11 @@ class FindSymbolFilesTest(SymbolsTestBase):
             os.path.join("nested", "inner.sym")
         ).file_name
 
-        # CreateTarball is having issues outside the chroot from open file
+        # create_tarball is having issues outside the chroot from open file
         # tests.
         #
         # self.tarball = os.path.join(self.tempdir, 'syms.tar.gz')
-        # cros_build_lib.CreateTarball(
+        # compression_lib.create_tarball(
         #     'syms.tar.gz', self.tempdir, inputs=(self.data))
 
     def testEmpty(self) -> None:

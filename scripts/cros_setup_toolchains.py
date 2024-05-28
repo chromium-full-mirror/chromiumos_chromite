@@ -17,6 +17,7 @@ from chromite.third_party import lddtree
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
@@ -1509,7 +1510,7 @@ def CreatePackages(targets_wanted, output_dir, root="/") -> None:
 
         # Build the tarball.
         with parallel.BackgroundTaskRunner(
-            cros_build_lib.CreateTarball
+            compression_lib.create_tarball
         ) as queue:
             for target in targets:
                 tar_file = os.path.join(output_dir, target + ".tar.xz")

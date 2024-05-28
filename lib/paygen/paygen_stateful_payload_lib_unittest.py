@@ -6,8 +6,8 @@
 
 import os
 
+from chromite.lib import compression_lib
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import image_lib
 from chromite.lib import image_lib_unittest
@@ -37,7 +37,9 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             image_lib, "GetImageDiskPartitionInfo", return_value=fake_partitions
         )
         self.PatchObject(os.path, "exists", return_value=True)
-        create_tarball_mock = self.PatchObject(cros_build_lib, "CreateTarball")
+        create_tarball_mock = self.PatchObject(
+            compression_lib, "create_tarball"
+        )
 
         paygen_stateful_payload_lib.GenerateStatefulPayload(
             "dev/null", self.tempdir
@@ -47,7 +49,7 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             os.path.join(self.tempdir, "stateful.tgz"),
             ".",
             sudo=True,
-            compression=cros_build_lib.CompressionType.GZIP,
+            compression=compression_lib.CompressionType.GZIP,
             inputs=["dev_image", "var_overlay", "unencrypted"],
             compressor=None,
             extra_args=[
@@ -69,7 +71,9 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             image_lib, "GetImageDiskPartitionInfo", return_value=fake_partitions
         )
         self.PatchObject(os.path, "exists", return_value=False)
-        create_tarball_mock = self.PatchObject(cros_build_lib, "CreateTarball")
+        create_tarball_mock = self.PatchObject(
+            compression_lib, "create_tarball"
+        )
 
         paygen_stateful_payload_lib.GenerateStatefulPayload(
             "dev/null", self.tempdir
@@ -79,7 +83,7 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             os.path.join(self.tempdir, "stateful.tgz"),
             ".",
             sudo=True,
-            compression=cros_build_lib.CompressionType.GZIP,
+            compression=compression_lib.CompressionType.GZIP,
             compressor=None,
             inputs=["dev_image", "var_overlay"],
             extra_args=[
@@ -101,7 +105,9 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             image_lib, "GetImageDiskPartitionInfo", return_value=fake_partitions
         )
         self.PatchObject(os.path, "exists", return_value=True)
-        create_tarball_mock = self.PatchObject(cros_build_lib, "CreateTarball")
+        create_tarball_mock = self.PatchObject(
+            compression_lib, "create_tarball"
+        )
 
         # Assuming the fd is 1.
         paygen_stateful_payload_lib.GenerateStatefulPayload("dev/null", 1)
@@ -110,7 +116,7 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             1,
             ".",
             sudo=True,
-            compression=cros_build_lib.CompressionType.GZIP,
+            compression=compression_lib.CompressionType.GZIP,
             compressor=None,
             inputs=["dev_image", "var_overlay", "unencrypted"],
             extra_args=[
@@ -132,7 +138,9 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             image_lib, "GetImageDiskPartitionInfo", return_value=fake_partitions
         )
         self.PatchObject(os.path, "exists", return_value=True)
-        create_tarball_mock = self.PatchObject(cros_build_lib, "CreateTarball")
+        create_tarball_mock = self.PatchObject(
+            compression_lib, "create_tarball"
+        )
 
         paygen_stateful_payload_lib.GenerateZstdStatefulPayload(
             "dev/null", self.tempdir
@@ -142,7 +150,7 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             os.path.join(self.tempdir, constants.STATEFUL_PAYLOAD),
             ".",
             sudo=True,
-            compression=cros_build_lib.CompressionType.ZSTD,
+            compression=compression_lib.CompressionType.ZSTD,
             compressor=["zstdmt", "-19"],
             inputs=["dev_image", "var_overlay", "unencrypted"],
             extra_args=[
@@ -164,7 +172,9 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             image_lib, "GetImageDiskPartitionInfo", return_value=fake_partitions
         )
         self.PatchObject(os.path, "exists", return_value=False)
-        create_tarball_mock = self.PatchObject(cros_build_lib, "CreateTarball")
+        create_tarball_mock = self.PatchObject(
+            compression_lib, "create_tarball"
+        )
 
         paygen_stateful_payload_lib.GenerateZstdStatefulPayload(
             "dev/null", self.tempdir
@@ -174,7 +184,7 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             os.path.join(self.tempdir, constants.STATEFUL_PAYLOAD),
             ".",
             sudo=True,
-            compression=cros_build_lib.CompressionType.ZSTD,
+            compression=compression_lib.CompressionType.ZSTD,
             compressor=["zstdmt", "-19"],
             inputs=["dev_image", "var_overlay"],
             extra_args=[
@@ -196,7 +206,9 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             image_lib, "GetImageDiskPartitionInfo", return_value=fake_partitions
         )
         self.PatchObject(os.path, "exists", return_value=True)
-        create_tarball_mock = self.PatchObject(cros_build_lib, "CreateTarball")
+        create_tarball_mock = self.PatchObject(
+            compression_lib, "create_tarball"
+        )
 
         # Assuming the fd is 1.
         paygen_stateful_payload_lib.GenerateZstdStatefulPayload("dev/null", 1)
@@ -205,7 +217,7 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             1,
             ".",
             sudo=True,
-            compression=cros_build_lib.CompressionType.ZSTD,
+            compression=compression_lib.CompressionType.ZSTD,
             compressor=["zstdmt", "-19"],
             inputs=["dev_image", "var_overlay", "unencrypted"],
             extra_args=[

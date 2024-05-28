@@ -11,6 +11,7 @@ import subprocess
 from typing import List, Optional, TYPE_CHECKING, Union
 
 from chromite.lib import build_target_lib
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
@@ -309,13 +310,15 @@ class ToolchainInstaller:
             board_chost: The board's CHOST value.
             libc_path: The location of the libc archive.
         """
-        compression = cros_build_lib.CompressionDetectType(libc_path)
-        if compression == cros_build_lib.CompressionType.ZSTD:
+        compression = compression_lib.CompressionType.detect_from_file(
+            libc_path
+        )
+        if compression == compression_lib.CompressionType.ZSTD:
             # We manually use "zstdmt -f" here, as pzstd trips up with the extra
             # xpak data.
             compressor = "zstdmt -f"
         else:
-            compressor = cros_build_lib.FindCompressor(compression)
+            compressor = compression_lib.find_compressor(compression)
             compressor_algo = Path(compressor).name
             if compressor_algo == "pbzip2":
                 compressor = f"{compressor} --ignore-trailing-garbage=1"

@@ -14,6 +14,7 @@ from chromite.cbuildbot.stages import branch_archive_stages
 from chromite.cbuildbot.stages import generic_stages
 from chromite.cbuildbot.stages import workspace_stages_unittest
 from chromite.lib import chromeos_version
+from chromite.lib import compression_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
 from chromite.lib import gs_unittest
@@ -86,7 +87,9 @@ class FactoryArchiveStageTest(BranchArchiveStageTestBase):
         self.factory_zip_mock = self.PatchObject(
             commands, "BuildFactoryZip", return_value="/factory.zip"
         )
-        self.create_tar_mock = self.PatchObject(cros_build_lib, "CreateTarball")
+        self.create_tar_mock = self.PatchObject(
+            compression_lib, "create_tarball"
+        )
         self.build_autotest_mock = self.PatchObject(
             commands, "BuildAutotestTarballsForHWTest", return_value=[]
         )
@@ -160,7 +163,7 @@ class FactoryArchiveStageTest(BranchArchiveStageTestBase):
                 mock.call(
                     "/tempdir/chromiumos_test_image.tar.xz",
                     inputs=["chromiumos_test_image.bin"],
-                    compression=cros_build_lib.CompressionType.XZ,
+                    compression=compression_lib.CompressionType.XZ,
                     cwd=os.path.join(
                         self.workspace, "src/build/images/board/latest"
                     ),
@@ -344,7 +347,7 @@ class FactoryArchiveStageTest(BranchArchiveStageTestBase):
                 mock.call(
                     "/tempdir/chromiumos_test_image.tar.xz",
                     inputs=["chromiumos_test_image.bin"],
-                    compression=cros_build_lib.CompressionType.XZ,
+                    compression=compression_lib.CompressionType.XZ,
                     cwd=os.path.join(
                         self.workspace, "src/build/images/board/latest"
                     ),

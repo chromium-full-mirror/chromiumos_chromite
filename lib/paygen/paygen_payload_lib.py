@@ -23,6 +23,7 @@ from chromite.api.gen.chromite.api import payload_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import cgpt
 from chromite.lib import chroot_lib
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import dlc_lib
@@ -839,7 +840,7 @@ class PaygenPayload:
 
         # If we downloaded an archive, extract the image file from it.
         if extract_file:
-            cros_build_lib.ExtractTarball(
+            compression_lib.extract_tarball(
                 download_file, self.work_dir, files_to_extract=[extract_file]
             )
 

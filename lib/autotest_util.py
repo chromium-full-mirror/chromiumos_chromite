@@ -10,6 +10,7 @@ import os
 from typing import List, Optional
 
 from chromite.lib import chroot_lib
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.utils import matching
@@ -212,10 +213,10 @@ class AutotestTarballBuilder:
             input_list: A list of files and directories to be archived.
             tarball_path: Path of output tar archive file.
             compressed: Whether the tarball should be compressed with pbzip2.
-            **kwargs: Keyword arguments to pass to CreateTarball.
+            **kwargs: Keyword arguments to pass to create_tarball.
 
         Returns:
-            Return value of cros_build_lib.CreateTarball.
+            Return value of compression_lib.create_tarball.
         """
         for pathname in input_list:
             if os.path.exists(os.path.join(self.archive_basedir, pathname)):
@@ -228,10 +229,10 @@ class AutotestTarballBuilder:
             # efficient than building out a list of files that do exist.
             return None
 
-        compressor = cros_build_lib.CompressionType.NONE
+        compressor = compression_lib.CompressionType.NONE
         chroot = None
         if compressed:
-            compressor = cros_build_lib.CompressionType.BZIP2
+            compressor = compression_lib.CompressionType.BZIP2
             if not cros_build_lib.IsInsideChroot():
                 # TODO(b/265885353): this utility needs to either always be run
                 # inside the chroot, or else this path needs to be more
@@ -239,7 +240,7 @@ class AutotestTarballBuilder:
                 # directories.
                 chroot = self.chroot.path
 
-        return cros_build_lib.CreateTarball(
+        return compression_lib.create_tarball(
             tarball_path,
             self.archive_basedir,
             compression=compressor,

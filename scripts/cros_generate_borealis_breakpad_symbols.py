@@ -19,7 +19,7 @@ import multiprocessing
 import os
 
 from chromite.lib import commandline
-from chromite.lib import cros_build_lib
+from chromite.lib import compression_lib
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.scripts import cros_generate_breakpad_symbols
@@ -72,7 +72,7 @@ def ProcessSymbolsTarball(archive, breakpad_dir, symbols_path) -> None:
     with osutils.TempDir(prefix="extracted-") as extract_dir:
         logging.info("Extracting %s into %s", archive, extract_dir)
         # We are trusting the contents from a security point of view.
-        cros_build_lib.ExtractTarball(archive, extract_dir)
+        compression_lib.extract_tarball(archive, extract_dir)
 
         logging.info(
             "Generate breakpad symbols from %s into %s",

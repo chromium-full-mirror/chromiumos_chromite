@@ -27,6 +27,7 @@ import urllib.request
 import xml.dom.minidom
 
 from chromite.lib import commandline
+from chromite.lib import compression_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
 from chromite.lib import osutils
@@ -203,7 +204,7 @@ def CreateCacheTarball(extensions, outputdir, identifier, tarball) -> None:
         cros_build_lib.Die("FAIL to download some extensions")
 
     CreateValidationFiles(validationdir, crxdir, identifier)
-    cros_build_lib.CreateTarball(tarball, outputdir)
+    compression_lib.create_tarball(tarball, outputdir)
     logging.info("Tarball created %s", tarball)
 
 

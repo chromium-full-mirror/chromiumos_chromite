@@ -8,6 +8,7 @@ import collections
 import os
 from pathlib import Path
 
+from chromite.lib import compression_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
@@ -522,23 +523,23 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
         with remote_access.RemoteDeviceHandler(remote_access.TEST_IP) as device:
             self.assertEqual(
                 ["xz", "--decompress", "--stdout"],
-                device.GetDecompressor(cros_build_lib.CompressionType.XZ),
+                device.GetDecompressor(compression_lib.CompressionType.XZ),
             )
             self.assertEqual(
                 ["bzip2", "--decompress", "--stdout"],
-                device.GetDecompressor(cros_build_lib.CompressionType.BZIP2),
+                device.GetDecompressor(compression_lib.CompressionType.BZIP2),
             )
             self.assertEqual(
                 ["gzip", "--decompress", "--stdout"],
-                device.GetDecompressor(cros_build_lib.CompressionType.GZIP),
+                device.GetDecompressor(compression_lib.CompressionType.GZIP),
             )
             self.assertEqual(
                 ["pzstd", "--decompress", "--stdout"],
-                device.GetDecompressor(cros_build_lib.CompressionType.ZSTD),
+                device.GetDecompressor(compression_lib.CompressionType.ZSTD),
             )
             self.assertEqual(
                 ["cat"],
-                device.GetDecompressor(cros_build_lib.CompressionType.NONE),
+                device.GetDecompressor(compression_lib.CompressionType.NONE),
             )
 
             with self.assertRaises(ValueError):
@@ -549,7 +550,7 @@ class RemoteDeviceTest(cros_test_lib.MockTestCase):
         self.rsh_mock.AddCmdResult(partial_mock.In("xz"), returncode=1)
         with remote_access.RemoteDeviceHandler(remote_access.TEST_IP) as device:
             with self.assertRaises(remote_access.ProgramNotFoundError):
-                device.GetDecompressor(cros_build_lib.CompressionType.XZ)
+                device.GetDecompressor(compression_lib.CompressionType.XZ)
 
 
 class ChromiumOSDeviceTest(cros_test_lib.MockTestCase):

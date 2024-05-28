@@ -15,6 +15,7 @@ import shutil
 from typing import Dict, List, Optional, TYPE_CHECKING
 
 from chromite.lib import autotest_util
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
@@ -59,7 +60,7 @@ IMAGE_ADDITIONAL_SYSROOT_FILES = {
 
 TAST_BUNDLE_NAME = "tast_bundles.tar.bz2"
 TAST_INTEL_BUNDLE_NAME = "tast_intel_bundles.tar.bz2"
-TAST_COMPRESSOR = cros_build_lib.CompressionType.BZIP2
+TAST_COMPRESSOR = compression_lib.CompressionType.BZIP2
 
 CpeResult = collections.namedtuple("CpeResult", ["report", "warnings"])
 
@@ -124,10 +125,10 @@ def BuildFirmwareArchive(
     archive_file = os.path.join(
         output_directory, constants.FIRMWARE_ARCHIVE_NAME
     )
-    cros_build_lib.CreateTarball(
+    compression_lib.create_tarball(
         archive_file,
         firmware_root,
-        compression=cros_build_lib.CompressionType.BZIP2,
+        compression=compression_lib.CompressionType.BZIP2,
         chroot=chroot.path,
         inputs=source_list,
     )
@@ -166,10 +167,10 @@ def BundleFpmcuUnittests(
     archive_file = os.path.join(
         output_directory, constants.FPMCU_UNITTESTS_ARCHIVE_NAME
     )
-    cros_build_lib.CreateTarball(
+    compression_lib.create_tarball(
         archive_file,
         fpmcu_unittests_root,
-        compression=cros_build_lib.CompressionType.BZIP2,
+        compression=compression_lib.CompressionType.BZIP2,
         chroot=chroot.path,
         inputs=files,
     )
@@ -252,13 +253,13 @@ def BundleEBuildLogsTarball(
     tarball_paths.append("logs")
     tarball_output = os.path.join(archive_dir, "ebuild_logs.tar.xz")
     try:
-        cros_build_lib.CreateTarball(
+        compression_lib.create_tarball(
             tarball_output,
             cwd=logs_path,
             chroot=chroot.path,
             inputs=tarball_paths,
         )
-    except cros_build_lib.TarballError:
+    except compression_lib.TarballError:
         logging.warning(
             "Unable to create logs tarball; ignoring until "
             "https://crbug.com/999933 is sorted out."
@@ -357,10 +358,10 @@ def ArchiveFilesFromImageDir(images_dir: str, archive_path: str) -> List[str]:
         )
         # Note that tar will chdir to |image_parent_dir|, so that |image_file|
         # is at the top-level of the tar file.
-        cros_build_lib.CreateTarball(
+        compression_lib.create_tarball(
             tarball_path,
             image_parent_dir,
-            compression=cros_build_lib.CompressionType.BZIP2,
+            compression=compression_lib.CompressionType.BZIP2,
             inputs=[image_file],
         )
         tar_files.append(tarball_path)
@@ -401,15 +402,15 @@ def ArchiveChromeEbuildEnv(
     result_path = os.path.join(output_dir, constants.CHROME_ENV_TAR)
     with osutils.TempDir() as tempdir:
         # Convert from bzip2 to tar format.
-        bzip2 = cros_build_lib.FindCompressor(
-            cros_build_lib.CompressionType.BZIP2
+        bzip2 = compression_lib.find_compressor(
+            compression_lib.CompressionType.BZIP2
         )
         tempdir_tar_path = os.path.join(tempdir, constants.CHROME_ENV_FILE)
         cros_build_lib.run(
             [bzip2, "-d", env_bzip, "-c"], stdout=tempdir_tar_path
         )
 
-        cros_build_lib.CreateTarball(result_path, tempdir)
+        compression_lib.create_tarball(result_path, tempdir)
 
     return result_path
 
@@ -460,7 +461,7 @@ def ArchiveImages(
             shutil.copy(image_path, tarball_path)
         else:
             # Otherwise create a tarball.
-            cros_build_lib.CreateTarball(
+            compression_lib.create_tarball(
                 tarball_path,
                 image_dir,
                 inputs=content,
@@ -805,7 +806,7 @@ def BundleTastFiles(
         return None
 
     tarball = os.path.join(output_dir, TAST_BUNDLE_NAME)
-    cros_build_lib.CreateTarball(
+    compression_lib.create_tarball(
         tarball,
         cwd,
         compression=TAST_COMPRESSOR,
@@ -845,7 +846,7 @@ def BundleTastIntelFiles(
         return None
 
     tarball = os.path.join(output_dir, TAST_INTEL_BUNDLE_NAME)
-    cros_build_lib.CreateTarball(
+    compression_lib.create_tarball(
         tarball,
         cwd,
         compression=TAST_COMPRESSOR,
@@ -873,10 +874,10 @@ def BundleGceTarball(output_dir: str, image_dir: str) -> str:
     with osutils.TempDir() as tempdir:
         disk_raw = os.path.join(tempdir, "disk.raw")
         osutils.SafeSymlink(test_image, disk_raw)
-        cros_build_lib.CreateTarball(
+        compression_lib.create_tarball(
             tarball,
             tempdir,
-            compression=cros_build_lib.CompressionType.GZIP,
+            compression=compression_lib.CompressionType.GZIP,
             inputs=("disk.raw",),
             extra_args=["--dereference", "--format=oldgnu"],
         )

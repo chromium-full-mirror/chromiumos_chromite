@@ -26,6 +26,7 @@ from typing import (
 
 from chromite.cbuildbot import commands
 from chromite.lib import autotest_util
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import image_lib
@@ -487,7 +488,7 @@ def bundle_e2e_code_coverage(
         tarball_path = (
             Path(output_dir) / constants.CODE_COVERAGE_LLVM_JSON_SYMBOLS_TAR
         )
-        result = cros_build_lib.CreateTarball(tarball_path, tmpdir)
+        result = compression_lib.create_tarball(tarball_path, tmpdir)
         if result.returncode != 0:
             logging.error(
                 "Error (%d) when creating tarball %s from %s",
@@ -537,8 +538,8 @@ def BundleCodeCoverageGolang(
             output_dir, constants.CODE_COVERAGE_GOLANG_TAR
         )
         try:
-            result = cros_build_lib.CreateTarball(tarball_path, dest_tmpdir)
-        except cros_build_lib.TarballError as e:
+            result = compression_lib.create_tarball(tarball_path, dest_tmpdir)
+        except compression_lib.TarballError as e:
             logging.error(traceback.format_exc())
             logging.error("BundleCodeCoverageGolang failed %s", e)
             return None
@@ -705,7 +706,7 @@ def _BundleCodeCoverageLlvmJson(
             tarball_path = os.path.join(
                 output_dir, constants.CODE_COVERAGE_LLVM_JSON_SYMBOLS_TAR
             )
-            result = cros_build_lib.CreateTarball(tarball_path, dest_tmpdir)
+            result = compression_lib.create_tarball(tarball_path, dest_tmpdir)
             if result.returncode != 0:
                 logging.error(
                     "Error (%d) when creating tarball %s from %s",

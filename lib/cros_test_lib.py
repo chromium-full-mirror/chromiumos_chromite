@@ -36,6 +36,7 @@ from unittest import mock
 from chromite.cli import command
 from chromite.lib import cache
 from chromite.lib import commandline
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import operation
@@ -205,8 +206,8 @@ def VerifyTarball(
         AssertionError when there is any divergence between the tarball and the
         structure specified by 'dir_struct'.
     """
-    compression_type = cros_build_lib.CompressionDetectType(tarball)
-    compressor = cros_build_lib.FindCompressor(compression_type)
+    compression_type = compression_lib.CompressionType.detect_from_file(tarball)
+    compressor = compression_lib.find_compressor(compression_type)
     result = cros_build_lib.run(
         [
             "tar",

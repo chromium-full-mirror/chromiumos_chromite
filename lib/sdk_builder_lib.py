@@ -9,8 +9,8 @@ from pathlib import Path
 import re
 
 from chromite.lib import chromeos_version
+from chromite.lib import compression_lib
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.utils import shell_util
 from chromite.utils import timer
@@ -50,13 +50,13 @@ def CreateTarballForSdk(tarball_path: Path, board_location: Path) -> None:
     # Options for maximum compression.
     extra_env = {}
     compressor = None
-    compression = cros_build_lib.CompressionExtToType(tarball_path)
-    if compression == cros_build_lib.CompressionType.XZ:
+    compression = compression_lib.CompressionType.from_extension(tarball_path)
+    if compression == compression_lib.CompressionType.XZ:
         extra_env["XZ_OPT"] = "-e9"
-    elif compression == cros_build_lib.CompressionType.ZSTD:
+    elif compression == compression_lib.CompressionType.ZSTD:
         compressor = ["pzstd", "--ultra", "-22"]
     with timer.timer("Create tarball"):
-        cros_build_lib.CreateTarball(
+        compression_lib.create_tarball(
             tarball_path,
             board_location,
             compression=compression,

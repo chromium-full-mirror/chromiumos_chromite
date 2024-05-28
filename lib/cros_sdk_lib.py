@@ -26,6 +26,7 @@ import urllib.request
 
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import locking
@@ -1214,7 +1215,7 @@ CROS_COG_WORKSPACE_ID="{cog_workspace_id}"
             Path(self.chroot.path).mkdir(
                 mode=0o755, parents=True, exist_ok=True
             )
-            cros_build_lib.ExtractTarball(self.sdk_tarball, self.chroot.path)
+            compression_lib.extract_tarball(self.sdk_tarball, self.chroot.path)
 
         with metrics_lib.timer(f"{metrics_prefix}.init"):
             self.init_timezone()

@@ -13,7 +13,7 @@ from pathlib import Path
 import shlex
 from typing import List
 
-from chromite.lib import cros_build_lib
+from chromite.lib import compression_lib
 from chromite.lib import osutils
 from chromite.utils import hostname_util
 
@@ -99,7 +99,7 @@ class LogsArchiver:
                 self._dest_base_dir / directory.name / archived_filename
             )
             osutils.SafeMakedirs(dest_filepath.parent)
-            cros_build_lib.CompressFile(path, dest_filepath)
+            compression_lib.compress_file(path, dest_filepath)
 
             osutils.SafeUnlink(path)
 
@@ -151,7 +151,7 @@ class LogsArchiver:
 
         archived_filename = os.path.basename(ninja_log_path) + ".gz"
         archived_path = self._dest_base_dir / archived_filename
-        cros_build_lib.CompressFile(ninja_log_path, archived_path)
+        compression_lib.compress_file(ninja_log_path, archived_path)
 
         return [archived_filename]
 

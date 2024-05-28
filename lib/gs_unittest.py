@@ -13,6 +13,7 @@ import string
 import sys
 from unittest import mock
 
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -93,11 +94,11 @@ PreconditionException: 412 Precondition Failed"""
         tempfile = os.path.join(self.tempdir, "tempfile")
         osutils.WriteFile(tempfile, "some content")
         gsutil_path = os.path.join(self.tempdir, gs.GSContext.GSUTIL_TAR)
-        cros_build_lib.CreateTarball(
+        compression_lib.create_tarball(
             gsutil_path,
             self.tempdir,
             inputs=[os.path.basename(tempfile)],
-            compression=cros_build_lib.CompressionType.NONE,
+            compression=compression_lib.CompressionType.NONE,
         )
         self.GSUTIL_URL = "file://%s" % gsutil_path
 

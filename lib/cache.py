@@ -14,6 +14,7 @@ import tempfile
 from typing import Optional, Tuple, Union
 import urllib.parse
 
+from chromite.lib import compression_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import locking
 from chromite.lib import osutils
@@ -345,10 +346,10 @@ class RemoteCache(DiskCache):
 def Untar(path, cwd, sudo=False) -> None:
     """Untar a tarball."""
     functor = cros_build_lib.sudo_run if sudo else cros_build_lib.run
-    comp = cros_build_lib.CompressionDetectType(path)
+    comp = compression_lib.CompressionType.detect_from_file(path)
     cmd = ["tar"]
-    if comp != cros_build_lib.CompressionType.NONE:
-        extra_comp_args = [cros_build_lib.FindCompressor(comp)]
+    if comp != compression_lib.CompressionType.NONE:
+        extra_comp_args = [compression_lib.find_compressor(comp)]
         if os.path.basename(extra_comp_args[0]) == "pbzip2":
             extra_comp_args.append("--ignore-trailing-garbage=1")
         elif os.path.basename(extra_comp_args[0]).startswith("zstd"):

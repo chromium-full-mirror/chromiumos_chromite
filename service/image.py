@@ -19,6 +19,7 @@ from chromite.api.gen.chromiumos import signing_pb2
 from chromite.lib import build_target_lib
 from chromite.lib import chromeos_version
 from chromite.lib import chroot_lib
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import dlc_lib
@@ -389,13 +390,13 @@ def Build(
                 build_result.return_code = e.returncode
 
             try:
-                cros_build_lib.CreateTarball(
+                compression_lib.create_tarball(
                     constants.FLEXOR_KERNEL_IMAGE_TAR,
                     build_dir,
                     inputs=[constants.FLEXOR_KERNEL_IMAGE_NAME],
-                    compression=cros_build_lib.CompressionType.ZSTD,
+                    compression=compression_lib.CompressionType.ZSTD,
                 )
-            except cros_build_lib.TarballError as e:
+            except compression_lib.TarballError as e:
                 build_result.exception = e
                 build_result.return_code = e.returncode
 
@@ -999,10 +1000,10 @@ def create_stripped_packages_tar(
         return None
 
     tarball_output = os.path.join(output_dir, "stripped-packages.tar")
-    cros_build_lib.CreateTarball(
+    compression_lib.create_tarball(
         tarball_path=tarball_output,
         cwd=tarball_cwd,
-        compression=cros_build_lib.CompressionType.NONE,
+        compression=compression_lib.CompressionType.NONE,
         chroot=chroot,
         inputs=tarball_paths,
     )
@@ -1045,7 +1046,7 @@ def create_image_scripts_archive(
     tarball_path = os.path.join(output_dir, constants.IMAGE_SCRIPTS_TAR)
     files = glob.glob(os.path.join(image_dir, "*.sh"))
     files = [os.path.basename(f) for f in files]
-    cros_build_lib.CreateTarball(tarball_path, image_dir, inputs=files)
+    compression_lib.create_tarball(tarball_path, image_dir, inputs=files)
     return tarball_path
 
 

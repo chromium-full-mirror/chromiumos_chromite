@@ -18,6 +18,7 @@ from typing import List
 from unittest import mock
 
 from chromite.lib import chroot_lib
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -163,7 +164,7 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
         output_dir = "/another/path/to/outputs"
         targets = ["input1", "/path/to/inputs/input2"]
         suffix = ".xz"
-        self.PatchObject(cros_build_lib, "CompressFile")
+        self.PatchObject(compression_lib, "compress_file")
         # Should raise exception because the input doesn't exist
         with self.assertRaises(RuntimeError) as context:
             toolchain_util._CompressAFDOFiles(
@@ -187,7 +188,7 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
             os.path.join(output_dir, n + suffix) for n in compressed_names
         ]
         calls = [mock.call(n, o) for n, o in zip(inputs, outputs)]
-        cros_build_lib.CompressFile.assert_has_calls(calls)
+        compression_lib.compress_file.assert_has_calls(calls)
 
     def testGetProfileAge(self) -> None:
         """Test top-level function _GetProfileAge()."""
@@ -1540,7 +1541,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
             Nothing.
         """
         with mock.patch.object(
-            cros_build_lib, "CreateTarball"
+            compression_lib, "create_tarball"
         ) as create_tarball_mock:
             roots = ("/", f"/build/{self.board}")
             for root in roots:
@@ -1730,7 +1731,7 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
         self.merge_output = os.path.join(self.chroot.tmp, self.merged_name)
 
         self.gs_copy = self.PatchObject(self.gs_context, "Copy")
-        self.decompress = self.PatchObject(cros_build_lib, "UncompressFile")
+        self.decompress = self.PatchObject(compression_lib, "decompress_file")
 
     def testMergeAFDOProfiles(self) -> None:
         self.obj._MergeAFDOProfiles(self.merge_inputs, self.merge_output)
@@ -2053,8 +2054,8 @@ class CreateAndUploadMergedAFDOProfileTest(PrepBundLatestAFDOArtifactTest):
             ]
 
         self.gs_context.List = MockList
-        uncompress_file = self.PatchObject(cros_build_lib, "UncompressFile")
-        compress_file = self.PatchObject(cros_build_lib, "CompressFile")
+        uncompress_file = self.PatchObject(compression_lib, "decompress_file")
+        compress_file = self.PatchObject(compression_lib, "compress_file")
         process_afdo_profile = self.PatchObject(self.obj, "_ProcessAFDOProfile")
         unmerged_profile = os.path.join(
             self.output_dir, kwargs.pop("unmerged_name")

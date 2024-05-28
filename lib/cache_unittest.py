@@ -10,7 +10,7 @@ import os
 from unittest import mock
 
 from chromite.lib import cache
-from chromite.lib import cros_build_lib
+from chromite.lib import compression_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import gs_unittest
 from chromite.lib import osutils
@@ -349,15 +349,17 @@ class TarballCacheTest(CacheTestCase):
 class UntarTest(cros_test_lib.RunCommandTestCase):
     """Tests cache.Untar()."""
 
-    @mock.patch("chromite.lib.cros_build_lib.CompressionDetectType")
+    @mock.patch("chromite.lib.compression_lib.CompressionType.detect_from_file")
     def testNoneCompression(self, mock_compression_type) -> None:
         """Tests Untar with an uncompressed tarball."""
-        mock_compression_type.return_value = cros_build_lib.CompressionType.NONE
+        mock_compression_type.return_value = (
+            compression_lib.CompressionType.NONE
+        )
         cache.Untar("/some/tarball.tar.gz", "/")
         self.assertCommandContains(["tar", "-xpf", "/some/tarball.tar.gz"])
 
-    @mock.patch("chromite.lib.cros_build_lib.CompressionDetectType")
-    @mock.patch("chromite.lib.cros_build_lib.FindCompressor")
+    @mock.patch("chromite.lib.compression_lib.CompressionType.detect_from_file")
+    @mock.patch("chromite.lib.compression_lib.find_compressor")
     def testCompression(
         self, mock_find_compressor, mock_compression_type
     ) -> None:
@@ -369,8 +371,8 @@ class UntarTest(cros_test_lib.RunCommandTestCase):
             ["tar", "-I", "/bin/custom/xz", "-xpf", "/some/tarball.tar.xz"]
         )
 
-    @mock.patch("chromite.lib.cros_build_lib.CompressionDetectType")
-    @mock.patch("chromite.lib.cros_build_lib.FindCompressor")
+    @mock.patch("chromite.lib.compression_lib.CompressionType.detect_from_file")
+    @mock.patch("chromite.lib.compression_lib.find_compressor")
     def testPbzip2Compression(
         self, mock_find_compressor, mock_compression_type
     ) -> None:

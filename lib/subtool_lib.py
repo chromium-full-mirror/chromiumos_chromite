@@ -26,6 +26,7 @@ from chromite.third_party.google.protobuf import text_format
 import chromite
 from chromite.api.gen.chromiumos.build.api import subtools_pb2
 from chromite.lib import cipd
+from chromite.lib import compression_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
 from chromite.lib import osutils
@@ -127,13 +128,13 @@ _DIGEST = "sha1"
 # Mapping from proto ARCHIVE_FORMAT_* to CompressionType.
 _ARCHIVE_FORMAT_MAP = {
     subtools_pb2.SubtoolPackage.GcsExportOptions.ARCHIVE_FORMAT_TAR_ZST: (
-        cros_build_lib.CompressionType.ZSTD
+        compression_lib.CompressionType.ZSTD
     ),
 }
 
 # Mapping from CompressionType to extension used.
 _COMPRESSION_EXTENSIONS = {
-    cros_build_lib.CompressionType.ZSTD: ".tar.zst",
+    compression_lib.CompressionType.ZSTD: ".tar.zst",
 }
 
 
@@ -185,7 +186,7 @@ class GcsMetadata:
     package_name: str
     version: str
     digest: str
-    compression: cros_build_lib.CompressionType
+    compression: compression_lib.CompressionType
     prefix: Optional[str] = None
 
 
@@ -981,7 +982,7 @@ class BundledSubtools:
             return
 
         dest_tarball = path / filename
-        cros_build_lib.CreateTarball(
+        compression_lib.create_tarball(
             dest_tarball,
             path / "bundle",
             compression=gcs_metadata.compression,

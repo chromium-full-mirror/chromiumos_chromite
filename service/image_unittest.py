@@ -13,6 +13,7 @@ from chromite.api.gen.chromiumos import signing_pb2
 from chromite.lib import build_target_lib
 from chromite.lib import chromeos_version
 from chromite.lib import chroot_lib
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -735,7 +736,7 @@ class TestCreateStrippedPackagesTar(cros_test_lib.MockTempDirTestCase):
             os.path.join("stripped-packages", "sys-kernel", "kernel-2-r0.tbz2"),
         ]
 
-        tar_mock = self.PatchObject(cros_build_lib, "CreateTarball")
+        tar_mock = self.PatchObject(compression_lib, "create_tarball")
         rc = self.StartPatcher(cros_test_lib.RunCommandMock())
         rc.SetDefaultCmdResult()
         image.create_stripped_packages_tar(
@@ -744,7 +745,7 @@ class TestCreateStrippedPackagesTar(cros_test_lib.MockTempDirTestCase):
         tar_mock.assert_called_once_with(
             tarball_path=os.path.join(self.output_dir, "stripped-packages.tar"),
             cwd=self.chroot.full_path(self.build_target.root),
-            compression=cros_build_lib.CompressionType.NONE,
+            compression=compression_lib.CompressionType.NONE,
             chroot=self.chroot,
             inputs=stripped_files_list,
         )
@@ -795,7 +796,7 @@ class TestCreateImageScriptsArchive(cros_test_lib.MockTempDirTestCase):
             ],
         )
 
-        tar_mock = self.PatchObject(cros_build_lib, "CreateTarball")
+        tar_mock = self.PatchObject(compression_lib, "create_tarball")
         image.create_image_scripts_archive(build_target, output_dir)
         glob_mock.assert_called_once()
         tar_mock.assert_called_once_with(

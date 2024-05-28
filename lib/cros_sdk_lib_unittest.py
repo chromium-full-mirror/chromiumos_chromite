@@ -16,6 +16,7 @@ import urllib.request
 import pytest
 
 from chromite.lib import chroot_lib
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
@@ -602,7 +603,7 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         )
 
         osutils.Touch(tar_dir / self.creater.DEFAULT_TZ, makedirs=True)
-        cros_build_lib.CreateTarball(self.sdk_tarball, tar_dir)
+        compression_lib.create_tarball(self.sdk_tarball, tar_dir)
 
     def testMakeChroot(self) -> None:
         """Verify make_chroot invocation."""

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from chromite.lib import commandline
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import git
@@ -103,7 +104,7 @@ def _create_chromite_tarball(chromite_dir: Path, output_dir: Path) -> None:
     pyelftools_tar_path.unlink()
 
     # ZSTD-compress the Chromite tarball.
-    zstd = cros_build_lib.FindCompressor(cros_build_lib.CompressionType.ZSTD)
+    zstd = compression_lib.find_compressor(compression_lib.CompressionType.ZSTD)
     cros_build_lib.run([zstd, "-9", "--rm", "-f", chromite_tar_path])
 
 

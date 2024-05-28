@@ -16,6 +16,7 @@ from chromite.third_party.google.protobuf import text_format
 import pytest
 
 from chromite.api.gen.chromiumos.build.api import subtools_pb2
+from chromite.lib import compression_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import gs
@@ -621,7 +622,7 @@ def test_ebuild_match_real_package(template_proto: Wrapper) -> None:
     assert subtool.source_packages[0].startswith("sys-apps/baselayout-")
     # Verify the license bundling put something meaningful into the license file
     # by looking for sys-apps/baselayout's GPL-2 license preamble.
-    contents = cros_build_lib.UncompressFile(
+    contents = compression_lib.decompress_file(
         subtool.bundle_dir / subtool_lib.LICENSE_FILE, True
     ).stdout
     assert b"Gentoo Package Stock License GPL-2" in contents
@@ -1029,7 +1030,8 @@ def test_gcs_prepare_upload(tmp_path: Path) -> None:
     assert metadata.gcs_metadata.package_name == "my_subtool"
     assert metadata.gcs_metadata.version == "1.2.3-r4"
     assert (
-        metadata.gcs_metadata.compression == cros_build_lib.CompressionType.ZSTD
+        metadata.gcs_metadata.compression
+        == compression_lib.CompressionType.ZSTD
     )
 
 

@@ -24,6 +24,7 @@ from chromite.lib import cache
 from chromite.lib import chrome_lkgm
 from chromite.lib import chromite_config
 from chromite.lib import cipd
+from chromite.lib import compression_lib
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -1373,7 +1374,9 @@ class ChromeSDKCommand(command.CliCommand):
                     environment = os.path.join(
                         chroot_cache, "environment_%s" % board
                     )
-                    cros_build_lib.UncompressFile(chroot_env_file, environment)
+                    compression_lib.decompress_file(
+                        chroot_env_file, environment
+                    )
 
         env = osutils.SourceEnvironment(environment, self.EBUILD_ENV)
         gn_args = gn_helpers.FromGNArgs(env["GN_ARGS"])

@@ -8,8 +8,8 @@ import os
 from pathlib import Path
 from typing import List, Mapping, Optional, Union
 
+from chromite.lib import compression_lib
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib.paygen import partition_lib
 
@@ -74,7 +74,7 @@ def GenerateProvisionPayloads(
             for partition, payload in mapping.items():
                 source = os.path.join(temp_dir, partition)
                 dest = os.path.join(archive_dir, payload)
-                cros_build_lib.CompressFile(
+                compression_lib.compress_file(
                     source, dest, compression_level=compression_level
                 )
                 compressed_payloads.append(dest)

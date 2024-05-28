@@ -18,6 +18,7 @@ from pathlib import Path
 import re
 from typing import List, Optional
 
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
@@ -1576,7 +1577,7 @@ after fixing the license."""
             # using the file extension specified to determine compression type.
             with cros_build_lib.UnbufferedNamedTemporaryFile() as f:
                 osutils.WriteFile(f.name, contents, mode="wb")
-                cros_build_lib.CompressFile(f.name, output_file)
+                compression_lib.compress_file(f.name, output_file)
 
 
 def ListInstalledPackages(sysroot, all_packages=False):

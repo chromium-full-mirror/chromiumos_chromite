@@ -20,6 +20,7 @@ from typing import Dict, List, Tuple, Union
 from chromite.cli import command
 from chromite.cli import flash
 from chromite.lib import cgpt
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
@@ -639,11 +640,11 @@ class RawPartitionUpdater(PartitionUpdaterBase):
 
         return (
             [
-                cros_build_lib.FindCompressor(
-                    cros_build_lib.CompressionType.GZIP
+                compression_lib.find_compressor(
+                    compression_lib.CompressionType.GZIP
                 )
             ],
-            self._device.GetDecompressor(cros_build_lib.CompressionType.GZIP),
+            self._device.GetDecompressor(compression_lib.CompressionType.GZIP),
         )
 
     def _WriteToTarget(
@@ -721,7 +722,7 @@ class RawPartitionUpdater(PartitionUpdaterBase):
                     self._WriteToTarget(
                         fp,
                         self._device.GetDecompressor(
-                            cros_build_lib.CompressionType.GZIP
+                            compression_lib.CompressionType.GZIP
                         ),
                     )
             finally:

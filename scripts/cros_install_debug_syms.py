@@ -25,6 +25,7 @@ from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import cache
 from chromite.lib import commandline
+from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
@@ -89,8 +90,8 @@ class DebugSymbolsInstaller:
         if not os.path.isfile(archive):
             self._gs_context.Copy(url, archive, debug_level=logging.DEBUG)
 
-        compression = cros_build_lib.CompressionDetectType(archive)
-        compressor = cros_build_lib.FindCompressor(compression)
+        compression = compression_lib.CompressionType.detect_from_file(archive)
+        compressor = compression_lib.find_compressor(compression)
 
         with osutils.TempDir(sudo_rm=True) as tempdir:
             cros_build_lib.sudo_run(
