@@ -358,7 +358,7 @@ def json_format_lint(lint: toolchain.LinterFinding) -> Text:
 
 def get_all_sysroots() -> List[Text]:
     """Gets all available sysroots for both host and boards."""
-    host_root = Path(build_target_lib.BuildTarget(None).root)
+    host_root = Path("/")
     roots = [str(host_root)]
     build_dir = host_root / "build"
     for board in os.listdir(build_dir):
@@ -500,9 +500,9 @@ def main(argv: List[str]) -> None:
     cros_build_lib.AssertInsideChroot()
     opts = parse_args(argv)
 
-    if opts.host:
+    if opts.host or opts.board is None:
         # BuildTarget interprets None as host target
-        build_target = build_target_lib.BuildTarget(None)
+        build_target = build_target_lib.BuildTarget(None, build_root="/")
     else:
         build_target = build_target_lib.BuildTarget(opts.board)
     packages = parse_packages(build_target, opts.packages)
