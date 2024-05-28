@@ -2172,8 +2172,8 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             try:
                 return [
                     self._CreateCrOSArtifactBundle(
-                        "toolchain/clang_crash_diagnoses",
-                        "clang_crash_diagnoses",
+                        "toolchain/clang_crash_diagnostics",
+                        "clang_crash_diagnostics",
                         tempdir,
                         # If the compiler crashed, the package almost
                         # definitely failed to build.

@@ -1621,7 +1621,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
                 os.path.join(
                     toolchain_util._PACKAGE_ARTIFACTS_PATH,
                     "sys-devel/llvm/toolchain/cros-artifacts",
-                    "not_clang_crash_diagnoses/foo",
+                    "not_clang_crash_diagnostics/foo",
                 ),
                 os.path.join(
                     toolchain_util._PACKAGE_ARTIFACTS_PATH,
@@ -1630,7 +1630,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
                 # And make the directory a regular file for fun.
                 os.path.join(
                     toolchain_util._PACKAGE_ARTIFACTS_PATH,
-                    "toolchain/clang_crash_diagnoses",
+                    "toolchain/clang_crash_diagnostics",
                 ),
             ],
             expected_output_paths=[],
@@ -1640,11 +1640,11 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         self.SetUpBundle("ClangCrashDiagnoses")
         prefix = os.path.join(
             toolchain_util._PACKAGE_ARTIFACTS_PATH,
-            "sys-devel/llvm/cros-artifacts/toolchain/clang_crash_diagnoses",
+            "sys-devel/llvm/cros-artifacts/toolchain/clang_crash_diagnostics",
         )
         incomplete_prefix = os.path.join(
             self._INCOMPLETE_PACKAGE_ARTIFACTS,
-            "toolchain/clang_crash_diagnoses",
+            "toolchain/clang_crash_diagnostics",
         )
         files = [
             f"{prefix}/foo.sh",
@@ -1673,7 +1673,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         )
         incomplete_prefix = os.path.join(
             self._INCOMPLETE_PACKAGE_ARTIFACTS,
-            "toolchain/clang_crash_diagnoses",
+            "toolchain/clang_crash_diagnostics",
         )
         self.runToolchainCrOSArtifactsBundleTest(
             root_paths=[
