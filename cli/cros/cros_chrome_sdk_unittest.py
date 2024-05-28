@@ -127,7 +127,6 @@ class SDKFetcherMock(partial_mock.PartialMock):
         "GetFullVersion",
         "_GetMetadata",
         "_UpdateTarball",
-        "_GetManifest",
         "UpdateDefaultVersion",
         "_GetTarballCacheKey",
         "_GetBuildReport",
@@ -223,15 +222,6 @@ class SDKFetcherMock(partial_mock.PartialMock):
             stdout=self.FAKE_BUILD_REPORT,
         )
         return self.backup["_GetBuildReport"](inst, *args, **kwargs)
-
-    @_DependencyMockCtx
-    def _GetManifest(self, _inst, _version):
-        return {
-            "packages": {
-                "chromeos-base/tast-cmd": [["1.2.3", {}]],
-                "chromeos-base/tast-remote-tests-cros": [["7.8.9", {}]],
-            }
-        }
 
     @_DependencyMockCtx
     def _GetTarballCacheKey(self, _inst, component, _url):

@@ -28,7 +28,6 @@ from chromite.lib import compression_lib
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.lib import cros_sdk_lib
 from chromite.lib import gclient
 from chromite.lib import gs
 from chromite.lib import osutils
@@ -517,42 +516,6 @@ class SDKFetcher:
             logging.debug(
                 "Evicted SDK for %s-%s from the cache.", board, version
             )
-
-    @memoize.Memoize
-    def _GetSDKVersion(self, version):
-        """Get SDK version from metadata.
-
-        Args:
-            version: LKGM version, e.g. 12345.0.0
-
-        Returns:
-            sdk_version, e.g. 2018.06.04.200410
-        """
-        metadata = self._GetMetadata(version)
-        build_report = self._GetBuildReport(version)
-        return metadata.get("sdk-version") or build_report.get("sdkVersion")
-
-    def _GetManifest(self, version):
-        """Get the build manifest from the cache, downloading it if necessary.
-
-        Args:
-            version: LKGM version, e.g. 12345.0.0
-
-        Returns:
-            build manifest as a python dictionary. The build manifest contains
-            build versions for packages built by the SDK builder.
-        """
-        with self.misc_cache.Lookup(("manifest", self.board, version)) as ref:
-            if ref.Exists(lock=True):
-                manifest = osutils.ReadFile(ref.path)
-            else:
-                manifest_path = cros_sdk_lib.get_sdk_manifest_url(
-                    self._GetSDKVersion(version),
-                    for_gsutil=True,
-                )
-                manifest = self.gs_ctx.Cat(manifest_path, encoding="utf-8")
-                ref.AssignText(manifest)
-            return json.loads(manifest)
 
     def GetDefaultVersion(self):
         """Get the default SDK version to use.
