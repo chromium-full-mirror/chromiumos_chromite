@@ -21,9 +21,9 @@ from chromite.lib import osutils
 
 
 # TODO(jrosenth): We likely want to publish our own Bazelisk at some point
-# instead of relying upon Skia's.
-_BAZELISK_PACKAGE = "skia/bots/bazelisk_${os}_${arch}"
-_BAZELISK_VERSION = "version:0"
+# instead of relying upon Fuchsia's.
+_BAZELISK_PACKAGE = "fuchsia/third_party/bazelisk/${os}-${arch}"
+_BAZELISK_VERSION = "version:2@1.20.0"
 
 # Symlinks which may exist in the workspace root without an underlying file in
 # src/bazel/workspace_root.
