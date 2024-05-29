@@ -969,27 +969,6 @@ class DiskLayout:
 
         return partition.get("fs_format")
 
-    def GetFormat(self, image_type: str, num: int) -> str:
-        """Returns the format of a given partition for a given layout type.
-
-        Args:
-            image_type: Type of image eg base/test/dev/factory_install.
-            num: Number of the partition you want to read from.
-
-        Returns:
-            Format of the selected partition's filesystem.
-
-        Raises:
-            InvalidLayoutError: If the image type is not supported.
-        """
-        try:
-            partitions = self._image_partitions[image_type]
-        except KeyError:
-            raise InvalidLayoutError("Unknown layout: %s" % image_type)
-        partition = self._getPartitionByNumber(partitions, num)
-
-        return partition.get("format")
-
     def GetFilesystemOptions(self, image_type: str, num: int) -> str:
         """Returns the filesystem options of a given partition and layout type.
 
@@ -1459,17 +1438,13 @@ class DiskLayout:
                 if key in partition:
                     shell_label = str(partition[key]).replace("-", "_").upper()
                     part_bytes = partition["bytes"]
-                    reserved_ebs = partition.get("reserved_erase_blocks", 0)
                     fs_bytes = partition.get("fs_bytes", part_bytes)
-                    part_format = partition.get("format", "")
                     fs_format = partition.get("fs_format", "")
                     fs_options = partition.get("fs_options", "")
                     partition_num = partition.get("num", "")
                     args = [
                         ("PARTITION_SIZE_", part_bytes),
-                        ("RESERVED_EBS_", reserved_ebs),
                         ("DATA_SIZE_", fs_bytes),
-                        ("FORMAT_", part_format),
                         ("FS_FORMAT_", fs_format),
                     ]
                     sargs = [
@@ -1528,69 +1503,3 @@ class DiskLayout:
                 raise InvalidLayoutError("Unknown layout: %s" % image_type)
             partition = self._getPartitionByLabel(partitions, "ROOT-A")
             f.write("ROOTFS_PARTITION_SIZE=%s\n" % (partition["bytes"],))
-
-    def CheckRootfsPartitionsMatch(self, partitions: Dict[Any, Any]) -> None:
-        """Checks that rootfs partitions are substitutable with each other.
-
-        This function asserts that either all rootfs partitions are in the same
-        format or none have a format, and it asserts that have the same number
-        of reserved erase blocks.
-
-        Args:
-            partitions: The partition to validate.
-
-        Raises:
-            MismatchedRootfsFormatError: If partition format mismatch.
-            MismatchedRootfsBlocksError: If reserved erase block mismatch.
-        """
-        partition_format = None
-        reserved_erase_blocks = -1
-        for partition in partitions:
-            if partition.get("type") == "rootfs":
-                new_format = partition.get("format", "")
-                new_reserved_erase_blocks = partition.get(
-                    "reserved_erase_blocks", 0
-                )
-
-                if partition_format is None:
-                    partition_format = new_format
-                    reserved_erase_blocks = new_reserved_erase_blocks
-
-                if new_format != partition_format:
-                    raise MismatchedRootfsFormatError(
-                        'mismatched rootfs formats: "%s" and "%s"'
-                        % (partition_format, new_format)
-                    )
-
-                if reserved_erase_blocks != new_reserved_erase_blocks:
-                    raise MismatchedRootfsBlocksError(
-                        "mismatched rootfs reserved erase block counts: i"
-                        "%s and %s"
-                        % (reserved_erase_blocks, new_reserved_erase_blocks)
-                    )
-
-    def Validate(self, image_type: str) -> None:
-        """Validates a layout file.
-
-        Args:
-            image_type: Type of image eg base/test/dev/factory_install.
-
-        Raises:
-            ExcessPartitionSizeError: if the total partition size is greater
-                than the capacity.
-            UnalignedPartitionError: if the partition size is not aligned with
-                erase block size.
-            ExpandNandImpossibleError: If expand partition is specified for
-                NAND.
-            ExcessFailureProbabilityError: If excessive probablity exists for
-                failure.
-            MissingEraseBlockFieldError: If unable to check for erased blocks.
-            MismatchedRootfsFormatError: If partition format mismatch.
-            MismatchedRootfsBlocksError: If reserved erase block mismatch.
-            InvalidLayoutError: If the image type is invalid.
-        """
-        try:
-            partitions = self._image_partitions[image_type]
-        except KeyError:
-            raise InvalidLayoutError("Unknown layout: %s" % image_type)
-        self.CheckRootfsPartitionsMatch(partitions)

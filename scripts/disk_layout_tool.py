@@ -113,29 +113,6 @@ def GetPartitionSize(
     ).GetPartitionSize(image_type, int(num))
 
 
-def GetFormat(
-    options: List[str],
-    image_type: str,
-    layout_filename: Union[str, os.PathLike],
-    num: str,
-) -> str:
-    """Returns the format of a given partition for a given layout type.
-
-    Args:
-        options: Flags passed to the script.
-        image_type: Type of image eg base/test/dev/factory_install.
-        layout_filename: Path to partition configuration file.
-        num: Number of the partition you want to read from.
-
-    Returns:
-        Format of the selected partition's filesystem.
-    """
-
-    return disk_layout.DiskLayout(
-        layout_filename, options.adjust_part.split()
-    ).GetFormat(image_type, int(num))
-
-
 def GetFilesystemFormat(
     options: List[str],
     image_type: str,
@@ -390,24 +367,6 @@ def GetVerityHashAlgo(
     return disk_layout.DiskLayout(layout_filename).GetVerityHashAlgo()
 
 
-def Validate(
-    options: List[str],
-    image_type: str,
-    layout_filename: Union[str, os.PathLike],
-):
-    """Validates a layout file, used before reading sizes to check for errors.
-
-    Args:
-        options: Flags passed to the script.
-        image_type: Type of image eg base/test/dev/factory_install.
-        layout_filename: Path to partition configuration file.
-    """
-
-    return disk_layout.DiskLayout(
-        layout_filename, options.adjust_part.split()
-    ).Validate(image_type)
-
-
 class ArgsAction(argparse.Action):  # pylint: disable=no-init
     """Helper to add all arguments to an args array.
 
@@ -468,7 +427,6 @@ def GetParser():
         "readblocksize": GetBlockSize,
         "readfsblocksize": GetFilesystemBlockSize,
         "readpartsize": GetPartitionSize,
-        "readformat": GetFormat,
         "readfsformat": GetFilesystemFormat,
         "readfssize": GetFilesystemSize,
         "readimagetypes": GetImageTypes,
@@ -481,7 +439,6 @@ def GetParser():
         "readuuid": GetUUID,
         "readverityhashalgo": GetVerityHashAlgo,
         "debug": DoDebugOutput,
-        "validate": Validate,
     }
 
     subparsers = parser.add_subparsers(
