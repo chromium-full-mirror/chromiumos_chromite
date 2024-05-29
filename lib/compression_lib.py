@@ -202,7 +202,7 @@ def decompress_file(
     return cros_build_lib.run([comp, "-dc", infile], stdout=outfile)
 
 
-class TarballError(cros_build_lib.RunCommandError):
+class TarballError(Exception):
     """Error while running tar.
 
     We may run tar multiple times because of "soft" errors.  The result is from
@@ -330,7 +330,9 @@ def create_tarball(
                 cwd,
                 cmd,
             )
-            raise TarballError("create_tarball", result)
+            raise TarballError(
+                f"Failed to create tarball ({result.returncode=})"
+            )
 
         assert result.returncode == 1
         time.sleep(timeout * (try_count + 1))
@@ -385,7 +387,7 @@ def extract_tarball(
     try:
         comp_type = CompressionType.detect_from_file(tarball_path)
     except FileNotFoundError as e:
-        raise TarballError(str(e))
+        raise TarballError(f"File not found ({tarball_path=})") from e
     if comp_type == CompressionType.NONE:
         comp_type = CompressionType.from_extension(tarball_path)
     if comp_type != CompressionType.NONE:
@@ -417,13 +419,13 @@ def extract_tarball(
         raise TarballError(
             "An error occurred when attempting to untar %s:\n%s"
             % (tarball_path, e)
-        )
+        ) from e
 
     if result.returncode != 0:
         logging.error(
             "extract_tarball failed extracting %s. cmd={%s}", tarball_path, cmd
         )
-        raise TarballError("extract_tarball", result)
+        raise TarballError(f"Failed to extract tarball ({result.returncode=}")
 
     if return_extracted_files:
         return [

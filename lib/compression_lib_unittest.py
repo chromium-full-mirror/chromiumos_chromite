@@ -110,11 +110,8 @@ class TarballTests(cros_test_lib.TempDirTestCase):
         """Verify that stderr from tar is printed if in encounters an error."""
         tarball = "a-tarball-which-does-not-exist.tar.gz"
 
-        try:
+        with pytest.raises(compression_lib.TarballError):
             compression_lib.extract_tarball(tarball, self.tempdir)
-        except compression_lib.TarballError as e:
-            # Check to see that tar's error message is printed in the exception.
-            self.assertIn("No such file or directory", e.args[0])
 
     def test_custom_compressor(self) -> None:
         """Create a tarfile with a custom compressor program."""
@@ -232,22 +229,20 @@ class FailedCreateTarballTests(cros_test_lib.RunCommandTestCase):
     def test_failed_once_hard(self) -> None:
         """Test unrecoverable error."""
         self.tarResults = [2]
-        with self.assertRaises(cros_build_lib.RunCommandError) as cm:
+        with pytest.raises(compression_lib.TarballError):
             compression_lib.create_tarball("foo", "bar", inputs=["a", "b"])
 
         self.assertEqual(self.rc.call_count, 1)
-        self.assertEqual(cm.exception.args[1].returncode, 2)
 
     def test_failed_thrice_soft(self) -> None:
         """Exhaust retries for recoverable errors."""
         self.tarResults = [1, 1, 1]
-        with self.assertRaises(cros_build_lib.RunCommandError) as cm:
+        with pytest.raises(compression_lib.TarballError):
             compression_lib.create_tarball(
                 "foo", "bar", inputs=["a", "b"], timeout=0
             )
 
         self.assertEqual(self.rc.call_count, 3)
-        self.assertEqual(cm.exception.args[1].returncode, 1)
 
 
 class FindCompressorTests(cros_test_lib.TempDirTestCase):
