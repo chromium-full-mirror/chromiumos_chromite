@@ -763,10 +763,6 @@ def test_upload_filter(mock_upload: mock.Mock, template_proto: Wrapper) -> None:
     subtools = subtool_lib.InstalledSubtools(
         config_dir, template_proto.work_root
     )
-    # Upload nothing.
-    subtools.prepare_uploads(upload_filter=[])
-    assert mock_upload.call_count == 0
-
     # Upload all.
     mock_upload.reset_mock()
     subtools.prepare_uploads()

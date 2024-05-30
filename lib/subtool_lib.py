@@ -823,7 +823,7 @@ class InstalledSubtools:
         """
         prepared_bundles: List[Path] = []
         for subtool in self.subtools:
-            if upload_filter is None or subtool.package.name in upload_filter:
+            if not upload_filter or subtool.package.name in upload_filter:
                 subtool.prepare_upload()
                 prepared_bundles.append(subtool.metadata_dir)
         return prepared_bundles
