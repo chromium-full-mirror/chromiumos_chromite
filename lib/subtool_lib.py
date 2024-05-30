@@ -93,8 +93,14 @@ SUBTOOLS_HASH_TAG = "subtools_hash"
 # storage buckets and developer disk space, rather than a limit imposed by other
 # systems. If a use case arises for something bigger, there may be scope to add
 # a manifest attribute to permit a higher threshold. The full, uncompressed size
-# of bundle content is accumulated, before any upload to CIPD.
-MAX_BUNDLE_SIZE_BYTES = 500_000_000
+# of bundle content is accumulated, before any upload to CIPD. We allow a more
+# gracious limit for uploads to GCS, partly as compression is better (zstd
+# tarball instead of zip archive), but also because resources are cheaper.
+
+MAX_BUNDLE_SIZE_BYTES = {
+    subtools_pb2.SubtoolPackage.EXPORT_CIPD: 500_000_000,
+    subtools_pb2.SubtoolPackage.EXPORT_GCS: 5_000_000_000,
+}
 
 # Valid names. A stricter version of `packageNameRe` in
 # https://crsrc.org/i/go/src/go.chromium.org/luci/cipd/common/common.go
@@ -509,14 +515,15 @@ class Subtool:
         if not self.stamp("bundled").exists():
             raise ManifestBundlingError("Bundling incomplete.", self)
 
+        max_size = MAX_BUNDLE_SIZE_BYTES[self.package.type]
         apparent_size = 0
         for file in self.bundle_dir.rglob("*"):
             apparent_size += os.lstat(file).st_size
-        if apparent_size > MAX_BUNDLE_SIZE_BYTES:
+        if apparent_size > max_size:
             raise ManifestBundlingError(
                 "Bundle is too big."
                 f" Apparent size={apparent_size} bytes,"
-                f" threshold={MAX_BUNDLE_SIZE_BYTES}.",
+                f" threshold={max_size}.",
                 self,
             )
 

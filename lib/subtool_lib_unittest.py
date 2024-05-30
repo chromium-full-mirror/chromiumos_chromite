@@ -397,7 +397,11 @@ def test_bundle_and_upload(
     assert (template_proto.work_root / "my_subtool" / ".uploaded").exists()
 
 
-@mock.patch.object(subtool_lib, "MAX_BUNDLE_SIZE_BYTES", 1)
+@mock.patch.object(
+    subtool_lib,
+    "MAX_BUNDLE_SIZE_BYTES",
+    {subtools_pb2.SubtoolPackage.EXPORT_CIPD: 1},
+)
 def test_bundle_max_size(
     template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
