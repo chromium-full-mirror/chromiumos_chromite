@@ -187,6 +187,7 @@ GROUP_BASELINE = dict(
                 "ml-core",
                 "runtime_probe",
                 "fwupd",
+                "meet_camerad",
             },
         ),
         GroupEntry(group="cdrw", gid=80, users={"cros-disks"}),
@@ -370,7 +371,12 @@ GROUP_BASELINE = dict(
         GroupEntry(
             group="camera",
             gid=20042,
-            users={"arc-camera", "cfm-firmware-updaters", "fwupd"},
+            users={
+                "arc-camera",
+                "cfm-firmware-updaters",
+                "fwupd",
+                "meet_camerad",
+            },
         ),
         GroupEntry(
             group="debugfs-access",
