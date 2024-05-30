@@ -455,11 +455,8 @@ def InstallPackages(
 
         return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
     finally:
-        log_source_dir = _GetBuildLogDirectory()
-
         if request.remoteexec_config.log_dir.dir:
             archiver = remoteexec_lib.LogsArchiver(
-                build_log_dir=Path(log_source_dir),
                 dest_dir=Path(request.remoteexec_config.log_dir.dir),
             )
             archived_logs = archiver.archive()

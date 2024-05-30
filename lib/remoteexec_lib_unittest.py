@@ -28,7 +28,7 @@ class TestLogArchiver(cros_test_lib.MockTempDirTestCase):
         osutils.SafeMakedirs(self.src_dir)
         osutils.SafeMakedirs(self.dest_dir)
 
-        self.archiver = remoteexec_lib.LogsArchiver(self.src_dir, self.dest_dir)
+        self.archiver = remoteexec_lib.LogsArchiver(self.dest_dir)
         self.archiver.remoteexec_log_dir_for_testing = self.src_dir
 
     def _create_file(self, package_name: str, filename: str) -> Path:
@@ -51,7 +51,7 @@ class TestLogArchiver(cros_test_lib.MockTempDirTestCase):
             self._create_file("chromeos-chrome", "test.INFO"),
         ]
 
-        archive_files = self.archiver.archive_remoteexec_logs()
+        archive_files = self.archiver.archive()
 
         self.assertEqual(
             archive_files,
@@ -73,23 +73,25 @@ class TestLogArchiver(cros_test_lib.MockTempDirTestCase):
 
     def testNinjaLogArchive(self) -> None:
         """Test successful archive of ninja logs."""
-        ninja_log_path = os.path.join(self.src_dir, "ninja_log")
-        osutils.WriteFile(ninja_log_path, "Ninja Log Content\n")
+        log_path = os.path.join(self.src_dir, "reclient-chromeos-chrome")
+
+        ninja_log_path = os.path.join(log_path, "ninja_log")
+        osutils.WriteFile(ninja_log_path, "Ninja Log Content\n", makedirs=True)
         timestamp = datetime.datetime(2024, 4, 1, 12, 0, 0)
         mtime = time.mktime(timestamp.timetuple())
         os.utime(ninja_log_path, ((time.time(), mtime)))
 
         osutils.WriteFile(
-            os.path.join(self.src_dir, "ninja_command"), "ninja_command"
+            os.path.join(log_path, "ninja_command"), "ninja_command"
         )
-        osutils.WriteFile(os.path.join(self.src_dir, "ninja_cwd"), "ninja_cwd")
+        osutils.WriteFile(os.path.join(log_path, "ninja_cwd"), "ninja_cwd")
         osutils.WriteFile(
-            os.path.join(self.src_dir, "ninja_env"),
+            os.path.join(log_path, "ninja_env"),
             "key1=value1\0key2=value2\0",
         )
-        osutils.WriteFile(os.path.join(self.src_dir, "ninja_exit"), "0")
+        osutils.WriteFile(os.path.join(log_path, "ninja_exit"), "0")
 
-        archived_results = self.archiver.archive_ninja_log()
+        archived_results = self.archiver.archive()
 
         username = getpass.getuser()
         pid = os.getpid()
