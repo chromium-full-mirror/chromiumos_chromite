@@ -149,7 +149,8 @@ ARTIFACTS_TO_COPY = {
             r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
         ),
         "bertha_x86_64-trunk_staging-userdebug": (
-            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
+            r"(\.zip|/org.chromium.arc.cts.helpers.apk$"
+            r"|/kernel|/ramdisk.img)$"
         ),
     },
 }
