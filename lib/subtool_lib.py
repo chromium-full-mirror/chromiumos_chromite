@@ -785,6 +785,7 @@ class InstalledSubtools:
     Attributes:
         subtools: Collection of parsed subtool manifests.
         work_root: Root folder where all packages are bundled.
+        private_only: True if only private packages should be uploaded.
     """
 
     def __init__(
@@ -804,8 +805,7 @@ class InstalledSubtools:
         self.subtools = [
             Subtool.from_file(f, work_root) for f in config_dir.glob(glob)
         ]
-        if private_only:
-            self.subtools = [x for x in self.subtools if x.private_packages]
+        self.private_only = private_only
 
     def bundle_all(self) -> None:
         """Read .textprotos and bundle blobs into `work_root`."""
@@ -824,6 +824,14 @@ class InstalledSubtools:
         prepared_bundles: List[Path] = []
         for subtool in self.subtools:
             if not upload_filter or subtool.package.name in upload_filter:
+                if self.private_only and not subtool.private_packages:
+                    logger.notice(
+                        "Skip preparing upload for %s, as private_only is "
+                        "requested and this subtool has no files built from "
+                        "private sources.",
+                        subtool.package.name,
+                    )
+                    continue
                 subtool.prepare_upload()
                 prepared_bundles.append(subtool.metadata_dir)
         return prepared_bundles

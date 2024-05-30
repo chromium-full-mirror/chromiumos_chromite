@@ -76,11 +76,9 @@ def test_bundle_private_only(tmp_path: Path) -> None:
 
     public_subtool = mock.Mock()
     public_subtool.private_packages = []
-    public_subtool.bundle = mock.Mock()
 
     private_subtool = mock.Mock()
     private_subtool.private_packages = ["some-category/package-0.0.1-r1"]
-    public_subtool.bundle = mock.Mock()
 
     def _fake_subtool_from_file(path: Path, *_args, **_kwargs):
         if path.name == "public.textproto":
@@ -102,5 +100,5 @@ def test_bundle_private_only(tmp_path: Path) -> None:
     ):
         sdk_subtools.bundle_and_prepare_upload(private_only=True)
 
-    public_subtool.bundle.assert_not_called()
-    private_subtool.bundle.assert_called_once()
+    public_subtool.prepare_upload.assert_not_called()
+    private_subtool.prepare_upload.assert_called_once()
