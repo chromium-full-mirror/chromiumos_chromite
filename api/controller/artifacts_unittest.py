@@ -417,7 +417,16 @@ class BundleFirmwareTest(BundleTestCase):
         self.PatchObject(
             artifacts_svc,
             "BuildFirmwareArchive",
-            return_value=os.path.join(self.output_dir, "firmware.tar.gz"),
+            return_value=os.path.join(
+                self.output_dir, constants.FIRMWARE_ARCHIVE_NAME
+            ),
+        )
+        self.PatchObject(
+            artifacts_svc,
+            "BuildPinnedFirmwareArchive",
+            return_value=os.path.join(
+                self.output_dir, constants.FIRMWARE_PINNED_ARCHIVE_NAME
+            ),
         )
 
         artifacts.BundleFirmware(
@@ -428,7 +437,10 @@ class BundleFirmwareTest(BundleTestCase):
                 artifact.artifact_path.path
                 for artifact in self.response.artifacts
             ],
-            [os.path.join(self.output_dir, "firmware.tar.gz")],
+            [
+                os.path.join(self.output_dir, "firmware_from_source.tar.bz2"),
+                os.path.join(self.output_dir, "pinned_firmware.tar.bz2"),
+            ],
         )
 
     def testBundleFirmwareNoLogs(self) -> None:

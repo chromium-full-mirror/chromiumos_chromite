@@ -673,6 +673,7 @@ PARTIAL_METADATA_JSON = "partial-metadata.json"
 METADATA_TAGS = "tags"
 
 FIRMWARE_ARCHIVE_NAME = "firmware_from_source.tar.bz2"
+FIRMWARE_PINNED_ARCHIVE_NAME = "pinned_firmware.tar.bz2"
 FPMCU_UNITTESTS_ARCHIVE_NAME = "fpmcu_unittests.tar.bz2"
 
 # Global configuration constants.

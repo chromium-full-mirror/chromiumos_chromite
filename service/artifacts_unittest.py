@@ -489,6 +489,51 @@ class BuildFirmwareArchiveTest(cros_test_lib.MockTempDirTestCase):
         cros_test_lib.VerifyTarball(tarball, fw_files)
 
 
+class BuildPinnedFirmwareArchiveTest(cros_test_lib.MockTempDirTestCase):
+    """BuildPinnedFirmwareArchive tests."""
+
+    def testBuildPinnedFirmwareArchive(self) -> None:
+        """Verifies that firmware archiver includes proper files"""
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+
+        # Assorted set of file names, some of which are supposed to be included
+        # in the archive.
+        fw_files = (
+            "dts/emeraldlake2.dts",
+            "image-link.rw.bin",
+            "nv_image-link.bin",
+            "pci8086,0166.rom",
+            "seabios.cbfs",
+            "u-boot.elf",
+            "u-boot_netboot.bin",
+            "updater-link.rw.sh",
+            "x86-memtest",
+        )
+
+        board = "link"
+
+        # Create the chroot and sysroot instances.
+        fw_test_root = self.tempdir
+        chroot_path = fw_test_root / "chroot"
+        out_path = fw_test_root / "out"
+        chroot = chroot_lib.Chroot(path=chroot_path, out_path=out_path)
+        sysroot = sysroot_lib.Sysroot("/build/link")
+        fw_files_root = chroot.full_path(
+            "/build/%s/build/firmware/pinned" % board
+        )
+        # Generate a representative set of files produced by a typical build.
+        cros_test_lib.CreateOnDiskHierarchy(fw_files_root, fw_files)
+
+        # Create an archive from the simulated firmware directory
+        tarball = os.path.join(
+            fw_test_root,
+            artifacts.BuildPinnedFirmwareArchive(chroot, sysroot, fw_test_root),
+        )
+
+        # Verify the tarball contents.
+        cros_test_lib.VerifyTarball(tarball, fw_files)
+
+
 class BundleFpmcuUnittestsTest(cros_test_lib.MockTempDirTestCase):
     """BundleFpmcuUnittests tests."""
 

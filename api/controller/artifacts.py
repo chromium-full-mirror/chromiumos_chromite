@@ -644,6 +644,7 @@ def BundleFirmware(
         logging.warning("Sysroot does not exist: %s", sysroot.path)
         return
 
+    # Bundle firmware_from_source.tar.bz2
     archive = artifacts.BuildFirmwareArchive(chroot, sysroot, output_dir)
 
     if not archive:
@@ -651,13 +652,27 @@ def BundleFirmware(
             "Could not create firmware archive. No firmware found for %s.",
             sysroot.path,
         )
-        return
-
-    response.artifacts.add(
-        artifact_path=common_pb2.Path(
-            path=archive, location=common_pb2.Path.OUTSIDE
+    else:
+        response.artifacts.add(
+            artifact_path=common_pb2.Path(
+                path=archive, location=common_pb2.Path.OUTSIDE
+            )
         )
-    )
+
+    # Bundle pinned_firmware.tar.bz2
+    archive = artifacts.BuildPinnedFirmwareArchive(chroot, sysroot, output_dir)
+
+    if not archive:
+        logging.warning(
+            "Pinned firmware not found for %s.",
+            sysroot.path,
+        )
+    else:
+        response.artifacts.add(
+            artifact_path=common_pb2.Path(
+                path=archive, location=common_pb2.Path.OUTSIDE
+            )
+        )
 
 
 def _BundleFpmcuUnittestsResponse(request, response, _config) -> None:

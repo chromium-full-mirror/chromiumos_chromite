@@ -136,6 +136,51 @@ def BuildFirmwareArchive(
     return archive_file
 
 
+def BuildPinnedFirmwareArchive(
+    chroot: "chroot_lib.Chroot",
+    sysroot: "sysroot_lib.Sysroot",
+    output_directory: str,
+) -> Optional[str]:
+    """Build pinned_firmware.tar.bz2 in sysroot's build/firmware directory.
+
+    Args:
+        chroot: The chroot to be used.
+        sysroot: The sysroot whose artifacts are being archived.
+        output_directory: The path were the completed archives should be put.
+
+    Returns:
+        The archive file path if created, None otherwise.
+    """
+    firmware_root = chroot.full_path(sysroot.JoinPath("build/firmware/pinned"))
+    if not os.path.exists(firmware_root):
+        return None
+
+    source_list = []
+    for directory, _, filenames in os.walk(firmware_root):
+        for filename in filenames:
+            source_list.append(
+                os.path.relpath(
+                    os.path.join(directory, filename), firmware_root
+                )
+            )
+
+    if not source_list:
+        return None
+
+    archive_file = os.path.join(
+        output_directory, constants.FIRMWARE_PINNED_ARCHIVE_NAME
+    )
+    compression_lib.create_tarball(
+        archive_file,
+        firmware_root,
+        compression=compression_lib.CompressionType.BZIP2,
+        chroot=chroot.path,
+        inputs=source_list,
+    )
+
+    return archive_file
+
+
 def BundleFpmcuUnittests(
     chroot: "chroot_lib.Chroot",
     sysroot: "sysroot_lib.Sysroot",
