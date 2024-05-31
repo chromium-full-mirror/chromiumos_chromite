@@ -776,6 +776,27 @@ def test_upload_filter(mock_upload: mock.Mock, template_proto: Wrapper) -> None:
     assert mock_upload.call_count == 2
 
 
+@mock.patch.object(subtool_lib.Subtool, "prepare_upload")
+def test_upload_filter_glob(
+    mock_upload: mock.Mock, template_proto: Wrapper
+) -> None:
+    """Test that InstalledSubtools with a globbing upload filter."""
+    accept_names = [f"subtool-{i}" for i in range(5)]
+    reject_names = [f"different-subtool-{i}" for i in range(3)]
+
+    for name in accept_names + reject_names:
+        template_proto.proto.name = name
+        config_dir = template_proto.write_to_dir()
+
+    subtools = subtool_lib.InstalledSubtools(
+        config_dir, template_proto.work_root
+    )
+    subtools.prepare_uploads(
+        upload_filter=["subtool-*"],
+    )
+    assert mock_upload.call_count == len(accept_names)
+
+
 def test_upload_successful(
     template_proto: Wrapper, run_mock: cros_test_lib.RunCommandMock
 ) -> None:

@@ -823,17 +823,25 @@ class InstalledSubtools:
         """
         prepared_bundles: List[Path] = []
         for subtool in self.subtools:
-            if not upload_filter or subtool.package.name in upload_filter:
-                if self.private_only and not subtool.private_packages:
-                    logger.notice(
-                        "Skip preparing upload for %s, as private_only is "
-                        "requested and this subtool has no files built from "
-                        "private sources.",
-                        subtool.package.name,
-                    )
-                    continue
-                subtool.prepare_upload()
-                prepared_bundles.append(subtool.metadata_dir)
+            if upload_filter and not any(
+                fnmatch.fnmatch(subtool.package.name, x) for x in upload_filter
+            ):
+                logger.notice(
+                    "Skip preparing upload for %s, as it matches none of %s.",
+                    subtool.package.name,
+                    upload_filter,
+                )
+                continue
+            if self.private_only and not subtool.private_packages:
+                logger.notice(
+                    "Skip preparing upload for %s, as private_only is "
+                    "requested and this subtool has no files built from "
+                    "private sources.",
+                    subtool.package.name,
+                )
+                continue
+            subtool.prepare_upload()
+            prepared_bundles.append(subtool.metadata_dir)
         return prepared_bundles
 
 
