@@ -102,7 +102,7 @@ class ReadSubcommand(command.CliCommand):
             help="The name of the build target.",
         )
         parser.add_argument(
-            "-r" "--region", dest="region", type=str, help="Region to read."
+            "-r", "--region", dest="region", type=str, help="Region to read."
         )
         parser.add_argument(
             "-o",
