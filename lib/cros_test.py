@@ -237,6 +237,8 @@ class CrOSTest:
             "--clobber-stateful",
             "--clear-tpm-owner",
         ]
+        if self.cache_dir:
+            flash_cmd += ["--cache-dir", self.cache_dir]
         cros_build_lib.run(flash_cmd, dryrun=self.dryrun)
 
     def _Deploy(self) -> None:
