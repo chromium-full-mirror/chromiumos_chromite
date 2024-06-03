@@ -474,6 +474,10 @@ def _WarnDetectiveAboutKernelProfileExpiration(
 _EbuildInfo = collections.namedtuple("_EbuildInfo", ["path", "CPV"])
 
 
+class NoStableEbuildError(PrepareForBuildHandlerError):
+    """Raised when `_GetEbuildInfo` could not find any stable ebuilds."""
+
+
 class _CommonPrepareBundle:
     """Information about Ebuild files we care about."""
 
@@ -524,6 +528,9 @@ class _CommonPrepareBundle:
 
         Returns:
             _EbuildInfo for the stable ebuild.
+
+        Raises:
+            NoStableEbuildError if no stable ebuild could be found.
         """
         if package in self._ebuild_info:
             return self._ebuild_info[package]
@@ -550,32 +557,28 @@ class _CommonPrepareBundle:
             )
             self._ebuild_info[constants.CHROME_PN] = info
             return info
-        else:
-            latest_version = ChromeVersion(0, 0, 0, 0, 0)
-            candidate = None
-            for p in paths:
-                PV = os.path.splitext(os.path.split(p)[1])[0]
-                info = _EbuildInfo(
-                    p, package_info.parse("%s/%s" % (category, PV))
-                )
-                if not info.CPV.revision:
-                    # Ignore versions without a rev
-                    continue
-                version_re = re.compile(
-                    r"^chromeos-chrome-(\d+)\.(\d+)\.(\d+)\.(\d+)_rc-r(\d+)"
-                )
-                m = version_re.search(PV)
-                assert m, f"failed to recognize Chrome ebuild name {p}"
-                version = ChromeVersion(*[int(x) for x in m.groups()])
-                if version > latest_version:
-                    latest_version = version
-                    candidate = info
-            if not candidate:
-                raise PrepareForBuildHandlerError(
-                    f"No valid Chrome ebuild found among: {paths}"
-                )
-            self._ebuild_info[constants.CHROME_PN] = candidate
-            return candidate
+
+        latest_version = ChromeVersion(0, 0, 0, 0, 0)
+        candidate = None
+        for p in paths:
+            PV = os.path.splitext(os.path.split(p)[1])[0]
+            info = _EbuildInfo(p, package_info.parse("%s/%s" % (category, PV)))
+            if not info.CPV.revision:
+                # Ignore versions without a rev
+                continue
+            version_re = re.compile(
+                r"^chromeos-chrome-(\d+)\.(\d+)\.(\d+)\.(\d+)_rc-r(\d+)"
+            )
+            m = version_re.search(PV)
+            assert m, f"failed to recognize Chrome ebuild name {p}"
+            version = ChromeVersion(*[int(x) for x in m.groups()])
+            if version > latest_version:
+                latest_version = version
+                candidate = info
+        if not candidate:
+            raise NoStableEbuildError()
+        self._ebuild_info[constants.CHROME_PN] = candidate
+        return candidate
 
     def _GetBenchmarkAFDOName(
         self, template=CHROME_BENCHMARK_AFDO_FILE, wildcard_version=False
@@ -646,10 +649,15 @@ class _CommonPrepareBundle:
             variable: name of the variable to find.
 
         Returns:
-            The name of the AFDO artifact found in the ebuild, or None if not
-            found.
+            The name of the AFDO artifact found in the ebuild, or None if the
+            binding or ebuild is not found.
         """
-        info = self._GetEbuildInfo(package)
+        try:
+            info = self._GetEbuildInfo(package)
+        except NoStableEbuildError:
+            logging.info("No stable ebuilds exist for package %s", package)
+            return None
+
         ebuild = info.path
         pattern = re.compile(AFDO_ARTIFACT_EBUILD_REGEX % variable)
         with open(ebuild, encoding="utf-8") as f:
@@ -1497,12 +1505,33 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
             raise PrepareForBuildHandlerError(
                 "Could not find kernel version to verify."
             )
+        # The package name cannot have dots, so an underscore is used instead.
+        # For example: chromeos-kernel-4_4-4.4.214-r2087.ebuild.
+        kernel_package_version = kernel_version.replace(".", "_")
+        kernel_package_name = f"chromeos-kernel-{kernel_package_version}"
 
         verified_profile_url = KERNEL_PROFILE_VETTED_URL.format(arch=self.arch)
         profile_url = KERNEL_PROFILE_URL.format(arch=self.arch)
         profile_var_name = "AFDO_PROFILE_VERSION"
         if self.arch == "arm":
             profile_var_name = "ARM_AFDO_PROFILE_VERSION"
+
+        has_assignment = self._GetArtifactVersionInEbuild(
+            kernel_package_name, profile_var_name
+        )
+        if not has_assignment:
+            # If we're operating on an ebuild that either doesn't exist, or
+            # that has an empty value for this profile, assume that kernel AFDO
+            # hasn't been landed on this branch yet. This makes it possible to
+            # e.g., spin up verification builders for a new kernel version on
+            # main, without having to wait for them to work on stable
+            # (b/343112442).
+            logging.info(
+                "No value exists in %s ebuild for %s; uprevving is pointless",
+                kernel_package_name,
+                profile_var_name,
+            )
+            return PrepareForBuildReturn.POINTLESS
 
         cwp_locs = list(
             self.input_artifacts.get(
@@ -1529,31 +1558,25 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
         afdo_dir, afdo_name = os.path.split(
             afdo_path.replace(KERNEL_AFDO_COMPRESSION_SUFFIX, "")
         )
-        # The package name cannot have dots, so an underscore is used instead.
-        # For example: chromeos-kernel-4_4-4.4.214-r2087.ebuild.
-        kernel_version = kernel_version.replace(".", "_")
-
         # Check freshness.
         age = _GetProfileAge(afdo_name, "kernel_afdo")
         if age > KERNEL_ALLOWED_STALE_DAYS:
             logging.info(
                 "Found an expired afdo for kernel %s: %s, skip.",
-                kernel_version,
+                kernel_package_version,
                 afdo_name,
             )
             ret = PrepareForBuildReturn.POINTLESS
 
         if age > KERNEL_WARN_STALE_DAYS:
             _WarnDetectiveAboutKernelProfileExpiration(
-                kernel_version, afdo_path
+                kernel_package_version, afdo_path
             )
 
         # If we don't have an SDK, then we cannot update the manifest.
         if self.chroot:
             self._PatchEbuild(
-                self._GetEbuildInfo(
-                    "chromeos-kernel-%s" % kernel_version, "sys-kernel"
-                ),
+                self._GetEbuildInfo(kernel_package_name, category="sys-kernel"),
                 {profile_var_name: afdo_name, "AFDO_LOCATION": afdo_dir},
                 uprev=True,
             )
