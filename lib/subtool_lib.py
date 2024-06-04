@@ -79,9 +79,6 @@ SUBTOOLS_EXPORTS_GLOB = "**/*.textproto"
 # identical uploads.
 LICENSE_FILE = Path("license.html.zst")
 
-# Standard set of arguments passed to all `lddtree` invocations.
-LDDTREE_ARGS = ["--libdir", "/lib", "--bindir", "/bin", "--generate-wrappers"]
-
 # Path (relative to the metadata work dir) of serialized upload metadata.
 UPLOAD_METADATA_FILE = Path("subtool_upload.json")
 
@@ -592,7 +589,7 @@ class Subtool:
         logger.debug("subtools_hash(%s) = '%s'", src, hash_string)
 
         if not mapping.opaque_data and file_type == "binary/elf/dynamic-bin":
-            self._lddtree_into_bundle(src, dest.parent)
+            self._lddtree_into_bundle(src, dest)
             return
 
         logger.debug(
@@ -604,13 +601,25 @@ class Subtool:
         )
         shutil.copy2(src, dest)
 
-    def _lddtree_into_bundle(self, elf: Path, destdir: Path) -> None:
+    def _lddtree_into_bundle(self, elf: Path, dest: Path) -> None:
         """Copies a dynamic elf into the bundle."""
-        # Output of the main script is always `bin`, so avoid `bin/bin`.
-        if destdir.name == "bin":
-            destdir = destdir.parent
-        logger.debug("Using lddtree to copy dynamic elf %s to %s", elf, destdir)
-        lddtree.main(LDDTREE_ARGS + ["--copy-to-tree", str(destdir), str(elf)])
+        lddtree_args = [
+            "--generate-wrappers",
+            "--libdir",
+            "/lib",
+            "--bindir",
+            str(Path("/") / dest.parent.relative_to(self.bundle_dir)),
+            "--copy-to-tree",
+            str(self.bundle_dir),
+            str(elf),
+        ]
+        logger.debug(
+            "Using lddtree to copy dynamic elf %s to %s (lddtree_args=%s)",
+            elf,
+            dest,
+            lddtree_args,
+        )
+        lddtree.main(lddtree_args)
 
     def _increment_file_count(self) -> None:
         """Increment the file count, and raise an error if it violates spec."""
