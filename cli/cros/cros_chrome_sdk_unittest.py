@@ -485,6 +485,18 @@ class RunThroughTest(
         self.cmd_mock.inst.Run()
 
         self.assertIn("use_remoteexec = true", self.cmd_mock.env["GN_ARGS"])
+        wrapper_path = os.path.join(
+            self.chrome_root,
+            "src",
+            "build",
+            "args",
+            "chromeos",
+            "rewrapper_%s" % SDKFetcherMock.BOARD,
+        )
+        self.assertIn(
+            'reclient_cros_cc_wrapper = "%s"' % wrapper_path,
+            self.cmd_mock.env["GN_ARGS"],
+        )
 
     def testGnArgsStalenessCheckNoMatch(self) -> None:
         """Verifies the GN args are checked for staleness with a mismatch."""
