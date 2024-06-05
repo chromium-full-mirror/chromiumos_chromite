@@ -14,18 +14,20 @@ Rerunning the command on an existing output will refresh & update new projects.
 import argparse
 import configparser
 import contextlib
+import errno
 import functools
 import io
 import multiprocessing
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
-from typing import Callable, Iterable, List, Tuple
+from typing import Callable, Iterable, List, Set, Tuple
 import urllib.request
 
 
-assert sys.version_info >= (3, 7), "Python 3.7+ required"
+assert sys.version_info >= (3, 8), "Python 3.8+ required"
 
 
 # Terminal escape sequence to erase the current line after the cursor.
@@ -174,6 +176,58 @@ def capture_output(func: Callable, repo: Path):
     return (repo, output.getvalue())
 
 
+def cleanup_old_projects(
+    opts: argparse.Namespace, live_repos: Set[Path]
+) -> None:
+    """Prune old projects that have been archived or deleted from the host."""
+    local_repos = set(
+        x.relative_to(opts.output).parent for x in opts.output.glob("**/.git/")
+    )
+    # We run in reverse to clear subdirs before parents.
+    old_repos = sorted(local_repos - live_repos, reverse=True)
+    num_repos = len(old_repos)
+    for i, repo in enumerate(old_repos, start=1):
+        print(
+            f"\r[{i}/{num_repos}] Removing old {repo} {CSI_ERASE_LINE_AFTER}",
+            end="",
+            flush=True,
+        )
+        root = opts.output / repo
+
+        # We can't delete the tree entirely as it might have nested projects.
+        # List the files to remove manually instead.
+        result = subprocess.run(
+            ["git", "ls-tree", "--name-only", "-r", "-z", "HEAD"],
+            cwd=root,
+            capture_output=True,
+            encoding="utf-8",
+            check=False,
+        )
+
+        # Not all git trees are initialized with content.
+        if result.returncode == 0:
+            # Strip off trailing NULs to avoid "" entries.
+            paths = result.stdout.strip("\0").split("\0")
+        elif result.returncode == 128:
+            paths = []
+        else:
+            result.check_returncode()
+
+        for path in paths:
+            (root / path).unlink(missing_ok=True)
+        shutil.rmtree(root / ".git")
+
+        # Prune empty dirs in case this archived project was in an unique tree.
+        while True:
+            try:
+                root.rmdir()
+            except OSError as e:
+                if e.errno != errno.ENOTEMPTY:
+                    raise
+                break
+            root = root.parent
+
+
 def get_repos(gob: str) -> Iterable[Path]:
     """Get all the repos on this host."""
     result = run(
@@ -221,7 +275,11 @@ def main(argv) -> None:
     get_hook_commit_msg(opts)
 
     func = functools.partial(create_repo, opts)
-    repos = sorted(get_repos(opts.gob))
+    live_repos = set(get_repos(opts.gob))
+
+    cleanup_old_projects(opts, live_repos)
+
+    repos = sorted(live_repos)
     capture = functools.partial(capture_output, func)
     with multiprocessing.Pool(opts.jobs) as pool:
         finished = 0
