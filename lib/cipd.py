@@ -39,8 +39,8 @@ from chromite.utils import memoize
 # pylint: enable=line-too-long
 CIPD_CLIENT_PACKAGE = "infra/tools/cipd/linux-amd64"
 CIPD_CLIENT_SHA256 = (
-    # This is version "git_revision:6e9be28a4c4e3a804f400dc6c2ed08b866f0a38b".
-    "93cfdb346920b4bd13e55d6e981182daebec3991f4aa482154f834485a8aae94"
+    # This is version "git_revision:200dbdf0e967e81388359d3f85f095d39b35db67".
+    "3e3990fa78aee47ca68c33d6bc87d0da3b7220e49d1ec209eb73d4ec697830b9"
 )
 
 CHROME_INFRA_PACKAGES_API_BASE = (
