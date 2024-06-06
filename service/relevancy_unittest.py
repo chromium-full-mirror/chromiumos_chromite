@@ -46,43 +46,55 @@ def mock_source_info(monkeypatch: "pytest.MonkeyPatch", tmp_path: Path) -> None:
     ["path", "board", "expected_reason"],
     [
         (
-            "baseboard-fake/profiles/base/make.defaults",
+            "src/overlays/baseboard-fake/profiles/base/make.defaults",
             "fake",
             relevancy.ReasonProfile,
         ),
         (
-            "baseboard-fake/profiles/base/make.defaults",
+            "src/overlays/baseboard-fake/profiles/base/make.defaults",
             "faux",
             relevancy.ReasonProfile,
         ),
         (
-            "overlay-fake/profiles/base/make.defaults",
+            "src/overlays/overlay-fake/profiles/base/make.defaults",
             "fake",
             relevancy.ReasonProfile,
         ),
         (
-            "overlay-fake/profiles/base/make.defaults",
+            "src/overlays/overlay-fake/profiles/base/make.defaults",
             "faux",
             relevancy.ReasonProfile,
         ),
         (
-            "overlay-faux-private/profiles/symlinked/make.defaults",
+            "src/private-overlays/overlay-faux-private/profiles/symlinked/"
+            "make.defaults",
             "faux",
             relevancy.ReasonProfile,
         ),
-        ("overlay-fake/profiles/base/make.defaults", "foo", None),
-        ("overlay-fake/metadata/layout.conf", "fake", relevancy.ReasonOverlay),
+        ("src/overlays/overlay-fake/profiles/base/make.defaults", "foo", None),
         (
-            "overlay-fake/chromeos-base/chromeos-bsp-fake/Manifest",
+            "src/overlays/overlay-fake/metadata/layout.conf",
+            "fake",
+            relevancy.ReasonOverlay,
+        ),
+        (
+            "src/overlays/overlay-fake/chromeos-base/chromeos-bsp-fake/"
+            "Manifest",
             "fake",
             relevancy.ReasonPackage,
         ),
         (
-            "overlay-fake/chromeos-base/chromeos-bsp-fake/Manifest",
+            "src/overlays/overlay-fake/chromeos-base/chromeos-bsp-fake/"
+            "Manifest",
             "faux",
             relevancy.ReasonPackage,
         ),
-        ("overlay-fake/chromeos-base/chromeos-bsp-fake/Manifest", "foo", None),
+        (
+            "src/overlays/overlay-fake/chromeos-base/chromeos-bsp-fake/"
+            "Manifest",
+            "foo",
+            None,
+        ),
         ("src/platform/fake", "fake", None),
         ("src/platform/fake/subdir", "fake", relevancy.ReasonPackage),
         ("src/platform/fake/subdir/path.c", "fake", relevancy.ReasonPackage),

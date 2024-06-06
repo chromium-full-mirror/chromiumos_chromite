@@ -100,8 +100,14 @@ class Overlay(QueryTarget):
         board: Optional[str] = None,
         overlays: str = constants.BOTH_OVERLAYS,
     ) -> Iterator[Overlay]:
-        for overlay_path in portage_util.FindOverlays(overlays, board=board):
-            yield cls(Path(overlay_path))
+        try:
+            for overlay_path in portage_util.FindOverlays(
+                overlays, board=board
+            ):
+                yield cls(Path(overlay_path))
+        except portage_util.MissingOverlayError:
+            assert board
+            logging.debug("No overlays found for board=%s", board)
 
     def tree(self) -> Iterator[Overlay]:
         yield from self.parents
@@ -121,18 +127,6 @@ class Overlay(QueryTarget):
         for name in self.layout_conf.get("masters", "").split():
             if name:
                 parents.append(all_overlays[name])
-
-        # portage_util implicitly adds chromeos-overlay and chromeos-*-overlay
-        # if found.  Mimic that here by considering them implicit parents of
-        # board-level overlays.
-        if self.board_name:
-            if "chromeos" in all_overlays:
-                parents.append(all_overlays["chromeos"])
-            for path in (
-                constants.SOURCE_ROOT / "src" / "private-overlays"
-            ).glob("chromeos-*-overlay"):
-                parents.append(Overlay(path))
-
         return parents
 
     @functools.cached_property
@@ -707,25 +701,19 @@ class Board(QueryTarget):
     @property
     def overlays(self) -> Iterator[Overlay]:
         """All overlays accessible to this board."""
-        visited: Set[Overlay] = set()
+        all_overlays = _get_all_overlays_by_name()
 
-        def _rec(overlay: Overlay) -> None:
-            if overlay in visited:
-                return
-            visited.add(overlay)
-            yield overlay
-            for parent in overlay.parents:
-                yield from _rec(parent)
-
-        if self.private_overlay:
-            yield from _rec(self.private_overlay)
-        if self.public_overlay:
-            yield from _rec(self.public_overlay)
+        for overlay_path in portage_util.FindOverlays(
+            constants.BOTH_OVERLAYS, board=self.name
+        ):
+            yield all_overlays[portage_util.GetOverlayName(overlay_path)]
 
     @property
     def top_level_profile(self) -> Optional[Profile]:
         """The top-level profile for this board."""
-        for overlay in self.overlays:
+        for overlay in (self.private_overlay, self.public_overlay):
+            if not overlay:
+                continue
             profile = overlay.get_profile(self.profile)
             if profile:
                 return profile

@@ -259,7 +259,7 @@ def _ListOverlays(
 def FindOverlays(
     overlay_type: str,
     board: Optional[str] = None,
-    buildroot: BuildrootType = constants.SOURCE_ROOT,
+    buildroot: Optional[BuildrootType] = None,
 ) -> List:
     """Return the list of overlays to use for a given buildbot.
 
@@ -273,6 +273,7 @@ def FindOverlays(
         board: Board to look at.
         buildroot: Source root to find overlays.
     """
+    buildroot = buildroot or constants.SOURCE_ROOT
     overlays = _ListOverlays(board=board, buildroot=buildroot)
     private_prefix = _PRIVATE_PREFIX % dict(buildroot=buildroot)
     if overlay_type == constants.PRIVATE_OVERLAYS:

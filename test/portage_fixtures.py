@@ -16,7 +16,9 @@ import pytest
 
 import chromite as cr
 from chromite.lib import build_query
+from chromite.lib import constants
 from chromite.lib import osutils
+from chromite.lib import portage_util
 from chromite.test import portage_testables
 
 
@@ -66,16 +68,19 @@ def simple_sysroot(overlay_stack, tmp_path):
 def fake_build_query_overlays(tmp_path):
     """Fake out the overlays for the build_query module."""
     portage_stable = portage_testables.Overlay(
-        root_path=tmp_path / "portage-stable", name="portage-stable"
+        root_path=tmp_path / "src" / "third_party" / "portage-stable",
+        name="portage-stable",
     )
     chromiumos_overlay = portage_testables.Overlay(
-        root_path=tmp_path / "chromiumos-overlay", name="chromiumos"
+        root_path=tmp_path / "src" / "third_party" / "chromiumos-overlay",
+        name="chromiumos",
     )
     eclass_overlay = portage_testables.Overlay(
-        root_path=tmp_path / "eclass-overlay", name="eclass-overlay"
+        root_path=tmp_path / "src" / "third_party" / "eclass-overlay",
+        name="eclass-overlay",
     )
     baseboard_fake = portage_testables.Overlay(
-        root_path=tmp_path / "baseboard-fake",
+        root_path=tmp_path / "src" / "overlays" / "baseboard-fake",
         name="baseboard-fake",
     )
     baseboard_fake.create_profile(
@@ -90,7 +95,7 @@ def fake_build_query_overlays(tmp_path):
     )
 
     overlay_fake = portage_testables.Overlay(
-        root_path=tmp_path / "overlay-fake",
+        root_path=tmp_path / "src" / "overlays" / "overlay-fake",
         name="fake",
         parent_overlays=[baseboard_fake],
     )
@@ -126,7 +131,10 @@ def fake_build_query_overlays(tmp_path):
     )
 
     baseboard_fake_private = portage_testables.Overlay(
-        root_path=tmp_path / "baseboard-fake-private",
+        root_path=tmp_path
+        / "src"
+        / "private-overlays"
+        / "baseboard-fake-private",
         name="baseboard-fake-private",
         parent_overlays=[baseboard_fake],
     )
@@ -136,7 +144,10 @@ def fake_build_query_overlays(tmp_path):
     )
 
     overlay_fake_private = portage_testables.Overlay(
-        root_path=tmp_path / "overlay-fake-private",
+        root_path=tmp_path
+        / "src"
+        / "private-overlays"
+        / "overlay-fake-private",
         name="fake-private",
         parent_overlays=[overlay_fake],
         make_conf={
@@ -180,7 +191,10 @@ def fake_build_query_overlays(tmp_path):
     )
 
     overlay_faux_private = portage_testables.Overlay(
-        root_path=tmp_path / "overlay-faux-private",
+        root_path=tmp_path
+        / "src"
+        / "private-overlays"
+        / "overlay-faux-private",
         name="faux-private",
         parent_overlays=[
             baseboard_fake,
@@ -200,7 +214,7 @@ def fake_build_query_overlays(tmp_path):
     )
 
     overlay_foo_private = portage_testables.Overlay(
-        root_path=tmp_path / "overlay-foo-private",
+        root_path=tmp_path / "src" / "private-overlays" / "overlay-foo-private",
         name="foo-private",
     )
     overlay_foo_private.create_profile(
@@ -220,12 +234,11 @@ def fake_build_query_overlays(tmp_path):
         overlay_faux_private,
         overlay_foo_private,
     ]
-    with mock.patch(
-        "chromite.lib.portage_util.FindOverlays",
-        return_value=[str(x.path) for x in overlays],
-    ):
+
+    with mock.patch.object(constants, "SOURCE_ROOT", new=tmp_path):
         # We just changed the overlays with our mock, we need to clear the
         # cache.
         # pylint: disable=protected-access
         build_query._get_all_overlays_by_name.cache_clear()
+        portage_util.FindOverlays.cache_clear()
         yield overlays
