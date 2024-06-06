@@ -41,43 +41,10 @@ x86_external_boards = frozenset(
 )
 
 # Board can appear in 1 or more of the following sets.
-brillo_boards = frozenset([])
-
-dustbuster_boards = frozenset(
-    [
-        "wristpin",
-    ]
-)
-
-loonix_boards = frozenset([])
-
 reven_boards = frozenset(
     [
         "reven",
         "reven-vmtest",
-    ]
-)
-
-wshwos_boards = frozenset(
-    [
-        "littlejoe",
-        "viking",
-        "viking-arm64",
-        "viking-poc2",
-    ]
-)
-
-moblab_boards = frozenset(
-    [
-        "puff-moblab",
-        "fizz-moblab",
-    ]
-)
-
-scribe_boards = frozenset(
-    [
-        "guado-macrophage",
-        "puff-macrophage",
     ]
 )
 
