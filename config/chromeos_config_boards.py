@@ -41,29 +41,6 @@ x86_external_boards = frozenset(
 )
 
 # Board can appear in 1 or more of the following sets.
-reven_boards = frozenset(
-    [
-        "reven",
-        "reven-vmtest",
-    ]
-)
-
-termina_boards = frozenset(
-    [
-        "tatl",
-        "tael",
-    ]
-)
-
-labstation_boards = frozenset(
-    [
-        "fizz-labstation",
-        "guado_labstation",
-    ]
-)
-
-nofactory_boards = termina_boards | reven_boards | labstation_boards
-
 builder_incompatible_binaries_boards = frozenset(
     [
         "grunt",

@@ -335,13 +335,6 @@ def CreateBoardConfigs(boards_dict, ge_build_config):
     for board in board_names:
         board_config = config_lib.BuildConfig(boards=[board])
 
-        if board in chromeos_boards.nofactory_boards:
-            board_config.apply(
-                factory=False,
-                factory_toolkit=False,
-                factory_install_netboot=False,
-                images=remove_images(["factory_install"]),
-            )
         if board in chromeos_boards.builder_incompatible_binaries_boards:
             board_config.apply(unittests=False)
 
