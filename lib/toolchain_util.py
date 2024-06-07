@@ -555,9 +555,13 @@ class _CommonPrepareBundle:
             info = _EbuildInfo(
                 paths[0], package_info.parse("%s/%s" % (category, PV))
             )
-            self._ebuild_info[constants.CHROME_PN] = info
+            self._ebuild_info[package] = info
             return info
 
+        if package != constants.CHROME_PN:
+            raise ValueError(
+                f"Multiple stable ebuilds found for {package}; can't resolve."
+            )
         latest_version = ChromeVersion(0, 0, 0, 0, 0)
         candidate = None
         for p in paths:
@@ -577,7 +581,7 @@ class _CommonPrepareBundle:
                 candidate = info
         if not candidate:
             raise NoStableEbuildError()
-        self._ebuild_info[constants.CHROME_PN] = candidate
+        self._ebuild_info[package] = candidate
         return candidate
 
     def _GetBenchmarkAFDOName(
