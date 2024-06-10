@@ -352,7 +352,7 @@ Supported files: %s
             tool, files = next(iter(tool_map.items()))
             ret, misformatted_file = dispatcher(tool, files[0])
             if misformatted_file:
-                misformatted_files = [str(misformatted_file)]
+                misformatted_files = [misformatted_file]
         else:
             ret = 0
             # Run the tool in parallel on the files.
@@ -361,7 +361,7 @@ Supported files: %s
             ):
                 ret = max(ret, task_ret)
                 if task_file:
-                    misformatted_files.append(str(task_file))
+                    misformatted_files.append(task_file)
 
         if misformatted_files:
             logging.notice(
