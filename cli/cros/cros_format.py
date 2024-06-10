@@ -281,14 +281,7 @@ Supported files: %s
                 "It's recommended to run `cros format` outside the SDK."
             )
 
-        # Hack "pre-submit" to "HEAD" when being run by repohooks/pre-upload.py
-        # --pre-submit.  We should drop support for this once we merge repohooks
-        # into `cros` with proper preupload/presubmit.
-        commit = (
-            "HEAD"
-            if self.options.commit == "pre-submit"
-            else self.options.commit
-        )
+        commit = self.options.commit
 
         # Ignore symlinks.
         files = []

@@ -151,6 +151,12 @@ class AnalyzerCommand(command.CliCommand):
             if HasUncommittedChanges(options.files):
                 parser.error("In-place may clobber uncommitted changes.")
 
+        # Hack "pre-submit" to "HEAD" when being run by repohooks/pre-upload.py
+        # --pre-submit.  We should drop support for this once we merge repohooks
+        # into `cros` with proper preupload/presubmit.
+        if options.commit == "pre-submit":
+            options.commit = "HEAD"
+
         # Ignore generated files.  Some tools can do this for us, but not all,
         # and it'd be faster if we just never spawned the tools in the first
         # place.  Prepend the exclude rules so a more general filter like
