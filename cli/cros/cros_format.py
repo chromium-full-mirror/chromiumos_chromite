@@ -24,7 +24,6 @@ from chromite.lib import git
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import path_util
-from chromite.utils import path_filter
 from chromite.utils import shell_util
 from chromite.utils.parser import shebang
 
@@ -314,19 +313,6 @@ Supported files: %s
             # they are aware that nothing happened.
             logging.warning("No files found to process.  Doing nothing.")
             return 0
-
-        # Ignore generated files.  Some tools can do this for us, but not all,
-        # and it'd be faster if we just never spawned the tools in the first
-        # place.  Prepend to exclude them early: a more general filter like
-        # `--include "*.py"` earlier in the list would otherwise nerf this.
-        # TODO(build): Move to a centralized configuration somewhere.
-        self.options.filter.rules[:0] = (
-            # Compiled python protobuf bindings.
-            path_filter.exclude("*_pb2.py"),
-            path_filter.exclude("*_pb2_grpc.py"),
-            # Vendored third-party code.
-            path_filter.exclude("*third_party/*.py"),
-        )
 
         files = self.options.filter.filter(files)
         if not files:

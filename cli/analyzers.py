@@ -12,6 +12,7 @@ from typing import List
 from chromite.cli import command
 from chromite.lib import commandline
 from chromite.lib import git
+from chromite.utils import path_filter
 
 
 def GetFilesFromCommit(commit: str) -> List[str]:
@@ -149,3 +150,16 @@ class AnalyzerCommand(command.CliCommand):
             # stash and rebase changes. See also b/290714959.
             if HasUncommittedChanges(options.files):
                 parser.error("In-place may clobber uncommitted changes.")
+
+        # Ignore generated files.  Some tools can do this for us, but not all,
+        # and it'd be faster if we just never spawned the tools in the first
+        # place.  Prepend the exclude rules so a more general filter like
+        # `--include "*.py"` won't include them.
+        # TODO(build): Move to a centralized configuration somewhere.
+        options.filter.rules[:0] = (
+            # Compiled python protobuf bindings.
+            path_filter.exclude("*_pb2.py"),
+            path_filter.exclude("*_pb2_grpc.py"),
+            # Vendored third-party code.
+            path_filter.exclude("*third_party/*.py"),
+        )

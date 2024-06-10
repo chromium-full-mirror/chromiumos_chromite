@@ -13,7 +13,7 @@ from chromite.lib import commandline
 
 def process_args(args: List[str]) -> commandline.ArgumentNamespace:
     """Feeds an ArgumentParser with the provided `args` to AnalyzerCommand."""
-    parser = commandline.ArgumentParser()
+    parser = commandline.ArgumentParser(filter=True)
     analyzers.AnalyzerCommand.AddParser(parser)
     parser_namespace = parser.parse_args(args)
     analyzers.AnalyzerCommand.ProcessOptions(parser, parser_namespace)
