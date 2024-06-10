@@ -26,12 +26,8 @@ class FixCommand(analyzers.AnalyzerCommand):
                 "It's recommended to run `cros fix` outside the SDK."
             )
 
-        files = self.options.files
+        files = self.discover_paths()
         if not files:
-            # Running with no arguments is allowed to make the repo upload hook
-            # simple, but print a warning so that if someone runs this manually
-            # they are aware that nothing was changed.
-            logging.warning("No files provided.  Doing nothing.")
             return 0
 
         # TODO(build): Integrate linters that have a --fix option.

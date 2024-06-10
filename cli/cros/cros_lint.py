@@ -25,7 +25,6 @@ from chromite.lib import git
 from chromite.lib import json_lib
 from chromite.lib import osutils
 from chromite.lib import parallel
-from chromite.lib import path_util
 from chromite.lint import linters
 from chromite.utils import timer
 from chromite.utils.parser import shebang
@@ -755,35 +754,8 @@ NB: Not all linters work with `--commit` yet.
         )
 
     def _Run(self):
-        commit = self.options.commit
-
-        # Ignore symlinks.
-        files = []
-        syms = []
-        if commit:
-            for f in git.LsTree(None, commit, self.options.files):
-                if f.is_symlink:
-                    syms.append(f.name)
-                else:
-                    files.append(f.name)
-        else:
-            for f in path_util.ExpandDirectories(self.options.files):
-                if f.is_symlink():
-                    syms.append(f)
-                else:
-                    files.append(f)
-        if syms:
-            logging.info("Ignoring symlinks: %s", syms)
+        files = self.discover_paths()
         if not files:
-            # Running with no arguments is allowed to make the repo upload hook
-            # simple, but print a warning so that if someone runs this manually
-            # they are aware that nothing happened.
-            logging.warning("No files found to process.  Doing nothing.")
-            return 0
-
-        files = self.options.filter.filter(files)
-        if not files:
-            logging.warning("All files are excluded.  Doing nothing.")
             return 0
 
         tool_map = _BreakoutFilesByTool(files)
@@ -792,7 +764,7 @@ NB: Not all linters work with `--commit` yet.
             self.options.output,
             self.options.debug,
             self.options.relaxed,
-            commit,
+            self.options.commit,
         )
 
         # If we filtered out all files, do nothing.

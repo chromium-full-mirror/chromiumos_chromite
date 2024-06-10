@@ -12,6 +12,7 @@ from typing import List
 from chromite.cli import command
 from chromite.lib import commandline
 from chromite.lib import git
+from chromite.lib import path_util
 from chromite.utils import path_filter
 
 
@@ -169,3 +170,36 @@ class AnalyzerCommand(command.CliCommand):
             # Vendored third-party code.
             path_filter.exclude("*third_party/*.py"),
         )
+
+    def discover_paths(self):
+        """Find all the paths we are to process based on CLI options."""
+        commit = self.options.commit
+
+        # Ignore symlinks.
+        files = []
+        syms = []
+        if commit:
+            for f in git.LsTree(None, commit, self.options.files):
+                if f.is_symlink:
+                    syms.append(f.name)
+                else:
+                    files.append(f.name)
+        else:
+            for f in path_util.ExpandDirectories(self.options.files):
+                if f.is_symlink():
+                    syms.append(f)
+                else:
+                    files.append(f)
+        if syms:
+            logging.info("Ignoring symlinks: %s", syms)
+        if not files:
+            # Running with no arguments is allowed to make the repo upload hook
+            # simple, but print a warning so that if someone runs this manually
+            # they are aware that nothing happened.
+            logging.warning("No files found to process.  Doing nothing.")
+            return files
+
+        files = self.options.filter.filter(files)
+        if not files:
+            logging.warning("All files are excluded.  Doing nothing.")
+        return files
