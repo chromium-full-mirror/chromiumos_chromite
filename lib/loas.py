@@ -92,8 +92,8 @@ class Loas:
                 "Loas certs expiring soon!",
                 self.email_notify,
                 server=self.email_server,
-                message="Please run:\n %s\n\n%s\n%s"
-                % (self.enroll_msg, result.stdout, result.stderr),
+                message="Please run:\n %s\n\n%s"
+                % (self.enroll_msg, result.stdout),
             )
             self.last_notification = datetime.date.today()
         else:
