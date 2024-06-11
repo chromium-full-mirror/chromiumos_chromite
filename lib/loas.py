@@ -10,8 +10,10 @@ Google production resources.
 If you don't know what any of this means, then you don't need this module :).
 """
 
+import dataclasses
 import datetime
 import logging
+import os
 import socket
 import subprocess
 
@@ -21,6 +23,17 @@ from chromite.lib import cros_build_lib
 
 class LoasError(Exception):
     """Raised when a LOAS error occurs"""
+
+
+@dataclasses.dataclass(frozen=True)
+class Status:
+    """Class to handle the result of the LOAS credential check."""
+
+    returncode: int
+    message: str
+
+    def __bool__(self) -> bool:
+        return self.returncode == os.EX_OK
 
 
 class Loas:
@@ -69,35 +82,48 @@ class Loas:
         ):
             return
 
-        # Let the tool tell us whether things will fail soon.
-        cmd = [
-            "gcertstatus",
-            "--check_loas2",
-            "--nocheck_ssh",
-            f"--check_remaining={7 * 24}h",
-        ]
-        result = cros_build_lib.sudo_run(
-            cmd,
-            user=self.user,
-            check=False,
-            stdout=True,
-            stderr=subprocess.STDOUT,
-            encoding="utf-8",
-        )
+        result = self.user_loas_status_valid_for(self.user, 7 * 24 * 60)
 
-        # Send out one notification a day if there's a week or less left
-        # before our creds expire.
-        if result.returncode:
+        if result:
+            # We won't expire for a while, so stop the periodic polling.
+            self.last_notification = datetime.date.today() + datetime.timedelta(
+                days=7
+            )
+        else:
+            # Send out one notification a day
             alerts.SendEmail(
                 "Loas certs expiring soon!",
                 self.email_notify,
                 server=self.email_server,
                 message="Please run:\n %s\n\n%s"
-                % (self.enroll_msg, result.stdout),
+                % (self.enroll_msg, result.message),
             )
             self.last_notification = datetime.date.today()
-        else:
-            # We won't expire for a while, so stop the periodic polling.
-            self.last_notification = datetime.date.today() + datetime.timedelta(
-                days=7
-            )
+
+    @staticmethod
+    def user_loas_status_valid_for(user: str, minutes: int) -> Status:
+        """Check if user's LOAS credentials are valid for the given duration
+
+        Args:
+            user: username
+            minutes: time in minutes
+
+        Returns:
+            Status object
+        """
+        # Let the tool tell us whether things will fail soon.
+        cmd = [
+            "gcertstatus",
+            "--check_loas2",
+            "--nocheck_ssh",
+            f"--check_remaining={minutes}m",
+        ]
+        result = cros_build_lib.sudo_run(
+            cmd,
+            user=user,
+            check=False,
+            stdout=True,
+            stderr=subprocess.STDOUT,
+            encoding="utf-8",
+        )
+        return Status(returncode=result.returncode, message=result.stdout)
