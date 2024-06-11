@@ -21,7 +21,7 @@ import re
 import signal
 import sys
 import types
-from typing import List, NamedTuple, Optional, Union
+from typing import Callable, List, NamedTuple, NoReturn, Optional, Union
 import urllib.parse
 
 from chromite.lib import constants
@@ -1524,7 +1524,7 @@ def ScriptWrapperMain(
     argv=None,
     log_level=logging.DEBUG,
     log_format=constants.LOGGER_FMT,
-) -> None:
+) -> NoReturn:
     """Function usable for chromite.script.* style wrapping.
 
     Note that this function invokes sys.exit on the way out by default.
@@ -1577,6 +1577,13 @@ def ScriptWrapperMain(
 
     signal.signal(signal.SIGTERM, _DefaultHandler)
 
+    _execute_target(target, argv, name)
+
+
+def _execute_target(
+    target: Callable[[List[str]], Optional[int]], argv: List[str], name: str
+) -> NoReturn:
+    """Execute |target| with |argv|."""
     ret = 1
     try:
         ret = target(argv[1:])
