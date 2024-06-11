@@ -13,6 +13,7 @@ import pytest
 from chromite.lib import chromite_config
 from chromite.lib import telemetry
 from chromite.lib.telemetry import config
+from chromite.lib.telemetry import trace
 from chromite.utils import hostname_util
 
 
@@ -62,6 +63,7 @@ def test_initialize_to_display_notice_to_user_on_google_host(
 ) -> None:
     """Test initialize display notice to user."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
+    monkeypatch.delenv(trace.TRACEPARENT_ENVVAR, raising=False)
 
     # pylint: disable-next=protected-access
     telemetry._handle_notice(config.Config(telemetry_config))
@@ -76,6 +78,7 @@ def test_initialize_to_update_enabled_on_count_down_complete(
 ) -> None:
     """Test initialize auto enable telemetry on countdown complete."""
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
+    monkeypatch.delenv(trace.TRACEPARENT_ENVVAR, raising=False)
 
     cfg = config.Config(telemetry_config)
     cfg.root_config.update(notice_countdown=-1)

@@ -1235,6 +1235,8 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
             raise PermissionError("Fake Mount permission failure")
 
         self.PatchObject(osutils, "Mount", side_effect=non_root_mount)
+        # Clear environment to ensure nothing is propagated in sudo_run call.
+        self.PatchObject(os, "environ", new_value={})
 
         self.ro_map["/"] = True
         assert osutils.IsMounted("/")

@@ -61,7 +61,7 @@ class CrosSdkTestCase(testing_utils.TestCase):
         ]
         if with_tests:
             expected_command.insert(1, "FEATURES=test")
-        rc.assertCommandCalled(
+        rc.assertCommandContains(
             expected_command,
             enter_chroot=True,
             chroot_args=self.setup.chroot.get_enter_args(),

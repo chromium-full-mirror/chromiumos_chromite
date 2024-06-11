@@ -4,6 +4,7 @@
 
 """Unit tests for build_sdk_subtools."""
 
+import os
 from pathlib import Path
 from unittest import mock
 
@@ -139,7 +140,7 @@ def test_chroots_into_output_dir(run_mock, outside_chroot) -> None:
     ]
 
 
-def test_setup_sdk_invocation(run_mock, outside_chroot) -> None:
+def test_setup_sdk_invocation(run_mock, outside_chroot, monkeypatch) -> None:
     """Tests the SDK setup invocation, before it becomes a subtools chroot."""
     # Fake success from cros_sdk, failure from setup_base_sdk().
     run_mock.SetDefaultCmdResult(returncode=0)
@@ -147,6 +148,8 @@ def test_setup_sdk_invocation(run_mock, outside_chroot) -> None:
         ["sudo", "--", "build_sdk_subtools", "--relaunch-for-setup"],
         returncode=42,
     )
+    # Clear environment to ensure nothing is propagated in the sudo_run call.
+    monkeypatch.setattr(os, "environ", {})
 
     assert build_sdk_subtools.main() == 42
     assert run_mock.call_count == 2
