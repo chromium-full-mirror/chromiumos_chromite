@@ -1544,11 +1544,11 @@ def ScriptWrapperMain(
     """
     if argv is None:
         argv = sys.argv[:]
-    target = os.path.abspath(argv[0])
-    name = os.path.basename(target)
-    if target.endswith(".py"):
-        target = os.path.splitext(target)[0]
-    target = find_target_func(target)
+    target_path = os.path.abspath(argv[0])
+    name = os.path.basename(target_path)
+    if target_path.endswith(".py"):
+        target_path = os.path.splitext(target_path)[0]
+    target = find_target_func(target_path)
     if target is None:
         print(
             "Internal error detected- no main functor found in module %r."
