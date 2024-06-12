@@ -45,6 +45,7 @@ def mock_source_info(monkeypatch: "pytest.MonkeyPatch", tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     ["path", "board", "expected_reason"],
     [
+        ("manifest-internal/default.xml", "fake", relevancy.ReasonPathRule),
         (
             "src/overlays/baseboard-fake/profiles/base/make.defaults",
             "fake",

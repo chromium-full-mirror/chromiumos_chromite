@@ -56,6 +56,7 @@ _CHROMITE_IRRELEVANT = "|".join(
 #     True: The change is relevant for this path.
 #     False: The change is not relevant for this path.
 _PATH_RULES: List[Tuple[str, Callable[..., bool]]] = [
+    (r"manifest(?:-internal)?/.*\.xml", lambda _: True),
     (r"chromite/.*_unittest\.py", lambda _: False),
     (rf"chromite/(?:{_CHROMITE_IRRELEVANT})/.*", lambda _: False),
     (r"chromite/.*", lambda _: True),
