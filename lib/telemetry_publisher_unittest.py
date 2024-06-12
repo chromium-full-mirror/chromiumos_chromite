@@ -254,6 +254,9 @@ def test_extract_from_files(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         telemetry_publisher, "_get_telemetry_dir", lambda: tmp_path
     )
+    monkeypatch.setattr(
+        telemetry_publisher, "_get_other_telemetry_dirs", lambda: []
+    )
 
     trace_file = tmp_path / "foo.otel.traces.json"
     span = json.loads(_SPAN)
