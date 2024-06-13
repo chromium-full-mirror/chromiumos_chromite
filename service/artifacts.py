@@ -841,6 +841,7 @@ def BundleTastFiles(
     dirs = []
     srcs = [
         "libexec/tast/bundles/local/crosint",
+        "broot/usr/libexec/tast/bundles/remote/crosint",
         "share/tast/metadata/local/crosint.pb",
         "share/tast/data/go.chromium.org/tast-tests-private",
     ]
@@ -881,6 +882,7 @@ def BundleTastIntelFiles(
     dirs = []
     srcs = [
         "libexec/tast/bundles/local/crosint_intel",
+        "broot/usr/libexec/tast/bundles/remote/crosint_intel",
         "share/tast/metadata/local/crosint_intel.pb",
         "share/tast/data/go.chromium.org/partner-intel-private/",
     ]
