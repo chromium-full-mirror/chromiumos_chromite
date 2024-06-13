@@ -433,6 +433,30 @@ LOGGER_DATE_FMT = "%Y-%m-%d"
 LOGGER_TIME_FMT = "%H:%M:%S"
 LOGGER_DATETIME_FMT = f"{LOGGER_DATE_FMT} {LOGGER_TIME_FMT}"
 
+# Telemetry configurations.
+# Script names for the following configs must be the basename of the executed
+# file. For chromite, the executed file is the relevant wrapper.py symlink,
+# which in practice will rarely be different but can have - vs _ differences.
+# e.g. chromite/scripts/cros_workon.py = chromite/bin/cros-workon = cros-workon.
+# The name of scripts that need telemetry disabled.
+TELEMETRY_DISABLED_SCRIPTS = frozenset(
+    (
+        # Explicitly enabled in the script.
+        # Full path: chromite/scripts/publish_telemetry.
+        "publish_telemetry",
+        # Called in awkward location where it is difficult to apply addwrite.
+        # It's well understood and not generally run manually anyway.
+        # Full path: chromite/licensing/ebuild_license_hook
+        "ebuild_license_hook",
+        # Called by emerge in awkward location where sandbox exceptions can't be
+        # added.
+        # Full path: chromite/scripts/package_has_missing_deps
+        "package_has_missing_deps",
+    )
+)
+# The name of scripts that need just telemetry publishing disabled.
+TELEMETRY_PUBLISH_DISABLED_SCRIPTS = frozenset()
+
 # Used by remote patch serialization/deserialzation.
 INTERNAL_PATCH_TAG = "i"
 EXTERNAL_PATCH_TAG = "e"
