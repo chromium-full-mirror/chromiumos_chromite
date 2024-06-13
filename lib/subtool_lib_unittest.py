@@ -559,14 +559,25 @@ def test_bundle_plural_inputs(template_proto: Wrapper) -> None:
     ]
 
 
-def test_bundle_duplicate_files_raises_error(template_proto: Wrapper) -> None:
-    """Test that attempting to copy a file twice raises an error."""
+def test_bundle_identical_files_ok(template_proto: Wrapper) -> None:
+    """Test copying identical files to the same destination is OK."""
     fs = template_proto.create_fake_rootfs()
+    template_proto.set_paths([path_mapping(fs.root / "**/another.file")])
+    subtool = template_proto.create(writes_files=True)
+    assert bundle_result(subtool) == ["bin", "bin/another.file"]
+
+
+def test_bundle_duplicate_files_raises_error(template_proto: Wrapper) -> None:
+    """Test copying differing files to the same destination raises an error."""
+    fs = template_proto.create_fake_rootfs()
+    fs.duplicate_file.write_text("different\n", encoding="utf-8")
     template_proto.set_paths([path_mapping(fs.root / "**/another.file")])
     subtool = template_proto.create(writes_files=True)
     with pytest.raises(subtool_lib.ManifestBundlingError) as error_info:
         subtool.bundle()
-    assert "another.file exists: refusing to copy" in str(error_info.value)
+    assert "another.file exists and differs: refusing to copy" in str(
+        error_info.value
+    )
 
 
 def test_bundle_no_files_raises_error(template_proto: Wrapper) -> None:

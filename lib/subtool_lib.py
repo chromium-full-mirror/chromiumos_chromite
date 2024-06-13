@@ -574,8 +574,15 @@ class Subtool:
         # Apply the regex, and ensure the result is not an absolute path.
         dest = destdir / strip.sub("", src.as_posix()).lstrip("/")
         if dest.exists():
+            if dest.read_bytes() == src.read_bytes():
+                logger.warning(
+                    "%s exists at %s but is identical, skipping copy",
+                    src,
+                    dest,
+                )
+                return
             raise ManifestBundlingError(
-                f"{dest} exists: refusing to copy {src}.", self
+                f"{dest} exists and differs: refusing to copy {src}.", self
             )
 
         # Increment here: lddtree may add more than one file, but there will be
