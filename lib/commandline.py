@@ -112,7 +112,7 @@ def NormalizeAbUrl(value):
         # Give a helpful error message about the format expected.  Putting this
         # message in the exception is useless because argparse ignores the
         # exception message and just says the value is invalid.
-        msg = "Invalid ab:// URL format: [%s]." % value
+        msg = f"Invalid ab:// URL format: [{value}]."
         logging.error(msg)
         raise ValueError(msg)
 
@@ -123,7 +123,7 @@ def NormalizeAbUrl(value):
 def ValidateCipdURL(value):
     """Return plain string."""
     if not value.startswith("cipd://"):
-        msg = "Invalid cipd:// URL format: %s" % value
+        msg = f"Invalid cipd:// URL format: {value}"
         logging.error(msg)
         raise ValueError(msg)
     return value
@@ -386,7 +386,7 @@ class DeviceParser:
         Raises:
             ValueError: |value| is not a valid device specifier.
         """
-        # ':vm:' is an alias for ssh'ing into a virtual machihne on localhost;
+        # ':vm:' is an alias for ssh'ing into a virtual machine on localhost;
         # translate it appropriately.
         if value.strip().lower() == ":vm:":
             value = "localhost:9222"
@@ -412,7 +412,7 @@ class DeviceParser:
                 # urlparse won't provide hostname/username/port unless a scheme
                 # is specified, so we need to reparse.
                 parsed = urllib.parse.urlparse(
-                    "%s://%s" % (DeviceScheme.SSH.name.lower(), value)
+                    f"{DeviceScheme.SSH.name.lower()}://{value}"
                 )
                 if self._CheckScpScheme():
                     if value and ":/" in value:
@@ -446,11 +446,10 @@ class DeviceParser:
                 # access the VM but forget or didn't know to use port 9222.
                 raise ValueError(
                     "To connect to localhost, use ssh://localhost:22 "
-                    "explicitly, or use ssh://localhost:9222 for the local"
-                    " VM."
+                    "explicitly, or use ssh://localhost:9222 for the local VM."
                 )
             if not hostname:
-                raise ValueError('Hostname is required for device "%s"' % value)
+                raise ValueError(f'Hostname is required for device "{value}"')
 
             return Device(
                 scheme=scheme,
@@ -479,7 +478,7 @@ class DeviceParser:
         elif scheme == DeviceScheme.FILE:
             path = parsed.netloc + parsed.path
             if not path:
-                raise ValueError('Path is required for "%s"' % value)
+                raise ValueError(f'Path is required for "{value}"')
             return Device(scheme=scheme, path=path, raw=value)
         elif scheme == DeviceScheme.SERVO:
             # Parse the identifier type and value.
@@ -491,7 +490,7 @@ class DeviceParser:
             return self._parse_servo(servo_type, servo_id)
         else:
             raise ValueError(
-                'Unknown device scheme "%s" in "%s"' % (parsed.scheme, value)
+                f'Unknown device scheme "{parsed.scheme}" in "{value}"'
             )
 
     @staticmethod
@@ -516,13 +515,13 @@ class DeviceParser:
                 try:
                     servo_port = int(servo_id)
                 except ValueError:
-                    raise ValueError("Invalid servo port value: %s" % servo_id)
+                    raise ValueError(f"Invalid servo port value: {servo_id}")
                 if servo_port <= 0 or servo_port > 65535:
                     raise ValueError(
-                        "Invalid port, must be 1-65535: %d given." % servo_port
+                        f"Invalid port, must be 1-65535: {servo_port:d} given."
                     )
         else:
-            raise ValueError("Invalid servo type given: %s" % servo_type)
+            raise ValueError(f"Invalid servo type given: {servo_type}")
 
         return Device(
             scheme=DeviceScheme.SERVO,
@@ -743,7 +742,7 @@ def OptparseWrapCheck(desc, check_f, _option, opt, value):
         return check_f(value)
     except ValueError:
         raise optparse.OptionValueError(
-            "Invalid %s given: --%s=%s" % (desc, opt, value)
+            f"Invalid {desc} given: --{opt}={value}"
         )
 
 
@@ -784,7 +783,7 @@ class FilteringOption(Option):
 
 
 class _PathFilterAction(argparse.Action):
-    """Setup a path filter."""
+    """Set up a path filter."""
 
     def __init__(self, option_strings, dest, **kwargs) -> None:
         if "nargs" in kwargs:
@@ -1124,7 +1123,8 @@ class BaseParser:
         return opts, args
 
     @staticmethod
-    def ConfigureCacheDir(cache_dir) -> None:
+    def ConfigureCacheDir(cache_dir: Optional[str]) -> None:
+        """Configure the shared cache dir in the environment."""
         if cache_dir is None:
             os.environ.pop(constants.SHARED_CACHE_ENVVAR, None)
             logging.debug("Removed cache_dir setting")
@@ -1134,6 +1134,7 @@ class BaseParser:
 
     @classmethod
     def FindCacheDir(cls, _parser, _opts):
+        """Get the global cache directory."""
         logging.debug("Cache dir lookup.")
         return path_util.FindCacheDir()
 
@@ -1212,7 +1213,7 @@ class FilteringParser(optparse.OptionParser, BaseParser):
             opt_inst: An instance of a raw optparse.Option object that
                 represents the option.
             opt_str: The option string.
-            value_str: A list of string-ified values dentified by OptParse.
+            value_str: A list of string-ified values identified by OptParse.
         """
         self.values.parsed_args.append(
             PassedOption(opt_inst, opt_str, value_str)
@@ -1410,7 +1411,7 @@ class _ShutDownException(SystemExit):
 
     def __init__(self, sig_num, message) -> None:
         self.signal = sig_num
-        # Setup a usage message primarily for any code that may intercept it
+        # Set up a usage message primarily for any code that may intercept it
         # while this exception is crashing back up the stack to us.
         SystemExit.__init__(self, 128 + sig_num)
         self.args = (sig_num, message)
@@ -1425,7 +1426,7 @@ def _DefaultHandler(signum, _frame) -> None:
     # exception.
     signal.signal(signum, signal.SIG_IGN)
     raise _ShutDownException(
-        signum, "Received signal %i; shutting down" % (signum,)
+        signum, f"Received signal {signum:d}; shutting down"
     )
 
 
@@ -1564,7 +1565,7 @@ def ScriptWrapperMain(
         )
 
     # Set up basic logging information for all modules that use logging.
-    # Note a script target may setup default logging in its module namespace
+    # Note a script target may set up default logging in its module namespace
     # which will take precedence over this.
     logger = logging.getLogger()
     logger.setLevel(log_level)
@@ -1590,7 +1591,7 @@ def _execute_target(
     except _ShutDownException as e:
         sys.stdout.flush()
         print(
-            "%s: Signaled to shutdown: caught %i signal." % (name, e.signal),
+            f"{name}: Signaled to shutdown: caught {e.signal:d} signal.",
             file=sys.stderr,
         )
         sys.stderr.flush()
@@ -1607,7 +1608,7 @@ def _execute_target(
         os.execv(e.cmd[0], e.cmd)
     except Exception as e:
         sys.stdout.flush()
-        print("%s: Unhandled exception:" % (name,), file=sys.stderr)
+        print(f"{name}: Unhandled exception:", file=sys.stderr)
         sys.stderr.flush()
         raise
     finally:
