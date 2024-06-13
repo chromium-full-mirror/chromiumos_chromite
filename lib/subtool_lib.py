@@ -1029,7 +1029,7 @@ class BundledSubtools:
                 gs_uri,
             )
         else:
-            context.Copy(dest_tarball, gs_uri)
+            context.Copy(dest_tarball, gs_uri, acl="public-read")
 
         http_url = gs_urls_util.GsUrlToHttp(gs_uri, public=False)
         self.uploaded_subtool_names.append(path.name)
