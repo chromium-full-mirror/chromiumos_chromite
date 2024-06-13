@@ -1614,7 +1614,8 @@ def BuildDlcs(
                     scaled=scaled,
                 )
                 for d_id in dlc_ids
-            ]
+            ],
+            max_parallel=32,
         )
 
         parallel.RunParallelSteps(
