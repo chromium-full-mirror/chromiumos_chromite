@@ -66,7 +66,6 @@ _CHROME_PACKAGES = ("chromeos-base/chromeos-chrome", "chromeos-base/chrome-icu")
 # TODO(crbug/1050752): Remove this list once we figure out how to exclude
 # toolchain packages from being upgraded transitively via BDEPEND relations.
 _CRITICAL_SDK_PACKAGES = (
-    "dev-embedded/hps-sdk",
     "dev-lang/rust",
     "dev-lang/go",
     "sys-libs/glibc",

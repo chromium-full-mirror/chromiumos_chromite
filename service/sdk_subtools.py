@@ -26,7 +26,6 @@ SUBTOOLS_CHROOT_VERSION_FILE = Path("/etc/cros_subtools_chroot_version")
 # sysroot._CRITICAL_SDK_PACKAGES. Packages here should only update when a new
 # SDK becomes available.
 EXCLUDE_PACKAGES = (
-    "dev-embedded/hps-sdk",
     "dev-lang/rust",
     "dev-lang/go",
     "sys-libs/glibc",
