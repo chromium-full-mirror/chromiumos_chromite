@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+chromiumos/config/api/schedqos_config.proto\x12\x15\x63hromiumos.config.api\x1a\x1egoogle/protobuf/wrappers.proto\"\xe6\x07\n\x0eSchedqosConfig\x12@\n\x07\x64\x65\x66\x61ult\x18\x01 \x01(\x0b\x32/.chromiumos.config.api.SchedqosConfig.ConfigSet\x1a\x9f\x02\n\x0cThreadConfig\x12\x30\n\x0brt_priority\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12)\n\x04nice\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12\x30\n\nuclamp_min\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.UInt32Value\x12I\n\rcpuset_cgroup\x18\x04 \x01(\x0e\x32\x32.chromiumos.config.api.SchedqosConfig.CpusetCgroup\x12\x35\n\x11latency_sensitive\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x1a\x90\x04\n\tConfigSet\x12\x18\n\x10normal_cpu_share\x18\x01 \x01(\r\x12\x1c\n\x14\x62\x61\x63kground_cpu_share\x18\x02 \x01(\r\x12P\n\x14thread_urgent_bursty\x18\x03 \x01(\x0b\x32\x32.chromiumos.config.api.SchedqosConfig.ThreadConfig\x12I\n\rthread_urgent\x18\x04 \x01(\x0b\x32\x32.chromiumos.config.api.SchedqosConfig.ThreadConfig\x12K\n\x0fthread_balanced\x18\x05 \x01(\x0b\x32\x32.chromiumos.config.api.SchedqosConfig.ThreadConfig\x12\x46\n\nthread_eco\x18\x06 \x01(\x0b\x32\x32.chromiumos.config.api.SchedqosConfig.ThreadConfig\x12J\n\x0ethread_utility\x18\x07 \x01(\x0b\x32\x32.chromiumos.config.api.SchedqosConfig.ThreadConfig\x12M\n\x11thread_background\x18\x08 \x01(\x0b\x32\x32.chromiumos.config.api.SchedqosConfig.ThreadConfig\"]\n\x0c\x43pusetCgroup\x12\x19\n\x15\x43PUSET_CGROUP_DEFAULT\x10\x00\x12\x15\n\x11\x43PUSET_CGROUP_ALL\x10\x01\x12\x1b\n\x17\x43PUSET_CGROUP_EFFICIENT\x10\x02\x42*Z(go.chromium.org/chromiumos/config/go/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+chromiumos/config/api/schedqos_config.proto\x12\x15\x63hromiumos.config.api\x1a\x1egoogle/protobuf/wrappers.proto\"\xbf\x08\n\x0eSchedqosConfig\x12@\n\x07\x64\x65\x66\x61ult\x18\x01 \x01(\x0b\x32/.chromiumos.config.api.SchedqosConfig.ConfigSet\x1a\x9f\x02\n\x0cThreadConfig\x12\x30\n\x0brt_priority\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12)\n\x04nice\x18\x02 \x01(\x0b\x32\x1b.google.protobuf.Int32Value\x12\x30\n\nuclamp_min\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.UInt32Value\x12I\n\rcpuset_cgroup\x18\x04 \x01(\x0e\x32\x32.chromiumos.config.api.SchedqosConfig.CpusetCgroup\x12\x35\n\x11latency_sensitive\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x1a\xe9\x04\n\tConfigSet\x12\x18\n\x10normal_cpu_share\x18\x01 \x01(\r\x12\x1c\n\x14\x62\x61\x63kground_cpu_share\x18\x02 \x01(\r\x12P\n\x14thread_urgent_bursty\x18\x03 \x01(\x0b\x32\x32.chromiumos.config.api.SchedqosConfig.ThreadConfig\x12I\n\rthread_urgent\x18\x04 \x01(\x0b\x32\x32.chromiumos.config.api.SchedqosConfig.ThreadConfig\x12K\n\x0fthread_balanced\x18\x05 \x01(\x0b\x32\x32.chromiumos.config.api.SchedqosConfig.ThreadConfig\x12\x46\n\nthread_eco\x18\x06 \x01(\x0b\x32\x32.chromiumos.config.api.SchedqosConfig.ThreadConfig\x12J\n\x0ethread_utility\x18\x07 \x01(\x0b\x32\x32.chromiumos.config.api.SchedqosConfig.ThreadConfig\x12M\n\x11thread_background\x18\x08 \x01(\x0b\x32\x32.chromiumos.config.api.SchedqosConfig.ThreadConfig\x12W\n\x1bthread_urgent_bursty_server\x18\t \x01(\x0b\x32\x32.chromiumos.config.api.SchedqosConfig.ThreadConfig\"]\n\x0c\x43pusetCgroup\x12\x19\n\x15\x43PUSET_CGROUP_DEFAULT\x10\x00\x12\x15\n\x11\x43PUSET_CGROUP_ALL\x10\x01\x12\x1b\n\x17\x43PUSET_CGROUP_EFFICIENT\x10\x02\x42*Z(go.chromium.org/chromiumos/config/go/apib\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -24,11 +24,11 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z(go.chromium.org/chromiumos/config/go/api'
   _globals['_SCHEDQOSCONFIG']._serialized_start=103
-  _globals['_SCHEDQOSCONFIG']._serialized_end=1101
+  _globals['_SCHEDQOSCONFIG']._serialized_end=1190
   _globals['_SCHEDQOSCONFIG_THREADCONFIG']._serialized_start=188
   _globals['_SCHEDQOSCONFIG_THREADCONFIG']._serialized_end=475
   _globals['_SCHEDQOSCONFIG_CONFIGSET']._serialized_start=478
-  _globals['_SCHEDQOSCONFIG_CONFIGSET']._serialized_end=1006
-  _globals['_SCHEDQOSCONFIG_CPUSETCGROUP']._serialized_start=1008
-  _globals['_SCHEDQOSCONFIG_CPUSETCGROUP']._serialized_end=1101
+  _globals['_SCHEDQOSCONFIG_CONFIGSET']._serialized_end=1095
+  _globals['_SCHEDQOSCONFIG_CPUSETCGROUP']._serialized_start=1097
+  _globals['_SCHEDQOSCONFIG_CPUSETCGROUP']._serialized_end=1190
 # @@protoc_insertion_point(module_scope)

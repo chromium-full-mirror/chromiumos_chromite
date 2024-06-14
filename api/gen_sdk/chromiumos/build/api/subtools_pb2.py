@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#chromiumos/build/api/subtools.proto\x12\x14\x63hromiumos.build.api\"\xd8\x07\n\x0eSubtoolPackage\x12\x0c\n\x04name\x18\x01 \x01(\t\x12=\n\x04type\x18\x02 \x01(\x0e\x32/.chromiumos.build.api.SubtoolPackage.ExportType\x12\x11\n\tmax_files\x18\x03 \x01(\x05\x12\x18\n\x0b\x63ipd_prefix\x18\x04 \x01(\tH\x00\x88\x01\x01\x12?\n\x05paths\x18\x05 \x03(\x0b\x32\x30.chromiumos.build.api.SubtoolPackage.PathMapping\x12\x43\n\x0eupload_trigger\x18\x06 \x01(\x0e\x32+.chromiumos.build.api.SubtoolPackage.Change\x12V\n\x12gcs_export_options\x18\x07 \x01(\x0b\x32\x35.chromiumos.build.api.SubtoolPackage.GcsExportOptionsH\x01\x88\x01\x01\x1a\xb3\x01\n\x0bPathMapping\x12\r\n\x05input\x18\x01 \x03(\t\x12\x11\n\x04\x64\x65st\x18\x02 \x01(\tH\x00\x88\x01\x01\x12\x1f\n\x12strip_prefix_regex\x18\x03 \x01(\tH\x01\x88\x01\x01\x12\x1a\n\rebuild_filter\x18\x04 \x01(\tH\x02\x88\x01\x01\x12\x13\n\x0bopaque_data\x18\x05 \x01(\x08\x42\x07\n\x05_destB\x15\n\x13_strip_prefix_regexB\x10\n\x0e_ebuild_filter\x1a\xec\x01\n\x10GcsExportOptions\x12\x0e\n\x06\x62ucket\x18\x01 \x01(\t\x12\x13\n\x06prefix\x18\x02 \x01(\tH\x00\x88\x01\x01\x12[\n\x0e\x61rchive_format\x18\x03 \x01(\x0e\x32\x43.chromiumos.build.api.SubtoolPackage.GcsExportOptions.ArchiveFormat\"K\n\rArchiveFormat\x12\x1e\n\x1a\x41RCHIVE_FORMAT_UNSPECIFIED\x10\x00\x12\x1a\n\x16\x41RCHIVE_FORMAT_TAR_ZST\x10\x01\x42\t\n\x07_prefix\"E\n\nExportType\x12\x16\n\x12\x45XPORT_UNSPECIFIED\x10\x00\x12\x0f\n\x0b\x45XPORT_CIPD\x10\x01\x12\x0e\n\nEXPORT_GCS\x10\x02\"[\n\x06\x43hange\x12\x16\n\x12\x43HANGE_UNSPECIFIED\x10\x00\x12\x1f\n\x1b\x43HANGE_BUILD_ID_OR_REVISION\x10\x01\x12\x18\n\x14\x43HANGE_REVISION_ONLY\x10\x02\x42\x0e\n\x0c_cipd_prefixB\x15\n\x13_gcs_export_optionsB0Z.go.chromium.org/chromiumos/config/go/build/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#chromiumos/build/api/subtools.proto\x12\x14\x63hromiumos.build.api\"\xef\x08\n\x0eSubtoolPackage\x12\x0c\n\x04name\x18\x01 \x01(\t\x12=\n\x04type\x18\x02 \x01(\x0e\x32/.chromiumos.build.api.SubtoolPackage.ExportType\x12\x11\n\tmax_files\x18\x03 \x01(\x05\x12\x18\n\x0b\x63ipd_prefix\x18\x04 \x01(\tH\x00\x88\x01\x01\x12?\n\x05paths\x18\x05 \x03(\x0b\x32\x30.chromiumos.build.api.SubtoolPackage.PathMapping\x12\x43\n\x0eupload_trigger\x18\x06 \x01(\x0e\x32+.chromiumos.build.api.SubtoolPackage.Change\x12V\n\x12gcs_export_options\x18\x07 \x01(\x0b\x32\x35.chromiumos.build.api.SubtoolPackage.GcsExportOptionsH\x01\x88\x01\x01\x12\x46\n\x0csymlink_mode\x18\x08 \x01(\x0e\x32\x30.chromiumos.build.api.SubtoolPackage.SymlinkMode\x1a\xb3\x01\n\x0bPathMapping\x12\r\n\x05input\x18\x01 \x03(\t\x12\x11\n\x04\x64\x65st\x18\x02 \x01(\tH\x00\x88\x01\x01\x12\x1f\n\x12strip_prefix_regex\x18\x03 \x01(\tH\x01\x88\x01\x01\x12\x1a\n\rebuild_filter\x18\x04 \x01(\tH\x02\x88\x01\x01\x12\x13\n\x0bopaque_data\x18\x05 \x01(\x08\x42\x07\n\x05_destB\x15\n\x13_strip_prefix_regexB\x10\n\x0e_ebuild_filter\x1a\xec\x01\n\x10GcsExportOptions\x12\x0e\n\x06\x62ucket\x18\x01 \x01(\t\x12\x13\n\x06prefix\x18\x02 \x01(\tH\x00\x88\x01\x01\x12[\n\x0e\x61rchive_format\x18\x03 \x01(\x0e\x32\x43.chromiumos.build.api.SubtoolPackage.GcsExportOptions.ArchiveFormat\"K\n\rArchiveFormat\x12\x1e\n\x1a\x41RCHIVE_FORMAT_UNSPECIFIED\x10\x00\x12\x1a\n\x16\x41RCHIVE_FORMAT_TAR_ZST\x10\x01\x42\t\n\x07_prefix\"E\n\nExportType\x12\x16\n\x12\x45XPORT_UNSPECIFIED\x10\x00\x12\x0f\n\x0b\x45XPORT_CIPD\x10\x01\x12\x0e\n\nEXPORT_GCS\x10\x02\"[\n\x06\x43hange\x12\x16\n\x12\x43HANGE_UNSPECIFIED\x10\x00\x12\x1f\n\x1b\x43HANGE_BUILD_ID_OR_REVISION\x10\x01\x12\x18\n\x14\x43HANGE_REVISION_ONLY\x10\x02\"M\n\x0bSymlinkMode\x12\x13\n\x0fSYMLINK_DEFAULT\x10\x00\x12\x13\n\x0fSYMLINK_RESOLVE\x10\x01\x12\x14\n\x10SYMLINK_PRESERVE\x10\x02\x42\x0e\n\x0c_cipd_prefixB\x15\n\x13_gcs_export_optionsB0Z.go.chromium.org/chromiumos/config/go/build/apib\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -23,15 +23,17 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z.go.chromium.org/chromiumos/config/go/build/api'
   _globals['_SUBTOOLPACKAGE']._serialized_start=62
-  _globals['_SUBTOOLPACKAGE']._serialized_end=1046
-  _globals['_SUBTOOLPACKAGE_PATHMAPPING']._serialized_start=425
-  _globals['_SUBTOOLPACKAGE_PATHMAPPING']._serialized_end=604
-  _globals['_SUBTOOLPACKAGE_GCSEXPORTOPTIONS']._serialized_start=607
-  _globals['_SUBTOOLPACKAGE_GCSEXPORTOPTIONS']._serialized_end=843
-  _globals['_SUBTOOLPACKAGE_GCSEXPORTOPTIONS_ARCHIVEFORMAT']._serialized_start=757
-  _globals['_SUBTOOLPACKAGE_GCSEXPORTOPTIONS_ARCHIVEFORMAT']._serialized_end=832
-  _globals['_SUBTOOLPACKAGE_EXPORTTYPE']._serialized_start=845
-  _globals['_SUBTOOLPACKAGE_EXPORTTYPE']._serialized_end=914
-  _globals['_SUBTOOLPACKAGE_CHANGE']._serialized_start=916
-  _globals['_SUBTOOLPACKAGE_CHANGE']._serialized_end=1007
+  _globals['_SUBTOOLPACKAGE']._serialized_end=1197
+  _globals['_SUBTOOLPACKAGE_PATHMAPPING']._serialized_start=497
+  _globals['_SUBTOOLPACKAGE_PATHMAPPING']._serialized_end=676
+  _globals['_SUBTOOLPACKAGE_GCSEXPORTOPTIONS']._serialized_start=679
+  _globals['_SUBTOOLPACKAGE_GCSEXPORTOPTIONS']._serialized_end=915
+  _globals['_SUBTOOLPACKAGE_GCSEXPORTOPTIONS_ARCHIVEFORMAT']._serialized_start=829
+  _globals['_SUBTOOLPACKAGE_GCSEXPORTOPTIONS_ARCHIVEFORMAT']._serialized_end=904
+  _globals['_SUBTOOLPACKAGE_EXPORTTYPE']._serialized_start=917
+  _globals['_SUBTOOLPACKAGE_EXPORTTYPE']._serialized_end=986
+  _globals['_SUBTOOLPACKAGE_CHANGE']._serialized_start=988
+  _globals['_SUBTOOLPACKAGE_CHANGE']._serialized_end=1079
+  _globals['_SUBTOOLPACKAGE_SYMLINKMODE']._serialized_start=1081
+  _globals['_SUBTOOLPACKAGE_SYMLINKMODE']._serialized_end=1158
 # @@protoc_insertion_point(module_scope)
