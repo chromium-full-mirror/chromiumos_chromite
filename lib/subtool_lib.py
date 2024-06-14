@@ -34,6 +34,7 @@ from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib.parser import package_info
 from chromite.licensing import licenses_lib
+from chromite.utils import compat
 from chromite.utils import gs_urls_util
 
 
@@ -568,11 +569,31 @@ class Subtool:
 
         Copies only files (follows symlinks). Ensures files are not clobbered.
         """
+        # Apply the regex, and ensure the result is not an absolute path.
+        dest = destdir / strip.sub("", src.as_posix()).lstrip("/")
+
+        if (
+            src.is_symlink()
+            and self.package.symlink_mode
+            == subtools_pb2.SubtoolPackage.SYMLINK_PRESERVE
+        ):
+            target = Path(os.readlink(src))
+            if target.is_absolute():
+                raise ManifestBundlingError(
+                    f"Absolute symlink not permitted: {src} -> {target}",
+                    self,
+                )
+            dest.parent.mkdir(exist_ok=True, parents=True)
+            osutils.SafeSymlink(target, dest)
+            self._content_hashes[str(dest)] = hashlib.new(
+                _DIGEST, str(target).encode("utf-8")
+            ).hexdigest()
+            self._increment_file_count()
+            return
+
         if not src.is_file():
             return
 
-        # Apply the regex, and ensure the result is not an absolute path.
-        dest = destdir / strip.sub("", src.as_posix()).lstrip("/")
         if dest.exists():
             if dest.read_bytes() == src.read_bytes():
                 logger.warning(
@@ -720,9 +741,23 @@ class Subtool:
         self._source_ebuilds = set()
         for path in self.package.paths:
             self._bundle_mapping(path)
+
+        self._validate_symlinks()
+
         logger.notice(
             "%s: Copied %d files.", self.package.name, self._file_count
         )
+
+    def _validate_symlinks(self) -> None:
+        """Ensure all installed symlinks resolve inside the bundle directory."""
+        for path in self.bundle_dir.glob("**/*"):
+            realpath = path.resolve(strict=True)
+            if not compat.path_is_relative_to(realpath, self.bundle_dir):
+                raise ManifestBundlingError(
+                    f"{path} resolves to {realpath}, which is outside of "
+                    f"{self.bundle_dir}",
+                    self,
+                )
 
     def _match_ebuilds(self) -> None:
         """Match up unmatched paths to the package names that provided them."""

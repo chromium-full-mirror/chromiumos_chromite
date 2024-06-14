@@ -20,6 +20,7 @@ from chromite.lib import compression_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import gs
+from chromite.lib import osutils
 from chromite.lib import partial_mock
 from chromite.lib import portage_util
 from chromite.lib import subtool_lib
@@ -275,7 +276,7 @@ class Wrapper:
             self.fake_rootfs, FakeChrootDiskLayout.subtree_file_structure()
         )
         fs = FakeChrootDiskLayout(self.fake_rootfs)
-        os.symlink(fs.regular_file, fs.symlink)
+        osutils.SafeSymlink("regular.file", fs.symlink)
         return fs
 
     def load_upload_metadata_json(self) -> Dict:
@@ -445,6 +446,65 @@ def test_bundle_symlinks_followed(template_proto: Wrapper) -> None:
     assert bundle_symlink_file.is_file()
     assert not bundle_symlink_file.is_symlink()
     assert fs.symlink.is_symlink()  # Consistency check.
+
+
+def test_bundle_symlinks_preserve(template_proto: Wrapper) -> None:
+    """Test bundling a basic symlink with SYMLINK_PRESERVE."""
+    fs = template_proto.create_fake_rootfs()
+    template_proto.set_paths(
+        [
+            path_mapping(fs.symlink),
+            path_mapping(fs.regular_file),
+        ]
+    )
+    template_proto.proto.symlink_mode = (
+        subtools_pb2.SubtoolPackage.SYMLINK_PRESERVE
+    )
+    subtool = template_proto.create(writes_files=True)
+    bundle_symlink_file = subtool.bundle_dir / "bin" / "symlink"
+    assert bundle_result(subtool) == ["bin", "bin/regular.file", "bin/symlink"]
+    assert bundle_symlink_file.is_symlink()
+    assert os.readlink(bundle_symlink_file) == "regular.file"
+
+
+def test_bundle_symlinks_preserve_absolute(template_proto: Wrapper) -> None:
+    """Test bundling an absolute symlink fails with SYMLINK_PRESERVE."""
+    fs = template_proto.create_fake_rootfs()
+    osutils.SafeSymlink("/bin/cat", fs.symlink)
+    template_proto.set_paths([path_mapping(fs.symlink)])
+    template_proto.proto.symlink_mode = (
+        subtools_pb2.SubtoolPackage.SYMLINK_PRESERVE
+    )
+    subtool = template_proto.create(writes_files=True)
+    with pytest.raises(subtool_lib.ManifestBundlingError):
+        bundle_result(subtool)
+
+
+def test_bundle_symlinks_preserve_bad(template_proto: Wrapper) -> None:
+    """Test bundling a bad symlink fails with SYMLINK_PRESERVE."""
+    fs = template_proto.create_fake_rootfs()
+    template_proto.set_paths([path_mapping(fs.symlink)])
+    template_proto.proto.symlink_mode = (
+        subtools_pb2.SubtoolPackage.SYMLINK_PRESERVE
+    )
+    subtool = template_proto.create(writes_files=True)
+    with pytest.raises(FileNotFoundError):
+        bundle_result(subtool)
+
+
+def test_bundle_symlinks_preserve_outside_bundle(
+    template_proto: Wrapper,
+) -> None:
+    """Test bundling a symlink out of the bundle fails with SYMLINK_PRESERVE."""
+    fs = template_proto.create_fake_rootfs()
+    osutils.SafeSymlink("../../..", fs.symlink)
+    template_proto.set_paths([path_mapping(fs.symlink)])
+    template_proto.proto.symlink_mode = (
+        subtools_pb2.SubtoolPackage.SYMLINK_PRESERVE
+    )
+    subtool = template_proto.create(writes_files=True)
+    with pytest.raises(subtool_lib.ManifestBundlingError):
+        bundle_result(subtool)
 
 
 def test_bundle_multiple_paths(template_proto: Wrapper) -> None:
