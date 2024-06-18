@@ -9,6 +9,7 @@ import functools
 import logging
 from pathlib import Path
 import re
+import subprocess
 from typing import Callable, Iterable, Iterator, List, Optional, Tuple
 
 from chromite.api.controller import controller_util
@@ -17,6 +18,7 @@ from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import build_query
 from chromite.lib import build_target_lib
 from chromite.lib import constants
+from chromite.lib import cros_build_lib
 from chromite.utils import compat
 
 
@@ -28,21 +30,28 @@ def _bootimage_enabled(build_target: build_target_lib.BuildTarget) -> bool:
     return "bootimage" in build_target.board.use_flags
 
 
-# Chromite subdirectiories we know are irrelevant to build targets (e.g.,
-# developer tooling).
-_CHROMITE_IRRELEVANT = "|".join(
-    re.escape(x)
-    for x in (
-        "cidb",
-        "cli",
-        "config",
-        "contrib",
-        "format",
-        "ide_tooling",
-        "systemd",
-        "test",
+@functools.lru_cache(maxsize=1)
+def _get_chromite_relevant_files() -> List[Path]:
+    """Get the set of files in Chromite which are relevant to a CQ build.
+
+    This calls the scripts/get_chromite_relevant_files script.  We subprocess
+    in order to get a clean sys.modules for tracking imports.
+    """
+    result = cros_build_lib.run(
+        [constants.CHROMITE_DIR / "scripts" / "get_chromite_relevant_files"],
+        stdout=subprocess.PIPE,
+        encoding="utf-8",
     )
-)
+    return [Path(x.rstrip("\n")) for x in result.stdout.splitlines()]
+
+
+def _chromite_path_rule(
+    _build_target: build_target_lib.BuildTarget,
+    chromite_path: str,
+) -> bool:
+    """Path rule check for chromite relevancy."""
+    return Path(chromite_path) in _get_chromite_relevant_files()
+
 
 # Special rules that can be applied to paths in the tree.  Each regular
 # expression (which matches a file path relative to the source checkout)
@@ -57,9 +66,7 @@ _CHROMITE_IRRELEVANT = "|".join(
 #     False: The change is not relevant for this path.
 _PATH_RULES: List[Tuple[str, Callable[..., bool]]] = [
     (r"manifest(?:-internal)?/.*\.xml", lambda _: True),
-    (r"chromite/.*_unittest\.py", lambda _: False),
-    (rf"chromite/(?:{_CHROMITE_IRRELEVANT})/.*", lambda _: False),
-    (r"chromite/.*", lambda _: True),
+    (r"chromite/(.*)", _chromite_path_rule),
     (r"src/scripts/.*", lambda _: True),
     (
         r"src/third_party/kernel/v(\d+)\.(\d+)/.*",
