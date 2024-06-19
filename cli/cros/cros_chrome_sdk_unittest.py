@@ -156,6 +156,8 @@ class SDKFetcherMock(partial_mock.PartialMock):
     # Specifically, *-crostoolchain.gni files need to be generated for them.
     BOARDS = ["amd64-generic", "arm-generic", "arm64-generic"]
     VERSION = "4567.8.9"
+    FULL_VERSION = "R26-4567.8.9"
+    SNAPSHOT_IDENTIFIER = 123456
 
     def __init__(self, external_mocks=None) -> None:
         """Initializes the mock.
@@ -202,7 +204,7 @@ class SDKFetcherMock(partial_mock.PartialMock):
                     return self.backup["_UpdateTarball"](inst, *args, **kwargs)
 
     @_DependencyMockCtx
-    def GetFullVersion(self, _inst, version):
+    def GetFullVersion(self, inst, version):
         return "R26-%s" % version
 
     @_DependencyMockCtx
@@ -351,6 +353,30 @@ class RunThroughTest(
                 "build/args/chromeos/%s-crostoolchain.gni" % board,
             )
             self.assertNotExists(board_crostoolchain_arg_file)
+
+    def testSnapshot(self) -> None:
+        """Test if snapshot builds are reflected in args."""
+        self.SetupCommandMock(
+            many_boards=True, extra_args=["--snapshot=123456"]
+        )
+
+        self.cmd_mock.inst.ProcessOptions(
+            self.cmd_mock.parser, self.cmd_mock.inst.options
+        )
+
+        self.cmd_mock.inst.Run()
+        for board in SDKFetcherMock.BOARDS:
+            board_arg_file = os.path.join(
+                self.chrome_src_dir, "build/args/chromeos/%s.gni" % board
+            )
+            self.assertExists(board_arg_file)
+            with open(board_arg_file, encoding="utf-8") as f:
+                content = f.read()
+                self.assertIn('cros_sdk_version = "4567.8.9-123456"', content)
+                self.assertIn(
+                    "/%s+4567.8.9-123456+target_toolchain/" % (board),
+                    content,
+                )
 
     def testManyBoardsLacros(self) -> None:
         """Test a runthrough when multiple boards are specified via --boards."""
@@ -531,6 +557,7 @@ class RunThroughTest(
             self.SetupCommandMock(
                 extra_args=["--gn-extra-args=dcheck_always_on=true"]
             )
+
             self.cmd_mock.inst.Run()
 
             out_dir = "out_%s" % SDKFetcherMock.BOARD
@@ -629,6 +656,7 @@ class RunThroughTest(
             "chrome-sdk/symlinks/%s+%s+sysroot_chromeos-base_chromeos-"
             "chrome.tar.xz" % (board, version),
         )
+        self.assertExists(toolchain_link)
         self.assertTrue(os.path.islink(toolchain_link))
         self.assertTrue(os.path.islink(sysroot_link))
         self.assertEqual(os.path.realpath(toolchain_link), toolchain_dir)
@@ -666,7 +694,9 @@ class RunThroughTest(
         self.sdk_mock.tarball_cache_key_map = {
             sdk.TARGET_TOOLCHAIN_KEY: toolchain_url_1
         }
-        with sdk.Prepare(components, toolchain_url=toolchain_url_1):
+        with sdk.Prepare(components, toolchain_url=toolchain_url_1) as ctx:
+            self.assertEqual(ctx.version, "4567.8.9")
+            self.assertExists(toolchain_link)
             self.assertEqual(toolchain_dir_1, os.path.realpath(toolchain_link))
             self.assertExists(toolchain_dir_1)
             self.assertNotExists(toolchain_dir_2)
@@ -676,7 +706,9 @@ class RunThroughTest(
         self.sdk_mock.tarball_cache_key_map = {
             sdk.TARGET_TOOLCHAIN_KEY: toolchain_url_2
         }
-        with sdk.Prepare(components, toolchain_url=toolchain_url_2):
+        with sdk.Prepare(components, toolchain_url=toolchain_url_2) as ctx:
+            self.assertEqual(ctx.version, "4567.8.9")
+            self.assertExists(toolchain_link)
             self.assertEqual(toolchain_dir_2, os.path.realpath(toolchain_link))
             self.assertExists(toolchain_dir_2)
             self.assertExists(toolchain_dir_1)
@@ -700,6 +732,7 @@ class VersionTest(
     NON_CANARY_VERSION = "3543.2.1"
     FULL_VERSION_NON_CANARY = "R55-%s" % NON_CANARY_VERSION
     BOARD = "eve"
+    SNAPSHOT = 1234567
 
     VERSION_BASE = "gs://chromeos-image-archive/%s-release/LATEST-%s" % (
         BOARD,
@@ -714,6 +747,7 @@ class VersionTest(
             SDKFetcherMock(external_mocks=[self.gs_mock])
         )
 
+        # Clears the environment variable set in the previous run.
         os.environ.pop(cros_chrome_sdk.SDKFetcher.SDK_VERSION_ENV, None)
         self.sdk = cros_chrome_sdk.SDKFetcher(
             os.path.join(self.tempdir, "cache"), self.BOARD
@@ -745,6 +779,66 @@ class VersionTest(
         )
         self.assertEqual(
             self.FULL_VERSION, self.sdk.GetFullVersion(self.FULL_VERSION)
+        )
+
+    def testFullVersionFromFullVersionWithoutEnablingSnapsot(self) -> None:
+        """Chacking a wrong argument
+
+        Checking passing a full-version with snapshot identifier to
+        GetFullVersion method in non-snapshot environment.
+        """
+
+        self.sdk_mock.UnMockAttr("GetFullVersion")
+        FULL_VERSION_WITH_SNAPSHOT = "R123-12345.6.7-1234567-BUILDID"
+
+        self.assertRaises(
+            ValueError,
+            self.sdk.GetFullVersion,
+            FULL_VERSION_WITH_SNAPSHOT,
+        )
+
+    def testFullVersionFromVersionWithSnapsot(self) -> None:
+        """Test that a specified version + snapshot identifier is allowed."""
+        self.sdk_mock.UnMockAttr("GetFullVersion")
+        self.sdk.use_snapshot = True
+        FULL_VERSION_WITH_SNAPSHOT = "R123-12345.6.7-1234567-BUILDID"
+        VERSION_WITH_SNAPSHOT = "12345.6.7-1234567"
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*/LATEST-SNAPSHOT-%d" % self.SNAPSHOT),
+            stdout=FULL_VERSION_WITH_SNAPSHOT,
+        )
+        self.assertEqual(
+            FULL_VERSION_WITH_SNAPSHOT,
+            self.sdk.GetFullVersion(VERSION_WITH_SNAPSHOT),
+        )
+
+    def testFullVersionFromFullVersionWithSnapsot(self) -> None:
+        """Test that a fullversion is resulted in the same full version."""
+        self.sdk_mock.UnMockAttr("GetFullVersion")
+        self.sdk.use_snapshot = True
+        FULL_VERSION_WITH_SNAPSHOT = "R123-12345.6.7-1234567-BUILDID"
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*/LATEST-SNAPSHOT-%d" % self.SNAPSHOT),
+            stdout=FULL_VERSION_WITH_SNAPSHOT,
+        )
+        self.assertEqual(
+            FULL_VERSION_WITH_SNAPSHOT,
+            self.sdk.GetFullVersion(FULL_VERSION_WITH_SNAPSHOT),
+        )
+
+    def testFullVersionFromVersionWithoutSnapshotIdentifier(self) -> None:
+        """Chacking a wrong argument
+
+        Test that a platform version is resulted in the corresponding full
+        version.
+        """
+        self.sdk_mock.UnMockAttr("GetFullVersion")
+        self.sdk.use_snapshot = True
+        VERSION_WITHOUT_SNAPSHOT = "12345.6.7"
+        self.assertRaises(
+            ValueError,
+            self.sdk.GetFullVersion,
+            VERSION_WITHOUT_SNAPSHOT,
         )
 
     def testFullVersionCaching(self) -> None:
@@ -796,7 +890,14 @@ class VersionTest(
             returncode=1,
         )
         self.assertRaises(
-            cros_chrome_sdk.MissingSDK, self.sdk.GetFullVersion, self.VERSION
+            cros_chrome_sdk.MissingSDK,
+            self.sdk.GetFullVersion,
+            self.VERSION,
+        )
+        self.assertRaises(
+            cros_chrome_sdk.MissingSDK,
+            self.sdk.GetFullVersion,
+            f"{self.VERSION}-{self.SNAPSHOT}",
         )
 
     def testDefaultEnvBadBoard(self) -> None:

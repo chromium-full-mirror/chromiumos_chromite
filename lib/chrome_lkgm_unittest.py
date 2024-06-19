@@ -19,7 +19,9 @@ class ChromeOSVersionFinderTest(
     """Tests the determination of which SDK version to use."""
 
     VERSION = "3543.0.0"
+    SNAPSHOT = 123456
     FULL_VERSION = "R55-%s" % VERSION
+    FULL_VERSION_WITH_SNAPSHOT = "R55-%s-%s-888888" % (VERSION, SNAPSHOT)
     RECENT_VERSION_MISSING = "3542.0.0"
     RECENT_VERSION_FOUND = "3541.0.0"
     FULL_VERSION_RECENT = "R55-%s" % RECENT_VERSION_FOUND
@@ -79,6 +81,53 @@ class ChromeOSVersionFinderTest(
             stdout=self.FULL_VERSION_RECENT,
         )
 
+    def _SetupMissingSnapshots(self) -> None:
+        """SNAPSHOT & SNAPSHOT-1 are missing, but SNAPSHOT-2 exists."""
+
+        def _RaiseGSNoSuchKey(*_args, **_kwargs) -> None:
+            raise gs.GSNoSuchKey("file does not exist")
+
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*/LATEST-SNAPSHOT-%s" % self.SNAPSHOT),
+            side_effect=_RaiseGSNoSuchKey,
+        )
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex(
+                "cat .*/LATEST-SNAPSHOT-%s" % (self.SNAPSHOT - 1)
+            ),
+            side_effect=_RaiseGSNoSuchKey,
+        )
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex(
+                "cat .*/LATEST-SNAPSHOT-%s" % (self.SNAPSHOT - 2)
+            ),
+            stdout=self.FULL_VERSION_WITH_SNAPSHOT,
+        )
+
+    def testFullVersionFromSnapshotVersion(self) -> None:
+        """Test full version calculation from the platform version."""
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*-snapshot/LATEST-%s" % self.VERSION),
+            stdout=self.FULL_VERSION_WITH_SNAPSHOT,
+        )
+        self.assertEqual(
+            self.FULL_VERSION_WITH_SNAPSHOT,
+            self.finder.GetFullVersionFromLatest(
+                self.VERSION, from_snapshot=True
+            ),
+        )
+
+    def testFullVersionFromSnapshotId(self) -> None:
+        """Test full version calculation from the snapshot id."""
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*/LATEST-SNAPSHOT-%s" % self.SNAPSHOT),
+            stdout=self.FULL_VERSION_WITH_SNAPSHOT,
+        )
+        self.assertEqual(
+            self.FULL_VERSION_WITH_SNAPSHOT,
+            self.finder.GetLatestSnapshotFiles(self.SNAPSHOT),
+        )
+
     def testNoFallbackVersion(self) -> None:
         """Test that all versions are checked before returning None."""
 
@@ -109,6 +158,17 @@ class ChromeOSVersionFinderTest(
                 self.finder.GetFullVersionFromLatest(self.VERSION),
             )
 
+    def testFallbackSnapshots(self) -> None:
+        """Test full version calculation with various fallback snapshots."""
+        self._SetupMissingSnapshots()
+        for version in range(6):
+            self.finder.fallback_versions = version
+            # _SetupMissingSnapshots mocks the result of 3 files.
+            self.assertEqual(
+                self.FULL_VERSION_WITH_SNAPSHOT if version >= 3 else None,
+                self.finder.GetLatestSnapshotFiles(self.SNAPSHOT),
+            )
+
     def testBranchFallbackVersions(self) -> None:
         """Test full version calculation for a branch version with fallbacks."""
         self.gs_mock.AddCmdResult(
@@ -131,11 +191,24 @@ class ChromeOSVersionFinderTest(
     def testBranchNoFallbackVersions(self) -> None:
         """Test version calculation for a branch version with no fallbacks."""
         self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex("cat .*/LATEST-*"),
+            partial_mock.ListRegex("cat .*-release/LATEST-*"),
             side_effect=gs.GSNoSuchKey,
         )
         self.assertEqual(
             self.finder.GetFullVersionFromLatest("12345.89.0"), None
+        )
+
+    def testBranchNoFallbackVersionsFromSnapshot(self) -> None:
+        """Test version calculation for a branch version with no fallbacks."""
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*-snapshot/LATEST-*"),
+            side_effect=gs.GSNoSuchKey,
+        )
+        self.assertEqual(
+            self.finder.GetFullVersionFromLatest(
+                "12345.89.0", from_snapshot=True
+            ),
+            "",
         )
 
     def testMiniBranchFullVersion(self) -> None:
