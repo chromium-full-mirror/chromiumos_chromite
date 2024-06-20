@@ -82,7 +82,7 @@ SYSROOT_ARCHIVE_FILE = "sysroot.tar.zst"
 BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE = "/tmp/allpackages_command.profile.gz"
 BAZEL_ALLPACKAGES_CQUERY_PROFILE_FILE = "/tmp/allpackages_cquery.profile.gz"
 BAZEL_ALLPACKAGES_ACTION_LOGS_FILE = "/tmp/allpackages_action_logs.tar.gz"
-BAZEL_ALLPACKAGES_EXEC_LOG_FILE = "/tmp/allpackages_exec.log"
+BAZEL_ALLPACKAGES_EXEC_LOG_FILE = "/tmp/allpackages_exec_compact.log"
 BAZEL_ALLPACKAGES_PREBUILTS_FILE = "/tmp/prebuilts.bzl"
 BAZEL_ALLPACKAGES_GRAPH_LOG_FILE = "/tmp/allpackages_graph.log"
 BAZEL_BUILD_EVENT_JSON_FILE_PATH = "/tmp/chromeos_bazel_build_events.json"
@@ -1461,10 +1461,8 @@ in
             # detect as many failure as possible on the CI builders.
             # We may need to delete this after launching Alchemy.
             "--keep_going=%s" % ("false" if bazel_lite else "true"),
-            # TODO(b/339009243): Switch back to the compact execlog once Bazel's
-            # fixed.
-            "--execution_log_binary_file=" + BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
-            "--execution_log_sort=false",
+            "--experimental_execution_log_compact_file="
+            + BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
             "--config=hash_tracer",
             "--config=collect_logs",
             "--config=collect_ebuild_metadata",
