@@ -186,6 +186,8 @@ class ChromeLKGMCommitter:
     # internal builder here, make sure it's also listed in
     # https://source.chromium.org/chromium/chromium/src/+/main:infra/config/subprojects/chrome/try.star.
     _PRESUBMIT_BOTS = (
+        "chromeos-betty-chrome",
+        # TODO(b/340734194): Remove betty-pi-arc
         "chromeos-betty-pi-arc-chrome",
         "chromeos-brya-chrome-skylab",
         "chromeos-jacuzzi-chrome",
