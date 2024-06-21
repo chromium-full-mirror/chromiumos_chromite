@@ -215,6 +215,7 @@ def Create(request, response, _config):
     update_chroot = not request.flags.chroot_current
     replace_sysroot = request.flags.replace
     use_cq_prebuilts = request.flags.use_cq_prebuilts
+    binhost_lookup_service_data = request.binhost_lookup_service_data
 
     build_target = controller_util.ParseBuildTarget(
         request.build_target, request.profile
@@ -224,6 +225,7 @@ def Create(request, response, _config):
         upgrade_chroot=update_chroot,
         use_cq_prebuilts=use_cq_prebuilts,
         backtrack=DEFAULT_BACKTRACK,
+        binhost_lookup_service_data=binhost_lookup_service_data,
     )
 
     try:

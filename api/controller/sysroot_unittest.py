@@ -40,6 +40,7 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         replace=False,
         current=False,
         use_cq_prebuilts=False,
+        lookup_service_data=None,
     ):
         """Helper to build and input proto instance."""
         proto = sysroot_pb2.SysrootCreateRequest()
@@ -53,6 +54,8 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             proto.flags.chroot_current = current
         if use_cq_prebuilts:
             proto.flags.use_cq_prebuilts = use_cq_prebuilts
+        if lookup_service_data:
+            proto.binhost_lookup_service_data.CopyFrom(lookup_service_data)
 
         return proto
 
@@ -151,6 +154,7 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             upgrade_chroot=upgrade_chroot,
             use_cq_prebuilts=use_cq_prebuilts,
             backtrack=sysroot_controller.DEFAULT_BACKTRACK,
+            binhost_lookup_service_data=MOCK_BINHOST_LOOKUP_SERVICE_DATA,
         )
         self.assertEqual(board, out_proto.sysroot.build_target.name)
         self.assertEqual(sysroot_path, out_proto.sysroot.path)
@@ -163,12 +167,16 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         upgrade_chroot = False
         use_cq_prebuilts = True
 
+        binhost_data = prebuilts_cloud_pb2.BinhostLookupServiceData(
+            snapshot_shas=["deadbeef", "beefdead"], private=True
+        )
         in_proto = self._InputProto(
             build_target=board,
             profile=profile,
             replace=force,
             current=not upgrade_chroot,
             use_cq_prebuilts=use_cq_prebuilts,
+            lookup_service_data=binhost_data,
         )
         out_proto = self._OutputProto()
         sysroot_controller.Create(in_proto, out_proto, self.api_config)
@@ -179,6 +187,7 @@ class CreateTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             upgrade_chroot=upgrade_chroot,
             use_cq_prebuilts=use_cq_prebuilts,
             backtrack=sysroot_controller.DEFAULT_BACKTRACK,
+            binhost_lookup_service_data=binhost_data,
         )
         self.assertEqual(board, out_proto.sysroot.build_target.name)
         self.assertEqual(profile, out_proto.sysroot.build_target.profile.name)

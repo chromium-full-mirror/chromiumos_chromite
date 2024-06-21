@@ -566,6 +566,23 @@ class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):
             lines[8], 'PORTAGE_BINHOST="$PORTAGE_BINHOST $CQ_BINHOST"'
         )
 
+    def test_binhost_overrides(self):
+        """Test the binhost overrides."""
+        overrides = [
+            "gs://override/binhost1",
+            "gs://override/binhost2",
+        ]
+        expected_binhosts = " ".join(overrides)
+        expected = [
+            f'LOOKUP_SERVICE_BINHOST="{expected_binhosts}"',
+            'PORTAGE_BINHOST="$LOOKUP_SERVICE_BINHOST"',
+        ]
+
+        config = self.sysroot.GenerateBinhostConf(binhost_overrides=overrides)
+
+        lines = self._removeCommentAndEmptyLines(config.splitlines())
+        self.assertEqual(lines, expected)
+
 
 class SysrootLibToolchainUpdateTest(cros_test_lib.RunCommandTempDirTestCase):
     """Sysroot.ToolchanUpdate tests."""
