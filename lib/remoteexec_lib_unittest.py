@@ -96,11 +96,12 @@ class TestLogArchiver(cros_test_lib.MockTempDirTestCase):
         username = getpass.getuser()
         pid = os.getpid()
         hostname = hostname_util.get_host_name()
-        ninjalog_filename = "ninja_log.%s.%s.20240401-120000.%d.gz" % (
+        ninjalog_base_filename = "ninja_log.%s.%s.20240401-120000.%d" % (
             username,
             hostname,
             pid,
         )
+        ninjalog_filename = ninjalog_base_filename + ".gz"
         # Verify the archived files in the dest_dir
         archived_dir_files = os.listdir(self.dest_dir)
         self.assertCountEqual(
@@ -137,3 +138,9 @@ class TestLogArchiver(cros_test_lib.MockTempDirTestCase):
                 "env": {"key1": "value1", "key2": "value2"},
             },
         )
+
+        # Verify that we cleaned up the source files after archiving.
+        self.assertNotExists(
+            os.path.join(self.dest_dir, ninjalog_base_filename)
+        )
+        self.assertNotExists(ninja_log_path)

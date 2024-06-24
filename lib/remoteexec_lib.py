@@ -108,17 +108,17 @@ class LogsArchiver:
         Returns:
             The list of the archived files.
         """
-        ninja_log_path = os.path.join(directory, "ninja_log")
-        if not os.path.exists(ninja_log_path):
-            logging.warning("ninja_log is not found: %s", ninja_log_path)
+        ninja_log_src_path = os.path.join(directory, "ninja_log")
+        if not os.path.exists(ninja_log_src_path):
+            logging.warning("ninja_log is not found: %s", ninja_log_src_path)
             return []
-        ninja_log_content = osutils.ReadFile(ninja_log_path)
+        ninja_log_content = osutils.ReadFile(ninja_log_src_path)
 
         try:
-            st = os.stat(ninja_log_path)
+            st = os.stat(ninja_log_src_path)
             ninja_log_mtime = datetime.datetime.fromtimestamp(st.st_mtime)
         except OSError:
-            logging.exception("Failed to get timestamp: %s", ninja_log_path)
+            logging.exception("Failed to get timestamp: %s", ninja_log_src_path)
             return []
 
         ninja_log_info = self._build_ninja_info(directory)
@@ -129,7 +129,7 @@ class LogsArchiver:
         # Aligned with goma_utils in chromium bot.
         pid = os.getpid()
 
-        ninja_log_path = directory / (
+        ninja_log_formatted_path = directory / (
             "ninja_log.%s.%s.%s.%d"
             % (
                 getpass.getuser(),
@@ -138,11 +138,17 @@ class LogsArchiver:
                 pid,
             )
         )
-        osutils.WriteFile(ninja_log_path, ninja_log_content)
+        osutils.WriteFile(ninja_log_formatted_path, ninja_log_content)
 
-        archived_filename = os.path.basename(ninja_log_path) + ".gz"
+        archived_filename = os.path.basename(ninja_log_formatted_path) + ".gz"
         archived_path = self._dest_base_dir / archived_filename
-        compression_lib.compress_file(ninja_log_path, archived_path)
+        compression_lib.compress_file(ninja_log_formatted_path, archived_path)
+
+        # Remove the original ninja_log file.
+        # Avoids problem with some builders that build twice for the same
+        # build (e.g. incremental builders)
+        osutils.SafeUnlink(ninja_log_src_path)
+        osutils.SafeUnlink(ninja_log_formatted_path)
 
         return [archived_filename]
 
