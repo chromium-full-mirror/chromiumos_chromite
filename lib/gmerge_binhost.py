@@ -7,6 +7,7 @@
 import logging
 import os
 from pathlib import Path
+import shutil
 import subprocess
 from typing import List
 
@@ -92,8 +93,8 @@ def _filter_install_mask_from_package(in_path: str, out_path: str) -> None:
         # Copy package metadata over to new package file.
         portage.xpak.tbz2(tmp_out_path).recompose_mem(my_xpak)
 
-        cros_build_lib.sudo_run(["mv", tmp_out_path, out_path])
-        osutils.Chown(out_path, user="root", group="root")
+        # Move it to the final location.
+        shutil.move(tmp_out_path, out_path)
 
 
 def update_gmerge_binhost(sysroot: str, pkgs: List[str], deep: bool) -> bool:
