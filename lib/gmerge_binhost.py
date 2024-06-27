@@ -58,18 +58,36 @@ def _filter_install_mask_from_package(in_path: str, out_path: str) -> None:
         res = cros_build_lib.sudo_run(
             ["zstdmt", "-dcf", in_path], stdout=subprocess.PIPE
         )
-        cros_build_lib.run(
-            ["tar", "-x", "-C", tmpd_sysroot, "--wildcards"] + excludes,
+        # Run tar as root so we can extract paths using the correct ownership
+        # and permissions.  Sometimes ebuilds use fowners when installing.  Use
+        # numeric owners so we don't worry about the current name:id mapping vs
+        # what was recorded for the board.
+        cros_build_lib.sudo_run(
+            [
+                "tar",
+                "-x",
+                "-C",
+                tmpd_sysroot,
+                "--numeric-owner",
+                "--preserve-permissions",
+                "--wildcards",
+            ]
+            + excludes,
             input=res.stdout,
         )
 
         tmp_out_path = Path(tmpd) / Path(out_path).name
-        # Build filtered version of package.
+        # Create the file as ourselves so the next sudo tar step doesn't create
+        # it as root which we would have to then reset.
+        tmp_out_path.touch()
+        # Build filtered version of package.  Use sudo so we can read all the
+        # paths regardless of the ownership & permissions.
         compression_lib.create_tarball(
             tmp_out_path,
             tmpd_sysroot,
             compression=compression_lib.CompressionType.ZSTD,
             compressor=["zstdmt"],
+            sudo=True,
         )
 
         # Copy package metadata over to new package file.
