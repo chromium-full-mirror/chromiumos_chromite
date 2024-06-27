@@ -40,8 +40,7 @@ def _filter_install_mask_from_package(in_path: str, out_path: str) -> None:
     # are removed so that the paths are relative. Trailing slashes are removed
     # so that we delete the directory itself when the '/usr/include/' path is
     # given.
-    masks = [mask.strip("/") for mask in masks]
-    masks = ['--exclude="./%s"' % mask for mask in masks]
+    masks = [f"--exclude=./{x.strip('/')}" for x in masks]
     excludes = ["--anchored"] + masks
 
     gmerge_dir = os.path.dirname(out_path)
