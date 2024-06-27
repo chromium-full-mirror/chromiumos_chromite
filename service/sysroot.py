@@ -968,6 +968,7 @@ def BuildPackages(
             "chromeos-base/tast-remote-tests-crosint",
             "chromeos-base/tast-remote-tests-crosint_intel",
             "chromeos-base/tast-tests-remote-data",
+            "dev-libs/flatbuffers",
             "virtual/tast-remote-tests",
         }
         sdk_vdb = portage_util.PortageDB()
