@@ -33,6 +33,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import osutils
 from chromite.lib import parallel
+from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib import workon_helper
@@ -195,6 +196,14 @@ def ListModifiedWorkonPackages(sysroot):
     """
     packages = ListWorkonPackagesInfo(sysroot)
     if not packages:
+        return
+
+    if path_util.is_citc_checkout():
+        # TODO(b/324316870): A new strategy to sift metadata without a .repo
+        # directory is needed to selectively pare down the list of packages.
+        # For now, rebuild all marked packages.
+        for p in packages:
+            yield p.cp
         return
 
     # Get mtimes for all projects and source paths associated with our packages.
