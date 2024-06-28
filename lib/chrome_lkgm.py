@@ -81,13 +81,9 @@ class ChromeOSVersionFinder:
         """
         self.cache_dir = cache_dir
         self.board = board
-        self.snapshot_gs_base = f"gs://chromeos-image-archive/{board}-snapshot"
         if use_external_config or not self._HasInternalConfig():
             self.config_name = f"{board}-{config_lib.CONFIG_TYPE_PUBLIC}"
             self.gs_base = f"gs://chromiumos-image-archive/{self.config_name}"
-            if use_external_config:
-                # Snapshot artifacts is not disabled if internal config is off.
-                self.snapshot_gs_base = None
         else:
             self.config_name = f"{board}-{config_lib.CONFIG_TYPE_RELEASE}"
             self.gs_base = f"gs://chromeos-image-archive/{self.config_name}"
@@ -135,14 +131,12 @@ class ChromeOSVersionFinder:
             full_version = self.gs_ctx.Cat(
                 version_file, retries=0, encoding="utf-8"
             )
-            assert full_version == "" or full_version.startswith("R")
+            assert full_version.startswith("R")
             return full_version
         except (gs.GSNoSuchKey, gs.GSCommandError):
             return None
 
-    def _GetFullVersionFromRecentLatest(
-        self, version: str, from_snapshot: bool = False
-    ):
+    def _GetFullVersionFromRecentLatest(self, version):
         """Gets the full version number from a recent LATEST- file.
 
         If LATEST-{version} does not exist, we need to look for a recent
@@ -151,8 +145,6 @@ class ChromeOSVersionFinder:
         Args:
             version: The version number to look backwards from. If version is
                 not a canary version (ending in .0.0), returns None.
-            from_snapshot: If True, gets from the snapshot artifacts. If False,
-                from the release artifacts. Default is False.
 
         Returns:
             Version number in the format 'R30-3929.0.0' or None.
@@ -164,10 +156,9 @@ class ChromeOSVersionFinder:
         else:
             return None  # We're on a mini-branch? No fallback for that.
 
-        gs_base = self.snapshot_gs_base if from_snapshot else self.gs_base
         version_base = int(version.split(".")[version_num_position])
         version_base_min = max(version_base - self.fallback_versions, 0)
-        version_file_base = f"{gs_base}/LATEST-"
+        version_file_base = f"{self.gs_base}/LATEST-"
         version_parts = version.split(".")
 
         for v in range(version_base - 1, version_base_min, -1):
@@ -191,96 +182,18 @@ class ChromeOSVersionFinder:
         )
         return None
 
-    def GetFullVersionFromLatest(
-        self, version: str, from_snapshot: bool = False
-    ):
+    def GetFullVersionFromLatest(self, version):
         """Gets the full version number from the LATEST-{version} file.
 
         Args:
             version: The version number or branch to look at.
-            from_snapshot: If True, gets from the snapshot artifacts. If False,
-                from the release artifacts. Default is False.
 
         Returns:
             Version number in the format 'R30-3929.0.0' or None.
         """
-        if from_snapshot and not self.snapshot_gs_base:
-            raise RuntimeError(
-                "The snapshot flag is set "
-                + "but snapshot storage path is not configured."
-            )
-
-        gs_base = self.snapshot_gs_base if from_snapshot else self.gs_base
-        version_file = f"{gs_base}/LATEST-{version}"
+        version_file = f"{self.gs_base}/LATEST-{version}"
         full_version = self._GetFullVersionFromStorage(version_file)
         if full_version is None:
             logging.warning("No LATEST file matching SDK version %s", version)
             return self._GetFullVersionFromRecentLatest(version)
         return full_version
-
-    def _GetFullVersionFromRecentLatestSnapshot(self, snapshot_identifier: int):
-        """Gets the full version number from a recent LATEST-SNAPSHOT-* file.
-
-        If LATEST-SNAPSHOT-{snapshot_id} does not exist, we need to look for a
-        recent LATEST-SNAPSHOT- file to get a valid full version from.
-
-        Args:
-            snapshot_identifier: The snapshot number to look at.
-
-        Returns:
-            Version number in the format 'R30-3929.0.0-123456-88888' or None.
-        """
-        base = snapshot_identifier
-        base_min = max(base - self.fallback_versions, 0)
-        version_file_base = f"{self.snapshot_gs_base}/LATEST-SNAPSHOT-"
-
-        for v in range(base - 1, base_min, -1):
-            version_file = version_file_base + str(v)
-
-            logging.info("Trying: %s", version_file)
-            full_version = self._GetFullVersionFromStorage(version_file)
-            if full_version is not None:
-                logging.info(
-                    "Using cros version from most recent LATEST file: %s -> %s",
-                    version_file,
-                    full_version,
-                )
-                return full_version
-        logging.warning(
-            "No recent LATEST file found from %s.0.0 to %s.0.0",
-            base_min,
-            base,
-        )
-        return None
-
-    def GetLatestSnapshotFiles(self, snapshot_identifier: int):
-        """Gets the full version number from LATEST-SNAPSHOT-{snapshot} file.
-
-        Args:
-            snapshot_identifier: The snapshot number to look at.
-
-        Returns:
-            Version number in the format 'R30-3929.0.0-123456-88888' or None.
-        """
-        if not self.snapshot_gs_base:
-            raise RuntimeError("Snapshot storage path is not configured.")
-
-        version_file = (
-            f"{self.snapshot_gs_base}/LATEST-SNAPSHOT-{snapshot_identifier}"
-        )
-        full_version = self._GetFullVersionFromStorage(version_file)
-        if full_version is not None:
-            return full_version
-
-        # Traverse the older snapshot when the specified snapshot is not found.
-        logging.warning(
-            "No LATEST file matching SDK version %s", snapshot_identifier
-        )
-        full_version = self._GetFullVersionFromRecentLatestSnapshot(
-            snapshot_identifier
-        )
-        if full_version is not None:
-            return full_version
-
-        # Not found.
-        return None
