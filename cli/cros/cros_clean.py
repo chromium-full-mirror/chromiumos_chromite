@@ -12,6 +12,7 @@ If unsure, just use the --safe flag to clean out various objects.
 """
 
 import errno
+import getpass
 import glob
 import logging
 import os
@@ -19,11 +20,14 @@ from pathlib import Path
 
 from chromite.cli import command
 from chromite.lib import chroot_lib
+from chromite.lib import citc_workspaces
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import dev_server_wrapper
+from chromite.lib import loas
 from chromite.lib import osutils
 from chromite.lib import path_util
+from chromite.service import sdk
 from chromite.utils import pformat
 from chromite.utils import timer
 
@@ -103,6 +107,13 @@ class CleanCommand(command.CliCommand):
             default=False,
             action="store_true",
             help="Empty the chroot's /tmp directory.",
+        )
+        group.add_argument(
+            "--orphaned-citc-caches",
+            default=False,
+            action="store_true",
+            help="Will find all of the hosts orphaned CitC workspaces and"
+            " assist the user in cleaning them up.",
         )
 
         group = parser.add_argument_group(
@@ -198,6 +209,7 @@ class CleanCommand(command.CliCommand):
             options.images = True
             options.incrementals = True
             options.logs = True
+            options.orphaned_citc_caches = True
             options.workdirs = True
 
     @timer.timed("Cros Clean", logging.debug)
@@ -251,6 +263,38 @@ class CleanCommand(command.CliCommand):
                 _LogEmpty(path)
             else:
                 osutils.EmptyDir(path, ignore_missing=True, sudo=True)
+
+        if self.options.orphaned_citc_caches:
+            # Cleanup all orphaned CitC workspaces
+            loas_status = loas.Loas.user_loas_status_valid_for(
+                getpass.getuser(), 30
+            )
+            if not loas_status:
+                logging.notice(
+                    f"failed to validate LOAS status:" f"{loas_status.message}"
+                )
+                logging.notice("Try running gcert")
+            else:
+                logging.debug("Looking for orphaned CitC workspaces")
+                workspaces = citc_workspaces.Workspaces()
+                for workspace in workspaces.orphaned_workspaces():
+                    logging.debug(
+                        "Cleaning up orphaned workspace: %s",
+                        workspace.cache_location / "chroot",
+                    )
+                    workspace_chroot = workspace.cache_location / "chroot"
+                    workspace_out = workspace.cache_location / "out"
+                    if self.options.dryrun:
+                        _LogClean(workspace_chroot)
+                        _LogClean(workspace_out)
+                        _LogClean(workspace.cache_location)
+                    else:
+                        sdk.Delete(
+                            chroot=chroot_lib.Chroot(
+                                path=workspace_chroot, out_path=workspace_out
+                            )
+                        )
+                        Clean(workspace.cache_location)
 
         # Delete this first since many of the caches below live in the chroot.
         if self.options.chroot:

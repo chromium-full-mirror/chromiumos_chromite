@@ -646,7 +646,11 @@ def read_workspace_id() -> str:
     cros_build_lib.AssertOutsideChroot()
     checkout = DetermineCheckout()
     assert checkout.type == CheckoutType.CITC
-    id_path = Path(checkout.root).parent / ".citc" / "workspace_id"
+    return read_workspace_id_file(Path(checkout.root).parent)
+
+
+def read_workspace_id_file(checkout: Path) -> str:
+    id_path = checkout / ".citc" / "workspace_id"
     return id_path.read_text(encoding="utf-8")
 
 
