@@ -6,6 +6,7 @@
 
 import dataclasses
 import enum
+import functools
 import os
 from pathlib import Path
 from typing import Callable, Iterator, List, Optional, Union
@@ -135,12 +136,12 @@ class ChrootPathResolver:
             )
             if out_path is not None:
                 self._out_path = out_path
-            elif self._source_path is not None:
+            else:
+                # This should have been set above.
+                assert self._source_path is not None
                 self._out_path = (
                     Path(self._source_path) / constants.DEFAULT_OUT_DIR
                 )
-            else:
-                self._out_path = constants.DEFAULT_OUT_PATH
 
             # Initialize mapping of known root bind mounts.
             self._chroot_to_host_roots = (
