@@ -37,8 +37,8 @@ from chromite.lib import cros_build_lib
 from chromite.lib import gs
 from chromite.lib import metrics_lib
 from chromite.lib import osutils
-from chromite.lib import portage_util
 from chromite.lib import path_util
+from chromite.lib import portage_util
 from chromite.lib import repo_util
 from chromite.lib import sysroot_lib
 from chromite.lib import workon_helper
@@ -969,6 +969,22 @@ def BuildPackages(
             "chromeos-base/tast-remote-tests-crosint_intel",
             "chromeos-base/tast-tests-remote-data",
             "dev-libs/flatbuffers",
+            "dev-util/test-services",
+            "dev-util/cros-dut",
+            "dev-util/cros-provision",
+            "dev-util/cros-publish",
+            "dev-util/cros-servod",
+            "dev-util/cros-test",
+            "dev-util/cros-test-finder",
+            "dev-util/fw-provision",
+            "dev-util/cros-hpt",
+            "dev-util/pre-process",
+            "dev-util/post-process",
+            "dev-util/testlabenv-local",
+            "dev-util/cros-ctp2-filters",
+            "dev-util/vm-provision",
+            "dev-util/cros-fw-provision",
+            "dev-util/android-provision",
             "virtual/tast-remote-tests",
         }
         sdk_vdb = portage_util.PortageDB()
@@ -1613,14 +1629,12 @@ def _InstallPortageConfigs(
     fetched_binhosts = None
     try:
         fetched_binhosts = binhost_service.lookup_binhosts(
-        target, binhost_lookup_service_data
-    )
+            target, binhost_lookup_service_data
+        )
     except repo_util.NotInRepoError:
         # TODO(b/324316870): Resolve implicit .repo dependency.
         if path_util.is_citc_checkout():
-            logging.warning(
-                "Skipping setup_board binhost fetching in Cog."
-            )
+            logging.warning("Skipping setup_board binhost fetching in Cog.")
         else:
             raise
 
