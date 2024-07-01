@@ -139,9 +139,15 @@ class ChrootPathResolver:
             else:
                 # This should have been set above.
                 assert self._source_path is not None
-                self._out_path = (
-                    Path(self._source_path) / constants.DEFAULT_OUT_DIR
-                )
+                chrome_src = DetermineCheckout(source_path).chrome_src_dir
+                if chrome_src is not None:
+                    self._out_path = (
+                        Path(chrome_src) / constants.DEFAULT_OUT_DIR
+                    )
+                else:
+                    self._out_path = (
+                        Path(self._source_path) / constants.DEFAULT_OUT_DIR
+                    )
 
             # Initialize mapping of known root bind mounts.
             self._chroot_to_host_roots = (
