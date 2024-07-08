@@ -387,7 +387,7 @@ def Build(
                 build_result.return_code = 0
             except flexor.FlexorBuildError as e:
                 build_result.exception = e
-                build_result.return_code = e.returncode
+                build_result.return_code = 1
 
             try:
                 compression_lib.create_tarball(
@@ -398,7 +398,7 @@ def Build(
                 )
             except compression_lib.TarballError as e:
                 build_result.exception = e
-                build_result.return_code = e.returncode
+                build_result.return_code = 1
 
         try:
             content = osutils.ReadFile(status_file).strip()
