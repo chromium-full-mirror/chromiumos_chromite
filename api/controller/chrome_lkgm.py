@@ -40,23 +40,36 @@ def FindLkgm(request, response, _config) -> None:
         chrome_src=request.chrome_src,
         use_external_config=request.use_external_config,
     )
-    response.config_name = f.config_name
 
     try:
-        lkgm_version = chrome_lkgm.GetChromeLkgm(request.chrome_src)
-    except FileNotFoundError as e:
+        (platform_version, snapshot_identifier) = chrome_lkgm.GetChromeLkgm(
+            request.chrome_src
+        )
+    except (
+        RuntimeError,
+        chrome_lkgm.NoChromiumSrcDir,
+        chrome_lkgm.MissingLkgmFile,
+    ) as e:
         response.error = str(e)
         return
 
-    if not lkgm_version:
+    if not platform_version:
         response.error = str(
             chrome_lkgm.MissingLkgmFile(checkout.chrome_src_dir)
         )
         return
 
-    response.chromeos_lkgm = lkgm_version
-    full_version = f.GetFullVersionFromLatest(lkgm_version)
+    full_version, config_name = f.GetLatestVersionInfo(
+        platform_version, snapshot_identifier
+    )
     if not full_version:
         response.error = "failed to get full version"
         return
+
+    lkgm_version_str = chrome_lkgm.GetVersionStr(
+        platform_version, snapshot_identifier
+    )
+
     response.full_version = full_version
+    response.config_name = config_name
+    response.chromeos_lkgm = lkgm_version_str

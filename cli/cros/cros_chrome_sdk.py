@@ -194,13 +194,16 @@ class SDKFetcher:
             self.toolchain_path = "gs://%s" % constants.SDK_GS_BUCKET
 
         if use_external_config or not self._HasInternalConfig():
-            self.config_name = f"{board}-{config_lib.CONFIG_TYPE_PUBLIC}"
+            if use_snapshot:
+                self.config_name = f"{board}-public-snapshot"
+            else:
+                self.config_name = f"{board}-{config_lib.CONFIG_TYPE_PUBLIC}"
             self.gs_base = f"gs://chromiumos-image-archive/{self.config_name}"
-        elif use_snapshot:
-            self.config_name = f"{board}-snapshot"
-            self.gs_base = f"gs://chromeos-image-archive/{self.config_name}"
         else:
-            self.config_name = f"{board}-{config_lib.CONFIG_TYPE_RELEASE}"
+            if use_snapshot:
+                self.config_name = f"{board}-snapshot"
+            else:
+                self.config_name = f"{board}-{config_lib.CONFIG_TYPE_RELEASE}"
             self.gs_base = f"gs://chromeos-image-archive/{self.config_name}"
 
         self.version_finder = chrome_lkgm.ChromeOSVersionFinder(
@@ -572,12 +575,13 @@ class SDKFetcher:
         checkout = path_util.DetermineCheckout(checkout_dir)
         current = self.GetDefaultVersion() or "0"
 
-        if not checkout.chrome_src_dir:
-            raise chrome_lkgm.NoChromiumSrcDir(checkout_dir)
+        (platform_version, snapshot_identifier) = chrome_lkgm.GetChromeLkgm(
+            checkout.chrome_src_dir
+        )
 
-        target = chrome_lkgm.GetChromeLkgm(checkout.chrome_src_dir)
-        if target is None:
-            raise chrome_lkgm.MissingLkgmFile(checkout.chrome_src_dir)
+        target = chrome_lkgm.GetVersionStr(
+            platform_version, snapshot_identifier
+        )
 
         self._SetDefaultVersion(target)
         return target, target != current
@@ -644,20 +648,9 @@ class SDKFetcher:
             if ref.Exists(lock=True):
                 return osutils.ReadFile(ref.path).strip()
 
-            if self.use_snapshot:
-                full_version = self.version_finder.GetLatestSnapshotFiles(
-                    snapshot_identifier
-                )
-                if not full_version:
-                    # Fall back to LATEST-{version} files in the snapshot
-                    # artifact GS storage.
-                    full_version = self.version_finder.GetFullVersionFromLatest(
-                        version, from_snapshot=True
-                    )
-            else:
-                full_version = self.version_finder.GetFullVersionFromLatest(
-                    version
-                )
+            full_version, _ = self.version_finder.GetLatestVersionInfo(
+                version, snapshot_identifier
+            )
 
             if full_version is None:
                 raise MissingSDK(
@@ -1489,8 +1482,12 @@ class ChromeSDKCommand(command.CliCommand):
             # testing, and given that Lacros uses CHROMEOS_LKGM for testing
             # regardless of the version used for compilation, so always set the
             # value as CHROME_LKGM.
-            gn_args["cros_sdk_version"] = chrome_lkgm.GetChromeLkgm(
+            (platform_version, snapshot_identifier) = chrome_lkgm.GetChromeLkgm(
                 options.chrome_src
+            )
+
+            gn_args["cros_sdk_version"] = chrome_lkgm.GetVersionStr(
+                platform_version, snapshot_identifier
             )
         else:
             gn_args["cros_sdk_version"] = sdk_ctx.version

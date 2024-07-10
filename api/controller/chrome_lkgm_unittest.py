@@ -15,6 +15,8 @@ class FindLkgmTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Unittests for FindLkgm."""
 
     LKGM_VERSION = "123.0.0.4566"
+    LKGM_SNAPSHOT_NUMBER = 123456
+    LKGM_SNAPSHOT_VERSION = LKGM_VERSION + "-" + str(LKGM_SNAPSHOT_NUMBER)
     FALLBACK_VERSION = "123.0.0.4562"
 
     def setUp(self) -> None:
@@ -27,17 +29,20 @@ class FindLkgmTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             chrome_lkgm_lib, "ChromeOSVersionFinder"
         )
         self.instance = self.finder_mock.return_value
-        self.instance.config_name = f"{self.request.build_target.name}/release"
+
+        config_name = f"{self.request.build_target.name}/release"
         self.get_full_version_mock = self.PatchObject(
             self.instance,
-            "GetFullVersionFromLatest",
-            return_value=self.FALLBACK_VERSION,
+            "GetLatestVersionInfo",
+            return_value=(self.FALLBACK_VERSION, config_name),
         )
 
     def testInvalidLkgm(self) -> None:
         """LKGM version file found, but not successfully parsed."""
 
-        self.PatchObject(chrome_lkgm_lib, "GetChromeLkgm", return_value=None)
+        self.PatchObject(
+            chrome_lkgm_lib, "GetChromeLkgm", return_value=(None, None)
+        )
 
         chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
         self.assertTrue(self.response.error)
@@ -49,7 +54,22 @@ class FindLkgmTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.PatchObject(
             chrome_lkgm_lib,
             "GetChromeLkgm",
-            side_effect=FileNotFoundError("CHROMEOS_LKGM not found"),
+            side_effect=chrome_lkgm_lib.MissingLkgmFile(
+                "CHROMEOS_LKGM not found"
+            ),
+        )
+
+        chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
+        self.assertTrue(self.response.error)
+        self.get_full_version_mock.assert_not_called()
+
+    def testLkgmInvalid(self) -> None:
+        """LKGM version file not found."""
+
+        self.PatchObject(
+            chrome_lkgm_lib,
+            "GetChromeLkgm",
+            side_effect=RuntimeError("invalid LKGM file"),
         )
 
         chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
@@ -60,25 +80,48 @@ class FindLkgmTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         """LKGM version found."""
 
         self.PatchObject(
-            chrome_lkgm_lib, "GetChromeLkgm", return_value=self.LKGM_VERSION
+            chrome_lkgm_lib,
+            "GetChromeLkgm",
+            return_value=(self.LKGM_VERSION, None),
         )
-        self.instance.config_name = f"{self.request.build_target.name}/release"
 
         chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
         self.assertFalse(self.response.error)
         self.assertEqual(self.FALLBACK_VERSION, self.response.full_version)
         self.assertEqual("newboard/release", self.response.config_name)
         self.assertEqual(self.LKGM_VERSION, self.response.chromeos_lkgm)
-        self.get_full_version_mock.assert_called_with(self.LKGM_VERSION)
+        self.get_full_version_mock.assert_called_with(self.LKGM_VERSION, None)
+
+    def testLkgmSnapshotFound(self) -> None:
+        """LKGM version found."""
+
+        self.PatchObject(
+            chrome_lkgm_lib,
+            "GetChromeLkgm",
+            return_value=(self.LKGM_VERSION, self.LKGM_SNAPSHOT_NUMBER),
+        )
+
+        chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
+        self.assertFalse(self.response.error)
+        self.assertEqual(self.FALLBACK_VERSION, self.response.full_version)
+        self.assertEqual("newboard/release", self.response.config_name)
+        self.assertEqual(
+            self.LKGM_SNAPSHOT_VERSION, self.response.chromeos_lkgm
+        )
+        self.get_full_version_mock.assert_called_with(
+            self.LKGM_VERSION, self.LKGM_SNAPSHOT_NUMBER
+        )
 
     def testFailToGetFullVersion(self) -> None:
         """LKGM version found, but fallbacked full version wasn't found."""
 
         self.PatchObject(
-            chrome_lkgm_lib, "GetChromeLkgm", return_value=self.LKGM_VERSION
+            chrome_lkgm_lib,
+            "GetChromeLkgm",
+            return_value=(self.LKGM_VERSION, None),
         )
         self.PatchObject(
-            self.instance, "GetFullVersionFromLatest", return_value=None
+            self.instance, "GetLatestVersionInfo", return_value=(None, None)
         )
 
         chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)

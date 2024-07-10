@@ -10,7 +10,7 @@ determine what the current LKGM version is.
 
 import logging
 import os
-from typing import Optional
+from typing import Optional, Tuple
 
 from chromite.lib import config_lib
 from chromite.lib import constants
@@ -37,23 +37,51 @@ class MissingLkgmFile(Error):
         super().__init__(f"Cannot parse CHROMEOS_LKGM file: {path}")
 
 
-def GetChromeLkgm(chrome_src_dir: str = "") -> Optional[str]:
+def GetChromeLkgm(
+    chrome_src_dir: str = "",
+) -> Tuple[str, Optional[int]]:
     """Get the CHROMEOS LKGM checked into the Chrome tree.
 
     Args:
         chrome_src_dir: chrome source directory.
 
     Returns:
-        Version number in format '10171.0.0'.
+        Tuple of following 2 values:
+        - Platform version number in format '10171.0.0'.
+        - Snapshot identifier in an integer. None if LKGM is not
+          a snapshot.
     """
     if not chrome_src_dir:
         chrome_src_dir = path_util.DetermineCheckout().chrome_src_dir
-    if not chrome_src_dir:
-        return None
+    if not chrome_src_dir or not os.path.exists(chrome_src_dir):
+        raise NoChromiumSrcDir(chrome_src_dir)
+
     lkgm_file = os.path.join(chrome_src_dir, constants.PATH_TO_CHROME_LKGM)
-    version = osutils.ReadFile(lkgm_file).rstrip()
-    logging.debug("Read LKGM version from %s: %s", lkgm_file, version)
-    return version
+    try:
+        version = osutils.ReadFile(lkgm_file).rstrip()
+    except FileNotFoundError:
+        raise MissingLkgmFile(lkgm_file)
+    if version == "":
+        raise RuntimeError("LKGM file is empty.")
+
+    parts = version.split("-", 2)
+    platform_version = parts[0]
+    snapshot_identifier = int(parts[1]) if len(parts) == 2 else None
+
+    logging.debug(
+        "Read LKGM version from %s: %s (snapshot: %s)",
+        lkgm_file,
+        platform_version,
+        snapshot_identifier,
+    )
+
+    return platform_version, snapshot_identifier
+
+
+def GetVersionStr(platform_version: str, snapshot_identifier: Optional[int]):
+    if snapshot_identifier is None:
+        return platform_version
+    return f"{platform_version}-{snapshot_identifier}"
 
 
 class ChromeOSVersionFinder:
@@ -81,16 +109,17 @@ class ChromeOSVersionFinder:
         """
         self.cache_dir = cache_dir
         self.board = board
-        self.snapshot_gs_base = f"gs://chromeos-image-archive/{board}-snapshot"
         if use_external_config or not self._HasInternalConfig():
             self.config_name = f"{board}-{config_lib.CONFIG_TYPE_PUBLIC}"
-            self.gs_base = f"gs://chromiumos-image-archive/{self.config_name}"
-            if use_external_config:
-                # Snapshot artifacts is not disabled if internal config is off.
-                self.snapshot_gs_base = None
+            self.snapshot_config_name = f"{board}-public-snapshot"
+            gs_host = "chromiumos-image-archive"
         else:
             self.config_name = f"{board}-{config_lib.CONFIG_TYPE_RELEASE}"
-            self.gs_base = f"gs://chromeos-image-archive/{self.config_name}"
+            self.snapshot_config_name = f"{board}-snapshot"
+            gs_host = "chromeos-image-archive"
+
+        self.gs_base = f"gs://{gs_host}/{self.config_name}"
+        self.snapshot_gs_base = f"gs://{gs_host}/{self.snapshot_config_name}"
 
         self.gs_ctx = gs.GSContext(cache_dir=cache_dir, init_boto=False)
         self.fallback_versions = fallback_versions
@@ -119,6 +148,41 @@ class ChromeOSVersionFinder:
             for the board.
         """
         return "generic" not in self.board
+
+    def GetLatestVersionInfo(
+        self, platform_version: str, snapshot_identifier: Optional[int]
+    ) -> Tuple[str, str]:
+        """Gets the full version number from LATEST files.
+
+        If |snapshot_identifier| is given, this checks the LATEST files in
+        snapshot artifacts. Otherwise, this checks in the release artifacts.
+
+        Args:
+            platform_version: Platform version in the "12345.0.0" format.
+            snapshot_identifier: Snapshot identifier to check the snapshot
+                artifacts.
+
+        Returns:
+            Tuple for following two values:
+            - Full version number in the format 'R30-3929.0.0' or None.
+            - Config name of the found artifacts, which consists of
+              '{board}-{buildertype}'. eg. 'amd64-generic-public'
+              or 'eve-snapshot'.
+        """
+        if snapshot_identifier is not None:
+            full_version = self.GetFullVersionFromLatestSnapshotFile(
+                snapshot_identifier
+            )
+            if not full_version:
+                # Fall back to LATEST-{version} files in the snapshot
+                # artifact GS storage.
+                full_version = self.GetFullVersionFromLatestFile(
+                    platform_version, from_snapshot=True
+                )
+            return full_version, self.snapshot_config_name
+
+        full_version = self.GetFullVersionFromLatestFile(platform_version)
+        return full_version, self.config_name
 
     def _GetFullVersionFromStorage(self, version_file):
         """Cat |version_file| in google storage.
@@ -191,7 +255,7 @@ class ChromeOSVersionFinder:
         )
         return None
 
-    def GetFullVersionFromLatest(
+    def GetFullVersionFromLatestFile(
         self, version: str, from_snapshot: bool = False
     ):
         """Gets the full version number from the LATEST-{version} file.
@@ -253,7 +317,7 @@ class ChromeOSVersionFinder:
         )
         return None
 
-    def GetLatestSnapshotFiles(self, snapshot_identifier: int):
+    def GetFullVersionFromLatestSnapshotFile(self, snapshot_identifier: int):
         """Gets the full version number from LATEST-SNAPSHOT-{snapshot} file.
 
         Args:
@@ -274,7 +338,7 @@ class ChromeOSVersionFinder:
 
         # Traverse the older snapshot when the specified snapshot is not found.
         logging.warning(
-            "No LATEST file matching SDK version %s", snapshot_identifier
+            "No LATEST file matching SDK snapshot %s", snapshot_identifier
         )
         full_version = self._GetFullVersionFromRecentLatestSnapshot(
             snapshot_identifier
