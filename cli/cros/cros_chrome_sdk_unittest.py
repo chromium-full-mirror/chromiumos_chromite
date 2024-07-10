@@ -78,6 +78,22 @@ class ParserTest(cros_test_lib.MockTempDirTestCase):
         ) as parser:
             self.assertEqual(parser.inst.options.version, FULL_VERSION)
 
+    def testVersionWithSnapshot(self) -> None:
+        """Tests that a platform version is allowed."""
+        VERSION = "12345.6.7-123456"
+        with MockChromeSDKCommand(
+            ["--board", SDKFetcherMock.BOARD, "--version", VERSION]
+        ) as parser:
+            self.assertEqual(parser.inst.options.version, VERSION)
+
+    def testFullVersionWithSnapshot(self) -> None:
+        """Tests that a platform version is allowed."""
+        VERSION = "R123-12345.6.7-123456"
+        with MockChromeSDKCommand(
+            ["--board", SDKFetcherMock.BOARD, "--version", VERSION]
+        ) as parser:
+            self.assertEqual(parser.inst.options.version, VERSION)
+
 
 def _GSCopyMock(_self, path, dest, **_kwargs) -> None:
     """Used to simulate a GS Copy operation."""
@@ -204,7 +220,7 @@ class SDKFetcherMock(partial_mock.PartialMock):
                     return self.backup["_UpdateTarball"](inst, *args, **kwargs)
 
     @_DependencyMockCtx
-    def GetFullVersion(self, inst, version):
+    def GetFullVersion(self, _inst, version):
         return "R26-%s" % version
 
     @_DependencyMockCtx
@@ -357,7 +373,8 @@ class RunThroughTest(
     def testSnapshot(self) -> None:
         """Test if snapshot builds are reflected in args."""
         self.SetupCommandMock(
-            many_boards=True, extra_args=["--snapshot=123456"]
+            many_boards=True,
+            extra_args=["--snapshot", "--version=4567.8.9-123456"],
         )
 
         self.cmd_mock.inst.ProcessOptions(

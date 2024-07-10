@@ -550,7 +550,7 @@ class SDKFetcher:
                 version = osutils.ReadFile(ref.path).strip()
                 # Deal with the old version format.
                 if version.startswith("R"):
-                    version = version.split("-")[1]
+                    version = version.split("-", 2)[1]
                 return version
             else:
                 return None
@@ -704,7 +704,6 @@ class SDKFetcher:
         self,
         components,
         version: str = None,
-        snapshot_identifier: Optional[int] = None,
         target_tc=None,
         toolchain_url=None,
     ):
@@ -725,7 +724,6 @@ class SDKFetcher:
                 returned by GetDefaultVersion(). If there is no default version
                 set (this is the first time we are being executed), then we
                 update the default version.
-            snapshot_identifier: The number of snapshot identifier.
             target_tc: Target toolchain name to use, e.g. x86_64-cros-linux-gnu
             toolchain_url: Format pattern for path to fetch toolchain from,
                 e.g. 2014/04/%(target)s-2014.04.23.220740.tar.xz
@@ -742,15 +740,11 @@ class SDKFetcher:
             # If self.sdk_path is specified, simplechrome uses the artifacts in
             # the path. We don't retrieve artifacts from version/snapshot.
             version = None
-            snapshot_identifier = None
         else:
             if not version:
                 version = self.GetDefaultVersion()
             if version is None:
                 version, _ = self.UpdateDefaultVersion()
-
-            if snapshot_identifier is not None:
-                version = f"{version}-{snapshot_identifier}"
 
         components = list(components)
 
@@ -924,8 +918,10 @@ class ChromeSDKCommand(command.CliCommand):
         See the argument description for supported version formats.
         """
 
-        if not re.match(r"^[0-9]+\.0\.0$", version) and not re.match(
-            r"^R[0-9]+-[0-9]+\.[0-9]+\.[0-9]+", version
+        if not re.match(
+            r"^[0-9]+\.[0-9]+\.[0-9]+(\-[0-9]+)?$", version
+        ) and not re.match(
+            r"^R[0-9]+-[0-9]+\.[0-9]+\.[0-9]+(\-[0-9]+)?", version
         ):
             raise argparse.ArgumentTypeError(
                 "--version should be in the format 1234.0.0 or R56-1234.0.0"
@@ -1069,8 +1065,8 @@ class ChromeSDKCommand(command.CliCommand):
         )
         parser.add_argument(
             "--snapshot",
-            type=int,
-            default=None,
+            action="store_true",
+            default=False,
         )
         parser.add_argument(
             "--fallback-versions",
@@ -1804,12 +1800,6 @@ class ChromeSDKCommand(command.CliCommand):
         """Internal implementation of Run() above for a single board."""
         self.silent = bool(self.options.cmd)
 
-        # Disabling the snapshot artifacts on public configurations.
-        use_snapshot = (
-            self.options.snapshot is not None
-            and not self.options.use_external_config
-        )
-
         # Lazy initialize because SDKFetcher creates a GSContext() object in its
         # constructor, which may block on user input.
         self.sdk = SDKFetcher(
@@ -1821,7 +1811,7 @@ class ChromeSDKCommand(command.CliCommand):
             toolchain_path=self.options.toolchain_path,
             silent=self.silent,
             use_external_config=self.options.use_external_config,
-            use_snapshot=use_snapshot,
+            use_snapshot=self.options.snapshot,
             fallback_versions=self.options.fallback_versions,
             is_lacros=self.options.is_lacros,
         )
@@ -1829,7 +1819,6 @@ class ChromeSDKCommand(command.CliCommand):
         prepare_version = self.options.version
         if not prepare_version and not self.options.sdk_path:
             prepare_version, _ = self.sdk.UpdateDefaultVersion()
-        prepare_snapshot_identifier = self.options.snapshot
 
         components = [self.sdk.TARGET_TOOLCHAIN_KEY, constants.CHROME_ENV_TAR]
         if not self.options.chroot:
@@ -1841,7 +1830,6 @@ class ChromeSDKCommand(command.CliCommand):
         with self.sdk.Prepare(
             components,
             version=prepare_version,
-            snapshot_identifier=prepare_snapshot_identifier,
             target_tc=self.options.target_tc,
             toolchain_url=self.options.toolchain_url,
         ) as ctx:
