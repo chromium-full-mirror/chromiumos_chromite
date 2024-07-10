@@ -163,11 +163,13 @@ class ChromeOSVersionFinder:
                 artifacts.
 
         Returns:
-            Tuple for following two values:
+            Tuple for following three values:
             - Full version number in the format 'R30-3929.0.0' or None.
             - Config name of the found artifacts, which consists of
               '{board}-{buildertype}'. eg. 'amd64-generic-public'
               or 'eve-snapshot'.
+            - Path of artifacts in Google Storage
+              (eg. "gs://chromeos-image-archive/eve-release/")
         """
         if snapshot_identifier is not None:
             full_version = self.GetFullVersionFromLatestSnapshotFile(
@@ -179,10 +181,14 @@ class ChromeOSVersionFinder:
                 full_version = self.GetFullVersionFromLatestFile(
                     platform_version, from_snapshot=True
                 )
-            return full_version, self.snapshot_config_name
+            return (
+                full_version,
+                self.snapshot_config_name,
+                self.snapshot_gs_base,
+            )
 
         full_version = self.GetFullVersionFromLatestFile(platform_version)
-        return full_version, self.config_name
+        return full_version, self.config_name, self.gs_base
 
     def _GetFullVersionFromStorage(self, version_file):
         """Cat |version_file| in google storage.

@@ -141,6 +141,7 @@ class SDKFetcherMock(partial_mock.PartialMock):
     ATTRS = (
         "__init__",
         "GetFullVersion",
+        "GetVersionInfo",
         "_GetMetadata",
         "_UpdateTarball",
         "UpdateDefaultVersion",
@@ -222,6 +223,14 @@ class SDKFetcherMock(partial_mock.PartialMock):
     @_DependencyMockCtx
     def GetFullVersion(self, _inst, version):
         return "R26-%s" % version
+
+    @_DependencyMockCtx
+    def GetVersionInfo(self, inst, version):
+        gs_base = "gs://chromeos-image-archive/%s-release/LATEST-%s" % (
+            self.BOARD,
+            version,
+        )
+        return self.GetFullVersion(inst, version), gs_base
 
     @_DependencyMockCtx
     def _GetMetadata(self, inst, *args, **kwargs):
@@ -817,6 +826,8 @@ class VersionTest(
     def testFullVersionFromVersionWithSnapsot(self) -> None:
         """Test that a specified version + snapshot identifier is allowed."""
         self.sdk_mock.UnMockAttr("GetFullVersion")
+        self.sdk_mock.UnMockAttr("GetVersionInfo")
+
         self.sdk.use_snapshot = True
         FULL_VERSION_WITH_SNAPSHOT = "R123-12345.6.7-1234567-BUILDID"
         VERSION_WITH_SNAPSHOT = "12345.6.7-1234567"
@@ -832,6 +843,8 @@ class VersionTest(
     def testFullVersionFromFullVersionWithSnapsot(self) -> None:
         """Test that a fullversion is resulted in the same full version."""
         self.sdk_mock.UnMockAttr("GetFullVersion")
+        self.sdk_mock.UnMockAttr("GetVersionInfo")
+
         self.sdk.use_snapshot = True
         FULL_VERSION_WITH_SNAPSHOT = "R123-12345.6.7-1234567-BUILDID"
         self.gs_mock.AddCmdResult(
@@ -850,6 +863,8 @@ class VersionTest(
         version.
         """
         self.sdk_mock.UnMockAttr("GetFullVersion")
+        self.sdk_mock.UnMockAttr("GetVersionInfo")
+
         self.sdk.use_snapshot = True
         VERSION_WITHOUT_SNAPSHOT = "12345.6.7"
         self.assertRaises(
@@ -865,6 +880,8 @@ class VersionTest(
             raise Exception("boom")
 
         self.sdk_mock.UnMockAttr("GetFullVersion")
+        self.sdk_mock.UnMockAttr("GetVersionInfo")
+
         self.gs_mock.AddCmdResult(
             partial_mock.ListRegex("cat .*/LATEST-%s" % self.VERSION),
             stdout=self.FULL_VERSION,
@@ -894,6 +911,8 @@ class VersionTest(
     def testNoLatestVersion(self) -> None:
         """We raise an exception when there is no recent latest version."""
         self.sdk_mock.UnMockAttr("GetFullVersion")
+        self.sdk_mock.UnMockAttr("GetVersionInfo")
+
         self.gs_mock.AddCmdResult(
             partial_mock.ListRegex("cat .*/LATEST-*"),
             stdout="",
@@ -929,6 +948,60 @@ class VersionTest(
         os.environ[sdk_version_env] = self.VERSION
         os.environ[cros_chrome_sdk.SDKFetcher.SDK_BOARD_ENV] = self.BOARD
         self.assertEqual(self.sdk.GetDefaultVersion(), self.VERSION)
+
+    def testGetVersionInfo(self) -> None:
+        self.sdk_mock.UnMockAttr("GetVersionInfo")
+
+        FULL_VERSION = "R123-12345.6.7"
+        VERSION = "12345.6.7"
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*/LATEST-%s" % VERSION),
+            stdout=FULL_VERSION,
+        )
+        self.assertEqual(
+            (FULL_VERSION, "gs://chromeos-image-archive/eve-release"),
+            self.sdk.GetVersionInfo(VERSION),
+        )
+
+    def testGetVersionInfoWithSnapshot(self) -> None:
+        self.sdk_mock.UnMockAttr("GetVersionInfo")
+
+        self.sdk.use_snapshot = True
+        FULL_VERSION_WITH_SNAPSHOT = "R123-12345.6.7-1234567-888888"
+        VERSION_WITH_SNAPSHOT = "12345.6.7-1234567"
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*/LATEST-SNAPSHOT-%d" % self.SNAPSHOT),
+            stdout=FULL_VERSION_WITH_SNAPSHOT,
+        )
+        self.assertEqual(
+            (
+                FULL_VERSION_WITH_SNAPSHOT,
+                "gs://chromeos-image-archive/eve-snapshot",
+            ),
+            self.sdk.GetVersionInfo(VERSION_WITH_SNAPSHOT),
+        )
+
+    def testGetVersionInfoWithFullVersion(self) -> None:
+        self.sdk_mock.UnMockAttr("GetVersionInfo")
+
+        FULL_VERSION = "R123-12345.6.7"
+        self.assertEqual(
+            (FULL_VERSION, "gs://chromeos-image-archive/eve-release"),
+            self.sdk.GetVersionInfo(FULL_VERSION),
+        )
+
+    def testGetVersionInfoWithSnapshotFullVersion(self) -> None:
+        self.sdk_mock.UnMockAttr("GetVersionInfo")
+
+        self.sdk.use_snapshot = True
+        FULL_VERSION_WITH_SNAPSHOT = "R123-12345.6.7-1234567-888888"
+        self.assertEqual(
+            (
+                FULL_VERSION_WITH_SNAPSHOT,
+                "gs://chromeos-image-archive/eve-snapshot",
+            ),
+            self.sdk.GetVersionInfo(FULL_VERSION_WITH_SNAPSHOT),
+        )
 
 
 class PathVerifyTest(

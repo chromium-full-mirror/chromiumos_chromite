@@ -9,10 +9,13 @@ from chromite.api.controller import chrome_lkgm
 from chromite.api.gen.chromite.api import chrome_lkgm_pb2
 from chromite.lib import chrome_lkgm as chrome_lkgm_lib
 from chromite.lib import cros_test_lib
+from chromite.lib import gs
+from chromite.lib import gs_unittest
+from chromite.lib import partial_mock
 
 
 class FindLkgmTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
-    """Unittests for FindLkgm."""
+    """Unittests for FindLkgm with mocking chrome_lkgm_lib."""
 
     LKGM_VERSION = "123.0.0.4566"
     LKGM_SNAPSHOT_NUMBER = 123456
@@ -31,10 +34,11 @@ class FindLkgmTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.instance = self.finder_mock.return_value
 
         config_name = f"{self.request.build_target.name}/release"
+        gs_path = f"gs://bucket_name/{config_name}"
         self.get_full_version_mock = self.PatchObject(
             self.instance,
             "GetLatestVersionInfo",
-            return_value=(self.FALLBACK_VERSION, config_name),
+            return_value=(self.FALLBACK_VERSION, config_name, gs_path),
         )
 
     def testInvalidLkgm(self) -> None:
@@ -121,8 +125,186 @@ class FindLkgmTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             return_value=(self.LKGM_VERSION, None),
         )
         self.PatchObject(
-            self.instance, "GetLatestVersionInfo", return_value=(None, None)
+            self.instance,
+            "GetLatestVersionInfo",
+            return_value=(None, None, None),
         )
 
         chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
         self.assertTrue(self.response.error)
+
+
+class FindLkgmGSTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
+    """Unittests for FindLkgm with mocking GS access."""
+
+    LKGM_VERSION = "12345.0.0"
+    LKGM_SNAPSHOT_NUMBER = 123456
+    LKGM_SNAPSHOT_VERSION = LKGM_VERSION + "-" + str(LKGM_SNAPSHOT_NUMBER)
+    FULL_VERSION = "R123-12345.0.0.0"
+    FULL_VERSION_FALLBACK = "R123-12344.0.0.0"
+
+    def setUp(self) -> None:
+        self.request = chrome_lkgm_pb2.FindLkgmRequest()
+        self.request.build_target.name = "newboard"
+        self.request.chrome_src = "/home/user/chromium/src"
+        self.request.fallback_versions = 10
+        self.response = chrome_lkgm_pb2.FindLkgmResponse()
+        self.gs_mock = gs_unittest.GSContextMock()
+
+    def testGSQuery(self) -> None:
+        """LKGM version found."""
+
+        self.PatchObject(
+            chrome_lkgm_lib,
+            "GetChromeLkgm",
+            return_value=(self.LKGM_VERSION, None),
+        )
+        self.gs_mock.SetDefaultCmdResult()
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*/LATEST-%s" % self.LKGM_VERSION),
+            stdout=self.FULL_VERSION,
+        )
+
+        with self.gs_mock:
+            chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
+        self.assertFalse(self.response.error)
+        self.assertEqual(self.FULL_VERSION, self.response.full_version)
+        self.assertEqual("newboard-release", self.response.config_name)
+        self.assertEqual(self.LKGM_VERSION, self.response.chromeos_lkgm)
+
+    def testGSQueryPublic(self) -> None:
+        """LKGM version found (public board)."""
+
+        self.PatchObject(
+            chrome_lkgm_lib,
+            "GetChromeLkgm",
+            return_value=(self.LKGM_VERSION, None),
+        )
+
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*/LATEST-%s" % self.LKGM_VERSION),
+            stdout=self.FULL_VERSION,
+        )
+
+        self.request.use_external_config = True
+        with self.gs_mock:
+            chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
+        self.assertFalse(self.response.error)
+        self.assertEqual(self.FULL_VERSION, self.response.full_version)
+        self.assertEqual("newboard-public", self.response.config_name)
+        self.assertEqual(self.LKGM_VERSION, self.response.chromeos_lkgm)
+
+    def testGSQueryFallback(self) -> None:
+        """LKGM version not found, but fallbacked previous version found."""
+
+        self.PatchObject(
+            chrome_lkgm_lib,
+            "GetChromeLkgm",
+            return_value=(self.LKGM_VERSION, None),
+        )
+
+        def _RaiseException(*_args, **_kwargs) -> None:
+            raise gs.GSNoSuchKey("file does not exist")
+
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*/LATEST-%s" % self.LKGM_VERSION),
+            side_effect=_RaiseException,
+        )
+
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*/LATEST-12344.0.0"),
+            stdout=self.FULL_VERSION_FALLBACK,
+        )
+
+        with self.gs_mock:
+            chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
+        self.assertFalse(self.response.error)
+        self.assertEqual(self.FULL_VERSION_FALLBACK, self.response.full_version)
+        self.assertEqual("newboard-release", self.response.config_name)
+        self.assertEqual(self.LKGM_VERSION, self.response.chromeos_lkgm)
+
+    def testGSQuerySnapshot(self) -> None:
+        """LKGM version (with snapshot number) found."""
+
+        self.PatchObject(
+            chrome_lkgm_lib,
+            "GetChromeLkgm",
+            return_value=(self.LKGM_VERSION, self.LKGM_SNAPSHOT_NUMBER),
+        )
+
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex(
+                "cat .*/LATEST-SNAPSHOT-%s" % self.LKGM_SNAPSHOT_NUMBER
+            ),
+            stdout=self.FULL_VERSION,
+        )
+
+        with self.gs_mock:
+            chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
+        self.assertFalse(self.response.error)
+        self.assertEqual(self.FULL_VERSION, self.response.full_version)
+        self.assertEqual("newboard-snapshot", self.response.config_name)
+        self.assertEqual(
+            self.LKGM_SNAPSHOT_VERSION, self.response.chromeos_lkgm
+        )
+
+    def testGSQueryPublicSnapshot(self) -> None:
+        """LKGM version found (public board)."""
+
+        self.PatchObject(
+            chrome_lkgm_lib,
+            "GetChromeLkgm",
+            return_value=(self.LKGM_VERSION, self.LKGM_SNAPSHOT_NUMBER),
+        )
+
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex(
+                "cat .*/LATEST-SNAPSHOT-%s" % self.LKGM_SNAPSHOT_NUMBER
+            ),
+            stdout=self.FULL_VERSION,
+        )
+
+        self.request.use_external_config = True
+        with self.gs_mock:
+            chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
+        self.assertFalse(self.response.error)
+        self.assertEqual(self.FULL_VERSION, self.response.full_version)
+        self.assertEqual("newboard-public-snapshot", self.response.config_name)
+        self.assertEqual(
+            self.LKGM_SNAPSHOT_VERSION, self.response.chromeos_lkgm
+        )
+
+    def testGSQueryFallbackSnapshot(self) -> None:
+        """LKGM version not found, but fallbacked previous version found."""
+
+        self.PatchObject(
+            chrome_lkgm_lib,
+            "GetChromeLkgm",
+            return_value=(self.LKGM_VERSION, self.LKGM_SNAPSHOT_NUMBER),
+        )
+
+        def _RaiseException(*_args, **_kwargs) -> None:
+            raise gs.GSNoSuchKey("file does not exist")
+
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex(
+                "cat .*/LATEST-SNAPSHOT-%s" % self.LKGM_SNAPSHOT_NUMBER
+            ),
+            side_effect=_RaiseException,
+        )
+
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex(
+                "cat .*/LATEST-SNAPSHOT-%s" % (self.LKGM_SNAPSHOT_NUMBER - 1)
+            ),
+            stdout=self.FULL_VERSION_FALLBACK,
+        )
+
+        with self.gs_mock:
+            chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
+        self.assertFalse(self.response.error)
+        self.assertEqual(self.FULL_VERSION_FALLBACK, self.response.full_version)
+        self.assertEqual("newboard-snapshot", self.response.config_name)
+        self.assertEqual(
+            self.LKGM_SNAPSHOT_VERSION, self.response.chromeos_lkgm
+        )

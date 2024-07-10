@@ -193,19 +193,6 @@ class SDKFetcher:
         if self.toolchain_path is None:
             self.toolchain_path = "gs://%s" % constants.SDK_GS_BUCKET
 
-        if use_external_config or not self._HasInternalConfig():
-            if use_snapshot:
-                self.config_name = f"{board}-public-snapshot"
-            else:
-                self.config_name = f"{board}-{config_lib.CONFIG_TYPE_PUBLIC}"
-            self.gs_base = f"gs://chromiumos-image-archive/{self.config_name}"
-        else:
-            if use_snapshot:
-                self.config_name = f"{board}-snapshot"
-            else:
-                self.config_name = f"{board}-{config_lib.CONFIG_TYPE_RELEASE}"
-            self.gs_base = f"gs://chromeos-image-archive/{self.config_name}"
-
         self.version_finder = chrome_lkgm.ChromeOSVersionFinder(
             cache_dir,
             self.board,
@@ -625,6 +612,42 @@ class SDKFetcher:
                 "R123-12345.0.0 or R123-12345.0.0-1234567."
             )
 
+        with self.misc_cache.Lookup(
+            ("full-version", self.board, version)
+        ) as ref:
+            if ref.Exists(lock=True):
+                return osutils.ReadFile(ref.path).strip()
+
+            full_version, _ = self.GetVersionInfo(version)
+            ref.AssignText(full_version)
+            return full_version
+
+    def GetVersionInfo(self, version: str):
+        """Get the full ChromeOS version and the GS path of artifacts.
+
+        Args:
+            version: either of the followings:
+              - A ChromeOS platform number of the form XXXX.XX.XX, i.e.,
+                12345.0.0
+              - A ChromeOS platform number + snapshot identifier:
+                (i.e. 12345.0.0-1234567)
+              - A full version string. It will be returned unmodified.
+                (i.e. R123-123456.0.0, or R123-12345.0.0-67890-8888888)
+
+        Returns:
+            Tuple of 2 values:
+            1) Full ChromeOS version (eg. R123-12345.0.0)
+            2) Path of artifacts in Google Storage
+               (eg. "gs://chromeos-image-archive/eve-release/")
+        """
+        if version.startswith("R"):
+            # Assuming the given version is full version.
+            if self.use_snapshot:
+                gs_path = self.version_finder.snapshot_gs_base
+            else:
+                gs_path = self.version_finder.gs_base
+            return version, gs_path
+
         if self.use_snapshot:
             versions = version.split("-", 2)
             if len(versions) == 1:
@@ -637,28 +660,26 @@ class SDKFetcher:
                     "it doesn't starts with 'R'. The input should be a string"
                     "like 12345.0.0-1234567."
                 )
-            version = versions[0]
+            platform_version = versions[0]
             snapshot_identifier = int(versions[1])
         else:
+            platform_version = version
             snapshot_identifier = None
 
-        with self.misc_cache.Lookup(
-            ("full-version", self.board, version, str(snapshot_identifier))
-        ) as ref:
-            if ref.Exists(lock=True):
-                return osutils.ReadFile(ref.path).strip()
+        (
+            full_version,
+            config_name,
+            gs_path,
+        ) = self.version_finder.GetLatestVersionInfo(
+            platform_version, snapshot_identifier
+        )
 
-            full_version, _ = self.version_finder.GetLatestVersionInfo(
-                version, snapshot_identifier
+        if full_version is None:
+            raise MissingSDK(
+                config_name, self.board, platform_version, snapshot_identifier
             )
 
-            if full_version is None:
-                raise MissingSDK(
-                    self.config_name, self.board, version, snapshot_identifier
-                )
-
-            ref.AssignText(full_version)
-            return full_version
+        return full_version, gs_path
 
     def _GetVersionGSBase(self, version: Optional[str]):
         """The base path of the SDK for a particular version."""
@@ -667,8 +688,8 @@ class SDKFetcher:
         if self.sdk_path is not None:
             return self.sdk_path
 
-        full_version = self.GetFullVersion(version)
-        return os.path.join(self.gs_base, full_version)
+        full_version, gs_path = self.GetVersionInfo(version)
+        return os.path.join(gs_path, full_version)
 
     def _GetTarballCacheKey(self, component, url):
         """Builds the cache key tuple for an SDK component.
