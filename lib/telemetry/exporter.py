@@ -50,7 +50,7 @@ class ChromiteFileExporter(export.SpanExporter):
             # Chown to the non-root user.
             try:
                 osutils.Chown(self.in_progress, user=True)
-            except OSError as e:
+            except (osutils.UnknownNonRootUserError, OSError) as e:
                 # Just in case.
                 logging.debug(e)
 
