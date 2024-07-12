@@ -225,7 +225,7 @@ def update_gmerge_binhost(sysroot: str, pkgs: List[str], deep: bool) -> bool:
     # If the gmerge binhost was changed, update the Packages file to match.
     if changed:
         cmd = [
-            cros_build_lib.GetSysrootToolPath(sysroot, "emaint"),
+            osutils.Which("emaint") or "/usr/sbin/emaint",
             "-f",
             "binhost",
         ]
