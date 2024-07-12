@@ -50,14 +50,16 @@ def _filter_install_mask_from_package(in_path: str, out_path: str) -> None:
     with osutils.TempDir(sudo_rm=True) as tmpd:
         tmpd_sysroot = Path(tmpd) / "sysroot"
         osutils.SafeMakedirs(tmpd_sysroot)
-        # Extract package to temporary directory (excluding masked files).
-        # Because the binpkg isn't a well-formed zstd file due to the xpak
-        # content at the end, we have to use zstd or zstdmt (pzstd doesn't work)
-        # and we have to pipe via stdout rather than extracting to the
-        # filesystem (that throws an error that's skipped with -c).
-        res = cros_build_lib.sudo_run(
+        # Decompress package to memory.  The binpkg isn't a well-formed zstd
+        # file due to the xpak content at the end, so we have to use zstd or
+        # zstdmt (pzstd doesn't work), and we have to pipe via stdout rather
+        # than extracting to the filesystem (that throws an error that's skipped
+        # with -c).
+        res = cros_build_lib.run(
             ["zstdmt", "-dcf", in_path], stdout=subprocess.PIPE
         )
+
+        # Extract package to temporary directory (excluding masked files).
         # Run tar as root so we can extract paths using the correct ownership
         # and permissions.  Sometimes ebuilds use fowners when installing.  Use
         # numeric owners so we don't worry about the current name:id mapping vs
