@@ -96,7 +96,26 @@ def _filter_install_mask_from_package(in_path: str, out_path: str) -> None:
         portage.xpak.tbz2(tmp_out_path).recompose_mem(my_xpak)
 
         # Move it to the final location.
-        shutil.move(tmp_out_path, out_path)
+        try:
+            shutil.move(tmp_out_path, out_path)
+        except PermissionError:
+            # Developers with older layouts will often have dirs owned by root.
+            # Reset those perms here to recover gracefully.
+            # TODO(build): Delete this Jan 2025.
+            cros_build_lib.sudo_run(
+                [
+                    "find",
+                    os.path.dirname(gmerge_dir),
+                    "-uid",
+                    "0",
+                    "-exec",
+                    "chown",
+                    f"{os.getuid()}:{os.getgid()}",
+                    "{}",
+                    "+",
+                ]
+            )
+            shutil.move(tmp_out_path, out_path)
 
 
 def update_gmerge_binhost(sysroot: str, pkgs: List[str], deep: bool) -> bool:
