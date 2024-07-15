@@ -207,11 +207,9 @@ def update_gmerge_binhost(sysroot: str, pkgs: List[str], deep: bool) -> bool:
 
     # Remove any stale packages that exist in the gmerge binhost but are not
     # installed anymore.
-    changed = False
     for pkg in gmerge_matches - installed_matches:
         gmerge_path = gmerge_tree.getname(pkg)
-        if osutils.SafeUnlink(gmerge_path, sudo=True):
-            changed = True
+        osutils.SafeUnlink(gmerge_path, sudo=True)
 
     # Copy any installed packages that have been rebuilt to the gmerge binhost.
     for pkg in installed_matches:
@@ -228,15 +226,5 @@ def update_gmerge_binhost(sysroot: str, pkgs: List[str], deep: bool) -> bool:
 
         logging.info("Filtering install mask from %s", pkg)
         _filter_install_mask_from_package(build_path, gmerge_path)
-        changed = True
-
-    # If the gmerge binhost was changed, update the Packages file to match.
-    if changed:
-        cmd = [
-            osutils.Which("emaint") or "/usr/sbin/emaint",
-            "-f",
-            "binhost",
-        ]
-        cros_build_lib.run(cmd, extra_env={"PKGDIR": pkgdir})
 
     return bool(installed_matches)
