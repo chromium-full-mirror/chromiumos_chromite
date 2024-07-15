@@ -326,11 +326,29 @@ class GSContext:
             common_path = os.path.join(cache_dir, constants.COMMON_CACHE)
             tar_cache = cache.TarballCache(common_path, cache_user=cache_user)
             key = (cls.GSUTIL_TAR,)
-            # The common cache will not be LRU, removing the need to hold a read
-            # lock on the cached gsutil.
-            ref = tar_cache.Lookup(key)
-            ref.SetDefault(cls.GSUTIL_URL)
-            cls._DEFAULT_GSUTIL_BIN = os.path.join(ref.path, "gsutil", "gsutil")
+
+            # The `with` block will release the read lock we took when calling
+            # `SetDefault`. We do this so that we have parity between the case
+            # where the entry exists, and doesn't exist.
+            with tar_cache.Lookup(key) as ref:
+                # The creation of the entry is performed by a `mv` operation
+                # which is atomic. We check for existence without acquiring a
+                # lock because it's possible for the lock to have been created
+                # by root and we run into permission issues when acquiring a
+                # lock. We make the assumption that once an entry exists, it
+                # will never get deleted. This allows us to skip acquiring a
+                # read lock in the happy path.
+                if not ref.Exists():
+                    # When the entry doesn't exist, we need to take a lock,
+                    # otherwise we can have multiple processes queuing up to
+                    # generate the entry which breaks the assumption we made
+                    # above.
+                    ref.SetDefault(cls.GSUTIL_URL, lock=True)
+
+                cls._DEFAULT_GSUTIL_BIN = os.path.join(
+                    ref.path, "gsutil", "gsutil"
+                )
+
             cls._DetermineCrcmodStrategy(Path(ref.path))
         else:
             # Check if the default gsutil path for builders exists. If
