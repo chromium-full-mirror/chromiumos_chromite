@@ -1517,7 +1517,6 @@ class ChromeSDKCommand(command.CliCommand):
             gn_args["is_chrome_branded"] = True
         else:
             gn_args.pop("is_chrome_branded", None)
-            gn_args.pop("internal_gles2_conform_tests", None)
 
         if options.official or options.internal:
             gn_args["is_official_build"] = True
