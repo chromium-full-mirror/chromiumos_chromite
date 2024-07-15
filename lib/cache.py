@@ -158,8 +158,21 @@ class CacheReference:
             default_path: The path to assign if the entry doesn't exist.
             lock: Acquire and maintain a read lock on the entry.
         """
+
+        if lock:
+            # If a process has already taken a write lock and is in the
+            # process of populating the entry, we don't want any additional
+            # processes queuing up to perform the same work. By taking a read
+            # lock before checking for existence we can delay the existence
+            # check until the entry has been populated.
+            self._ReadLock()
+
         if not self._Exists():
+            # This will take a write lock before populating the entry and drop
+            # the lock afterwards. Ideally we would just downgrade the lock to
+            # a read lock.
             self._Assign(default_path)
+
         if lock:
             self._ReadLock()
 
