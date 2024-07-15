@@ -2,7 +2,27 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Installs packages from a sysroot into a gmerge-specific binhost"""
+"""Installs packages from a sysroot into a stripped binhost.
+
+Binpkgs in a sysroot contain all the runtime & development files in a single
+package.  When installing into a sysroot, we need all those files.  When
+installing into a release image (e.g. the rootfs), we want to strip out all
+the development files because they're quite large (sometimes O(100MB) if not
+more).  When creating the initial image, build_image handles that by applying
+various masks when unpacking into the new rootfs.  When deploying packages to
+a live device (e.g. `cros deploy`), we want to strip the development content
+on our (fast) workstation before transferring to our (slow) device.  Otherwise
+we might not have enough resources (e.g. space) on the device itself to unpack.
+
+So we keep the default pkgdir intact (e.g. /build/$BOARD/packages/) and create
+a parallel pkgdir (e.g. /build/$BOARD/stripped-packages/) to cache the packages
+we've stripped down before transferring over.
+
+NB: The "gmerge" name is a reference to a long defunct tool/process that has
+since been completely replaced by `cros deploy`.  Similarly, "binhost" refers to
+treating the pkgdir as a remote binhost which "gmerge" relied upon.  We should
+finish renaming this module & APIs at some point.
+"""
 
 import logging
 import os
