@@ -140,15 +140,23 @@ def update_gmerge_binhost(sysroot: str, pkgs: List[str], deep: bool) -> bool:
     # inconsistency with where the output is written for board sysroots.
     output_dir = os.path.join(sysroot, "tmp") if sysroot == "/" else sysroot
 
-    gmerge_pkgdir = os.path.join(output_dir, "gmerge-packages")
-    stripped_link = os.path.join(output_dir, "stripped-packages")
+    pkgdir = os.path.join(output_dir, "stripped-packages")
+
+    # Migrate old naming schema.
+    # TODO(build): Delete this logic in Jan 2025 & all "gmerge-packages".
+    legacy_link = os.path.join(output_dir, "gmerge-packages")
+    if os.path.islink(pkgdir):
+        osutils.SafeUnlink(pkgdir, sudo=True)
+    if not os.path.islink(legacy_link):
+        if os.path.isdir(legacy_link):
+            cros_build_lib.sudo_run(["mv", legacy_link, pkgdir])
+        else:
+            osutils.SafeUnlink(legacy_link, sudo=True)
+    osutils.SafeSymlink(os.path.basename(pkgdir), legacy_link, sudo=True)
 
     # Create gmerge pkgdir and give us permission to write to it.
-    osutils.SafeMakedirs(gmerge_pkgdir, sudo=True)
-    osutils.SafeSymlink(
-        os.path.basename(gmerge_pkgdir), stripped_link, sudo=True
-    )
-    osutils.Chown(gmerge_pkgdir, user=True)
+    osutils.SafeMakedirs(pkgdir, sudo=True)
+    osutils.Chown(pkgdir, user=True)
 
     # Load databases.
     trees = portage.create_trees(config_root=sysroot, target_root=sysroot)
@@ -156,7 +164,7 @@ def update_gmerge_binhost(sysroot: str, pkgs: List[str], deep: bool) -> bool:
     bintree = trees[sysroot]["bintree"]
     bintree.populate()
     gmerge_tree = portage.dbapi.bintree.binarytree(
-        pkgdir=gmerge_pkgdir, settings=bintree.settings
+        pkgdir=pkgdir, settings=bintree.settings
     )
     gmerge_tree.populate()
 
@@ -229,6 +237,6 @@ def update_gmerge_binhost(sysroot: str, pkgs: List[str], deep: bool) -> bool:
             "-f",
             "binhost",
         ]
-        cros_build_lib.run(cmd, extra_env={"PKGDIR": gmerge_pkgdir})
+        cros_build_lib.run(cmd, extra_env={"PKGDIR": pkgdir})
 
     return bool(installed_matches)
