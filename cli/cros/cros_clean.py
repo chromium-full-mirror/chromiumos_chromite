@@ -330,7 +330,7 @@ class CleanCommand(command.CliCommand):
         if self.options.deploy:
             logging.debug("Clean up the cros deploy cache.")
             with timer.timer("Clean up the cros deploy cache", logging.debug):
-                for subdir in ("custom-packages", "gmerge-packages"):
+                for subdir in ("custom-packages", "stripped-packages"):
                     for d in glob.glob(chroot.full_path("build", "*", subdir)):
                         Clean(d)
 
