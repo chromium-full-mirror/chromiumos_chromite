@@ -39,7 +39,6 @@ from chromite.lib import metrics_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import portage_util
-from chromite.lib import repo_util
 from chromite.lib import sysroot_lib
 from chromite.lib import workon_helper
 from chromite.lib.telemetry import trace
@@ -1631,12 +1630,13 @@ def _InstallPortageConfigs(
         fetched_binhosts = binhost_service.lookup_binhosts(
             target, binhost_lookup_service_data
         )
-    except repo_util.NotInRepoError:
+    # Do not block on any exceptions thrown from the lookup service.
+    except Exception as e:
         # TODO(b/324316870): Resolve implicit .repo dependency.
         if path_util.is_citc_checkout():
             logging.warning("Skipping setup_board binhost fetching in Cog.")
         else:
-            raise
+            logging.info("Lookup service error: %s", e)
 
     # Must be done after the profile is chosen or binhosts may be incomplete.
     sysroot.InstallMakeConfBoard(
