@@ -55,9 +55,16 @@ def _CleanAlternates(projects, alt_root) -> None:
 def _UpdateAlternatesDir(alternates_root, reference_maps, projects) -> None:
     is_mirror = {}
     for reference in reference_maps:
-        base = os.path.join(reference, ".repo", "manifests.git")
         result = git.RunGit(
-            base, ["config", "--local", "--get", "repo.mirror"], check=False
+            reference,
+            [
+                "config",
+                "--file",
+                ".repo/manifests.git/config",
+                "--get",
+                "repo.mirror",
+            ],
+            check=False,
         )
         is_mirror[reference] = (
             result.returncode == 0 and result.stdout.strip() == "true"
@@ -225,13 +232,21 @@ def WalkReferences(repo_root, max_depth=5, suppress=()):
 
         yield repo_root
         seen.add(repo_root)
-        base = os.path.join(repo_root, ".repo", "manifests.git")
-        result = git.RunGit(base, ["config", "repo.reference"], check=False)
+        result = git.RunGit(
+            repo_root,
+            [
+                "config",
+                "--file",
+                ".repo/manifests.git/config",
+                "repo.reference",
+            ],
+            check=False,
+        )
 
         if result.returncode not in (0, 1):
             raise Failed(
                 "Unexpected returncode %i from examining %s git "
-                "repo.reference configuration" % (result.returncode, base)
+                "repo.reference configuration" % (result.returncode, repo_root)
             )
 
         repo_root = result.stdout.strip()
