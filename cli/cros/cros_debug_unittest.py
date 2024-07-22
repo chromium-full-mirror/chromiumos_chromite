@@ -14,6 +14,13 @@ from chromite.lib import remote_access
 pytestmark = cros_test_lib.pytestmark_inside_only
 
 
+class MockCompletedProcess:
+    """Mocked out CompletedProcess to avoid communicating with a real remote"""
+
+    def __init__(self, run_output):
+        self.stdout = run_output
+
+
 class MockDebugCommand(command_unittest.MockCommand):
     """Mock out the debug command."""
 
@@ -52,16 +59,15 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
         self.device_mock = self.PatchObject(
             remote_access, "ChromiumOSDevice"
         ).return_value
+        self.device_mock.run.return_value = MockCompletedProcess("no ports")
 
     def testMissingExeAndPid(self) -> None:
-        """Test that command fails when --exe and --pid are not provided."""
-        self.SetupCommandMock([self.DEVICE])
-        self.assertRaises(
-            SystemExit,
-            self.cmd_mock.inst.ProcessOptions,
-            self.cmd_mock.parser,
-            self.cmd_mock.inst.options,
-        )
+        """Test that command fails when --exe and --pid are not provided.
+
+        Failure should occur in argument parsing on command setup.
+        """
+        with self.assertRaises(SystemExit):
+            self.SetupCommandMock([self.DEVICE])
 
     def testListDisallowedWithPid(self) -> None:
         """Test that --list is disallowed when --pid is used."""
@@ -74,16 +80,14 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
         )
 
     def testExeDisallowedWithPid(self) -> None:
-        """Test that --exe is disallowed when --pid is used."""
-        self.SetupCommandMock(
-            [self.DEVICE, "--exe", self.EXE, "--pid", self.PID]
-        )
-        self.assertRaises(
-            SystemExit,
-            self.cmd_mock.inst.ProcessOptions,
-            self.cmd_mock.parser,
-            self.cmd_mock.inst.options,
-        )
+        """Test that --exe is disallowed when --pid is used.
+
+        Failure should occur in argument parsing on command setup.
+        """
+        with self.assertRaises(SystemExit):
+            self.SetupCommandMock(
+                [self.DEVICE, "--exe", self.EXE, "--pid", self.PID]
+            )
 
     def testExeMustBeFullPath(self) -> None:
         """Test that --exe only takes full path as a valid argument."""

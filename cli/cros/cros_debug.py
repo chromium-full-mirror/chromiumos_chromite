@@ -8,18 +8,24 @@ import logging
 import os
 
 from chromite.cli import command
+from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
+from chromite.lib import debugger
 from chromite.lib import remote_access
+
+
+_DEBUGGER_LLDB = "lldb"
+_DEBUGGER_GDB = "gdb"
 
 
 @command.command_decorator("debug")
 class DebugCommand(command.CliCommand):
-    """Use GDB to debug a process running on the target device.
+    """Use LLDB to debug a process running on the target device.
 
-    This command starts a GDB session to debug a remote process running on the
-    target device. The remote process can either be an existing process or newly
-    started by calling this command.
+    This command starts an LLDB session to debug a remote process running on
+    the target device. The remote process can either be an existing process or
+    newly started by calling this command.
 
     This command can also be used to find out information about all running
     processes of an executable on the target device.
@@ -36,7 +42,7 @@ To debug a process by its pid:
     cros debug device --pid=1234
 """
 
-    def __init__(self, options) -> None:
+    def __init__(self, options: commandline.ArgumentNamespace) -> None:
         """Initialize DebugCommand."""
         super().__init__(options)
         # SSH connection settings.
@@ -50,17 +56,20 @@ To debug a process by its pid:
         self.list = False
         self.exe = None
         self.pid = None
-        # The command for starting gdb.
-        self.gdb_cmd = None
+
+        self.debugger_name = None
+        self.debugger_path = None
+        self.use_local_exe = False
+        self.sysroot = None
+        self.debug_server = None
 
     @classmethod
-    def AddParser(cls, parser) -> None:
+    def AddParser(cls, parser: commandline.ArgumentParser) -> None:
         """Add parser arguments."""
         super(cls, DebugCommand).AddParser(parser)
         cls.AddDeviceArgument(parser, positional=True)
         parser.add_argument(
             "--board",
-            default=None,
             help="The board to use. By default it is "
             "automatically detected. You can override the detected board with "
             "this option.",
@@ -68,25 +77,80 @@ To debug a process by its pid:
         parser.add_argument(
             "--private-key",
             type="str_path",
-            default=None,
             help="SSH identity file (private key).",
         )
         parser.add_argument(
             "-l",
             "--list",
             action="store_true",
-            default=False,
             help="List running processes of the executable on the target "
             "device.",
         )
+
         parser.add_argument(
-            "--exe", help="Full path of the executable on the target device."
+            "--use-local-exe",
+            action="store_true",
+            help="Interpret the path given with --exe as a local path, to be "
+            "copied to the remote device. Only works with --debugger=lldb and "
+            "remote debugging.",
         )
+
         parser.add_argument(
+            "--sysroot",
+            help="Path to the sysroot to pass to the debugger. In local "
+            "debugging, both the debugger and the target binary are run under "
+            "this sysroot.",
+        )
+
+        # Enforce that either --exe or --pid is provided, but not both.
+        debug_target = parser.add_mutually_exclusive_group(required=True)
+        debug_target.add_argument(
+            "--exe",
+            help="Full path of the executable on the target device. If "
+            "--use-local-exe is set, then interpret the path as a local path, "
+            "not a remote path.",
+        )
+        debug_target.add_argument(
             "-p",
             "--pid",
             type=int,
             help="The pid of the process on the target device.",
+        )
+
+        parser.add_argument(
+            "--debugger",
+            default=_DEBUGGER_LLDB,
+            choices=[_DEBUGGER_LLDB, _DEBUGGER_GDB],
+            help="Choose the debugger to use. The corresponding server will be "
+            "used on the remote device in remote debugging mode.",
+        )
+
+        parser.add_argument(
+            "--debugger-path",
+            help="Override the path to use for the local debugger binary. If "
+            "unspecified, defaults to the value of --debugger.",
+        )
+
+        parser.add_argument(
+            "--platform-port-local",
+            type=int,
+            help="Select a port to use for the LLDB platform connection on the "
+            "local machine. Defaults to automatically choosing an available "
+            "port. Requires --debugger=lldb.",
+        )
+        parser.add_argument(
+            "--platform-port-remote",
+            type=int,
+            help="Select a port to use for the LLDB platform connection on the "
+            "remote device. Defaults to automatically choosing an available "
+            "port. Requires --debugger=lldb.",
+        )
+        parser.add_argument(
+            "--gdbserver-port",
+            type=int,
+            help="Select a port to use for the gdbserver connection. The same "
+            "port number will be used for both the local and remote devices. "
+            "Defaults to automatically selecting an available port.",
         )
 
     @classmethod
@@ -102,6 +166,15 @@ To debug a process by its pid:
 
         if not options.exe.startswith("/"):
             parser.error("--exe must have a full pathname.")
+
+        if options.use_local_exe and options.debugger != _DEBUGGER_LLDB:
+            parser.error("--use-local-exe requires --debugger=lldb.")
+
+        if options.platform_port_local and options.debugger != _DEBUGGER_LLDB:
+            parser.error("--platform-port-local requires --debugger=lldb.")
+
+        if options.platform_port_remote and options.debugger != _DEBUGGER_LLDB:
+            parser.error("--platform-port-remote requires --debugger=lldb.")
 
     def _ListProcesses(self, device, pids) -> None:
         """Print out information of the processes in |pids|."""
@@ -134,22 +207,6 @@ To debug a process by its pid:
                 self.ssh_hostname,
             )
 
-    def _DebugNewProcess(self) -> None:
-        """Start a new process on the target device and attach gdb to it."""
-        logging.info(
-            "Ready to start and debug %s on device %s",
-            self.exe,
-            self.ssh_hostname,
-        )
-        cros_build_lib.run(self.gdb_cmd + ["--remote_file", self.exe])
-
-    def _DebugRunningProcess(self, pid) -> None:
-        """Start gdb and attach it to the remote running process with |pid|."""
-        logging.info(
-            "Ready to debug process %d on device %s", pid, self.ssh_hostname
-        )
-        cros_build_lib.run(self.gdb_cmd + ["--pid", str(pid)])
-
     def _ReadOptions(self) -> None:
         """Process options and set variables."""
         if self.options.device:
@@ -160,11 +217,51 @@ To debug a process by its pid:
         self.list = self.options.list
         self.exe = self.options.exe
         self.pid = self.options.pid
+        self.use_local_exe = self.options.use_local_exe
+        self.debugger_name = self.options.debugger
+        self.sysroot = self.options.sysroot
+
+        self.debugger_path = (
+            self.debugger_name
+            if self.options.debugger_path is None
+            else self.options.debugger_path
+        )
+
+    def _DebugNewProcess(self) -> None:
+        """Start a new process on the target device and attach gdb to it."""
+        logging.info(
+            "Ready to start and debug %s on device %s",
+            self.exe,
+            self.ssh_hostname,
+        )
+        with self.debug_server.start_server():
+            self.debug_server.debug_new_process(
+                self.exe,
+                use_remote_binary=(not self.use_local_exe),
+                board=self.board,
+            )
+
+    def _DebugRunningProcess(self, pid) -> None:
+        """Start gdb and attach it to the remote running process with |pid|."""
+        logging.info(
+            "Ready to debug process %d on device %s", pid, self.ssh_hostname
+        )
+        with self.debug_server.start_server():
+            self.debug_server.debug_existing_process(pid, board=self.board)
 
     def Run(self) -> None:
         """Run cros debug."""
         commandline.RunInsideChroot(self)
         self._ReadOptions()
+
+        using_lldb = self.debugger_name == _DEBUGGER_LLDB
+
+        if self.debugger_name == _DEBUGGER_GDB:
+            logging.error(
+                "gdb is not yet supported. Please use --debugger=lldb instead."
+            )
+            return
+
         with remote_access.ChromiumOSDeviceHandler(
             self.ssh_hostname,
             port=self.ssh_port,
@@ -178,23 +275,24 @@ To debug a process by its pid:
             )
             logging.info("Board is %s", self.board)
 
-            self.gdb_cmd = [
-                "gdb_remote",
-                "--ssh",
-                "--board",
-                self.board,
-                "--remote",
-                self.ssh_hostname,
-            ]
-            if self.ssh_port:
-                self.gdb_cmd.extend(["--ssh_port", str(self.ssh_port)])
+            # Set sysroot to build dir within the chroot
+            if self.sysroot is None:
+                self.sysroot = build_target_lib.get_default_sysroot_path(
+                    self.board
+                )
+
+            self.debug_server = debugger.LLVMDebugger(
+                debugger_path=self.debugger_path,
+                remote_device=device,
+                sysroot=self.sysroot,
+            )
 
             if self.pid:
                 self._DebugRunningProcess(self.pid)
                 return
 
             logging.debug("Executable path is %s", self.exe)
-            if not device.IsFileExecutable(self.exe):
+            if not using_lldb and not device.IsFileExecutable(self.exe):
                 cros_build_lib.Die(
                     'File path "%s" does not exist or is not executable on '
                     "device %s",
@@ -206,11 +304,11 @@ To debug a process by its pid:
             self._ListProcesses(device, pids)
 
             if self.list:
-                # If '--list' flag is on, do not launch GDB.
+                # If '--list' flag is on, do not launch a debugger.
                 return
 
             if pids:
-                choices = ["Start a new process under GDB"]
+                choices = ["Start a new process under LLDB"]
                 choices.extend(pids)
                 idx = cros_build_lib.GetChoice(
                     "Please select the process pid to debug (select [0] to "
