@@ -88,11 +88,148 @@ class ParserTest(cros_test_lib.MockTempDirTestCase):
 
     def testFullVersionWithSnapshot(self) -> None:
         """Tests that a platform version is allowed."""
-        VERSION = "R123-12345.6.7-123456"
+        VERSION = "R123-12345.6.7-123456-88888"
         with MockChromeSDKCommand(
             ["--board", SDKFetcherMock.BOARD, "--version", VERSION]
         ) as parser:
             self.assertEqual(parser.inst.options.version, VERSION)
+
+
+class VersionCheckMethodsTest(cros_test_lib.TestCase):
+    """Test the utility methods to check version string."""
+
+    VERSION = "4567.8.9"
+    FULL_VERSION = "R26-4567.8.9"
+    VERSION_WITH_SNAPSHOT = "4567.8.9-12345"
+    FULL_VERSION_WITH_SNAPSHOT = "R26-4567.8.9-12345-88888"
+
+    WRONG_FORMAT_VERSION1 = "1331488"
+    WRONG_FORMAT_VERSION2 = "129.0.6614.2"
+    WRONG_FORMAT_VERSION3 = "89.0.4357.3_rc-r1"
+    WRONG_FORMAT_VERSION4 = "R99-1234.B"
+
+    def testIsPlatformVersionn(self) -> None:
+        """Tests IsVersion method."""
+        self.assertTrue(
+            cros_chrome_sdk.ChromeSDKCommand.IsPlatformVersion(self.VERSION)
+        )
+        self.assertTrue(
+            cros_chrome_sdk.ChromeSDKCommand.IsPlatformVersion(
+                self.VERSION_WITH_SNAPSHOT
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsPlatformVersion(
+                self.FULL_VERSION
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsPlatformVersion(
+                self.FULL_VERSION_WITH_SNAPSHOT
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsPlatformVersion(
+                self.WRONG_FORMAT_VERSION1
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsPlatformVersion(
+                self.WRONG_FORMAT_VERSION2
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsPlatformVersion(
+                self.WRONG_FORMAT_VERSION3
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsPlatformVersion(
+                self.WRONG_FORMAT_VERSION4
+            )
+        )
+
+    def testIsFullVersion(self) -> None:
+        """Tests IsFullVersion method."""
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersion(self.VERSION)
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersion(
+                self.VERSION_WITH_SNAPSHOT
+            )
+        )
+        self.assertTrue(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersion(self.FULL_VERSION)
+        )
+        self.assertTrue(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersion(
+                self.FULL_VERSION_WITH_SNAPSHOT
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersion(
+                self.WRONG_FORMAT_VERSION1
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersion(
+                self.WRONG_FORMAT_VERSION2
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersion(
+                self.WRONG_FORMAT_VERSION3
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersion(
+                self.WRONG_FORMAT_VERSION4
+            )
+        )
+
+    def testIsFullVersionWithSnapshotSuffix(self) -> None:
+        """Tests IsSnapshotFullVersion method."""
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersionWithSnapshotSuffix(
+                self.VERSION
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersionWithSnapshotSuffix(
+                self.VERSION_WITH_SNAPSHOT
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersionWithSnapshotSuffix(
+                self.FULL_VERSION
+            )
+        )
+        self.assertTrue(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersionWithSnapshotSuffix(
+                self.FULL_VERSION_WITH_SNAPSHOT
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersionWithSnapshotSuffix(
+                self.WRONG_FORMAT_VERSION1
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersionWithSnapshotSuffix(
+                self.WRONG_FORMAT_VERSION2
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersionWithSnapshotSuffix(
+                self.WRONG_FORMAT_VERSION3
+            )
+        )
+        self.assertFalse(
+            cros_chrome_sdk.ChromeSDKCommand.IsFullVersionWithSnapshotSuffix(
+                self.WRONG_FORMAT_VERSION4
+            )
+        )
 
 
 def _GSCopyMock(_self, path, dest, **_kwargs) -> None:
@@ -383,7 +520,7 @@ class RunThroughTest(
         """Test if snapshot builds are reflected in args."""
         self.SetupCommandMock(
             many_boards=True,
-            extra_args=["--snapshot", "--version=4567.8.9-123456"],
+            extra_args=["--version=4567.8.9-123456"],
         )
 
         self.cmd_mock.inst.ProcessOptions(
@@ -807,29 +944,12 @@ class VersionTest(
             self.FULL_VERSION, self.sdk.GetFullVersion(self.FULL_VERSION)
         )
 
-    def testFullVersionFromFullVersionWithoutEnablingSnapsot(self) -> None:
-        """Chacking a wrong argument
-
-        Checking passing a full-version with snapshot identifier to
-        GetFullVersion method in non-snapshot environment.
-        """
-
-        self.sdk_mock.UnMockAttr("GetFullVersion")
-        FULL_VERSION_WITH_SNAPSHOT = "R123-12345.6.7-1234567-BUILDID"
-
-        self.assertRaises(
-            ValueError,
-            self.sdk.GetFullVersion,
-            FULL_VERSION_WITH_SNAPSHOT,
-        )
-
     def testFullVersionFromVersionWithSnapsot(self) -> None:
         """Test that a specified version + snapshot identifier is allowed."""
         self.sdk_mock.UnMockAttr("GetFullVersion")
         self.sdk_mock.UnMockAttr("GetVersionInfo")
 
-        self.sdk.use_snapshot = True
-        FULL_VERSION_WITH_SNAPSHOT = "R123-12345.6.7-1234567-BUILDID"
+        FULL_VERSION_WITH_SNAPSHOT = "R123-12345.6.7-1234567-888888"
         VERSION_WITH_SNAPSHOT = "12345.6.7-1234567"
         self.gs_mock.AddCmdResult(
             partial_mock.ListRegex("cat .*/LATEST-SNAPSHOT-%d" % self.SNAPSHOT),
@@ -838,39 +958,6 @@ class VersionTest(
         self.assertEqual(
             FULL_VERSION_WITH_SNAPSHOT,
             self.sdk.GetFullVersion(VERSION_WITH_SNAPSHOT),
-        )
-
-    def testFullVersionFromFullVersionWithSnapsot(self) -> None:
-        """Test that a fullversion is resulted in the same full version."""
-        self.sdk_mock.UnMockAttr("GetFullVersion")
-        self.sdk_mock.UnMockAttr("GetVersionInfo")
-
-        self.sdk.use_snapshot = True
-        FULL_VERSION_WITH_SNAPSHOT = "R123-12345.6.7-1234567-BUILDID"
-        self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex("cat .*/LATEST-SNAPSHOT-%d" % self.SNAPSHOT),
-            stdout=FULL_VERSION_WITH_SNAPSHOT,
-        )
-        self.assertEqual(
-            FULL_VERSION_WITH_SNAPSHOT,
-            self.sdk.GetFullVersion(FULL_VERSION_WITH_SNAPSHOT),
-        )
-
-    def testFullVersionFromVersionWithoutSnapshotIdentifier(self) -> None:
-        """Chacking a wrong argument
-
-        Test that a platform version is resulted in the corresponding full
-        version.
-        """
-        self.sdk_mock.UnMockAttr("GetFullVersion")
-        self.sdk_mock.UnMockAttr("GetVersionInfo")
-
-        self.sdk.use_snapshot = True
-        VERSION_WITHOUT_SNAPSHOT = "12345.6.7"
-        self.assertRaises(
-            ValueError,
-            self.sdk.GetFullVersion,
-            VERSION_WITHOUT_SNAPSHOT,
         )
 
     def testFullVersionCaching(self) -> None:
@@ -936,6 +1023,18 @@ class VersionTest(
             f"{self.VERSION}-{self.SNAPSHOT}",
         )
 
+    def testGetFullVersionWithWrongArgument(self) -> None:
+        """Chacking a wrong argument"""
+        self.sdk_mock.UnMockAttr("GetFullVersion")
+        self.sdk_mock.UnMockAttr("GetVersionInfo")
+
+        WRONG_VERSION = "123456"
+        self.assertRaises(
+            ValueError,
+            self.sdk.GetFullVersion,
+            WRONG_VERSION,
+        )
+
     def testDefaultEnvBadBoard(self) -> None:
         """Verify skips version in the environment if board doesn't match."""
         os.environ[cros_chrome_sdk.SDKFetcher.SDK_VERSION_ENV] = self.VERSION
@@ -966,7 +1065,6 @@ class VersionTest(
     def testGetVersionInfoWithSnapshot(self) -> None:
         self.sdk_mock.UnMockAttr("GetVersionInfo")
 
-        self.sdk.use_snapshot = True
         FULL_VERSION_WITH_SNAPSHOT = "R123-12345.6.7-1234567-888888"
         VERSION_WITH_SNAPSHOT = "12345.6.7-1234567"
         self.gs_mock.AddCmdResult(
@@ -993,7 +1091,6 @@ class VersionTest(
     def testGetVersionInfoWithSnapshotFullVersion(self) -> None:
         self.sdk_mock.UnMockAttr("GetVersionInfo")
 
-        self.sdk.use_snapshot = True
         FULL_VERSION_WITH_SNAPSHOT = "R123-12345.6.7-1234567-888888"
         self.assertEqual(
             (
