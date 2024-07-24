@@ -614,7 +614,6 @@ sys-firmware/chromeos-fpmcu-release-bloonchipper
 sys-firmware/chromeos-fpmcu-release-dartmonkey
 sys-firmware/chromeos-fpmcu-release-nami
 sys-firmware/chromeos-fpmcu-release-nocturne
-sys-firmware/fw-engprod-tools
 sys-firmware/fwupd-peripherals
 sys-firmware/fwupd-storage
 sys-firmware/gl3590-firmware
