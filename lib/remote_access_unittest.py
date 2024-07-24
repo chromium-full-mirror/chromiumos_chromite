@@ -187,12 +187,12 @@ class CreateTunnelTest(cros_test_lib.MockTempDirTestCase):
             ),
             (
                 remote_access.PortForwardSpec(
-                    local_host="foo",
+                    local_host="",
                     local_port=3240,
-                    remote_host="",
+                    remote_host="foo",
                     remote_port=12345,
                 ),
-                "12345:foo:3240",
+                "3240:foo:12345",
             ),
         ):
             result = self.host.CreateTunnel(to_local=[spec]).args

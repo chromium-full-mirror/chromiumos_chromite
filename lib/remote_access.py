@@ -290,19 +290,30 @@ class PortForwardSpec:
         self.remote_host = remote_host
 
     @property
-    def command_line_spec(self):
-        """Return the port forwarding spec for the `ssh` command."""
+    def command_line_spec_remote(self) -> str:
+        """Return the port forwarding spec for the `ssh` command.
+
+        This order is only correct for the -R forwarding option.
+        """
         if not self.remote_host:
-            return "%d:%s:%d" % (
-                self.remote_port,
-                self.local_host,
-                self.local_port,
-            )
-        return "%s:%d:%s:%d" % (
-            self.remote_host,
-            self.remote_port,
-            self.local_host,
-            self.local_port,
+            return f"{self.remote_port}:{self.local_host}:{self.local_port}"
+        return (
+            f"{self.remote_host}:{self.remote_port}:"
+            f"{self.local_host}:{self.local_port}"
+        )
+
+    @property
+    def command_line_spec_local(self) -> str:
+        """Return the port forwarding spec for the `ssh` command.
+
+        This order is only correct for the -L forwarding option.
+        """
+        if not self.local_host:
+            return f"{self.local_port}:{self.remote_host}:{self.remote_port}"
+
+        return (
+            f"{self.local_host}:{self.local_port}:"
+            f"{self.remote_host}:{self.remote_port}"
         )
 
 
@@ -511,13 +522,13 @@ class RemoteAccess:
             ssh_cmd.extend(
                 token
                 for spec in to_local
-                for token in ("-L", spec.command_line_spec)
+                for token in ("-L", spec.command_line_spec_local)
             )
         if to_remote is not None:
             ssh_cmd.extend(
                 token
                 for spec in to_remote
-                for token in ("-R", spec.command_line_spec)
+                for token in ("-R", spec.command_line_spec_remote)
             )
         ssh_cmd.append("-N")
         ssh_cmd.append(self.target_ssh_url)
