@@ -403,7 +403,7 @@ class Subtool:
         exact URL where the package will be uploaded.
         """
         if self.package.type == subtools_pb2.SubtoolPackage.EXPORT_CIPD:
-            return f"http://go/cipd/p/{self.cipd_package}"
+            return f"http://go/cipd/{self.cipd_package}"
         elif self.package.type == subtools_pb2.SubtoolPackage.EXPORT_GCS:
             suburl = self.package.name
             if self.package.gcs_export_options.prefix:
