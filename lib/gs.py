@@ -565,6 +565,12 @@ wheel: <
         # including the time spent actually uploading or downloading.
         self.gsutil_flags = ["-o", "Boto:num_retries=10"]
 
+        # The default state directory (~/.gsutil) is not writable for the root
+        # account, as the SDK mounts /root as read-only.  Use a directory in
+        # /tmp for the root account.
+        if osutils.IsRootUser():
+            self.gsutil_flags += ["-o", "GSUtil:state_dir=/tmp/gsutil.root"]
+
         # Set HTTP proxy if environment variable http_proxy is set
         # (crbug.com/325032).
         if "http_proxy" in os.environ:
