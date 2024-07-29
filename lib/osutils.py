@@ -505,6 +505,16 @@ def SafeSymlink(
         sudo: If True, create the link as root.
     """
     dest = Path(dest)
+
+    # Bail early if the link exists and points to the right location.
+    try:
+        current_source = os.readlink(dest)
+    except OSError:
+        pass
+    else:
+        if current_source == str(source):
+            return
+
     if sudo and IsNonRootUser():
         cros_build_lib.sudo_run(
             ["ln", "-sfT", str(source), str(dest)], print_cmd=False, stderr=True

@@ -623,6 +623,23 @@ class TestOsutils(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(group, Group(filename))
 
 
+def test_safe_symlink_exists(tmp_path):
+    """Test that SafeSymlink when dest already exists at the right path."""
+    osutils.SafeSymlink("foo.txt", tmp_path / "symlink")
+    orig_mtime = os.lstat(tmp_path / "symlink").st_mtime
+
+    # Sleep 10 ms to ensure that mtime should change if we rewrite the symlink.
+    time.sleep(0.01)
+
+    # Link to the same path, mtime should not change.
+    osutils.SafeSymlink("foo.txt", tmp_path / "symlink")
+    assert os.lstat(tmp_path / "symlink").st_mtime == orig_mtime
+
+    # Link to a different path, mtime should change.
+    osutils.SafeSymlink("bar.txt", tmp_path / "symlink")
+    assert os.lstat(tmp_path / "symlink").st_mtime != orig_mtime
+
+
 class TestEmptyDir(cros_test_lib.TempDirTestCase):
     """Test osutils.EmptyDir."""
 
