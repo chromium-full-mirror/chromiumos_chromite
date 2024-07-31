@@ -364,7 +364,9 @@ GROUP_BASELINE = dict(
             users={"patchpaneld", "secagentd"},
         ),
         GroupEntry(
-            group="wayland", gid=601, users={"chronos", "crosvm", "pluginvm"}
+            group="wayland",
+            gid=601,
+            users={"chronos", "crosvm", "ferrochromed", "pluginvm"},
         ),
         GroupEntry(group="arc-bridge", gid=602, users={"chronos"}),
         GroupEntry(group="arc-camera", gid=603, users={"chronos", "crosvm"}),
