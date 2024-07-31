@@ -43,7 +43,7 @@ class SDKSourceDetector(resources.ResourceDetector):
                 resource[
                     "manifest_commit_date"
                 ] = commit.commit_date.isoformat()
-                resource["manifest_change_id"] = commit.change_id
+                resource["manifest_change_id"] = commit.change_id or ""
                 resource["manifest_commit_sha"] = commit.sha
                 resource[
                     "manifest_sync_date"
