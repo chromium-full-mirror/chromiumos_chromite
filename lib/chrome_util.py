@@ -447,6 +447,7 @@ _COPY_PATHS_CHROME = (
     Path("locales/*.pak", optional=True),
     Path("locales/*.pak.gz", optional=True),
     Path("metadata.json", optional=True),
+    Path("mojo_proxy", exe=True, optional=True),
     Path("mojo_service_manager/", optional=True),
     Path("Packages/chrome_content_browser/manifest.json", optional=True),
     Path("Packages/chrome_content_gpu/manifest.json", optional=True),
