@@ -154,6 +154,7 @@ def MarkAndroidEBuildAsStable(
     arc_bucket_url,
     runtime_artifacts_bucket_url,
     ignore_data_collector_artifacts,
+    srcroot,
 ):
     r"""Uprevs the Android ebuild.
 
@@ -174,6 +175,7 @@ def MarkAndroidEBuildAsStable(
         runtime_artifacts_bucket_url: root of runtime artifacts
         ignore_data_collector_artifacts: whether or not to ignore artifacts
             from previous DataCollector runs for generating variables
+        srcroot: Path to the ChromeOS src/ directory.
 
     Returns:
         Tuple[str, List[str], List[str]] if revved, or None
@@ -245,9 +247,28 @@ def MarkAndroidEBuildAsStable(
         osutils.SafeUnlink(stable_candidate.ebuild_path)
         files_to_remove.append(stable_candidate.ebuild_path)
 
+    # The `ebuild manifest` command needs to run inside chroot. Resolve the
+    # ebuild path inside chroot for the command if the script is running
+    # outside.
+    new_ebuild_path_in_chroot = new_ebuild_path
+    if cros_build_lib.IsOutsideChroot():
+        assert new_ebuild_path.startswith(srcroot)
+        new_ebuild_path_in_chroot = os.path.join(
+            constants.CHROOT_SOURCE_ROOT,
+            "src",
+            new_ebuild_path[len(srcroot) :].lstrip("/"),
+        )
+
     # Update ebuild manifest and git add it.
-    gen_manifest_cmd = ["ebuild", new_ebuild_path, "manifest", "--force"]
-    cros_build_lib.run(gen_manifest_cmd, extra_env=None, print_cmd=True)
+    gen_manifest_cmd = [
+        "ebuild",
+        new_ebuild_path_in_chroot,
+        "manifest",
+        "--force",
+    ]
+    cros_build_lib.run(
+        gen_manifest_cmd, enter_chroot=True, extra_env=None, print_cmd=True
+    )
     files_to_add.append(os.path.join(package_dir, "Manifest"))
 
     return (
@@ -381,6 +402,7 @@ def main(argv) -> None:
         options.arc_bucket_url,
         options.runtime_artifacts_bucket_url,
         options.ignore_data_collector_artifacts,
+        options.srcroot,
     )
 
     output = dict(revved=bool(revved))
