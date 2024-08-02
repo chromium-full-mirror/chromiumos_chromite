@@ -8,6 +8,8 @@ import builtins
 import os
 from unittest import mock
 
+from chromite.lib import constants
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
@@ -94,6 +96,18 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
         self.old2 = ebuild % ("%s-r1" % self.old2_version)
         self.new_version = "100"
         self.new = ebuild % ("%s-r1" % self.new_version)
+        self.new_in_chroot = os.path.join(
+            android.GetAndroidPackageDir(
+                self.android_package,
+                overlay_dir=os.path.join(
+                    constants.CHROOT_SOURCE_ROOT,
+                    "src",
+                    "private-overlays",
+                    "project-cheets-private",
+                ),
+            ),
+            f"{self.android_package}-{self.new_version}-r1.ebuild",
+        )
 
         osutils.WriteFile(self.unstable, self.unstable_data, makedirs=True)
         osutils.WriteFile(self.old, self.stable_data, makedirs=True)
@@ -121,6 +135,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(
             portage_util.EBuild, "GetCrosWorkonVars", return_value=None
         )
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
         stable_candidate = portage_util.EBuild(self.old2)
         unstable = portage_util.EBuild(self.unstable)
         android_version = self.new_version
@@ -136,6 +151,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
             self.arc_bucket_url,
             self.runtime_artifacts_bucket_url,
             False,
+            str(self.tempdir),
         )
 
         self.assertIsNotNone(revved)
@@ -146,6 +162,56 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
         )
         self.assertEqual(
             files_to_add, [self.new, os.path.join(package_dir, "Manifest")]
+        )
+        rc_mock.assertCommandCalled(
+            ["ebuild", self.new, "manifest", "--force"],
+            enter_chroot=True,
+            extra_env=None,
+            print_cmd=True,
+        )
+        self.assertEqual(files_to_remove, [self.old2])
+        self.mock_find_data_collector_artifacts.assert_called()
+
+    def testMarkAndroidEBuildAsStableOutsideChroot(self) -> None:
+        """Test updating of ebuild outside chroot."""
+        rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc_mock.SetDefaultCmdResult()
+        self.PatchObject(
+            portage_util.EBuild, "GetCrosWorkonVars", return_value=None
+        )
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+        stable_candidate = portage_util.EBuild(self.old2)
+        unstable = portage_util.EBuild(self.unstable)
+        android_version = self.new_version
+        package_dir = self.mock_android_dir
+
+        revved = cros_mark_android_as_stable.MarkAndroidEBuildAsStable(
+            stable_candidate,
+            unstable,
+            self.android_package,
+            android_version,
+            package_dir,
+            self.android_branch,
+            self.arc_bucket_url,
+            self.runtime_artifacts_bucket_url,
+            False,
+            str(self.tempdir),
+        )
+
+        self.assertIsNotNone(revved)
+        version_atom, files_to_add, files_to_remove = revved
+        self.assertEqual(
+            version_atom,
+            f"chromeos-base/{self.android_package}-{self.new_version}-r1",
+        )
+        self.assertEqual(
+            files_to_add, [self.new, os.path.join(package_dir, "Manifest")]
+        )
+        rc_mock.assertCommandCalled(
+            ["ebuild", self.new_in_chroot, "manifest", "--force"],
+            enter_chroot=True,
+            extra_env=None,
+            print_cmd=True,
         )
         self.assertEqual(files_to_remove, [self.old2])
         self.mock_find_data_collector_artifacts.assert_called()
@@ -171,6 +237,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
             self.arc_bucket_url,
             self.runtime_artifacts_bucket_url,
             True,
+            str(self.tempdir),
         )
 
         self.mock_find_data_collector_artifacts.assert_not_called()
