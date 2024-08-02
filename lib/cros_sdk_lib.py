@@ -901,7 +901,7 @@ class ChrootCreator:
     #   "audio" group, so we wouldn't get access to /dev/snd/ nodes directly.
     # TODO(build): See if video is still needed.  Host distros might use diff
     #   "video" group, so we wouldn't get access to /dev/dri/ nodes directly.
-    DEFGROUPS = {"adm", "cdrom", "floppy", "audio", "video", "portage"}
+    DEFGROUPS = {"adm", "cdrom", "floppy", "audio", "video", "portage", "tty"}
 
     def __init__(
         self,
