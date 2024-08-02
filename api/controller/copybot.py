@@ -112,6 +112,9 @@ def RunCopybot(request, response, _config):
             ]
         )
 
+    for skip_job_name in request.skip_job_names:
+        cmd.extend(["--skip-job-name", skip_job_name.job_name])
+
     cmd.append(
         f"{request.upstream.url}:"
         f"{request.upstream.branch}:"
