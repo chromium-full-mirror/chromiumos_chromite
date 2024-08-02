@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromiumos/ge_config.proto\x12\nchromiumos\"\xed\x01\n\x05Model\x12\x12\n\nboard_name\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x13\n\x0btest_suites\x18\x03 \x03(\t\x12\x17\n\x0f\x63q_test_enabled\x18\x04 \x01(\x08\x12!\n\x19release_builder_test_pool\x18\x05 \x01(\t\x12\x10\n\x08\x62oard_id\x18\x06 \x01(\x03\x12\x11\n\tis_active\x18\x07 \x01(\x08\x12\x12\n\nhwid_match\x18\x08 \x01(\t\x12\x1f\n\x17stable_target_milestone\x18\t \x01(\x05\x12\x17\n\x0fis_experimental\x18\n \x01(\x08\"\xfd\x02\n ReferenceBoardUnifiedBuildConfig\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1c\n\x14reference_board_name\x18\x02 \x01(\t\x12&\n\x04\x61rch\x18\x03 \x01(\x0e\x32\x18.chromiumos.Architecture\x12(\n\x07\x62uilder\x18\x04 \x01(\x0e\x32\x17.chromiumos.BuilderType\x12\x14\n\x0c\x65xperimental\x18\x05 \x01(\x08\x12!\n\x06models\x18\x06 \x03(\x0b\x32\x11.chromiumos.Model\x12\x1e\n\x16rubik_target_milestone\x18\x07 \x01(\x05\x12\x1f\n\x17stable_target_milestone\x18\x08 \x01(\x05\x12\x15\n\rboard_variant\x18\t \x01(\t\x12/\n\rbuild_cadence\x18\n \x01(\x0e\x32\x18.chromiumos.BuildCadence\x12\x19\n\x11has_lab_resources\x18\x0b \x01(\x08\"\xfe\x01\n\x06\x43onfig\x12(\n\x07\x62uilder\x18\x01 \x01(\x0e\x32\x17.chromiumos.BuilderType\x12\x14\n\x0c\x65xperimental\x18\x02 \x01(\x08\x12\x14\n\x0cleader_board\x18\x03 \x01(\x08\x12\x13\n\x0b\x62oard_group\x18\x04 \x01(\t\x12&\n\x04\x61rch\x18\x05 \x01(\x0e\x32\x18.chromiumos.Architecture\x12\x15\n\rboard_variant\x18\x06 \x01(\t\x12/\n\rbuild_cadence\x18\x07 \x01(\x0e\x32\x18.chromiumos.BuildCadence\x12\x19\n\x11has_lab_resources\x18\x08 \x01(\x08\"\x80\x01\n\nBuildBoard\x12\x0c\n\x04name\x18\x01 \x01(\t\x12#\n\x07\x63onfigs\x18\x02 \x03(\x0b\x32\x12.chromiumos.Config\x12\x1e\n\x16rubik_target_milestone\x18\x03 \x01(\x05\x12\x1f\n\x17stable_target_milestone\x18\x04 \x01(\x05\"\xba\x01\n\x08GEConfig\x12\x18\n\x10metadata_version\x18\x01 \x01(\t\x12&\n\x06\x62oards\x18\x02 \x03(\x0b\x32\x16.chromiumos.BuildBoard\x12\x16\n\x0erelease_branch\x18\x03 \x01(\x08\x12T\n\x1ereference_board_unified_builds\x18\x04 \x03(\x0b\x32,.chromiumos.ReferenceBoardUnifiedBuildConfig*4\n\x0b\x42uilderType\x12\x18\n\x14UNKNOWN_BUILDER_TYPE\x10\x00\x12\x0b\n\x07RELEASE\x10\x01*?\n\x0c\x41rchitecture\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x10\n\x0cX86_INTERNAL\x10\x01\x12\x10\n\x0c\x41RM_INTERNAL\x10\x02*n\n\x0c\x42uildCadence\x12\x13\n\x0fUNKNOWN_CADENCE\x10\x00\x12\x19\n\x15ONCE_PER_WEEK_CADENCE\x10\x01\x12\x1b\n\x17THRICE_PER_WEEK_CADENCE\x10\x02\x12\x11\n\rDAILY_CADENCE\x10\x03\x42Y\n!com.google.chrome.crosinfra.protoZ4go.chromium.org/chromiumos/infra/proto/go/chromiumosb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromiumos/ge_config.proto\x12\nchromiumos\"\xed\x01\n\x05Model\x12\x12\n\nboard_name\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x13\n\x0btest_suites\x18\x03 \x03(\t\x12\x17\n\x0f\x63q_test_enabled\x18\x04 \x01(\x08\x12!\n\x19release_builder_test_pool\x18\x05 \x01(\t\x12\x10\n\x08\x62oard_id\x18\x06 \x01(\x03\x12\x11\n\tis_active\x18\x07 \x01(\x08\x12\x12\n\nhwid_match\x18\x08 \x01(\t\x12\x1f\n\x17stable_target_milestone\x18\t \x01(\x05\x12\x17\n\x0fis_experimental\x18\n \x01(\x08\"\xd3\x03\n ReferenceBoardUnifiedBuildConfig\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1c\n\x14reference_board_name\x18\x02 \x01(\t\x12&\n\x04\x61rch\x18\x03 \x01(\x0e\x32\x18.chromiumos.Architecture\x12(\n\x07\x62uilder\x18\x04 \x01(\x0e\x32\x17.chromiumos.BuilderType\x12\x14\n\x0c\x65xperimental\x18\x05 \x01(\x08\x12!\n\x06models\x18\x06 \x03(\x0b\x32\x11.chromiumos.Model\x12\x1e\n\x16rubik_target_milestone\x18\x07 \x01(\x05\x12\x1f\n\x17stable_target_milestone\x18\x08 \x01(\x05\x12\x15\n\rboard_variant\x18\t \x01(\t\x12/\n\rbuild_cadence\x18\n \x01(\x0e\x32\x18.chromiumos.BuildCadence\x12\x19\n\x11has_lab_resources\x18\x0b \x01(\x08\x12.\n!extended_support_target_milestone\x18\x0c \x01(\x05H\x00\x88\x01\x01\x42$\n\"_extended_support_target_milestone\"\xfe\x01\n\x06\x43onfig\x12(\n\x07\x62uilder\x18\x01 \x01(\x0e\x32\x17.chromiumos.BuilderType\x12\x14\n\x0c\x65xperimental\x18\x02 \x01(\x08\x12\x14\n\x0cleader_board\x18\x03 \x01(\x08\x12\x13\n\x0b\x62oard_group\x18\x04 \x01(\t\x12&\n\x04\x61rch\x18\x05 \x01(\x0e\x32\x18.chromiumos.Architecture\x12\x15\n\rboard_variant\x18\x06 \x01(\t\x12/\n\rbuild_cadence\x18\x07 \x01(\x0e\x32\x18.chromiumos.BuildCadence\x12\x19\n\x11has_lab_resources\x18\x08 \x01(\x08\"\xd6\x01\n\nBuildBoard\x12\x0c\n\x04name\x18\x01 \x01(\t\x12#\n\x07\x63onfigs\x18\x02 \x03(\x0b\x32\x12.chromiumos.Config\x12\x1e\n\x16rubik_target_milestone\x18\x03 \x01(\x05\x12\x1f\n\x17stable_target_milestone\x18\x04 \x01(\x05\x12.\n!extended_support_target_milestone\x18\x05 \x01(\x05H\x00\x88\x01\x01\x42$\n\"_extended_support_target_milestone\"\xba\x01\n\x08GEConfig\x12\x18\n\x10metadata_version\x18\x01 \x01(\t\x12&\n\x06\x62oards\x18\x02 \x03(\x0b\x32\x16.chromiumos.BuildBoard\x12\x16\n\x0erelease_branch\x18\x03 \x01(\x08\x12T\n\x1ereference_board_unified_builds\x18\x04 \x03(\x0b\x32,.chromiumos.ReferenceBoardUnifiedBuildConfig*4\n\x0b\x42uilderType\x12\x18\n\x14UNKNOWN_BUILDER_TYPE\x10\x00\x12\x0b\n\x07RELEASE\x10\x01*?\n\x0c\x41rchitecture\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x10\n\x0cX86_INTERNAL\x10\x01\x12\x10\n\x0c\x41RM_INTERNAL\x10\x02*n\n\x0c\x42uildCadence\x12\x13\n\x0fUNKNOWN_CADENCE\x10\x00\x12\x19\n\x15ONCE_PER_WEEK_CADENCE\x10\x01\x12\x1b\n\x17THRICE_PER_WEEK_CADENCE\x10\x02\x12\x11\n\rDAILY_CADENCE\x10\x03\x42Y\n!com.google.chrome.crosinfra.protoZ4go.chromium.org/chromiumos/infra/proto/go/chromiumosb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.ge_config_pb2', globals())
@@ -21,20 +21,20 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n!com.google.chrome.crosinfra.protoZ4go.chromium.org/chromiumos/infra/proto/go/chromiumos'
-  _BUILDERTYPE._serialized_start=1243
-  _BUILDERTYPE._serialized_end=1295
-  _ARCHITECTURE._serialized_start=1297
-  _ARCHITECTURE._serialized_end=1360
-  _BUILDCADENCE._serialized_start=1362
-  _BUILDCADENCE._serialized_end=1472
+  _BUILDERTYPE._serialized_start=1415
+  _BUILDERTYPE._serialized_end=1467
+  _ARCHITECTURE._serialized_start=1469
+  _ARCHITECTURE._serialized_end=1532
+  _BUILDCADENCE._serialized_start=1534
+  _BUILDCADENCE._serialized_end=1644
   _MODEL._serialized_start=43
   _MODEL._serialized_end=280
   _REFERENCEBOARDUNIFIEDBUILDCONFIG._serialized_start=283
-  _REFERENCEBOARDUNIFIEDBUILDCONFIG._serialized_end=664
-  _CONFIG._serialized_start=667
-  _CONFIG._serialized_end=921
-  _BUILDBOARD._serialized_start=924
-  _BUILDBOARD._serialized_end=1052
-  _GECONFIG._serialized_start=1055
-  _GECONFIG._serialized_end=1241
+  _REFERENCEBOARDUNIFIEDBUILDCONFIG._serialized_end=750
+  _CONFIG._serialized_start=753
+  _CONFIG._serialized_end=1007
+  _BUILDBOARD._serialized_start=1010
+  _BUILDBOARD._serialized_end=1224
+  _GECONFIG._serialized_start=1227
+  _GECONFIG._serialized_end=1413
 # @@protoc_insertion_point(module_scope)

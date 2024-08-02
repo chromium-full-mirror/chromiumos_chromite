@@ -388,11 +388,7 @@ class Subtool:
         """Full path to the CIPD package name."""
         assert self.package.type == subtools_pb2.SubtoolPackage.EXPORT_CIPD
 
-        prefix = (
-            self.package.cipd_prefix
-            if self.package.HasField("cipd_prefix")
-            else _DEFAULT_CIPD_PREFIX
-        )
+        prefix = self.package.cipd_prefix or _DEFAULT_CIPD_PREFIX
         return f"{prefix.rstrip('/')}/{self.package.name}"
 
     @property
@@ -661,14 +657,11 @@ class Subtool:
         self, mapping: subtools_pb2.SubtoolPackage.PathMapping
     ) -> None:
         """Bundle files for the provided `mapping`."""
-        subdir = mapping.dest if mapping.HasField("dest") else _DEFAULT_DEST
+        subdir = mapping.dest or _DEFAULT_DEST
         destdir = self.bundle_dir / subdir.lstrip("/")
-        strip_prefix_regex = (
-            mapping.strip_prefix_regex
-            if mapping.HasField("strip_prefix_regex")
-            else _DEFAULT_STRIP_PREFIX_REGEX
+        strip = re.compile(
+            mapping.strip_prefix_regex or _DEFAULT_STRIP_PREFIX_REGEX
         )
-        strip = re.compile(strip_prefix_regex)
 
         # Any leading '/' must be stripped from the glob (pathlib only supports
         # relative patterns when matching). Later steps effectively restore it.
@@ -796,7 +789,7 @@ class Subtool:
         if self.package.type != subtools_pb2.SubtoolPackage.EXPORT_CIPD:
             return
 
-        if self.package.HasField("cipd_prefix"):
+        if self.package.cipd_prefix:
             return
 
         if self.private_packages:
