@@ -104,6 +104,14 @@ def RunCopybot(request, response, _config):
     if request.build_url:
         cmd.extend(["--add-pseudoheader", f"Cr-Build-Url: {request.build_url}"])
 
+    if request.job_name:
+        cmd.extend(
+            [
+                "--add-pseudoheader",
+                f"Copybot-Job-Name: {request.job_name.job_name}",
+            ]
+        )
+
     cmd.append(
         f"{request.upstream.url}:"
         f"{request.upstream.branch}:"
