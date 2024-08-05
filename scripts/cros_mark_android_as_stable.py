@@ -22,15 +22,16 @@ import glob
 import json
 import logging
 import os
+import shlex
 
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import osutils
+from chromite.lib import parallel
 from chromite.lib import portage_util
 from chromite.lib import repo_util
-from chromite.scripts import cros_mark_as_stable
 from chromite.service import android
 from chromite.service import packages
 
@@ -155,6 +156,8 @@ def MarkAndroidEBuildAsStable(
     runtime_artifacts_bucket_url,
     ignore_data_collector_artifacts,
     srcroot,
+    chroot_args=None,
+    chroot_extra_env=None,
 ):
     r"""Uprevs the Android ebuild.
 
@@ -176,6 +179,8 @@ def MarkAndroidEBuildAsStable(
         ignore_data_collector_artifacts: whether or not to ignore artifacts
             from previous DataCollector runs for generating variables
         srcroot: Path to the ChromeOS src/ directory.
+        chroot_args: Optional list of extra args to the chroot command.
+        chroot_extra_env: Optional dict of extra envvars to the chroot command.
 
     Returns:
         Tuple[str, List[str], List[str]] if revved, or None
@@ -267,7 +272,11 @@ def MarkAndroidEBuildAsStable(
         "--force",
     ]
     cros_build_lib.run(
-        gen_manifest_cmd, enter_chroot=True, extra_env=None, print_cmd=True
+        gen_manifest_cmd,
+        enter_chroot=True,
+        chroot_args=chroot_args,
+        extra_env=chroot_extra_env,
+        print_cmd=True,
     )
     files_to_add.append(os.path.join(package_dir, "Manifest"))
 
@@ -306,6 +315,76 @@ def _CommitChange(
     portage_util.EBuild.CommitChange(message, android_package_dir)
 
 
+def _CleanStalePackages(
+    srcroot,
+    boards,
+    package_atoms,
+    chroot_args,
+    chroot_extra_env,
+) -> None:
+    """Cleans up stale package info from a previous build.
+
+    Forked from cros_mark_as_stable.py to support chroot args.
+
+    Args:
+        srcroot: Root directory of the source tree.
+        boards: Boards to clean the packages from.
+        package_atoms: A list of package atoms to unmerge.
+        chroot_args: Optional list of extra args to the chroot command.
+        chroot_extra_env: Optional dict of extra envvars to the chroot command.
+    """
+    if package_atoms:
+        logging.info("Cleaning up stale packages %s.", package_atoms)
+
+    # First unmerge all the packages for a board, then eclean it.
+    # We need these two steps to run in order (unmerge/eclean),
+    # but we can let all the boards run in parallel.
+    def _DoCleanStalePackages(board) -> None:
+        if board:
+            suffix = "-" + board
+            runcmd = cros_build_lib.run
+        else:
+            suffix = ""
+            runcmd = cros_build_lib.sudo_run
+
+        def _run(cmd, **kwargs):
+            extra_env = {
+                **(chroot_extra_env or {}),
+                **kwargs.pop("extra_env", {}),
+            }
+            return runcmd(
+                cmd,
+                cwd=srcroot,
+                enter_chroot=True,
+                chroot_args=chroot_args,
+                extra_env=extra_env,
+                **kwargs,
+            )
+
+        emerge, eclean = "emerge" + suffix, "eclean" + suffix
+        if package_atoms:
+            # If nothing was found to be unmerged, emerge will exit(1).
+            result = _run(
+                [emerge, "-q", "--unmerge"] + list(package_atoms),
+                extra_env={"CLEAN_DELAY": "0"},
+                check=False,
+            )
+            if result.returncode not in (0, 1):
+                raise cros_build_lib.RunCommandError("unexpected error", result)
+        _run(
+            [eclean, "-d", "packages"],
+            stdout=True,
+            stderr=True,
+        )
+
+    tasks = []
+    for board in boards:
+        tasks.append([board])
+    tasks.append([None])
+
+    parallel.RunTasksInProcessPool(_DoCleanStalePackages, tasks)
+
+
 def GetParser():
     """Creates the argument parser."""
     parser = commandline.ArgumentParser()
@@ -334,6 +413,16 @@ def GetParser():
         "--srcroot",
         default=os.path.join(constants.SOURCE_ROOT, "src"),
         help="Path to the src directory",
+    )
+    parser.add_argument(
+        "--chroot_args",
+        type=shlex.split,
+        help="Extra args for entering chroot. This is used by infra jobs.",
+    )
+    parser.add_argument(
+        "--chroot_extra_env",
+        type=json.loads,
+        help="Extra envvars for entering chroot. This is used by infra jobs.",
     )
     parser.add_argument(
         "--runtime_artifacts_bucket_url",
@@ -403,6 +492,8 @@ def main(argv) -> None:
         options.runtime_artifacts_bucket_url,
         options.ignore_data_collector_artifacts,
         options.srcroot,
+        options.chroot_args,
+        options.chroot_extra_env,
     )
 
     output = dict(revved=bool(revved))
@@ -421,8 +512,12 @@ def main(argv) -> None:
                 files_to_remove,
             )
         if options.boards:
-            cros_mark_as_stable.CleanStalePackages(
-                options.srcroot, options.boards, [android_atom]
+            _CleanStalePackages(
+                options.srcroot,
+                options.boards,
+                [android_atom],
+                options.chroot_args,
+                options.chroot_extra_env,
             )
 
         output["android_atom"] = android_atom
