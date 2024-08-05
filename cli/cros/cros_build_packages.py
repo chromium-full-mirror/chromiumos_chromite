@@ -400,6 +400,7 @@ class BuildPackagesCommand(command.CliCommand):
 
         try:
             build_packages(self.options)
+            logging.notice("cros build-packages completed successfully.")
         except sysroot_lib.PackageInstallError as e:
             try:
                 with urllib.request.urlopen(
