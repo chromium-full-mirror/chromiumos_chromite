@@ -404,8 +404,7 @@ _COPY_PATHS_APP_SHELL = (
     Path("extensions_shell_and_test.pak"),
 ) + _COPY_PATHS_COMMON
 
-_COPY_PATHS_CHROME = (
-    Path("chrome", exe=True),
+_COPY_PATHS_CHROME_WITHOUT_EXE = (
     Path("chrome-wrapper"),
     Path("chrome_100_percent.pak"),
     Path("chrome_200_percent.pak", cond=C.StagingFlagSet(_HIGHDPI_FLAG)),
@@ -469,6 +468,14 @@ _COPY_PATHS_CHROME = (
     Path("*.png"),
 ) + _COPY_PATHS_COMMON
 
+_COPY_PATHS_CHROME = (
+    Path("chrome", exe=True),
+) + _COPY_PATHS_CHROME_WITHOUT_EXE
+
+_COPY_PATHS_CHROME_SECTIONS_EMBEDDED = (
+    Path("chrome.sections_embedded", dest="chrome", exe=True),
+) + _COPY_PATHS_CHROME_WITHOUT_EXE
+
 _COPY_PATHS_LACROS = (
     Path("chrome", exe=True),
     Path("nacl_helper", exe=True, optional=True),
@@ -501,6 +508,7 @@ _COPY_PATHS_LACROS = (
 _COPY_PATHS_MAP = {
     "app_shell": _COPY_PATHS_APP_SHELL,
     "chrome": _COPY_PATHS_CHROME,
+    "chrome_sections_embedded": _COPY_PATHS_CHROME_SECTIONS_EMBEDDED,
     "lacros": _COPY_PATHS_LACROS,
 }
 

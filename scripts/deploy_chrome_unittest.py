@@ -226,6 +226,26 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         options = _ParseCommandLine(argv)
         self.assertEqual(options.unlock_password, "letmein")
 
+    def testSectionsEmbedded(self) -> None:
+        argv = list(_REGULAR_TO) + [
+            "--board",
+            _TARGET_BOARD,
+            "--sections-embedded",
+            "--build-dir",
+            "/path/to/nowhere",
+        ]
+        options = _ParseCommandLine(argv)
+        self.assertTrue(options.sections_embedded)
+
+        argv = list(_REGULAR_TO) + [
+            "--board",
+            _TARGET_BOARD,
+            "--build-dir",
+            "/path/to/nowhere",
+        ]
+        options = _ParseCommandLine(argv)
+        self.assertFalse(options.sections_embedded)
+
 
 class DeployChromeMock(partial_mock.PartialMock):
     """Deploy Chrome Mock Class."""
@@ -645,6 +665,17 @@ class DeployTestBuildDir(cros_test_lib.MockTempDirTestCase):
         self.staging_dir = os.path.join(self.tempdir, "staging")
         self.build_dir = os.path.join(self.tempdir, "build_dir")
         self.deploy_mock = self.StartPatcher(DeployChromeMock())
+
+    def getCopyPath(self, source_path):
+        """Return a chrome_util.Path or None if not present."""
+        paths = [p for p in self.deploy.copy_paths if p.src == source_path]
+        return paths[0] if paths else None
+
+
+class TestDeploymentType(DeployTestBuildDir):
+    """Test detection of deployment type using build dir."""
+
+    def setUp(self) -> None:
         self.deploy = self._GetDeployChrome(
             list(_REGULAR_TO)
             + [
@@ -658,15 +689,6 @@ class DeployTestBuildDir(cros_test_lib.MockTempDirTestCase):
                 "--sloppy",
             ]
         )
-
-    def getCopyPath(self, source_path):
-        """Return a chrome_util.Path or None if not present."""
-        paths = [p for p in self.deploy.copy_paths if p.src == source_path]
-        return paths[0] if paths else None
-
-
-class TestDeploymentType(DeployTestBuildDir):
-    """Test detection of deployment type using build dir."""
 
     def testAppShellDetection(self) -> None:
         """Check for an app_shell deployment"""
@@ -699,6 +721,50 @@ class TestDeploymentType(DeployTestBuildDir):
         self.deploy._CheckDeployType()
         self.assertTrue(self.getCopyPath("chrome"))
         self.assertFalse(self.getCopyPath("app_shell"))
+
+
+class TestDeploymentTypeSectionsEmbedded(DeployTestBuildDir):
+    """Test detection of deployment type using build dir."""
+
+    def setUp(self) -> None:
+        self.deploy = self._GetDeployChrome(
+            list(_REGULAR_TO)
+            + [
+                "--board",
+                _TARGET_BOARD,
+                "--build-dir",
+                self.build_dir,
+                "--staging-only",
+                "--cache-dir",
+                str(self.tempdir),
+                "--sloppy",
+                "--sections-embedded",
+            ]
+        )
+
+    def testChromeDetection(self) -> None:
+        """When chrome.sections_embedded exists."""
+        osutils.Touch(
+            os.path.join(self.deploy.options.build_dir, "chrome"), makedirs=True
+        )
+        osutils.Touch(
+            os.path.join(
+                self.deploy.options.build_dir, "chrome.sections_embedded"
+            ),
+            makedirs=True,
+        )
+        self.deploy._CheckDeployType()
+        self.assertTrue(self.getCopyPath("chrome.sections_embedded"))
+        self.assertFalse(self.getCopyPath("chrome"))
+
+    def testChromeDetectionFailure(self) -> None:
+        """When chrome.sections_embedded does not exist."""
+        osutils.Touch(
+            os.path.join(self.deploy.options.build_dir, "chrome"), makedirs=True
+        )
+        self.assertRaises(
+            deploy_chrome.DeployFailure, self.deploy._CheckDeployType
+        )
 
 
 class TestDeployTestBinaries(cros_test_lib.RunCommandTempDirTestCase):

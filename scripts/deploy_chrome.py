@@ -598,6 +598,17 @@ class DeployChrome:
                     os.path.join(self.options.build_dir, filename)
                 )
 
+            if self.options.sections_embedded:
+                if BinaryExists("chrome.sections_embedded"):
+                    self.copy_paths = chrome_util.GetCopyPaths(
+                        "chrome_sections_embedded"
+                    )
+                else:
+                    raise DeployFailure(
+                        "chrome.sections_embedded is not found. You need to "
+                        "build section_embedded_chrome_binary target."
+                    )
+
             # In the future, lacros-chrome and ash-chrome will likely be named
             # something other than 'chrome' to avoid confusion.
             # Handle non-Chrome deployments.
@@ -908,6 +919,14 @@ def _CreateParser():
         "internal and external are available. This only "
         "has an effect when stripping Chrome, i.e. when "
         "--nostrip is not passed in.",
+    )
+    parser.add_argument(
+        "--sections-embedded",
+        action="store_true",
+        default=False,
+        help="Use chrome.sections_embedded instead of chrome. "
+        "The binary is built by section_embedded_chrome_binary target "
+        "and only support Ash chrome",
     )
 
     group = parser.add_argument_group("Lacros Options")
