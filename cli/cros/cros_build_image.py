@@ -32,6 +32,7 @@ adjust-part='STATE:=1G' --  make the stateful partition 1 GB
 """
 
 import argparse
+import contextlib
 import logging
 import os
 from pathlib import Path
@@ -394,6 +395,14 @@ class BuildImageCommand(command.CliCommand):
             ),
             help=argparse.SUPPRESS,
         )
+        build_shell_bool_style_args(
+            group,
+            "use_network_namespace",
+            True,
+            "Disable/enable the network namespace.",
+            deprecation_note,
+            "use-network-namespace",
+        )
 
         parser.add_argument(
             "images",
@@ -448,7 +457,12 @@ class BuildImageCommand(command.CliCommand):
 
         with tracer.start_as_current_span("cli.cros.cros_build_image.Run") as s:
             s.set_attributes({"build_target": self.options.board})
-            with namespaces.use_network_sandbox():
+            network_sandbox = namespaces.use_network_sandbox
+            if not self.options.use_network_namespace:
+                logging.info("Skipping network sandbox.")
+                network_sandbox = contextlib.nullcontext()
+
+            with network_sandbox():
                 with timer.timer("Elapsed time (cros build-image)"):
                     result = image.Build(
                         self.options.board,
