@@ -191,7 +191,12 @@ def uprev_android(
             modified_files: If revved, list of files being modified.
     """
     command = [
-        "cros_mark_android_as_stable",
+        os.path.join(
+            constants.SOURCE_ROOT,
+            "chromite",
+            "bin",
+            "cros_mark_android_as_stable",
+        ),
         f"--android_package={android_package}",
     ]
     if build_targets:
@@ -205,12 +210,11 @@ def uprev_android(
     if ignore_data_collector_artifacts:
         command.append("--ignore_data_collector_artifacts")
 
-    result = chroot.run(command, stdout=True, encoding="utf-8")
+    result = cros_build_lib.run(command, stdout=True, encoding="utf-8")
 
     # cros_mark_android_as_stable prints the uprev result to stdout as JSON in a
     # single line. We only take the last line from stdout to make sure no junk
-    # output is included (e.g. messages from bashrc scripts that run upon
-    # entering the chroot.)
+    # output is included (e.g. messages from the `ebuild manifest` command.)
     output = json.loads(result.stdout.strip().splitlines()[-1])
 
     if not output["revved"]:
