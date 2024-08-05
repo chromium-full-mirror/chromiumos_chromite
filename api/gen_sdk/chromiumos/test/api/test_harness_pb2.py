@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&chromiumos/test/api/test_harness.proto\x12\x13\x63hromiumos.test.api\"\xd1\x03\n\x0bTestHarness\x12\x39\n\x06manual\x18\x01 \x01(\x0b\x32\'.chromiumos.test.api.TestHarness.ManualH\x00\x12\x37\n\x05tauto\x18\x02 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.TautoH\x00\x12\x35\n\x04tast\x18\x03 \x01(\x0b\x32%.chromiumos.test.api.TestHarness.TastH\x00\x12\x37\n\x05gtest\x18\x04 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.GtestH\x00\x12\x37\n\x05mobly\x18\x05 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.MoblyH\x00\x12;\n\x07\x63rosier\x18\x06 \x01(\x0b\x32(.chromiumos.test.api.TestHarness.CrosierH\x00\x1a\x08\n\x06Manual\x1a\x06\n\x04Tast\x1a\x07\n\x05Tauto\x1a$\n\x05Gtest\x12\x1b\n\x13target_bin_location\x18\x01 \x01(\t\x1a\x07\n\x05Mobly\x1a\t\n\x07\x43rosierB\x13\n\x11test_harness_typeB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&chromiumos/test/api/test_harness.proto\x12\x13\x63hromiumos.test.api\"\x9c\x04\n\x0bTestHarness\x12\x39\n\x06manual\x18\x01 \x01(\x0b\x32\'.chromiumos.test.api.TestHarness.ManualH\x00\x12\x37\n\x05tauto\x18\x02 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.TautoH\x00\x12\x35\n\x04tast\x18\x03 \x01(\x0b\x32%.chromiumos.test.api.TestHarness.TastH\x00\x12\x37\n\x05gtest\x18\x04 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.GtestH\x00\x12\x37\n\x05mobly\x18\x05 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.MoblyH\x00\x12;\n\x07\x63rosier\x18\x06 \x01(\x0b\x32(.chromiumos.test.api.TestHarness.CrosierH\x00\x12=\n\x08tradefed\x18\x07 \x01(\x0b\x32).chromiumos.test.api.TestHarness.TradefedH\x00\x1a\x08\n\x06Manual\x1a\x06\n\x04Tast\x1a\x07\n\x05Tauto\x1a$\n\x05Gtest\x12\x1b\n\x13target_bin_location\x18\x01 \x01(\t\x1a\x07\n\x05Mobly\x1a\t\n\x07\x43rosier\x1a\n\n\x08TradefedB\x13\n\x11test_harness_typeB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -23,17 +23,19 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z-go.chromium.org/chromiumos/config/go/test/api'
   _globals['_TESTHARNESS']._serialized_start=64
-  _globals['_TESTHARNESS']._serialized_end=529
-  _globals['_TESTHARNESS_MANUAL']._serialized_start=425
-  _globals['_TESTHARNESS_MANUAL']._serialized_end=433
-  _globals['_TESTHARNESS_TAST']._serialized_start=435
-  _globals['_TESTHARNESS_TAST']._serialized_end=441
-  _globals['_TESTHARNESS_TAUTO']._serialized_start=443
-  _globals['_TESTHARNESS_TAUTO']._serialized_end=450
-  _globals['_TESTHARNESS_GTEST']._serialized_start=452
-  _globals['_TESTHARNESS_GTEST']._serialized_end=488
-  _globals['_TESTHARNESS_MOBLY']._serialized_start=490
-  _globals['_TESTHARNESS_MOBLY']._serialized_end=497
-  _globals['_TESTHARNESS_CROSIER']._serialized_start=499
-  _globals['_TESTHARNESS_CROSIER']._serialized_end=508
+  _globals['_TESTHARNESS']._serialized_end=604
+  _globals['_TESTHARNESS_MANUAL']._serialized_start=488
+  _globals['_TESTHARNESS_MANUAL']._serialized_end=496
+  _globals['_TESTHARNESS_TAST']._serialized_start=498
+  _globals['_TESTHARNESS_TAST']._serialized_end=504
+  _globals['_TESTHARNESS_TAUTO']._serialized_start=506
+  _globals['_TESTHARNESS_TAUTO']._serialized_end=513
+  _globals['_TESTHARNESS_GTEST']._serialized_start=515
+  _globals['_TESTHARNESS_GTEST']._serialized_end=551
+  _globals['_TESTHARNESS_MOBLY']._serialized_start=553
+  _globals['_TESTHARNESS_MOBLY']._serialized_end=560
+  _globals['_TESTHARNESS_CROSIER']._serialized_start=562
+  _globals['_TESTHARNESS_CROSIER']._serialized_end=571
+  _globals['_TESTHARNESS_TRADEFED']._serialized_start=573
+  _globals['_TESTHARNESS_TRADEFED']._serialized_end=583
 # @@protoc_insertion_point(module_scope)
