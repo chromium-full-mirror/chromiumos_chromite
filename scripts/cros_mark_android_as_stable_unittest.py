@@ -12,6 +12,7 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
+from chromite.lib import parallel_unittest
 from chromite.lib import portage_util
 from chromite.scripts import cros_mark_android_as_stable
 from chromite.service import android
@@ -166,6 +167,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
         rc_mock.assertCommandCalled(
             ["ebuild", self.new, "manifest", "--force"],
             enter_chroot=True,
+            chroot_args=None,
             extra_env=None,
             print_cmd=True,
         )
@@ -210,6 +212,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
         rc_mock.assertCommandCalled(
             ["ebuild", self.new_in_chroot, "manifest", "--force"],
             enter_chroot=True,
+            chroot_args=None,
             extra_env=None,
             print_cmd=True,
         )
@@ -311,6 +314,7 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
 
         rc_mock = self.StartPatcher(cros_test_lib.RunCommandMock())
         rc_mock.SetDefaultCmdResult()
+        self.StartPatcher(parallel_unittest.ParallelMock())
         self.PatchObject(
             portage_util.EBuild, "GetCrosWorkonVars", return_value=None
         )
@@ -337,6 +341,9 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
                 "--runtime_artifacts_bucket_url",
                 self.runtime_artifacts_bucket_url,
                 "--skip_commit",
+                "--chroot_args=--arg1 --arg2",
+                '--chroot_extra_env={"ENV1": "foo", "ENV2": "bar"}',
+                "--boards=foo bar",
             ]
         )
 
@@ -348,6 +355,53 @@ class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):
             self.mock_android_dir,
             android_version,
         )
+        for board in ("foo", "bar"):
+            rc_mock.assertCommandCalled(
+                [
+                    f"emerge-{board}",
+                    "-q",
+                    "--unmerge",
+                    "chromeos-base/android-package-100-r1",
+                ],
+                cwd=str(self.tempdir),
+                enter_chroot=True,
+                chroot_args=["--arg1", "--arg2"],
+                extra_env={"ENV1": "foo", "ENV2": "bar", "CLEAN_DELAY": "0"},
+                check=False,
+            )
+            rc_mock.assertCommandCalled(
+                [f"eclean-{board}", "-d", "packages"],
+                cwd=str(self.tempdir),
+                enter_chroot=True,
+                chroot_args=["--arg1", "--arg2"],
+                extra_env={"ENV1": "foo", "ENV2": "bar"},
+                stdout=True,
+                stderr=True,
+            )
+        rc_mock.assertCommandContains(
+            [
+                "sudo",
+                "ENV1=foo",
+                "ENV2=bar",
+                "emerge",
+                "-q",
+                "--unmerge",
+                "chromeos-base/android-package-100-r1",
+            ],
+            cwd=str(self.tempdir),
+            enter_chroot=True,
+            chroot_args=["--arg1", "--arg2"],
+            check=False,
+        )
+        rc_mock.assertCommandContains(
+            ["sudo", "ENV1=foo", "ENV2=bar", "eclean", "-d", "packages"],
+            cwd=str(self.tempdir),
+            enter_chroot=True,
+            chroot_args=["--arg1", "--arg2"],
+            stdout=True,
+            stderr=True,
+        )
+
         # pylint: disable=line-too-long
         mock_print.assert_called_once_with(
             '\n{"android_atom": "chromeos-base/android-package-100-r1", "modified_files": ["chromeos-base/android-package/android-package-100-r1.ebuild", "chromeos-base/android-package/Manifest", "chromeos-base/android-package/android-package-50-r1.ebuild"], "revved": true}'
