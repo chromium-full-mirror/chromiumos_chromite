@@ -96,7 +96,7 @@ def RunCopybot(request, response, _config):
         )
 
     for include_path in request.include_paths:
-        cmd.extend(["--include-downstream", include_path.include])
+        cmd.extend(["--include-downstream", include_path.path])
 
     if request.build_id:
         cmd.extend(["--add-pseudoheader", f"Cr-Build-Id: {request.build_id}"])
