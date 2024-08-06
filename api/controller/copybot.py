@@ -108,7 +108,7 @@ def RunCopybot(request, response, _config):
         cmd.extend(
             [
                 "--add-pseudoheader",
-                f"Copybot-Job-Name: {request.job_name.job_name}",
+                f"Copybot-Job-Name: {request.job_name}",
             ]
         )
 
