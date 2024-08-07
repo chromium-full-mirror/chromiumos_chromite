@@ -37,14 +37,9 @@ D = cros_test_lib.Directory
 class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
     """Uprev android tests."""
 
-    def setUp(self) -> None:
-        self.PatchObject(constants, "SOURCE_ROOT", new="[SOURCE_ROOT]")
-
     def _mock_successful_uprev(self) -> None:
         self.rc.AddCmdResult(
-            partial_mock.In(
-                "[SOURCE_ROOT]/chromite/bin/cros_mark_android_as_stable"
-            ),
+            partial_mock.In("cros_mark_android_as_stable"),
             stdout=(
                 '{"revved": true,'
                 ' "android_atom": "android/android-1.0",'
@@ -64,7 +59,7 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
         )
         self.assertCommandContains(
             [
-                "[SOURCE_ROOT]/chromite/bin/cros_mark_android_as_stable",
+                "cros_mark_android_as_stable",
                 "--android_package=android/package",
                 "--boards=foo bar",
             ]
@@ -87,7 +82,7 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
         )
         self.assertCommandContains(
             [
-                "[SOURCE_ROOT]/chromite/bin/cros_mark_android_as_stable",
+                "cros_mark_android_as_stable",
                 "--android_package=android/package",
                 "--android_build_branch=android-build-branch",
             ]
@@ -102,7 +97,7 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
         )
         self.assertCommandContains(
             [
-                "[SOURCE_ROOT]/chromite/bin/cros_mark_android_as_stable",
+                "cros_mark_android_as_stable",
                 "--android_package=android/package",
                 "--force_version=7123456",
             ]
@@ -117,7 +112,7 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
         )
         self.assertCommandContains(
             [
-                "[SOURCE_ROOT]/chromite/bin/cros_mark_android_as_stable",
+                "cros_mark_android_as_stable",
                 "--android_package=android/package",
                 "--skip_commit",
             ]
@@ -126,9 +121,7 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
     def test_no_uprev(self) -> None:
         """Test no uprev handling."""
         self.rc.AddCmdResult(
-            partial_mock.In(
-                "[SOURCE_ROOT]/chromite/bin/cros_mark_android_as_stable"
-            ),
+            partial_mock.In("cros_mark_android_as_stable"),
             stdout='{"revved": false}',
         )
         build_targets = [
@@ -139,10 +132,7 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
         )
 
         self.assertCommandContains(
-            [
-                "[SOURCE_ROOT]/chromite/bin/cros_mark_android_as_stable",
-                "--boards=foo bar",
-            ]
+            ["cros_mark_android_as_stable", "--boards=foo bar"]
         )
         self.assertCommandContains(["emerge-foo"], expected=False)
         self.assertCommandContains(["emerge-bar"], expected=False)
@@ -152,9 +142,7 @@ class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
     def test_ignore_junk_in_stdout(self) -> None:
         """Test when stdout contains junk messages."""
         self.rc.AddCmdResult(
-            partial_mock.In(
-                "[SOURCE_ROOT]/chromite/bin/cros_mark_android_as_stable"
-            ),
+            partial_mock.In("cros_mark_android_as_stable"),
             stdout='foo\nbar\n{"revved": false}\n',
         )
         result = packages.uprev_android("android/package", chroot_lib.Chroot())
