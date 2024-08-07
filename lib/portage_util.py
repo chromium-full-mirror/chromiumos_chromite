@@ -859,6 +859,9 @@ class EBuild:
         env = {
             "CROS_WORKON_LOCALNAME": pkg_name,
             "CROS_WORKON_ALWAYS_LIVE": "",
+            # b/358076434: a dozen or so packages use "$PN" in
+            # CROS_WORKON_SUBTREE.
+            "PN": pkg_name,
         }
         settings = osutils.SourceEnvironment(ebuild_path, workon_vars, env=env)
         # Try to detect problems extracting the variables by checking whether
