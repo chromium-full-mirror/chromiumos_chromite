@@ -69,6 +69,12 @@ def RunCopybot(request, response, _config):
     ):
         cmd.extend(["--merge-conflict-behavior", "STOP"])
 
+    if (
+        request.merge_conflict_behavior
+        == copybot_pb2.RunCopybotRequest.MERGE_CONFLICT_BEHAVIOR_ALLOW_CONFLICT
+    ):
+        cmd.extend(["--merge-conflict-behavior", "ALLOW_CONFLICT"])
+
     for exclude in request.exclude_file_patterns:
         cmd.extend(["--exclude-file-pattern", exclude.pattern])
 
