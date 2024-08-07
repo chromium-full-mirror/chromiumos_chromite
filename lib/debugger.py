@@ -10,6 +10,7 @@ import logging
 from pathlib import Path
 import re
 import subprocess
+import time
 from typing import List, Optional
 
 from chromite.lib import cros_build_lib
@@ -193,11 +194,11 @@ class LLVMDebugger(Debugger):
     ) -> cros_build_lib.CompletedProcess:
         return cros_build_lib.run(
             self.local_cmd
+            + self._lldb_board_prompt(board=board)
             + [
                 "-O",
                 f"attach {pid}",
             ]
-            + self._lldb_board_prompt(board=board)
         )
 
     def debug_new_process(
@@ -209,11 +210,11 @@ class LLVMDebugger(Debugger):
         remote_bin_flag = "-r " if use_remote_binary else ""
         return cros_build_lib.run(
             self.local_cmd
+            + self._lldb_board_prompt(board=board)
             + [
                 "-O",
                 f"target create {remote_bin_flag}{exe}",
             ]
-            + self._lldb_board_prompt(board=board)
         )
 
     @contextlib.contextmanager
@@ -242,6 +243,8 @@ class LLVMDebugger(Debugger):
                 if b"pledge: fork" in line:
                     seen_fork = True
                 if seen_sending and seen_fork:
+                    # wait a little longer to let server fully launch
+                    time.sleep(2)
                     break
             yield server_proc
         finally:

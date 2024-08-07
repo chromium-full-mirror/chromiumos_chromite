@@ -164,17 +164,18 @@ To debug a process by its pid:
         if options.pid and (options.list or options.exe):
             parser.error("--list and --exe are disallowed when --pid is used.")
 
-        if not options.exe.startswith("/"):
+        if options.exe is not None and not options.exe.startswith("/"):
             parser.error("--exe must have a full pathname.")
 
-        if options.use_local_exe and options.debugger != _DEBUGGER_LLDB:
-            parser.error("--use-local-exe requires --debugger=lldb.")
+        if options.debugger != _DEBUGGER_LLDB:
+            if options.use_local_exe:
+                parser.error("--use-local-exe requires --debugger=lldb.")
 
-        if options.platform_port_local and options.debugger != _DEBUGGER_LLDB:
-            parser.error("--platform-port-local requires --debugger=lldb.")
+            if options.platform_port_local:
+                parser.error("--platform-port-local requires --debugger=lldb.")
 
-        if options.platform_port_remote and options.debugger != _DEBUGGER_LLDB:
-            parser.error("--platform-port-remote requires --debugger=lldb.")
+            if options.platform_port_remote:
+                parser.error("--platform-port-remote requires --debugger=lldb.")
 
     def _ListProcesses(self, device, pids) -> None:
         """Print out information of the processes in |pids|."""
