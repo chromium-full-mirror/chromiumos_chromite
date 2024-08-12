@@ -59,7 +59,7 @@ To debug a process by its pid:
 
         self.debugger_name = None
         self.debugger_path = None
-        self.use_local_exe = False
+        self.use_remote_exe = False
         self.sysroot = None
         self.debug_server = None
 
@@ -88,27 +88,25 @@ To debug a process by its pid:
         )
 
         parser.add_argument(
-            "--use-local-exe",
+            "--use-remote-exe",
             action="store_true",
-            help="Interpret the path given with --exe as a local path, to be "
-            "copied to the remote device. Only works with --debugger=lldb and "
-            "remote debugging.",
+            help="Interpret the path given with --exe as a remote only path, "
+            "and use the '-r' flag for lldb. Only works with --debugger=lldb "
+            "and remote debugging.",
         )
 
         parser.add_argument(
             "--sysroot",
             help="Path to the sysroot to pass to the debugger. In local "
             "debugging, both the debugger and the target binary are run under "
-            "this sysroot.",
+            "this sysroot. By default this is autodetected using the provided "
+            "board.",
         )
 
         # Enforce that either --exe or --pid is provided, but not both.
         debug_target = parser.add_mutually_exclusive_group(required=True)
         debug_target.add_argument(
-            "--exe",
-            help="Full path of the executable on the target device. If "
-            "--use-local-exe is set, then interpret the path as a local path, "
-            "not a remote path.",
+            "--exe", help="Full path of the executable on the target device."
         )
         debug_target.add_argument(
             "-p",
@@ -168,8 +166,8 @@ To debug a process by its pid:
             parser.error("--exe must have a full pathname.")
 
         if options.debugger != _DEBUGGER_LLDB:
-            if options.use_local_exe:
-                parser.error("--use-local-exe requires --debugger=lldb.")
+            if options.use_remote_exe:
+                parser.error("--use-remote-exe requires --debugger=lldb.")
 
             if options.platform_port_local:
                 parser.error("--platform-port-local requires --debugger=lldb.")
@@ -218,7 +216,7 @@ To debug a process by its pid:
         self.list = self.options.list
         self.exe = self.options.exe
         self.pid = self.options.pid
-        self.use_local_exe = self.options.use_local_exe
+        self.use_remote_exe = self.options.use_remote_exe
         self.debugger_name = self.options.debugger
         self.sysroot = self.options.sysroot
 
@@ -238,7 +236,7 @@ To debug a process by its pid:
         with self.debug_server.start_server():
             self.debug_server.debug_new_process(
                 self.exe,
-                use_remote_binary=(not self.use_local_exe),
+                use_remote_binary=self.use_remote_exe,
                 board=self.board,
             )
 

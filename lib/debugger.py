@@ -174,7 +174,6 @@ class LLVMDebugger(Debugger):
         return [self.platform_spec, self.gdbserver_spec]
 
     def _get_unused_remote_port(self, start_port: int) -> Optional[int]:
-        port = start_port
         for port in range(start_port, MAX_PORT_NUM):
             output = self.remote_device.run(["netstat", "-natu"]).stdout
             if re.search(rf":{port}\b", output) is None:
