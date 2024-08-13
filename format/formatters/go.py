@@ -7,6 +7,7 @@
 import os
 from typing import Optional, Union
 
+from chromite.format import formatters
 from chromite.lib import cros_build_lib
 
 
@@ -24,10 +25,15 @@ def Data(
     Returns:
         Formatted data.
     """
-    result = cros_build_lib.run(
-        ["gofmt"],
-        capture_output=True,
-        input=data,
-        encoding="utf-8",
-    )
-    return result.stdout
+    try:
+        result = cros_build_lib.run(
+            ["gofmt"],
+            capture_output=True,
+            input=data,
+            encoding="utf-8",
+        )
+        return result.stdout
+    except cros_build_lib.RunCommandError as e:
+        if e.returncode == 2:
+            raise formatters.ParseError(path) from e
+        raise

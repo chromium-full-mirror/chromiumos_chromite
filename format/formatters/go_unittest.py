@@ -6,7 +6,7 @@
 
 import pytest
 
-from chromite.format.formatters import go
+from chromite.format import formatters
 
 
 # None means input is already formatted to avoid having to repeat.
@@ -22,4 +22,14 @@ def test_check_format(data, exp) -> None:
     """Verify inputs match expected outputs."""
     if exp is None:
         exp = data
-    assert exp == go.Data(data)
+    assert exp == formatters.go.Data(data)
+
+
+@pytest.mark.parametrize(
+    "data",
+    ("func main(){",),
+)
+def test_format_failures(data) -> None:
+    """Verify inputs raise ParseErrors as expected."""
+    with pytest.raises(formatters.ParseError):
+        formatters.go.Data(data)
