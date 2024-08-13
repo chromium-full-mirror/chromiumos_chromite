@@ -9,6 +9,7 @@ import logging
 from chromite.cli import analyzers
 from chromite.cli import command
 from chromite.cli.cros import cros_format
+from chromite.lib import cros_build_lib
 
 
 @command.command_decorator("fix")
@@ -20,6 +21,11 @@ class FixCommand(analyzers.AnalyzerCommand):
     use_dryrun_options = True
 
     def Run(self):
+        if cros_build_lib.IsInsideChroot():
+            logging.warning(
+                "It's recommended to run `cros fix` outside the SDK."
+            )
+
         files = self.options.files
         if not files:
             # Running with no arguments is allowed to make the repo upload hook

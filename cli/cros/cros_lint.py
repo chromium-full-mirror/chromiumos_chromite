@@ -799,6 +799,10 @@ NB: Not all linters work with `--commit` yet.
             )
 
     def Run(self):
+        if cros_build_lib.IsInsideChroot():
+            logging.warning(
+                "It's recommended to run `cros lint` outside the SDK."
+            )
         with timer.Timer() as t:
             ret = self._Run()
         if ret:

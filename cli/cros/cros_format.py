@@ -19,6 +19,7 @@ from typing import Callable, Dict, List, NamedTuple, Optional
 from chromite.cli import analyzers
 from chromite.cli import command
 from chromite.format import formatters
+from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import osutils
 from chromite.lib import parallel
@@ -276,6 +277,11 @@ Supported files: %s
     use_dryrun_options = True
 
     def Run(self):
+        if cros_build_lib.IsInsideChroot():
+            logging.warning(
+                "It's recommended to run `cros format` outside the SDK."
+            )
+
         # Hack "pre-submit" to "HEAD" when being run by repohooks/pre-upload.py
         # --pre-submit.  We should drop support for this once we merge repohooks
         # into `cros` with proper preupload/presubmit.
