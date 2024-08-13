@@ -235,6 +235,45 @@ class ChromeLKGMCommitterTester(
                             ],
                         )
 
+    def testVersionWithSnapshotNumber(self) -> None:
+        """Tests passing a version with a CrOS snapshot number."""
+        branch = "refs/branch-heads/5000"
+        committer = chrome_chromeos_lkgm.ChromeLKGMCommitter(
+            "1003.0.0-2222222",
+            branch,
+            chromeos_version.VersionInfo("1002.0.0-1111111"),
+            False,
+        )
+
+        with mock.patch.object(committer._gerrit_helper, "CreateChange") as cg:
+            cg.return_value = mock.MagicMock(gerrit_number=123456)
+            with mock.patch.object(
+                committer._gerrit_helper, "ChangeEdit"
+            ) as ce:
+                with mock.patch.object(
+                    committer._gerrit_helper, "SetReview"
+                ) as bc:
+                    with mock.patch.object(
+                        committer._gerrit_helper, "SetHashtags"
+                    ):
+                        # Check the file was actually written out correctly.
+                        committer.UpdateLKGM()
+                        cg.assert_called_once_with(
+                            "chromium/src", branch, mock.ANY, False
+                        )
+                        ce.assert_called_once_with(
+                            123456, "chromeos/CHROMEOS_LKGM", "1003.0.0-2222222"
+                        )
+                        bc.assert_called_once_with(
+                            123456,
+                            labels={"Bot-Commit": 1, "Commit-Queue": 2},
+                            notify="NONE",
+                            ready=True,
+                            reviewers=[
+                                "chrome-os-gardeners-reviews@google.com"
+                            ],
+                        )
+
     def testCommitMsg(self) -> None:
         """Tests format of the commit message."""
         committer = chrome_chromeos_lkgm.ChromeLKGMCommitter(

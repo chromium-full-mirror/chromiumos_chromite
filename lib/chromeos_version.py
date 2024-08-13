@@ -4,7 +4,7 @@
 
 """Utilities for reading and manipulating chromeos_version.sh script."""
 
-from datetime import datetime
+import datetime
 import logging
 import os
 from pathlib import Path
@@ -36,7 +36,7 @@ class VersionInfo:
     """
 
     # Pattern for matching build name format.  Includes chrome branch hack.
-    VER_PATTERN = r"(\d+).(\d+).(\d+)(?:-R(\d+))*"
+    VER_PATTERN = r"(\d+).(\d+).(\d+)(?:-(\d+))?(?:-R(\d+))*"
     KEY_VALUE_PATTERN = r"%s=(\d+)\s*$"
     VALID_INCR_TYPES = ("chrome_branch", "build", "branch", "patch")
     DATE_TIME_FORMAT = "%Y_%m_%d_%H%M%S"
@@ -63,6 +63,9 @@ class VersionInfo:
             version_file: version file location.
         """
         if version_file:
+            self.snapshot_suffix = None
+            self.date_time_suffix = None
+
             if isinstance(version_file, str):
                 version_file = Path(version_file)
             self.version_file = version_file
@@ -73,7 +76,8 @@ class VersionInfo:
             self.build_number = match.group(1)
             self.branch_build_number = match.group(2)
             self.patch_number = match.group(3)
-            self.patch_number_with_date_time = self.patch_number
+            self.snapshot_suffix = match.group(4)
+            self.date_time_suffix = None
             self.chrome_branch = chrome_branch
             self.version_file = None
 
@@ -85,7 +89,7 @@ class VersionInfo:
         return cls(**kwargs)
 
     def _GetDateTime(self):
-        return datetime.now().strftime(self.DATE_TIME_FORMAT)
+        return datetime.datetime.now().strftime(self.DATE_TIME_FORMAT)
 
     def _LoadFromFile(self) -> None:
         """Read the version file and set the version components"""
@@ -121,18 +125,15 @@ class VersionInfo:
                 match = self.FindValue("CHROMEOS_PATCH", line)
                 if match:
                     self.patch_number = match
-                    self.patch_number_with_date_time = self.patch_number
                     # For developer builds, append a date and time string.
                     if os.environ.get("CHROMEOS_OFFICIAL") != "1":
-                        self.patch_number_with_date_time += (
-                            f"-d{self._GetDateTime()}"
+                        self.date_time_suffix = f"d{self._GetDateTime()}"
+                        logging.debug(
+                            "Set the date suffix to:%s",
+                            self.date_time_suffix,
                         )
                     logging.debug(
                         "Set the patch version to:%s", self.patch_number
-                    )
-                    logging.debug(
-                        "Set the patch version with date to:%s",
-                        self.patch_number_with_date_time,
                     )
                     continue
 
@@ -267,32 +268,52 @@ class VersionInfo:
 
     def VersionString(self):
         """returns the version string"""
-        return (
+        version_str = (
             f"{self.build_number}.{self.branch_build_number}."
             f"{self.patch_number}"
         )
+        if self.snapshot_suffix:
+            version_str += f"-{self.snapshot_suffix}"
+        return version_str
 
     def VersionStringWithDateTime(self):
         """returns the version string with date and time."""
-        return (
+        version_str = (
             f"{self.build_number}.{self.branch_build_number}."
-            f"{self.patch_number_with_date_time}"
+            f"{self.patch_number}"
         )
+        if self.snapshot_suffix:
+            version_str += f"-{self.snapshot_suffix}"
+        if self.date_time_suffix:
+            version_str += f"-{self.date_time_suffix}"
+        return version_str
 
     def VersionComponents(self):
-        """Return an array of ints of the version fields for comparing."""
-        return [
-            int(x)
-            for x in [
-                self.build_number,
-                self.branch_build_number,
-                self.patch_number,
-            ]
+        """Return an array of ints or `inf` of the version fields for comparing.
+
+        These values are intended only for comparison, not for display, since
+        they may contain `inf`.
+        """
+        components = [
+            int(self.build_number),
+            int(self.branch_build_number),
+            int(self.patch_number),
         ]
+
+        # Version without suffix is newer than the one with a snapshot suffix.
+        components.append(
+            int(self.snapshot_suffix) if self.snapshot_suffix else float("inf")
+        )
+
+        return components
 
     @classmethod
     def VersionCompare(cls, version_string):
-        """Useful method to return a comparable version of a LKGM string."""
+        """Useful method to return a comparable version of a LKGM string.
+
+        These values are intended only for comparison, not for display, since
+        they may contain `inf`.
+        """
         return cls(version_string).VersionComponents()
 
     def __lt__(self, other) -> bool:

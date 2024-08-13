@@ -75,6 +75,28 @@ class VersionInfoTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(info.VersionString(), FAKE_VERSION_STRING)
         self.assertEqual(info.VersionStringWithDateTime(), FAKE_VERSION_STRING)
 
+    def testSuffixes(self) -> None:
+        VERSION = "12345.0.0"
+        VERSION_WITH_BRANCH = "12345.0.0-R1234"
+        VERSION_WITH_SNAPSHOT = "12345.0.0-12345"
+        VERSION_WITH_SNAPSHOT_AND_BRANCH = "12345.0.0-12345-R1234"
+
+        # Tests the version with snapshot suffix.
+        info = chromeos_version.VersionInfo(
+            version_string=VERSION_WITH_SNAPSHOT
+        )
+        self.assertEqual(info.VersionString(), VERSION_WITH_SNAPSHOT)
+
+        # Tests the version with snapshot and branch suffixes.
+        info = chromeos_version.VersionInfo(
+            version_string=VERSION_WITH_SNAPSHOT_AND_BRANCH
+        )
+        self.assertEqual(info.VersionString(), VERSION_WITH_SNAPSHOT)
+
+        # Tests the version with branch suffix.
+        info = chromeos_version.VersionInfo(version_string=VERSION_WITH_BRANCH)
+        self.assertEqual(info.VersionString(), VERSION)
+
     def testLoadFromRepo(self) -> None:
         """Tests whether we can load from a source repo."""
         version_file = os.path.join(self.tempdir, constants.VERSION_FILE)
@@ -172,6 +194,15 @@ class VersionInfoTest(cros_test_lib.MockTempDirTestCase):
         self.assertFalse(lhs > rhs)
         self.assertTrue(lhs >= rhs)
 
+        lhs = chromeos_version.VersionInfo(version_string="1.2.3-12345")
+        rhs = chromeos_version.VersionInfo(version_string="1.2.3-12345")
+        self.assertFalse(lhs < rhs)
+        self.assertTrue(lhs <= rhs)
+        self.assertTrue(lhs == rhs)
+        self.assertFalse(lhs != rhs)
+        self.assertFalse(lhs > rhs)
+        self.assertTrue(lhs >= rhs)
+
     def testCompareLess(self) -> None:
         """Verify comparisons of less versions."""
         lhs = chromeos_version.VersionInfo(version_string="1.0.3")
@@ -183,10 +214,46 @@ class VersionInfoTest(cros_test_lib.MockTempDirTestCase):
         self.assertFalse(lhs > rhs)
         self.assertFalse(lhs >= rhs)
 
+        lhs = chromeos_version.VersionInfo(version_string="1.2.3-12345")
+        rhs = chromeos_version.VersionInfo(version_string="1.2.3")
+        self.assertTrue(lhs < rhs)
+        self.assertTrue(lhs <= rhs)
+        self.assertFalse(lhs == rhs)
+        self.assertTrue(lhs != rhs)
+        self.assertFalse(lhs > rhs)
+        self.assertFalse(lhs >= rhs)
+
+        lhs = chromeos_version.VersionInfo(version_string="1.2.3-12344")
+        rhs = chromeos_version.VersionInfo(version_string="1.2.3-12345")
+        self.assertTrue(lhs < rhs)
+        self.assertTrue(lhs <= rhs)
+        self.assertFalse(lhs == rhs)
+        self.assertTrue(lhs != rhs)
+        self.assertFalse(lhs > rhs)
+        self.assertFalse(lhs >= rhs)
+
     def testCompareGreater(self) -> None:
         """Verify comparisons of greater versions."""
         lhs = chromeos_version.VersionInfo(version_string="1.2.4")
         rhs = chromeos_version.VersionInfo(version_string="1.2.3")
+        self.assertFalse(lhs < rhs)
+        self.assertFalse(lhs <= rhs)
+        self.assertFalse(lhs == rhs)
+        self.assertTrue(lhs != rhs)
+        self.assertTrue(lhs > rhs)
+        self.assertTrue(lhs >= rhs)
+
+        lhs = chromeos_version.VersionInfo(version_string="1.2.3")
+        rhs = chromeos_version.VersionInfo(version_string="1.2.3-12345")
+        self.assertFalse(lhs < rhs)
+        self.assertFalse(lhs <= rhs)
+        self.assertFalse(lhs == rhs)
+        self.assertTrue(lhs != rhs)
+        self.assertTrue(lhs > rhs)
+        self.assertTrue(lhs >= rhs)
+
+        lhs = chromeos_version.VersionInfo(version_string="1.2.3-12346")
+        rhs = chromeos_version.VersionInfo(version_string="1.2.3-12345")
         self.assertFalse(lhs < rhs)
         self.assertFalse(lhs <= rhs)
         self.assertFalse(lhs == rhs)
