@@ -22,6 +22,10 @@ class TunnelError(Exception):
     """No remote device was provided when attempting to establish SSH tunnel."""
 
 
+class RemoteServerError(Exception):
+    """No remote device was provided when attempting to start remote server."""
+
+
 _RemoteDevice = remote_access.ChromiumOSDevice
 MAX_PORT_NUM = 65535
 _GDB_START_PORT = 2159
@@ -35,7 +39,7 @@ class Debugger(abc.ABC):
 
     def __init__(
         self,
-        debugger_path: str,
+        debugger_path: Path,
         remote_device: Optional[_RemoteDevice] = None,
         ssh_settings: Optional[List[str]] = None,
         sysroot: Optional[str] = None,
@@ -98,8 +102,16 @@ class LLVMDebugger(Debugger):
     ):
         super().__init__(debugger_path, **kwargs)
 
+        # set default platform for local, overwritten for remote
+        platform_string = "host"
+
+        self.local_cmd = [
+            str(self.debugger_path),
+        ]
+
         # remote only setup
         if self.remote_device is not None:
+            platform_string = "remote-linux"
             self.platform_port_local = platform_port_local
             self.platform_port_remote = platform_port_remote
             self.gdb_server_port = gdbserver_port
@@ -111,7 +123,7 @@ class LLVMDebugger(Debugger):
             )
 
             self.server_cmd = self.remote_device.agent.GetSSHCommand() + [
-                "-v",  # verbose SSH, for detecting server launch
+                "-v",  # verbose SSH, required for detecting server launch
                 "-n",  # redirect stdin to /dev/null (i.e., disable stdin)
                 "--",
                 "lldb-server",
@@ -123,22 +135,22 @@ class LLVMDebugger(Debugger):
             ]
             logging.info("server_cmd is: %s", self.server_cmd)
 
-        self.local_cmd = [
-            f"{self.debugger_path}",
-            "-O",
-        ]
-
         # set sysroot and debug symbols paths appropriately
         if self.sysroot is not None:
+            if self.remote_device is None:
+                self.local_cmd += ["-O", f"platform settings -w {self.sysroot}"]
+
             self.local_cmd += [
-                f"platform select --sysroot {self.sysroot} remote-linux",
+                "-O",
+                f"platform select --sysroot {self.sysroot} {platform_string}",
                 "-O",
                 "settings append target.debug-file-search-paths "
                 f"{self.sysroot}/usr/lib/debug",
             ]
         else:
-            self.local_cmd += ["platform select remote-linux"]
+            self.local_cmd += [f"platform select {platform_string}"]
 
+        # Checks remote device again since connect must be the final argument
         if self.remote_device is not None:
             self.local_cmd.extend(
                 [
@@ -174,6 +186,11 @@ class LLVMDebugger(Debugger):
         return [self.platform_spec, self.gdbserver_spec]
 
     def _get_unused_remote_port(self, start_port: int) -> Optional[int]:
+        if self.remote_device is None:
+            raise TunnelError(
+                "Remote device is None, cannot obtain a remote port"
+            )
+
         for port in range(start_port, MAX_PORT_NUM):
             output = self.remote_device.run(["netstat", "-natu"]).stdout
             if re.search(rf":{port}\b", output) is None:
@@ -218,6 +235,11 @@ class LLVMDebugger(Debugger):
 
     @contextlib.contextmanager
     def start_server(self):
+        if self.remote_device is None:
+            raise RemoteServerError(
+                "No remote device provided, cannot start remote server."
+            )
+
         tunnel = self.tunnel_to_remote()
 
         logging.log(

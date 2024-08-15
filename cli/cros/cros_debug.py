@@ -6,17 +6,32 @@
 
 import logging
 import os
+import pathlib
+import sys
 
 from chromite.cli import command
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import debugger
+from chromite.lib import namespaces
+from chromite.lib import osutils
 from chromite.lib import remote_access
 
 
 _DEBUGGER_LLDB = "lldb"
 _DEBUGGER_GDB = "gdb"
+_BIND_MOUNT_PATHS = (
+    pathlib.Path("dev"),
+    pathlib.Path("dev/pts"),
+    pathlib.Path("proc"),
+    pathlib.Path("mnt/host/source"),
+    pathlib.Path("sys"),
+)
+
+
+class RunningPidsError(Exception):
+    """Raised when not able to get pids on the local machine."""
 
 
 @command.command_decorator("debug")
@@ -46,6 +61,7 @@ To debug a process by its pid:
         """Initialize DebugCommand."""
         super().__init__(options)
         # SSH connection settings.
+        self.device = None
         self.ssh_hostname = None
         self.ssh_port = None
         self.ssh_username = None
@@ -67,7 +83,7 @@ To debug a process by its pid:
     def AddParser(cls, parser: commandline.ArgumentParser) -> None:
         """Add parser arguments."""
         super(cls, DebugCommand).AddParser(parser)
-        cls.AddDeviceArgument(parser, positional=True)
+        cls.AddDeviceArgument(parser, positional=False)
         parser.add_argument(
             "--board",
             help="The board to use. By default it is "
@@ -159,6 +175,18 @@ To debug a process by its pid:
                 "Must use --exe or --pid to specify the process to debug."
             )
 
+        if options.device is None:
+            if options.pid is not None:
+                parser.error(
+                    "--pid is unsupported for local debugging. Use --exe to "
+                    "specify a new process target, or specify a remote device."
+                )
+
+            if options.board is None:
+                parser.error(
+                    "--board must be specified if remote device is not given."
+                )
+
         if options.pid and (options.list or options.exe):
             parser.error("--list and --exe are disallowed when --pid is used.")
 
@@ -212,6 +240,7 @@ To debug a process by its pid:
             self.ssh_hostname = self.options.device.hostname
             self.ssh_username = self.options.device.username
             self.ssh_port = self.options.device.port
+            self.device = self.options.device
         self.ssh_private_key = self.options.private_key
         self.list = self.options.list
         self.exe = self.options.exe
@@ -219,6 +248,7 @@ To debug a process by its pid:
         self.use_remote_exe = self.options.use_remote_exe
         self.debugger_name = self.options.debugger
         self.sysroot = self.options.sysroot
+        self.board = self.options.board
 
         self.debugger_path = (
             self.debugger_name
@@ -248,19 +278,37 @@ To debug a process by its pid:
         with self.debug_server.start_server():
             self.debug_server.debug_existing_process(pid, board=self.board)
 
-    def Run(self) -> None:
-        """Run cros debug."""
-        commandline.RunInsideChroot(self)
-        self._ReadOptions()
+    def _RunLocal(self) -> None:
+        # adding mounts and calling chroot require root privilege, so
+        # reexecute the program as root if needed.
+        if osutils.IsNonRootUser():
+            cmd = ["sudo", "-E", "--"] + sys.argv
+            os.execvp(cmd[0], cmd)
 
-        using_lldb = self.debugger_name == _DEBUGGER_LLDB
+        # unshare so that bind mounts are cleaned up on program exit
+        namespaces.Unshare(namespaces.CLONE_NEWNS)
 
-        if self.debugger_name == _DEBUGGER_GDB:
-            logging.error(
-                "gdb is not yet supported. Please use --debugger=lldb instead."
+        if self.sysroot is None:
+            self.sysroot = build_target_lib.get_default_sysroot_path(self.board)
+
+        # set up sysroot
+        for mount in _BIND_MOUNT_PATHS:
+            path = os.path.join(self.sysroot, mount)
+            osutils.SafeMakedirs(path)
+            osutils.Mount(
+                os.path.join("/", mount), path, "none", osutils.MS_BIND
             )
-            return
 
+        os.chroot(self.sysroot)
+
+        self.debug_server = debugger.LLVMDebugger(
+            debugger_path=self.debugger_path,
+            sysroot=self.sysroot,
+        )
+        self.debug_server.debug_new_process(self.exe, board=self.board)
+
+    def _RunRemote(self) -> None:
+        using_lldb = self.debugger_name == _DEBUGGER_LLDB
         with remote_access.ChromiumOSDeviceHandler(
             self.ssh_hostname,
             port=self.ssh_port,
@@ -320,3 +368,21 @@ To debug a process by its pid:
                     self._DebugRunningProcess(pids[idx - 1])
             else:
                 self._DebugNewProcess()
+
+    def Run(self) -> None:
+        """Run cros debug."""
+        commandline.RunInsideChroot(self)
+        self._ReadOptions()
+
+        if self.debugger_name == _DEBUGGER_GDB:
+            logging.error(
+                "gdb is not yet supported. Please use --debugger=lldb instead."
+            )
+            return
+
+        # local debugging
+        if self.device is None:
+            return self._RunLocal()
+
+        # remote debugging
+        return self._RunRemote()

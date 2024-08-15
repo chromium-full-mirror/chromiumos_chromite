@@ -67,11 +67,13 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
         Failure should occur in argument parsing on command setup.
         """
         with self.assertRaises(SystemExit):
-            self.SetupCommandMock([self.DEVICE])
+            self.SetupCommandMock(["--device", self.DEVICE])
 
     def testListDisallowedWithPid(self) -> None:
         """Test that --list is disallowed when --pid is used."""
-        self.SetupCommandMock([self.DEVICE, "--list", "--pid", self.PID])
+        self.SetupCommandMock(
+            ["--device", self.DEVICE, "--list", "--pid", self.PID]
+        )
         self.assertRaises(
             SystemExit,
             self.cmd_mock.inst.ProcessOptions,
@@ -86,12 +88,12 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
         """
         with self.assertRaises(SystemExit):
             self.SetupCommandMock(
-                [self.DEVICE, "--exe", self.EXE, "--pid", self.PID]
+                ["--device", self.DEVICE, "--exe", self.EXE, "--pid", self.PID]
             )
 
     def testExeMustBeFullPath(self) -> None:
         """Test that --exe only takes full path as a valid argument."""
-        self.SetupCommandMock([self.DEVICE, "--exe", "bash"])
+        self.SetupCommandMock(["--device", self.DEVICE, "--exe", "bash"])
         self.assertRaises(
             SystemExit,
             self.cmd_mock.inst.ProcessOptions,
@@ -101,7 +103,7 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
 
     def testDebugProcessWithPid(self) -> None:
         """Test that methods are called correctly when pid is provided."""
-        self.SetupCommandMock([self.DEVICE, "--pid", self.PID])
+        self.SetupCommandMock(["--device", self.DEVICE, "--pid", self.PID])
         self.cmd_mock.inst.Run()
         self.assertFalse(self.cmd_mock.patched["_ListProcesses"].called)
         self.assertFalse(self.cmd_mock.patched["_DebugNewProcess"].called)
@@ -109,7 +111,9 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
 
     def testListProcesses(self) -> None:
         """Test that methods are called correctly for listing processes."""
-        self.SetupCommandMock([self.DEVICE, "--exe", self.EXE, "--list"])
+        self.SetupCommandMock(
+            ["--device", self.DEVICE, "--exe", self.EXE, "--list"]
+        )
         self.cmd_mock.inst.Run()
         self.assertTrue(self.cmd_mock.patched["_ListProcesses"].called)
         self.assertFalse(self.cmd_mock.patched["_DebugNewProcess"].called)
@@ -117,7 +121,7 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
 
     def testNoRunningProcess(self) -> None:
         """Test command starts a new process to debug if no process running."""
-        self.SetupCommandMock([self.DEVICE, "--exe", self.EXE])
+        self.SetupCommandMock(["--device", self.DEVICE, "--exe", self.EXE])
         self.PatchObject(self.device_mock, "GetRunningPids", return_value=[])
         self.cmd_mock.inst.Run()
         self.assertTrue(self.cmd_mock.patched["_ListProcesses"].called)
@@ -126,7 +130,7 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
 
     def testDebugNewProcess(self) -> None:
         """Test that user can select zero to start a new process to debug."""
-        self.SetupCommandMock([self.DEVICE, "--exe", self.EXE])
+        self.SetupCommandMock(["--device", self.DEVICE, "--exe", self.EXE])
         self.PatchObject(self.device_mock, "GetRunningPids", return_value=["1"])
         mock_prompt = self.PatchObject(
             cros_build_lib, "GetChoice", return_value=0
@@ -139,7 +143,7 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
 
     def testDebugRunningProcess(self) -> None:
         """Test that user can select none-zero to debug a running process."""
-        self.SetupCommandMock([self.DEVICE, "--exe", self.EXE])
+        self.SetupCommandMock(["--device", self.DEVICE, "--exe", self.EXE])
         self.PatchObject(self.device_mock, "GetRunningPids", return_value=["1"])
         mock_prompt = self.PatchObject(
             cros_build_lib, "GetChoice", return_value=1

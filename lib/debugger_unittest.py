@@ -128,7 +128,7 @@ class TestLLVMDebugger(cros_test_lib.MockTempDirTestCase):
         )
 
         self.assertIn(
-            "platform select --sysroot /path/to/sysroot remote-linux",
+            "platform select --sysroot /path/to/sysroot host",
             dbg.local_cmd,
         )
 
@@ -137,7 +137,7 @@ class TestLLVMDebugger(cros_test_lib.MockTempDirTestCase):
         dbg = debugger.LLVMDebugger("lldb", sysroot=None, remote_device=None)
 
         self.assertIn(
-            "platform select remote-linux",
+            "platform select host",
             dbg.local_cmd,
         )
 
