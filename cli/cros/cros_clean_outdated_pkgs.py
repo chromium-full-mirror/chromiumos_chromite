@@ -79,6 +79,8 @@ SYSTEM_PACKAGES = {
     "dev-libs/libuv",
     # Needed by compiler (llvm).
     "dev-libs/libxml2",
+    # Needed by most Python packages.
+    "dev-python/setuptools",
     # Many CrOS packages use pkgconf but do not depend on it.
     "dev-util/pkgconf",
     # Portage requires git to install packages.
