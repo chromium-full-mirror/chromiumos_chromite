@@ -16,6 +16,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import debugger
 from chromite.lib import namespaces
 from chromite.lib import osutils
+from chromite.lib import qemu
 from chromite.lib import remote_access
 
 
@@ -78,6 +79,7 @@ To debug a process by its pid:
         self.use_remote_exe = False
         self.sysroot = None
         self.debug_server = None
+        self.qemu = None
 
     @classmethod
     def AddParser(cls, parser: commandline.ArgumentParser) -> None:
@@ -288,8 +290,12 @@ To debug a process by its pid:
         # unshare so that bind mounts are cleaned up on program exit
         namespaces.Unshare(namespaces.CLONE_NEWNS)
 
-        if self.sysroot is None:
-            self.sysroot = build_target_lib.get_default_sysroot_path(self.board)
+        qemu_arch = qemu.Qemu.DetectArch(self.debugger_name, self.sysroot)
+        if qemu_arch is not None:
+            logging.info("qemu_arch detected: %s", qemu_arch)
+            self.qemu = qemu.Qemu(self.sysroot, arch=qemu_arch)
+            self.qemu.Install(self.sysroot)
+            self.qemu.RegisterBinfmt()
 
         # set up sysroot
         for mount in _BIND_MOUNT_PATHS:
@@ -321,12 +327,6 @@ To debug a process by its pid:
                 strict=True,
             )
             logging.info("Board is %s", self.board)
-
-            # Set sysroot to build dir within the chroot
-            if self.sysroot is None:
-                self.sysroot = build_target_lib.get_default_sysroot_path(
-                    self.board
-                )
 
             self.debug_server = debugger.LLVMDebugger(
                 debugger_path=self.debugger_path,
@@ -379,6 +379,10 @@ To debug a process by its pid:
                 "gdb is not yet supported. Please use --debugger=lldb instead."
             )
             return
+
+        # Set sysroot to build dir within the chroot
+        if self.sysroot is None:
+            self.sysroot = build_target_lib.get_default_sysroot_path(self.board)
 
         # local debugging
         if self.device is None:
