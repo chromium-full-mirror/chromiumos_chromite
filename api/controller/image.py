@@ -693,6 +693,7 @@ def SignImage(
         request.signing_configs,
         request.archive_dir,
         Path(request.result_path.path.path),
+        request.tmp_path,
         request.docker_image,
     )
     response.signed_artifacts.CopyFrom(signed_artifacts)

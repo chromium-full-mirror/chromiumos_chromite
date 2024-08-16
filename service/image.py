@@ -1123,6 +1123,7 @@ def SignImage(
     signing_configs: "signing_pb2.BuildTargetSigningConfigs",
     archive_dir: Union[str, Path],
     result_path: Path,
+    tmp_path: Union[str, Path],
     docker_image: str,
 ) -> signing_pb2.BuildTargetSignedArtifacts:
     """Sign artifacts based on the given config.
@@ -1132,6 +1133,7 @@ def SignImage(
         archive_dir: Path to dir containing input artifacts.
             Path must exist on the host.
         result_path: Path to place the signed artifacts in.
+        tmp_path: Path to mount to /tmp.
         docker_image: docker image to run.
 
     Returns:
@@ -1174,6 +1176,10 @@ def SignImage(
                 # Mount the keyset checkout as a volume.
                 "-v",
                 f"{keys_dir}:/keys",
+                # Mount a tmp dir for docker as a volume.
+                # Needed to avoid filling up our small boot partition.
+                "-v",
+                f"{tmp_path}:/tmp",
             ],
             [
                 # Args that are passed in to the entrypoint.

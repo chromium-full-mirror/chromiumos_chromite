@@ -1362,6 +1362,7 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
             signing_pb2.BuildTargetSigningConfigs(),
             "/tmp/temp-dir-archives/",
             result_dir,
+            "/docker-tmp/signing_tmp",
             "signing:latest",
         )
         rc.assertCommandContains(
@@ -1394,6 +1395,8 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
                 f"{result_dir}:/out",
                 "-v",
                 "/mnt/host/source/src/platform/signing/keys:/keys",
+                "-v",
+                "/docker-tmp/signing_tmp:/tmp",
                 "signing:latest",
                 "-i",
                 "/in/proto.bin",
@@ -1441,6 +1444,7 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
                 signing_pb2.BuildTargetSigningConfigs(),
                 "/tmp/temp-dir-archives/",
                 result_dir,
+                "/docker-tmp/signing_tmp",
                 "signing:latest",
             )
 

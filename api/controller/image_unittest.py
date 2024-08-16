@@ -804,6 +804,7 @@ class SignImageTest(
                     location=common_pb2.Path.OUTSIDE,
                 )
             ),
+            tmp_path="/path/to/docker/tmp",
         )
         resp = image_pb2.SignImageResponse()
         rc = image_controller.SignImage(req, resp, self.validate_only_config)
@@ -821,6 +822,7 @@ class SignImageTest(
                     location=common_pb2.Path.Location.OUTSIDE,
                 )
             ),
+            tmp_path="/path/to/docker/tmp",
             docker_image=docker_image,
         )
         resp = image_pb2.SignImageResponse()
@@ -845,5 +847,9 @@ class SignImageTest(
         )
 
         mock_sign_image.assert_called_with(
-            mock.ANY, str(self.tempdir), Path("/tmp/result_path"), docker_image
+            mock.ANY,
+            str(self.tempdir),
+            Path("/tmp/result_path"),
+            "/path/to/docker/tmp",
+            docker_image,
         )
