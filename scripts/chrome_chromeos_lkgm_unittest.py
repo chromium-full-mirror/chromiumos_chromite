@@ -61,7 +61,7 @@ class ChromeLKGMCommitterTester(
             "1001.0.0",
             "main",
             chromeos_version.VersionInfo("999.0.0"),
-            False,
+            dryrun=False,
         )
 
         with mock.patch.object(committer._gerrit_helper, "CreateChange") as cg:
@@ -89,13 +89,44 @@ class ChromeLKGMCommitterTester(
                             ],
                         )
 
+    def testDryRun(self) -> None:
+        committer = chrome_chromeos_lkgm.ChromeLKGMCommitter(
+            "1001.0.0",
+            "main",
+            chromeos_version.VersionInfo("999.0.0"),
+            dryrun=True,
+        )
+
+        with mock.patch.object(committer._gerrit_helper, "CreateChange") as cg:
+            change = StubGerritChange(123456, "10001.0.0", "10001.0.0")
+            cg.return_value = change
+            with mock.patch.object(
+                committer._gerrit_helper, "ChangeEdit"
+            ) as ce:
+                with mock.patch.object(
+                    committer._gerrit_helper, "SetReview"
+                ) as bc:
+                    with mock.patch.object(
+                        committer._gerrit_helper, "SetHashtags"
+                    ) as sht:
+                        with mock.patch.object(
+                            committer._gerrit_helper, "AbandonChange"
+                        ) as ac:
+                            committer.UpdateLKGM()
+                            ce.assert_called_once_with(
+                                123456, "chromeos/CHROMEOS_LKGM", "1001.0.0"
+                            )
+                            ac.assert_called_once_with((change), msg=mock.ANY)
+                            bc.assert_not_called()
+                            sht.assert_not_called()
+
     def testOlderLKGMFails(self) -> None:
         """Tests that trying to update to an older lkgm version fails."""
         committer = chrome_chromeos_lkgm.ChromeLKGMCommitter(
             "1001.0.0",
             "main",
             chromeos_version.VersionInfo("1002.0.0"),
-            False,
+            dryrun=False,
         )
         with mock.patch.object(committer._gerrit_helper, "CreateChange") as cg:
             cg.return_value = mock.MagicMock(gerrit_number=123456)
@@ -203,7 +234,7 @@ class ChromeLKGMCommitterTester(
             "1003.0.0-rc2",
             branch,
             chromeos_version.VersionInfo("1002.0.0"),
-            False,
+            dryrun=False,
         )
 
         with mock.patch.object(committer._gerrit_helper, "CreateChange") as cg:
@@ -280,7 +311,7 @@ class ChromeLKGMCommitterTester(
             "1001.0.0",
             "main",
             chromeos_version.VersionInfo("999.0.0"),
-            False,
+            dryrun=False,
             buildbucket_id="some-build-id",
         )
 

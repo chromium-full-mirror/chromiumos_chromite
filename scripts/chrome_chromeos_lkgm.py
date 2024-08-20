@@ -219,15 +219,16 @@ class ChromeLKGMCommitter:
 
         # Strip any chrome branch from the lkgm version.
         self._lkgm = chromeos_version.VersionInfo(lkgm).VersionString()
-        if self._dryrun:
-            self._lkgm = "9999999.99.99"
-            logging.info("dry run, using version %s", self._lkgm)
 
         self._commit_msg_header = self._COMMIT_MSG_HEADER % {"lkgm": self._lkgm}
         self._current_lkgm = current_lkgm
 
         if not self._lkgm:
-            raise LKGMNotValid("LKGM not provided.")
+            if self._dryrun:
+                self._lkgm = "9999999.99.99"
+                logging.info("dry run, using version %s", self._lkgm)
+            else:
+                raise LKGMNotValid("LKGM not provided.")
         logging.info("lkgm=%s", lkgm)
 
     def Run(self) -> None:
