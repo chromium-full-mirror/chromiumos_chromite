@@ -391,7 +391,15 @@ GROUP_BASELINE = dict(
             gid=611,
             users={"kerberosd", "shill", "system-proxy"},
         ),
-        GroupEntry(group="ml-core", gid=612, users={"ml-core", "arc-camera"}),
+        GroupEntry(
+            group="ml-core",
+            gid=612,
+            users={
+                "ml-core",
+                "arc-camera",
+                "odml",
+            }
+        ),
         GroupEntry(group="chronos", gid=1000),
         GroupEntry(
             group="chronos-access",
