@@ -596,7 +596,11 @@ class VM(device.Device):
             run(qemu_args, dryrun=self.dryrun)
             try:
                 if self.wait_for_boot:
-                    self.WaitForBoot()
+                    if not self.enable_kvm:
+                        max_retry = 20
+                        self.WaitForBoot(max_retry)
+                    else:
+                        self.WaitForBoot()
                 return
             except device.DeviceError:
                 if attempt == retries:
