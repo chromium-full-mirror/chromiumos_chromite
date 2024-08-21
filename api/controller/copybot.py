@@ -121,6 +121,14 @@ def RunCopybot(request, response, _config):
     for skip_job_name in request.skip_job_names:
         cmd.extend(["--skip-job-name", skip_job_name.job_name])
 
+    if request.upstream_hash:
+        cmd.extend(["--upstream-history-starts-with", request.upstream_hash])
+
+    if request.downstream_hash:
+        cmd.extend(
+            ["--downstream-history-starts-with", request.downstream_hash]
+        )
+
     cmd.append(
         f"{request.upstream.url}:"
         f"{request.upstream.branch}:"
