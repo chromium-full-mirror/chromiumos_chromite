@@ -67,8 +67,17 @@ class AutotestTarballBuilder:
         PathMapping("/usr/bin/tast"),
         # Runs remote tests.
         PathMapping("/usr/bin/remote_test_runner"),
-        # Dir containing test bundles.
-        PathMapping("/usr/libexec/tast/bundles"),
+        # Test remote bundle.
+        PathMapping(
+            "/usr/libexec/tast/bundles/remote/cros",
+            "tast/bundles/remote/cros",
+        ),
+        # Test remote internal bundle.
+        PathMapping(
+            "/usr/libexec/tast/bundles/remote/crosint",
+            "tast/bundles/remote/crosint",
+            missing_ok=True,
+        ),
         # Dir containing test data.
         PathMapping("/usr/share/tast/data"),
     ]

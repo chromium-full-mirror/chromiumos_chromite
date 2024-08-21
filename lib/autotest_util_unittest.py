@@ -30,7 +30,17 @@ def create_tast_layout(
                 D("bin", ("tast", "remote_test_runner")),
                 D(
                     "libexec",
-                    (D("tast", (D("bundles", (D("remote", ("cros",)),)),)),),
+                    (
+                        D(
+                            "tast",
+                            (
+                                D(
+                                    "bundles",
+                                    (D("remote", ("cros", "crosint")),),
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
                 D(
                     "share",
