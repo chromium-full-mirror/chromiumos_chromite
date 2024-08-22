@@ -58,7 +58,7 @@ PROXY_APACHE_FALLBACK_PATH = ":".join(
 PROXY_APACHE_MODULE_GLOBS = ("/usr/lib*/apache2/modules", "/usr/lib*/apache2")
 
 # We need these tools to run. Very common tools (tar,..) are omitted.
-NEEDED_TOOLS = ("curl", "xz")
+NEEDED_TOOLS = ("curl",)
 
 # Tools needed for --proxy-sim only.
 PROXY_NEEDED_TOOLS = ("ip",)
