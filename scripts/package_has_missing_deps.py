@@ -94,6 +94,8 @@ VIRTUALS = {
         "media-libs/img-ddk-bin",
         "media-libs/libglvnd",
         "media-libs/mali-drivers-bin",
+        "media-libs/mali-drivers-avalon",
+        "media-libs/mali-drivers-avalon-bin",
         "media-libs/mali-drivers-bifrost",
         "media-libs/mali-drivers-bifrost-bin",
         "media-libs/mali-drivers-valhall",
@@ -118,6 +120,8 @@ VIRTUALS = {
     "virtual/vulkan-icd": (
         "media-libs/img-ddk",
         "media-libs/img-ddk-bin",
+        "media-libs/mali-drivers-avalon",
+        "media-libs/mali-drivers-avalon-bin",
         "media-libs/mali-drivers-bifrost",
         "media-libs/mali-drivers-bifrost-bin",
         "media-libs/mali-drivers-valhall",
