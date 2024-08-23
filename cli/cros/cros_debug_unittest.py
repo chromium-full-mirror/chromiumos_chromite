@@ -6,6 +6,7 @@
 
 from chromite.cli import command_unittest
 from chromite.cli.cros import cros_debug
+from chromite.lib import build_target_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import remote_access
@@ -27,7 +28,12 @@ class MockDebugCommand(command_unittest.MockCommand):
     TARGET = "chromite.cli.cros.cros_debug.DebugCommand"
     TARGET_CLASS = cros_debug.DebugCommand
     COMMAND = "debug"
-    ATTRS = ("_ListProcesses", "_DebugNewProcess", "_DebugRunningProcess")
+    ATTRS = (
+        "_ListProcesses",
+        "_DebugNewProcess",
+        "_DebugRunningProcess",
+        "_RunLocal",
+    )
 
     def _ListProcesses(self, _inst, *_args, **_kwargs) -> None:
         """Mock out _ListProcesses."""
@@ -37,6 +43,9 @@ class MockDebugCommand(command_unittest.MockCommand):
 
     def _DebugRunningProcess(self, _inst, *_args, **_kwargs) -> None:
         """Mock out _DebugRunningProcess."""
+
+    def _RunLocal(self, _inst, *_args, **_kwargs) -> None:
+        """Mock out _RunLocal."""
 
 
 class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
@@ -60,6 +69,23 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
             remote_access, "ChromiumOSDevice"
         ).return_value
         self.device_mock.run.return_value = MockCompletedProcess("no ports")
+
+    def testDebugNoSingleQuote(self) -> None:
+        """Test that error is raised when --debug-arg contains single quote."""
+        self.SetupCommandMock(
+            [
+                "--exe",
+                self.EXE,
+                "--debug-arg",
+                "'has quotes'",
+            ]
+        )
+        self.assertRaises(
+            SystemExit,
+            self.cmd_mock.inst.ProcessOptions,
+            self.cmd_mock.parser,
+            self.cmd_mock.inst.options,
+        )
 
     def testMissingExeAndPid(self) -> None:
         """Test that command fails when --exe and --pid are not provided.
@@ -153,3 +179,17 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
         self.assertTrue(self.cmd_mock.patched["_ListProcesses"].called)
         self.assertFalse(self.cmd_mock.patched["_DebugNewProcess"].called)
         self.assertTrue(self.cmd_mock.patched["_DebugRunningProcess"].called)
+
+    def testDebugExtraArgs(self) -> None:
+        """Test that the user can supply multiple extra command line args."""
+        self.SetupCommandMock(["--exe", self.EXE, "--debug-arg", "arg1"])
+
+        mock_sysroot = self.PatchObject(
+            build_target_lib,
+            "get_default_sysroot_path",
+            return_value="/sysroot/path",
+        )
+        self.PatchObject(self.device_mock, "GetRunningPids", return_value=[])
+        self.cmd_mock.inst.Run()
+        self.assertTrue(mock_sysroot.called)
+        self.assertTrue(self.cmd_mock.patched["_RunLocal"].called)

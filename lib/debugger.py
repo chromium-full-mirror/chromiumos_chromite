@@ -40,6 +40,7 @@ class Debugger(abc.ABC):
     def __init__(
         self,
         debugger_path: Path,
+        debugger_args: Optional[List[str]] = None,
         remote_device: Optional[_RemoteDevice] = None,
         ssh_settings: Optional[List[str]] = None,
         sysroot: Optional[str] = None,
@@ -51,6 +52,7 @@ class Debugger(abc.ABC):
         self.ssh_settings = ssh_settings
         self.port_forwards = [] if port_forwards is None else port_forwards
         self.sysroot = sysroot
+        self.debugger_args = [] if debugger_args is None else debugger_args
 
     def tunnel_to_remote(self) -> subprocess.Popen:
         """Establish SSH tunnel(s) to the remote device."""
@@ -215,6 +217,7 @@ class LLVMDebugger(Debugger):
                 "-O",
                 f"attach {pid}",
             ]
+            + self.debugger_args
         )
 
     def debug_new_process(
@@ -231,6 +234,7 @@ class LLVMDebugger(Debugger):
                 "-O",
                 f"target create {remote_bin_flag}{exe}",
             ]
+            + self.debugger_args
         )
 
     @contextlib.contextmanager

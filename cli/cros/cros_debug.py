@@ -8,6 +8,7 @@ import logging
 import os
 import pathlib
 import sys
+from typing import List, Optional
 
 from chromite.cli import command
 from chromite.lib import build_target_lib
@@ -39,9 +40,10 @@ class RunningPidsError(Exception):
 class DebugCommand(command.CliCommand):
     """Use LLDB to debug a process running on the target device.
 
-    This command starts an LLDB session to debug a remote process running on
-    the target device. The remote process can either be an existing process or
-    newly started by calling this command.
+    This command starts an LLDB session to debug a process running locally or on
+    a remote device. The remote process can either be an existing process or
+    newly started by calling this command. Local processes must be started using
+    this command.
 
     This command can also be used to find out information about all running
     processes of an executable on the target device.
@@ -49,37 +51,38 @@ class DebugCommand(command.CliCommand):
 
     EPILOG = """
 To list all running processes of an executable:
-    cros debug device --list --exe=/path/to/executable
+    cros debug --device device --list --exe=/path/to/executable
 
 To debug an executable:
-    cros debug device --exe=/path/to/executable
+    cros debug --device device --exe=/path/to/executable
 
 To debug a process by its pid:
-    cros debug device --pid=1234
+    cros debug --device device --pid=1234
 """
 
     def __init__(self, options: commandline.ArgumentNamespace) -> None:
         """Initialize DebugCommand."""
         super().__init__(options)
         # SSH connection settings.
-        self.device = None
-        self.ssh_hostname = None
-        self.ssh_port = None
-        self.ssh_username = None
-        self.ssh_private_key = None
+        self.device: Optional[remote_access.RemoteDevice] = None
+        self.ssh_hostname: Optional[str] = None
+        self.ssh_port: Optional[int] = None
+        self.ssh_username: Optional[str] = None
+        self.ssh_private_key: Optional[str] = None
         # The board name of the target device.
-        self.board = None
+        self.board: Optional[str] = None
         # Settings of the process to debug.
-        self.list = False
-        self.exe = None
-        self.pid = None
+        self.list: bool = False
+        self.exe: Optional[str] = None
+        self.pid: Optional[int] = None
 
-        self.debugger_name = None
-        self.debugger_path = None
-        self.use_remote_exe = False
-        self.sysroot = None
-        self.debug_server = None
-        self.qemu = None
+        self.debugger_name: Optional[str] = None
+        self.debugger_path: Optional[pathlib.Path] = None
+        self.use_remote_exe: bool = False
+        self.sysroot: Optional[pathlib.Path] = None
+        self.debug_server: Optional[debugger.Debugger] = None
+        self.qemu: Optional[qemu.Qemu] = None
+        self.debugger_args: Optional[List[str]] = None
 
     @classmethod
     def AddParser(cls, parser: commandline.ArgumentParser) -> None:
@@ -169,6 +172,18 @@ To debug a process by its pid:
             "Defaults to automatically selecting an available port.",
         )
 
+        parser.add_argument(
+            "-g",
+            "--debug-arg",
+            type=str,
+            action="append",
+            dest="debugger_args",
+            metavar="DEBUGGER_ARG",
+            help="Provide additional argument(s) to the debugger. Can be "
+            "specified multiple times. Arguments are placed after all other "
+            "setup commands.",
+        )
+
     @classmethod
     def ProcessOptions(cls, parser, options) -> None:
         """Post process options."""
@@ -204,6 +219,13 @@ To debug a process by its pid:
 
             if options.platform_port_remote:
                 parser.error("--platform-port-remote requires --debugger=lldb.")
+        if options.debugger_args is not None:
+            for arg in options.debugger_args:
+                if "'" in arg:
+                    parser.error(
+                        "Cannot use single quote (') characters in "
+                        'in -g options. Use double quotes (") instead.'
+                    )
 
     def _ListProcesses(self, device, pids) -> None:
         """Print out information of the processes in |pids|."""
@@ -258,6 +280,8 @@ To debug a process by its pid:
             else self.options.debugger_path
         )
 
+        self.debugger_args = self.options.debugger_args
+
     def _DebugNewProcess(self) -> None:
         """Start a new process on the target device and attach gdb to it."""
         logging.info(
@@ -309,6 +333,7 @@ To debug a process by its pid:
 
         self.debug_server = debugger.LLVMDebugger(
             debugger_path=self.debugger_path,
+            debugger_args=self.debugger_args,
             sysroot=self.sysroot,
         )
         self.debug_server.debug_new_process(self.exe, board=self.board)
@@ -330,6 +355,7 @@ To debug a process by its pid:
 
             self.debug_server = debugger.LLVMDebugger(
                 debugger_path=self.debugger_path,
+                debugger_args=self.debugger_args,
                 remote_device=device,
                 sysroot=self.sysroot,
             )
