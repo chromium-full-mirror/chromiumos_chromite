@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n test_platform/kron/metrics.proto\x12\x12test_platform.kron\x1a\x1fgoogle/protobuf/timestamp.proto\"u\n\x03Run\x12\x10\n\x08run_uuid\x18\x01 \x01(\t\x12.\n\nstart_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"n\n\x12SchedulingDecision\x12.\n\x04type\x18\x01 \x01(\x0e\x32 .test_platform.kron.DecisionType\x12\x11\n\tscheduled\x18\x02 \x01(\x08\x12\x15\n\rfailed_reason\x18\x03 \x01(\t\"\x80\x02\n\x05\x45vent\x12\x10\n\x08run_uuid\x18\x01 \x01(\t\x12\x12\n\nevent_uuid\x18\x02 \x01(\t\x12\x13\n\x0b\x63onfig_name\x18\x03 \x01(\t\x12\x12\n\nsuite_name\x18\x04 \x01(\t\x12.\n\nevent_time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x38\n\x08\x64\x65\x63ision\x18\x06 \x01(\x0b\x32&.test_platform.kron.SchedulingDecision\x12\x0c\n\x04\x62\x62id\x18\x07 \x01(\x03\x12\x12\n\nbuild_uuid\x18\x08 \x01(\t\x12\r\n\x05\x62oard\x18\t \x01(\t\x12\r\n\x05model\x18\n \x01(\t*U\n\x0c\x44\x65\x63isionType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\r\n\tSCHEDULED\x10\x01\x12\x13\n\x0f\x42UILD_NOT_FOUND\x10\x03\x12\x14\n\x10NO_PASSING_BUILD\x10\x04\x42>Z<go.chromium.org/chromiumos/infra/proto/go/test_platform/kronb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n test_platform/kron/metrics.proto\x12\x12test_platform.kron\x1a\x1fgoogle/protobuf/timestamp.proto\"u\n\x03Run\x12\x10\n\x08run_uuid\x18\x01 \x01(\t\x12.\n\nstart_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"n\n\x12SchedulingDecision\x12.\n\x04type\x18\x01 \x01(\x0e\x32 .test_platform.kron.DecisionType\x12\x11\n\tscheduled\x18\x02 \x01(\x08\x12\x15\n\rfailed_reason\x18\x03 \x01(\t\"\x96\x02\n\x05\x45vent\x12\x10\n\x08run_uuid\x18\x01 \x01(\t\x12\x12\n\nevent_uuid\x18\x02 \x01(\t\x12\x13\n\x0b\x63onfig_name\x18\x03 \x01(\t\x12\x12\n\nsuite_name\x18\x04 \x01(\t\x12.\n\nevent_time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x38\n\x08\x64\x65\x63ision\x18\x06 \x01(\x0b\x32&.test_platform.kron.SchedulingDecision\x12\x0c\n\x04\x62\x62id\x18\x07 \x01(\x03\x12\x12\n\nbuild_uuid\x18\x08 \x01(\t\x12\r\n\x05\x62oard\x18\t \x01(\t\x12\r\n\x05model\x18\n \x01(\t\x12\x14\n\x0c\x62uild_target\x18\x0b \x01(\t*f\n\x0c\x44\x65\x63isionType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\r\n\tSCHEDULED\x10\x01\x12\x13\n\x0f\x42UILD_NOT_FOUND\x10\x03\x12\x14\n\x10NO_PASSING_BUILD\x10\x04\x12\x0f\n\x0bSTALE_BUILD\x10\x05\x42>Z<go.chromium.org/chromiumos/infra/proto/go/test_platform/kronb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -23,12 +23,12 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z<go.chromium.org/chromiumos/infra/proto/go/test_platform/kron'
-  _globals['_DECISIONTYPE']._serialized_start=579
-  _globals['_DECISIONTYPE']._serialized_end=664
+  _globals['_DECISIONTYPE']._serialized_start=601
+  _globals['_DECISIONTYPE']._serialized_end=703
   _globals['_RUN']._serialized_start=89
   _globals['_RUN']._serialized_end=206
   _globals['_SCHEDULINGDECISION']._serialized_start=208
   _globals['_SCHEDULINGDECISION']._serialized_end=318
   _globals['_EVENT']._serialized_start=321
-  _globals['_EVENT']._serialized_end=577
+  _globals['_EVENT']._serialized_end=599
 # @@protoc_insertion_point(module_scope)
