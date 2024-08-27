@@ -223,12 +223,6 @@ def BuildTestServiceContainers(
             cmd += ["--host", request.repository.hostname]
             cmd += ["--project", request.repository.project]
 
-        if (
-            request.builder_type
-            == test_pb2.BuildTestServiceContainersRequest.BuilderType.PUBLIC
-        ):
-            cmd += ["--is_public"]
-
         cmd += ["--tags", tags]
         cmd += ["--output", output_path]
 
