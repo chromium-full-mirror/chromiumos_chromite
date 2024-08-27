@@ -362,7 +362,6 @@ _COPY_PATHS_COMMON = (
     # totally because chromite/deploy_chrome is used outside of ebuild
     # (see https://crbug.com/1081884).
     Path("icudtl.dat", optional=True),
-    Path("icudtl.dat.hash", optional=True),
     Path("libosmesa.so", exe=True, optional=True),
     # Do not strip the nacl_helper_bootstrap binary because the binutils
     # objcopy/strip mangles the ELF program headers.
@@ -487,7 +486,6 @@ _COPY_PATHS_LACROS = (
     Path("locales/", optional=True),
     Path("*.pak", optional=True),
     Path("icudtl.dat", optional=True),
-    Path("icudtl.dat.hash", optional=True),
     Path("metadata.json", optional=True),
     Path("snapshot_blob.bin", optional=True),
     Path("swiftshader/", optional=True),
