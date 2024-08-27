@@ -118,8 +118,10 @@ FIELD_DOCS = {
             "test devices. If you're actively developing firmware for the "
             "device you're trying to flash, you most likely want unsigned "
             "firmware."
+            ""
+            "NOTE: Only unsigned firmware is supported currently. b/318776361"
         ),
-        examples="{signed|unsigned}",
+        examples="{unsigned}",
         required=True,
         strict=True,
     ),
@@ -191,9 +193,8 @@ INTERACTIVE_MODE = ["fwbuddy", "fwbuddy://"]
 LATEST = "latest"
 PINNED_VERSIONS = [LATEST]
 
-SIGNED = "signed"
 UNSIGNED = "unsigned"
-IMAGE_TYPES = [SIGNED, UNSIGNED]
+IMAGE_TYPES = [UNSIGNED]
 
 # The name of the firmware tar file containing the unsigned firmware image in
 # Google Storage. All unsigned release archives have exactly this name.
@@ -201,9 +202,6 @@ UNSIGNED_ARCHIVE_NAME = "firmware_from_source.tar.bz2"
 
 # The GS bucket that contains our unsigned firmware archives.
 UNSIGNED_ARCHIVE_BUCKET = "gs://chromeos-image-archive"
-
-# The GS bucket that contains our signed firmware archives.
-SIGNED_ARCHIVE_BUCKET = "gs://chromeos-releases"
 
 # Some AP Firmware Images are compiled with different flags to enable features
 # like additional logging. In the firmware archives, this images would show up
@@ -255,17 +253,6 @@ UNSIGNED_GSPATH_SCHEMAS_WITH_BRANCH = [
     ),
 ]
 
-# All known file path schemas that signed firmware archives may be stored
-# underneath. This list may grow over time as more schemas are discovered.
-SIGNED_GSPATH_SCHEMAS = [
-    (
-        f"{SIGNED_ARCHIVE_BUCKET}/canary-channel/%(board)s/%(major_version)s."
-        f"%(minor_version)s.%(patch_number)s/ChromeOS-firmware-R%(milestone)s-"
-        f"%(major_version)s.%(minor_version)s.%(patch_number)s-"
-        f"%(board)s.tar.bz2"
-    )
-]
-
 # Schemas used to generate the local file path for firmware images.
 AP_PATH_SCHEMA = "%(directory)s/image-%(firmware_name)s.bin"
 AP_PATH_SCHEMA_WITH_FIRMWARE_TYPE = (
@@ -276,7 +263,7 @@ EC_PATH_SCHEMA = "%(directory)s/%(firmware_name)s/ec.bin"
 # Example: R89-13606.459.0
 RELEASE_STRING_REGEX_PATTERN = re.compile(r"[R|r](\d+|\*)-(\d+)\.(\d+)\.(\d+)")
 
-# Example: fwbuddy://dedede/galnat360/galtic/latest/signed/serial
+# Example: fwbuddy://dedede/galnat360/galtic/latest/unsigned/serial
 FWBUDDY_URI_REGEX_PATTERN = re.compile(
     r"fwbuddy:\/\/(\w+)\/(\w+)\/([\w\-\.\*]+)\/(\w+)\/?(\w+)?"
 )
@@ -366,7 +353,7 @@ class FwBuddy:
             firmware_name=self.uri.firmware_name,
             release=self.determine_release(),
             branches=self.lookup_branches(),
-            image_type=self.uri.image_type,
+            image_type=self.determine_image_type(),
             firmware_type=parse_firmware_type(self.uri.firmware_type),
         )
 
@@ -429,6 +416,24 @@ class FwBuddy:
                 "is not supported at this time."
             )
         return parse_release_string(self.uri.version)
+
+    def determine_image_type(self) -> Release:
+        """Gets the image type from the uri as lower case
+
+        Returns:
+            The image type
+
+        Raises:
+            FwBuddyException: If the image type isn't supported
+        """
+        # TODO(b/318776361) Implement support for signed images
+        image_type = self.uri.image_type.lower()
+        if image_type not in IMAGE_TYPES:
+            raise FwBuddyException(
+                f'Unrecognized image type: "{image_type}". Must be one of '
+                f"{IMAGE_TYPES}",
+            )
+        return image_type
 
     def determine_gspath(self) -> str:
         """Determines where in GS our firmware archive is located.
@@ -675,12 +680,9 @@ def generate_gspaths(fw_image: FwImage) -> Set[str]:
     """
     gspaths: Set[str] = set()
     schemas: List[str] = []
-    if fw_image.image_type == "signed":
-        schemas += SIGNED_GSPATH_SCHEMAS
-    else:
-        if fw_image.branches:
-            schemas.extend(UNSIGNED_GSPATH_SCHEMAS_WITH_BRANCH)
-        schemas.extend(UNSIGNED_GSPATH_SCHEMAS_WITHOUT_BRANCH)
+    if fw_image.branches:
+        schemas.extend(UNSIGNED_GSPATH_SCHEMAS_WITH_BRANCH)
+    schemas.extend(UNSIGNED_GSPATH_SCHEMAS_WITHOUT_BRANCH)
 
     if len(fw_image.branches) > 0:
         for branch in fw_image.branches:

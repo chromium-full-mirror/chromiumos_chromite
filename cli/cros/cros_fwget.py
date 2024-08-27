@@ -40,10 +40,10 @@ Examples:
 
         cros fwget fwbuddy://dedede/galtic/R89-13606.459.0/unsigned ~/Downloads --chip=ec
 
-    Download and extract the signed serial AP binary for Cozmo firmware
+    Download and extract the unsigned serial AP binary for Cozmo firmware
     verision R79-12574.111.0 to the downloads folder.
 
-        cros fwget fwbuddy://jacuzzi/cozmo/R79-12574.111.0/signed/serial ~/Downloads --chip=ap
+        cros fwget fwbuddy://jacuzzi/cozmo/R79-12574.111.0/unsigned/serial ~/Downloads --chip=ap
 """
 
     @classmethod

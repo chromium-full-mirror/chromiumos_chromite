@@ -22,7 +22,7 @@ from chromite.lib import gs
 from chromite.lib.fwbuddy import fwbuddy
 
 
-GENERIC_VALID_URI = "fwbuddy://dedede/galtic/R99-123.456.0/signed/serial"
+GENERIC_VALID_URI = "fwbuddy://dedede/galtic/R99-123.456.0/unsigned/serial"
 
 FAKE_FIRMWARE_QUALS_DATA = """{
     "firmware_quals": [
@@ -72,17 +72,17 @@ def test_parse_uri(setup: Path) -> None:
         board="dedede",
         firmware_name="galtic",
         version="R99-123.456.0",
-        image_type="signed",
+        image_type="unsigned",
         firmware_type="serial",
     )
 
     assert fwbuddy.parse_uri(
-        "fwbuddy://dedede/galtic/R99-123.456.0/signed"
+        "fwbuddy://dedede/galtic/R99-123.456.0/unsigned"
     ) == fwbuddy.URI(
         board="dedede",
         firmware_name="galtic",
         version="R99-123.456.0",
-        image_type="signed",
+        image_type="unsigned",
         firmware_type=None,
     )
 
@@ -113,6 +113,28 @@ def test_parse_release_string(setup: Path) -> None:
         fwbuddy.parse_release_string("99-123.456.0")
     with pytest.raises(fwbuddy.FwBuddyException):
         fwbuddy.parse_release_string("R99-123.456")
+
+
+def test_determine_image_type(setup: Path) -> None:
+    """Tests that we properly check for valid image types"""
+
+    uri_template = "fwbuddy://dedede/galtic/R99-123.456.0/{image_type}/serial"
+    assert (
+        fwbuddy.FwBuddy(
+            uri_template.format(image_type="unsigned")
+        ).fw_image.image_type
+        == "unsigned"
+    )
+    assert (
+        fwbuddy.FwBuddy(
+            uri_template.format(image_type="UNsignED")
+        ).fw_image.image_type
+        == "unsigned"
+    )
+    with pytest.raises(fwbuddy.FwBuddyException):
+        fwbuddy.FwBuddy(uri_template.format(image_type="some junk"))
+    with pytest.raises(fwbuddy.FwBuddyException):
+        fwbuddy.FwBuddy(uri_template.format(image_type="signed"))
 
 
 def test_generate_unsigned_gspaths(setup: Path) -> None:
@@ -206,27 +228,6 @@ def test_lookup_branches_fails(setup: Path) -> None:
         assert f.lookup_branches() == set()
 
 
-def test_generate_signed_gspaths(setup: Path) -> None:
-    """Tests that we can generate signed gspaths using our schemas."""
-    fw_image = fwbuddy.FwImage(
-        board="dedede",
-        firmware_name="galtic",
-        release=fwbuddy.parse_release_string("R89-13606.459.0"),
-        branches=set("firmware-dedede-13606.B"),
-        image_type="signed",
-        firmware_type="",
-    )
-
-    expected_gspaths = set(
-        [
-            "gs://chromeos-releases/canary-channel/dedede/13606.459.0/ChromeOS-"
-            "firmware-R89-13606.459.0-dedede.tar.bz2"
-        ]
-    )
-
-    assert fwbuddy.generate_gspaths(fw_image) == expected_gspaths
-
-
 def test_determine_gspath(
     setup: Path, monkeypatch: "pytest.MonkeyPatch"
 ) -> None:
@@ -253,7 +254,7 @@ def test_extract(setup: Path, run_mock: cros_test_lib.RunCommandMock) -> None:
     assert f.ap_path == Path("tmp/image-galtic.serial.bin")
 
     # AP and EC image path extraction
-    f = fwbuddy.FwBuddy("fwbuddy://dedede/galtic/R99-123.456.0/signed")
+    f = fwbuddy.FwBuddy("fwbuddy://dedede/galtic/R99-123.456.0/unsigned")
     f.archive_path = Path("/unused")
     f.extract("tmp")
     assert f.ap_path == Path("tmp/image-galtic.bin")
