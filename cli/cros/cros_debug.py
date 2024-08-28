@@ -73,7 +73,7 @@ To debug a process by its pid:
         self.board: Optional[str] = None
         # Settings of the process to debug.
         self.list: bool = False
-        self.exe: Optional[str] = None
+        self.exe: Optional[pathlib.Path] = None
         self.pid: Optional[int] = None
 
         self.debugger_name: Optional[str] = None
@@ -83,6 +83,7 @@ To debug a process by its pid:
         self.debug_server: Optional[debugger.Debugger] = None
         self.qemu: Optional[qemu.Qemu] = None
         self.debugger_args: Optional[List[str]] = None
+        self.corefile: Optional[pathlib.Path] = None
 
     @classmethod
     def AddParser(cls, parser: commandline.ArgumentParser) -> None:
@@ -127,7 +128,9 @@ To debug a process by its pid:
         # Enforce that either --exe or --pid is provided, but not both.
         debug_target = parser.add_mutually_exclusive_group(required=True)
         debug_target.add_argument(
-            "--exe", help="Full path of the executable on the target device."
+            "--exe",
+            type=pathlib.Path,
+            help="Full path of the executable on the target device.",
         )
         debug_target.add_argument(
             "-p",
@@ -146,6 +149,7 @@ To debug a process by its pid:
 
         parser.add_argument(
             "--debugger-path",
+            type=pathlib.Path,
             help="Override the path to use for the local debugger binary. If "
             "unspecified, defaults to the value of --debugger.",
         )
@@ -184,6 +188,14 @@ To debug a process by its pid:
             "setup commands.",
         )
 
+        parser.add_argument(
+            "--corefile",
+            type=pathlib.Path,
+            help="Provide a path to a coredump file to open with the debugger. "
+            "The matching executable must also be provided with --exe. Note "
+            "that this path is rooted in the board sysroot.",
+        )
+
     @classmethod
     def ProcessOptions(cls, parser, options) -> None:
         """Post process options."""
@@ -207,8 +219,22 @@ To debug a process by its pid:
         if options.pid and (options.list or options.exe):
             parser.error("--list and --exe are disallowed when --pid is used.")
 
-        if options.exe is not None and not options.exe.startswith("/"):
-            parser.error("--exe must have a full pathname.")
+        if options.exe is not None and not options.exe.is_absolute():
+            parser.error(
+                "--exe must have a full pathname, rooted in the board's build "
+                "root."
+            )
+
+        if options.corefile is not None:
+            if not options.corefile.is_absolute():
+                parser.error(
+                    "--corefile must have a full pathname, rooted in the "
+                    "board's build root."
+                )
+            if options.exe is None:
+                parser.error(
+                    "If providing --corefile, --exe must also be provided."
+                )
 
         if options.debugger != _DEBUGGER_LLDB:
             if options.use_remote_exe:
@@ -273,6 +299,7 @@ To debug a process by its pid:
         self.debugger_name = self.options.debugger
         self.sysroot = self.options.sysroot
         self.board = self.options.board
+        self.corefile = self.options.corefile
 
         self.debugger_path = (
             self.debugger_name
@@ -280,7 +307,11 @@ To debug a process by its pid:
             else self.options.debugger_path
         )
 
-        self.debugger_args = self.options.debugger_args
+        self.debugger_args = (
+            []
+            if self.options.debugger_args is None
+            else self.options.debugger_args
+        )
 
     def _DebugNewProcess(self) -> None:
         """Start a new process on the target device and attach gdb to it."""
@@ -409,6 +440,10 @@ To debug a process by its pid:
         # Set sysroot to build dir within the chroot
         if self.sysroot is None:
             self.sysroot = build_target_lib.get_default_sysroot_path(self.board)
+
+        # Prepend corefile so that -g args appear last, as stated in help text
+        if self.corefile is not None:
+            self.debugger_args = ["-c", self.corefile] + self.debugger_args
 
         # local debugging
         if self.device is None:
