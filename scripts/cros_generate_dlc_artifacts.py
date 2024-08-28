@@ -40,7 +40,6 @@ def ParseArguments(argv: List[str]) -> commandline.ArgumentNamespace:
     parser.add_argument(
         "--license",
         type="file_exists",
-        required=True,
         help="The path to license, this should be the same license as the one"
         " used within the package",
     )
@@ -121,10 +120,24 @@ def ParseArguments(argv: List[str]) -> commandline.ArgumentNamespace:
         required=True,
         help="The version of this DLC build",
     )
+    parser.add_argument(
+        "--fs-type",
+        choices=[
+            dlc_lib.SQUASHFS_TYPE,
+            dlc_lib.EXT2_TYPE,
+            dlc_lib.EXT4_TYPE,
+            dlc_lib.BLOB_TYPE,
+        ],
+        default=dlc_lib.SQUASHFS_TYPE,
+        help="The file system of this DLC image",
+    )
 
     opts = parser.parse_args(argv)
 
     dlc_lib.ValidateDlcIdentifier(opts.id)
+
+    if opts.fs_type != dlc_lib.BLOB_TYPE and not opts.license:
+        parser.error("The --license is required for non-blob DLCs.")
 
     opts.Freeze()
 
@@ -145,7 +158,7 @@ def GenerateDlcParams(
     params = dlc_lib.EbuildParams(
         dlc_id=opts.id,
         dlc_package="package",
-        fs_type=dlc_lib.SQUASHFS_TYPE,
+        fs_type=opts.fs_type,
         pre_allocated_blocks=opts.preallocated_blocks,
         version=opts.version,
         name=opts.name,
@@ -199,16 +212,21 @@ def GenerateDlcArtifacts(opts: commandline.ArgumentNamespace) -> None:
         os.makedirs(output_dir, exist_ok=True)
 
         logging.info("Generating DLC artifacts")
-        artifacts = dlc_lib.DlcGenerator(
+        dlc_gen = dlc_lib.DlcGenerator(
             src_dir=opts.src_dir,
             sysroot="",
             board=dlc_lib.MAGIC_BOARD,
             ebuild_params=params,
             reproducible=opts.reproducible_image,
             license_file=opts.license,
-        ).ExternalGenerateDLC(
-            tmpdir, _SHORT_SALT if opts.reproducible_image else None
         )
+        artifacts = None
+        if params.fs_type == dlc_lib.BLOB_TYPE:
+            artifacts = dlc_gen.ExternalGenerateBlobDLC(tmpdir)
+        else:
+            artifacts = dlc_gen.ExternalGenerateDLC(
+                tmpdir, _SHORT_SALT if opts.reproducible_image else None
+            )
         logging.debug("Generated DLC artifacts: %s", artifacts.StringJSON())
 
         # Handle the meta.

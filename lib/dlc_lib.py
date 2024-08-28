@@ -101,6 +101,7 @@ DLC_APPID_KEY = "DLC_RELEASE_APPID"
 SQUASHFS_TYPE = "squashfs"
 EXT2_TYPE = "ext2"
 EXT4_TYPE = "ext4"
+BLOB_TYPE = "blob"
 
 _MAX_ID_NAME = 80
 
@@ -782,9 +783,9 @@ class DlcGenerator:
         )
         cros_build_lib.sudo_run(["cp", "-dR", src, dst])
 
-    def CopyArtifactsToOutput(self, output: str) -> None:
+    def CopyArtifactsToOutput(self, image: os.PathLike, output: str) -> None:
         """Copy the artifacts to the output directory."""
-        files = (self.dest_image, self.meta_dir)
+        files = (image, self.meta_dir)
         logging.debug("Copying %s to %s", files, output)
         cros_build_lib.sudo_run(["cp", "-r", *files, output])
 
@@ -1088,7 +1089,7 @@ class DlcGenerator:
                 "Wrong fs type: %s used:" % self.ebuild_params.fs_type
             )
 
-    def VerifyImageSize(self) -> None:
+    def VerifyImageSize(self, image: os.PathLike) -> None:
         """Verify the image can fit to the reserved file."""
         if self.ebuild_params.pre_allocated_blocks == MAGIC_DEV_SIZE:
             logging.warning(
@@ -1098,7 +1099,7 @@ class DlcGenerator:
             return
 
         logging.debug("Verifying the DLC image size.")
-        image_bytes = os.path.getsize(self.dest_image)
+        image_bytes = os.path.getsize(image)
         preallocated_bytes = (
             self.ebuild_params.pre_allocated_blocks * self._BLOCK_SIZE
         )
@@ -1234,19 +1235,21 @@ class DlcGenerator:
             # Write verity parameter to table file.
             osutils.WriteFile(self.dest_table, table, mode="wb")
 
-            # Compute image hash.
-            image_hash = HashFile(self.dest_image)
-            table_hash = HashFile(self.dest_table)
-            # Write image hash to imageloader.json file.
-            blocks = math.ceil(
-                os.path.getsize(self.dest_image) / self._BLOCK_SIZE
-            )
-            imageloader_json_content = self.GetImageloaderJsonContent(
-                image_hash, table_hash, int(blocks)
-            )
-            pformat.json(
-                imageloader_json_content, fp=self.dest_imageloader_json
-            )
+            # Create imageloader.json file.
+            self.GenerateImageloaderJson(self.dest_image, self.dest_table)
+
+    def GenerateImageloaderJson(
+        self, image: os.PathLike, table: os.PathLike
+    ) -> None:
+        # Compute image hash.
+        image_hash = HashFile(image)
+        table_hash = HashFile(table)
+        # Write image hash to imageloader.json file.
+        blocks = math.ceil(os.path.getsize(image) / self._BLOCK_SIZE)
+        imageloader_json_content = self.GetImageloaderJsonContent(
+            image_hash, table_hash, int(blocks)
+        )
+        pformat.json(imageloader_json_content, fp=self.dest_imageloader_json)
 
     def GenerateDLC(self) -> None:
         """Generate a DLC artifact."""
@@ -1257,7 +1260,7 @@ class DlcGenerator:
         # Create the image into |self.temp_root| and copy the DLC files to it.
         self.CreateImage()
         # Verify the image created is within pre-allocated size.
-        self.VerifyImageSize()
+        self.VerifyImageSize(self.dest_image)
         # Generate hash tree and other metadata and save them under
         # |self.temp_root|.
         self.GenerateVerity()
@@ -1288,9 +1291,22 @@ class DlcGenerator:
             The `DlcArtifacts` class.
         """
         self.CreateImage()
-        self.VerifyImageSize()
+        self.VerifyImageSize(self.dest_image)
         self.GenerateVerity(salt=salt)
-        self.CopyArtifactsToOutput(output)
+        self.CopyArtifactsToOutput(self.dest_image, output)
+        return DlcArtifacts(
+            image=os.path.join(output, DLC_IMAGE),
+            meta=os.path.join(output, DLC_TMP_META_DIR),
+        )
+
+    def ExternalGenerateBlobDLC(self, output: str) -> DlcArtifacts:
+        # Copy the prebuilt blob as the DLC image directly.
+        src_image = os.path.join(self.src_dir, DLC_IMAGE)
+        self.VerifyImageSize(src_image)
+        # Create an empty table since there is no verity.
+        osutils.WriteFile(self.dest_table, b"", mode="wb")
+        self.GenerateImageloaderJson(src_image, self.dest_table)
+        self.CopyArtifactsToOutput(src_image, output)
         return DlcArtifacts(
             image=os.path.join(output, DLC_IMAGE),
             meta=os.path.join(output, DLC_TMP_META_DIR),

@@ -813,7 +813,7 @@ class DlcGeneratorTest(
             "getsize",
             return_value=(_PRE_ALLOCATED_BLOCKS - 1) * _BLOCK_SIZE,
         )
-        self.GetDlcGenerator().VerifyImageSize()
+        self.GetDlcGenerator().VerifyImageSize(image="")
 
         with self.assertRaises(ValueError):
             # Fails since image size is bigger than preallocated size.
@@ -822,7 +822,7 @@ class DlcGeneratorTest(
                 "getsize",
                 return_value=(_PRE_ALLOCATED_BLOCKS + 1) * _BLOCK_SIZE,
             )
-            self.GetDlcGenerator().VerifyImageSize()
+            self.GetDlcGenerator().VerifyImageSize(image="")
 
     def testVerifyImageSizeNearingWarning(self) -> None:
         """Test that VerifyImageSize logs the correct nearing warning."""
@@ -837,7 +837,7 @@ class DlcGeneratorTest(
                     / _IMAGE_SIZE_NEARING_RATIO
                 ),
             )
-            self.GetDlcGenerator().VerifyImageSize()
+            self.GetDlcGenerator().VerifyImageSize(image="")
             self.AssertLogsContain(logs, "is nearing the preallocated size")
 
     def testVerifyImageSizeGrowthWarning(self) -> None:
@@ -854,7 +854,7 @@ class DlcGeneratorTest(
                     / _IMAGE_SIZE_GROWTH_RATIO
                 ),
             )
-            self.GetDlcGenerator().VerifyImageSize()
+            self.GetDlcGenerator().VerifyImageSize(image="")
             self.AssertLogsContain(
                 logs, "is significantly less than the preallocated size"
             )
@@ -870,7 +870,7 @@ class DlcGeneratorTest(
             )
             self.GetDlcGenerator(
                 pre_allocated_blocks=dlc_lib.MAGIC_DEV_SIZE
-            ).VerifyImageSize()
+            ).VerifyImageSize(image="")
             self.AssertLogsContain(
                 logs, "The DLC image size will not be verified"
             )
