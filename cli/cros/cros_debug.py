@@ -7,6 +7,7 @@
 import logging
 import os
 import pathlib
+import shlex
 import sys
 from typing import List, Optional
 
@@ -19,6 +20,7 @@ from chromite.lib import namespaces
 from chromite.lib import osutils
 from chromite.lib import qemu
 from chromite.lib import remote_access
+from chromite.utils import shell_util
 
 
 _DEBUGGER_LLDB = "lldb"
@@ -183,9 +185,10 @@ To debug a process by its pid:
             action="append",
             dest="debugger_args",
             metavar="DEBUGGER_ARG",
-            help="Provide additional argument(s) to the debugger. Can be "
-            "specified multiple times. Arguments are placed after all other "
-            "setup commands.",
+            help="Provide additional sets of argument(s) to the debugger. Can "
+            "be specified multiple times. Arguments are placed after all other "
+            "setup commands. Groups of arguments given to a single -g are "
+            "split on spaces just as a shell would interpret them.",
         )
 
         parser.add_argument(
@@ -245,13 +248,6 @@ To debug a process by its pid:
 
             if options.platform_port_remote:
                 parser.error("--platform-port-remote requires --debugger=lldb.")
-        if options.debugger_args is not None:
-            for arg in options.debugger_args:
-                if "'" in arg:
-                    parser.error(
-                        "Cannot use single quote (') characters in "
-                        'in -g options. Use double quotes (") instead.'
-                    )
 
     def _ListProcesses(self, device, pids) -> None:
         """Print out information of the processes in |pids|."""
@@ -310,7 +306,12 @@ To debug a process by its pid:
         self.debugger_args = (
             []
             if self.options.debugger_args is None
-            else self.options.debugger_args
+            # properly escape all debugger args
+            else [
+                a
+                for arg in self.options.debugger_args
+                for a in shlex.split(arg)
+            ]
         )
 
     def _DebugNewProcess(self) -> None:
@@ -448,7 +449,10 @@ To debug a process by its pid:
 
         # Prepend corefile so that -g args appear last, as stated in help text
         if self.corefile is not None:
-            self.debugger_args = ["-c", self.corefile] + self.debugger_args
+            self.debugger_args = [
+                "-c",
+                shell_util.quote(self.corefile),
+            ] + self.debugger_args
 
         # local debugging
         if self.device is None:
