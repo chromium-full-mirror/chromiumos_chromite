@@ -129,6 +129,9 @@ def RunCopybot(request, response, _config):
             ["--downstream-history-starts-with", request.downstream_hash]
         )
 
+    for skip_author in request.skip_authors:
+        cmd.extend(["--skip-author-email", skip_author.user])
+
     cmd.append(
         f"{request.upstream.url}:"
         f"{request.upstream.branch}:"
