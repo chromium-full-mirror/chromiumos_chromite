@@ -336,6 +336,10 @@ To debug a process by its pid:
             self.debug_server.debug_existing_process(pid, board=self.board)
 
     def _RunLocal(self) -> None:
+        # Set sysroot to build dir within the chroot
+        if self.sysroot is None:
+            self.sysroot = build_target_lib.get_default_sysroot_path(self.board)
+
         # adding mounts and calling chroot require root privilege, so
         # reexecute the program as root if needed.
         if osutils.IsNonRootUser():
@@ -383,6 +387,11 @@ To debug a process by its pid:
                 strict=True,
             )
             logging.info("Board is %s", self.board)
+
+            if self.sysroot is None:
+                self.sysroot = build_target_lib.get_default_sysroot_path(
+                    self.board
+                )
 
             self.debug_server = debugger.LLVMDebugger(
                 debugger_path=self.debugger_path,
@@ -436,10 +445,6 @@ To debug a process by its pid:
                 "gdb is not yet supported. Please use --debugger=lldb instead."
             )
             return
-
-        # Set sysroot to build dir within the chroot
-        if self.sysroot is None:
-            self.sysroot = build_target_lib.get_default_sysroot_path(self.board)
 
         # Prepend corefile so that -g args appear last, as stated in help text
         if self.corefile is not None:

@@ -6,7 +6,6 @@
 
 from chromite.cli import command_unittest
 from chromite.cli.cros import cros_debug
-from chromite.lib import build_target_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import remote_access
@@ -184,12 +183,6 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
         """Test that the user can supply multiple extra command line args."""
         self.SetupCommandMock(["--exe", self.EXE, "--debug-arg", "arg1"])
 
-        mock_sysroot = self.PatchObject(
-            build_target_lib,
-            "get_default_sysroot_path",
-            return_value="/sysroot/path",
-        )
         self.PatchObject(self.device_mock, "GetRunningPids", return_value=[])
         self.cmd_mock.inst.Run()
-        self.assertTrue(mock_sysroot.called)
         self.assertTrue(self.cmd_mock.patched["_RunLocal"].called)
