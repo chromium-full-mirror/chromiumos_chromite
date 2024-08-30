@@ -704,9 +704,9 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
             ],
         )
 
-    @mock.patch.object(image, "SignImage")
-    def testGetHashSignaturesMockSignImage(
-        self, mock_sign_image: mock.MagicMock
+    @mock.patch.object(image, "CallDocker")
+    def testGetHashSignaturesMockCallDocker(
+        self, mock_call_docker: mock.MagicMock
     ) -> None:
         client = self.createStandardClient()
 
@@ -723,7 +723,11 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
                 f.write(bytes("abcd" * (i + 1), "utf-8"))
 
         artifact_name = lambda n: f"{n}.payload.hash.{keyset}.signed.bin"
-        mock_sign_image.return_value = signing_pb2.BuildTargetSignedArtifacts(
+
+        # Mock output.
+        mock_call_docker.return_value = 0
+        artifact_name = lambda n: f"{n}.payload.hash.{keyset}.signed.bin"
+        sign_image_output = signing_pb2.BuildTargetSignedArtifacts(
             archive_artifacts=[
                 signing_pb2.ArchiveArtifacts(
                     keyset=keyset,
@@ -737,6 +741,11 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
                 )
             ]
         )
+        with open(
+            os.path.join(client._work_dir, "result_dir", "out_proto.bin"),
+            mode="wb",
+        ) as f:
+            f.write(sign_image_output.SerializeToString())
 
         # Normally the public key would be placed by the signer.
         with open(
@@ -763,34 +772,6 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
             os.path.join(
                 client._work_dir, "result_dir", "update-payload-key-pub.pem"
             ),
-        )
-
-        expected_signing_config = signing_pb2.BuildTargetSigningConfigs(
-            build_target_signing_configs=[
-                signing_pb2.BuildTargetSigningConfig(
-                    build_target="foo-board",
-                    signing_configs=[
-                        signing_pb2.SigningConfig(
-                            image_type=common_pb2.IMAGE_TYPE_UPDATE_PAYLOAD,
-                            keyset=keyset,
-                            channel=common_pb2.CHANNEL_DEV,
-                            input_files=[
-                                "0.payload.hash",
-                                "1.payload.hash",
-                                "2.payload.hash",
-                            ],
-                            output_names=["@BASENAME@.@KEYSET_VER@.signed"],
-                            archive_path="hashes.tar.bz2",
-                        )
-                    ],
-                )
-            ]
-        )
-        mock_sign_image.assert_called_with(
-            expected_signing_config,
-            client._work_dir,
-            os.path.join(client._work_dir, "result_dir"),
-            self._docker_image,
         )
 
     @mock.patch.object(image, "SignImage")
@@ -841,6 +822,35 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
             client.GetHashSignatures(
                 [b"Hash 1", b"Hash 2", b"Hash 3"], (keyset,)
             )
+
+        expected_signing_config = signing_pb2.BuildTargetSigningConfigs(
+            build_target_signing_configs=[
+                signing_pb2.BuildTargetSigningConfig(
+                    build_target="foo-board",
+                    signing_configs=[
+                        signing_pb2.SigningConfig(
+                            image_type=common_pb2.IMAGE_TYPE_UPDATE_PAYLOAD,
+                            keyset=keyset,
+                            channel=common_pb2.CHANNEL_DEV,
+                            input_files=[
+                                "0.payload.hash",
+                                "1.payload.hash",
+                                "2.payload.hash",
+                            ],
+                            output_names=["@BASENAME@.@KEYSET_VER@.signed"],
+                            archive_path="hashes.tar.bz2",
+                        )
+                    ],
+                )
+            ]
+        )
+        mock_sign_image.assert_called_with(
+            expected_signing_config,
+            client._work_dir,
+            os.path.join(client._work_dir, "result_dir"),
+            mock.ANY,
+            self._docker_image,
+        )
 
     @mock.patch.object(image, "SignImage")
     def testGetHashSignaturesMockSignImageFailureMissingPublicKey(

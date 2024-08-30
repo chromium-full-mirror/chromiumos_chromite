@@ -663,10 +663,16 @@ class LocalSignerPayloadsClient:
         result_dir = os.path.join(self._work_dir, "result_dir")
         os.makedirs(result_dir, exist_ok=True)
 
+        # Dir to mount to /tmp so we don't fill up our partition.
+        docker_tmp_dir = tempfile.mkdtemp(
+            dir=self._work_dir, prefix="signing_tmp_"
+        )
+
         signing_response = image.SignImage(
             config,
             self._work_dir,
             result_dir,
+            docker_tmp_dir,
             self._docker_image,
         )
         for signed_artifact in signing_response.archive_artifacts:
