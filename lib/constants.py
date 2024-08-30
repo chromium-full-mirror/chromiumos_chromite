@@ -452,6 +452,9 @@ TELEMETRY_DISABLED_SCRIPTS = frozenset(
         # added.
         # Full path: chromite/scripts/package_has_missing_deps
         "package_has_missing_deps",
+        # http://b/361839640 started to reproduce following telemetry enable.
+        # Disable telemetry to rule out its involvement.
+        "cros_install_debug_syms",
     )
 )
 # The name of scripts that need just telemetry publishing disabled.
