@@ -22,7 +22,7 @@ from chromite.lib import gs
 from chromite.lib.fwbuddy import fwbuddy
 
 
-GENERIC_VALID_URI = "fwbuddy://dedede/galtic/R99-123.456.0/unsigned/serial"
+GENERIC_VALID_URI = "fwbuddy://dedede/galtic/123.456.0/unsigned/serial"
 
 FAKE_FIRMWARE_QUALS_DATA = """{
     "firmware_quals": [
@@ -71,54 +71,51 @@ def test_parse_uri(setup: Path) -> None:
     assert fwbuddy.parse_uri(GENERIC_VALID_URI) == fwbuddy.URI(
         board="dedede",
         firmware_name="galtic",
-        version="R99-123.456.0",
+        version="123.456.0",
         image_type="unsigned",
         firmware_type="serial",
     )
 
     assert fwbuddy.parse_uri(
-        "fwbuddy://dedede/galtic/R99-123.456.0/unsigned"
+        "fwbuddy://dedede/galtic/123.456.0/unsigned"
     ) == fwbuddy.URI(
         board="dedede",
         firmware_name="galtic",
-        version="R99-123.456.0",
+        version="123.456.0",
         image_type="unsigned",
         firmware_type=None,
     )
 
     # Missing image_type
     with pytest.raises(fwbuddy.FwBuddyException):
-        fwbuddy.parse_uri("fwbuddy://dedede/galtic/R99-123.456.0")
+        fwbuddy.parse_uri("fwbuddy://dedede/galtic/123.456.0")
 
     # Wrong header
     with pytest.raises(fwbuddy.FwBuddyException):
-        fwbuddy.parse_uri("fwbozo://dedede/galtic/R99-123.456.0/unsigned")
+        fwbuddy.parse_uri("fwbozo://dedede/galtic/123.456.0/unsigned")
 
 
 def test_parse_release_string(setup: Path) -> None:
     """Tests that versions can be parsed into Release Objects"""
-    assert fwbuddy.Release(
-        "99", "123", "456", "0"
-    ) == fwbuddy.parse_release_string("R99-123.456.0")
+    assert fwbuddy.Release("123", "456", "0") == fwbuddy.parse_release_string(
+        "123.456.0"
+    )
 
-    assert fwbuddy.Release(
-        "99", "123", "456", "0"
-    ) == fwbuddy.parse_release_string("r99-123.456.0")
-
-    assert fwbuddy.Release(
-        "*", "123", "456", "0"
-    ) == fwbuddy.parse_release_string("R*-123.456.0")
+    assert fwbuddy.Release("123", "456", "0") == fwbuddy.parse_release_string(
+        "R89-123.456.0"
+    )
 
     with pytest.raises(fwbuddy.FwBuddyException):
-        fwbuddy.parse_release_string("99-123.456.0")
+        fwbuddy.parse_release_string("some junk")
+
     with pytest.raises(fwbuddy.FwBuddyException):
-        fwbuddy.parse_release_string("R99-123.456")
+        fwbuddy.parse_release_string("123.0")
 
 
 def test_determine_image_type(setup: Path) -> None:
     """Tests that we properly check for valid image types"""
 
-    uri_template = "fwbuddy://dedede/galtic/R99-123.456.0/{image_type}/serial"
+    uri_template = "fwbuddy://dedede/galtic/123.456.0/{image_type}/serial"
     assert (
         fwbuddy.FwBuddy(
             uri_template.format(image_type="unsigned")
@@ -143,7 +140,7 @@ def test_generate_unsigned_gspaths(setup: Path) -> None:
     fw_image = fwbuddy.FwImage(
         board="dedede",
         firmware_name="galtic",
-        release=fwbuddy.parse_release_string("R89-13606.459.0"),
+        release=fwbuddy.parse_release_string("13606.459.0"),
         branches=set(["some-branch-name"]),
         image_type="unsigned",
         firmware_type="",
@@ -153,23 +150,23 @@ def test_generate_unsigned_gspaths(setup: Path) -> None:
         [
             (
                 "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
-                "firmware/R89-13606.459.0/firmware_from_source.tar.bz2"
+                "firmware/R*-13606.459.0/firmware_from_source.tar.bz2"
             ),
             (
                 "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
-                "firmware/R89-13606.459.0/dedede/firmware_from_source.tar.bz2"
+                "firmware/R*-13606.459.0/dedede/firmware_from_source.tar.bz2"
             ),
             (
-                "gs://chromeos-image-archive/dedede-firmware/R89-13606.459.0/"
+                "gs://chromeos-image-archive/dedede-firmware/R*-13606.459.0/"
                 "firmware_from_source.tar.bz2"
             ),
             (
                 "gs://chromeos-image-archive/some-branch-name-branch-"
-                "firmware/R89-13606.459.0/firmware_from_source.tar.bz2"
+                "firmware/R*-13606.459.0/firmware_from_source.tar.bz2"
             ),
             (
                 "gs://chromeos-image-archive/some-branch-name-branch-"
-                "firmware/R89-13606.459.0/dedede/firmware_from_source.tar.bz2"
+                "firmware/R*-13606.459.0/dedede/firmware_from_source.tar.bz2"
             ),
         ]
     )
@@ -183,7 +180,7 @@ def test_generate_gspaths_no_branches(setup: Path) -> None:
     fw_image = fwbuddy.FwImage(
         board="dedede",
         firmware_name="galtic",
-        release=fwbuddy.parse_release_string("R89-13606.459.0"),
+        release=fwbuddy.parse_release_string("13606.459.0"),
         branches=set(),
         image_type="unsigned",
         firmware_type="",
@@ -193,14 +190,14 @@ def test_generate_gspaths_no_branches(setup: Path) -> None:
         [
             (
                 "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
-                "firmware/R89-13606.459.0/firmware_from_source.tar.bz2"
+                "firmware/R*-13606.459.0/firmware_from_source.tar.bz2"
             ),
             (
                 "gs://chromeos-image-archive/firmware-dedede-13606.B-branch-"
-                "firmware/R89-13606.459.0/dedede/firmware_from_source.tar.bz2"
+                "firmware/R*-13606.459.0/dedede/firmware_from_source.tar.bz2"
             ),
             (
-                "gs://chromeos-image-archive/dedede-firmware/R89-13606.459.0/"
+                "gs://chromeos-image-archive/dedede-firmware/R*-13606.459.0/"
                 "firmware_from_source.tar.bz2"
             ),
         ]
@@ -254,7 +251,7 @@ def test_extract(setup: Path, run_mock: cros_test_lib.RunCommandMock) -> None:
     assert f.ap_path == Path("tmp/image-galtic.serial.bin")
 
     # AP and EC image path extraction
-    f = fwbuddy.FwBuddy("fwbuddy://dedede/galtic/R99-123.456.0/unsigned")
+    f = fwbuddy.FwBuddy("fwbuddy://dedede/galtic/123.456.0/unsigned")
     f.archive_path = Path("/unused")
     f.extract("tmp")
     assert f.ap_path == Path("tmp/image-galtic.bin")

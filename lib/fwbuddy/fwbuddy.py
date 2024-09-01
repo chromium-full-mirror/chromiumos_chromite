@@ -26,9 +26,8 @@ class FwBuddyException(Exception):
 
 
 class Release(NamedTuple):
-    """Tuple representation of a firmware release. e.g. R89-13606.459.0"""
+    """Tuple representation of a firmware release. e.g. 13606.459.0"""
 
-    milestone: str
     major_version: str
     minor_version: str
     patch_number: str
@@ -102,11 +101,9 @@ FIELD_DOCS = {
         description=(
             "The version of firmware you're looking for. This could be either a"
             " pinned version or a specific release in the following format:"
-            " R<MILESTONE>-<MAJOR_VERSION>.<MINOR_VERSION>.<PATCH_NUMBER>. If"
-            " you don't know the milestone, you can replace it with a * and"
-            " fwbuddy should be able to still find the right version."
+            " <MAJOR_VERSION>.<MINOR_VERSION>.<PATCH_NUMBER>."
         ),
-        examples="{R99-123.456.0|R*-123.456.0}",
+        examples="{123.456.0}",
         required=True,
         strict=True,
     ),
@@ -225,16 +222,16 @@ BRANCH_MAP_URI = "gs://chromeos-build-release-console/firmware_quals.json"
 UNSIGNED_GSPATH_SCHEMAS_WITHOUT_BRANCH = [
     (
         f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s."
-        f"B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s."
+        f"B-branch-firmware/R*-%(major_version)s.%(minor_version)s."
         f"%(patch_number)s/{UNSIGNED_ARCHIVE_NAME}"
     ),
     (
         f"{UNSIGNED_ARCHIVE_BUCKET}/firmware-%(board)s-%(major_version)s."
-        f"B-branch-firmware/R%(milestone)s-%(major_version)s.%(minor_version)s."
+        f"B-branch-firmware/R*-%(major_version)s.%(minor_version)s."
         f"%(patch_number)s/%(board)s/{UNSIGNED_ARCHIVE_NAME}"
     ),
     (
-        f"{UNSIGNED_ARCHIVE_BUCKET}/%(board)s-firmware/R%(milestone)s-"
+        f"{UNSIGNED_ARCHIVE_BUCKET}/%(board)s-firmware/R*-"
         f"%(major_version)s.%(minor_version)s.%(patch_number)s/"
         f"{UNSIGNED_ARCHIVE_NAME}"
     ),
@@ -242,12 +239,12 @@ UNSIGNED_GSPATH_SCHEMAS_WITHOUT_BRANCH = [
 # Schemas that incorporate firmware branch directly.
 UNSIGNED_GSPATH_SCHEMAS_WITH_BRANCH = [
     (
-        f"{UNSIGNED_ARCHIVE_BUCKET}/%(branch)s-branch-firmware/R%(milestone)s-"
+        f"{UNSIGNED_ARCHIVE_BUCKET}/%(branch)s-branch-firmware/R*-"
         f"%(major_version)s.%(minor_version)s.%(patch_number)s/"
         f"{UNSIGNED_ARCHIVE_NAME}"
     ),
     (
-        f"{UNSIGNED_ARCHIVE_BUCKET}/%(branch)s-branch-firmware/R%(milestone)s-"
+        f"{UNSIGNED_ARCHIVE_BUCKET}/%(branch)s-branch-firmware/R*-"
         f"%(major_version)s.%(minor_version)s.%(patch_number)s/%(board)s/"
         f"{UNSIGNED_ARCHIVE_NAME}"
     ),
@@ -261,7 +258,7 @@ AP_PATH_SCHEMA_WITH_FIRMWARE_TYPE = (
 EC_PATH_SCHEMA = "%(directory)s/%(firmware_name)s/ec.bin"
 
 # Example: R89-13606.459.0
-RELEASE_STRING_REGEX_PATTERN = re.compile(r"[R|r](\d+|\*)-(\d+)\.(\d+)\.(\d+)")
+RELEASE_STRING_REGEX_PATTERN = re.compile(r"(\d+)\.(\d+)\.(\d+)")
 
 # Example: fwbuddy://dedede/galnat360/galtic/latest/unsigned/serial
 FWBUDDY_URI_REGEX_PATTERN = re.compile(
@@ -650,7 +647,7 @@ def parse_release_string(release_str: str) -> Release:
     """Converts a release string into a Release
 
     Args:
-        release_str: A release string like 'R89-13606.459.0'
+        release_str: A release string like '13606.459.0'
 
     Returns:
         A Release containing data from the release string.
@@ -659,13 +656,13 @@ def parse_release_string(release_str: str) -> Release:
         FwBuddyException: If the release string is malformed.
     """
     fields = RELEASE_STRING_REGEX_PATTERN.findall(release_str)
-    if len(fields) == 0 or (len(fields) == 1 and len(fields[0]) != 4):
+    if len(fields) == 0 or (len(fields) == 1 and len(fields[0]) != 3):
         raise FwBuddyException(
             "Unrecognized or unsupported firmware version format: "
             f'"{release_str}" Expected either one of {PINNED_VERSIONS} or a '
-            'full release string like "R99-123.456.0"'
+            'full release string like "123.456.0"'
         )
-    return Release(fields[0][0], fields[0][1], fields[0][2], fields[0][3])
+    return Release(fields[0][0], fields[0][1], fields[0][2])
 
 
 def generate_gspaths(fw_image: FwImage) -> Set[str]:
@@ -708,7 +705,6 @@ def build_gspath(schema: str, fw_image: FwImage, branch: str = "") -> str:
     """
     return schema % {
         "board": fw_image.board,
-        "milestone": fw_image.release.milestone,
         "major_version": fw_image.release.major_version,
         "minor_version": fw_image.release.minor_version,
         "patch_number": fw_image.release.patch_number,
