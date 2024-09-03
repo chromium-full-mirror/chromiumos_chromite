@@ -389,8 +389,7 @@ def ParseArgs(argv):
 
 
 def main(argv) -> None:
-    if not cros_build_lib.IsInsideChroot():
-        raise commandline.ChrootRequiredError(argv)
+    commandline.RunInsideChroot()
 
     options = ParseArgs(argv)
 
