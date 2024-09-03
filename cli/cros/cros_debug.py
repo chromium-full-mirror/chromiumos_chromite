@@ -8,6 +8,7 @@ import logging
 import os
 import pathlib
 import shlex
+import shutil
 import sys
 from typing import List, Optional
 
@@ -366,6 +367,14 @@ To debug a process by its pid:
             )
 
         os.chroot(self.sysroot)
+
+        if shutil.which(self.debugger_path) is None:
+            cros_build_lib.Die(
+                "Debugger path %s was not found in the board sysroot."
+                " Did you build dev-util/lldb-server for your board "
+                "with the USE='local-lldb' flag?",
+                self.debugger_path,
+            )
 
         self.debug_server = debugger.LLVMDebugger(
             debugger_path=self.debugger_path,
