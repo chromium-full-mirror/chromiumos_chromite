@@ -23,6 +23,10 @@ from chromite.utils import shell_util
 # and files to be added may not show up to the command line.
 _THRESHOLD_TO_USE_T_FOR_TAR = 50
 
+# CIPD package to use for pzstd.
+_ZSTD_PACKAGE = "chromiumos/infra/tools/zstd"
+_ZSTD_VERSION = "abrFYnkC7NRoeegtP-DBjpFl2qboH8T8LC-9CevwR38C"
+
 
 class CompressionType(enum.IntEnum):
     """Type of compression."""
@@ -110,6 +114,25 @@ class CompressionType(enum.IntEnum):
         return cls.NONE
 
 
+def _ensure_pzstd() -> str:
+    """Download pzstd from cipd as required.
+
+    Returns:
+        Command to run for pzstd.
+    """
+    # Yucky deferred import is to avoid circular import of chromite.lib.cache
+    # during unit tests.
+    # pylint: disable-next=wrong-import-position
+    from chromite.lib import cipd
+
+    if cros_build_lib.IsInsideChroot():
+        return "pzstd"
+
+    cipd_bin = cipd.GetCIPDFromCache()
+    pkg_path = cipd.InstallPackage(cipd_bin, _ZSTD_PACKAGE, _ZSTD_VERSION)
+    return str(pkg_path / "bin" / "pzstd")
+
+
 def find_compressor(
     compression: CompressionType,
     chroot: Optional[Union[Path, str]] = None,
@@ -140,7 +163,7 @@ def find_compressor(
     elif compression == CompressionType.BZIP2:
         possible_progs = ["lbzip2", "pbzip2", "bzip2"]
     elif compression == CompressionType.ZSTD:
-        possible_progs = ["pzstd", "zstdmt", "zstd"]
+        return _ensure_pzstd()
     elif compression == CompressionType.NONE:
         return "cat"
     else:

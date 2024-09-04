@@ -10,6 +10,7 @@ from typing import List
 
 import pytest
 
+from chromite.lib import cipd
 from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -245,7 +246,7 @@ class FailedCreateTarballTests(cros_test_lib.RunCommandTestCase):
         self.assertEqual(self.rc.call_count, 3)
 
 
-class FindCompressorTests(cros_test_lib.TempDirTestCase):
+class FindCompressorTests(cros_test_lib.MockTempDirTestCase):
     """Tests for find_compressor."""
 
     def _test_comp(
@@ -298,19 +299,27 @@ class FindCompressorTests(cros_test_lib.TempDirTestCase):
             ),
         )
 
-    def test_find_compressor_zstd(self) -> None:
-        """Test find_compressor with zstd."""
-        comps = ("pzstd", "zstdmt", "zstd")
-        self._test_comp(comps, compression_lib.CompressionType.ZSTD)
-
-    def test_find_compressor_zstd_not_found(self) -> None:
-        """Test find_compressor with missing zstd."""
-        self.assertEqual(
-            "zstd",
+    def test_find_compressor_zstd_inside_chroot(self) -> None:
+        """Test find_compressor with zstd inside the chroot."""
+        assert (
             compression_lib.find_compressor(
-                compression_lib.CompressionType.ZSTD, root=self.tempdir
-            ),
+                compression_lib.CompressionType.ZSTD
+            )
+            == "pzstd"
         )
+
+    def test_find_compressor_zstd_outside_chroot(self) -> None:
+        """Test find_compressor uses cipd outside the chroot."""
+        fake_cipd_path = Path("/some/path/to/a/fake/cipd")
+        fake_pzstd_path = Path("/some/path/to/a/fake/pzstd")
+
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+        self.PatchObject(cipd, "GetCIPDFromCache", return_value=fake_cipd_path)
+        self.PatchObject(cipd, "InstallPackage", return_value=fake_pzstd_path)
+
+        assert compression_lib.find_compressor(
+            compression_lib.CompressionType.ZSTD
+        ) == str(fake_pzstd_path / "bin" / "pzstd")
 
     def test_find_compressor_none(self) -> None:
         """Test find_compressor for none type."""
