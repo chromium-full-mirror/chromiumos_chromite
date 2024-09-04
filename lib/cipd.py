@@ -8,6 +8,7 @@ CIPD is the Chrome Infra Package Deployer, a simple method of resolving a
 package/version into a GStorage link and installing them.
 """
 
+import functools
 import hashlib
 import json
 import logging
@@ -24,6 +25,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.utils import memoize
+from chromite.utils import os_util
 
 
 # pylint: disable=line-too-long
@@ -137,15 +139,19 @@ def _DownloadCIPD(instance_sha256):
 class CipdCache(cache.RemoteCache):
     """Supports caching of the CIPD download."""
 
-    def _Fetch(
-        self, url, local_path
-    ) -> None:  # pylint: disable=arguments-differ
+    # pylint: disable-next=arguments-differ
+    def _Fetch(self, url, local_path) -> None:
         instance_sha256 = urllib.parse.urlparse(url).netloc
         binary = _DownloadCIPD(instance_sha256)
         logging.info(
             "Fetched CIPD package %s:%s", CIPD_CLIENT_PACKAGE, instance_sha256
         )
         osutils.WriteFile(local_path, binary, mode="wb")
+
+        # Ensure cipd is not owned by root.
+        if osutils.IsRootUser():
+            osutils.Chown(local_path, user=True)
+
         os.chmod(local_path, 0o755)
 
 
@@ -161,6 +167,7 @@ def GetCIPDFromCache(cache_dir: Optional[str] = None) -> str:
     if cache_dir is None:
         cache_dir = path_util.GetCacheDir()
     cache_dir = os.path.join(cache_dir, "cipd")
+    osutils.SafeMakedirsNonRoot(cache_dir)
     bin_cache = CipdCache(cache_dir)
     key = (CIPD_CLIENT_SHA256,)
     ref = bin_cache.Lookup(key)
@@ -284,7 +291,20 @@ def InstallPackage(
 
     ensure = f"{package} {version}"
     logging.debug("Ensure file: %s", ensure)
-    cros_build_lib.run(
+
+    run = cros_build_lib.run
+    if osutils.IsRootUser():
+        # We use strict=False as scripts/cros_sdk.py builds a bare sudo command
+        # at the moment, and we won't have the necessary keepalive variables.
+        # If that code gets refactored to use Chromite's sudo facilities, we can
+        # use strict=True.
+        run = functools.partial(
+            cros_build_lib.sudo_run,
+            user=os_util.get_non_root_user(),
+            strict=False,
+        )
+
+    run(
         [cipd_path, "ensure", "-root", destination, "-ensure-file", "-"]
         + _shared_cipd_args(cred_path=service_account_json),
         capture_output=True,
