@@ -67,7 +67,7 @@ PROXY_NEEDED_TOOLS = ("ip",)
 def get_sdk_tarball_urls(
     version: str,
     bucket: Optional[str] = None,
-) -> str:
+) -> List[str]:
     """Return URL candidates to download an SDK tarball.
 
     Args:
