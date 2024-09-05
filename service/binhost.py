@@ -5,7 +5,6 @@
 """The Binhost API interacts with Portage binhosts and Packages files."""
 
 import base64
-import functools
 import logging
 import os
 from pathlib import Path
@@ -21,7 +20,6 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import osutils
-from chromite.lib import parallel
 from chromite.lib import portage_util
 from chromite.lib import repo_util
 from chromite.lib import sysroot_lib
@@ -356,6 +354,7 @@ def RegenBuildCache(
     overlays = portage_util.FindOverlays(overlay_type, buildroot=buildroot)
 
     repos_config = portage_util.generate_repositories_configuration(chroot)
+    results = []
 
     with tempfile.NamedTemporaryFile(
         prefix="repos.conf.", dir=chroot.tmp
@@ -368,17 +367,18 @@ def RegenBuildCache(
             repos_config,
         )
 
-        task = functools.partial(
-            portage_util.RegenCache,
-            commit_changes=False,
-            chroot=chroot,
-            repos_conf=repos_conf.name,
-        )
-        task_inputs = [[o] for o in overlays if os.path.isdir(o)]
-        results = parallel.RunTasksInProcessPool(task, task_inputs)
+        for overlay in overlays:
+            if os.path.isdir(overlay):
+                overlay_dir = portage_util.RegenCache(
+                    overlay,
+                    commit_changes=False,
+                    chroot=chroot,
+                    repos_conf=repos_conf.name,
+                )
+                if overlay_dir:
+                    results.append(overlay_dir)
 
-    # Filter out all the unchanged-overlay results.
-    return [overlay_dir for overlay_dir in results if overlay_dir]
+    return results
 
 
 def GetPrebuiltAclArgs(
