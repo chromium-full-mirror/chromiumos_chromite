@@ -216,12 +216,12 @@ class VersionInfoTest(cros_test_lib.MockTempDirTestCase):
 
         lhs = chromeos_version.VersionInfo(version_string="1.2.3-12345")
         rhs = chromeos_version.VersionInfo(version_string="1.2.3")
-        self.assertTrue(lhs < rhs)
-        self.assertTrue(lhs <= rhs)
+        self.assertFalse(lhs < rhs)
+        self.assertFalse(lhs <= rhs)
         self.assertFalse(lhs == rhs)
         self.assertTrue(lhs != rhs)
-        self.assertFalse(lhs > rhs)
-        self.assertFalse(lhs >= rhs)
+        self.assertTrue(lhs > rhs)
+        self.assertTrue(lhs >= rhs)
 
         lhs = chromeos_version.VersionInfo(version_string="1.2.3-12344")
         rhs = chromeos_version.VersionInfo(version_string="1.2.3-12345")
@@ -245,12 +245,12 @@ class VersionInfoTest(cros_test_lib.MockTempDirTestCase):
 
         lhs = chromeos_version.VersionInfo(version_string="1.2.3")
         rhs = chromeos_version.VersionInfo(version_string="1.2.3-12345")
-        self.assertFalse(lhs < rhs)
-        self.assertFalse(lhs <= rhs)
+        self.assertTrue(lhs < rhs)
+        self.assertTrue(lhs <= rhs)
         self.assertFalse(lhs == rhs)
         self.assertTrue(lhs != rhs)
-        self.assertTrue(lhs > rhs)
-        self.assertTrue(lhs >= rhs)
+        self.assertFalse(lhs > rhs)
+        self.assertFalse(lhs >= rhs)
 
         lhs = chromeos_version.VersionInfo(version_string="1.2.3-12346")
         rhs = chromeos_version.VersionInfo(version_string="1.2.3-12345")

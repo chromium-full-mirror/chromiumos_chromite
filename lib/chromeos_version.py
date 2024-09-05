@@ -289,10 +289,10 @@ class VersionInfo:
         return version_str
 
     def VersionComponents(self):
-        """Return an array of ints or `inf` of the version fields for comparing.
+        """Return an array of ints of the version fields for comparing.
 
-        These values are intended only for comparison, not for display, since
-        they may contain `inf`.
+        The returned value is intended only for comparison, not for display,
+        since it may contain a placeholder number for comparison.
         """
         components = [
             int(self.build_number),
@@ -300,9 +300,13 @@ class VersionInfo:
             int(self.patch_number),
         ]
 
-        # Version without suffix is newer than the one with a snapshot suffix.
+        # Released CrOS (version number without snapshot suffix) is older than
+        # snapshot CrOS with the same version number (version number with a
+        # snapshot suffix), because CrOS release is done just after incrementing
+        # the version number, unlike from Chrome browser version semantics.
+        # eg. "15123.0.0" (release) is older than "15123.0.0-123456" (snapshot)
         components.append(
-            int(self.snapshot_suffix) if self.snapshot_suffix else float("inf")
+            int(self.snapshot_suffix) if self.snapshot_suffix else 0
         )
 
         return components
@@ -311,8 +315,8 @@ class VersionInfo:
     def VersionCompare(cls, version_string):
         """Useful method to return a comparable version of a LKGM string.
 
-        These values are intended only for comparison, not for display, since
-        they may contain `inf`.
+        The returned value is intended only for comparison, not for display,
+        since it may contain a placeholder number for comparison.
         """
         return cls(version_string).VersionComponents()
 
