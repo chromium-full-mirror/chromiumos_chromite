@@ -8,7 +8,7 @@ import base64
 import logging
 import os
 from pathlib import Path
-import tempfile
+import subprocess
 from typing import List, NamedTuple, Optional, TYPE_CHECKING, Union
 
 from chromite.third_party import requests
@@ -351,34 +351,20 @@ def RegenBuildCache(
     Returns:
         The overlays with updated caches.
     """
-    overlays = portage_util.FindOverlays(overlay_type, buildroot=buildroot)
+    cmd = [
+        chroot.chroot_path(
+            Path(buildroot)
+            / "chromite"
+            / "scripts"
+            / "cros_update_metadata_cache"
+        ),
+        "--overlay-type",
+        overlay_type,
+        "--debug",
+    ]
+    result = chroot.run(cmd, stdout=subprocess.PIPE, encoding="utf-8")
 
-    repos_config = portage_util.generate_repositories_configuration(chroot)
-    results = []
-
-    with tempfile.NamedTemporaryFile(
-        prefix="repos.conf.", dir=chroot.tmp
-    ) as repos_conf:
-        repos_conf.write(repos_config.encode("utf-8"))
-        repos_conf.flush()
-        logging.debug(
-            "Using custom repos.conf settings at %s:\n%s",
-            repos_conf.name,
-            repos_config,
-        )
-
-        for overlay in overlays:
-            if os.path.isdir(overlay):
-                overlay_dir = portage_util.RegenCache(
-                    overlay,
-                    commit_changes=False,
-                    chroot=chroot,
-                    repos_conf=repos_conf.name,
-                )
-                if overlay_dir:
-                    results.append(overlay_dir)
-
-    return results
+    return [str(Path(buildroot) / x) for x in result.stdout.splitlines()]
 
 
 def GetPrebuiltAclArgs(

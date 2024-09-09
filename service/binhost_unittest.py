@@ -24,7 +24,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import git
 from chromite.lib import osutils
-from chromite.lib import parallel_unittest
 from chromite.lib import portage_util
 from chromite.lib import repo_util
 from chromite.lib import sysroot_lib
@@ -523,26 +522,31 @@ WRONG_KEY="gs://binhost1 gs://binhost2"
         self.assertEqual(binhosts, ["gs://binhost1"])
 
 
-class RegenBuildCacheTest(cros_test_lib.MockTempDirTestCase):
-    """Unittests for RegenBuildCache."""
+def test_regen_build_cache(tmp_path, run_mock, outside_sdk):
+    """Test RegenBuildCache."""
+    del outside_sdk
 
-    def testCallsRegenPortageCache(self) -> None:
-        """Test that overlays=None works."""
-        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
-
-        chroot = chroot_lib.Chroot(
-            path=self.tempdir / "chroot", out_path=self.tempdir / "out"
-        )
-        osutils.SafeMakedirs(chroot.tmp)
-        overlays_found = [chroot.full_path("/path/to")]
-        for o in overlays_found:
-            osutils.SafeMakedirs(o)
-        self.PatchObject(
-            portage_util, "FindOverlays", return_value=overlays_found
-        )
-
-        with parallel_unittest.ParallelMock():
-            binhost.RegenBuildCache(chroot, constants.PUBLIC_OVERLAYS)
+    chroot = chroot_lib.Chroot(
+        path=tmp_path / "chroot",
+        out_path=tmp_path / "out",
+    )
+    osutils.SafeMakedirs(chroot.tmp)
+    run_mock.SetDefaultCmdResult(
+        stdout="src/third_party/chromiumos-overlay\n",
+    )
+    assert binhost.RegenBuildCache(chroot, constants.PUBLIC_OVERLAYS) == [
+        str(
+            constants.SOURCE_ROOT / "src" / "third_party" / "chromiumos-overlay"
+        ),
+    ]
+    run_mock.assertCommandContains(
+        [
+            "/mnt/host/source/chromite/scripts/cros_update_metadata_cache",
+            "--overlay-type",
+            "public",
+            "--debug",
+        ]
+    )
 
 
 class ReadDevInstallPackageFileTest(cros_test_lib.MockTempDirTestCase):
