@@ -313,6 +313,9 @@ class ChromeLKGMCommitterTester(
             chromeos_version.VersionInfo("999.0.0"),
             dryrun=False,
             buildbucket_id="some-build-id",
+            message="this is a message.",
+            internal_manifest_position=111111,
+            external_manifest_position=22222,
         )
 
         committer._PRESUBMIT_BOTS = ["bot1", "bot2"]
@@ -329,4 +332,11 @@ class ChromeLKGMCommitterTester(
         )
         self.assertIn(
             "CQ_INCLUDE_TRYBOTS=luci.chrome.try:bot2", commit_msg_lines
+        )
+        self.assertIn("this is a message.", commit_msg_lines)
+        self.assertIn(
+            "CrOS-External-Manifest-Position: 22222", commit_msg_lines
+        )
+        self.assertIn(
+            "CrOS-Internal-Manifest-Position: 111111", commit_msg_lines
         )

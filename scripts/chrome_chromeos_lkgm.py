@@ -211,6 +211,9 @@ class ChromeLKGMCommitter:
         current_lkgm: chromeos_version.VersionInfo,
         dryrun: bool = False,
         buildbucket_id: Optional[str] = None,
+        message: Optional[str] = None,
+        external_manifest_position: Optional[int] = None,
+        internal_manifest_position: Optional[int] = None,
     ) -> None:
         self._dryrun = dryrun
         self._branch = branch
@@ -222,6 +225,20 @@ class ChromeLKGMCommitter:
 
         self._commit_msg_header = self._COMMIT_MSG_HEADER % {"lkgm": self._lkgm}
         self._current_lkgm = current_lkgm
+        self._message = message
+
+        # Storing metadata in the git footer for automated processing.
+        self._footers = {"CrOS-LKGM": self._lkgm}
+        if buildbucket_id:
+            self._footers["Cr-Build-Id"] = str(buildbucket_id)
+        if external_manifest_position:
+            self._footers[
+                "CrOS-External-Manifest-Position"
+            ] = external_manifest_position
+        if internal_manifest_position:
+            self._footers[
+                "CrOS-Internal-Manifest-Position"
+            ] = internal_manifest_position
 
         if not self._lkgm:
             if self._dryrun:
@@ -287,27 +304,49 @@ class ChromeLKGMCommitter:
 
     def ComposeCommitMsg(self):
         """Constructs and returns the commit message for the LKGM update."""
-        dry_run_message = (
-            "This CL was created during a dry run and is not "
-            "intended to be committed.\n"
-        )
-        commit_msg_template = (
-            "%(header)s\n%(build_link)s\n%(message)s\n%(cq_includes)s"
-        )
+        message = ""
+        if self._message:
+            message += self._message
+            message += "\n\n"
+
+        build_link = ""
+        if self._buildbucket_id:
+            build_link = "Uploaded by https://ci.chromium.org/b/%s\n\n" % (
+                self._buildbucket_id
+            )
+
         cq_includes = ""
         if self._branch == "main":
             for bot in self._PRESUBMIT_BOTS:
                 cq_includes += "CQ_INCLUDE_TRYBOTS=luci.chrome.try:%s\n" % bot
-        build_link = ""
-        if self._buildbucket_id:
-            build_link = "\nUploaded by https://ci.chromium.org/b/%s\n" % (
-                self._buildbucket_id
+            cq_includes += "\n"
+
+        dry_run_message = ""
+        if self._dryrun:
+            dry_run_message = (
+                "This CL was created during a dry run and is not "
+                "intended to be committed.\n\n"
             )
+
+        footers = ""
+        for key, value in self._footers.items():
+            footers += f"{key}: {value}\n"
+
+        commit_msg_template = (
+            "%(header)s\n\n"
+            "%(message)s"
+            "%(dry_run_message)s"
+            "%(build_link)s"
+            "%(cq_includes)s"
+            "%(footers)s"
+        )
         return commit_msg_template % dict(
             header=self._commit_msg_header,
+            message=message,
             cq_includes=cq_includes,
             build_link=build_link,
-            message=dry_run_message if self._dryrun else "",
+            dry_run_message=dry_run_message,
+            footers=footers,
         )
 
 
@@ -352,6 +391,11 @@ def GetOpts(argv):
         default=False,
         help="Don't commit changes or send out emails.",
     )
+    parser.add_argument(
+        "--message",
+        action="store",
+        help="Extra message to add to the description of the generated CL.",
+    )
     parser.add_argument("--lkgm", help="LKGM version to update to.")
     parser.add_argument(
         "--buildbucket-id",
@@ -363,6 +407,16 @@ def GetOpts(argv):
         default="main",
         help="Branch to upload change to, e.g. "
         "refs/branch-heads/5112. Defaults to main.",
+    )
+    parser.add_argument(
+        "--internal-manifest-position",
+        type=int,
+        help="Annealing commit position of the internal manifest.",
+    )
+    parser.add_argument(
+        "--external-manifest-position",
+        type=int,
+        help="Annealing commit position of the external manifest.",
     )
     return parser.parse_args(argv)
 
@@ -378,6 +432,9 @@ def main(argv):
             current_lkgm,
             opts.dryrun,
             opts.buildbucket_id,
+            message=opts.message,
+            internal_manifest_position=opts.internal_manifest_position,
+            external_manifest_position=opts.external_manifest_position,
         )
         committer.Run()
 
