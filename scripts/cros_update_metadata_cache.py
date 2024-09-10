@@ -11,8 +11,10 @@ Updated overlays are printed as relative paths to the source root on stdout,
 one per line.
 """
 
+import contextlib
 import os
 from pathlib import Path
+import sys
 from typing import List, Optional, TextIO
 
 from chromite.lib import commandline
@@ -144,9 +146,13 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
             (Path(x), repos_conf)
             for x in portage_util.FindOverlays(opts.overlay_type)
         ]
-        results = parallel.RunTasksInProcessPool(
-            regen_overlay_cache, task_inputs
-        )
+
+        # chromite.lib.parallel is hardwired to mix stderr into stdout.  Send it
+        # back to the right place.
+        with contextlib.redirect_stdout(sys.stderr):
+            results = parallel.RunTasksInProcessPool(
+                regen_overlay_cache, task_inputs
+            )
 
     for result in results:
         if result:
