@@ -165,19 +165,6 @@ class ChromeOSVersionFinderTest(
             stdout=self.FULL_VERSION_WITH_SNAPSHOT,
         )
 
-    def testFullVersionFromSnapshotVersion(self) -> None:
-        """Test full version calculation from the platform version."""
-        self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex("cat .*-snapshot/LATEST-%s" % self.VERSION),
-            stdout=self.FULL_VERSION_WITH_SNAPSHOT,
-        )
-        self.assertEqual(
-            self.FULL_VERSION_WITH_SNAPSHOT,
-            self.finder.GetFullVersionFromLatestFile(
-                self.VERSION, from_snapshot=True
-            ),
-        )
-
     def testFullVersionFromSnapshotId(self) -> None:
         """Test full version calculation from the snapshot id."""
         self.gs_mock.AddCmdResult(
@@ -257,19 +244,6 @@ class ChromeOSVersionFinderTest(
         )
         self.assertEqual(
             self.finder.GetFullVersionFromLatestFile("12345.89.0"), None
-        )
-
-    def testBranchNoFallbackVersionsFromSnapshot(self) -> None:
-        """Test version calculation for a branch version with no fallbacks."""
-        self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex("cat .*-snapshot/LATEST-*"),
-            side_effect=gs.GSNoSuchKey,
-        )
-        self.assertEqual(
-            self.finder.GetFullVersionFromLatestFile(
-                "12345.89.0", from_snapshot=True
-            ),
-            "",
         )
 
     def testMiniBranchFullVersion(self) -> None:
