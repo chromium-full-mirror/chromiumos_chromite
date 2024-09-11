@@ -112,9 +112,11 @@ def sha256sum_gs_uri(gs_context: gs.GSContext, gs_uri: str) -> str:
 
 
 def load_bcs(
-    gs_context: gs.GSContext, bcs_overlay: str, bcs_uri: str
-) -> firmware_config_pb2.FirmwareVersion:
+    gs_context: gs.GSContext, bcs_overlay: str, bcs_uri: Optional[str]
+) -> Optional[firmware_config_pb2.FirmwareVersion]:
     """Load a file from a BCS uri and return the FirmwareVersion for it."""
+    if not bcs_uri:
+        return None
     bcs_name = bcs_overlay.removeprefix("overlay-")
     ebuild_name = bcs_name.split("-")[0]
     file_name = bcs_uri.removeprefix("bcs://")
@@ -147,9 +149,9 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     for model_name, config in configs_by_model.items():
         bcs_overlay = config["firmware"]["bcs-overlay"]
         ap_ro_image = config["firmware"]["main-ro-image"]
-        ap_rw_image = config["firmware"].get("main-rw-image", ap_ro_image)
+        ap_rw_image = config["firmware"].get("main-rw-image")
         ec_ro_image = config["firmware"]["ec-ro-image"]
-        ec_rw_image = config["firmware"].get("ec-rw-image", ec_ro_image)
+        ec_rw_image = config["firmware"].get("ec-rw-image")
         message = firmware_config_pb2.FirmwareConfigForModel(
             model=model_name,
             signing=firmware_config_pb2.ModelSigningConfig(
