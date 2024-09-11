@@ -149,7 +149,7 @@ class CipdCache(cache.RemoteCache):
         osutils.WriteFile(local_path, binary, mode="wb")
 
         # Ensure cipd is not owned by root.
-        if osutils.IsRootUser():
+        if osutils.IsRootUser() and os_util.get_non_root_user():
             osutils.Chown(local_path, user=True)
 
         os.chmod(local_path, 0o755)
@@ -293,14 +293,15 @@ def InstallPackage(
     logging.debug("Ensure file: %s", ensure)
 
     run = cros_build_lib.run
-    if osutils.IsRootUser():
+    non_root_user = os_util.get_non_root_user()
+    if osutils.IsRootUser() and non_root_user:
         # We use strict=False as scripts/cros_sdk.py builds a bare sudo command
         # at the moment, and we won't have the necessary keepalive variables.
         # If that code gets refactored to use Chromite's sudo facilities, we can
         # use strict=True.
         run = functools.partial(
             cros_build_lib.sudo_run,
-            user=os_util.get_non_root_user(),
+            user=non_root_user,
             strict=False,
         )
 
