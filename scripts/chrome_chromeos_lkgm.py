@@ -396,6 +396,11 @@ def GetOpts(argv):
         action="store",
         help="Extra message to add to the description of the generated CL.",
     )
+    parser.add_argument(
+        "--force-overriding-user",
+        help="[For debugging] Forcibly overrides the user to manipulate "
+        "Gerrit, instead of determining it from the hostname.",
+    )
     parser.add_argument("--lkgm", help="LKGM version to update to.")
     parser.add_argument(
         "--buildbucket-id",
@@ -441,7 +446,9 @@ def main(argv):
     # We need to know the account used by the builder to upload git CLs when
     # listing up CLs.
     user_email = ""
-    if hostname_util.host_is_ci_builder(golo_only=True):
+    if opts.force_overriding_user:
+        user_email = opts.force_overriding_user
+    elif hostname_util.host_is_ci_builder(golo_only=True):
         user_email = "chromeos-commit-bot@chromium.org"
     elif hostname_util.host_is_ci_builder(gce_only=True):
         user_email = "3su6n15k.default@developer.gserviceaccount.com"
