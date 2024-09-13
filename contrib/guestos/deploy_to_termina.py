@@ -153,6 +153,7 @@ def deploy_into_remote_dlc(
     # the DLC image. Run the entire thing inside set -e so a failure of any
     # step causes the entire command to fail, which then turns into an
     # exception.
+    # We use --nocompress to speed up repacking the DLC (crbug/1222489)
     command = textwrap.dedent(
         f"""
     (set -e
@@ -163,8 +164,7 @@ def deploy_into_remote_dlc(
         e2fsck -yf $path
         resize2fs -M $path
       done
-      dlctool --id {dlc_id} dlc $(
-        grep -qm1 compress $(which dlctool) && echo --nocompress)
+      dlctool --nocompress --id {dlc_id} dlc
       rm -rf dlc)"""
     )
     remote.run(command, shell=True, capture_output=False)
