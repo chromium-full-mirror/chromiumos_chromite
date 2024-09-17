@@ -1780,7 +1780,7 @@ def BundleDebugSymbols(
         pass
     if not result or result.returncode:
         # We don't abort here, because the tar may still be somewhat intact.
-        err = result.return_code if result else "TarballError"
+        err = result.returncode if result else "TarballError"
         logging.error(
             "Error (%s) when creating tarball %s from %s",
             err,
