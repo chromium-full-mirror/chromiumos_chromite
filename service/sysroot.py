@@ -1021,9 +1021,18 @@ def BuildPackages(
             cmd += ["--usepkg", "--getbinpkg"]
         cmd += [constants.TARGET_SDK_BROOT]
         with metrics_lib.timer(f"{metrics_prefix}.Broot"):
-            cros_build_lib.sudo_run(
-                cmd, extra_env={"PKGDIR": str(pkgdir), "USE": ""}
-            )
+            try:
+                cros_build_lib.sudo_run(
+                    cmd, extra_env={"PKGDIR": str(pkgdir), "USE": ""}
+                )
+            except cros_build_lib.RunCommandError as e:
+                failed_pkgs = portage_util.ParseDieHookStatusFile()
+                raise sysroot_lib.PackageInstallError(
+                    "Merging broot packages failed",
+                    e.result,
+                    exception=e,
+                    packages=failed_pkgs,
+                ) from e
 
         # Clean out any stale binpkgs we've accumulated. This is done
         # immediately after regenerating the cache in case ebuilds have been
