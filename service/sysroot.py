@@ -1513,10 +1513,18 @@ in
         if failed_packages:
             # "unknown" is a place holder for the failing ebuild phase name
             # which won't be used.
-            portage_util.get_die_hook_status_file().write_text(
+            osutils.WriteFile(
+                portage_util.get_die_hook_status_file(),
                 "\n".join(f"{x} unknown" for x in failed_packages),
                 encoding="utf-8",
+                sudo=True,
             )
+            try:
+                osutils.Chown(
+                    portage_util.get_die_hook_status_file(), user=True
+                )
+            except (osutils.UnknownNonRootUserError, OSError):
+                pass
         raise
     finally:
         # Postprocess the output, regardless of the build result.
