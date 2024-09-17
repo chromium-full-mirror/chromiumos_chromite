@@ -935,7 +935,7 @@ class BundledSubtools:
         elif metadata.gcs_metadata:
             bucket_override = None
             if not use_production:
-                bucket_override = "staging-chromiumos-sdk"
+                bucket_override = "chromeos-throw-away-bucket"
             self._upload_bundle_gcs(
                 path=path,
                 bucket_override=bucket_override,
