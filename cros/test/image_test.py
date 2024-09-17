@@ -508,19 +508,7 @@ class SymbolsTest(image_test_lib.ImageTestCase):
                     importeds[full_name] = imp
                     exported.update(exp)
 
-        # TODO(toolchain): Remove the old libthread_db-1.0.so entry once glibc
-        # is upgraded past 2.34
         known_unsatisfieds = {
-            "libthread_db-1.0.so": {
-                b"ps_pdwrite",
-                b"ps_pdread",
-                b"ps_lgetfpregs",
-                b"ps_lsetregs",
-                b"ps_lgetregs",
-                b"ps_lsetfpregs",
-                b"ps_pglobal_lookup",
-                b"ps_getpid",
-            },
             "libthread_db.so.1": {
                 b"ps_pdwrite",
                 b"ps_pdread",
