@@ -8,7 +8,7 @@ This script will upload an LKGM CL and potentially submit it to the CQ.
 """
 
 import logging
-from typing import Optional
+from typing import Optional, Tuple
 
 from chromite.lib import chromeos_version
 from chromite.lib import commandline
@@ -20,6 +20,11 @@ from chromite.utils import hostname_util
 
 # Gerrit hashtag for the LKGM Uprev CLs.
 HASHTAG = "chrome-lkgm"
+
+# Keys for git footers
+GIT_FOOTER_EXTERNAL_MANIFEST_POS = "CrOS-External-Manifest-Position"
+GIT_FOOTER_INTERNAL_MANIFEST_POS = "CrOS-Internal-Manifest-Position"
+GIT_FOOTER_LKGM = "CrOS-LKGM"
 
 
 class LKGMNotValid(Exception):
@@ -220,24 +225,29 @@ class ChromeLKGMCommitter:
         self._buildbucket_id = buildbucket_id
         self._gerrit_helper = gerrit.GetCrosExternal()
 
+        # Next LKGM, which is going to be updated to by an uprev CL.
         # Strip any chrome branch from the lkgm version.
         self._lkgm = chromeos_version.VersionInfo(lkgm).VersionString()
 
-        self._commit_msg_header = self._COMMIT_MSG_HEADER % {"lkgm": self._lkgm}
+        # Current LKGM, which is going to be updated from.
         self._current_lkgm = current_lkgm
+
+        self._commit_msg_header = self._COMMIT_MSG_HEADER % {"lkgm": self._lkgm}
         self._message = message
+        self._external_manifest_position = external_manifest_position
+        self._internal_manifest_position = internal_manifest_position
 
         # Storing metadata in the git footer for automated processing.
-        self._footers = {"CrOS-LKGM": self._lkgm}
+        self._footers = {GIT_FOOTER_LKGM: self._lkgm}
         if buildbucket_id:
             self._footers["Cr-Build-Id"] = str(buildbucket_id)
         if external_manifest_position:
             self._footers[
-                "CrOS-External-Manifest-Position"
+                GIT_FOOTER_EXTERNAL_MANIFEST_POS
             ] = external_manifest_position
         if internal_manifest_position:
             self._footers[
-                "CrOS-Internal-Manifest-Position"
+                GIT_FOOTER_INTERNAL_MANIFEST_POS
             ] = internal_manifest_position
 
         if not self._lkgm:
@@ -309,6 +319,28 @@ class ChromeLKGMCommitter:
             message += self._message
             message += "\n\n"
 
+        changelog = ""
+        if self._external_manifest_position or self._internal_manifest_position:
+            (external_pos, internal_pos) = self.GetCurrentManifestPosition()
+            if self._external_manifest_position and external_pos:
+                changelog += (
+                    "- External: http://go/cros-changes/"
+                    + f"{external_pos}..{self._external_manifest_position}"
+                    + "?ext=true\n"
+                )
+            if self._internal_manifest_position and internal_pos:
+                changelog += (
+                    "- Internal: http://go/cros-changes/"
+                    + f"{internal_pos}..{self._internal_manifest_position}\n"
+                )
+        if changelog:
+            changelog = (
+                "CrOS Changes "
+                + f"({self._current_lkgm.VersionString()} -> {self._lkgm}):\n"
+                + changelog
+                + "\n"
+            )
+
         build_link = ""
         if self._buildbucket_id:
             build_link = "Uploaded by https://ci.chromium.org/b/%s\n\n" % (
@@ -335,6 +367,7 @@ class ChromeLKGMCommitter:
         commit_msg_template = (
             "%(header)s\n\n"
             "%(message)s"
+            "%(changelog)s"
             "%(dry_run_message)s"
             "%(build_link)s"
             "%(cq_includes)s"
@@ -343,11 +376,55 @@ class ChromeLKGMCommitter:
         return commit_msg_template % dict(
             header=self._commit_msg_header,
             message=message,
+            changelog=changelog,
             cq_includes=cq_includes,
             build_link=build_link,
             dry_run_message=dry_run_message,
             footers=footers,
         )
+
+    def GetCurrentManifestPosition(self) -> Tuple[Optional[str], Optional[str]]:
+        """Retrieves the positions of the current manifests.
+
+        This retrieves the pair of positions of external and internal manifests
+        by reading the previous uprev CL.
+
+        Returns:
+            Tuple of following two values:
+            - Git position of external manifest of the current LKGM. None if
+                number does not exists.
+            - Git position of internal manifest of the current LKGM. None if
+                number does not exists.
+        """
+        current_lkgm = self._current_lkgm.VersionString()
+        cls = self._gerrit_helper.Query(
+            hashtag="chrome-lkgm",
+            branch="main",
+            status="merged",
+            footer=f"{GIT_FOOTER_LKGM}={current_lkgm}",
+        )
+
+        logging.info("found %d CLs", len(cls))
+
+        # Making the ebavior deterministic.
+        cls.sort(key=lambda patch: patch.gerrit_number, reverse=True)
+
+        # There should be only 1 CL, unless someone has manually created a
+        # duplicated uprev CL. But supporting multiple CLs just in case.
+        for cl in cls:
+            external_manifest_pos = None
+            internal_manifest_pos = None
+            for key, value in cl.footers:
+                if key == GIT_FOOTER_EXTERNAL_MANIFEST_POS:
+                    external_manifest_pos = value
+                elif key == GIT_FOOTER_INTERNAL_MANIFEST_POS:
+                    internal_manifest_pos = value
+            if external_manifest_pos or internal_manifest_pos:
+                return (
+                    external_manifest_pos,
+                    internal_manifest_pos,
+                )
+        return (None, None)
 
 
 def GetCurrentLKGM(branch: str) -> chromeos_version.VersionInfo:

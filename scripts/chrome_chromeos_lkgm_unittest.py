@@ -4,6 +4,7 @@
 
 """Unit tests for the chrome_chromeos_lkgm program."""
 
+import re
 from unittest import mock
 
 from chromite.lib import chromeos_version
@@ -21,12 +22,14 @@ class StubGerritChange:
         subject,
         mergeable=True,
         original_file_content=None,
+        footers=None,
     ) -> None:
         self._gerrit_number = gerrit_number
         self._subject = subject
         self._file_content = file_content
         self._mergeable = mergeable
         self._original_file_content = original_file_content or file_content
+        self._footers = footers
 
     @property
     def subject(self):
@@ -35,6 +38,10 @@ class StubGerritChange:
     @property
     def gerrit_number(self):
         return self._gerrit_number
+
+    @property
+    def footers(self):
+        return self._footers or []
 
     def GetFileContents(self, _path: str):
         return self._file_content
@@ -319,10 +326,47 @@ class ChromeLKGMCommitterTester(
         )
 
         committer._PRESUBMIT_BOTS = ["bot1", "bot2"]
-        commit_msg_lines = committer.ComposeCommitMsg().splitlines()
+
+        # The current CL is with the external position but without the internal
+        # one, so that a next CL would have only the external manifest diff.
+        previous_lkgm_uprev_cls = [
+            StubGerritChange(
+                3333,
+                "subj",
+                "content",
+                footers=[
+                    (
+                        chrome_chromeos_lkgm.GIT_FOOTER_EXTERNAL_MANIFEST_POS,
+                        "22221",
+                    ),
+                ],
+            )
+        ]
+        with mock.patch.object(
+            committer._gerrit_helper,
+            "Query",
+            return_value=previous_lkgm_uprev_cls,
+        ) as mock_query:
+            commit_msg_lines = committer.ComposeCommitMsg().splitlines()
+            mock_query.assert_called_once()
+
         self.assertIn(
             "Automated Commit: LKGM 1001.0.0 for chromeos.", commit_msg_lines
         )
+
+        self.assertIn("CrOS Changes (999.0.0 -> 1001.0.0):", commit_msg_lines)
+
+        # Ensure the link to external manifest diff exists.
+        self.assertIn(
+            "- External: http://go/cros-changes/22221..22222?ext=true",
+            commit_msg_lines,
+        )
+
+        # Ensure the link to internal manifest diff doesn't exist.
+        internal_regexp = re.compile("^- Internal: .*$")
+        for line in commit_msg_lines:
+            self.assertNotRegex(line, internal_regexp)
+
         self.assertIn(
             "Uploaded by https://ci.chromium.org/b/some-build-id",
             commit_msg_lines,

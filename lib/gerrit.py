@@ -360,6 +360,9 @@ class GerritHelper:
                 "CHECK",
             ]
 
+        if "o_params" in kwargs:
+            o_params += kwargs["o_params"]
+
         if change and cros_patch.ParseGerritNumber(change) and not query_kwds:
             if dryrun:
                 logging.info(

@@ -1277,11 +1277,11 @@ class TestGerritPatch(TestGitRepoPatch):
                     self.assertFalse(
                         bool(
                             set(footers)
-                            - set(patch._GetFooters(patch._AddFooters(msg)))
+                            - set(patch._ExtractFooters(patch._AddFooters(msg)))
                         )
                     )
 
-                    if set(footers) - set(patch._GetFooters(msg)):
+                    if set(footers) - set(patch._ExtractFooters(msg)):
                         self.assertNotEqual(msg, patch._AddFooters(msg))
 
     def testConvertQueryResults(self) -> None:

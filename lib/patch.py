@@ -12,7 +12,7 @@ import random
 import re
 import subprocess
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 # We import mock so that we can identify mock.MagicMock instances in tests
 # that use mock.
@@ -905,6 +905,10 @@ class GitRepoPatch(PatchQuery):
     def commit_message(self):
         return self._commit_message
 
+    @property
+    def footers(self) -> List[Tuple[str, str]]:
+        return self._ExtractFooters(self._commit_message)
+
     @commit_message.setter
     def commit_message(self, value) -> None:
         self._commit_message = self._AddFooters(value) if value else value
@@ -914,7 +918,8 @@ class GitRepoPatch(PatchQuery):
         """Whether patch is to an internal cros project."""
         return self.remote == config_lib.GetSiteParams().INTERNAL_REMOTE
 
-    def _GetFooters(self, msg):
+    @staticmethod
+    def _ExtractFooters(msg: str) -> List[Tuple[str, str]]:
         """Get the Git footers of the specified commit message.
 
         Args:
@@ -951,7 +956,7 @@ class GitRepoPatch(PatchQuery):
 
         # This function is adapted from the version in Gerrit:
         # goto/createCherryPickCommitMessage
-        old_footers = self._GetFooters(msg)
+        old_footers = self._ExtractFooters(msg)
 
         if not old_footers:
             # Doesn't end in a "Signed-off-by: ..." style line? Add another line
@@ -2439,7 +2444,7 @@ class GerritPatch(GerritFetchOnlyPatch):
 
         # This function is adapted from the version in Gerrit:
         # goto/createCherryPickCommitMessage
-        old_footers = self._GetFooters(msg)
+        old_footers = self._ExtractFooters(msg)
 
         gerrit_host = config_lib.GetSiteParams().GERRIT_HOSTS[self.remote]
         reviewed_on = "https://%s/%s" % (gerrit_host, self.gerrit_number)
