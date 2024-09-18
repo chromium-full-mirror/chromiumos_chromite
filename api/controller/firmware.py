@@ -34,6 +34,7 @@ def get_fw_loc(fw_loc: int) -> str:
         path to firmware_builder.py for valid fw_loc.
     """
     return {
+        common_pb2.PLATFORM_AP: "src/platform/rules_cros_firmware/ap/",
         common_pb2.PLATFORM_EC: "src/platform/ec/",
         common_pb2.PLATFORM_ZEPHYR: "src/platform/ec/zephyr/",
         common_pb2.PLATFORM_TI50: "src/platform/ti50/common/",
