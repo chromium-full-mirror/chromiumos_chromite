@@ -1136,7 +1136,7 @@ def LoadGEBuildConfigFromFile(
             "betty",
             "betty-arc-r",
             "betty-arc-t",
-            "betty-arc-u",
+            "betty-arc-v",
             "betty-kernelnext",
             "betty-pi-arc",
             "guado-macrophage",
