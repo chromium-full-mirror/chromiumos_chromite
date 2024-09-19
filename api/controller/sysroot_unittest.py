@@ -1079,7 +1079,6 @@ class InstallPackagesTest(
         rc_patch.assert_called_with(
             use_any_chrome=False,
             usepkg=True,
-            install_debug_symbols=True,
             packages=[],
             use_flags=[],
             use_remoteexec=True,

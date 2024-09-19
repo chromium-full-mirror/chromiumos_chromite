@@ -423,7 +423,6 @@ def InstallPackages(
     build_packages_config = sysroot.BuildPackagesRunConfig(
         use_any_chrome=False,
         usepkg=not compile_source,
-        install_debug_symbols=True,
         packages=packages,
         use_flags=use_flags,
         use_remoteexec=use_remoteexec,
