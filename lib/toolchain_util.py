@@ -1400,75 +1400,75 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
     def _PrepareUnverifiedChromeBenchmarkAfdoFile(self):
         """Prepare to build an Unverified Chrome benchmark AFDO file."""
         ret = self._UnverifiedAfdoFileExists()
-        if self.chroot:
-            # Fetch the CHROME_DEBUG_BINARY and
-            # UNVERIFIED_CHROME_BENCHMARK_PERF_FILE artifacts and unpack them
-            # for the Bundle call.
-            workdir_full = self.chroot.full_path(self._AfdoTmpPath())
-            # Clean out the workdir.
-            osutils.RmDir(workdir_full, ignore_missing=True, sudo=True)
-            osutils.SafeMakedirs(workdir_full)
+        is_pointless = not self.chroot or ret == PrepareForBuildReturn.POINTLESS
+        if is_pointless:
+            return ret
 
-            # We don't need a strict version from ebuild because it can change
-            # in the timeframe between afdo-generate and afdo-process (right, it
-            # happens!). Another edge case is revbump of chrome with patches in
-            # 9999.
-            bin_name = (
-                self._GetBenchmarkAFDOName(
-                    CHROME_DEBUG_BINARY_NAME, wildcard_version=True
-                )
-                + BZ2_COMPRESSION_SUFFIX
-            )
-            gs_loc = self.input_artifacts.get("ChromeDebugBinary", [])
-            # url contains a concrete chrome version.
-            bin_url = self._FindArtifact(bin_name, gs_loc)
-            if not bin_url:
-                raise PrepareForBuildHandlerError(
-                    "Could not find an artifact matching the pattern "
-                    f'"{bin_name}" in {gs_loc}.'
-                )
-            # Extract the name with a concrete version of chrome.
-            bin_name = os.path.basename(bin_url)
-            bin_compressed = self._AfdoTmpPath(bin_name)
-            self.chroot.run(
-                [
-                    "gsutil",
-                    "-o",
-                    "Boto:num_retries=10",
-                    "cp",
-                    "-v",
-                    "--",
-                    bin_url,
-                    bin_compressed,
-                ],
-                print_cmd=True,
-            )
-            self.chroot.run(
-                ["bzip2", "-d", bin_compressed],
-                print_cmd=True,
-            )
+        # Fetch the CHROME_DEBUG_BINARY and
+        # UNVERIFIED_CHROME_BENCHMARK_PERF_FILE artifacts and unpack them
+        # for the Bundle call.
+        workdir_full = self.chroot.full_path(self._AfdoTmpPath())
+        # Clean out the workdir.
+        osutils.RmDir(workdir_full, ignore_missing=True, sudo=True)
+        osutils.SafeMakedirs(workdir_full)
 
-            perf_name = (
-                self._GetBenchmarkAFDOName(template=CHROME_PERF_AFDO_FILE)
-                + BZ2_COMPRESSION_SUFFIX
+        # We don't need a strict version from ebuild because it can change
+        # in the timeframe between afdo-generate and afdo-process (right, it
+        # happens!). Another edge case is revbump of chrome with patches in
+        # 9999.
+        bin_name = (
+            self._GetBenchmarkAFDOName(
+                CHROME_DEBUG_BINARY_NAME, wildcard_version=True
             )
-            perf_compressed = self._AfdoTmpPath(perf_name)
-            gs_loc = self.input_artifacts.get(
-                "UnverifiedChromeBenchmarkPerfFile", []
+            + BZ2_COMPRESSION_SUFFIX
+        )
+        gs_loc = self.input_artifacts.get("ChromeDebugBinary", [])
+        # url contains a concrete chrome version.
+        bin_url = self._FindArtifact(bin_name, gs_loc)
+        if not bin_url:
+            raise PrepareForBuildHandlerError(
+                "Could not find an artifact matching the pattern "
+                f'"{bin_name}" in {gs_loc}.'
             )
-            perf_url = self._FindArtifact(perf_name, gs_loc)
-            if not perf_url:
-                raise PrepareForBuildHandlerError(
-                    f'Could not find "{perf_name}" in {gs_loc}.'
-                )
-            self.gs_context.Copy(
-                perf_url, self.chroot.full_path(perf_compressed)
+        # Extract the name with a concrete version of chrome.
+        bin_name = os.path.basename(bin_url)
+        bin_compressed = self._AfdoTmpPath(bin_name)
+        self.chroot.run(
+            [
+                "gsutil",
+                "-o",
+                "Boto:num_retries=10",
+                "cp",
+                "-v",
+                "--",
+                bin_url,
+                bin_compressed,
+            ],
+            print_cmd=True,
+        )
+        self.chroot.run(
+            ["bzip2", "-d", bin_compressed],
+            print_cmd=True,
+        )
+
+        perf_name = (
+            self._GetBenchmarkAFDOName(template=CHROME_PERF_AFDO_FILE)
+            + BZ2_COMPRESSION_SUFFIX
+        )
+        perf_compressed = self._AfdoTmpPath(perf_name)
+        gs_loc = self.input_artifacts.get(
+            "UnverifiedChromeBenchmarkPerfFile", []
+        )
+        perf_url = self._FindArtifact(perf_name, gs_loc)
+        if not perf_url:
+            raise PrepareForBuildHandlerError(
+                f'Could not find "{perf_name}" in {gs_loc}.'
             )
-            self.chroot.run(
-                ["bzip2", "-d", perf_compressed],
-                print_cmd=True,
-            )
-        return ret
+        self.gs_context.Copy(perf_url, self.chroot.full_path(perf_compressed))
+        self.chroot.run(
+            ["bzip2", "-d", perf_compressed],
+            print_cmd=True,
+        )
 
     def _PrepareChromeAFDOProfileForAndroidLinux(self):
         """Prepare to build Chrome AFDO profile for Android/Linux."""
