@@ -606,7 +606,7 @@ def RebuildLibtool(root="/") -> None:
         cmd = [EMERGE_CMD, "--oneshot"]
         if root != "/":
             cmd.extend(["--sysroot=%s" % root, "--root=%s" % root])
-        cmd.append("sys-devel/libtool")
+        cmd.append("dev-build/libtool")
         cros_build_lib.run(cmd)
     else:
         logging.debug("Libtool is up-to-date; no need to rebuild")
