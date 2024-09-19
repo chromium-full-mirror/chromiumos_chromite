@@ -83,6 +83,27 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
             ),
         )
 
+    def testExtractChromeVersionFromDebugFileNameWorks(self) -> None:
+        result = toolchain_util._ExtractChromeVersionFromDebugFileName(
+            "chromeos-chrome-amd64-130.0.6700.0_rc-r1.debug.bz2"
+        )
+        self.assertEqual(
+            toolchain_util.ChromeVersion(130, 0, 6700, 0, 1),
+            result,
+        )
+
+        # Missing revision.
+        with self.assertRaises(ValueError):
+            toolchain_util._ExtractChromeVersionFromDebugFileName(
+                "chromeos-chrome-amd64-130.0.6700.0.debug.bz2"
+            )
+
+        # Missing chromeos-chrome prefix.
+        with self.assertRaises(ValueError):
+            toolchain_util._ExtractChromeVersionFromDebugFileName(
+                "130.0.6700.0_rc-r1.debug.bz2"
+            )
+
     def testParseCWPProfileName(self) -> None:
         """Test top-level function _ParseCWPProfileName."""
         # Test parse failure
@@ -564,7 +585,10 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         # present.
         self.gsc_exists.return_value = False
         self.gsc_ls.side_effect = (
-            ["gs://image-archive/path/to/debug"],
+            [
+                "gs://image-archive/path/to/"
+                "chromeos-chrome-amd64-1.2.3.4_rc-r1.debug"
+            ],
             ["gs://image-archive/path/to/perf"],
         )
         self.assertEqual(
@@ -573,7 +597,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         expected_exists = [
             mock.call(
                 "gs://path/to/unvetted/"
-                "chromeos-chrome-amd64-78.0.3893.0_rc-r1.afdo.bz2"
+                "chromeos-chrome-amd64-1.2.3.4_rc-r1.afdo.bz2"
             ),
         ]
         expected_ls = [
@@ -582,7 +606,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             ),
             mock.call(
                 "gs://path/to/perfdata/"
-                "chromeos-chrome-amd64-78.0.3893.0.perf.data.bz2"
+                "chromeos-chrome-amd64-1.2.3.4.perf.data.bz2"
             ),
         ]
         self.assertEqual(expected_exists, self.gs_context.Exists.call_args_list)
@@ -600,7 +624,10 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         # present.
         self.gsc_exists.return_value = False
         self.gsc_ls.side_effect = (
-            ["gs://image-archive/path/to/debug"],
+            [
+                "gs://image-archive/path/to/"
+                "chromeos-chrome-arm-4.3.2.1_rc-r2.debug"
+            ],
             ["gs://image-archive/path/to/perf"],
         )
         self.assertEqual(
@@ -610,7 +637,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         expected_exists = [
             mock.call(
                 "gs://path/to/unvetted/"
-                "chromeos-chrome-arm-78.0.3893.0_rc-r1.afdo.bz2"
+                "chromeos-chrome-arm-4.3.2.1_rc-r2.afdo.bz2"
             ),
         ]
         expected_ls = [
@@ -619,7 +646,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             ),
             mock.call(
                 "gs://path/to/perfdata/"
-                "chromeos-chrome-arm-78.0.3893.0.perf.data.bz2"
+                "chromeos-chrome-arm-4.3.2.1.perf.data.bz2"
             ),
         ]
         self.assertEqual(expected_exists, self.gs_context.Exists.call_args_list)
@@ -647,10 +674,16 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         # Published artifact is missing, debug binary is present,
         # perf.data is missing.
         self.gsc_exists.return_value = False
-        self.gsc_ls.side_effect = (["gs://image-archive/path/to/debug"], [])
+        self.gsc_ls.side_effect = (
+            [
+                "gs://image-archive/path/to/"
+                "chromeos-chrome-amd64-1.2.3.4_rc-r1.debug"
+            ],
+            [],
+        )
         with self.assertRaisesRegex(
             toolchain_util.PrepareForBuildHandlerError,
-            r'Could not find "chromeos-chrome-amd64-78.0.3893.0.perf.data.bz2" '
+            r'Could not find "chromeos-chrome-amd64-1.2.3.4.perf.data.bz2" '
             r"in \['gs://path/to/perfdata'\].",
         ):
             self.obj.Prepare()

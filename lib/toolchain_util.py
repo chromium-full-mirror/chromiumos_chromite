@@ -6,6 +6,7 @@
 
 import base64
 import collections
+import dataclasses
 import datetime
 import glob
 import json
@@ -118,9 +119,34 @@ AFDO_ARTIFACT_EBUILD_REGEX = (
 )
 AFDO_ARTIFACT_EBUILD_REPL = r'\g<bef>"%s"\g<aft>'
 
-ChromeVersion = collections.namedtuple(
-    "ChromeVersion", ["major", "minor", "build", "patch", "revision"]
-)
+
+@dataclasses.dataclass(frozen=True, eq=True, order=True)
+class ChromeVersion:
+    """Represents a Chrome version."""
+
+    major: int
+    minor: int
+    build: int
+    patch: int
+    revision: int
+
+    _VERSION_WITH_REV_RE = re.compile(r"(\d+)\.(\d+)\.(\d+)\.(\d+)-r(\d+)")
+
+    @classmethod
+    def parse(cls, s: str) -> "ChromeVersion":
+        match = cls._VERSION_WITH_REV_RE.fullmatch(s)
+        if not match:
+            raise ValueError(f"Invalid Chrome version: {s}")
+        return cls(*[int(x) for x in match.groups()])
+
+    @property
+    def version_no_rev(self):
+        return f"{self.major}.{self.minor}.{self.build}.{self.patch}"
+
+    @property
+    def version_rc(self):
+        return f"{self.version_no_rev}_rc-r{self.revision}"
+
 
 BENCHMARK_PROFILE_NAME_REGEX = r"""
        ^chromeos-chrome-(?:\w+)-
@@ -219,6 +245,29 @@ class UpdateEbuildWithAFDOArtifactsError(Error):
 
 class NoProfilesInGsBucketError(Error):
     """Raised when _FindLatestAFDOArtifact doesn't find profiles."""
+
+
+def _ExtractChromeVersionFromDebugFileName(
+    debug_file_name: str,
+) -> ChromeVersion:
+    """Extracts the Chrome version from a chrome.debug file name.
+
+    Returns:
+        A tuple containing:
+            - The version with rev included.
+            - The version without a rev included.
+
+    >>> _ExtractChromeVersionFromDebugFileName(
+            "chromeos-chrome-amd64-130.0.6700.0_rc-r1.debug.bz2")
+    ChromeVersion(130, 0, 6700, 0, 1)
+    """
+    r = re.compile(r"chromeos-chrome-[^-]+-([^_]+)_rc-(r\d+).*")
+    match = r.fullmatch(debug_file_name)
+    if not match:
+        raise ValueError(f"Debug file name {debug_file_name} doesn't match {r}")
+    version_no_rev = match.group(1)
+    rev = match.group(2)
+    return ChromeVersion.parse(f"{version_no_rev}-{rev}")
 
 
 def _ParseBenchmarkProfileName(profile_name):
@@ -585,16 +634,30 @@ class _CommonPrepareBundle:
         return candidate
 
     def _GetBenchmarkAFDOName(
-        self, template=CHROME_BENCHMARK_AFDO_FILE, wildcard_version=False
+        self,
+        template=CHROME_BENCHMARK_AFDO_FILE,
+        wildcard_version=False,
+        forced_version: Optional[ChromeVersion] = None,
     ):
         """Get the name of the benchmark AFDO file from the Chrome ebuild.
 
-        wildcard_version=True replaces chrome version with *.
+        Args:
+            template: the name template to format.
+            wildcard_version: if True, this will use a '*' for the version. Use
+                of this is incompatible with use of forced_version.
+            forced_version: if non-None, use this as Chrome's version.
         """
+        if wildcard_version and forced_version:
+            raise ValueError(
+                "wildcard_version and forced_version are mutually exclusive"
+            )
         pkg = self._GetEbuildInfo(constants.CHROME_PN).CPV
         if wildcard_version:
             ver = "*"
             vernorev = "*"
+        elif forced_version:
+            ver = forced_version.version_rc
+            vernorev = forced_version.version_no_rev
         else:
             ver = pkg.vr
             vernorev = pkg.version.split("_")[0]
@@ -1373,7 +1436,9 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
         # We always build this artifact.
         return PrepareForBuildReturn.NEEDED
 
-    def _UnverifiedAfdoFileExists(self):
+    def _UnverifiedAfdoFileExists(
+        self, forced_version: Optional[ChromeVersion] = None
+    ):
         """Check if the unverified AFDO benchmark file exists.
 
         This is used by both the UnverifiedChromeBenchmark Perf and Afdo file
@@ -1388,7 +1453,8 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
         # Check if there is already a published AFDO artifact for this version
         # of Chrome.
         return self._CommonPrepareBasedOnGsPathExists(
-            name=self._GetBenchmarkAFDOName() + BZ2_COMPRESSION_SUFFIX,
+            name=self._GetBenchmarkAFDOName(forced_version=forced_version)
+            + BZ2_COMPRESSION_SUFFIX,
             url=BENCHMARK_AFDO_GS_URL,
             key="UnverifiedChromeBenchmarkAfdoFile",
         )
@@ -1399,10 +1465,8 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
 
     def _PrepareUnverifiedChromeBenchmarkAfdoFile(self):
         """Prepare to build an Unverified Chrome benchmark AFDO file."""
-        ret = self._UnverifiedAfdoFileExists()
-        is_pointless = not self.chroot or ret == PrepareForBuildReturn.POINTLESS
-        if is_pointless:
-            return ret
+        if not self.chroot:
+            return PrepareForBuildReturn.POINTLESS
 
         # Fetch the CHROME_DEBUG_BINARY and
         # UNVERIFIED_CHROME_BENCHMARK_PERF_FILE artifacts and unpack them
@@ -1433,6 +1497,27 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
         # Extract the name with a concrete version of chrome.
         bin_name = os.path.basename(bin_url)
         bin_compressed = self._AfdoTmpPath(bin_name)
+
+        chrome_debug_version = _ExtractChromeVersionFromDebugFileName(bin_name)
+        # Since the profile we're generating may slightly mismatch the one we
+        # checked, double-check that this build is useful
+        ret = self._UnverifiedAfdoFileExists(
+            forced_version=chrome_debug_version
+        )
+        if ret != PrepareForBuildReturn.NEEDED:
+            return ret
+
+        # We're going to fetch the perf profile corresponding with this
+        # chrome.debug version, since (as mentioned earlier) the source tree
+        # might've changed between the build of Chrome & this function running.
+        perf_name = (
+            self._GetBenchmarkAFDOName(
+                template=CHROME_PERF_AFDO_FILE,
+                forced_version=chrome_debug_version,
+            )
+            + BZ2_COMPRESSION_SUFFIX
+        )
+
         self.chroot.run(
             [
                 "gsutil",
@@ -1451,10 +1536,6 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
             print_cmd=True,
         )
 
-        perf_name = (
-            self._GetBenchmarkAFDOName(template=CHROME_PERF_AFDO_FILE)
-            + BZ2_COMPRESSION_SUFFIX
-        )
         perf_compressed = self._AfdoTmpPath(perf_name)
         gs_loc = self.input_artifacts.get(
             "UnverifiedChromeBenchmarkPerfFile", []
@@ -1469,6 +1550,7 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
             ["bzip2", "-d", perf_compressed],
             print_cmd=True,
         )
+        return PrepareForBuildReturn.NEEDED
 
     def _PrepareChromeAFDOProfileForAndroidLinux(self):
         """Prepare to build Chrome AFDO profile for Android/Linux."""
@@ -1851,15 +1933,23 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         benchmark_afdo_name = self._LocateChromeDebugInfo(
             afdo_tmp_path=Path(self.chroot.full_path(self._AfdoTmpPath())),
         ).name
+        chrome_debug_version = _ExtractChromeVersionFromDebugFileName(
+            benchmark_afdo_name
+        )
         benchmark_chroot_path = self.chroot.full_path(bin_path_in)
         logging.info(
             "Linking %s => %s", benchmark_afdo_name, benchmark_chroot_path
         )
         osutils.SafeSymlink(benchmark_afdo_name, benchmark_chroot_path)
         perf_path_inside = self._AfdoTmpPath(
-            self._GetBenchmarkAFDOName(template=CHROME_PERF_AFDO_FILE)
+            self._GetBenchmarkAFDOName(
+                template=CHROME_PERF_AFDO_FILE,
+                forced_version=chrome_debug_version,
+            )
         )
-        afdo_name = self._GetBenchmarkAFDOName()
+        afdo_name = self._GetBenchmarkAFDOName(
+            forced_version=chrome_debug_version
+        )
         afdo_path_inside = self._AfdoTmpPath(afdo_name)
         # Generate the afdo profile.
         self.chroot.run(
