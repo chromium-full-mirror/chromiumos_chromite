@@ -1591,6 +1591,12 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
             raise PrepareForBuildHandlerError(
                 "Could not find kernel version to verify."
             )
+        # b/368111200: remove this block after 6.1 AFDO builders are turned
+        # down (mid-Oct 2024?).
+        if kernel_version == "6.1":
+            logging.info("6.1 is deprecated on main; this build is pointless")
+            return PrepareForBuildReturn.POINTLESS
+
         # The package name cannot have dots, so an underscore is used instead.
         # For example: chromeos-kernel-4_4-4.4.214-r2087.ebuild.
         kernel_package_version = kernel_version.replace(".", "_")
