@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%chromiumos/test/api/adb_service.proto\x12\x13\x63hromiumos.test.api\"2\n\x11\x41\x44\x42\x43ommandRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x0c\n\x04\x61rgs\x18\x02 \x03(\t\"4\n\x12\x41\x44\x42\x43ommandResponse\x12\x0e\n\x06stdout\x18\x01 \x01(\x0c\x12\x0e\n\x06stderr\x18\x02 \x01(\x0c\x32n\n\nADBService\x12`\n\x0b\x45xecCommand\x12&.chromiumos.test.api.ADBCommandRequest\x1a\'.chromiumos.test.api.ADBCommandResponse\"\x00\x42/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%chromiumos/test/api/adb_service.proto\x12\x13\x63hromiumos.test.api\"2\n\x11\x41\x44\x42\x43ommandRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x0c\n\x04\x61rgs\x18\x02 \x03(\t\"G\n\x12\x41\x44\x42\x43ommandResponse\x12\x0e\n\x06stdout\x18\x01 \x01(\x0c\x12\x0e\n\x06stderr\x18\x02 \x01(\x0c\x12\x11\n\texit_code\x18\x03 \x01(\x05\x32n\n\nADBService\x12`\n\x0b\x45xecCommand\x12&.chromiumos.test.api.ADBCommandRequest\x1a\'.chromiumos.test.api.ADBCommandResponse\"\x00\x42/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.api.adb_service_pb2', globals())
@@ -24,7 +24,7 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _ADBCOMMANDREQUEST._serialized_start=62
   _ADBCOMMANDREQUEST._serialized_end=112
   _ADBCOMMANDRESPONSE._serialized_start=114
-  _ADBCOMMANDRESPONSE._serialized_end=166
-  _ADBSERVICE._serialized_start=168
-  _ADBSERVICE._serialized_end=278
+  _ADBCOMMANDRESPONSE._serialized_end=185
+  _ADBSERVICE._serialized_start=187
+  _ADBSERVICE._serialized_end=297
 # @@protoc_insertion_point(module_scope)
