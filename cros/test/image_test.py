@@ -896,6 +896,8 @@ class SymlinkTest(image_test_lib.ImageTestCase):
         # TODO(b/150806692): Cleanup this library symlink.
         # Allow /opt/pita/lib path to point to any /run path. For PluginVM DLC.
         "/opt/pita/lib": {"/run/*"},
+        # Allow all links within /opt/starbase. (NOTE: "*" matches "/" too.)
+        "/opt/starbase/*": {"/opt/starbase/*"},
     }
 
     @classmethod
