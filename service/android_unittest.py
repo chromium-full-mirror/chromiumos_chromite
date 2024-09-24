@@ -372,17 +372,17 @@ class MockAndroidBuildArtifactsTest(cros_test_lib.MockTempDirTestCase):
             ]
 
         # pylint: disable=line-too-long
-        arm64_test_cases = """gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_arm64-trunk_staging-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/adb
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_arm64-trunk_staging-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/bertha_arm64-img-11930639.zip
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_arm64-trunk_staging-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/bertha_arm64-symbols-11930639.zip
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_arm64-trunk_staging-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/bertha_arm64-target_files-11930639.zip
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_arm64-trunk_staging-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/build.prop
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_arm64-trunk_staging-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/org.chromium.arc.cts.helpers.apk
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_arm64-trunk_staging-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/push_to_device.zip
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_arm64-trunk_staging-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/sepolicy.zip"""
+        arm64_test_cases = """gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_arm64-ap3a-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/adb
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_arm64-ap3a-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/bertha_arm64-img-11930639.zip
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_arm64-ap3a-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/bertha_arm64-symbols-11930639.zip
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_arm64-ap3a-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/bertha_arm64-target_files-11930639.zip
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_arm64-ap3a-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/build.prop
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_arm64-ap3a-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/org.chromium.arc.cts.helpers.apk
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_arm64-ap3a-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/push_to_device.zip
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_arm64-ap3a-userdebug/11930639/deb9202a59b323f643173d7b7e927d57fed01abd691e04dc92f81f0e81f04b9f/sepolicy.zip"""
         # pylint: enable=line-too-long
         pattern = android.ARTIFACTS_TO_COPY[android.ANDROID_VMVIC_PACKAGE][
-            "bertha_arm64-trunk_staging-userdebug"
+            "bertha_arm64-ap3a-userdebug"
         ]
         matching_files = get_matches(pattern, arm64_test_cases)
         # Zip files.
@@ -395,19 +395,19 @@ gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_arm64-trunk_sta
         self.assertIn("org.chromium.arc.cts.helpers.apk", matching_files)
 
         # pylint: disable=line-too-long
-        x86_test_cases = """gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_x86_64-trunk_staging-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/adb
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_x86_64-trunk_staging-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/bertha_x86_64-img-11930247.zip
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_x86_64-trunk_staging-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/bertha_x86_64-symbols-11930247.zip
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_x86_64-trunk_staging-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/bertha_x86_64-target_files-11930247.zip
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_x86_64-trunk_staging-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/build.prop
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_x86_64-trunk_staging-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/kernel
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_x86_64-trunk_staging-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/org.chromium.arc.cts.helpers.apk
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_x86_64-trunk_staging-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/push_to_device.zip
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_x86_64-trunk_staging-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/ramdisk.img
-gs://android-build-chromeos/builds/git_main-arc-dev-linux-bertha_x86_64-trunk_staging-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/sepolicy.zip"""
+        x86_test_cases = """gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_x86_64-ap3a-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/adb
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_x86_64-ap3a-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/bertha_x86_64-img-11930247.zip
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_x86_64-ap3a-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/bertha_x86_64-symbols-11930247.zip
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_x86_64-ap3a-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/bertha_x86_64-target_files-11930247.zip
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_x86_64-ap3a-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/build.prop
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_x86_64-ap3a-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/kernel
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_x86_64-ap3a-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/org.chromium.arc.cts.helpers.apk
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_x86_64-ap3a-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/push_to_device.zip
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_x86_64-ap3a-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/ramdisk.img
+gs://android-build-chromeos/builds/git_vic-arc-linux-bertha_x86_64-ap3a-userdebug/11930247/024fcd6c40031014db6a8d4a18084291caa87da7ebf45bb6324372fefcc958f0/sepolicy.zip"""
         # pylint: enable=line-too-long
         pattern = android.ARTIFACTS_TO_COPY[android.ANDROID_VMVIC_PACKAGE][
-            "bertha_x86_64-trunk_staging-userdebug"
+            "bertha_x86_64-ap3a-userdebug"
         ]
         matching_files = get_matches(pattern, x86_test_cases)
         # Zip files.

@@ -23,8 +23,7 @@ ANDROID_RVC_PACKAGE = "android-container-rvc"
 ANDROID_VMRVC_PACKAGE = "android-vm-rvc"
 ANDROID_VMSC_PACKAGE = "android-vm-sc"
 ANDROID_VMTM_PACKAGE = "android-vm-tm"
-# V uses master until the V branch is cut.
-ANDROID_VMVIC_PACKAGE = "android-vm-master"
+ANDROID_VMVIC_PACKAGE = "android-vm-vic"
 
 
 # Supported Android build targets for each package. Maps from *_TARGET variables
@@ -70,8 +69,11 @@ ANDROID_PACKAGE_TO_BUILD_TARGETS = {
         "X86_64_USERDEBUG_TARGET": "bertha_x86_64-userdebug",
     },
     ANDROID_VMVIC_PACKAGE: {
-        "ARM64_USERDEBUG_TARGET": "bertha_arm64-trunk_staging-userdebug",
-        "X86_64_USERDEBUG_TARGET": "bertha_x86_64-trunk_staging-userdebug",
+        "APPS_TARGET": "apps-ap3a",
+        "ARM64_TARGET": "bertha_arm64-ap3a-user",
+        "X86_64_TARGET": "bertha_x86_64-ap3a-user",
+        "ARM64_USERDEBUG_TARGET": "bertha_arm64-ap3a-userdebug",
+        "X86_64_USERDEBUG_TARGET": "bertha_x86_64-ap3a-userdebug",
     },
 }
 
@@ -145,10 +147,17 @@ ARTIFACTS_TO_COPY = {
     ANDROID_VMVIC_PACKAGE: {
         # org.chromium.cts.helpers.apk contains helpers needed for CTS.  It is
         # installed on the board, but not into the VM.
-        "bertha_arm64-trunk_staging-userdebug": (
+        "apps-ap3a": "org.chromium.arc.cachebuilder.jar",
+        "bertha_arm64-ap3a-user": (
             r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
         ),
-        "bertha_x86_64-trunk_staging-userdebug": (
+        "bertha_x86_64-ap3a-user": (
+            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
+        ),
+        "bertha_arm64-ap3a-userdebug": (
+            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
+        ),
+        "bertha_x86_64-ap3a-userdebug": (
             r"(\.zip"
             r"|/org.chromium.arc.cts.helpers.apk"
             r"|/kernel|/ramdisk.img)$"
@@ -209,7 +218,7 @@ def GetAndroidBranchForPackage(android_package: str) -> str:
         ANDROID_VMRVC_PACKAGE: "git_rvc-arc",
         ANDROID_VMSC_PACKAGE: "git_sc-arc-dev",
         ANDROID_VMTM_PACKAGE: "git_tm-arc",
-        ANDROID_VMVIC_PACKAGE: "git_main-arc-dev",
+        ANDROID_VMVIC_PACKAGE: "git_vic-arc",
     }
     try:
         return mapping[android_package]
@@ -383,7 +392,7 @@ def _GetAcl(target: str, package_dir: str) -> str:
         return os.path.join(package_dir, ARC_BUCKET_ACL_ARM)
     if "x86" in target:
         return os.path.join(package_dir, ARC_BUCKET_ACL_X86)
-    if target == "apps":
+    if target.startswith("apps"):
         return os.path.join(package_dir, ARC_BUCKET_ACL_PUBLIC)
     raise ValueError(f"Unknown target {target}")
 
