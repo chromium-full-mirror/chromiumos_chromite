@@ -23,6 +23,7 @@ from chromite.third_party.gn_helpers import gn_helpers
 from chromite.cli import command
 from chromite.lib import cache
 from chromite.lib import chrome_lkgm
+from chromite.lib import chromeos_version
 from chromite.lib import chromite_config
 from chromite.lib import cipd
 from chromite.lib import compression_lib
@@ -558,7 +559,7 @@ class SDKFetcher:
             needed). E.g. "R128-13918.0.0" (release build) or "R128-13918.0.0-
             123456-8888888888" (snapshot build).
         """
-        if ChromeSDKCommand.IsFullVersion(version):
+        if chromeos_version.IsFullVersion(version):
             # If the given string is a full version (in "R123-12345.0.0" or
             # "R123-12345.0.0-12345-8888") format, rerturns the string as it is.
             return version
@@ -591,15 +592,15 @@ class SDKFetcher:
             2) Path of artifacts in Google Storage
                (eg. "gs://chromeos-image-archive/eve-release/")
         """
-        if ChromeSDKCommand.IsFullVersion(version):
+        if chromeos_version.IsFullVersion(version):
             # Assuming the given version is full version.
-            if ChromeSDKCommand.IsFullVersionWithSnapshotSuffix(version):
+            if chromeos_version.IsFullVersionWithSnapshotSuffix(version):
                 gs_path = self.version_finder.snapshot_gs_base
             else:
                 gs_path = self.version_finder.gs_base
             return version, gs_path
 
-        if not ChromeSDKCommand.IsPlatformVersion(version):
+        if not chromeos_version.IsPlatformVersion(version):
             # The given version string is invalid.
             raise ValueError(
                 "The given version must be either a full version or a platform "
@@ -869,61 +870,13 @@ class ChromeSDKCommand(command.CliCommand):
         See the argument description for supported version formats.
         """
 
-        if not ChromeSDKCommand.IsPlatformVersion(
+        if not chromeos_version.IsPlatformVersion(
             version
-        ) and not ChromeSDKCommand.IsFullVersion(version):
+        ) and not chromeos_version.IsFullVersion(version):
             raise argparse.ArgumentTypeError(
                 "--version should be in the format 1234.0.0 or R56-1234.0.0"
             )
         return version
-
-    @staticmethod
-    def IsPlatformVersion(platform_version):
-        """Checks if the given string is a platform version.
-
-        Examples:
-            - 12345.0.0
-            - 12345.0.0-123456 (with snapshot identifier)
-
-        This doesn't take care of snapshot suffix (Retruning true with or
-        without snapshot identifier).
-        """
-
-        return re.match(
-            r"^[0-9]+\.[0-9]+\.[0-9]+(\-[0-9]+)?$", platform_version
-        )
-
-    @staticmethod
-    def IsFullVersion(full_version):
-        """Checks if the given string is a full version.
-
-        Examples:
-            - R123-12345.0.0
-            - R123-12345.0.0-123456-88888888888888 (with snapshot suffix)
-              (the suffix consists of the snapshot identifier and build ID)
-
-        This doesn't take care of snapshot suffix (Retruning true with or
-        without snapshot identifier).
-        """
-
-        return re.match(
-            r"^R[0-9]+-[0-9]+\.[0-9]+\.[0-9]+(\-[0-9]+\-[0-9]+)?$", full_version
-        )
-
-    @staticmethod
-    def IsFullVersionWithSnapshotSuffix(full_version):
-        """Checks if the given string is a full version with snapshot.
-
-        Examples:
-            - R123-12345.0.0-123456-88888888888888
-
-        This is almost same as `IsFullVersion` but this returns only if the
-        given string has a snapshot suffix.
-        """
-
-        return re.match(
-            r"^R[0-9]+-[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+?\-[0-9]+?$", full_version
-        )
 
     @classmethod
     def AddParser(cls, parser) -> None:

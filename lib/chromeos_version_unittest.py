@@ -260,3 +260,102 @@ class VersionInfoTest(cros_test_lib.MockTempDirTestCase):
         self.assertTrue(lhs != rhs)
         self.assertTrue(lhs > rhs)
         self.assertTrue(lhs >= rhs)
+
+
+class VersionCheckMethodsTest(cros_test_lib.TestCase):
+    """Test methods testing methods verifying a version string."""
+
+    VERSION = "4567.8.9"
+    FULL_VERSION = "R26-4567.8.9"
+    VERSION_WITH_SNAPSHOT = "4567.8.9-12345"
+    FULL_VERSION_WITH_SNAPSHOT = "R26-4567.8.9-12345-88888"
+
+    WRONG_FORMAT_VERSION1 = "1331488"
+    WRONG_FORMAT_VERSION2 = "129.0.6614.2"
+    WRONG_FORMAT_VERSION3 = "89.0.4357.3_rc-r1"
+    WRONG_FORMAT_VERSION4 = "R99-1234.B"
+
+    def testIsPlatformVersionn(self) -> None:
+        """Tests IsVersion method."""
+        self.assertTrue(chromeos_version.IsPlatformVersion(self.VERSION))
+        self.assertTrue(
+            chromeos_version.IsPlatformVersion(self.VERSION_WITH_SNAPSHOT)
+        )
+        self.assertFalse(chromeos_version.IsPlatformVersion(self.FULL_VERSION))
+        self.assertFalse(
+            chromeos_version.IsPlatformVersion(self.FULL_VERSION_WITH_SNAPSHOT)
+        )
+        self.assertFalse(
+            chromeos_version.IsPlatformVersion(self.WRONG_FORMAT_VERSION1)
+        )
+        self.assertFalse(
+            chromeos_version.IsPlatformVersion(self.WRONG_FORMAT_VERSION2)
+        )
+        self.assertFalse(
+            chromeos_version.IsPlatformVersion(self.WRONG_FORMAT_VERSION3)
+        )
+        self.assertFalse(
+            chromeos_version.IsPlatformVersion(self.WRONG_FORMAT_VERSION4)
+        )
+
+    def testIsFullVersion(self) -> None:
+        """Tests IsFullVersion method."""
+        self.assertFalse(chromeos_version.IsFullVersion(self.VERSION))
+        self.assertFalse(
+            chromeos_version.IsFullVersion(self.VERSION_WITH_SNAPSHOT)
+        )
+        self.assertTrue(chromeos_version.IsFullVersion(self.FULL_VERSION))
+        self.assertTrue(
+            chromeos_version.IsFullVersion(self.FULL_VERSION_WITH_SNAPSHOT)
+        )
+        self.assertFalse(
+            chromeos_version.IsFullVersion(self.WRONG_FORMAT_VERSION1)
+        )
+        self.assertFalse(
+            chromeos_version.IsFullVersion(self.WRONG_FORMAT_VERSION2)
+        )
+        self.assertFalse(
+            chromeos_version.IsFullVersion(self.WRONG_FORMAT_VERSION3)
+        )
+        self.assertFalse(
+            chromeos_version.IsFullVersion(self.WRONG_FORMAT_VERSION4)
+        )
+
+    def testIsFullVersionWithSnapshotSuffix(self) -> None:
+        """Tests IsSnapshotFullVersion method."""
+        self.assertFalse(
+            chromeos_version.IsFullVersionWithSnapshotSuffix(self.VERSION)
+        )
+        self.assertFalse(
+            chromeos_version.IsFullVersionWithSnapshotSuffix(
+                self.VERSION_WITH_SNAPSHOT
+            )
+        )
+        self.assertFalse(
+            chromeos_version.IsFullVersionWithSnapshotSuffix(self.FULL_VERSION)
+        )
+        self.assertTrue(
+            chromeos_version.IsFullVersionWithSnapshotSuffix(
+                self.FULL_VERSION_WITH_SNAPSHOT
+            )
+        )
+        self.assertFalse(
+            chromeos_version.IsFullVersionWithSnapshotSuffix(
+                self.WRONG_FORMAT_VERSION1
+            )
+        )
+        self.assertFalse(
+            chromeos_version.IsFullVersionWithSnapshotSuffix(
+                self.WRONG_FORMAT_VERSION2
+            )
+        )
+        self.assertFalse(
+            chromeos_version.IsFullVersionWithSnapshotSuffix(
+                self.WRONG_FORMAT_VERSION3
+            )
+        )
+        self.assertFalse(
+            chromeos_version.IsFullVersionWithSnapshotSuffix(
+                self.WRONG_FORMAT_VERSION4
+            )
+        )
