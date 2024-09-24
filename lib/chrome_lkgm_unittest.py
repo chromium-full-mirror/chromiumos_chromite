@@ -92,7 +92,7 @@ class ChromeOSVersionFinderTest(
     FULL_VERSION_MINI_BRANCH = "R55-%s" % MINI_BRANCH_VERSION
     BOARD = "eve"
 
-    VERSION_BASE = "gs://chromeos-image-archive/%s-rqelease/LATEST-%s" % (
+    VERSION_BASE = "gs://chromeos-image-archive/%s-release/LATEST-%s" % (
         BOARD,
         VERSION,
     )
