@@ -625,16 +625,6 @@ class SDKFetcher:
 
         return full_version, gs_path
 
-    def _GetVersionGSBase(self, version: Optional[str]):
-        """The base path of the SDK for a particular version."""
-        assert version or self.sdk_path  # either must be specified.
-
-        if self.sdk_path is not None:
-            return self.sdk_path
-
-        full_version, gs_path = self.GetVersionInfo(version)
-        return os.path.join(gs_path, full_version)
-
     def _GetTarballCacheKey(self, component, url):
         """Builds the cache key tuple for an SDK component.
 
@@ -698,13 +688,16 @@ class SDKFetcher:
             # If self.sdk_path is specified, simplechrome uses the artifacts in
             # the path. We don't retrieve artifacts from version/snapshot.
             version = None
+            version_base = self.sdk_path
         else:
             if not version:
                 version = self.GetDefaultVersion()
             if version is None:
                 version, _ = self.UpdateDefaultVersion()
+                assert version
 
-        version_base = self._GetVersionGSBase(version)
+            full_version, gs_path = self.GetVersionInfo(version)
+            version_base = os.path.join(gs_path, full_version)
 
         components = list(components)
         key_map = {}
