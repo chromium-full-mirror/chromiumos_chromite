@@ -27,7 +27,6 @@ from chromite.lib import chromeos_version
 from chromite.lib import chromite_config
 from chromite.lib import cipd
 from chromite.lib import compression_lib
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import gclient
@@ -60,32 +59,37 @@ def Log(*args, **kwargs) -> None:
 class MissingSDK(Exception):
     """Error thrown when we cannot find an SDK."""
 
-    def _ConstructDashboardURL(self, config, board):
+    def _ConstructDashboardURL(
+        self, board: str, is_external: bool, is_snapshot: bool
+    ):
         """Returns link to the given board's dashboard."""
-        if config.endswith(f"-{config_lib.CONFIG_TYPE_RELEASE}"):
-            return "http://go/rubik-release-?f=build_target:in:%s" % board
-        elif config.endswith(f"-{config_lib.CONFIG_TYPE_PUBLIC}"):
+        if is_snapshot:
+            return ""
+        elif is_external:
             return (
                 "http://go/cros-ci-builds-/public/?f=build_target:in:%s" % board
             )
         else:
-            return ""
+            return "http://go/rubik-release-?f=build_target:in:%s" % board
 
     def __init__(
         self,
-        config: str,
         board: str,
         version: str = None,
         snapshot_identifier: int = None,
+        is_external: bool = False,
     ) -> None:
-        msg = "Cannot find SDK for %s" % config
+        type_str = "external" if is_external else "internal"
+        msg = "Cannot find SDK for %s (%s)" % (board, type_str)
         if version is not None:
             msg += " with version %s" % version
         if snapshot_identifier is not None:
             msg += " with snapshot %s" % snapshot_identifier
         msg += " from its builder"
 
-        dashboard_url = self._ConstructDashboardURL(config, board)
+        dashboard_url = self._ConstructDashboardURL(
+            board, is_external, is_snapshot=(snapshot_identifier is not None)
+        )
         if dashboard_url != "":
             msg += f": {dashboard_url}"
 
@@ -189,6 +193,8 @@ class SDKFetcher:
 
         if self.toolchain_path is None:
             self.toolchain_path = "gs://%s" % constants.SDK_GS_BUCKET
+
+        self.use_external_config = use_external_config
 
         self.version_finder = chrome_lkgm.ChromeOSVersionFinder(
             cache_dir,
@@ -613,7 +619,7 @@ class SDKFetcher:
 
         (
             full_version,
-            config_name,
+            _,
             gs_path,
         ) = self.version_finder.GetLatestVersionInfo(
             platform_version, snapshot_identifier
@@ -621,7 +627,10 @@ class SDKFetcher:
 
         if full_version is None:
             raise MissingSDK(
-                config_name, self.board, platform_version, snapshot_identifier
+                self.board,
+                platform_version,
+                snapshot_identifier,
+                self.use_external_config,
             )
 
         return full_version, gs_path
