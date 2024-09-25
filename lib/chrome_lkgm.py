@@ -84,6 +84,34 @@ def GetVersionStr(platform_version: str, snapshot_identifier: Optional[int]):
     return f"{platform_version}-{snapshot_identifier}"
 
 
+def _HasInternalConfig(board: str):
+    """Determines if the SDK we need is provided by an internal builder.
+
+    A given board can have a public and/or an internal builder that
+    publishes its Simple Chrome SDK. e.g. "amd64-generic" only has a public
+    builder, "scarlet" only has an internal builder, "octopus" has both. So
+    if we haven't explicitly passed "--use-external-config", we need to
+    figure out if we want to use a public or internal builder.
+
+    The configs inside gs://chromeos-build-release-console are the proper
+    source of truth for what boards have public or internal builders.
+    However, the ACLs on that bucket make it difficult for some folk to
+    inspect it. So we instead simply assume that everything but the
+    "*-generic" boards have internal configs.
+
+    TODO(b/241964080): Inspect gs://chromeos-build-release-console here
+        instead if/when ACLs on that bucket are opened up.
+
+    Args:
+        board: Name of board (eg. "octopus")
+
+    Returns:
+        True if there's an internal builder available that publishes SDKs
+        for the board.
+    """
+    return "generic" not in board
+
+
 class ChromeOSVersionFinder:
     """Finds LKGM or latest version of ChromeOS image for a board"""
 
@@ -109,7 +137,7 @@ class ChromeOSVersionFinder:
         """
         self.cache_dir = cache_dir
         self.board = board
-        if use_external_config or not self._HasInternalConfig():
+        if use_external_config or not _HasInternalConfig(self.board):
             self.config_name = f"{board}-{config_lib.CONFIG_TYPE_PUBLIC}"
             self.snapshot_config_name = f"{board}-public-snapshot"
             gs_host = "chromiumos-image-archive"
@@ -124,30 +152,6 @@ class ChromeOSVersionFinder:
         self.gs_ctx = gs.GSContext(cache_dir=cache_dir, init_boto=False)
         self.fallback_versions = fallback_versions
         self.chrome_src = chrome_src
-
-    def _HasInternalConfig(self):
-        """Determines if the SDK we need is provided by an internal builder.
-
-        A given board can have a public and/or an internal builder that
-        publishes its Simple Chrome SDK. e.g. "amd64-generic" only has a public
-        builder, "scarlet" only has an internal builder, "octopus" has both. So
-        if we haven't explicitly passed "--use-external-config", we need to
-        figure out if we want to use a public or internal builder.
-
-        The configs inside gs://chromeos-build-release-console are the proper
-        source of truth for what boards have public or internal builders.
-        However, the ACLs on that bucket make it difficult for some folk to
-        inspect it. So we instead simply assume that everything but the
-        "*-generic" boards have internal configs.
-
-        TODO(b/241964080): Inspect gs://chromeos-build-release-console here
-            instead if/when ACLs on that bucket are opened up.
-
-        Returns:
-            True if there's an internal builder available that publishes SDKs
-            for the board.
-        """
-        return "generic" not in self.board
 
     def GetLatestVersionInfo(
         self, platform_version: str, snapshot_identifier: Optional[int]
