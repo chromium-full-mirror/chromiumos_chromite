@@ -12,6 +12,7 @@ import logging
 import os
 from typing import Optional, Tuple
 
+from chromite.lib import chromeos_version
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import gs
@@ -84,6 +85,20 @@ def GetVersionStr(platform_version: str, snapshot_identifier: Optional[int]):
     return f"{platform_version}-{snapshot_identifier}"
 
 
+def _GetGsBucket(board: str, use_external_config: bool):
+    """Return a hostname of GS.
+
+    Args:
+        board: The board to manage the SDK for.
+        use_external_config: Use the external artifacts.
+    """
+    if use_external_config or not _HasInternalConfig(board):
+        gs_bucket = "chromiumos-image-archive"
+    else:
+        gs_bucket = "chromeos-image-archive"
+    return gs_bucket
+
+
 def GetGsConfigName(
     board: str,
     use_external_config: bool,
@@ -107,6 +122,27 @@ def GetGsConfigName(
             return f"{board}-snapshot"
         else:
             return f"{board}-{config_lib.CONFIG_TYPE_RELEASE}"
+
+
+def GetArtifactsGsUrl(board, use_external_config, full_version):
+    """Return a base directory of artifacts.
+
+    The returned url should be a directory that contains the CrOS artifacts.
+    (eg. "gs://chromeos-image-archive/eve-release/R123-12345.0.0")
+
+    Args:
+        board: The board to manage the SDK for.
+        use_external_config: use the external artifacts.
+        full_version: CrOS full version of image.
+    """
+
+    is_snapshot = chromeos_version.IsFullVersionWithSnapshotSuffix(full_version)
+
+    config_name = GetGsConfigName(
+        board, use_external_config, is_snapshot=is_snapshot
+    )
+    gs_bucket = _GetGsBucket(board, use_external_config)
+    return f"gs://{gs_bucket}/{config_name}/{full_version}"
 
 
 def _HasInternalConfig(board: str):
@@ -180,7 +216,7 @@ class ChromeOSVersionFinder:
 
     def GetLatestVersionInfo(
         self, platform_version: str, snapshot_identifier: Optional[int]
-    ) -> Tuple[str, str]:
+    ) -> str:
         """Gets the full version number from LATEST files.
 
         If |snapshot_identifier| is given, this checks the LATEST files in
@@ -192,23 +228,20 @@ class ChromeOSVersionFinder:
                 artifacts.
 
         Returns:
-            Tuple for following two values:
-            - Full version number in the format 'R30-3929.0.0' or None.
-            - Path of artifacts in Google Storage
-              (eg. "gs://chromeos-image-archive/eve-release/")
+            Full version number in the format 'R30-3929.0.0' or None.
         """
         if snapshot_identifier is not None:
             full_version = self.GetFullVersionFromLatestSnapshotFile(
                 snapshot_identifier
             )
             if full_version:
-                return full_version, self.snapshot_gs_base
+                return full_version
 
             # Fall back to LATEST-{version} files in the release
             # artifact GS storage.
 
         full_version = self.GetFullVersionFromLatestFile(platform_version)
-        return full_version, self.gs_base
+        return full_version
 
     def _GetFullVersionFromStorage(self, version_file):
         """Cat |version_file| in google storage.

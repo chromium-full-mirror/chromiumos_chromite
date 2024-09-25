@@ -576,11 +576,11 @@ class SDKFetcher:
             if ref.Exists(lock=True):
                 return osutils.ReadFile(ref.path).strip()
 
-            full_version, _ = self.GetVersionInfo(version)
+            full_version = self._GetVersionInfo(version)
             ref.AssignText(full_version)
             return full_version
 
-    def GetVersionInfo(self, version: str):
+    def _GetVersionInfo(self, version: str) -> str:
         """Get the full ChromeOS version and the GS path of artifacts.
 
         Args:
@@ -593,18 +593,11 @@ class SDKFetcher:
                 (i.e. R123-123456.0.0, or R123-12345.0.0-67890-8888888)
 
         Returns:
-            Tuple of 2 values:
-            1) Full ChromeOS version (eg. R123-12345.0.0)
-            2) Path of artifacts in Google Storage
-               (eg. "gs://chromeos-image-archive/eve-release/")
+            Full ChromeOS version (eg. R123-12345.0.0)
         """
         if chromeos_version.IsFullVersion(version):
             # Assuming the given version is full version.
-            if chromeos_version.IsFullVersionWithSnapshotSuffix(version):
-                gs_path = self.version_finder.snapshot_gs_base
-            else:
-                gs_path = self.version_finder.gs_base
-            return version, gs_path
+            return version
 
         if not chromeos_version.IsPlatformVersion(version):
             # The given version string is invalid.
@@ -617,10 +610,7 @@ class SDKFetcher:
         platform_version = versions[0]
         snapshot_identifier = int(versions[1]) if len(versions) == 2 else None
 
-        (
-            full_version,
-            gs_path,
-        ) = self.version_finder.GetLatestVersionInfo(
+        full_version = self.version_finder.GetLatestVersionInfo(
             platform_version, snapshot_identifier
         )
 
@@ -632,7 +622,7 @@ class SDKFetcher:
                 self.use_external_config,
             )
 
-        return full_version, gs_path
+        return full_version
 
     def _GetTarballCacheKey(self, component, url):
         """Builds the cache key tuple for an SDK component.
@@ -705,8 +695,10 @@ class SDKFetcher:
                 version, _ = self.UpdateDefaultVersion()
                 assert version
 
-            full_version, gs_path = self.GetVersionInfo(version)
-            version_base = os.path.join(gs_path, full_version)
+            full_version = self._GetVersionInfo(version)
+            version_base = chrome_lkgm.GetArtifactsGsUrl(
+                self.board, self.use_external_config, full_version
+            )
 
         components = list(components)
         key_map = {}

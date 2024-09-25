@@ -60,9 +60,7 @@ def FindLkgm(request, response, _config) -> None:
         )
         return
 
-    full_version, _ = f.GetLatestVersionInfo(
-        platform_version, snapshot_identifier
-    )
+    full_version = f.GetLatestVersionInfo(platform_version, snapshot_identifier)
     if not full_version:
         response.error = "failed to get full version"
         return

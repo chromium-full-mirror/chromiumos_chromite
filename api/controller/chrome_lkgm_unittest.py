@@ -37,7 +37,7 @@ class FindLkgmTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.get_full_version_mock = self.PatchObject(
             self.instance,
             "GetLatestVersionInfo",
-            return_value=(self.FALLBACK_VERSION, None),
+            return_value=self.FALLBACK_VERSION,
         )
 
         self.PatchObject(
@@ -130,7 +130,7 @@ class FindLkgmTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.PatchObject(
             self.instance,
             "GetLatestVersionInfo",
-            return_value=(None, None),
+            return_value=None,
         )
 
         chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
