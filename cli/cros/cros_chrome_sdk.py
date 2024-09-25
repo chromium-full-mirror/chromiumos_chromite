@@ -619,7 +619,6 @@ class SDKFetcher:
 
         (
             full_version,
-            _,
             gs_path,
         ) = self.version_finder.GetLatestVersionInfo(
             platform_version, snapshot_identifier

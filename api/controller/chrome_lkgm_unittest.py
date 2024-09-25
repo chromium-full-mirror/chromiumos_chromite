@@ -34,11 +34,14 @@ class FindLkgmTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.instance = self.finder_mock.return_value
 
         config_name = f"{self.request.build_target.name}/release"
-        gs_path = f"gs://bucket_name/{config_name}"
         self.get_full_version_mock = self.PatchObject(
             self.instance,
             "GetLatestVersionInfo",
-            return_value=(self.FALLBACK_VERSION, config_name, gs_path),
+            return_value=(self.FALLBACK_VERSION, None),
+        )
+
+        self.PatchObject(
+            chrome_lkgm_lib, "GetGsConfigName", return_value=config_name
         )
 
     def testInvalidLkgm(self) -> None:
@@ -127,7 +130,7 @@ class FindLkgmTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         self.PatchObject(
             self.instance,
             "GetLatestVersionInfo",
-            return_value=(None, None, None),
+            return_value=(None, None),
         )
 
         chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
@@ -140,8 +143,14 @@ class FindLkgmGSTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     LKGM_VERSION = "12345.0.0"
     LKGM_SNAPSHOT_NUMBER = 123456
     LKGM_SNAPSHOT_VERSION = LKGM_VERSION + "-" + str(LKGM_SNAPSHOT_NUMBER)
-    FULL_VERSION = "R123-12345.0.0.0"
-    FULL_VERSION_FALLBACK = "R123-12344.0.0.0"
+    FULL_VERSION = "R123-12345.0.0"
+    FULL_VERSION_FALLBACK = "R123-12344.0.0"
+    FULL_VERSION_WITH_SNAPSHOT = (
+        f"{FULL_VERSION}-{str(LKGM_SNAPSHOT_NUMBER)}-8888888888"
+    )
+    FULL_VERSION_FALLBACK_WITH_SNAPSHOT = (
+        f"{FULL_VERSION}-{str(LKGM_SNAPSHOT_NUMBER - 1)}-8888888888"
+    )
 
     def setUp(self) -> None:
         self.request = chrome_lkgm_pb2.FindLkgmRequest()
@@ -236,13 +245,15 @@ class FindLkgmGSTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             partial_mock.ListRegex(
                 "cat .*/LATEST-SNAPSHOT-%s" % self.LKGM_SNAPSHOT_NUMBER
             ),
-            stdout=self.FULL_VERSION,
+            stdout=self.FULL_VERSION_WITH_SNAPSHOT,
         )
 
         with self.gs_mock:
             chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
         self.assertFalse(self.response.error)
-        self.assertEqual(self.FULL_VERSION, self.response.full_version)
+        self.assertEqual(
+            self.FULL_VERSION_WITH_SNAPSHOT, self.response.full_version
+        )
         self.assertEqual("newboard-snapshot", self.response.config_name)
         self.assertEqual(
             self.LKGM_SNAPSHOT_VERSION, self.response.chromeos_lkgm
@@ -261,14 +272,16 @@ class FindLkgmGSTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             partial_mock.ListRegex(
                 "cat .*/LATEST-SNAPSHOT-%s" % self.LKGM_SNAPSHOT_NUMBER
             ),
-            stdout=self.FULL_VERSION,
+            stdout=self.FULL_VERSION_WITH_SNAPSHOT,
         )
 
         self.request.use_external_config = True
         with self.gs_mock:
             chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
         self.assertFalse(self.response.error)
-        self.assertEqual(self.FULL_VERSION, self.response.full_version)
+        self.assertEqual(
+            self.FULL_VERSION_WITH_SNAPSHOT, self.response.full_version
+        )
         self.assertEqual("newboard-public-snapshot", self.response.config_name)
         self.assertEqual(
             self.LKGM_SNAPSHOT_VERSION, self.response.chromeos_lkgm
@@ -297,13 +310,15 @@ class FindLkgmGSTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             partial_mock.ListRegex(
                 "cat .*/LATEST-SNAPSHOT-%s" % (self.LKGM_SNAPSHOT_NUMBER - 1)
             ),
-            stdout=self.FULL_VERSION_FALLBACK,
+            stdout=self.FULL_VERSION_FALLBACK_WITH_SNAPSHOT,
         )
 
         with self.gs_mock:
             chrome_lkgm.FindLkgm(self.request, self.response, self.api_config)
         self.assertFalse(self.response.error)
-        self.assertEqual(self.FULL_VERSION_FALLBACK, self.response.full_version)
+        self.assertEqual(
+            self.FULL_VERSION_FALLBACK_WITH_SNAPSHOT, self.response.full_version
+        )
         self.assertEqual("newboard-snapshot", self.response.config_name)
         self.assertEqual(
             self.LKGM_SNAPSHOT_VERSION, self.response.chromeos_lkgm

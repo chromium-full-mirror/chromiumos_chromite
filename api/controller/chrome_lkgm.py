@@ -9,6 +9,7 @@ import os
 from chromite.api import faux
 from chromite.api import validate
 from chromite.lib import chrome_lkgm
+from chromite.lib import chromeos_version
 from chromite.lib import path_util
 
 
@@ -59,12 +60,20 @@ def FindLkgm(request, response, _config) -> None:
         )
         return
 
-    full_version, config_name, _ = f.GetLatestVersionInfo(
+    full_version, _ = f.GetLatestVersionInfo(
         platform_version, snapshot_identifier
     )
     if not full_version:
         response.error = "failed to get full version"
         return
+
+    is_snapshot = chromeos_version.IsFullVersionWithSnapshotSuffix(full_version)
+
+    config_name = chrome_lkgm.GetGsConfigName(
+        request.build_target.name,
+        request.use_external_config,
+        is_snapshot=is_snapshot,
+    )
 
     lkgm_version_str = chrome_lkgm.GetVersionStr(
         platform_version, snapshot_identifier
