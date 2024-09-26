@@ -149,6 +149,15 @@ def CreateVMImage(image=None, board=None, updatable=True, dest_dir=None):
     return dest_path
 
 
+def IsAMD():
+    """Return true if it's running on an AMD CPU"""
+
+    with open("/proc/cpuinfo", "r", encoding="utf-8") as f:
+        return f.read().find("AuthenticAMD") > 0
+
+    return False
+
+
 class VM(device.Device):
     """Class for managing a VM."""
 
@@ -173,6 +182,7 @@ class VM(device.Device):
         self.qemu_cpu = opts.qemu_cpu
         # x86_64 is used by default instead of aarch64
         self.is_x86 = True
+        self.is_amd = IsAMD()
         self.qemu_smp = opts.qemu_smp
         if self.qemu_smp == 0:
             self.qemu_smp = min(8, multiprocessing.cpu_count())
@@ -451,8 +461,8 @@ class VM(device.Device):
         """
         if self.is_x86:
             if not self.qemu_cpu:
-                self.qemu_cpu = (
-                    "Haswell-noTSX,vendor=GenuineIntel,-invpcid,-tsc-deadline"
+                self.qemu_cpu = "%s,-invpcid,-tsc-deadline" % (
+                    "phenom-v1" if self.is_amd else "Haswell-noTSX"
                 )
 
             # Append 'check' to warn if the requested CPU is not fully

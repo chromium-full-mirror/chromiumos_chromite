@@ -41,6 +41,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         self._vm.board = "amd64-generic"
         self._vm.cache_dir = self.tempdir
         self._vm.image_path = self.TempFilePath(constants.TEST_IMAGE_BIN)
+        self._vm.is_amd = False
         osutils.Touch(self._vm.image_path)
 
         # This function is unittested in qemu_unittest, so mocking the basic API
@@ -131,8 +132,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandContains(
             [
                 "-cpu",
-                "Haswell-noTSX,vendor=GenuineIntel"
-                ",-invpcid,-tsc-deadline,check",
+                "Haswell-noTSX,-invpcid,-tsc-deadline,check",
             ]
         )
         self.assertCommandContains(
@@ -195,8 +195,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         self.assertCommandContains(
             [
                 "-cpu",
-                "Haswell-noTSX,vendor=GenuineIntel"
-                ",-invpcid,-tsc-deadline,check,vmx=on,svm=on",
+                "Haswell-noTSX,-invpcid,-tsc-deadline,check,vmx=on,svm=on",
             ]
         )
 
