@@ -26,7 +26,6 @@ KNOWN_PACKAGES = (
     "chromeos-base/sandboxing-codelab",
     "sys-libs/newlib",
     "virtual/target-sdk-implicit-system",
-    "virtual/target-sdk-nobdeps",
     "virtual/target-sdk-post-cross",
     "virtual/target-sdk-subtools",
     constants.TARGET_SDK,

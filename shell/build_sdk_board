@@ -102,7 +102,7 @@ info_run sudo "${CHROMITE_BIN}/cros_setup_toolchains" --targets all --debug \
 # Then build everything else.
 run_emerge "${EARLY_FLAGS[@]}" --verbose --emptytree --with-bdeps=y \
   --exclude "${TOOLCHAIN_PACKAGES[*]}" \
-  "${PACKAGES[@]}" virtual/target-sdk-nobdeps virtual/target-sdk-post-cross \
+  "${PACKAGES[@]}" virtual/target-sdk-post-cross \
   virtual/target-sdk-broot
 info_run sudo eclean -d packages
 
@@ -112,12 +112,7 @@ HOST_FLAGS=(
   --newuse --usepkgonly
 )
 run_emerge "${HOST_FLAGS[@]}" --with-bdeps=y "${PACKAGES[@]}"
-# Install our rebuilt packages from the nobdeps target into our separate root
-# without their build-time deps.  We also avoid adding this target to the
-# world set so that subsequent update_chroot commands won't re-import the
-# build deps.
-run_emerge "${HOST_FLAGS[@]}" --with-bdeps=n --oneshot \
-  virtual/target-sdk-nobdeps
+
 # shellcheck disable=SC2154  # PKGDIR is defined via eval above
 info_run sudo cp -a "${PKGDIR}" "${BOARD_ROOT}/packages"
 

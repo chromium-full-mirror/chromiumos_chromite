@@ -64,8 +64,7 @@ EMERGE_FLAGS+=( --deep )
 info_run sudo -E "${EMERGE_CMD}" "${EMERGE_FLAGS[@]}" virtual/target-sdk world
 
 if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
-  # Update "post-cross"  and "nobdeps" packages. Both should only come from
-  # binary packages.
+  # Update "post-cross" packages (should only come from binary packages).
   #
   # Use --usepkgonly to ensure that packages are not built from source.
   # Use --with-bdeps=n since we only install binpkgs.
@@ -74,6 +73,5 @@ if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
   EMERGE_FLAGS+=(
     $("${CHROMITE_BIN}/cros_setup_toolchains" --show-packages host-post-cross)
   )
-  EMERGE_FLAGS+=( virtual/target-sdk-nobdeps )
   info_run sudo -E "${EMERGE_CMD}" "${EMERGE_FLAGS[@]}"
 fi
