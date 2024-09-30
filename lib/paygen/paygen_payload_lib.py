@@ -28,6 +28,7 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import dlc_lib
 from chromite.lib import image_lib
+from chromite.lib import metrics_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib.paygen import download_cache
@@ -1665,6 +1666,7 @@ class PaygenPayload:
         return ret
 
 
+@metrics_lib.timed("paygen_payload_lib.GenerateUpdatePayload")
 def GenerateUpdatePayload(
     chroot: chroot_lib.Chroot,
     tgt_image: str,

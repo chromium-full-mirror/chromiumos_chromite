@@ -791,6 +791,10 @@ def GenerateTestPayloads(
             paygen_stateful_payload_lib.GenerateStatefulPayload(
                 target_image_path, archive_dir
             ),
+        ]
+
+    def _do_stateful_zstd():
+        return [
             paygen_stateful_payload_lib.GenerateZstdStatefulPayload(
                 target_image_path, archive_dir
             ),
@@ -810,6 +814,7 @@ def GenerateTestPayloads(
             steps.append(_do_delta_dlc)
     if stateful:
         steps.append(_do_stateful)
+        steps.append(_do_stateful_zstd)
 
     # In theory we should do them all in parallel, this resulted in runtimes
     # around 7 minutes on builders. We have space constraints and this is

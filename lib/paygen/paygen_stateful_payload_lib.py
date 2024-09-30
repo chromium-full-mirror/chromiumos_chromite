@@ -12,6 +12,7 @@ from typing import List, Optional, Union
 from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import image_lib
+from chromite.lib import metrics_lib
 from chromite.lib import osutils
 
 
@@ -68,6 +69,7 @@ def _generate_stateful_payload(
         )
 
 
+@metrics_lib.timed("paygen_stateful_payload_lib.GenerateStatefulPayload")
 def GenerateStatefulPayload(
     image_path: Union[Path, str], output: Union[Path, int, str]
 ) -> Union[Path, int, str]:
@@ -96,6 +98,7 @@ def GenerateStatefulPayload(
     return output_gz
 
 
+@metrics_lib.timed("paygen_stateful_payload_lib.GenerateZstdStatefulPayload")
 def GenerateZstdStatefulPayload(
     image_path: Union[Path, str], output: Union[Path, int, str]
 ) -> Union[Path, int, str]:
