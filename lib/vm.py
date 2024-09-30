@@ -462,7 +462,7 @@ class VM(device.Device):
         if self.is_x86:
             if not self.qemu_cpu:
                 self.qemu_cpu = "%s,-invpcid,-tsc-deadline" % (
-                    "phenom-v1" if self.is_amd else "Haswell-noTSX"
+                    "Opteron_G4" if self.is_amd else "Haswell-noTSX"
                 )
 
             # Append 'check' to warn if the requested CPU is not fully
