@@ -104,9 +104,10 @@ class ChromeOSVersionFinderTest(
             self.tempdir, self.BOARD, 10
         )
 
-    def testConfigName(self) -> None:
-        """Test config_name contains the given board name."""
-        self.assertTrue(self.BOARD in self.finder.config_name)
+    def testGsName(self) -> None:
+        """Test GS bases contain the given board name."""
+        self.assertTrue(self.BOARD in self.finder.gs_base)
+        self.assertTrue(self.BOARD in self.finder.snapshot_gs_base)
 
     def testFullVersionFromPlatformVersion(self) -> None:
         """Test full version calculation from the platform version."""

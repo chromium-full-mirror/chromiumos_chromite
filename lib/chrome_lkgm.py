@@ -138,11 +138,28 @@ def GetArtifactsGsUrl(board, use_external_config, full_version):
 
     is_snapshot = chromeos_version.IsFullVersionWithSnapshotSuffix(full_version)
 
+    base_url = _GetGsBaseUrlForBoard(board, use_external_config, is_snapshot)
+    return f"{base_url}/{full_version}"
+
+
+def _GetGsBaseUrlForBoard(board, use_external_config, is_snapshot):
+    """Return a base directory for the specific board.
+
+    The returned url should be a directory that contains the directories of CrOS
+    artifacts and LATEST-* files.
+    (eg. "gs://chromeos-image-archive/eve-release")
+
+    Args:
+        board: The board to manage the SDK for.
+        use_external_config: use the external artifacts.
+        is_snapshot: use the snapshot artifacts.
+    """
+
     config_name = GetGsConfigName(
         board, use_external_config, is_snapshot=is_snapshot
     )
     gs_bucket = _GetGsBucket(board, use_external_config)
-    return f"gs://{gs_bucket}/{config_name}/{full_version}"
+    return f"gs://{gs_bucket}/{config_name}"
 
 
 def _HasInternalConfig(board: str):
@@ -198,17 +215,15 @@ class ChromeOSVersionFinder:
         """
         self.cache_dir = cache_dir
         self.board = board
-        if use_external_config or not _HasInternalConfig(self.board):
-            self.config_name = f"{board}-{config_lib.CONFIG_TYPE_PUBLIC}"
-            snapshot_config_name = f"{board}-public-snapshot"
-            gs_host = "chromiumos-image-archive"
-        else:
-            self.config_name = f"{board}-{config_lib.CONFIG_TYPE_RELEASE}"
-            snapshot_config_name = f"{board}-snapshot"
-            gs_host = "chromeos-image-archive"
 
-        self.gs_base = f"gs://{gs_host}/{self.config_name}"
-        self.snapshot_gs_base = f"gs://{gs_host}/{snapshot_config_name}"
+        self.gs_base = _GetGsBaseUrlForBoard(
+            board,
+            use_external_config,
+            is_snapshot=False,
+        )
+        self.snapshot_gs_base = _GetGsBaseUrlForBoard(
+            board, use_external_config, is_snapshot=True
+        )
 
         self.gs_ctx = gs.GSContext(cache_dir=cache_dir, init_boto=False)
         self.fallback_versions = fallback_versions
@@ -369,9 +384,6 @@ class ChromeOSVersionFinder:
         Returns:
             Version number in the format 'R30-3929.0.0-123456-88888' or None.
         """
-        if not self.snapshot_gs_base:
-            raise RuntimeError("Snapshot storage path is not configured.")
-
         version_file = (
             f"{self.snapshot_gs_base}/LATEST-SNAPSHOT-{snapshot_identifier}"
         )
