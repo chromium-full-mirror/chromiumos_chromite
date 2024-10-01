@@ -192,7 +192,7 @@ class ChromeLKGMCommitter:
     # https://source.chromium.org/chromium/chromium/src/+/main:infra/config/subprojects/chrome/try.star.
     _PRESUBMIT_BOTS = (
         "chromeos-betty-chrome",
-        "chromeos-brya-chrome-skylab",
+        "chromeos-brya-chrome",
         "chromeos-jacuzzi-chrome",
         "chromeos-reven-chrome",
         "chromeos-volteer-chrome-skylab",
