@@ -138,11 +138,11 @@ def GetArtifactsGsUrl(board, use_external_config, full_version):
 
     is_snapshot = chromeos_version.IsFullVersionWithSnapshotSuffix(full_version)
 
-    base_url = _GetGsBaseUrlForBoard(board, use_external_config, is_snapshot)
+    base_url = GetGsBaseUrlForBoard(board, use_external_config, is_snapshot)
     return f"{base_url}/{full_version}"
 
 
-def _GetGsBaseUrlForBoard(board, use_external_config, is_snapshot):
+def GetGsBaseUrlForBoard(board, use_external_config, is_snapshot):
     """Return a base directory for the specific board.
 
     The returned url should be a directory that contains the directories of CrOS
@@ -216,12 +216,12 @@ class ChromeOSVersionFinder:
         self.cache_dir = cache_dir
         self.board = board
 
-        self.gs_base = _GetGsBaseUrlForBoard(
+        self.gs_base = GetGsBaseUrlForBoard(
             board,
             use_external_config,
             is_snapshot=False,
         )
-        self.snapshot_gs_base = _GetGsBaseUrlForBoard(
+        self.snapshot_gs_base = GetGsBaseUrlForBoard(
             board, use_external_config, is_snapshot=True
         )
 

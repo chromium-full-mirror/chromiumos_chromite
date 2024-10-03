@@ -10,6 +10,7 @@ import os
 
 from chromite.cbuildbot import commands
 from chromite.cli.cros import cros_chrome_sdk
+from chromite.lib import chrome_lkgm
 from chromite.lib import chrome_util
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -192,15 +193,15 @@ class CrOSTest:
                     )
                     or version
                 )
-                if self.public_image:
-                    flash_path = (
-                        "gs://chromiumos-image-archive/%s-public/%s"
-                        % (self._device.board, version)
+
+                if version == xbuddy.LATEST:
+                    gs_base = chrome_lkgm.GetGsBaseUrlForBoard(
+                        self._device.board, self.public_image, is_snapshot=False
                     )
+                    flash_path = f"{gs_base}/{version}"
                 else:
-                    flash_path = "gs://chromeos-image-archive/%s-release/%s" % (
-                        self._device.board,
-                        version,
+                    flash_path = chrome_lkgm.GetArtifactsGsUrl(
+                        self._device.board, self.public_image, version
                     )
 
         # Only considers skipping flashing if it's NOT for lacros-chrome tests
