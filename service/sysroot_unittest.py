@@ -860,22 +860,6 @@ class BuildPackagesTest(
 
         sysroot.BuildPackages(self.target, self.sysroot, config)
 
-    def testInstallDebugSymbols(self) -> None:
-        """Test cros_install_debug_syms is called with the expected args."""
-        config = sysroot.BuildPackagesRunConfig(install_debug_symbols=True)
-
-        with cros_test_lib.LoggingCapturer() as logs:
-            sysroot.BuildPackages(self.target, self.sysroot, config)
-
-            self.assertCommandContains(
-                [
-                    constants.CHROMITE_BIN_DIR / "cros_install_debug_syms",
-                    f"--board={self.build_target_name_mock}",
-                    "--all",
-                ]
-            )
-            self.AssertLogsContain(logs, "Fetching the debug symbols.")
-
     def testPackageFailure(self) -> None:
         """Test package failure handling."""
         failed = ["cat/pkg", "foo/bar"]

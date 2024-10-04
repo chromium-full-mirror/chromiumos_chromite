@@ -223,8 +223,8 @@ class BuildPackagesCommand(command.CliCommand):
         group.add_bool_argument(
             "--withdebugsymbols",
             False,
-            "Install the debug symbols for all packages.",
-            "Skip debug symbol install -- faster, but debugging is difficult.",
+            argparse.SUPPRESS,
+            argparse.SUPPRESS,
         )
 
         # Advanced Options.
@@ -369,7 +369,6 @@ class BuildPackagesCommand(command.CliCommand):
         )
         options.build_run_config = sysroot.BuildPackagesRunConfig(
             usepkg=options.usepkg,
-            install_debug_symbols=options.withdebugsymbols,
             packages=options.packages,
             use_remoteexec=options.run_remoteexec,
             incremental_build=options.withrevdeps,

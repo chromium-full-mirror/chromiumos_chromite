@@ -194,7 +194,6 @@ class BuildPackagesRunConfig:
     def __init__(
         self,
         usepkg: bool = True,
-        install_debug_symbols: bool = False,
         packages: Optional[List[str]] = None,
         use_flags: Optional[List[str]] = None,
         use_remoteexec: bool = False,
@@ -230,8 +229,6 @@ class BuildPackagesRunConfig:
         Args:
             usepkg: Whether to use binpkgs or build from source. False currently
                 triggers a local build, which will enable local reuse.
-            install_debug_symbols: Whether to include the debug symbols for all
-                packages.
             packages: The list of packages to install, by default install all
                 packages for the target.
             use_flags: A list of use flags to set.
@@ -272,7 +269,6 @@ class BuildPackagesRunConfig:
                 Bazel actions remotely.
         """
         self.usepkg = usepkg
-        self.install_debug_symbols = install_debug_symbols
         self.packages = packages
         self.use_flags = use_flags
         self.use_remoteexec = use_remoteexec
@@ -1114,21 +1110,6 @@ def BuildPackages(
                 exception=e,
                 packages=failed_pkgs,
             ) from e
-
-        if run_configs.install_debug_symbols:
-            logging.info("Fetching the debug symbols.")
-            try:
-                # TODO(xcl): Convert to directly importing and calling a Python
-                #   lib instead of calling a binary.
-                cros_build_lib.run(
-                    [
-                        constants.CHROMITE_BIN_DIR / "cros_install_debug_syms",
-                        f"--board={sysroot.build_target_name}",
-                        "--all",
-                    ]
-                )
-            except cros_build_lib.RunCommandError as e:
-                logging.error("Unable to install debug symbols: %s", e)
 
         # Remove any broken or outdated binpkgs.
         if run_configs.eclean:
