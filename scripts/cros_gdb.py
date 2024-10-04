@@ -87,14 +87,7 @@ class BoardSpecificGdb:
     }
     _MISSING_DEBUG_INFO_MSG = """
 %(inf_cmd)s is stripped and %(debug_file)s does not exist on your local machine.
-  The debug symbols for that package may not be installed.  To install the debug
- symbols for %(package)s only, run:
-
-   cros_install_debug_syms --board=%(board)s %(package)s
-
-To install the debug symbols for all available packages, run:
-
-   cros_install_debug_syms --board=%(board)s --all"""
+"""
     _ASH_CHROME_REMOTE_BIN = "/opt/google/chrome/chrome"
 
     def __init__(
@@ -269,19 +262,11 @@ To install the debug symbols for all available packages, run:
                 )
                 debug_file += ".debug"
                 if not os.path.exists(debug_file):
-                    equery = "equery-%s" % self.board
-                    package = cros_build_lib.run(
-                        [equery, "-q", "b", self.inf_cmd],
-                        capture_output=True,
-                        encoding="utf-8",
-                    ).stdout
                     # pylint: disable=logging-not-lazy
                     logging.info(
                         self._MISSING_DEBUG_INFO_MSG
                         % {
-                            "board": self.board,
                             "inf_cmd": self.inf_cmd,
-                            "package": package,
                             "debug_file": debug_file,
                         }
                     )
