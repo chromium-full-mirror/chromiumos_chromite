@@ -1383,8 +1383,10 @@ class ArgumentParser(BaseParser, argparse.ArgumentParser):
             raise ValueError(f"Bool flag `{flag}` must start with `--`")
         if "_" in flag:
             raise ValueError(f"Bool flag `{flag}` must be kebab-case")
-        enabled_desc += " (DEFAULT)" if default is True else ""
-        disabled_desc += " (DEFAULT)" if default is False else ""
+        if enabled_desc != argparse.SUPPRESS:
+            enabled_desc += " (DEFAULT)" if default is True else ""
+        if disabled_desc != argparse.SUPPRESS:
+            disabled_desc += " (DEFAULT)" if default is False else ""
         flag = flag.lstrip("-")
         if dest is None:
             dest = flag.replace("-", "_")
