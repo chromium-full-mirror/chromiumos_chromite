@@ -410,6 +410,12 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
             hostname="192.168.1.200",
             port=9999,
         )
+        self._CheckDeviceParse(
+            "chromeos8-row11-rack18-host6:22",
+            scheme=commandline.DeviceScheme.SSH,
+            hostname="chromeos8-row11-rack18-host6",
+            port=22,
+        )
 
     def testSshUsernameHostname(self) -> None:
         """Test SSH username and hostname device specification."""

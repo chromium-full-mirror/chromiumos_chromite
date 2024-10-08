@@ -396,46 +396,44 @@ class DeviceParser:
         Raises:
             ValueError: |value| is not a valid device specifier.
         """
+        uri = value
+
+        # Handle all special cases where device target doesn't match
+        # scheme://netloc/path
         # ':vm:' is an alias for ssh'ing into a virtual machine on localhost;
         # translate it appropriately.
-        if value.strip().lower() == ":vm:":
-            value = "localhost:9222"
-        elif value.strip().lower() == "ssh://:vm:":
-            value = "ssh://localhost:9222"
-        parsed = urllib.parse.urlparse(value)
-
-        # crbug.com/1069325: Starting in python 3.7 urllib has different parsing
-        # results. 127.0.0.1:9999 parses as scheme='127.0.0.1' path='9999'
-        # instead of scheme='' path='127.0.0.1:9999'. We want that parsed as
-        # ssh. Check for '.' or 'localhost' in the scheme to catch the most
-        # common cases for this result.
-        if (
-            not parsed.scheme
-            or "." in parsed.scheme
-            or parsed.scheme == "localhost"
-        ):
-            # Default to a file scheme for absolute paths and start with '.',
-            # ssh scheme otherwise.
-            if value and value[0] in ("/", "."):
-                scheme = DeviceScheme.FILE
+        if value.strip().lower() in [":vm:", "ssh://:vm:"]:
+            uri = "ssh://localhost:9222"
+        # Servo address is usually prefixed with servo: not servo://
+        elif value.startswith("servo:") and not value.startswith("servo://"):
+            uri = "servo://" + value[len("servo:") :]
+        # Address without schema separator can be ssh, file, scp depending on
+        # cases.
+        elif value and "://" not in value:
+            # Usually files are not prefixed with file://, correct the value
+            # for absolute and relative path.
+            if value[0] in ("/", "."):
+                # e.g. /path/to/file, ./path/to/file.
+                uri = "file://" + value
+            # Values without scheme:// but have paths are scp or file.
+            # _CheckScpScheme is called inline to prevent early calling
+            # throwing conflicting scheme errors for deterministic file target.
+            elif ":/" in value and self._CheckScpScheme():
+                # e.g. 192.168.1.200:/dst
+                uri = "scp://" + value
+            elif ":/" not in value and self._CheckScpScheme():
+                # e.g. path/to/file
+                uri = "file://" + value
+            # Assume other values without scheme are ssh
             else:
-                # urlparse won't provide hostname/username/port unless a scheme
-                # is specified, so we need to reparse.
-                parsed = urllib.parse.urlparse(
-                    f"{DeviceScheme.SSH.name.lower()}://{value}"
-                )
-                if self._CheckScpScheme():
-                    if value and ":/" in value:
-                        scheme = DeviceScheme.SCP
-                    else:
-                        scheme = DeviceScheme.FILE
-                else:
-                    scheme = DeviceScheme.SSH
-        else:
-            try:
-                scheme = DeviceScheme[parsed.scheme.upper()]
-            except KeyError:
-                scheme = None
+                uri = "ssh://" + value
+
+        parsed = urllib.parse.urlparse(uri)
+
+        try:
+            scheme = DeviceScheme[parsed.scheme.upper()]
+        except KeyError:
+            scheme = None
 
         if scheme == DeviceScheme.SSH:
             hostname = parsed.hostname
@@ -492,11 +490,9 @@ class DeviceParser:
             return Device(scheme=scheme, path=path, raw=value)
         elif scheme == DeviceScheme.SERVO:
             # Parse the identifier type and value.
-            servo_type, _, servo_id = parsed.path.partition(":")
-            # Don't want to do the netloc before the split in case of serial
-            # number.
+            # servo://type:value will be parsed as netloc=type:value.
+            servo_type, _, servo_id = parsed.netloc.partition(":")
             servo_type = servo_type.lower()
-
             return self._parse_servo(servo_type, servo_id)
         else:
             raise ValueError(
