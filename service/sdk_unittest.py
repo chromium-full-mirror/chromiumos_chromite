@@ -6,6 +6,7 @@
 
 import os
 from pathlib import Path
+import textwrap
 from typing import List, Optional, Tuple
 
 from chromite.api.gen.chromiumos import common_pb2
@@ -876,7 +877,28 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
         self,
         dev_lang_rust_versions: List[str],
         virtual_rust_versions: List[str],
+        saved_virtual_rust_versions: Optional[List[str]] = None,
     ) -> Path:
+        """Writes the given virtual versions for testing.
+
+        Args:
+            dev_lang_rust_versions: versions of dev-lang/rust files to create.
+            virtual_rust_versions: versions of virtual/rust files to create.
+            saved_virtual_rust_versions: versions of dev-lang/rust to write
+                into `virtual_rust_versions`. If `None` is given, this is
+                inferred to be "whatever the virtual_rust_versions are." If a
+                list is given, it must be the same length as
+                `virtual_rust_versions`. Those versions are written into their
+                corresponding virtual/rust ebuilds.
+        """
+        if saved_virtual_rust_versions:
+            assert len(saved_virtual_rust_versions) == len(
+                virtual_rust_versions
+            )
+            write_virtual_rust_versions = saved_virtual_rust_versions
+        else:
+            write_virtual_rust_versions = virtual_rust_versions
+
         chromiumos_overlay = self.tempdir
         dev_lang_rust = chromiumos_overlay / "dev-lang" / "rust"
         dev_lang_rust.mkdir(parents=True)
@@ -885,8 +907,20 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
 
         virtual_rust = chromiumos_overlay / "virtual" / "rust"
         virtual_rust.mkdir(parents=True)
-        for ver in virtual_rust_versions:
-            (virtual_rust / f"rust-{ver}.ebuild").touch()
+        for ver, write_ver in zip(
+            virtual_rust_versions, write_virtual_rust_versions
+        ):
+            (virtual_rust / f"rust-{ver}.ebuild").write_text(
+                textwrap.dedent(
+                    f"""\
+                    # Foo
+                    # Corresponding package version: dev-lang/rust-{write_ver}
+                    # Bar
+                    baz
+                    """
+                ),
+                encoding="utf-8",
+            )
         return chromiumos_overlay
 
     def test_nop_update(self):
@@ -896,22 +930,6 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
         )
         updated_files = sdk.uprev_toolchain_virtuals(chromiumos_overlay)
         self.assertEqual(updated_files, [])
-
-    def test_downgrade(self):
-        chromiumos_overlay = self.write_versions(
-            dev_lang_rust_versions=["1.77.0"],
-            virtual_rust_versions=["1.77.1"],
-        )
-        updated_files = sdk.uprev_toolchain_virtuals(chromiumos_overlay)
-        new_virtual = (
-            chromiumos_overlay / "virtual" / "rust" / "rust-1.77.0.ebuild"
-        )
-        old_virtual = (
-            chromiumos_overlay / "virtual" / "rust" / "rust-1.77.1.ebuild"
-        )
-        self.assertEqual(updated_files, [new_virtual])
-        self.assertFalse(old_virtual.exists())
-        self.assertTrue(new_virtual.exists())
 
     def test_revision_upgrade(self):
         chromiumos_overlay = self.write_versions(
@@ -960,3 +978,66 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(updated_files, [new_virtual])
         self.assertFalse(old_virtual.exists())
         self.assertTrue(new_virtual.exists())
+
+    def test_virtual_rev_is_bumped_if_version_equality_is_downgrade(self):
+        chromiumos_overlay = self.write_versions(
+            dev_lang_rust_versions=["1.77.0-r5", "9999"],
+            virtual_rust_versions=["1.77.0-r6"],
+            saved_virtual_rust_versions=["1.77.0-r4"],
+        )
+        updated_files = sdk.uprev_toolchain_virtuals(chromiumos_overlay)
+        new_virtual = (
+            chromiumos_overlay / "virtual" / "rust" / "rust-1.77.0-r7.ebuild"
+        )
+        old_virtual = (
+            chromiumos_overlay / "virtual" / "rust" / "rust-1.77.0-r6.ebuild"
+        )
+        self.assertEqual(updated_files, [new_virtual])
+        self.assertFalse(old_virtual.exists())
+        self.assertTrue(new_virtual.exists())
+        self.assertIn(
+            "dev-lang/rust-1.77.0-r5", new_virtual.read_text(encoding="utf-8")
+        )
+
+    def test_virtual_revision_is_lowered_if_version_equality_is_upgrade(self):
+        chromiumos_overlay = self.write_versions(
+            dev_lang_rust_versions=["1.80.0-r1", "9999"],
+            virtual_rust_versions=["1.77.0-r6"],
+            saved_virtual_rust_versions=["1.77.0-r4"],
+        )
+        updated_files = sdk.uprev_toolchain_virtuals(chromiumos_overlay)
+        new_virtual = (
+            chromiumos_overlay / "virtual" / "rust" / "rust-1.80.0-r1.ebuild"
+        )
+        old_virtual = (
+            chromiumos_overlay / "virtual" / "rust" / "rust-1.77.0-r6.ebuild"
+        )
+        self.assertEqual(updated_files, [new_virtual])
+        self.assertFalse(old_virtual.exists())
+        self.assertTrue(new_virtual.exists())
+        self.assertIn(
+            "dev-lang/rust-1.80.0-r1", new_virtual.read_text(encoding="utf-8")
+        )
+
+    def test_virtual_ebuild_writing_only_replaces_version(self):
+        # There's some manual string slicing, so ensure that the virtual rust
+        # ebuild remains intact across version string updates.
+        chromiumos_overlay = self.write_versions(
+            dev_lang_rust_versions=["1.80.0-r1", "9999"],
+            virtual_rust_versions=["1.77.0-r4"],
+        )
+        sdk.uprev_toolchain_virtuals(chromiumos_overlay)
+        new_virtual = (
+            chromiumos_overlay / "virtual" / "rust" / "rust-1.80.0-r1.ebuild"
+        )
+        self.assertEqual(
+            new_virtual.read_text(encoding="utf-8"),
+            textwrap.dedent(
+                """\
+                # Foo
+                # Corresponding package version: dev-lang/rust-1.80.0-r1
+                # Bar
+                baz
+                """
+            ),
+        )

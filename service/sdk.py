@@ -9,6 +9,7 @@ import json
 import logging
 import os
 from pathlib import Path
+import re
 import tempfile
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -615,6 +616,51 @@ def _find_newest_stable_ebuild(
     return max(ebuilds, key=lambda x: x[1])
 
 
+def _generate_updated_virtual_contents(
+    virtual_path: Path,
+    host_package_info: package_info.PackageInfo,
+) -> Optional[str]:
+    """Generates an updated virtual ebuild given the host package info.
+
+    Toolchain virtuals track the version of the package they represent in a
+    comment in the virtual package, e.g.,
+
+    ```
+    # Corresponding package version: dev-lang/rust-1.81.0-r16
+    ```
+
+    This function extracts that info from the virtual's ebuild & compares
+    host_package_dir to it. If there's no change, no update is necessary.
+
+    Returns:
+        The contents of a new virtual ebuild as a string, or None if there's no
+        change to make to the virtual ebuild.
+    """
+    virtual_contents = virtual_path.read_text(encoding="utf-8")
+    package_version_re = re.compile(
+        r"^# Corresponding package version:\s*(\S.*)$", re.MULTILINE
+    )
+    match = package_version_re.search(virtual_contents)
+    if not match:
+        raise ValueError(
+            f"Could not find match to {package_version_re} in {virtual_path}"
+        )
+
+    recorded_package = match.group(1)
+    logging.info("Recorded package in %s is %s", virtual_path, recorded_package)
+    current_package = host_package_info.cpvr
+    if current_package == recorded_package:
+        return None
+
+    return "".join(
+        (
+            virtual_contents[: match.start(1)],
+            current_package,
+            virtual_contents[match.end(1) :],
+        )
+    )
+
+
 def uprev_toolchain_virtuals(
     chromiumos_overlay: Path = constants.SOURCE_ROOT
     / constants.CHROMIUMOS_OVERLAY_DIR,
@@ -634,7 +680,12 @@ def uprev_toolchain_virtuals(
         virtual_path, virtual_info = _find_newest_stable_ebuild(
             virtual_package_dir
         )
-        if host_info.pvr == virtual_info.pvr:
+
+        new_virtual_contents = _generate_updated_virtual_contents(
+            virtual_path, host_info
+        )
+
+        if not new_virtual_contents:
             logging.info(
                 "No need to uprev %s; no new updates to its host path.",
                 virtual_path,
@@ -642,17 +693,25 @@ def uprev_toolchain_virtuals(
             continue
 
         logging.info(
-            "Max version for %s is %s, but virtual is at %s; updating...",
+            "Max version for %s is now %s, updating virtual package...",
             host_package_dir,
             host_info.version,
-            virtual_info.version,
         )
-        new_virtual_info = virtual_info.with_version(
-            host_info.version,
-            host_info.revision,
+
+        # For convenience, try to keep the virtual version equal to the package
+        # version (this causes revision to decrease on version upgrades).
+        # If doing so wouldn't result in an upgrade, just bump the revision.
+        new_virtual_info = max(
+            virtual_info.with_version(
+                host_info.version,
+                host_info.revision,
+            ),
+            virtual_info.revision_bump(),
         )
+
         new_virtual_path = virtual_path.parent / new_virtual_info.ebuild
-        virtual_path.rename(new_virtual_path)
+        new_virtual_path.write_text(new_virtual_contents, encoding="utf-8")
+        virtual_path.unlink()
         updated_files.append(new_virtual_path)
     return updated_files
 
