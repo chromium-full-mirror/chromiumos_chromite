@@ -1408,6 +1408,8 @@ def _BazelBuild(
         ]
         packages_to_exclude = [
             "chromeos-base/chromeos-chrome",
+            # b/372854211: chrome-icu is excluded temporarily.
+            "chromeos-base/chrome-icu",
         ]
         top_level_packages_query = "union".join(
             [
