@@ -97,7 +97,7 @@ def get_configs_by_model(config):
             continue
         if "ec-ro-image" not in model_config["firmware"]:
             continue
-        result[model_config["name"]] = model_config
+        result[model_config["firmware-signing"]["signature-id"]] = model_config
     return result
 
 
