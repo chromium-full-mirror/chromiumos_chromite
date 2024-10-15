@@ -592,6 +592,9 @@ class SysrootLibToolchainUpdateTest(cros_test_lib.RunCommandTempDirTestCase):
         # Fake being root to avoid running commands with sudo_run.
         self.PatchObject(os_util, "is_root_user", return_value=True)
 
+        # Avoid any logging functions that inpsect or change filesystem state.
+        self.PatchObject(osutils, "rotate_log_file")
+
         self.sysroot = sysroot_lib.Sysroot(self.tempdir)
         self.emerge = constants.CHROMITE_BIN_DIR / "parallel_emerge"
 

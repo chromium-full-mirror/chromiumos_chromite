@@ -118,6 +118,9 @@ class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
         result = sdk.UpdateResult(return_code=0)
         self.update_mock = self.PatchObject(sdk, "Update", return_value=result)
 
+        # Avoid any logging functions that inpsect or change filesystem state.
+        self.PatchObject(osutils, "rotate_log_file")
+
         # A board we have a sysroot for already.
         self.board = "board"
         self.sysroot_path = os.path.join(self.tempdir, "build", self.board)
@@ -446,6 +449,10 @@ class InstallToolchainTest(cros_test_lib.MockTempDirTestCase):
 
     def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
+
+        # Avoid any logging functions that inpsect or change filesystem state.
+        self.PatchObject(osutils, "rotate_log_file")
+
         # A board we have a sysroot for already.
         self.board = "board"
         self.sysroot_path = os.path.join(self.tempdir, "build", self.board)
@@ -680,6 +687,9 @@ class BuildPackagesTest(
         # and without touching the chroot folder, it's better to keep it out of
         # there all together.
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
+
+        # Avoid any logging functions that inpsect or change filesystem state.
+        self.PatchObject(osutils, "rotate_log_file")
 
         self.board = "board"
         self.target = build_target_lib.BuildTarget(self.board)

@@ -73,6 +73,9 @@ class BuildTargetUnitTestTest(cros_test_lib.RunCommandTempDirTestCase):
         self.board = "board"
         self.build_target = build_target_lib.BuildTarget(self.board)
 
+        # Avoid any logging functions that inpsect or change filesystem state.
+        self.PatchObject(osutils, "rotate_log_file")
+
     def testSuccess(self) -> None:
         """Test simple success case."""
         result = test.BuildTargetUnitTest(self.build_target)

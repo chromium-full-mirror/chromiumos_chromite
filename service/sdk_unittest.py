@@ -433,6 +433,8 @@ class UpdateTest(
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
         # Don't bother trying to remount root read-write.
         self.PatchObject(osutils, "IsMountedReadOnly", return_value=False)
+        # Avoid any logging functions that inpsect or change filesystem state.
+        self.PatchObject(osutils, "rotate_log_file")
 
     def testSuccess(self) -> None:
         """Test the simple success case."""
