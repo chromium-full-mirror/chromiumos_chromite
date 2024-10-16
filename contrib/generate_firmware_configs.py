@@ -156,11 +156,7 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
             model=model_name,
             signing=firmware_config_pb2.ModelSigningConfig(
                 key_id=config["firmware-signing"]["key-id"],
-                signature_id=config["firmware-signing"]["signature-id"],
                 brand_code=config["brand-code"],
-                signature_id_in_customization_id=config["firmware-signing"].get(
-                    "sig-id-in-customization-id", False
-                ),
             ),
             ap_firmware=firmware_config_pb2.FirmwareConfig(
                 ro_firmware=load_bcs(gs_context, bcs_overlay, ap_ro_image),
