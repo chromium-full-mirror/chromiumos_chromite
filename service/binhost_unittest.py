@@ -658,8 +658,6 @@ CPV: package/exclude-1
 
 CPV: chromeos-base/chromeos-chrome-100.0.0-r1
 
-CPV: chromeos-base/chromeos-lacros-100.0.0-r1
-
 CPV: chromeos-base/chrome-icu-100.0.0-r1
 
 CPV: package/exclude-2
@@ -684,12 +682,6 @@ CPV: package/exclude-2
                 "",
                 category=constants.CHROME_CN,
                 pf="chromeos-chrome-100.0.0-r1",
-            ),
-            portage_util.InstalledPackage(
-                None,
-                "",
-                category=constants.CHROME_CN,
-                pf="chromeos-lacros-100.0.0-r1",
             ),
             portage_util.InstalledPackage(
                 None,
@@ -723,7 +715,6 @@ CPV: package/exclude-2
         self.assertEqual(
             [
                 "chromeos-base/chromeos-chrome-100.0.0-r1.tbz2",
-                "chromeos-base/chromeos-lacros-100.0.0-r1.tbz2",
                 "chromeos-base/chrome-icu-100.0.0-r1.tbz2",
             ],
             actual_packages,
@@ -734,14 +725,6 @@ CPV: package/exclude-2
         )
         self.assertIn(
             "PATH: target/chromeos-base/chromeos-chrome-100.0.0-r1.tbz2",
-            actual_packages_content,
-        )
-        self.assertIn(
-            "CPV: chromeos-base/chromeos-lacros-100.0.0-r1",
-            actual_packages_content,
-        )
-        self.assertIn(
-            "PATH: target/chromeos-base/chromeos-lacros-100.0.0-r1.tbz2",
             actual_packages_content,
         )
         self.assertIn(

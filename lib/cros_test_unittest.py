@@ -180,28 +180,6 @@ class CrOSTester(CrOSTesterBase):
             expected=False,
         )
 
-    def testAlwaysFlashForLacros(self) -> None:
-        """Tests flash command is always executed for lacros-chrome tests."""
-        self._tester.deploy_lacros = True
-        self._tester.lacros_launcher_script = self.TempFilePath("launcher.py")
-        osutils.Touch(self._tester.lacros_launcher_script)
-        self._tester.build_dir = self.TempFilePath("out/Lacros")
-        self._tester.flash = True
-        self._tester.public_image = True
-        self._tester._device.board = "octopus"
-        self._tester._device.remote._lsb_release = {
-            cros_set_lsb_release.LSB_KEY_VERSION: "12900.0.0",
-        }
-        self._tester.Run()
-        self.assertCommandContains(
-            [
-                constants.CHROMITE_BIN_DIR / "cros",
-                "flash",
-                "ssh://localhost:9222",
-                "xbuddy://remote/octopus/latest",
-            ]
-        )
-
     def testDeployAshChrome(self) -> None:
         """Tests basic deploy ash-chrome command."""
         self._tester.deploy = True
@@ -223,86 +201,6 @@ class CrOSTester(CrOSTesterBase):
                 "amd64-generic",
             ]
         )
-
-    def testDeployLacrosChrome(self) -> None:
-        """Tests basic deploy lacros-chrome command."""
-        self._tester.deploy_lacros = True
-        self._tester.lacros_launcher_script = self.TempFilePath("launcher.py")
-        osutils.Touch(self._tester.lacros_launcher_script)
-        self._tester.build_dir = self.TempFilePath("out/Lacros")
-
-        with mock.patch.object(
-            self._tester, "_DeployLacrosLauncherScript"
-        ) as mock_deploy:
-            self._tester.Run()
-            self.assertCommandContains(
-                [
-                    "deploy_chrome",
-                    "--force",
-                    "--build-dir",
-                    self._tester.build_dir,
-                    "--process-timeout",
-                    "180",
-                    "--device",
-                    self._tester._device.device + ":9222",
-                    "--cache-dir",
-                    self._tester.cache_dir,
-                    "--lacros",
-                    "--nostrip",
-                    "--skip-modifying-config-file",
-                ]
-            )
-            mock_deploy.assert_called_once()
-
-    def testDeployAshAndLacrosChrome(self) -> None:
-        """Tests basic deploy ash and lacros-chrome command."""
-        self._tester.deploy = True
-        self._tester.deploy_lacros = True
-        self._tester.lacros_launcher_script = self.TempFilePath("launcher.py")
-        osutils.Touch(self._tester.lacros_launcher_script)
-        self._tester.build_dir = self.TempFilePath("out/Ash")
-        self._tester.additional_lacros_build_dir = self.TempFilePath(
-            "out/Lacros"
-        )
-
-        with mock.patch.object(
-            self._tester, "_DeployLacrosLauncherScript"
-        ) as mock_deploy:
-            self._tester.Run()
-            self.assertCommandContains(
-                [
-                    "deploy_chrome",
-                    "--force",
-                    "--build-dir",
-                    self._tester.build_dir,
-                    "--process-timeout",
-                    "180",
-                    "--device",
-                    self._tester._device.device + ":9222",
-                    "--cache-dir",
-                    self._tester.cache_dir,
-                    "--board",
-                    "amd64-generic",
-                ]
-            )
-            self.assertCommandContains(
-                [
-                    "deploy_chrome",
-                    "--force",
-                    "--build-dir",
-                    self._tester.additional_lacros_build_dir,
-                    "--process-timeout",
-                    "180",
-                    "--device",
-                    self._tester._device.device + ":9222",
-                    "--cache-dir",
-                    self._tester.cache_dir,
-                    "--lacros",
-                    "--nostrip",
-                    "--skip-modifying-config-file",
-                ]
-            )
-            mock_deploy.assert_called_once()
 
     def testDeployChromeWithArgs(self) -> None:
         """Tests deploy ash-chrome command with additional arguments."""
@@ -1059,21 +957,4 @@ class CrOSTesterParser(CrOSTesterBase):
                 "/run/test",
             ],
             "--tast-retries is only applicable to Tast tests.",
-        )
-
-    def testParserErrorLacros(self) -> None:
-        """Verify parser errors for deploying/running lacros-chrome tests."""
-        build_dir = self.TempFilePath("out/Lacros")
-        osutils.SafeMakedirs(build_dir)
-
-        self.CheckParserError(
-            ["--deploy-lacros", "--deploy", "--build-dir", build_dir],
-            "Script will deploy both Ash and Lacros but can not find Lacros at "
-            + build_dir
-            + "/lacros_clang",
-        )
-
-        self.CheckParserError(
-            ["--deploy-lacros", "--build-dir", build_dir],
-            "--lacros-launcher-script is required when running Lacros tests.",
         )

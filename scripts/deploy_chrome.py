@@ -86,36 +86,10 @@ COMPRESSED_ASH_PATH = os.path.join(_CHROME_DIR, COMPRESSED_ASH_FILE)
 RAW_ASH_PATH = os.path.join(_CHROME_DIR, RAW_ASH_FILE)
 COMPRESSED_ASH_OVERLAY_SUFFIX = "-compressed-ash"
 
-LACROS_DIR = "/usr/local/lacros-chrome"
 _CONF_FILE = "/etc/chrome_dev.conf"
 MODIFIED_CONF_FILE = f"modified {_CONF_FILE}"
 
-# This command checks if
-# "--enable-features=LacrosOnly,LacrosPrimary,LacrosSupport" is present in
-# /etc/chrome_dev.conf. If it is not, then it is added.
-# TODO(https://crbug.com/1112493): Automated scripts are currently not allowed
-# to modify chrome_dev.conf. Either revisit this policy or find another
-# mechanism to pass configuration to ash-chrome.
-ENABLE_LACROS_VIA_CONF_COMMAND = f"""
-    if ! grep -q "^--enable-features=LacrosOnly,LacrosPrimary,LacrosSupport$" {_CONF_FILE}; then
-    echo "--enable-features=LacrosOnly,LacrosPrimary,LacrosSupport" >> {_CONF_FILE};
-    echo {MODIFIED_CONF_FILE};
-    fi
-"""
-
-# This command checks if "--lacros-chrome-path=" is present with the right value
-# in /etc/chrome_dev.conf. If it is not, then all previous instances are removed
-# and the new one is added.
-# TODO(https://crbug.com/1112493): Automated scripts are currently not allowed
-# to modify chrome_dev.conf. Either revisit this policy or find another
-# mechanism to pass configuration to ash-chrome.
-_SET_LACROS_PATH_VIA_CONF_COMMAND = """
-    if ! grep -q "^--lacros-chrome-path=%(lacros_path)s$" %(conf_file)s; then
-    sed 's/--lacros-chrome-path/#--lacros-chrome-path/' %(conf_file)s;
-    echo "--lacros-chrome-path=%(lacros_path)s" >> %(conf_file)s;
-    echo %(modified_conf_file)s;
-    fi
-"""
+_DEPLOYMENT_NAME = "chrome"
 
 
 def _UrlBaseName(url):
@@ -162,19 +136,13 @@ class DeployChrome:
 
         self._root_dir_is_still_readonly = multiprocessing.Event()
 
-        self._deployment_name = "lacros" if options.lacros else "chrome"
-        self.copy_paths = chrome_util.GetCopyPaths(self._deployment_name)
-
-        self.chrome_dir = LACROS_DIR if self.options.lacros else _CHROME_DIR
+        self.copy_paths = chrome_util.GetCopyPaths(_DEPLOYMENT_NAME)
 
         # Whether UI was stopped during setup.
         self._stopped_ui = False
 
     def _ShouldUseCompressedAsh(self):
         """Detects if the DUT uses compressed-ash setup."""
-        if self.options.lacros:
-            return False
-
         return self.device.IfFileExists(COMPRESSED_ASH_PATH)
 
     def _GetRemoteMountFree(self, remote_dir):
@@ -265,28 +233,6 @@ class DeployChrome:
                 raise e
 
         return result.stdout.split()[1].split("/")[0] == "start"
-
-    def _KillLacrosChrome(self) -> None:
-        """This method kills lacros-chrome on the device, if it's running."""
-        # Mark the lacros chrome binary as not executable, so if keep-alive is
-        # enabled ash chrome can't restart lacros chrome. This prevents rsync
-        # from failing if the file is still in use (being executed by ash
-        # chrome). Note that this will cause ash chrome to continuously attempt
-        # to start lacros and fail, although it doesn't seem to cause issues.
-        if self.options.skip_restart_ui:
-            self.device.chmod(
-                f"{self.options.target_dir}/chrome",
-                "-x",
-                check=False,
-            )
-        self.device.run(
-            ["pkill", "-f", f"{self.options.target_dir}/chrome"],
-            check=False,
-        )
-
-    def _ResetLacrosChrome(self) -> None:
-        """Reset Lacros to fresh state by deleting user data dir."""
-        self.device.run(["rm", "-rf", "/home/chronos/user/lacros"], check=False)
 
     def _KillAshChromeIfNeeded(self) -> None:
         """This method kills ash-chrome on the device, if it's running.
@@ -432,7 +378,7 @@ class DeployChrome:
     def _Deploy(self) -> None:
         logging.info(
             "Copying %s to %s on device...",
-            self._deployment_name,
+            _DEPLOYMENT_NAME,
             self.options.target_dir,
         )
         # CopyToDevice will fall back to scp if rsync is corrupted on stateful.
@@ -448,45 +394,22 @@ class DeployChrome:
             if not self.device.HasRsync():
                 raise DeployFailure("Failed to install rsync")
 
-        try:
-            staging_dir = os.path.abspath(self.staging_dir)
-            staging_chrome = os.path.join(staging_dir, "chrome")
+        staging_dir = os.path.abspath(self.staging_dir)
 
-            if (
-                self.options.lacros
-                and self.options.skip_restart_ui
-                and os.path.exists(staging_chrome)
-            ):
-                # Make the chrome binary not executable before deploying to
-                # prevent ash chrome from starting chrome before the rsync has
-                # finished.
-                os.chmod(staging_chrome, 0o644)
-
-            self.device.CopyToDevice(
-                f"{staging_dir}/",
-                self.options.target_dir,
-                mode="rsync",
-                inplace=True,
-                compress=self._ShouldUseCompression(),
-                debug_level=logging.INFO,
-                verbose=self.options.verbose,
-            )
-        finally:
-            if self.options.lacros and self.options.skip_restart_ui:
-                self.device.chmod(
-                    f"{self.options.target_dir}/chrome",
-                    "+x",
-                    check=False,
-                )
+        self.device.CopyToDevice(
+            f"{staging_dir}/",
+            self.options.target_dir,
+            mode="rsync",
+            inplace=True,
+            compress=self._ShouldUseCompression(),
+            debug_level=logging.INFO,
+            verbose=self.options.verbose,
+        )
 
         # Set the security context on the default Chrome dir if that's where
         # it's getting deployed, and only on SELinux supported devices.
-        if (
-            not self.options.lacros
-            and self.device.IsSELinuxAvailable()
-            and (
-                _CHROME_DIR in (self.options.target_dir, self.options.mount_dir)
-            )
+        if self.device.IsSELinuxAvailable() and (
+            _CHROME_DIR in (self.options.target_dir, self.options.mount_dir)
         ):
             self.device.run(["restorecon", "-R", _CHROME_DIR])
 
@@ -498,11 +421,6 @@ class DeployChrome:
                     f"{self.options.target_dir}/{sub_path}",
                     p.mode,
                 )
-
-        if self.options.lacros:
-            self.device.run(
-                ["chown", "-R", "chronos:chronos", self.options.target_dir]
-            )
 
         if self.options.compressed_ash:
             self.device.run(["start", COMPRESSED_ASH_SERVICE])
@@ -609,8 +527,6 @@ class DeployChrome:
                         "build section_embedded_chrome_binary target."
                     )
 
-            # In the future, lacros-chrome and ash-chrome will likely be named
-            # something other than 'chrome' to avoid confusion.
             # Handle non-Chrome deployments.
             if not BinaryExists("chrome"):
                 if BinaryExists("app_shell"):
@@ -622,7 +538,6 @@ class DeployChrome:
             self.tempdir,
             self.staging_dir,
             self.copy_paths,
-            self.chrome_dir,
         )
 
     def _MountTarget(self) -> None:
@@ -677,12 +592,8 @@ class DeployChrome:
             self._PrepareStagingDir()
             return 0
 
-        # Check that the build matches the device. Lacros-chrome skips this
-        # check as it's currently board independent. This means that it's
-        # possible to deploy a build of lacros-chrome with a mismatched
-        # architecture. We don't try to prevent this developer foot-gun.
-        if not self.options.lacros:
-            self._CheckBoard()
+        # Check that the build matches the device.
+        self._CheckBoard()
 
         # Ensure that the target directory exists before running parallel steps.
         self._EnsureTargetDir()
@@ -694,24 +605,8 @@ class DeployChrome:
             self._PrepareStagingDir,
         ]
 
-        restart_ui = not self.options.skip_restart_ui
-        if self.options.lacros:
-            steps.append(self._KillLacrosChrome)
-            if self.options.reset_lacros:
-                steps.append(self._ResetLacrosChrome)
-            config_modified = False
-            if self.options.modify_config_file:
-                config_modified = self._ModifyConfigFileIfNeededForLacros()
-            if config_modified and not restart_ui:
-                logging.warning(
-                    "Config file modified but skipping restart_ui "
-                    "due to option --skip-restart-ui. Config file "
-                    "update is not reflected."
-                )
-
-        if restart_ui:
-            steps.append(self._KillAshChromeIfNeeded)
-            self._stopped_ui = True
+        steps.append(self._KillAshChromeIfNeeded)
+        self._stopped_ui = True
 
         ret = parallel.RunParallelSteps(
             steps, halt_on_error=True, return_values=True
@@ -725,21 +620,12 @@ class DeployChrome:
             if self.options.noremove_rootfs_verification:
                 logging.warning("Skipping disable rootfs verification.")
             elif not self._DisableRootfsVerification():
-                # A writable rootfs might not be needed if
-                # 1) Deploy chrome to stateful partition with mount option.
-                # 2) Deploy lacros without modifying /etc/chrome_dev.conf.
+                # A writable rootfs might not be needed if deploying chrome to
+                # stateful partition with mount option.
                 if self.options.mount:
                     logging.warning(
                         "Failed to disable rootfs verification. "
                         "Continue as --mount is set."
-                    )
-                elif (
-                    self.options.lacros and not self.options.modify_config_file
-                ):
-                    logging.warning(
-                        "Failed to disable rootfs verification. "
-                        "Continue as --lacros is set and "
-                        "--skip-modifying-config-file is unset."
                     )
                 else:
                     raise DeployFailure(
@@ -763,36 +649,6 @@ class DeployChrome:
         self._Deploy()
         if self.options.deploy_test_binaries:
             self._DeployTestBinaries()
-
-    def _ModifyConfigFileIfNeededForLacros(self):
-        """Modifies the /etc/chrome_dev.conf file for lacros-chrome.
-
-        Returns:
-            True if the file is modified, and the return value is usually used
-            to determine whether restarting ash-chrome is needed.
-        """
-        assert (
-            self.options.lacros
-        ), "Only deploying lacros-chrome needs to modify the config file."
-        # Update /etc/chrome_dev.conf to include appropriate flags.
-        modified = False
-        if self.options.enable_lacros_support:
-            result = self.device.run(ENABLE_LACROS_VIA_CONF_COMMAND, shell=True)
-            if result.stdout.strip() == MODIFIED_CONF_FILE:
-                modified = True
-        result = self.device.run(
-            _SET_LACROS_PATH_VIA_CONF_COMMAND
-            % {
-                "conf_file": _CONF_FILE,
-                "lacros_path": self.options.target_dir,
-                "modified_conf_file": MODIFIED_CONF_FILE,
-            },
-            shell=True,
-        )
-        if result.stdout.strip() == MODIFIED_CONF_FILE:
-            modified = True
-
-        return modified
 
 
 def ValidateStagingFlags(value):
@@ -927,46 +783,6 @@ def _CreateParser():
         help="Use chrome.sections_embedded instead of chrome. "
         "The binary is built by section_embedded_chrome_binary target "
         "and only support Ash chrome",
-    )
-
-    group = parser.add_argument_group("Lacros Options")
-    group.add_argument(
-        "--lacros",
-        action="store_true",
-        default=False,
-        help="Deploys lacros-chrome rather than ash-chrome.",
-    )
-    group.add_argument(
-        "--reset-lacros",
-        action="store_true",
-        default=False,
-        help="Reset Lacros by deleting Lacros user data dir if it exists.",
-    )
-    group.add_argument(
-        "--skip-restart-ui",
-        action="store_true",
-        default=False,
-        help="Skip restarting ash-chrome on deploying lacros-chrome. Note "
-        "that this flag may cause ETXTBSY error on rsync, and also won't "
-        "reflect the /etc/chrome_dev.conf file updates as it won't restart.",
-    )
-    group.add_argument(
-        "--skip-enabling-lacros-support",
-        action="store_false",
-        dest="enable_lacros_support",
-        help="By default, deploying lacros-chrome modifies the "
-        "/etc/chrome_dev.conf file to (1) enable the LacrosSupport feature "
-        "and (2) set the Lacros path, which can interfere with automated "
-        "testing. With this flag, part (1) will be skipped. See the "
-        "--skip-modifying-config-file flag for skipping both parts.",
-    )
-    group.add_argument(
-        "--skip-modifying-config-file",
-        action="store_false",
-        dest="modify_config_file",
-        help="When deploying lacros-chrome, do not modify the "
-        "/etc/chrome_dev.conf file. See also the "
-        "--skip-enabling-lacros-support flag.",
     )
 
     group = parser.add_argument_group("Advanced Options")
@@ -1117,25 +933,13 @@ def _ParseCommandLine(argv):
         parser.error(
             "Cannot specify both --build_dir and " "--gs-path/--local-pkg-patch"
         )
-    if options.lacros:
-        if options.dostrip and not options.board:
-            parser.error("Please specify --board.")
-        if options.mount_dir or options.mount:
-            parser.error("--lacros does not support --mount or --mount-dir")
-        if options.deploy_test_binaries:
-            parser.error("--lacros does not support --deploy-test-binaries")
-        if options.local_pkg_path:
-            parser.error("--lacros does not support --local-pkg-path")
-        if options.compressed_ash:
-            parser.error("--lacros does not support --compressed-ash")
-    else:
-        if not options.board and options.build_dir:
-            match = re.search(r"out_([^/]+)/Release$", options.build_dir)
-            if match:
-                options.board = match.group(1)
-                logging.info("--board is set to %s", options.board)
-        if not options.board:
-            parser.error("--board is required")
+    if not options.board and options.build_dir:
+        match = re.search(r"out_([^/]+)/Release$", options.build_dir)
+        if match:
+            options.board = match.group(1)
+            logging.info("--board is set to %s", options.board)
+    if not options.board:
+        parser.error("--board is required")
     if options.gs_path and options.local_pkg_path:
         parser.error("Cannot specify both --gs-path and --local-pkg-path")
     if not (options.staging_only or options.device):
@@ -1153,7 +957,7 @@ def _ParseCommandLine(argv):
             options.target_dir = _CHROME_DIR_MOUNT
     else:
         if not options.target_dir:
-            options.target_dir = LACROS_DIR if options.lacros else _CHROME_DIR
+            options.target_dir = _CHROME_DIR
 
     if options.mount and not options.mount_dir:
         options.mount_dir = _CHROME_DIR
@@ -1292,17 +1096,13 @@ def _UploadStagingDir(
     )
 
 
-def _PrepareStagingDir(
-    options, tempdir, staging_dir, copy_paths=None, chrome_dir=None
-) -> None:
+def _PrepareStagingDir(options, tempdir, staging_dir, copy_paths=None) -> None:
     """Place the necessary files in the staging directory.
 
     The staging directory is the directory used to rsync the build artifacts
     over to the device.  Only the necessary Chrome build artifacts are put into
     the staging directory.
     """
-    if chrome_dir is None:
-        chrome_dir = LACROS_DIR if options.lacros else _CHROME_DIR
     osutils.SafeMakedirs(staging_dir)
     os.chmod(staging_dir, 0o755)
     if options.build_dir:
@@ -1369,7 +1169,7 @@ def _PrepareStagingDir(
                     "--preserve-permissions",
                     "--file",
                     pkg_path,
-                    ".%s" % chrome_dir,
+                    ".%s" % _CHROME_DIR,
                 ],
                 cwd=staging_dir,
             )

@@ -380,10 +380,6 @@ def ValidateSymbolFile(
                 counts.line_number_lines,
             )
             errors = True
-    # Lacros symbol files are not generated as part of the ChromeOS build and
-    # can't be validated here.
-    # TODO(b/273836486): Add similar logic to the code that generates Lacros
-    # symbols.
     elif LIBC_REGEX.fullmatch(relative_path):
         _AddFoundFile(found_files, ExpectedFiles.LIBC)
         if counts.public_lines < 100:

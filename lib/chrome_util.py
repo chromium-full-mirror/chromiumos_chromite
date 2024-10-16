@@ -354,7 +354,7 @@ C = Conditions
 # In the below Path lists, if two Paths both match a file, the earlier Path
 # takes precedence.
 
-# Files shared between all deployment types except Lacros.
+# Files shared between all deployment types.
 _COPY_PATHS_COMMON = (
     # Copying icudtl.dat has to be optional because in CROS, icudtl.dat will
     # be installed by the package "chrome-icu", and icudtl.dat in chrome is
@@ -476,40 +476,11 @@ _COPY_PATHS_CHROME_SECTIONS_EMBEDDED = (
     Path("chrome.sections_embedded", dest="chrome", exe=True),
 ) + _COPY_PATHS_CHROME_WITHOUT_EXE
 
-_COPY_PATHS_LACROS = (
-    Path("chrome", exe=True),
-    Path("nacl_helper", exe=True, optional=True),
-    # Don't try to strip nacl_helper_bootstrap, see crbug.com/1517785.
-    Path("nacl_helper_bootstrap", exe=True, optional=True, strip=False),
-    Path("nacl_helper_nonsfi", exe=True, optional=True),
-    Path("nacl_irt_x86_64.nexe", exe=True, optional=True),
-    Path("nacl_irt_arm.nexe", exe=True, optional=True),
-    Path("locales/", optional=True),
-    Path("*.pak", optional=True),
-    Path("icudtl.dat", optional=True),
-    Path("metadata.json", optional=True),
-    Path("snapshot_blob.bin", optional=True),
-    Path("swiftshader/", optional=True),
-    Path("crashpad_handler", exe=True, optional=True),
-    Path("chrome_crashpad_handler", exe=True, optional=True),
-    Path("PrivacySandboxAttestationsPreloaded/", optional=True),
-    Path("resources/accessibility/", optional=True),
-    # Text file containing a seed for the lacros_variations_tast_tests target.
-    # This is not a lacros build artifact, just some variable test data that
-    # will be used by a Tast test that is too large to pass on the command
-    # line from a swarming task.
-    Path("variations_seed.txt", optional=True),
-    Path("WidevineCdm/", optional=True),
-    Path("libEGL.so", exe=True, optional=True),
-    Path("libGLESv2.so", exe=True, optional=True),
-)
-
 
 _COPY_PATHS_MAP = {
     "app_shell": _COPY_PATHS_APP_SHELL,
     "chrome": _COPY_PATHS_CHROME,
     "chrome_sections_embedded": _COPY_PATHS_CHROME_SECTIONS_EMBEDDED,
-    "lacros": _COPY_PATHS_LACROS,
 }
 
 

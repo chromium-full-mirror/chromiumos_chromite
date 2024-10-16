@@ -304,11 +304,6 @@ CHROME_CN = "chromeos-base"
 CHROME_PN = "chromeos-chrome"
 CHROME_CP = f"{CHROME_CN}/{CHROME_PN}"
 
-# Portage category and package name for LaCrOS.
-LACROS_CN = "chromeos-base"
-LACROS_PN = "chromeos-lacros"
-LACROS_CP = f"{LACROS_CN}/{LACROS_PN}"
-
 # Other packages to uprev while uprevving Chrome.
 OTHER_CHROME_PACKAGES = (
     "chromeos-base/chromium-source",

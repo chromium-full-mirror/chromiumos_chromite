@@ -532,8 +532,7 @@ def CreateChromePackageIndex(
     chrome_packages = []
     for pkg in installed_packages:
         if pkg.category == constants.CHROME_CN and any(
-            pn in pkg.pf
-            for pn in (constants.CHROME_PN, constants.LACROS_PN, "chrome-icu")
+            pn in pkg.pf for pn in (constants.CHROME_PN, "chrome-icu")
         ):
             chrome_packages.append(pkg.package_info.cpvr)
 

@@ -678,66 +678,6 @@ def uprev_termina_dlcs(_build_targets, _refs, chroot):
     return result
 
 
-@uprevs_versioned_package("chromeos-base/chromeos-lacros")
-def uprev_lacros(_build_targets, refs, chroot):
-    """Updates lacros ebuilds.
-
-    Version to uprev to is gathered from the QA qualified version tracking file
-    stored in chromium/src/chrome/LACROS_QA_QUALIFIED_VERSION. Uprev is
-    triggered on modification of this file across all chromium/src branches.
-
-    See: uprev_versioned_package.
-    """
-    result = uprev_lib.UprevVersionedPackageResult()
-    path = os.path.join(
-        constants.CHROMIUMOS_OVERLAY_DIR, "chromeos-base", "chromeos-lacros"
-    )
-    lacros_version = refs[0].revision
-    uprev_result = uprev_lib.uprev_workon_ebuild_to_version(
-        path, lacros_version, chroot, allow_downrev=False
-    )
-
-    if not uprev_result:
-        return result
-
-    result.add_result(lacros_version, uprev_result.changed_files)
-    return result
-
-
-@uprevs_versioned_package("chromeos-base/chromeos-lacros-parallel")
-def uprev_lacros_in_parallel(
-    _build_targets: Optional[List["build_target_lib.BuildTarget"]],
-    refs: List[uprev_lib.GitRef],
-    chroot: "chroot_lib.Chroot",
-) -> "uprev_lib.UprevVersionedPackageResult":
-    """Updates lacros ebuilds in parallel with ash-chrome.
-
-    This handler is going to be used temporarily while lacros transitions to
-    being uprevved atomically with ash-chrome. Unlike a standalone lacros uprev,
-    this handler will not need to look at the QA qualified file. Rather, it will
-    function identical to ash-chrome using git tags.
-
-    See: uprev_versioned_package.
-
-    Returns:
-        UprevVersionedPackageResult: The result.
-    """
-    result = uprev_lib.UprevVersionedPackageResult()
-    path = os.path.join(
-        constants.CHROMIUMOS_OVERLAY_DIR, "chromeos-base", "chromeos-lacros"
-    )
-    lacros_version = uprev_lib.get_version_from_refs(refs)
-    uprev_result = uprev_lib.uprev_workon_ebuild_to_version(
-        path, lacros_version, chroot, allow_downrev=False
-    )
-
-    if not uprev_result:
-        return result
-
-    result.add_result(lacros_version, uprev_result.changed_files)
-    return result
-
-
 @uprevs_versioned_package("app-emulation/parallels-desktop")
 def uprev_parallels_desktop(_build_targets, _refs, chroot):
     """Updates Parallels Desktop ebuild - app-emulation/parallels-desktop.
@@ -1581,7 +1521,6 @@ class TargetVersions(NamedTuple):
     platform_version: str
     milestone_version: str
     full_version: str
-    lacros_version: str
 
 
 def get_target_versions(
@@ -1602,9 +1541,9 @@ def get_target_versions(
     # TODO(crbug/1019770): Investigate cases where builds_chrome is true but
     # chrome_version is None.
 
-    # If no packages are set, assume virtual/target-os.  Chrome & LaCrOS aren't
-    # pulled in via any other target, and certainly wouldn't be enabled in those
-    # but not in the main OS target.
+    # If no packages are set, assume virtual/target-os.  Chrome isn't pulled in
+    # via any other target, and certainly wouldn't be enabled in those but not
+    # in the main OS target.
     if not packages:
         packages = [package_info.parse(constants.TARGET_OS_PKG)]
 
@@ -1616,15 +1555,6 @@ def get_target_versions(
             constants.CHROME_CP, build_target
         )
         logging.info("Found chrome version: %s", chrome_version)
-
-    builds_lacros = builds(constants.LACROS_CP, build_target, packages=packages)
-    lacros_version = None
-    if builds_lacros:
-        # LaCrOS version fetch.
-        lacros_version = determine_package_version(
-            constants.LACROS_CP, build_target
-        )
-        logging.info("Found LaCrOS version: %s", lacros_version)
 
     # The ChromeOS version info.
     platform_version = determine_platform_version()
@@ -1639,7 +1569,6 @@ def get_target_versions(
         platform_version,
         milestone_version,
         full_version,
-        lacros_version,
     )
 
 

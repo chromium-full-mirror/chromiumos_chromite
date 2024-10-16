@@ -15,7 +15,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import gs
 from chromite.lib import osutils
-from chromite.lib import parallel_unittest
 from chromite.lib import partial_mock
 from chromite.lib import remote_access
 from chromite.lib import remote_access_unittest
@@ -100,53 +99,6 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         """Test no target specified."""
         argv = ["--board", _TARGET_BOARD, "--gs-path", _GS_PATH]
         self.assertParseError(argv)
-
-    def testLacros(self) -> None:
-        """Test basic lacros invocation."""
-        argv = [
-            "--lacros",
-            "--build-dir",
-            "/path/to/nowhere",
-            "--device",
-            "monkey",
-            "--board",
-            "atlas",
-        ]
-        options = _ParseCommandLine(argv)
-        self.assertTrue(options.lacros)
-        self.assertEqual(options.target_dir, deploy_chrome.LACROS_DIR)
-
-    def testLacrosNoStrip(self) -> None:
-        """Test lacros invocation with nostrip."""
-        argv = [
-            "--lacros",
-            "--nostrip",
-            "--build-dir",
-            "/path/to/nowhere",
-            "--device",
-            "monkey",
-        ]
-        options = _ParseCommandLine(argv)
-        self.assertTrue(options.lacros)
-        self.assertFalse(options.dostrip)
-        self.assertEqual(options.target_dir, deploy_chrome.LACROS_DIR)
-
-    def testLacrosWithLacrosOnly(self) -> None:
-        """Test lacros invocation with skip restarting ui."""
-        argv = [
-            "--lacros",
-            "--build-dir",
-            "/path/to/nowhere",
-            "--device",
-            "monkey",
-            "--board",
-            "atlas",
-            "--skip-restart-ui",
-        ]
-        options = _ParseCommandLine(argv)
-        self.assertTrue(options.lacros)
-        self.assertEqual(options.target_dir, deploy_chrome.LACROS_DIR)
-        self.assertTrue(options.skip_restart_ui)
 
     def assertParseError(self, argv) -> None:
         with self.OutputCapturer():
@@ -601,19 +553,6 @@ class StagingTest(cros_test_lib.MockTempDirTestCase):
             chrome_util._COPY_PATHS_CHROME,
         )
 
-    def testSloppyDeploySuccessLacros(self) -> None:
-        """Ensure the squashfs mechanism with --compressed-ash doesn't throw."""
-        options = _ParseCommandLine(
-            self.common_flags + ["--sloppy", "--compressed-ash"]
-        )
-        osutils.Touch(os.path.join(self.build_dir, "chrome"), makedirs=True)
-        deploy_chrome._PrepareStagingDir(
-            options,
-            self.tempdir,
-            self.staging_dir,
-            chrome_util._COPY_PATHS_CHROME,
-        )
-
     @cros_test_lib.pytestmark_network_test
     def testUploadStagingDir(self) -> None:
         """Upload staging directory."""
@@ -869,74 +808,3 @@ class TestDeployTestBinaries(cros_test_lib.RunCommandTempDirTestCase):
                 side_effect=cros_build_lib.RunCommandError("fail"),
             ):
                 self.deploy._DeployTestBinaries()
-
-
-class LacrosPerformTest(cros_test_lib.RunCommandTempDirTestCase):
-    """Line coverage for Perform() method with --lacros option."""
-
-    def setUp(self) -> None:
-        self.deploy = None
-        self._ran_start_command = False
-        self.StartPatcher(parallel_unittest.ParallelMock())
-
-        def start_ui_side_effect(*args, **kwargs) -> None:
-            # pylint: disable=unused-argument
-            self._ran_start_command = True
-
-        self.rc.AddCmdResult(
-            partial_mock.ListRegex("start ui"), side_effect=start_ui_side_effect
-        )
-
-    def prepareDeploy(self, options=None) -> None:
-        if not options:
-            options = _ParseCommandLine(
-                [
-                    "--lacros",
-                    "--nostrip",
-                    "--build-dir",
-                    "/path/to/nowhere",
-                    "--device",
-                    "monkey",
-                ]
-            )
-        self.deploy = deploy_chrome.DeployChrome(
-            options, self.tempdir, os.path.join(self.tempdir, "staging")
-        )
-
-        # These methods being mocked are all side effects expected for a
-        # --lacros deploy.
-        self.deploy._EnsureTargetDir = mock.Mock()
-        self.deploy._GetDeviceInfo = mock.Mock()
-        self.deploy._CheckConnection = mock.Mock()
-        self.deploy._MountRootfsAsWritable = mock.Mock()
-        self.deploy._PrepareStagingDir = mock.Mock()
-        self.deploy._CheckDeviceFreeSpace = mock.Mock()
-        self.deploy._KillAshChromeIfNeeded = mock.Mock()
-
-    def testLacros(self) -> None:
-        """When no flag is set, Ash should be restarted."""
-        self.prepareDeploy()
-
-        self.deploy.Perform()
-        self.deploy._KillAshChromeIfNeeded.assert_called()
-        self.assertTrue(self._ran_start_command)
-
-    def testSkipRestartUi(self) -> None:
-        """When skip_restart_ui is enabled, Ash should not be restarted."""
-        self.prepareDeploy(
-            _ParseCommandLine(
-                [
-                    "--lacros",
-                    "--nostrip",
-                    "--build-dir",
-                    "/path/to/nowhere",
-                    "--device",
-                    "monkey",
-                    "--skip-restart-ui",
-                ]
-            )
-        )
-
-        self.deploy.Perform()
-        self.deploy._KillAshChromeIfNeeded.assert_not_called()
-        self.assertFalse(self._ran_start_command)

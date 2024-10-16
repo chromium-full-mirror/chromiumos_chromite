@@ -406,11 +406,10 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         # Mock that chrome is built and set the chrome_version.
         self.PatchObject(packages_service, "builds", return_value=True)
         chrome_version = "76.0.1.2"
-        lacros_version = "100.0.0.1"
         package_version_mock = self.PatchObject(
             packages_service,
             "determine_package_version",
-            side_effect=[chrome_version, lacros_version],
+            side_effect=[chrome_version],
         )
         android_package = "chromeos-base/android-container-pi-10.3"
         self.PatchObject(
@@ -453,13 +452,11 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         self.assertEqual(self.response.platform_version, platform_version)
         self.assertEqual(self.response.milestone_version, milestone_version)
         self.assertEqual(self.response.full_version, full_version)
-        self.assertEqual(self.response.lacros_version, lacros_version)
         # Verify call to determine_chrome_version passes a build_target object.
         build_target = build_target_lib.BuildTarget("betty")
         package_version_mock.assert_has_calls(
             calls=[
                 mock.call(constants.CHROME_CP, build_target),
-                mock.call(constants.LACROS_CP, build_target),
             ]
         )
         # Verify call to determine_android_branch passes a board name.
@@ -475,11 +472,10 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         )
         # Mock that chrome is built and set the chrome_version.
         chrome_version = "76.0.1.2"
-        lacros_version = "100.0.0.1"
         self.PatchObject(
             packages_service,
             "determine_package_version",
-            side_effect=[chrome_version, lacros_version],
+            side_effect=[chrome_version],
         )
         android_package = "chromeos-base/android-container-pi-10.3"
         self.PatchObject(
@@ -533,12 +529,10 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         self.assertEqual(self.response.chrome_version, chrome_version)
         self.assertEqual(self.response.platform_version, platform_version)
         self.assertEqual(self.response.milestone_version, milestone_version)
-        self.assertEqual(self.response.lacros_version, lacros_version)
         # Verify call to packages.builds passes the package list.
         builds_mock.assert_has_calls(
             calls=[
                 mock.call(constants.CHROME_CP, mock.ANY, packages=package_list),
-                mock.call(constants.LACROS_CP, mock.ANY, packages=package_list),
             ]
         )
 

@@ -13,7 +13,3 @@ per-file nebraska*=file:/OWNERS.au
 per-file toolchain_util*=file:/OWNERS.crostc
 per-file verity*=file:/OWNERS.au
 per-file vm*=file:/OWNERS.chrome
-
-# Only Lacros related changes
-per-file chrome_util.py=svenzheng@chromium.org
-per-file chrome_util.py=erikchen@chromium.org

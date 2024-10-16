@@ -22,12 +22,6 @@ from chromite.lib import vm
 from chromite.lib.xbuddy import xbuddy
 
 
-# The Lacros sub directory when builds using alternate toolchain.
-# Defined in
-# https://source.chromium.org/chromium/chromium/src/+/main:build/toolchain/cros/BUILD.gn?q=lacros_clang&ss=chromium
-_ADDITIONAL_LACROS_SUBDIR = "lacros_clang"
-
-
 class CrOSTest:
     """Class for running Chrome OS tests."""
 
@@ -48,12 +42,6 @@ class CrOSTest:
         self.public_image = opts.public_image
         self.xbuddy = opts.xbuddy
         self.deploy = opts.deploy
-        self.deploy_lacros = opts.deploy_lacros
-        self.lacros_launcher_script = opts.lacros_launcher_script
-        if opts.deploy_lacros and opts.deploy:
-            self.additional_lacros_build_dir = os.path.join(
-                opts.build_dir, _ADDITIONAL_LACROS_SUBDIR
-            )
         self.nostrip = opts.nostrip
         self.build_dir = opts.build_dir
         self.mount = opts.mount
@@ -204,10 +192,7 @@ class CrOSTest:
                         self._device.board, self.public_image, version
                     )
 
-        # Only considers skipping flashing if it's NOT for lacros-chrome tests
-        # because at this time, automated/CI tests can't assume that ash-chrome
-        # is left in a clean state and lacros-chrome depends on ash-chrome.
-        if not self.deploy_lacros and xbuddy.LATEST not in flash_path:
+        if xbuddy.LATEST not in flash_path:
             # Skip the flash if the device is already running the requested
             # version.
             device_version = self._device.remote.version
@@ -244,27 +229,19 @@ class CrOSTest:
 
     def _Deploy(self) -> None:
         """Deploy binary files to device."""
-        if not self.build and not self.deploy and not self.deploy_lacros:
+        if not self.build and not self.deploy:
             return
 
         if self.chrome_test:
             self._DeployChromeTest()
         else:
-            if self.deploy and self.deploy_lacros:
-                self._DeployChrome(self.build_dir, False)
-                self._DeployChrome(self.additional_lacros_build_dir, True)
-            else:
-                self._DeployChrome(self.build_dir, self.deploy_lacros)
+            self._DeployChrome(self.build_dir)
 
-        if self.deploy_lacros:
-            self._DeployLacrosLauncherScript()
-
-    def _DeployChrome(self, build_dir, is_lacros) -> None:
-        """Deploy lacros-chrome or ash-chrome.
+    def _DeployChrome(self, build_dir) -> None:
+        """Deploy ash-chrome.
 
         Args:
             build_dir: str the build dir contains chrome binary.
-            is_lacros: bool whether it's lacros or ash.
         """
         deploy_cmd = [
             "deploy_chrome",
@@ -285,26 +262,15 @@ class CrOSTest:
         if self.cache_dir:
             deploy_cmd += ["--cache-dir", self.cache_dir]
 
-        if is_lacros:
-            # By default, deploying lacros-chrome modifies the
-            # /etc/chrome_dev.conf file, which is desired behavior for local
-            # development, however, a modified config file interferes with
-            # automated testing.
-            deploy_cmd += [
-                "--lacros",
-                "--nostrip",
-                "--skip-modifying-config-file",
-            ]
-        else:
-            deploy_cmd.append("--deploy-test-binaries")
-            if self._device.board:
-                deploy_cmd += ["--board", self._device.board]
-            if self.nostrip:
-                deploy_cmd += ["--nostrip"]
-            if self.mount:
-                deploy_cmd += ["--mount"]
-            if self.public_image:
-                deploy_cmd += ["--use-external-config"]
+        deploy_cmd.append("--deploy-test-binaries")
+        if self._device.board:
+            deploy_cmd += ["--board", self._device.board]
+        if self.nostrip:
+            deploy_cmd += ["--nostrip"]
+        if self.mount:
+            deploy_cmd += ["--mount"]
+        if self.public_image:
+            deploy_cmd += ["--use-external-config"]
 
         cros_build_lib.run(deploy_cmd, dryrun=self.dryrun)
         self._device.WaitForBoot()
@@ -318,14 +284,6 @@ class CrOSTest:
             chrome_util.GetChromeTestCopyPaths(
                 self.build_dir, self.chrome_test_target
             ),
-        )
-
-    def _DeployLacrosLauncherScript(self) -> None:
-        """Deploy a script that is needed to launch Lacros in Tast tests."""
-        self._DeployCopyPaths(
-            os.path.dirname(self.lacros_launcher_script),
-            "/usr/local/bin",
-            [chrome_util.Path(os.path.basename(self.lacros_launcher_script))],
         )
 
     def _DeployCopyPaths(
@@ -820,19 +778,6 @@ def ParseCommandLine(argv):
         'chrome-sdk if available, or "latest" otherwise.',
     )
     parser.add_argument(
-        "--deploy-lacros",
-        action="store_true",
-        default=False,
-        help="Before running tests, deploy lacros-chrome, "
-        "--build-dir must be specified.",
-    )
-    parser.add_argument(
-        "--lacros-launcher-script",
-        type=str,
-        help="Absolute path to a python script needed to launch "
-        "Lacros in tast tests.",
-    )
-    parser.add_argument(
         "--deploy",
         action="store_true",
         default=False,
@@ -944,7 +889,7 @@ def ParseCommandLine(argv):
         if not opts.build_dir:
             opts.build_dir = os.path.dirname(opts.args[1])
 
-    if opts.build or opts.deploy or opts.deploy_lacros:
+    if opts.build or opts.deploy:
         if not opts.build_dir:
             parser.error("Must specify --build-dir with --build or --deploy.")
         if not os.path.isdir(opts.build_dir):
@@ -955,21 +900,6 @@ def ParseCommandLine(argv):
 
     if opts.tast_retries and not opts.tast:
         parser.error("--tast-retries is only applicable to Tast tests.")
-
-    if opts.deploy_lacros and opts.deploy:
-        additional_lacros_build_dir = os.path.join(
-            opts.build_dir, _ADDITIONAL_LACROS_SUBDIR
-        )
-        if not os.path.exists(additional_lacros_build_dir):
-            parser.error(
-                "Script will deploy both Ash and Lacros but can not find "
-                f"Lacros at {additional_lacros_build_dir}"
-            )
-
-    if bool(opts.deploy_lacros) != bool(opts.lacros_launcher_script):
-        parser.error(
-            "--lacros-launcher-script is required when running Lacros tests."
-        )
 
     if opts.results_src:
         for src in opts.results_src:

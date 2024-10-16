@@ -169,7 +169,6 @@ def _GetTargetVersionsResponse(_request, response, _config) -> None:
     response.platform_version = "12438.0.0"
     response.milestone_version = "78"
     response.full_version = "R78-12438.0.0"
-    response.lacros_version = "111.0.5550.0"
 
 
 @faux.success(_GetTargetVersionsResponse)
@@ -192,7 +191,6 @@ def GetTargetVersions(request, response, _config) -> None:
     response.platform_version = target_versions.platform_version or ""
     response.milestone_version = target_versions.milestone_version or ""
     response.full_version = target_versions.full_version or ""
-    response.lacros_version = target_versions.lacros_version or ""
 
 
 def _GetBuilderMetadataResponse(request, response, _config) -> None:

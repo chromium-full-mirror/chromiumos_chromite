@@ -52,7 +52,6 @@ if TYPE_CHECKING:
 
 tracer = trace.get_tracer(__name__)
 
-# TODO(xcl): Revisit/remove this after the Lacros launch if no longer needed
 _CHROME_PACKAGES = ("chromeos-base/chromeos-chrome", "chromeos-base/chrome-icu")
 
 # A list of critical system packages that should never be incidentally
