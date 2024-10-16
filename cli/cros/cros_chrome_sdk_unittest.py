@@ -169,8 +169,6 @@ class SDKFetcherMock(partial_mock.PartialMock):
 """
 
     BOARD = "eve"
-    # These are boards that Lacros is currently supporting.
-    # Specifically, *-crostoolchain.gni files need to be generated for them.
     BOARDS = ["amd64-generic", "arm-generic", "arm64-generic"]
     VERSION = "4567.8.9"
     FULL_VERSION = "R26-4567.8.9"
@@ -400,34 +398,6 @@ class RunThroughTest(
                     content,
                 )
 
-    def testManyBoardsLacros(self) -> None:
-        """Test a runthrough when multiple boards are specified via --boards."""
-        self.SetupCommandMock(
-            many_boards=True, extra_args=["--is-lacros", "--version=1234.0.0"]
-        )
-        lkgm_file = os.path.join(
-            self.chrome_src_dir, constants.PATH_TO_CHROME_LKGM
-        )
-        osutils.Touch(lkgm_file, makedirs=True)
-        osutils.WriteFile(lkgm_file, "5678.0.0")
-
-        self.cmd_mock.inst.ProcessOptions(
-            self.cmd_mock.parser, self.cmd_mock.inst.options
-        )
-        self.cmd_mock.inst.Run()
-        for board in SDKFetcherMock.BOARDS:
-            board_arg_file = os.path.join(
-                self.chrome_src_dir, "build/args/chromeos/%s.gni" % board
-            )
-            self.assertNotExists(board_arg_file)
-            board_crostoolchain_arg_file = os.path.join(
-                self.chrome_src_dir,
-                "build/args/chromeos/%s-crostoolchain.gni" % board,
-            )
-            self.assertExists(board_crostoolchain_arg_file)
-            with open(board_crostoolchain_arg_file, encoding="utf-8") as f:
-                self.assertIn('cros_sdk_version = "5678.0.0"', f.read())
-
     def testManyBoardsBrokenArgs(self) -> None:
         """Tests that malformed args.gn files will be fixed in --boards."""
         self.SetupCommandMock(many_boards=True)
@@ -511,30 +481,6 @@ class RunThroughTest(
         self.cmd_mock.inst.Run()
 
         self.assertIn("use_remoteexec = true", self.cmd_mock.env["GN_ARGS"])
-
-    def testUseRBELacros(self) -> None:
-        self.SetupCommandMock(extra_args=["--is-lacros", "--version=1234.0.0"])
-        lkgm_file = os.path.join(
-            self.chrome_src_dir, constants.PATH_TO_CHROME_LKGM
-        )
-        osutils.Touch(lkgm_file, makedirs=True)
-        osutils.WriteFile(lkgm_file, "5678.0.0")
-
-        self.cmd_mock.inst.Run()
-
-        self.assertIn("use_remoteexec = true", self.cmd_mock.env["GN_ARGS"])
-        wrapper_path = os.path.join(
-            self.chrome_root,
-            "src",
-            "build",
-            "args",
-            "chromeos",
-            "rewrapper_%s" % SDKFetcherMock.BOARD,
-        )
-        self.assertIn(
-            'reclient_cros_cc_wrapper = "%s"' % wrapper_path,
-            self.cmd_mock.env["GN_ARGS"],
-        )
 
     def testGnArgsStalenessCheckNoMatch(self) -> None:
         """Verifies the GN args are checked for staleness with a mismatch."""

@@ -13,7 +13,6 @@ import json
 import logging
 import os
 from pathlib import Path
-import re
 import stat
 import textwrap
 from typing import Optional
@@ -140,7 +139,6 @@ class SDKFetcher:
         silent=False,
         use_external_config=None,
         fallback_versions=VERSIONS_TO_CONSIDER,
-        is_lacros=False,
     ) -> None:
         """Initialize the class.
 
@@ -159,7 +157,6 @@ class SDKFetcher:
                 force usage of the external configuration if both external and
                 internal are available.
             fallback_versions: The number of versions to consider.
-            is_lacros: whether it's Lacros-Chrome build or not.
         """
         self.cache_base = os.path.join(cache_dir, COMMAND_NAME)
         if clear_cache:
@@ -184,7 +181,6 @@ class SDKFetcher:
         self.toolchain_path = toolchain_path
         self.fallback_versions = fallback_versions
         self.silent = silent
-        self.is_lacros = is_lacros
 
         self.gs_ctx = gs.GSContext(cache_dir=cache_dir, init_boto=False)
 
@@ -1045,15 +1041,6 @@ class ChromeSDKCommand(command.CliCommand):
             default=False,
             help="Enable CFI in build.",
         )
-        parser.add_argument(
-            "--is-lacros",
-            action="store_true",
-            default=False,
-            help="Whether it is Lacros-Chrome build or not. This is "
-            "temporarily added to work around a Lacros CrOS toolchain bug "
-            "due to version skew, and should be removed once Lacros is "
-            "swiched to use Chromium toolchain: crbug.com/1275386.",
-        )
         parser.caching_group.add_argument(
             "--clear-sdk-cache",
             action="store_true",
@@ -1089,12 +1076,6 @@ class ChromeSDKCommand(command.CliCommand):
         if options.boards and options.use_shell:
             parser.error(
                 "Must specify --no-shell when preparing multiple boards."
-            )
-
-        if options.is_lacros and not options.version:
-            parser.error(
-                "Must specify --version for --is-lacros because Lacros-Chrome "
-                "build does not use the CHROMEOS_LKGM version for compilation"
             )
 
         src_path = options.chrome_src or os.getcwd()
@@ -1150,46 +1131,8 @@ class ChromeSDKCommand(command.CliCommand):
     def _SaveSharedGnArgs(self, gn_args, board) -> None:
         """Saves the new gn args data to the shared location."""
         shared_dir = os.path.join(self.options.chrome_src, self._BUILD_ARGS_DIR)
-        if not self.options.is_lacros:
-            file_path = os.path.join(shared_dir, board + ".gni")
-            osutils.WriteFile(file_path, gn_helpers.ToGNString(gn_args))
-            return
-
-        # If the board is a generic family, generate -crostoolchain.gni files,
-        # too, which is used by Lacros build.
-        if board.endswith("-generic"):
-            # pylint: disable=line-too-long
-            toolchain_key_pattern = re.compile(
-                r"^(%s)$"
-                % "|".join(
-                    [
-                        "cros_board",
-                        "cros_sdk_version",
-                        "is_clang",
-                        "target_cpu",
-                        "cros_host_(cc|cxx|ld|extra_(c|cpp|cxx|ld)flags)",
-                        "cros_target_(ar|cc|cxx|ld|nm|readelf|extra_(c|cpp|cxx|ld)flags)",
-                        "cros_v8_snapshot_(cc|cxx|ld|extra_(c|cpp|cxx|ld)flags)",
-                        "cros_nacl_helper_arm32_(ar|cc|cxx|ld|readelf|sysroot)",
-                        "(custom|host|v8_snapshot)_toolchain",
-                        "rbe_cros_cc_wrapper",
-                        "reclient_cros_cc_wrapper",
-                        "system_libdir",
-                        "target_sysroot",
-                        "arm_(float_abi|use_neon)",
-                    ]
-                )
-            )
-            # pylint: enable=line-too-long
-            toolchain_gn_args = {
-                k: v
-                for k, v in gn_args.items()
-                if toolchain_key_pattern.match(k)
-            }
-            file_path = os.path.join(shared_dir, board + "-crostoolchain.gni")
-            osutils.WriteFile(
-                file_path, gn_helpers.ToGNString(toolchain_gn_args)
-            )
+        file_path = os.path.join(shared_dir, board + ".gni")
+        osutils.WriteFile(file_path, gn_helpers.ToGNString(gn_args))
 
     def _UpdateGnArgsIfStale(
         self, out_dir, build_label, gn_args, board
@@ -1428,21 +1371,10 @@ class ChromeSDKCommand(command.CliCommand):
         # test wrappers generated at compile time.
         gn_args["cros_board"] = board
 
-        if options.is_lacros:
-            # The 'cros_sdk_version' is used by the chromium BUILD files to
-            # decide the runtime dependencies to isolate for swarming based
-            # testing, and given that Lacros uses CHROMEOS_LKGM for testing
-            # regardless of the version used for compilation, so always set the
-            # value as CHROME_LKGM.
-            (platform_version, snapshot_identifier) = chrome_lkgm.GetChromeLkgm(
-                options.chrome_src
-            )
-
-            gn_args["cros_sdk_version"] = chrome_lkgm.GetVersionStr(
-                platform_version, snapshot_identifier
-            )
-        else:
-            gn_args["cros_sdk_version"] = sdk_ctx.version
+        # The 'cros_sdk_version' is used by the chromium BUILD files to
+        # decide the runtime dependencies to isolate for swarming based
+        # testing.
+        gn_args["cros_sdk_version"] = sdk_ctx.version
 
         # Export the board/version info in a more accessible way, so developers
         # can reference them in their chrome_sdk.bashrc files, as well as within
@@ -1760,7 +1692,6 @@ class ChromeSDKCommand(command.CliCommand):
             silent=self.silent,
             use_external_config=self.options.use_external_config,
             fallback_versions=self.options.fallback_versions,
-            is_lacros=self.options.is_lacros,
         )
 
         prepare_version = self.options.version

@@ -111,7 +111,6 @@ chromeos-base/chromeos-imageburner
 chromeos-base/chromeos-init
 chromeos-base/chromeos-initramfs
 chromeos-base/chromeos-installer
-chromeos-base/chromeos-lacros
 chromeos-base/chromeos-login
 chromeos-base/chromeos-nvt-tcon-updater
 chromeos-base/chromeos-storage-info

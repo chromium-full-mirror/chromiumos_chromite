@@ -259,13 +259,6 @@
   "journald.conf": [
     "rm /run/systemd-journald.pid || true"
   ],
-  "lacros-mounter.conf": [
-    "chown chronos:chronos \"${LACROS_MOUNT_POINT}\"",
-    "mkdir -p \"${LACROS_MOUNT_POINT}\""
-  ],
-  "lacros-unmounter.conf": [
-    "rm -rf \"${LACROS_MOUNT_POINT}\""
-  ],
   "login.conf": [
     "touch /run/state/logged-in"
   ],
