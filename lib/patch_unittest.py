@@ -1555,7 +1555,8 @@ class TestFormatting(cros_test_lib.TestCase):
         """Tests that we can parse the dependency specified by the user."""
         change_id = self.VALID_CHANGE_ID
         vals = [
-            "CL:12345",
+            "chromium:12345",
+            "chrome-internal:12345",
             "project~branch~%s" % change_id,
             change_id,
             change_id[1:],
@@ -1565,7 +1566,7 @@ class TestFormatting(cros_test_lib.TestCase):
 
         self._assertBad(
             cros_patch.ParsePatchDep,
-            ["145462399", "I47ea3", "i47ea3".ljust(41, "0")],
+            ["CL:12345", "145462399", "I47ea3", "i47ea3".ljust(41, "0")],
         )
 
 

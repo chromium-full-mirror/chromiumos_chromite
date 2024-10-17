@@ -474,10 +474,6 @@ def StripPrefix(text):
         remote = site_params.INTERNAL_REMOTE
     elif text.startswith(site_params.EXTERNAL_CHANGE_PREFIX):
         text = text[len(site_params.EXTERNAL_CHANGE_PREFIX) :]
-    # allow legacy syntax
-    elif text.startswith("*"):
-        text = text[1:]
-        remote = site_params.INTERNAL_REMOTE
 
     return remote, text
 
@@ -528,13 +524,6 @@ def ParsePatchDep(
         raise ValueError(
             "ParsePatchDep invoked with an empty value: %r" % (text,)
         )
-    # Deal w/ CL: targets.
-    if text.upper().startswith("CL:"):
-        if not text.startswith("CL:"):
-            raise ValueError(
-                "ParsePatchDep: 'CL:' must be upper case: %r" % (original_text,)
-            )
-        text = text[3:]
 
     # Strip the prefix to determine the remote.
     remote, text = StripPrefix(text)
