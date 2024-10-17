@@ -23,6 +23,7 @@ KERNEL_FLAGS = (
     "kernel_compress_xz",
     "pcserial",
     "-kernel_afdo",
+    "-kernel_afdo_verify",
 )
 
 
