@@ -66,6 +66,7 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
                 "kernel_compress_xz",
                 "pcserial",
                 "-kernel_afdo",
+                "-kernel_afdo_verify",
             ],
             [],
         )
@@ -110,6 +111,7 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
                 "kernel_compress_xz",
                 "pcserial",
                 "-kernel_afdo",
+                "-kernel_afdo_verify",
             ],
             ["foo", "bar"],
         )
@@ -154,6 +156,7 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
                 "kernel_compress_xz",
                 "pcserial",
                 "-kernel_afdo",
+                "-kernel_afdo_verify",
             ],
             [],
         )
