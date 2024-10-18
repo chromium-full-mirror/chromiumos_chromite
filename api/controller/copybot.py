@@ -132,6 +132,14 @@ def RunCopybot(request, response, _config):
     for skip_author in request.skip_authors:
         cmd.extend(["--skip-author-email", skip_author.user])
 
+    for insert_into_msg in request.insert_msg:
+        cmd.extend(
+            [
+                "--insert-into-msg",
+                f"{insert_into_msg.line_number}:{insert_into_msg.insert_txt}",
+            ]
+        )
+
     cmd.append(
         f"{request.upstream.url}:"
         f"{request.upstream.branch}:"
