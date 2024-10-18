@@ -16,7 +16,7 @@ from chromite.api.gen_sdk.chromiumos.longrunning import operations_pb2 as chromi
 from chromite.api.gen_sdk.chromiumos import storage_path_pb2 as chromiumos_dot_storage__path__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+chromiumos/test/api/provision_service.proto\x12\x13\x63hromiumos.test.api\x1a*chromiumos/build/api/firmware_config.proto\x1a\'chromiumos/longrunning/operations.proto\x1a\x1d\x63hromiumos/storage_path.proto\"\x10\n\x0eInstallSuccess\"\xb0\x07\n\x0eInstallFailure\x12:\n\x06reason\x18\x01 \x01(\x0e\x32*.chromiumos.test.api.InstallFailure.Reason\"\xe1\x06\n\x06Reason\x12\x1a\n\x16REASON_INVALID_REQUEST\x10\x00\x12(\n$REASON_DUT_UNREACHABLE_PRE_PROVISION\x10\x01\x12#\n\x1fREASON_DOWNLOADING_IMAGE_FAILED\x10\x02\x12 \n\x1cREASON_PROVISIONING_TIMEDOUT\x10\x03\x12\x1e\n\x1aREASON_PROVISIONING_FAILED\x10\x04\x12)\n%REASON_DUT_UNREACHABLE_POST_PROVISION\x10\x05\x12!\n\x1dREASON_UPDATE_FIRMWARE_FAILED\x10\x06\x12\x31\n-REASON_FIRMWARE_MISMATCH_POST_FIRMWARE_UPDATE\x10\x07\x12/\n+REASON_DUT_UNREACHABLE_POST_FIRMWARE_UPDATE\x10\x08\x12\x1f\n\x1bREASON_UPDATE_MINIOS_FAILED\x10\t\x12&\n\"REASON_POST_PROVISION_SETUP_FAILED\x10\n\x12\x1b\n\x17REASON_CLEAR_TPM_FAILED\x10\x0b\x12\x1e\n\x1aREASON_STABLIZE_DUT_FAILED\x10\x0c\x12\x1d\n\x19REASON_INSTALL_DLC_FAILED\x10\r\x12%\n!REASON_PRE_PROVISION_SETUP_FAILED\x10\x0e\x12%\n!REASON_CIPD_PACKAGE_LOOKUP_FAILED\x10\x0f\x12$\n REASON_CIPD_PACKAGE_FETCH_FAILED\x10\x10\x12\x1b\n\x17REASON_GS_UPLOAD_FAILED\x10\x11\x12\x1d\n\x19REASON_GS_DOWNLOAD_FAILED\x10\x12\x12!\n\x1dREASON_DOCKER_UNABLE_TO_START\x10\x13\x12\"\n\x1eREASON_SERVICE_UNABLE_TO_START\x10\x14\x12+\n\'REASON_SERVICE_CONTAINER_UNABLE_TO_PULL\x10\x15\x12/\n+REASON_IMAGE_MISMATCH_POST_PROVISION_UPDATE\x10\x16\"\xa1\x02\n\x12InstallCrosRequest\x12\x30\n\x0f\x63ros_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\x12\x42\n\tdlc_specs\x18\x02 \x03(\x0b\x32/.chromiumos.test.api.InstallCrosRequest.DLCSpec\x12\x19\n\x11preserve_stateful\x18\x03 \x01(\x08\x12\x16\n\x0eprevent_reboot\x18\x04 \x01(\x08\x12\x32\n\x11overwrite_payload\x18\x05 \x01(\x0b\x32\x17.chromiumos.StoragePath\x12\x17\n\x0fupdate_firmware\x18\x06 \x01(\x08\x1a\x15\n\x07\x44LCSpec\x12\n\n\x02id\x18\x01 \x01(\t\"\x90\x01\n\x13InstallCrosResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x15\n\x13InstallCrosMetadata\"\x83\x01\n\x14InstallLacrosRequest\x12\x32\n\x11lacros_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\x12\x18\n\x10override_version\x18\x02 \x01(\t\x12\x1d\n\x15override_install_path\x18\x03 \x01(\t\"\x92\x01\n\x15InstallLacrosResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x17\n\x15InstallLacrosMetadata\"D\n\x11InstallAshRequest\x12/\n\x0e\x61sh_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\"\x8f\x01\n\x12InstallAshResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x14\n\x12InstallAshMetadata\"D\n\x11InstallArcRequest\x12/\n\x0e\x61sh_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\"\x8f\x01\n\x12InstallArcResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x14\n\x12InstallArcMetadata\"y\n\x16InstallFirmwareRequest\x12=\n\x0f\x66irmware_config\x18\x01 \x01(\x0b\x32$.chromiumos.build.api.FirmwareConfig\x12\r\n\x05\x66orce\x18\x08 \x01(\x08\x12\x11\n\tuse_servo\x18\t \x01(\x08\"\x94\x01\n\x17InstallFirmwareResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x19\n\x17InstallFirmwareMetadata2\xd9\x05\n\x10ProvisionService\x12\x88\x01\n\x0bInstallCros\x12\'.chromiumos.test.api.InstallCrosRequest\x1a!.chromiumos.longrunning.Operation\"-\xd2\x41*\n\x13InstallCrosResponse\x12\x13InstallCrosMetadata\x12\x90\x01\n\rInstallLacros\x12).chromiumos.test.api.InstallLacrosRequest\x1a!.chromiumos.longrunning.Operation\"1\xd2\x41.\n\x15InstallLacrosResponse\x12\x15InstallLacrosMetadata\x12\x84\x01\n\nInstallAsh\x12&.chromiumos.test.api.InstallAshRequest\x1a!.chromiumos.longrunning.Operation\"+\xd2\x41(\n\x12InstallAshResponse\x12\x12InstallAshMetadata\x12\x84\x01\n\nInstallArc\x12&.chromiumos.test.api.InstallArcRequest\x1a!.chromiumos.longrunning.Operation\"+\xd2\x41(\n\x12InstallArcResponse\x12\x12InstallArcMetadata\x12\x98\x01\n\x0fInstallFirmware\x12+.chromiumos.test.api.InstallFirmwareRequest\x1a!.chromiumos.longrunning.Operation\"5\xd2\x41\x32\n\x17InstallFirmwareResponse\x12\x17InstallFirmwareMetadataB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+chromiumos/test/api/provision_service.proto\x12\x13\x63hromiumos.test.api\x1a*chromiumos/build/api/firmware_config.proto\x1a\'chromiumos/longrunning/operations.proto\x1a\x1d\x63hromiumos/storage_path.proto\"\x10\n\x0eInstallSuccess\"\xb0\x07\n\x0eInstallFailure\x12:\n\x06reason\x18\x01 \x01(\x0e\x32*.chromiumos.test.api.InstallFailure.Reason\"\xe1\x06\n\x06Reason\x12\x1a\n\x16REASON_INVALID_REQUEST\x10\x00\x12(\n$REASON_DUT_UNREACHABLE_PRE_PROVISION\x10\x01\x12#\n\x1fREASON_DOWNLOADING_IMAGE_FAILED\x10\x02\x12 \n\x1cREASON_PROVISIONING_TIMEDOUT\x10\x03\x12\x1e\n\x1aREASON_PROVISIONING_FAILED\x10\x04\x12)\n%REASON_DUT_UNREACHABLE_POST_PROVISION\x10\x05\x12!\n\x1dREASON_UPDATE_FIRMWARE_FAILED\x10\x06\x12\x31\n-REASON_FIRMWARE_MISMATCH_POST_FIRMWARE_UPDATE\x10\x07\x12/\n+REASON_DUT_UNREACHABLE_POST_FIRMWARE_UPDATE\x10\x08\x12\x1f\n\x1bREASON_UPDATE_MINIOS_FAILED\x10\t\x12&\n\"REASON_POST_PROVISION_SETUP_FAILED\x10\n\x12\x1b\n\x17REASON_CLEAR_TPM_FAILED\x10\x0b\x12\x1e\n\x1aREASON_STABLIZE_DUT_FAILED\x10\x0c\x12\x1d\n\x19REASON_INSTALL_DLC_FAILED\x10\r\x12%\n!REASON_PRE_PROVISION_SETUP_FAILED\x10\x0e\x12%\n!REASON_CIPD_PACKAGE_LOOKUP_FAILED\x10\x0f\x12$\n REASON_CIPD_PACKAGE_FETCH_FAILED\x10\x10\x12\x1b\n\x17REASON_GS_UPLOAD_FAILED\x10\x11\x12\x1d\n\x19REASON_GS_DOWNLOAD_FAILED\x10\x12\x12!\n\x1dREASON_DOCKER_UNABLE_TO_START\x10\x13\x12\"\n\x1eREASON_SERVICE_UNABLE_TO_START\x10\x14\x12+\n\'REASON_SERVICE_CONTAINER_UNABLE_TO_PULL\x10\x15\x12/\n+REASON_IMAGE_MISMATCH_POST_PROVISION_UPDATE\x10\x16\"\xa1\x02\n\x12InstallCrosRequest\x12\x30\n\x0f\x63ros_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\x12\x42\n\tdlc_specs\x18\x02 \x03(\x0b\x32/.chromiumos.test.api.InstallCrosRequest.DLCSpec\x12\x19\n\x11preserve_stateful\x18\x03 \x01(\x08\x12\x16\n\x0eprevent_reboot\x18\x04 \x01(\x08\x12\x32\n\x11overwrite_payload\x18\x05 \x01(\x0b\x32\x17.chromiumos.StoragePath\x12\x17\n\x0fupdate_firmware\x18\x06 \x01(\x08\x1a\x15\n\x07\x44LCSpec\x12\n\n\x02id\x18\x01 \x01(\t\"\x90\x01\n\x13InstallCrosResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x15\n\x13InstallCrosMetadata\"D\n\x11InstallAshRequest\x12/\n\x0e\x61sh_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\"\x8f\x01\n\x12InstallAshResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x14\n\x12InstallAshMetadata\"D\n\x11InstallArcRequest\x12/\n\x0e\x61sh_image_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\"\x8f\x01\n\x12InstallArcResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x14\n\x12InstallArcMetadata\"y\n\x16InstallFirmwareRequest\x12=\n\x0f\x66irmware_config\x18\x01 \x01(\x0b\x32$.chromiumos.build.api.FirmwareConfig\x12\r\n\x05\x66orce\x18\x08 \x01(\x08\x12\x11\n\tuse_servo\x18\t \x01(\x08\"\x94\x01\n\x17InstallFirmwareResponse\x12\x36\n\x07success\x18\x01 \x01(\x0b\x32#.chromiumos.test.api.InstallSuccessH\x00\x12\x36\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32#.chromiumos.test.api.InstallFailureH\x00\x42\t\n\x07outcome\"\x19\n\x17InstallFirmwareMetadata2\xc6\x04\n\x10ProvisionService\x12\x88\x01\n\x0bInstallCros\x12\'.chromiumos.test.api.InstallCrosRequest\x1a!.chromiumos.longrunning.Operation\"-\xd2\x41*\n\x13InstallCrosResponse\x12\x13InstallCrosMetadata\x12\x84\x01\n\nInstallAsh\x12&.chromiumos.test.api.InstallAshRequest\x1a!.chromiumos.longrunning.Operation\"+\xd2\x41(\n\x12InstallAshResponse\x12\x12InstallAshMetadata\x12\x84\x01\n\nInstallArc\x12&.chromiumos.test.api.InstallArcRequest\x1a!.chromiumos.longrunning.Operation\"+\xd2\x41(\n\x12InstallArcResponse\x12\x12InstallArcMetadata\x12\x98\x01\n\x0fInstallFirmware\x12+.chromiumos.test.api.InstallFirmwareRequest\x1a!.chromiumos.longrunning.Operation\"5\xd2\x41\x32\n\x17InstallFirmwareResponse\x12\x17InstallFirmwareMetadataB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -27,8 +27,6 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._serialized_options = b'Z-go.chromium.org/chromiumos/config/go/test/api'
   _PROVISIONSERVICE.methods_by_name['InstallCros']._options = None
   _PROVISIONSERVICE.methods_by_name['InstallCros']._serialized_options = b'\322A*\n\023InstallCrosResponse\022\023InstallCrosMetadata'
-  _PROVISIONSERVICE.methods_by_name['InstallLacros']._options = None
-  _PROVISIONSERVICE.methods_by_name['InstallLacros']._serialized_options = b'\322A.\n\025InstallLacrosResponse\022\025InstallLacrosMetadata'
   _PROVISIONSERVICE.methods_by_name['InstallAsh']._options = None
   _PROVISIONSERVICE.methods_by_name['InstallAsh']._serialized_options = b'\322A(\n\022InstallAshResponse\022\022InstallAshMetadata'
   _PROVISIONSERVICE.methods_by_name['InstallArc']._options = None
@@ -49,30 +47,24 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_INSTALLCROSRESPONSE']._serialized_end=1586
   _globals['_INSTALLCROSMETADATA']._serialized_start=1588
   _globals['_INSTALLCROSMETADATA']._serialized_end=1609
-  _globals['_INSTALLLACROSREQUEST']._serialized_start=1612
-  _globals['_INSTALLLACROSREQUEST']._serialized_end=1743
-  _globals['_INSTALLLACROSRESPONSE']._serialized_start=1746
-  _globals['_INSTALLLACROSRESPONSE']._serialized_end=1892
-  _globals['_INSTALLLACROSMETADATA']._serialized_start=1894
-  _globals['_INSTALLLACROSMETADATA']._serialized_end=1917
-  _globals['_INSTALLASHREQUEST']._serialized_start=1919
-  _globals['_INSTALLASHREQUEST']._serialized_end=1987
-  _globals['_INSTALLASHRESPONSE']._serialized_start=1990
-  _globals['_INSTALLASHRESPONSE']._serialized_end=2133
-  _globals['_INSTALLASHMETADATA']._serialized_start=2135
-  _globals['_INSTALLASHMETADATA']._serialized_end=2155
-  _globals['_INSTALLARCREQUEST']._serialized_start=2157
-  _globals['_INSTALLARCREQUEST']._serialized_end=2225
-  _globals['_INSTALLARCRESPONSE']._serialized_start=2228
-  _globals['_INSTALLARCRESPONSE']._serialized_end=2371
-  _globals['_INSTALLARCMETADATA']._serialized_start=2373
-  _globals['_INSTALLARCMETADATA']._serialized_end=2393
-  _globals['_INSTALLFIRMWAREREQUEST']._serialized_start=2395
-  _globals['_INSTALLFIRMWAREREQUEST']._serialized_end=2516
-  _globals['_INSTALLFIRMWARERESPONSE']._serialized_start=2519
-  _globals['_INSTALLFIRMWARERESPONSE']._serialized_end=2667
-  _globals['_INSTALLFIRMWAREMETADATA']._serialized_start=2669
-  _globals['_INSTALLFIRMWAREMETADATA']._serialized_end=2694
-  _globals['_PROVISIONSERVICE']._serialized_start=2697
-  _globals['_PROVISIONSERVICE']._serialized_end=3426
+  _globals['_INSTALLASHREQUEST']._serialized_start=1611
+  _globals['_INSTALLASHREQUEST']._serialized_end=1679
+  _globals['_INSTALLASHRESPONSE']._serialized_start=1682
+  _globals['_INSTALLASHRESPONSE']._serialized_end=1825
+  _globals['_INSTALLASHMETADATA']._serialized_start=1827
+  _globals['_INSTALLASHMETADATA']._serialized_end=1847
+  _globals['_INSTALLARCREQUEST']._serialized_start=1849
+  _globals['_INSTALLARCREQUEST']._serialized_end=1917
+  _globals['_INSTALLARCRESPONSE']._serialized_start=1920
+  _globals['_INSTALLARCRESPONSE']._serialized_end=2063
+  _globals['_INSTALLARCMETADATA']._serialized_start=2065
+  _globals['_INSTALLARCMETADATA']._serialized_end=2085
+  _globals['_INSTALLFIRMWAREREQUEST']._serialized_start=2087
+  _globals['_INSTALLFIRMWAREREQUEST']._serialized_end=2208
+  _globals['_INSTALLFIRMWARERESPONSE']._serialized_start=2211
+  _globals['_INSTALLFIRMWARERESPONSE']._serialized_end=2359
+  _globals['_INSTALLFIRMWAREMETADATA']._serialized_start=2361
+  _globals['_INSTALLFIRMWAREMETADATA']._serialized_end=2386
+  _globals['_PROVISIONSERVICE']._serialized_start=2389
+  _globals['_PROVISIONSERVICE']._serialized_end=2971
 # @@protoc_insertion_point(module_scope)
