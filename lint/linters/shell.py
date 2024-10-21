@@ -16,8 +16,8 @@ def _find_shellcheck() -> str:
     path = cipd.InstallPackage(
         cipd.GetCIPDFromCache(),
         "chromiumos/infra/tools/shellcheck",
-        # Version: dev-util/shellcheck-0.8.0-r69. This should match the pin in
+        # Version: dev-util/shellcheck-0.8.0-r71. This should match the pin in
         # https://crsrc.org/i/go/src/infra/tricium/functions/shellcheck/shellcheck_ensure
-        "Wd6PTln4gQv2yYvSHjcuw9JDwtlRELC3Xrs626MYQ4kC",
+        "EnJJFRar24HNIJJg9fhqin6jiIfS1Mi7XQc9jLLfe_QC",
     )
     return os.path.join(path, "bin", "shellcheck")
