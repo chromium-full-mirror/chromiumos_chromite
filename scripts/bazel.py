@@ -20,8 +20,6 @@ from chromite.lib import constants
 from chromite.lib import osutils
 
 
-# TODO(jrosenth): We likely want to publish our own Bazelisk at some point
-# instead of relying upon Fuchsia's.
 _BAZELISK_PACKAGE = "fuchsia/third_party/bazelisk/${os}-${arch}"
 _BAZELISK_VERSION = "version:2@1.20.0"
 
