@@ -265,9 +265,6 @@
   "logout.conf": [
     "rm -f /run/state/logged-in"
   ],
-  "memd.conf": [
-    "mkdir -p /var/log/memd"
-  ],
   "metrics_library.conf": [
     "chown -R metrics:metrics /run/metrics",
     "chown chronos:chronos \"${EVENTS_FILE}\"",

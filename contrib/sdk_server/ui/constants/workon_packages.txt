@@ -268,7 +268,6 @@ chromeos-base/lvmd-client
 chromeos-base/manatee-client
 chromeos-base/manatee-runtime
 chromeos-base/mcastd
-chromeos-base/memd
 chromeos-base/mems_setup
 chromeos-base/metrics
 chromeos-base/midis
