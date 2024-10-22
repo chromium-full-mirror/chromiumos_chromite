@@ -20,6 +20,10 @@ from chromite.lib import osutils
 from chromite.lib import path_util
 
 
+# Number of snapshots in a release version.
+SNAPSHOTS_PER_VERSION = 24
+
+
 class Error(Exception):
     """Base class for the errors happened upon finding ChromeOS image version"""
 
@@ -65,6 +69,7 @@ def GetChromeLkgm(
     if version == "":
         raise RuntimeError("LKGM file is empty.")
 
+    # TODO(fqj): migrate to chromeos_version.VersionInfo
     parts = version.split("-", 2)
     platform_version = parts[0]
     snapshot_identifier = int(parts[1]) if len(parts) == 2 else None
@@ -231,7 +236,7 @@ class ChromeOSVersionFinder:
 
     def GetLatestVersionInfo(
         self, platform_version: str, snapshot_identifier: Optional[int]
-    ) -> str:
+    ) -> Optional[str]:
         """Gets the full version number from LATEST files.
 
         If |snapshot_identifier| is given, this checks the LATEST files in
@@ -245,18 +250,43 @@ class ChromeOSVersionFinder:
         Returns:
             Full version number in the format 'R30-3929.0.0' or None.
         """
+        snapshot_version = None
         if snapshot_identifier is not None:
-            full_version = self.GetFullVersionFromLatestSnapshotFile(
+            snapshot_version = self.GetFullVersionFromLatestSnapshotFile(
                 snapshot_identifier
             )
-            if full_version:
-                return full_version
+            if snapshot_version:
+                # Snapshot is newer than platform_version release.
+                if chromeos_version.VersionInfo(
+                    snapshot_version
+                ) > chromeos_version.VersionInfo(platform_version):
+                    return snapshot_version
 
-            # Fall back to LATEST-{version} files in the release
-            # artifact GS storage.
+                # Latest snapshot image has an older platform_version, there
+                # could be a better release image newer than found snapshot
+                # image.
+                logging.info(
+                    "Snapshot %s have older platform version, trying release",
+                    snapshot_version,
+                )
 
-        full_version = self.GetFullVersionFromLatestFile(platform_version)
-        return full_version
+            # Fall back to LATEST-{version} files in the release.
+
+        release_version = self.GetFullVersionFromLatestFile(platform_version)
+        if snapshot_version is None:
+            return release_version
+        if release_version is None:
+            return snapshot_version
+
+        # Handle cases both snapshot and release has matching images
+        # If release have larger platform version, use release, otherwise use
+        # snapshot. Snapshot is always newer than release at the same platform
+        # version.
+        if chromeos_version.VersionInfo(
+            release_version
+        ) > chromeos_version.VersionInfo(snapshot_version):
+            return release_version
+        return snapshot_version
 
     def _GetFullVersionFromStorage(self, version_file):
         """Cat |version_file| in google storage.
@@ -353,7 +383,10 @@ class ChromeOSVersionFinder:
             Version number in the format 'R30-3929.0.0-123456-88888' or None.
         """
         base = snapshot_identifier
-        base_min = max(base - self.fallback_versions, 0)
+        # Searching fallback_versions * SNAPSHOTS_PER_VERSION snapshots for
+        # consistent time-period of images being searched regardless of LATEST
+        # file contains snapshots or releases.
+        base_min = max(base - self.fallback_versions * SNAPSHOTS_PER_VERSION, 0)
         version_file_base = f"{self.snapshot_gs_base}/LATEST-SNAPSHOT-"
 
         for v in range(base - 1, base_min, -1):

@@ -93,7 +93,7 @@ class VersionInfo:
     """
 
     # Pattern for matching build name format.  Includes chrome branch hack.
-    VER_PATTERN = r"(\d+).(\d+).(\d+)(?:-(\d+))?(?:-R(\d+))*"
+    VER_PATTERN = r"(\d+)\.(\d+)\.(\d+)(?:-(\d+))?(?:-R(\d+))*"
     KEY_VALUE_PATTERN = r"%s=(\d+)\s*$"
     VALID_INCR_TYPES = ("chrome_branch", "build", "branch", "patch")
     DATE_TIME_FORMAT = "%Y_%m_%d_%H%M%S"

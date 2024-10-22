@@ -85,7 +85,15 @@ class ChromeOSVersionFinderTest(
     FULL_VERSION_WITH_SNAPSHOT = "R55-%s-%s-888888" % (VERSION, SNAPSHOT)
     RECENT_VERSION_MISSING = "3542.0.0"
     RECENT_VERSION_FOUND = "3541.0.0"
+    EVEN_OLDER_VERSION = "3540.0.0"
     FULL_VERSION_RECENT = "R55-%s" % RECENT_VERSION_FOUND
+    FULL_VERSION_WITH_SNAPSHOT_OLDER_PLATFORM_VERSION = "R55-%s-%s-888888" % (
+        RECENT_VERSION_FOUND,
+        SNAPSHOT - 60,
+    )
+    FULL_VERSION_WITH_SNAPSHOT_EVEN_OLDER_PLATFORM_VERSION = (
+        "R55-%s-%s-888888" % (EVEN_OLDER_VERSION, SNAPSHOT - 60)
+    )
     BRANCH_VERSION = "3541.68.0"
     FILL_VERSION_BRANCH = "R55-%s" % BRANCH_VERSION
     MINI_BRANCH_VERSION = "3543.2.1"
@@ -143,27 +151,26 @@ class ChromeOSVersionFinderTest(
             stdout=self.FULL_VERSION_RECENT,
         )
 
-    def _SetupMissingSnapshots(self) -> None:
-        """SNAPSHOT & SNAPSHOT-1 are missing, but SNAPSHOT-2 exists."""
+    def _SetupMissingSnapshots(
+        self, exists: int, latest: int, version: str
+    ) -> None:
+        """Setup missing snapshots based on Args.
+
+        [exists + 1, latest] missing, [exists] exists with version.
+        """
 
         def _RaiseGSNoSuchKey(*_args, **_kwargs) -> None:
             raise gs.GSNoSuchKey("file does not exist")
 
+        for i in range(exists + 1, latest + 1):
+            self.gs_mock.AddCmdResult(
+                partial_mock.ListRegex("cat .*/LATEST-SNAPSHOT-%s" % i),
+                side_effect=_RaiseGSNoSuchKey,
+            )
+
         self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex("cat .*/LATEST-SNAPSHOT-%s" % self.SNAPSHOT),
-            side_effect=_RaiseGSNoSuchKey,
-        )
-        self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex(
-                "cat .*/LATEST-SNAPSHOT-%s" % (self.SNAPSHOT - 1)
-            ),
-            side_effect=_RaiseGSNoSuchKey,
-        )
-        self.gs_mock.AddCmdResult(
-            partial_mock.ListRegex(
-                "cat .*/LATEST-SNAPSHOT-%s" % (self.SNAPSHOT - 2)
-            ),
-            stdout=self.FULL_VERSION_WITH_SNAPSHOT,
+            partial_mock.ListRegex("cat .*/LATEST-SNAPSHOT-%s" % exists),
+            stdout=version,
         )
 
     def testFullVersionFromSnapshotId(self) -> None:
@@ -209,14 +216,51 @@ class ChromeOSVersionFinderTest(
 
     def testFallbackSnapshots(self) -> None:
         """Test full version calculation with various fallback snapshots."""
-        self._SetupMissingSnapshots()
+        # _SetupMissingSnapshots mocks the result of 3 * SNAPSHOTS_PER_VERSION
+        # files, thus cur-3n+1 exists, [cur-3n+2, cur] missing.
+        self._SetupMissingSnapshots(
+            self.SNAPSHOT - 3 * chrome_lkgm.SNAPSHOTS_PER_VERSION + 1,
+            self.SNAPSHOT,
+            self.FULL_VERSION_WITH_SNAPSHOT,
+        )
         for version in range(6):
             self.finder.fallback_versions = version
-            # _SetupMissingSnapshots mocks the result of 3 files.
             self.assertEqual(
                 self.FULL_VERSION_WITH_SNAPSHOT if version >= 3 else None,
                 self.finder.GetFullVersionFromLatestSnapshotFile(self.SNAPSHOT),
             )
+
+    def testFallbackSnapshotsPreviousPlatformVersion(self) -> None:
+        # Found latest snapshots at platform 3541.0.0
+        self._SetupMissingSnapshots(
+            self.SNAPSHOT - 3 * chrome_lkgm.SNAPSHOTS_PER_VERSION + 1,
+            self.SNAPSHOT,
+            self.FULL_VERSION_WITH_SNAPSHOT_OLDER_PLATFORM_VERSION,
+        )
+        # Latest release image also at platform 3541.0.0
+        self._SetupMissingVersions()
+        self.finder.fallback_versions = 5
+        self.assertEqual(
+            # Use snapshot since snapshot is newer.
+            self.FULL_VERSION_WITH_SNAPSHOT_OLDER_PLATFORM_VERSION,
+            self.finder.GetLatestVersionInfo(self.VERSION, self.SNAPSHOT),
+        )
+
+    def testFallbackSnapshotsPreviousPlatformVersionUseRelease(self) -> None:
+        # Found latest snapshot at platform 3540.0.0
+        self._SetupMissingSnapshots(
+            self.SNAPSHOT - 3 * chrome_lkgm.SNAPSHOTS_PER_VERSION + 1,
+            self.SNAPSHOT,
+            self.FULL_VERSION_WITH_SNAPSHOT_EVEN_OLDER_PLATFORM_VERSION,
+        )
+        # Setup latest release at platform 3541.0.0
+        self._SetupMissingVersions()
+        self.finder.fallback_versions = 5
+        self.assertEqual(
+            # Use release image.
+            self.FULL_VERSION_RECENT,
+            self.finder.GetLatestVersionInfo(self.VERSION, self.SNAPSHOT),
+        )
 
     def testBranchFallbackVersions(self) -> None:
         """Test full version calculation for a branch version with fallbacks."""
