@@ -22,8 +22,6 @@ pytestmark = cros_test_lib.pytestmark_inside_only
 class CrosRunUnitTestsTest(cros_test_lib.MockTestCase):
     """Tests for cros_run_unit_tests functions."""
 
-    # TODO(b/364954296): Unskip.
-    @pytest.mark.skip(reason="b/364954296")
     def testNonEmptyPackageSet(self) -> None:
         """Asserts that the deps of a known package are non-empty"""
         self.assertTrue(
