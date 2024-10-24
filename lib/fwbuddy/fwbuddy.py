@@ -493,6 +493,7 @@ class FwBuddy:
             FwBuddyException: If extract contents fails.
         """
         directory = directory or self.default_extracted_archive_path
+        os.makedirs(directory, exist_ok=True)
         self.logger.info("Extracting firmware contents to: %s...", directory)
         result = cros_build_lib.run(
             ["tar", "-xf", self.archive_path, f"--directory={directory}"],
@@ -549,10 +550,8 @@ class FwBuddy:
                 " fwbuddy.extract"
             )
 
+        os.makedirs(directory, exist_ok=True)
         firmware_image_path = self.ec_path if chip == EC else self.ap_path
-        image_name = ""
-        if firmware_image_path is not None:
-            image_name = firmware_image_path.stem
 
         # Get the absolute path, expanding any user or system
         # variables, like `~` to reference $HOME
@@ -570,12 +569,7 @@ class FwBuddy:
                 "Encountered a fatal error while exporting the firmware image:"
                 f" {result.stderr}"
             )
-        self.logger.info(
-            "Exported the %s firmware image to %s/%s",
-            chip_name,
-            directory,
-            image_name,
-        )
+        self.logger.info("Exported firmware to %s/%s", chip_name, directory)
 
 
 def get_uri_interactive() -> str:

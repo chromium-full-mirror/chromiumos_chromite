@@ -79,9 +79,9 @@ Examples:
         )
         with fwbuddy.FwBuddy(uri=self.options.uri) as f:
             f.download()
-
+            output_path = self.options.path / f"{f.uri.board}-{f.uri.version}"
             if chip:
                 f.extract()
-                f.export_firmware_image(chip, self.options.path)
+                f.export_firmware_image(chip, output_path)
             else:
-                f.extract(self.options.path)
+                f.extract(output_path)
