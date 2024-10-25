@@ -261,3 +261,17 @@ def test_found_all_workspaces(
     workspaces = citc_workspaces.Workspaces()
     assert len([workspaces.orphaned_workspaces()]) == 1
     assert len(workspaces.workspaces) == 3
+
+
+def test_cog_workspaces_dont_exist(cog_cloud_dir):
+    # We don't want to raise unexpected exceptions when a user hasn't created a
+    # Cog workspace.
+    cog_cloud_dir.mkdir(parents=True)
+    workspaces = citc_workspaces.Workspaces()
+
+    assert len(workspaces.workspaces) == 0
+
+    orphaned_workspaces = [
+        workspace for workspace in workspaces if workspace.orphaned
+    ]
+    assert len(orphaned_workspaces) == 0

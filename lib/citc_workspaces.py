@@ -110,6 +110,8 @@ class Workspaces:
 
     def get_citc_workspace_names(self) -> List[str]:
         """Get all named citc workspaces from directory"""
+        if not self.named_workspace_parent_dir.exists():
+            return []
         return [
             location.name
             for location in self.named_workspace_parent_dir.iterdir()
