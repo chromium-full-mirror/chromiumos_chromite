@@ -475,6 +475,11 @@ GROUP_BASELINE = dict(
             gid=20164,
             users={"traced", "chronos", "debugd"},
         ),
+        GroupEntry(
+            group="dns-proxy",
+            gid=20167,
+            users={"dns-proxy", "dns-proxy-system", "dns-proxy-user"},
+        ),
         GroupEntry(group="vpn", gid=20174, users={"vpn", "shill"}),
         GroupEntry(group="frecon", gid=20203, users={"frecon", "bootsplash"}),
         GroupEntry(group="nogroup", gid=65533),
