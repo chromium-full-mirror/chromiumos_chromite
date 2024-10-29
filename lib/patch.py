@@ -2175,6 +2175,15 @@ class GerritPatch(GerritFetchOnlyPatch):
                         break
                 else:
                     raise ValueError("Missing ref info")
+
+                uploader_email = current_revision_info.get("uploader", {}).get(
+                    "email"
+                )
+                if uploader_email:
+                    uploader = {"email": uploader_email}
+                else:
+                    uploader = None
+
                 patch_dict["currentPatchSet"] = {
                     "approvals": approvals,
                     "ref": ref,
@@ -2182,6 +2191,7 @@ class GerritPatch(GerritFetchOnlyPatch):
                     "number": str(current_revision_info["_number"]),
                     "date": _convert_tm(date),
                     "draft": current_revision_info.get("draft", False),
+                    "uploader": uploader,
                 }
 
                 current_commit = current_revision_info.get("commit")

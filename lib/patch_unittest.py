@@ -1309,6 +1309,9 @@ class TestGerritPatch(TestGitRepoPatch):
                 "number": "1",
                 "ref": "refs/changes/15/8366/1",
                 "revision": j["current_revision"],
+                "uploader": {
+                    "email": "happy-funky-duck@chromium.org",
+                },
             },
             "dependsOn": [
                 {"revision": "3d54362a9b010330bae2dde973fc5c3efc4e5f44"}
