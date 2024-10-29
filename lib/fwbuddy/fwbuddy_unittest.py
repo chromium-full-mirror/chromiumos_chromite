@@ -263,36 +263,54 @@ def test_extract(setup: Path, run_mock: cros_test_lib.RunCommandMock) -> None:
         f.extract()
 
 
-def test_export_firmware_image(
+def test_export(setup: Path, run_mock: cros_test_lib.RunCommandMock) -> None:
+    run_mock.SetDefaultCmdResult(0)
+    f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
+    f.archive_path = Path("/unused")
+    f.export_firmware_image = mock.Mock()
+    f.extract("tmp")
+
+    f.export(fwbuddy.Chip.ALL, "tmp")
+
+    f.export_firmware_image.assert_has_calls(
+        [
+            mock.call(f.ec_path, mock.ANY),
+            mock.call(f.ap_path, mock.ANY),
+        ]
+    )
+
+
+def test_export_exceptions(
     setup: Path, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
     run_mock.SetDefaultCmdResult(0)
     f = fwbuddy.FwBuddy(GENERIC_VALID_URI)
     f.archive_path = Path("/unused")
+
     # Unsupported chip
     f.extract("tmp")
     with pytest.raises(fwbuddy.FwBuddyException):
-        f.export_firmware_image("tmp", "JUNK_CHIP")
+        f.export(None, "tmp")
 
     # Export without extraction
     f.ec_path = None
     with pytest.raises(fwbuddy.FwBuddyException):
-        f.export_firmware_image("tmp", "EC")
+        f.export(fwbuddy.Chip.EC, "tmp")
 
     # Some failure while exporting
     f.extract("tmp")
     run_mock.SetDefaultCmdResult(1)
     with pytest.raises(fwbuddy.FwBuddyException):
-        f.export_firmware_image("tmp", "EC")
+        f.export(fwbuddy.Chip.EC, "tmp")
 
 
-def test_parse_chip(setup: Path) -> None:
-    assert "ec" == fwbuddy.parse_chip("EC")
-    assert "ap" == fwbuddy.parse_chip("ap")
-    assert None is fwbuddy.parse_chip(None)
+def test_chip_from_str(setup: Path) -> None:
+    assert fwbuddy.Chip.EC == fwbuddy.Chip.from_str("EC")
+    assert fwbuddy.Chip.AP == fwbuddy.Chip.from_str("ap")
+    assert None is fwbuddy.Chip.from_str(None)
 
     with pytest.raises(fwbuddy.FwBuddyException):
-        fwbuddy.parse_chip("junk")
+        fwbuddy.Chip.from_str("junk")
 
 
 def test_parse_firmware_type(setup: Path) -> None:

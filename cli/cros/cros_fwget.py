@@ -40,10 +40,10 @@ Examples:
 
         cros fwget fwbuddy://dedede/galtic/13606.459.0/unsigned ~/Downloads --chip=ec
 
-    Download and extract the unsigned serial AP binary for Cozmo firmware
-    verision 12574.111.0 to the downloads folder.
+    Download and extract both the unsigned serial AP binary and the EC binary
+    for Cozmo firmware verision 12574.111.0 to the downloads folder.
 
-        cros fwget fwbuddy://jacuzzi/cozmo/12574.111.0/unsigned/serial ~/Downloads --chip=ap
+        cros fwget fwbuddy://jacuzzi/cozmo/12574.111.0/unsigned/serial ~/Downloads --chip=all
 """
 
     @classmethod
@@ -66,8 +66,8 @@ Examples:
         parser.add_argument(
             "--chip",
             help=(
-                "Limits the output to only include the specified chip, "
-                "e.g. EC or AP"
+                "Limits the output to only include the specified chip: "
+                "{ec|ap|all}"
             ),
         )
 
@@ -75,13 +75,15 @@ Examples:
         """Downloads the firmware archive and extract its contents to path"""
         # Exits early if chip is defined, but not supported
         chip = (
-            fwbuddy.parse_chip(self.options.chip) if self.options.chip else None
+            fwbuddy.Chip.from_str(self.options.chip)
+            if self.options.chip
+            else None
         )
         with fwbuddy.FwBuddy(uri=self.options.uri) as f:
             f.download()
-            output_path = self.options.path / f"{f.uri.board}-{f.uri.version}"
+            output_dir = self.options.path / f"{f.uri.board}-{f.uri.version}"
             if chip:
                 f.extract()
-                f.export_firmware_image(chip, output_path)
+                f.export(chip, output_dir)
             else:
-                f.extract(output_path)
+                f.extract(output_dir)
