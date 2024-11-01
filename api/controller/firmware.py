@@ -101,6 +101,9 @@ def BuildAllTotFirmware(request, response, _config):
     """Build all of the firmware targets at the specified location."""
 
     args = ["--code-coverage"] if request.code_coverage else []
+    if getattr(request, firmware_targets, None):
+        firmware_targets = [t.Name for t in request.firmware_targets]
+        args.append(f"--firmware-targets={firmware_targets}")
     return _call_entry(
         request.firmware_location, response.metrics, "build", *args
     )
