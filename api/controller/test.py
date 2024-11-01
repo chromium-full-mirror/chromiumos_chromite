@@ -403,6 +403,7 @@ def CrosSigningTest(_request, _response, _config):
     return result.returncode
 
 
+@metrics_lib.timed("test.GetArtifacts")
 def GetArtifacts(
     in_proto: common_pb2.ArtifactsByService.Test,
     chroot: chroot_lib.Chroot,
@@ -427,6 +428,7 @@ def GetArtifacts(
     """
     generated = []
 
+    # pylint: disable=line-too-long
     artifact_types = {
         in_proto.ArtifactType.CODE_COVERAGE_LLVM_JSON: functools.partial(
             test.BundleCodeCoverageLlvmJson, build_target.name
@@ -439,22 +441,22 @@ def GetArtifacts(
             build_target.name,
             packages_service.determine_full_version(),
         ),
-        in_proto.ArtifactType.CODE_COVERAGE_GOLANG: functools.partial(
-            test.BundleCodeCoverageGolang
-        ),
+        in_proto.ArtifactType.CODE_COVERAGE_GOLANG: test.BundleCodeCoverageGolang,
         in_proto.ArtifactType.CODE_COVERAGE_E2E: test.bundle_e2e_code_coverage,
     }
+    # pylint: enable=line-too-long
 
     for output_artifact in in_proto.output_artifacts:
         for artifact_type, func in artifact_types.items():
             if artifact_type in output_artifact.artifact_types:
-                try:
-                    if (
+                artifact_name = (
+                    common_pb2.ArtifactsByService.Test.ArtifactType.Name(
                         artifact_type
-                        == in_proto.ArtifactType.CODE_COVERAGE_GOLANG
-                    ):
-                        paths = func(chroot, output_dir)
-                    else:
+                    )
+                )
+                timer_name = f"test.GetArtifacts.{artifact_name}"
+                try:
+                    with metrics_lib.timer(timer_name):
                         paths = func(chroot, sysroot_class, output_dir)
                 except Exception as e:
                     generated.append(

@@ -503,6 +503,7 @@ def bundle_e2e_code_coverage(
 
 def BundleCodeCoverageGolang(
     chroot: "chroot_lib.Chroot",
+    _sysroot: Optional["sysroot_lib.Sysroot"],
     output_dir: str,
 ) -> Optional[str]:
     """Bundle code coverage Go .out files into a tarball for importing into GCE.
@@ -511,6 +512,7 @@ def BundleCodeCoverageGolang(
 
     Args:
         chroot: The chroot class used for these artifacts.
+        _sysroot: Unused. The sysroot.
         output_dir: The path to write artifacts to.
 
     Returns:

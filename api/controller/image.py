@@ -161,6 +161,7 @@ def ExampleGetResponse():
     )
 
 
+@metrics_lib.timed("image.GetArtifacts")
 def GetArtifacts(
     in_proto: common_pb2.ArtifactsByService.Image,
     chroot: chroot_lib.Chroot,
@@ -224,8 +225,15 @@ def GetArtifacts(
     for output_artifact in in_proto.output_artifacts:
         for artifact_type, func in artifact_types.items():
             if artifact_type in output_artifact.artifact_types:
+                artifact_name = (
+                    common_pb2.ArtifactsByService.Image.ArtifactType.Name(
+                        artifact_type
+                    )
+                )
+                timer_name = f"image.GetArtifacts.{artifact_name}"
                 try:
-                    result = func(output_dir)
+                    with metrics_lib.timer(timer_name):
+                        result = func(output_dir)
                 except Exception as e:
                     generated.append(
                         {
@@ -233,11 +241,6 @@ def GetArtifacts(
                             "failed": True,
                             "failure_reason": str(e),
                         }
-                    )
-                    artifact_name = (
-                        common_pb2.ArtifactsByService.Image.ArtifactType.Name(
-                            artifact_type
-                        )
                     )
                     logging.warning(
                         "%s artifact generation failed with exception %s",
