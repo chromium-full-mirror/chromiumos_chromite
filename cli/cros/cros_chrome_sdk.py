@@ -1479,12 +1479,12 @@ class ChromeSDKCommand(command.CliCommand):
         gn_args.pop("reclient_cfg_dir", None)
         gn_args.pop("rbe_exec_root", None)
 
-        # Disable ThinLTO and CFI for simplechrome. Tryjob machines do not have
-        # enough file descriptors to use. crbug.com/789607
-        if not options.thinlto:
-            gn_args["use_thin_lto"] = False
-        if not options.cfi:
-            gn_args["is_cfi"] = False
+        # Disable ThinLTO and CFI for SimpleChrome unless the user specifically
+        # requests them through commandline flags. They add a lot of build
+        # time, and aren't useful in the majority of SimpleChrome flows.
+        gn_args["use_thin_lto"] = options.thinlto
+        gn_args["is_cfi"] = options.cfi
+
         # We need to remove the flag -Wl,-plugin-opt,-import-instr-limit=$num
         # from cros_target_extra_ldflags if options.thinlto is not set.
         # The format of ld flags is something like
