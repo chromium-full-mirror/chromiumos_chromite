@@ -16,6 +16,7 @@ from typing import Any, List, Optional, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import metrics_lib
 from chromite.utils import shell_util
 
 
@@ -233,6 +234,7 @@ class TarballError(Exception):
     """
 
 
+@metrics_lib.timed("lib.compression_lib.create_tarball")
 def create_tarball(
     tarball_path: Union[Path, int, str],
     cwd: Union[Path, str],

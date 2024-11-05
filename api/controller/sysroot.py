@@ -103,7 +103,7 @@ def ExampleGetResponse():
     )
 
 
-@metrics_lib.timed("sysroot.GetArtifacts")
+@metrics_lib.timed("api.controller.sysroot.GetArtifacts")
 def GetArtifacts(
     in_proto: common_pb2.ArtifactsByService.Sysroot,
     chroot: chroot_lib.Chroot,

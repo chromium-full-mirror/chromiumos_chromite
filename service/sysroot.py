@@ -1712,6 +1712,7 @@ def _ChooseProfile(
         raise e
 
 
+@metrics_lib.timed("service.sysroot.BundleDebugSymbols")
 def BundleDebugSymbols(
     chroot: "chroot_lib.Chroot",
     sysroot_class: sysroot_lib.Sysroot,
@@ -1773,6 +1774,7 @@ def BundleDebugSymbols(
         return None
 
 
+@metrics_lib.timed("service.sysroot.BundleBreakpadSymbols")
 def BundleBreakpadSymbols(
     chroot: "chroot_lib.Chroot",
     sysroot_class: sysroot_lib.Sysroot,
@@ -1908,6 +1910,7 @@ class SymbolFileTuple(NamedTuple):
     source_file_name: str
 
 
+@metrics_lib.timed("service.sysroot.GenerateBreakpadSymbols")
 def GenerateBreakpadSymbols(
     chroot: "chroot_lib.Chroot",
     build_target: "build_target_lib.BuildTarget",
@@ -1957,6 +1960,7 @@ def GenerateBreakpadSymbols(
     return result
 
 
+@metrics_lib.timed("service.sysroot.GatherSymbolFiles")
 def GatherSymbolFiles(
     tempdir: str, destdir: str, paths: List[str]
 ) -> Generator[SymbolFileTuple, None, None]:
