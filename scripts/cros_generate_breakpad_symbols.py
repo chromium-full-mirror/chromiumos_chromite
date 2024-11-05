@@ -30,6 +30,7 @@ from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
+from chromite.lib import metrics_lib
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import signals
@@ -253,6 +254,7 @@ class SymbolFileLineCounts:
                         )
 
 
+@metrics_lib.timed("scripts.cros_generate_breakpad_symbols.ValidateSymbolFile")
 def ValidateSymbolFile(
     sym_file: str,
     elf_file: str,
@@ -527,6 +529,9 @@ def ReadSymsHeader(sym_file, name_for_errors):
     )
 
 
+@metrics_lib.timed(
+    "scripts.cros_generate_breakpad_symbols.GenerateBreakpadSymbol"
+)
 def GenerateBreakpadSymbol(
     elf_file,
     debug_file=None,
@@ -562,6 +567,7 @@ def GenerateBreakpadSymbol(
         The name of symbol file written out on success, or the failure count.
     """
     assert breakpad_dir
+    base_name = "scripts.cros_generate_breakpad_symbols.GenerateBreakpadSymbol"
     if num_errors is None:
         num_errors = ctypes.c_int(0)
     if dump_syms_args is None:
@@ -574,6 +580,7 @@ def GenerateBreakpadSymbol(
     # Some files will not be readable by non-root (e.g. set*id /bin/su).
     needs_sudo = not os.access(elf_file, os.R_OK)
 
+    @metrics_lib.timed(f"{base_name}._DumpIt")
     def _DumpIt(cmd_args):
         if needs_sudo:
             run_command = cros_build_lib.sudo_run
@@ -587,6 +594,7 @@ def GenerateBreakpadSymbol(
             debug_level=logging.DEBUG,
         )
 
+    @metrics_lib.timed(f"{base_name}._CrashCheck")
     def _CrashCheck(result, file_or_files, msg) -> None:
         if result.returncode:
             cbuildbot_alerts.PrintBuildbotStepWarnings()
@@ -606,6 +614,7 @@ def GenerateBreakpadSymbol(
                 )
             logging.warning("output:\n%s", result.stderr.decode("utf-8"))
 
+    @metrics_lib.timed(f"{base_name}._DumpAllowingBasicFallback")
     def _DumpAllowingBasicFallback():
         """Dump symbols for an ELF when we do NOT expect to get good symbols.
 
@@ -653,6 +662,7 @@ def GenerateBreakpadSymbol(
 
         return SymbolGenerationResult.SUCCESS
 
+    @metrics_lib.timed(f"{base_name}._DumpExpectingSymbols")
     def _DumpExpectingSymbols():
         """Dump symbols for an ELF when we expect to get good symbols.
 
@@ -722,6 +732,9 @@ def GenerateBreakpadSymbol(
     return sym_file
 
 
+@metrics_lib.timed(
+    "scripts.cros_generate_breakpad_symbols.GenerateBreakpadSymbols"
+)
 def GenerateBreakpadSymbols(
     board,
     breakpad_dir=None,
