@@ -24,7 +24,7 @@ import multiprocessing
 import multiprocessing.sharedctypes
 import os
 import re
-from typing import Optional
+from typing import List, Optional
 
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import build_target_lib
@@ -904,7 +904,8 @@ def FindBreakpadDir(board, sysroot=None):
     return os.path.join(FindDebugDir(board, sysroot=sysroot), "breakpad")
 
 
-def main(argv):
+def get_parser() -> commandline.ArgumentParser:
+    """Get the populated argument parser."""
     parser = commandline.ArgumentParser(description=__doc__, jobs=True)
 
     parser.add_argument(
@@ -974,14 +975,26 @@ def main(argv):
         ),
     )
 
+    return parser
+
+
+def parse_args(argv: Optional[List[str]]):
+    parser = get_parser()
     opts = parser.parse_args(argv)
+
+    if opts.board is None and opts.sysroot is None:
+        parser.error("--board or --sysroot is required")
+
     opts.Freeze()
+    return opts
+
+
+def main(argv: Optional[List[str]] = None) -> Optional[int]:
+    opts = parse_args(argv)
+
     ignore_expected_files = [
         ExpectedFiles[x] for x in opts.ignore_expected_file
     ]
-
-    if opts.board is None and opts.sysroot is None:
-        cros_build_lib.Die("--board or --sysroot is required")
 
     ret = GenerateBreakpadSymbols(
         opts.board,
