@@ -397,10 +397,12 @@ def _TextprotoLintFile(
 ) -> cros_build_lib.CompletedProcess:
     """Run lints on OWNERS files."""
     ret = cros_build_lib.CompletedProcess(f'cros lint "{path}"', returncode=0)
-    # go/textformat-spec#text-format-files says to use .textproto.
-    if os.path.splitext(path)[1] != ".textproto":
+    # go/textformat-spec#text-format-files says to use .txtpb.
+    # .textproto is the legacy canonical extension and teams can continue to use
+    # it for the sake of consistency.
+    if not os.path.splitext(path)[1] in [".txtpb", ".textproto"]:
         logging.error(
-            "%s: use '.textproto' extension for text proto messages", path
+            "%s: use '.txtpb' extension for text proto messages", path
         )
         ret.returncode = 1
     # TODO(build): Assert file header has `proto-file:` and `proto-message:`
