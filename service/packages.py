@@ -1227,6 +1227,7 @@ def uprev_starbase_artifacts(
     tag push in the Rapid workflow.  Instead "refs" is repurposed for our
     needs as follows.  Let's define these variables (they are all strings):
 
+    BRANCH = branch where uprev needs to be committed.
     CATEGORY = package category.  Example: chromeos-base
     PACKAGE_NAME = name of the package.  Example: starbase-starcam-app
     PACKAGE_VERSION = package version, excluding revision.  Example: 0.0.1
@@ -1242,10 +1243,12 @@ def uprev_starbase_artifacts(
     chromeos-base/starbase-starcam-app/starbase-starcam-app-0.0.1.ebuild
 
     We pass these values in the ref (the / characters appear literally in the
-    string, and the first one is the delimiter):
+    string, and are the delimiters):
 
     refs[i].path = TARFILE_NAME/TARFILE_HASH
-    refs[i].ref = CATEGORY/PACKAGE_NAME
+    refs[i].ref = BRANCH/CATEGORY/PACKAGE_NAME
+                  or
+                  CATEGORY/PACKAGE_NAME
     refs[i].revision = VERSION_ID
 
     (Note that the "gitiles" dictionary passed from the Rapid executor uses
@@ -1297,7 +1300,11 @@ def uprev_starbase_artifacts(
         # We're ignoring the meaning of the `ref` fields and reusing them for
         # our purposes.  See absurdly long comment above.
         tarfile_name, tarfile_hash = ref.path.split("/", 1)
-        category, package_name = ref.ref.split("/", 1)
+        branch = ""
+        if len(ref.ref.split("/")) == 3:
+          branch, category, package_name = ref.ref.split("/", 2)
+        else:
+          category, package_name = ref.ref.split("/", 1)
         version_id = ref.revision
         modified_files = starbase_find_and_uprev(
             tarfile_name,
