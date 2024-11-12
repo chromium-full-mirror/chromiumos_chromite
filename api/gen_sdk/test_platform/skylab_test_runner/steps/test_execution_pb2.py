@@ -19,7 +19,7 @@ from chromite.api.gen_sdk.test_platform.skylab_test_runner import cros_test_runn
 from chromite.api.gen_sdk.chromiumos.test.api import trv2_dynamic_pb2 as chromiumos_dot_test_dot_api_dot_trv2__dynamic__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n;test_platform/skylab_test_runner/steps/test_execution.proto\x12&test_platform.skylab_test_runner.steps\x1a-test_platform/skylab_test_runner/config.proto\x1a.test_platform/skylab_test_runner/request.proto\x1a\x32test_platform/skylab_test_runner/cft_request.proto\x1a\x34test_platform/skylab_test_runner/common_config.proto\x1a?test_platform/skylab_test_runner/cros_test_runner_request.proto\x1a&chromiumos/test/api/trv2_dynamic.proto\"\xd2\x03\n\x0fRunTestsRequest\x12:\n\x07request\x18\x01 \x01(\x0b\x32).test_platform.skylab_test_runner.Request\x12\x38\n\x06\x63onfig\x18\x02 \x01(\x0b\x32(.test_platform.skylab_test_runner.Config\x12J\n\x10\x63\x66t_test_request\x18\x03 \x01(\x0b\x32\x30.test_platform.skylab_test_runner.CFTTestRequest\x12\x45\n\rcommon_config\x18\x04 \x01(\x0b\x32..test_platform.skylab_test_runner.CommonConfig\x12Y\n\x18\x63ros_test_runner_request\x18\x05 \x01(\x0b\x32\x37.test_platform.skylab_test_runner.CrosTestRunnerRequest\x12[\n cros_test_runner_dynamic_request\x18\x06 \x01(\x0b\x32\x31.chromiumos.test.api.CrosTestRunnerDynamicRequest\"`\n\x10RunTestsResponse\x12\x1e\n\x16\x65rror_summary_markdown\x18\x01 \x01(\t\x12,\n\x11\x63ompressed_result\x18\x02 \x01(\tR\x11\x63ompressed_resultBRZPgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_test_runner/stepsb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n;test_platform/skylab_test_runner/steps/test_execution.proto\x12&test_platform.skylab_test_runner.steps\x1a-test_platform/skylab_test_runner/config.proto\x1a.test_platform/skylab_test_runner/request.proto\x1a\x32test_platform/skylab_test_runner/cft_request.proto\x1a\x34test_platform/skylab_test_runner/common_config.proto\x1a?test_platform/skylab_test_runner/cros_test_runner_request.proto\x1a&chromiumos/test/api/trv2_dynamic.proto\"\xe5\x03\n\x0fRunTestsRequest\x12:\n\x07request\x18\x01 \x01(\x0b\x32).test_platform.skylab_test_runner.Request\x12\x38\n\x06\x63onfig\x18\x02 \x01(\x0b\x32(.test_platform.skylab_test_runner.Config\x12J\n\x10\x63\x66t_test_request\x18\x03 \x01(\x0b\x32\x30.test_platform.skylab_test_runner.CFTTestRequest\x12\x45\n\rcommon_config\x18\x04 \x01(\x0b\x32..test_platform.skylab_test_runner.CommonConfig\x12Y\n\x18\x63ros_test_runner_request\x18\x05 \x01(\x0b\x32\x37.test_platform.skylab_test_runner.CrosTestRunnerRequest\x12[\n cros_test_runner_dynamic_request\x18\x06 \x01(\x0b\x32\x31.chromiumos.test.api.CrosTestRunnerDynamicRequest\x12\x11\n\tis_al_run\x18\x07 \x01(\x08\"`\n\x10RunTestsResponse\x12\x1e\n\x16\x65rror_summary_markdown\x18\x01 \x01(\t\x12,\n\x11\x63ompressed_result\x18\x02 \x01(\tR\x11\x63ompressed_resultBRZPgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_test_runner/stepsb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -29,7 +29,7 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'ZPgo.chromium.org/chromiumos/infra/proto/go/test_platform/skylab_test_runner/steps'
   _globals['_RUNTESTSREQUEST']._serialized_start=410
-  _globals['_RUNTESTSREQUEST']._serialized_end=876
-  _globals['_RUNTESTSRESPONSE']._serialized_start=878
-  _globals['_RUNTESTSRESPONSE']._serialized_end=974
+  _globals['_RUNTESTSREQUEST']._serialized_end=895
+  _globals['_RUNTESTSRESPONSE']._serialized_start=897
+  _globals['_RUNTESTSRESPONSE']._serialized_end=993
 # @@protoc_insertion_point(module_scope)

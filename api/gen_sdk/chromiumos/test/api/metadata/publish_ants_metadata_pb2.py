@@ -11,9 +11,10 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
+from chromite.api.gen_sdk.chromiumos.test.artifact import test_result_pb2 as chromiumos_dot_test_dot_artifact_dot_test__result__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n8chromiumos/test/api/metadata/publish_ants_metadata.proto\x12\x1c\x63hromiumos.test.api.metadata\"b\n\x13PublishAntsMetadata\x12\x1a\n\x12\x61nts_invocation_id\x18\x01 \x01(\t\x12\x1b\n\x13parent_work_unit_id\x18\x02 \x01(\t\x12\x12\n\naccount_id\x18\x03 \x01(\tB8Z6go.chromium.org/chromiumos/config/go/test/api/metadatab\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n8chromiumos/test/api/metadata/publish_ants_metadata.proto\x12\x1c\x63hromiumos.test.api.metadata\x1a*chromiumos/test/artifact/test_result.proto\"\x92\x02\n\x13PublishAntsMetadata\x12\x1a\n\x12\x61nts_invocation_id\x18\x01 \x01(\t\x12\x1b\n\x13parent_work_unit_id\x18\x02 \x01(\t\x12\x12\n\naccount_id\x18\x03 \x01(\t\x12G\n\x16primary_execution_info\x18\x04 \x01(\x0b\x32\'.chromiumos.test.artifact.ExecutionInfo\x12\x1a\n\x12luci_invocation_id\x18\x05 \x01(\t\x12I\n\x13scheduling_metadata\x18\x06 \x01(\x0b\x32,.chromiumos.test.artifact.SchedulingMetadataB8Z6go.chromium.org/chromiumos/config/go/test/api/metadatab\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -22,6 +23,6 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z6go.chromium.org/chromiumos/config/go/test/api/metadata'
-  _globals['_PUBLISHANTSMETADATA']._serialized_start=90
-  _globals['_PUBLISHANTSMETADATA']._serialized_end=188
+  _globals['_PUBLISHANTSMETADATA']._serialized_start=135
+  _globals['_PUBLISHANTSMETADATA']._serialized_end=409
 # @@protoc_insertion_point(module_scope)

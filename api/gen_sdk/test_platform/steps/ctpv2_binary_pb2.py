@@ -11,12 +11,13 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 from chromite.api.gen_sdk.test_platform.config import config_pb2 as test__platform_dot_config_dot_config__pb2
 from chromite.api.gen_sdk.test_platform import request_pb2 as test__platform_dot_request__pb2
 from chromite.api.gen_sdk.chromiumos.test.api import ctp2_pb2 as chromiumos_dot_test_dot_api_dot_ctp2__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&test_platform/steps/ctpv2_binary.proto\x12\x13test_platform.steps\x1a!test_platform/config/config.proto\x1a\x1btest_platform/request.proto\x1a\x1e\x63hromiumos/test/api/ctp2.proto\"\xbd\x02\n\x15\x43TPv2BinaryBuildInput\x12\'\n\x07request\x18\x01 \x01(\x0b\x32\x16.test_platform.Request\x12J\n\x08requests\x18\x02 \x03(\x0b\x32\x38.test_platform.steps.CTPv2BinaryBuildInput.RequestsEntry\x12,\n\x06\x63onfig\x18\x03 \x01(\x0b\x32\x1c.test_platform.config.Config\x12\x38\n\rctpv2_request\x18\x04 \x01(\x0b\x32!.chromiumos.test.api.CTPv2Request\x1aG\n\rRequestsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12%\n\x05value\x18\x02 \x01(\x0b\x32\x16.test_platform.Request:\x02\x38\x01\"\xaa\x01\n\x16\x43TPv2BinaryBuildOutput\x12\x1e\n\x16\x65rror_summary_markdown\x18\x01 \x01(\t\x12\x32\n\x14\x63ompressed_responses\x18\x02 \x01(\tR\x14\x63ompressed_responses\x12<\n\x19\x63ompressed_json_responses\x18\x03 \x01(\tR\x19\x63ompressed_json_responsesB?Z=go.chromium.org/chromiumos/infra/proto/go/test_platform/stepsb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&test_platform/steps/ctpv2_binary.proto\x12\x13test_platform.steps\x1a\x1egoogle/protobuf/wrappers.proto\x1a!test_platform/config/config.proto\x1a\x1btest_platform/request.proto\x1a\x1e\x63hromiumos/test/api/ctp2.proto\"\xf1\x02\n\x15\x43TPv2BinaryBuildInput\x12\'\n\x07request\x18\x01 \x01(\x0b\x32\x16.test_platform.Request\x12J\n\x08requests\x18\x02 \x03(\x0b\x32\x38.test_platform.steps.CTPv2BinaryBuildInput.RequestsEntry\x12,\n\x06\x63onfig\x18\x03 \x01(\x0b\x32\x1c.test_platform.config.Config\x12\x38\n\rctpv2_request\x18\x04 \x01(\x0b\x32!.chromiumos.test.api.CTPv2Request\x12\x32\n\x0epartner_config\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\x1aG\n\rRequestsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12%\n\x05value\x18\x02 \x01(\x0b\x32\x16.test_platform.Request:\x02\x38\x01\"\xaa\x01\n\x16\x43TPv2BinaryBuildOutput\x12\x1e\n\x16\x65rror_summary_markdown\x18\x01 \x01(\t\x12\x32\n\x14\x63ompressed_responses\x18\x02 \x01(\tR\x14\x63ompressed_responses\x12<\n\x19\x63ompressed_json_responses\x18\x03 \x01(\tR\x19\x63ompressed_json_responsesB?Z=go.chromium.org/chromiumos/infra/proto/go/test_platform/stepsb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -27,10 +28,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._serialized_options = b'Z=go.chromium.org/chromiumos/infra/proto/go/test_platform/steps'
   _CTPV2BINARYBUILDINPUT_REQUESTSENTRY._options = None
   _CTPV2BINARYBUILDINPUT_REQUESTSENTRY._serialized_options = b'8\001'
-  _globals['_CTPV2BINARYBUILDINPUT']._serialized_start=160
-  _globals['_CTPV2BINARYBUILDINPUT']._serialized_end=477
-  _globals['_CTPV2BINARYBUILDINPUT_REQUESTSENTRY']._serialized_start=406
-  _globals['_CTPV2BINARYBUILDINPUT_REQUESTSENTRY']._serialized_end=477
-  _globals['_CTPV2BINARYBUILDOUTPUT']._serialized_start=480
-  _globals['_CTPV2BINARYBUILDOUTPUT']._serialized_end=650
+  _globals['_CTPV2BINARYBUILDINPUT']._serialized_start=192
+  _globals['_CTPV2BINARYBUILDINPUT']._serialized_end=561
+  _globals['_CTPV2BINARYBUILDINPUT_REQUESTSENTRY']._serialized_start=490
+  _globals['_CTPV2BINARYBUILDINPUT_REQUESTSENTRY']._serialized_end=561
+  _globals['_CTPV2BINARYBUILDOUTPUT']._serialized_start=564
+  _globals['_CTPV2BINARYBUILDOUTPUT']._serialized_end=734
 # @@protoc_insertion_point(module_scope)

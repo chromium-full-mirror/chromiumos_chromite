@@ -11,10 +11,11 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
+from chromite.api.gen_sdk.chromiumos.test.scheduling import os_type_pb2 as chromiumos_dot_test_dot_scheduling_dot_os__type__pb2
 from chromite.api.gen_sdk.chromiumos.test.scheduling import swarming_dimensions_pb2 as chromiumos_dot_test_dot_scheduling_dot_swarming__dimensions__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n-chromiumos/test/scheduling/device_event.proto\x12\x1a\x63hromiumos.test.scheduling\x1a\x34\x63hromiumos/test/scheduling/swarming_dimensions.proto\"\xbe\x01\n\x0b\x44\x65viceEvent\x12\x12\n\nevent_time\x18\x01 \x01(\x03\x12\x11\n\tdevice_id\x18\x02 \x01(\t\x12\x12\n\x06pod_id\x18\x03 \x01(\rB\x02\x18\x01\x12I\n\x11\x64\x65vice_dimensions\x18\x05 \x01(\x0b\x32..chromiumos.test.scheduling.SwarmingDimensions\x12\x14\n\x0c\x64\x65vice_ready\x18\x04 \x01(\x08\x12\x13\n\x0b\x64\x65vice_name\x18\x06 \x01(\t\"G\n\x0c\x44\x65viceEvents\x12\x37\n\x06\x65vents\x18\x01 \x03(\x0b\x32\'.chromiumos.test.scheduling.DeviceEventB\tZ\x07./protob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n-chromiumos/test/scheduling/device_event.proto\x12\x1a\x63hromiumos.test.scheduling\x1a(chromiumos/test/scheduling/os_type.proto\x1a\x34\x63hromiumos/test/scheduling/swarming_dimensions.proto\"\xf3\x01\n\x0b\x44\x65viceEvent\x12\x12\n\nevent_time\x18\x01 \x01(\x03\x12\x11\n\tdevice_id\x18\x02 \x01(\t\x12\x12\n\x06pod_id\x18\x03 \x01(\rB\x02\x18\x01\x12I\n\x11\x64\x65vice_dimensions\x18\x05 \x01(\x0b\x32..chromiumos.test.scheduling.SwarmingDimensions\x12\x14\n\x0c\x64\x65vice_ready\x18\x04 \x01(\x08\x12\x13\n\x0b\x64\x65vice_name\x18\x06 \x01(\t\x12\x33\n\x07os_type\x18\x07 \x01(\x0e\x32\".chromiumos.test.scheduling.OsType\"G\n\x0c\x44\x65viceEvents\x12\x37\n\x06\x65vents\x18\x01 \x03(\x0b\x32\'.chromiumos.test.scheduling.DeviceEventB\tZ\x07./protob\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -25,8 +26,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._serialized_options = b'Z\007./proto'
   _DEVICEEVENT.fields_by_name['pod_id']._options = None
   _DEVICEEVENT.fields_by_name['pod_id']._serialized_options = b'\030\001'
-  _globals['_DEVICEEVENT']._serialized_start=132
-  _globals['_DEVICEEVENT']._serialized_end=322
-  _globals['_DEVICEEVENTS']._serialized_start=324
-  _globals['_DEVICEEVENTS']._serialized_end=395
+  _globals['_DEVICEEVENT']._serialized_start=174
+  _globals['_DEVICEEVENT']._serialized_end=417
+  _globals['_DEVICEEVENTS']._serialized_start=419
+  _globals['_DEVICEEVENTS']._serialized_end=490
 # @@protoc_insertion_point(module_scope)
