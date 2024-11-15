@@ -317,6 +317,23 @@ class Repository:
         result = self._Run(cmd, capture_output=True)
         return repo_manifest.Manifest.FromString(result.stdout)
 
+    def GetBranch(self) -> str:
+        """Returns the name of the branch the manifest is synced too.
+
+        Raises:
+            RunCommandError: if `git config` otherwise failed.
+        """
+
+        status = cros_build_lib.run(
+            ["git", "rev-parse", "--abbrev-ref", "@{upstream}"],
+            cwd=self._manifests_dir,
+            capture_output=True,
+            debug_level=logging.DEBUG,
+            encoding="utf-8",
+        )
+        _remote, branch = status.stdout.strip().split("/", maxsplit=1)
+        return branch
+
     def Copy(self, dest_root: Union[str, os.PathLike]):
         """Efficiently `cp` the .repo directory, using hardlinks if possible.
 

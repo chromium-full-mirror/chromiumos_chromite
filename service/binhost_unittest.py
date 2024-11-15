@@ -960,7 +960,7 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
 
     def setUp(self):
         self.PatchObject(config_lib, "GetSiteParams")
-        self.PatchObject(repo_util, "Repository")
+        self.repo_mock = self.PatchObject(repo_util, "Repository")
         self.get_snapshot_shas = self.PatchObject(binhost, "_get_snapshot_shas")
         self.fetch_binhosts = self.PatchObject(binhost, "_fetch_binhosts")
         self.sysroot = self.PatchObject(sysroot_lib, "Sysroot")
@@ -1019,6 +1019,49 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
                 "gs://internal/binhost2",
                 "gs://internal/binhost1",
             ],
+        )
+
+    def testMainBranch(self):
+        """Test that nothing is returned with a main branch."""
+
+        self.repo_mock.MustFind.return_value.GetBranch.return_value = "main"
+
+        self.fetch_binhosts.return_value = (
+            self.INTERNAL_GS_URIS + self.EXTERNAL_GS_URIS
+        )
+
+        result = binhost.lookup_binhosts(
+            MOCK_BUILD_TARGET,
+            None,
+        )
+
+        self.assertEqual(
+            list(result),
+            [
+                "gs://external/binhost2",
+                "gs://external/binhost1",
+                "gs://internal/binhost2",
+                "gs://internal/binhost1",
+            ],
+        )
+
+    def testNonMainBranch(self):
+        """Test that nothing is returned with a non-main branch."""
+
+        self.repo_mock.GetBranch.return_value = "factory-branch"
+
+        self.fetch_binhosts.return_value = (
+            self.INTERNAL_GS_URIS + self.EXTERNAL_GS_URIS
+        )
+
+        result = binhost.lookup_binhosts(
+            MOCK_BUILD_TARGET,
+            None,
+        )
+
+        self.assertEqual(
+            list(result),
+            [],
         )
 
 

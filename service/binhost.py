@@ -856,9 +856,6 @@ def lookup_binhosts(
         private = binhost_lookup_service_data.private
         is_staging = binhost_lookup_service_data.is_staging
     else:
-        # Get snapshot SHAs from the git log.
-        snapshot_shas_combined = _get_snapshot_shas()
-
         site_params = config_lib.GetSiteParams()
         # Get the repo.
         try:
@@ -866,6 +863,48 @@ def lookup_binhosts(
         except repo_util.NotInRepoError as e:
             logging.error("Unable to determine a repo directory: %s", e)
             raise e
+
+        branch = repo.GetBranch()
+
+        # We have two types of manifests:
+        # 1. Pinned manifests - In these manifests all the repositories are
+        #    pinned to a specific SHA. This means we can sync the repo to a
+        #    known state. The `stable` and `snapshot` branches use pinned
+        #    manifests. We then use the SHA of the manifest commit as a stable
+        #    identifier to describe the repo state. This identifier is what the
+        #    bin lookup services uses to find matching binhosts.
+        #
+        #    The logic we are using to fetch the SHAs relies on looking at the
+        #    `snapshot`/`stable` ref in the `manifest` and `manifest-internal`
+        #    repositories instead of the `.repo/manifests` repository. This is
+        #    because we need both the public and private SHAs. It does mean that
+        #    if someone checks out a previous snapshot commit in their
+        #    `.repo/manifest` repository, we ignore it continue to use the
+        #    `snapshot`/`stable` refs. This is something that could be improved.
+        #    The `stable`/`snapshot` refs might not exist if a `repo sync -c`
+        #    was used to sync the `manifest` or `manifest-internal` repos.
+        #
+        # 2. Unpinned manifests - These manifests don't have a stable identifier
+        #    that can represent the entire repo state. The manifests points to
+        #    branches and those branches all sync asynchronously. There is also
+        #    no way to go back in history. Git super-projects solve this by
+        #    providing a stable identifier, but we aren't using that right now.
+        #    Unpinned manifests are used when working on ToT, a factory branch,
+        #    etc. When working on ToT, we make the assumption that the
+        #    `snapshot`/`stable` ref is a close approximation of the repository
+        #    state. For non-main branches, this assumption doesn't hold true.
+        #    The `stable`/`snapshot` refs might not even exist if a
+        #    `repo sync -c` was performed.
+        if not branch in ["main", "snapshot", "stable"]:
+            logging.info(
+                "Manifest is not tracking main, skipping lookup service."
+            )
+            # Fall back to using the POSTSUBMIT binhost make.conf from the
+            # repository.
+            return []
+
+        # Get snapshot SHAs from the git log.
+        snapshot_shas_combined = _get_snapshot_shas()
 
         manifest = repo.Manifest()
 
