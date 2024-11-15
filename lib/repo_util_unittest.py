@@ -344,7 +344,7 @@ class RepositoryCommandMethodTest(cros_test_lib.RunCommandTempDirTestCase):
 
 @cros_test_lib.pytestmark_network_test
 class RepositoryIntegrationTest(cros_test_lib.TempDirTestCase):
-    """Tests for repo_util.Repository that actually call `repo`.
+    """Tests for repo_util.Repository that actually call `repo` and `git`.
 
     Note that these test methods are *not* independent: they must run in
     definition order.
@@ -379,6 +379,11 @@ class RepositoryIntegrationTest(cros_test_lib.TempDirTestCase):
             depth=1,
         )
         self.assertExists(os.path.join(self.root, ".repo"))
+
+    @tests.append
+    def testGetBranch(self) -> None:
+        """Test Repository.GetBranch returns the repo branch."""
+        self.assertEqual("main", self.repo.GetBranch())
 
     @tests.append
     def testSync(self) -> None:
