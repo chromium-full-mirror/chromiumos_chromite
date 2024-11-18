@@ -256,6 +256,7 @@ class Router:
             MethodNotFoundError when the method cannot be retrieved from the
                 module.
         """
+        logging.info("Routing %s/%s", service_name, method_name)
         # Fetch the method options for chroot and method name overrides.
         method_options = self._get_method_options(service_name, method_name)
 
