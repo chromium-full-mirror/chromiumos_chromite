@@ -412,6 +412,7 @@ _COPY_PATHS_CHROME_WITHOUT_EXE = (
     Path("crashpad_handler", exe=True, optional=True),
     Path("chrome_crashpad_handler", exe=True, optional=True),
     Path("dbus/", optional=True),
+    Path("IwaKeyDistribution/", optional=True),
     Path("keyboard_resources.pak"),
     Path(
         "liboptimization_guide_internal.so",
