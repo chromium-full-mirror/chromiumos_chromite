@@ -207,7 +207,11 @@ def _SetGeneratePayloadOutputProto(
         versioned_artifact.version = version
         if artifact[0]:
             versioned_artifact.file_path.path = artifact[0]
-            versioned_artifact.file_path.location = common_pb2.Path.INSIDE
+            versioned_artifact.file_path.location = (
+                common_pb2.Path.INSIDE
+                if cros_build_lib.IsInsideChroot()
+                else common_pb2.Path.OUTSIDE
+            )
         versioned_artifact.remote_uri = artifact[1] or ""
 
 
