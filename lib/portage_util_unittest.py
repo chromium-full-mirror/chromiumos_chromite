@@ -1809,6 +1809,118 @@ class InstalledPackageTest(cros_test_lib.TempDirTestCase):
         self.assertEqual("package-1", pkg.pf)
 
 
+class GetSubslotDependenciesTest(cros_test_lib.TempDirTestCase):
+    """GetSubSlotDependencies tests."""
+
+    def setUp(self) -> None:
+        ebuilds = [
+            (
+                "sys-libs/pkga-1",
+                (
+                    ("pkga-1.ebuild", "EAPI=7"),
+                    ("SLOT", "1/0"),
+                    ("CATEGORY", "sys-libs\n"),
+                    ("RDEPEND", "sys-libs/pkgb[foo]:2/0= sys-libs/pkgd:4/0=\n"),
+                    ("LICENSE", "GPL-2\n"),
+                    ("PF", "pkga-1\n"),
+                    ("repository", "portage-stable\n"),
+                ),
+            ),
+            (
+                "sys-libs/pkgb-1",
+                (
+                    ("pkgb-1.ebuild", "EAPI=7"),
+                    ("SLOT", "2/0"),
+                    ("IUSE", "foo"),
+                    ("USE", "foo"),
+                    ("CATEGORY", "sys-libs\n"),
+                    ("RDEPEND", ">=sys-libs/pkgc-1:3/3= sys-libs/pkgd:4/0=\n"),
+                    ("LICENSE", "GPL-2\n"),
+                    ("PF", "pkgb-1\n"),
+                    ("repository", "portage-stable\n"),
+                ),
+            ),
+            (
+                "sys-libs/pkgc-1",
+                (
+                    ("pkgc-1.ebuild", "EAPI=7"),
+                    ("SLOT", "3"),
+                    ("CATEGORY", "sys-libs\n"),
+                    # Don't traverse blockers, though this should never happen.
+                    ("RDEPEND", "!sys-libs/blocked:0/0= sys-libs/pkge\n"),
+                    ("LICENSE", "GPL-2\n"),
+                    ("PF", "pkgc-1\n"),
+                    ("repository", "portage-stable\n"),
+                ),
+            ),
+            (
+                "sys-libs/pkgd-1",
+                (
+                    ("pkgd-1.ebuild", "EAPI=7"),
+                    ("SLOT", "4/0"),
+                    ("CATEGORY", "sys-libs\n"),
+                    ("LICENSE", "GPL-2\n"),
+                    ("PF", "pkgd-1\n"),
+                    ("repository", "portage-stable\n"),
+                ),
+            ),
+            (
+                "sys-libs/pkge-1",
+                (
+                    ("pkge-1.ebuild", "EAPI=7"),
+                    ("SLOT", "5/5"),
+                    ("CATEGORY", "sys-libs\n"),
+                    ("LICENSE", "GPL-2\n"),
+                    ("PF", "pkge-1\n"),
+                    ("repository", "portage-stable\n"),
+                ),
+            ),
+            (
+                "sys-libs/blocked-1",
+                (
+                    ("blocked-1.ebuild", "EAPI=7"),
+                    ("SLOT", "0/0"),
+                    ("CATEGORY", "sys-libs\n"),
+                    ("LICENSE", "GPL-2\n"),
+                    ("PF", "blocked-1\n"),
+                    ("repository", "portage-stable\n"),
+                ),
+            ),
+        ]
+
+        vdb = self.tempdir / "vdb"
+        vdb.mkdir()
+
+        for cpv, contents in ebuilds:
+            path = vdb / cpv
+            path.mkdir(parents=True)
+
+            for key, value in contents:
+                (path / key).write_text(value)
+
+        self.pdb = portage_util.PortageDB(root=self.tempdir, vdb="vdb")
+        self.installed_packages = self.pdb.InstalledPackages()
+
+    def testGetSubSlotDependencies(self) -> None:
+        """Verify GetSubSlotDependencies returns transitive sub-slot deps."""
+        root = self.pdb.GetInstalledPackage("sys-libs", "pkga-1")
+
+        deps = portage_util.GetSubSlotDependencies(
+            self.installed_packages, [root]
+        )
+
+        cpvs = [f"{dep.category}/{dep.pf}" for dep in deps]
+
+        self.assertEqual(
+            cpvs,
+            [
+                "sys-libs/pkgb-1",
+                "sys-libs/pkgc-1",
+                "sys-libs/pkgd-1",
+            ],
+        )
+
+
 class HasPrebuiltTest(cros_test_lib.RunCommandTestCase):
     """HasPrebuilt tests."""
 

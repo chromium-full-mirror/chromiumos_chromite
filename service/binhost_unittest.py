@@ -660,6 +660,8 @@ CPV: chromeos-base/chromeos-chrome-100.0.0-r1
 
 CPV: chromeos-base/chrome-icu-100.0.0-r1
 
+CPV: net-wireless/libbluez-1.0
+
 CPV: package/exclude-2
     """
         package_index_file_path = self.chroot.full_path(
@@ -673,13 +675,23 @@ CPV: package/exclude-2
         self.upload_packages_file = self.upload_dir / "Packages"
 
         self.PatchObject(os.path, "exists", return_value=True)
+
+        vdb = self.tempdir / "vdb"
+        vdb.mkdir()
+
+        osutils.WriteFile(
+            vdb / "chromeos-chrome" / "RDEPEND",
+            "net-wireless/libbluez:0/0=\n",
+            makedirs=True,
+        )
+
         self.fake_packages = [
             portage_util.InstalledPackage(
                 None, "", category="package", pf="exclude-1"
             ),
             portage_util.InstalledPackage(
                 None,
-                "",
+                vdb / "chromeos-chrome",
                 category=constants.CHROME_CN,
                 pf="chromeos-chrome-100.0.0-r1",
             ),
@@ -688,6 +700,12 @@ CPV: package/exclude-2
                 "",
                 category=constants.CHROME_CN,
                 pf="chrome-icu-100.0.0-r1",
+            ),
+            portage_util.InstalledPackage(
+                None,
+                "",
+                category="net-wireless",
+                pf="libbluez-1.0",
             ),
             portage_util.InstalledPackage(
                 None, "", category="package", pf="exclude-2"
@@ -716,6 +734,7 @@ CPV: package/exclude-2
             [
                 "chromeos-base/chromeos-chrome-100.0.0-r1.tbz2",
                 "chromeos-base/chrome-icu-100.0.0-r1.tbz2",
+                "net-wireless/libbluez-1.0.tbz2",
             ],
             actual_packages,
         )
@@ -732,6 +751,11 @@ CPV: package/exclude-2
         )
         self.assertIn(
             "PATH: target/chromeos-base/chrome-icu-100.0.0-r1.tbz2",
+            actual_packages_content,
+        )
+        self.assertIn("CPV: net-wireless/libbluez-1.0", actual_packages_content)
+        self.assertIn(
+            "PATH: target/net-wireless/libbluez-1.0.tbz2",
             actual_packages_content,
         )
         self.assertNotIn("CPV: package/exclude-1", actual_packages_content)

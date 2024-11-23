@@ -1722,6 +1722,19 @@ class InstalledPackage:
         return self._ReadField("SIZE")
 
     @property
+    def slot(self):
+        slot = self._ReadField("SLOT")
+        if not slot:
+            return "0/0"
+
+        if "/" in slot:
+            return slot
+
+        # The PMS states that when a package is missing a sub-slot it has an
+        # implicit sub-slot equal to the slot.
+        return f"{slot}/{slot}"
+
+    @property
     def needed(self):
         """Returns a mapping of files to the libraries they need."""
         needed = self._ReadField("NEEDED")
@@ -1800,6 +1813,87 @@ class InstalledPackage:
             result.append((typ, file_path.lstrip("/")))
 
         return result
+
+
+# Only matches sub-slot dependency atoms.
+#
+# sys-libs/pkgb:2/0=
+# >=sys-libs/pkgb:2/0=
+# ~sys-libs/pkgb-r3:2/0=
+# sys-libs/pkgb[foo]:2/0=
+SUBSLOT_REGEX = re.compile(
+    r"(?P<op>\W+)?"
+    r"(?P<cpf>[\w\-]+/[\w\-]+)"
+    r"(?:\[(?P<use>[^\]]+)\])?"
+    r":(?P<slot>[\w\-]+(?:/[\w\-]+)?)="
+)
+
+
+def GetSubSlotDependencies(
+    installed_packages: List[InstalledPackage], roots: List[InstalledPackage]
+) -> List[InstalledPackage]:
+    """Finds all the transitive sub-slot dependencies of the specified `roots.
+
+    A sub-slot dependency means that a package will only work with a dependency
+    that satisfies that sub-slot. Instead of defining a stable API, cros-workon
+    packages embed the revision number in the sub-slot field. This forces a
+    rebuild of all reverse dependencies when the sub-slot operator is used. This
+    also means that we need all of these specific versions available to have a
+    successful binpkg match.
+    """
+
+    # Don't mutate the input since it's confusing for the caller.
+    roots = roots.copy()
+
+    # Don't return any duplicate packages.
+    found = {}
+
+    # Category/Package/Slot to package map.
+    cps_to_pkg = {
+        f"{pkg.category}/{pkg.package}:{pkg.slot}": pkg
+        for pkg in installed_packages
+    }
+
+    while roots:
+        root = roots.pop()
+
+        # A simple reduce will work since USE flags have already been evaluated.
+        atoms = root.rdepend.reduce()
+
+        for atom in atoms:
+            match = SUBSLOT_REGEX.fullmatch(atom)
+            if not match:
+                continue
+
+            # Skip blockers.
+            op = match.group("op")
+            if op and op.startswith("!"):
+                continue
+
+            pkg_info = package_info.parse(match.group("cpf"))
+
+            # In theory all the atoms should have a sub-slot defined, but let's
+            # be safe just in case.
+            slot = match.group("slot")
+            if not "/" in slot:
+                slot = f"{slot}/{slot}"
+
+            dep = cps_to_pkg.get(
+                f"{pkg_info.category}/{pkg_info.package}:{slot}", None
+            )
+            if dep is None:
+                logging.warning("Failed to find package matching: %s", atom)
+                continue
+
+            key = f"{dep.category}/{dep.pf}"
+            # Only traverse a dependency once.
+            if not key in found:
+                found[key] = dep
+                roots.append(dep)
+
+    keys = sorted(found.keys())
+
+    return [found[key] for key in keys]
 
 
 def BestEBuild(ebuilds: List[EBuild]) -> Optional[EBuild]:

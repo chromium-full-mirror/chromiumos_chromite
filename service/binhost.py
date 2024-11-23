@@ -534,13 +534,26 @@ def CreateChromePackageIndex(
         if pkg.category == constants.CHROME_CN and any(
             pn in pkg.pf for pn in (constants.CHROME_PN, "chrome-icu")
         ):
-            chrome_packages.append(pkg.package_info.cpvr)
+            chrome_packages.append(pkg)
+
+    # This fixes the case when trying to use a newer Chrome prebuilt on an older
+    # checkout. Older checkouts might not have the exact version of the sub-slot
+    # dependency as an ebuild or prebuilt, so the Chrome prebuilt gets
+    # discarded.
+    sub_slot_deps = portage_util.GetSubSlotDependencies(
+        installed_packages,
+        chrome_packages,
+    )
+
+    selected_packages = [
+        pkg.package_info.cpvr for pkg in chrome_packages + sub_slot_deps
+    ]
 
     # Read the Packages file, remove packages not in the packages list.
     packages_path = chroot.full_path(sysroot.path, "packages")
     CreateFilteredPackageIndex(
         packages_path,
-        chrome_packages,
+        selected_packages,
         package_index_path,
         gs_bucket,
         upload_path,
@@ -549,7 +562,7 @@ def CreateChromePackageIndex(
 
     # We have the list of packages, create the full path and verify each one.
     upload_targets_list = GetPrebuiltsForPackages(
-        packages_path, chrome_packages
+        packages_path, selected_packages
     )
 
     return upload_targets_list
