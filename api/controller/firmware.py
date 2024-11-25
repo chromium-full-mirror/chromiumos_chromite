@@ -188,6 +188,8 @@ def BundleFirmwareArtifacts(request, response, _config):
         raise ValueError("Must have exactly one output_artifact entry")
 
     with osutils.TempDir(delete=False) as tmpdir:
+        response.artifact_dir.path = tmpdir
+        response.artifact_dir.location = common_pb2.Path.INSIDE
         info = request.artifacts.output_artifacts[0]
         metadata_path = os.path.join(tmpdir, "firmware_metadata.jsonpb")
         args = []
