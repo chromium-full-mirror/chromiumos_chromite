@@ -790,6 +790,25 @@ def uprev_borealis_dlc_chroot(_build_targets, _refs, chroot):
     return uprev_lib.uprev_ebuild_from_pin(package_path, version_no_rev, chroot)
 
 
+@uprevs_versioned_package("chromeos-base/chromeos-ec-token")
+def uprev_chromeos_ec_token(_build_targets, _refs, chroot):
+    """Updates shared chromeos-base/chromeos-ec-token ebuild.
+
+    See: uprev_versioned_package.
+    """
+    package_path = os.path.join(
+        "src",
+        "third_party",
+        "chromeos-base",
+        "chromeos-ec-token",
+    )
+
+    version_pin_src_path = _get_version_pin_src_path(package_path)
+    version_no_rev = osutils.ReadFile(version_pin_src_path).strip()
+
+    return uprev_lib.uprev_ebuild_from_pin(package_path, version_no_rev, chroot)
+
+
 def _get_version_pin_src_path(package_path):
     """Returns the path to the VERSION-PIN file for the given package."""
     return os.path.join(constants.SOURCE_ROOT, package_path, "VERSION-PIN")
@@ -1302,9 +1321,9 @@ def uprev_starbase_artifacts(
         tarfile_name, tarfile_hash = ref.path.split("/", 1)
         branch = ""
         if len(ref.ref.split("/")) == 3:
-          branch, category, package_name = ref.ref.split("/", 2)
+            branch, category, package_name = ref.ref.split("/", 2)
         else:
-          category, package_name = ref.ref.split("/", 1)
+            category, package_name = ref.ref.split("/", 1)
         version_id = ref.revision
         modified_files = starbase_find_and_uprev(
             tarfile_name,
