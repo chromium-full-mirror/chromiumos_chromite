@@ -133,13 +133,19 @@ class PathHandler:
         self._original_message = common_pb2.Path()
         self._original_message.CopyFrom(self.field)
 
-    def transfer(self, direction: int) -> None:
+    def transfer(
+        self,
+        direction: int,
+        source_dir: Optional[str] = None,
+    ) -> None:
         """Copy the file or directory to its destination.
 
         Args:
             direction: The direction files are being copied (into or out of the
             chroot). Specifying the direction allows avoiding performing
             unnecessary copies.
+            source_dir: The directory the field is located in. The destination
+                will be suffixed by the relative path of field in source_dir.
         """
         if self._transferred:
             return
@@ -167,9 +173,17 @@ class PathHandler:
             # `Chroot.chroot_path` will do the actual translation.
             dest_path = source
         else:
+            relpath = os.path.basename(source)
+            if source_dir and source.startswith(source_dir):
+                relpath = os.path.relpath(source, start=source_dir)
             if os.path.isfile(source):
                 # File - use old file name, just copy it into the destination.
-                dest_path = os.path.join(destination, os.path.basename(source))
+                dirname = os.path.dirname(relpath)
+                if dirname:
+                    os.makedirs(
+                        os.path.join(destination, dirname), exist_ok=True
+                    )
+                dest_path = os.path.join(destination, relpath)
                 copy_fn = shutil.copy
             else:
                 # Directory - just copy everything into the new location.
@@ -356,12 +370,32 @@ def extract_results(
         # ResultPath wasn't filled; don't copy to undefined location.
         return
 
+    # Find the artifact_dir property to calculate relative paths.
+    source_dir = None
+    if hasattr(response_message, "artifact_dir") and response_message.HasField(
+        "artifact_dir"
+    ):
+        if isinstance(response_message.artifact_dir, common_pb2.Path):
+            if response_message.artifact_dir.location == common_pb2.Path.INSIDE:
+                source_dir = chroot.full_path(
+                    response_message.artifact_dir.path
+                )
+            else:
+                source_dir = response_message.artifact_dir.path
+            # Clear the artifact_dir so _extract_handlers won't try to copy it.
+            response_message.ClearField("artifact_dir")
+            logging.info("Using %s as source_dir", source_dir)
+
     handlers = _extract_handlers(
-        response_message, destination, chroot=chroot, delete=False, reset=False
+        response_message,
+        destination,
+        chroot=chroot,
+        delete=False,
+        reset=False,
     )
 
     for handler in handlers:
-        handler.transfer(PathHandler.OUTSIDE)
+        handler.transfer(PathHandler.OUTSIDE, source_dir=source_dir)
         handler.cleanup()
 
 

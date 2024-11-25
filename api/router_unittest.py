@@ -13,12 +13,18 @@ from chromite.api import api_config
 from chromite.api import message_util
 from chromite.api import router
 from chromite.api.gen.chromite.api import build_api_test_pb2
+from chromite.api.gen.chromite.api import firmware_pb2
+from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 
+
+# A shorter name for some very long proto types
+ARTIFACT_TYPE = common_pb2.ArtifactsByService.Firmware.ArtifactType
+ARTIFACT_PATHS = common_pb2.UploadedArtifactsByService.Firmware.ArtifactPaths
 
 # The executable we expect to be called when re-execing build_api
 # inside the SDK.
@@ -35,12 +41,13 @@ class RouterTest(
     def setUp(self) -> None:
         self.router = router.Router()
         self.router.Register(build_api_test_pb2)
+        self.router.Register(firmware_pb2)
 
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self.chroot_dir = self.tempdir / "chroot"
         self.out_dir = self.tempdir / "out"
-        chroot = chroot_lib.Chroot(
+        self.chroot = chroot_lib.Chroot(
             path=self.chroot_dir,
             out_path=self.out_dir,
         )
@@ -48,7 +55,7 @@ class RouterTest(
         osutils.SafeMakedirs(self.chroot_dir)
         osutils.SafeMakedirs(self.out_dir)
         # Make the tmp dir for the re-exec inside chroot input/output files.
-        osutils.SafeMakedirs(chroot.tmp)
+        osutils.SafeMakedirs(self.chroot.tmp)
 
         # Build the input/output/config paths we'll be using in the tests.
         self.json_input_file = os.path.join(self.tempdir, "input.json")
@@ -671,3 +678,193 @@ class RouterTest(
         for current in self.router.ListMethods():
             self.assertNotIn(service, current)
             self.assertNotIn(method, current)
+
+    def testBundleFirmware(self) -> None:
+        """Test calling BundleFirmwareArtifacts.
+
+        Test with a realistic set of tar files that use subdirectories, and
+        assert that they are copied correctly.
+        """
+        self.PatchObject(
+            self.router,
+            "_GetMethod",
+            return_value=self._mock_callable(expect_called=False),
+        )
+        self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
+        # Patch the chroot tempdir method to return a fixed tempdir.
+        tempdir = osutils.TempDir()
+        original = tempdir.tempdir
+        self.subprocess_tempdir = os.path.join(self.chroot.tmp, "abctmp")
+        tempdir.tempdir = self.subprocess_tempdir
+        self.PatchObject(
+            chroot_lib.Chroot,
+            "tempdir",
+            return_value=tempdir,
+        )
+        with osutils.TempDir() as artifact_dir:
+            input_msg = firmware_pb2.BundleFirmwareArtifactsRequest()
+            input_msg.chroot.path = str(self.chroot_dir)
+            input_msg.chroot.out_path = str(self.out_dir)
+            input_msg.result_path.path.path = str(artifact_dir)
+            input_msg.result_path.path.location = common_pb2.Path.OUTSIDE
+            output_artifact = input_msg.artifacts.output_artifacts.add()
+            output_artifact.artifact_types.append(
+                ARTIFACT_TYPE.FIRMWARE_TARBALL
+            )
+            output_artifact.artifact_types.append(
+                ARTIFACT_TYPE.FIRMWARE_TARBALL_INFO
+            )
+            output_artifact.location = common_pb2.PLATFORM_ZEPHYR
+
+            # Write out base input and config messages.
+            osutils.WriteFile(
+                self.json_input_file, json_format.MessageToJson(input_msg)
+            )
+            osutils.WriteFile(
+                self.binary_input_file, input_msg.SerializeToString(), mode="wb"
+            )
+
+            os.mkdir(self.subprocess_tempdir)
+            with open(
+                os.path.join(self.subprocess_tempdir, "brox.EC.tar.bz2"), "ab"
+            ):
+                pass
+            with open(
+                os.path.join(self.subprocess_tempdir, "karis.EC.tar.bz2"), "ab"
+            ):
+                pass
+            with open(
+                os.path.join(self.subprocess_tempdir, "screebo.EC.tar.bz2"),
+                "ab",
+            ):
+                pass
+            os.mkdir(os.path.join(self.subprocess_tempdir, "brox"))
+            with open(
+                os.path.join(
+                    self.subprocess_tempdir, "brox/firmware_from_source.tar.bz2"
+                ),
+                "ab",
+            ):
+                pass
+            os.mkdir(os.path.join(self.subprocess_tempdir, "rex"))
+            with open(
+                os.path.join(
+                    self.subprocess_tempdir, "rex/firmware_from_source.tar.bz2"
+                ),
+                "ab",
+            ):
+                pass
+            inside_output_msg = firmware_pb2.BundleFirmwareArtifactsResponse(
+                artifacts=common_pb2.UploadedArtifactsByService.Firmware(
+                    artifacts=[
+                        ARTIFACT_PATHS(
+                            artifact_type=ARTIFACT_TYPE.FIRMWARE_TARBALL,
+                            paths=[
+                                common_pb2.Path(
+                                    path="/tmp/abctmp/brox.EC.tar.bz2",
+                                    location=common_pb2.Path.INSIDE,
+                                ),
+                                common_pb2.Path(
+                                    path="/tmp/abctmp/karis.EC.tar.bz2",
+                                    location=common_pb2.Path.INSIDE,
+                                ),
+                                common_pb2.Path(
+                                    path="/tmp/abctmp/screebo.EC.tar.bz2",
+                                    location=common_pb2.Path.INSIDE,
+                                ),
+                                common_pb2.Path(
+                                    path="/tmp/abctmp/brox/"
+                                    "firmware_from_source.tar.bz2",
+                                    location=common_pb2.Path.INSIDE,
+                                ),
+                                common_pb2.Path(
+                                    path="/tmp/abctmp/rex/"
+                                    "firmware_from_source.tar.bz2",
+                                    location=common_pb2.Path.INSIDE,
+                                ),
+                            ],
+                        ),
+                    ]
+                ),
+                artifact_dir=common_pb2.Path(
+                    path="/tmp/abctmp",
+                    location=common_pb2.Path.INSIDE,
+                ),
+            )
+
+            # Set the command side effect to write out our expected output to
+            # the output file for the inside the chroot reexecution of the
+            # endpoint. This lets us make sure the logic moving everything out
+            # works as intended.
+            self.rc.SetDefaultCmdResult(
+                side_effect=self._writeChrootCallOutput(
+                    content=inside_output_msg.SerializeToString(), mode="wb"
+                )
+            )
+
+            service = "chromite.api.FirmwareService"
+            method = "BundleFirmwareArtifacts"
+            service_method = "%s/%s" % (service, method)
+            self.router.Route(
+                service,
+                method,
+                self.api_config,
+                self.binary_input_handler,
+                [self.binary_output_handler],
+                self.binary_config_handler,
+            )
+
+            self.assertCommandContains(
+                [_BUILD_API_INSIDE, service_method], enter_chroot=True
+            )
+            expected_output_msg = firmware_pb2.BundleFirmwareArtifactsResponse(
+                artifacts=common_pb2.UploadedArtifactsByService.Firmware(
+                    artifacts=[
+                        ARTIFACT_PATHS(
+                            artifact_type=ARTIFACT_TYPE.FIRMWARE_TARBALL,
+                            paths=[
+                                common_pb2.Path(
+                                    path=os.path.join(
+                                        artifact_dir, "brox.EC.tar.bz2"
+                                    ),
+                                    location=common_pb2.Path.OUTSIDE,
+                                ),
+                                common_pb2.Path(
+                                    path=os.path.join(
+                                        artifact_dir, "karis.EC.tar.bz2"
+                                    ),
+                                    location=common_pb2.Path.OUTSIDE,
+                                ),
+                                common_pb2.Path(
+                                    path=os.path.join(
+                                        artifact_dir, "screebo.EC.tar.bz2"
+                                    ),
+                                    location=common_pb2.Path.OUTSIDE,
+                                ),
+                                common_pb2.Path(
+                                    path=os.path.join(
+                                        artifact_dir,
+                                        "brox/firmware_from_source.tar.bz2",
+                                    ),
+                                    location=common_pb2.Path.OUTSIDE,
+                                ),
+                                common_pb2.Path(
+                                    path=os.path.join(
+                                        artifact_dir,
+                                        "rex/firmware_from_source.tar.bz2",
+                                    ),
+                                    location=common_pb2.Path.OUTSIDE,
+                                ),
+                            ],
+                        ),
+                    ]
+                ),
+            )
+
+            # It should be writing the result out to our output file.
+            output_msg = firmware_pb2.BundleFirmwareArtifactsResponse()
+            self.binary_output_handler.read_into(output_msg)
+            self.assertEqual(expected_output_msg, output_msg)
+
+            tempdir.tempdir = original
+            del tempdir

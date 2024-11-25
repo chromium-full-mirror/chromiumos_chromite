@@ -4,7 +4,9 @@
 
 """Unittests for Firmware operations."""
 
+import logging
 import os
+import tempfile
 from unittest import mock
 
 from chromite.api import api_config
@@ -65,6 +67,102 @@ class BuildAllFirmwareTestCase(
                     "build",
                 ],
                 check=False,
+            )
+
+    @mock.patch("tempfile.mkdtemp")
+    def testBundleFirmwareArtifacts(self, mock_mkdtemp) -> None:
+        """Test endpoint by verifying call to cros_build_lib.run."""
+        outdir = None
+        for fw_loc in common_pb2.FwLocation.values():
+            fw_path = firmware.get_fw_loc(fw_loc)
+            if not fw_path:
+                continue
+            outdir = os.path.join(tempfile.tempdir, str(fw_loc))
+            os.mkdir(outdir)
+            temp_dir_count = 0
+
+            def temp_dirs(
+                suffix=None,
+                prefix=None,
+                dir=None,  # pylint: disable=redefined-builtin
+            ):
+                nonlocal temp_dir_count, outdir
+                logging.info(
+                    "tempfile.mkdtemp called suffix=%s prefix=%s dir=%s",
+                    suffix,
+                    prefix,
+                    dir,
+                )
+                ret = outdir
+                if temp_dir_count > 0:
+                    ret = f"{outdir}_{temp_dir_count}"
+                temp_dir_count += 1
+                os.makedirs(ret, exist_ok=True)
+                return ret
+
+            mock_mkdtemp.side_effect = temp_dirs
+            if fw_loc == common_pb2.PLATFORM_ZEPHYR:
+                # Create metadata file
+                metadata_path = os.path.join(outdir, "firmware_metadata.jsonpb")
+                with open(metadata_path, "w", encoding="utf-8") as mfile:
+                    mfile.write(
+                        """
+{
+        "objects": [
+                { "fileName": "brox.EC.tar.bz2",
+                  "tarballInfo": { "type": "EC", "board": ["brox"] } },
+                { "fileName": "karis.EC.tar.bz2",
+                  "tarballInfo": { "type": "EC", "board": ["rex"] } },
+                { "fileName": "screebo.EC.tar.bz2",
+                  "tarballInfo": { "type": "EC", "board": ["rex"] } },
+                { "fileName": "brox/firmware_from_source.tar.bz2",
+                  "tarballInfo": { "type": "EC", "board": ["brox"] } },
+                { "fileName": "rex/firmware_from_source.tar.bz2",
+                  "tarballInfo": { "type": "EC", "board": ["rex"] } }
+        ]
+}
+                        """
+                    )
+                logging.info("Wrote metadata file: %s", metadata_path)
+            request = firmware_pb2.BundleFirmwareArtifactsRequest(
+                chroot={"path": self.chroot_path},
+                artifacts={
+                    "output_artifacts": [
+                        {
+                            "location": fw_loc,
+                            "artifact_types": [
+                                "FIRMWARE_TARBALL",
+                                "FIRMWARE_TARBALL_INFO",
+                                "FIRMWARE_TOKEN_DATABASE",
+                            ],
+                        }
+                    ],
+                },
+            )
+            response = firmware_pb2.BundleFirmwareArtifactsResponse()
+            # Call the method under test.
+            firmware.BundleFirmwareArtifacts(request, response, self.api_config)
+            # Because we mock out the function, we verify that it is called as
+            # we expect it to be called.
+            called_function = os.path.join(
+                constants.SOURCE_ROOT, fw_path, "firmware_builder.py"
+            )
+            self.rc.assertCommandCalled(
+                [
+                    called_function,
+                    "--metrics",
+                    mock.ANY,
+                    "--output-dir",
+                    mock.ANY,
+                    "--metadata",
+                    mock.ANY,
+                    "bundle",
+                ],
+                check=False,
+            )
+            self.assertEqual(response.artifact_dir.path, outdir)
+            self.assertEqual(
+                response.artifact_dir.location, common_pb2.Path.INSIDE
             )
 
     def testValidateOnly(self) -> None:
