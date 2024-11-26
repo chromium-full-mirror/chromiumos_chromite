@@ -371,7 +371,7 @@ def _GetProfileInfoDict(profile_info: "toolchain_pb2.ArtifactProfileInfo"):
 LINTER_CODES = {
     "clang_tidy": toolchain_pb2.LinterFinding.CLANG_TIDY,
     "cargo_clippy": toolchain_pb2.LinterFinding.CARGO_CLIPPY,
-    "go_lint": toolchain_pb2.LinterFinding.GO_LINT,
+    "staticcheck": toolchain_pb2.LinterFinding.GO_LINT,
 }
 
 
@@ -423,14 +423,14 @@ def EmergeWithLinting(
     use_tidy = (
         toolchain_pb2.LinterFinding.CLANG_TIDY not in request.disabled_linters
     )
-    use_golint = (
+    use_staticcheck = (
         toolchain_pb2.LinterFinding.GO_LINT not in request.disabled_linters
     )
 
     findings = build_linter.emerge_with_linting(
         use_clippy=use_clippy,
         use_tidy=use_tidy,
-        use_golint=use_golint,
+        use_staticcheck=use_staticcheck,
     )
 
     for finding in findings:

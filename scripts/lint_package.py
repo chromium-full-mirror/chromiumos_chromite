@@ -444,10 +444,10 @@ def get_arg_parser() -> commandline.ArgumentParser:
         help="Disable clang tidy linter.",
     )
     parser.add_argument(
-        "--no-golint",
-        dest="golint",
+        "--no-staticcheck",
+        dest="staticcheck",
         action="store_false",
-        help="Disable golint linter.",
+        help="Disable staticcheck Go linter.",
     )
     parser.add_argument(
         "packages",
@@ -540,14 +540,14 @@ def main(argv: List[str]) -> None:
                     build_linter.fetch_findings(
                         use_clippy=opts.clippy,
                         use_tidy=opts.tidy,
-                        use_golint=opts.golint,
+                        use_staticcheck=opts.staticcheck,
                     )
                 )
         else:
             lints = build_linter.emerge_with_linting(
                 use_clippy=opts.clippy,
                 use_tidy=opts.tidy,
-                use_golint=opts.golint,
+                use_staticcheck=opts.staticcheck,
             )
 
     if opts.filter_names:

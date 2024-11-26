@@ -457,7 +457,7 @@ class TestEmergeAndUploadLints(cros_test_lib.RunCommandTestCase):
                 "--fetch-only",
                 "--json",
                 "--no-clippy",
-                "--no-golint",
+                "--no-staticcheck",
             ],
             stdout="linting output",
         )
