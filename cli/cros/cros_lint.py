@@ -219,13 +219,13 @@ def _GnlintFile(path, _, _debug, _relaxed: bool, commit: str):
 
 
 def _GolintFile(path, _, debug, _relaxed: bool, _commit: str):
-    """Returns result of running golint on |path|."""
-    # Try using golint if it exists.
+    """Returns result of running staticcheck on |path|."""
+    # Try using staticcheck if it exists.
     try:
-        cmd = ["golint", "-set_exit_status", path]
+        cmd = ["staticcheck", "-checks", "inherit,-SA1019", path]
         return _ToolRunCommand(cmd, debug)
     except cros_build_lib.RunCommandError:
-        logging.notice("Install golint for additional go linting.")
+        logging.notice("Install staticcheck for additional go linting.")
         return cros_build_lib.CompletedProcess(f'gofmt "{path}"', returncode=0)
 
 
