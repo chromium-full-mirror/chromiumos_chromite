@@ -1356,7 +1356,10 @@ def test_uprev_chrome_all_files_already_exist(
         unstable_chrome.depend = "foo/bar"
 
     stable_chrome = cr.test.Package(
-        "chromeos-base", "chromeos-chrome", version=f"{old_version}_rc-r1"
+        "chromeos-base",
+        "chromeos-chrome",
+        version=f"{old_version}_rc-r1",
+        GIT_COMMIT=f"{old_version}_commit",
     )
 
     overlay.add_package(unstable_chrome)
@@ -1368,7 +1371,10 @@ def test_uprev_chrome_all_files_already_exist(
             category, pkg_name, version="9999", keywords="~*"
         )
         stable_pkg = cr.test.Package(
-            category, pkg_name, version=f"{old_version}_rc-r1"
+            category,
+            pkg_name,
+            version=f"{old_version}_rc-r1",
+            GIT_COMMIT=f"{old_version}_commit",
         )
 
         overlay.add_package(unstable_pkg)
@@ -1376,7 +1382,9 @@ def test_uprev_chrome_all_files_already_exist(
 
     git_refs = [
         uprev_lib.GitRef(
-            path="/foo", ref=f"refs/tags/{new_version}", revision="stubcommit"
+            path="/foo",
+            ref=f"refs/tags/{new_version}",
+            revision=f"{new_version}_commit",
         )
     ]
     res = packages.uprev_chrome_from_ref(None, git_refs, None)

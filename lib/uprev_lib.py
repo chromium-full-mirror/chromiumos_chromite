@@ -105,8 +105,16 @@ class ChromeEBuild(portage_util.EBuild):
         """Check if the Chrome ebuild is unstable."""
         return not self.is_stable
 
+    @property
+    def commit_hash(self) -> str:
+        """Returns the Chrome's git commit hash"""
+        settings = osutils.SourceEnvironment(
+            self.ebuild_path, ["GIT_COMMIT"], env=None
+        )
+        return settings.get("GIT_COMMIT", "")
 
-def get_version_from_refs(refs: List[GitRef]) -> str:
+
+def get_version_from_refs(refs: List[GitRef]) -> Tuple[str, str]:
     """Get the version to use from the list of provided tags.
 
     Version strings are of format "78.0.3876.1".
@@ -115,7 +123,7 @@ def get_version_from_refs(refs: List[GitRef]) -> str:
         refs: The tags to parse for the best version.
 
     Returns:
-        str: The version to use.
+        Tuple of str, str: The version to use, and its commit hash.
 
     Raises:
         Exception: if no unstable ebuild exists for Chrome.
@@ -125,8 +133,11 @@ def get_version_from_refs(refs: List[GitRef]) -> str:
 
     # Each tag is a version string, e.g. "78.0.3876.1", so extract the
     # tag name from the ref, e.g. "refs/tags/78.0.3876.1".
-    versions = [ref.ref.split("/")[-1] for ref in refs]
-    return best_version(versions)
+    version_to_hash = dict(
+        (ref.ref.split("/")[-1], ref.revision) for ref in refs
+    )
+    best = best_version(version_to_hash.keys())
+    return best, version_to_hash[best]
 
 
 def best_version(versions: Collection[str]) -> str:
@@ -164,9 +175,10 @@ def best_chrome_ebuild(ebuilds: List[ChromeEBuild]) -> ChromeEBuild:
     return best
 
 
-def get_stable_chrome_version() -> str:
+def get_stable_chrome_version() -> Tuple[str, str]:
     """Get the Chrome version from the latest, stable chrome ebuild."""
-    return _get_best_stable_chrome_ebuild().chrome_version
+    ebuild = _get_best_stable_chrome_ebuild()
+    return ebuild.chrome_version, ebuild.commit_hash
 
 
 def _get_best_stable_chrome_ebuild() -> ChromeEBuild:
@@ -329,11 +341,13 @@ class UprevChromeManager:
     def __init__(
         self,
         version: str,
+        commit_hash: str,
         build_targets: List["build_target_lib.BuildTarget"] = None,
         overlay_dir: str = None,
         chroot: chroot_lib.Chroot = None,
     ) -> None:
         self._version = version
+        self._commit_hash = commit_hash
         self._build_targets = build_targets or []
         self._new_ebuild_files = []
         self._removed_ebuild_files = []
@@ -481,7 +495,11 @@ class UprevChromeManager:
             rev_bump = False
 
         portage_util.EBuild.MarkAsStable(
-            unstable_ebuild.ebuild_path, new_ebuild_path, {}
+            unstable_ebuild.ebuild_path,
+            new_ebuild_path,
+            {
+                "GIT_COMMIT": '"%s"' % (self._commit_hash),
+            },
         )
         new_ebuild = ChromeEBuild(new_ebuild_path)
 

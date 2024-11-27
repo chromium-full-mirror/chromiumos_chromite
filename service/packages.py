@@ -822,10 +822,14 @@ def uprev_chrome_from_ref(build_targets, refs, _chroot):
     """
     # Determine the version from the refs (tags), i.e. the chrome versions are
     # the tag names.
-    chrome_version = uprev_lib.get_version_from_refs(refs)
-    logging.debug("Chrome version determined from refs: %s", chrome_version)
+    chrome_version, commit_hash = uprev_lib.get_version_from_refs(refs)
+    logging.debug(
+        "Chrome version determined from refs: %s, commit %s",
+        chrome_version,
+        commit_hash,
+    )
 
-    return uprev_chrome(chrome_version, build_targets, None)
+    return uprev_chrome(chrome_version, commit_hash, build_targets, None)
 
 
 def revbump_chrome(
@@ -839,18 +843,19 @@ def revbump_chrome(
     uprev on version 1.2.3.4 when there are applicable changes (e.g. to the 9999
     ebuild) will result in a revbump to 1.2.3.4_rc-r3.ebuild.
     """
-    chrome_version = uprev_lib.get_stable_chrome_version()
-    return uprev_chrome(chrome_version, build_targets, chroot)
+    chrome_version, commit_hash = uprev_lib.get_stable_chrome_version()
+    return uprev_chrome(chrome_version, commit_hash, build_targets, chroot)
 
 
 def uprev_chrome(
     chrome_version: str,
+    commit_hash: str,
     build_targets: Optional[List["build_target_lib.BuildTarget"]],
     chroot: Optional["chroot_lib.Chroot"],
 ) -> uprev_lib.UprevVersionedPackageResult:
     """Attempt to uprev chrome and its related packages to the given version."""
     uprev_manager = uprev_lib.UprevChromeManager(
-        chrome_version, build_targets=build_targets, chroot=chroot
+        chrome_version, commit_hash, build_targets=build_targets, chroot=chroot
     )
     result = uprev_lib.UprevVersionedPackageResult()
     # TODO(crbug.com/1080429): Handle all possible outcomes of a Chrome uprev

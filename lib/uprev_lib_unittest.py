@@ -32,7 +32,9 @@ class ChromeVersionTest(cros_test_lib.TestCase):
         self.versions = ["1.2.3.4", self.best, "4.2.2.1", "4.3.1.4"]
         self.best_ref = uprev_lib.GitRef("/path", ref_tpl % self.best, "abc123")
         self.refs = [
-            uprev_lib.GitRef("/path", ref_tpl % v, "abc123")
+            uprev_lib.GitRef(
+                "/path", ref_tpl % v, "abc123" + v.replace(".", "")
+            )
             for v in self.versions
         ]
 
@@ -65,12 +67,16 @@ class ChromeVersionTest(cros_test_lib.TestCase):
     def test_single_ref(self) -> None:
         """Test a single ref."""
         self.assertEqual(
-            self.best, uprev_lib.get_version_from_refs([self.best_ref])
+            (self.best, "abc123"),
+            uprev_lib.get_version_from_refs([self.best_ref]),
         )
 
     def test_multiple_refs(self) -> None:
         """Test multiple refs."""
-        self.assertEqual(self.best, uprev_lib.get_version_from_refs(self.refs))
+        self.assertEqual(
+            (self.best, "abc1234321"),
+            uprev_lib.get_version_from_refs(self.refs),
+        )
 
     def test_no_refs_fail(self) -> None:
         """Test no versions given."""
@@ -102,12 +108,12 @@ class ChromeEbuildVersionTest(cros_test_lib.MockTempDirTestCase):
         best_ebuild_path = ebuild % (best_version, max(best_revs))
 
         # Write stable ebuild data.
-        stable_data = "KEYWORDS=*"
+        stable_data = 'GIT_COMMIT="deadbeef"\nKEYWORDS=*\n'
         osutils.WriteFile(best_ebuild_path, stable_data)
         for path in ebuild_paths:
             osutils.WriteFile(path, stable_data)
         # Write the unstable ebuild.
-        unstable_data = "KEYWORDS=~*"
+        unstable_data = 'GIT_COMMIT=""\nKEYWORDS=~*\n'
         osutils.WriteFile(unstable_ebuild, unstable_data)
 
         # Create the ebuilds.
@@ -133,7 +139,7 @@ class ChromeEbuildVersionTest(cros_test_lib.MockTempDirTestCase):
         """Test fetching latest stable version from ebuilds."""
         self.PatchObject(uprev_lib, "_CHROME_OVERLAY_PATH", new=self.tempdir)
         version = uprev_lib.get_stable_chrome_version()
-        self.assertEqual(self.best_ebuild.chrome_version, version)
+        self.assertEqual((self.best_ebuild.chrome_version, "deadbeef"), version)
 
 
 class FindChromeEbuildsTest(cros_test_lib.TempDirTestCase):
@@ -169,7 +175,9 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
     def setUp(self) -> None:
         ebuild = "chromeos-chrome-%s.ebuild"
         self.stable_chrome_version = "4.3.2.1"
+        self.stable_chrome_commit = "abc123"
         self.new_chrome_version = "4.3.2.2"
+        self.new_chrome_commit = "def456"
         self.stable_revision = 1
         stable_version = "%s_rc-r%d" % (
             self.stable_chrome_version,
@@ -184,8 +192,8 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
         )
         self.unstable_path = os.path.join(self.package_dir, ebuild % "9999")
 
-        osutils.WriteFile(self.stable_path, "KEYWORDS=*\n")
-        osutils.WriteFile(self.unstable_path, "KEYWORDS=~*\n")
+        osutils.WriteFile(self.stable_path, 'GIT_COMMIT="abc123"\nKEYWORDS=*\n')
+        osutils.WriteFile(self.unstable_path, 'GIT_COMMIT=""\nKEYWORDS=~*\n')
 
         # Avoid chroot interactions for the tests.
         self.PatchObject(uprev_lib, "clean_stale_packages")
@@ -194,7 +202,9 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
         """Test a no-change uprev."""
         # No changes should be made when the stable and unstable ebuilds match.
         manager = uprev_lib.UprevChromeManager(
-            self.stable_chrome_version, overlay_dir=self.tempdir
+            self.stable_chrome_version,
+            self.stable_chrome_commit,
+            overlay_dir=self.tempdir,
         )
         manager.uprev(constants.CHROME_CP)
 
@@ -203,7 +213,7 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
     def test_older_version(self) -> None:
         """Test uprevving to an older version."""
         manager = uprev_lib.UprevChromeManager(
-            "1.2.3.4", overlay_dir=self.tempdir
+            "1.2.3.4", "0000", overlay_dir=self.tempdir
         )
         manager.uprev(constants.CHROME_CP)
 
@@ -213,7 +223,9 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
         """Test a new chrome version."""
         # The stable ebuild should be replaced with one of the new version.
         manager = uprev_lib.UprevChromeManager(
-            self.new_chrome_version, overlay_dir=self.tempdir
+            self.new_chrome_version,
+            self.new_chrome_commit,
+            overlay_dir=self.tempdir,
         )
         manager.uprev(constants.CHROME_CP)
 
@@ -230,13 +242,16 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
         new_ebuild = uprev_lib.ChromeEBuild(new_path)
         expected_version = "%s_rc-r1" % self.new_chrome_version
         self.assertEqual(expected_version, new_ebuild.version)
+        self.assertEqual(self.new_chrome_commit, new_ebuild.commit_hash)
 
     def test_uprev(self) -> None:
         """Test a revision bump."""
         # Make the contents different to force the uprev.
         osutils.WriteFile(self.unstable_path, 'IUSE=""', mode="a")
         manager = uprev_lib.UprevChromeManager(
-            self.stable_chrome_version, overlay_dir=self.tempdir
+            self.stable_chrome_version,
+            self.stable_chrome_commit,
+            overlay_dir=self.tempdir,
         )
         manager.uprev(constants.CHROME_CP)
 
@@ -256,6 +271,7 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
             self.stable_revision + 1,
         )
         self.assertEqual(expected_version, new_ebuild.version)
+        self.assertEqual(self.stable_chrome_commit, new_ebuild.commit_hash)
 
 
 class UprevManagerTest(cros_test_lib.MockTestCase):
@@ -355,7 +371,9 @@ def test_find_chrome_stable_candidate(overlay_stack) -> None:
         overlay.path / "chromeos-base" / "chromeos-chrome"
     )
     assert stable
-    uprev_manager = uprev_lib.UprevChromeManager(version=NEW_CHROME_VERSION)
+    uprev_manager = uprev_lib.UprevChromeManager(
+        version=NEW_CHROME_VERSION, commit_hash=""
+    )
     # pylint: disable=protected-access
     candidate = uprev_manager._find_chrome_uprev_candidate(stable)
     assert candidate
@@ -367,16 +385,25 @@ def test_basic_chrome_uprev(overlay_stack) -> None:
 
     (overlay,) = overlay_stack(1)
     unstable_chrome = cr.test.Package(
-        "chromeos-base", "chromeos-chrome", version="9999", keywords="~*"
+        "chromeos-base",
+        "chromeos-chrome",
+        version="9999",
+        keywords="~*",
+        GIT_COMMIT="",
     )
     stable_chrome = cr.test.Package(
-        "chromeos-base", "chromeos-chrome", version="78.0.3876.0_rc-r1"
+        "chromeos-base",
+        "chromeos-chrome",
+        version="78.0.3876.0_rc-r1",
+        GIT_COMMIT="abc123",
     )
     overlay.add_package(unstable_chrome)
     overlay.add_package(stable_chrome)
 
     uprev_manager = uprev_lib.UprevChromeManager(
-        version=NEW_CHROME_VERSION, overlay_dir=overlay.path
+        version=NEW_CHROME_VERSION,
+        commit_hash="def456",
+        overlay_dir=overlay.path,
     )
 
     result = uprev_manager.uprev(constants.CHROME_CP)
@@ -401,16 +428,22 @@ def test_chrome_uprev_revision_bump(overlay_stack) -> None:
         version="9999",
         keywords="~*",
         depend="foo/bar",
+        GIT_COMMIT="",
     )
     stable_chrome = cr.test.Package(
-        "chromeos-base", "chromeos-chrome", version="80.0.1234.0_rc-r1"
+        "chromeos-base",
+        "chromeos-chrome",
+        version="80.0.1234.0_rc-r1",
+        GIT_COMMIT="abc123",
     )
 
     overlay.add_package(unstable_chrome)
     overlay.add_package(stable_chrome)
 
     uprev_manager = uprev_lib.UprevChromeManager(
-        version=NEW_CHROME_VERSION, overlay_dir=overlay.path
+        version=NEW_CHROME_VERSION,
+        commit_hash="abc123",
+        overlay_dir=overlay.path,
     )
 
     result = uprev_manager.uprev(constants.CHROME_CP)
@@ -430,17 +463,26 @@ def test_no_chrome_uprev_same_version(overlay_stack, caplog) -> None:
 
     (overlay,) = overlay_stack(1)
     unstable_chrome = cr.test.Package(
-        "chromeos-base", "chromeos-chrome", version="9999", keywords="~*"
+        "chromeos-base",
+        "chromeos-chrome",
+        version="9999",
+        keywords="~*",
+        GIT_COMMIT="",
     )
     stable_chrome = cr.test.Package(
-        "chromeos-base", "chromeos-chrome", version="80.0.1234.0_rc-r1"
+        "chromeos-base",
+        "chromeos-chrome",
+        version="80.0.1234.0_rc-r1",
+        GIT_COMMIT="abc123",
     )
 
     overlay.add_package(unstable_chrome)
     overlay.add_package(stable_chrome)
 
     uprev_manager = uprev_lib.UprevChromeManager(
-        version=NEW_CHROME_VERSION, overlay_dir=overlay.path
+        version=NEW_CHROME_VERSION,
+        commit_hash="abc123",
+        overlay_dir=overlay.path,
     )
 
     result = uprev_manager.uprev(constants.CHROME_CP)
@@ -460,17 +502,26 @@ def test_no_chrome_uprev_older_version(overlay_stack, caplog) -> None:
 
     (overlay,) = overlay_stack(1)
     unstable_chrome = cr.test.Package(
-        "chromeos-base", "chromeos-chrome", version="9999", keywords="~*"
+        "chromeos-base",
+        "chromeos-chrome",
+        version="9999",
+        keywords="~*",
+        GIT_COMMIT="",
     )
     stable_chrome = cr.test.Package(
-        "chromeos-base", "chromeos-chrome", version="80.0.1234.0_rc-r1"
+        "chromeos-base",
+        "chromeos-chrome",
+        version="80.0.1234.0_rc-r1",
+        GIT_COMMIT="abc123",
     )
 
     overlay.add_package(unstable_chrome)
     overlay.add_package(stable_chrome)
 
     uprev_manager = uprev_lib.UprevChromeManager(
-        version=NEW_CHROME_VERSION, overlay_dir=overlay.path
+        version=NEW_CHROME_VERSION,
+        commit_hash="def456",
+        overlay_dir=overlay.path,
     )
 
     result = uprev_manager.uprev(constants.CHROME_CP)
@@ -496,12 +547,15 @@ def test_chrome_uprev_no_existing_stable(overlay_stack) -> None:
         version="9999",
         keywords="~*",
         depend="foo/bar",
+        GIT_COMMIT="",
     )
 
     overlay.add_package(unstable_chrome)
 
     uprev_manager = uprev_lib.UprevChromeManager(
-        version=NEW_CHROME_VERSION, overlay_dir=overlay.path
+        version=NEW_CHROME_VERSION,
+        commit_hash="abc123",
+        overlay_dir=overlay.path,
     )
 
     result = uprev_manager.uprev(constants.CHROME_CP)

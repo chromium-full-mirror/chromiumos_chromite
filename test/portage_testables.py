@@ -47,8 +47,19 @@ def _dict_to_conf(dictionary):
 def _dict_to_ebuild(dictionary):
     """Helper to format a dictionary into an ebuild file."""
     output = []
+    # We must write in-order of EAPI first, other variables like
+    # workon-related, and KEYWORDS and SLOT at last in compatible with real
+    # ebuild usages in ChromeOS.
+    if "EAPI" in dictionary:
+        output.append(f'EAPI={dictionary["EAPI"]}')
     for key in dictionary.keys():
+        if key in ["EAPI", "KEYWORDS", "SLOT"]:
+            continue
         output.append(f'{key}="{dictionary[key]}"')
+    if "KEYWORDS" in dictionary:
+        output.append(f'KEYWORDS="{dictionary["KEYWORDS"]}"')
+    if "SLOT" in dictionary:
+        output.append(f'SLOT="{dictionary["SLOT"]}"')
 
     output.append("\n")
     return "\n".join(output)
