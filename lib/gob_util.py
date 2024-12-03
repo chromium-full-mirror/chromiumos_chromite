@@ -19,6 +19,7 @@ import os
 from pathlib import Path
 import re
 import socket
+import subprocess
 import sys
 from typing import Any, Dict, Iterable, Optional, Tuple, Union
 import urllib.parse
@@ -301,12 +302,12 @@ def CreateHttpReq(
         except httplib2.ServerNotFoundError:
             pass
 
-    cookies = GetCookies(host, path)
-    if "Cookie" not in headers and cookies:
-        headers["Cookie"] = "; ".join(
-            "%s=%s" % (n, v) for n, v in cookies.items()
-        )
-    elif "Authorization" not in headers:
+    try:
+        headers["Authorization"] = "Bearer %s" % auth.GetUserAccessToken()
+    except subprocess.CalledProcessError as e:
+        logging.warning("Failed to get access token.  stderr: %s", e.stderr.decode())
+
+    if "Authorization" not in headers:
         try:
             git_creds = auth.GitCreds()
         except auth.AccessTokenError:
