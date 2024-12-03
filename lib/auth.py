@@ -33,7 +33,7 @@ def _GetCipdBinary(pkg_name, bin_name, instance_id):
 
 # crbug:871831 default to last sha1 version.
 def GetLuciAuth(
-    instance_id="git_revision:30533063c05f390b8e346114d9fb843df7fa10f6",
+    instance_id="git_revision:0fa571d5b1b09677cf460a8301cf5449c5250049",
 ):
     """Returns a path to the luci-auth binary.
 
@@ -53,7 +53,7 @@ def GetLuciAuth(
 
 # crbug:871831 default to last sha1 version.
 def GetLuciGitCreds(
-    instance_id="git_revision:fd059ace316e4dbcaa5afdcec9ed4a855c4f3c65",
+    instance_id="git_revision:0fa571d5b1b09677cf460a8301cf5449c5250049",
 ):
     """Returns a path to the git-credential-luci binary.
 
