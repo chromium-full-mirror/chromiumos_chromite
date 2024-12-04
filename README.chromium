@@ -5,6 +5,7 @@ Version: 0.0.2
 License: BSD
 License File: LICENSE
 Security Critical: no
+Shipped: no
 
 Description:
 This contains scripts used to build Chromium for Chromium OS
