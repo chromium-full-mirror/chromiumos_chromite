@@ -452,6 +452,9 @@ class Package:
             )
             if os.path.isdir(source_dir):
                 return source_dir
+
+        logging.debug("ls %s: %s", self.temp_dir, os.listdir(self.temp_dir))
+
         return None
 
     def _get_ebuild_source_dirs(self) -> List[str]:
