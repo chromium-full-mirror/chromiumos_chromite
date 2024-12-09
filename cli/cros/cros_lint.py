@@ -218,12 +218,14 @@ def _GnlintFile(path, _, _debug, _relaxed: bool, commit: str):
     return result
 
 
-def _GolintFile(path, _, debug, _relaxed: bool, _commit: str):
+def _StaticcheckPackage(path, _, debug, _relaxed: bool, _commit: str):
     """Returns result of running staticcheck on |path|."""
     # Try using staticcheck if it exists.
     try:
-        cmd = ["staticcheck", "-checks", "inherit,-SA1019", path]
-        return _ToolRunCommand(cmd, debug)
+        # `staticcheck` takes package names, which it may search
+        # GOROOT/etc for. `cd` to the directory to lint for simplicity.
+        cmd = ["staticcheck", "-checks", "inherit,-SA1019"]
+        return _ToolRunCommand(cmd, debug, cwd=path)
     except cros_build_lib.RunCommandError:
         logging.notice("Install staticcheck for additional go linting.")
         return cros_build_lib.CompletedProcess(f'gofmt "{path}"', returncode=0)
@@ -564,7 +566,10 @@ _TOOL_MAP = collections.OrderedDict(
             (_JsonLintFile, _NonExecLintFile),
         ),
         (_PYTHON_EXT, (_PylintFile,)),
-        (frozenset({"*.go"}), (_GolintFile, _NonExecLintFile)),
+        (
+            frozenset({"*.go"}),
+            (_StaticcheckPackage, _NonExecLintFile),
+        ),
         (_SHELL_EXT, (_ShellLintFile,)),
         (
             frozenset({"*.ebuild", "*.eclass", "*.bashrc"}),
@@ -654,6 +659,15 @@ _TOOL_MAP = collections.OrderedDict(
     )
 )
 
+# Tool functions that execute per-directory. If any of these get called by
+# `_BreakoutDataByTool`, their calls will be transformed to work
+# per-directory-containing-files, rather than per-file.
+#
+# For example, if `_CheckFoo` is in this list, and `_CheckFoo` matched against
+# ["foo/file", "foo/file2", "bar/file"], `_CheckFoo` will be called on "foo"
+# and "bar".
+_PER_DIR_TOOLS = (_StaticcheckPackage,)
+
 
 def _BreakoutFilesByTool(files: List[Path]) -> Dict[Callable, List[Path]]:
     """Maps a tool method to the list of files to process."""
@@ -669,6 +683,23 @@ def _BreakoutFilesByTool(files: List[Path]) -> Dict[Callable, List[Path]]:
         else:
             if f.is_file():
                 _BreakoutDataByTool(map_to_return, f)
+
+    for per_dir_tool in _PER_DIR_TOOLS:
+        old_targets = map_to_return.get(per_dir_tool)
+        if not old_targets:
+            continue
+
+        # Collect deduped directories. Note that, unlike dicts, sets are not
+        # guaranteed to be iterated in insertion order, so we also collect
+        # the new targets in a list to maintain that order.
+        new_targets_set = set()
+        new_targets = []
+        for target in old_targets:
+            target_dir = target.parent
+            if target_dir not in new_targets_set:
+                new_targets_set.add(target_dir)
+                new_targets.append(target_dir)
+        map_to_return[per_dir_tool] = new_targets
 
     return map_to_return
 

@@ -64,6 +64,43 @@ def test_breakout_files_full_paths() -> None:
     assert sorted(items[0][1]) == source_files
 
 
+@mock.patch.dict(
+    cros_lint._TOOL_MAP,
+    {
+        frozenset({"*.go"}): (
+            cros_lint._NonExecLintFile,
+            cros_lint._StaticcheckPackage,
+        ),
+        frozenset({"*.py"}): (cros_lint._NonExecLintFile,),
+    },
+)
+@mock.patch.object(
+    cros_lint,
+    "_PER_DIR_TOOLS",
+    (cros_lint._StaticcheckPackage,),
+)
+def test_breakout_handles_per_dir_tools_correctly() -> None:
+    """Verify we match files in named subdirs."""
+    source_files = [
+        Path(x)
+        for x in (
+            "dir1/bar.go",
+            "dir1/baz.py",
+            "dir1/foo.go",
+            "dir2/foo.go",
+        )
+    ]
+    print(source_files)
+    tool_map = cros_lint._BreakoutFilesByTool(source_files)
+    print(tool_map)
+    assert len(tool_map) == 2
+    assert tool_map[cros_lint._NonExecLintFile] == source_files
+    assert tool_map[cros_lint._StaticcheckPackage] == [
+        Path("dir1"),
+        Path("dir2"),
+    ]
+
+
 class LintCommandTest(cros_test_lib.TestCase):
     """Test class for our LintCommand class."""
 
