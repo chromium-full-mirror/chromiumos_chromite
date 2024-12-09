@@ -1462,6 +1462,14 @@ class ChromeSDKCommand(command.CliCommand):
         # adjustment made in _SetupTCEnvironment is for split debug which
         # is done with 'use_debug_fission'.
 
+        # Adjust nacl_bootstrap_compiler for Chromium side build.
+        if "nacl_bootstrap_compiler" in gn_args:
+            # Use ${usr_bin}${CC}, which is the same as cros_target_cc.
+            gn_args["nacl_bootstrap_compiler"] = self._AbsolutizeBinaryPath(
+                os.path.basename(gn_args["nacl_bootstrap_compiler"]),
+                target_tc_path,
+            )
+
         gn_args["use_remoteexec"] = options.use_remoteexec
 
         gn_args.pop("internal_khronos_glcts_tests", None)  # crbug.com/588080
