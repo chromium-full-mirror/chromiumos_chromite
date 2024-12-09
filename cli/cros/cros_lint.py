@@ -14,7 +14,7 @@ import logging
 import os
 from pathlib import Path
 import stat
-from typing import Callable, Dict, List, Optional, Union
+from typing import Callable, DefaultDict, Dict, List, Optional, Union
 
 from chromite.cli import analyzers
 from chromite.cli import command
@@ -493,7 +493,9 @@ def _PortageLayoutConfLintFile(
     return result
 
 
-def _BreakoutDataByTool(map_to_return, path) -> None:
+def _BreakoutDataByTool(
+    map_to_return: DefaultDict[Callable, List[Path]], path: Path
+) -> None:
     """Maps a tool method to the content of the |path|."""
     # Detect by content of the file itself.
     try:
@@ -511,10 +513,10 @@ def _BreakoutDataByTool(map_to_return, path) -> None:
             basename = os.path.basename(result.real_command)
             if basename.startswith("python") or basename.startswith("vpython"):
                 for tool in _TOOL_MAP[_PYTHON_EXT]:
-                    map_to_return.setdefault(tool, []).append(path)
+                    map_to_return[tool].append(path)
             elif basename in ("sh", "dash", "bash"):
                 for tool in _TOOL_MAP[_SHELL_EXT]:
-                    map_to_return.setdefault(tool, []).append(path)
+                    map_to_return[tool].append(path)
     except IOError as e:
         logging.debug("%s: reading initial data failed: %s", path, e)
 
@@ -655,14 +657,14 @@ _TOOL_MAP = collections.OrderedDict(
 
 def _BreakoutFilesByTool(files: List[Path]) -> Dict[Callable, List[Path]]:
     """Maps a tool method to the list of files to process."""
-    map_to_return = {}
+    map_to_return = collections.defaultdict(list)
 
     for f in files:
         abs_f = f.absolute()
         for patterns, tools in _TOOL_MAP.items():
             if any(abs_f.match(x) for x in patterns):
                 for tool in tools:
-                    map_to_return.setdefault(tool, []).append(f)
+                    map_to_return[tool].append(f)
                 break
         else:
             if f.is_file():
