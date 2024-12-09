@@ -816,14 +816,7 @@ def GenerateTestPayloads(
         steps.append(_do_stateful)
         steps.append(_do_stateful_zstd)
 
-    # In theory we should do them all in parallel, this resulted in runtimes
-    # around 7 minutes on builders. We have space constraints and this is
-    # taking up 80ish GB at peak while running fully parallel. Until we can
-    # land some mitigation, reduce the parallelism at the expense of runtime.
-    # BUG=b:273941464.
-    gen_files = parallel.RunParallelSteps(
-        steps, return_values=True, max_parallel=2
-    )
+    gen_files = parallel.RunParallelSteps(steps, return_values=True)
     return [i for sl in gen_files for i in sl]
 
 
