@@ -1820,10 +1820,7 @@ class GetSubslotDependenciesTest(cros_test_lib.TempDirTestCase):
                     ("pkga-1.ebuild", "EAPI=7"),
                     ("SLOT", "1/0"),
                     ("CATEGORY", "sys-libs\n"),
-                    (
-                        "RDEPEND",
-                        "sys-libs/pkgb[foo]:2/0= sys-libs/pkgd:4/0= net-wireless/libbluez:0/5.54-r102=\n",
-                    ),
+                    ("RDEPEND", "sys-libs/pkgb[foo]:2/0= sys-libs/pkgd:4/0=\n"),
                     ("LICENSE", "GPL-2\n"),
                     ("PF", "pkga-1\n"),
                     ("repository", "portage-stable\n"),
@@ -1879,17 +1876,6 @@ class GetSubslotDependenciesTest(cros_test_lib.TempDirTestCase):
                 ),
             ),
             (
-                "net-wireless/libbluez-5.54-r102",
-                (
-                    ("libbluez-5.54-r102.ebuild", "EAPI=7"),
-                    ("SLOT", "0/5.54-r102"),
-                    ("CATEGORY", "net-wireless\n"),
-                    ("LICENSE", "GPL-2\n"),
-                    ("PF", "libbluez-5.54-r102\n"),
-                    ("repository", "portage-stable\n"),
-                ),
-            ),
-            (
                 "sys-libs/blocked-1",
                 (
                     ("blocked-1.ebuild", "EAPI=7"),
@@ -1928,7 +1914,6 @@ class GetSubslotDependenciesTest(cros_test_lib.TempDirTestCase):
         self.assertEqual(
             cpvs,
             [
-                "net-wireless/libbluez-5.54-r102",
                 "sys-libs/pkgb-1",
                 "sys-libs/pkgc-1",
                 "sys-libs/pkgd-1",

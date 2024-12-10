@@ -1821,12 +1821,11 @@ class InstalledPackage:
 # >=sys-libs/pkgb:2/0=
 # ~sys-libs/pkgb-r3:2/0=
 # sys-libs/pkgb[foo]:2/0=
-# net-wireless/libbluez:0/5.54-r102=
 SUBSLOT_REGEX = re.compile(
     r"(?P<op>\W+)?"
-    r"(?P<cpf>[\w\-]+/[\w\-\.]+)"
+    r"(?P<cpf>[\w\-]+/[\w\-]+)"
     r"(?:\[(?P<use>[^\]]+)\])?"
-    r":(?P<slot>[\w\-\.]+(?:/[\w\-\.]+)?)="
+    r":(?P<slot>[\w\-]+(?:/[\w\-]+)?)="
 )
 
 
