@@ -190,13 +190,16 @@ class ChromeLKGMCommitter:
     # trigger them, so we have to explicitly tell it to. If you add a new
     # internal builder here, make sure it's also listed in
     # https://source.chromium.org/chromium/chromium/src/+/main:infra/config/subprojects/chrome/try.star.
-    _PRESUBMIT_BOTS = (
-        "chromeos-betty-chrome",
-        "chromeos-brya-chrome",
-        "chromeos-jacuzzi-chrome",
-        "chromeos-reven-chrome",
-        "chromeos-volteer-chrome-skylab",
-    )
+    _PRESUBMIT_BOTS = {
+        "luci.chrome.try": (
+            "chromeos-betty-chrome",
+            "chromeos-brya-chrome",
+            "chromeos-jacuzzi-chrome",
+            "chromeos-reven-chrome",
+            "chromeos-volteer-chrome-skylab",
+        ),
+        "luci.chromium.try": ("chromeos-octopus-rel",),
+    }
     # Files needed in a local checkout to successfully update the LKGM. The
     # OWNERS file allows the --tbr-owners mechanism to select an appropriate
     # OWNER to TBR. TRANSLATION_OWNERS is necessary to parse CHROMEOS_OWNERS
@@ -349,8 +352,9 @@ class ChromeLKGMCommitter:
 
         cq_includes = ""
         if self._branch == "main":
-            for bot in self._PRESUBMIT_BOTS:
-                cq_includes += "CQ_INCLUDE_TRYBOTS=luci.chrome.try:%s\n" % bot
+            for group, bots in self._PRESUBMIT_BOTS.items():
+                for bot in bots:
+                    cq_includes += "CQ_INCLUDE_TRYBOTS=%s:%s\n" % (group, bot)
             cq_includes += "\n"
 
         dry_run_message = ""

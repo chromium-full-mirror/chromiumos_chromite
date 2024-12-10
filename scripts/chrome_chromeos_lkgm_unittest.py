@@ -325,7 +325,12 @@ class ChromeLKGMCommitterTester(
             external_manifest_position=22222,
         )
 
-        committer._PRESUBMIT_BOTS = ["bot1", "bot2"]
+        committer._PRESUBMIT_BOTS = {
+            "internal": (
+                "bot1",
+                "bot2",
+            )
+        }
 
         # The current CL is with the external position but without the internal
         # one, so that a next CL would have only the external manifest diff.
@@ -371,12 +376,8 @@ class ChromeLKGMCommitterTester(
             "Uploaded by https://ci.chromium.org/b/some-build-id",
             commit_msg_lines,
         )
-        self.assertIn(
-            "CQ_INCLUDE_TRYBOTS=luci.chrome.try:bot1", commit_msg_lines
-        )
-        self.assertIn(
-            "CQ_INCLUDE_TRYBOTS=luci.chrome.try:bot2", commit_msg_lines
-        )
+        self.assertIn("CQ_INCLUDE_TRYBOTS=internal:bot1", commit_msg_lines)
+        self.assertIn("CQ_INCLUDE_TRYBOTS=internal:bot2", commit_msg_lines)
         self.assertIn("this is a message.", commit_msg_lines)
         self.assertIn(
             "CrOS-External-Manifest-Position: 22222", commit_msg_lines
