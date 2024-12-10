@@ -8,9 +8,11 @@ import collections
 import enum
 import filecmp
 import functools
+import json
 import logging
 import os
 import re
+import sys
 from typing import (
     Collection,
     Iterable,
@@ -20,15 +22,18 @@ from typing import (
     TYPE_CHECKING,
     Union,
 )
+import urllib.request
 
 from chromite.lib import chromeos_version
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import git
+from chromite.lib import gob_util
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import portage_util
+from chromite.utils import key_value_store
 from chromite.utils import pms
 
 
@@ -37,11 +42,18 @@ if TYPE_CHECKING:
 
     from chromite.lib import build_target_lib
 
-CHROME_VERSION_REGEX = r"\d+\.\d+\.\d+\.\d+"
+CHROME_VERSION_REGEX = (
+    r"(?P<version>"
+    r"(?P<major>\d+)\.(?P<minor>\d+)\.(?P<branch>\d+)\.(?P<patch>\d+)"
+    r")"
+    r"(_pre(?P<commit>\d+))?"
+)
 
 _CHROME_OVERLAY_PATH = os.path.join(
     constants.SOURCE_ROOT, constants.CHROMIUMOS_OVERLAY_DIR
 )
+
+_CHROME_GIT_URL = "https://chromium.googlesource.com/chromium/src.git"
 
 GitRef = collections.namedtuple("GitRef", ["path", "ref", "revision"])
 
@@ -128,16 +140,74 @@ def get_version_from_refs(refs: List[GitRef]) -> Tuple[str, str]:
     Raises:
         Exception: if no unstable ebuild exists for Chrome.
     """
+
+    def _commit_position(commit: str) -> int:
+        """Returns the commit position on main branch for given commit hash."""
+        with urllib.request.urlopen(
+            f"{_CHROME_GIT_URL}/+/{commit}?format=JSON"
+        ) as f:
+            commit_data = f.read()
+        # Python 3.8 does not have bytes.removeprefix.
+        assert commit_data.startswith(b")]}'\n"), commit_data
+        commit_data = json.loads(commit_data[5:])
+        m = re.search(
+            r"Cr-Commit-Position: refs/heads/main@{#(\d+)}",
+            commit_data["message"],
+            flags=re.M,
+        )
+        assert m, (
+            "Cr-Commit-Position on main branch cannot be found:\n"
+            + commit_data["message"]
+        )
+        return int(m.group(1))
+
+    def _version_file_version(commit: str) -> str:
+        """Returns the chrome/VERSION version string from given commit hash."""
+        # chrome/VERSION suggests the next Chrome version when chrome-branch
+        # happens.
+        # It can be considered as alpha/pre version of chrome/VERSION Chrome,
+        # with exceptions.  chrome-branch cuts from last known good position,
+        # rather than tip-of-tree, which means the current "commit" may not be
+        # included in the release of chrome/VERSION Chrome.
+        # We need other ways on ChromeOS CQ to ensure a Chrome uprev won't be
+        # submitted until last known green Chrome has passed the given commit.
+        version_file = gob_util.GetFileContents(
+            _CHROME_GIT_URL, "chrome/VERSION", commit
+        )
+        versions = key_value_store.LoadData(version_file)
+        return (
+            f"{versions['MAJOR']}.{versions['MINOR']}."
+            f"{versions['BUILD']}.{versions['PATCH']}"
+        )
+
+    def _version_from_hash(commit: str) -> str:
+        """Returns an ebuild-compatible Chrome version from commit hash"""
+        v = _version_file_version(commit)
+        p = _commit_position(commit)
+        return f"{v}_pre{p}"
+
     if not refs:
         raise NoRefsError("|refs| must not be empty.")
 
-    # Each tag is a version string, e.g. "78.0.3876.1", so extract the
-    # tag name from the ref, e.g. "refs/tags/78.0.3876.1".
-    version_to_hash = dict(
-        (ref.ref.split("/")[-1], ref.revision) for ref in refs
-    )
-    best = best_version(version_to_hash.keys())
-    return best, version_to_hash[best]
+    main = [x for x in refs if x.ref == "refs/heads/main"]
+
+    if not main:
+        # Each tag is a version string, e.g. "78.0.3876.1", so extract the
+        # tag name from the ref, e.g. "refs/tags/78.0.3876.1".
+        version_to_hash = dict(
+            (ref.ref.split("/")[-1], ref.revision) for ref in refs
+        )
+        best = best_version(version_to_hash.keys())
+        return best, version_to_hash[best]
+
+    if len(main) != len(refs):
+        raise Exception("Cannot mix refs or main and non-main")
+
+    if len(main) > 1:
+        raise Exception("Only 1 refs/heads/main is allowed")
+    main = main[0]
+
+    return _version_from_hash(main.revision), main.revision
 
 
 def best_version(versions: Collection[str]) -> str:
@@ -148,8 +218,24 @@ def best_version(versions: Collection[str]) -> str:
     if not versions:
         raise NoVersionsError("|versions| must not be empty.")
 
-    version = max([int(part) for part in v.split(".")] for v in versions)
-    return ".".join(str(part) for part in version)
+    def _parse_version(ver: str) -> Tuple[int, int, int, int, int]:
+        if ver == "9999":
+            return (sys.maxsize, 0, 0, 0, 0)
+        m = re.compile(CHROME_VERSION_REGEX).match(ver)
+        if not m:
+            raise Exception(
+                f"Version {ver} doesn't match {CHROME_VERSION_REGEX}"
+            )
+        return (
+            int(m.group("major")),
+            int(m.group("minor")),
+            int(m.group("branch")),
+            int(m.group("patch")),
+            int(m.group("commit")) if m.group("commit") else sys.maxsize,
+        )
+
+    vermap = dict((_parse_version(x), x) for x in versions)
+    return vermap[max(vermap)]
 
 
 def best_chrome_ebuild(ebuilds: List[ChromeEBuild]) -> ChromeEBuild:
@@ -193,10 +279,8 @@ def _get_best_stable_chrome_ebuild_from_ebuilds(
 ) -> Optional[ChromeEBuild]:
     """Get the highest versioned chrome ebuild from a list of stable ebuilds."""
     candidates = []
-    # This is an artifact from the old process.
-    chrome_branch_re = re.compile(r"%s.*_rc.*" % CHROME_VERSION_REGEX)
     for ebuild in stable_ebuilds:
-        if chrome_branch_re.search(ebuild.version):
+        if ebuild.chrome_version:
             candidates.append(ebuild)
 
     if not candidates:

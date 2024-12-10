@@ -219,6 +219,15 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
 
         self.assertFalse(manager.modified_ebuilds)
 
+    def test_same_version_tag_to_main(self) -> None:
+        """Test uprevving to pre from rc."""
+        manager = uprev_lib.UprevChromeManager(
+            "4.3.2.1_pre12345", "0000", overlay_dir=self.tempdir
+        )
+        manager.uprev(constants.CHROME_CP)
+
+        self.assertFalse(manager.modified_ebuilds)
+
     def test_new_version(self) -> None:
         """Test a new chrome version."""
         # The stable ebuild should be replaced with one of the new version.
@@ -240,7 +249,33 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
         self.assertNotExists(self.stable_path)
 
         new_ebuild = uprev_lib.ChromeEBuild(new_path)
-        expected_version = "%s_rc-r1" % self.new_chrome_version
+        expected_version = f"{self.new_chrome_version}_rc-r1"
+        self.assertEqual(expected_version, new_ebuild.version)
+        self.assertEqual(self.new_chrome_commit, new_ebuild.commit_hash)
+
+    def test_new_version_main(self) -> None:
+        """Test a new chrome version's main branch pre."""
+        # The stable ebuild should be replaced with one of the new version.
+        manager = uprev_lib.UprevChromeManager(
+            self.new_chrome_version + "_pre12345",
+            self.new_chrome_commit,
+            overlay_dir=self.tempdir,
+        )
+        manager.uprev(constants.CHROME_CP)
+
+        # The old one should be deleted and the new one should exist.
+        new_path = self.stable_path.replace(
+            self.stable_chrome_version,
+            self.new_chrome_version + "_pre12345",
+        )
+        self.assertCountEqual(
+            [self.stable_path, new_path], manager.modified_ebuilds
+        )
+        self.assertExists(new_path)
+        self.assertNotExists(self.stable_path)
+
+        new_ebuild = uprev_lib.ChromeEBuild(new_path)
+        expected_version = f"{self.new_chrome_version}_pre12345_rc-r1"
         self.assertEqual(expected_version, new_ebuild.version)
         self.assertEqual(self.new_chrome_commit, new_ebuild.commit_hash)
 
@@ -266,9 +301,8 @@ class UprevChromeManagerTest(cros_test_lib.MockTempDirTestCase):
         self.assertNotExists(self.stable_path)
 
         new_ebuild = uprev_lib.ChromeEBuild(new_path)
-        expected_version = "%s_rc-r%d" % (
-            self.stable_chrome_version,
-            self.stable_revision + 1,
+        expected_version = (
+            f"{self.stable_chrome_version}_rc-r{self.stable_revision+1}"
         )
         self.assertEqual(expected_version, new_ebuild.version)
         self.assertEqual(self.stable_chrome_commit, new_ebuild.commit_hash)
@@ -417,6 +451,158 @@ def test_basic_chrome_uprev(overlay_stack) -> None:
     assert new_chrome.cpv in overlay
 
 
+def test_chrome_uprev_tag_to_new_main(overlay_stack) -> None:
+    """Test that uprev from a version new newer main works."""
+    NEW_CHROME_VERSION = "80.0.1234.0_pre12345"
+
+    (overlay,) = overlay_stack(1)
+    unstable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="9999",
+        keywords="~*",
+        GIT_COMMIT="",
+    )
+    stable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="78.0.3876.0_rc-r1",
+        GIT_COMMIT="abc123",
+    )
+    overlay.add_package(unstable_chrome)
+    overlay.add_package(stable_chrome)
+
+    uprev_manager = uprev_lib.UprevChromeManager(
+        version=NEW_CHROME_VERSION,
+        commit_hash="def456",
+        overlay_dir=overlay.path,
+    )
+
+    result = uprev_manager.uprev(constants.CHROME_CP)
+    assert result
+    assert result.outcome is uprev_lib.Outcome.VERSION_BUMP
+
+    new_chrome = cr.test.Package(
+        "chromeos-base", "chromeos-chrome", version="80.0.1234.0_pre12345_rc-r1"
+    )
+
+    assert new_chrome.cpv in overlay
+
+
+def test_chrome_uprev_main_to_main_position_update(overlay_stack) -> None:
+    """Test that uprev works with newer commit position."""
+    NEW_CHROME_VERSION = "80.0.1234.0_pre12345"
+
+    (overlay,) = overlay_stack(1)
+    unstable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="9999",
+        keywords="~*",
+        GIT_COMMIT="",
+    )
+    stable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="80.0.1234.0_pre12340_rc-r1",
+        GIT_COMMIT="abc123",
+    )
+    overlay.add_package(unstable_chrome)
+    overlay.add_package(stable_chrome)
+
+    uprev_manager = uprev_lib.UprevChromeManager(
+        version=NEW_CHROME_VERSION,
+        commit_hash="def456",
+        overlay_dir=overlay.path,
+    )
+
+    result = uprev_manager.uprev(constants.CHROME_CP)
+    assert result
+    assert result.outcome is uprev_lib.Outcome.VERSION_BUMP
+
+    new_chrome = cr.test.Package(
+        "chromeos-base", "chromeos-chrome", version="80.0.1234.0_pre12345_rc-r1"
+    )
+
+    assert new_chrome.cpv in overlay
+
+
+def test_chrome_uprev_main_to_new_main(overlay_stack) -> None:
+    """Test that uprev works from main to newer version on main."""
+    NEW_CHROME_VERSION = "80.0.1234.0_pre12345"
+
+    (overlay,) = overlay_stack(1)
+    unstable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="9999",
+        keywords="~*",
+        GIT_COMMIT="",
+    )
+    stable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="78.0.3876.0_pre9971_rc-r1",
+        GIT_COMMIT="abc123",
+    )
+    overlay.add_package(unstable_chrome)
+    overlay.add_package(stable_chrome)
+
+    uprev_manager = uprev_lib.UprevChromeManager(
+        version=NEW_CHROME_VERSION,
+        commit_hash="def456",
+        overlay_dir=overlay.path,
+    )
+
+    result = uprev_manager.uprev(constants.CHROME_CP)
+    assert result
+    assert result.outcome is uprev_lib.Outcome.VERSION_BUMP
+
+    new_chrome = cr.test.Package(
+        "chromeos-base", "chromeos-chrome", version="80.0.1234.0_pre12345_rc-r1"
+    )
+
+    assert new_chrome.cpv in overlay
+
+
+def test_chrome_uprev_main_to_new_tag(overlay_stack) -> None:
+    """Test that uprev works from main to newer release tag."""
+    NEW_CHROME_VERSION = "80.0.1234.0"
+
+    (overlay,) = overlay_stack(1)
+    unstable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="9999",
+        keywords="~*",
+        GIT_COMMIT="",
+    )
+    stable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="78.0.3876.0_pre9971_rc-r1",
+        GIT_COMMIT="abc123",
+    )
+    overlay.add_package(unstable_chrome)
+    overlay.add_package(stable_chrome)
+
+    uprev_manager = uprev_lib.UprevChromeManager(
+        version=NEW_CHROME_VERSION,
+        commit_hash="def456",
+        overlay_dir=overlay.path,
+    )
+
+    result = uprev_manager.uprev(constants.CHROME_CP)
+    assert result
+    assert result.outcome is uprev_lib.Outcome.VERSION_BUMP
+
+    new_chrome = cr.test.Package(
+        "chromeos-base", "chromeos-chrome", version="80.0.1234.0_rc-r1"
+    )
+
+    assert new_chrome.cpv in overlay
+
+
 def test_chrome_uprev_revision_bump(overlay_stack) -> None:
     """Verify an uprev with the same major version just increments revision."""
     NEW_CHROME_VERSION = "80.0.1234.0"
@@ -495,10 +681,175 @@ def test_no_chrome_uprev_same_version(overlay_stack, caplog) -> None:
     assert ebuild_redundant_warning in caplog.text
 
 
+def test_no_chrome_uprev_same_position(overlay_stack, caplog) -> None:
+    """Test that no uprev if version and commit position are the same."""
+    NEW_CHROME_VERSION = "80.0.1234.0_pre12345"
+
+    (overlay,) = overlay_stack(1)
+    unstable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="9999",
+        keywords="~*",
+        GIT_COMMIT="",
+    )
+    stable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="80.0.1234.0_pre12345_rc-r1",
+        GIT_COMMIT="abc123",
+    )
+
+    overlay.add_package(unstable_chrome)
+    overlay.add_package(stable_chrome)
+
+    uprev_manager = uprev_lib.UprevChromeManager(
+        version=NEW_CHROME_VERSION,
+        commit_hash="abc123",
+        overlay_dir=overlay.path,
+    )
+
+    result = uprev_manager.uprev(constants.CHROME_CP)
+    assert not result
+    assert result.outcome is uprev_lib.Outcome.SAME_VERSION_EXISTS
+
+    ebuild_redundant_warning = (
+        "Previous ebuild with same version found and ebuild is redundant."
+    )
+    assert ebuild_redundant_warning in caplog.text
+
+
 def test_no_chrome_uprev_older_version(overlay_stack, caplog) -> None:
     """Test that no uprev occurs when a newer version already exists."""
     # Intentionally older than what already exists.
     NEW_CHROME_VERSION = "55.0.1234.0"
+
+    (overlay,) = overlay_stack(1)
+    unstable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="9999",
+        keywords="~*",
+        GIT_COMMIT="",
+    )
+    stable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="80.0.1234.0_rc-r1",
+        GIT_COMMIT="abc123",
+    )
+
+    overlay.add_package(unstable_chrome)
+    overlay.add_package(stable_chrome)
+
+    uprev_manager = uprev_lib.UprevChromeManager(
+        version=NEW_CHROME_VERSION,
+        commit_hash="def456",
+        overlay_dir=overlay.path,
+    )
+
+    result = uprev_manager.uprev(constants.CHROME_CP)
+    assert not result
+    assert result.outcome is uprev_lib.Outcome.NEWER_VERSION_EXISTS
+
+    newer_version_warning = (
+        "A chrome ebuild candidate with a higher version than the "
+        "requested uprev version was found."
+    )
+    assert newer_version_warning in caplog.messages
+    assert "Candidate version found: 80.0.1234.0" in caplog.messages
+
+
+def test_no_chrome_uprev_older_position(overlay_stack, caplog) -> None:
+    """Test that no uprev if uprev to older commit of the same version."""
+    # Intentionally older than what already exists.
+    NEW_CHROME_VERSION = "80.0.1234.0_pre12340"
+
+    (overlay,) = overlay_stack(1)
+    unstable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="9999",
+        keywords="~*",
+        GIT_COMMIT="",
+    )
+    stable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="80.0.1234.0_pre12345_rc-r1",
+        GIT_COMMIT="abc123",
+    )
+
+    overlay.add_package(unstable_chrome)
+    overlay.add_package(stable_chrome)
+
+    uprev_manager = uprev_lib.UprevChromeManager(
+        version=NEW_CHROME_VERSION,
+        commit_hash="def456",
+        overlay_dir=overlay.path,
+    )
+
+    result = uprev_manager.uprev(constants.CHROME_CP)
+    assert not result
+    assert result.outcome is uprev_lib.Outcome.NEWER_VERSION_EXISTS
+
+    newer_version_warning = (
+        "A chrome ebuild candidate with a higher version than the "
+        "requested uprev version was found."
+    )
+    assert newer_version_warning in caplog.messages
+    assert "Candidate version found: 80.0.1234.0_pre12345" in caplog.messages
+
+
+def test_no_chrome_uprev_older_release(overlay_stack, caplog) -> None:
+    """Test that no uprev if uprev to older releases."""
+    # Intentionally older than what already exists.
+    NEW_CHROME_VERSION = "80.0.1230.0"
+
+    (overlay,) = overlay_stack(1)
+    unstable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="9999",
+        keywords="~*",
+        GIT_COMMIT="",
+    )
+    stable_chrome = cr.test.Package(
+        "chromeos-base",
+        "chromeos-chrome",
+        version="80.0.1234.0_pre12345_rc-r1",
+        GIT_COMMIT="abc123",
+    )
+
+    overlay.add_package(unstable_chrome)
+    overlay.add_package(stable_chrome)
+
+    uprev_manager = uprev_lib.UprevChromeManager(
+        version=NEW_CHROME_VERSION,
+        commit_hash="def456",
+        overlay_dir=overlay.path,
+    )
+
+    result = uprev_manager.uprev(constants.CHROME_CP)
+    assert not result
+    assert result.outcome is uprev_lib.Outcome.NEWER_VERSION_EXISTS
+
+    newer_version_warning = (
+        "A chrome ebuild candidate with a higher version than the "
+        "requested uprev version was found."
+    )
+    assert newer_version_warning in caplog.messages
+    assert "Candidate version found: 80.0.1234.0_pre12345" in caplog.messages
+
+
+def test_no_chrome_uprev_tag_to_same_version_main(
+    overlay_stack, caplog
+) -> None:
+    """Test that no uprev if uprev to main-branch of the same version."""
+    # Intentionally older than what already exists.
+    # Main branch position is older than release tag since position should be
+    # suggesting next release's version.
+    NEW_CHROME_VERSION = "80.0.1234.0_pre12345"
 
     (overlay,) = overlay_stack(1)
     unstable_chrome = cr.test.Package(
