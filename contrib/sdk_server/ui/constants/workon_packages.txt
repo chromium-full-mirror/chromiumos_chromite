@@ -629,6 +629,7 @@ sys-kernel/chromeos-kernel-5_15
 sys-kernel/chromeos-kernel-5_4
 sys-kernel/chromeos-kernel-6_1
 sys-kernel/chromeos-kernel-6_6
+sys-kernel/chromeos-kernel-6_12
 sys-kernel/chromeos-kernel-experimental
 sys-kernel/chromeos-kernel-next
 sys-kernel/chromeos-kernel-upstream
