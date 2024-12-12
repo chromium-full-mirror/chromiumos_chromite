@@ -41,8 +41,8 @@ from chromite.utils import os_util
 # pylint: enable=line-too-long
 CIPD_CLIENT_PACKAGE = "infra/tools/cipd/linux-amd64"
 CIPD_CLIENT_SHA256 = (
-    # This is version "git_revision:200dbdf0e967e81388359d3f85f095d39b35db67".
-    "3e3990fa78aee47ca68c33d6bc87d0da3b7220e49d1ec209eb73d4ec697830b9"
+    # This is version "git_revision:b1f414539ac10cc67a0250890a38712cc06cf102".
+    "421c4e26cdc255043f811b46e6cdd83b840dff8b3a331489481ca75511a64f86"
 )
 
 CHROME_INFRA_PACKAGES_API_BASE = (
