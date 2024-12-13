@@ -6,16 +6,12 @@
 
 import logging
 import os
-import typing
 
 from chromite.third_party import httplib2
 
 from chromite.lib import cipd
 from chromite.lib import cros_build_lib
 from chromite.lib import retry_util
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
 
 
 REFRESH_STATUS_CODES = [401]
@@ -197,38 +193,6 @@ def GetAccessToken(**kwargs):
         # Let the response returned by the request handler
         # tell the status and errors.
         return
-
-
-# Default OAuth scopes for GetUserAccessToken
-_DEFAULT_SCOPES = (
-    "https://www.googleapis.com/auth/userinfo.email",
-    "https://www.googleapis.com/auth/gerritcodereview",
-)
-
-
-def GetUserAccessToken(scopes: "Sequence[str]" = _DEFAULT_SCOPES) -> str:
-    """Returns an OAuth2 access token using luci-auth for the user.
-
-    Unlike GetAccessToken, this is for human users and uses the OAuth
-    three legged flow rather than a service account.
-
-    Also unlike GetAccessToken, this will raise an exception prompting
-    the user to login with a separate command, rather than trying to log
-    in the user.
-
-    This also means that it uses luci-auth from PATH, rather than a
-    pinned CIPD version from GetLuciAuth().  The luci-auth from PATH
-    should be available from depot_tools.
-
-    Returns:
-        The access token string.
-    """
-    p = cros_build_lib.run(
-        ['luci-auth', "token", "-scopes", " ".join(scopes)],
-        capture_output=True,
-        check=True,
-    )
-    return p.stdout.decode().rstrip()
 
 
 def GitCreds(service_account_json=None):
