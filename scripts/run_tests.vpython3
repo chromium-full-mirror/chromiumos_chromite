@@ -7,7 +7,7 @@
 # For info on this file, see:
 # https://chromium.googlesource.com/infra/infra/+/HEAD/doc/users/vpython.md#available-wheels
 
-python_version: "3.8"
+python_version: "3.11"
 
 # chromite deps.
 wheel: <
@@ -65,7 +65,7 @@ wheel: <
 # gsutil deps.
 wheel: <
   name: "infra/python/wheels/crcmod/${vpython_platform}"
-  version: "version:1.7"
+  version: "version:1.7.chromium.4"
 >
 
 # pylint deps.
@@ -112,8 +112,8 @@ wheel: <
   version: "version:0.10.1"
 >
 wheel: <
-  name: "infra/python/wheels/wrapt/${vpython_platform}"
-  version: "version:1.12.1"
+  name: "infra/python/wheels/wrapt-py3"
+  version: "version:1.15.0"
 >
 wheel: <
   name: "infra/python/wheels/lazy-object-proxy/${vpython_platform}"
@@ -237,5 +237,5 @@ wheel: <
 # scripts/run_tests.py flag --wait-for-debugger requires this
 wheel: <
  name: "infra/python/wheels/debugpy/${vpython_platform}"
- version: "version:1.6.7"
+ version: "version:1.8.0"
 >

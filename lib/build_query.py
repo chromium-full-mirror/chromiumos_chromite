@@ -11,6 +11,7 @@ import dataclasses
 import enum
 import functools
 import logging
+import os
 from pathlib import Path
 from typing import (
     Any,
@@ -23,7 +24,6 @@ from typing import (
     Set,
     Tuple,
     Type,
-    TYPE_CHECKING,
     Union,
 )
 
@@ -35,10 +35,6 @@ from chromite.utils import key_value_store
 from chromite.utils.parser import make_defaults
 from chromite.utils.parser import portage_md5_cache
 from chromite.utils.parser import portage_profile_conf
-
-
-if TYPE_CHECKING:
-    import os
 
 
 # We use docstrings in this file frequently for property documentation, which
@@ -206,7 +202,7 @@ class Overlay(QueryTarget):
         return list(_scan_profiles(self.profiles_dir))
 
     def get_profile(
-        self, name: Union[str, "os.PathLike[str]"]
+        self, name: Union[str, os.PathLike[str]]
     ) -> Optional[Profile]:
         """Get a specific profile by name.
 
