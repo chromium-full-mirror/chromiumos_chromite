@@ -10,7 +10,7 @@
 # https://chromium.googlesource.com/infra/infra/+/HEAD/doc/users/vpython.md#available-wheels
 
 # [VPYTHON:BEGIN]
-# python_version: "3.8"
+# python_version: "3.11"
 #
 # wheel: <
 #   name: "infra/python/wheels/psutil/${vpython_platform}"
