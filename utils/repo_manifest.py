@@ -32,7 +32,7 @@ class MissingRequiredAttribute(Error):
 class Manifest:
     """Manifest represents the contents of a repo manifest XML file."""
 
-    # https://chromium.googlesource.com/external/repo/+/HEAD/docs/manifest-format.md
+    # https://gerrit.googlesource.com/git-repo/+/HEAD/docs/manifest-format.md
 
     def __init__(
         self,

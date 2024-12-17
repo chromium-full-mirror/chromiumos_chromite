@@ -122,7 +122,7 @@ def WriteTagMetadata(builder_run) -> None:
         # Convert the following output into 'v1.12.17-cr3':
         #
         # repo version v1.12.17-cr3
-        #        (from https://chromium.googlesource.com/external/repo.git)
+        #        (from https://gerrit.googlesource.com/git-repo.git)
         # repo launcher version 1.21
         #        (from /usr/local/google/home/dgarrett/sand/depot_tools/repo)
         # git version 2.8.0.rc3.226.g39d4020

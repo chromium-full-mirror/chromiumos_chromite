@@ -110,7 +110,7 @@ function repo_init() {
   nuke_repo
 
   # Run repo init step
-  local cmd="repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chrome-internal-review.googlesource.com/chromeos/manifest-internal --manifest-name default.xml --manifest-branch ${BRANCH}"
+  local cmd="repo init https://chrome-internal-review.googlesource.com/chromeos/manifest-internal --manifest-name default.xml --manifest-branch ${BRANCH}"
   run "repo init" "${cmd}"
 }
 
