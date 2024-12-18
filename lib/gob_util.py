@@ -295,6 +295,7 @@ def CreateHttpReq(
                 "Authorization",
                 "Bearer %s" % credentials.get_access_token().access_token,
             )
+            logging.debug("Using Appengine credential for GoB authorization.")
         except gce.HttpAccessTokenRefreshError as e:
             logging.debug("Failed to retrieve gce access token: %s", e)
         # Not in an Appengine or GCE environment.
@@ -303,6 +304,7 @@ def CreateHttpReq(
 
     cookies = GetCookies(host, path)
     if "Cookie" not in headers and cookies:
+        logging.debug("Using cookies for GoB authorization.")
         headers["Cookie"] = "; ".join(
             "%s=%s" % (n, v) for n, v in cookies.items()
         )
@@ -313,6 +315,7 @@ def CreateHttpReq(
             git_creds = None
         if git_creds:
             headers.setdefault("Authorization", "Bearer %s" % git_creds)
+            logging.debug("Using LUCI git cred for GoB authorization.")
         else:
             logging.debug(
                 "No gitcookies file, Appengine credentials, or LUCI git creds "
