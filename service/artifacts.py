@@ -8,6 +8,7 @@ This service houses the high level business logic for all created artifacts.
 """
 
 import collections
+import functools
 import glob
 import logging
 import os
@@ -481,9 +482,21 @@ def ArchiveImages(
     """
     files = os.listdir(image_dir)
 
+    def _create_tarball(_tarball_path, _image_dir, _inputs, _extra_args, _tar):
+        compression_lib.create_tarball(
+            _tarball_path,
+            _image_dir,
+            inputs=_inputs,
+            extra_args=_extra_args,
+            print_cmd=False,
+        )
+
+        return _tar
+
     archives = []
     # Filter down to the ones that exist first.
     images = {img: tar for img, tar in IMAGE_TARS.items() if img in files}
+    tasks = []
     for img, tar in images.items():
         tarball_path = os.path.join(output_dir, tar)
         content = [img]
@@ -504,16 +517,21 @@ def ArchiveImages(
             # Flexor is already compressed, so copy it.
             image_path = os.path.join(image_dir, img)
             shutil.copy(image_path, tarball_path)
+            archives.append(img)
         else:
-            # Otherwise create a tarball.
-            compression_lib.create_tarball(
-                tarball_path,
-                image_dir,
-                inputs=content,
-                print_cmd=False,
-                extra_args=extra_args,
+            tasks.append(
+                functools.partial(
+                    _create_tarball,
+                    tarball_path,
+                    image_dir,
+                    content,
+                    extra_args,
+                    tar,
+                )
             )
-        archives.append(tar)
+
+    results = parallel.RunParallelSteps(tasks, return_values=True)
+    archives.extend(results)
 
     return archives
 

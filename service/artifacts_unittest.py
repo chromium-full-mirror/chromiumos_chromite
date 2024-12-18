@@ -184,33 +184,30 @@ class ArchiveImagesTest(cros_test_lib.TempDirTestCase):
     """ArchiveImages tests."""
 
     def setUp(self) -> None:
-        self.image_dir = os.path.join(self.tempdir, "images")
-        osutils.SafeMakedirs(self.image_dir)
-        self.output_dir = os.path.join(self.tempdir, "output")
-        osutils.SafeMakedirs(self.output_dir)
-        chroot_path = os.path.join(self.tempdir, "chroot")
+        self.image_dir = self.tempdir / "images"
+        self.image_dir.mkdir()
+        self.output_dir = self.tempdir / "output"
+        self.output_dir.mkdir()
+        chroot_path = self.tempdir / "chroot"
         self.chroot = chroot_lib.Chroot(
             path=chroot_path, out_path=self.output_dir
         )
-        osutils.SafeMakedirs(chroot_path)
-        sysroot_path = os.path.join(self.tempdir, "build/board")
+        chroot_path.mkdir()
+        sysroot_path = self.tempdir / "build" / "board"
         self.sysroot = sysroot_lib.Sysroot(sysroot_path)
-        osutils.SafeMakedirs(sysroot_path)
+        sysroot_path.mkdir(parents=True)
 
         self.images = []
         for img in artifacts.IMAGE_TARS.keys():
-            full_path = os.path.join(self.image_dir, img)
+            full_path = self.image_dir / img
             self.images.append(full_path)
-            osutils.Touch(full_path)
-            if img in artifacts.IMAGE_ADDITIONAL_SYSROOT_FILES:
-                for file in artifacts.IMAGE_ADDITIONAL_SYSROOT_FILES[img]:
-                    osutils.Touch(
-                        os.path.join(sysroot_path, file), makedirs=True
-                    )
+            full_path.touch()
+            for file in artifacts.IMAGE_ADDITIONAL_SYSROOT_FILES.get(img, []):
+                osutils.Touch(sysroot_path / file, makedirs=True)
 
-        osutils.Touch(os.path.join(self.image_dir, "irrelevant_image.bin"))
-        osutils.Touch(os.path.join(self.image_dir, "foo.txt"))
-        osutils.Touch(os.path.join(self.image_dir, "bar"))
+        (self.image_dir / "irrelevant_image.bin").touch()
+        (self.image_dir / "foo.txt").touch()
+        (self.image_dir / "bar").touch()
 
     def testNoImages(self) -> None:
         """Test an empty directory handling."""
