@@ -72,11 +72,11 @@ wheel: <
 # NB: Keep in sync with scripts/pylint.
 wheel: <
   name: "infra/python/wheels/astroid-py3"
-  version: "version:2.11.3"
+  version: "version:2.11.7"
 >
 wheel: <
   name: "infra/python/wheels/pylint-py3"
-  version: "version:2.13.8"
+  version: "version:2.14.5"
 >
 wheel: <
   name: "infra/python/wheels/typing-extensions-py3"
@@ -96,10 +96,6 @@ wheel: <
 >
 
 wheel: <
-  name: "infra/python/wheels/futures-py3"
-  version: "version:3.1.1"
->
-wheel: <
   name: "infra/python/wheels/isort-py3"
   version: "version:5.10.1"
 >
@@ -108,8 +104,8 @@ wheel: <
   version: "version:0.6.1"
 >
 wheel: <
-  name: "infra/python/wheels/toml-py3"
-  version: "version:0.10.1"
+  name: "infra/python/wheels/tomlkit-py3"
+  version: "version:0.12.3"
 >
 wheel: <
   name: "infra/python/wheels/wrapt-py3"
@@ -180,10 +176,6 @@ wheel: <
 wheel: <
   name: "infra/python/wheels/pytest-xdist-py3"
   version: "version:3.3.1"
->
-wheel: <
-  name: "infra/python/wheels/toml-py3"
-  version: "version:0.10.1"
 >
 wheel: <
   name: "infra/python/wheels/wcwidth-py2_py3"

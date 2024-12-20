@@ -367,7 +367,7 @@ def GetVerityHashAlgo(
     return disk_layout.DiskLayout(layout_filename).GetVerityHashAlgo()
 
 
-class ArgsAction(argparse.Action):  # pylint: disable=no-init
+class ArgsAction(argparse.Action):
     """Helper to add all arguments to an args array.
 
     ArgumentParser does not let you specify the same dest for multiple args.

@@ -10,6 +10,7 @@ import os
 from typing import Iterable, List, NamedTuple, Optional
 
 import astroid
+import pylint.lint
 
 from chromite.cli.cros import lint
 from chromite.lib import cros_test_lib
@@ -166,7 +167,7 @@ class CheckerTestCase(cros_test_lib.TestCase):
         assert hasattr(self, "CHECKER"), "TestCase must set CHECKER"
 
         self.results = []
-        self.checker = self.CHECKER()
+        self.checker = self.CHECKER(pylint.lint.PyLinter())
         self.checker.add_message = self.add_message
 
     def assertLintPassed(self, msg="Checks failed") -> None:
