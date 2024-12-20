@@ -7,7 +7,7 @@
 # network to see if there are any updates.
 
 # [VPYTHON:BEGIN]
-# python_version: "3.8"
+# python_version: "3.11"
 #
 # # Third party dependencies.  These are only listed because pylint itself needs
 # # them.  Feel free to add/remove anything here.
@@ -45,8 +45,8 @@
 #   version: "version:2.0.1"
 # >
 # wheel: <
-#   name: "infra/python/wheels/wrapt/${vpython_platform}"
-#   version: "version:1.12.1"
+#   name: "infra/python/wheels/wrapt-py3"
+#   version: "version:1.15.0"
 # >
 # wheel: <
 #   name: "infra/python/wheels/lazy-object-proxy/${vpython_platform}"
