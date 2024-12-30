@@ -274,8 +274,16 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
             self.assertEqual(installed_files, f.read().splitlines())
 
     def testBundledArtifactTypes(self) -> None:
-        """Verify all known bundled artifacts are either zip or tar files."""
-        known_names = ["zip", ".tgz", ".tar", "tar.bz2", "tar.xz", "tar.gz"]
+        """Verify all known bundled artifacts are zip, tar, or zstd files."""
+        known_names = [
+            "zip",
+            ".tgz",
+            ".tar",
+            "tar.bz2",
+            "tar.xz",
+            "tar.gz",
+            ".zst",
+        ]
         for d in itertools.chain(
             *build_artifact.chromeos_artifact_map.values()
         ):

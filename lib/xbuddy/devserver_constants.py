@@ -38,7 +38,7 @@ TEST_IMAGE_FILE = "chromiumos_test_image.bin"
 
 #### Update files
 CACHE_DIR = "cache"
-STATEFUL_FILE = "stateful.tgz"
+STATEFUL_FILE = "stateful.zst"
 UPDATE_FILE = "update.gz"
 UPDATE_METADATA_FILE = "update.gz.json"
 
