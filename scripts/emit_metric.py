@@ -9,7 +9,7 @@ from chromite.lib import metrics_lib
 
 
 def main(argv) -> None:
-    """Emit a metric event."""
+    """Emit a metric event to the metrics log."""
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
         "op",
