@@ -95,7 +95,6 @@ def Data(data: str) -> List[str]:
 
     Args:
         data: The file content to process.
-        path: The file name for diagnostics/configs/etc...
 
     Returns:
         Any errors found.
