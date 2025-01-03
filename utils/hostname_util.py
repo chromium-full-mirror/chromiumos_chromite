@@ -80,7 +80,7 @@ def host_is_ci_builder(
 
 
 def is_google_host() -> bool:
-    """Checks if the code is running on google host."""
+    """Checks if the code is running on a Google host."""
 
     hostname = get_host_name(fully_qualified=True)
     return hostname.endswith(GOOGLE_HOSTNAME_SUFFIX)
