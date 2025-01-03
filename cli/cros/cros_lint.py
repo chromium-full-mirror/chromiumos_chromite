@@ -827,11 +827,6 @@ NB: Not all linters work with `--commit` yet.
             return dispatcher(tool, files[0])
         else:
             # Run the tool in parallel on the files.
-            # Hack(b/358428177): Let's find out if grabbing shellcheck prior to
-            # parallel linter executions fixes a potential race condition in the
-            # fullcheckout-presubmit builder.
-            # pylint: disable-next=protected-access
-            linters.shell._find_shellcheck()
             return sum(
                 parallel.RunTasksInProcessPool(
                     dispatcher, tasks, processes=self.options.jobs
