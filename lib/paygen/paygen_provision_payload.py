@@ -20,8 +20,8 @@ def GenerateProvisionPayloads(
     """Generates payloads needed for provisioning.
 
     Args:
-        target_image_path: The path to the image to extract the partitions.
-        archive_dir: Where to store partitions when generated.
+        target_image_path: Path to the image to extract the partitions from.
+        archive_dir: Directory to store generated partitions in.
 
     Returns:
         List[Union[Path, str]]: The artifacts that were produced.
