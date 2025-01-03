@@ -32,7 +32,7 @@ def is_mount(directory: str) -> bool:
 
 
 class Converter:
-    """Converts compilation database to work outside chroot"""
+    """Converts compilation database to work outside chroot."""
 
     def __init__(
         self, external_trunk_path: str, which: Callable[[str], str]
@@ -112,7 +112,7 @@ class Converter:
         return [converted_include, chroot_include]
 
     def convert_clang_option_value(self, value: str) -> str:
-        if "/" in value:
+        if os.path.sep in value:
             return self.convert_filepath(value)
         return value
 
@@ -140,7 +140,7 @@ class Converter:
             flag, value = option.split("=", 1)
             return [flag + "=" + self.convert_clang_option_value(value)]
 
-        if "/" in option:
+        if os.path.sep in option:
             raise Exception(f"Unknown flag that suffixes a filepath: {option}")
         return [option]
 
@@ -187,7 +187,7 @@ ARGUMENTS = "arguments"
 
 def generate(
     data, external_trunk_path, which: Callable[[str], str] = shutil.which
-):
+) -> List[dict]:
     """Generates non-chroot version of the compilation database"""
 
     converter = Converter(external_trunk_path, which)
@@ -222,10 +222,14 @@ def main(argv: List[str]) -> None:
     Args:
         argv: Command-line args passed into the script, i.e. sys.argv[1:].
     """
+    if not argv:
+        raise ValueError("Expected external_trunk_path as the first argument.")
     text = sys.stdin.read()
     data = json.loads(text)
     external_trunk_path = argv[0]
-    if not os.path.exists(external_trunk_path):
+    if not os.path.exists(external_trunk_path) and os.path.isdir(
+        external_trunk_path
+    ):
         # The external_trunk_path points to the chromiumos trunk path *outside*
         # chroot, and it may not exist inside chroot, where the script is run
         # (b:259342928). We still show a warning here for debuggability because
