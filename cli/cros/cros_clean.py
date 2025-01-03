@@ -28,6 +28,7 @@ from chromite.lib import loas
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.service import sdk
+from chromite.utils import os_util
 from chromite.utils import pformat
 from chromite.utils import timer
 
@@ -334,6 +335,12 @@ class CleanCommand(command.CliCommand):
             logging.debug("Clean the common cache.")
             with timer.timer("Clean the common cache", logging.debug):
                 Empty(self.options.cache_dir, ignore_mount=True)
+
+            logging.debug("Clean the Bazel cache.")
+            with timer.timer("Clean the Bazel cache", logging.debug):
+                user = os_util.get_non_root_user()
+                bazel_dir = chroot.full_path(f"/home/{user}/.cache/bazel")
+                Empty(bazel_dir, ignore_mount=True)
 
             # Recreate dirs that cros_sdk does when entering.
             # TODO: When sdk_lib/enter_chroot.sh is moved to chromite, we should
