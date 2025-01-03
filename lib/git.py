@@ -1550,7 +1550,7 @@ def Commit(
     Args:
         git_repo: Path to the git repository to commit in.
         message: Commit message to use.
-        amend: Whether to 'amend' the CL, default False
+        amend: Whether to 'amend' the CL, default False.
         allow_empty: Whether to allow an empty commit. Default False.
         reset_author: Whether to reset author according to current config.
 
