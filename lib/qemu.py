@@ -24,7 +24,7 @@ _CIPD_VER = "hjdiqbUKaq8gP05T5Rx-PdWv9syXf4MTWB3Q8vNGXfAC"
 
 
 def InstallFromCipd(cache_dir: Optional[str] = None) -> Path:
-    """Install qemu from cipd & return bin/ dir."""
+    """Install qemu from cipd and return bin/ dir."""
     path = cipd.InstallPackage(
         cipd.GetCIPDFromCache(cache_dir=cache_dir),
         "chromiumos/infra/tools/qemu",
@@ -36,7 +36,7 @@ def InstallFromCipd(cache_dir: Optional[str] = None) -> Path:
 
 
 class Qemu:
-    """Framework for running tests via qemu"""
+    """Framework for running tests via qemu."""
 
     # The binfmt register format looks like:
     # :name:type:offset:magic:mask:interpreter:flags
@@ -179,7 +179,7 @@ class Qemu:
 
     @classmethod
     def DetectArch(cls, prog, sysroot):
-        """Figure out which qemu wrapper is best for this target"""
+        """Figure out which qemu wrapper is best for this target."""
 
         def MaskMatches(bheader, bmagic, bmask):
             """Apply |bmask| to |bheader| and see if it matches |bmagic|
@@ -260,7 +260,7 @@ class Qemu:
             return False
 
     def Install(self, sysroot=None) -> None:
-        """Install qemu into |sysroot| safely"""
+        """Install qemu into |sysroot| safely."""
         if sysroot is None:
             sysroot = self.sysroot
 
@@ -296,7 +296,7 @@ class Qemu:
 
     @classmethod
     def GetRegisterBinfmtStr(cls, arch, name, interp):
-        """Get the string used to pass to the kernel for registering the format
+        """Get the string used to pass to the kernel for registering the format.
 
         Args:
             arch: The architecture to get the register string
@@ -355,7 +355,7 @@ class Qemu:
         }
 
     def RegisterBinfmt(self) -> None:
-        """Make sure qemu has been registered as a format handler
+        """Make sure qemu has been registered as a format handler.
 
         Prep the binfmt handler. First mount if needed, then unregister any bad
         mappings, and then register our mapping.
