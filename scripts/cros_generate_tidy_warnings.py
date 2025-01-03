@@ -34,7 +34,7 @@ def ParseCommandLine(argv):
     parser.add_argument(
         "--logs-dir",
         required=True,
-        help=("The directory containg the logs files to " "be parsed."),
+        help=("The directory containing the log files to be parsed."),
     )
     parser.add_argument(
         "--out-dir",
