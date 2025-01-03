@@ -293,6 +293,7 @@ class EbuildParams:
         use_logical_volume: (bool) DLC will use logical volumes on LVM stateful
             partition migrated devices.
         user_tied: (bool) DLC will be tied to individual users.
+        attributes: (dict) A set of DLC attributes
     """
 
     def __init__(
@@ -316,6 +317,7 @@ class EbuildParams:
         powerwash_safe=False,
         use_logical_volume=False,
         user_tied=False,
+        attributes=None,
         *args,  # pylint: disable=unused-argument
         **kwargs,  # pylint: disable=unused-argument
     ) -> None:
@@ -345,6 +347,7 @@ class EbuildParams:
         self.powerwash_safe = powerwash_safe
         self.use_logical_volume = use_logical_volume
         self.user_tied = user_tied
+        self.attributes = attributes if attributes else {}
 
     def GetUriPath(self) -> str:
         """Retrieves the DLC image URI path based on field values"""
@@ -1195,6 +1198,7 @@ class DlcGenerator:
             ),
             "powerwash-safe": self.ebuild_params.powerwash_safe,
             "user-tied": self.ebuild_params.user_tied,
+            "attributes": self.ebuild_params.attributes,
         }
 
     def GenerateVerity(self, salt: Optional[str] = None) -> None:

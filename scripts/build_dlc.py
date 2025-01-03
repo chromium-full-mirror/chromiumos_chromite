@@ -178,6 +178,12 @@ def GetParser():
         action="store_true",
         help="DLC will be user-tied.",
     )
+    one_dlc.add_argument(
+        "--attributes",
+        default="",
+        type=str,
+        help="A list of DLC attributes.",
+    )
     return parser
 
 
@@ -272,6 +278,7 @@ def main(argv) -> None:
             powerwash_safe=opts.powerwash_safe,
             use_logical_volume=opts.use_logical_volume,
             user_tied=opts.user_tied,
+            attributes=dict.fromkeys(opts.attributes.split()),
         )
         params.VerifyDlcParameters()
         params.StoreDlcParameters(

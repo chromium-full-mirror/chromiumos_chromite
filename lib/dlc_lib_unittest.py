@@ -178,6 +178,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
         powerwash_safe=False,
         use_logical_volume=False,
         user_tied=False,
+        attributes=None,
     ) -> None:
         """Tests EbuildParams JSON values"""
         self.assertDictEqual(
@@ -202,6 +203,7 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
                 "powerwash_safe": powerwash_safe,
                 "use_logical_volume": use_logical_volume,
                 "user_tied": user_tied,
+                "attributes": dict(attributes) if attributes else {},
             },
         )
 
@@ -788,6 +790,7 @@ class DlcGeneratorTest(
                 "force-ota": False,
                 "use-logical-volume": False,
                 "user-tied": False,
+                "attributes": {},
             },
         )
 
