@@ -22,7 +22,7 @@ class NoSupportedPackagesException(ValueError):
 
 
 class DuplicatePackagesException(ValueError):
-    """Raise when we are trying to work on duplicate packages."""
+    """Raised when we are trying to work on duplicate packages."""
 
 
 class Conductor:
