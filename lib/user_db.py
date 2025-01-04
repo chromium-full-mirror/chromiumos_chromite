@@ -133,7 +133,7 @@ class UserDB:
             try:
                 gid_as_int = int(gid)
             except ValueError:
-                logging.warning("Ignored invalid or gid (%s).", gid)
+                logging.warning("Ignored invalid gid (%s).", gid)
                 continue
 
             if group in self._group_cache:
