@@ -185,7 +185,7 @@ def _BundleFirmwareArtifactsResponse(_request, response, _config) -> None:
 @faux.empty_completed_unsuccessfully_error
 @validate.validation_complete
 def BundleFirmwareArtifacts(request, response, _config):
-    """Runs all of the firmware tests at the specified location."""
+    """Bundles specified firmware build artifacts into an archive."""
 
     if len(request.artifacts.output_artifacts) > 1:
         raise ValueError("Must have exactly one output_artifact entry")
