@@ -23,11 +23,7 @@ def _find_buildifier() -> str:
     return os.path.join(path, "buildifier")
 
 
-def Data(
-    data: str,
-    # pylint: disable=unused-argument
-    path: Optional[Union[str, os.PathLike]] = None,
-) -> str:
+def Data(data: str, path: Optional[Union[str, os.PathLike]] = None) -> str:
     """Format starlark |data|.
 
     Args:
