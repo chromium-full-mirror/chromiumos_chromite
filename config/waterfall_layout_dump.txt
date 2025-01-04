@@ -1,14 +1,3 @@
-== factory ==
-  factory-excelsior-12812.B-buildspec
-    excelsior-factory-excelsior-12812.B-factorybranch
-  factory-hatch-12692.B-buildspec
-    hatch-factory-hatch-12692.B-factorybranch
-  factory-kukui-12587.B-buildspec
-    jacuzzi-factory-kukui-12587.B-factorybranch
-    kukui-factory-kukui-12587.B-factorybranch
-  factory-octopus-11512.B-buildspec
-    octopus-factory-octopus-11512.B-factorybranch
-
 == release ==
   master-release
     eve-release
@@ -25,20 +14,7 @@
   drallion-master-factorybranch-tryjob
   eve-master-factorybranch-tryjob
   eve-release-tryjob
-  excelsior-factory-excelsior-12812.B-factorybranch-tryjob
-  factory-excelsior-12812.B-buildspec-tryjob
-    excelsior-factory-excelsior-12812.B-factorybranch-tryjob
-  factory-hatch-12692.B-buildspec-tryjob
-    hatch-factory-hatch-12692.B-factorybranch-tryjob
-  factory-kukui-12587.B-buildspec-tryjob
-    jacuzzi-factory-kukui-12587.B-factorybranch-tryjob
-    kukui-factory-kukui-12587.B-factorybranch-tryjob
-  factory-octopus-11512.B-buildspec-tryjob
-    octopus-factory-octopus-11512.B-factorybranch-tryjob
   fail-build
-  hatch-factory-hatch-12692.B-factorybranch-tryjob
-  jacuzzi-factory-kukui-12587.B-factorybranch-tryjob
-  kukui-factory-kukui-12587.B-factorybranch-tryjob
   luci-scheduler-updater-tryjob
   master-buildspec-tryjob
     atlas-master-factorybranch-tryjob
@@ -54,7 +30,6 @@
   master-release-tryjob
     eve-release-tryjob
   mistral-master-factorybranch-tryjob
-  octopus-factory-octopus-11512.B-factorybranch-tryjob
   octopus-master-factorybranch-tryjob
   rammus-master-factorybranch-tryjob
   sarien-master-factorybranch-tryjob

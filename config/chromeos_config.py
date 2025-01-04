@@ -443,6 +443,7 @@ def FullBuilders(site_config, boards_dict, ge_build_config) -> None:
     )
 
 
+# TODO(b/241108061): Remove cbuildbot factory support.
 def FactoryBuilders(site_config, _boards_dict, _ge_build_config) -> None:
     """Create all factory build configs.
 
@@ -461,10 +462,6 @@ def FactoryBuilders(site_config, _boards_dict, _ge_build_config) -> None:
     MONTHLY = "with 720h interval"  # 30 day interval
     TRIGGERED = "triggered"  # Only when triggered
     branch_builders = [
-        (WEEKLY, "factory-octopus-11512.B", ["octopus"]),
-        (WEEKLY, "factory-kukui-12587.B", ["kukui", "jacuzzi"]),
-        (WEEKLY, "factory-hatch-12692.B", ["hatch"]),
-        (WEEKLY, "factory-excelsior-12812.B", ["excelsior"]),
         # This is intended to create master branch tryjobs, NOT for production
         # builds. Update the associated list of boards as needed.
         (
