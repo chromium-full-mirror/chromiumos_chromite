@@ -521,24 +521,22 @@ class SymbolsTest(image_test_lib.ImageTestCase):
             },
         }
 
-        excluded_files = set(
-            [
-                # These libraries are built against Android NDK's libc and have
-                # several imports that will appear to be unsatisfied.
-                "libmojo_core_arc32.so",
-                "libmojo_core_arc64.so",
-                # The camera shared libraries these libraries need are mounted
-                # at runtime.
-                "libcros_camera.so",
-                "camera_hal/intel-ipu6.so",
-                "camera.qcom.core.so",
-                "camera_hal/usb.so",
-                # In glibc 2.35, ldconfig is a static PIE executable with
-                # dynamic sections which confuses the image test.
-                # Ignore any missing symbols in it (b/244512686).
-                "sbin/ldconfig",
-            ]
-        )
+        excluded_files = {
+            # These libraries are built against Android NDK's libc and have
+            # several imports that will appear to be unsatisfied.
+            "libmojo_core_arc32.so",
+            "libmojo_core_arc64.so",
+            # The camera shared libraries these libraries need are mounted
+            # at runtime.
+            "libcros_camera.so",
+            "camera_hal/intel-ipu6.so",
+            "camera.qcom.core.so",
+            "camera_hal/usb.so",
+            # In glibc 2.35, ldconfig is a static PIE executable with
+            # dynamic sections which confuses the image test.
+            # Ignore any missing symbols in it (b/244512686).
+            "sbin/ldconfig",
+        }
 
         failures = []
         for full_name, imported in importeds.items():
