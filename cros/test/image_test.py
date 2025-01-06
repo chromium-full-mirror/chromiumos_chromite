@@ -1028,17 +1028,17 @@ class IntelWifiTest(image_test_lib.ImageTestCase):
         # iwlwifi-8265-36.ucode
         # iwlwifi-9000-pu-b0-jf-b0-46.ucode
         # iwlwifi-9260-th-b0-jf-b0-46.ucode
+        cmd = [
+            "modinfo",
+            "-F",
+            "firmware",
+            "-b",
+            image_test_lib.ROOT_A,
+            "-k",
+            kernel,
+            "iwlwifi",
+        ]
         try:
-            cmd = [
-                "modinfo",
-                "-F",
-                "firmware",
-                "-b",
-                image_test_lib.ROOT_A,
-                "-k",
-                kernel,
-                "iwlwifi",
-            ]
             modinfo = cros_build_lib.run(
                 cmd, print_cmd=False, capture_output=True, encoding="utf-8"
             )
