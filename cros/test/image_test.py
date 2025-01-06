@@ -214,6 +214,7 @@ class BlockedTest(image_test_lib.ImageTestCase):
                         'File %s has an invalid interpreter path: "%s".'
                         % (full_name, line)
                     )
+                    continue
 
                 # Absolute path to the interpreter.
                 interp = os.path.join(image_test_lib.ROOT_A, interp.lstrip("/"))
