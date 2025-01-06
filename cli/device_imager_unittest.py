@@ -148,6 +148,22 @@ class DeviceImagerTest(cros_test_lib.MockTestCase):
         return_value="/dev/foop3",
         new_callable=mock.PropertyMock,
     )
+    def test_VerifyBootExpectationsNoRootfsChange(self, _) -> None:
+        """Tests verifying the boot expectations with no rootfs (OS) update."""
+
+        with remote_access.ChromiumOSDeviceHandler(
+            remote_access.TEST_IP
+        ) as device:
+            di = device_imager.DeviceImager(device, None, no_rootfs_update=True)
+            di._inactive_state = device_imager.DeviceImager.A
+            di._VerifyBootExpectations()
+
+    @mock.patch.object(
+        remote_access.ChromiumOSDevice,
+        "root_dev",
+        return_value="/dev/foop3",
+        new_callable=mock.PropertyMock,
+    )
     def test_VerifyBootExpectationsFails(self, _) -> None:
         """Tests failure of boot expectations."""
 

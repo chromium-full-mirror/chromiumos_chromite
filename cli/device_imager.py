@@ -373,6 +373,10 @@ class DeviceImager:
 
     def _VerifyBootExpectations(self) -> None:
         """Verify that we fully booted into the expected kernel state."""
+        if self._no_rootfs_update:
+            logging.warning("No rootfs update, skipping boot verification.")
+            return
+
         # Discover the newly active kernel.
         _, root_num = self._SplitDevPath(self._device.root_dev)
         active_state, _ = self._GetKernelState(root_num)
