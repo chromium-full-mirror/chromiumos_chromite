@@ -2,7 +2,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Python API for the prctl() syscall."""
+"""Python API for the prctl() syscall.
+
+This module provides a Python interface for the prctl() syscall, which is used
+to set process-specific attributes. It includes functions for setting and
+getting process names, setting and getting the process death signal, and more.
+"""
 
 import ctypes
 import enum
