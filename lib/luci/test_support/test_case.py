@@ -21,7 +21,7 @@ def mock_now(test, now, seconds):
 
 
 class TestCase(auto_stub.TestCase):
-    """Support class to enable more unit testing."""
+    """Support class to enable unit testing."""
 
     def set_up(self) -> None:
         """Initializes the commonly used stubs.
