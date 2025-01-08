@@ -7,6 +7,7 @@
 import hashlib
 import json
 from pathlib import Path
+import time
 from unittest import mock
 
 from chromite.third_party import httplib2
@@ -21,6 +22,88 @@ from chromite.lib import path_util
 
 class CIPDTest(cros_test_lib.MockTestCase):
     """Tests for chromite.lib.cipd"""
+
+    def testChromeInfraRequest(self) -> None:
+        MockHttp = self.PatchObject(httplib2, "Http")
+        body = b")]}'\n" + json.dumps(
+            {
+                "clientBinary": {
+                    "signedUrl": "http://example.com",
+                },
+                "clientRefAliases": [
+                    {
+                        "hashAlgo": "SKIP",
+                        "hexDigest": "aaaa",
+                    },
+                    {
+                        "hashAlgo": "SHA256",
+                        "hexDigest": "bogus-sha256",
+                    },
+                ],
+            }
+        ).encode("utf-8")
+
+        # Mock CIPD server errors.
+        response500 = mock.Mock()
+        response500.status = 500
+        response200 = mock.Mock()
+        response200.status = 200
+        MockHttp.return_value.request.side_effect = [
+            (
+                response500,
+                "<title>500 Server Error</title><p>Try again later</p>",
+            ),
+            (
+                response500,
+                "<title>500 Server Error</title><p>Try again later</p>",
+            ),
+            (
+                response500,
+                "<title>500 Server Error</title><p>Try again later</p>",
+            ),
+            (response200, body),
+        ]
+
+        # Also mock time.sleep so we don't slow down the tests during
+        # exponential backoff.
+        MockSleep = self.PatchObject(time, "sleep")
+
+        # pylint: disable=protected-access
+        actual_response = cipd._ChromeInfraRequest(
+            "DescribeClient",
+            {
+                "package": "infra/tools/cipd/linux-amd64",
+                "instance": {
+                    "hashAlgo": "SHA256",
+                    "hexDigest": "fake-sha256",
+                },
+            },
+        )
+
+        self.assertEqual(
+            actual_response,
+            {
+                "clientBinary": {
+                    "signedUrl": "http://example.com",
+                },
+                "clientRefAliases": [
+                    {
+                        "hashAlgo": "SKIP",
+                        "hexDigest": "aaaa",
+                    },
+                    {
+                        "hashAlgo": "SHA256",
+                        "hexDigest": "bogus-sha256",
+                    },
+                ],
+            },
+        )
+
+        # Assert that we waited the expected number of seconds between retries.
+        self.assertEqual(
+            MockSleep.mock_calls,
+            [mock.call(2), mock.call(4), mock.call(8)],
+        )
 
     def testDownloadCIPD(self) -> None:
         MockHttp = self.PatchObject(httplib2, "Http")

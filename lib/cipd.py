@@ -24,6 +24,7 @@ from chromite.lib import cache
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
+from chromite.lib import retry_util
 from chromite.utils import memoize
 from chromite.utils import os_util
 
@@ -67,20 +68,30 @@ def _ChromeInfraRequest(method, request):
     Returns:
         Deserialized RPC response body.
     """
-    resp, body = httplib2.Http().request(
-        uri=CHROME_INFRA_PACKAGES_API_BASE + method,
-        method="POST",
-        headers={
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "User-Agent": "chromite",
-        },
-        body=json.dumps(request),
-    )
-    if resp.status != 200:
-        raise Error(
-            "Got HTTP %d from CIPD %r: %s" % (resp.status, method, body)
+
+    # Retry the request to prevent failures due to 5xx errors from CIPD, see
+    # b/383384638.
+    #
+    # The delay between retries will be 2, 4, 8, 16, 32, 64.
+    @retry_util.WithRetry(max_retry=6, sleep=2, backoff_factor=2)
+    def _fetch():
+        resp, body = httplib2.Http().request(
+            uri=CHROME_INFRA_PACKAGES_API_BASE + method,
+            method="POST",
+            headers={
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "User-Agent": "chromite",
+            },
+            body=json.dumps(request),
         )
+        if resp.status != 200:
+            raise Error(
+                "Got HTTP %d from CIPD %r: %s" % (resp.status, method, body)
+            )
+        return body
+
+    body = _fetch()
     try:
         return json.loads(body.lstrip(b")]}'\n"))
     except ValueError:
