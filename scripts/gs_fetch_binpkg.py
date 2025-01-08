@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Download a binpkg from Google Storage.
+"""Download a binpkg from Google Storage (GS).
 
 This is needed for two reasons:
   1) In the case where a binpkg is left over in the packages dir,
@@ -28,7 +28,7 @@ def GetParser():
         "--boto", type="str_path", help="Path to boto auth file."
     )
     parser.add_argument(
-        "uri", type="gs_path", help="Google Storage URI to download"
+        "uri", type="gs_path", help="Google Storage URI to download."
     )
     parser.add_argument(
         "filename", type="str_path", help="Location to store the file."
