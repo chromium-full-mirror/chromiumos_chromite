@@ -12,10 +12,11 @@ _sym_db = _symbol_database.Default()
 
 
 from chromite.api.gen_sdk.chromiumos.test.artifact import test_result_pb2 as chromiumos_dot_test_dot_artifact_dot_test__result__pb2
+from chromite.api.gen_sdk.chromiumos.test.api import firmware_provision_pb2 as chromiumos_dot_test_dot_api_dot_firmware__provision__pb2
 from chromite.api.gen_sdk.chromiumos.test.api import post_test_service_pb2 as chromiumos_dot_test_dot_api_dot_post__test__service__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n7chromiumos/test/api/metadata/publish_rdb_metadata.proto\x12\x1c\x63hromiumos.test.api.metadata\x1a*chromiumos/test/artifact/test_result.proto\x1a+chromiumos/test/api/post_test_service.proto\"\xfc\x03\n\x12PublishRdbMetadata\x12\x1d\n\x15\x63urrent_invocation_id\x18\x01 \x01(\t\x12\x39\n\x0btest_result\x18\x02 \x01(\x0b\x32$.chromiumos.test.artifact.TestResult\x12\x19\n\rstainless_url\x18\x03 \x01(\tB\x02\x18\x01\x12\x14\n\x0ctesthaus_url\x18\x04 \x01(\t\x12I\n\x07sources\x18\x05 \x01(\x0b\x32\x38.chromiumos.test.api.metadata.PublishRdbMetadata.Sources\x12W\n\x0c\x62\x61se_variant\x18\x06 \x03(\x0b\x32\x41.chromiumos.test.api.metadata.PublishRdbMetadata.BaseVariantEntry\x12J\n\x16post_process_responses\x18\x07 \x01(\x0b\x32*.chromiumos.test.api.RunActivitiesResponse\x1a\x37\n\x07Sources\x12\x0f\n\x07gs_path\x18\x01 \x01(\t\x12\x1b\n\x13is_deployment_dirty\x18\x02 \x01(\x08\x1a\x32\n\x10\x42\x61seVariantEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x38Z6go.chromium.org/chromiumos/config/go/test/api/metadatab\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n7chromiumos/test/api/metadata/publish_rdb_metadata.proto\x12\x1c\x63hromiumos.test.api.metadata\x1a*chromiumos/test/artifact/test_result.proto\x1a,chromiumos/test/api/firmware_provision.proto\x1a+chromiumos/test/api/post_test_service.proto\"\xd1\x04\n\x12PublishRdbMetadata\x12\x1d\n\x15\x63urrent_invocation_id\x18\x01 \x01(\t\x12\x39\n\x0btest_result\x18\x02 \x01(\x0b\x32$.chromiumos.test.artifact.TestResult\x12\x19\n\rstainless_url\x18\x03 \x01(\tB\x02\x18\x01\x12\x14\n\x0ctesthaus_url\x18\x04 \x01(\t\x12I\n\x07sources\x18\x05 \x01(\x0b\x32\x38.chromiumos.test.api.metadata.PublishRdbMetadata.Sources\x12W\n\x0c\x62\x61se_variant\x18\x06 \x03(\x0b\x32\x41.chromiumos.test.api.metadata.PublishRdbMetadata.BaseVariantEntry\x12J\n\x16post_process_responses\x18\x07 \x01(\x0b\x32*.chromiumos.test.api.RunActivitiesResponse\x12S\n\x1b\x66irmware_provision_response\x18\x08 \x01(\x0b\x32..chromiumos.test.api.FirmwareProvisionResponse\x1a\x37\n\x07Sources\x12\x0f\n\x07gs_path\x18\x01 \x01(\t\x12\x1b\n\x13is_deployment_dirty\x18\x02 \x01(\x08\x1a\x32\n\x10\x42\x61seVariantEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x38Z6go.chromium.org/chromiumos/config/go/test/api/metadatab\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -28,10 +29,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _PUBLISHRDBMETADATA_BASEVARIANTENTRY._serialized_options = b'8\001'
   _PUBLISHRDBMETADATA.fields_by_name['stainless_url']._options = None
   _PUBLISHRDBMETADATA.fields_by_name['stainless_url']._serialized_options = b'\030\001'
-  _globals['_PUBLISHRDBMETADATA']._serialized_start=179
-  _globals['_PUBLISHRDBMETADATA']._serialized_end=687
-  _globals['_PUBLISHRDBMETADATA_SOURCES']._serialized_start=580
-  _globals['_PUBLISHRDBMETADATA_SOURCES']._serialized_end=635
-  _globals['_PUBLISHRDBMETADATA_BASEVARIANTENTRY']._serialized_start=637
-  _globals['_PUBLISHRDBMETADATA_BASEVARIANTENTRY']._serialized_end=687
+  _globals['_PUBLISHRDBMETADATA']._serialized_start=225
+  _globals['_PUBLISHRDBMETADATA']._serialized_end=818
+  _globals['_PUBLISHRDBMETADATA_SOURCES']._serialized_start=711
+  _globals['_PUBLISHRDBMETADATA_SOURCES']._serialized_end=766
+  _globals['_PUBLISHRDBMETADATA_BASEVARIANTENTRY']._serialized_start=768
+  _globals['_PUBLISHRDBMETADATA_BASEVARIANTENTRY']._serialized_end=818
 # @@protoc_insertion_point(module_scope)

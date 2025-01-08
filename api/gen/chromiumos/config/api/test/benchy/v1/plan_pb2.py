@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n/chromiumos/config/api/test/benchy/v1/plan.proto\x12\"chromium.config.api.test.benchy.v1\"<\n\x07Payload\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06source\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65stination\x18\x03 \x01(\t\"8\n\x06\x44\x65vice\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\thost_name\x18\x02 \x01(\t\x12\r\n\x05\x62oard\x18\x03 \x01(\t\"&\n\x05\x42uild\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\"\x85\x02\n\tParameter\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06values\x18\x02 \x03(\t\x12\x14\n\x0c\x63ommand_line\x18\x03 \x01(\t\x12S\n\x0e\x65xecution_mode\x18\x04 \x01(\x0e\x32;.chromium.config.api.test.benchy.v1.Parameter.ExecutionMode\"o\n\rExecutionMode\x12\x19\n\x15\x45XECUTION_UNSPECIFIED\x10\x00\x12\x13\n\x0f\x45XECUTION_LOCAL\x10\x01\x12\x11\n\rEXECUTION_DUT\x10\x02\x12\x1b\n\x17\x45XECUTION_TAST_VARIABLE\x10\x03\"]\n\x08Workload\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0c\x63ommand_line\x18\x02 \x01(\t\x12\x17\n\x0flocal_execution\x18\x03 \x01(\x08\x12\x14\n\x0crepeat_count\x18\x04 \x01(\r\"\xe9\x02\n\x04Plan\x12\x0c\n\x04name\x18\x01 \x01(\t\x12=\n\x08payloads\x18\x02 \x03(\x0b\x32+.chromium.config.api.test.benchy.v1.Payload\x12;\n\x07\x64\x65vices\x18\x03 \x03(\x0b\x32*.chromium.config.api.test.benchy.v1.Device\x12\x39\n\x06\x62uilds\x18\x04 \x03(\x0b\x32).chromium.config.api.test.benchy.v1.Build\x12?\n\tworkloads\x18\x05 \x03(\x0b\x32,.chromium.config.api.test.benchy.v1.Workload\x12\x41\n\nparameters\x18\x06 \x03(\x0b\x32-.chromium.config.api.test.benchy.v1.Parameter\x12\x18\n\x10\x63ooldown_seconds\x18\x07 \x01(\rB@Z>go.chromium.org/chromiumos/config/go/api/test/benchy/v1;benchyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n/chromiumos/config/api/test/benchy/v1/plan.proto\x12\"chromium.config.api.test.benchy.v1\"<\n\x07Payload\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06source\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65stination\x18\x03 \x01(\t\"{\n\x06\x44\x65vice\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\thost_name\x18\x02 \x01(\t\x12\r\n\x05\x62oard\x18\x03 \x01(\t\x12\x41\n\x04oses\x18\x04 \x03(\x0e\x32\x33.chromium.config.api.test.benchy.v1.OperatingSystem\"\xb8\x01\n\x0b\x41pplication\x12\x0c\n\x04name\x18\x01 \x01(\t\x12_\n\x13installation_method\x18\x02 \x01(\x0e\x32\x42.chromium.config.api.test.benchy.v1.Application.InstallationMethod\x12\x0e\n\x06source\x18\x03 \x01(\t\"*\n\x12InstallationMethod\x12\x14\n\x10METHOD_LOCAL_APK\x10\x00\"\xae\x01\n\x05\x42uild\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12?\n\x02os\x18\x03 \x01(\x0e\x32\x33.chromium.config.api.test.benchy.v1.OperatingSystem\x12\x45\n\x0c\x61pplications\x18\x04 \x03(\x0b\x32/.chromium.config.api.test.benchy.v1.Application\"\x85\x02\n\tParameter\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06values\x18\x02 \x03(\t\x12\x14\n\x0c\x63ommand_line\x18\x03 \x01(\t\x12S\n\x0e\x65xecution_mode\x18\x04 \x01(\x0e\x32;.chromium.config.api.test.benchy.v1.Parameter.ExecutionMode\"o\n\rExecutionMode\x12\x19\n\x15\x45XECUTION_UNSPECIFIED\x10\x00\x12\x13\n\x0f\x45XECUTION_LOCAL\x10\x01\x12\x11\n\rEXECUTION_DUT\x10\x02\x12\x1b\n\x17\x45XECUTION_TAST_VARIABLE\x10\x03\"+\n\x0c\x43onfigOption\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"\x97\x02\n\x08Workload\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0c\x63ommand_line\x18\x02 \x01(\t\x12\x17\n\x0flocal_execution\x18\x03 \x01(\x08\x12\x14\n\x0crepeat_count\x18\x04 \x01(\r\x12\x43\n\x06runner\x18\x05 \x01(\x0e\x32\x33.chromium.config.api.test.benchy.v1.Workload.Runner\x12\x41\n\x07options\x18\x06 \x03(\x0b\x32\x30.chromium.config.api.test.benchy.v1.ConfigOption\"0\n\x06Runner\x12\x0f\n\x0bRUNNER_TAST\x10\x00\x12\x15\n\x11RUNNER_CROSSBENCH\x10\x01\"\xe9\x02\n\x04Plan\x12\x0c\n\x04name\x18\x01 \x01(\t\x12=\n\x08payloads\x18\x02 \x03(\x0b\x32+.chromium.config.api.test.benchy.v1.Payload\x12;\n\x07\x64\x65vices\x18\x03 \x03(\x0b\x32*.chromium.config.api.test.benchy.v1.Device\x12\x39\n\x06\x62uilds\x18\x04 \x03(\x0b\x32).chromium.config.api.test.benchy.v1.Build\x12?\n\tworkloads\x18\x05 \x03(\x0b\x32,.chromium.config.api.test.benchy.v1.Workload\x12\x41\n\nparameters\x18\x06 \x03(\x0b\x32-.chromium.config.api.test.benchy.v1.Parameter\x12\x18\n\x10\x63ooldown_seconds\x18\x07 \x01(\r*2\n\x0fOperatingSystem\x12\x0f\n\x0bOS_CHROMEOS\x10\x00\x12\x0e\n\nOS_ANDROID\x10\x01\x42@Z>go.chromium.org/chromiumos/config/go/api/test/benchy/v1;benchyb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.config.api.test.benchy.v1.plan_pb2', globals())
@@ -21,18 +21,28 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z>go.chromium.org/chromiumos/config/go/api/test/benchy/v1;benchy'
+  _OPERATINGSYSTEM._serialized_start=1593
+  _OPERATINGSYSTEM._serialized_end=1643
   _PAYLOAD._serialized_start=87
   _PAYLOAD._serialized_end=147
   _DEVICE._serialized_start=149
-  _DEVICE._serialized_end=205
-  _BUILD._serialized_start=207
-  _BUILD._serialized_end=245
-  _PARAMETER._serialized_start=248
-  _PARAMETER._serialized_end=509
-  _PARAMETER_EXECUTIONMODE._serialized_start=398
-  _PARAMETER_EXECUTIONMODE._serialized_end=509
-  _WORKLOAD._serialized_start=511
-  _WORKLOAD._serialized_end=604
-  _PLAN._serialized_start=607
-  _PLAN._serialized_end=968
+  _DEVICE._serialized_end=272
+  _APPLICATION._serialized_start=275
+  _APPLICATION._serialized_end=459
+  _APPLICATION_INSTALLATIONMETHOD._serialized_start=417
+  _APPLICATION_INSTALLATIONMETHOD._serialized_end=459
+  _BUILD._serialized_start=462
+  _BUILD._serialized_end=636
+  _PARAMETER._serialized_start=639
+  _PARAMETER._serialized_end=900
+  _PARAMETER_EXECUTIONMODE._serialized_start=789
+  _PARAMETER_EXECUTIONMODE._serialized_end=900
+  _CONFIGOPTION._serialized_start=902
+  _CONFIGOPTION._serialized_end=945
+  _WORKLOAD._serialized_start=948
+  _WORKLOAD._serialized_end=1227
+  _WORKLOAD_RUNNER._serialized_start=1179
+  _WORKLOAD_RUNNER._serialized_end=1227
+  _PLAN._serialized_start=1230
+  _PLAN._serialized_end=1591
 # @@protoc_insertion_point(module_scope)
