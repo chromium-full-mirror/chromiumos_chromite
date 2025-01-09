@@ -126,10 +126,20 @@ def _DownloadCIPD(instance_sha256):
         raise Error("Failed to bootstrap CIPD client")
 
     # Download the actual binary.
-    http = httplib2.Http(cache=None)
-    response, binary = http.request(uri=resp["clientBinary"]["signedUrl"])
-    if response.status != 200:
-        raise Error("Got a %d response from Google Storage." % response.status)
+    #
+    # Retry the request to prevent failures due to transient GCS errors. The
+    # delay between retries will be 2, 4, 8, 16, 32, 64.
+    @retry_util.WithRetry(max_retry=6, sleep=2, backoff_factor=2)
+    def _fetch():
+        http = httplib2.Http(cache=None)
+        response, binary = http.request(uri=resp["clientBinary"]["signedUrl"])
+        if response.status != 200:
+            raise Error(
+                "Got a %d response from Google Storage." % response.status
+            )
+        return binary
+
+    binary = _fetch()
 
     # Check SHA256 matches what server expects.
     digest = hashlib.sha256(binary).hexdigest()

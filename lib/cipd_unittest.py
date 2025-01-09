@@ -107,7 +107,7 @@ class CIPDTest(cros_test_lib.MockTestCase):
 
     def testDownloadCIPD(self) -> None:
         MockHttp = self.PatchObject(httplib2, "Http")
-        first_body = b")]}'\n" + json.dumps(
+        cipd_response_body = b")]}'\n" + json.dumps(
             {
                 "clientBinary": {
                     "signedUrl": "http://example.com",
@@ -124,12 +124,23 @@ class CIPDTest(cros_test_lib.MockTestCase):
                 ],
             }
         ).encode("utf-8")
-        response = mock.Mock()
-        response.status = 200
+
+        # Mock GCS errors.
+        response500 = mock.Mock()
+        response500.status = 500
+        response200 = mock.Mock()
+        response200.status = 200
         MockHttp.return_value.request.side_effect = [
-            (response, first_body),
-            (response, b"bogus binary file"),
+            (response200, cipd_response_body),
+            (response500, "<title>500 Server Error</title><p>GCS is down.</p>"),
+            (response500, "<title>500 Server Error</title><p>GCS is down.</p>"),
+            (response500, "<title>500 Server Error</title><p>GCS is down.</p>"),
+            (response200, b"bogus binary file"),
         ]
+
+        # Also mock time.sleep so we don't slow down the tests during
+        # exponential backoff.
+        MockSleep = self.PatchObject(time, "sleep")
 
         sha1 = self.PatchObject(hashlib, "sha256")
         sha1.return_value.hexdigest.return_value = "bogus-sha256"
@@ -137,6 +148,12 @@ class CIPDTest(cros_test_lib.MockTestCase):
         # pylint: disable=protected-access
         self.assertEqual(
             b"bogus binary file", cipd._DownloadCIPD("bogus-instance-sha256")
+        )
+
+        # Assert that we waited the expected number of seconds between retries.
+        self.assertEqual(
+            MockSleep.mock_calls,
+            [mock.call(2), mock.call(4), mock.call(8)],
         )
 
 
