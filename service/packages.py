@@ -18,7 +18,16 @@ from pathlib import Path
 import re
 import shlex
 import sys
-from typing import Iterable, List, NamedTuple, Optional, TYPE_CHECKING, Union
+from typing import (
+    Dict,
+    Iterable,
+    List,
+    NamedTuple,
+    Optional,
+    Tuple,
+    TYPE_CHECKING,
+    Union,
+)
 
 from chromite.lib import chromeos_version
 from chromite.lib import constants
@@ -1582,9 +1591,8 @@ def get_target_versions(
     chrome_version = None
     if builds_chrome:
         # Chrome version fetch.
-        chrome_version = determine_package_version(
-            constants.CHROME_CP, build_target
-        )
+        result = determine_package_version(constants.CHROME_CP, build_target)
+        chrome_version = result[0] if result else None
         logging.info("Found chrome version: %s", chrome_version)
 
     # The ChromeOS version info.
@@ -1606,15 +1614,17 @@ def get_target_versions(
 def determine_package_version(
     cpv_name: str,
     build_target: "build_target_lib.BuildTarget",
-) -> Optional[str]:
+    variables: Optional[List[str]] = None,
+) -> Optional[Tuple[str, Dict[str, str]]]:
     """Returns the current package version for the board (or in buildroot).
 
     Args:
         cpv_name: the name of the ebuild CPV
         build_target: The board build target.
+        variables: Variables to extract from ebuild.
 
     Returns:
-        The version of the package, if available.
+        The version of the package and extracted variables, if available.
     """
     # TODO(crbug/1019770): Long term we should not need the try/catch here once
     # the builds function above only returns True for chrome when
@@ -1628,8 +1638,20 @@ def determine_package_version(
         # version.
         logging.warning("Caught exception in determine_chrome_package: %s", e)
         return None
+    env = {}
+    if variables:
+        ebuild_path = portage_util.FindEbuildForBoardPackage(
+            pkg_info.cpvr, build_target.name
+        )
+        env = osutils.SourceEnvironment(ebuild_path, variables, env=None)
+
     # Something like 78.0.3877.4_rc -> 78.0.3877.4
-    return pkg_info.version.partition("_")[0]
+    return (
+        re.compile(uprev_lib.CHROME_VERSION_REGEX)
+        .match(pkg_info.version)
+        .group(0),
+        env,
+    )
 
 
 @functools.lru_cache()

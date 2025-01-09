@@ -153,11 +153,13 @@ def _ChromeVersionResponse(_request, response, _config) -> None:
 def GetChromeVersion(request, response, _config) -> None:
     """Returns the chrome version."""
     build_target = controller_util.ParseBuildTarget(request.build_target)
-    chrome_version = packages.determine_package_version(
-        constants.CHROME_CP, build_target
+    val = packages.determine_package_version(
+        constants.CHROME_CP, build_target, ["GIT_COMMIT"]
     )
-    if chrome_version:
+    if val:
+        chrome_version, variables = val
         response.version = chrome_version
+        response.commit_hash = variables.get("GIT_COMMIT", "")
 
 
 def _GetTargetVersionsResponse(_request, response, _config) -> None:

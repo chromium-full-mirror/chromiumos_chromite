@@ -319,17 +319,20 @@ class GetChromeVersion(cros_test_lib.MockTestCase, ApiConfigMixin):
         chrome_version_mock = self.PatchObject(
             packages_service,
             "determine_package_version",
-            return_value=chrome_version,
+            return_value=(chrome_version, {"GIT_COMMIT": "deadbeef"}),
         )
         request = self._GetRequest(board="betty")
         packages_controller.GetChromeVersion(
             request, self.response, self.api_config
         )
         self.assertEqual(self.response.version, chrome_version)
+        self.assertEqual(self.response.commit_hash, "deadbeef")
         # Verify call to determine_package_version passes a build_target object.
         build_target = build_target_lib.BuildTarget("betty")
         chrome_version_mock.assert_called_with(
-            constants.CHROME_CP, build_target
+            constants.CHROME_CP,
+            build_target,
+            ["GIT_COMMIT"],
         )
 
     def testGetChromeVersionHandleNone(self) -> None:
@@ -409,7 +412,7 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         package_version_mock = self.PatchObject(
             packages_service,
             "determine_package_version",
-            side_effect=[chrome_version],
+            return_value=(chrome_version, {}),
         )
         android_package = "chromeos-base/android-container-pi-10.3"
         self.PatchObject(
@@ -475,7 +478,7 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         self.PatchObject(
             packages_service,
             "determine_package_version",
-            side_effect=[chrome_version],
+            return_value=(chrome_version, {}),
         )
         android_package = "chromeos-base/android-container-pi-10.3"
         self.PatchObject(

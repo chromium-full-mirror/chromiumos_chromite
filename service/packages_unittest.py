@@ -1201,17 +1201,30 @@ class ChromeVersionsTest(cros_test_lib.MockTestCase):
         """Tests that a valid chrome version is returned."""
         # Mock PortageqBestVisible to return a valid chrome version string.
         r1_cpf = "chromeos-base/chromeos-chrome-78.0.3900.0_rc-r1"
-        r1_cpv = package_info.SplitCPV(r1_cpf)
+        pkg_info = package_info.parse(r1_cpf)
         self.PatchObject(
-            portage_util, "PortageqBestVisible", return_value=r1_cpv
+            portage_util, "PortageqBestVisible", return_value=pkg_info
+        )
+        self.PatchObject(
+            portage_util,
+            "FindEbuildForBoardPackage",
+            return_value=f"/path/to/{r1_cpf}.ebuild",
+        )
+        self.PatchObject(
+            osutils,
+            "SourceEnvironment",
+            return_value={"GIT_COMMIT": "deadbeef"},
         )
 
-        chrome_version = packages.determine_package_version(
-            constants.CHROME_CP, self.build_target
+        chrome_version, variables = packages.determine_package_version(
+            constants.CHROME_CP,
+            self.build_target,
+            ["GIT_COMMIT"],
         )
         version_numbers = chrome_version.split(".")
         self.assertEqual(len(version_numbers), 4)
         self.assertEqual(int(version_numbers[0]), 78)
+        self.assertEqual(variables["GIT_COMMIT"], "deadbeef")
 
     def test_determine_chrome_version_handle_exception(self) -> None:
         # Mock what happens when portage throws an exception that bubbles up
