@@ -1320,11 +1320,17 @@ def uprev_starbase_artifacts(
     Returns:
         UprevVersionedPackageResult: The result of updating this ebuild.
     """
-    overlay_root = str(
+    starline_overlay_root = str(
         constants.SOURCE_ROOT
         / "src"
         / "private-overlays"
         / "project-starline-private"
+    )
+    helium_overlay_root = str(
+        constants.SOURCE_ROOT
+        / "src"
+        / "private-overlays"
+        / "overlay-selphie-private"
     )
     logging.info("Starbase uprev: %d refs[] = %s", len(refs), refs)
 
@@ -1338,6 +1344,17 @@ def uprev_starbase_artifacts(
             branch, category, package_name = ref.ref.split("/", 2)
         else:
             category, package_name = ref.ref.split("/", 1)
+        # Helium ARCVM artifacts uprev the ebuild in the Helium overlay.
+        # Because the ebuild is in the Helium overlay, and the package name
+        # there is "chrome-base/chromeos-board-default-arc-apps-selphie". But
+        # the tarball is built and stored via starbase Rapid pupr, so the
+        # resolved package name here is "starbase-helium-arcvm-artifacts". Thus
+        # the overlay root and the package name are updated here.
+        if package_name == "starbase-helium-arcvm-artifacts":
+            overlay_root = helium_overlay_root
+            package_name = "chromeos-board-default-arc-apps-selphie"
+        else:
+            overlay_root = starline_overlay_root
         version_id = ref.revision
         modified_files = starbase_find_and_uprev(
             tarfile_name,

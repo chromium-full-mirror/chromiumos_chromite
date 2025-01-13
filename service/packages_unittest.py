@@ -2175,3 +2175,93 @@ oof
 
     def test_uprev_release(self) -> None:
         self.uprev("release-20230101-r42-rc123")
+
+
+class UprevHeliumArtifactsTest(cros_test_lib.RunCommandTempDirTestCase):
+    """Tests of uprev of Helium artifacts ebuild."""
+
+    component = "chromeos-base"
+    package_name = f"chromeos-board-default-arc-apps-selphie"
+    version = "0.0.1"
+    revision = "1"
+    tarfile_name = f"starbase_helium-arcvm-artifacts_tarfile.tar.zst"
+    tarfile_hash = "42"
+    ebuild_name_format = f"chromeos-board-default-arc-apps-selphie-%s%s.ebuild"
+    rev0_ebuild_name = ebuild_name_format % (version, "")
+    old_ebuild_name = ebuild_name_format % (version, f"-r{revision}")
+    ebuild_content_format = """# Buildable ebuild
+foo
+bar
+baz
+SRC_URI="${DISTFILES}/%s"
+zab
+rab
+oof
+"""
+    manifest_content = f"DIST {tarfile_name} 7 BLAH 123 SHA512 42"
+
+    def uprev(self, version_id) -> None:
+        """Test that the ebuild is modified and uprevved."""
+
+        # Create ebuild directory.
+        directory_tree = (
+            D(
+                self.component,
+                [
+                    D(
+                        self.package_name,
+                        [
+                            self.rev0_ebuild_name,
+                            self.old_ebuild_name,
+                            "Manifest",
+                        ],
+                    ),
+                ],
+            ),
+        )
+        cros_test_lib.CreateOnDiskHierarchy(self.tempdir, directory_tree)
+        package_path = os.path.join(
+            self.tempdir, self.component, self.package_name
+        )
+        old_ebuild_content = self.ebuild_content_format % "to-be-clobbered"
+        rev0_ebuild_path = os.path.join(package_path, self.rev0_ebuild_name)
+        old_ebuild_path = os.path.join(package_path, self.old_ebuild_name)
+
+        # Create mock ebuild to be uprevved.
+        self.WriteTempFile(rev0_ebuild_path, old_ebuild_content)
+        manifest_path = os.path.join(package_path, "Manifest")
+        self.WriteTempFile(manifest_path, self.manifest_content)
+
+        # Run the function under test.
+        modified = packages.starbase_find_and_uprev(
+            self.tarfile_name,
+            self.tarfile_hash,
+            self.component,
+            self.package_name,
+            version_id,
+            self.tempdir,
+            chroot_lib.Chroot(),
+        )
+
+        # Check that the expected files were modified.
+        new_rev = f"-r{str(int(self.revision) + 1)}"
+        new_ebuild_name = self.ebuild_name_format % (self.version, new_rev)
+        new_ebuild_path = os.path.join(package_path, new_ebuild_name)
+
+        self.assertEqual(modified[0], manifest_path)
+        self.assertEqual(modified[1], rev0_ebuild_path)
+        self.assertEqual(modified[2], old_ebuild_path)
+        self.assertEqual(modified[3], new_ebuild_path)
+
+        tarfile_path = f"starbase-{version_id}/{self.tarfile_name}"
+
+        # Check that the new ebuild file contains the expected content.
+        new_ebuild_content = self.ebuild_content_format % tarfile_path
+        found_content = osutils.ReadFile(new_ebuild_path)
+        self.assertEqual(new_ebuild_content, found_content)
+
+    def test_uprev_head(self) -> None:
+        self.uprev("head-20230101-r42-rc123")
+
+    def test_uprev_release(self) -> None:
+        self.uprev("release-20230101-r42-rc123")
