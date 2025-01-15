@@ -15,9 +15,6 @@ from chromite.lib import dlc_lib
 from chromite.lib import osutils
 
 
-# Predefined salts.
-_SHORT_SALT = "1337D00D"
-
 # Tarball extension with correct compression.
 _TAR_COMP_EXT = ".tar.zst"
 _META_OUT_FILE = dlc_lib.DLC_TMP_META_DIR + _TAR_COMP_EXT
@@ -224,9 +221,7 @@ def GenerateDlcArtifacts(opts: commandline.ArgumentNamespace) -> None:
         if params.fs_type == dlc_lib.BLOB_TYPE:
             artifacts = dlc_gen.ExternalGenerateBlobDLC(tmpdir)
         else:
-            artifacts = dlc_gen.ExternalGenerateDLC(
-                tmpdir, _SHORT_SALT if opts.reproducible_image else None
-            )
+            artifacts = dlc_gen.ExternalGenerateDLC(tmpdir)
         logging.debug("Generated DLC artifacts: %s", artifacts.StringJSON())
 
         # Handle the meta.

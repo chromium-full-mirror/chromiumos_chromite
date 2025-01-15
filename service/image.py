@@ -427,6 +427,7 @@ def Build(
         dlc_dir,
         "--board",
         board,
+        "--reproducible-image",
     ]
     # During build image phase, the DLC images get finalized.
     cros_build_lib.run(dlc_cmd)

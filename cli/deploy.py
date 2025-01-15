@@ -1427,8 +1427,13 @@ def _DeployDLCImage(
     with osutils.TempDir(sudo_rm=True) as tempdir:
         temp_rootfs = Path(tempdir)
         # Build the DLC image if the image is outdated or doesn't exist.
+        # Always build and deploy reproducible image to ease debugging.
         dlc_lib.InstallDlcImages(
-            sysroot=sysroot, rootfs=temp_rootfs, dlc_id=dlc_id, board=board
+            sysroot=sysroot,
+            rootfs=temp_rootfs,
+            dlc_id=dlc_id,
+            board=board,
+            reproducible=True,
         )
 
         logging.debug("Uninstall DLC %s if it is installed.", dlc_id)

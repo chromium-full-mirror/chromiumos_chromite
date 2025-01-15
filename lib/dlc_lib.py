@@ -115,6 +115,9 @@ ZSTD_COMP_LEVEL_OPT = "-Xcompression-level"
 # Compression level for zstd
 ZSTD_MAX_COMP_LEVEL = "22"
 
+# Predefined salts.
+_SHORT_SALT = "1337D00D"
+
 
 class Error(Exception):
     """Base class for dlc_lib errors."""
@@ -1267,7 +1270,7 @@ class DlcGenerator:
         self.VerifyImageSize(self.dest_image)
         # Generate hash tree and other metadata and save them under
         # |self.temp_root|.
-        self.GenerateVerity()
+        self.GenerateVerity(_SHORT_SALT if self.reproducible else None)
         # Copy the files from |self.temp_root| into the build directory.
         self.CopyTempContentsToBuildDir()
 
@@ -1282,21 +1285,18 @@ class DlcGenerator:
         )
         osutils.SafeUnlink(ebuild_params_path, sudo=True)
 
-    def ExternalGenerateDLC(
-        self, output: str, salt: Optional[str] = None
-    ) -> DlcArtifacts:
+    def ExternalGenerateDLC(self, output: str) -> DlcArtifacts:
         """Generate the DLC artifacts from external / non-SDK builds
 
         Args:
             output: Path in which generated contents are emitted.
-            salt: An optional salt for randomness.
 
         Returns:
             The `DlcArtifacts` class.
         """
         self.CreateImage()
         self.VerifyImageSize(self.dest_image)
-        self.GenerateVerity(salt=salt)
+        self.GenerateVerity(_SHORT_SALT if self.reproducible else None)
         self.CopyArtifactsToOutput(self.dest_image, output)
         return DlcArtifacts(
             image=os.path.join(output, DLC_IMAGE),
@@ -1424,6 +1424,7 @@ def InstallDlcImages(
     rootfs: str = None,
     stateful: str = None,
     src_dir: str = None,
+    reproducible: bool = False,
 ) -> None:
     """Copies all DLC image files into the images directory.
 
@@ -1444,6 +1445,7 @@ def InstallDlcImages(
         rootfs: Path to the platform rootfs.
         stateful: Path to the platform stateful.
         src_dir: Path to the DLC source root directory.
+        reproducible: Generate reproducible DLC images.
 
     Raises:
         Error: in case anything goes wrong, check error message.
@@ -1507,6 +1509,7 @@ def InstallDlcImages(
         build_dir_scaled=build_dir_scaled,
         preload=preload,
         factory_install=factory_install,
+        reproducible=reproducible,
     )
 
     # This read from rootfs directly, which should now hold all the installed
@@ -1570,6 +1573,7 @@ def BuildDlcs(
     sysroot: str,
     factory_install: bool,
     preload: bool,
+    reproducible: bool,
 ):
     """Builds the DLC related contents.
 
@@ -1585,6 +1589,7 @@ def BuildDlcs(
         sysroot: The path to the build root directory.
         factory_install: Allow for factory installation.
         preload: Allow for preload.
+        reproducible: Generate reproducible DLC images with constant salt.
 
     Raises:
         Error: if issues encountered during any DLC generation.
@@ -1632,6 +1637,7 @@ def BuildDlcs(
                     src_dir=src_dir,
                     sysroot=sysroot,
                     scaled=scaled,
+                    reproducible=reproducible,
                 )
                 for d_id in dlc_ids
             ],
@@ -1733,6 +1739,7 @@ def GenerateDlc(
     src_dir: str,
     sysroot: str,
     scaled: bool,
+    reproducible: bool,
 ) -> None:
     """Generates a DLC.
 
@@ -1743,6 +1750,7 @@ def GenerateDlc(
         src_dir: The source dlc metadata directory.
         sysroot: The path to the build root directory.
         scaled: Scaled DLC option.
+        reproducible: Generate a reproducible DLC image.
     """
     dlc_id_path = os.path.join(dlc_build_dir, dlc_id)
     dlc_packages = [
@@ -1782,6 +1790,7 @@ def GenerateDlc(
                 sysroot=sysroot,
                 board=board,
                 ebuild_params=params,
+                reproducible=reproducible,
             )
             dlc_generator.GenerateDLC()
 

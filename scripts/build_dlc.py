@@ -184,6 +184,12 @@ def GetParser():
         type=str,
         help="A list of DLC attributes.",
     )
+    one_dlc.add_argument(
+        "--reproducible-image",
+        default=False,
+        action="store_true",
+        help="Generate reproducible DLC images.",
+    )
     return parser
 
 
@@ -296,4 +302,5 @@ def main(argv) -> None:
             rootfs=opts.rootfs,
             stateful=opts.stateful,
             board=opts.board,
+            reproducible=opts.reproducible_image,
         )
