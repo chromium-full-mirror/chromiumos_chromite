@@ -787,7 +787,7 @@ class PaygenPayload:
         val = dict_obj.get(key) or default
         return "%s=%s" % (flag, str(val))
 
-    def _PrepareImage(self, image, image_file) -> None:
+    def _PrepareImage(self, image, image_file) -> common_pb2.Path:
         """Download and prepare an image for delta generation.
 
         Preparation includes downloading, extracting and converting the image
@@ -797,6 +797,9 @@ class PaygenPayload:
             image: an object representing the image we're processing, either
                 UnsignedImageArchive or Image type from gspaths module.
             image_file: file into which the prepared image should be copied.
+
+        Returns:
+            Local path to image.
         """
 
         logging.info("Preparing image from %s as %s", image.uri, image_file)
@@ -848,10 +851,9 @@ class PaygenPayload:
             # Rename it into the desired image name.
             shutil.move(os.path.join(self.work_dir, extract_file), image_file)
 
-            # It should be safe to delete the archive at this point.
-            # TODO(crbug/1016555): consider removing the logging once resolved.
-            logging.info("Removing %s", download_file)
-            os.remove(download_file)
+            # TODO: b/383845609 - If archive remove in recipes after BCID check.
+
+        return common_pb2.Path(path=download_file)
 
     def _GeneratePostinstConfig(self, run_postinst: bool) -> None:
         """Generates the postinstall config file
@@ -1340,12 +1342,33 @@ class PaygenPayload:
         start_time = datetime.datetime.now()
 
         try:
+            # Note images which were used as payload inputs.
+            payload_inputs = []
+
             # Fetch and prepare the tgt image.
-            self._PrepareImage(self.payload.tgt_image, self.tgt_image_file)
+            local_tgt = self._PrepareImage(
+                self.payload.tgt_image, self.tgt_image_file
+            )
+            payload_inputs.append(
+                payload_pb2.PayloadInput(
+                    gs_path=self.payload.tgt_image.uri,
+                    path=local_tgt,
+                    is_archive=not gspaths.IsImage(self.payload.tgt_image),
+                )
+            )
 
             # Fetch and prepare the src image.
             if self.payload.src_image:
-                self._PrepareImage(self.payload.src_image, self.src_image_file)
+                local_src = self._PrepareImage(
+                    self.payload.src_image, self.src_image_file
+                )
+                payload_inputs.append(
+                    payload_pb2.PayloadInput(
+                        gs_path=self.payload.src_image.uri,
+                        path=local_src,
+                        is_archive=not gspaths.IsImage(self.payload.src_image),
+                    )
+                )
 
             # Check if payload generation should proceed.
             self._MaybeSkipPayloadGeneration()
@@ -1390,6 +1413,7 @@ class PaygenPayload:
                 for partition_file in (self.tgt_partitions or [])
             ],
             appid=appid,
+            payload_inputs=payload_inputs,
         )
         return unsigned_payload
 
