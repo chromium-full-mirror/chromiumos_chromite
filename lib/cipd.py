@@ -300,12 +300,8 @@ def InstallPackage(
     Returns:
         The path of the package.
     """
-    if cache_dir is None:
-        cache_dir = path_util.GetCacheDir()
     if not destination:
-        # GetCacheDir does a non-trivial amount of work,
-        # too much for a constant. If needed elsewhere, a
-        # memoized function would be a good alternative.
+        cache_dir = cache_dir or path_util.get_cache_dir()
         destination = Path(cache_dir).absolute() / "cipd" / "packages"
 
     destination = Path(destination) / package
