@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n chromiumos/firmware_config.proto\x12\nchromiumos\"8\n\x12ModelSigningConfig\x12\x0e\n\x06key_id\x18\x01 \x01(\t\x12\x12\n\nbrand_code\x18\x02 \x01(\t\".\n\x0f\x46irmwareVersion\x12\x0b\n\x03uri\x18\x01 \x01(\t\x12\x0e\n\x06sha256\x18\x02 \x01(\t\"t\n\x0e\x46irmwareConfig\x12\x30\n\x0bro_firmware\x18\x01 \x01(\x0b\x32\x1b.chromiumos.FirmwareVersion\x12\x30\n\x0brw_firmware\x18\x02 \x01(\x0b\x32\x1b.chromiumos.FirmwareVersion\"\xba\x01\n\x16\x46irmwareConfigForModel\x12\r\n\x05model\x18\x01 \x01(\t\x12/\n\x07signing\x18\x02 \x01(\x0b\x32\x1e.chromiumos.ModelSigningConfig\x12/\n\x0b\x61p_firmware\x18\x03 \x01(\x0b\x32\x1a.chromiumos.FirmwareConfig\x12/\n\x0b\x65\x63_firmware\x18\x04 \x01(\x0b\x32\x1a.chromiumos.FirmwareConfigBY\n!com.google.chrome.crosinfra.protoZ4go.chromium.org/chromiumos/infra/proto/go/chromiumosb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n chromiumos/firmware_config.proto\x12\nchromiumos\"8\n\x12ModelSigningConfig\x12\x0e\n\x06key_id\x18\x01 \x01(\t\x12\x12\n\nbrand_code\x18\x02 \x01(\t\".\n\x0f\x46irmwareVersion\x12\x0b\n\x03uri\x18\x01 \x01(\t\x12\x0e\n\x06sha256\x18\x02 \x01(\t\"t\n\x0e\x46irmwareConfig\x12\x30\n\x0bro_firmware\x18\x01 \x01(\x0b\x32\x1b.chromiumos.FirmwareVersion\x12\x30\n\x0brw_firmware\x18\x02 \x01(\x0b\x32\x1b.chromiumos.FirmwareVersion\"\xf6\x01\n\x16\x46irmwareConfigForModel\x12\r\n\x05model\x18\x01 \x01(\t\x12/\n\x07signing\x18\x02 \x01(\x0b\x32\x1e.chromiumos.ModelSigningConfig\x12/\n\x0b\x61p_firmware\x18\x03 \x01(\x0b\x32\x1a.chromiumos.FirmwareConfig\x12/\n\x0b\x65\x63_firmware\x18\x04 \x01(\x0b\x32\x1a.chromiumos.FirmwareConfig\x12:\n\x15\x61p_firmware_for_ec_rw\x18\x05 \x01(\x0b\x32\x1b.chromiumos.FirmwareVersionBY\n!com.google.chrome.crosinfra.protoZ4go.chromium.org/chromiumos/infra/proto/go/chromiumosb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -29,5 +29,5 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_FIRMWARECONFIG']._serialized_start=154
   _globals['_FIRMWARECONFIG']._serialized_end=270
   _globals['_FIRMWARECONFIGFORMODEL']._serialized_start=273
-  _globals['_FIRMWARECONFIGFORMODEL']._serialized_end=459
+  _globals['_FIRMWARECONFIGFORMODEL']._serialized_end=519
 # @@protoc_insertion_point(module_scope)
