@@ -42,9 +42,7 @@ class MissingLkgmFile(Error):
         super().__init__(f"Cannot parse CHROMEOS_LKGM file: {path}")
 
 
-def GetChromeLkgm(
-    chrome_src_dir: str = "",
-) -> Tuple[str, Optional[int]]:
+def GetChromeLkgm(chrome_src_dir: str = "") -> Tuple[str, Optional[int]]:
     """Get the CHROMEOS LKGM checked into the Chrome tree.
 
     Args:
@@ -84,7 +82,10 @@ def GetChromeLkgm(
     return platform_version, snapshot_identifier
 
 
-def GetVersionStr(platform_version: str, snapshot_identifier: Optional[int]):
+def GetVersionStr(
+    platform_version: str, snapshot_identifier: Optional[int]
+) -> str:
+    """Get the full platform-snapshot version string."""
     if snapshot_identifier is None:
         return platform_version
     return f"{platform_version}-{snapshot_identifier}"
@@ -108,7 +109,7 @@ def GetGsConfigName(
     board: str,
     use_external_config: bool,
     is_snapshot: bool,
-):
+) -> str:
     """Return a config name, which is used for the directory name of GS.
 
     Args:
@@ -147,7 +148,9 @@ def GetArtifactsGsUrl(board, use_external_config, full_version):
     return f"{base_url}/{full_version}"
 
 
-def GetGsBaseUrlForBoard(board, use_external_config, is_snapshot):
+def GetGsBaseUrlForBoard(
+    board: str, use_external_config: bool, is_snapshot: bool
+) -> str:
     """Return a base directory for the specific board.
 
     The returned url should be a directory that contains the directories of CrOS
@@ -167,7 +170,7 @@ def GetGsBaseUrlForBoard(board, use_external_config, is_snapshot):
     return f"gs://{gs_bucket}/{config_name}"
 
 
-def _HasInternalConfig(board: str):
+def _HasInternalConfig(board: str) -> bool:
     """Determines if the SDK we need is provided by an internal builder.
 
     A given board can have a public and/or an internal builder that
@@ -288,7 +291,7 @@ class ChromeOSVersionFinder:
             return release_version
         return snapshot_version
 
-    def _GetFullVersionFromStorage(self, version_file):
+    def _GetFullVersionFromStorage(self, version_file: str) -> Optional[str]:
         """Cat |version_file| in google storage.
 
         Args:
@@ -308,7 +311,7 @@ class ChromeOSVersionFinder:
         except (gs.GSNoSuchKey, gs.GSCommandError):
             return None
 
-    def _GetFullVersionFromRecentLatest(self, version: str):
+    def _GetFullVersionFromRecentLatest(self, version: str) -> Optional[str]:
         """Gets the full version number from a recent LATEST- file.
 
         If LATEST-{version} does not exist, we need to look for a recent
@@ -354,7 +357,7 @@ class ChromeOSVersionFinder:
         )
         return None
 
-    def GetFullVersionFromLatestFile(self, version: str):
+    def GetFullVersionFromLatestFile(self, version: str) -> Optional[str]:
         """Gets the full version number from the LATEST-{version} file.
 
         Args:
@@ -370,7 +373,9 @@ class ChromeOSVersionFinder:
             return self._GetFullVersionFromRecentLatest(version)
         return full_version
 
-    def _GetFullVersionFromRecentLatestSnapshot(self, snapshot_identifier: int):
+    def _GetFullVersionFromRecentLatestSnapshot(
+        self, snapshot_identifier: int
+    ) -> Optional[str]:
         """Gets the full version number from a recent LATEST-SNAPSHOT-* file.
 
         If LATEST-SNAPSHOT-{snapshot_id} does not exist, we need to look for a
@@ -408,7 +413,9 @@ class ChromeOSVersionFinder:
         )
         return None
 
-    def GetFullVersionFromLatestSnapshotFile(self, snapshot_identifier: int):
+    def GetFullVersionFromLatestSnapshotFile(
+        self, snapshot_identifier: int
+    ) -> Optional[str]:
         """Gets the full version number from LATEST-SNAPSHOT-{snapshot} file.
 
         Args:
