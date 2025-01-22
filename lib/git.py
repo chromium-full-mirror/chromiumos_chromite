@@ -18,6 +18,7 @@ from pathlib import Path
 import re
 import string
 import subprocess
+import sys
 from typing import (
     Any,
     BinaryIO,
@@ -2090,23 +2091,27 @@ class CommitEntry(NamedTuple):
             An instance of CommitEntry for each commit that is parsed.
         """
 
+        def _isoformat(date: Optional[str]) -> Optional[str]:
+            """Handle timestamp formats older Python does not.
+
+            Git can produce ISO 8601 timestamps like 2025-01-08T20:04:31Z,
+            but Python versions before 3.11 doesn't handle them correctly.
+            """
+            if date is None:
+                return None
+            if sys.version_info < (3, 11) and date.endswith("Z"):
+                date = f"{date[:-1]}+00:00"
+            return datetime.datetime.fromisoformat(date)
+
         def _build_entry(
             data: Dict[str, str], tags: Dict[str, str]
         ) -> CommitEntry:
             return CommitEntry(
                 sha=data["sha"],
                 author=data.get("Author", None),
-                author_date=(
-                    datetime.datetime.fromisoformat(data["AuthorDate"])
-                    if "AuthorDate" in data
-                    else None
-                ),
+                author_date=_isoformat(data.get("AuthorDate")),
                 commit=data.get("Commit", None),
-                commit_date=(
-                    datetime.datetime.fromisoformat(data["CommitDate"])
-                    if "CommitDate" in data
-                    else None
-                ),
+                commit_date=_isoformat(data.get("CommitDate")),
                 change_id=tags.get("Change-Id", None),
             )
 

@@ -1248,6 +1248,43 @@ CommitDate: 2023-08-24T17:41:32+00:00
             ],
         )
 
+    def testParseFullerZToParseGitLog(self) -> None:
+        """Check the Z format in dates is handled."""
+        log_output = """commit 1323ab4efce4f30f7e3e22f9da27a1a57fa82988
+Author:     Clark Kent <clark.kent@dc.com>
+AuthorDate: 2023-08-23T17:41:32Z
+Commit:     DC LUCI <dc-scoped@dc.com>
+CommitDate: 2023-08-24T17:41:32Z
+
+    some commit message
+
+    BUG=b:12344322
+    TEST=None
+
+    Change-Id: Ia66f15d367ddd386f7c8b47b76b58e3b9f749fce
+    Reviewed-by: Bruce Wayne <bruce.wayne@dc.com>
+
+"""
+        commits = list(git.CommitEntry.ParseFuller(log_output))
+
+        self.assertEqual(
+            commits,
+            [
+                git.CommitEntry(
+                    sha="1323ab4efce4f30f7e3e22f9da27a1a57fa82988",
+                    author="Clark Kent <clark.kent@dc.com>",
+                    author_date=datetime.datetime.fromisoformat(
+                        "2023-08-23T17:41:32+00:00",
+                    ),
+                    commit="DC LUCI <dc-scoped@dc.com>",
+                    commit_date=datetime.datetime.fromisoformat(
+                        "2023-08-24T17:41:32+00:00",
+                    ),
+                    change_id="Ia66f15d367ddd386f7c8b47b76b58e3b9f749fce",
+                ),
+            ],
+        )
+
     def testParseFullerToParseMultipleCommits(self) -> None:
         # pylint: disable=line-too-long
         log_output = """commit 1323ab4efce4f30f7e3e22f9da27a1a57fa82988 (HEAD -> default, origin/main, m/main)
