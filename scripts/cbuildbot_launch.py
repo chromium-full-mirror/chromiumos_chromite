@@ -626,16 +626,6 @@ def main(argv):
         "gwifi-release",
         "gale-release",
         "mistral-release",
-        # TODO(b/241108061): Remove factory builders.
-        "factory-octopus-11512.B-buildspec",
-        "octopus-factory-octopus-11512.B-factorybranch",
-        "factory-kukui-12587.B-buildspec",
-        "jacuzzi-factory-kukui-12587.B-factorybranch",
-        "kukui-factory-kukui-12587.B-factorybranch",
-        "factory-hatch-12692.B-buildspec",
-        "hatch-factory-hatch-12692.B-factorybranch",
-        "factory-excelsior-12812.B-buildspec",
-        "excelsior-factory-excelsior-12812.B-factorybranch",
     }
 
     options = PreParseArguments(argv)
