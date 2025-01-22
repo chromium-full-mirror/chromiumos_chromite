@@ -300,13 +300,17 @@ class FileLock(_Lock):
                     ["chmod", "666", self.path], print_cmd=False
                 )
 
+        if os.path.isdir(self.path):
+            # Directory flags. W_OK and O_CREAT each raise IsADirectoryError.
+            flags = os.O_RDONLY | os.O_CLOEXEC
+        else:
+            flags = os.W_OK | os.O_CREAT | os.O_CLOEXEC
+
         # There exist race conditions where the lock may be created by
         # root, thus denying subsequent accesses from others. To prevent
         # this, we create the lock with mode 0o666.
         with osutils.UmaskContext(000):
-            return os.open(
-                self.path, os.W_OK | os.O_CREAT | os.O_CLOEXEC, 0o666
-            )
+            return os.open(self.path, flags, 0o666)
 
 
 class ProcessLock(_Lock):

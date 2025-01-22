@@ -281,13 +281,39 @@ class LockingTest(cros_test_lib.TempDirTestCase):
         q.join()
         self.assertEqual(p.exitcode, LOCK_ACQUIRED)
 
-    def testDirectory(self):
-        """Lock a directory."""
+    def testDirectoryLockfShared(self):
+        """Test shared directory locks with LOCKF."""
+        arg_list = [
+            [LOCK_ACQUIRED],
+            [True, False],  # blocking
+            [True],  # shared
+            [locking.LOCKF],  # locking mechanism
+        ]
+        self.lock_file = self.tempdir / "lock_dir"
+        self.lock_file.mkdir()
+        for args in itertools.product(*arg_list):
+            self._HelperWithProcess(*args)
+
+    def testDirectoryLockfExclusive(self):
+        """Test exclusive directory locks with LOCKF."""
         arg_list = [
             [1],
             [True, False],  # blocking
+            [False],  # shared
+            [locking.LOCKF],  # locking mechanism
+        ]
+        self.lock_file = self.tempdir / "lock_dir"
+        self.lock_file.mkdir()
+        for args in itertools.product(*arg_list):
+            self._HelperWithProcess(*args)
+
+    def testDirectoryFlock(self):
+        """Lock a directory with FLOCK."""
+        arg_list = [
+            [LOCK_ACQUIRED],
+            [True, False],  # blocking
             [True, False],  # shared
-            [locking.FLOCK, locking.LOCKF],  # locking mechanism
+            [locking.FLOCK],  # locking mechanism
         ]
         self.lock_file = self.tempdir / "lock_dir"
         self.lock_file.mkdir()
