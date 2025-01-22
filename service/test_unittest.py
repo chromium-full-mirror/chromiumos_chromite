@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import shutil
 from typing import Any, List
+import unittest
 from unittest import mock
 
 from chromite.cbuildbot import commands
@@ -400,6 +401,7 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
         self.output_dir = os.path.join(self.tempdir, "output")
 
+    @unittest.skip("b/391680779 test is way too slow")
     def testGatherCodeCoverageLlvmJsonFileIsCalled1Time(self) -> None:
         """Verify GatherCodeCoverageLlvmJsonFile is called on each file."""
         GatherCodeCoverageLlvmJsonFile_mock = self.PatchObject(
@@ -411,6 +413,7 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
         GatherCodeCoverageLlvmJsonFile_mock.assert_called_once()
 
+    @unittest.skip("b/391680779 test is way too slow")
     def testReturnNoneWhenGatherCodeCoverageLlvmJsonFileReturnsNone(
         self,
     ) -> None:
