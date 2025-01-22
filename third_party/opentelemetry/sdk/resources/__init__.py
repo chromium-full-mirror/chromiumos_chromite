@@ -369,7 +369,7 @@ def get_aggregated_resources(
                 if detector.raise_on_error:
                     raise ex
                 logger.warning(
-                    "Exception %s in detector %s, ignoring", ex, detector
+                    "Exception %s in detector %s, ignoring", ex, detector, exc_info=True,
                 )
             finally:
                 detectors_merged_resource = detectors_merged_resource.merge(
