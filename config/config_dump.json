@@ -208,25 +208,6 @@
       "-chrome_internal"
     ]
   },
-  "atlas-master-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "atlas"
-    ],
-    "workspace_branch": "master"
-  },
-  "atlas-master-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "atlas"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "luci_builder": "Try",
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "master"
-  },
   "config-updater": {
     "boards": [],
     "build_timeout": 7200,
@@ -252,63 +233,6 @@
     "luci_builder": "Try",
     "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
     "overlays": "both"
-  },
-  "coral-master-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "coral"
-    ],
-    "workspace_branch": "master"
-  },
-  "coral-master-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "coral"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "luci_builder": "Try",
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "master"
-  },
-  "drallion-master-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "drallion"
-    ],
-    "workspace_branch": "master"
-  },
-  "drallion-master-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "drallion"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "luci_builder": "Try",
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "master"
-  },
-  "eve-master-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "eve"
-    ],
-    "workspace_branch": "master"
-  },
-  "eve-master-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "eve"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "luci_builder": "Try",
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "master"
   },
   "eve-release": {
     "_template": "release",
@@ -383,14 +307,7 @@
     "build_timeout": 43200,
     "display_label": "factory",
     "slave_configs": [
-      "atlas-master-factorybranch",
-      "coral-master-factorybranch",
-      "drallion-master-factorybranch",
-      "eve-master-factorybranch",
-      "mistral-master-factorybranch",
-      "octopus-master-factorybranch",
-      "rammus-master-factorybranch",
-      "sarien-master-factorybranch"
+      "mistral-master-factorybranch"
     ],
     "workspace_branch": "master"
   },
@@ -402,14 +319,7 @@
     "display_label": "tryjob",
     "luci_builder": "Try",
     "slave_configs": [
-      "atlas-master-factorybranch-tryjob",
-      "coral-master-factorybranch-tryjob",
-      "drallion-master-factorybranch-tryjob",
-      "eve-master-factorybranch-tryjob",
-      "mistral-master-factorybranch-tryjob",
-      "octopus-master-factorybranch-tryjob",
-      "rammus-master-factorybranch-tryjob",
-      "sarien-master-factorybranch-tryjob"
+      "mistral-master-factorybranch-tryjob"
     ],
     "workspace_branch": "master"
   },
@@ -480,63 +390,6 @@
     "_template": "factorybranch",
     "boards": [
       "mistral"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "luci_builder": "Try",
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "master"
-  },
-  "octopus-master-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "octopus"
-    ],
-    "workspace_branch": "master"
-  },
-  "octopus-master-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "octopus"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "luci_builder": "Try",
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "master"
-  },
-  "rammus-master-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "rammus"
-    ],
-    "workspace_branch": "master"
-  },
-  "rammus-master-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "rammus"
-    ],
-    "debug": true,
-    "display_label": "tryjob",
-    "luci_builder": "Try",
-    "push_image": false,
-    "suite_scheduling": false,
-    "workspace_branch": "master"
-  },
-  "sarien-master-factorybranch": {
-    "_template": "factorybranch",
-    "boards": [
-      "sarien"
-    ],
-    "workspace_branch": "master"
-  },
-  "sarien-master-factorybranch-tryjob": {
-    "_template": "factorybranch",
-    "boards": [
-      "sarien"
     ],
     "debug": true,
     "display_label": "tryjob",

@@ -468,14 +468,7 @@ def FactoryBuilders(site_config, _boards_dict, _ge_build_config) -> None:
             None,
             "master",
             [
-                "atlas",
-                "octopus",
-                "rammus",
-                "coral",
-                "eve",
-                "sarien",
                 "mistral",
-                "drallion",
             ],
         ),
     ]

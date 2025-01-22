@@ -85,11 +85,6 @@ class TryjobTestPrintKnownConfigs(TryjobTest):
         # Unexpecting things aren't.
         self.assertNotIn(self.site_config["eve-release"], tryjob_configs)
 
-        # And that we really filtered something out in every case.
-        self.assertLess(
-            len(board_release_tryjob_configs), len(board_tryjob_configs)
-        )
-
         self.assertLess(len(board_tryjob_configs), len(tryjob_configs))
 
     def testListTryjobs(self) -> None:

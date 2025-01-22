@@ -8,30 +8,16 @@
 
 == tryjob ==
   amd64-generic-full-tryjob
-  atlas-master-factorybranch-tryjob
   config-updater-tryjob
-  coral-master-factorybranch-tryjob
-  drallion-master-factorybranch-tryjob
-  eve-master-factorybranch-tryjob
   eve-release-tryjob
   fail-build
   luci-scheduler-updater-tryjob
   master-buildspec-tryjob
-    atlas-master-factorybranch-tryjob
-    coral-master-factorybranch-tryjob
-    drallion-master-factorybranch-tryjob
-    eve-master-factorybranch-tryjob
     mistral-master-factorybranch-tryjob
-    octopus-master-factorybranch-tryjob
-    rammus-master-factorybranch-tryjob
-    sarien-master-factorybranch-tryjob
   master-full-tryjob
     amd64-generic-full-tryjob
   master-release-tryjob
     eve-release-tryjob
   mistral-master-factorybranch-tryjob
-  octopus-master-factorybranch-tryjob
-  rammus-master-factorybranch-tryjob
-  sarien-master-factorybranch-tryjob
   success-build
   sync-test-cbuildbot-tryjob
