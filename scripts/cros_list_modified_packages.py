@@ -63,13 +63,25 @@ class ModificationTimeMonitor:
 
     def _LastModificationTime(self, path):
         """Returns the latest modification time for anything under |path|."""
-        cmd = (
-            'find . -name .git -prune -o -printf "%T@\n" | sort -nr | head -n1'
+        result = cros_build_lib.run(
+            [
+                "find",
+                path,
+                "-name",
+                ".git",
+                "-prune",
+                "-o",
+                "-printf",
+                "%T@\\0",
+            ],
+            print_cmd=False,
+            capture_output=True,
         )
-        ret = cros_build_lib.run(
-            cmd, cwd=path, shell=True, print_cmd=False, capture_output=True
-        )
-        return float(ret.stdout) if ret.stdout else 0
+        if not result.stdout:
+            return 0
+        # Strip the trailing NUL to avoid creating an empty "".
+        times = result.stdout[:-1].split(b"\0")
+        return max(float(x) for x in times)
 
     def GetModificationTimes(self):
         """Get the latest modification time for each of the queued keys."""
