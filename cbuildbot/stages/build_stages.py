@@ -400,7 +400,7 @@ class SetupBoardStage(generic_stages.BoardSpecificBuilderStage, InitSDKStage):
             self._build_root,
             board=self._current_board,
             usepkg=usepkg,
-            force=self._run.config.board_replace,
+            force=False,
             extra_env=self._portage_extra_env,
             chroot_upgrade=False,
             profile=self._run.options.profile or self._run.config.profile,

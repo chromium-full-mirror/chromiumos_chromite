@@ -708,7 +708,7 @@ class WorkspaceSetupBoardStage(
             self._build_root,
             board=self._current_board,
             usepkg=usepkg,
-            force=self._run.config.board_replace,
+            force=False,
             profile=self._run.options.profile or self._run.config.profile,
             chroot_upgrade=False,
             chroot_args=ChrootArgs(self._run.options),

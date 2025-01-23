@@ -366,8 +366,6 @@ def DefaultSettings():
         # Does this profile need to sync chrome?  If None, we guess based on
         # other factors.  If True/False, we always do that.
         sync_chrome=None,
-        # Wipe and replace the board inside the chroot.
-        board_replace=False,
         # Wipe and replace chroot, but not source.
         chroot_replace=True,
         # Uprevs the local ebuilds to build new changes since last stable.

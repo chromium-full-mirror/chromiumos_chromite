@@ -6,7 +6,6 @@
     "binhost_base_url": null,
     "binhost_bucket": null,
     "binhost_key": null,
-    "board_replace": false,
     "boards": null,
     "branch": false,
     "build_packages": true,
