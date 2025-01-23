@@ -604,26 +604,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 msg="config %s has a broken builder_class_name" % build_name,
             )
 
-    def testDistinctBoardSets(self) -> None:
-        """Verify that distinct board sets are distinct."""
-        boards_dict = self._GetBoardTypeToBoardsDict()
-        # Every board should be in exactly one of the distinct board sets.
-        for board in boards_dict["all_boards"]:
-            found = False
-            for s in boards_dict["distinct_board_sets"]:
-                if board in s:
-                    if found:
-                        assert False, "%s in multiple board sets." % board
-                    else:
-                        found = True
-            if not found:
-                assert False, "%s in no board sets" % board
-        for s in boards_dict["distinct_board_sets"]:
-            for board in s - boards_dict["all_boards"]:
-                assert False, (
-                    "%s in distinct_board_sets but not in all_boards" % board
-                )
-
     def testCanaryBuildTimeouts(self) -> None:
         """Verify we get the expected timeout values."""
         msg = "%s doesn't have expected timout: (%s != %s)"

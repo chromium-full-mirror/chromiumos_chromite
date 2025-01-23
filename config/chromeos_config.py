@@ -37,8 +37,8 @@ def GetBoardTypeToBoardsDict(ge_build_config):
 
     Returns:
         A dict mapping board types to board name collections.
-        The dict contains board types including distinct_board_sets,
-        all_release_boards, all_boards, and internal_boards.
+        The dict contains board types including all_release_boards, all_boards,
+        and internal_boards.
     """
     ge_arch_board_dict = config_lib.GetArchBoardDict(ge_build_config)
 
@@ -57,14 +57,6 @@ def GetBoardTypeToBoardsDict(ge_build_config):
     x86_external_boards = ge_arch_board_dict.get(
         config_lib.CONFIG_X86_EXTERNAL, set()
     )
-
-    # Every board should be in only 1 of the above sets.
-    boards_dict["distinct_board_sets"] = [
-        arm_internal_release_boards,
-        arm_external_boards,
-        x86_internal_release_boards,
-        x86_external_boards,
-    ]
 
     arm_full_boards = arm_internal_release_boards | arm_external_boards
     x86_full_boards = x86_internal_release_boards | x86_external_boards
