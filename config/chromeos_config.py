@@ -29,56 +29,6 @@ def _frozen_ge_set(ge_build_config, values, extras=None):
     )
 
 
-def add_images(required_images):
-    """Add required images when applying changes to a BuildConfig.
-
-    Used similarly to append_useflags.
-
-    Args:
-        required_images: A list of image names that need to be present in the
-            final build config.
-
-    Returns:
-        A callable suitable for use with BuildConfig.apply.
-    """
-    required_images = set(required_images)
-
-    def handler(old_images):
-        if not old_images:
-            old_images = []
-
-        new_images = old_images
-        for image_name in required_images:
-            if set(required_images).issubset(new_images):
-                break
-            new_images.append(image_name)
-        return new_images
-
-    return handler
-
-
-def remove_images(unsupported_images):
-    """Remove unsupported images when applying changes to a BuildConfig.
-
-    Used similarly to append_useflags.
-
-    Args:
-        unsupported_images: A list of image names that should not be present in
-            the final build config.
-
-    Returns:
-        A callable suitable for use with BuildConfig.apply.
-    """
-    unsupported = set(unsupported_images)
-
-    def handler(old_images):
-        if not old_images:
-            old_images = []
-        return [i for i in old_images if i not in unsupported]
-
-    return handler
-
-
 def GetBoardTypeToBoardsDict(ge_build_config):
     """Get board type to board names dict.
 
