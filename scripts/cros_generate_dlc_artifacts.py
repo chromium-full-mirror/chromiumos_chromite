@@ -128,6 +128,12 @@ def ParseArguments(argv: List[str]) -> commandline.ArgumentNamespace:
         default=dlc_lib.SQUASHFS_TYPE,
         help="The file system of this DLC image",
     )
+    parser.add_argument(
+        "--attributes",
+        action="split_extend",
+        default=[],
+        help="A list of space-separated DLC attributes",
+    )
 
     opts = parser.parse_args(argv)
 
@@ -169,6 +175,7 @@ def GenerateDlcParams(
         loadpin_verity_digest=False,
         powerwash_safe=opts.powerwash_safety,
         use_logical_volume=True,
+        attributes=dict.fromkeys(opts.attributes),
     )
     params.VerifyDlcParameters()
     return params
