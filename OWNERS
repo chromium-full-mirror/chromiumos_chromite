@@ -5,5 +5,4 @@ include chromiumos/owners:v1:/infra/OWNERS.build
 # user so that people see our GWSQ instead.
 engeg@google.com #{LAST_RESORT_SUGGESTION}
 
-per-file OWNERS.au = file://OWNERS.au
 per-file OWNERS.fw = file://OWNERS.fw

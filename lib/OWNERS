@@ -2,14 +2,14 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-per-file auto_update*=file:/OWNERS.au
+per-file auto_update* = file:chromiumos/owners:v1:/platform/OWNERS.au
 per-file chrome*=file:/OWNERS.chrome
 per-file cros_test*=file:/OWNERS.chrome
 per-file device*=file:/OWNERS.chrome
-per-file dev_server*=file:/OWNERS.au
-per-file dlc*=file:/OWNERS.au
-per-file minios*=file:/OWNERS.au
-per-file nebraska*=file:/OWNERS.au
+per-file dev_server* = file:chromiumos/owners:v1:/platform/OWNERS.au
+per-file dlc* = file:chromiumos/owners:v1:/platform/OWNERS.au
+per-file minios* = file:chromiumos/owners:v1:/platform/OWNERS.au
+per-file nebraska* = file:chromiumos/owners:v1:/platform/OWNERS.au
 per-file toolchain_util* = file:chromiumos/third_party/toolchain-utils:/OWNERS.toolchain
-per-file verity*=file:/OWNERS.au
+per-file verity* = file:chromiumos/owners:v1:/platform/OWNERS.au
 per-file vm*=file:/OWNERS.chrome

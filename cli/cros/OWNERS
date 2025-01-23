@@ -3,5 +3,5 @@
 # found in the LICENSE file.
 
 per-file cros_chrome_sdk*=file:/OWNERS.chrome
-per-file cros_flash*=file:/OWNERS.au
+per-file cros_flash* = file:chromiumos/owners:v1:/platform/OWNERS.au
 per-file cros_flash_ap*=file:/lib/firmware/OWNERS

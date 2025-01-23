@@ -1,8 +1,8 @@
 per-file autotest* = file:chromiumos/owners:v1:/infra/OWNERS.tse
-per-file build_dlc*=file:/OWNERS.au
+per-file build_dlc* = file:chromiumos/owners:v1:/platform/OWNERS.au
 per-file chrome_chromeos_lkgm*=file:/OWNERS.chrome
 per-file cros_mark_android_as_stable* = file:chromiumos/owners:v1:/arc/OWNERS.infra
-per-file cros_update*=file:/OWNERS.au
+per-file cros_update* = file:chromiumos/owners:v1:/platform/OWNERS.au
 per-file deploy_chrome*=file:/OWNERS.chrome
 per-file fwgdb.py=file:/OWNERS.fw
 per-file lint_package* = file:chromiumos/third_party/toolchain-utils:/OWNERS.toolchain
