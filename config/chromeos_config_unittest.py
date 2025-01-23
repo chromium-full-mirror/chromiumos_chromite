@@ -4,7 +4,6 @@
 
 """Unittests for config."""
 
-import copy
 from unittest import mock
 
 from chromite.cbuildbot import builders
@@ -738,31 +737,3 @@ class BoardConfigsTest(ChromeosConfigTestBase):
         """Ensure all external boards are listed as internal, also."""
         for board in self.external_board_configs:
             self.assertIn(board, self.internal_board_configs)
-
-    def testUpdateBoardConfigs(self) -> None:
-        """Test UpdateBoardConfigs."""
-        pre_test = copy.deepcopy(self.internal_board_configs)
-        update_boards = list(pre_test)[2:5]
-
-        result = chromeos_config.UpdateBoardConfigs(
-            self.internal_board_configs,
-            update_boards,
-            test_specific_flag=True,
-        )
-
-        # The source wasn't modified.
-        self.assertEqual(self.internal_board_configs, pre_test)
-
-        # The result as the same list of boards.
-        self.assertCountEqual(list(result), list(pre_test))
-
-        # And only appropriate values were updated.
-        for b in pre_test:
-            if b in update_boards:
-                # Has new key.
-                self.assertTrue(
-                    result[b].test_specific_flag, "Failed in %s" % b
-                )
-            else:
-                # Was not updated.
-                self.assertEqual(result[b], pre_test[b], "Failed in %s" % b)

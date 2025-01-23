@@ -7,7 +7,6 @@
 import copy
 import logging
 
-from chromite.config import chromeos_config_boards as chromeos_boards
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.utils import memoize
@@ -45,22 +44,18 @@ def GetBoardTypeToBoardsDict(ge_build_config):
 
     boards_dict = {}
 
-    arm_internal_release_boards = (
-        chromeos_boards.arm_internal_release_boards
-        | ge_arch_board_dict.get(config_lib.CONFIG_ARM_INTERNAL, set())
+    arm_internal_release_boards = ge_arch_board_dict.get(
+        config_lib.CONFIG_ARM_INTERNAL, set()
     )
-    arm_external_boards = (
-        chromeos_boards.arm_external_boards
-        | ge_arch_board_dict.get(config_lib.CONFIG_ARM_EXTERNAL, set())
+    arm_external_boards = ge_arch_board_dict.get(
+        config_lib.CONFIG_ARM_EXTERNAL, set()
     )
 
-    x86_internal_release_boards = (
-        chromeos_boards.x86_internal_release_boards
-        | ge_arch_board_dict.get(config_lib.CONFIG_X86_INTERNAL, set())
+    x86_internal_release_boards = ge_arch_board_dict.get(
+        config_lib.CONFIG_X86_INTERNAL, set()
     )
-    x86_external_boards = (
-        chromeos_boards.x86_external_boards
-        | ge_arch_board_dict.get(config_lib.CONFIG_X86_EXTERNAL, set())
+    x86_external_boards = ge_arch_board_dict.get(
+        config_lib.CONFIG_X86_EXTERNAL, set()
     )
 
     # Every board should be in only 1 of the above sets.
@@ -283,12 +278,7 @@ def CreateBoardConfigs(boards_dict, ge_build_config):
 
     result = {}
     for board in board_names:
-        board_config = config_lib.BuildConfig(boards=[board])
-
-        if board in chromeos_boards.builder_incompatible_binaries_boards:
-            board_config.apply(unittests=False)
-
-        result[board] = board_config
+        result[board] = config_lib.BuildConfig(boards=[board])
 
     return result
 
@@ -304,26 +294,6 @@ def CreateInternalBoardConfigs(site_config, boards_dict, ge_build_config):
                 site_config.templates.official_chrome,
                 manifest=constants.OFFICIAL_MANIFEST,
             )
-
-    return result
-
-
-def UpdateBoardConfigs(board_configs, boards, *args, **kwargs):
-    """Update "board_configs" for selected chromeos_boards.
-
-    Args:
-        board_configs: Dict in CreateBoardConfigs format to filter from.
-        boards: Iterable of boards to update in the dict.
-        *args: List of templates to apply.
-        **kwargs: Individual keys to update.
-
-    Returns:
-        Copy of board_configs dict with boards boards update with templates
-        and values applied.
-    """
-    result = board_configs.copy()
-    for b in boards:
-        result[b] = result[b].derive(*args, **kwargs)
 
     return result
 
