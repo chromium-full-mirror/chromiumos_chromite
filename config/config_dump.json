@@ -96,7 +96,7 @@
       "binhost_key": "RELEASE_BINHOST",
       "build_timeout": 43200,
       "build_type": "generic",
-      "builder_class_name": "workspace_builders.FactoryBranchBuilder",
+      "builder_class_name": "test_builders.FailBuilder",
       "chromeos_official": true,
       "description": "TOT builder to build a factory branch.",
       "display_label": "factory",

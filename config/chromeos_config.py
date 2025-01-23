@@ -488,7 +488,7 @@ def FactoryBuilders(site_config, _boards_dict, _ge_build_config) -> None:
         useflags=config_lib.append_useflags(
             ["-cros-debug", "thinlto", "chrome_internal"]
         ),
-        builder_class_name="workspace_builders.FactoryBranchBuilder",
+        builder_class_name="test_builders.FailBuilder",
         build_timeout=_FACTORYBRANCH_TIMEOUT,
         description="TOT builder to build a factory branch.",
         doc="https://goto.google.com/tot-for-firmware-branches",
