@@ -560,51 +560,12 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config) -> None:
 
     ### Release configs.
 
-    # Used for future bvt migration.
-    _release_enable_skylab_hwtest = _frozen_ge_set(
-        ge_build_config,
-        [
-            "asuka",
-            "coral",
-            "nyan_blaze",
-            "reef",
-        ],
-    )
-
-    _release_enable_skylab_partial_boards = {
-        "coral": ["astronaut", "nasher", "lava"],
-    }
-
-    _release_enable_skylab_cts_hwtest = _frozen_ge_set(
-        ge_build_config,
-        [
-            "terra",
-        ],
-    )
-
     _no_unittest_configs = [
         "grunt-kernelnext-release",
         "guybrush-kernelnext-release",
         "zork-connectivitynext-release",
         "zork-minios-release",
     ]
-
-    def _get_skylab_settings(board_name):
-        """Get skylab settings for release builder.
-
-        Args:
-            board_name: A string board name.
-
-        Returns:
-            A dict mapping suite types to booleans indicating whether this suite
-            on this board is to be run on Skylab. Current suite types:
-                - cts: all suites using pool:cts,
-                - default: the rest of the suites.
-        """
-        return {
-            "cts": board_name in _release_enable_skylab_cts_hwtest,
-            "default": board_name in _release_enable_skylab_hwtest,
-        }
 
     builder_to_boards_dict = config_lib.GroupBoardsByBuilder(
         ge_build_config[config_lib.CONFIG_TEMPLATE_BOARDS]
