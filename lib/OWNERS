@@ -10,6 +10,6 @@ per-file dev_server*=file:/OWNERS.au
 per-file dlc*=file:/OWNERS.au
 per-file minios*=file:/OWNERS.au
 per-file nebraska*=file:/OWNERS.au
-per-file toolchain_util*=file:/OWNERS.crostc
+per-file toolchain_util* = file:chromiumos/third_party/toolchain-utils:/OWNERS.toolchain
 per-file verity*=file:/OWNERS.au
 per-file vm*=file:/OWNERS.chrome

@@ -3,4 +3,4 @@
 # found in the LICENSE file.
 
 per-file android* = file:chromiumos/owners:v1:/arc/OWNERS.infra
-per-file toolchain*=file:/OWNERS.crostc
+per-file toolchain* = file:chromiumos/third_party/toolchain-utils:/OWNERS.toolchain
