@@ -468,14 +468,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config) -> None:
 
     ### Release configs.
 
-    builder_to_boards_dict = config_lib.GroupBoardsByBuilder(
-        ge_build_config[config_lib.CONFIG_TEMPLATE_BOARDS]
-    )
-
-    _all_release_builder_boards = builder_to_boards_dict[
-        config_lib.CONFIG_TEMPLATE_RELEASE
-    ]
-
     for unibuild in config_lib.GetUnifiedBuildConfigAllBuilds(ge_build_config):
         reference_board_name = unibuild[
             config_lib.CONFIG_TEMPLATE_REFERENCE_BOARD_NAME

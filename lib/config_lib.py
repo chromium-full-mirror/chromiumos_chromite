@@ -1187,26 +1187,6 @@ def GetUnifiedBuildConfigAllBuilds(ge_build_config):
     return ge_build_config.get("reference_board_unified_builds", [])
 
 
-def GroupBoardsByBuilder(board_list):
-    """Group boards by the 'builder' flag."""
-    builder_to_boards_dict = {}
-
-    for b in board_list:
-        # Until Lakitu is removed from GE, skip the board
-        # http://b/180437658
-        if b["name"] in GOLDENEYE_IGNORED_BOARDS:
-            continue
-        # Invalid build configs being written out with no configs array, thus
-        # the default. See https://crbug.com/1005803.
-        for config in b.get(CONFIG_TEMPLATE_CONFIGS, []):
-            builder = config[CONFIG_TEMPLATE_BUILDER]
-            if builder not in builder_to_boards_dict:
-                builder_to_boards_dict[builder] = set()
-            builder_to_boards_dict[builder].add(b[CONFIG_TEMPLATE_NAME])
-
-    return builder_to_boards_dict
-
-
 def GetArchBoardDict(ge_build_config):
     """Get a dict mapping arch types to board names.
 
