@@ -144,12 +144,6 @@ class FindConfigsForBoardTest(cros_test_lib.TestCase):
         check_expected(external, external_expected)
         check_expected(internal, internal_expected)
 
-    def _CheckCanonicalConfig(self, board, ending) -> None:
-        self.assertEqual(
-            "-".join((board, ending)),
-            self.config.FindCanonicalConfigForBoard(board)["name"],
-        )
-
     def testExternal(self) -> None:
         """Test finding of a full builder."""
         self._CheckFullConfig(
@@ -159,14 +153,6 @@ class FindConfigsForBoardTest(cros_test_lib.TestCase):
     def testInternal(self) -> None:
         """Test finding of a release builder."""
         self._CheckFullConfig("eve", internal_expected="eve-release")
-
-    def testExternalCanonicalResolution(self) -> None:
-        """Test an external canonical config."""
-        self._CheckCanonicalConfig("amd64-generic", "full")
-
-    def testAFDOCanonicalResolution(self) -> None:
-        """Test prefer non-AFDO over AFDO builder."""
-        self._CheckCanonicalConfig("eve", "release")
 
     def testOneFullConfigPerBoard(self) -> None:
         """There is at most one 'full' config for a board."""

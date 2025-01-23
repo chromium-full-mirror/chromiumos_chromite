@@ -746,17 +746,6 @@ class SiteConfig(dict):
 
         return ext_cfgs, int_cfgs
 
-    def FindCanonicalConfigForBoard(self, board, allow_internal=True):
-        """Get the canonical cbuildbot builder config for a board."""
-        ext_cfgs, int_cfgs = self.FindFullConfigsForBoard(board)
-        # If both external and internal builds exist for this board, prefer the
-        # internal one unless instructed otherwise.
-        both = (int_cfgs if allow_internal else []) + ext_cfgs
-
-        if not both:
-            raise ValueError("Invalid board specified: %s." % board)
-        return both[0]
-
     def GetSlaveConfigMapForMaster(
         self, master_config, options=None, important_only=True
     ):

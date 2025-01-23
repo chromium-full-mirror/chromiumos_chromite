@@ -698,26 +698,6 @@ class SiteConfigFindTests(cros_test_lib.TestCase):
             set(["amd64-generic", "foo_board", "bar_board", "car_board"]),
         )
 
-    def testFindCanonicalConfig(self) -> None:
-        site_config = MockSiteConfig()
-        amd64_full = site_config.Add(
-            "amd64-generic-full", boards=["amd64-generic"]
-        )
-        self.assertEqual(
-            site_config.FindCanonicalConfigForBoard("amd64-generic"), amd64_full
-        )
-
-        site_config = MockSiteConfig()
-        amd64_full = site_config.Add(
-            "amd64-generic-full", boards=["amd64-generic"]
-        )
-        self.assertEqual(
-            site_config.FindCanonicalConfigForBoard("amd64-generic"), amd64_full
-        )
-        self.assertEqual(
-            site_config.FindCanonicalConfigForBoard(None), amd64_full
-        )
-
     def testGetSlaveConfigMapForMasterAll(self) -> None:
         """Test GetSlaveConfigMapForMaster, GetSlavesForMaster all slaves."""
 
