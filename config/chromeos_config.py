@@ -72,10 +72,6 @@ def GetBoardTypeToBoardsDict(ge_build_config):
 
     boards_dict["internal_boards"] = boards_dict["all_release_boards"]
 
-    boards_dict["generic_kernel_boards"] = frozenset(
-        ["amd64-generic"],
-    )
-
     all_ge_boards = set()
     for val in ge_arch_board_dict.values():
         all_ge_boards |= val
