@@ -473,8 +473,6 @@ def DefaultSettings():
         description=None,
         # Boolean that enables parameter --git-sync for upload_prebuilts.
         git_sync=False,
-        # Whether this config belongs to a config group.
-        grouped=False,
         # If enabled, run the PatchChanges stage.  Enabled by default. Can be
         # overridden by the --nopatch flag.
         postsync_patch=True,

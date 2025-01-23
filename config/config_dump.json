@@ -25,7 +25,6 @@
     "factory_install_netboot": true,
     "factory_toolkit": true,
     "git_sync": false,
-    "grouped": false,
     "gs_path": "default",
     "images": [
       "test"

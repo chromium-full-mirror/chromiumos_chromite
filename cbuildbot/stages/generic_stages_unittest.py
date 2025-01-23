@@ -638,11 +638,6 @@ class BoardSpecificBuilderStageTest(AbstractStageTestCase):
             self._run, self.buildstore, self.DEFAULT_BOARD_NAME
         )
 
-    def testBuilderNameContainsBoardName(self) -> None:
-        self._run.config.grouped = True
-        stage = self.ConstructStage()
-        self.assertTrue(self.DEFAULT_BOARD_NAME in stage.name)
-
     # TODO (yjhong): Fix this test.
     # def testCheckOptions(self):
     #   """Makes sure options/config settings are setup correctly."""

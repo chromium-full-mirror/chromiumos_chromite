@@ -818,7 +818,7 @@ class BoardSpecificBuilderStage(BuilderStage):
 
         # Add a board name suffix to differentiate between various boards (in
         # case more than one board is built on a single builder.)
-        if len(builder_run.config.boards) > 1 or builder_run.config.grouped:
+        if len(builder_run.config.boards) > 1:
             suffix = self.UpdateSuffix(board, suffix)
 
         super().__init__(builder_run, buildstore, suffix=suffix, **kwargs)

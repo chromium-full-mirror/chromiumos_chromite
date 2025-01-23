@@ -500,69 +500,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config) -> None:
         )
         _AssignToMaster(site_config[config_name])
 
-    def GetReleaseConfigName(board):
-        """Convert a board name into a release config name."""
-        return "%s-release" % board
-
-    def GetConfigName(builder, board):
-        """Convert a board name into a config name."""
-        if builder == config_lib.CONFIG_TEMPLATE_RELEASE:
-            return GetReleaseConfigName(board)
-        else:
-            # Currently just support RELEASE builders
-            raise Exception("Do not support other builders.")
-
-    def _GetConfigValues(board):
-        """Get and return config values from template and user definitions."""
-        important = not board[config_lib.CONFIG_TEMPLATE_EXPERIMENTAL]
-
-        # Move non-unibuild to skylab.
-        config_values = {
-            "important": important,
-        }
-
-        return config_values
-
-    def _AdjustUngroupedReleaseConfigs(builder_ungrouped_dict) -> None:
-        """Adjust for ungrouped release boards"""
-        for builder in builder_ungrouped_dict:
-            for board in builder_ungrouped_dict[builder]:
-                config_name = GetConfigName(
-                    builder, board[config_lib.CONFIG_TEMPLATE_NAME]
-                )
-                site_config[config_name].apply(
-                    _GetConfigValues(board),
-                )
-                _AssignToMaster(site_config[config_name])
-
-    def _AdjustGroupedReleaseConfigs(builder_group_dict) -> None:
-        """Adjust leader and follower configs for grouped boards"""
-        for builder in builder_group_dict:
-            for group in builder_group_dict[builder]:
-                board_group = builder_group_dict[builder][group]
-
-                # Leaders are built on baremetal builders and run all tests
-                # needed by the related boards.
-                for board in board_group.leader_boards:
-                    config_name = GetConfigName(
-                        builder, board[config_lib.CONFIG_TEMPLATE_NAME]
-                    )
-                    site_config[config_name].apply(
-                        _GetConfigValues(board),
-                    )
-                    _AssignToMaster(site_config[config_name])
-
-                # Followers are built on GCE instances, and turn off testing
-                # that breaks on GCE. The missing tests run on the leader board.
-                for board in board_group.follower_boards:
-                    config_name = GetConfigName(
-                        builder, board[config_lib.CONFIG_TEMPLATE_NAME]
-                    )
-                    site_config[config_name].apply(
-                        _GetConfigValues(board),
-                    )
-                    _AssignToMaster(site_config[config_name])
-
 
 def SpecialtyBuilders(site_config) -> None:
     """Add a variety of specialized builders or tryjobs.
