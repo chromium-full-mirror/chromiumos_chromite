@@ -167,11 +167,6 @@ class BuilderStage:
         if self._run.options.chrome_root:
             self._portage_extra_env["CHROME_ORIGIN"] = "LOCAL_SOURCE"
 
-        self._latest_toolchain = (
-            self._run.config.latest_toolchain
-            or self._run.options.latest_toolchain
-        )
-
         if useflags:
             self._portage_extra_env["USE"] = " ".join(useflags)
 

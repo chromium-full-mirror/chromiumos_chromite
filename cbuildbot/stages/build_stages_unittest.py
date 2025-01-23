@@ -131,26 +131,6 @@ class UpdateSDKTest(_RunAbstractStageTestCase):
         self._PrepareFull(extra_cmd_args=["--profile", "smock"])
         self._RunFull(dir_exists=False)
 
-    def _RunBin(self, dir_exists) -> None:
-        """Helper for testing a binary builder."""
-        self._Run(dir_exists)
-        update_nousepkg = self._run.options.latest_toolchain
-        self.assertCommandContains(
-            ["./update_chroot", "--nousepkg"], expected=update_nousepkg
-        )
-
-    def testBinBuildWithLatestToolchain(self) -> None:
-        """Tests whether we use --nousepkg for creating the board."""
-        self._PrepareBin()
-        self._run.options.latest_toolchain = True
-        self._RunBin(dir_exists=False)
-
-    def testBinBuildWithLatestToolchainAndDirExists(self) -> None:
-        """Tests whether we use --nousepkg for creating the board."""
-        self._PrepareBin()
-        self._run.options.latest_toolchain = True
-        self._RunBin(dir_exists=True)
-
 
 class SetupBoardTest(_RunAbstractStageTestCase):
     """Test building the board"""
@@ -203,30 +183,6 @@ class SetupBoardTest(_RunAbstractStageTestCase):
         self._PrepareFull(extra_cmd_args=["--profile", "smock"])
         self._RunFull(dir_exists=False)
         self.assertCommandContains([self.setup_board, "--profile=smock"])
-
-    def _RunBin(self, dir_exists) -> None:
-        """Helper for testing a binary builder."""
-        self._Run(dir_exists)
-        self.assertTrue(self.setup_toolchains_mock.called)
-        self.assertCommandContains([self.setup_board])
-        cmd = [self.setup_board, "--skip-chroot-upgrade"]
-        self.assertCommandContains(cmd)
-        cmd = [self.setup_board, "--nousepkg"]
-        self.assertCommandContains(
-            cmd, not self._run.config.usepkg_build_packages
-        )
-
-    def testBinBuildWithLatestToolchain(self) -> None:
-        """Tests whether we use --nousepkg for creating the board."""
-        self._PrepareBin()
-        self._run.options.latest_toolchain = True
-        self._RunBin(dir_exists=False)
-
-    def testBinBuildWithLatestToolchainAndDirExists(self) -> None:
-        """Tests whether we use --nousepkg for creating the board."""
-        self._PrepareBin()
-        self._run.options.latest_toolchain = True
-        self._RunBin(dir_exists=True)
 
     def testSDKBuild(self) -> None:
         """Tests whether we use --skip_chroot_upgrade for SDK builds."""

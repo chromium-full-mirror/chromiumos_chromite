@@ -365,7 +365,7 @@ class UpdateSDKStage(generic_stages.BuilderStage):
 
         commands.UpdateChroot(
             self._build_root,
-            usepkg=not self._latest_toolchain,
+            usepkg=True,
             extra_env=self._portage_extra_env,
             chroot_args=chroot_args,
         )
@@ -387,7 +387,7 @@ class SetupBoardStage(generic_stages.BoardSpecificBuilderStage, InitSDKStage):
             # Setup board's toolchain.
             commands.SetupToolchains(
                 self._build_root,
-                usepkg=not self._latest_toolchain,
+                usepkg=True,
                 targets="boards",
                 boards=self._current_board,
                 chroot_args=chroot_args,

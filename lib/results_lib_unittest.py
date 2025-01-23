@@ -152,7 +152,6 @@ class BuildStagesResultsTest(cros_test_lib.TestCase):
         options.clobber = False
         options.nosdk = False
         options.remote_trybot = False
-        options.latest_toolchain = False
         options.buildnumber = 1234
         options.chrome_rev = None
         options.branch = "dontcare"

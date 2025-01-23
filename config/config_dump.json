@@ -33,7 +33,6 @@
     ],
     "important": true,
     "internal": false,
-    "latest_toolchain": false,
     "luci_builder": "LegacyRelease",
     "manifest": "default.xml",
     "manifest_branch": null,

@@ -429,12 +429,6 @@ def _CreateParser():
         default=False,
         help="Clears an old checkout before syncing",
     )
-    group.add_remote_option(
-        "--latest-toolchain",
-        action="store_true",
-        default=False,
-        help="Use the latest toolchain.",
-    )
     parser.add_option(
         "--log_dir",
         dest="log_dir",

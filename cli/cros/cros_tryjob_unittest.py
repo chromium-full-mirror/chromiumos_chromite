@@ -153,7 +153,6 @@ class TryjobTestParsing(TryjobTest):
             [
                 "--remote",
                 "--yes",
-                "--latest-toolchain",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -195,7 +194,6 @@ class TryjobTestParsing(TryjobTest):
                 "gerrit_patches": ["123", "*123", "123..456"],
                 "local_patches": ["chromiumos/chromite:tryjob", "other:other"],
                 "passthrough": [
-                    "--latest-toolchain",
                     "--notests",
                     "--novmtests",
                     "--noimagetests",
@@ -217,7 +215,6 @@ class TryjobTestParsing(TryjobTest):
         self.SetupCommandMock(
             [
                 "--yes",
-                "--latest-toolchain",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -263,7 +260,6 @@ class TryjobTestParsing(TryjobTest):
                 "gerrit_patches": ["123", "*123", "123..456"],
                 "local_patches": ["chromiumos/chromite:tryjob", "other:other"],
                 "passthrough": [
-                    "--latest-toolchain",
                     "--notests",
                     "--novmtests",
                     "--noimagetests",
@@ -285,7 +281,6 @@ class TryjobTestParsing(TryjobTest):
         self.SetupCommandMock(
             [
                 "--yes",
-                "--latest-toolchain",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -330,7 +325,6 @@ class TryjobTestParsing(TryjobTest):
                 "gerrit_patches": ["123", "*123", "123..456"],
                 "local_patches": ["chromiumos/chromite:tryjob", "other:other"],
                 "passthrough": [
-                    "--latest-toolchain",
                     "--notests",
                     "--novmtests",
                     "--noimagetests",
@@ -505,7 +499,6 @@ class TryjobTestVerifyOptions(TryjobTest):
         self.SetupCommandMock(
             [
                 "--yes",
-                "--latest-toolchain",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -544,7 +537,6 @@ class TryjobTestVerifyOptions(TryjobTest):
         self.SetupCommandMock(
             [
                 "--yes",
-                "--latest-toolchain",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -582,7 +574,6 @@ class TryjobTestVerifyOptions(TryjobTest):
             [
                 "--swarming",
                 "--yes",
-                "--latest-toolchain",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -953,7 +944,6 @@ class TryjobTestCbuildbotArgs(TryjobTest):
     def testCbuildbotArgsComplexRemote(self) -> None:
         args_in = [
             "--yes",
-            "--latest-toolchain",
             "--notests",
             "--novmtests",
             "--noimagetests",
@@ -995,7 +985,6 @@ class TryjobTestCbuildbotArgs(TryjobTest):
                 "*123",
                 "-g",
                 "123..456",
-                "--latest-toolchain",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -1017,7 +1006,6 @@ class TryjobTestCbuildbotArgs(TryjobTest):
         args_in = [
             "--local",
             "--yes",
-            "--latest-toolchain",
             "--notests",
             "--novmtests",
             "--noimagetests",
@@ -1066,7 +1054,6 @@ class TryjobTestCbuildbotArgs(TryjobTest):
                 "*123",
                 "-g",
                 "123..456",
-                "--latest-toolchain",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",
@@ -1088,7 +1075,6 @@ class TryjobTestCbuildbotArgs(TryjobTest):
         args_in = [
             "--cbuildbot",
             "--yes",
-            "--latest-toolchain",
             "--notests",
             "--novmtests",
             "--noimagetests",
@@ -1140,7 +1126,6 @@ class TryjobTestCbuildbotArgs(TryjobTest):
                 "*123",
                 "-g",
                 "123..456",
-                "--latest-toolchain",
                 "--notests",
                 "--novmtests",
                 "--noimagetests",

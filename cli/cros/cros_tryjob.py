@@ -690,12 +690,6 @@ List Examples:
             "Modifiers", description="How do we modify build behavior?"
         )
         how_group.add_argument(
-            "--latest-toolchain",
-            dest="passthrough",
-            action="append_option",
-            help="Use the latest toolchain.",
-        )
-        how_group.add_argument(
             "--timeout",
             dest="passthrough",
             action="append_option_value",

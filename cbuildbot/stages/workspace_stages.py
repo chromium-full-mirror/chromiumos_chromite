@@ -684,7 +684,7 @@ class WorkspaceUpdateSDKStage(WorkspaceStageBase):
             )
         commands.UpdateChroot(
             self._build_root,
-            usepkg=not self._latest_toolchain,
+            usepkg=True,
             extra_env=extra_env,
             chroot_args=["--cache-dir", self._run.options.cache_dir],
         )
