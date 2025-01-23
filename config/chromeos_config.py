@@ -510,13 +510,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config) -> None:
 
     ### Release configs.
 
-    _no_unittest_configs = [
-        "grunt-kernelnext-release",
-        "guybrush-kernelnext-release",
-        "zork-connectivitynext-release",
-        "zork-minios-release",
-    ]
-
     builder_to_boards_dict = config_lib.GroupBoardsByBuilder(
         ge_build_config[config_lib.CONFIG_TEMPLATE_BOARDS]
     )
@@ -540,8 +533,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config) -> None:
         props = {
             "important": important,
         }
-        if config_name in _no_unittest_configs:
-            props["unittests"] = False
         site_config.AddForBoards(
             config_lib.CONFIG_TYPE_RELEASE,
             [reference_board_name],
