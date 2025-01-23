@@ -561,18 +561,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config) -> None:
     ### Release configs.
 
     # Used for future bvt migration.
-    _release_experimental_boards = _frozen_ge_set(
-        ge_build_config,
-        [
-            "elm-kernelnext",
-            "grunt-kernelnext",
-            "hana-kernelnext",
-            "hatch-kernelnext",
-            "volteer-kernelnext",
-            "zork-kernelnext",
-        ],
-    )
-
     _release_enable_skylab_hwtest = _frozen_ge_set(
         ge_build_config,
         [
@@ -637,8 +625,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config) -> None:
 
         # Move unibuild to skylab.
         important = not unibuild[config_lib.CONFIG_TEMPLATE_EXPERIMENTAL]
-        if reference_board_name in _release_experimental_boards:
-            important = False
 
         props = {
             "important": important,
@@ -669,8 +655,6 @@ def ReleaseBuilders(site_config, boards_dict, ge_build_config) -> None:
     def _GetConfigValues(board):
         """Get and return config values from template and user definitions."""
         important = not board[config_lib.CONFIG_TEMPLATE_EXPERIMENTAL]
-        if board["name"] in _release_experimental_boards:
-            important = False
 
         # Move non-unibuild to skylab.
         config_values = {
