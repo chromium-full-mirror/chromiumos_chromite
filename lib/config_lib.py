@@ -713,39 +713,6 @@ class SiteConfig(dict):
             )
         )
 
-    def FindFullConfigsForBoard(self, board=None):
-        """Returns full builder configs for a board.
-
-        Args:
-            board: The board to match. By default, match all boards.
-
-        Returns:
-            A tuple containing a list of matching external configs and a list of
-            matching internal release configs for a board.
-        """
-        ext_cfgs = []
-        int_cfgs = []
-
-        for name, c in self.items():
-            possible_names = []
-            if board:
-                possible_names = [
-                    board + "-" + CONFIG_TYPE_RELEASE,
-                    board + "-" + CONFIG_TYPE_FULL,
-                ]
-            if c["boards"] and (
-                board is None or board in c["boards"] or name in possible_names
-            ):
-                if name.endswith("-%s" % CONFIG_TYPE_RELEASE) and c["internal"]:
-                    int_cfgs.append(c.deepcopy())
-                elif (
-                    name.endswith("-%s" % CONFIG_TYPE_FULL)
-                    and not c["internal"]
-                ):
-                    ext_cfgs.append(c.deepcopy())
-
-        return ext_cfgs, int_cfgs
-
     def GetSlaveConfigMapForMaster(
         self, master_config, options=None, important_only=True
     ):
