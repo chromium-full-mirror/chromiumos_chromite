@@ -8,4 +8,3 @@ engeg@google.com #{LAST_RESORT_SUGGESTION}
 
 per-file OWNERS.au = file://OWNERS.au
 per-file OWNERS.fw = file://OWNERS.fw
-per-file OWNERS.kernel = file://OWNERS.kernel
