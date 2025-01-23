@@ -1,7 +1,2 @@
-# Copyright 2019 The ChromiumOS Authors
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
-
-# Auto-update Team
-kimjae@chromium.org
-yuanpengni@chromium.org
+# TODO: Delete this file and inline include.
+include chromiumos/owners:v1:/platform/OWNERS.au
