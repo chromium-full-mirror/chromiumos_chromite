@@ -47,6 +47,12 @@ def GetParser():
         )
         % (dlc_lib.DLC_BUILD_DIR, dlc_lib.DLC_META_DIR),
     )
+    parser.add_bool_argument(
+        "--reproducible-image",
+        default=True,
+        enabled_desc="Generate reproducible DLC images.",
+        disabled_desc="Generate non-reproducible DLC images with random salt.",
+    )
 
     one_dlc = parser.add_argument_group(
         "Arguments required for building only one DLC"
@@ -183,12 +189,6 @@ def GetParser():
         default="",
         type=str,
         help="A list of DLC attributes.",
-    )
-    one_dlc.add_argument(
-        "--reproducible-image",
-        default=False,
-        action="store_true",
-        help="Generate reproducible DLC images.",
     )
     return parser
 
