@@ -1204,7 +1204,7 @@ class EBuild:
 
     def RevWorkOnEBuild(
         self, srcroot, manifest, reject_self_repo=True, new_version=None
-    ) -> None:
+    ) -> Optional[Tuple[str, str, Optional[str]]]:
         """Revs a workon ebuild given the git commit hash.
 
         By default, this class overwrites a new ebuild given the normal
@@ -1251,10 +1251,9 @@ class EBuild:
             logging.critical("%s: uprev failed: %s", self.ebuild_path, e)
             raise
 
-        old_version = "%s-r%d" % (stable_version_no_rev, self.current_revision)
-        old_stable_ebuild_path = "%s-%s.ebuild" % (
-            self._ebuild_path_no_version,
-            old_version,
+        old_version = f"{stable_version_no_rev}-r{self.current_revision:d}"
+        old_stable_ebuild_path = (
+            f"{self._ebuild_path_no_version}-{old_version}.ebuild"
         )
 
         revision = (
@@ -1263,9 +1262,8 @@ class EBuild:
             else self.current_revision + 1
         )
         version = f"{new_version or stable_version_no_rev}-r{revision}"
-        new_stable_ebuild_path = "%s-%s.ebuild" % (
-            self._ebuild_path_no_version,
-            version,
+        new_stable_ebuild_path = (
+            f"{self._ebuild_path_no_version}-{version}.ebuild"
         )
 
         info = self.GetSourceInfo(
@@ -1275,9 +1273,7 @@ class EBuild:
         subtrees = info.subtrees
         commit_ids = [self.GetCommitId(x) for x in srcdirs]
         if not commit_ids:
-            raise InvalidUprevSourceError(
-                "No commit_ids found for %s" % srcdirs
-            )
+            raise InvalidUprevSourceError(f"No commit_ids found for {srcdirs}")
         tree_ids = [self.GetTreeId(x) for x in subtrees]
         # Make sure they are all valid (e.g. a deleted repo).
         tree_ids = [tree_id for tree_id in tree_ids if tree_id]
@@ -1320,7 +1316,7 @@ class EBuild:
                 self.overlay,
                 [
                     "log",
-                    "%s..HEAD" % old_stable_commit,
+                    f"{old_stable_commit}..HEAD",
                     "--",
                     self._unstable_ebuild_path,
                     os.path.join(os.path.dirname(self.ebuild_path), "files"),
@@ -1349,9 +1345,9 @@ class EBuild:
             new_stable_ebuild_path,
         )
 
-        assert os.path.exists(self._unstable_ebuild_path), (
-            "Missing unstable ebuild: %s" % self._unstable_ebuild_path
-        )
+        assert os.path.exists(
+            self._unstable_ebuild_path
+        ), f"Missing unstable ebuild: {self._unstable_ebuild_path}"
 
         self.MarkAsStable(
             self._unstable_ebuild_path, new_stable_ebuild_path, variables
@@ -1377,7 +1373,7 @@ class EBuild:
             )
             ebuild_path_to_remove = old_ebuild_path if self.is_stable else None
             return (
-                "%s-%s" % (self.package, version),
+                f"{self.package}-{version}",
                 new_stable_ebuild_path,
                 ebuild_path_to_remove,
             )
