@@ -304,7 +304,7 @@ def InstallPackage(
         cache_dir = cache_dir or path_util.get_cache_dir()
         destination = Path(cache_dir).absolute() / "cipd" / "packages"
 
-    destination = Path(destination) / package
+    destination = Path(destination) / package / version
 
     ensure = f"{package} {version}"
     logging.debug("Ensure file: %s", ensure)
