@@ -4,17 +4,17 @@
 
 """String constants for testing SDK Server UI."""
 
-from os import getlogin
+import os
 import pathlib
-from socket import gethostname
+import socket
 
 
 # Define a dictionary to feed to Jinja template engine for dynamic data.
 # These constants will be replaced with actual results from gRPC endpoints.
 def get_index_data():
     index_data = {}
-    index_data["user"] = getlogin()
-    index_data["hostname"] = gethostname()
+    index_data["user"] = os.getlogin()
+    index_data["hostname"] = socket.gethostname()
     index_data["date_created"] = "May 29, 2023"
     index_data["date_updated"] = "June 6, 2023"
     index_data["path"] = "/usr/local/google/home/josepp/chromiumos/chroot"
