@@ -6,7 +6,6 @@
 
 import collections
 import io
-import os
 from typing import Iterable, List, NamedTuple, Optional
 
 import astroid
@@ -14,7 +13,6 @@ import pylint.lint
 
 from chromite.cli.cros import lint
 from chromite.lib import cros_test_lib
-from chromite.lib import osutils
 
 
 # pylint: disable=protected-access
@@ -65,29 +63,6 @@ class DocStringSectionDetailsTest(cros_test_lib.TestCase):
         s1 = lint.DocStringSectionDetails(name="n", header="h", lineno=0)
         s2 = lint.DocStringSectionDetails(name="n", header="h", lineno=0)
         self.assertEqual(s1, s2)
-
-
-class PylintrcConfigTest(cros_test_lib.TempDirTestCase):
-    """Basic _PylintrcConfig tests."""
-
-    def testEmptySettings(self) -> None:
-        """Check default empty names behavior."""
-        lint._PylintrcConfig("/dev/null", "", ())
-
-    def testDefaultValue(self) -> None:
-        """Check we can read a default."""
-        cfg_file = os.path.join(self.tempdir, "pylintrc")
-        osutils.WriteFile(cfg_file, '[sect]\nkey = "  "\n')
-        cfg = lint._PylintrcConfig(
-            cfg_file,
-            "sect",
-            (
-                ("key", {"default": "KEY", "type": "string"}),
-                ("foo", {"default": "FOO", "type": "string"}),
-            ),
-        )
-        self.assertEqual("  ", cfg.option_value("key"))
-        self.assertEqual("FOO", cfg.option_value("foo"))
 
 
 class TestNode:

@@ -27,7 +27,6 @@ import tokenize
 from typing import Any, Optional, Tuple
 
 import astroid
-from pylint import config
 import pylint.checkers
 import pylint.interfaces
 
@@ -79,46 +78,6 @@ class DocStringSectionDetails:
             and self.lines == other.lines
             and self.lineno == other.lineno
         )
-
-
-def _PylintrcConfig(config_file, section, opts):
-    """Read specific pylintrc settings.
-
-    This is a bit hacky. The pylint framework doesn't allow us to access options
-    outside a Checker's own namespace (self.name), and multiple linters may not
-    have the same name/options values (since they get globally registered). So
-    we have to re-read the registered config file and pull out the value we
-    want.
-
-    The other option would be to force people to duplicate settings in the
-    config files and that's worse.  e.g.
-    [format]
-    indent-string = '  '
-    [doc_string_checker]
-    indent-string = '  '
-
-    Args:
-        config_file: Path to the pylintrc file to read.
-        section: The section to read.
-        opts: The specific settings to return.
-
-    Returns:
-        A pylint configuration object. Use option_value('...') to read.
-    """
-
-    class ConfigReader(config.ConfigurationMixIn):
-        """Dynamic config file reader."""
-
-        name = section
-        options = opts
-
-        def set_current_module(self, config_file) -> None:
-            """Ignore - read_config_file() invokes this for stats."""
-
-    cfg = ConfigReader(config_file=config_file)
-    cfg.read_config_file()
-    cfg.load_config_file()
-    return cfg
 
 
 class _EncodingExtractError(Exception):
@@ -323,8 +282,21 @@ class DocStringChecker(pylint.checkers.BaseChecker):
     VALID_CLASS_SECTIONS = ("Examples", "Attributes")
     ALL_VALID_SECTIONS = set(VALID_FUNC_SECTIONS + VALID_CLASS_SECTIONS)
 
-    # This is the section name in the pylintrc file.
-    name = "doc_string_checker"
+    # This is the same as the common pylintrc setting.
+    options = (
+        (
+            "indent-string",
+            {
+                "default": "    ",
+                "type": "non_empty_string",
+                "metavar": "<string>",
+            },
+        ),
+    )
+
+    # This is the section name in the pylintrc file.  It must be "format" so we
+    # pick up the common "indent-string" setting above.
+    name = "format"
     MSG_ARGS = "offset:%(offset)i: {%(line)s}"
     msgs = {
         "C9003": (
@@ -432,16 +404,11 @@ class DocStringChecker(pylint.checkers.BaseChecker):
     def __init__(self, *args, **kwargs) -> None:
         pylint.checkers.BaseChecker.__init__(self, *args, **kwargs)
 
-        if self.linter is None:
+        if os.environ.get("CHROMITE_INSIDE_PYTEST") == "1":
             # Unit tests don't set this up.
             self._indent_string = "  "
         else:
-            cfg = _PylintrcConfig(
-                self.linter.config_file,
-                "format",
-                (("indent-string", {"default": "    ", "type": "string"}),),
-            )
-            self._indent_string = cfg.option_value("indent-string")
+            self._indent_string = self.linter.config.indent_string
         self._indent_len = len(self._indent_string)
 
     def visit_functiondef(self, node) -> None:
