@@ -6,7 +6,6 @@
 
 import configparser
 import datetime
-import distutils.version  # pylint: disable=import-error,no-name-in-module
 import logging
 import operator
 import os
@@ -17,6 +16,8 @@ import threading
 import time
 from typing import List, NamedTuple, Optional, Tuple
 import urllib
+
+from chromite.third_party.python_graveyard import distutils_version
 
 from chromite.lib import constants
 from chromite.lib import gs
@@ -457,7 +458,7 @@ class XBuddy:
                 else devserver_constants.VERSION
             )
             versions = [d for d in dir_names if versions_re.match(d)]
-            latest_version = max(versions, key=distutils.version.LooseVersion)
+            latest_version = max(versions, key=distutils_version.LooseVersion)
         except ValueError:
             raise gs.GSContextException(
                 "Failed to find most recent builds at %s" % path

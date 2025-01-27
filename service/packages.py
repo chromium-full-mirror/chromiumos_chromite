@@ -5,10 +5,6 @@
 """Package utility functionality."""
 
 import collections
-
-# TODO(b/236161656): Fix.
-# pylint: disable-next=no-name-in-module,import-error
-from distutils.version import LooseVersion
 import fileinput
 import functools
 import json
@@ -28,6 +24,8 @@ from typing import (
     TYPE_CHECKING,
     Union,
 )
+
+from chromite.third_party.python_graveyard import distutils_version
 
 from chromite.lib import chromeos_version
 from chromite.lib import constants
@@ -908,7 +906,7 @@ def _get_latest_version_from_refs(
 ) -> str:
     """Get the latest version from refs
 
-    Versions are compared using |distutils.version.LooseVersion| and
+    Versions are compared using |distutils_version.LooseVersion| and
     the latest version is returned.
 
     Args:
@@ -927,7 +925,9 @@ def _get_latest_version_from_refs(
         return None
 
     # Sort by version and take the latest version.
-    target_version_ref = sorted(valid_refs, key=LooseVersion, reverse=True)[0]
+    target_version_ref = sorted(
+        valid_refs, key=distutils_version.LooseVersion, reverse=True
+    )[0]
     return target_version_ref.replace(refs_prefix, "")
 
 

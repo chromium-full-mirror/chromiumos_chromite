@@ -4,7 +4,6 @@
 
 """VM-related helper functions/classes."""
 
-import distutils.version  # pylint: disable=import-error,no-name-in-module
 import errno
 import fcntl
 import glob
@@ -16,6 +15,8 @@ import shutil
 import socket
 import tempfile
 import time
+
+from chromite.third_party.python_graveyard import distutils_version
 
 from chromite.cli.cros import cros_chrome_sdk
 from chromite.lib import constants
@@ -312,7 +313,7 @@ class VM(device.Device):
             return
         min_qemu_version = "2.6.0"
         logging.info("QEMU version %s", self.QemuVersion())
-        LooseVersion = distutils.version.LooseVersion
+        LooseVersion = distutils_version.LooseVersion
         if LooseVersion(self.QemuVersion()) < LooseVersion(min_qemu_version):
             raise VMError(
                 "QEMU %s is the minimum supported version. You have %s."

@@ -9,7 +9,6 @@ full and pre-flight-queue builds.
 """
 
 import contextlib
-import distutils.version  # pylint: disable=import-error,no-name-in-module
 import glob
 import json
 import logging
@@ -18,6 +17,8 @@ import os
 import pickle
 import sys
 import tempfile
+
+from chromite.third_party.python_graveyard import distutils_version
 
 from chromite.cbuildbot import builders
 from chromite.cbuildbot import cbuildbot_alerts
@@ -65,7 +66,7 @@ def _BackupPreviousLog(log_file, backup_limit=25) -> None:
     """
     if os.path.exists(log_file):
         old_logs = sorted(
-            glob.glob(log_file + ".*"), key=distutils.version.LooseVersion
+            glob.glob(log_file + ".*"), key=distutils_version.LooseVersion
         )
 
         if len(old_logs) >= backup_limit:

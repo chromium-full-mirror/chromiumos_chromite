@@ -5,9 +5,10 @@
 """This module uprevs Chrome for cbuildbot."""
 
 import base64
-import distutils.version  # pylint: disable=import-error,no-name-in-module
 import re
 import urllib.parse
+
+from chromite.third_party.python_graveyard import distutils_version
 
 from chromite.lib import gob_util
 
@@ -61,7 +62,7 @@ def GetLatestRelease(git_url, branch=None):
     matching_versions = [
         key for key in j.keys() if chrome_version_re.match(key)
     ]
-    matching_versions.sort(key=distutils.version.LooseVersion)
+    matching_versions.sort(key=distutils_version.LooseVersion)
     for chrome_version in reversed(matching_versions):
         path = parsed_url[2].rstrip() + (
             "/+/refs/tags/%s/DEPS?format=text" % chrome_version

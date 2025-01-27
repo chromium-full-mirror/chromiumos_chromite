@@ -6,7 +6,6 @@
 
 import ast
 import base64
-import distutils.version  # pylint: disable=no-name-in-module,import-error
 import hashlib
 import logging
 import os
@@ -14,6 +13,8 @@ import re
 import shutil
 import tempfile
 import threading
+
+from chromite.third_party.python_graveyard import distutils_version
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -74,9 +75,8 @@ def GetLatestBuildVersion(static_dir, target, milestone=None):
     if not os.path.isdir(target_path):
         raise CommonUtilError("Cannot find path %s" % target_path)
 
-    # pylint: disable=no-member
     builds = [
-        distutils.version.LooseVersion(build)
+        distutils_version.LooseVersion(build)
         for build in os.listdir(target_path)
         if not build.endswith(".exception")
     ]
