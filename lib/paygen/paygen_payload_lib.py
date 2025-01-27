@@ -733,7 +733,7 @@ class PaygenPayload:
                 name="delta_generator_run_wrapper",
                 args=(cmd, response_queue),
             )
-            inner_run_thread.setDaemon(True)
+            inner_run_thread.daemon = True
             inner_run_thread.start()
             # Wait for the inner run thread to finish, waking up each second.
             i = 1
