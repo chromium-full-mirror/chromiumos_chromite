@@ -216,9 +216,6 @@ def GetControlFileList(static_dir, build):
     return "\n".join(control_files)
 
 
-# Hashlib is strange and doesn't actually define these in a reasonable way that
-# pylint can find them. Disable checks for them.
-# pylint: disable=E1101,W0106
 def GetFileHashes(file_path, do_sha256=False, do_md5=False):
     """Computes and returns a list of requested hashes.
 
@@ -243,8 +240,10 @@ def GetFileHashes(file_path, do_sha256=False, do_md5=False):
                 block = fd.read(_HASH_BLOCK_SIZE)
                 if not block:
                     break
-                hasher_sha256 and hasher_sha256.update(block)
-                hasher_md5 and hasher_md5.update(block)
+                if hasher_sha256:
+                    hasher_sha256.update(block)
+                if hasher_md5:
+                    hasher_md5.update(block)
 
         # Update return values.
         if hasher_sha256:
