@@ -138,7 +138,6 @@ def GetPackageAPI(portage_root, package_cp):
         vartree is of type portage.dbapi.vartree.vartree
     """
     if portage_root is None:
-        # pylint: disable=no-member
         portage_root = portage.root
     # Ensure that portage_root ends with trailing slash.
     portage_root = os.path.join(portage_root, "")
@@ -165,7 +164,6 @@ def GetPackageAPI(portage_root, package_cp):
     # Convert string match to package dblink.
     package_cpv = matching_packages[0]
     package_split = package_info.parse(package_cpv)
-    # pylint: disable=no-member
     package = portage.dblink(
         package_split.category,
         package_split.pvr,
