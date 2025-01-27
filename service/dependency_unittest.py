@@ -4,6 +4,8 @@
 
 """Unittests for the dependency.py module."""
 
+from pathlib import Path
+
 import pytest
 
 from chromite.lib import build_target_lib
@@ -328,3 +330,16 @@ def test_generate_source_path_mapping_board_and_sysroot(monkeypatch) -> None:
     dependency.GenerateSourcePathMapping(
         ["cat/pkg"], board="board", sysroot_path="/some/sysroot"
     )
+
+
+def test_determine_toolchain_manifest_paths_finds_file() -> None:
+    """Test that _DetermineToolchainManifestPaths locates file(s).
+
+    ChromeOS checkouts can't function without the potential to fetch a
+    toolchain. Hence, if none can be found, that's a sign of smoke (and from a
+    practical standpoint, breaks builders' toolchain CL detection logic.)
+    """
+    paths = dependency.DetermineNonPortageToolchainPaths()
+    assert paths, "No toolchain paths could be found!"
+    for path in paths:
+        assert not Path(path).is_absolute(), f"{path} shouldn't be absolute"

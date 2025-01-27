@@ -22,6 +22,7 @@ from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import dependency_lib
+from chromite.lib import git
 from chromite.lib import portage_util
 from chromite.scripts import cros_extract_deps
 
@@ -280,6 +281,39 @@ def GetDependencies(
     return set(x.pkg_info for x in dep_nodes + rev_dep_nodes + affected_nodes)
 
 
+def DetermineNonPortageToolchainPaths() -> List[str]:
+    """Returns all toolchain change paths that aren't captured by portage."""
+    manifest_projects = (
+        "chromiumos/manifest",
+        "chromeos/manifest-internal",
+    )
+
+    # LLVM uprevs are performed by changing `${manifest}/_toolchain.xml`.
+    results = []
+    manifest_checkout = git.ManifestCheckout(constants.SOURCE_ROOT)
+    for project in manifest_projects:
+        for checkout in manifest_checkout.FindCheckouts(project):
+            rel_toolchain_xml = (
+                Path(checkout.GetPath(absolute=False)) / "_toolchain.xml"
+            )
+            if (constants.SOURCE_ROOT / rel_toolchain_xml).exists():
+                results.append(str(rel_toolchain_xml))
+
+    # LLVM uprevs can also be caused by CLs to `llvm-project/`. Make sure to
+    # vet those appropriately.
+    checkout = manifest_checkout.FindCheckout(
+        "external/github.com/llvm/llvm-project",
+        # This repo is nondefault, so may not have a local path available.
+        strict=False,
+    )
+    if checkout:
+        rel_llvm_project = checkout.GetPath(absolute=False)
+        if (constants.SOURCE_ROOT / rel_llvm_project).exists():
+            results.append(rel_llvm_project)
+
+    return results
+
+
 def DetermineToolchainSourcePaths() -> List[str]:
     """Returns a list of all source paths relevant to toolchain packages.
 
@@ -308,5 +342,9 @@ def DetermineToolchainSourcePaths() -> List[str]:
     )
 
     source_paths.update(itertools.chain.from_iterable(mapping.values()))
+
+    # LLVM updates can be prompted by multiple sources. Take those into account
+    # here.
+    source_paths.update(DetermineNonPortageToolchainPaths())
 
     return list(source_paths)
