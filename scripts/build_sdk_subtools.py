@@ -183,7 +183,7 @@ def _run_inside_subtools_chroot(opts: Options) -> None:
     )
 
     if not prepared_subtools.subtools:
-        logger.warn("No subtools available.")
+        logger.warning("No subtools available.")
     elif not opts.upload:
         logger.notice(
             "Use --upload to build/upload a package. Available:%s",
