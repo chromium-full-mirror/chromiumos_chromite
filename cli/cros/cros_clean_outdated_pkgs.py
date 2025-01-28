@@ -57,6 +57,7 @@ SYSTEM_PACKAGES = {
     "dev-libs/expat",
     # Used by curl.
     "net-libs/nghttp2",
+    "net-libs/libpsl",
     # Needed by compiler & friends (for math).
     "dev-libs/gmp",
     # Needed by compiler & friends (for math).
