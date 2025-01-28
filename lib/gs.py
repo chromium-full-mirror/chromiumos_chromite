@@ -498,10 +498,10 @@ class GSContext:
         spec = path / "gsutil" / "gsutil.vpython3"
         if spec.exists():
             return True
-        data = b"""python_version: "3.8"
+        data = b"""python_version: "3.11"
 wheel: <
   name: "infra/python/wheels/crcmod/${vpython_platform}"
-  version: "version:1.7"
+  version: "version:1.7.chromium.4"
 >
 """
         # TODO(vapier): Drop str() once WriteFile accepts Path objects.
