@@ -28,7 +28,6 @@ from typing import Any, Optional, Tuple
 
 import astroid
 import pylint.checkers
-import pylint.interfaces
 
 from chromite.utils import memoize
 
@@ -86,8 +85,6 @@ class _EncodingExtractError(Exception):
 
 class EncodingChecker(pylint.checkers.BaseChecker):
     """Various encoding enforcements."""
-
-    __implements__ = pylint.interfaces.IAstroidChecker
 
     name = "encoding_checker"
     msgs = {
@@ -206,8 +203,6 @@ class EncodingChecker(pylint.checkers.BaseChecker):
 class MonkeypatchChecker(pylint.checkers.BaseChecker):
     """Various monkeypatch enforcements."""
 
-    __implements__ = pylint.interfaces.IAstroidChecker
-
     name = "monkeypatch_checker"
     msgs = {
         "R9160": (
@@ -274,8 +269,6 @@ class DocStringChecker(pylint.checkers.BaseChecker):
 
     # TODO: See about merging with the pep257 project:
     # https://github.com/GreenSteam/pep257
-
-    __implements__ = pylint.interfaces.IAstroidChecker
 
     # All the sections we recognize (and in this order).
     VALID_FUNC_SECTIONS = ("Examples", "Args", "Returns", "Yields", "Raises")
@@ -921,8 +914,6 @@ class DocStringChecker(pylint.checkers.BaseChecker):
 class SourceChecker(pylint.checkers.BaseChecker):
     """Make sure we enforce rules on the source."""
 
-    __implements__ = pylint.interfaces.IAstroidChecker
-
     name = "source_checker"
     MSG_ARGS = "offset:%(offset)i: {%(line)s}"
     msgs = {
@@ -1048,8 +1039,6 @@ class SourceChecker(pylint.checkers.BaseChecker):
 class CommentChecker(pylint.checkers.BaseTokenChecker):
     """Enforce our arbitrary rules on comments."""
 
-    __implements__ = pylint.interfaces.ITokenChecker
-
     name = "comment_checker"
     MSG_ARGS = "offset:%(offset)i: {%(line)s}"
     msgs = {
@@ -1084,8 +1073,6 @@ class CommentChecker(pylint.checkers.BaseTokenChecker):
 class FormatStringChecker(pylint.checkers.BaseChecker):
     """Check string formatting."""
 
-    __implements__ = pylint.interfaces.IAstroidChecker
-
     name = "format_string_checker"
     MSG_ARGS = "offset:%(offset)i: {%(line)s}"
     msgs = {
@@ -1115,8 +1102,6 @@ class ModuleOnlyImportsChecker(pylint.checkers.BaseChecker):
 
     Inspired by github.com/Enforcer/pylint_google_style_guide_imports_enforcing.
     """
-
-    __implements__ = pylint.interfaces.IAstroidChecker
 
     msgs = {
         "R9170": (

@@ -25,7 +25,9 @@ ignore-patterns=
 #persistent=yes
 
 # List of plugins (as comma separated values of python modules names) to load,
-# usually to register additional checkers.
+# usually to register additional checkers.  Newer pylint versions have been
+# using extensions a lot more, so check the list when updating:
+# $ ./scripts/pylint --list-extensions
 load-plugins=
     chromite.cli.cros.lint,
     pylint.extensions.bad_builtin,
@@ -53,16 +55,20 @@ enable=
 # --disable=W".
 # We leave many of the style warnings to judgement/peer review.
 # TODO: We need to re-enable broad-except, but requires cleaning up our code.
+# TODO: Re-enable broad-exception-raised.
 # TODO: Re-enable redefined-variable-type.
 # TODO: Re-enable inconsistent-return-statements.
 # TODO: Re-enable keyword-arg-before-vararg once we're on Python 3-only.
 # TODO: Re-enable import-outside-toplevel.
 # TODO: Re-enable try-except-raise.
 # TODO(b/236161656): Re-enable consider-using-f-string.
+# possibly-used-before-assignment: Too many false positives.  There is a
+#   separate "used-before-assignment" which is a higher quality signal.
 # ungrouped-imports: We let isort handle this.
 # wrong-import-order: We let isort handle this.
 disable=
     broad-except,
+    broad-exception-raised,
     consider-iterating-dictionary,
     consider-using-f-string,
     file-ignored,
@@ -78,6 +84,7 @@ disable=
     no-else-raise,
     no-else-return,
     no-member,
+    possibly-used-before-assignment,
     raise-missing-from,
     redefined-variable-type,
     super-with-arguments,
