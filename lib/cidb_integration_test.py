@@ -467,7 +467,7 @@ class DataSeries0Test(CIDBIntegrationTest):
         """
         metadatas = GetTestDataSeries(SERIES_0_TEST_DATA_PATH)
         self.assertEqual(
-            len(metadatas), 630, "Did not load expected amount of " "test data"
+            len(metadatas), 630, "Did not load expected amount of test data"
         )
 
         # Perform some smoke check queries against the database, connected as
@@ -856,7 +856,7 @@ class DataSeries1Test(CIDBIntegrationTest):
         """Simulate a single set of canary builds with database schema v56."""
         metadatas = GetTestDataSeries(SERIES_1_TEST_DATA_PATH)
         self.assertEqual(
-            len(metadatas), 18, "Did not load expected amount of " "test data"
+            len(metadatas), 18, "Did not load expected amount of test data"
         )
 
         # Migrate db to specified version. As new schema versions are added,

@@ -228,7 +228,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
 
         with self.assertRaisesRegex(
             disk_layout.InvalidLayoutError,
-            "Layout is missing required entries: " "'metadata'",
+            "Layout is missing required entries: 'metadata'",
         ):
             disk_layout.DiskLayout(self.layout_json)
 
@@ -242,7 +242,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
 
         with self.assertRaisesRegex(
             disk_layout.InvalidLayoutError,
-            "Layout is missing required entries: " "'fs_block_size'",
+            "Layout is missing required entries: 'fs_block_size'",
         ):
             disk_layout.DiskLayout(self.layout_json)
 
@@ -299,7 +299,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
 
         with self.assertRaisesRegex(
             disk_layout.InvalidLayoutError,
-            "Layout is missing required entries: " "'type'",
+            "Layout is missing required entries: 'type'",
         ):
             disk_layout.DiskLayout(self.layout_json)
 
@@ -346,7 +346,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
         )
         with self.assertRaisesRegex(
             disk_layout.InvalidLayoutError,
-            "Unknown items in layout base: " "{'unknown'}",
+            "Unknown items in layout base: {'unknown'}",
         ):
             disk_layout.DiskLayout(self.layout_json)
 

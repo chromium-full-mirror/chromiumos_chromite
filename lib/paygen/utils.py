@@ -332,7 +332,7 @@ class MemoryConsumptionSemaphore:
         # There was no moment before timeout where we could have run the task.
         return AcquireResult(
             False,
-            "Timed out (due to quiescence, " "total max, or avail memory)",
+            "Timed out (due to quiescence, total max, or avail memory)",
         )
 
     def release(self) -> None:

@@ -97,7 +97,7 @@ def Login(service_account_json=None) -> None:
 
     if result.returncode:
         raise AccessTokenError(
-            "Failed at  logging in to chrome-infra-auth: %s," " may retry."
+            "Failed at logging in to chrome-infra-auth: %s, may retry."
         )
 
 

@@ -251,7 +251,7 @@ def _GenerateFiles(
 
         if result.returncode:
             raise GenerationError(
-                "Error compiling the proto. See the output for a " "message."
+                "Error compiling the proto. See the output for a message."
             )
 
 

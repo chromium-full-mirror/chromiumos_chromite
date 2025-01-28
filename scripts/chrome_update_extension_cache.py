@@ -163,7 +163,7 @@ def CreateCacheTarball(extensions, outputdir, identifier, tarball) -> None:
         else:
             if "child_users" in extension:
                 cros_build_lib.Die(
-                    "child_users is not supported when user_type is " "set."
+                    "child_users is not supported when user_type is set."
                 )
 
         # Verify user type is well-formed.

@@ -237,7 +237,7 @@ def run_fuzzer_executable(
     )
     if not device.IfFileExists(outside_dut_sysroot_fuzzer):
         logging.error(
-            "Could not find fuzzer on device at" " %s. Maybe not installed?",
+            "Could not find fuzzer on device at %s. Maybe not installed?",
             outside_dut_sysroot_fuzzer,
         )
         raise FileNotFoundError(f"Fuzzer {sysroot_fuzzer_path} not found")

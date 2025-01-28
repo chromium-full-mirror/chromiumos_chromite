@@ -214,7 +214,7 @@ def _ValidatePathMappingEntryList(data: Dict) -> None:
     """
     if not data:
         raise ValueError(
-            "Data input is not defined in" "_ValidatePathMappingEntryList"
+            "Data input is not defined in _ValidatePathMappingEntryList"
         )
     if "mapping" not in data:
         error_message = f"Missing mapping key in {json.dumps(data)}"

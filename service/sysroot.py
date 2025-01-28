@@ -1710,7 +1710,7 @@ def _ChooseProfile(
         cros_build_lib.run(choose_profile, print_cmd=False)
     except cros_build_lib.RunCommandError as e:
         logging.error(
-            "Selecting profile failed, removing incomplete board " "directory!"
+            "Selecting profile failed, removing incomplete board directory!"
         )
         sysroot.Delete()
         raise e

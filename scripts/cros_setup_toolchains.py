@@ -709,7 +709,7 @@ def CleanTargets(targets, root="/") -> None:
             desired_num = VersionListToNumeric(target, package, desired, True)
             if not set(desired_num).issubset(current):
                 logging.warning(
-                    "Error detecting stable version for %s, " "skipping clean!",
+                    "Error detecting stable version for %s, skipping clean!",
                     pkg,
                 )
                 return

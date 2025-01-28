@@ -512,7 +512,7 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
             self._vm._WaitForProcs(sleep=0)
         self.assertEqual(
             logger.messages,
-            "chrome pids: " "[756, 905, 1065, 1092, 1096, 1171, 1180, 1181]\n",
+            "chrome pids: [756, 905, 1065, 1092, 1096, 1171, 1180, 1181]\n",
         )
         pid_mocker.assert_called()
 

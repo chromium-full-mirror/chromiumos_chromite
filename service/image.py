@@ -705,7 +705,7 @@ def generate_dlc_artifacts_metadata_list(
             imageloader_json = json.loads(imageloader_json_path.read_bytes())
         except json.decoder.JSONDecodeError:
             logging.error(
-                "Malformed imageloader json for DLC=%s, " "skipping generation",
+                "Malformed imageloader json for DLC=%s, skipping generation",
                 dlc_id,
             )
             continue

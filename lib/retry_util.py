@@ -396,7 +396,7 @@ def ShouldRetryCommandCommon(exc):
         return False
     if exc.returncode is None:
         logging.error(
-            "Child process failed to launch; not retrying:\n" "command: %s",
+            "Child process failed to launch; not retrying:\ncommand: %s",
             exc.cmdstr,
         )
         return False

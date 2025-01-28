@@ -156,7 +156,7 @@ def main(argv):
     repo_dir = git.FindRepoDir(os.getcwd())
     if not repo_dir:
         parser.error(
-            "This script must be invoked from within a repository " "checkout."
+            "This script must be invoked from within a repository checkout."
         )
 
     options.git_config = os.path.join(repo_dir, "manifests.git", "config")

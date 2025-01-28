@@ -254,7 +254,7 @@ class VersionInfo:
         """Updates the version file by incrementing the patch component."""
         if not self.incr_type or self.incr_type not in self.VALID_INCR_TYPES:
             raise VersionUpdateException(
-                "Need to specify the part of the version to" " increment"
+                "Need to specify the part of the version to increment"
             )
 
         if self.incr_type == "chrome_branch":

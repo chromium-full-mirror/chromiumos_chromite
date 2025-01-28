@@ -364,7 +364,7 @@ def main(argv):
 
     if options.dryrun:
         logging.notice(
-            "Success! To actually upload changes, re-run without " "--dry-run."
+            "Success! To actually upload changes, re-run without --dry-run."
         )
     else:
         logging.notice("Successfully uploaded all changes requested.")

@@ -179,7 +179,7 @@ class Upgrader:
 
         # Pre-compiled regexps for speed.
         self._missing_eclass_re = re.compile(
-            r"(\S+\.eclass) could not be " r"found by inherit"
+            r"(\S+\.eclass) could not be found by inherit"
         )
         self._outdated_eclass_re = re.compile(
             r"Call stack:\n"

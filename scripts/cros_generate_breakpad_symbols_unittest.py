@@ -72,7 +72,7 @@ class IsSharedLibraryTest(cros_test_lib.TestCase):
 # https://github.com/PyCQA/pylint/issues/3077
 # pylint: disable=bad-docstring-quotes
 @mock.patch(
-    "chromite.scripts.cros_generate_breakpad_symbols." "GenerateBreakpadSymbol"
+    "chromite.scripts.cros_generate_breakpad_symbols.GenerateBreakpadSymbol"
 )
 class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
     """Test GenerateBreakpadSymbols."""

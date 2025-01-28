@@ -707,7 +707,7 @@ def _CreateParser():
         "--private-key",
         type="str_path",
         default=None,
-        help="An ssh private key to use when deploying to " "a CrOS device.",
+        help="An ssh private key to use when deploying to a CrOS device.",
     )
     parser.add_argument(
         "--nostartui",
@@ -844,7 +844,7 @@ def _CreateParser():
         "--target-tc",
         action="store",
         default=None,
-        help="Override target toolchain name, e.g. " "x86_64-cros-linux-gnu",
+        help="Override target toolchain name, e.g. x86_64-cros-linux-gnu",
     )
     group.add_argument(
         "--toolchain-url",
@@ -931,7 +931,7 @@ def _ParseCommandLine(argv):
         )
     if options.build_dir and any([options.gs_path, options.local_pkg_path]):
         parser.error(
-            "Cannot specify both --build_dir and " "--gs-path/--local-pkg-patch"
+            "Cannot specify both --build_dir and --gs-path/--local-pkg-patch"
         )
     if not options.board and options.build_dir:
         match = re.search(r"out_([^/]+)/Release$", options.build_dir)

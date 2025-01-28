@@ -119,7 +119,7 @@ class StatefulUpdater:
                 logging.notice("Performing standard stateful update...")
             elif update_type == self.UPDATE_TYPE_CLOBBER:
                 logging.notice(
-                    "Restoring stateful to factory_install " "with dev_image..."
+                    "Restoring stateful to factory_install with dev_image..."
                 )
                 osutils.WriteFile(f.name, "clobber")
 
