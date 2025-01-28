@@ -2,6 +2,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+"""Help automate bug reporting a bit.
+
+Take a file and output a link to a buganizer template that contains the gpaste
+link to the input file.
+"""
+
 import argparse
 import logging
 from typing import List, Optional
@@ -14,23 +20,17 @@ BUG_TEMPLATE = (
 )
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(
-        prog="bug reporting",
-        description=" ",
-    )
-
+def parse_args(argv):
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("filename")
-    args = vars(parser.parse_args())
-    file = args["filename"]
-    return file
+    opts = parser.parse_args(argv)
+    return opts.filename
 
 
 def gcert_check():
-    result = cros_build_lib.run(
-        ["gcertstatus", "-format=loas2", "--quiet"], debug_level=0
+    cros_build_lib.dbg_run(
+        ["gcertstatus", "-format=loas2", "--quiet"],
     )
-    return result.returncode == 0
 
 
 def gpaste(file):
@@ -64,11 +64,7 @@ def get_bug_link(title: str = None, description: str = None):
 
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
-    file = parse_args()
-    if not gcert_check():
-        logging.error("Invalid gcert!!")
-        exit(1)
-
+    file = parse_args(argv)
     gpaste_link = gpaste(file)
     bug_link = get_bug_link(description=gpaste_link)
     logging.info("buganizer: %s", bug_link)
