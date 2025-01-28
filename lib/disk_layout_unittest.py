@@ -519,7 +519,7 @@ class JSONLoadingTest(cros_test_lib.MockTempDirTestCase):
                 totals["byte_count"],
                 disk_layout.START_SECTOR
                 + i[1] * i[0]
-                + sum([x["bytes"] for x in partitions])
+                + sum(x["bytes"] for x in partitions)
                 + disk_layout.SECONDARY_GPT_BYTES,
             )
 

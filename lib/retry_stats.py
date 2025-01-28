@@ -88,7 +88,7 @@ def CategoryStats(category):
 
     success = len([e for e in stats if _SuccessFilter(e)])
     failure = len(stats) - success
-    retry = sum([_RetryCount(e) for e in stats])
+    retry = sum(_RetryCount(e) for e in stats)
 
     return success, failure, retry
 

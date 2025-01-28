@@ -97,10 +97,10 @@ _FAKE_FILES = [
     "foo",
 ]
 _FAKE_EXPECTED_APPARENT_PACKAGE_SIZE = sum(
-    [_FAKE_DATA_SIZE for f in _FAKE_FILES if f[0] == "obj"]
+    _FAKE_DATA_SIZE for f in _FAKE_FILES if f[0] == "obj"
 )
 _FAKE_EXPECTED_PACKAGE_DISK_USAGE = sum(
-    [8 * 512 for f in _FAKE_FILES if f[0] == "obj"]
+    8 * 512 for f in _FAKE_FILES if f[0] == "obj"
 )
 
 
