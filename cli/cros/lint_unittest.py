@@ -114,8 +114,8 @@ class TestNode:
     ) -> None:
         if names is None:
             names = [("name", None)]
-        self.doc = doc
-        self.lines = doc.split("\n")
+        self.doc_node = None if doc is None else astroid.Const(doc)
+        self.lines = [] if doc is None else doc.splitlines()
         self.fromlineno = fromlineno
         self.lineno = lineno
         self.file = path
@@ -154,7 +154,7 @@ class CheckerTestCase(cros_test_lib.TestCase):
         """Capture lint checks"""
         # We include node.doc here explicitly so the pretty assert message
         # inclues it in the output automatically.
-        doc = node.doc if node else ""
+        doc = node.doc_node if node else astroid.Const("")
         # Copy args since some functions mutate it after calling `add_message`.
         # Shallow copies should be fine, since all the values we store are
         # immutable.
@@ -472,7 +472,7 @@ class DocStringCheckerTest(CheckerTestCase):
         """Smoke test for modules"""
         self.checker.visit_module(TestNode(doc="foo"))
         self.assertLintPassed()
-        self.checker.visit_module(TestNode(doc="", path="/foo/__init__.py"))
+        self.checker.visit_module(TestNode(doc=None, path="/foo/__init__.py"))
         self.assertLintPassed()
 
     def testGood_visit_classdef(self) -> None:
@@ -1198,7 +1198,7 @@ class EncodingCheckerTest(CheckerTestCase):
             "p = Path()\n"
             f"{code} #@"
         )
-        node.doc = code
+        node.doc_node = astroid.Const(code)
         return node
 
     def _check_tests(self, tests, passes) -> None:
@@ -1406,7 +1406,7 @@ class MonkeypatchCheckerTest(CheckerTestCase):
         )
         for snippet in snippets:
             node = astroid.extract_node(snippet)
-            node.doc = code
+            node.doc_node = astroid.Const(code)
             yield node
 
     def _check_tests(self, tests, passes) -> None:

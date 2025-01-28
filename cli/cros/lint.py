@@ -446,8 +446,8 @@ class DocStringChecker(pylint.checkers.BaseChecker):
 
     def visit_functiondef(self, node) -> None:
         """Verify function docstrings"""
-        if node.doc:
-            lines = node.doc.split("\n")
+        if node.doc_node:
+            lines = node.doc_node.value.split("\n")
             self._check_common(node, lines)
             sections = self._parse_docstring_sections(node, lines)
             self._check_section_lines(
@@ -461,7 +461,7 @@ class DocStringChecker(pylint.checkers.BaseChecker):
 
     def visit_module(self, node) -> None:
         """Verify module docstrings"""
-        if not node.doc:
+        if not node.doc_node:
             # pylint's missing-module-docstring handles this for us.
             return
 
@@ -469,11 +469,11 @@ class DocStringChecker(pylint.checkers.BaseChecker):
 
     def visit_classdef(self, node) -> None:
         """Verify class docstrings"""
-        if not node.doc:
+        if not node.doc_node:
             # pylint's missing-class-docstring handles this for us.
             return
 
-        lines = node.doc.split("\n")
+        lines = node.doc_node.value.split("\n")
         self._check_common(node, lines)
         sections = self._parse_docstring_sections(node, lines)
         self._check_section_lines(
@@ -490,7 +490,7 @@ class DocStringChecker(pylint.checkers.BaseChecker):
     def _check_common(self, node, lines=None) -> None:
         """Common checks we enforce on all docstrings"""
         if lines is None:
-            lines = node.doc.split("\n")
+            lines = node.doc_node.value.split("\n")
 
         funcs = (
             self._check_first_line,
