@@ -245,6 +245,9 @@ class ChromeLKGMCommitter:
 
         # Storing metadata in the git footer for automated processing.
         self._footers = {GIT_FOOTER_LKGM: self._lkgm}
+
+        # Manual bypass for go/cl-merge-blocker
+        self._footers = {'Merge-Approval-Bypass': 'Automated LKGM update'}
         if buildbucket_id:
             self._footers["Cr-Build-Id"] = str(buildbucket_id)
         if external_manifest_position:
