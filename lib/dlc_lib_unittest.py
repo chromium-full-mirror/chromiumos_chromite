@@ -625,7 +625,7 @@ class DlcGeneratorTest(
 
     def testCreateSquashfsImage(self) -> None:
         """Verify creating squashfs commands are run with correct parameters."""
-        self.PatchObject(os.path, "getsize", return_value=(_BLOCK_SIZE * 2))
+        self.PatchObject(os.path, "getsize", return_value=_BLOCK_SIZE * 2)
         copy_dir_mock = self.PatchObject(osutils, "CopyDirContents")
 
         self.GetDlcGenerator().CreateSquashfsImage()
@@ -654,7 +654,7 @@ class DlcGeneratorTest(
 
     def testCreateSquashfsImagePageAlignment(self) -> None:
         """Test that creating squashfs commands are run with page alignment."""
-        self.PatchObject(os.path, "getsize", return_value=(_BLOCK_SIZE * 1))
+        self.PatchObject(os.path, "getsize", return_value=_BLOCK_SIZE * 1)
         truncate_mock = self.PatchObject(os, "truncate")
         copy_dir_mock = self.PatchObject(osutils, "CopyDirContents")
 
@@ -685,7 +685,7 @@ class DlcGeneratorTest(
 
     def testCreateSquashfsReproducible(self) -> None:
         """Test that squashfs commands are run with reproducible args."""
-        self.PatchObject(os.path, "getsize", return_value=(_BLOCK_SIZE * 1))
+        self.PatchObject(os.path, "getsize", return_value=_BLOCK_SIZE * 1)
         truncate_mock = self.PatchObject(os, "truncate")
         copy_dir_mock = self.PatchObject(osutils, "CopyDirContents")
 
