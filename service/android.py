@@ -579,7 +579,7 @@ def LKGB(
     """
     del kwargs  # Delete unused var to make pylint happy.
 
-    lkgb = dict(build_id=build_id)
+    lkgb = {"build_id": build_id}
     if branch:
         lkgb["branch"] = branch
     if runtime_artifacts_pin is not None:

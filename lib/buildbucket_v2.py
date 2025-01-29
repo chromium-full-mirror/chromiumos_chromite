@@ -1059,6 +1059,6 @@ class BuildbucketV2:
         kwargs = {}
         if self._access_token_retriever is not None:
             token = self._access_token_retriever()
-            kwargs["metadata"] = dict(Authorization=f"Bearer {token}")
+            kwargs["metadata"] = {"Authorization": f"Bearer {token}"}
             kwargs["credentials"] = lambda req: req._replace(include_auth=False)
         return kwargs

@@ -1172,10 +1172,10 @@ def uprev_workon_ebuild_to_version(
     if not tree_ids:
         raise EbuildUprevError("No tree_ids found for %s" % info.subtrees)
 
-    variables = dict(
-        CROS_WORKON_COMMIT=unstable_ebuild.FormatBashArray(commit_ids),
-        CROS_WORKON_TREE=unstable_ebuild.FormatBashArray(tree_ids),
-    )
+    variables = {
+        "CROS_WORKON_COMMIT": unstable_ebuild.FormatBashArray(commit_ids),
+        "CROS_WORKON_TREE": unstable_ebuild.FormatBashArray(tree_ids),
+    }
 
     portage_util.EBuild.MarkAsStable(
         unstable_ebuild.ebuild_path, new_ebuild_src_path, variables

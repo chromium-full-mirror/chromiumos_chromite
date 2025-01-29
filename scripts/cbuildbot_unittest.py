@@ -23,7 +23,7 @@ class IsDistributedBuilderTest(cros_test_lib.TestCase):
         options = cbuildbot.ParseCommandLine(parser, argv)
         options.buildbot = False
 
-        build_config = dict(manifest_version=False)
+        build_config = {"manifest_version": False}
         chrome_rev = None
 
         def _TestConfig(expected) -> None:

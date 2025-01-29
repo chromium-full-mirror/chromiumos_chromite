@@ -195,7 +195,7 @@ NOTES:
             self.board = os.path.basename(
                 os.path.dirname(os.path.dirname(realpath))
             )
-        return CUSTOM_BUILD_NAME % dict(board=self.board, build=build_name)
+        return CUSTOM_BUILD_NAME % {"board": self.board, "build": build_name}
 
     def _GenerateImageNameFromGSUrl(self, image):
         """Generate the name as which |image| will be staged onto Moblab.
@@ -220,9 +220,10 @@ NOTES:
             )
         if not self.board:
             self.board = match.group("board")
-        return CUSTOM_BUILD_NAME % dict(
-            board=self.board, build=match.group("build_name")
-        )
+        return CUSTOM_BUILD_NAME % {
+            "board": self.board,
+            "build": match.group("build_name"),
+        }
 
     def _DownloadPayloads(self, tempdir) -> None:
         """Download from GS the update payloads we require.
@@ -286,9 +287,10 @@ NOTES:
                     os.path.join(MOBLAB_STATIC_DIR, self.staged_image_name),
                 ]
             )
-            stage_url = DEVSERVER_STAGE_URL % dict(
-                moblab=self.options.remote, staged_dir=self.stage_directory
-            )
+            stage_url = DEVSERVER_STAGE_URL % {
+                "moblab": self.options.remote,
+                "staged_dir": self.stage_directory,
+            }
             # Stage the image from the moblab, as port 8080 might not be
             # reachable from the developer's system.
             res = device.run(

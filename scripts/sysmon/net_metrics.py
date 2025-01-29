@@ -103,11 +103,11 @@ def _collect_net_io_duplex_counters() -> None:
             try:
                 metric.set(
                     getattr(counters, up_counter_name),
-                    fields=dict(direction="up", **fields),
+                    fields={"direction": "up", **fields},
                 )
                 metric.set(
                     getattr(counters, down_counter_name),
-                    fields=dict(direction="down", **fields),
+                    fields={"direction": "down", **fields},
                 )
             except ts_mon.MonitoringDecreasingValueError as ex:
                 # This normally shouldn't happen, but might if the network

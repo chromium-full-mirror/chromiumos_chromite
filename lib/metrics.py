@@ -238,7 +238,8 @@ def _OptionalFieldSpec(fn):
 
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        kwargs = dict(**kwargs)  # It's bad practice to mutate **kwargs
+        # It's bad practice to mutate **kwargs.
+        kwargs = {**kwargs}
         # Slightly different than .setdefault, this line sets a default even
         # when the key is present (as long as the value is not truthy). Empty or
         # None is not allowed for descriptions.

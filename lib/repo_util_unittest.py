@@ -301,13 +301,13 @@ class RepositoryCommandMethodTest(cros_test_lib.RunCommandTempDirTestCase):
         self.AddRepoResult(["list"], stdout=stdout, side_effect=mkdirDestRepo)
         copy = self.repo.Copy(copy_root)
         self.assertEqual(copy.root, copy_root)
-        kwargs = dict(
-            debug_level=logging.DEBUG,
-            capture_output=True,
-            encoding="utf-8",
-            extra_env={"LC_MESSAGES": "C"},
-            cwd=self.root,
-        )
+        kwargs = {
+            "debug_level": logging.DEBUG,
+            "capture_output": True,
+            "encoding": "utf-8",
+            "extra_env": {"LC_MESSAGES": "C"},
+            "cwd": self.root,
+        }
         self.assertCommandCalled(
             [
                 "cp",

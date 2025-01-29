@@ -520,7 +520,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         self.proc_mock.returncode = 0
         cmd_list = ["foo", "bar", "roger"]
         self._TestCmd(
-            cmd_list, cmd_list, rc_kv=dict(ignore_sigint=ignore_sigint)
+            cmd_list, cmd_list, rc_kv={"ignore_sigint": ignore_sigint}
         )
 
     def testSignalRestoreNormalCase(self) -> None:
@@ -534,7 +534,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         real_cmd = cmd_list
         if not cros_build_lib.IsInsideChroot():
             real_cmd = ["cros_sdk", "--"] + cmd_list
-        self._TestCmd(cmd_list, real_cmd, rc_kv=dict(enter_chroot=True))
+        self._TestCmd(cmd_list, real_cmd, rc_kv={"enter_chroot": True})
 
     @_ForceLoggingLevel
     def testCommandFailureRaisesError(self, ignore_sigint=False) -> None:
@@ -600,7 +600,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         # Run.  We expect the env= to be passed through from sp
         # (subprocess.Popen) to rc (run).
         self._TestCmd(
-            cmd_list, cmd_list, sp_kv=dict(env=sp_env), rc_kv=dict(env=rc_env)
+            cmd_list, cmd_list, sp_kv={"env": sp_env}, rc_kv={"env": rc_env}
         )
 
     @mock.patch(
@@ -627,8 +627,8 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         self._TestCmd(
             cmd_list,
             cmd_list,
-            sp_kv=dict(env=total_env),
-            rc_kv=dict(extra_env=extra_env),
+            sp_kv={"env": total_env},
+            rc_kv={"extra_env": extra_env},
         )
 
     @mock.patch(
@@ -655,8 +655,8 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         self._TestCmd(
             cmd_list,
             cmd_list,
-            sp_kv=dict(env=total_env),
-            rc_kv=dict(clear_env=["PATH"]),
+            sp_kv={"env": total_env},
+            rc_kv={"clear_env": ["PATH"]},
         )
 
     @mock.patch(
@@ -692,13 +692,13 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         self._TestCmd(
             cmd_list,
             ["cros_sdk", "Pinky=Brain", "--"] + cmd_list,
-            sp_kv=dict(env=total_env),
-            rc_kv=dict(
-                env=env,
-                extra_env=extra_env,
-                enter_chroot=True,
-                clear_env=["Yakko"],
-            ),
+            sp_kv={"env": total_env},
+            rc_kv={
+                "env": env,
+                "extra_env": extra_env,
+                "enter_chroot": True,
+                "clear_env": ["Yakko"],
+            },
         )
 
     @mock.patch(
@@ -726,8 +726,8 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         self._TestCmd(
             cmd_list,
             cmd_list,
-            sp_kv=dict(env=total_env),
-            rc_kv=dict(env=env, extra_env=extra_env),
+            sp_kv={"env": total_env},
+            rc_kv={"env": env, "extra_env": extra_env},
         )
 
     @mock.patch(
@@ -760,8 +760,8 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         self._TestCmd(
             cmd_list,
             ["cros_sdk", "Pinky=Brain", "--"] + cmd_list,
-            sp_kv=dict(env=total_env),
-            rc_kv=dict(env=env, extra_env=extra_env, enter_chroot=True),
+            sp_kv={"env": total_env},
+            rc_kv={"env": env, "extra_env": extra_env, "enter_chroot": True},
         )
 
     def testExceptionEquality(self) -> None:
@@ -793,7 +793,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         cmd = "foo bar roger"
         sudo_list = ["sudo", "--", "/bin/bash", "-c", cmd]
         self.proc_mock.returncode = 0
-        self._TestCmd(cmd, sudo_list, sudo=True, rc_kv=dict(shell=True))
+        self._TestCmd(cmd, sudo_list, sudo=True, rc_kv={"shell": True})
 
     def testSudoRunCommandEnv(self) -> None:
         """Test sudo_run(..., extra_env=z) works."""
@@ -802,7 +802,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         extra_env = {"shucky": "ducky"}
         self.proc_mock.returncode = 0
         self._TestCmd(
-            cmd_list, sudo_list, sudo=True, rc_kv=dict(extra_env=extra_env)
+            cmd_list, sudo_list, sudo=True, rc_kv={"extra_env": extra_env}
         )
 
     def testSudoRunCommandUser(self) -> None:
@@ -811,7 +811,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         sudo_list = ["sudo", "-u", "MMMMMonster", "--"] + cmd_list
         self.proc_mock.returncode = 0
         self._TestCmd(
-            cmd_list, sudo_list, sudo=True, rc_kv=dict(user="MMMMMonster")
+            cmd_list, sudo_list, sudo=True, rc_kv={"user": "MMMMMonster"}
         )
 
     def testSudoRunCommandUserShell(self) -> None:
@@ -823,7 +823,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
             cmd,
             sudo_list,
             sudo=True,
-            rc_kv=dict(user="MMMMMonster", shell=True),
+            rc_kv={"user": "MMMMMonster", "shell": True},
         )
 
     def testInputBytes(self) -> None:

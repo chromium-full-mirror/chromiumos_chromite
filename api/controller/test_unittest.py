@@ -594,21 +594,21 @@ class VmTestTest(cros_test_lib.RunCommandTestCase, api_config.ApiConfigMixin):
     """Test the VmTest endpoint."""
 
     def _GetInput(self, **kwargs):
-        values = dict(
-            build_target=common_pb2.BuildTarget(name="target"),
-            vm_path=common_pb2.Path(
+        values = {
+            "build_target": common_pb2.BuildTarget(name="target"),
+            "vm_path": common_pb2.Path(
                 path="/path/to/image.bin", location=common_pb2.Path.INSIDE
             ),
-            test_harness=test_pb2.VmTestRequest.TAST,
-            vm_tests=[test_pb2.VmTestRequest.VmTest(pattern="suite")],
-            ssh_options=test_pb2.VmTestRequest.SshOptions(
+            "test_harness": test_pb2.VmTestRequest.TAST,
+            "vm_tests": [test_pb2.VmTestRequest.VmTest(pattern="suite")],
+            "ssh_options": test_pb2.VmTestRequest.SshOptions(
                 port=1234,
                 private_key_path={
                     "path": "/path/to/id_rsa",
                     "location": common_pb2.Path.INSIDE,
                 },
             ),
-        )
+        }
         values.update(kwargs)
         return test_pb2.VmTestRequest(**values)
 

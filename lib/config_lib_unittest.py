@@ -136,18 +136,22 @@ class BuildConfigClassTest(cros_test_lib.TestCase):
     def testApplyValues(self) -> None:
         # Apply simple values..
         self.fooConfig.apply(a=1, b=2)
-        self.assertEqual(self.fooConfig, dict(name="foo", foo=1, a=1, b=2))
+        self.assertEqual(
+            self.fooConfig, {"name": "foo", "foo": 1, "a": 1, "b": 2}
+        )
 
     def testApplyBuildConfig(self) -> None:
         # Apply a BuildConfig.
         self.fooConfig.apply(self.barConfig)
-        self.assertEqual(self.fooConfig, dict(name="bar", foo=1, bar=2))
+        self.assertEqual(self.fooConfig, {"name": "bar", "foo": 1, "bar": 2})
 
     def testApplyMixed(self) -> None:
         # Apply simple values..
         config = config_lib.BuildConfig()
         config.apply(self.fooConfig, self.barConfig, a=1, b=2, bar=3)
-        self.assertEqual(config, dict(name="bar", foo=1, bar=3, a=1, b=2))
+        self.assertEqual(
+            config, {"name": "bar", "foo": 1, "bar": 3, "a": 1, "b": 2}
+        )
 
     def testDeriveMixed(self) -> None:
         config = config_lib.BuildConfig()
@@ -155,7 +159,9 @@ class BuildConfigClassTest(cros_test_lib.TestCase):
 
         self.assertIsNot(config, result)
         self.assertEqual(config, {})
-        self.assertEqual(result, dict(name="bar", foo=1, bar=3, a=1, b=2))
+        self.assertEqual(
+            result, {"name": "bar", "foo": 1, "bar": 3, "a": 1, "b": 2}
+        )
 
     def testApplyCallable(self) -> None:
         # Callable that adds a configurable amount.

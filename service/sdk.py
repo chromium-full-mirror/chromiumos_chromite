@@ -822,7 +822,7 @@ def CreateManifestFromSdk(sdk_path: Path, dest_dir: Path) -> Path:
     for package in portage_util.PortageDB(sdk_path).InstalledPackages():
         key = f"{package.category}/{package.package}"
         package_data.setdefault(key, []).append((package.version, {}))
-    json_input = dict(version=PACKAGE_MANIFEST_VERSION, packages=package_data)
+    json_input = {"version": PACKAGE_MANIFEST_VERSION, "packages": package_data}
     osutils.WriteFile(dest_manifest, json.dumps(json_input))
     return dest_manifest
 

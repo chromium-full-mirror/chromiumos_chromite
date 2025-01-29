@@ -571,35 +571,35 @@ class ProjectCheckoutTest(cros_test_lib.TestCase):
 
     def setUp(self) -> None:
         self.fake_unversioned_patchable = git.ProjectCheckout(
-            dict(
-                name="chromite",
-                path="src/chromite",
-                revision="remotes/for/main",
-            )
+            {
+                "name": "chromite",
+                "path": "src/chromite",
+                "revision": "remotes/for/main",
+            }
         )
         self.fake_unversioned_unpatchable = git.ProjectCheckout(
-            dict(
-                name="chromite",
-                path="src/platform/somethingsomething/chromite",
+            {
+                "name": "chromite",
+                "path": "src/platform/somethingsomething/chromite",
                 # Pinned to a SHA1.
-                revision="1deadbeeaf1deadbeeaf1deadbeeaf1deadbeeaf",
-            )
+                "revision": "1deadbeeaf1deadbeeaf1deadbeeaf1deadbeeaf",
+            }
         )
         self.fake_versioned_patchable = git.ProjectCheckout(
-            dict(
-                name="chromite",
-                path="src/chromite",
-                revision="1deadbeeaf1deadbeeaf1deadbeeaf1deadbeeaf",
-                upstream="remotes/for/main",
-            )
+            {
+                "name": "chromite",
+                "path": "src/chromite",
+                "revision": "1deadbeeaf1deadbeeaf1deadbeeaf1deadbeeaf",
+                "upstream": "remotes/for/main",
+            }
         )
         self.fake_versioned_unpatchable = git.ProjectCheckout(
-            dict(
-                name="chromite",
-                path="src/chromite",
-                revision="1deadbeeaf1deadbeeaf1deadbeeaf1deadbeeaf",
-                upstream="1deadbeeaf1deadbeeaf1deadbeeaf1deadbeeaf",
-            )
+            {
+                "name": "chromite",
+                "path": "src/chromite",
+                "revision": "1deadbeeaf1deadbeeaf1deadbeeaf1deadbeeaf",
+                "upstream": "1deadbeeaf1deadbeeaf1deadbeeaf1deadbeeaf",
+            }
         )
 
 

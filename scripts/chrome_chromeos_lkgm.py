@@ -247,7 +247,7 @@ class ChromeLKGMCommitter:
         self._footers = {GIT_FOOTER_LKGM: self._lkgm}
 
         # Manual bypass for go/cl-merge-blocker
-        self._footers = {'Merge-Approval-Bypass': 'Automated LKGM update'}
+        self._footers = {"Merge-Approval-Bypass": "Automated LKGM update"}
         if buildbucket_id:
             self._footers["Cr-Build-Id"] = str(buildbucket_id)
         if external_manifest_position:
@@ -383,15 +383,15 @@ class ChromeLKGMCommitter:
             "%(cq_includes)s"
             "%(footers)s"
         )
-        return commit_msg_template % dict(
-            header=self._commit_msg_header,
-            message=message,
-            changelog=changelog,
-            cq_includes=cq_includes,
-            build_link=build_link,
-            dry_run_message=dry_run_message,
-            footers=footers,
-        )
+        return commit_msg_template % {
+            "header": self._commit_msg_header,
+            "message": message,
+            "changelog": changelog,
+            "cq_includes": cq_includes,
+            "build_link": build_link,
+            "dry_run_message": dry_run_message,
+            "footers": footers,
+        }
 
     def GetCurrentManifestPosition(self) -> Tuple[Optional[str], Optional[str]]:
         """Retrieves the positions of the current manifests.

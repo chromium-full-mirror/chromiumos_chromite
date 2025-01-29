@@ -960,6 +960,6 @@ class StaticFunctionsTest(cros_test_lib.MockTestCase):
 
         get_build_function.assert_called_with(
             fake_get_build_request,
-            metadata=dict(Authorization="Bearer some-token"),
+            metadata={"Authorization": "Bearer some-token"},
             credentials=DisableAuthFn(),
         )

@@ -161,11 +161,11 @@ class BuilderStatus:
     def AsPickledDict(self):
         """Returns a pickled dict representation of this builder status."""
         return pickle.dumps(
-            dict(
-                status=self.status,
-                message=self.message,
-                dashboard_url=self.dashboard_url,
-            )
+            {
+                "status": self.status,
+                "message": self.message,
+                "dashboard_url": self.dashboard_url,
+            }
         )
 
 

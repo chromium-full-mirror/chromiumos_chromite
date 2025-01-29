@@ -1110,7 +1110,7 @@ class TestGerritPatch(TestGitRepoPatch):
         # ensure that none of our common code pathways puke on a non head/tag.
         refspec = gerrit.GetChangeRef(change_num + 1000, patch_num)
         json["currentPatchSet"].update(
-            dict(number=patch_num, ref=refspec, revision=sha1)
+            {"number": patch_num, "ref": refspec, "revision": sha1}
         )
         json["branch"] = os.path.basename(ref)
         json["_unittest_url_bypass"] = source
@@ -1414,11 +1414,11 @@ class PrepareLocalPatchesTests(cros_test_lib.RunCommandTestCase):
         self.tracking_branch = "kernel"
         self.patches = ["%s:%s" % (self.project, self.branch)]
         self.manifest = mock.MagicMock()
-        attrs = dict(
-            tracking_branch=self.tracking_branch,
-            local_path=self.path,
-            remote="cros",
-        )
+        attrs = {
+            "tracking_branch": self.tracking_branch,
+            "local_path": self.path,
+            "remote": "cros",
+        }
         checkout = git.ProjectCheckout(attrs)
         self.PatchObject(
             self.manifest, "FindCheckouts", return_value=[checkout]

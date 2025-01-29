@@ -496,7 +496,7 @@ def main(argv) -> None:
         options.chroot_extra_env,
     )
 
-    output = dict(revved=bool(revved))
+    output = {"revved": bool(revved)}
 
     if revved:
         android_atom, files_to_add, files_to_remove = revved

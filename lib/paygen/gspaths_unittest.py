@@ -153,26 +153,26 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
         )
 
         # Dictionaries for populating templates.
-        self.image_attrs = dict(
-            bucket=self.bucket,
-            channel=self.channel,
-            image_channel=self.channel,
-            board=self.board,
-            version=self.version,
-            image_version=self.version,
-            key=self.key,
-            signed_image_type=self.signed_image_type,
-        )
-        self.unsigned_image_archive_attrs = dict(
-            bucket=self.bucket,
-            channel=self.channel,
-            image_channel=self.channel,
-            board=self.board,
-            version=self.version,
-            image_version=self.version,
-            milestone=self.milestone,
-            unsigned_image_type=self.unsigned_image_type,
-        )
+        self.image_attrs = {
+            "bucket": self.bucket,
+            "channel": self.channel,
+            "image_channel": self.channel,
+            "board": self.board,
+            "version": self.version,
+            "image_version": self.version,
+            "key": self.key,
+            "signed_image_type": self.signed_image_type,
+        }
+        self.unsigned_image_archive_attrs = {
+            "bucket": self.bucket,
+            "channel": self.channel,
+            "image_channel": self.channel,
+            "board": self.board,
+            "version": self.version,
+            "image_version": self.version,
+            "milestone": self.milestone,
+            "unsigned_image_type": self.unsigned_image_type,
+        }
         self.all_attrs = dict(
             self.image_attrs,
             src_version=self.src_version,

@@ -295,7 +295,10 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         mock_read_lkgb = self.PatchObject(
             service_android,
             "ReadLKGB",
-            return_value=dict(build_id="old-version", branch="android-branch"),
+            return_value={
+                "build_id": "old-version",
+                "branch": "android-branch",
+            },
         )
         mock_write_lkgb = self.PatchObject(
             service_android, "WriteLKGB", return_value="mock_file"
@@ -314,7 +317,7 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         mock_read_lkgb.assert_called_once_with("android-package-dir")
         mock_write_lkgb.assert_called_once_with(
             "android-package-dir",
-            dict(build_id="android-version", branch="android-branch"),
+            {"build_id": "android-version", "branch": "android-branch"},
         )
         self.assertSequenceEqual(self._response.modified_files, ["mock_file"])
 
@@ -323,11 +326,11 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         mock_read_lkgb = self.PatchObject(
             service_android,
             "ReadLKGB",
-            return_value=dict(
-                build_id="android-version",
-                branch="android-branch",
-                runtime_artifacts_pin="runtime-artifacts-pin",
-            ),
+            return_value={
+                "build_id": "android-version",
+                "branch": "android-branch",
+                "runtime_artifacts_pin": "runtime-artifacts-pin",
+            },
         )
         mock_write_lkgb = self.PatchObject(
             service_android,
@@ -373,7 +376,7 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         mock_read_lkgb.assert_called_once_with("android-package-dir")
         mock_write_lkgb.assert_called_once_with(
             "android-package-dir",
-            dict(build_id="android-version", branch="android-branch"),
+            {"build_id": "android-version", "branch": "android-branch"},
         )
         self.assertSequenceEqual(self._response.modified_files, ["mock_file"])
 
@@ -401,7 +404,7 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         mock_read_lkgb.assert_called_once_with("android-package-dir")
         mock_write_lkgb.assert_called_once_with(
             "android-package-dir",
-            dict(build_id="android-version", branch="android-branch"),
+            {"build_id": "android-version", "branch": "android-branch"},
         )
         self.assertSequenceEqual(self._response.modified_files, ["mock_file"])
 
@@ -410,7 +413,7 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         mock_read_lkgb = self.PatchObject(
             service_android,
             "ReadLKGB",
-            return_value=dict(build_id="android-version"),
+            return_value={"build_id": "android-version"},
         )
         mock_write_lkgb = self.PatchObject(
             service_android,
@@ -431,10 +434,10 @@ class WriteLKGBTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         mock_read_lkgb.assert_called_once_with("android-package-dir")
         mock_write_lkgb.assert_called_once_with(
             "android-package-dir",
-            dict(
-                build_id="android-version",
-                branch="android-branch",
-                runtime_artifacts_pin="runtime-artifacts-pin",
-            ),
+            {
+                "build_id": "android-version",
+                "branch": "android-branch",
+                "runtime_artifacts_pin": "runtime-artifacts-pin",
+            },
         )
         self.assertSequenceEqual(self._response.modified_files, ["mock_file"])

@@ -475,11 +475,11 @@ class LKGBTest(cros_test_lib.TempDirTestCase):
         lkgb = android.ReadLKGB(android_package_dir)
         self.assertEqual(
             lkgb,
-            dict(
-                build_id="build-id",
-                branch="branch",
-                runtime_artifacts_pin="runtime-artifacts-pin",
-            ),
+            {
+                "build_id": "build-id",
+                "branch": "branch",
+                "runtime_artifacts_pin": "runtime-artifacts-pin",
+            },
         )
 
 

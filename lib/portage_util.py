@@ -275,7 +275,7 @@ def FindOverlays(
     """
     buildroot = buildroot or constants.SOURCE_ROOT
     overlays = _ListOverlays(board=board, buildroot=buildroot)
-    private_prefix = _PRIVATE_PREFIX % dict(buildroot=buildroot)
+    private_prefix = _PRIVATE_PREFIX % {"buildroot": buildroot}
     if overlay_type == constants.PRIVATE_OVERLAYS:
         return [x for x in overlays if x.startswith(private_prefix)]
     elif overlay_type == constants.PUBLIC_OVERLAYS:
@@ -1279,10 +1279,10 @@ class EBuild:
         tree_ids = [tree_id for tree_id in tree_ids if tree_id]
         if not tree_ids:
             raise InvalidUprevSourceError("No tree_ids found for %s" % subtrees)
-        variables = dict(
-            CROS_WORKON_COMMIT=self.FormatBashArray(commit_ids),
-            CROS_WORKON_TREE=self.FormatBashArray(tree_ids),
-        )
+        variables = {
+            "CROS_WORKON_COMMIT": self.FormatBashArray(commit_ids),
+            "CROS_WORKON_TREE": self.FormatBashArray(tree_ids),
+        }
 
         # We use |self._unstable_ebuild_path| because that will contain the
         # newest changes to the ebuild (and potentially changes to test subdirs

@@ -212,9 +212,11 @@ class _ManifestShim:
             remote,
             git.StripRefs(tracking_branch),
         )
-        attrs = dict(
-            local_path=path, path=path, tracking_branch=tracking_branch
-        )
+        attrs = {
+            "local_path": path,
+            "path": path,
+            "tracking_branch": tracking_branch,
+        }
         self.checkout = git.ProjectCheckout(attrs)
 
     def FindCheckouts(self, *_args, **_kwargs):
