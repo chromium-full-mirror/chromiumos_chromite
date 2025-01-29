@@ -14,7 +14,7 @@ import logging
 import os
 from pathlib import Path
 import sys
-from typing import DefaultDict, Dict, Iterable, List, Optional, Text, Tuple
+from typing import DefaultDict, Dict, Iterable, List, Optional, Tuple
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
@@ -32,7 +32,7 @@ from chromite.utils import file_util
 PLATFORM2_PATH = constants.CHROOT_SOURCE_ROOT / "src/platform2"
 
 
-def create_fixes_cl(formatted_fixes: Text, bug: Optional[Text]) -> None:
+def create_fixes_cl(formatted_fixes: str, bug: Optional[str]) -> None:
     """Make a commit in src/platform2 with all changes."""
     message = (
         "Apply generated linter fixes\n\n"
@@ -95,7 +95,7 @@ def make_relative_to_cros(file_path: str) -> Path:
 def process_fixes_by_file(
     lint: toolchain.LinterFinding,
     file_lengths: Dict[Path, int],
-    allowed_subdirs: Optional[List[Text]],
+    allowed_subdirs: Optional[List[str]],
 ) -> Optional[DefaultDict[Path, List[toolchain.SuggestedFix]]]:
     """Get fixes grouped by file if all the fixes apply to valid files.
 
@@ -151,7 +151,7 @@ def process_fixes_by_file(
 
 def get_noconflict_fixes(
     lints: List[toolchain.LinterFinding],
-    allowed_subdirs: Optional[List[Text]],
+    allowed_subdirs: Optional[List[str]],
 ) -> Tuple[
     DefaultDict[Path, List[toolchain.SuggestedFix]],
     List[toolchain.LinterFinding],
@@ -226,7 +226,7 @@ def has_overlap(
     return False
 
 
-def apply_edits(content: Text, fixes: List[toolchain.SuggestedFix]) -> Text:
+def apply_edits(content: str, fixes: List[toolchain.SuggestedFix]) -> str:
     """Modify a file by applying a list of fixes."""
 
     # We need to be able to apply fixes in reverse order within a file to
@@ -249,7 +249,7 @@ def apply_edits(content: Text, fixes: List[toolchain.SuggestedFix]) -> Text:
 
 def apply_fixes(
     lints: List[toolchain.LinterFinding],
-    allowed_subdirs: Optional[List[Text]],
+    allowed_subdirs: Optional[List[str]],
 ) -> Tuple[List[toolchain.LinterFinding], Iterable[Path]]:
     """Modify files in Platform2 to apply suggested fixes from linter findings.
 
@@ -276,7 +276,7 @@ def apply_fixes(
     return lints_fixed, fixes_by_file.keys()
 
 
-def format_lint(lint: toolchain.LinterFinding) -> Text:
+def format_lint(lint: toolchain.LinterFinding) -> str:
     """Formats a lint for human-readable printing.
 
     Example output:
@@ -321,7 +321,7 @@ def format_lint(lint: toolchain.LinterFinding) -> Text:
     return "\n".join(lines)
 
 
-def json_format_lint(lint: toolchain.LinterFinding) -> Text:
+def json_format_lint(lint: toolchain.LinterFinding) -> str:
     """Formats a lint in json for machine parsing.
 
     Args:
@@ -356,7 +356,7 @@ def json_format_lint(lint: toolchain.LinterFinding) -> Text:
     return json.dumps(_dictify(lint))
 
 
-def get_all_sysroots() -> List[Text]:
+def get_all_sysroots() -> List[str]:
     """Gets all available sysroots for both host and boards."""
     host_root = Path("/")
     roots = [str(host_root)]
@@ -490,7 +490,7 @@ def parse_args(argv: List[str]):
 
 
 def filter_lints(
-    lints: List[toolchain.LinterFinding], names_filters: List[Text]
+    lints: List[toolchain.LinterFinding], names_filters: List[str]
 ) -> List[toolchain.LinterFinding]:
     """Filter linter finding by name."""
     return [l for l in lints if any(f in l.name for f in names_filters)]

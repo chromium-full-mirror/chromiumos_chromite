@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
-from typing import Dict, Iterable, List, NamedTuple, Optional, Set, Text, Tuple
+from typing import Dict, Iterable, List, NamedTuple, Optional, Set, Tuple
 
 from chromite.lib import chroot_util
 from chromite.lib import cros_build_lib
@@ -105,7 +105,7 @@ def emerge_and_upload_lints(board: str, start_time: int) -> str:
     return gs_file
 
 
-def strip_package_version(package: Text) -> Text:
+def strip_package_version(package: str) -> str:
     """Removes version numbers from package names.
 
     Examples:
@@ -145,12 +145,12 @@ class BuildLinter:
     def __init__(
         self,
         packages: List[package_info.PackageInfo],
-        sysroot: Text,
+        sysroot: str,
         differential: bool = False,
         validate: bool = True,
     ) -> None:
         self.packages: List[package_info.PackageInfo] = packages
-        self.sysroot: Text = sysroot
+        self.sysroot: str = sysroot
         self.differential: bool = differential
 
         self.package_atoms: List[str] = [package.atom for package in packages]
@@ -302,8 +302,8 @@ class BuildLinter:
         return new_findings
 
     def _get_added_lines(
-        self, git_repos: Dict[Text, str]
-    ) -> Dict[Text, Tuple[int, int]]:
+        self, git_repos: Dict[str, str]
+    ) -> Dict[str, Tuple[int, int]]:
         """Parses the lines with additions from git diff for the provided repos.
 
         Args:
@@ -428,7 +428,7 @@ class BuildLinter:
         return diagnostics
 
     def _fetch_tidy_lints_from_json(
-        self, json_path: Path, package_atom: Text
+        self, json_path: Path, package_atom: str
     ) -> Set[LinterFinding]:
         """Fetches Tidy findings for the invocation described by the json."""
         invocation_result = tricium_clang_tidy.parse_tidy_invocation(json_path)
@@ -451,7 +451,7 @@ class BuildLinter:
     def _parse_tidy_diagnostics(
         self,
         diagnostics: List["tricium_clang_tidy.TidyDiagnostic"],
-        package_atom: Text,
+        package_atom: str,
     ) -> Set[LinterFinding]:
         """Parse diagnostics from Clang Tidy into LinterFindings objects."""
 
@@ -523,7 +523,7 @@ class BuildLinter:
         return findings
 
     def _parse_staticcheck_files(
-        self, files: List[Text], package_atom: Text
+        self, files: List[str], package_atom: str
     ) -> Iterable[LinterFinding]:
         """Parse files in the given directory for Staticcheck lints."""
         package = package_info.parse(package_atom)
@@ -583,7 +583,7 @@ class BuildLinter:
 
             packages_seen.add(package_name)
 
-    def _fetch_from_linting_artifacts(self, subdir) -> Dict[Text, List[Text]]:
+    def _fetch_from_linting_artifacts(self, subdir) -> Dict[str, List[str]]:
         """Get file from emerge artifact directory."""
         cros_build_lib.AssertInsideChroot()
         base_dir = Path(self.sysroot) / BuildLinter.BASE_DIR
@@ -617,7 +617,7 @@ class BuildLinter:
                     )
         return findings
 
-    def _get_package_for_artifact_dir(self, artifact_dir: Path) -> Text:
+    def _get_package_for_artifact_dir(self, artifact_dir: Path) -> str:
         """Gets the package atom for an artifact subdirectory."""
         # Paths should look like:
         # .../{category}/{package}/cros-artifacts/linting-output/{linter}
@@ -627,7 +627,7 @@ class BuildLinter:
         package_atom = f"{category}/{package}"
         return package_atom
 
-    def _get_sorting_key(self, file_name: Text) -> int:
+    def _get_sorting_key(self, file_name: str) -> int:
         """Returns integer value of timestamp used to sort Staticcheck files."""
         return (
             0
@@ -637,7 +637,7 @@ class BuildLinter:
             )
         )
 
-    def _clean_file_path(self, file_path: Text) -> str:
+    def _clean_file_path(self, file_path: str) -> str:
         """Remove git repo and work directories from file_paths."""
         file_path = re.sub("^" + BuildLinter.GIT_REPO_PATH, "", str(file_path))
         # Remove ebuild work directories from prefix
@@ -672,7 +672,7 @@ class BuildLinter:
         # Remove duplicates from different packages having the same source repo
         return set(repo_paths)
 
-    def get_board(self) -> Optional[Text]:
+    def get_board(self) -> Optional[str]:
         """Get the board name from the sysroot, or return None for host."""
         if match := BuildLinter.SYSROOT_BOARD_PATH.match(self.sysroot):
             return match.group("board")
@@ -685,7 +685,7 @@ class BuildLinter:
             ebuild_command += f"-{board}"
         return ebuild_command
 
-    def is_package_platform2(self, package_atom: Text) -> bool:
+    def is_package_platform2(self, package_atom: str) -> bool:
         """Returns whether or not a package is part of platform2.
 
         This is done by inspecting the output of
@@ -702,10 +702,10 @@ class BuildLinter:
 
     def _try_to_get_file_contents(
         self,
-        path: Text,
+        path: str,
         offset_start: int,
         offset_end: int,
-    ) -> Text:
+    ) -> str:
         """Attempt to get the contents of a file.
 
         If we fail because the file does not exist, we return the empty string.
@@ -718,8 +718,8 @@ class BuildLinter:
         return contents[offset_start:offset_end]
 
     def _try_to_get_lines(
-        self, path: Text, line_start: int, line_end: int
-    ) -> Text:
+        self, path: str, line_start: int, line_end: int
+    ) -> str:
         """Attempt to get the contents of a file.
 
         If we fail because the file does not exist, we return the empty string.

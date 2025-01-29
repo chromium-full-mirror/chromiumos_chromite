@@ -7,7 +7,7 @@
 import collections
 import os
 from pathlib import Path
-from typing import Dict, List, NamedTuple, Text
+from typing import Dict, List, NamedTuple
 from unittest import mock
 
 from chromite.lib import cros_test_lib
@@ -19,16 +19,16 @@ from chromite.service import toolchain
 class MockArtifact(NamedTuple):
     """Data for a Mocked Artifact."""
 
-    linter: Text
-    package: Text
-    file_name: Text
-    contents: Text
+    linter: str
+    package: str
+    file_name: str
+    contents: str
 
 
 class MockBuildLinter(toolchain.BuildLinter):
     """Mocked version of Build Linters class."""
 
-    def __init__(self, tempdir: Text, packages: List[Text] = None) -> None:
+    def __init__(self, tempdir: str, packages: List[str] = None) -> None:
         super().__init__([], "", validate=False)
         self.tempdir = tempdir
         self.packages = [] if packages is None else packages
@@ -53,7 +53,7 @@ class MockBuildLinter(toolchain.BuildLinter):
             tmp_artifact_file.write(artifact.contents)
         self.artifacts[artifact.linter][artifact.package].append(tmp_path)
 
-    def _fetch_from_linting_artifacts(self, subdir) -> Dict[Text, List[Text]]:
+    def _fetch_from_linting_artifacts(self, subdir) -> Dict[str, List[str]]:
         """Get file from emerge artifact directory."""
         artifacts = {}
         for package, package_artifacts in self.artifacts[subdir].items():
@@ -96,7 +96,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
     def checkArtifacts(
         self,
         expected_artifacts: List[MockArtifact],
-        retrieved_artifact_paths: Dict[Text, List[Text]],
+        retrieved_artifact_paths: Dict[str, List[str]],
     ) -> None:
         """Asserts that artifact paths match the list of expected results."""
 
@@ -160,7 +160,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
 
         self.checkArtifacts(relevant_artifacts, retrieved_artifact_paths)
 
-    def testStripPackageVersion(self) -> Text:
+    def testStripPackageVersion(self) -> str:
         examples = [
             ("category/my-package", "category/my-package"),
             ("category/my-package-9999", "category/my-package"),

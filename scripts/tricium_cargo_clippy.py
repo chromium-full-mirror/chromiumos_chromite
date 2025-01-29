@@ -12,7 +12,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import Any, Dict, Iterable, List, NamedTuple, Text
+from typing import Any, Dict, Iterable, List, NamedTuple
 
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
@@ -25,7 +25,7 @@ class Error(Exception):
 class CargoClippyPackagePathError(Error):
     """Raised when no Package Path is provided."""
 
-    def __init__(self, source: Text) -> None:
+    def __init__(self, source: str) -> None:
         super().__init__(f"{source} does not start with a package path")
         self.source = source
 
@@ -33,7 +33,7 @@ class CargoClippyPackagePathError(Error):
 class CargoClippyJSONError(Error):
     """Raised when cargo-clippy parsing jobs are not proper JSON."""
 
-    def __init__(self, source: Text, line_num: int) -> None:
+    def __init__(self, source: str, line_num: int) -> None:
         super().__init__(f"{source}:{line_num}: is not valid JSON")
         self.source = source
         self.line_num = line_num
@@ -42,7 +42,7 @@ class CargoClippyJSONError(Error):
 class CargoClippyReasonError(Error):
     """Raised when cargo-clippy parsing jobs don't provide a "reason" field."""
 
-    def __init__(self, source: Text, line_num: int) -> None:
+    def __init__(self, source: str, line_num: int) -> None:
         super().__init__(f"{source}:{line_num}: is missing its reason")
         self.source = source
         self.line_num = line_num
@@ -51,7 +51,7 @@ class CargoClippyReasonError(Error):
 class CargoClippyFieldError(Error):
     """Raised when cargo-clippy parsing jobs fail to determine a field."""
 
-    def __init__(self, source: Text, line_num: int, field: Text) -> None:
+    def __init__(self, source: str, line_num: int, field: str) -> None:
         super().__init__(
             f"{source}:{line_num}: {field} could not be parsed from original"
             " json"
@@ -61,14 +61,14 @@ class CargoClippyFieldError(Error):
         self.field = field
 
 
-def resolve_path(file_path: Text) -> Text:
+def resolve_path(file_path: str) -> str:
     return str(Path(file_path).resolve())
 
 
 class CodeLocation(NamedTuple):
     """Holds the location a ClippyDiagnostic Finding."""
 
-    file_path: Text
+    file_path: str
     line_start: int
     line_end: int
     column_start: int
@@ -82,8 +82,8 @@ class ClippyDiagnostic(NamedTuple):
     """Holds information about a compiler message from Clippy."""
 
     locations: Iterable["CodeLocation"]
-    level: Text
-    message: Text
+    level: str
+    message: str
 
     def as_json(self):
         return json.dumps(
@@ -95,7 +95,7 @@ class ClippyDiagnostic(NamedTuple):
 
 
 def parse_locations(
-    orig_json: Dict[Text, Any], package_path: Text, git_repo: Text
+    orig_json: Dict[str, Any], package_path: str, git_repo: str
 ) -> Iterable["CodeLocation"]:
     """The code locations associated with this diagnostic as an iter.
 
@@ -142,7 +142,7 @@ def parse_locations(
             yield location
 
 
-def parse_level(src: Text, src_line: int, orig_json: Dict[Text, Any]) -> Text:
+def parse_level(src: str, src_line: int, orig_json: Dict[str, Any]) -> str:
     """The level (error or warning) associated with this diagnostic.
 
     Args:
@@ -164,7 +164,7 @@ def parse_level(src: Text, src_line: int, orig_json: Dict[Text, Any]) -> Text:
     return level
 
 
-def parse_message(src: Text, src_line: int, orig_json: Dict[Text, Any]) -> Text:
+def parse_message(src: str, src_line: int, orig_json: Dict[str, Any]) -> str:
     """The formatted linter message for this diagnostic.
 
     Args:
@@ -185,7 +185,7 @@ def parse_message(src: Text, src_line: int, orig_json: Dict[Text, Any]) -> Text:
 
 
 def parse_diagnostics(
-    src: Text, orig_jsons: Iterable[Text], git_repo: Text
+    src: str, orig_jsons: Iterable[str], git_repo: str
 ) -> ClippyDiagnostic:
     """Parses original JSON to find the fields of a Clippy Diagnostic.
 
@@ -236,7 +236,7 @@ def parse_diagnostics(
         yield ClippyDiagnostic(locations, level, message)
 
 
-def parse_files(input_dir: Text, git_repo: Text) -> Iterable[ClippyDiagnostic]:
+def parse_files(input_dir: str, git_repo: str) -> Iterable[ClippyDiagnostic]:
     """Gets all compiler-message lints from all the input files in input_dir.
 
     Args:
