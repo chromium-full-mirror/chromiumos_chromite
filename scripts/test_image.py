@@ -106,8 +106,7 @@ def main(args):
         def _WalkSuite(suite):
             for test in suite:
                 if isinstance(test, unittest.BaseTestSuite):
-                    for result in _WalkSuite(test):
-                        yield result
+                    yield from _WalkSuite(test)
                 else:
                     yield (
                         test.id()[len(tests_namespace) + 1 :],

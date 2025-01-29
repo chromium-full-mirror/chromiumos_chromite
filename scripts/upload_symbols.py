@@ -217,8 +217,7 @@ def FindSymbolFiles(tempdir, paths):
                 except cros_build_lib.RunCommandError as e:
                     logging.warning("ignoring %s\n%s", gspath, e)
                     continue
-                for sym in FindSymbolFiles(tempdir, [ref.path]):
-                    yield sym
+                yield from FindSymbolFiles(tempdir, [ref.path])
 
         elif os.path.isdir(p):
             for root, _, files in os.walk(p):
@@ -236,8 +235,7 @@ def FindSymbolFiles(tempdir, paths):
             logging.info("processing files inside %s", p)
             tardir = tempfile.mkdtemp(dir=tempdir)
             cache.Untar(os.path.realpath(p), tardir)
-            for sym in FindSymbolFiles(tardir, [tardir]):
-                yield sym
+            yield from FindSymbolFiles(tardir, [tardir])
 
         else:
             yield SymbolFile(display_path=p, file_name=p)

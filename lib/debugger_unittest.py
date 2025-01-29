@@ -37,8 +37,7 @@ class MockIO:
         self._lines = lines
 
     def readline(self):
-        for line in self._lines:
-            yield line
+        yield from self._lines
 
 
 class MockPopen:

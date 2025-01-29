@@ -1202,8 +1202,7 @@ def iflatten_instance(iterable, terminate_on_kls=(str, bytes)) -> Iterable[Any]:
         if not descend_into(current):
             yield current
         else:
-            for subitem in iflatten_instance(current, terminate_on_kls):
-                yield subitem
+            yield from iflatten_instance(current, terminate_on_kls)
 
 
 def UserDateTimeFormat(

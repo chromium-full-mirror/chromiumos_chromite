@@ -81,8 +81,7 @@ def repo_sync(
     """sends grpc request for repo sync to sdk server."""
     with grpc.insecure_channel("localhost:50051") as channel:
         stub = sdk_server_pb2_grpc.sdk_server_serviceStub(channel)
-        for response in stub.repo_sync(request):
-            yield response
+        yield from stub.repo_sync(request)
 
 
 def repo_status(

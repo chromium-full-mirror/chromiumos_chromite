@@ -311,8 +311,7 @@ class Cgroup:
         # Do a depth first traversal.
         def walk(groups):
             for group in groups:
-                for subgroup in walk(group.nested_groups):
-                    yield subgroup
+                yield from walk(group.nested_groups)
                 yield group
 
         return list(walk(self.nested_groups))

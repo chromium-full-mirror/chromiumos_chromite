@@ -2023,8 +2023,7 @@ def WorkonEBuildGenerator(buildroot, overlay_type):
     overlays = FindOverlays(overlay_type, buildroot=buildroot)
     # Iterate through overlays and gather all workon ebuilds
     for overlay in overlays:
-        for ebuild in WorkonEBuildGeneratorForDirectory(overlay):
-            yield ebuild
+        yield from WorkonEBuildGeneratorForDirectory(overlay)
 
 
 def GetWorkonProjectMap(overlay, subdirectories):

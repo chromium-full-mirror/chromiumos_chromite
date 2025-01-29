@@ -113,13 +113,9 @@ class TrybotPatchPool:
         )
 
     def __iter__(self):
-        for source in [
-            self.local_patches,
-            self.remote_patches,
-            self.gerrit_patches,
-        ]:
-            for patch in source:
-                yield patch
+        yield from self.local_patches
+        yield from self.remote_patches
+        yield from self.gerrit_patches
 
     @classmethod
     def FromOptions(

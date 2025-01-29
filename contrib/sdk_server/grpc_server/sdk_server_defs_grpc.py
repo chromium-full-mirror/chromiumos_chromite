@@ -777,8 +777,7 @@ class SdkChroot(
         packages_req.sysroot.CopyFrom(sysroot)
         logger.info("Calling Sysroot_install_packages")
         if not error:
-            for response in self._install_packages(packages_req, logger):
-                yield response
+            yield from self._install_packages(packages_req, logger)
 
         logger.clean_up()
 
