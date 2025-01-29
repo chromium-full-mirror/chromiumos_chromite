@@ -237,7 +237,7 @@ class SdkChroot(
                     request.endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), ""):
+                for line in process.stdout.readline():
                     logger.info(line)
                     response = sdk_server_pb2.CustomResponse(logging_info=line)
                     yield response
@@ -403,7 +403,7 @@ class SdkChroot(
             encoding="utf-8",
         )
 
-        for line in iter(lambda: process.stdout.readline(), ""):
+        for line in process.stdout.readline():
             logger.info(line)
             response = sdk_server_pb2.RepoSyncResponse(logging_info=line)
             yield response
@@ -416,7 +416,7 @@ class SdkChroot(
         script = ["repo", "status"]
         process = AsyncRun(script, stdout=subprocess.PIPE, encoding="utf-8")
         output = []
-        for line in iter(lambda: process.stdout.readline(), ""):
+        for line in process.stdout.readline():
             output.append(line)
         response = sdk_server_pb2.RepoStatusResponse(info=output)
         return response
@@ -438,7 +438,7 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), ""):
+                for line in process.stdout.readline():
                     logger.info(line)
                     response = sdk_server_pb2.UpdateChrootResponse(
                         logging_info=line
@@ -485,7 +485,7 @@ class SdkChroot(
             encoding="utf-8",
         )
         output = []
-        for line in iter(lambda: process.stdout.readline(), ""):
+        for line in process.stdout.readline():
             output.append(line)
 
         output = "".join(output)
@@ -513,7 +513,7 @@ class SdkChroot(
             encoding="utf-8",
         )
         output = []
-        for line in iter(lambda: process.stdout.readline(), ""):
+        for line in process.stdout.readline():
             output.append(line)
 
         output = "".join(output)
@@ -541,7 +541,7 @@ class SdkChroot(
             encoding="utf-8",
         )
         output = []
-        for line in iter(lambda: process.stdout.readline(), ""):
+        for line in process.stdout.readline():
             output.append(line)
 
         output = "".join(output)
@@ -563,7 +563,7 @@ class SdkChroot(
         script = ["cros", "workon", "list", target]
         process = AsyncRun(script, stdout=subprocess.PIPE, encoding="utf-8")
         output = []
-        for line in iter(lambda: process.stdout.readline(), ""):
+        for line in process.stdout.readline():
             output.append(line)
 
         packages = [
@@ -584,7 +584,7 @@ class SdkChroot(
 
         process = AsyncRun(script, stdout=subprocess.PIPE, encoding="utf-8")
         output = []
-        for line in iter(lambda: process.stdout.readline(), ""):
+        for line in process.stdout.readline():
             output.append(line)
         packages = [
             common_pb2.PackageInfo(package_name=package) for package in output
@@ -628,7 +628,7 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), ""):
+                for line in process.stdout.readline():
                     logger.info(line)
                     response = sdk_server_pb2.CreateSdkResponse(
                         logging_info=line
@@ -672,7 +672,7 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), ""):
+                for line in process.stdout.readline():
                     logger.info(line)
                     response = sdk_server_pb2.ReplaceSdkResponse(
                         logging_info=line
@@ -715,7 +715,7 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), ""):
+                for line in process.stdout.readline():
                     logger.info(line)
                     response = sdk_server_pb2.DeleteSdkResponse(
                         logging_info=line
@@ -796,7 +796,7 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), ""):
+                for line in process.stdout.readline():
                     logger.info(line)
                     response = sdk_server_pb2.BuildPackagesResponse(
                         logging_info=line
@@ -833,7 +833,7 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), ""):
+                for line in process.stdout.readline():
                     logger.info(line)
                     response = sdk_server_pb2.BuildPackagesResponse(
                         logging_info=line
@@ -870,7 +870,7 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), ""):
+                for line in process.stdout.readline():
                     logger.info(line)
                     response = sdk_server_pb2.BuildPackagesResponse(
                         logging_info=line
@@ -910,7 +910,7 @@ class SdkChroot(
                     endpoint, tempinput.name, tempoutput.name
                 )
 
-                for line in iter(lambda: process.stdout.readline(), ""):
+                for line in process.stdout.readline():
                     logger.info(line)
                     response = sdk_server_pb2.BuildImageResponse(
                         logging_info=line
