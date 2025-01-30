@@ -632,12 +632,15 @@ def _BundleCodeCoverageLlvmJson(
         lang = "RUST"
 
     try:
-        base_path = chroot.full_path(sysroot_class.path)
+        base_path = Path(chroot.full_path(sysroot_class.path))
 
         # Gather all LLVM compiler generated coverage data into single
         # coverage.json
-        coverage_dir = os.path.join(base_path, "build/coverage_data")
+        coverage_dir = base_path / "build/coverage_data"
         llvm_generated_cov_json = GatherCodeCoverageLlvmJsonFile(coverage_dir)
+
+        if not llvm_generated_cov_json:
+            return None
 
         llvm_generated_cov_json = (
             code_coverage_util.GetLLVMCoverageWithFilesExcluded(
@@ -731,46 +734,44 @@ class GatherCodeCoverageLlvmJsonFileResult(NamedTuple):
     coverage_json: Dict
 
 
-def GatherCodeCoverageLlvmJsonFile(path: str):
+def GatherCodeCoverageLlvmJsonFile(cov_dir: Path):
     """Locate code coverage llvm json files in |path|.
 
     This function locates all the coverage llvm json files and merges them
     into one file, in the correct llvm json format.
 
     Args:
-        path: The input path to walk.
+        cov_dir: The input path to walk.
 
     Returns:
         Code coverage json llvm format.
     """
     joined_file_paths = []
     coverage_data = []
-    if not os.path.exists(path):
+    if not cov_dir.exists():
         # Builder might only build packages that does not have
         # unit test setup,therefore there will be no
         # coverage_data to gather.
         logging.info(
-            "The path does not exists %s. Returning empty coverage.", path
+            "The path does not exists %s. Returning empty coverage.", cov_dir
         )
         return code_coverage_util.CreateLlvmCoverageJson(coverage_data)
-    if not os.path.isdir(path):
-        raise ValueError("The path is not a directory: ", path)
 
-    for root, _, files in os.walk(path):
-        for f in files:
-            # Make sure the file contents match the llvm json format.
-            path_to_file = Path(root) / f
-            file_data = code_coverage_util.GetLlvmJsonCoverageDataIfValid(
-                path_to_file
-            )
-            if file_data is None:
-                continue
+    if not cov_dir.is_dir():
+        raise ValueError(f"The path is not a directory: {cov_dir}")
 
-            # Copy over data from this file.
-            joined_file_paths.append(path_to_file)
-            for datum in file_data["data"]:
-                for file_data in datum["files"]:
-                    coverage_data.append(file_data)
+    for path_to_file in cov_dir.glob("**/coverage.json"):
+        # Make sure the file contents match the llvm json format.
+        file_data = code_coverage_util.GetLlvmJsonCoverageDataIfValid(
+            path_to_file
+        )
+        if file_data is None:
+            continue
+
+        # Copy over data from this file.
+        joined_file_paths.append(path_to_file)
+        for datum in file_data["data"]:
+            coverage_data.extend(datum["files"])
 
     return code_coverage_util.CreateLlvmCoverageJson(coverage_data)
 

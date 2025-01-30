@@ -9,7 +9,6 @@ import os
 from pathlib import Path
 import shutil
 from typing import Any, List
-import unittest
 from unittest import mock
 
 from chromite.cbuildbot import commands
@@ -401,7 +400,6 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
 
         self.output_dir = os.path.join(self.tempdir, "output")
 
-    @unittest.skip("b/391680779 test is way too slow")
     def testGatherCodeCoverageLlvmJsonFileIsCalled1Time(self) -> None:
         """Verify GatherCodeCoverageLlvmJsonFile is called on each file."""
         GatherCodeCoverageLlvmJsonFile_mock = self.PatchObject(
@@ -413,7 +411,6 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
         GatherCodeCoverageLlvmJsonFile_mock.assert_called_once()
 
-    @unittest.skip("b/391680779 test is way too slow")
     def testReturnNoneWhenGatherCodeCoverageLlvmJsonFileReturnsNone(
         self,
     ) -> None:
@@ -746,17 +743,11 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
 
     def testJoinedFilePathsMatchesNumFilesProcessed(self) -> None:
         """Test that all coverage files are found."""
-        input_dir = os.path.join(self.tempdir, "input")
+        input_dir = Path(self.tempdir) / "input"
         self.writeCodeCoverageLlvm(os.path.join(input_dir, "a/coverage.json"))
-        self.writeCodeCoverageLlvm(
-            os.path.join(input_dir, "a/b/c/coverage.json")
-        )
-        self.writeCodeCoverageLlvm(
-            os.path.join(input_dir, "a/b/c/d/coverage.json")
-        )
-        self.writeCodeCoverageLlvm(
-            os.path.join(input_dir, "a/b/c/d/e/coverage.json")
-        )
+        self.writeCodeCoverageLlvm(input_dir / "a/b/c/coverage.json")
+        self.writeCodeCoverageLlvm(input_dir / "a/b/c/d/coverage.json")
+        self.writeCodeCoverageLlvm(input_dir / "a/b/c/d/e/coverage.json")
 
         coverage_json = test.GatherCodeCoverageLlvmJsonFile(input_dir)
         all_files = coverage_json["data"][0]["files"]
@@ -770,17 +761,11 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
             return_value=None,
         )
 
-        input_dir = os.path.join(self.tempdir, "input")
-        self.writeCodeCoverageLlvm(os.path.join(input_dir, "a/coverage.json"))
-        self.writeCodeCoverageLlvm(
-            os.path.join(input_dir, "a/b/c/coverage.json")
-        )
-        self.writeCodeCoverageLlvm(
-            os.path.join(input_dir, "a/b/c/d/coverage.json")
-        )
-        self.writeCodeCoverageLlvm(
-            os.path.join(input_dir, "a/b/c/d/e/coverage.json")
-        )
+        input_dir = Path(self.tempdir) / "input"
+        self.writeCodeCoverageLlvm(input_dir / "a/coverage.json")
+        self.writeCodeCoverageLlvm(input_dir / "a/b/c/coverage.json")
+        self.writeCodeCoverageLlvm(input_dir / "a/b/c/d/coverage.json")
+        self.writeCodeCoverageLlvm(input_dir / "a/b/c/d/e/coverage.json")
 
         test.GatherCodeCoverageLlvmJsonFile(input_dir)
         self.assertEqual(
@@ -790,17 +775,18 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
     def testWritesCombinedFileToOutputDir(self) -> None:
         """Test all contents of valid files are combined into the output."""
 
-        input_dir = os.path.join(self.tempdir, "input")
+        input_dir = Path(self.tempdir) / "input"
         self.writeCodeCoverageLlvm(
-            os.path.join(input_dir, "a/src2/coverage.json"),
+            input_dir / "a/src2/coverage.json",
             self.getCodeCoverageLlvmContents(["/src2/a.txt", "/src2/b.txt"]),
         )
         self.writeCodeCoverageLlvm(
-            os.path.join(input_dir, "a/firmware/coverage.json"),
+            input_dir / "a/firmware/coverage.json",
             self.getCodeCoverageLlvmContents(["/firmware/c.txt"]),
         )
         self.writeCodeCoverageLlvm(
-            os.path.join(input_dir, "a/invalid/invalid.json"), "INVALID"
+            input_dir / "a/invalid/invalid.json",
+            "INVALID",
         )
 
         coverage_json = test.GatherCodeCoverageLlvmJsonFile(input_dir)
@@ -821,7 +807,9 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
     def testShouldEmptyCoverageIfPathDoesNotExists(self) -> None:
         """Test empty coverage returned when path does not exist."""
 
-        coverage_json = test.GatherCodeCoverageLlvmJsonFile("/invalid/path")
+        coverage_json = test.GatherCodeCoverageLlvmJsonFile(
+            Path("/invalid/path")
+        )
         all_files = coverage_json["data"][0]["files"]
         self.assertEqual(0, len(all_files))
 
