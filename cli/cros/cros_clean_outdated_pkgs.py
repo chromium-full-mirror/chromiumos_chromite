@@ -55,6 +55,8 @@ SYSTEM_PACKAGES = {
     "dev-libs/openssl",
     # Used by Python to parse XML files.
     "dev-libs/expat",
+    # Used by cmake.
+    "dev-libs/jsoncpp",
     # Used by curl.
     "net-libs/nghttp2",
     "net-libs/libpsl",
