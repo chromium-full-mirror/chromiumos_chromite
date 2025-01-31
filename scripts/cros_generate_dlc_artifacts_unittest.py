@@ -13,13 +13,14 @@ from chromite.scripts import cros_generate_dlc_artifacts
 
 
 @pytest.mark.parametrize("dry_run", ((False), (True)))
-def test_upload_dlc_artifacts(dry_run) -> None:
+@pytest.mark.parametrize("private", ((False), (True)))
+def test_upload_dlc_artifacts(dry_run, private) -> None:
     """Tests out UploadDlcArtifacts with dry_run option"""
     artifact_mock = mock.Mock()
     cros_generate_dlc_artifacts.UploadDlcArtifacts(
-        artifact_mock, dry_run=dry_run
+        artifact_mock, dry_run=dry_run, private=private
     )
-    artifact_mock.Upload.assert_called_with(dry_run=dry_run)
+    artifact_mock.Upload.assert_called_with(dry_run=dry_run, private=private)
 
 
 @pytest.mark.parametrize("dlc_id", ("some-dlc-id",))

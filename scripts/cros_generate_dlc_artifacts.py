@@ -68,6 +68,12 @@ def ParseArguments(argv: List[str]) -> commandline.ArgumentNamespace:
         enabled_desc="Dry run without actual upload",
         disabled_desc="Ignored",
     )
+    parser.add_bool_argument(
+        "--private",
+        default=False,
+        enabled_desc="Private local mirror usage and non-public upload",
+        disabled_desc="Ignored",
+    )
 
     parser.add_bool_argument(
         "--reproducible-image",
@@ -182,13 +188,14 @@ def GenerateDlcParams(
 
 
 def UploadDlcArtifacts(
-    dlcartifacts: dlc_lib.DlcArtifacts, dry_run: bool
+    dlcartifacts: dlc_lib.DlcArtifacts, dry_run: bool, private: bool
 ) -> None:
     """Uploads the DLC artifacts based on `DlcArtifacts`
 
     Args:
         dlcartifacts: The DLC artifacts to upload.
         dry_run: Dry run without actually uploading if true.
+        private: Do not use public-read ACL.
     """
     logging.info("Uploading DLC artifacts")
     logging.debug(
@@ -199,7 +206,7 @@ def UploadDlcArtifacts(
     logging.debug(
         "Uploading DLC meta %s to %s", dlcartifacts.meta, dlcartifacts.uri_path
     )
-    dlcartifacts.Upload(dry_run=dry_run)
+    dlcartifacts.Upload(dry_run=dry_run, private=private)
 
 
 def GenerateDlcArtifacts(opts: commandline.ArgumentNamespace) -> None:
@@ -209,7 +216,7 @@ def GenerateDlcArtifacts(opts: commandline.ArgumentNamespace) -> None:
         opts: The command line arguments.
     """
     params = GenerateDlcParams(opts)
-    uri_path = opts.uri_path or params.GetUriPath()
+    uri_path = opts.uri_path or params.GetUriPath(opts.private)
 
     with osutils.TempDir(prefix="dlcartifacts", sudo_rm=True) as tmpdir:
         output_dir = opts.output_dir or tmpdir
@@ -264,7 +271,7 @@ def GenerateDlcArtifacts(opts: commandline.ArgumentNamespace) -> None:
             )
 
         if opts.upload or opts.upload_dry_run:
-            UploadDlcArtifacts(ret_artifacts, opts.upload_dry_run)
+            UploadDlcArtifacts(ret_artifacts, opts.upload_dry_run, opts.private)
         else:
             logging.debug("Skipping DLC artifacts upload")
 

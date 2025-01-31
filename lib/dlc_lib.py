@@ -29,6 +29,7 @@ from chromite.utils import pformat
 
 # ChromiumOS Google Storage Buckets.
 GS_LOCALMIRROR_BUCKET = "gs://chromeos-localmirror"
+GS_LOCALMIRROR_PRIVATE_BUCKET = "gs://chromeos-localmirror-private"
 
 # ChromiumOS Google Storage Bucket related paths.
 GS_DLC_IMAGES_DIR = "dlc-images"
@@ -225,22 +226,29 @@ class DlcArtifacts:
         """String format of this objects fields."""
         return pformat.json(self.__dict__)
 
-    def Upload(self, dry_run: bool) -> None:
+    def Upload(self, dry_run: bool, private: bool) -> None:
         """Uploads based on fields.
 
         Args:
             dry_run: Dry run without actual uploading.
+            private: No public read ACL.
         """
         gs_ctx = gs.GSContext(dry_run=dry_run)
         if self.uri_path:
             if self.image:
-                gs_ctx.CopyInto(
-                    self.image, self.uri_path, acl=GS_PUBLIC_READ_ACL
-                )
+                if private:
+                    gs_ctx.CopyInto(self.image, self.uri_path)
+                else:
+                    gs_ctx.CopyInto(
+                        self.image, self.uri_path, acl=GS_PUBLIC_READ_ACL
+                    )
             if self.meta:
-                gs_ctx.CopyInto(
-                    self.meta, self.uri_path, acl=GS_PUBLIC_READ_ACL
-                )
+                if private:
+                    gs_ctx.CopyInto(self.meta, self.uri_path)
+                else:
+                    gs_ctx.CopyInto(
+                        self.meta, self.uri_path, acl=GS_PUBLIC_READ_ACL
+                    )
 
 
 def HashFile(file_path: str) -> str:
@@ -352,14 +360,20 @@ class EbuildParams:
         self.user_tied = user_tied
         self.attributes = attributes if attributes else {}
 
-    def GetUriPath(self) -> str:
-        """Retrieves the DLC image URI path based on field values"""
+    def GetUriPath(self, private: bool = False) -> str:
+        """Retrieves the DLC image URI path based on field values
+
+        Args:
+            private: Use private mirror.
+        """
         CheckAndRaise(self.dlc_id, "Missing DLC ID")
         CheckAndRaise(self.dlc_package, "Missing DLC package")
         CheckAndRaise(self.version, "Missing DLC version")
         return "/".join(
             (
-                GS_LOCALMIRROR_BUCKET,
+                GS_LOCALMIRROR_PRIVATE_BUCKET
+                if private
+                else GS_LOCALMIRROR_BUCKET,
                 GS_DLC_IMAGES_DIR,
                 self.dlc_id,
                 self.dlc_package,

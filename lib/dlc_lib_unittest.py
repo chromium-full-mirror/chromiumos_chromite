@@ -296,6 +296,16 @@ class EbuildParamsTest(cros_test_lib.MockTempDirTestCase):
                 params.version,
             ),
         )
+        self.assertEqual(
+            params.GetUriPath(private=True),
+            os.path.join(
+                dlc_lib.GS_LOCALMIRROR_PRIVATE_BUCKET,
+                dlc_lib.GS_DLC_IMAGES_DIR,
+                params.dlc_id,
+                params.dlc_package,
+                params.version,
+            ),
+        )
 
     def testVerifyDlcParametersFactoryInstallable(self) -> None:
         """Tests EbuildParams.VerifyDlcParameters"""
