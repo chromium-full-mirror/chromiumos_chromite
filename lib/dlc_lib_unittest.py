@@ -1230,6 +1230,44 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
                     )
                 )
 
+    def testInstallDlcImagesWithPreloadAllowedPrebuilt(self) -> None:
+        package_nums = 2
+        preload_allowed_json = '{"preload-allowed": true}'
+        sysroot = os.path.join(self.tempdir, "sysroot")
+        for package_num in range(package_nums):
+            osutils.WriteFile(
+                os.path.join(
+                    sysroot,
+                    dlc_lib.DLC_BUILD_DIR_ARTIFACTS_META,
+                    _ID,
+                    _PACKAGE + str(package_num),
+                    dlc_lib.DLC_IMAGE,
+                ),
+                "image content",
+                makedirs=True,
+            )
+            osutils.WriteFile(
+                os.path.join(
+                    sysroot,
+                    dlc_lib.DLC_BUILD_DIR_ARTIFACTS_META,
+                    _ID,
+                    _PACKAGE + str(package_num),
+                    dlc_lib.IMAGELOADER_JSON,
+                ),
+                preload_allowed_json,
+                makedirs=True,
+            )
+        output = os.path.join(self.tempdir, "output")
+        dlc_lib.InstallDlcImages(
+            board=_BOARD, sysroot=sysroot, install_root_dir=output, preload=True
+        )
+        for package_num in range(package_nums):
+            self.assertExists(
+                os.path.join(
+                    output, _ID, _PACKAGE + str(package_num), dlc_lib.DLC_IMAGE
+                )
+            )
+
     def testInstallDlcImagesWithPreloadAllowed(self) -> None:
         package_nums = 2
         preload_allowed_json = '{"preload-allowed": true}'

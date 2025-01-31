@@ -1344,17 +1344,21 @@ def IsFieldAllowed(dlc_id: str, dlc_build_dir: str, field: str):
         return False
 
     for package in os.listdir(dlc_id_dir):
-        image_loader_json = os.path.join(
-            dlc_id_dir, package, DLC_TMP_META_DIR, IMAGELOADER_JSON
-        )
-        if not os.path.exists(image_loader_json):
-            return False
-        if not GetValueInJsonFile(
-            json_path=image_loader_json, key=field, default_value=False
+        for image_loader_json in (
+            os.path.join(
+                dlc_id_dir, package, DLC_TMP_META_DIR, IMAGELOADER_JSON
+            ),
+            os.path.join(dlc_id_dir, package, IMAGELOADER_JSON),
         ):
-            return False
+            if not os.path.exists(image_loader_json):
+                continue
+            if not GetValueInJsonFile(
+                json_path=image_loader_json, key=field, default_value=False
+            ):
+                continue
+            return True
 
-    return True
+    return False
 
 
 def IsDlcPreloadingAllowed(dlc_id: str, dlc_build_dir: str):
@@ -1512,17 +1516,18 @@ def InstallDlcImages(
         logging.warning(err_msg)
 
     BuildDlcs(
-        sysroot=sysroot,
-        dlc_id=dlc_id,
         board=board,
-        install_root_dir=install_root_dir,
         build_dir=build_dir,
-        rootfs=rootfs,
-        stateful=stateful,
-        src_dir=src_dir,
         build_dir_scaled=build_dir_scaled,
-        preload=preload,
+        build_dir_artifacts_meta=build_dir_artifacts_meta,
+        dlc_id=dlc_id,
+        install_root_dir=install_root_dir,
+        rootfs=rootfs,
+        src_dir=src_dir,
+        stateful=stateful,
+        sysroot=sysroot,
         factory_install=factory_install,
+        preload=preload,
         reproducible=reproducible,
     )
 
@@ -1579,6 +1584,7 @@ def BuildDlcs(
     board: str,
     build_dir: str,
     build_dir_scaled: str,
+    build_dir_artifacts_meta: str,
     dlc_id: str,
     install_root_dir: str,
     rootfs: str,
@@ -1595,6 +1601,8 @@ def BuildDlcs(
         board: The target board we are building for.
         build_dir: The root path where DLC build files reside.
         build_dir_scaled: The root path where scaled DLC build files reside.
+        build_dir_artifacts_meta: The root path where prebuilt DLC build files
+                                  reside.
         dlc_id: The DLC ID.
         install_root_dir: The path to the root installation directory.
         rootfs: Path to the platform rootfs.
@@ -1611,8 +1619,14 @@ def BuildDlcs(
     if rootfs:
         # Create metadata directory in rootfs.
         osutils.SafeMakedirs(os.path.join(rootfs, DLC_META_DIR), sudo=True)
-    for scaled in (False, True):
-        dlc_build_dir = build_dir_scaled if scaled else build_dir
+
+    for info in (
+        dict(dlc_build_dir=build_dir),
+        dict(dlc_build_dir=build_dir_scaled, scaled=True),
+        dict(dlc_build_dir=build_dir_artifacts_meta, only_preload=True),
+    ):
+        dlc_build_dir = info.get("dlc_build_dir")
+        scaled = info.get("scaled", False)
 
         if not os.path.exists(dlc_build_dir):
             logging.debug("Skipping build directory %s.", dlc_build_dir)
@@ -1640,6 +1654,21 @@ def BuildDlcs(
                 scaled,
                 ", ".join(dlc_ids),
             )
+
+        if info.get("only_preload"):
+            parallel.RunParallelSteps(
+                [
+                    functools.partial(
+                        PreloadDlc,
+                        dlc_build_dir=dlc_build_dir,
+                        dlc_id=d_id,
+                        install_root_dir=install_root_dir,
+                        preload=preload,
+                    )
+                    for d_id in dlc_ids
+                ]
+            )
+            continue
 
         parallel.RunParallelSteps(
             [
