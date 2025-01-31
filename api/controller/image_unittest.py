@@ -813,7 +813,9 @@ class SignImageTest(
     @mock.patch.object(image_controller.image, "SignImage")
     def testSuccess(self, mock_sign_image: mock.MagicMock) -> None:
         """Check that the endpoint finishes successfully."""
-        docker_image = "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
+        docker_image = (
+            "us-docker.pkg.dev/chromeos-release-bot/signing/signing:16963491"
+        )
         req = image_pb2.SignImageRequest(
             archive_dir=str(self.tempdir),
             result_path=common_pb2.ResultPath(

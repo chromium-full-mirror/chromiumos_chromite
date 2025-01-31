@@ -511,7 +511,7 @@ class FinalizePayloadTest(
         req = self.req
         req.use_local_signing = True
         req.docker_image = (
-            "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
+            "us-docker.pkg.dev/chromeos-release-bot/signing/signing:16963491"
         )
         req.keyset = "DevPreMPKeys"
 
@@ -542,7 +542,7 @@ class FinalizePayloadTest(
         req = self.req
         req.use_local_signing = True
         req.docker_image = (
-            "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
+            "us-docker.pkg.dev/chromeos-release-bot/signing/signing:16963491"
         )
         req.keyset = "DevPreMPKeys"
 

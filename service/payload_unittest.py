@@ -85,7 +85,9 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
             build=self.tgt_build, image_type="IMAGE_TYPE_BASE", milestone="R80"
         )
 
-        docker_image = "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
+        docker_image = (
+            "us-docker.pkg.dev/chromeos-release-bot/signing/signing:16963491"
+        )
         payload_config = payload.PayloadConfig(
             self.chroot,
             tgt_image=tgt_image,
@@ -134,7 +136,9 @@ class PayloadServiceTest(cros_test_lib.MockTempDirTestCase):
             build=self.tgt_build, image_type="IMAGE_TYPE_BASE", milestone="R80"
         )
 
-        docker_image = "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
+        docker_image = (
+            "us-docker.pkg.dev/chromeos-release-bot/signing/signing:16963491"
+        )
         with self.assertRaises(ValueError):
             payload.PayloadConfig(
                 self.chroot,

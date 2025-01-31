@@ -598,7 +598,7 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
     def setUp(self) -> None:
         """Setup for tests, and store off some standard expected values."""
         self._docker_image = (
-            "us-docker.pkg.dev/chromeos-bot/signing/signing:16963491"
+            "us-docker.pkg.dev/chromeos-release-bot/signing/signing:16963491"
         )
 
     def createStandardClient(self):

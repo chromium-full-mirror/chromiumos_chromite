@@ -20,7 +20,9 @@ class CreatePreMPKeysTest(
 
     def setUp(self) -> None:
         self.response = signing_pb2.CreatePreMPKeysResponse()
-        self.docker_image = "us-docker.pkg.dev/chromeos-bot/signing/signing:123"
+        self.docker_image = (
+            "us-docker.pkg.dev/chromeos-release-bot/signing/signing:123"
+        )
 
         os.environ["LUCI_CONTEXT"] = "/tmp/foo/bar/luci_context.1234"
         os.environ["GCE_METADATA_HOST"] = "127.0.0.1:12345"
