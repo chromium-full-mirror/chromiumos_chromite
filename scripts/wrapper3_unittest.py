@@ -53,7 +53,7 @@ class FindTargetTests(cros_test_lib.TempDirTestCase):
         # the tempdir is on a diff mount, fallback to a copy.
         try:
             if sys.version_info >= (3, 8):
-                self.wrapper.link_to(WRAPPER)
+                self.wrapper.hardlink_to(WRAPPER)
             else:
                 os.link(WRAPPER, self.wrapper)
         except OSError:
