@@ -123,6 +123,12 @@ def ParseArguments(argv: List[str]) -> commandline.ArgumentNamespace:
         required=True,
         help="The version of this DLC build",
     )
+    parser.add_bool_argument(
+        "--preload",
+        default=False,
+        enabled_desc="To allow preloading for the DLC",
+        disabled_desc="To disable preloading for the DLC",
+    )
     parser.add_argument(
         "--fs-type",
         choices=[
@@ -172,8 +178,7 @@ def GenerateDlcParams(
         version=opts.version,
         name=opts.name,
         description=opts.description,
-        # Add preloading support.
-        preload=False,
+        preload=opts.preload,
         used_by="",
         mount_file_required=False,
         fullnamerev="",
