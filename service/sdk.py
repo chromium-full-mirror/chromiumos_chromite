@@ -20,6 +20,7 @@ from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
+from chromite.lib import ensure_bootstrap
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import portage_util
@@ -401,6 +402,11 @@ def Update(arguments: UpdateArguments) -> UpdateResult:
 @osutils.rotate_log_file(portage_util.get_die_hook_status_file())
 def _Update(arguments: UpdateArguments) -> UpdateResult:
     cros_build_lib.ClearShadowLocks(arguments.root)
+
+    # We sometimes run linters during package installation; ensure cipd is all
+    # set up to do so in order to avoid sandbox issues (b/393437326).
+    logging.info("Bootstrapping chromite tools")
+    ensure_bootstrap.for_everything()
 
     cros_sdk_lib.RunChrootVersionHooks()
 
