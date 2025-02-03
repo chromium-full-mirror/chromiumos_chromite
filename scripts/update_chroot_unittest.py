@@ -6,12 +6,21 @@
 
 import pytest
 
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.scripts import update_chroot
 
 
 def test_main(run_mock) -> None:  # pylint: disable=unused-argument
     """Smoke test."""
+    run_mock.AddCmdResult(
+        [
+            constants.CHROMITE_BIN_DIR / "cros_setup_toolchains",
+            "--show-packages",
+            "host",
+        ],
+        stdout="a/b\nc/d\n",
+    )
     result = update_chroot.main(["--force"])
     assert result == 0
 

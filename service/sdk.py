@@ -190,27 +190,6 @@ class UpdateArguments:
         self.use_snapshot_binhosts = use_snapshot_binhosts
         self.log_installed_packages = log_installed_packages
 
-    def GetArgList(self) -> List[str]:
-        """Get the list of the corresponding command line arguments.
-
-        Returns:
-            The list of the corresponding command line arguments.
-        """
-        args = []
-
-        if self.build_source:
-            args.append("--nousepkg")
-        else:
-            args.append("--usepkg")
-
-        if self.jobs is not None:
-            args.append(f"--jobs={self.jobs}")
-
-        if self.backtrack is not None:
-            args.append(f"--backtrack={self.backtrack}")
-
-        return args
-
 
 @dataclasses.dataclass
 class UpdateResult:
@@ -432,11 +411,10 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
             )
             raise e
 
+    cros_setup_toolchains = constants.CHROMITE_BIN_DIR / "cros_setup_toolchains"
     if arguments.update_toolchain:
         logging.info("Updating cross-compilers")
-        cmd = [
-            constants.CHROMITE_BIN_DIR / "cros_setup_toolchains",
-        ]
+        cmd = [cros_setup_toolchains]
         if arguments.toolchain_targets:
             cmd += [f"--include-boards={','.join(arguments.toolchain_targets)}"]
 
@@ -444,12 +422,6 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
         if arguments.build_source:
             cmd += ["--nousepkg"]
         cros_build_lib.sudo_run(cmd)
-
-    cmd = [
-        constants.CHROMITE_SHELL_DIR / "update_chroot.sh",
-        "--script-is-run-only-by-chromite-and-not-users",
-    ]
-    cmd.extend(arguments.GetArgList())
 
     # The sdk update uses splitdebug instead of separatedebug. Make sure
     # separatedebug is disabled and enable splitdebug.
@@ -469,9 +441,86 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
             extra_env["PORTAGE_BINHOST"] = binhosts
     logging.info("PORTAGE_BINHOST: %s", binhosts)
 
-    result = cros_build_lib.run(cmd, extra_env=extra_env, check=False)
-    failed_pkgs = portage_util.ParseDieHookStatusFile()
-    ret = UpdateResult(result.returncode, GetChrootVersion(), failed_pkgs)
+    # Update the main set of SDK packages.
+    emerge_cmd_base = [
+        constants.CHROMITE_BIN_DIR / "parallel_emerge",
+        "--update",
+        "--newuse",
+        "--verbose",
+        "--deep",
+    ]
+    if arguments.jobs is not None:
+        emerge_cmd_base.append(f"--jobs={arguments.jobs}")
+    if arguments.backtrack is not None:
+        emerge_cmd_base.append(f"--backtrack={arguments.backtrack}")
+    cmd = emerge_cmd_base.copy()
+    if not arguments.build_source:
+        cmd += ["--getbinpkg"]
+
+        # Avoid building toolchain packages or "post-cross" packages from
+        # source. The toolchain rollout process only takes place when the
+        # chromiumos-sdk builder finishes a successful build.
+        result = cros_build_lib.run(
+            [cros_setup_toolchains, "--show-packages", "host"],
+            capture_output=True,
+            encoding="utf-8",
+        )
+        pkgs = result.stdout.split()
+        if not pkgs:
+            return UpdateResult(1, GetChrootVersion(), [])
+        result = cros_build_lib.run(
+            [cros_setup_toolchains, "--show-packages", "host-post-cross"],
+            capture_output=True,
+            encoding="utf-8",
+        )
+        pkgs += result.stdout.split()
+        cmd += (f"--useoldpkg-atoms={x}" for x in pkgs)
+
+    # Build cros_workon packages when they are changed.
+    result = cros_build_lib.run(
+        [constants.CHROMITE_BIN_DIR / "cros_list_modified_packages", "--host"],
+        capture_output=True,
+        encoding="utf-8",
+    )
+    for pkg in result.stdout.split():
+        cmd += [f"--reinstall-atoms={pkg}", f"--usepkg-exclude={pkg}"]
+    cmd += [
+        "virtual/target-sdk",
+        "world",
+    ]
+    result = cros_build_lib.sudo_run(cmd, extra_env=extra_env, check=False)
+    if result.returncode:
+        failed_pkgs = portage_util.ParseDieHookStatusFile()
+        return UpdateResult(result.returncode, GetChrootVersion(), failed_pkgs)
+
+    if not arguments.build_source:
+        # Update "post-cross" packages (should only come from binary packages).
+        #
+        # Use --usepkgonly to ensure that packages are not built from source.
+        # Use --with-bdeps=n since we only install binpkgs.
+        cmd = emerge_cmd_base.copy()
+        cmd += [
+            "--with-bdeps=n",
+            "--oneshot",
+            "--getbinpkg",
+            "--usepkgonly",
+            "--rebuilt-binaries=n",
+        ]
+        result = cros_build_lib.run(
+            [cros_setup_toolchains, "--show-packages", "host-post-cross"],
+            capture_output=True,
+            encoding="utf-8",
+        )
+        cmd += result.stdout.split()
+
+        result = cros_build_lib.sudo_run(cmd, extra_env=extra_env, check=False)
+        if result.returncode:
+            failed_pkgs = portage_util.ParseDieHookStatusFile()
+            return UpdateResult(
+                result.returncode, GetChrootVersion(), failed_pkgs
+            )
+
+    ret = UpdateResult(0, GetChrootVersion(), [])
 
     # Automatically discard all CONFIG_PROTECT'ed files. Those that are
     # protected should not be overwritten until the variable is changed.

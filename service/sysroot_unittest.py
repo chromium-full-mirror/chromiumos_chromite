@@ -34,31 +34,6 @@ from chromite.service import sysroot
 from chromite.utils import os_util
 
 
-class SetupBoardRunConfigTest(cros_test_lib.TestCase):
-    """Tests for the SetupBoardRunConfig class."""
-
-    def testGetUpdateChrootArgs(self) -> None:
-        """Test the update chroot args conversion method."""
-        # False/0/None tests.
-        instance = sysroot.SetupBoardRunConfig(
-            usepkg=False, jobs=None, update_toolchain=False, backtrack=1
-        )
-        args = instance.GetUpdateChrootArgs("board").GetArgList()
-        self.assertIn("--backtrack=1", args)
-        self.assertIn("--nousepkg", args)
-        self.assertNotIn("--usepkg", args)
-        self.assertFalse(any(x.startswith("--jobs") for x in args))
-
-        # True/set values tests.
-        instance = sysroot.SetupBoardRunConfig(
-            usepkg=True, jobs=1, update_toolchain=True
-        )
-        args = instance.GetUpdateChrootArgs("board").GetArgList()
-        self.assertIn("--usepkg", args)
-        self.assertIn("--jobs=1", args)
-        self.assertNotIn("--nousepkg", args)
-
-
 class SetupBoardTest(cros_test_lib.MockTestCase):
     """Tests for SetupBoard."""
 

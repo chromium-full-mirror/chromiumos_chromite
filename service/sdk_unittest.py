@@ -214,27 +214,6 @@ class CreateBinhostCLsTest(cros_test_lib.RunCommandTestCase):
         )
 
 
-class UpdateArgumentsTest(cros_test_lib.TestCase):
-    """UpdateArguments tests."""
-
-    def _GetArgList(self, **kwargs):
-        """Helper to simplify getting the argument list."""
-        instance = sdk.UpdateArguments(**kwargs)
-        return instance.GetArgList()
-
-    def testBuildSource(self) -> None:
-        """Test the build_source argument."""
-        args = self._GetArgList(build_source=True)
-        self.assertIn("--nousepkg", args)
-        self.assertNotIn("--usepkg", args)
-
-    def testNoBuildSource(self) -> None:
-        """Test using binpkgs."""
-        args = self._GetArgList(build_source=False)
-        self.assertNotIn("--nousepkg", args)
-        self.assertIn("--usepkg", args)
-
-
 class get_latest_version_test(cros_test_lib.MockTestCase):
     """Test case for get_latest_version()."""
 
@@ -439,15 +418,21 @@ class UpdateTest(
     def testSuccess(self) -> None:
         """Test the simple success case."""
         arguments = sdk.UpdateArguments(root=self.tempdir)
-        expected_args = ["--arg", "--other", "--with-value", "value"]
         expected_version = 1
-        self.PatchObject(arguments, "GetArgList", return_value=expected_args)
         self.PatchObject(sdk, "GetChrootVersion", return_value=expected_version)
+        self.rc.AddCmdResult(
+            [
+                constants.CHROMITE_BIN_DIR / "cros_setup_toolchains",
+                "--show-packages",
+                "host",
+            ],
+            stdout="a/b\n",
+        )
 
         response = sdk.Update(arguments)
         version = response.version
 
-        self.assertCommandContains(expected_args)
+        self.assertCommandContains(["virtual/target-sdk"])
         self.assertEqual(expected_version, version)
 
     def testPackageFailure(self) -> None:
@@ -458,9 +443,15 @@ class UpdateTest(
         )
         expected_rc = 1
         self.rc.AddCmdResult(
-            partial_mock.In(
-                str(constants.CHROMITE_SHELL_DIR / "update_chroot.sh")
-            ),
+            [
+                constants.CHROMITE_BIN_DIR / "cros_setup_toolchains",
+                "--show-packages",
+                "host",
+            ],
+            stdout="a/b\n",
+        )
+        self.rc.AddCmdResult(
+            partial_mock.In("virtual/target-sdk"),
             returncode=expected_rc,
         )
 
@@ -499,6 +490,7 @@ class UpdateTest(
             if (
                 constants.CHROMITE_BIN_DIR / "cros_setup_toolchains"
                 in call_args[0]
+                and "--show-packages" not in call_args[0]
             ):
                 return call_args, call_kwargs
         return None
@@ -511,11 +503,24 @@ class UpdateTest(
 
     def testNoToolchainUpdate(self) -> None:
         """Test skipping toolchain updates are handled correctly."""
+
+        def _check_call(*args, **kwargs) -> None:
+            del kwargs
+            ret = cros_build_lib.CompletedProcess(
+                stdout="", stderr="", returncode=0
+            )
+            # Querying system state is OK, but modifying is bad.
+            if "--show-packages" in args[0]:
+                ret.stdout = "a/b\n"
+            else:
+                ret.returncode = 1
+            return ret
+
         self.rc.AddCmdResult(
             partial_mock.In(
                 str(constants.CHROMITE_BIN_DIR / "cros_setup_toolchains")
             ),
-            returncode=1,
+            side_effect=_check_call,
         )
         sdk.Update(sdk.UpdateArguments(update_toolchain=False))
         call = self._find_toolchain_call()
