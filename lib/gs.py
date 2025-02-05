@@ -54,7 +54,7 @@ DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 LS_LA_RE = re.compile(
     r"^\s*(?P<content_length>\d*?)\s+"
     r"(?P<creation_time>\S*?)\s+"
-    r"(?P<url>[^#$]+).*?"
+    r"(?P<url>[^#]+).*?"
     r"("
     r"#(?P<generation>\d+)\s+"
     r"meta_?generation=(?P<metageneration>\d+)"

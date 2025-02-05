@@ -427,6 +427,47 @@ class LSTest(AbstractGSContextTest):
 
         self.assertEqual(self.LIST_RESULT, result)
 
+    def testListFunkyChars(self) -> None:
+        """GS names can be quite permissive."""
+        pfx = "gs://chromeos-localmirror/distfiles/chromeos-firmware-pit"
+        self.gs_mock.SetDefaultCmdResult(
+            stdout=f"""\
+     44526  2013-07-20T00:54:32Z  {pfx}/pit_ec_4390.6.0.tbz2#1374281672766000  metageneration=2
+    877378  2013-07-20T00:54:27Z  {pfx}/pit_fw_4390.6.0.tbz2#1374281667459000  metageneration=2
+         0  2013-07-20T00:54:18Z  {pfx}_$folder$#1374281658398000  metageneration=1
+TOTAL: 3 objects, 921904 bytes (900.3 KiB)
+"""
+        )
+        result = self.List(generation=True)
+        self.gs_mock.assertCommandContains(["ls", "--", self.LS_PATH])
+
+        self.assertEqual(
+            [
+                gs.GSListResult(
+                    url=f"{pfx}/pit_ec_4390.6.0.tbz2",
+                    creation_time=datetime.datetime(2013, 7, 20, 0, 54, 32),
+                    content_length=44526,
+                    generation=1374281672766000,
+                    metageneration=2,
+                ),
+                gs.GSListResult(
+                    url=f"{pfx}/pit_fw_4390.6.0.tbz2",
+                    creation_time=datetime.datetime(2013, 7, 20, 0, 54, 27),
+                    content_length=877378,
+                    generation=1374281667459000,
+                    metageneration=2,
+                ),
+                gs.GSListResult(
+                    url=f"{pfx}_$folder$",
+                    creation_time=datetime.datetime(2013, 7, 20, 0, 54, 18),
+                    content_length=0,
+                    generation=1374281658398000,
+                    metageneration=1,
+                ),
+            ],
+            result,
+        )
+
 
 class UnmockedLSTest(cros_test_lib.TempDirTestCase):
     """Tests LS/List functionality w/out mocks."""
