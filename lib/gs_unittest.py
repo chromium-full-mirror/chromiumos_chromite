@@ -2175,3 +2175,13 @@ class UnmockedGSCounterTest(cros_test_lib.TestCase):
         with self._Counter() as counter:
             self._SetCounter(counter, 100)
             self.assertEqual(counter.StreakDecrement(), -1)
+
+
+def test_escape_gsutil_url() -> None:
+    """Check escape_gsutil_url handling."""
+    unchanged = "gs://foo/b!a.r$"
+    assert unchanged == gs.escape_gsutil_url(unchanged)
+
+    assert "gs://foo/[[]fun[]]ky[?]yeah[*]it[*][*]is" == gs.escape_gsutil_url(
+        "gs://foo/[fun]ky?yeah*it**is"
+    )

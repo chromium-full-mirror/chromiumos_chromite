@@ -1774,3 +1774,26 @@ def TemporaryURL(prefix):
         yield url
     finally:
         ctx.Remove(url, ignore_missing=True, recursive=True)
+
+
+def escape_gsutil_url(url: str, specials: str = "?*[]") -> str:
+    """Escape elements that gsutil treats specially.
+
+    gsutil supports wildcards in URIs, but has no way of matching literals.
+    https://github.com/GoogleCloudPlatform/gsutil/issues/220
+
+    We have to escape them ourselves.  This only applies when using gsutil.
+    https://cloud.google.com/storage/docs/wildcards
+
+    Examples:
+        gs://chromeos-localmirror/foo[bar].tar ->
+        gs://chromeos-localmirror/foo[[]bar[]].tar
+
+    Args:
+        url: The URL to escape.
+        specials: The characters to escape.
+
+    Returns:
+        The escaped URL for using directly with gsutil.
+    """
+    return re.sub("([" + re.escape(specials) + "])", r"[\1]", url)
