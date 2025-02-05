@@ -1314,6 +1314,10 @@ wheel: <
 
         if details:
             # The last line is expected to be a summary line.  Ignore it.
+            # This is hardcoded in gsutil itself when detailed listing is used
+            # and there are any results.  It is never translated.
+            if lines and not lines[-1].startswith("TOTAL:"):
+                raise GSContextException("Listing malformed")
             lines = lines[:-1]
             ls_re = LS_LA_RE
         else:
