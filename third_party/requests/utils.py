@@ -9,7 +9,6 @@ that are also useful for external consumption.
 
 """
 
-import cgi
 import codecs
 import collections
 import io
@@ -336,13 +335,28 @@ def get_encoding_from_headers(headers):
 
     :param headers: dictionary to extract encoding from.
     """
+    def parse_header(content_type):
+        #Inner function to parse header
+        content_type_and_params_delimiter = ';'
+
+        #append delimiter on end to ensure atleast two elements when split by ';'
+        content_type += content_type_and_params_delimiter
+
+        tokens = content_type.split(content_type_and_params_delimiter)
+        content_type_index = 0
+        params_index = 1
+
+        content_type = tokens[content_type_index]
+        params = tokens[params_index]
+        params_dict = dict(param.split('=') for param in params.split())
+        return content_type,params_dict
 
     content_type = headers.get('content-type')
 
     if not content_type:
         return None
 
-    content_type, params = cgi.parse_header(content_type)
+    content_type, params = parse_header(content_type)
 
     if 'charset' in params:
         return params['charset'].strip("'\"")
