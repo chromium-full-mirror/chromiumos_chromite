@@ -754,7 +754,8 @@ wheel: <
         assert gs_urls_util.PathIsGs(path)
 
         if self.dry_run:
-            return (lambda: (yield ""))()
+            yield ""
+            return
 
         env = None
         if self.boto_file and os.path.isfile(self.boto_file):
