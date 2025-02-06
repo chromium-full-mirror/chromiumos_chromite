@@ -28,6 +28,7 @@ KNOWN_PACKAGES = (
     "virtual/target-sdk-implicit-system",
     "virtual/target-sdk-post-cross",
     "virtual/target-sdk-subtools",
+    "virtual/target-chrome-os-sdk-subtools",
     constants.TARGET_SDK,
     constants.TARGET_SDK_BROOT,
 ) + constants.ALL_TARGET_PACKAGES
@@ -42,6 +43,7 @@ IGNORE_CATEGORIES = {
     "build-test",
     # Ton of DLC in here.
     "chromeos-borealis",
+    "chromeos-soda",
 }
 
 
