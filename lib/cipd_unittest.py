@@ -6,6 +6,7 @@
 
 import hashlib
 import json
+import logging
 from pathlib import Path
 import time
 from unittest import mock
@@ -204,7 +205,11 @@ Packages:
 """
     )
     expected = ["/cipd.fake", "resolve", "some/package", "-version", "version"]
-    kwargs = {"capture_output": True, "encoding": "utf-8"}
+    kwargs = {
+        "capture_output": True,
+        "encoding": "utf-8",
+        "debug_level": logging.DEBUG,
+    }
 
     assert (
         cipd.GetInstanceID("/cipd.fake", "some/package", "version")
@@ -243,6 +248,7 @@ Instances:
         capture_output=True,
         encoding="utf-8",
         check=False,
+        debug_level=mock.ANY,
     )
 
 

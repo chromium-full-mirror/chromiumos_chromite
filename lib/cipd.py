@@ -229,7 +229,7 @@ def GetInstanceID(cipd_path, package, version, service_account_json=None):
     Returns:
         A string instance ID.
     """
-    result = cros_build_lib.run(
+    result = cros_build_lib.dbg_run(
         [cipd_path, "resolve", package, "-version", version]
         + _shared_cipd_args(cred_path=service_account_json),
         capture_output=True,
@@ -257,7 +257,7 @@ def search_instances(
     cmd = [cipd_path, "search", package] + _shared_cipd_args(
         tags, [], cred_path, service_url
     )
-    result = cros_build_lib.run(
+    result = cros_build_lib.dbg_run(
         cmd, capture_output=True, encoding="utf-8", check=False
     )
     package_missing = f"""Error: prefix "{package}" doesn't exist"""
@@ -328,6 +328,7 @@ def InstallPackage(
         capture_output=True,
         print_cmd=print_cmd,
         input=ensure,
+        debug_level=logging.DEBUG,
     )
 
     return destination
