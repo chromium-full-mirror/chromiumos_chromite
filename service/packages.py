@@ -804,10 +804,7 @@ def uprev_chromeos_ec_token(_build_targets, _refs, chroot):
     See: uprev_versioned_package.
     """
     package_path = os.path.join(
-        "src",
-        "third_party",
-        "chromeos-base",
-        "chromeos-ec-token",
+        constants.CHROMIUMOS_OVERLAY_DIR, "chromeos-base", "chromeos-ec-token"
     )
 
     version_pin_src_path = _get_version_pin_src_path(package_path)
