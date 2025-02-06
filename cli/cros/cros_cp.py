@@ -24,6 +24,8 @@ Examples:
         cros cp <ip>:<src_path> <dest_path> --mode=<scp/rsync>
         cros cp <src_path> <ip>:<dest_path>
         cros cp <user>@<ip>:<src_path> <dest_path> --port=<port>
+        # Copy a remote file to stdout.
+        cros cp <host>:<path> - | sort -u
 """
 
     def __init__(self, options) -> None:

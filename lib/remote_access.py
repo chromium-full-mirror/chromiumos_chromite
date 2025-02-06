@@ -4,6 +4,7 @@
 
 """Library containing functions to access a remote test device."""
 
+import contextlib
 import functools
 import glob
 import logging
@@ -14,6 +15,7 @@ import shutil
 import socket
 import stat
 import subprocess
+import sys
 import tempfile
 import time
 from typing import List, Optional, Union
@@ -1210,7 +1212,26 @@ class RemoteDevice:
         else:
             func = self.agent.RsyncToLocal
 
-        RunCommandFuncWrapper(func, msg, src, dest, **kwargs)
+        with contextlib.ExitStack() as stack:
+            dest_is_stdout = dest == "-"
+            if dest_is_stdout:
+                # scp is unable to write to non-regulard files (e.g. stdout or a
+                # pipe).  So we have to copy it to a temporary file first.  We
+                # do not try to optimize the situation to keep the code simple.
+                temp_output = stack.enter_context(tempfile.NamedTemporaryFile())
+                dest = temp_output.name
+
+            RunCommandFuncWrapper(func, msg, src, dest, **kwargs)
+
+            if dest_is_stdout:
+                # Read the temporary data in, flush stdout, then write it out.
+                # We write directly to the underlying fd because the file might
+                # have random (non-UTF-8) data in it, and sys.stdout only
+                # accepts text.
+                data = osutils.ReadBytes(dest)
+                temp_output.close()
+                sys.stdout.flush()
+                os.write(sys.stdout.fileno(), data)
 
     def CopyFromWorkDir(self, src, dest, **kwargs) -> None:
         """Copy path from working directory on the device."""
