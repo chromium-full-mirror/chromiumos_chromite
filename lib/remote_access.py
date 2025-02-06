@@ -752,7 +752,7 @@ class RemoteAccess:
         rc_func = cros_build_lib.run
         if sudo:
             rc_func = cros_build_lib.sudo_run
-        return rc_func(rsync_cmd, print_cmd=verbose, **kwargs)
+        return rc_func(rsync_cmd, **kwargs)
 
     def RsyncToLocal(self, *args, **kwargs):
         """Rsync a path from the remote device to the local machine."""
@@ -834,7 +834,7 @@ class RemoteAccess:
         if sudo:
             rc_func = cros_build_lib.sudo_run
 
-        return rc_func(scp_cmd, print_cmd=verbose, **kwargs)
+        return rc_func(scp_cmd, **kwargs)
 
     def ScpToLocal(self, *args, **kwargs):
         """Scp a path from the remote device to the local machine."""
