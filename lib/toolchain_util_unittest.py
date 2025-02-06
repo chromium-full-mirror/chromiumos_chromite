@@ -915,7 +915,6 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             "_FindLatestAFDOArtifact",
             side_effect=self.mockFindLatestAFDOArtifact,
         )
-        self.PatchObject(self.obj.chroot, "tempdir", return_value=self.tempdir)
         self.PatchObject(self.obj, "_MergeAFDOProfiles")
         self.PatchObject(self.obj, "_ProcessAFDOProfile")
         self.PatchObject(os, "rename")
