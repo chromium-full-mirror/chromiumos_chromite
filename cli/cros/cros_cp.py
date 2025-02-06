@@ -100,14 +100,11 @@ Examples:
         self.kwargs.setdefault("chmod", self.options.chmod)
         self.kwargs.setdefault("chown", self.options.chown)
 
-    def _StartCp(self):
+    def _StartCp(self) -> None:
         """Starts copying files from/to device.
 
         Requires that _ReadOptions() has already been called to provide the
         remote access configuration.
-
-        Returns:
-            The return of CopyFromDevice or CopyToDevice.
 
         Raises:
             RemoteAccessException on remote access failure.
@@ -117,33 +114,29 @@ Examples:
             port=self.port,
             username=self.username,
         )
+        func = (
+            self.device.CopyFromDevice
+            if self.to_local
+            else self.device.CopyToDevice
+        )
         for src in self.src:
-            if self.to_local:
-                ret = self.device.CopyFromDevice(
-                    src=src.path,
-                    dest=self.dest.path,
-                    mode=self.mode,
-                    **self.kwargs,
-                )
-            else:
-                ret = self.device.CopyToDevice(
-                    src=src.path,
-                    dest=self.dest.path,
-                    mode=self.mode,
-                    **self.kwargs,
-                )
-            if ret:
-                break
-        return ret
+            func(
+                src=src.path,
+                dest=self.dest.path,
+                mode=self.mode,
+                **self.kwargs,
+            )
 
     def Run(self):
         """Runs `cros cp`."""
         self._ReadOptions()
 
         try:
-            return self._StartCp()
+            self._StartCp()
         except remote_access.RemoteAccessException:
             if self.options.debug:
                 raise
             else:
                 return 1
+
+        return 0

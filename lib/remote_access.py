@@ -1139,7 +1139,7 @@ class RemoteDevice:
             "Successfully copy %s to %s in chunks in parallel", src, dest
         )
 
-    def CopyToDevice(self, src, dest, mode, **kwargs):
+    def CopyToDevice(self, src, dest, mode, **kwargs) -> None:
         """Copy path to device.
 
         Args:
@@ -1188,9 +1188,9 @@ class RemoteDevice:
         else:
             func = self.agent.Rsync
 
-        return RunCommandFuncWrapper(func, msg, src, dest, **kwargs)
+        RunCommandFuncWrapper(func, msg, src, dest, **kwargs)
 
-    def CopyFromDevice(self, src, dest, mode="scp", **kwargs):
+    def CopyFromDevice(self, src, dest, mode="scp", **kwargs) -> None:
         """Copy path from device.
 
         Adding --compress recommended for text like log files.
@@ -1210,19 +1210,15 @@ class RemoteDevice:
         else:
             func = self.agent.RsyncToLocal
 
-        return RunCommandFuncWrapper(func, msg, src, dest, **kwargs)
+        RunCommandFuncWrapper(func, msg, src, dest, **kwargs)
 
-    def CopyFromWorkDir(self, src, dest, **kwargs):
+    def CopyFromWorkDir(self, src, dest, **kwargs) -> None:
         """Copy path from working directory on the device."""
-        return self.CopyFromDevice(
-            os.path.join(self.work_dir, src), dest, **kwargs
-        )
+        self.CopyFromDevice(os.path.join(self.work_dir, src), dest, **kwargs)
 
-    def CopyToWorkDir(self, src, dest="", **kwargs):
+    def CopyToWorkDir(self, src, dest="", **kwargs) -> None:
         """Copy path to working directory on the device."""
-        return self.CopyToDevice(
-            src, os.path.join(self.work_dir, dest), **kwargs
-        )
+        self.CopyToDevice(src, os.path.join(self.work_dir, dest), **kwargs)
 
     def _TestPath(self, path, option, **kwargs):
         """Tests a given path for specific options."""
