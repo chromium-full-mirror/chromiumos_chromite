@@ -23,6 +23,7 @@ from chromite.lib import cros_sdk_lib
 from chromite.lib import ensure_bootstrap
 from chromite.lib import gs
 from chromite.lib import osutils
+from chromite.lib import parallel
 from chromite.lib import portage_util
 from chromite.lib import sdk_builder_lib
 from chromite.lib import sysroot_lib
@@ -478,9 +479,45 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
     cros_build_lib.sudo_run(["etc-update", "--automode", "-9"], input="YES\n")
 
     # If the user still has old perl modules installed, update them.
-    cros_build_lib.run(
-        [constants.CROSUTILS_DIR / "build_library" / "perl_rebuild.sh"]
-    )
+    perl_versions = {
+        x.name for x in arguments.root.glob("usr/lib*/perl5/vendor_perl/*/")
+    }
+    logging.info("Detected installed perl versions: %s", perl_versions)
+    if len(perl_versions) > 1:
+        # Some perl packages might not exist anymore due to the upgrade, so
+        # unmerge any that no longer exist.
+        logging.info("Looking for outdated perl packages to purge")
+        result = cros_build_lib.run(
+            ["qlist", "-IC", "dev-perl/", "perl-core/", "virtual/perl-"],
+            capture_output=True,
+            encoding="utf-8",
+        )
+        curr_pkgs = sorted(set(result.stdout.split()))
+
+        def _find_missing_pkgs(pkg: str) -> Optional[str]:
+            """Return packages that don't exist as ebuilds anymore."""
+            result = cros_build_lib.dbg_run(
+                ["equery", "which", pkg], capture_output=True, check=False
+            )
+            return pkg if result.returncode else None
+
+        old_pkgs = [
+            x
+            for x in parallel.RunTasksInProcessPool(
+                _find_missing_pkgs, [[x] for x in curr_pkgs]
+            )
+            if x
+        ]
+        if old_pkgs:
+            cros_build_lib.sudo_run(["qmerge", "-Uyq"] + old_pkgs)
+
+        logging.info("Updating perl to get only 1 version")
+        cros_build_lib.sudo_run(["perl-cleaner", "--all", "--", "--quiet"])
+        cros_build_lib.sudo_run(
+            ["find"]
+            + list(arguments.root.glob("usr/lib*/perl5/vendor_perl"))
+            + ["-depth", "-type", "d", "-empty", "-delete"]
+        )
 
     # Generate /usr/bin/remote_toolchain_inputs file for Reclient used by Chrome
     # for distributed builds. go/rbe/dev/x/reclient
