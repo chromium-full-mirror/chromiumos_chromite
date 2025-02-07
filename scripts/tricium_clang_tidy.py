@@ -213,7 +213,6 @@ def transform_filepaths(
     Returns:
         Path which corresponds to input and exists or None.
     """
-
     if not file_path:
         return None
     path = Path(file_path)
@@ -292,9 +291,7 @@ def parse_tidy_fixes_file(
         offsets = LineOffsetMap(())
         if file_path:
             try:
-                offsets = LineOffsetMap.for_text(
-                    file_path.read_text(encoding="utf-8")
-                )
+                offsets = LineOffsetMap.for_text(osutils.ReadText(file_path))
             except FileNotFoundError:
                 logging.warning(
                     "Cannot get offsets for %r since file does not exist.",
@@ -417,9 +414,7 @@ def parse_tidy_invocation(
     try:
         assert json_file.suffix == ".json", json_file
 
-        with json_file.open(encoding="utf-8") as f:
-            raw_meta = json.load(f)
-
+        raw_meta = json.loads(osutils.ReadText(json_file))
         meta = InvocationMetadata(
             exit_code=raw_meta["exit_code"],
             invocation=[raw_meta["executable"]] + raw_meta["args"],
@@ -447,9 +442,11 @@ Clang-tidy apparently crashed; dumping lots of invocation info:
             )
 
         yaml_file = json_file.with_suffix(".yaml")
-        # If there is no yaml file, clang-tidy was either killed or found no
-        # lints.
-        if not yaml_file.exists():
+        try:
+            yaml_contents = osutils.ReadBytes(yaml_file)
+        except FileNotFoundError:
+            # If there is no yaml file, clang-tidy was either killed or found
+            # no lints.
             if meta.exit_code:
                 raise RuntimeError(
                     "clang-tidy didn't produce an output file for "
@@ -458,8 +455,7 @@ Clang-tidy apparently crashed; dumping lots of invocation info:
             else:
                 return meta, []
 
-        with yaml_file.open("rb") as f:
-            yaml_data = yaml.safe_load(f)
+        yaml_data = yaml.safe_load(yaml_contents)
         return meta, list(parse_tidy_fixes_file(Path(meta.wd), yaml_data))
     except Exception:
         return ExceptionData()

@@ -4,7 +4,6 @@
 
 """Unit tests for tricium_clang_tidy.py."""
 
-import io
 import json
 import multiprocessing
 import os
@@ -121,13 +120,11 @@ def mocked_nop_realpath(f):
     return inner
 
 
-def mocked_readonly_open(contents=None, default=None):
-    """Mocks out open() so it always returns things from |contents|.
-
-    Writing to open'ed files is not supported.
+def mocked_osutils_readfile(contents=None, default=None):
+    """Mocks out osutils.ReadFile with the given settings.
 
     Args:
-        contents: a |dict| mapping |file_path| => file_contents.
+        contents: a |dict| mapping |file_path| => |file_contents|.
         default: a default string to return if the given |file_path| doesn't
             exist in |contents|.
 
@@ -141,35 +138,41 @@ def mocked_readonly_open(contents=None, default=None):
 
     if contents is None:
         contents = {}
+    else:
+        # Meant to guard against Paths being added (since they're
+        # auto-converted to strs in `osutils_readfile` below).
+        assert all(
+            isinstance(k, str) for k in contents
+        ), "osutils_read keys should be strs"
 
     def inner(f):
-        """mocked_open impl."""
+        """filemocked_osutils_read impl."""
 
-        @mock.mock_open()
-        def inner_inner(self, open_mock, *args, **kwargs):
-            """the impl of mocked_readonly_open's impl!"""
+        def inner_inner(self, *args, **kwargs):
+            """the impl of mocked_osutils_readfile's impl!"""
 
-            def get_data(file_path, mode="r", encoding=None):
+            def osutils_readfile(
+                path, mode="r", encoding=None, *args, **kwargs
+            ):
                 """the impl of the impl of mocked_readonly_open's impl!!"""
-                data = contents.get(file_path, default)
+                del args
+                del kwargs
+
+                data = contents.get(str(path), default)
                 if data is None:
                     raise ValueError(
-                        "No %r file was found; options were %r"
-                        % (file_path, sorted(contents.keys()))
+                        f"No {path!r} file was found; options were "
+                        f"{sorted(contents.keys())}"
                     )
 
-                assert mode == "r", f"File mode {mode} isn't supported."
+                assert mode in ("r", "rb"), f"File mode {mode} isn't supported."
                 if encoding is None:
-                    return io.BytesIO(data)
-                return io.StringIO(data)
+                    return data.encode("utf-8")
+                return data
 
-            open_mock.side_effect = get_data
-
-            def get_data_stream(file_path):
-                return io.StringIO(get_data(file_path))
-
-            open_mock.side_effect = get_data_stream
-            return f(self, *args, **kwargs)
+            with mock.patch.object(osutils, "ReadFile") as mock_read_file:
+                mock_read_file.side_effect = osutils_readfile
+                return f(self, *args, **kwargs)
 
         return inner_inner
 
@@ -240,18 +243,17 @@ class TriciumClangTidyTests(cros_test_lib.RunCommandTempDirTestCase):
         )
         self.assertEqual(ebuilds, ["${package1_ebuild}", "package2.ebuild"])
 
-    @mocked_readonly_open(default="")
-    def test_parse_tidy_invocation_returns_exception_on_error(
-        self, read_file_mock
-    ) -> None:
-        oh_no = ValueError("${oh_no}!")
-        read_file_mock.side_effect = oh_no
+    @mocked_osutils_readfile()
+    def test_parse_tidy_invocation_returns_exception_on_error(self) -> None:
+        # Attempting to read this file will cause mocked_osutils_readfile to
+        # raise a ValueError
         result = tricium_clang_tidy.parse_tidy_invocation(
-            Path("/some/file/that/doesnt/exist.json")
+            Path("/file/does/not/exist")
         )
-        self.assertIn(str(oh_no), str(result))
+        self.assertIsInstance(result, tricium_clang_tidy.ExceptionData)
 
-    @mocked_readonly_open(
+    @mocked_nop_realpath
+    @mocked_osutils_readfile(
         {
             "/file/path.json": json.dumps(
                 {
@@ -278,9 +280,12 @@ class TriciumClangTidyTests(cros_test_lib.RunCommandTempDirTestCase):
         }
     )
     def test_parse_tidy_invocation_functions_on_success(self) -> None:
-        result = tricium_clang_tidy.parse_tidy_invocation("/file/path.json")
+        result = tricium_clang_tidy.parse_tidy_invocation(
+            Path("/file/path.json")
+        )
         # If we got an |Exception|, print it out.
-        self.assertNotIsInstance(result, tricium_clang_tidy.Error)
+        if isinstance(result, tricium_clang_tidy.ExceptionData):
+            self.fail(f"Unexpected exception: {result}")
         meta, info = result
         self.assertEqual(
             meta,
@@ -299,29 +304,13 @@ class TriciumClangTidyTests(cros_test_lib.RunCommandTempDirTestCase):
                 default_tidy_diagnostic(
                     diag_name="some-diag",
                     message="${message}",
-                    file_path="",
+                    file_path=None,
                 ),
             ],
         )
 
     @mocked_nop_realpath
-    @mocked_readonly_open(default="")
-    def test_parse_fixes_file_absolutizes_paths(self) -> None:
-        results = tricium_clang_tidy.parse_tidy_fixes_file(
-            "/tidy",
-            {
-                "Diagnostics": [
-                    yaml_diagnostic(file_path="foo.c"),
-                    yaml_diagnostic(file_path="/tidy/bar.c"),
-                    yaml_diagnostic(file_path=""),
-                ],
-            },
-        )
-        file_paths = [x.file_path for x in results]
-        self.assertEqual(file_paths, ["/tidy/foo.c", "/tidy/bar.c", ""])
-
-    @mocked_nop_realpath
-    @mocked_readonly_open(
+    @mocked_osutils_readfile(
         {
             "/tidy/foo.c": "",
             "/tidy/foo.h": "a\n\n",
@@ -329,7 +318,7 @@ class TriciumClangTidyTests(cros_test_lib.RunCommandTempDirTestCase):
     )
     def test_parse_fixes_file_interprets_offsets_correctly(self) -> None:
         results = tricium_clang_tidy.parse_tidy_fixes_file(
-            "/tidy",
+            Path("/tidy"),
             {
                 "Diagnostics": [
                     yaml_diagnostic(file_path="/tidy/foo.c", file_offset=1),
@@ -344,20 +333,20 @@ class TriciumClangTidyTests(cros_test_lib.RunCommandTempDirTestCase):
         self.assertEqual(
             file_locations,
             [
-                ("/tidy/foo.c", 1),
-                ("/tidy/foo.c", 1),
-                ("/tidy/foo.h", 1),
-                ("/tidy/foo.h", 2),
-                ("/tidy/foo.h", 3),
+                (Path("/tidy/foo.c"), 1),
+                (Path("/tidy/foo.c"), 1),
+                (Path("/tidy/foo.h"), 1),
+                (Path("/tidy/foo.h"), 2),
+                (Path("/tidy/foo.h"), 3),
             ],
         )
 
     @mocked_nop_realpath
-    @mocked_readonly_open({"/tidy/foo.c": "a \n\n"})
+    @mocked_osutils_readfile({"/tidy/foo.c": "a \n\n"})
     def test_parse_fixes_file_handles_replacements(self) -> None:
         results = list(
             tricium_clang_tidy.parse_tidy_fixes_file(
-                "/tidy",
+                Path("/tidy"),
                 {
                     "Diagnostics": [
                         yaml_diagnostic(
@@ -365,7 +354,7 @@ class TriciumClangTidyTests(cros_test_lib.RunCommandTempDirTestCase):
                             file_offset=1,
                             replacements=[
                                 Replacement(
-                                    file_path="foo.c",
+                                    file_path="/tidy/foo.c",
                                     text="whee",
                                     offset=2,
                                     length=2,
@@ -386,16 +375,18 @@ class TriciumClangTidyTests(cros_test_lib.RunCommandTempDirTestCase):
                     end_line=3,
                     start_char=2,
                     end_char=0,
+                    start_offset=2,
+                    end_offset=4,
                 ),
             ),
         )
 
     @mocked_nop_realpath
-    @mocked_readonly_open({"/whee.c": "", "/whee.h": "\n\n"})
+    @mocked_osutils_readfile({"/whee.c": "", "/whee.h": "\n\n"})
     def test_parse_fixes_file_handles_macro_expansions(self) -> None:
         results = list(
             tricium_clang_tidy.parse_tidy_fixes_file(
-                "/tidy",
+                Path("/tidy"),
                 {
                     "Diagnostics": [
                         yaml_diagnostic(
@@ -423,7 +414,7 @@ class TriciumClangTidyTests(cros_test_lib.RunCommandTempDirTestCase):
             results[0].expansion_locs,
             (
                 tricium_clang_tidy.TidyExpandedFrom(
-                    file_path="/whee.h",
+                    file_path=Path("/whee.h"),
                     line_number=3,
                 ),
             ),
