@@ -810,7 +810,12 @@ def uprev_chromeos_ec_token(_build_targets, _refs, chroot):
     version_pin_src_path = _get_version_pin_src_path(package_path)
     version_no_rev = osutils.ReadFile(version_pin_src_path).strip()
 
-    return uprev_lib.uprev_ebuild_from_pin(package_path, version_no_rev, chroot)
+    result = uprev_lib.UprevVersionedPackageResult()
+    uprev = uprev_lib.uprev_workon_ebuild_to_version(
+        package_path, version_no_rev, chroot
+    )
+    result.add_result(version_no_rev, uprev.changed_files)
+    return result
 
 
 def _get_version_pin_src_path(package_path):
