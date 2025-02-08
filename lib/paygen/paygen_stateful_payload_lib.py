@@ -55,6 +55,7 @@ def _generate_stateful_payload(
                     "--directory=%s" % stateful_dir,
                     "--transform=s,^dev_image,dev_image_new,",
                     "--transform=s,^var_overlay,var_new,",
+                    "--transform=s,^unencrypted/dev_image.block,unencrypted/dev_image_new.block,",
                 ],
             )
         except:
