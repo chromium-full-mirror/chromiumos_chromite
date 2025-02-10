@@ -6,7 +6,7 @@
 
 #### Google Storage locations and names. ####
 # TODO (joyc) move the google storage filenames of artfacts here
-CHANNELS = "canary", "dev", "beta", "stable"
+CHANNELS = ("canary", "dev", "beta", "stable", "ltc", "lts")
 GS_IMAGE_BUCKET = "chromeos-image-archive"
 GS_IMAGE_DIR = "gs://%s" % GS_IMAGE_BUCKET
 # TODO(ahassani): Remove MASTER once all buckets have moved to MAIN.
