@@ -316,10 +316,12 @@ def InstallPackage(
         # at the moment, and we won't have the necessary keepalive variables.
         # If that code gets refactored to use Chromite's sudo facilities, we can
         # use strict=True.
+        # We use preserve_env=True in case the current env has proxy vars set.
         run = functools.partial(
             cros_build_lib.sudo_run,
             user=non_root_user,
             strict=False,
+            preserve_env=True,
         )
 
     run(
