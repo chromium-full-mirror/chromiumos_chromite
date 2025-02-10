@@ -15,6 +15,7 @@ from chromite.format import formatters
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
+from chromite.lib import parallel
 from chromite.lib import qemu
 from chromite.lint import linters
 from chromite.scripts import clang_format
@@ -26,22 +27,30 @@ from chromite.scripts import clang_format
 @functools.lru_cache(maxsize=None)
 def for_format() -> None:
     """Ensure formatting tools have been bootstrapped from the network."""
-    cros_build_lib.dbg_run(
-        [constants.CHROMITE_DIR / "scripts" / "black", "--version"],
-        capture_output=True,
-    )
-    cros_build_lib.dbg_run(
-        [constants.CHROMITE_DIR / "scripts" / "isort", "--version"],
-        capture_output=True,
-    )
 
-    formatters.gn._find_gn()
-    formatters.rust._find_rustfmt()
-    formatters.star._find_buildifier()
-    formatters.textproto._find_txtpbfmt()
+    def _find_clang_format() -> None:
+        with clang_format.ClangFormat():
+            pass
 
-    with clang_format.ClangFormat():
-        pass
+    parallel.RunParallelSteps(
+        [
+            functools.partial(
+                cros_build_lib.dbg_run,
+                [constants.CHROMITE_DIR / "scripts" / "black", "--version"],
+                capture_output=True,
+            ),
+            functools.partial(
+                cros_build_lib.dbg_run,
+                [constants.CHROMITE_DIR / "scripts" / "isort", "--version"],
+                capture_output=True,
+            ),
+            formatters.gn._find_gn,
+            formatters.rust._find_rustfmt,
+            formatters.star._find_buildifier,
+            formatters.textproto._find_txtpbfmt,
+            _find_clang_format,
+        ]
+    )
 
 
 @functools.lru_cache(maxsize=None)
