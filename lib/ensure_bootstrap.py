@@ -36,12 +36,22 @@ def for_format() -> None:
         [
             functools.partial(
                 cros_build_lib.dbg_run,
-                [constants.CHROMITE_DIR / "scripts" / "black", "--version"],
+                [
+                    "vpython3",
+                    "-vpython-tool",
+                    "install",
+                    constants.CHROMITE_DIR / "scripts" / "black",
+                ],
                 capture_output=True,
             ),
             functools.partial(
                 cros_build_lib.dbg_run,
-                [constants.CHROMITE_DIR / "scripts" / "isort", "--version"],
+                [
+                    "vpython3",
+                    "-vpython-tool",
+                    "install",
+                    constants.CHROMITE_DIR / "scripts" / "isort",
+                ],
                 capture_output=True,
             ),
             formatters.gn._find_gn,
