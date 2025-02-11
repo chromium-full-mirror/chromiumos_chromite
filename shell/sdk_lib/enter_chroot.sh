@@ -639,7 +639,7 @@ done
 # Set up GIT_PROXY_COMMAND so git:// URLs automatically work behind a proxy.
 if [[ -n "${all_proxy}" || -n "${https_proxy}" || -n "${http_proxy}" ]]; then
   CHROOT_PASSTHRU+=(
-    "GIT_PROXY_COMMAND=${CHROOT_TRUNK_DIR}/src/scripts/bin/proxy-gw"
+    "GIT_PROXY_COMMAND=${CHROOT_TRUNK_DIR}/chromite/shell/proxy-gw"
   )
 fi
 
