@@ -32,5 +32,6 @@ async def SeekStream() -> None:
 
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
+    del argv  # Unused.
     asyncio.run(SeekStream())
     logging.info(SeekUpdate().version)

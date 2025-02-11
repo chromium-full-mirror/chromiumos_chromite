@@ -242,4 +242,4 @@ def custom_endpoint(request: sdk_server_pb2.CustomRequest):
 
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
-    pass
+    del argv  # Unused.

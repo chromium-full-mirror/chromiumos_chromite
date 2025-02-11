@@ -21,6 +21,7 @@ class UpdateService(pb2_grpc.UpdateServiceServicer):
     """Update Endpoint Servicer"""
 
     def UpdateChroot(self, request, context):
+        del request, context  # Unused.
         logging.info("API CALL...")
         controllerResponse = sdk_pb2.UpdateResponse()
         sdk_controller.Update(
@@ -35,6 +36,7 @@ class StreamService(pb2_grpc.StreamServiceServicer):
     """Streaming Endpoint Servicer"""
 
     async def GetStream(self, request, context):
+        del request, context  # Unused.
         logging.info("API CALL...")
         for i in range(300):
             yield sdk_server_pb2.StreamResponse(num=i)
@@ -55,4 +57,5 @@ async def serve() -> None:
 
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
+    del argv  # Unused.
     asyncio.run(serve())

@@ -6,7 +6,6 @@
 
 import dataclasses
 import enum
-import functools
 import os
 from pathlib import Path
 from typing import Callable, Iterator, List, Optional, Union

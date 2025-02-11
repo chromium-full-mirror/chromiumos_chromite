@@ -39,4 +39,5 @@ def run() -> None:
 
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
+    del argv  # Unused.
     run()

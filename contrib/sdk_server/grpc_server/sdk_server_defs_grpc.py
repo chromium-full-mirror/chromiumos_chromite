@@ -61,7 +61,6 @@ def AsyncRun(
     stdout=None,
     stderr=None,
     encoding=None,
-    debug_level=logging.INFO,
 ):
     """Asynchronous implementation of cros_build_lib.run.
 

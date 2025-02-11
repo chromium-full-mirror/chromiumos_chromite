@@ -170,11 +170,12 @@ class RunSysrootCommandMockTestCase(cros_test_lib.MockTestCase):
 
     def MockedRunSysrootCommand(
         self, command, extra_env=None, **kwargs
-    ) -> None:  # pylint: disable=unused-argument
+    ) -> None:
         """The mocked version of RunSysrootCommand.
 
         Asserts |command| and |extra_env| are what is expected.
         """
+        del kwargs  # Unused.
         self.assertEqual(self.expected_command, command)
         self.assertEqual(self.expected_extra_env, extra_env)
 

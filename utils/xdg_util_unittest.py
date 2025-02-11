@@ -41,10 +41,9 @@ def reset_xdg_util_caches() -> None:
     xdg_util._get_homedir.cache_clear()
 
 
-def test_chrome_bot_paths(
-    as_chrome_bot,
-) -> None:  # pylint: disable=unused-argument
+def test_chrome_bot_paths(as_chrome_bot) -> None:
     """Check paths when run as chrome-bot."""
+    del as_chrome_bot  # Unused.
     assert xdg_util._is_chrome_bot()
 
     d = xdg_util._get_cache_home()
@@ -64,10 +63,9 @@ def test_chrome_bot_paths(
 
 
 @mock.patch.multiple(os_util, is_root_user=lambda: False)
-def test_non_root_paths(
-    as_not_chrome_bot,
-) -> None:  # pylint: disable=unused-argument
+def test_non_root_paths(as_not_chrome_bot) -> None:
     """Check paths when run as non-root user."""
+    del as_not_chrome_bot  # Unused.
     assert not xdg_util._is_chrome_bot()
 
     d = xdg_util._get_cache_home()
@@ -89,10 +87,9 @@ def test_non_root_paths(
 @mock.patch.multiple(
     os_util, is_root_user=lambda: True, non_root_home=lambda: Path("/foo")
 )
-def test_root_paths(
-    as_not_chrome_bot,
-) -> None:  # pylint: disable=unused-argument
+def test_root_paths(as_not_chrome_bot) -> None:
     """Check paths when run as root user."""
+    del as_not_chrome_bot  # Unused.
     assert not xdg_util._is_chrome_bot()
     assert xdg_util._get_cache_home() == Path("/foo/.cache")
     assert xdg_util._get_config_home() == Path("/foo/.config")

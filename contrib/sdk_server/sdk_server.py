@@ -36,6 +36,7 @@ def clean_up() -> None:
 
 
 def main(argv) -> None:
+    del argv  # Unused.
     atexit.register(clean_up)
     server_proc = run_server()
     PROCESSES.append(server_proc)
