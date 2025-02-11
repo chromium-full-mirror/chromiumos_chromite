@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+chromiumos/test/scheduling/task_state.proto\x12\x1a\x63hromiumos.test.scheduling\"\x92\x01\n\x18\x43reateTaskStatesResponse\x12J\n\x03ids\x18\x01 \x03(\x0b\x32=.chromiumos.test.scheduling.CreateTaskStatesResponse.IdsEntry\x1a*\n\x08IdsEntry\x12\x0b\n\x03key\x18\x01 \x01(\x03\x12\r\n\x05value\x18\x02 \x01(\x03:\x02\x38\x01\"R\n\x16ReadTaskStatesResponse\x12\x38\n\x05tasks\x18\x01 \x03(\x0b\x32).chromiumos.test.scheduling.TaskWithState\"\x91\x01\n\rTaskWithState\x12\x15\n\rtask_state_id\x18\x01 \x01(\x03\x12\x34\n\x05state\x18\x02 \x01(\x0e\x32%.chromiumos.test.scheduling.TaskState\x12\x0c\n\x04\x62\x62id\x18\x03 \x01(\x03\x12\x10\n\x08lease_id\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65vice_name\x18\x05 \x01(\t*u\n\tTaskState\x12\r\n\tREQUESTED\x10\x00\x12\x0b\n\x07PENDING\x10\x01\x12\x0c\n\x08LAUNCHED\x10\x02\x12\r\n\tCOMPLETED\x10\x03\x12\x0b\n\x07\x45XPIRED\x10\x04\x12\x0c\n\x08\x43\x41NCELED\x10\x05\x12\x14\n\x10\x46\x41ILED_TO_LAUNCH\x10\x06\x42\tZ\x07./protob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+chromiumos/test/scheduling/task_state.proto\x12\x1a\x63hromiumos.test.scheduling\"\x92\x01\n\x18\x43reateTaskStatesResponse\x12J\n\x03ids\x18\x01 \x03(\x0b\x32=.chromiumos.test.scheduling.CreateTaskStatesResponse.IdsEntry\x1a*\n\x08IdsEntry\x12\x0b\n\x03key\x18\x01 \x01(\x03\x12\r\n\x05value\x18\x02 \x01(\x03:\x02\x38\x01\"R\n\x16ReadTaskStatesResponse\x12\x38\n\x05tasks\x18\x01 \x03(\x0b\x32).chromiumos.test.scheduling.TaskWithState\"\xa3\x01\n\rTaskWithState\x12\x15\n\rtask_state_id\x18\x01 \x01(\x03\x12\x34\n\x05state\x18\x02 \x01(\x0e\x32%.chromiumos.test.scheduling.TaskState\x12\x0c\n\x04\x62\x62id\x18\x03 \x01(\x03\x12\x10\n\x08lease_id\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65vice_name\x18\x05 \x01(\t\x12\x10\n\x08\x65nd_time\x18\x06 \x01(\x03*u\n\tTaskState\x12\r\n\tREQUESTED\x10\x00\x12\x0b\n\x07PENDING\x10\x01\x12\x0c\n\x08LAUNCHED\x10\x02\x12\r\n\tCOMPLETED\x10\x03\x12\x0b\n\x07\x45XPIRED\x10\x04\x12\x0c\n\x08\x43\x41NCELED\x10\x05\x12\x14\n\x10\x46\x41ILED_TO_LAUNCH\x10\x06\x42\tZ\x07./protob\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -24,8 +24,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._serialized_options = b'Z\007./proto'
   _CREATETASKSTATESRESPONSE_IDSENTRY._options = None
   _CREATETASKSTATESRESPONSE_IDSENTRY._serialized_options = b'8\001'
-  _globals['_TASKSTATE']._serialized_start=456
-  _globals['_TASKSTATE']._serialized_end=573
+  _globals['_TASKSTATE']._serialized_start=474
+  _globals['_TASKSTATE']._serialized_end=591
   _globals['_CREATETASKSTATESRESPONSE']._serialized_start=76
   _globals['_CREATETASKSTATESRESPONSE']._serialized_end=222
   _globals['_CREATETASKSTATESRESPONSE_IDSENTRY']._serialized_start=180
@@ -33,5 +33,5 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_READTASKSTATESRESPONSE']._serialized_start=224
   _globals['_READTASKSTATESRESPONSE']._serialized_end=306
   _globals['_TASKWITHSTATE']._serialized_start=309
-  _globals['_TASKWITHSTATE']._serialized_end=454
+  _globals['_TASKWITHSTATE']._serialized_end=472
 # @@protoc_insertion_point(module_scope)
