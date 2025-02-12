@@ -1444,6 +1444,8 @@ in
         query_result = cros_build_lib.run(
             [
                 BAZEL_COMMAND,
+                "--project",
+                "alchemy",
                 "cquery",
                 "--profile=" + BAZEL_ALLPACKAGES_CQUERY_PROFILE_FILE,
                 query_text,
@@ -1466,6 +1468,8 @@ in
     try:
         cmd = [
             BAZEL_COMMAND,
+            "--project",
+            "alchemy",
             "build",
             "--profile=" + BAZEL_ALLPACKAGES_COMMAND_PROFILE_FILE,
             "--noslim_profile",
@@ -1525,6 +1529,8 @@ in
             cros_build_lib.run(
                 [
                     BAZEL_COMMAND,
+                    "--project",
+                    "alchemy",
                     "run",
                     "//bazel/portage/tools/process_artifacts",
                     "--",
