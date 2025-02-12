@@ -946,117 +946,105 @@ def BuildPackages(
     ):
         cros_build_lib.ClearShadowLocks(sysroot.path)
 
-        # Before running any emerge operations, regenerate the Portage
-        # dependency cache in parallel.
-        logging.info("Rebuilding Portage cache.")
-        with metrics_lib.timer(f"{metrics_prefix}.RegenPortageCache"):
-            portage_util.RegenDependencyCache(
-                sysroot=sysroot.path, jobs=run_configs.jobs
+        # Bazel wipes the sysroot, so there is no reason to setup the broot,
+        # clean binpkgs, or generate the portage cache.
+        if not run_configs.bazel:
+            # Before running any emerge operations, regenerate the Portage
+            # dependency cache in parallel.
+            logging.info("Rebuilding Portage cache.")
+            with metrics_lib.timer(f"{metrics_prefix}.RegenPortageCache"):
+                portage_util.RegenDependencyCache(
+                    sysroot=sysroot.path, jobs=run_configs.jobs
+                )
+
+            # Install per-board bdepends packages.
+            logging.info("Updating per-board bdepends")
+
+            # These packages are allowed to live in the broot & SDK as a
+            # transitional measure.  We'll eventually drop this.
+            TEMP_DUPLICATE_PACKAGES = {
+                "chromeos-base/tast-cmd",
+                "chromeos-base/tast-remote-tests",
+                "chromeos-base/tast-remote-tests-cros",
+                "chromeos-base/tast-remote-tests-crosint",
+                "chromeos-base/tast-remote-tests-crosint_intel",
+                "chromeos-base/tast-tests-remote-data",
+                "dev-libs/flatbuffers",
+                "dev-util/test-services",
+                "dev-util/cros-dut",
+                "dev-util/cros-provision",
+                "dev-util/cros-publish",
+                "dev-util/cros-servod",
+                "dev-util/cros-test",
+                "dev-util/cros-test-finder",
+                "dev-util/fw-provision",
+                "dev-util/cros-hpt",
+                "dev-util/pre-process",
+                "dev-util/post-process",
+                "dev-util/testlabenv-local",
+                "dev-util/cros-ctp2-filters",
+                "dev-util/vm-provision",
+                "dev-util/cros-fw-provision",
+                "dev-util/android-provision",
+                "virtual/tast-remote-tests",
+            }
+            sdk_vdb = portage_util.PortageDB()
+            provided = (
+                target.broot
+                / "etc"
+                / "portage"
+                / "profile"
+                / "package.provided"
+            )
+            pkgdir = target.broot / "packages"
+            osutils.SafeMakedirs(provided.parent, sudo=True)
+            osutils.WriteFile(
+                provided,
+                "".join(
+                    sorted(
+                        f"{x.package_info.cpvr}\n"
+                        for x in sdk_vdb.InstalledPackages()
+                        if x.package_info.cp not in TEMP_DUPLICATE_PACKAGES
+                    )
+                ),
+                sudo=True,
             )
 
-        # Install per-board bdepends packages.
-        logging.info("Updating per-board bdepends")
-
-        # These packages are allowed to live in the broot & SDK as a
-        # transitional measure.  We'll eventually drop this.
-        TEMP_DUPLICATE_PACKAGES = {
-            "chromeos-base/tast-cmd",
-            "chromeos-base/tast-remote-tests",
-            "chromeos-base/tast-remote-tests-cros",
-            "chromeos-base/tast-remote-tests-crosint",
-            "chromeos-base/tast-remote-tests-crosint_intel",
-            "chromeos-base/tast-tests-remote-data",
-            "dev-libs/flatbuffers",
-            "dev-util/test-services",
-            "dev-util/cros-dut",
-            "dev-util/cros-provision",
-            "dev-util/cros-publish",
-            "dev-util/cros-servod",
-            "dev-util/cros-test",
-            "dev-util/cros-test-finder",
-            "dev-util/fw-provision",
-            "dev-util/cros-hpt",
-            "dev-util/pre-process",
-            "dev-util/post-process",
-            "dev-util/testlabenv-local",
-            "dev-util/cros-ctp2-filters",
-            "dev-util/vm-provision",
-            "dev-util/cros-fw-provision",
-            "dev-util/android-provision",
-            "virtual/tast-remote-tests",
-        }
-        sdk_vdb = portage_util.PortageDB()
-        provided = (
-            target.broot / "etc" / "portage" / "profile" / "package.provided"
-        )
-        pkgdir = target.broot / "packages"
-        osutils.SafeMakedirs(provided.parent, sudo=True)
-        osutils.WriteFile(
-            provided,
-            "".join(
-                sorted(
-                    f"{x.package_info.cpvr}\n"
-                    for x in sdk_vdb.InstalledPackages()
-                    if x.package_info.cp not in TEMP_DUPLICATE_PACKAGES
-                )
-            ),
-            sudo=True,
-        )
-
-        cmd = [
-            constants.CHROMITE_BIN_DIR / "parallel_emerge",
-            "--root",
-            target.broot,
-            "--sysroot",
-            target.broot,
-            "--with-bdepends=n",
-            "--update",
-            "--deep",
-            "--newuse",
-            "--verbose",
-            "--newrepo",
-        ]
-        if run_configs.usepkg:
-            cmd += ["--usepkg", "--getbinpkg"]
-        cmd += [constants.TARGET_SDK_BROOT]
-        with metrics_lib.timer(f"{metrics_prefix}.Broot"):
-            try:
-                cros_build_lib.sudo_run(
-                    cmd, extra_env={"PKGDIR": str(pkgdir), "USE": ""}
-                )
-            except cros_build_lib.RunCommandError as e:
-                failed_pkgs = portage_util.ParseDieHookStatusFile()
-                raise sysroot_lib.PackageInstallError(
-                    "Merging broot packages failed",
-                    e.result,
-                    exception=e,
-                    packages=failed_pkgs,
-                ) from e
-
-        # Clean out any stale binpkgs we've accumulated. This is done
-        # immediately after regenerating the cache in case ebuilds have been
-        # removed (e.g. from a revert).
-        if run_configs.eclean:
-            binpkg.CleanStaleBinpkgs(sysroot.path)
-
-        emerge_cmd = _GetEmergeCommand(sysroot.path)
-        emerge_flags = run_configs.GetEmergeFlags()
-        rebuild_pkgs = " ".join(run_configs.GetForceLocalBuildPackages(sysroot))
-        if rebuild_pkgs:
-            emerge_flags.extend(
-                [
-                    f"--reinstall-atoms={rebuild_pkgs}",
-                    f"--usepkg-exclude={rebuild_pkgs}",
-                ]
-            )
-
-        sdk_pkgs = " ".join(_CRITICAL_SDK_PACKAGES)
-        emerge_flags.extend(
-            [
-                f"--useoldpkg-atoms={sdk_pkgs}",
-                f"--rebuild-exclude={sdk_pkgs}",
+            cmd = [
+                constants.CHROMITE_BIN_DIR / "parallel_emerge",
+                "--root",
+                target.broot,
+                "--sysroot",
+                target.broot,
+                "--with-bdepends=n",
+                "--update",
+                "--deep",
+                "--newuse",
+                "--verbose",
+                "--newrepo",
             ]
-        )
+            if run_configs.usepkg:
+                cmd += ["--usepkg", "--getbinpkg"]
+            cmd += [constants.TARGET_SDK_BROOT]
+            with metrics_lib.timer(f"{metrics_prefix}.Broot"):
+                try:
+                    cros_build_lib.sudo_run(
+                        cmd, extra_env={"PKGDIR": str(pkgdir), "USE": ""}
+                    )
+                except cros_build_lib.RunCommandError as e:
+                    failed_pkgs = portage_util.ParseDieHookStatusFile()
+                    raise sysroot_lib.PackageInstallError(
+                        "Merging broot packages failed",
+                        e.result,
+                        exception=e,
+                        packages=failed_pkgs,
+                    ) from e
+
+            # Clean out any stale binpkgs we've accumulated. This is done
+            # immediately after regenerating the cache in case ebuilds have been
+            # removed (e.g. from a revert).
+            if run_configs.eclean:
+                binpkg.CleanStaleBinpkgs(sysroot.path)
 
         logging.info("Merging board packages now.")
         try:
@@ -1097,6 +1085,27 @@ def BuildPackages(
                         _PrintProcessTree,
                     )
                 else:
+                    emerge_cmd = _GetEmergeCommand(sysroot.path)
+                    emerge_flags = run_configs.GetEmergeFlags()
+                    rebuild_pkgs = " ".join(
+                        run_configs.GetForceLocalBuildPackages(sysroot)
+                    )
+                    if rebuild_pkgs:
+                        emerge_flags.extend(
+                            [
+                                f"--reinstall-atoms={rebuild_pkgs}",
+                                f"--usepkg-exclude={rebuild_pkgs}",
+                            ]
+                        )
+
+                    sdk_pkgs = " ".join(_CRITICAL_SDK_PACKAGES)
+                    emerge_flags.extend(
+                        [
+                            f"--useoldpkg-atoms={sdk_pkgs}",
+                            f"--rebuild-exclude={sdk_pkgs}",
+                        ]
+                    )
+
                     cros_build_lib.sudo_run(
                         emerge_cmd + emerge_flags + packages,
                         preserve_env=True,
