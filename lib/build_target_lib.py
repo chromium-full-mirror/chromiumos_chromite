@@ -14,7 +14,6 @@ from pathlib import Path
 import re
 from typing import Any, Iterator, Optional
 
-from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import build_query
 from chromite.lib import constants
 from chromite.lib import portage_util
@@ -143,8 +142,12 @@ class BuildTarget:
         """Check if the build target refers to the host."""
         return self.name.endswith("-host")
 
-    def to_proto(self) -> common_pb2.BuildTarget:
+    def to_proto(self) -> "common_pb2.BuildTarget":
         """Convert to a common_pb2.BuildTarget."""
+        # This adds 0.125+s to the initialization of every chromite script
+        # invocation when done at the top of the file.
+        from chromite.api.gen.chromiumos import common_pb2
+
         return common_pb2.BuildTarget(
             name=self.name,
             profile=common_pb2.Profile(name=self.profile),
