@@ -429,31 +429,64 @@ def _WhitespaceLintFile(
     return result
 
 
-def _NonExecLintFile(path, _output_format, _debug, _relaxed: bool, commit: str):
-    """Check file permissions on |path| are -x."""
-    result = cros_build_lib.CompletedProcess(
-        f'stat(internal) "{path}"', returncode=0
-    )
-
+def _IsFileExecutable(path, commit: str) -> bool:
+    """Check whether |path| is executable."""
     if commit:
         entries = git.LsTree(
             os.path.dirname(path) or None, commit, [os.path.basename(path)]
         )
         if entries and entries[0].is_exec:
-            result.returncode = 1
-            logging.notice(
-                "%s: file should not be executable; chmod -x to fix", path
-            )
+            return True
     else:
         # Ignore symlinks.
         st = os.lstat(path)
         if stat.S_ISREG(st.st_mode):
             mode = stat.S_IMODE(st.st_mode)
             if mode & 0o111:
-                result.returncode = 1
-                logging.notice(
-                    "%s: file should not be executable; chmod -x to fix", path
-                )
+                return True
+
+    return False
+
+
+def _ShebangMatchesExecLintFile(
+    path, _output_format, _debug, _relaxed: bool, commit: str
+):
+    """Check file permissions on |path| match shebang."""
+    data = _get_file_data(path, commit)
+    try:
+        shebang.parse(data)
+        has_shebang = True
+    except ValueError:
+        has_shebang = False
+
+    result = cros_build_lib.CompletedProcess(
+        f'shebang+stat(internal) "{path}"', returncode=0
+    )
+    if _IsFileExecutable(path, commit):
+        if not has_shebang:
+            result.returncode = 1
+            logging.notice(
+                "%s: file should not be executable; chmod -x to fix", path
+            )
+
+    # We could enforce files with shebangs to be +x, but there seems to be a
+    # lot of files in the tree like this, and sometimes it's to signal file
+    # syntax for highlighting.
+
+    return result
+
+
+def _NonExecLintFile(path, _output_format, _debug, _relaxed: bool, commit: str):
+    """Check file permissions on |path| are -x."""
+    result = cros_build_lib.CompletedProcess(
+        f'stat(internal) "{path}"', returncode=0
+    )
+
+    if _IsFileExecutable(path, commit):
+        result.returncode = 1
+        logging.notice(
+            "%s: file should not be executable; chmod -x to fix", path
+        )
 
     return result
 
@@ -615,6 +648,13 @@ _TOOL_MAP = collections.OrderedDict(
             ),
         ),
         (frozenset({"*.te"}), (_WhitespaceLintFile, _NonExecLintFile)),
+        (
+            frozenset({"*.star"}),
+            (
+                _WhitespaceLintFile,
+                _ShebangMatchesExecLintFile,
+            ),
+        ),
         (
             frozenset(
                 {
