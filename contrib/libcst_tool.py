@@ -13,7 +13,7 @@ https://libcst.readthedocs.io/en/latest/index.html
 # python_version: "3.11"
 #
 # wheel: <
-#   name: "infra/python/wheels/libcst/linux-amd64_cp311_cp311"
+#   name: "infra/python/wheels/libcst/${vpython_platform}"
 #   version: "version:1.1.0"
 # >
 # wheel: <
