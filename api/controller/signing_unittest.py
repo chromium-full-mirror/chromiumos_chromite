@@ -33,6 +33,7 @@ class CreatePreMPKeysTest(
         self,
         board=None,
         dry_run=False,
+        add_loem=False,
     ):
         """Helper to build a request instance."""
         return signing_pb2.CreatePreMPKeysRequest(
@@ -40,6 +41,7 @@ class CreatePreMPKeysTest(
             release_keys_checkout=str(self.tempdir),
             build_target={"name": board},
             dry_run=dry_run,
+            add_loem=add_loem,
         )
 
     def testDockerCalledWith(self) -> None:
@@ -133,3 +135,45 @@ class CreatePreMPKeysTest(
             request, self.response, self.validate_only_config
         )
         patch.assert_not_called()
+
+    def testAddLoem(self) -> None:
+        """Verify that add_loem mode changes the entrypoint."""
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(
+            board="board",
+            add_loem=True,
+        )
+        signing_controller.CreatePreMPKeys(
+            request, self.response, self.api_config
+        )
+
+        rc.assertCommandContains(
+            ["docker", "inspect", "--type=image", "signing:latest"]
+        )
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "--network",
+                "host",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-e",
+                "LUCI_CONTEXT=/tmp/luci/luci_context.1234",
+                "-e",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{self.tempdir}:/keys",
+                "--entrypoint",
+                "./add_loem.py",
+                "signing:latest",
+                "board",
+            ]
+        )

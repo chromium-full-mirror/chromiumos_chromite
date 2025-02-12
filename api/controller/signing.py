@@ -20,6 +20,9 @@ def CreatePreMPKeys(request, _response, _config) -> None:
     if request.dry_run:
         entrypoint_args.append("--dev")
     entrypoint_args.append(request.build_target.name)
+    entrypoint_script = "./create_premp.sh"
+    if request.add_loem:
+        entrypoint_script = "./add_loem.py"
 
     image.CallDocker(
         request.docker_image,
@@ -28,7 +31,7 @@ def CreatePreMPKeys(request, _response, _config) -> None:
             "-v",
             f"{request.release_keys_checkout}:/keys",
             "--entrypoint",
-            "./create_premp.sh",
+            entrypoint_script,
         ],
         entrypoint_args=entrypoint_args,
     )
