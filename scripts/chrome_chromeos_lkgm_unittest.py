@@ -145,6 +145,40 @@ class ChromeLKGMCommitterTester(
                 )
                 ce.assert_not_called()
 
+    def testOlderLKGMWithPromotingFromSnapshotToRelease(self) -> None:
+        """Tests that trying to update from a snapshot to an older release."""
+        committer = chrome_chromeos_lkgm.ChromeLKGMCommitter(
+            "1001.0.0",
+            "main",
+            chromeos_version.VersionInfo("1002.0.0-12345"),
+            dryrun=False,
+            allow_uprev_to_older_release=True,
+        )
+        with mock.patch.object(committer._gerrit_helper, "CreateChange") as cg:
+            cg.return_value = mock.MagicMock(gerrit_number=123456)
+            with mock.patch.object(
+                committer._gerrit_helper, "ChangeEdit"
+            ) as ce:
+                with mock.patch.object(
+                    committer._gerrit_helper, "SetReview"
+                ) as bc:
+                    with mock.patch.object(
+                        committer._gerrit_helper, "SetHashtags"
+                    ):
+                        committer.UpdateLKGM()
+                        ce.assert_called_once_with(
+                            123456, "chromeos/CHROMEOS_LKGM", "1001.0.0"
+                        )
+                        bc.assert_called_once_with(
+                            123456,
+                            labels={"Bot-Commit": 1, "Commit-Queue": 2},
+                            notify="NONE",
+                            ready=True,
+                            reviewers=[
+                                "chrome-os-gardeners-reviews@google.com"
+                            ],
+                        )
+
     def testAbandonObsoleteLKGMs(self) -> None:
         """Tests that trying to abandon the obsolete lkgm CLs."""
         cleaner = chrome_chromeos_lkgm.ChromeLKGMCleaner(

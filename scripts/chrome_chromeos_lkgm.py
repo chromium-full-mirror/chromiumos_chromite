@@ -225,6 +225,7 @@ class ChromeLKGMCommitter:
         message: Optional[str] = None,
         external_manifest_position: Optional[int] = None,
         internal_manifest_position: Optional[int] = None,
+        allow_uprev_to_older_release: bool = False,
     ) -> None:
         self._dryrun = dryrun
         self._branch = branch
@@ -242,6 +243,8 @@ class ChromeLKGMCommitter:
         self._message = message
         self._external_manifest_position = external_manifest_position
         self._internal_manifest_position = internal_manifest_position
+
+        self._allow_uprev_to_older_release = allow_uprev_to_older_release
 
         # Storing metadata in the git footer for automated processing.
         self._footers = {GIT_FOOTER_LKGM: self._lkgm}
@@ -276,11 +279,26 @@ class ChromeLKGMCommitter:
 
     def UpdateLKGM(self) -> None:
         """Updates the LKGM file with the new version."""
-        if chromeos_version.VersionInfo(self._lkgm) <= self._current_lkgm:
-            raise LKGMNotValid(
+        new_lkgm = chromeos_version.VersionInfo(self._lkgm)
+        if new_lkgm <= self._current_lkgm:
+            message = (
                 f"LKGM version ({self._lkgm}) is not newer than current version"
                 f" ({self._current_lkgm.VersionString()})."
             )
+            if (
+                self._allow_uprev_to_older_release
+                and new_lkgm.snapshot_suffix is None
+                and self._current_lkgm.snapshot_suffix is not None
+            ):
+                # Allows the downgrade update, in case of a promotion from a
+                # snapshot (version with a snapshot suffix) to a release
+                # (without any suffix). This occasionally happens on a release
+                # branch just after the branching from the main to a release
+                # branch.
+                logging.warning(message)
+            else:
+                # Generally we don't allow the downgrade upgrade.
+                raise LKGMNotValid(message)
 
         logging.info(
             "Updating LKGM version: %s (was %s),",
@@ -527,6 +545,7 @@ def main(argv):
             message=opts.message,
             internal_manifest_position=opts.internal_manifest_position,
             external_manifest_position=opts.external_manifest_position,
+            allow_uprev_to_older_release=(opts.branch != "main"),
         )
         committer.Run()
 
