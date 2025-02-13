@@ -80,6 +80,13 @@ def initialize(publish: bool = True) -> None:
     if publish:
         _fork_and_publish()
 
+    if (
+        not cfg.trace_config.enabled
+        and cfg.trace_config.enabled_reason == "USER"
+    ):
+        # Skip initialization when the user explicitly disabled it.
+        return
+
     trace.initialize(
         enabled=cfg.trace_config.enabled,
         development_mode=cfg.trace_config.dev_flag,
