@@ -40,17 +40,17 @@ class SDKSourceDetector(resources.ResourceDetector):
                 branch = manifest_checkout.manifest_branch or ""
                 commit = git.GetLastCommit(manifest_repo)
                 resource["manifest_branch"] = branch
-                resource[
-                    "manifest_commit_date"
-                ] = commit.commit_date.isoformat()
+                resource["manifest_commit_date"] = (
+                    commit.commit_date.isoformat()
+                )
                 resource["manifest_change_id"] = commit.change_id or ""
                 resource["manifest_commit_sha"] = commit.sha
-                resource[
-                    "manifest_sync_date"
-                ] = datetime.datetime.fromtimestamp(
-                    os.path.getmtime(manifest_repo),
-                    tz=datetime.timezone.utc,
-                ).isoformat()
+                resource["manifest_sync_date"] = (
+                    datetime.datetime.fromtimestamp(
+                        os.path.getmtime(manifest_repo),
+                        tz=datetime.timezone.utc,
+                    ).isoformat()
+                )
 
         workon_atoms = workon_helper.ListAllWorkedOnAtoms()
         if workon_atoms:

@@ -208,9 +208,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
             total_max=3,
         )
         # Look at all this memory.
-        _semaphore._get_system_available = self.mock_get_system_available(
-            2**64
-        )
+        _semaphore._get_system_available = self.mock_get_system_available(2**64)
         # Sure you can have three.
         self.assertEqual(_semaphore.acquire(ACQUIRE_TIMEOUT).result, True)
         self.assertEqual(_semaphore.acquire(ACQUIRE_TIMEOUT).result, True)
@@ -228,9 +226,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
         )
 
         # Should want two bytes, have a whole lot.
-        _semaphore._get_system_available = self.mock_get_system_available(
-            2**64
-        )
+        _semaphore._get_system_available = self.mock_get_system_available(2**64)
         self.assertEqual(_semaphore.acquire(ACQUIRE_TIMEOUT).result, True)
         _semaphore.release()
 
@@ -270,9 +266,7 @@ class TestUtils(cros_test_lib.TempDirTestCase):
 
         # Make large amount of memory available, but we expect quiescence
         # to block the second task.
-        _semaphore._get_system_available = self.mock_get_system_available(
-            2**64
-        )
+        _semaphore._get_system_available = self.mock_get_system_available(2**64)
         start_time = time.time()
         self.assertEqual(_semaphore.acquire(ACQUIRE_TIMEOUT).result, True)
         _semaphore.release()

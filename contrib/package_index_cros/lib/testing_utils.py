@@ -305,9 +305,9 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
                 subdir = "third_party"
             source_path = self.source_root / "src" / subdir / localname
             source_path.mkdir(parents=True, exist_ok=True)
-            self._mock_paths_to_checkouts[
-                str(source_path)
-            ] = git.ProjectCheckout({"name": project, "local_path": localname})
+            self._mock_paths_to_checkouts[str(source_path)] = (
+                git.ProjectCheckout({"name": project, "local_path": localname})
+            )
         return ebuild
 
     def new_package(  # pylint: disable=docstring-misnamed-args

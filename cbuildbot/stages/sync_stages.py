@@ -453,9 +453,9 @@ class ManifestVersionedSyncStage(SyncStage):
         Args:
             manifest_manager: Expected to be a BuildSpecsManager.
         """
-        self._run.attrs.manifest_manager = (
-            self.manifest_manager
-        ) = manifest_manager
+        self._run.attrs.manifest_manager = self.manifest_manager = (
+            manifest_manager
+        )
 
     def Initialize(self) -> None:
         """Initializes a manager managing manifests for associated stages."""

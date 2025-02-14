@@ -258,13 +258,13 @@ class ChromeLKGMCommitter:
         if buildbucket_id:
             self._footers["Cr-Build-Id"] = str(buildbucket_id)
         if external_manifest_position:
-            self._footers[
-                GIT_FOOTER_EXTERNAL_MANIFEST_POS
-            ] = external_manifest_position
+            self._footers[GIT_FOOTER_EXTERNAL_MANIFEST_POS] = (
+                external_manifest_position
+            )
         if internal_manifest_position:
-            self._footers[
-                GIT_FOOTER_INTERNAL_MANIFEST_POS
-            ] = internal_manifest_position
+            self._footers[GIT_FOOTER_INTERNAL_MANIFEST_POS] = (
+                internal_manifest_position
+            )
 
         if not self._lkgm:
             if self._dryrun:

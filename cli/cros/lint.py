@@ -671,10 +671,10 @@ class DocStringChecker(pylint.checkers.BaseChecker):
                         )
                     else:
                         # Gather the order of the sections.
-                        sections[
-                            section
-                        ] = last_section = DocStringSectionDetails(
-                            name=section, header=line, lineno=lineno
+                        sections[section] = last_section = (
+                            DocStringSectionDetails(
+                                name=section, header=line, lineno=lineno
+                            )
                         )
 
                 # Detect whether we're in the Args section once we've processed

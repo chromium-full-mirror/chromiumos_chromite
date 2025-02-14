@@ -683,9 +683,9 @@ def FindDataCollectorArtifacts(
                     f"{bucket}_{arch}_{build_type}"
                 )
                 if gs_context.Exists(f"{root_path}_{android_version}.tar"):
-                    variables[
-                        (f"{arch}_{build_type}_{bucket}").upper()
-                    ] = f"{root_path}_{version_reference}.tar"
+                    variables[(f"{arch}_{build_type}_{bucket}").upper()] = (
+                        f"{root_path}_{version_reference}.tar"
+                    )
 
     _UREADAHEAD_BUCKET = "ureadahead_pack"
     _BINARY_TRANSLATION_TYPES = ("houdini", "ndk", "native")

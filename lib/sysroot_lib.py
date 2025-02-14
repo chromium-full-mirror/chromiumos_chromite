@@ -872,9 +872,9 @@ class Sysroot:
         config["PKG_CONFIG"] = self._WrapperPath("pkg-config")
 
         if not use_internal:
-            config[
-                "USE"
-            ] = "${USE} -ondevice_speech -ondevice_image_content_annotation"
+            config["USE"] = (
+                "${USE} -ondevice_speech -ondevice_image_content_annotation"
+            )
 
         config.update(kwargs)
 

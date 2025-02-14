@@ -351,9 +351,9 @@ def Build(
 
     with osutils.TempDir() as tempdir:
         status_file = os.path.join(tempdir, PARALLEL_EMERGE_STATUS_FILE_NAME)
-        extra_env_local[
-            constants.PARALLEL_EMERGE_STATUS_FILE_ENVVAR
-        ] = status_file
+        extra_env_local[constants.PARALLEL_EMERGE_STATUS_FILE_ENVVAR] = (
+            status_file
+        )
         try:
             # We don't need to invoke build_image.sh if we are only
             # building Flexor.

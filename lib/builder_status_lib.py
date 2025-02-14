@@ -343,10 +343,10 @@ class SlaveBuilderStatus:
 
         failure_msg_manager = failure_message_lib.FailureMessageManager()
         for build_config, stage_failures in stage_failures_by_build.items():
-            slave_failures_dict[
-                build_config
-            ] = failure_msg_manager.ConstructStageFailureMessages(
-                stage_failures
+            slave_failures_dict[build_config] = (
+                failure_msg_manager.ConstructStageFailureMessages(
+                    stage_failures
+                )
             )
 
         return slave_failures_dict
@@ -563,10 +563,10 @@ class SlaveBuilderStatus:
                     e,
                 )
 
-            all_buildbucket_info_dict[
-                build_config
-            ] = buildbucket_v2.BuildbucketInfo(
-                buildbucket_id, retry, created_ts, status, url
+            all_buildbucket_info_dict[build_config] = (
+                buildbucket_v2.BuildbucketInfo(
+                    buildbucket_id, retry, created_ts, status, url
+                )
             )
 
         return all_buildbucket_info_dict

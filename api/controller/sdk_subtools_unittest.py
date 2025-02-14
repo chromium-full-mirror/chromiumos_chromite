@@ -86,9 +86,9 @@ def mock_service_fixture() -> Iterator[MockService]:
     ) as dict_of_mocks:
         # Default to a "successful" return with an empty list of bundle paths.
         dict_of_mocks["bundle_and_prepare_upload"].return_value = ([], None)
-        dict_of_mocks[
-            "upload_prepared_bundles"
-        ].return_value = subtool_lib.BundledSubtools([])
+        dict_of_mocks["upload_prepared_bundles"].return_value = (
+            subtool_lib.BundledSubtools([])
+        )
         yield dict_of_mocks
 
 
@@ -135,12 +135,14 @@ def test_build_success_two_bundles(mock_service: MockService) -> None:
 
 def test_package_update_failure(mock_service: MockService) -> None:
     """Test output handling when package update fails."""
-    mock_service[
-        "update_packages"
-    ].side_effect = sysroot_lib.PackageInstallError(
-        "mock failure",
-        cros_build_lib.CompletedProcess(),
-        packages=[package_info.parse("some-category/some-package-0.42-r43")],
+    mock_service["update_packages"].side_effect = (
+        sysroot_lib.PackageInstallError(
+            "mock failure",
+            cros_build_lib.CompletedProcess(),
+            packages=[
+                package_info.parse("some-category/some-package-0.42-r43")
+            ],
+        )
     )
     response = build_sdk_subtools(make_request())
     mock_service["setup_base_sdk"].assert_called_once()

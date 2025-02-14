@@ -1169,9 +1169,9 @@ class PaygenPayload:
 
         if self.payload and self.payload.src_image:
             if self.payload.src_image.build:
-                props_map[
-                    "source_version"
-                ] = self.payload.src_image.build.version
+                props_map["source_version"] = (
+                    self.payload.src_image.build.version
+                )
             else:
                 props_map["source_version"] = ""
 

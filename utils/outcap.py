@@ -50,9 +50,9 @@ class _FdCapturer:
         self._tempfile: Optional[io.TextIOWrapper] = None
         self._capturefile: Optional[IO[str]] = None
         self._capturefile_reader: Optional[TextIO] = None
-        self._capturefile_name: Optional[
-            Union[str, "os.PathLike[str]"]
-        ] = output
+        self._capturefile_name: Optional[Union[str, "os.PathLike[str]"]] = (
+            output
+        )
 
     # The return type of tempfile.NamedTemporaryFile is tricky to type-hint; see
     # https://stackoverflow.com/a/64429225.

@@ -189,9 +189,9 @@ class Cdb:
                 )
 
         self.package_to_include_args = package_to_include_args
-        self.package_to_include_args[
-            self.package.full_name
-        ] = _IncludePathOrder(local=set(), generated=set(), chroot=set())
+        self.package_to_include_args[self.package.full_name] = (
+            _IncludePathOrder(local=set(), generated=set(), chroot=set())
+        )
 
     def fix(self) -> "Cdb":
         """Fix cdb entries.
@@ -400,9 +400,9 @@ class CdbGenerator:
         self.result_build_dir = result_build_dir
         self.file_conflicts = file_conflicts or {}
         self.fail_fast = fail_fast
-        self.package_status: DefaultDict[
-            str, List[str]
-        ] = collections.defaultdict(list)
+        self.package_status: DefaultDict[str, List[str]] = (
+            collections.defaultdict(list)
+        )
 
     def _generate_cdb_for_package(
         self,

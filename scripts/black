@@ -8,7 +8,7 @@
 #
 # wheel: <
 #   name: "infra/python/wheels/black-py3"
-#   version: "version:23.1.0"
+#   version: "version:25.1.0"
 # >
 # wheel: <
 #   name: "infra/python/wheels/click-py3"

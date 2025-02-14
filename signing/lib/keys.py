@@ -94,9 +94,7 @@ class KeyPair:
         self._pub_ext = (
             pub_ext
             if pub_ext
-            else ".vbpubk"
-            if priv_ext == ".vbprivk"
-            else ".vbpubk2"
+            else ".vbpubk" if priv_ext == ".vbprivk" else ".vbpubk2"
         )
         self._priv_ext = priv_ext
 

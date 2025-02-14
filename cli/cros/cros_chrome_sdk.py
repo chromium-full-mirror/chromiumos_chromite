@@ -1430,9 +1430,9 @@ class ChromeSDKCommand(command.CliCommand):
             gn_args["cros_nacl_helper_arm32_ld"] = self._AbsolutizeBinaryPath(
                 self.sdk.ARM32_TUPLE + "-clang++", nacl_helper_tc_path
             )
-            gn_args[
-                "cros_nacl_helper_arm32_readelf"
-            ] = self._AbsolutizeBinaryPath("llvm-readelf", nacl_helper_tc_path)
+            gn_args["cros_nacl_helper_arm32_readelf"] = (
+                self._AbsolutizeBinaryPath("llvm-readelf", nacl_helper_tc_path)
+            )
             gn_args["cros_nacl_helper_arm32_sysroot"] = os.path.join(
                 nacl_helper_tc_path, "usr", self.sdk.ARM32_TUPLE
             )

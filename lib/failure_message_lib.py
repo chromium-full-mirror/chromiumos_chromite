@@ -401,9 +401,9 @@ class FailureMessageManager:
                     outer_failure = CompoundFailureMessage.GetFailureMessage(
                         outer_failure
                     )
-                    failure_message_dict[
-                        outer_failure.failure_id
-                    ] = outer_failure
+                    failure_message_dict[outer_failure.failure_id] = (
+                        outer_failure
+                    )
 
                 outer_failure.inner_failures.append(failure)
                 del failure_message_dict[failure.failure_id]

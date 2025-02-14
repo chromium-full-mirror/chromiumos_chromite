@@ -111,9 +111,9 @@ def process_fixes_by_file(
     if not lint.suggested_fixes:
         return None
 
-    new_fixes_by_file: DefaultDict[
-        Path, List[toolchain.SuggestedFix]
-    ] = collections.defaultdict(list)
+    new_fixes_by_file: DefaultDict[Path, List[toolchain.SuggestedFix]] = (
+        collections.defaultdict(list)
+    )
     for fix in lint.suggested_fixes:
         filepath = Path(fix.location.filepath)
         # These are files that we locate, and are usually generated files.
@@ -174,9 +174,9 @@ def get_noconflict_fixes(
           0) the mapping of paths to a list of their suggested fixes
           1) the list of lints which were fixed
     """
-    fixes_by_file: DefaultDict[
-        Path, List[toolchain.SuggestedFix]
-    ] = collections.defaultdict(list)
+    fixes_by_file: DefaultDict[Path, List[toolchain.SuggestedFix]] = (
+        collections.defaultdict(list)
+    )
     lints_fixed = []
     file_lengths = {}
     for lint in lints:
