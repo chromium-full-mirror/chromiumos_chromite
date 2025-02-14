@@ -81,54 +81,6 @@ def _call_entry(fw_loc, metric_proto, subcmd, *args, **kwargs):
         return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
 
-def _BuildAllTotFirmwareResponse(_request, response, _config) -> None:
-    """Add a fw region metric to a successful response."""
-
-    metric = response.success.value.add()
-    metric.target_name = "foo"
-    metric.platform_name = "bar"
-    fw_section = metric.fw_section.add()
-    fw_section.region = "EC_RO"
-    fw_section.used = 100
-    fw_section.total = 150
-
-
-@faux.success(_BuildAllTotFirmwareResponse)
-@faux.empty_completed_unsuccessfully_error
-@validate.require("firmware_location")
-@validate.validation_complete
-def BuildAllTotFirmware(request, response, _config):
-    """Build all of the firmware targets at the specified location."""
-
-    args = ["--code-coverage"] if request.code_coverage else []
-    if getattr(request, "firmware_targets", None):
-        firmware_targets = ",".join(t.name for t in request.firmware_targets)
-        args.append(f"--firmware-targets={firmware_targets}")
-    return _call_entry(
-        request.firmware_location, response.metrics, "build", *args
-    )
-
-
-def _TestAllTotFirmwareResponse(_request, response, _config) -> None:
-    """Add a fw region metric to a successful response."""
-
-    metric = response.success.value.add()
-    metric.name = "foo-test"
-
-
-@faux.success(_TestAllTotFirmwareResponse)
-@faux.empty_completed_unsuccessfully_error
-@validate.require("firmware_location")
-@validate.validation_complete
-def TestAllTotFirmware(request, response, _config):
-    """Runs all of the firmware tests at the specified location."""
-
-    args = ["--code-coverage"] if request.code_coverage else []
-    return _call_entry(
-        request.firmware_location, response.metrics, "test", *args
-    )
-
-
 def _BuildAllFirmwareResponse(_request, response, _config) -> None:
     """Add a fw region metric to a successful response."""
 
