@@ -17,25 +17,18 @@ import re
 from typing import TypeVar
 
 
-# One value, so make sure we skip all eviction logic with maxsize=None.
-# TODO(python3.9): Change to functools.cache.
-@functools.lru_cache(maxsize=None)
-def _get_version_regex() -> "re.Pattern[str]":
-    """Get the compiled version regex.
-
-    NB: Make sure to always use .fullmatch() and never .match().
-    """
-    return re.compile(
-        r"^(?P<numbers>(\d+)((\.\d+)*))"
-        r"(?P<letter>[a-z]?)"
-        r"(?P<suffixes>(_(pre|p|beta|alpha|rc)\d*)*)"
-        r"(-r(?P<revision>\d+))?$"
-    )
+# Compiled version regex.
+_VERSION_REGEX = re.compile(
+    r"^(?P<numbers>(\d+)((\.\d+)*))"
+    r"(?P<letter>[a-z]?)"
+    r"(?P<suffixes>(_(pre|p|beta|alpha|rc)\d*)*)"
+    r"(-r(?P<revision>\d+))?$"
+)
 
 
 def version_valid(v: str) -> bool:
     """Boolean function for checking |v| is valid."""
-    return _get_version_regex().fullmatch(v) is not None
+    return _VERSION_REGEX.fullmatch(v) is not None
 
 
 def version_ge(v1: str, v2: str) -> bool:
@@ -76,8 +69,8 @@ def _cmp_versions(v1: str, v2: str) -> int:
     if not v1 or not v2:
         raise ValueError("Version cannot be empty.")
 
-    m1 = _get_version_regex().fullmatch(v1)
-    m2 = _get_version_regex().fullmatch(v2)
+    m1 = _VERSION_REGEX.fullmatch(v1)
+    m2 = _VERSION_REGEX.fullmatch(v2)
     if not m1:
         raise ValueError(f"Invalid version: {v1}")
     elif not m2:
