@@ -42,7 +42,7 @@ if TYPE_CHECKING:
 
     from chromite.lib import build_target_lib
 
-CHROME_VERSION_REGEX = (
+CHROME_VERSION_RE = re.compile(
     r"(?P<version>"
     r"(?P<major>\d+)\.(?P<minor>\d+)\.(?P<branch>\d+)\.(?P<patch>\d+)"
     r")"
@@ -100,7 +100,9 @@ class NoVersionsError(Error, ValueError):
 class ChromeEBuild(portage_util.EBuild):
     """Thin subclass of EBuild that adds a few small helpers."""
 
-    chrome_version_re = re.compile(r".*-(%s|9999).*" % CHROME_VERSION_REGEX)
+    chrome_version_re = re.compile(
+        r".*-(%s|9999).*" % CHROME_VERSION_RE.pattern
+    )
     chrome_version = ""
 
     def __init__(self, path) -> None:
@@ -221,10 +223,10 @@ def best_version(versions: Collection[str]) -> str:
     def _parse_version(ver: str) -> Tuple[int, int, int, int, int]:
         if ver == "9999":
             return (sys.maxsize, 0, 0, 0, 0)
-        m = re.compile(CHROME_VERSION_REGEX).match(ver)
+        m = CHROME_VERSION_RE.match(ver)
         if not m:
             raise Exception(
-                f"Version {ver} doesn't match {CHROME_VERSION_REGEX}"
+                f"Version {ver} doesn't match {CHROME_VERSION_RE.pattern}"
             )
         return (
             int(m.group("major")),
