@@ -1666,9 +1666,7 @@ def determine_package_version(
 
     # Something like 78.0.3877.4_rc -> 78.0.3877.4
     return (
-        re.compile(uprev_lib.CHROME_VERSION_REGEX)
-        .match(pkg_info.version)
-        .group(0),
+        uprev_lib.CHROME_VERSION_RE.match(pkg_info.version).group(0),
         env,
     )
 
