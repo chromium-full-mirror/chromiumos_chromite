@@ -1311,9 +1311,9 @@ def uprev_starbase_artifacts(
 
     For instance:
 
-    GS_MIRROR/distfiles/starbase-head-20230101-r00-rc001/starbase-foobar.tar.zst
+    GS_MIRROR/distfiles/starbase-head-20230101-r00-rc001/starbase-foo.tar.zst
     or
-    GS_MIRROR/distfiles/starbase-release-20230101-r00-rc001/starbase-foobar.tar.zst
+    GS_MIRROR/distfiles/starbase-release-20230101-r00-rc001/starbase-foo.tar.zst
 
     Note that each directory can contain multiple tar files.  The "refs"
     parameter is a list with one element for each tar file (or package).  Only
@@ -1341,9 +1341,9 @@ def uprev_starbase_artifacts(
         # We're ignoring the meaning of the `ref` fields and reusing them for
         # our purposes.  See absurdly long comment above.
         tarfile_name, tarfile_hash = ref.path.split("/", 1)
-        branch = ""
         if len(ref.ref.split("/")) == 3:
-            branch, category, package_name = ref.ref.split("/", 2)
+            # First in the split is the "branch".
+            _, category, package_name = ref.ref.split("/", 2)
         else:
             category, package_name = ref.ref.split("/", 1)
         # Helium ARCVM artifacts uprev the ebuild in the Helium overlay.
