@@ -21,6 +21,14 @@ SINGLE_QUOTE = "'"
 DOUBLE_QUOTE = '"'
 QUOTE_CHARS = [SINGLE_QUOTE, DOUBLE_QUOTE]
 
+# ANY_KEY_VALUE_RE should match any key="value" line.
+# The value can be wrapped in either single-quotes or double-quotes.
+# Either the key or the quoted value can be padded by whitespace.
+ANY_KEY_VALUE_RE = re.compile(
+    r"^\s*(?P<key>[A-Za-z-_.]+)\s*="
+    r"\s*(?P<quote>['\"])(?P<value>.*)(?P=quote)\s*$",
+)
+
 
 @contextlib.contextmanager
 def _Open(
@@ -182,20 +190,12 @@ def UpdateKeyInContents(
         quote_char = DOUBLE_QUOTE
     new_keyval_line = f"{key}={quote_char}{value}{quote_char}"
 
-    # re_any_key_value should match any key="value" line.
-    # The value can be wrapped in either single-quotes or double-quotes.
-    # Either the key or the quoted value can be padded by whitespace.
-    re_any_key_value = re.compile(
-        r"^\s*(?P<key>[A-Za-z-_.]+)\s*="
-        r"\s*(?P<quote>['\"])(?P<value>.*)(?P=quote)\s*$",
-    )
-
     def _extract_key_value(line: str) -> Optional[Tuple[str, str]]:
         """If the line looks like key="value", return the key and value.
 
         Returns None if the line does not have the expected format.
         """
-        m = re_any_key_value.match(line)
+        m = ANY_KEY_VALUE_RE.match(line)
         if not m:
             return None
         return (m.group("key"), m.group("value"))
