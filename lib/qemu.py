@@ -168,6 +168,8 @@ class Qemu:
     _BINFMT_PATH = "/proc/sys/fs/binfmt_misc"
     _BINFMT_REGISTER_PATH = os.path.join(_BINFMT_PATH, "register")
 
+    _BINFMT_REGEX = re.compile(rb"\x00|:")
+
     def __init__(self, sysroot, arch=None) -> None:
         if arch is None:
             arch = self.DetectArch(None, sysroot)
@@ -342,9 +344,8 @@ class Qemu:
                 return b"!"
             return _MaskReplace(match)
 
-        regex = re.compile(rb"\x00|:")
-        magic = regex.sub(_MagicReplace, magic)
-        mask = regex.sub(_MaskReplace, mask)
+        magic = cls._BINFMT_REGEX.sub(_MagicReplace, magic)
+        mask = cls._BINFMT_REGEX.sub(_MaskReplace, mask)
 
         return cls._REGISTER_FORMAT % {
             b"name": name.encode("utf-8"),
