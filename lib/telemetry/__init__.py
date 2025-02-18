@@ -87,6 +87,12 @@ def initialize(publish: bool = True) -> None:
         # Skip initialization when the user explicitly disabled it.
         return
 
+    from chromite.lib import cros_build_lib
+
+    if cros_build_lib.IsOutsideChroot():
+        # Temporarily skip initialization outside the SDK. See b/397474181.
+        return
+
     trace.initialize(
         enabled=cfg.trace_config.enabled,
         development_mode=cfg.trace_config.dev_flag,
