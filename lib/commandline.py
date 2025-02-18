@@ -40,7 +40,7 @@ from chromite.utils import shell_util
 # Setting this to False causes telemetry to be disabled for all scripts. This
 # is intended to be the knob for disabling telemetry on branches. See the
 # telemetry config in lib/constants.py for per-script configuration.
-TELEMETRY_ENABLED = True
+TELEMETRY_ENABLED = False
 
 tracer = trace.get_tracer(__name__)
 
