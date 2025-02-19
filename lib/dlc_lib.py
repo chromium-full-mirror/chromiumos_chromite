@@ -964,7 +964,7 @@ class DlcGenerator:
                 [
                     "cp",
                     "-dR",
-                    self.src_dir.rstrip("/") + "/.",
+                    str(self.src_dir).rstrip("/") + "/.",
                     dlc_root_dir,
                 ],
                 debug_level=logging.DEBUG,
@@ -1043,7 +1043,18 @@ class DlcGenerator:
         if self.board == MAGIC_BOARD:
             if not self.license_file or not os.path.exists(self.license_file):
                 raise Error("License file missing")
-            shutil.copyfile(self.license_file, license_path)
+            if sudo:
+                cros_build_lib.sudo_run(
+                    [
+                        "cp",
+                        self.license_file,
+                        license_path,
+                    ],
+                    debug_level=logging.DEBUG,
+                    stderr=True,
+                )
+            else:
+                shutil.copyfile(self.license_file, license_path)
             return
 
         if not self.ebuild_params.fullnamerev:
