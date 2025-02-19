@@ -594,7 +594,6 @@ def DefaultSiteParameters():
         AOSP_REMOTE=aosp_remote,
         WEAVE_REMOTE=weave_remote,
         # Only remotes listed in CROS_REMOTES are considered branchable.
-        # CROS_REMOTES and BRANCHABLE_PROJECTS must be kept in sync.
         GERRIT_HOSTS={
             external_remote: default_site_params["EXTERNAL_GERRIT_HOST"],
             internal_remote: default_site_params["INTERNAL_GERRIT_HOST"],
@@ -632,17 +631,6 @@ def DefaultSiteParameters():
             aosp_remote,
             weave_remote,
         ),
-        # Mapping 'remote name' -> regexp that matches names of repositories on
-        # that remote that can be branched when creating CrOS branch. Branching
-        # script will actually create a new git ref when branching these
-        # projects. It won't attempt to create a git ref for other projects that
-        # may be mentioned in a manifest. If a remote is missing from this
-        # dictionary, all projects on that remote are considered to not be
-        # branchable.
-        BRANCHABLE_PROJECTS={
-            external_remote: r"(chromiumos|aosp)/(.+)",
-            internal_remote: r"chromeos/(.+)",
-        },
         # Additional parameters used to filter manifests, create modified
         # manifests, and to branch manifests.
         MANIFEST_VERSIONS_GOB_URL=(
