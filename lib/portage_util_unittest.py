@@ -2264,9 +2264,7 @@ class FindEbuildsForOverlaysTest(cros_test_lib.MockTempDirTestCase):
             self.tempdir / "package2" / "bar2" / "bar2-2.0.ebuild",
         ]
 
-        ebuilds = yield from portage_util.FindEbuildsForOverlays(
-            mock_overlay_paths
-        )
+        ebuilds = list(portage_util.FindEbuildsForOverlays(mock_overlay_paths))
 
         self.assertEqual(expected_ebuilds, ebuilds)
 
