@@ -716,10 +716,7 @@ class PatchQuery:
         elif self.sha1:
             # We assume sha1 is unique, but in rare cases (e.g. two branches
             # with the same history) it is not. We don't handle that.
-            self.id = "%s%s" % (
-                config_lib.GetSiteParams().CHANGE_PREFIX[self.remote],
-                self.sha1,
-            )
+            self.id = AddPrefix(self, self.sha1)
 
     def LookupAliases(self):
         """Returns the list of lookup keys to query a PatchCache.
@@ -742,11 +739,7 @@ class PatchQuery:
         if self.sha1:
             l.append(self.sha1)
 
-        return [
-            "%s%s" % (config_lib.GetSiteParams().CHANGE_PREFIX[self.remote], x)
-            for x in l
-            if x is not None
-        ]
+        return [AddPrefix(self, x) for x in l if x is not None]
 
     def ToGerritQueryText(self):
         """Generate a text used to query Gerrit.
@@ -1595,11 +1588,7 @@ class GitRepoPatch(PatchQuery):
         """Returns custom string to identify this patch."""
         s = "%s:%s" % (self.project, self.ref)
         if self.sha1 is not None:
-            s = "%s:%s%s" % (
-                s,
-                config_lib.GetSiteParams().CHANGE_PREFIX[self.remote],
-                self.sha1[:8],
-            )
+            s += f":{AddPrefix(self, self.sha1[:8])}"
         # TODO(ferringb,build): This gets a bit long in output; should likely
         # do some form of truncation to it.
         if self._subject_line:
@@ -2081,8 +2070,7 @@ class GerritPatch(GerritFetchOnlyPatch):
             owner_email=patch_dict["owner"]["email"],
         )
 
-        prefix_str = config_lib.GetSiteParams().CHANGE_PREFIX[self.remote]
-        self.gerrit_number_str = "%s%s" % (prefix_str, self.gerrit_number)
+        self.gerrit_number_str = AddPrefix(self, self.gerrit_number)
         self.url = patch_dict["url"]
         self.subject = patch_dict["subject"]
         # status - Current state of this change.  Can be one of
@@ -2458,11 +2446,7 @@ class GerritPatch(GerritFetchOnlyPatch):
         """Returns custom string to identify this patch."""
         s = "%s:%s" % (self.owner, self.gerrit_number_str)
         if self.sha1 is not None:
-            s = "%s:%s%s" % (
-                s,
-                config_lib.GetSiteParams().CHANGE_PREFIX[self.remote],
-                self.sha1[:8],
-            )
+            s += f":{AddPrefix(self, self.sha1[:8])}"
         if self._subject_line:
             s += ':"%s"' % (self._subject_line,)
         return s
