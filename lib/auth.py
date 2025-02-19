@@ -53,7 +53,7 @@ def GetLuciAuth(
 
 # crbug:871831 default to last sha1 version.
 def GetLuciGitCreds(
-    instance_id="git_revision:0fa571d5b1b09677cf460a8301cf5449c5250049",
+    instance_id="git_revision:a589aeb19f0e17cb5f5cf9821ab1cce655ae85f8",
 ):
     """Returns a path to the git-credential-luci binary.
 
