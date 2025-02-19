@@ -17,8 +17,7 @@ class RepoSyncManifestTest(cros_test_lib.RunCommandTempDirTestCase):
     """Unit tests for repo_sync_manifest."""
 
     INT_MANIFEST_URL = (
-        "https://chrome-internal-review.googlesource.com/"
-        "chromeos/manifest-internal"
+        "https://chrome-internal.googlesource.com/chromeos/manifest-internal"
     )
     EXT_MANIFEST_URL = "https://chromium.googlesource.com/chromiumos/manifest"
 

@@ -23,6 +23,7 @@ from chromite.cbuildbot import patch_series
 from chromite.cbuildbot import repository
 from chromite.lib import commandline
 from chromite.lib import config_lib
+from chromite.lib import constants
 from chromite.lib import gerrit
 from chromite.lib import osutils
 
@@ -228,9 +229,9 @@ def main(argv):
     if options.manifest_url:
         manifest_url = options.manifest_url
     elif options.external:
-        manifest_url = config_lib.GetSiteParams().MANIFEST_URL
+        manifest_url = constants.EXTERNAL_MANIFEST_URL
     else:
-        manifest_url = config_lib.GetSiteParams().MANIFEST_INT_URL
+        manifest_url = constants.INTERNAL_MANIFEST_URL
 
     osutils.SafeMakedirs(options.repo_root)
     repo = repository.RepoRepository(

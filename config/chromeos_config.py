@@ -92,7 +92,7 @@ def DefaultSettings():
     # Git repository URL for our manifests.
     #  https://chromium.googlesource.com/chromiumos/manifest
     #  https://chrome-internal.googlesource.com/chromeos/manifest-internal
-    defaults["manifest_repo_url"] = config_lib.GetSiteParams().MANIFEST_URL
+    defaults["manifest_repo_url"] = constants.EXTERNAL_MANIFEST_URL
 
     return defaults
 
@@ -130,7 +130,7 @@ def GeneralTemplates(site_config) -> None:
         "external",
         internal=False,
         overlays=constants.PUBLIC_OVERLAYS,
-        manifest_repo_url=config_lib.GetSiteParams().MANIFEST_URL,
+        manifest_repo_url=constants.EXTERNAL_MANIFEST_URL,
         manifest=constants.DEFAULT_MANIFEST,
     )
 
@@ -139,7 +139,7 @@ def GeneralTemplates(site_config) -> None:
         "internal",
         internal=True,
         overlays=constants.BOTH_OVERLAYS,
-        manifest_repo_url=config_lib.GetSiteParams().MANIFEST_INT_URL,
+        manifest_repo_url=constants.INTERNAL_MANIFEST_URL,
     )
 
     site_config.AddTemplate(
@@ -315,7 +315,7 @@ def FullBuilders(site_config, boards_dict, ge_build_config) -> None:
         site_config.templates.full,
         site_config.templates.build_external_chrome,
         internal=False,
-        manifest_repo_url=config_lib.GetSiteParams().MANIFEST_URL,
+        manifest_repo_url=constants.EXTERNAL_MANIFEST_URL,
         overlays=constants.PUBLIC_OVERLAYS,
         prebuilts=constants.PUBLIC,
     )

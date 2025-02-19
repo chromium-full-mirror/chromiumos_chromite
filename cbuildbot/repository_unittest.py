@@ -9,7 +9,6 @@ import time
 from unittest import mock
 
 from chromite.cbuildbot import repository
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -44,9 +43,8 @@ class RepoInitTests(cros_test_lib.TempDirTestCase, cros_test_lib.MockTestCase):
         self.PatchObject(time, "sleep")
 
     def _Initialize(self, branch="master") -> None:
-        site_params = config_lib.GetSiteParams()
         self.repo = repository.RepoRepository(
-            site_params.MANIFEST_URL, self.tempdir, branch=branch
+            constants.EXTERNAL_MANIFEST_URL, self.tempdir, branch=branch
         )
         self.repo.Initialize()
 
@@ -133,9 +131,8 @@ class RepoSyncTests(cros_test_lib.TempDirTestCase, cros_test_lib.MockTestCase):
     """Test cases related to repository Sync"""
 
     def setUp(self) -> None:
-        site_params = config_lib.GetSiteParams()
         self.repo = repository.RepoRepository(
-            site_params.MANIFEST_URL, self.tempdir, branch="master"
+            constants.EXTERNAL_MANIFEST_URL, self.tempdir, branch="master"
         )
         self.PatchObject(repository.RepoRepository, "_RepoDebugInfo")
         self.PatchObject(repository.RepoRepository, "Initialize")

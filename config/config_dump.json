@@ -79,7 +79,7 @@
       "description": "Buildspec creator.",
       "internal": true,
       "luci_builder": "Factory",
-      "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
+      "manifest_repo_url": "https://chrome-internal.googlesource.com/chromeos/manifest-internal",
       "master": true,
       "overlays": "both",
       "postsync_patch": false,
@@ -105,7 +105,7 @@
       "internal": true,
       "luci_builder": "Factory",
       "manifest": "official.xml",
-      "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
+      "manifest_repo_url": "https://chrome-internal.googlesource.com/chromeos/manifest-internal",
       "manifest_version": true,
       "overlays": "both",
       "postsync_patch": false,
@@ -161,7 +161,7 @@
       ],
       "internal": true,
       "manifest": "official.xml",
-      "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
+      "manifest_repo_url": "https://chrome-internal.googlesource.com/chromeos/manifest-internal",
       "manifest_version": true,
       "overlays": "both",
       "push_image": true,
@@ -214,7 +214,7 @@
     "display_label": "utility",
     "internal": true,
     "luci_builder": "Infra",
-    "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
+    "manifest_repo_url": "https://chrome-internal.googlesource.com/chromeos/manifest-internal",
     "overlays": "both",
     "schedule": "@hourly"
   },
@@ -228,7 +228,7 @@
     "display_label": "tryjob",
     "internal": true,
     "luci_builder": "Try",
-    "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
+    "manifest_repo_url": "https://chrome-internal.googlesource.com/chromeos/manifest-internal",
     "overlays": "both"
   },
   "eve-release": {
@@ -263,7 +263,7 @@
     "display_label": "utility",
     "internal": true,
     "luci_builder": "Infra",
-    "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
+    "manifest_repo_url": "https://chrome-internal.googlesource.com/chromeos/manifest-internal",
     "overlays": "both",
     "schedule": "triggered",
     "triggered_gitiles": [
@@ -296,7 +296,7 @@
     "display_label": "tryjob",
     "internal": true,
     "luci_builder": "Try",
-    "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
+    "manifest_repo_url": "https://chrome-internal.googlesource.com/chromeos/manifest-internal",
     "overlays": "both"
   },
   "master-buildspec": {
@@ -324,7 +324,7 @@
     "_template": "full",
     "boards": [],
     "internal": true,
-    "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
+    "manifest_repo_url": "https://chrome-internal.googlesource.com/chromeos/manifest-internal",
     "manifest_version": true,
     "master": true,
     "slave_configs": [
@@ -342,7 +342,7 @@
     "display_label": "tryjob",
     "internal": true,
     "luci_builder": "Try",
-    "manifest_repo_url": "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal",
+    "manifest_repo_url": "https://chrome-internal.googlesource.com/chromeos/manifest-internal",
     "manifest_version": true,
     "master": true,
     "overlays": "both",

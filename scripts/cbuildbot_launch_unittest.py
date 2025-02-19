@@ -20,7 +20,7 @@ from chromite.lib import osutils
 from chromite.scripts import cbuildbot_launch
 
 
-EXPECTED_MANIFEST_URL = "https://chrome-internal-review.googlesource.com/chromeos/manifest-internal"  # pylint: disable=line-too-long
+EXPECTED_MANIFEST_URL = "https://chrome-internal.googlesource.com/chromeos/manifest-internal"  # pylint: disable=line-too-long
 
 
 # It's reasonable for unittests to look at internals.

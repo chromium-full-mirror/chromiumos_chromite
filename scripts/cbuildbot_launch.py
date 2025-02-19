@@ -26,7 +26,6 @@ from chromite.cbuildbot.stages import sync_stages
 from chromite.lib import boto_compat
 from chromite.lib import build_summary
 from chromite.lib import chroot_lib
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
@@ -565,9 +564,8 @@ def _main(options, argv):
 
         # Prepare the buildroot with source for the build.
         with metrics.SuccessCounter(METRIC_PREP):
-            manifest_url = config_lib.GetSiteParams().MANIFEST_INT_URL
             repo = repository.RepoRepository(
-                manifest_url,
+                constants.INTERNAL_MANIFEST_URL,
                 buildroot,
                 branch=branchname,
             )

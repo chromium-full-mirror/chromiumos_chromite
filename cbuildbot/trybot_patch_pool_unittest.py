@@ -5,7 +5,6 @@
 """Unittests for trybot_patch_pool."""
 
 from chromite.cbuildbot import trybot_patch_pool
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import patch as cros_patch
 from chromite.lib import patch_unittest
@@ -26,7 +25,6 @@ class FilterTests(patch_unittest.GitRepoPatchTestCase):
 
     def testManifestFilters(self) -> None:
         """Make sure the manifest filters work"""
-        site_params = config_lib.GetSiteParams()
         _, _, patch = self._CommonGitSetup()
 
         patch.project = constants.CHROMITE_PROJECT
@@ -34,12 +32,12 @@ class FilterTests(patch_unittest.GitRepoPatchTestCase):
         self.assertFalse(trybot_patch_pool.IntManifestFilter(patch))
         self.assertFalse(trybot_patch_pool.ManifestFilter(patch))
 
-        patch.project = site_params.MANIFEST_PROJECT
+        patch.project = constants.EXTERNAL_MANIFEST_PROJECT
         self.assertTrue(trybot_patch_pool.ExtManifestFilter(patch))
         self.assertFalse(trybot_patch_pool.IntManifestFilter(patch))
         self.assertTrue(trybot_patch_pool.ManifestFilter(patch))
 
-        patch.project = site_params.MANIFEST_INT_PROJECT
+        patch.project = constants.INTERNAL_MANIFEST_PROJECT
         self.assertFalse(trybot_patch_pool.ExtManifestFilter(patch))
         self.assertTrue(trybot_patch_pool.IntManifestFilter(patch))
         self.assertTrue(trybot_patch_pool.ManifestFilter(patch))

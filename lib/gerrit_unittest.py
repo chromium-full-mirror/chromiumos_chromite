@@ -150,16 +150,6 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
             "AOSP_GERRIT_HOST": gi.gerrit_host,
             "AOSP_GOB_URL": gi.git_url,
             "AOSP_GERRIT_URL": gi.gerrit_url,
-            "MANIFEST_URL": "%s/%s"
-            % (
-                gi.git_url,
-                site_params.MANIFEST_PROJECT,
-            ),
-            "MANIFEST_INT_URL": "%s/%s"
-            % (
-                gi.git_url,
-                site_params.MANIFEST_INT_PROJECT,
-            ),
             "GIT_REMOTES": {
                 site_params.EXTERNAL_REMOTE: gi.gerrit_url,
                 site_params.INTERNAL_REMOTE: gi.gerrit_url,

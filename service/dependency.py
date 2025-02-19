@@ -284,8 +284,8 @@ def GetDependencies(
 def DetermineNonPortageToolchainPaths() -> List[str]:
     """Returns all toolchain change paths that aren't captured by portage."""
     manifest_projects = (
-        "chromiumos/manifest",
-        "chromeos/manifest-internal",
+        constants.EXTERNAL_MANIFEST_PROJECT,
+        constants.INTERNAL_MANIFEST_PROJECT,
     )
 
     # LLVM uprevs are performed by changing `${manifest}/_toolchain.xml`.

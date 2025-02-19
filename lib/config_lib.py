@@ -7,7 +7,6 @@
 import copy
 import itertools
 import json
-import os
 
 from chromite.lib import constants
 from chromite.lib import osutils
@@ -515,8 +514,6 @@ def DefaultSiteParameters():
     # here. All site parameters should be documented.
     default_site_params = {}
 
-    manifest_project = "chromiumos/manifest"
-    manifest_int_project = "chromeos/manifest-internal"
     external_remote = "cros"
     internal_remote = "cros-internal"
     chromium_remote = "chromium"
@@ -536,16 +533,6 @@ def DefaultSiteParameters():
     default_site_params.update(GerritInstanceParameters("WEAVE", "weave"))
 
     default_site_params.update(
-        # Parameters to define which manifests to use.
-        MANIFEST_PROJECT=manifest_project,
-        MANIFEST_INT_PROJECT=manifest_int_project,
-        MANIFEST_PROJECTS=(manifest_project, manifest_int_project),
-        MANIFEST_URL=os.path.join(
-            default_site_params["EXTERNAL_GOB_URL"], manifest_project
-        ),
-        MANIFEST_INT_URL=os.path.join(
-            default_site_params["INTERNAL_GERRIT_URL"], manifest_int_project
-        ),
         # CrOS remotes specified in the manifests.
         EXTERNAL_REMOTE=external_remote,
         INTERNAL_REMOTE=internal_remote,

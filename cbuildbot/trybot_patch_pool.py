@@ -7,7 +7,6 @@
 import functools
 import logging
 
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import gerrit
 from chromite.lib import git
@@ -21,12 +20,12 @@ def ChromiteFilter(patch):
 
 def ExtManifestFilter(patch):
     """Used with FilterFn to isolate patches to the external manifest."""
-    return patch.project == config_lib.GetSiteParams().MANIFEST_PROJECT
+    return patch.project == constants.EXTERNAL_MANIFEST_PROJECT
 
 
 def IntManifestFilter(patch):
     """Used with FilterFn to isolate patches to the internal manifest."""
-    return patch.project == config_lib.GetSiteParams().MANIFEST_INT_PROJECT
+    return patch.project == constants.INTERNAL_MANIFEST_PROJECT
 
 
 def ManifestFilter(patch):
