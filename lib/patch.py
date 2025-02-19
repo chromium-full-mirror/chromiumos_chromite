@@ -1599,8 +1599,6 @@ class GitRepoPatch(PatchQuery):
             s = "%s:%s%s" % (
                 s,
                 config_lib.GetSiteParams().CHANGE_PREFIX[self.remote],
-                # TODO(b/236161656): Fix.
-                # pylint: disable-next=unsubscriptable-object
                 self.sha1[:8],
             )
         # TODO(ferringb,build): This gets a bit long in output; should likely
@@ -2464,8 +2462,6 @@ class GerritPatch(GerritFetchOnlyPatch):
             s = "%s:%s%s" % (
                 s,
                 config_lib.GetSiteParams().CHANGE_PREFIX[self.remote],
-                # TODO(b/236161656): Fix.
-                # pylint: disable-next=unsubscriptable-object
                 self.sha1[:8],
             )
         if self._subject_line:

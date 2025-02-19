@@ -261,8 +261,6 @@ class DotSoResolver:
             logging.debug("query: %s: matched %s", query, dep_info.cpvr)
             yield package
 
-    # TODO Re-enable the lint after we upgrade to Python 3.9 or later.
-    # pylint: disable-next=unsubscriptable-object
     def get_required_libs(self, package) -> ResultSet[str]:
         """Return sets of required .so files for the target and the SDK."""
         sdk = set()
@@ -278,8 +276,6 @@ class DotSoResolver:
                     target.update(libs)
         return ResultSet(target, sdk)
 
-    # TODO Re-enable the lint after we upgrade to Python 3.9 or later.
-    # pylint: disable-next=unsubscriptable-object
     def get_deps(
         self, package: portage_util.InstalledPackage
     ) -> ResultSet[portage_util.InstalledPackage]:
@@ -435,8 +431,6 @@ class DotSoResolver:
                     libs.add(os.path.basename(file))
         self.provided_libs_cache[cpvr] = libs
 
-    # TODO Re-enable the lint after we upgrade to Python 3.9 or later.
-    # pylint: disable-next=unsubscriptable-object
     def get_provided_from_all_deps(
         self, package: portage_util.InstalledPackage
     ) -> ResultSet[str]:
