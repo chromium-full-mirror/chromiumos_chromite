@@ -7,7 +7,6 @@
 import os
 import pprint
 
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import git
@@ -132,8 +131,7 @@ def _GetGclientURLs(internal, rev):
         if major and major < 90 and internal:
             # Internal buildspec: check out the buildspec repo and set deps_file
             # to the path to the desired release spec.
-            site_params = config_lib.GetSiteParams()
-            url = site_params.INTERNAL_GOB_URL + "/chrome/tools/buildspec.git"
+            url = f"{constants.INTERNAL_GOB_URL}/chrome/tools/buildspec.git"
 
             # Chromium switched to DEPS at version 45.0.2432.3.
             deps_file = ".DEPS.git" if BuildspecUsesDepsGit(rev) else "DEPS"

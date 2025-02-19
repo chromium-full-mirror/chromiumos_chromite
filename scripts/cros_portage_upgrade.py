@@ -17,7 +17,6 @@ import portage  # pylint: disable=import-error
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import depgraph
@@ -96,7 +95,7 @@ class Upgrader:
     """A class to perform various tasks related to updating Portage packages."""
 
     PORTAGE_GIT_URL = "%s/external/github.com/gentoo/gentoo.git" % (
-        config_lib.GetSiteParams().EXTERNAL_GOB_URL
+        constants.EXTERNAL_GOB_URL,
     )
     GIT_REMOTE = "origin"
     GIT_BRANCH = "master"

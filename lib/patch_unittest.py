@@ -1099,7 +1099,7 @@ class TestGerritPatch(TestGitRepoPatch):
         site_params = config_lib.GetSiteParams()
         json = self.test_json
         remote = kwargs.pop("remote", site_params.EXTERNAL_REMOTE)
-        url_prefix = kwargs.pop("url_prefix", site_params.EXTERNAL_GERRIT_URL)
+        url_prefix = kwargs.pop("url_prefix", constants.EXTERNAL_GERRIT_URL)
         suppress_branch = kwargs.pop("suppress_branch", False)
         change_id = kwargs.pop("ChangeId", None)
         if change_id is None:
@@ -1216,7 +1216,7 @@ class TestGerritPatch(TestGitRepoPatch):
         patch.Apply(git1, self.DEFAULT_TRACKING)
         reviewed_on = "/".join(
             [
-                config_lib.GetSiteParams().EXTERNAL_GERRIT_URL,
+                constants.EXTERNAL_GERRIT_URL,
                 patch.gerrit_number,
             ]
         )
