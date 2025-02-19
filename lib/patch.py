@@ -663,8 +663,7 @@ class PatchQuery:
         """Initializes a PatchQuery instance.
 
         Args:
-            remote: The remote git instance path, defined in
-                constants.CROS_REMOTES.
+            remote: The remote git instance path.
             project: The name of the project that the patch applies to.
             tracking_branch: The remote branch of the project the patch applies
                 to.

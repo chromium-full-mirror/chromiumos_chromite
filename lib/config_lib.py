@@ -557,18 +557,11 @@ def DefaultSiteParameters():
         CHROME_REMOTE=chrome_remote,
         AOSP_REMOTE=aosp_remote,
         WEAVE_REMOTE=weave_remote,
-        # Only remotes listed in CROS_REMOTES are considered branchable.
         GERRIT_HOSTS={
             external_remote: default_site_params["EXTERNAL_GERRIT_HOST"],
             internal_remote: default_site_params["INTERNAL_GERRIT_HOST"],
             aosp_remote: default_site_params["AOSP_GERRIT_HOST"],
             weave_remote: default_site_params["WEAVE_GERRIT_HOST"],
-        },
-        CROS_REMOTES={
-            external_remote: default_site_params["EXTERNAL_GOB_URL"],
-            internal_remote: default_site_params["INTERNAL_GOB_URL"],
-            aosp_remote: default_site_params["AOSP_GOB_URL"],
-            weave_remote: default_site_params["WEAVE_GOB_URL"],
         },
         GIT_REMOTES={
             chromium_remote: default_site_params["EXTERNAL_GOB_URL"],
