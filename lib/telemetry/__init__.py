@@ -87,17 +87,21 @@ def initialize(publish: bool = True) -> None:
         # Skip initialization when the user explicitly disabled it.
         return
 
-    from chromite.lib import cros_build_lib
-
-    if cros_build_lib.IsOutsideChroot():
-        # Temporarily skip initialization outside the SDK. See b/397474181.
-        return
-
-    trace.initialize(
-        enabled=cfg.trace_config.enabled,
-        development_mode=cfg.trace_config.dev_flag,
-        user_uuid=cfg.trace_config.user_uuid(),
-    )
+    try:
+        trace.initialize(
+            enabled=cfg.trace_config.enabled,
+            development_mode=cfg.trace_config.dev_flag,
+            user_uuid=cfg.trace_config.user_uuid(),
+        )
+    except Exception:  # pylint:disable=broad-except
+        # Telemetry failures shouldn't cause anything else to fail, so log the
+        # error info, beg for a bug, and move on.
+        logging.warning(
+            "Unexpectedly unable to initialize telemetry. This error does not "
+            "affect what you are executing, but please file a bug at "
+            "go/cros-build-bug with the following information.",
+            exc_info=True,
+        )
 
 
 def _handle_notice(cfg: "config.Config") -> None:
