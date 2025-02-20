@@ -66,12 +66,12 @@ from urllib import parse
 
 from chromite.third_party.opentelemetry.attributes import BoundedAttributes
 from chromite.third_party.opentelemetry.sdk.environment_variables import (
-    OTEL_EXPERIMENTAL_RESOURCE_DETECTORS,
+    # OTEL_EXPERIMENTAL_RESOURCE_DETECTORS,
     OTEL_RESOURCE_ATTRIBUTES,
     OTEL_SERVICE_NAME,
 )
 from chromite.third_party.opentelemetry.semconv.resource import ResourceAttributes
-from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points, version
+# from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points, version
 from chromite.third_party.opentelemetry.util.types import AttributeValue
 
 LabelValue = AttributeValue
@@ -136,7 +136,7 @@ TELEMETRY_AUTO_VERSION = ResourceAttributes.TELEMETRY_AUTO_VERSION
 TELEMETRY_SDK_LANGUAGE = ResourceAttributes.TELEMETRY_SDK_LANGUAGE
 
 
-_OPENTELEMETRY_SDK_VERSION = version("opentelemetry-sdk")
+_OPENTELEMETRY_SDK_VERSION = "1.17.0/0.40b0.dev"
 
 
 class Resource:
@@ -168,33 +168,35 @@ class Resource:
         if not attributes:
             attributes = {}
 
-        resource_detectors = []
+        # resource_detectors = []
 
         resource = _DEFAULT_RESOURCE
 
-        otel_experimental_resource_detectors = environ.get(
-            OTEL_EXPERIMENTAL_RESOURCE_DETECTORS, "otel"
-        ).split(",")
+        # otel_experimental_resource_detectors = environ.get(
+        #     OTEL_EXPERIMENTAL_RESOURCE_DETECTORS, "otel"
+        # ).split(",")
+        #
+        # if "otel" not in otel_experimental_resource_detectors:
+        #     otel_experimental_resource_detectors.append("otel")
+        #
+        # for resource_detector in otel_experimental_resource_detectors:
+        #
+        #     resource_detectors.append(
+        #         next(
+        #             iter(
+        #                 entry_points(
+        #                     group="opentelemetry_resource_detector",
+        #                     name=resource_detector.strip(),
+        #                 )
+        #             )
+        #         ).load()()
+        #     )
+        #
+        # resource = get_aggregated_resources(
+        #     resource_detectors, _DEFAULT_RESOURCE
+        # ).merge(Resource(attributes, schema_url))
 
-        if "otel" not in otel_experimental_resource_detectors:
-            otel_experimental_resource_detectors.append("otel")
-
-        for resource_detector in otel_experimental_resource_detectors:
-
-            resource_detectors.append(
-                next(
-                    iter(
-                        entry_points(
-                            group="opentelemetry_resource_detector",
-                            name=resource_detector.strip(),
-                        )
-                    )
-                ).load()()
-            )
-
-        resource = get_aggregated_resources(
-            resource_detectors, _DEFAULT_RESOURCE
-        ).merge(Resource(attributes, schema_url))
+        resource = resource.merge(Resource(attributes, schema_url))
 
         if not resource.attributes.get(SERVICE_NAME, None):
             default_service_name = "unknown_service"

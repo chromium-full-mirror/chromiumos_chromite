@@ -69,13 +69,13 @@ Example::
 """
 
 from logging import getLogger
-from os import environ
+# from os import environ
 from typing import Optional
 
 from chromite.third_party.opentelemetry.context.context import Context
-from chromite.third_party.opentelemetry.environment_variables import OTEL_PROPAGATORS
+# from chromite.third_party.opentelemetry.environment_variables import OTEL_PROPAGATORS
 from chromite.third_party.opentelemetry.propagators import composite, textmap
-from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
+# from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
 
 logger = getLogger(__name__)
 
@@ -122,34 +122,34 @@ def inject(
 
 propagators = []
 
-# Single use variable here to hack black and make lint pass
-environ_propagators = environ.get(
-    OTEL_PROPAGATORS,
-    "tracecontext,baggage",
-)
-
-
-for propagator in environ_propagators.split(","):
-    propagator = propagator.strip()
-
-    try:
-
-        propagators.append(  # type: ignore
-            next(  # type: ignore
-                iter(  # type: ignore
-                    entry_points(  # type: ignore
-                        group="opentelemetry_propagator",
-                        name=propagator,
-                    )
-                )
-            ).load()()
-        )
-
-    except Exception:  # pylint: disable=broad-except
-        logger.exception(
-            "Failed to load configured propagator: %s", propagator
-        )
-        raise
+# # Single use variable here to hack black and make lint pass
+# environ_propagators = environ.get(
+#     OTEL_PROPAGATORS,
+#     "tracecontext,baggage",
+# )
+#
+#
+# for propagator in environ_propagators.split(","):
+#     propagator = propagator.strip()
+#
+#     try:
+#
+#         propagators.append(  # type: ignore
+#             next(  # type: ignore
+#                 iter(  # type: ignore
+#                     entry_points(  # type: ignore
+#                         group="opentelemetry_propagator",
+#                         name=propagator,
+#                     )
+#                 )
+#             ).load()()
+#         )
+#
+#     except Exception:  # pylint: disable=broad-except
+#         logger.exception(
+#             "Failed to load configured propagator: %s", propagator
+#         )
+#         raise
 
 
 _HTTP_TEXT_FORMAT = composite.CompositePropagator(propagators)  # type: ignore

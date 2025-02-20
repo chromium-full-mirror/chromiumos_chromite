@@ -116,36 +116,38 @@ class GlobalErrorHandler:
 
             return None
 
-        plugin_handled = False
+        _DefaultErrorHandler()._handle(exc_value)
 
-        error_handler_entry_points = entry_points(
-            group="opentelemetry_error_handler"
-        )
-
-        for error_handler_entry_point in error_handler_entry_points:
-
-            error_handler_class = error_handler_entry_point.load()
-
-            if issubclass(error_handler_class, exc_value.__class__):
-
-                try:
-
-                    error_handler_class()._handle(exc_value)
-                    plugin_handled = True
-
-                # pylint: disable=broad-except
-                except Exception as error_handling_error:
-
-                    logger.exception(
-                        "%s error while handling error"
-                        " %s by error handler %s",
-                        error_handling_error.__class__.__name__,
-                        exc_value.__class__.__name__,
-                        error_handler_class.__name__,
-                    )
-
-        if not plugin_handled:
-
-            _DefaultErrorHandler()._handle(exc_value)
+        # plugin_handled = False
+        #
+        # error_handler_entry_points = entry_points(
+        #     group="opentelemetry_error_handler"
+        # )
+        #
+        # for error_handler_entry_point in error_handler_entry_points:
+        #
+        #     error_handler_class = error_handler_entry_point.load()
+        #
+        #     if issubclass(error_handler_class, exc_value.__class__):
+        #
+        #         try:
+        #
+        #             error_handler_class()._handle(exc_value)
+        #             plugin_handled = True
+        #
+        #         # pylint: disable=broad-except
+        #         except Exception as error_handling_error:
+        #
+        #             logger.exception(
+        #                 "%s error while handling error"
+        #                 " %s by error handler %s",
+        #                 error_handling_error.__class__.__name__,
+        #                 exc_value.__class__.__name__,
+        #                 error_handler_class.__name__,
+        #             )
+        #
+        # if not plugin_handled:
+        #
+        #     _DefaultErrorHandler()._handle(exc_value)
 
         return True

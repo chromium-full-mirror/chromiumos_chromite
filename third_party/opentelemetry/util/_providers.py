@@ -13,14 +13,15 @@
 # limitations under the License.
 
 from logging import getLogger
-from os import environ
-from typing import TYPE_CHECKING, TypeVar, cast
+# from os import environ
+# from typing import TYPE_CHECKING, TypeVar, cast
+from typing import TypeVar
 
-from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
-
-if TYPE_CHECKING:
-    from chromite.third_party.opentelemetry.metrics import MeterProvider
-    from chromite.third_party.opentelemetry.trace import TracerProvider
+# from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
+#
+# if TYPE_CHECKING:
+#     from chromite.third_party.opentelemetry.metrics import MeterProvider
+#     from chromite.third_party.opentelemetry.trace import TracerProvider
 
 Provider = TypeVar("Provider", "TracerProvider", "MeterProvider")
 
@@ -30,25 +31,26 @@ logger = getLogger(__name__)
 def _load_provider(
     provider_environment_variable: str, provider: str
 ) -> Provider:
+    raise RuntimeError('No TraceProvider set.')
 
-    try:
-
-        provider_name = cast(
-            str,
-            environ.get(provider_environment_variable, f"default_{provider}"),
-        )
-
-        return cast(
-            Provider,
-            next(  # type: ignore
-                iter(  # type: ignore
-                    entry_points(  # type: ignore
-                        group=f"opentelemetry_{provider}",
-                        name=provider_name,
-                    )
-                )
-            ).load()(),
-        )
-    except Exception:  # pylint: disable=broad-except
-        logger.exception("Failed to load configured provider %s", provider)
-        raise
+    # try:
+    #
+    #     provider_name = cast(
+    #         str,
+    #         environ.get(provider_environment_variable, f"default_{provider}"),
+    #     )
+    #
+    #     return cast(
+    #         Provider,
+    #         next(  # type: ignore
+    #             iter(  # type: ignore
+    #                 entry_points(  # type: ignore
+    #                     group=f"opentelemetry_{provider}",
+    #                     name=provider_name,
+    #                 )
+    #             )
+    #         ).load()(),
+    #     )
+    # except Exception:  # pylint: disable=broad-except
+    #     logger.exception("Failed to load configured provider %s", provider)
+    #     raise

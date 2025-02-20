@@ -56,7 +56,7 @@ from chromite.third_party.opentelemetry.sdk.trace.id_generator import IdGenerato
 from chromite.third_party.opentelemetry.sdk.trace.sampling import Sampler
 from chromite.third_party.opentelemetry.semconv.resource import ResourceAttributes
 from chromite.third_party.opentelemetry.trace import set_tracer_provider
-from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
+# from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
 
 _EXPORTER_OTLP = "otlp"
 _EXPORTER_OTLP_PROTO_GRPC = "otlp_proto_grpc"
@@ -90,37 +90,40 @@ _logger = logging.getLogger(__name__)
 def _import_config_components(
     selected_components: List[str], entry_point_name: str
 ) -> Sequence[Tuple[str, object]]:
+    raise RuntimeError(
+        f"Requested entry point '{entry_point_name}' not found"
+    )
 
-    component_implementations = []
-
-    for selected_component in selected_components:
-        try:
-            component_implementations.append(
-                (
-                    selected_component,
-                    next(
-                        iter(
-                            entry_points(
-                                group=entry_point_name, name=selected_component
-                            )
-                        )
-                    ).load(),
-                )
-            )
-        except KeyError:
-
-            raise RuntimeError(
-                f"Requested entry point '{entry_point_name}' not found"
-            )
-
-        except StopIteration:
-
-            raise RuntimeError(
-                f"Requested component '{selected_component}' not found in "
-                f"entry point '{entry_point_name}'"
-            )
-
-    return component_implementations
+    # component_implementations = []
+    #
+    # for selected_component in selected_components:
+    #     try:
+    #         component_implementations.append(
+    #             (
+    #                 selected_component,
+    #                 next(
+    #                     iter(
+    #                         entry_points(
+    #                             group=entry_point_name, name=selected_component
+    #                         )
+    #                     )
+    #                 ).load(),
+    #             )
+    #         )
+    #     except KeyError:
+    #
+    #         raise RuntimeError(
+    #             f"Requested entry point '{entry_point_name}' not found"
+    #         )
+    #
+    #     except StopIteration:
+    #
+    #         raise RuntimeError(
+    #             f"Requested component '{selected_component}' not found in "
+    #             f"entry point '{entry_point_name}'"
+    #         )
+    #
+    # return component_implementations
 
 
 def _get_sampler() -> Optional[str]:
