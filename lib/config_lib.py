@@ -531,10 +531,6 @@ def DefaultSiteParameters():
         # CrOS remotes specified in the manifests.
         EXTERNAL_REMOTE=external_remote,
         INTERNAL_REMOTE=internal_remote,
-        GOB_REMOTES={
-            default_site_params["EXTERNAL_GOB_INSTANCE"]: external_remote,
-            default_site_params["INTERNAL_GOB_INSTANCE"]: internal_remote,
-        },
         CHROMIUM_REMOTE=chromium_remote,
         CHROME_REMOTE=chrome_remote,
         AOSP_REMOTE=aosp_remote,

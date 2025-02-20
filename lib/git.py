@@ -2164,6 +2164,17 @@ def GetLastCommit(
     return next(CommitEntry.ParseFuller(stdout), None)
 
 
+# This mapping should really be based on the current repo manifest.  But
+# loading+parsing those XML files to extract this simple mapping is a bit too
+# expensive.  Plus, this mapping has basically never changed in over a decade,
+# so open coding it like this seems least terrible.
+_REMOTE_TO_GOB_INSTANCE = {
+    "aosp": "android",
+    "cros": "chromium",
+    "cros-internal": "chrome-internal",
+}
+
+
 def RemoteToGobInstance(remote: str) -> str:
     """Convert a remote name to the GoB instance name.
 
@@ -2180,15 +2191,7 @@ def RemoteToGobInstance(remote: str) -> str:
     Returns:
         The GoB instance name.
     """
-    # This mapping should really be based on the current repo manifest.  But
-    # loading+parsing those XML files to extract this simple mapping is a bit
-    # too expensive.  Plus, this mapping has basically never changed in over a
-    # decade, so open coding it like this seems least terrible.
-    return {
-        "aosp": "android",
-        "cros": "chromium",
-        "cros-internal": "chrome-internal",
-    }.get(remote, remote)
+    return _REMOTE_TO_GOB_INSTANCE.get(remote, remote)
 
 
 def RemoteToGerritHost(remote: str) -> str:

@@ -32,6 +32,14 @@ class QueryNotSpecific(GerritException):
     """Thrown when a query needs to identify one CL, but matched multiple."""
 
 
+# This is the inverse of git.RemoteToGobInstance.
+_GOB_INSTANCE_TO_REMOTE = dict(
+    (v, k)
+    # pylint: disable-next=protected-access
+    for k, v in git._REMOTE_TO_GOB_INSTANCE.items()
+)
+
+
 class GerritHelper:
     """Helper class to manage interaction with the gerrit-on-borg service."""
 
@@ -75,11 +83,9 @@ class GerritHelper:
     @classmethod
     def FromGob(cls, gob, **kwargs):
         """Return a helper for a GoB instance."""
-        site_params = config_lib.GetSiteParams()
         host = constants.GOB_HOST % ("%s-review" % gob)
-        # TODO(phobbs) this will be wrong when "gob" isn't in GOB_REMOTES.
-        # We should get rid of remotes altogether and just use the host.
-        return cls(host, site_params.GOB_REMOTES.get(gob, gob), **kwargs)
+        # TODO(phobbs): We should get rid of remotes and just use the host.
+        return cls(host, _GOB_INSTANCE_TO_REMOTE.get(gob, gob), **kwargs)
 
     def SetPrivate(self, change, private, dryrun=False) -> None:
         """Sets the private bit on the given CL.
