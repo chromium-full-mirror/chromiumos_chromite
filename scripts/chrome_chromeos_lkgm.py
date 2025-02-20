@@ -53,7 +53,9 @@ class ChromeLKGMCleaner:
     ) -> None:
         self._dryrun = dryrun
         self._branch = branch
-        self._gerrit_helper = gerrit.GetCrosExternal()
+        self._gerrit_helper = gerrit.GetGerritHelper(
+            gob=constants.EXTERNAL_GOB_INSTANCE
+        )
         self._buildbucket_id = buildbucket_id
 
         self._user_email = user_email
@@ -230,7 +232,9 @@ class ChromeLKGMCommitter:
         self._dryrun = dryrun
         self._branch = branch
         self._buildbucket_id = buildbucket_id
-        self._gerrit_helper = gerrit.GetCrosExternal()
+        self._gerrit_helper = gerrit.GetGerritHelper(
+            gob=constants.EXTERNAL_GOB_INSTANCE
+        )
 
         # Next LKGM, which is going to be updated to by an uprev CL.
         # Strip any chrome branch from the lkgm version.

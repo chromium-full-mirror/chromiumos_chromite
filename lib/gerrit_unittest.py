@@ -390,8 +390,8 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
 class GerritHelperTest(GerritTestCase):
     """Unittests for GerritHelper."""
 
-    def _GetHelper(self, remote=config_lib.GetSiteParams().EXTERNAL_REMOTE):
-        return gerrit.GetGerritHelper(remote)
+    def _GetHelper(self):
+        return gerrit.GetGerritHelper(gob=constants.EXTERNAL_GOB_INSTANCE)
 
     def createPatch(self, clone_path, project, remote="origin", **kwargs):
         """Create a patch in the given git checkout and upload it to gerrit.
@@ -802,10 +802,13 @@ class DirectGerritHelperTest(cros_test_lib.TestCase):
     # A big list of real changes.
     CHANGES = ["235893", "*189165", "231790", "*190026", "231647", "234645"]
 
+    def _GetHelper(self):
+        return gerrit.GetGerritHelper(gob=constants.EXTERNAL_GOB_INSTANCE)
+
     def testMultipleChangeDetail(self) -> None:
         """Test ordering of results in GetMultipleChangeDetail"""
         changes = [x for x in self.CHANGES if not x.startswith("*")]
-        helper = gerrit.GetCrosExternal()
+        helper = self._GetHelper()
         results = list(
             helper.GetMultipleChangeDetail([str(x) for x in changes])
         )
@@ -815,7 +818,7 @@ class DirectGerritHelperTest(cros_test_lib.TestCase):
     def testQueryMultipleCurrentPatchset(self) -> None:
         """Test ordering of results in QueryMultipleCurrentPatchset"""
         changes = [x for x in self.CHANGES if not x.startswith("*")]
-        helper = gerrit.GetCrosExternal()
+        helper = self._GetHelper()
         results = list(helper.QueryMultipleCurrentPatchset(changes))
         self.assertEqual(changes, [x.gerrit_number for _, x in results])
         self.assertEqual(changes, [x for x, _ in results])

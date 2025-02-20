@@ -872,18 +872,6 @@ def GetGerritHelperForChange(change):
     return GetGerritHelper(change.remote)
 
 
-def GetCrosInternal(**kwargs):
-    """Convenience method for accessing private ChromeOS gerrit."""
-    site_params = config_lib.GetSiteParams()
-    return GetGerritHelper(site_params.INTERNAL_REMOTE, **kwargs)
-
-
-def GetCrosExternal(**kwargs):
-    """Convenience method for accessing public ChromiumOS gerrit."""
-    site_params = config_lib.GetSiteParams()
-    return GetGerritHelper(site_params.EXTERNAL_REMOTE, **kwargs)
-
-
 def GetChangeRef(change_number, patchset=None):
     """Given a change number, return the refs/changes/* space for it.
 
