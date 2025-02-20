@@ -263,7 +263,7 @@ class GSContext:
     # (1*sleep) the first time, then (2*sleep), continuing via attempt * sleep.
     DEFAULT_SLEEP_TIME = 60
 
-    GSUTIL_VERSION = "5.23"
+    GSUTIL_VERSION = "5.33"
     GSUTIL_TAR = "gsutil_%s.tar.gz" % GSUTIL_VERSION
     GSUTIL_URL = (
         gs_urls_util.PUBLIC_BASE_HTTPS_URL
