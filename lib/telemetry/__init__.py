@@ -57,6 +57,8 @@ def initialize(publish: bool = True) -> None:
     # Importing this inside the function to avoid performance overhead from the
     # global package import.
     from chromite.lib import chromite_config
+    from chromite.lib import constants
+    from chromite.lib import cros_build_lib
     from chromite.lib.telemetry import config
     from chromite.lib.telemetry import trace
     from chromite.utils import hostname_util
@@ -80,11 +82,15 @@ def initialize(publish: bool = True) -> None:
     if publish:
         _fork_and_publish()
 
-    if (
+    # Skip initialization when the user explicitly disabled it.
+    cfg_disable = (
         not cfg.trace_config.enabled
         and cfg.trace_config.enabled_reason == "USER"
-    ):
-        # Skip initialization when the user explicitly disabled it.
+    )
+    env_disable = cros_build_lib.BooleanShellValue(
+        os.environ.get(constants.TELEMETRY_DISABLED_ENVVAR), default=False
+    )
+    if cfg_disable or env_disable:
         return
 
     try:

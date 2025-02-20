@@ -11,6 +11,7 @@ from chromite.third_party.opentelemetry.sdk import trace as trace_sdk
 import pytest
 
 from chromite.lib import chromite_config
+from chromite.lib import constants
 from chromite.lib import telemetry
 from chromite.lib.telemetry import config
 from chromite.lib.telemetry import trace
@@ -153,5 +154,54 @@ def test_initialize_to_skip_notice_if_tracecontext_present_in_env(
 
     cfg = config.Config(telemetry_config)
     assert len(processors) == 0
+    assert not capsys.readouterr().out.startswith(telemetry.NOTICE)
+    assert cfg.root_config.notice_countdown == 10
+
+
+def test_skip_initialization_when_disable_envvar_set(
+    capsys, monkeypatch, telemetry_config
+):
+    """Test initialization skipped when disable envvar set."""
+    monkeypatch.setattr(telemetry, "_INITIALIZED", False)
+    monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
+    monkeypatch.setenv(constants.TELEMETRY_DISABLED_ENVVAR, "1")
+
+    def _trace_init(*_, **__):
+        pytest.fail("trace.initialize incorrectly executed.")
+
+    monkeypatch.setattr(trace, "initialize", _trace_init)
+
+    # The environment variable should override the config.
+    cfg = config.Config(telemetry_config)
+    cfg.trace_config.update(enabled=True, reason="USER")
+    cfg.flush()
+
+    telemetry.initialize(publish=False)
+
+    cfg = config.Config(telemetry_config)
+    assert not capsys.readouterr().out.startswith(telemetry.NOTICE)
+    assert cfg.root_config.notice_countdown == 10
+
+
+def test_skip_initialization_when_user_disabled(
+    capsys, monkeypatch, telemetry_config
+):
+    """Test initialization skipped when disable by user."""
+    monkeypatch.setattr(telemetry, "_INITIALIZED", False)
+    monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
+    monkeypatch.delenv(constants.TELEMETRY_DISABLED_ENVVAR, raising=False)
+
+    def _trace_init(*_, **__):
+        pytest.fail("trace.initialize incorrectly executed.")
+
+    monkeypatch.setattr(trace, "initialize", _trace_init)
+
+    cfg = config.Config(telemetry_config)
+    cfg.trace_config.update(enabled=False, reason="USER")
+    cfg.flush()
+
+    telemetry.initialize(publish=False)
+
+    cfg = config.Config(telemetry_config)
     assert not capsys.readouterr().out.startswith(telemetry.NOTICE)
     assert cfg.root_config.notice_countdown == 10

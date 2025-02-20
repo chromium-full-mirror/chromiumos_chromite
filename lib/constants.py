@@ -451,6 +451,9 @@ TELEMETRY_DISABLED_SCRIPTS = frozenset(
 )
 # The name of scripts that need just telemetry publishing disabled.
 TELEMETRY_PUBLISH_DISABLED_SCRIPTS = frozenset()
+# Allow setting CHROMITE_TELEMETRY_DISABLE="1" in the env to completely skip
+# telemetry initialization. Escape hatch in case of bugs.
+TELEMETRY_DISABLED_ENVVAR = "CROS_TELEMETRY_DISABLE"
 
 # Used by remote patch serialization/deserialzation.
 INTERNAL_PATCH_TAG = "i"
@@ -468,6 +471,7 @@ ENV_PASSTHRU = (
     # Maintaining a duplicate here to avoid performance penalty associated with
     # importing `chromite.utils.telemetry.trace` package.
     "traceparent",
+    TELEMETRY_DISABLED_ENVVAR,
 )
 
 # List of variables to proxy into the chroot from the host, and to
@@ -503,6 +507,7 @@ CHROOT_ENVIRONMENT_ALLOWLIST = (
     "https_proxy",
     "no_proxy",
     "traceparent",
+    TELEMETRY_DISABLED_ENVVAR,
 )
 
 # Paths for Chrome LKGM which are relative to the Chromium base url.
