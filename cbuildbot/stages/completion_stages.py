@@ -15,7 +15,6 @@ from chromite.cbuildbot.stages import sync_stages
 from chromite.lib import buildbucket_v2
 from chromite.lib import builder_status_lib
 from chromite.lib import chroot_lib
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import failures_lib
 from chromite.service import binhost as binhost_service
@@ -86,14 +85,12 @@ class ManifestVersionedSyncCompletionStage(
         if not self.success:
             self.message = self.GetBuildFailureMessage()
 
-        if not config_lib.IsPFQType(self._run.config.build_type):
-            # Update the pass/fail status in the manifest-versions
-            # repo. Suite scheduler checks the build status to schedule
-            # suites.
-            self._run.attrs.manifest_manager.UpdateStatus(
-                success_map=GetBuilderSuccessMap(self._run, self.success),
-                message=self.message,
-            )
+        # Update the pass/fail status in the manifest-versions repo.
+        # Suite scheduler checks the build status to schedule suites.
+        self._run.attrs.manifest_manager.UpdateStatus(
+            success_map=GetBuilderSuccessMap(self._run, self.success),
+            message=self.message,
+        )
 
 
 class ImportantBuilderFailedException(failures_lib.StepFailure):
@@ -209,26 +206,6 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
                 self, exc_info
             )
 
-    def HandleSuccess(self) -> None:
-        """Handle a successful build.
-
-        This function is called whenever the cbuildbot run is successful.
-        For the master, this will only be called when all slave builders
-        are also successful. This function may be overridden by subclasses.
-        """
-        # We only promote for the pfq, not chrome pfq.
-        # TODO(build): Run this logic in debug mode too.
-        if (
-            not self._run.options.debug
-            and config_lib.IsPFQType(self._run.config.build_type)
-            and self._run.config.master
-            and self._run.manifest_branch in ("main", "master")
-        ):
-            self._run.attrs.manifest_manager.PromoteCandidate()
-            if sync_stages.MasterSlaveLKGMSyncStage.external_manager:
-                # pylint: disable-next=line-too-long
-                sync_stages.MasterSlaveLKGMSyncStage.external_manager.PromoteCandidate()
-
     def HandleFailure(
         self, failing, inflight, no_stat, self_destructed
     ) -> None:
@@ -328,8 +305,6 @@ class MasterSlaveSyncCompletionStage(ManifestVersionedSyncCompletionStage):
         if self._fatal:
             self.HandleFailure(failing, inflight, no_stat, self_destructed)
             raise ImportantBuilderFailedException()
-        else:
-            self.HandleSuccess()
 
     def _IsFailureFatal(
         self, failing, inflight, no_stat, self_destructed=False

@@ -13,7 +13,6 @@ from chromite.cbuildbot.stages import generic_stages_unittest
 from chromite.cbuildbot.stages import sync_stages
 from chromite.cbuildbot.stages import sync_stages_unittest
 from chromite.lib import builder_status_lib
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib.buildstore import FakeBuildStore
 
@@ -87,119 +86,6 @@ class ManifestVersionedSyncCompletionStageTest(
         )
         expected_map = {self.BOT_ID: True}
         self.assertEqual(expected_map, builder_success_map)
-
-
-class MasterSlaveSyncCompletionStageMockConfigTest(
-    generic_stages_unittest.AbstractStageTestCase
-):
-    """Tests MasterSlaveSyncCompletionStage with ManifestVersionedSyncStage."""
-
-    BOT_ID = "master"
-
-    def setUp(self) -> None:
-        self.source_repo = "ssh://source/repo"
-        self.manifest_version_url = "fake manifest url"
-        self.branch = "master"
-        self.build_type = constants.PFQ_TYPE
-
-        # Use our mocked out SiteConfig for all tests.
-        self.test_config = self._GetTestConfig()
-        self._Prepare(site_config=self.test_config)
-        self.buildstore = FakeBuildStore()
-
-    def ConstructStage(self):
-        sync_stage = sync_stages.ManifestVersionedSyncStage(
-            self._run, self.buildstore
-        )
-        return completion_stages.MasterSlaveSyncCompletionStage(
-            self._run, self.buildstore, sync_stage, success=True
-        )
-
-    def _GetTestConfig(self):
-        test_config = config_lib.SiteConfig()
-        test_config.Add(
-            "master",
-            config_lib.BuildConfig(),
-            boards=[],
-            build_type=self.build_type,
-            master=True,
-            slave_configs=["test3", "test5"],
-            manifest_version=True,
-        )
-        test_config.Add(
-            "test1",
-            config_lib.BuildConfig(),
-            boards=["amd64-generic"],
-            manifest_version=True,
-            build_type=constants.PFQ_TYPE,
-            overlays="public",
-            important=False,
-            chrome_rev=None,
-            branch=False,
-            internal=False,
-            master=False,
-        )
-        test_config.Add(
-            "test2",
-            config_lib.BuildConfig(),
-            boards=["amd64-generic"],
-            manifest_version=False,
-            build_type=constants.PFQ_TYPE,
-            overlays="public",
-            important=True,
-            chrome_rev=None,
-            branch=False,
-            internal=False,
-            master=False,
-        )
-        test_config.Add(
-            "test3",
-            config_lib.BuildConfig(),
-            boards=["amd64-generic"],
-            manifest_version=True,
-            build_type=constants.PFQ_TYPE,
-            overlays="both",
-            important=True,
-            chrome_rev=None,
-            branch=False,
-            internal=True,
-            master=False,
-        )
-        test_config.Add(
-            "test4",
-            config_lib.BuildConfig(),
-            boards=["amd64-generic"],
-            manifest_version=True,
-            build_type=constants.PFQ_TYPE,
-            overlays="both",
-            important=True,
-            chrome_rev=None,
-            branch=True,
-            internal=True,
-            master=False,
-        )
-        test_config.Add(
-            "test5",
-            config_lib.BuildConfig(),
-            boards=["amd64-generic"],
-            manifest_version=True,
-            build_type=constants.PFQ_TYPE,
-            overlays="public",
-            important=True,
-            chrome_rev=None,
-            branch=False,
-            internal=False,
-            master=False,
-        )
-        return test_config
-
-    def testGetSlavesForMaster(self) -> None:
-        """Tests we get the slaves for a fake unified master configuration."""
-        stage = self.ConstructStage()
-        p = stage._GetSlaveConfigs()
-        self.assertEqual(
-            [self.test_config["test3"], self.test_config["test5"]], p
-        )
 
 
 class CanaryCompletionStageTest(generic_stages_unittest.AbstractStageTestCase):

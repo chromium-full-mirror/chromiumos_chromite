@@ -114,11 +114,6 @@ def IsCanaryMaster(builder_run):
     )
 
 
-def IsPFQType(b_type):
-    """Returns True if this build type is a PFQ."""
-    return b_type in (constants.PFQ_TYPE,)
-
-
 def IsCanaryType(b_type):
     """Returns True if this build type is a Canary."""
     return b_type == constants.CANARY_TYPE
@@ -379,7 +374,7 @@ def DefaultSettings():
         "gs_path": GS_PATH_DEFAULT,
         # TODO(sosa): Deprecate binary.
         # Type of builder.  Check constants.VALID_BUILD_TYPES.
-        "build_type": constants.PFQ_TYPE,
+        "build_type": None,
         # Whether to schedule test suites by suite_scheduler. Generally only
         # True for "release" builders.
         "suite_scheduling": False,

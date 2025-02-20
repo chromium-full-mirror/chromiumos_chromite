@@ -352,9 +352,6 @@ VALID_CHROME_REVISIONS = [
 
 # Build types supported.
 
-# These builds serve as PFQ builders.  This is being deprecated.
-PFQ_TYPE = "pfq"
-
 # Builds from source and non-incremental.  This builds fully wipe their
 # chroot before the start of every build and no not use a BINHOST.
 FULL_TYPE = "full"
@@ -381,7 +378,6 @@ VALID_BUILD_TYPES = (
     CANARY_TYPE,
     CHROOT_BUILDER_TYPE,
     CHROOT_BUILDER_BOARD,
-    PFQ_TYPE,
     TRYJOB_TYPE,
     GENERIC_TYPE,
 )

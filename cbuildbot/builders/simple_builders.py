@@ -267,9 +267,7 @@ class DistributedBuilder(SimpleBuilder):
             self.completion_stage_class = (
                 completion_stages.CanaryCompletionStage
             )
-        elif config_lib.IsPFQType(
-            self._run.config.build_type
-        ) or self._run.config.build_type in (constants.FULL_TYPE,):
+        elif self._run.config.build_type in (constants.FULL_TYPE,):
             sync_stage = self._GetStageInstance(
                 sync_stages.MasterSlaveLKGMSyncStage
             )

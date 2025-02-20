@@ -16,7 +16,6 @@ from chromite.cbuildbot import commands
 from chromite.cbuildbot import prebuilts
 from chromite.cbuildbot.stages import generic_stages
 from chromite.lib import compression_lib
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import failures_lib
@@ -627,8 +626,6 @@ class UploadPrebuiltsStage(generic_stages.BoardSpecificBuilderStage):
             generated_args.extend(["--set-version", version])
 
         if self._run.config.git_sync and self._run.options.publish:
-            # Git sync should never be set for pfq type builds.
-            assert not config_lib.IsPFQType(self._prebuilt_type)
             generated_args.append("--git-sync")
         if not self._run.options.publish:
             generated_args.append("--no-sync-remote-latest-sdk-file")

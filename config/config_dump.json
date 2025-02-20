@@ -10,7 +10,7 @@
     "branch": false,
     "build_packages": true,
     "build_timeout": 19800,
-    "build_type": "pfq",
+    "build_type": null,
     "builder_class_name": null,
     "chrome_rev": null,
     "chromeos_official": false,

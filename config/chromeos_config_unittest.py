@@ -338,11 +338,7 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 "Config %s: has unexpected chrome_rev_local value."
                 % build_name,
             )
-            if config["chrome_rev"]:
-                self.assertTrue(
-                    config_lib.IsPFQType(config["build_type"]),
-                    "Config %s: has chrome_rev but is not a PFQ." % build_name,
-                )
+            self.assertFalse(config["chrome_rev"])
 
     def testBuildType(self) -> None:
         """Verifies that all configs use valid build types."""

@@ -119,7 +119,6 @@ class LKGMManager(manifest_version.BuildSpecsManager):
 
     # Sub-directories for LKGM and Chrome LKGM's.
     LKGM_SUBDIR = "LKGM-candidates"
-    ANDROID_PFQ_SUBDIR = "android-LKGM-candidates"
     FULL_SUBDIR = "full"
 
     def __init__(
@@ -182,11 +181,8 @@ class LKGMManager(manifest_version.BuildSpecsManager):
         self.build_type = build_type
         # Chrome PFQ and PFQ's exist at the same time and version separately so
         # they must have separate subdirs in the manifest-versions repository.
-        if self.build_type == constants.FULL_TYPE:
-            self.rel_working_dir = self.FULL_SUBDIR
-        else:
-            assert config_lib.IsPFQType(self.build_type)
-            self.rel_working_dir = self.LKGM_SUBDIR
+        assert self.build_type == constants.FULL_TYPE
+        self.rel_working_dir = self.FULL_SUBDIR
 
     def GetCurrentVersionInfo(self):
         """Returns the lkgm version info from the version file."""
