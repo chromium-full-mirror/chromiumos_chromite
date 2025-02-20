@@ -718,7 +718,9 @@ class VersionTest(
         # Clears the environment variable set in the previous run.
         os.environ.pop(cros_chrome_sdk.SDKFetcher.SDK_VERSION_ENV, None)
         self.sdk = cros_chrome_sdk.SDKFetcher(
-            os.path.join(self.tempdir, "cache"), self.BOARD
+            os.path.join(self.tempdir, "cache"),
+            self.BOARD,
+            fallback_versions=2,
         )
 
     def testUpdateDefaultChromeVersion(self) -> None:
