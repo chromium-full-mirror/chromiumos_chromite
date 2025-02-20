@@ -4,12 +4,10 @@
 
 """Module containing the sync stages."""
 
-import contextlib
 import logging
 import os
 import sys
 from xml.dom import minidom
-from xml.etree import ElementTree
 
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.cbuildbot import commands
@@ -568,32 +566,6 @@ class ManifestVersionedSyncStage(SyncStage):
 
         return to_return
 
-    @contextlib.contextmanager
-    def LocalizeManifest(self, manifest, filter_cros=False):
-        """Remove restricted checkouts from the manifest if needed.
-
-        Args:
-            manifest: The manifest to localize.
-            filter_cros: If set, then only checkouts with a remote of 'cros' or
-                'cros-internal' are kept, and the rest are filtered out.
-        """
-        if filter_cros:
-            with osutils.TempDir() as tempdir:
-                filtered_manifest = os.path.join(tempdir, "filtered.xml")
-                doc = ElementTree.parse(manifest)
-                root = doc.getroot()
-                for node in root.findall("project"):
-                    remote = node.attrib.get("remote")
-                    if (
-                        remote
-                        and remote not in config_lib.GetSiteParams().GIT_REMOTES
-                    ):
-                        root.remove(node)
-                doc.write(filtered_manifest)
-                yield filtered_manifest
-        else:
-            yield manifest
-
     def _GetMasterVersion(self, master_id, timeout=5 * 60):
         """Get the platform version associated with the master_build_id.
 
@@ -685,12 +657,7 @@ class ManifestVersionedSyncStage(SyncStage):
 
         self._SetAndroidVersionIfApplicable(next_manifest)
         self._SetChromeVersionIfApplicable(next_manifest)
-        # To keep local trybots working, remove restricted checkouts from the
-        # official manifest we get from manifest-versions.
-        with self.LocalizeManifest(
-            next_manifest, filter_cros=self._run.options.local
-        ) as new_manifest:
-            self.ManifestCheckout(new_manifest)
+        self.ManifestCheckout(next_manifest)
 
 
 class MasterSlaveLKGMSyncStage(ManifestVersionedSyncStage):
