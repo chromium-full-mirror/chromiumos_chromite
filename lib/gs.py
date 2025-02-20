@@ -788,7 +788,7 @@ wheel: <
                     proc.stdout.close()
                     proc.terminate()
 
-        return read_content()
+        yield from read_content()
 
     def CopyInto(self, local_path, remote_dir, filename=None, **kwargs):
         """Upload a local file into a directory in google storage.
