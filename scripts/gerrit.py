@@ -28,7 +28,6 @@ from typing import List, Set, Tuple
 
 from chromite.lib import chromite_config
 from chromite.lib import commandline
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import gerrit
@@ -341,12 +340,11 @@ def PrettyPrintCl(opts, cl, lims=None, show_approvals=True) -> None:
 def PrintCls(opts, cls, lims=None, show_approvals=True) -> None:
     """Print all results based on the requested format."""
     if opts.format is OutputFormat.RAW:
-        site_params = config_lib.GetSiteParams()
         pfx = ""
         # Special case internal Chrome GoB as that is what most devs use.
         # They can always redirect the list elsewhere via the -g option.
         if opts.gob == constants.INTERNAL_GOB_INSTANCE:
-            pfx = site_params.INTERNAL_CHANGE_PREFIX
+            pfx = f"{opts.gob}:"
         for cl in cls:
             print("%s%s" % (pfx, cl["number"]))
 
