@@ -35,7 +35,6 @@ from typing import (
 from xml import sax
 
 import chromite
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
@@ -531,15 +530,13 @@ class Manifest:
             StripRefs(upstream),
         )
 
-        site_params = config_lib.GetSiteParams()
-        attrs["pushable"] = remote in site_params.GIT_REMOTES
-        if attrs["pushable"]:
-            attrs["push_remote"] = remote
-            attrs["push_remote_url"] = site_params.GIT_REMOTES[remote]
-            attrs["push_url"] = "%s/%s" % (
-                attrs["push_remote_url"],
-                attrs["name"],
-            )
+        attrs["pushable"] = True
+        attrs["push_remote"] = remote
+        attrs["push_remote_url"] = RemoteToGitServerUrl(remote)
+        attrs["push_url"] = "%s/%s" % (
+            attrs["push_remote_url"],
+            attrs["name"],
+        )
         groups = set(attrs.get("groups", "default").replace(",", " ").split())
         groups.add("default")
         attrs["groups"] = frozenset(groups)
@@ -2207,3 +2204,19 @@ def RemoteToGerritHost(remote: str) -> str:
         The Gerrit hostname.
     """
     return constants.GOB_HOST % (f"{RemoteToGobInstance(remote)}-review",)
+
+
+def RemoteToGitServerUrl(remote: str) -> str:
+    """Convert a remote name to the Git host for pushing.
+
+    Examples:
+        RemoteToGerritHost("cros") -> "chromium.googlesource.com"
+
+    Args:
+        remote: The name used in repo <remote> manifest elements.
+
+    Returns:
+        The Git server hostname.
+    """
+    host = constants.GOB_HOST % (RemoteToGobInstance(remote),)
+    return f"https://{host}"

@@ -150,12 +150,6 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
             "AOSP_GERRIT_HOST": gi.gerrit_host,
             "AOSP_GOB_URL": gi.git_url,
             "AOSP_GERRIT_URL": gi.gerrit_url,
-            "GIT_REMOTES": {
-                site_params.EXTERNAL_REMOTE: gi.gerrit_url,
-                site_params.INTERNAL_REMOTE: gi.gerrit_url,
-                site_params.CHROMIUM_REMOTE: gi.gerrit_url,
-                site_params.CHROME_REMOTE: gi.gerrit_url,
-            },
         }
 
         for k in self.patched_params.keys():

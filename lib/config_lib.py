@@ -539,14 +539,6 @@ def DefaultSiteParameters():
         CHROME_REMOTE=chrome_remote,
         AOSP_REMOTE=aosp_remote,
         WEAVE_REMOTE=weave_remote,
-        GIT_REMOTES={
-            chromium_remote: default_site_params["EXTERNAL_GOB_URL"],
-            chrome_remote: default_site_params["INTERNAL_GOB_URL"],
-            external_remote: default_site_params["EXTERNAL_GOB_URL"],
-            internal_remote: default_site_params["INTERNAL_GOB_URL"],
-            aosp_remote: default_site_params["AOSP_GOB_URL"],
-            weave_remote: default_site_params["WEAVE_GOB_URL"],
-        },
         # Prefix to distinguish internal and external changes. This is used
         # when a user specifies a patch with "-g", when generating a key for
         # a patch to use in our PatchCache, and when displaying a custom

@@ -849,7 +849,7 @@ class GitRepoPatch(PatchQuery):
         # belongs to. Differs from project_url as that may point to a local
         # repo or a gerrit review repo.
         self.git_remote_url = "%s/%s" % (
-            config_lib.GetSiteParams().GIT_REMOTES.get(remote),
+            git.RemoteToGitServerUrl(remote),
             project,
         )
         self.project_url = project_url
@@ -2648,10 +2648,10 @@ def PrepareRemotePatches(patches):
         if tag == constants.INTERNAL_PATCH_TAG:
             remote = site_params.INTERNAL_REMOTE
 
-        push_url = site_params.GIT_REMOTES[remote]
+        push_url = git.RemoteToGitServerUrl(remote)
         patch_info.append(
             UploadedLocalPatch(
-                os.path.join(push_url, project),
+                f"{push_url}/{project}",
                 project,
                 ref,
                 tracking_branch,
