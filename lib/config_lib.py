@@ -512,7 +512,6 @@ def DefaultSiteParameters():
     external_remote = "cros"
     internal_remote = "cros-internal"
     chromium_remote = "chromium"
-    chrome_remote = "chrome"
     aosp_remote = "aosp"
     weave_remote = "weave"
 
@@ -524,17 +523,11 @@ def DefaultSiteParameters():
     default_site_params.update(
         GerritInstanceParameters("INTERNAL", "chrome-internal")
     )
-    default_site_params.update(GerritInstanceParameters("AOSP", "android"))
-    default_site_params.update(GerritInstanceParameters("WEAVE", "weave"))
 
     default_site_params.update(
         # CrOS remotes specified in the manifests.
         EXTERNAL_REMOTE=external_remote,
         INTERNAL_REMOTE=internal_remote,
-        CHROMIUM_REMOTE=chromium_remote,
-        CHROME_REMOTE=chrome_remote,
-        AOSP_REMOTE=aosp_remote,
-        WEAVE_REMOTE=weave_remote,
         # Prefix to distinguish internal and external changes. This is used
         # when a user specifies a patch with "-g", when generating a key for
         # a patch to use in our PatchCache, and when displaying a custom

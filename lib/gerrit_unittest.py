@@ -146,10 +146,6 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
             "INTERNAL_GERRIT_HOST": gi.gerrit_host,
             "INTERNAL_GOB_URL": gi.git_url,
             "INTERNAL_GERRIT_URL": gi.gerrit_url,
-            "AOSP_GOB_HOST": gi.git_host,
-            "AOSP_GERRIT_HOST": gi.gerrit_host,
-            "AOSP_GOB_URL": gi.git_url,
-            "AOSP_GERRIT_URL": gi.gerrit_url,
         }
 
         for k in self.patched_params.keys():
