@@ -688,9 +688,7 @@ class RunThroughTest(
             self.assertExists(nacl_toolchain_dir)
 
 
-class VersionTest(
-    gs_unittest.AbstractGSContextTest, cros_test_lib.LoggingTestCase
-):
+class VersionTest(gs_unittest.AbstractGSContextTest, cros_test_lib.TestCase):
     """Tests the determination of which SDK version to use."""
 
     VERSION = "3543.0.0"
@@ -936,7 +934,7 @@ class PathVerifyTest(
 
 
 class ClearOldItemsTest(
-    cros_test_lib.MockTempDirTestCase, cros_test_lib.LoggingTestCase
+    cros_test_lib.MockTempDirTestCase, cros_test_lib.TestCase
 ):
     """Tests SDKFetcher.ClearOldItems() behavior."""
 
