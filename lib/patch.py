@@ -478,24 +478,6 @@ def StripPrefix(text):
     return remote, text
 
 
-def AddPrefix(patch, text):
-    """Add the leading prefix to |text| if applicable.
-
-    Examines patch.remote and adds the prefix to text if applicable.
-
-    Args:
-        patch: A PatchQuery object to examine.
-        text: The text to add prefix to.
-
-    Returns:
-        |text| with an added prefix.
-    """
-    return "%s%s" % (
-        config_lib.GetSiteParams().CHANGE_PREFIX[patch.remote],
-        text,
-    )
-
-
 def ParsePatchDep(
     text,
     no_change_id=False,
@@ -1935,9 +1917,9 @@ class GerritFetchOnlyPatch(GitRepoPatch):
         if self.owner_email:
             self.owner = self.owner_email.split("@", 1)[0]
 
-        site_params = config_lib.GetSiteParams()
+        gerrit_host = git.RemoteToGerritHost(self.remote)
         self.url = gob_util.GetChangePageUrl(
-            site_params.GERRIT_HOSTS[self.remote], int(self.gerrit_number)
+            gerrit_host, int(self.gerrit_number)
         )
         self.fail_count = fail_count
         self.pass_count = pass_count
@@ -2249,7 +2231,7 @@ class GerritPatch(GerritFetchOnlyPatch):
 
     def IsMergeable(self, revision: Optional[str] = None) -> Optional[bool]:
         """Return true if the patchset is mergeable."""
-        gerrit_host = config_lib.GetSiteParams().GERRIT_HOSTS[self.remote]
+        gerrit_host = git.RemoteToGerritHost(self.remote)
         result = gob_util.GetChangeMergeable(
             gerrit_host, self.gerrit_number, revision=revision
         )
@@ -2271,7 +2253,7 @@ class GerritPatch(GerritFetchOnlyPatch):
         Returns:
             Contents of the file.
         """
-        gerrit_host = config_lib.GetSiteParams().GERRIT_HOSTS[self.remote]
+        gerrit_host = git.RemoteToGerritHost(self.remote)
         return gob_util.GetFileContentsFromGerrit(
             gerrit_host, self.gerrit_number, path, revision=revision
         )
@@ -2316,7 +2298,7 @@ class GerritPatch(GerritFetchOnlyPatch):
         Returns:
             cros_patch.GerritChange for the created change.
         """
-        gerrit_host = config_lib.GetSiteParams().GERRIT_HOSTS[self.remote]
+        gerrit_host = git.RemoteToGerritHost(self.remote)
         return gob_util.GetChangeCommit(
             gerrit_host, self.gerrit_number, revision=revision
         )
@@ -2330,7 +2312,7 @@ class GerritPatch(GerritFetchOnlyPatch):
         Returns:
             Returned value from gob_util.Rebase().
         """
-        gerrit_host = config_lib.GetSiteParams().GERRIT_HOSTS[self.remote]
+        gerrit_host = git.RemoteToGerritHost(self.remote)
         change_info = gob_util.Rebase(
             gerrit_host, self.gerrit_number, allow_conflicts=allow_conflicts
         )
@@ -2430,7 +2412,7 @@ class GerritPatch(GerritFetchOnlyPatch):
         # goto/createCherryPickCommitMessage
         old_footers = self._ExtractFooters(msg)
 
-        gerrit_host = config_lib.GetSiteParams().GERRIT_HOSTS[self.remote]
+        gerrit_host = git.RemoteToGerritHost(self.remote)
         reviewed_on = "https://%s/%s" % (gerrit_host, self.gerrit_number)
         if ("Reviewed-on", reviewed_on) not in old_footers:
             msg += "Reviewed-on: %s\n" % reviewed_on
@@ -2694,3 +2676,18 @@ def GetChangesAsString(changes, prefix="", delimiter=" "):
         "%s%s" % (prefix, AddPrefix(x, x.gerrit_number)) for x in changes
     ]
     return delimiter.join(sorted(formatted_changes))
+
+
+def AddPrefix(patch: PatchQuery, text: str) -> str:
+    """Add the leading prefix to |text| if applicable.
+
+    Examines patch.remote and adds the prefix to text if applicable.
+
+    Args:
+        patch: A PatchQuery object to examine.
+        text: The text to add prefix to.
+
+    Returns:
+        |text| with an added prefix.
+    """
+    return f"{git.RemoteToGobInstance(patch.remote)}:{text}"

@@ -36,6 +36,7 @@ from xml import sax
 
 import chromite
 from chromite.lib import config_lib
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.utils import file_util
@@ -2164,3 +2165,45 @@ def GetLastCommit(
     """
     stdout = Log(git_repo, format="fuller", max_count=1, date="iso8601-strict")
     return next(CommitEntry.ParseFuller(stdout), None)
+
+
+def RemoteToGobInstance(remote: str) -> str:
+    """Convert a remote name to the GoB instance name.
+
+    Examples:
+        # Repo manifest sets remote=cros to use the chromium GoB host.
+        RemoteToGobInstance("cros") -> "chromium"
+
+        # Assume all other remotes use the same name.
+        RemoteToGobInstance("foobar") -> "foobar"
+
+    Args:
+        remote: The name used in repo <remote> manifest elements.
+
+    Returns:
+        The GoB instance name.
+    """
+    # This mapping should really be based on the current repo manifest.  But
+    # loading+parsing those XML files to extract this simple mapping is a bit
+    # too expensive.  Plus, this mapping has basically never changed in over a
+    # decade, so open coding it like this seems least terrible.
+    return {
+        "aosp": "android",
+        "cros": "chromium",
+        "cros-internal": "chrome-internal",
+    }.get(remote, remote)
+
+
+def RemoteToGerritHost(remote: str) -> str:
+    """Convert a remote name to the Gerrit host.
+
+    Examples:
+        RemoteToGerritHost("cros") -> "chromium-review.googlesource.com"
+
+    Args:
+        remote: The name used in repo <remote> manifest elements.
+
+    Returns:
+        The Gerrit hostname.
+    """
+    return constants.GOB_HOST % (f"{RemoteToGobInstance(remote)}-review",)

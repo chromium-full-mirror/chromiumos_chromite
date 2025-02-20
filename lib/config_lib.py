@@ -539,12 +539,6 @@ def DefaultSiteParameters():
         CHROME_REMOTE=chrome_remote,
         AOSP_REMOTE=aosp_remote,
         WEAVE_REMOTE=weave_remote,
-        GERRIT_HOSTS={
-            external_remote: default_site_params["EXTERNAL_GERRIT_HOST"],
-            internal_remote: default_site_params["INTERNAL_GERRIT_HOST"],
-            aosp_remote: default_site_params["AOSP_GERRIT_HOST"],
-            weave_remote: default_site_params["WEAVE_GERRIT_HOST"],
-        },
         GIT_REMOTES={
             chromium_remote: default_site_params["EXTERNAL_GOB_URL"],
             chrome_remote: default_site_params["INTERNAL_GOB_URL"],
