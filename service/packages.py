@@ -1242,6 +1242,7 @@ def starbase_find_and_uprev(
 
 
 @uprevs_versioned_package("chromeos-base/starbase-apps")
+@uprevs_versioned_package("sys-firmware/starsound-firmware")
 def uprev_starbase_artifacts(
     _build_targets: List["build_target_lib.BuildTarget"],
     refs: List[uprev_lib.GitRef],
