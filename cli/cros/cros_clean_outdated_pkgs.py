@@ -50,6 +50,10 @@ SYSTEM_PACKAGES = {
     "app-shells/",
     # Python is required for our scripts.
     "dev-lang/python",
+    # Rust and rust-host shouldn't be removed, lest their removal trigger
+    # undesirable behavior with crossdev: b/397441298
+    "dev-lang/rust",
+    "dev-lang/rust-host",
     # Basic crypto primitives used by python, curl, etc… to download binpkgs
     # from the network.
     "dev-libs/openssl",
