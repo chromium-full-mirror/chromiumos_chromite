@@ -25,9 +25,6 @@ from chromite.lib.parser import package_info
 from chromite.utils import shell_util
 
 
-if cros_build_lib.IsInsideChroot():
-    from chromite.lib import depgraph
-
 # A package is a canonical CP atom.
 # A package may have 0 or more repositories, given as strings.
 # Each repository may be mapped into our workspace at some path.
@@ -521,6 +518,10 @@ class WorkonHelper:
         """Get the dependency graph."""
         if self._depgraph:
             return self._depgraph
+
+        # Import here to avoid the portage imports overhead when inside the SDK.
+        # Saves .15s+ on every script initialization inside the SDK.
+        from chromite.lib import depgraph
 
         try:
             # Get the graph for our target.
