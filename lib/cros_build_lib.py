@@ -989,19 +989,6 @@ def AssertNonRootUser() -> None:
         Die(e)
 
 
-def BooleanPrompt(
-    prompt: str = "Do you want to continue?",
-    default: bool = True,
-    true_value: str = "yes",
-    false_value: str = "no",
-    prolog: Optional[str] = None,
-) -> bool:
-    """Helper function for processing boolean choice prompts."""
-    return shell_util.boolean_prompt(
-        prompt, default, true_value, false_value, prolog
-    )
-
-
 def BooleanShellValue(
     sval: str, default: bool, msg: Optional[str] = None
 ) -> bool:
@@ -1188,7 +1175,9 @@ def GetBoard(
         if not board and strict:
             Die("No board specified and no default board found.")
         msg = "Cannot detect board name; using default board %s." % board
-        if not force and not BooleanPrompt(default=False, prolog=msg):
+        if not force and not shell_util.boolean_prompt(
+            default=False, prolog=msg
+        ):
             Die("Exiting...")
 
         logging.warning(msg)

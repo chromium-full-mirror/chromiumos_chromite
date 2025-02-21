@@ -12,6 +12,7 @@ from chromite.lib import config_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.utils import outcap
+from chromite.utils import shell_util
 
 
 class MockTryjobCommand(command_unittest.MockCommand):
@@ -440,7 +441,7 @@ class TryjobTestVerifyOptions(TryjobTest):
 
         # Raise an exception instead of blocking the test on a prompt.
         self.PatchObject(
-            cros_build_lib, "BooleanPrompt", side_effect=PromptException
+            shell_util, "boolean_prompt", side_effect=PromptException
         )
 
     def testEmpty(self) -> None:

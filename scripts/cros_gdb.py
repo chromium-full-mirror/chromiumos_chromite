@@ -270,7 +270,7 @@ class BoardSpecificGdb:
                             "debug_file": debug_file,
                         }
                     )
-                    answer = cros_build_lib.BooleanPrompt()
+                    answer = shell_util.boolean_prompt()
                     if not answer:
                         raise GdbEarlyExitError(
                             "Exiting early, at user request."

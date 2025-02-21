@@ -43,6 +43,7 @@ from chromite.lib import parallel
 from chromite.lib import remote_access as remote
 from chromite.lib import retry_util
 from chromite.lib import timeout_util
+from chromite.utils import shell_util
 
 
 KERNEL_A_PARTITION = 2
@@ -189,7 +190,7 @@ class DeployChrome:
             )
             logging.info("Make sure the device is in developer mode!")
             logging.info("Skip this prompt by specifying --force.")
-            if not cros_build_lib.BooleanPrompt(
+            if not shell_util.boolean_prompt(
                 "Remove rootfs verification?", False
             ):
                 return False
@@ -386,7 +387,7 @@ class DeployChrome:
         if not self.device.HasRsync():
             # This assumes that rsync is part of the bootstrap package. In the
             # future, this might change and we'll have to install it separately.
-            if not cros_build_lib.BooleanPrompt(
+            if not shell_util.boolean_prompt(
                 "Run dev_install on the device to install rsync?", True
             ):
                 raise DeployFailure("rsync is not found on the device.")
@@ -502,7 +503,7 @@ class DeployChrome:
         )
         if self.options.force:
             return
-        if not cros_build_lib.BooleanPrompt(
+        if not shell_util.boolean_prompt(
             "Continue despite board mismatch?", False
         ):
             raise DeployFailure("Aborted.")

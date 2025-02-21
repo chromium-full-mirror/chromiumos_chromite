@@ -33,6 +33,7 @@ from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import retry_stats
 from chromite.scripts import cros_generate_breakpad_symbols
+from chromite.utils import shell_util
 from chromite.utils import timer
 
 
@@ -793,7 +794,7 @@ def main(argv):
                 80,
             )
         ).strip()
-        if not cros_build_lib.BooleanPrompt(
+        if not shell_util.boolean_prompt(
             prompt="Are you sure you want to upload all build symbols",
             default=False,
             prolog=prolog,

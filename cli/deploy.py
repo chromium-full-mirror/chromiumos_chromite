@@ -1311,7 +1311,7 @@ def _ConfirmDeploy(num_updates: int) -> bool:
     """Returns whether we can continue deployment."""
     if num_updates > _MAX_UPDATES_NUM:
         logging.warning(_MAX_UPDATES_WARNING)
-        return cros_build_lib.BooleanPrompt(default=False)
+        return shell_util.boolean_prompt(default=False)
 
     return True
 
@@ -1319,7 +1319,7 @@ def _ConfirmDeploy(num_updates: int) -> bool:
 def _ConfirmUpdateDespiteWarnings() -> bool:
     """Returns whether we can continue updating despite warnings."""
     logging.warning("Continue despite prior warnings?")
-    return cros_build_lib.BooleanPrompt(default=False)
+    return shell_util.boolean_prompt(default=False)
 
 
 def _EmergePackages(

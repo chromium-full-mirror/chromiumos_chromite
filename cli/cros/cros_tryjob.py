@@ -18,6 +18,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import request_build
 from chromite.utils import pformat
+from chromite.utils import shell_util
 
 
 REMOTE = "remote"
@@ -170,7 +171,7 @@ def CreateBuildrootIfNeeded(buildroot):
         return True
 
     prompt = "Create %s as buildroot" % buildroot
-    if not cros_build_lib.BooleanPrompt(prompt=prompt, default=False):
+    if not shell_util.boolean_prompt(prompt=prompt, default=False):
         print(
             "Please specify a different buildroot via the --buildroot option."
         )
@@ -417,7 +418,7 @@ def VerifyOptions(options, site_config) -> None:
                 "Unknown build configs; are you sure you want to schedule "
                 "for %s?" % ", ".join(unknown_build_configs)
             )
-            if not cros_build_lib.BooleanPrompt(prompt=prompt, default=False):
+            if not shell_util.boolean_prompt(prompt=prompt, default=False):
                 cros_build_lib.Die("No confirmation.")
 
     unsupported_tryjobs = []
@@ -483,9 +484,7 @@ def VerifyOptions(options, site_config) -> None:
             elif not options.yes:
                 # On branches, we are just guessing. Let people override.
                 prompt = "%s\nAre you sure you want to continue?" % msg
-                if not cros_build_lib.BooleanPrompt(
-                    prompt=prompt, default=False
-                ):
+                if not shell_util.boolean_prompt(prompt=prompt, default=False):
                     cros_build_lib.Die("No confirmation.")
 
     patches_given = options.gerrit_patches or options.local_patches
@@ -503,7 +502,7 @@ def VerifyOptions(options, site_config) -> None:
                 "run a build of %s?"
                 % (options.branch if options.branch else "ToT")
             )
-            if not cros_build_lib.BooleanPrompt(prompt=prompt, default=False):
+            if not shell_util.boolean_prompt(prompt=prompt, default=False):
                 cros_build_lib.Die("No confirmation.")
 
     if options.where in (REMOTE, INFRA_TESTING):

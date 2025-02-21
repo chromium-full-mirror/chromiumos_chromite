@@ -163,7 +163,7 @@ def ValidateClobber(buildroot):
         cros_build_lib.Die("Refusing to clobber your system!")
 
     if os.path.exists(buildroot):
-        return cros_build_lib.BooleanPrompt(default=False)
+        return shell_util.boolean_prompt(default=False)
     return True
 
 

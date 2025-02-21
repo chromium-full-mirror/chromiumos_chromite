@@ -19,6 +19,7 @@ from chromite.lib import partial_mock
 from chromite.lib import remote_access
 from chromite.lib import remote_access_unittest
 from chromite.scripts import deploy_chrome
+from chromite.utils import shell_util
 
 
 # pylint: disable=protected-access
@@ -299,9 +300,9 @@ class TestCheckIfBoardMatches(DeployTest):
         self.assertTrue(self.deploy.options.force)
         self.deploy._CheckBoard()
         self.deploy.options.force = False
-        self.PatchObject(cros_build_lib, "BooleanPrompt", return_value=True)
+        self.PatchObject(shell_util, "boolean_prompt", return_value=True)
         self.deploy._CheckBoard()
-        self.PatchObject(cros_build_lib, "BooleanPrompt", return_value=False)
+        self.PatchObject(shell_util, "boolean_prompt", return_value=False)
         self.assertRaises(deploy_chrome.DeployFailure, self.deploy._CheckBoard)
 
 

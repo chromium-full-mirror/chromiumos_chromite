@@ -17,6 +17,7 @@ from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import workon_helper
 from chromite.lib.telemetry import trace
+from chromite.utils import shell_util
 
 
 tracer = trace.get_tracer(__name__)
@@ -86,7 +87,7 @@ def DoMain(argv: Optional[List[str]]) -> Optional[int]:
 
     if options.scrub:
         logging.warning("--scrub will destroy ALL FILES unknown to git!")
-        if cros_build_lib.BooleanPrompt():
+        if shell_util.boolean_prompt():
             helper.ScrubPackage(pkg)
         else:
             logging.info("Not scrubbing; exiting gracefully")

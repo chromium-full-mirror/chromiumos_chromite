@@ -94,9 +94,7 @@ class USBImagerTest(cros_test_lib.MockTempDirTestCase):
         """Tests that using an image not having the magic bytes has prompt."""
         self.isgpt_mock.return_value = False
         with mock.patch("os.path.isfile", return_value=True):
-            with mock.patch.object(
-                cros_build_lib, "BooleanPrompt"
-            ) as mock_prompt:
+            with mock.patch.object(shell_util, "boolean_prompt") as mock_prompt:
                 mock_prompt.return_value = False
                 flash.Flash(self.Device("/dev/foo"), self.IMAGE)
                 self.assertTrue(mock_prompt.called)
@@ -115,13 +113,13 @@ class USBImagerTest(cros_test_lib.MockTempDirTestCase):
 
     def testConfirmNonRemovableDevice(self) -> None:
         """Tests that we ask user to confirm if the device is not removable."""
-        with mock.patch.object(cros_build_lib, "BooleanPrompt") as mock_prompt:
+        with mock.patch.object(shell_util, "boolean_prompt") as mock_prompt:
             flash.Flash(self.Device("/dev/stub"), self.IMAGE)
             self.assertTrue(mock_prompt.called)
 
     def testSkipPromptNonRemovableDevice(self) -> None:
         """Tests that we skip the prompt for non-removable with --yes."""
-        with mock.patch.object(cros_build_lib, "BooleanPrompt") as mock_prompt:
+        with mock.patch.object(shell_util, "boolean_prompt") as mock_prompt:
             flash.Flash(self.Device("/dev/stub"), self.IMAGE, yes=True)
             self.assertFalse(mock_prompt.called)
 

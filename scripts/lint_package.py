@@ -27,6 +27,7 @@ from chromite.lib import workon_helper
 from chromite.lib.parser import package_info
 from chromite.service import toolchain
 from chromite.utils import file_util
+from chromite.utils import shell_util
 
 
 PLATFORM2_PATH = constants.CHROOT_SOURCE_ROOT / "src/platform2"
@@ -517,8 +518,8 @@ def main(argv: List[str]) -> None:
             if not check_plat2_diff():
                 create_cl = True
             else:
-                create_cl = cros_build_lib.BooleanPrompt(
-                    "Platform2 contains uncommited changes which will be "
+                create_cl = shell_util.boolean_prompt(
+                    "Platform2 contains uncommitted changes which will be "
                     "added to the generated cl. Would you still like to "
                     "create a CL from fixes?"
                 )

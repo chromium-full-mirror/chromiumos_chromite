@@ -24,6 +24,7 @@ from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import signing
 from chromite.utils import pformat
+from chromite.utils import shell_util
 
 
 # This will split a fully qualified ChromeOS version string up.
@@ -816,7 +817,7 @@ def main(argv: Optional[List[str]] = None) -> None:
                 80,
             )
         ).strip()
-        if not cros_build_lib.BooleanPrompt(
+        if not shell_util.boolean_prompt(
             prompt="Are you sure you want to sign these images",
             default=False,
             prolog=prolog,

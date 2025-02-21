@@ -264,7 +264,7 @@ class USBImager:
             if not self.yes and not _IsFilePathGPTDiskImage(self.image):
                 # TODO(wnwen): Open the tarball and if there is just one file in
                 #   it, use that instead. Existing code in upload_symbols.py.
-                if cros_build_lib.BooleanPrompt(
+                if shell_util.boolean_prompt(
                     prolog="The given image file is not a valid disk image. "
                     "Perhaps you forgot to untar it.",
                     prompt="Terminate the current flash process?",
@@ -297,7 +297,7 @@ class USBImager:
                 msg = "%s is not a removable device." % self.device
                 if not (
                     self.yes
-                    or cros_build_lib.BooleanPrompt(default=False, prolog=msg)
+                    or shell_util.boolean_prompt(default=False, prolog=msg)
                 ):
                     raise FlashError(
                         "You can specify usb:// to choose from a list of "

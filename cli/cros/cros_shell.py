@@ -8,8 +8,8 @@ import argparse
 import logging
 
 from chromite.cli import command
-from chromite.lib import cros_build_lib
 from chromite.lib import remote_access
+from chromite.utils import shell_util
 
 
 @command.command_decorator("shell")
@@ -141,7 +141,7 @@ Quoting can be tricky; the rules are the same as with ssh:
         Returns:
             True if the user is OK with a changed host key.
         """
-        return cros_build_lib.BooleanPrompt(
+        return shell_util.boolean_prompt(
             prolog='The host ID for "%s" has changed since last connect.\n'
             "Some common reasons for this are:\n"
             " - Device powerwash.\n"

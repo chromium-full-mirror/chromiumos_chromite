@@ -11,6 +11,7 @@ from chromite.cli.cros import cros_shell
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import remote_access
+from chromite.utils import shell_util
 
 
 class _KeyMismatchError(remote_access.SSHConnectionError):
@@ -50,7 +51,7 @@ class ShellTest(cros_test_lib.MockTempDirTestCase):
             remote_access, "RemoveKnownHost", autospec=True
         )
         self.mock_prompt = self.PatchObject(
-            cros_build_lib, "BooleanPrompt", autospec=True
+            shell_util, "boolean_prompt", autospec=True
         )
 
         self.mock_device = self.PatchObject(
