@@ -9,6 +9,7 @@ import getopt
 import os
 import subprocess
 import sys
+from typing import List, NoReturn
 
 from chromite.lib import commandline
 from chromite.lib import osutils
@@ -19,12 +20,12 @@ XZ_DISABLE_VAR = "FOR_TEST_XZ_AUTO_NO_XZ_DECOMPRESSION"
 
 
 @functools.lru_cache
-def HasPixz():
+def HasPixz() -> bool:
     """Returns path to pixz if it's on PATH or None otherwise."""
     return PIXZ_DISABLE_VAR not in os.environ and osutils.Which("pixz")
 
 
-def ParsePixzArgs(argv):
+def ParsePixzArgs(argv: List[str]) -> tuple:
     """Determines flags to pass to pixz, per argv.
 
     Returns:
@@ -59,12 +60,12 @@ def ParsePixzArgs(argv):
     return raw_flag_list, file_to_compress, target
 
 
-def Execvp(argv) -> None:
+def Execvp(argv: List[str]) -> NoReturn:
     """Execs the given argv."""
     os.execvp(argv[0], argv)
 
 
-def ExecCompressCommand(stdout, argv) -> None:
+def ExecCompressCommand(stdout: bool, argv: List[str]) -> NoReturn:
     """Execs compression command."""
     # It appears that in order for pixz to do parallel decompression,
     # compression needs to be done with pixz. xz itself is only capable of
@@ -119,7 +120,7 @@ def ExecCompressCommand(stdout, argv) -> None:
     sys.exit(return_code)
 
 
-def ExecXzDecompressCommand(stdout, argv) -> None:
+def ExecXzDecompressCommand(stdout: bool, argv: List[str]) -> NoReturn:
     """Executes `xz` with the given params."""
     cmd = ["xz"]
     if stdout:
@@ -130,7 +131,7 @@ def ExecXzDecompressCommand(stdout, argv) -> None:
     Execvp(cmd)
 
 
-def ExecDecompressCommand(stdout, argv) -> None:
+def ExecDecompressCommand(stdout: bool, argv: List[str]) -> NoReturn:
     """Execs decompression command."""
     if not HasPixz():
         ExecXzDecompressCommand(stdout, argv)
@@ -175,7 +176,7 @@ def ExecDecompressCommand(stdout, argv) -> None:
     Execvp(cmd)
 
 
-def GetParser():
+def GetParser() -> commandline.ArgumentParser:
     """Return a command line parser."""
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -194,7 +195,7 @@ def GetParser():
     return parser
 
 
-def main(argv) -> None:
+def main(argv: List[str]) -> NoReturn:
     parser = GetParser()
     known_args, argv = parser.parse_known_args()
     if "-i" in argv or "-o" in argv:
