@@ -4,7 +4,6 @@
 
 """Test the cros_build_lib module."""
 
-import builtins
 import contextlib
 import datetime
 import logging
@@ -1056,105 +1055,6 @@ class HelperMethodSimpleTests(cros_test_lib.OutputTestCase):
         contents = cros_build_lib.MachineDetails()
         self.assertNotEqual(contents, "")
         self.assertEqual(contents[-1], "\n")
-
-
-class TestInput(cros_test_lib.MockOutputTestCase):
-    """Tests of input gathering functionality."""
-
-    def testBooleanPrompt(self) -> None:
-        """Verify BooleanPrompt() full behavior."""
-        m = self.PatchObject(builtins, "input")
-
-        m.return_value = ""
-        self.assertTrue(cros_build_lib.BooleanPrompt())
-        self.assertFalse(cros_build_lib.BooleanPrompt(default=False))
-
-        m.return_value = "yes"
-        self.assertTrue(cros_build_lib.BooleanPrompt())
-        m.return_value = "ye"
-        self.assertTrue(cros_build_lib.BooleanPrompt())
-        m.return_value = "y"
-        self.assertTrue(cros_build_lib.BooleanPrompt())
-
-        m.return_value = "no"
-        self.assertFalse(cros_build_lib.BooleanPrompt())
-        m.return_value = "n"
-        self.assertFalse(cros_build_lib.BooleanPrompt())
-
-    def testBooleanShellValue(self) -> None:
-        """Verify BooleanShellValue() inputs work as expected"""
-        for v in (None,):
-            self.assertTrue(cros_build_lib.BooleanShellValue(v, True))
-            self.assertFalse(cros_build_lib.BooleanShellValue(v, False))
-
-        for v in (1234, "", "akldjsf", '"'):
-            self.assertRaises(
-                ValueError, cros_build_lib.BooleanShellValue, v, True
-            )
-            self.assertTrue(cros_build_lib.BooleanShellValue(v, True, msg=""))
-            self.assertFalse(cros_build_lib.BooleanShellValue(v, False, msg=""))
-
-        for v in (
-            "yes",
-            "YES",
-            "YeS",
-            "y",
-            "Y",
-            "1",
-            "true",
-            "True",
-            "TRUE",
-        ):
-            self.assertTrue(cros_build_lib.BooleanShellValue(v, True))
-            self.assertTrue(cros_build_lib.BooleanShellValue(v, False))
-
-        for v in (
-            "no",
-            "NO",
-            "nO",
-            "n",
-            "N",
-            "0",
-            "false",
-            "False",
-            "FALSE",
-        ):
-            self.assertFalse(cros_build_lib.BooleanShellValue(v, True))
-            self.assertFalse(cros_build_lib.BooleanShellValue(v, False))
-
-    def testGetChoiceLists(self) -> None:
-        """Verify GetChoice behavior w/lists."""
-        m = self.PatchObject(builtins, "input")
-
-        m.return_value = "1"
-        ret = cros_build_lib.GetChoice("title", ["a", "b", "c"])
-        self.assertEqual(ret, 1)
-
-    def testGetChoiceGenerator(self) -> None:
-        """Verify GetChoice behavior w/generators."""
-        m = self.PatchObject(builtins, "input")
-
-        m.return_value = "2"
-        ret = cros_build_lib.GetChoice("title", list(range(3)))
-        self.assertEqual(ret, 2)
-
-    def testGetChoiceWindow(self) -> None:
-        """Verify GetChoice behavior w/group_size set."""
-        m = self.PatchObject(builtins, "input")
-
-        cnt = [0]
-
-        def _Gen():
-            while True:
-                cnt[0] += 1
-                yield "a"
-
-        m.side_effect = ["\n", "2"]
-        ret = cros_build_lib.GetChoice("title", _Gen(), group_size=2)
-        self.assertEqual(ret, 2)
-
-        # Verify we showed the correct number of times.
-        self.assertEqual(cnt[0], 5)
 
 
 class Test_iflatten_instance(cros_test_lib.TestCase):

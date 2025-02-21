@@ -4,11 +4,13 @@
 
 """Test the shell_util module."""
 
+import builtins
 from pathlib import Path
 from typing import Callable, List, Optional, Tuple
 
 import pytest
 
+from chromite.lib import cros_test_lib
 from chromite.utils import shell_util
 
 
@@ -97,3 +99,102 @@ def test_quote_objects() -> None:
 def test_cmd_to_str(exp: str, data: List[Optional[str]]) -> None:
     """Verify cmd_to_str behavior."""
     assert shell_util.cmd_to_str(data) == exp
+
+
+class TestInput(cros_test_lib.MockOutputTestCase):
+    """Tests of input gathering functionality."""
+
+    def test_boolean_prompt(self) -> None:
+        """Verify boolean_prompt() full behavior."""
+        m = self.PatchObject(builtins, "input")
+
+        m.return_value = ""
+        self.assertTrue(shell_util.boolean_prompt())
+        self.assertFalse(shell_util.boolean_prompt(default=False))
+
+        m.return_value = "yes"
+        self.assertTrue(shell_util.boolean_prompt())
+        m.return_value = "ye"
+        self.assertTrue(shell_util.boolean_prompt())
+        m.return_value = "y"
+        self.assertTrue(shell_util.boolean_prompt())
+
+        m.return_value = "no"
+        self.assertFalse(shell_util.boolean_prompt())
+        m.return_value = "n"
+        self.assertFalse(shell_util.boolean_prompt())
+
+    def test_boolean_shell_value(self) -> None:
+        """Verify boolean_shell_value() inputs work as expected"""
+        for v in (None,):
+            self.assertTrue(shell_util.boolean_shell_value(v, True))
+            self.assertFalse(shell_util.boolean_shell_value(v, False))
+
+        for v in (1234, "", "akldjsf", '"'):
+            self.assertRaises(
+                ValueError, shell_util.boolean_shell_value, v, True
+            )
+            self.assertTrue(shell_util.boolean_shell_value(v, True, msg=""))
+            self.assertFalse(shell_util.boolean_shell_value(v, False, msg=""))
+
+        for v in (
+            "yes",
+            "YES",
+            "YeS",
+            "y",
+            "Y",
+            "1",
+            "true",
+            "True",
+            "TRUE",
+        ):
+            self.assertTrue(shell_util.boolean_shell_value(v, True))
+            self.assertTrue(shell_util.boolean_shell_value(v, False))
+
+        for v in (
+            "no",
+            "NO",
+            "nO",
+            "n",
+            "N",
+            "0",
+            "false",
+            "False",
+            "FALSE",
+        ):
+            self.assertFalse(shell_util.boolean_shell_value(v, True))
+            self.assertFalse(shell_util.boolean_shell_value(v, False))
+
+    def test_get_choice_lists(self) -> None:
+        """Verify get_choice behavior w/lists."""
+        m = self.PatchObject(builtins, "input")
+
+        m.return_value = "1"
+        ret = shell_util.get_choice("title", ["a", "b", "c"])
+        self.assertEqual(ret, 1)
+
+    def test_get_choice_generator(self) -> None:
+        """Verify get_choice behavior w/generators."""
+        m = self.PatchObject(builtins, "input")
+
+        m.return_value = "2"
+        ret = shell_util.get_choice("title", list(range(3)))
+        self.assertEqual(ret, 2)
+
+    def test_get_choice_window(self) -> None:
+        """Verify get_choice behavior w/group_size set."""
+        m = self.PatchObject(builtins, "input")
+
+        cnt = [0]
+
+        def _gen():
+            while True:
+                cnt[0] += 1
+                yield "a"
+
+        m.side_effect = ["\n", "2"]
+        ret = shell_util.get_choice("title", _gen(), group_size=2)
+        self.assertEqual(ret, 2)
+
+        # Verify we showed the correct number of times.
+        self.assertEqual(cnt[0], 5)
