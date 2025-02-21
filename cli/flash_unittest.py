@@ -15,6 +15,7 @@ from chromite.lib import cros_test_lib
 from chromite.lib import dev_server_wrapper
 from chromite.lib import osutils
 from chromite.lib import partial_mock
+from chromite.utils import shell_util
 
 
 class USBImagerMock(partial_mock.PartialCmdMock):
@@ -262,7 +263,7 @@ class FlashUtilTest(cros_test_lib.MockTempDirTestCase):
 
             # Multiple images available, we should ask the user to select the
             # right image.
-            with self.PatchObject(cros_build_lib, "GetChoice", return_value=2):
+            with self.PatchObject(shell_util, "get_choice", return_value=2):
                 self.assertEqual(
                     file_c, flash._ChooseImageFromDirectory(self.tempdir)
                 )

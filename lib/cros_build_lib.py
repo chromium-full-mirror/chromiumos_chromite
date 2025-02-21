@@ -989,11 +989,6 @@ def AssertNonRootUser() -> None:
         Die(e)
 
 
-def GetChoice(title: str, options: Iterable[str], group_size: int = 0) -> int:
-    """Ask user to choose an option from the list."""
-    return shell_util.get_choice(title, options, group_size)
-
-
 def BooleanPrompt(
     prompt: str = "Do you want to continue?",
     default: bool = True,

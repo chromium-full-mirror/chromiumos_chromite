@@ -433,7 +433,7 @@ To debug a process by its pid:
             if pids:
                 choices = ["Start a new process under LLDB"]
                 choices.extend(pids)
-                idx = cros_build_lib.GetChoice(
+                idx = shell_util.get_choice(
                     "Please select the process pid to debug (select [0] to "
                     "start a new process):",
                     choices,

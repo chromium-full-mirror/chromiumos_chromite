@@ -6,9 +6,9 @@
 
 from chromite.cli import command_unittest
 from chromite.cli.cros import cros_debug
-from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import remote_access
+from chromite.utils import shell_util
 
 
 pytestmark = cros_test_lib.pytestmark_inside_only
@@ -157,9 +157,7 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
         """Test that user can select zero to start a new process to debug."""
         self.SetupCommandMock(["--device", self.DEVICE, "--exe", self.EXE])
         self.PatchObject(self.device_mock, "GetRunningPids", return_value=["1"])
-        mock_prompt = self.PatchObject(
-            cros_build_lib, "GetChoice", return_value=0
-        )
+        mock_prompt = self.PatchObject(shell_util, "get_choice", return_value=0)
         self.cmd_mock.inst.Run()
         self.assertTrue(mock_prompt.called)
         self.assertTrue(self.cmd_mock.patched["_ListProcesses"].called)
@@ -170,9 +168,7 @@ class DebugRunThroughTest(cros_test_lib.MockTempDirTestCase):
         """Test that user can select none-zero to debug a running process."""
         self.SetupCommandMock(["--device", self.DEVICE, "--exe", self.EXE])
         self.PatchObject(self.device_mock, "GetRunningPids", return_value=["1"])
-        mock_prompt = self.PatchObject(
-            cros_build_lib, "GetChoice", return_value=1
-        )
+        mock_prompt = self.PatchObject(shell_util, "get_choice", return_value=1)
         self.cmd_mock.inst.Run()
         self.assertTrue(mock_prompt.called)
         self.assertTrue(self.cmd_mock.patched["_ListProcesses"].called)

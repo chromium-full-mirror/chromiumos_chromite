@@ -18,6 +18,7 @@ from chromite.lib import operation
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import remote_access
+from chromite.utils import shell_util
 
 
 def GetDefaultBoard():
@@ -59,12 +60,12 @@ class UsbImagerOperation(operation.ProgressBarOperation):
 
     def _PingDD(self, dd_pid) -> None:
         """Send USR1 signal to dd to get status update."""
+        cmd = ["kill", "-USR1", str(dd_pid)]
         try:
-            cmd = ["kill", "-USR1", str(dd_pid)]
             cros_build_lib.sudo_run(cmd, print_cmd=False)
         except cros_build_lib.RunCommandError:
             # Here we assume that dd finished in the background.
-            return
+            pass
 
     def ParseOutput(self, output=None) -> None:
         """Parse the output of dd to update progress bar."""
@@ -129,7 +130,7 @@ def _ChooseImageFromDirectory(dir_path):
     if not images:
         raise ValueError("No image found in %s." % dir_path)
     elif len(images) > 1:
-        idx = cros_build_lib.GetChoice(
+        idx = shell_util.get_choice(
             "Multiple images found in %s. Please select one to continue:"
             % ((dir_path,)),
             images,
@@ -200,7 +201,7 @@ class USBImager:
         Returns:
             The device name chosen by the user.
         """
-        idx = cros_build_lib.GetChoice(
+        idx = shell_util.get_choice(
             "Removable device(s) found. Please select/confirm to continue:",
             [self.GetRemovableDeviceDescription(x) for x in devices],
         )

@@ -22,6 +22,7 @@ from chromite.lib import sysroot_lib
 from chromite.lib import unittest_lib
 from chromite.lib.parser import package_info
 from chromite.utils import os_util
+from chromite.utils import shell_util
 
 
 pytestmark = [cros_test_lib.pytestmark_inside_only]
@@ -212,7 +213,7 @@ class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
 
     def setUp(self) -> None:
         """Patch imported modules."""
-        self.PatchObject(cros_build_lib, "GetChoice", return_value=0)
+        self.PatchObject(shell_util, "get_choice", return_value=0)
         self.device = ChromiumOSDeviceHandlerFake()
         self.scanner = deploy._InstallPackageScanner(self._BUILD_ROOT)
         self.PatchObject(deploy, "_GetDLCInfo", return_value=(None, None))

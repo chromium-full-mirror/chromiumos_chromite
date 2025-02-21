@@ -31,6 +31,7 @@ from chromite.lib import remote_access
 from chromite.lib import workon_helper
 from chromite.lib.parser import package_info
 from chromite.lib.telemetry import trace
+from chromite.utils import shell_util
 
 
 try:
@@ -666,7 +667,7 @@ print(json.dumps(pkg_info))
         idx = 0
         if len(matches) > 1:
             # Ask user to pick among multiple matches.
-            idx = cros_build_lib.GetChoice(
+            idx = shell_util.get_choice(
                 "Multiple matches found for %s: " % pkg,
                 ["%s:%s" % (cp, slot) if slot else cp for cp, slot in matches],
             )
