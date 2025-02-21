@@ -58,10 +58,10 @@ def initialize(publish: bool = True) -> None:
     # global package import.
     from chromite.lib import chromite_config
     from chromite.lib import constants
-    from chromite.lib import cros_build_lib
     from chromite.lib.telemetry import config
     from chromite.lib.telemetry import trace
     from chromite.utils import hostname_util
+    from chromite.utils import shell_util
 
     if not hostname_util.is_google_host():
         return
@@ -87,7 +87,7 @@ def initialize(publish: bool = True) -> None:
         not cfg.trace_config.enabled
         and cfg.trace_config.enabled_reason == "USER"
     )
-    env_disable = cros_build_lib.BooleanShellValue(
+    env_disable = shell_util.boolean_value(
         os.environ.get(constants.TELEMETRY_DISABLED_ENVVAR), default=False
     )
     if cfg_disable or env_disable:

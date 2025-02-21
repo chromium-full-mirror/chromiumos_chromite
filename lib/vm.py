@@ -29,6 +29,7 @@ from chromite.lib import qemu
 from chromite.lib import remote_access
 from chromite.lib import retry_util
 from chromite.utils import memoize
+from chromite.utils import shell_util
 
 
 class VMError(device.DeviceError):
@@ -476,7 +477,7 @@ class VM(device.Device):
             # https://docs.kernel.org/virt/kvm/x86/nested-vmx.html
             if "vmx" not in self.qemu_cpu and self.enable_kvm:
                 for f in glob.glob(self.NESTED_KVM_GLOB):
-                    if cros_build_lib.BooleanShellValue(
+                    if shell_util.boolean_value(
                         osutils.ReadFile(f).strip(), False
                     ):
                         self.qemu_cpu += ",vmx=on,svm=on"

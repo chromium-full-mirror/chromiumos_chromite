@@ -124,18 +124,16 @@ class TestInput(cros_test_lib.MockOutputTestCase):
         m.return_value = "n"
         self.assertFalse(shell_util.boolean_prompt())
 
-    def test_boolean_shell_value(self) -> None:
-        """Verify boolean_shell_value() inputs work as expected"""
+    def test_boolean_value(self) -> None:
+        """Verify boolean_value() inputs work as expected"""
         for v in (None,):
-            self.assertTrue(shell_util.boolean_shell_value(v, True))
-            self.assertFalse(shell_util.boolean_shell_value(v, False))
+            self.assertTrue(shell_util.boolean_value(v, True))
+            self.assertFalse(shell_util.boolean_value(v, False))
 
         for v in (1234, "", "akldjsf", '"'):
-            self.assertRaises(
-                ValueError, shell_util.boolean_shell_value, v, True
-            )
-            self.assertTrue(shell_util.boolean_shell_value(v, True, msg=""))
-            self.assertFalse(shell_util.boolean_shell_value(v, False, msg=""))
+            self.assertRaises(ValueError, shell_util.boolean_value, v, True)
+            self.assertTrue(shell_util.boolean_value(v, True, msg=""))
+            self.assertFalse(shell_util.boolean_value(v, False, msg=""))
 
         for v in (
             "yes",
@@ -148,8 +146,8 @@ class TestInput(cros_test_lib.MockOutputTestCase):
             "True",
             "TRUE",
         ):
-            self.assertTrue(shell_util.boolean_shell_value(v, True))
-            self.assertTrue(shell_util.boolean_shell_value(v, False))
+            self.assertTrue(shell_util.boolean_value(v, True))
+            self.assertTrue(shell_util.boolean_value(v, False))
 
         for v in (
             "no",
@@ -162,8 +160,8 @@ class TestInput(cros_test_lib.MockOutputTestCase):
             "False",
             "FALSE",
         ):
-            self.assertFalse(shell_util.boolean_shell_value(v, True))
-            self.assertFalse(shell_util.boolean_shell_value(v, False))
+            self.assertFalse(shell_util.boolean_value(v, True))
+            self.assertFalse(shell_util.boolean_value(v, False))
 
     def test_get_choice_lists(self) -> None:
         """Verify get_choice behavior w/lists."""

@@ -11,7 +11,7 @@ import os
 import sys
 from typing import Optional
 
-from chromite.lib import cros_build_lib
+from chromite.utils import shell_util
 
 
 class Color:
@@ -98,7 +98,7 @@ class Color:
 
         Uses the $NOCOLOR envvar.
         """
-        is_disabled = cros_build_lib.BooleanShellValue(
+        is_disabled = shell_util.boolean_value(
             os.environ.get("NOCOLOR"),
             msg="$NOCOLOR env var is invalid",
             default=None,

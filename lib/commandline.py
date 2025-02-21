@@ -34,6 +34,7 @@ from chromite.lib.telemetry import trace
 from chromite.utils import attrs_freezer
 from chromite.utils import gs_urls_util
 from chromite.utils import path_filter
+from chromite.utils import shell_util
 
 
 # Setting this to False causes telemetry to be disabled for all scripts. This
@@ -155,7 +156,7 @@ def ParseBool(value):
     Returns:
         True or False.
     """
-    return cros_build_lib.BooleanShellValue(value, False)
+    return shell_util.boolean_value(value, False)
 
 
 def ParseDate(value):

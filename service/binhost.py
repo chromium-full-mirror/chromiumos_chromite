@@ -25,6 +25,7 @@ from chromite.lib import repo_util
 from chromite.lib import sysroot_lib
 from chromite.utils import gs_urls_util
 from chromite.utils import key_value_store
+from chromite.utils import shell_util
 
 
 if TYPE_CHECKING:
@@ -219,9 +220,7 @@ def GetPrebuiltsFiles(
         prebuilt_paths.append(package["CPV"] + ".tbz2")
 
         include_debug_symbols = package.get("DEBUG_SYMBOLS")
-        if cros_build_lib.BooleanShellValue(
-            include_debug_symbols, default=False
-        ):
+        if shell_util.boolean_value(include_debug_symbols, default=False):
             prebuilt_paths.append(package["CPV"] + ".debug.tbz2")
 
     _ValidatePrebuiltsFiles(prebuilts_root, prebuilt_paths)

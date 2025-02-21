@@ -989,13 +989,6 @@ def AssertNonRootUser() -> None:
         Die(e)
 
 
-def BooleanShellValue(
-    sval: str, default: bool, msg: Optional[str] = None
-) -> bool:
-    """See if the string value is a value users typically consider a boolean."""
-    return shell_util.boolean_shell_value(sval, default, msg)
-
-
 # Suppress whacked complaints about abstract class being unused.
 class PrimaryPidContextManager:
     """Allow context managers to restrict their exit to within the same PID."""

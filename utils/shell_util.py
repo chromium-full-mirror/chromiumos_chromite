@@ -256,9 +256,7 @@ def boolean_prompt(
             return False
 
 
-def boolean_shell_value(
-    sval: str, default: bool, msg: Optional[str] = None
-) -> bool:
+def boolean_value(sval: str, default: bool, msg: Optional[str] = None) -> bool:
     """See if the string value is a value users typically consider as boolean
 
     Often times people set shell variables to different values to mean "true"
