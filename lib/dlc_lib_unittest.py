@@ -1346,6 +1346,60 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
                 )
             )
 
+    def testInstallDlcImagesWithPreloadNoDoubleDippingStorage(self) -> None:
+        package_nums = 2
+        preload_not_allowed_json = '{"preload-allowed": true}'
+        sysroot = os.path.join(self.tempdir, "sysroot")
+        stateful = os.path.join(self.tempdir, "stateful")
+        factory = os.path.join(stateful, dlc_lib.DLC_FACTORY_INSTALL_DIR)
+        for package_num in range(package_nums):
+            osutils.WriteFile(
+                os.path.join(
+                    sysroot,
+                    dlc_lib.DLC_BUILD_DIR,
+                    _ID,
+                    _PACKAGE + str(package_num),
+                    dlc_lib.DLC_IMAGE,
+                ),
+                "image content",
+                makedirs=True,
+            )
+            osutils.WriteFile(
+                os.path.join(
+                    sysroot,
+                    dlc_lib.DLC_BUILD_DIR,
+                    _ID,
+                    _PACKAGE + str(package_num),
+                    dlc_lib.DLC_TMP_META_DIR,
+                    dlc_lib.IMAGELOADER_JSON,
+                ),
+                preload_not_allowed_json,
+                makedirs=True,
+            )
+            osutils.WriteFile(
+                os.path.join(
+                    factory, _ID, _PACKAGE + str(package_num), dlc_lib.DLC_IMAGE
+                ),
+                "factory bits",
+                makedirs=True,
+            )
+
+        output = os.path.join(self.tempdir, "output")
+        dlc_lib.InstallDlcImages(
+            board=_BOARD,
+            sysroot=sysroot,
+            install_root_dir=output,
+            preload=True,
+            stateful=stateful,
+        )
+        for package_num in range(package_nums):
+            self.assertExists(
+                os.path.join(
+                    output, _ID, _PACKAGE + str(package_num), dlc_lib.DLC_IMAGE
+                )
+            )
+            self.assertNotExists(os.path.join(factory, _ID))
+
     def testInstallDlcImagesTrustedVerityDigests(self) -> None:
         """Tests InstallDlcImages to verify verity digests are written."""
         sysroot = self.tempdir / "sysroot"

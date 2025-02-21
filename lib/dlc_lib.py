@@ -1706,6 +1706,7 @@ def BuildDlcs(
                     dlc_id=d_id,
                     install_root_dir=install_root_dir,
                     preload=preload,
+                    stateful=stateful,
                 )
                 for d_id in dlc_ids
             ]
@@ -1855,6 +1856,7 @@ def PreloadDlc(
     dlc_id: str,
     install_root_dir: str,
     preload: bool,
+    stateful: Optional[str] = None,
 ) -> None:
     """Preloads a DLC.
 
@@ -1863,6 +1865,7 @@ def PreloadDlc(
         dlc_id: The DLC ID.
         dlc_build_dir: The root path where DLC build files reside.
         preload: Allow for preloading.
+        stateful: The stateful path of the build.
     """
     dlc_id_path = os.path.join(dlc_build_dir, dlc_id)
     dlc_packages = [
@@ -1880,6 +1883,27 @@ def PreloadDlc(
                     dlc_id,
                 )
             else:
+                if stateful:
+                    install_stateful_root = os.path.join(
+                        stateful, DLC_FACTORY_INSTALL_DIR
+                    )
+                    install_stateful_path = os.path.join(
+                        install_stateful_root,
+                        dlc_id,
+                    )
+                    if os.path.exists(install_stateful_path):
+                        logging.warning(
+                            "Removing factory installed DLC %s on test images, "
+                            "this is to address the double dipping of stroage "
+                            "use.",
+                            dlc_id,
+                        )
+                        osutils.RmDir(
+                            install_stateful_path,
+                            ignore_missing=True,
+                            sudo=True,
+                        )
+
                 osutils.SafeMakedirsNonRoot(install_root_dir)
                 install_dlc_dir = os.path.join(
                     install_root_dir, dlc_id, d_package
