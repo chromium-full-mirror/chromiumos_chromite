@@ -1632,9 +1632,9 @@ def BuildDlcs(
         osutils.SafeMakedirs(os.path.join(rootfs, DLC_META_DIR), sudo=True)
 
     for info in (
-        dict(dlc_build_dir=build_dir),
-        dict(dlc_build_dir=build_dir_scaled, scaled=True),
-        dict(dlc_build_dir=build_dir_artifacts_meta, only_preload=True),
+        {"dlc_build_dir": build_dir},
+        {"dlc_build_dir": build_dir_scaled, "scaled": True},
+        {"dlc_build_dir": build_dir_artifacts_meta, "only_preload": True},
     ):
         dlc_build_dir = info.get("dlc_build_dir")
         scaled = info.get("scaled", False)
