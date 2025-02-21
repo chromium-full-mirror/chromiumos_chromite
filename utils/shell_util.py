@@ -79,8 +79,8 @@ def quote(s: Union[str, bytes, Path]) -> str:
     # used inside double quotes.
     for c in _SHELL_ESCAPE_CHARS:
         if c in s:
-            s = s.replace(c, r"\%s" % c)
-    return '"%s"' % s
+            s = s.replace(c, rf"\{c}")
+    return f'"{s}"'
 
 
 def unquote(s: str) -> str:
@@ -142,7 +142,7 @@ def cmd_to_str(cmd: Union[List[Any], Tuple[Any]]) -> str:
         return " ".join(quote(arg) for arg in cmd)
     else:
         raise ValueError(
-            "cmd must be list or tuple, not %s: %r" % (type(cmd), repr(cmd))
+            f"cmd must be list or tuple, not {type(cmd)}: {repr(cmd)!r}"
         )
 
 
@@ -165,7 +165,7 @@ def get_choice(title: str, options: Iterable[str], group_size: int = 0) -> int:
     """
 
     def prompt_for_choice(max_choice: int, more: bool) -> Optional[int]:
-        prompt = "Please choose an option [0-%d]" % max_choice
+        prompt = f"Please choose an option [0-{max_choice:d}]"
         if more:
             prompt += " (Enter for more options)"
         prompt += ": "
@@ -191,7 +191,7 @@ def get_choice(title: str, options: Iterable[str], group_size: int = 0) -> int:
             choice = prompt_for_choice(i - 1, True)
             if choice is not None:
                 return choice
-        print("  [%d]: %s" % (i, opt))
+        print(f"  [{i:d}]: {opt}")
         max_choice = i
 
     return prompt_for_choice(max_choice, False)
@@ -220,7 +220,7 @@ def boolean_prompt(
     true_text, false_text = true_value, false_value
     if true_value == false_value:
         raise ValueError(
-            "true_value and false_value must differ: got %r" % true_value
+            f"true_value and false_value must differ: got {true_value!r}"
         )
 
     if default:
@@ -228,10 +228,10 @@ def boolean_prompt(
     else:
         false_text = false_text[0].upper() + false_text[1:]
 
-    prompt = "\n%s (%s/%s)? " % (prompt, true_text, false_text)
+    prompt = f"\n{prompt} ({true_text}/{false_text})? "
 
     if prolog:
-        prompt = "\n%s\n%s" % (prolog, prompt)
+        prompt = f"\n{prolog}\n{prompt}"
 
     while True:
         try:
@@ -297,4 +297,4 @@ def boolean_shell_value(
         logging.warning("%s: %r", msg, sval)
         return default
     else:
-        raise ValueError("Could not decode as a boolean value: %r" % sval)
+        raise ValueError(f"Could not decode as a boolean value: {sval!r}")
