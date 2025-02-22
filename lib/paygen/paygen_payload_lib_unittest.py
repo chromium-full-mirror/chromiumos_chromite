@@ -1206,7 +1206,9 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         prep_image_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload,
             "_PrepareImage",
-            return_value=common_pb2.Path(path="test_input_path"),
+            return_value=common_pb2.Path(
+                path="test_input_path", location=common_pb2.Path.INSIDE
+            ),
         )
         prep_part_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload, "_PreparePartitions"
@@ -1244,7 +1246,9 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
                     "gs://chromeos-releases/dev-channel/x86-alex/4171.0.0/"
                     "chromeos_4171.0.0_x86-alex_recovery_dev-channel_mp-v3.bin"
                 ),
-                path=common_pb2.Path(path="test_input_path"),
+                path=common_pb2.Path(
+                    path="test_input_path", location=common_pb2.Path.INSIDE
+                ),
                 is_archive=False,
             ),
             ret.payload_inputs[0],
@@ -1255,7 +1259,9 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
                     "gs://chromeos-releases/dev-channel/x86-alex/1620.0.0/"
                     "chromeos_1620.0.0_x86-alex_recovery_dev-channel_mp-v3.bin"
                 ),
-                path=common_pb2.Path(path="test_input_path"),
+                path=common_pb2.Path(
+                    path="test_input_path", location=common_pb2.Path.INSIDE
+                ),
                 is_archive=False,
             ),
             ret.payload_inputs[1],
@@ -1287,7 +1293,9 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         prep_image_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload,
             "_PrepareImage",
-            return_value=common_pb2.Path(path="test_input_path"),
+            return_value=common_pb2.Path(
+                path="test_input_path", location=common_pb2.Path.INSIDE
+            ),
         )
         check_minios_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload,
@@ -1319,7 +1327,9 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         prep_image_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload,
             "_PrepareImage",
-            return_value=common_pb2.Path(path="test_input_path"),
+            return_value=common_pb2.Path(
+                path="test_input_path", location=common_pb2.Path.INSIDE
+            ),
         )
         check_minios_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload,
@@ -1353,7 +1363,9 @@ class PaygenPayloadLibBasicTest(PaygenLibTest):
         prep_image_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload,
             "_PrepareImage",
-            return_value=common_pb2.Path(path="test_input_path"),
+            return_value=common_pb2.Path(
+                path="test_input_path", location=common_pb2.Path.INSIDE
+            ),
         )
         check_minios_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload,
@@ -1660,7 +1672,9 @@ class GenerateUpdatePayloadTest(PaygenLibTest):
         prep_image_mock = self.PatchObject(
             paygen_payload_lib.PaygenPayload,
             "_PrepareImage",
-            return_value=common_pb2.Path(path="test_input_path"),
+            return_value=common_pb2.Path(
+                path="test_input_path", location=common_pb2.Path.INSIDE
+            ),
             side_effect=_prep_image,
         )
         prep_part_mock = self.PatchObject(

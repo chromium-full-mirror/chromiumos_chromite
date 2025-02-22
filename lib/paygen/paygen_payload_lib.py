@@ -851,9 +851,14 @@ class PaygenPayload:
             # Rename it into the desired image name.
             shutil.move(os.path.join(self.work_dir, extract_file), image_file)
 
-            # TODO: b/383845609 - If archive remove in recipes after BCID check.
-
-        return common_pb2.Path(path=download_file)
+        return common_pb2.Path(
+            path=download_file,
+            location=(
+                common_pb2.Path.INSIDE
+                if cros_build_lib.IsInsideChroot()
+                else common_pb2.Path.OUTSIDE
+            ),
+        )
 
     def _GeneratePostinstConfig(self, run_postinst: bool) -> None:
         """Generates the postinstall config file
