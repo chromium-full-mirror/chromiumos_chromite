@@ -21,9 +21,8 @@ from uuid import uuid4
 
 # pylint: disable=wrong-import-position
 from chromite.third_party.opentelemetry.context.context import Context, _RuntimeContext  # noqa
-from chromite.third_party.opentelemetry.context.contextvars_context import ContextVarsRuntimeContext
 from chromite.third_party.opentelemetry.environment_variables import OTEL_PYTHON_CONTEXT
-from importlib.metadata import entry_points
+from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
 
 logger = logging.getLogger(__name__)
 _RUNTIME_CONTEXT = None  # type: typing.Optional[_RuntimeContext]
@@ -58,22 +57,19 @@ def _load_runtime_context(func: _F) -> _F:
                 )  # type: str
                 try:
 
-                    _RUNTIME_CONTEXT = next(iter(
-                        [x.load() for x in entry_points().get('opentelemetry_context', list())
-                        if x.name == configured_context]
-                    ))()
+                    _RUNTIME_CONTEXT = next(  # type: ignore
+                        iter(  # type: ignore
+                            entry_points(  # type: ignore
+                                group="opentelemetry_context",
+                                name=configured_context,
+                            )
+                        )
+                    ).load()()
 
-                except StopIteration:  # pylint: disable=broad-except
-                    # logger.debug(
-                    #     "Failed to load context: %s", configured_context
-                    # )
-                    # logger.debug("Creating and returning a new context.")
-                    _RUNTIME_CONTEXT = ContextVarsRuntimeContext()
                 except Exception:  # pylint: disable=broad-except
                     logger.exception(
                         "Failed to load context: %s", configured_context
                     )
-
         return func(*args, **kwargs)  # type: ignore[misc]
 
     return typing.cast(_F, wrapper)  # type: ignore[misc]

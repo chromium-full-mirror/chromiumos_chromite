@@ -75,7 +75,7 @@ from typing import Optional
 from chromite.third_party.opentelemetry.context.context import Context
 from chromite.third_party.opentelemetry.environment_variables import OTEL_PROPAGATORS
 from chromite.third_party.opentelemetry.propagators import composite, textmap
-from importlib.metadata import entry_points
+from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points
 
 logger = getLogger(__name__)
 
@@ -137,7 +137,10 @@ for propagator in environ_propagators.split(","):
         propagators.append(  # type: ignore
             next(  # type: ignore
                 iter(  # type: ignore
-                     [ x for x in entry_points().get("opentelemetry_propogator", list()) if x.name == propogator ]  # type: ignore
+                    entry_points(  # type: ignore
+                        group="opentelemetry_propagator",
+                        name=propagator,
+                    )
                 )
             ).load()()
         )

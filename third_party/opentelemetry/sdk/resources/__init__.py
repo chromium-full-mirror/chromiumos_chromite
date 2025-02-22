@@ -70,10 +70,8 @@ from chromite.third_party.opentelemetry.sdk.environment_variables import (
     OTEL_RESOURCE_ATTRIBUTES,
     OTEL_SERVICE_NAME,
 )
-
-from importlib.metadata import entry_points
-
 from chromite.third_party.opentelemetry.semconv.resource import ResourceAttributes
+from chromite.third_party.opentelemetry.util._importlib_metadata import entry_points, version
 from chromite.third_party.opentelemetry.util.types import AttributeValue
 
 LabelValue = AttributeValue
@@ -138,7 +136,7 @@ TELEMETRY_AUTO_VERSION = ResourceAttributes.TELEMETRY_AUTO_VERSION
 TELEMETRY_SDK_LANGUAGE = ResourceAttributes.TELEMETRY_SDK_LANGUAGE
 
 
-_OPENTELEMETRY_SDK_VERSION = "1.17.0/0.40b0.dev"
+_OPENTELEMETRY_SDK_VERSION = version("opentelemetry-sdk")
 
 
 class Resource:
@@ -181,12 +179,18 @@ class Resource:
         if "otel" not in otel_experimental_resource_detectors:
             otel_experimental_resource_detectors.append("otel")
 
+        for resource_detector in otel_experimental_resource_detectors:
 
-        resource_detectors.extend(
-            [x.load()() for x in entry_points().get('openteletry_resource_detector', list()) 
-             if x.name in 
-             [r.strip() for r in otel_experimental_resource_detectors]]
-        )
+            resource_detectors.append(
+                next(
+                    iter(
+                        entry_points(
+                            group="opentelemetry_resource_detector",
+                            name=resource_detector.strip(),
+                        )
+                    )
+                ).load()()
+            )
 
         resource = get_aggregated_resources(
             resource_detectors, _DEFAULT_RESOURCE
