@@ -425,15 +425,6 @@
   "trim.conf": [
     "mkdir -p \"${CHROMEOS_TRIM_DIR}\""
   ],
-  "tsum-scaler-updater.conf": [
-    "chown cfm-firmware-updaters ${TEMP_DIR_PATH}",
-    "chown cfm-firmware-updaters ${TEMP_DIR_PATH}/${SCALER_FIRMWARE}",
-    "chown cfm-firmware-updaters /dev/i2c-7",
-    "chown cfm-firmware-updaters /run/lock/firmware_utility_lock",
-    "cp /lib/firmware/google/tsum-scaler/${SCALER_FIRMWARE} ${TEMP_DIR_PATH}",
-    "mkdir -p ${TEMP_DIR_PATH}",
-    "rm ${TEMP_DIR_PATH}/${SCALER_FIRMWARE} ||:"
-  ],
   "u2fd.conf": [
     "mkdir -p -m 0700 \"${FORCE_DIR}\"",
     "mkdir -p /var/lib/devicesettings"
