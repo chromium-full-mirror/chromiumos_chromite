@@ -102,6 +102,7 @@ TARGET_COMPILER_RT_ENABLED = (
     "aarch64-cros-linux-gnu",
     "arm-none-eabi",
     "armv7m-cros-eabi",
+    "riscv32-cros-elf",
 )
 CROSSDEV_COMPILER_RT_ARGS = ("--ex-pkg", "sys-libs/compiler-rt")
 
@@ -121,6 +122,7 @@ TARGET_LLVM_PKGS_ENABLED = (
     "aarch64-cros-linux-gnu",
     "i686-cros-linux-gnu",
     "x86_64-cros-linux-gnu",
+    "riscv32-cros-elf",
 )
 
 LLVM_PKGS_TABLE = {
