@@ -97,12 +97,11 @@ def _BuildAllFirmwareResponse(_request, response, _config) -> None:
 @faux.empty_completed_unsuccessfully_error
 @validate.require("firmware_location")
 @validate.validation_complete
-# TODO(b/400498599): rename this method
 def BuildAllFirmware(request, response, _config):
     """Build all of the firmware targets at the specified location."""
 
     args = ["--code-coverage"] if request.code_coverage else []
-    if request.firmware_targets:
+    if getattr(request, "firmware_targets", None):
         firmware_targets = ",".join(t.name for t in request.firmware_targets)
         args.append(f"--firmware-targets={firmware_targets}")
     return _call_entry(
@@ -121,14 +120,10 @@ def _TestAllFirmwareResponse(_request, response, _config) -> None:
 @faux.empty_completed_unsuccessfully_error
 @validate.require("firmware_location")
 @validate.validation_complete
-# TODO(b/400498599): rename this method
 def TestAllFirmware(request, response, _config):
     """Runs all of the firmware tests at the specified location."""
 
     args = ["--code-coverage"] if request.code_coverage else []
-    if request.firmware_targets:
-        firmware_targets = ",".join(t.name for t in request.firmware_targets)
-        args.append(f"--firmware-targets={firmware_targets}")
     return _call_entry(
         request.firmware_location, response.metrics, "test", *args
     )
