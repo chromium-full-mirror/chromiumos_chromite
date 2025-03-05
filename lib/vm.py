@@ -577,7 +577,10 @@ class VM(device.Device):
         if not self.is_x86:
             self.enable_kvm = False
         if not self.enable_kvm:
-            logging.warning("KVM is not supported; Chrome VM will be slow")
+            logging.warning(
+                "KVM is not supported; Chrome VM will be slow or won't work in "
+                "the worst case."
+            )
         self._SetQemuPath()
         self._SetVMImagePath()
         logging.info("Pid file: %s", self.pidfile)
