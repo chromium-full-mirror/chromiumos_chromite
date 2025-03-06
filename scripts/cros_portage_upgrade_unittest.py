@@ -1445,7 +1445,7 @@ class UtilityTest(CpuTestBase):
 
     def testGetBoardCmdKnownCmds(self) -> None:
         board = "x86-alex"
-        for cmd in ["emerge", "equery", "portageq"]:
+        for cmd in ("emerge", "equery"):
             result = self._TestGetBoardCmd(cmd, cpu.Upgrader.HOST_BOARD)
             self.assertEqual(result, cmd)
             result = self._TestGetBoardCmd(cmd, board)

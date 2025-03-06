@@ -127,8 +127,7 @@ class Upgrader:
 
     EQUERY_CMD = "equery"
     EMERGE_CMD = "emerge"
-    PORTAGEQ_CMD = "portageq"
-    BOARD_CMDS = set([EQUERY_CMD, EMERGE_CMD, PORTAGEQ_CMD])
+    BOARD_CMDS = set([EQUERY_CMD, EMERGE_CMD])
 
     __slots__ = (
         "_amend",  # Boolean to use --amend with upgrade commit
