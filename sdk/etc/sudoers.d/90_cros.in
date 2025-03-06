@@ -1,0 +1,10 @@
+Defaults env_keep += "%%CROS_ENV_KEEP%%"
+
+# adm lets users & ebuilds run sudo (e.g. platform2 sysroot test runners).
+%adm ALL=(ALL) NOPASSWD: ALL
+%%CROS_USERNAME%% ALL=(ALL) NOPASSWD: ALL
+
+# Simplify the -v option checks due to overlap of the adm group and the user's
+# supplementary groups.  We don't set any passwords, so disable asking.
+# https://crbug.com/762445
+Defaults verifypw = any

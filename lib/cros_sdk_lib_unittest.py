@@ -647,6 +647,12 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
                 group="root",
             ),
             mock.call(
+                Path(self.chroot.full_path("/etc/sudoers.d")),
+                0,
+                0,
+                recursive=True,
+            ),
+            mock.call(
                 test_cache_dir,
                 TEST_UID,
                 group=constants.PORTAGE_GID,
@@ -709,6 +715,10 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         )
         self.assertExists(etc / "shadow")
 
+        content = (etc / "sudoers.d" / "90_cros").read_text(encoding="utf-8")
+        self.assertIn(f"{TEST_USER} ALL=(ALL) NOPASSWD: ALL", content)
+        self.assertNotIn("%%", content)
+
         # Check /mnt/host directories.
         self.assertTrue(
             (Path(self.chroot.path) / "mnt" / "host" / "out").is_dir()
@@ -765,6 +775,12 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
                 self.chroot.full_path("/etc/make.conf.host_setup"),
                 user="root",
                 group="root",
+            ),
+            mock.call(
+                Path(self.chroot.full_path("/etc/sudoers.d")),
+                0,
+                0,
+                recursive=True,
             ),
             mock.call(
                 test_cache_dir,

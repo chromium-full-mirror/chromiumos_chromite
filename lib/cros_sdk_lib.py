@@ -1142,17 +1142,23 @@ CROS_COG_WORKSPACE_ID="{cog_workspace_id}"
         bash_completion_d.mkdir(mode=0o755, parents=True, exist_ok=True)
         (bash_completion_d / "cros").symlink_to(f"{_BASH_COMPLETION_DIR}/cros")
 
-        # Use the standardized upgrade script to setup proxied vars.
-        cros_build_lib.dbg_run(
-            [
-                constants.CHROMITE_SHELL_DIR
-                / "sdk_lib"
-                / "rewrite-sudoers.d.sh",
-                self.chroot.path,
-                user,
-            ]
-            + list(constants.CHROOT_ENVIRONMENT_ALLOWLIST)
+        # Setup sudo config.  We can't symlink it directly as sudo permission
+        # checks (reasonably) reject it.  And we rewrite some content.
+        sudoers_d = etc_dir / "sudoers.d" / "90_cros"
+        sudoers_d_template = (
+            constants.CHROMITE_DIR / "sdk" / "etc" / "sudoers.d" / "90_cros.in"
         )
+        sudoers_d_contents = (
+            sudoers_d_template.read_text(encoding="utf-8")
+            .replace(
+                "%%CROS_ENV_KEEP%%",
+                " ".join(constants.CHROOT_ENVIRONMENT_ALLOWLIST),
+            )
+            .replace("%%CROS_USERNAME%%", user)
+        )
+        sudoers_d.parent.mkdir(mode=0o750, exist_ok=True)
+        osutils.WriteFile(sudoers_d, sudoers_d_contents, chmod=0o0644)
+        osutils.Chown(sudoers_d.parent, 0, 0, recursive=True)
 
     def init_var(self, uid: Optional[int] = None) -> None:
         """Handle /var contents from SDK tarball."""
