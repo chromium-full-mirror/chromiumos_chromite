@@ -1124,7 +1124,7 @@ class CPVUtilTest(cros_test_lib.TestCase):
             ("a-b-c/x-y-z-1", "a-b-c/x-y-z"),
             ("a-b-c/x-y-z-1.2.3-r3", "a-b-c/x-y-z"),
             ("bar-1", "bar"),
-            ("bar", None),
+            ("bar", "bar"),
         ]
 
         for cpv, catpn in data:
@@ -1160,7 +1160,7 @@ class CPVUtilTest(cros_test_lib.TestCase):
             ("foo/bar-1", "foo/bar/bar-1.ebuild"),
             ("a-b-c/x-y-z-1", "a-b-c/x-y-z/x-y-z-1.ebuild"),
             ("a-b-c/x-y-z-1.2.3-r3", "a-b-c/x-y-z/x-y-z-1.2.3-r3.ebuild"),
-            ("foo/bar-3.222-r0", "foo/bar/bar-3.222-r0.ebuild"),
+            ("foo/bar-3.222-r0", "foo/bar/bar-3.222.ebuild"),
         ]
 
         for cpv, verrev in data:

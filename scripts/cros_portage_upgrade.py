@@ -25,6 +25,7 @@ from chromite.lib import operation
 from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib import upgrade_table as utable
+from chromite.lib.parser import package_info
 
 
 oper = operation.Operation("cros_portage_upgrade")
@@ -339,15 +340,10 @@ class Upgrader:
         if not cpv:
             return None
 
-        # Result is None or (cat, pn, version, rev)
-        result = portage.versions.catpkgsplit(cpv)
-        if result:
-            # This appears to be a quirk of portage? Category string == 'null'.
-            if result[0] is None or result[0] == "null":
-                return result[1]
-            return "%s/%s" % (result[0], result[1])
-
-        return None
+        pkg_info = package_info.parse(cpv)
+        if not pkg_info.category:
+            return pkg_info.package
+        return pkg_info.atom
 
     @staticmethod
     def _GetVerRevFromCpv(cpv):
@@ -355,16 +351,8 @@ class Upgrader:
         if not cpv:
             return None
 
-        # Result is None or (cat, pn, version, rev)
-        result = portage.versions.catpkgsplit(cpv)
-        if result:
-            (version, rev) = result[2:4]
-            if rev != "r0":
-                return "%s-%s" % (version, rev)
-            else:
-                return version
-
-        return None
+        pkg_info = package_info.parse(cpv)
+        return pkg_info.vr or None
 
     @staticmethod
     def _GetEbuildPathFromCpv(cpv):
@@ -372,15 +360,8 @@ class Upgrader:
         if not cpv:
             return None
 
-        # Result is None or (cat, pn, version, rev)
-        result = portage.versions.catpkgsplit(cpv)
-        if result:
-            # pylint: disable=unpacking-non-sequence
-            (cat, pn, _version, _rev) = result
-            ebuild = cpv.replace(cat + "/", "") + ".ebuild"
-            return os.path.join(cat, pn, ebuild)
-
-        return None
+        pkg_info = package_info.parse(cpv)
+        return pkg_info.relative_path
 
     def _RunGit(self, cwd, command, stdout=None, stderr=None):
         """Runs git |command| (a list of command tokens) in |cwd|.
@@ -788,18 +769,12 @@ class Upgrader:
         """
         oper.Notice("Copying %s from upstream." % upstream_cpv)
 
-        # pylint: disable=unpacking-non-sequence
-        (cat, pkgname, _version, _rev) = portage.versions.catpkgsplit(
-            upstream_cpv
-        )
-        # pylint: enable=unpacking-non-sequence
-        ebuild = upstream_cpv.replace(cat + "/", "") + ".ebuild"
-        catpkgsubdir = os.path.join(cat, pkgname)
-        pkgdir = os.path.join(self._stable_repo, catpkgsubdir)
-        upstream_pkgdir = os.path.join(self._upstream, cat, pkgname)
+        pkg_info = package_info.parse(upstream_cpv)
+        pkgdir = os.path.join(self._stable_repo, pkg_info.atom)
+        upstream_pkgdir = os.path.join(self._upstream, pkg_info.atom)
 
         # Fail early if upstream_cpv ebuild is not found
-        upstream_ebuild_path = os.path.join(upstream_pkgdir, ebuild)
+        upstream_ebuild_path = os.path.join(upstream_pkgdir, pkg_info.ebuild)
         if not os.path.exists(upstream_ebuild_path):
             # Note: this should only be possible during unit tests.
             raise RuntimeError(
@@ -816,7 +791,7 @@ class Upgrader:
                 if not x.endswith(".bashrc") and x != "cros"
             )
             items -= CROS_AUTHORED_FILES
-            items = [os.path.join(catpkgsubdir, x) for x in items]
+            items = [os.path.join(pkg_info.atom, x) for x in items]
             if items:
                 args = ["rm", "-rf", "--ignore-unmatch"] + items
                 self._RunGit(self._stable_repo, args, stdout=True)
@@ -829,7 +804,7 @@ class Upgrader:
         # Grab all non-ebuilds from upstream plus the specific ebuild requested.
         items = os.listdir(upstream_pkgdir)
         for item in items:
-            if not item.endswith(".ebuild") or item == ebuild:
+            if not item.endswith(".ebuild") or item == pkg_info.ebuild:
                 src = os.path.join(upstream_pkgdir, item)
                 dst = os.path.join(pkgdir, item)
                 if os.path.isdir(src):
