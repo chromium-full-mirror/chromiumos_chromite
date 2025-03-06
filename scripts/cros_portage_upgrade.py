@@ -448,7 +448,7 @@ class Upgrader:
     def _EqueryWhich(
         pkg: str,
         envvars: Dict[str, str],
-        equery: str = "equery",
+        equery: str = EQUERY_CMD,
         include_masked: bool = False,
     ) -> Optional[tuple]:
         """Run `equery which` with common options."""
@@ -559,7 +559,7 @@ class Upgrader:
         cpv = pinfo.upgraded_cpv
         envvars = self._GenPortageEnvvars(self._curr_arch, unstable_ok=False)
 
-        equery = self._GetBoardCmd("equery")
+        equery = self._GetBoardCmd(self.EQUERY_CMD)
         cmd = [equery, "-qCN", "list", "-F", "$mask|$cpv:$slot", "-op", cpv]
         result = cros_build_lib.run(
             cmd,
