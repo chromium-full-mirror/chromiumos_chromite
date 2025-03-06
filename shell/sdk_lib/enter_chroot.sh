@@ -561,32 +561,8 @@ else
   setup_env
 fi
 
-CHROOT_PASSTHRU=(
-  "EXTERNAL_TRUNK_PATH=${FLAGS_trunk}"
-
-  # We don't want to auto-update depot_tools inside of the SDK as we manage it.
-  "DEPOT_TOOLS_UPDATE=0"
-
-  # Force LANG=C.UTF-8, so locales do not need to be generated.
-  "LANG=C.UTF-8"
-)
-
 # Needs to be set here because setup_env runs in a subshell.
 [ -S "${FLAGS_chroot}/tmp/ssh-auth-sock" ] && SSH_AUTH_SOCK=/tmp/ssh-auth-sock
-
-# Add the whitelisted environment variables to CHROOT_PASSTHRU.
-load_environment_whitelist
-# shellcheck disable=SC2154  # Is used directly below.
-for var in "${ENVIRONMENT_WHITELIST[@]}" ; do
-  [ "${!var+set}" = "set" ] && CHROOT_PASSTHRU+=( "${var}=${!var}" )
-done
-
-# Set up GIT_PROXY_COMMAND so git:// URLs automatically work behind a proxy.
-if [[ -n "${all_proxy}" || -n "${https_proxy}" || -n "${http_proxy}" ]]; then
-  CHROOT_PASSTHRU+=(
-    "GIT_PROXY_COMMAND=${CHROOT_TRUNK_DIR}/chromite/shell/proxy-gw"
-  )
-fi
 
 # Run command or interactive shell.  Also include the non-chrooted path to
 # the source trunk for scripts that may need to print it (e.g.
@@ -595,7 +571,6 @@ fi
 cmd=( sudo -u "${SUDO_USER}" --chdir="${FLAGS_working_dir}" -i )
 
 # Split the command into environment variables and the command to run.
-cmd+=( "${CHROOT_PASSTHRU[@]}" )
 while [[ "$1" == *=* ]]; do
   cmd+=( "$1" )
   shift

@@ -1331,6 +1331,30 @@ class ChrootEnteror:
         if cwd:
             wrapper += ["--working_dir", str(cwd)]
 
+        # Setup variables to initialize inside the chroot.
+        wrapper += [
+            f"EXTERNAL_TRUNK_PATH={constants.SOURCE_ROOT}",
+            # We don't auto-update pinned depot_tools inside of the SDK.
+            "DEPOT_TOOLS_UPDATE=0",
+            # Force LANG=C.UTF-8, so locales do not need to be generated.
+            "LANG=C.UTF-8",
+        ]
+
+        wrapper += [
+            f"{v}={os.getenv(v)}"
+            for v in constants.CHROOT_ENVIRONMENT_ALLOWLIST
+            if v in os.environ
+        ]
+
+        # Set GIT_PROXY_COMMAND so git:// URLs automatically work w/a proxy.
+        if any(
+            os.getenv(v) for v in ("all_proxy", "https_proxy", "http_proxy")
+        ):
+            wrapper += [
+                f"GIT_PROXY_COMMAND={constants.CHROOT_SOURCE_ROOT}"
+                "/chromite/shell/proxy-gw",
+            ]
+
         if cmd:
             wrapper += ["--"] + cmd
 
