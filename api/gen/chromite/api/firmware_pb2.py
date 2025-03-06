@@ -15,7 +15,7 @@ from chromite.api.gen.chromite.api import build_api_pb2 as chromite_dot_api_dot_
 from chromite.api.gen.chromiumos import common_pb2 as chromiumos_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x63hromite/api/firmware.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"(\n\x0e\x42\x63sVersionInfo\x12\x16\n\x0eversion_string\x18\x01 \x01(\t\"-\n\x13\x46irmwareVersionInfo\x12\x16\n\x0eversion_string\x18\x01 \x01(\t\"\x97\x03\n\rFwBuildMetric\x12\x13\n\x0btarget_name\x18\x01 \x01(\t\x12\x15\n\rplatform_name\x18\x02 \x01(\t\x12\x39\n\nfw_section\x18\x03 \x03(\x0b\x32%.chromite.api.FwBuildMetric.FwSection\x12:\n\x06zephyr\x18\x04 \x01(\x0b\x32(.chromite.api.FwBuildMetric.ZephyrTargetH\x00\x1aQ\n\tFwSection\x12\x0e\n\x06region\x18\x01 \x01(\t\x12\x0c\n\x04used\x18\x02 \x01(\r\x12\r\n\x05total\x18\x03 \x01(\r\x12\x17\n\x0ftrack_on_gerrit\x18\x04 \x01(\x08\x1a\x35\n\x07Version\x12\r\n\x05major\x18\x01 \x01(\r\x12\r\n\x05minor\x18\x02 \x01(\r\x12\x0c\n\x04tiny\x18\x03 \x01(\r\x1aK\n\x0cZephyrTarget\x12;\n\x0ekernel_version\x18\x01 \x01(\x0b\x32#.chromite.api.FwBuildMetric.VersionB\x0c\n\nimage_type\"?\n\x11\x46wBuildMetricList\x12*\n\x05value\x18\x01 \x03(\x0b\x32\x1b.chromite.api.FwBuildMetric\"b\n\x0c\x46wTestMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x18\n\x10\x63overage_percent\x18\x02 \x01(\x02\x12\x15\n\rcovered_lines\x18\x03 \x01(\r\x12\x13\n\x0btotal_lines\x18\x04 \x01(\r\"=\n\x10\x46wTestMetricList\x12)\n\x05value\x18\x01 \x03(\x0b\x32\x1a.chromite.api.FwTestMetric\"\x1e\n\x0e\x46irmwareTarget\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xbf\x01\n\x17\x42uildAllFirmwareRequest\x12\x31\n\x11\x66irmware_location\x18\x01 \x01(\x0e\x32\x16.chromiumos.FwLocation\x12\"\n\x06\x63hroot\x18\x02 \x01(\x0b\x32\x12.chromiumos.Chroot\x12\x15\n\rcode_coverage\x18\x03 \x01(\x08\x12\x36\n\x10\x66irmware_targets\x18\x04 \x03(\x0b\x32\x1c.chromite.api.FirmwareTarget\"L\n\x18\x42uildAllFirmwareResponse\x12\x30\n\x07metrics\x18\x01 \x01(\x0b\x32\x1f.chromite.api.FwBuildMetricList\"\x86\x01\n\x16TestAllFirmwareRequest\x12\x31\n\x11\x66irmware_location\x18\x01 \x01(\x0e\x32\x16.chromiumos.FwLocation\x12\"\n\x06\x63hroot\x18\x02 \x01(\x0b\x32\x12.chromiumos.Chroot\x12\x15\n\rcode_coverage\x18\x03 \x01(\x08\"J\n\x17TestAllFirmwareResponse\x12/\n\x07metrics\x18\x01 \x01(\x0b\x32\x1e.chromite.api.FwTestMetricList\"\xfe\x01\n\x1e\x42undleFirmwareArtifactsRequest\x12\"\n\x06\x63hroot\x18\x02 \x01(\x0b\x32\x12.chromiumos.Chroot\x12+\n\x0bresult_path\x18\x03 \x01(\x0b\x32\x16.chromiumos.ResultPath\x12:\n\tartifacts\x18\x04 \x01(\x0b\x32\'.chromiumos.ArtifactsByService.Firmware\x12\x17\n\x0b\x62\x63s_version\x18\x05 \x01(\tB\x02\x18\x01\x12\x36\n\x10\x62\x63s_version_info\x18\x06 \x01(\x0b\x32\x1c.chromite.api.BcsVersionInfo\"\x8d\x01\n\x1f\x42undleFirmwareArtifactsResponse\x12\x42\n\tartifacts\x18\x01 \x01(\x0b\x32/.chromiumos.UploadedArtifactsByService.Firmware\x12&\n\x0c\x61rtifact_dir\x18\x02 \x01(\x0b\x32\x10.chromiumos.Path\"\xa0\n\n\x14\x46irmwareArtifactInfo\x12>\n\x07objects\x18\x01 \x03(\x0b\x32-.chromite.api.FirmwareArtifactInfo.ObjectInfo\x12\x36\n\x10\x62\x63s_version_info\x18\x02 \x01(\x0b\x32\x1c.chromite.api.BcsVersionInfo\x1a\xe4\x03\n\x0bTarballInfo\x12\x17\n\x0b\x62\x63s_version\x18\x01 \x01(\tB\x02\x18\x01\x12\x1b\n\x13\x66irmware_image_name\x18\x02 \x01(\t\x12N\n\x04type\x18\x03 \x01(\x0e\x32@.chromite.api.FirmwareArtifactInfo.TarballInfo.FirmwareType.Type\x12K\n\x07version\x18\x04 \x01(\x0b\x32\x36.chromite.api.FirmwareArtifactInfo.TarballInfo.VersionB\x02\x18\x01\x12@\n\x15\x66irmware_version_info\x18\x05 \x01(\x0b\x32!.chromite.api.FirmwareVersionInfo\x12\r\n\x05\x62oard\x18\x06 \x03(\t\x12\"\n\x1arequest_signed_test_binary\x18\x07 \x01(\x08\x12\x1c\n\x14publish_to_goldeneye\x18\x08 \x01(\x08\x1a\x46\n\x0c\x46irmwareType\"6\n\x04Type\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04MAIN\x10\x01\x12\x06\n\x02\x45\x43\x10\x02\x12\x06\n\x02PD\x10\x03\x12\x07\n\x03GSC\x10\x04\x1a\'\n\x07Version\x12\r\n\x05major\x18\x01 \x01(\x05\x12\r\n\x05minor\x18\x02 \x01(\x05\x1a\x8c\x01\n\x0fLcovTarballInfo\x12N\n\x04type\x18\x01 \x01(\x0e\x32@.chromite.api.FirmwareArtifactInfo.LcovTarballInfo.LcovType.Type\x1a)\n\x08LcovType\"\x1d\n\x04Type\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04LCOV\x10\x01\x1a\x12\n\x10\x43overageHtmlInfo\x1a\xa0\x01\n\x11TokenDatabaseInfo\x12Y\n\x04type\x18\x01 \x01(\x0e\x32K.chromite.api.FirmwareArtifactInfo.TokenDatabaseInfo.TokenDatabaseType.Type\x1a\x30\n\x11TokenDatabaseType\"\x1b\n\x04Type\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x06\n\x02\x45\x43\x10\x01\x1a\xe2\x02\n\nObjectInfo\x12\x11\n\tfile_name\x18\x01 \x01(\t\x12\x46\n\x0ctarball_info\x18\x02 \x01(\x0b\x32..chromite.api.FirmwareArtifactInfo.TarballInfoH\x00\x12G\n\tlcov_info\x18\x03 \x01(\x0b\x32\x32.chromite.api.FirmwareArtifactInfo.LcovTarballInfoH\x00\x12L\n\rcoverage_html\x18\x04 \x01(\x0b\x32\x33.chromite.api.FirmwareArtifactInfo.CoverageHtmlInfoH\x00\x12J\n\ntoken_info\x18\x05 \x01(\x0b\x32\x34.chromite.api.FirmwareArtifactInfo.TokenDatabaseInfoH\x00\x42\x16\n\x14\x66irmware_object_info2\xde\x02\n\x0f\x46irmwareService\x12\x61\n\x10\x42uildAllFirmware\x12%.chromite.api.BuildAllFirmwareRequest\x1a&.chromite.api.BuildAllFirmwareResponse\x12^\n\x0fTestAllFirmware\x12$.chromite.api.TestAllFirmwareRequest\x1a%.chromite.api.TestAllFirmwareResponse\x12v\n\x17\x42undleFirmwareArtifacts\x12,.chromite.api.BundleFirmwareArtifactsRequest\x1a-.chromite.api.BundleFirmwareArtifactsResponse\x1a\x10\xc2\xed\x1a\x0c\n\x08\x66irmware\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x63hromite/api/firmware.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"(\n\x0e\x42\x63sVersionInfo\x12\x16\n\x0eversion_string\x18\x01 \x01(\t\"-\n\x13\x46irmwareVersionInfo\x12\x16\n\x0eversion_string\x18\x01 \x01(\t\"\x97\x03\n\rFwBuildMetric\x12\x13\n\x0btarget_name\x18\x01 \x01(\t\x12\x15\n\rplatform_name\x18\x02 \x01(\t\x12\x39\n\nfw_section\x18\x03 \x03(\x0b\x32%.chromite.api.FwBuildMetric.FwSection\x12:\n\x06zephyr\x18\x04 \x01(\x0b\x32(.chromite.api.FwBuildMetric.ZephyrTargetH\x00\x1aQ\n\tFwSection\x12\x0e\n\x06region\x18\x01 \x01(\t\x12\x0c\n\x04used\x18\x02 \x01(\r\x12\r\n\x05total\x18\x03 \x01(\r\x12\x17\n\x0ftrack_on_gerrit\x18\x04 \x01(\x08\x1a\x35\n\x07Version\x12\r\n\x05major\x18\x01 \x01(\r\x12\r\n\x05minor\x18\x02 \x01(\r\x12\x0c\n\x04tiny\x18\x03 \x01(\r\x1aK\n\x0cZephyrTarget\x12;\n\x0ekernel_version\x18\x01 \x01(\x0b\x32#.chromite.api.FwBuildMetric.VersionB\x0c\n\nimage_type\"?\n\x11\x46wBuildMetricList\x12*\n\x05value\x18\x01 \x03(\x0b\x32\x1b.chromite.api.FwBuildMetric\"b\n\x0c\x46wTestMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x18\n\x10\x63overage_percent\x18\x02 \x01(\x02\x12\x15\n\rcovered_lines\x18\x03 \x01(\r\x12\x13\n\x0btotal_lines\x18\x04 \x01(\r\"=\n\x10\x46wTestMetricList\x12)\n\x05value\x18\x01 \x03(\x0b\x32\x1a.chromite.api.FwTestMetric\"\x1e\n\x0e\x46irmwareTarget\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xbf\x01\n\x17\x42uildAllFirmwareRequest\x12\x31\n\x11\x66irmware_location\x18\x01 \x01(\x0e\x32\x16.chromiumos.FwLocation\x12\"\n\x06\x63hroot\x18\x02 \x01(\x0b\x32\x12.chromiumos.Chroot\x12\x15\n\rcode_coverage\x18\x03 \x01(\x08\x12\x36\n\x10\x66irmware_targets\x18\x04 \x03(\x0b\x32\x1c.chromite.api.FirmwareTarget\"L\n\x18\x42uildAllFirmwareResponse\x12\x30\n\x07metrics\x18\x01 \x01(\x0b\x32\x1f.chromite.api.FwBuildMetricList\"\xbe\x01\n\x16TestAllFirmwareRequest\x12\x31\n\x11\x66irmware_location\x18\x01 \x01(\x0e\x32\x16.chromiumos.FwLocation\x12\"\n\x06\x63hroot\x18\x02 \x01(\x0b\x32\x12.chromiumos.Chroot\x12\x15\n\rcode_coverage\x18\x03 \x01(\x08\x12\x36\n\x10\x66irmware_targets\x18\x04 \x03(\x0b\x32\x1c.chromite.api.FirmwareTarget\"J\n\x17TestAllFirmwareResponse\x12/\n\x07metrics\x18\x01 \x01(\x0b\x32\x1e.chromite.api.FwTestMetricList\"\xfe\x01\n\x1e\x42undleFirmwareArtifactsRequest\x12\"\n\x06\x63hroot\x18\x02 \x01(\x0b\x32\x12.chromiumos.Chroot\x12+\n\x0bresult_path\x18\x03 \x01(\x0b\x32\x16.chromiumos.ResultPath\x12:\n\tartifacts\x18\x04 \x01(\x0b\x32\'.chromiumos.ArtifactsByService.Firmware\x12\x17\n\x0b\x62\x63s_version\x18\x05 \x01(\tB\x02\x18\x01\x12\x36\n\x10\x62\x63s_version_info\x18\x06 \x01(\x0b\x32\x1c.chromite.api.BcsVersionInfo\"\x8d\x01\n\x1f\x42undleFirmwareArtifactsResponse\x12\x42\n\tartifacts\x18\x01 \x01(\x0b\x32/.chromiumos.UploadedArtifactsByService.Firmware\x12&\n\x0c\x61rtifact_dir\x18\x02 \x01(\x0b\x32\x10.chromiumos.Path\"\xa0\n\n\x14\x46irmwareArtifactInfo\x12>\n\x07objects\x18\x01 \x03(\x0b\x32-.chromite.api.FirmwareArtifactInfo.ObjectInfo\x12\x36\n\x10\x62\x63s_version_info\x18\x02 \x01(\x0b\x32\x1c.chromite.api.BcsVersionInfo\x1a\xe4\x03\n\x0bTarballInfo\x12\x17\n\x0b\x62\x63s_version\x18\x01 \x01(\tB\x02\x18\x01\x12\x1b\n\x13\x66irmware_image_name\x18\x02 \x01(\t\x12N\n\x04type\x18\x03 \x01(\x0e\x32@.chromite.api.FirmwareArtifactInfo.TarballInfo.FirmwareType.Type\x12K\n\x07version\x18\x04 \x01(\x0b\x32\x36.chromite.api.FirmwareArtifactInfo.TarballInfo.VersionB\x02\x18\x01\x12@\n\x15\x66irmware_version_info\x18\x05 \x01(\x0b\x32!.chromite.api.FirmwareVersionInfo\x12\r\n\x05\x62oard\x18\x06 \x03(\t\x12\"\n\x1arequest_signed_test_binary\x18\x07 \x01(\x08\x12\x1c\n\x14publish_to_goldeneye\x18\x08 \x01(\x08\x1a\x46\n\x0c\x46irmwareType\"6\n\x04Type\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04MAIN\x10\x01\x12\x06\n\x02\x45\x43\x10\x02\x12\x06\n\x02PD\x10\x03\x12\x07\n\x03GSC\x10\x04\x1a\'\n\x07Version\x12\r\n\x05major\x18\x01 \x01(\x05\x12\r\n\x05minor\x18\x02 \x01(\x05\x1a\x8c\x01\n\x0fLcovTarballInfo\x12N\n\x04type\x18\x01 \x01(\x0e\x32@.chromite.api.FirmwareArtifactInfo.LcovTarballInfo.LcovType.Type\x1a)\n\x08LcovType\"\x1d\n\x04Type\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04LCOV\x10\x01\x1a\x12\n\x10\x43overageHtmlInfo\x1a\xa0\x01\n\x11TokenDatabaseInfo\x12Y\n\x04type\x18\x01 \x01(\x0e\x32K.chromite.api.FirmwareArtifactInfo.TokenDatabaseInfo.TokenDatabaseType.Type\x1a\x30\n\x11TokenDatabaseType\"\x1b\n\x04Type\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x06\n\x02\x45\x43\x10\x01\x1a\xe2\x02\n\nObjectInfo\x12\x11\n\tfile_name\x18\x01 \x01(\t\x12\x46\n\x0ctarball_info\x18\x02 \x01(\x0b\x32..chromite.api.FirmwareArtifactInfo.TarballInfoH\x00\x12G\n\tlcov_info\x18\x03 \x01(\x0b\x32\x32.chromite.api.FirmwareArtifactInfo.LcovTarballInfoH\x00\x12L\n\rcoverage_html\x18\x04 \x01(\x0b\x32\x33.chromite.api.FirmwareArtifactInfo.CoverageHtmlInfoH\x00\x12J\n\ntoken_info\x18\x05 \x01(\x0b\x32\x34.chromite.api.FirmwareArtifactInfo.TokenDatabaseInfoH\x00\x42\x16\n\x14\x66irmware_object_info2\xde\x02\n\x0f\x46irmwareService\x12\x61\n\x10\x42uildAllFirmware\x12%.chromite.api.BuildAllFirmwareRequest\x1a&.chromite.api.BuildAllFirmwareResponse\x12^\n\x0fTestAllFirmware\x12$.chromite.api.TestAllFirmwareRequest\x1a%.chromite.api.TestAllFirmwareResponse\x12v\n\x17\x42undleFirmwareArtifacts\x12,.chromite.api.BundleFirmwareArtifactsRequest\x1a-.chromite.api.BundleFirmwareArtifactsResponse\x1a\x10\xc2\xed\x1a\x0c\n\x08\x66irmware\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromite.api.firmware_pb2', globals())
@@ -56,39 +56,39 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _BUILDALLFIRMWARERESPONSE._serialized_start=1053
   _BUILDALLFIRMWARERESPONSE._serialized_end=1129
   _TESTALLFIRMWAREREQUEST._serialized_start=1132
-  _TESTALLFIRMWAREREQUEST._serialized_end=1266
-  _TESTALLFIRMWARERESPONSE._serialized_start=1268
-  _TESTALLFIRMWARERESPONSE._serialized_end=1342
-  _BUNDLEFIRMWAREARTIFACTSREQUEST._serialized_start=1345
-  _BUNDLEFIRMWAREARTIFACTSREQUEST._serialized_end=1599
-  _BUNDLEFIRMWAREARTIFACTSRESPONSE._serialized_start=1602
-  _BUNDLEFIRMWAREARTIFACTSRESPONSE._serialized_end=1743
-  _FIRMWAREARTIFACTINFO._serialized_start=1746
-  _FIRMWAREARTIFACTINFO._serialized_end=3058
-  _FIRMWAREARTIFACTINFO_TARBALLINFO._serialized_start=1891
-  _FIRMWAREARTIFACTINFO_TARBALLINFO._serialized_end=2375
-  _FIRMWAREARTIFACTINFO_TARBALLINFO_FIRMWARETYPE._serialized_start=2264
-  _FIRMWAREARTIFACTINFO_TARBALLINFO_FIRMWARETYPE._serialized_end=2334
-  _FIRMWAREARTIFACTINFO_TARBALLINFO_FIRMWARETYPE_TYPE._serialized_start=2280
-  _FIRMWAREARTIFACTINFO_TARBALLINFO_FIRMWARETYPE_TYPE._serialized_end=2334
-  _FIRMWAREARTIFACTINFO_TARBALLINFO_VERSION._serialized_start=2336
-  _FIRMWAREARTIFACTINFO_TARBALLINFO_VERSION._serialized_end=2375
-  _FIRMWAREARTIFACTINFO_LCOVTARBALLINFO._serialized_start=2378
-  _FIRMWAREARTIFACTINFO_LCOVTARBALLINFO._serialized_end=2518
-  _FIRMWAREARTIFACTINFO_LCOVTARBALLINFO_LCOVTYPE._serialized_start=2477
-  _FIRMWAREARTIFACTINFO_LCOVTARBALLINFO_LCOVTYPE._serialized_end=2518
-  _FIRMWAREARTIFACTINFO_LCOVTARBALLINFO_LCOVTYPE_TYPE._serialized_start=2489
-  _FIRMWAREARTIFACTINFO_LCOVTARBALLINFO_LCOVTYPE_TYPE._serialized_end=2518
-  _FIRMWAREARTIFACTINFO_COVERAGEHTMLINFO._serialized_start=2520
-  _FIRMWAREARTIFACTINFO_COVERAGEHTMLINFO._serialized_end=2538
-  _FIRMWAREARTIFACTINFO_TOKENDATABASEINFO._serialized_start=2541
-  _FIRMWAREARTIFACTINFO_TOKENDATABASEINFO._serialized_end=2701
-  _FIRMWAREARTIFACTINFO_TOKENDATABASEINFO_TOKENDATABASETYPE._serialized_start=2653
-  _FIRMWAREARTIFACTINFO_TOKENDATABASEINFO_TOKENDATABASETYPE._serialized_end=2701
-  _FIRMWAREARTIFACTINFO_TOKENDATABASEINFO_TOKENDATABASETYPE_TYPE._serialized_start=2674
-  _FIRMWAREARTIFACTINFO_TOKENDATABASEINFO_TOKENDATABASETYPE_TYPE._serialized_end=2701
-  _FIRMWAREARTIFACTINFO_OBJECTINFO._serialized_start=2704
-  _FIRMWAREARTIFACTINFO_OBJECTINFO._serialized_end=3058
-  _FIRMWARESERVICE._serialized_start=3061
-  _FIRMWARESERVICE._serialized_end=3411
+  _TESTALLFIRMWAREREQUEST._serialized_end=1322
+  _TESTALLFIRMWARERESPONSE._serialized_start=1324
+  _TESTALLFIRMWARERESPONSE._serialized_end=1398
+  _BUNDLEFIRMWAREARTIFACTSREQUEST._serialized_start=1401
+  _BUNDLEFIRMWAREARTIFACTSREQUEST._serialized_end=1655
+  _BUNDLEFIRMWAREARTIFACTSRESPONSE._serialized_start=1658
+  _BUNDLEFIRMWAREARTIFACTSRESPONSE._serialized_end=1799
+  _FIRMWAREARTIFACTINFO._serialized_start=1802
+  _FIRMWAREARTIFACTINFO._serialized_end=3114
+  _FIRMWAREARTIFACTINFO_TARBALLINFO._serialized_start=1947
+  _FIRMWAREARTIFACTINFO_TARBALLINFO._serialized_end=2431
+  _FIRMWAREARTIFACTINFO_TARBALLINFO_FIRMWARETYPE._serialized_start=2320
+  _FIRMWAREARTIFACTINFO_TARBALLINFO_FIRMWARETYPE._serialized_end=2390
+  _FIRMWAREARTIFACTINFO_TARBALLINFO_FIRMWARETYPE_TYPE._serialized_start=2336
+  _FIRMWAREARTIFACTINFO_TARBALLINFO_FIRMWARETYPE_TYPE._serialized_end=2390
+  _FIRMWAREARTIFACTINFO_TARBALLINFO_VERSION._serialized_start=2392
+  _FIRMWAREARTIFACTINFO_TARBALLINFO_VERSION._serialized_end=2431
+  _FIRMWAREARTIFACTINFO_LCOVTARBALLINFO._serialized_start=2434
+  _FIRMWAREARTIFACTINFO_LCOVTARBALLINFO._serialized_end=2574
+  _FIRMWAREARTIFACTINFO_LCOVTARBALLINFO_LCOVTYPE._serialized_start=2533
+  _FIRMWAREARTIFACTINFO_LCOVTARBALLINFO_LCOVTYPE._serialized_end=2574
+  _FIRMWAREARTIFACTINFO_LCOVTARBALLINFO_LCOVTYPE_TYPE._serialized_start=2545
+  _FIRMWAREARTIFACTINFO_LCOVTARBALLINFO_LCOVTYPE_TYPE._serialized_end=2574
+  _FIRMWAREARTIFACTINFO_COVERAGEHTMLINFO._serialized_start=2576
+  _FIRMWAREARTIFACTINFO_COVERAGEHTMLINFO._serialized_end=2594
+  _FIRMWAREARTIFACTINFO_TOKENDATABASEINFO._serialized_start=2597
+  _FIRMWAREARTIFACTINFO_TOKENDATABASEINFO._serialized_end=2757
+  _FIRMWAREARTIFACTINFO_TOKENDATABASEINFO_TOKENDATABASETYPE._serialized_start=2709
+  _FIRMWAREARTIFACTINFO_TOKENDATABASEINFO_TOKENDATABASETYPE._serialized_end=2757
+  _FIRMWAREARTIFACTINFO_TOKENDATABASEINFO_TOKENDATABASETYPE_TYPE._serialized_start=2730
+  _FIRMWAREARTIFACTINFO_TOKENDATABASEINFO_TOKENDATABASETYPE_TYPE._serialized_end=2757
+  _FIRMWAREARTIFACTINFO_OBJECTINFO._serialized_start=2760
+  _FIRMWAREARTIFACTINFO_OBJECTINFO._serialized_end=3114
+  _FIRMWARESERVICE._serialized_start=3117
+  _FIRMWARESERVICE._serialized_end=3467
 # @@protoc_insertion_point(module_scope)
