@@ -517,6 +517,11 @@ class Sysroot:
         return chipset
 
     @property
+    def chost(self) -> str:
+        """The CHOST value for the sysroot."""
+        return self.GetStandardField(STANDARD_FIELD_CHOST)
+
+    @property
     def portdir_overlay(self) -> List[str]:
         """The PORTDIR_OVERLAY field as a list.
 

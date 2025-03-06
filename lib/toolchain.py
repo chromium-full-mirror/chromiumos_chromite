@@ -16,19 +16,13 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
 from chromite.lib import portage_util
+from chromite.lib import sysroot_lib
 from chromite.lib import toolchain_list
 from chromite.utils import key_value_store
 
 
 if TYPE_CHECKING:
     from chromite.lib.parser import package_info
-
-if cros_build_lib.IsInsideChroot():
-    # Only import portage after we've checked that we're inside the chroot.
-    # Outside may not have portage, in which case the above may not happen.
-    # We'll check in main() if the operation needs portage.
-    # pylint: disable=import-error
-    import portage
 
 
 class Error(Exception):
@@ -63,7 +57,7 @@ class ToolchainInstallError(Error, cros_build_lib.RunCommandError):
 
 def GetHostTuple():
     """Returns compiler tuple for the host system."""
-    return portage.settings["CHOST"]
+    return sysroot_lib.Sysroot("/").chost
 
 
 # Tree interface functions. They help with retrieving data about the current
