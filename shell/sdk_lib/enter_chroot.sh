@@ -564,10 +564,6 @@ fi
 CHROOT_PASSTHRU=(
   "EXTERNAL_TRUNK_PATH=${FLAGS_trunk}"
 
-  # The default ~/.bash_profile in chroot will cd to $CHROOT_CWD instead of
-  # ~/chromiumos/src/script if that environment variable is set.
-  "CHROOT_CWD=${FLAGS_working_dir}"
-
   # We don't want to auto-update depot_tools inside of the SDK as we manage it.
   "DEPOT_TOOLS_UPDATE=0"
 
