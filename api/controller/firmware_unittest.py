@@ -36,6 +36,11 @@ class BuildAllFirmwareTestCase(
             firmware_location=fw_location,
             chroot={"path": chroot_path},
             code_coverage=code_coverage,
+            firmware_targets=[
+                firmware_pb2.FirmwareTarget(name="brya"),
+                firmware_pb2.FirmwareTarget(name="corsola"),
+                firmware_pb2.FirmwareTarget(name="nissa"),
+            ],
         )
         return proto
 
@@ -64,6 +69,7 @@ class BuildAllFirmwareTestCase(
                     "--metrics",
                     mock.ANY,
                     "--code-coverage",
+                    "--firmware-targets=brya,corsola,nissa",
                     "build",
                 ],
                 check=False,
