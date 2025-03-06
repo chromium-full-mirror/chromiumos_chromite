@@ -38,8 +38,6 @@ DEFINE_string working_dir "${CHROOT_TRUNK_DIR}/src/scripts" \
 chroot, must start with '/' if set."
 
 DEFINE_boolean verbose "${FLAGS_FALSE}" "Print out actions taken"
-DEFINE_boolean pivot_root "${FLAGS_TRUE}" \
-  "Use pivot_root to change the root file system."
 
 # More useful help
 FLAGS_HELP="USAGE: $0 [flags] [VAR=value] [-- command [arg1] [arg2] ...]
@@ -677,26 +675,16 @@ fi
 
 cmd+=( "${env_vars[@]}" "$@" )
 
-sdk_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
+# See pivot_root(8) man page for the safe usage of pivot_root.
+# See also pivot_root(".", ".") section of pivot_roo(2) man page.
+cd "${FLAGS_chroot}" || exit 1
+pivot_root . .
+# After pivot_root, we're running inside the CrOS sdk.  Reset PATH to match
+# so we don't rely on the host distro's PATH bleeding in and requiring it be
+# compatible. Once PATH has changed, force bash to clear its lookup cache
+# just in case a program later is installed differently.
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
+hash -r
+umount -l .
 
-if [[ "${FLAGS_pivot_root}" -eq "${FLAGS_TRUE}" ]]; then
-  # See pivot_root(8) man page for the safe usage of pivot_root.
-  # See also pivot_root(".", ".") section of pivot_roo(2) man page.
-  cd "${FLAGS_chroot}" || exit 1
-  pivot_root . .
-  # After pivot_root, we're running inside the CrOS sdk.  Reset PATH to match
-  # so we don't rely on the host distro's PATH bleeding in and requiring it be
-  # compatible. Once PATH has changed, force bash to clear its lookup cache
-  # just in case a program later is installed differently.
-  PATH="${sdk_path}"
-  hash -r
-  umount -l .
-  chroot="."
-else
-  chroot=${FLAGS_chroot}
-  # Hardcode the path to `env` and have it set PATH to the proper SDK value.
-  # See b:313668679 for the early_enter_chroot failure.
-  cmd=( /usr/bin/env PATH="${sdk_path}" "${cmd[@]}" )
-fi
-
-exec chroot "${chroot}" "${cmd[@]}"
+exec chroot . "${cmd[@]}"
