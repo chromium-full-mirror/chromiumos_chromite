@@ -1701,11 +1701,11 @@ class Upgrader:
                     % self._upstream
                 )
 
-        # TODO(b/242758296) Remove this when ChromeOS supports EAPI 8.
-        self._DowngradeEAPI()
-
         # An empty directory is needed to trick equery later.
         self._emptydir = tempfile.mkdtemp()
+
+        # TODO(b/242758296) Remove this when ChromeOS supports EAPI 8.
+        self._DowngradeEAPI()
 
     def RunCompleted(self) -> None:
         """Undo any checkout of upstream gentoo if requested."""
