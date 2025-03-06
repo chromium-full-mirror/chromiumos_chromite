@@ -1003,6 +1003,8 @@ class ChrootCreator:
         # tree. Skip reestablishing.
         if not home_path.exists():
             self.init_user_home(home_path, uid, gid)
+        else:
+            self.upgrade_user_home(home_path, uid, gid)
 
     def init_group(
         self,
@@ -1071,6 +1073,21 @@ class ChrootCreator:
         (home / "chromiumos").symlink_to(constants.CHROOT_SOURCE_ROOT)
 
         osutils.Chown(home, uid, group=gid, recursive=True)
+
+    def upgrade_user_home(self, home: Path, uid: int, gid: int) -> None:
+        """Apply any live updates to the user's /home dir."""
+        del uid, gid  # Unused.
+        # Rip out CHROOT_CWD support.
+        bash_profile = home / ".bash_profile"
+        if bash_profile.exists():
+            old_contents = bash_profile.read_text(encoding="utf-8")
+            new_contents = "\n".join(
+                x
+                for x in old_contents.split("\n")
+                if x != 'cd "${CHROOT_CWD:-${HOME}/chromiumos/src/scripts}"'
+            )
+            if old_contents != new_contents:
+                bash_profile.write_text(new_contents, encoding="utf-8")
 
     def init_etc(self, user: Optional[str] = None) -> None:
         """Setup the /etc paths."""
