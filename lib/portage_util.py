@@ -39,7 +39,6 @@ from chromite.lib import cros_build_lib
 from chromite.lib import failures_lib
 from chromite.lib import git
 from chromite.lib import osutils
-from chromite.lib import parallel
 from chromite.lib import path_util
 from chromite.lib.parser import package_info
 from chromite.utils import key_value_store
@@ -2839,6 +2838,10 @@ def PackagesWithTest(
     Returns:
         The subset of |packages| that defines unit tests.
     """
+    # Imported here to avoid a fairly expensive transitive import tree on every
+    # script initialization.
+    from chromite.lib import parallel
+
     inputs = [(cp, sysroot, require_workon) for cp in packages]
     pkg_with_test = set(parallel.RunTasksInProcessPool(_CheckHasTest, inputs))
 
