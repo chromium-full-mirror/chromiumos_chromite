@@ -610,7 +610,6 @@ else
 fi
 
 CHROOT_PASSTHRU=(
-  "CHROMEOS_RELEASE_APPID=${CHROMEOS_RELEASE_APPID:-{DEV-BUILD}}"
   "EXTERNAL_TRUNK_PATH=${FLAGS_trunk}"
 
   # The default ~/.bash_profile in chroot will cd to $CHROOT_CWD instead of
