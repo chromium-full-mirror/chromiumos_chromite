@@ -198,7 +198,7 @@ class ChromeLKGMCommitter:
             "chromeos-brya-chrome",
             "chromeos-jacuzzi-chrome",
             "chromeos-reven-chrome",
-            "chromeos-volteer-chrome-skylab",
+            "chromeos-volteer-chrome",
         ),
         "luci.chromium.try": (
             "chromeos-octopus-rel",
