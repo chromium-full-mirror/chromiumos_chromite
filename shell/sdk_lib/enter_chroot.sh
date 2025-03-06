@@ -591,11 +591,13 @@ fi
 # Run command or interactive shell.  Also include the non-chrooted path to
 # the source trunk for scripts that may need to print it (e.g.
 # build_image.sh).
+# TODO(b/307703861): Drop -i here.
+cmd=( sudo -u "${SUDO_USER}" --chdir="${FLAGS_working_dir}" -i )
 
 # Split the command into environment variables and the command to run.
-env_vars=( "${CHROOT_PASSTHRU[@]}" )
+cmd+=( "${CHROOT_PASSTHRU[@]}" )
 while [[ "$1" == *=* ]]; do
-  env_vars+=("$1")
+  cmd+=( "$1" )
   shift
 done
 
@@ -604,11 +606,7 @@ if [[ "$1" == "--" ]]; then
 fi
 
 # $@ should now be the command to run without environment variables.
-
-# TODO(b/307703861): Drop -i here.
-cmd=( sudo -u "${SUDO_USER}" --chdir="${FLAGS_working_dir}" -i )
-
-cmd+=( "${env_vars[@]}" "$@" )
+cmd+=( "$@" )
 
 # See pivot_root(8) man page for the safe usage of pivot_root.
 # See also pivot_root(".", ".") section of pivot_roo(2) man page.
