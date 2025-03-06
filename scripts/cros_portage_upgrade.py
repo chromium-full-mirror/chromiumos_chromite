@@ -13,8 +13,6 @@ import subprocess
 import tempfile
 from typing import Any, Dict, Optional
 
-import portage  # pylint: disable=import-error
-
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -318,6 +316,9 @@ class Upgrader:
         """Returns standard cmp result between |cpv1| and |cpv2|.
 
         If one cpv is None then the other is greater.
+
+        Returns:
+            0 = current, >0 = outdated, <0 = futuristic!
         """
         if cpv1 is None and cpv2 is None:
             return 0
@@ -325,9 +326,13 @@ class Upgrader:
             return -1
         if cpv2 is None:
             return 1
-        return portage.versions.pkgcmp(
-            portage.versions.pkgsplit(cpv1), portage.versions.pkgsplit(cpv2)
-        )
+        pkg_info1 = package_info.parse(cpv1)
+        pkg_info2 = package_info.parse(cpv2)
+        if pkg_info1.atom != pkg_info2.atom:
+            return None
+        if pkg_info1 == pkg_info2:
+            return 0
+        return -1 if pkg_info1 < pkg_info2 else 1
 
     @staticmethod
     def _GetCatPkgFromCpv(cpv):
