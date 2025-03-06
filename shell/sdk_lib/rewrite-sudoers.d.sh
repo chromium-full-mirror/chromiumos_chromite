@@ -5,32 +5,6 @@
 
 set -e
 
-: "${REAL_SCRIPT:=$(readlink -f -- "$0")}"
-: "${SCRIPT_LOCATION:=$(dirname "${REAL_SCRIPT}")}"
-
-cd "${SCRIPT_LOCATION}" || exit 1
-
-# Some chroot upgrade hooks symlink & run us as non-root.
-if [[ $# -eq 0 ]]; then
-  # shellcheck source=../common.sh
-  . "../common.sh" || exit 1
-
-  assert_inside_chroot
-  load_environment_whitelist
-
-  set -- / "${USER}" "${ENVIRONMENT_WHITELIST[@]}"
-  echo "Rewriting with env list ${*:3}"
-
-  if [[ "${UID:-$(id -u)}" != 0 ]]; then
-    # Note that since we're screwing w/ sudo variables, this script
-    # explicitly bounces up to root for everything it does- that way
-    # if anyone introduces a temp depriving in the sudo setup, it can't break
-    # mid upgrade.
-
-    exec sudo bash "${REAL_SCRIPT}" "$@"
-  fi
-fi
-
 # Reaching here means we have access to the path.
 
 root=$1
