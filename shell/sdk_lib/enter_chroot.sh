@@ -613,15 +613,8 @@ fi
 
 # $@ should now be the command to run without environment variables.
 
-if [ ! -x "${FLAGS_chroot}/usr/bin/sudo" ]; then
-  # Complain that sudo is missing.
-  error "Failing since the chroot lacks sudo."
-  error "Requested enter_chroot command was: $*"
-  exit 127
-else
-  # TODO(b/307703861): Drop -i here.
-  cmd=( sudo -u "${SUDO_USER}" --chdir="${FLAGS_working_dir}" -i )
-fi
+# TODO(b/307703861): Drop -i here.
+cmd=( sudo -u "${SUDO_USER}" --chdir="${FLAGS_working_dir}" -i )
 
 cmd+=( "${env_vars[@]}" "$@" )
 
