@@ -1070,15 +1070,6 @@ class ChrootCreator:
 
         (home / "chromiumos").symlink_to(constants.CHROOT_SOURCE_ROOT)
 
-        bash_profile = home / ".bash_profile"
-        osutils.Touch(bash_profile)
-        data = bash_profile.read_text(encoding="utf-8").rstrip()
-        if data:
-            data += "\n\n"
-        # Automatically change to scripts directory.
-        data += 'cd "${CHROOT_CWD:-${HOME}/chromiumos/src/scripts}"\n\n'
-        bash_profile.write_text(data, encoding="utf-8")
-
         osutils.Chown(home, uid, group=gid, recursive=True)
 
     def init_etc(self, user: Optional[str] = None) -> None:
