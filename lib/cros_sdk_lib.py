@@ -1317,7 +1317,14 @@ class ChrootEnteror:
         if cmd:
             wrapper += ["--"] + cmd
 
-        return cros_build_lib.dbg_run(wrapper, check=False)
+        env = os.environ.copy()
+        # Clear locale related variables since C.UTF-8 is used in the chroot.
+        env.pop("LANGUAGE", None)
+        for v in list(env):
+            if v.startswith("LC_"):
+                env.pop(v, None)
+
+        return cros_build_lib.dbg_run(wrapper, check=False, env=env)
 
     @classmethod
     def get_rlimits(cls) -> str:

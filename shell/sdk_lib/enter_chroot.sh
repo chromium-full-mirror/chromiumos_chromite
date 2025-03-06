@@ -548,10 +548,6 @@ setup_env() {
       chown -R "${SUDO_UID}:${SUDO_GID}" "${gsutil_dir}"
     fi
   ) 200>>"${LOCKFILE}" || die "setup_env failed"
-
-  # shellcheck disable=SC2086
-  # Clear locale related variables, since C.UTF-8 will be used in the chroot.
-  unset -v LANGUAGE ${!LC_*}
 }
 
 # We might have a read-only chroot mount, to help enforce state separation in
