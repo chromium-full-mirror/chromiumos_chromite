@@ -566,6 +566,7 @@ def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
         ("build", "build", None),
         ("sdk/bin", "usr/local/bin", None),
         ("sdk/cache", "var/cache", None),
+        # We shouldn't need access to any /run state, so don't mount it.
         ("sdk/run", "run", None),
         ("sdk/logs", "var/log", None),
         ("sdk/tmp", "var/tmp", 0o1777),
@@ -582,6 +583,17 @@ def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
             None,
             osutils.MS_BIND | osutils.MS_REC,
         )
+
+    for source_dir, mode, sudo in (
+        ("sdk/run/lock", 0o1777, True),
+        # Some distros (e.g. Ubuntu) might have /dev/shm symlinked to /run/shm.
+        ("sdk/run/shm", 0o1777, True),
+    ):
+        kwargs = {}
+        if mode is not None:
+            kwargs["mode"] = mode
+
+        osutils.SafeMakedirs(out_dir / source_dir, sudo=sudo, **kwargs)
 
     # Bind mount a few /etc files, so sysroots can add their own users/groups.
     for src, dst in (

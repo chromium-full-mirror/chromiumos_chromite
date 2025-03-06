@@ -332,20 +332,6 @@ setup_env() {
     debug "Mounting chroot environment."
     mapfile -t MOUNT_CACHE < <(awk '{print $2}' /proc/mounts)
 
-    # We shouldn't need access to any /run state, so don't mount it.  Some
-    # distros (e.g. Ubuntu) might have /dev/shm symlinked to /run/shm.
-    local run_shm="${FLAGS_chroot}/run/shm"
-    if [[ ! -d "${run_shm}" ]]; then
-      mkdir -p "${run_shm}"
-      chmod 1777 "${run_shm}"
-    fi
-
-    local run_lock="${FLAGS_chroot}/run/lock"
-    if [[ ! -d "${run_lock}" ]]; then
-      mkdir -p "${run_lock}"
-      chmod 1777 "${run_lock}"
-    fi
-
     debug "Setting up referenced repositories if required."
     REFERENCE_DIR=$(git_config_path --file  \
       "${FLAGS_trunk}/.repo/manifests.git/config" \
