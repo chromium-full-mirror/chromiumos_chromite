@@ -608,6 +608,21 @@ def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
                 shutil.copy2(path / dst, out_dir / src)
         osutils.Mount(out_dir / src, path / dst, None, osutils.MS_BIND)
 
+    # Bind mount some read-only paths.
+    for src, dst in (
+        # Refresh network configs in the chroot.
+        ("/etc/resolv.conf", "etc/resolv.conf"),
+        ("/etc/hosts", "etc/hosts"),
+    ):
+        dst = path / dst
+        osutils.Mount(src, dst, None, osutils.MS_BIND)
+        osutils.Mount(
+            None,
+            dst,
+            None,
+            osutils.MS_REMOUNT | osutils.MS_BIND | osutils.MS_RDONLY,
+        )
+
     defflags = (
         osutils.MS_NOSUID
         | osutils.MS_NODEV
