@@ -8,3 +8,6 @@ Defaults env_keep += "%%CROS_ENV_KEEP%%"
 # supplementary groups.  We don't set any passwords, so disable asking.
 # https://crbug.com/762445
 Defaults verifypw = any
+
+# Enable the --chdir option.
+Defaults runcwd = *
