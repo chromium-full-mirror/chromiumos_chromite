@@ -180,6 +180,222 @@ class CreatePreMPKeysTest(
         )
 
 
+class CreateAccessoryKeysTest(
+    cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
+):
+    """Create image tests."""
+
+    def setUp(self) -> None:
+        self.response = signing_pb2.CreateAccessoryKeyResponse()
+        self.docker_image = (
+            "us-docker.pkg.dev/chromeos-release-bot/signing/signing:123"
+        )
+
+        os.environ["LUCI_CONTEXT"] = "/tmp/foo/bar/luci_context.1234"
+        os.environ["GCE_METADATA_HOST"] = "127.0.0.1:12345"
+        os.environ["GCE_METADATA_IP"] = "127.0.0.1:12345"
+        os.environ["GCE_METADATA_ROOT"] = "127.0.0.1:12345"
+
+    def _GetRequest(
+        self,
+        board=None,
+        accessory=None,
+        version=None,
+        dry_run=False,
+        is_pre_mp=False,
+        is_staging=False,
+    ):
+        """Helper to build a request instance."""
+        return signing_pb2.CreateAccessoryKeyRequest(
+            docker_image="signing:latest",
+            release_keys_checkout=str(self.tempdir),
+            build_target={"name": board},
+            accessory=accessory,
+            version=version,
+            dry_run=dry_run,
+            is_pre_mp=is_pre_mp,
+            is_staging=is_staging,
+        )
+
+    def testDockerCalledForPreMpKey(self) -> None:
+        """Verify docker is called with correct arguments for PreMP key."""
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(
+            board="board", accessory="accessory", is_pre_mp=True
+        )
+        signing_controller.CreateAccessoryKeys(
+            request, self.response, self.api_config
+        )
+
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "--network",
+                "host",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-e",
+                "LUCI_CONTEXT=/tmp/luci/luci_context.1234",
+                "-e",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{self.tempdir}:/keys",
+                "--entrypoint",
+                "./generate_accessory_keys.py",
+                "signing:latest",
+                "-b",
+                "board",
+                "-a",
+                "accessory",
+                "--pre-mp",
+            ]
+        )
+
+    def testDockerCalledForMpKeyWithoutVersion(self) -> None:
+        """Verify docker is called with correct arguments for MP key."""
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(board="board", accessory="accessory")
+        signing_controller.CreateAccessoryKeys(
+            request, self.response, self.api_config
+        )
+
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "--network",
+                "host",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-e",
+                "LUCI_CONTEXT=/tmp/luci/luci_context.1234",
+                "-e",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{self.tempdir}:/keys",
+                "--entrypoint",
+                "./generate_accessory_keys.py",
+                "signing:latest",
+                "-b",
+                "board",
+                "-a",
+                "accessory",
+            ]
+        )
+
+    def testDockerCalledForMpKeyWithVersion(self) -> None:
+        """Verify correct arguments for MP key with a version."""
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(
+            board="board", accessory="accessory", version=3
+        )
+        signing_controller.CreateAccessoryKeys(
+            request, self.response, self.api_config
+        )
+
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "--network",
+                "host",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-e",
+                "LUCI_CONTEXT=/tmp/luci/luci_context.1234",
+                "-e",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{self.tempdir}:/keys",
+                "--entrypoint",
+                "./generate_accessory_keys.py",
+                "signing:latest",
+                "-b",
+                "board",
+                "-a",
+                "accessory",
+                "-kv",
+                "3",
+            ]
+        )
+
+    def testDryRun(self) -> None:
+        """Verify that dryrun mode passes --dev to the entrypoint."""
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(
+            board="board",
+            accessory="accessory",
+            dry_run=True,
+        )
+        signing_controller.CreateAccessoryKeys(
+            request, self.response, self.api_config
+        )
+
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "--network",
+                "host",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-e",
+                "LUCI_CONTEXT=/tmp/luci/luci_context.1234",
+                "-e",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{self.tempdir}:/keys",
+                "--entrypoint",
+                "./generate_accessory_keys.py",
+                "signing:latest",
+                "-b",
+                "board",
+                "-a",
+                "accessory",
+                "--dry-run",
+            ]
+        )
+
+    def testValidateOnly(self) -> None:
+        """Verify a validate-only call does not execute any logic."""
+        patch = self.PatchObject(image_service, "CallDocker")
+
+        request = self._GetRequest(board="board", accessory="accessory")
+        signing_controller.CreateAccessoryKeys(
+            request, self.response, self.validate_only_config
+        )
+        patch.assert_not_called()
+
+
 class SignTi50PaosTest(
     cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
 ):

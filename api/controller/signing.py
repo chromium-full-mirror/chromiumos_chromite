@@ -38,6 +38,44 @@ def CreatePreMPKeys(request, _response, _config) -> None:
 
 
 @faux.all_empty
+@validate.require("docker_image")
+@validate.require("build_target.name")
+@validate.require("accessory")
+@validate.exists("release_keys_checkout")
+@validate.validation_complete
+def CreateAccessoryKeys(request, _response, _config) -> None:
+    """Generate Accessory keys for the specified build target."""
+    entrypoint_args = [
+        "-b",
+        request.build_target.name,
+        "-a",
+        request.accessory,
+    ]
+
+    if request.is_pre_mp:
+        entrypoint_args.append("--pre-mp")
+    if request.version:
+        entrypoint_args.extend(["-kv", str(request.version)])
+    if request.dry_run:
+        entrypoint_args.append("--dry-run")
+    if request.is_staging:
+        entrypoint_args.append("--dev")
+    entrypoint_script = "./generate_accessory_keys.py"
+
+    image.CallDocker(
+        request.docker_image,
+        docker_args=[
+            # Mount the keyset checkout as a volume.
+            "-v",
+            f"{request.release_keys_checkout}:/keys",
+            "--entrypoint",
+            entrypoint_script,
+        ],
+        entrypoint_args=entrypoint_args,
+    )
+
+
+@faux.all_empty
 @validate.require("project")
 @validate.require("location")
 @validate.require("keyring")
