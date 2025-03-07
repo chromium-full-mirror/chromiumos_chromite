@@ -448,13 +448,6 @@ setup_env() {
       fi
     fi
 
-    # Bind mount the host kernel modules read-only so modprobe can be used
-    # inside the chroot for things like usbip-host.
-    local modules_dir="/lib/modules"
-    if [ -d "${modules_dir}" ]; then
-      setup_mount "${modules_dir}" "${modules_dir}" --bind -o ro
-    fi
-
     # Set up ccache tree. If this is a fresh or wiped chroot, then things might
     # not be set up yet.
     ccache_dir="${FLAGS_chroot}/var/cache/distfiles/ccache"

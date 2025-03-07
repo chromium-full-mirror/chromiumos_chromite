@@ -176,6 +176,8 @@ class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
         osutils.SafeMakedirsNonRoot(self.chroot.path)
         osutils.SafeMakedirsNonRoot(self.chroot.out_path)
 
+        osutils.SafeMakedirs(chroot_path / "lib" / "modules")
+
         osutils.WriteFile(
             chroot_path / "etc" / "passwd", "passwd contents", makedirs=True
         )
@@ -583,6 +585,7 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
                         D("skel", (D(".ssh", ("foo",)),)),
                     ),
                 ),
+                D("lib", (D("modules", ()),)),
                 D(
                     "var",
                     (

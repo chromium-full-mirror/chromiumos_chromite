@@ -638,6 +638,21 @@ def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
             osutils.MS_REMOUNT | osutils.MS_BIND | osutils.MS_RDONLY,
         )
 
+    # Bind mount the host kernel modules read-only so modprobe can be used
+    # inside the chroot for things like usbip-host.
+    subpath = "lib/modules"
+    src = Path("/") / subpath
+    dst = path / subpath
+    if src.is_dir():
+        dst.mkdir(exist_ok=True)
+        osutils.Mount(src, dst, None, osutils.MS_BIND)
+        osutils.Mount(
+            None,
+            dst,
+            None,
+            osutils.MS_REMOUNT | osutils.MS_BIND | osutils.MS_RDONLY,
+        )
+
     # Setup ~/.
     external_home = os_util.non_root_home()
     internal_home = path / "home" / os_util.get_non_root_user()
