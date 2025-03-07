@@ -169,7 +169,10 @@ class TestMountChrootPaths(cros_test_lib.MockTempDirTestCase):
 
         chroot_path = self.tempdir / "chroot"
         out_path = self.tempdir / "out"
-        self.chroot = chroot_lib.Chroot(path=chroot_path, out_path=out_path)
+        cache_dir = self.tempdir / "cache"
+        self.chroot = chroot_lib.Chroot(
+            path=chroot_path, out_path=out_path, cache_dir=cache_dir
+        )
         osutils.SafeMakedirsNonRoot(self.chroot.path)
         osutils.SafeMakedirsNonRoot(self.chroot.out_path)
 

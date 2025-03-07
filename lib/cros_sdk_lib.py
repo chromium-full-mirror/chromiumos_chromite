@@ -518,6 +518,7 @@ def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
 
     path = Path(chroot.path).resolve()
     out_dir = chroot.out_path
+    cache_dir = Path(chroot.cache_dir)
 
     logging.debug("Mounting chroot paths at %s", path)
 
@@ -566,6 +567,7 @@ def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
         ("build", "build", None),
         ("sdk/bin", "usr/local/bin", None),
         ("sdk/cache", "var/cache", None),
+        (cache_dir, "var/cache/chromeos-cache", None),
         # We shouldn't need access to any /run state, so don't mount it.
         ("sdk/run", "run", None),
         ("sdk/logs", "var/log", None),

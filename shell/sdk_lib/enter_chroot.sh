@@ -28,7 +28,6 @@ DEFINE_string chrome_root "" \
   "The root of your chrome browser source. Should contain a 'src' subdir."
 DEFINE_string chrome_root_mount "/home/${SUDO_USER}/chrome_root" \
   "The mount point of the chrome broswer source in the chroot."
-DEFINE_string cache_dir "" "Directory to use for caching."
 # shellcheck disable=SC2154 # Mostly here for plumbing. Not used.
 DEFINE_string working_dir "${CHROOT_TRUNK_DIR}/src/scripts" \
   "The working directory relative to ${CHROOT_TRUNK_DIR} for the command in \
@@ -66,9 +65,6 @@ debug() {
 # Parse command line flags
 FLAGS "$@" || exit 1
 eval set -- "${FLAGS_ARGV}"
-
-[ -z "${FLAGS_cache_dir}" ] && \
-  die "--cache_dir is required"
 
 # Only now can we die on error.  shflags functions leak non-zero error codes,
 # so will die prematurely if 'switch_to_strict_mode' is specified before now.
@@ -375,11 +371,6 @@ setup_env() {
     fi
     unset REFERENCE_DIR
 
-    chroot_cache='/var/cache/chromeos-cache'
-    debug "Setting up shared cache dir directory."
-    user_mkdir "${FLAGS_cache_dir}"/distfiles
-    user_mkdir "${FLAGS_chroot}/${chroot_cache}"
-    setup_mount "${FLAGS_cache_dir}" "${chroot_cache}"
     # Create /var/log/asan directory (b/222311476).
     user_mkdir "${FLAGS_chroot}/var/log/asan"
 
