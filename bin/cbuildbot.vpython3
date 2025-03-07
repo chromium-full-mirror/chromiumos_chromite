@@ -11,8 +11,24 @@ python_version: "3.8"
 
 # chromite deps
 wheel: <
+  name: "infra/python/wheels/cachetools-py3"
+  version: "version:4.2.1"
+>
+wheel: <
+  name: "infra/python/wheels/certifi-py2_py3"
+  version: "version:2018.11.29"
+>
+wheel: <
+  name: "infra/python/wheels/chardet-py2_py3"
+  version: "version:3.0.4"
+>
+wheel: <
   name: "infra/python/wheels/funcsigs-py2_py3"
   version: "version:1.0.2"
+>
+wheel: <
+  name: "infra/python/wheels/future-py2_py3"
+  version: "version:0.16.0"
 >
 wheel: <
   name: "infra/python/wheels/gax-google-logging-v2-py2_py3"
@@ -36,15 +52,19 @@ wheel: <
 >
 wheel: <
   name: "infra/python/wheels/google-api-core-py2_py3"
-  version: "version:1.19.0"
+  version: "version:1.25.1"
 >
 wheel: <
   name: "infra/python/wheels/google-auth-py2_py3"
-  version: "version:1.14.0"
+  version: "version:1.25.0"
 >
 wheel: <
   name: "infra/python/wheels/google-gax-py2_py3"
   version: "version:0.12.5"
+>
+wheel: <
+  name: "infra/python/wheels/google-cloud-core-py2_py3"
+  version: "version:1.5.0"
 >
 wheel: <
   name: "infra/python/wheels/google-cloud-logging-py2_py3"
@@ -63,8 +83,16 @@ wheel: <
   version: "version:0.8.1"
 >
 wheel: <
+  name: "infra/python/wheels/grpcio/${vpython_platform}"
+  version: "version:1.44.0"
+>
+wheel: <
   name: "infra/python/wheels/httplib2-py2_py3"
   version: "version:0.13.1"
+>
+wheel: <
+  name: "infra/python/wheels/idna-py2_py3"
+  version: "version:2.5"
 >
 wheel: <
   name: "infra/python/wheels/inotify_simple-py2_py3"
@@ -111,6 +139,10 @@ wheel: <
   version: "version:0.2.1"
 >
 wheel: <
+  name: "infra/python/wheels/pytz-py2_py3"
+  version: "version:2024.1"
+>
+wheel: <
   name: "infra/python/wheels/pyparsing-py2_py3"
   version: "version:2.1.8"
 >
@@ -123,8 +155,16 @@ wheel: <
   version: "version:3.12.cbuildbot"
 >
 wheel: <
+  name: "infra/python/wheels/requests-py2_py3"
+  version: "version:2.25.1"
+>
+wheel: <
   name: "infra/python/wheels/rsa-py2_py3"
   version: "version:3.4.2"
+>
+wheel: <
+  name: "infra/python/wheels/setuptools-py2_py3"
+  version: "version:44.1.0"
 >
 wheel: <
   name: "infra/python/wheels/six-py2_py3"
@@ -137,4 +177,8 @@ wheel: <
 wheel: <
   name: "infra/python/wheels/sqlalchemy/${vpython_platform}"
   version: "version:1.0.15"
+>
+wheel: <
+  name: "infra/python/wheels/urllib3-py2_py3"
+  version: "version:1.22"
 >
