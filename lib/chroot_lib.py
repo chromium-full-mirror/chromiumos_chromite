@@ -290,7 +290,7 @@ class Chroot:
         # argument is valid, but it's nice for cleaning up commands in logs.
         if not self._is_default_path:
             args.extend(["--chroot", self.path])
-        if not self._is_default_out_path:
+        if not for_shell and not self._is_default_out_path:
             args.extend([f"--out{sep}dir", str(self.out_path)])
         if self.cache_dir:
             args.extend([f"--cache{sep}dir", self.cache_dir])

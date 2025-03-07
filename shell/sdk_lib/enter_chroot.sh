@@ -21,9 +21,6 @@ assert_root_user
 # shellcheck disable=SC2154 # Is used under FLAGS_<name>
 DEFINE_string chroot "${DEFAULT_CHROOT_DIR}" \
   "The destination dir for the chroot environment." "d"
-# shellcheck disable=SC2034,SC2154 # Mostly here for plumbing. Not used.
-DEFINE_string out_dir "${DEFAULT_OUT_DIR}" \
-  "The destination dir for build output and state."
 # shellcheck disable=SC2154 # Mostly here for plumbing. Not used.
 DEFINE_string trunk "${GCLIENT_ROOT}" \
   "The source trunk to bind mount within the chroot." "s"
