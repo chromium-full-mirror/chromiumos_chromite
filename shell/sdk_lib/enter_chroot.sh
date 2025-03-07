@@ -394,15 +394,6 @@ setup_env() {
       fi
     fi
 
-    # Create ~/.config explicitly so that setup_mount doesn't create it as root
-    user_mkdir "${FLAGS_chroot}/home/${SUDO_USER}/.config"
-    for x in chromite chrome_infra; do
-      if [[ -d "${SUDO_HOME}/.config/${x}" ]]; then
-        setup_mount "${SUDO_HOME}/.config/${x}" \
-          "/home/${SUDO_USER}/.config/${x}"
-      fi
-    done
-
     # Mount additional directories as specified in .local_mounts file.
     local local_mounts="${FLAGS_trunk}/src/scripts/.local_mounts"
     if [[ -f "${local_mounts}" ]]; then
