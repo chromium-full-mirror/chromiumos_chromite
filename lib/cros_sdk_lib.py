@@ -38,6 +38,7 @@ from chromite.lib import sysroot_lib
 from chromite.lib import timeout_util
 from chromite.utils import gs_urls_util
 from chromite.utils import key_value_store
+from chromite.utils import os_util
 
 
 # Version file location inside chroot.
@@ -636,6 +637,17 @@ def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
             None,
             osutils.MS_REMOUNT | osutils.MS_BIND | osutils.MS_RDONLY,
         )
+
+    # Setup ~/.
+    external_home = os_util.non_root_home()
+    internal_home = path / "home" / os_util.get_non_root_user()
+    for subpath in (".cidb_creds",):
+        src = external_home / subpath
+        if not src.exists():
+            continue
+        dst = internal_home / subpath
+        osutils.SafeMakedirsNonRoot(dst)
+        osutils.Mount(src, dst, None, osutils.MS_BIND)
 
     defflags = (
         osutils.MS_NOSUID
