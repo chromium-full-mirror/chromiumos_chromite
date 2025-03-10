@@ -671,7 +671,10 @@ def GetFileSystemDebug(path: str, run_ps: bool = True) -> FileSystemDebugInfo:
 
 
 # Raise an exception if cleanup takes more than 10 minutes.
-@timeout_util.TimeoutDecorator(600)
+# b/401510179: the out dir for Ti50 sometimes takes very long to remove on
+# builders. Raise the timeout to 1hr because builders are rarely reused, and
+# INFRA_FAILing a build due to hitting this timeout costs bot & SWE time.
+@timeout_util.TimeoutDecorator(3600)
 def CleanupChroot(
     chroot: chroot_lib.Chroot,
     delete_out: bool = True,
