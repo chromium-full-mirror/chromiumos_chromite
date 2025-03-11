@@ -28,29 +28,8 @@ DEFINE_string chrome_root "" \
   "The root of your chrome browser source. Should contain a 'src' subdir."
 DEFINE_string chrome_root_mount "/home/${SUDO_USER}/chrome_root" \
   "The mount point of the chrome broswer source in the chroot."
-# shellcheck disable=SC2154 # Mostly here for plumbing. Not used.
-DEFINE_string working_dir "${CHROOT_TRUNK_DIR}/src/scripts" \
-  "The working directory relative to ${CHROOT_TRUNK_DIR} for the command in \
-chroot, must start with '/' if set."
-
 DEFINE_boolean verbose "${FLAGS_FALSE}" "Print out actions taken"
 
-# More useful help
-FLAGS_HELP="USAGE: $0 [flags] [VAR=value] [-- command [arg1] [arg2] ...]
-
-One or more VAR=value pairs can be specified to export variables into
-the chroot environment.  For example:
-
-   $0 FOO=bar BAZ=bel
-
-If [-- command] is present, runs the command inside the chroot,
-after changing directory to /${SUDO_USER}/chromiumos/src/scripts.  Note that
-neither the command nor args should include single quotes.  For example:
-
-    $0 -- ./build_platform_packages.sh
-
-Otherwise, provides an interactive shell.
-"
 # shellcheck disable=SC2034
 CROS_LOG_PREFIX=cros_sdk:enter_chroot
 SUDO_HOME=$(eval echo "~${SUDO_USER}")
@@ -508,38 +487,4 @@ else
   setup_env
 fi
 
-# Needs to be set here because setup_env runs in a subshell.
-[ -S "${FLAGS_chroot}/tmp/ssh-auth-sock" ] && SSH_AUTH_SOCK=/tmp/ssh-auth-sock
-
-# Run command or interactive shell.  Also include the non-chrooted path to
-# the source trunk for scripts that may need to print it (e.g.
-# build_image.sh).
-# TODO(b/307703861): Drop -i here.
-cmd=( /usr/bin/sudo -u "${SUDO_USER}" --chdir="${FLAGS_working_dir}" -i )
-
-# Split the command into environment variables and the command to run.
-while [[ "$1" == *=* ]]; do
-  cmd+=( "$1" )
-  shift
-done
-
-if [[ "$1" == "--" ]]; then
-  shift
-fi
-
-# $@ should now be the command to run without environment variables.
-cmd+=( "$@" )
-
-# See pivot_root(8) man page for the safe usage of pivot_root.
-# See also pivot_root(".", ".") section of pivot_roo(2) man page.
-cd "${FLAGS_chroot}" || exit 1
-pivot_root . .
-# After pivot_root, we're running inside the CrOS sdk.  Reset PATH to match
-# so we don't rely on the host distro's PATH bleeding in and requiring it be
-# compatible. Once PATH has changed, force bash to clear its lookup cache
-# just in case a program later is installed differently.
-PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
-hash -r
-umount -l .
-
-exec chroot . "${cmd[@]}"
+exit 0

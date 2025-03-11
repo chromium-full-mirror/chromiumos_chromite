@@ -1387,15 +1387,30 @@ class ChrootEnteror:
         if cmd is None:
             cmd = self.cmd
         if cwd is None:
-            cwd = self.cwd
+            cwd = self.cwd or constants.CHROOT_SOURCE_ROOT / "src" / "scripts"
 
         wrapper = [self.ENTER_CHROOT] + self.chroot.get_enter_args(
             for_shell=True
         )
         if self.chrome_root_mount:
             wrapper += ["--chrome_root_mount", str(self.chrome_root_mount)]
-        if cwd:
-            wrapper += ["--working_dir", str(cwd)]
+
+        # This sets up the chroot environment (e.g. /home).
+        result = cros_build_lib.dbg_run(wrapper, check=False)
+        if result.returncode:
+            return result
+
+        # Run command or interactive shell.  Also include the non-chrooted path
+        # to the source trunk for scripts that may need to print it (e.g.
+        # build_image.sh).
+        wrapper = [
+            "/usr/bin/sudo",
+            "-u",
+            os.environ["SUDO_USER"],
+            f"--chdir={cwd}",
+            # TODO(b/307703861): Drop -i here.
+            "-i",
+        ]
 
         # Setup variables to initialize inside the chroot.
         wrapper += [
@@ -1405,6 +1420,12 @@ class ChrootEnteror:
             # Force LANG=C.UTF-8, so locales do not need to be generated.
             "LANG=C.UTF-8",
         ]
+
+        # Needs to be checked after we run the enter_chroot script above as it
+        # initializes the ssh-auth-sock socket.
+        ssh_auth_sock = Path(self.chroot.path) / "tmp" / "ssh-auth-sock"
+        if ssh_auth_sock.is_socket():
+            os.environ["SSH_AUTH_SOCK"] = "/tmp/ssh-auth-sock"
 
         wrapper += [
             f"{v}={os.getenv(v)}"
@@ -1421,8 +1442,13 @@ class ChrootEnteror:
                 "/chromite/shell/proxy-gw",
             ]
 
+        # Split the command into environment variables and the command to run.
         if cmd:
-            wrapper += ["--"] + cmd
+            while cmd and "=" in cmd[0]:
+                wrapper.append(cmd.pop(0))
+            if cmd and cmd[0] != "--":
+                wrapper += ["--"]
+            wrapper += cmd
 
         env = os.environ.copy()
         # Clear locale related variables since C.UTF-8 is used in the chroot.
@@ -1431,7 +1457,23 @@ class ChrootEnteror:
             if v.startswith("LC_"):
                 env.pop(v, None)
 
-        return cros_build_lib.dbg_run(wrapper, check=False, env=env)
+        # See pivot_root(8) man page for the safe usage of pivot_root.
+        # See also pivot_root(".", ".") section of pivot_roo(2) man page.
+        os.chdir(self.chroot.path)
+        cros_build_lib.dbg_run(["pivot_root", ".", "."])
+        # After pivot_root, we're running inside the CrOS sdk.  Reset PATH to
+        # match so we don't rely on the host distro's PATH bleeding in and
+        # requiring it be compatible. Once PATH has changed, force bash to
+        # clear its lookup cache just in case a program later is installed
+        # differently.
+        env["PATH"] = (
+            "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:"
+            "/sbin:/bin:/opt/bin"
+        )
+        osutils.UmountDir(".", lazy=True, cleanup=False)
+        return cros_build_lib.dbg_run(
+            ["chroot", "."] + wrapper, env=env, check=False
+        )
 
     @classmethod
     def get_rlimits(cls) -> str:
