@@ -138,16 +138,29 @@ def RunCopybot(request, response, _config):
             ]
         )
 
-    cmd.append(
-        f"{request.upstream.url}:"
-        f"{request.upstream.branch}:"
-        f"{request.upstream.subtree}"
-    )
-    cmd.append(
-        f"{request.downstream.url}:"
-        f"{request.downstream.branch}:"
-        f"{request.downstream.subtree}"
-    )
+    if request.config_files:
+        for config_file in request.config_files:
+            cmd.extend(
+                [
+                    "--config",
+                    (
+                        constants.SOURCE_ROOT
+                        / "infra/copybot/config"
+                        / config_file.file
+                    ),
+                ]
+            )
+    else:
+        cmd.append(
+            f"{request.upstream.url}:"
+            f"{request.upstream.branch}:"
+            f"{request.upstream.subtree}"
+        )
+        cmd.append(
+            f"{request.downstream.url}:"
+            f"{request.downstream.branch}:"
+            f"{request.downstream.subtree}"
+        )
 
     with tempfile.TemporaryDirectory() as temp_dir:
         json_output_path = Path(temp_dir) / "copybot_output.json"
