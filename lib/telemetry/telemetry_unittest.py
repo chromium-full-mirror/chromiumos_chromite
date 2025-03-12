@@ -41,7 +41,7 @@ def _telemetry_config(monkeypatch, tmp_path):
     monkeypatch.setattr(chromite_config, "TELEMETRY_CONFIG", config_file)
     yield config_file
 
-
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_no_exporter_for_non_google_host(
     monkeypatch, processors, telemetry_config
 ) -> None:
@@ -57,6 +57,7 @@ def test_no_exporter_for_non_google_host(
     assert len(processors) == 0
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_display_notice_to_user_on_google_host(
     capsys, monkeypatch, telemetry_config
 ) -> None:
@@ -71,6 +72,7 @@ def test_initialize_to_display_notice_to_user_on_google_host(
     assert cfg.root_config.notice_countdown == 9
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_update_enabled_on_count_down_complete(
     capsys, monkeypatch, telemetry_config
 ) -> None:
@@ -89,6 +91,7 @@ def test_initialize_to_update_enabled_on_count_down_complete(
     assert cfg.trace_config.enabled_reason == "AUTO"
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_skip_notice_when_trace_enabled_is_present(
     capsys, monkeypatch, telemetry_config
 ) -> None:
@@ -107,6 +110,7 @@ def test_initialize_to_skip_notice_when_trace_enabled_is_present(
     assert cfg.trace_config.enabled_reason == "USER"
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_set_parent_from_traceparent_env(
     monkeypatch, telemetry_config
 ) -> None:
@@ -133,6 +137,7 @@ def test_initialize_to_set_parent_from_traceparent_env(
         )
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_skip_notice_if_tracecontext_present_in_env(
     capsys, monkeypatch, processors, telemetry_config
 ) -> None:

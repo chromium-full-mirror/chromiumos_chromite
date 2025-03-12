@@ -47,6 +47,8 @@ def initialize(publish: bool = True) -> None:
     Args:
         publish: Fork background process to publish telemetry.
     """
+    # Disable telemetry, see b/397474181.
+    return
     # Importing this inside the function to avoid performance overhead from the
     # global package import.
     from chromite.lib import chromite_config
