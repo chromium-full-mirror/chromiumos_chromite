@@ -63,6 +63,7 @@ HOST_PACKAGES = (
     "dev-lang/rust-bootstrap",
     "dev-lang/rust-host",
     "dev-libs/elfutils",
+    "sys-devel/autofdo",
     "sys-devel/binutils",
     "sys-devel/gcc",
     "sys-devel/llvm",
