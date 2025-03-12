@@ -71,13 +71,7 @@ class GerritHelper:
 
     @classmethod
     def FromRemote(cls, remote, **kwargs):
-        site_params = config_lib.GetSiteParams()
-        if remote == site_params.INTERNAL_REMOTE:
-            host = constants.INTERNAL_GERRIT_HOST
-        elif remote == site_params.EXTERNAL_REMOTE:
-            host = constants.EXTERNAL_GERRIT_HOST
-        else:
-            raise ValueError("Remote %s not supported." % remote)
+        host = git.RemoteToGerritHost(remote)
         return cls(host, remote, **kwargs)
 
     @classmethod
