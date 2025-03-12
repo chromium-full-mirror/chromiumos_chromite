@@ -69,6 +69,7 @@ HOST_PACKAGES = (
     "sys-kernel/linux-headers",
     "sys-libs/glibc",
     "sys-libs/libcxx",
+    "sys-libs/libxcrypt",
     "sys-libs/llvm-libunwind",
 )
 
