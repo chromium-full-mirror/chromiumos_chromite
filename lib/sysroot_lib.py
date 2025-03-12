@@ -27,6 +27,7 @@ from chromite.lib import portage_util
 from chromite.lib import toolchain
 from chromite.lib import toolchain_list
 from chromite.lib.parser import package_info
+from chromite.utils import os_util
 
 
 if TYPE_CHECKING:
@@ -721,7 +722,7 @@ class Sysroot:
             return
 
         chroot_make_conf_sdk = Path(self.path) / _MAKE_CONF_HOST_SETUP
-        contents = ""
+        contents = f'PORTAGE_USERNAME="{os_util.get_non_root_user()}"\n'
         if not public_only:
             chromeos_overlay = (
                 constants.SOURCE_ROOT / constants.CHROMEOS_OVERLAY_DIR
@@ -751,7 +752,7 @@ class Sysroot:
 
         osutils.WriteFile(
             chroot_make_conf_sdk,
-            f"# DO NOT EDIT\n\n{contents}",
+            f"# DO NOT EDIT.\n\n{contents}",
             sudo=True,
         )
 
@@ -852,7 +853,9 @@ class Sysroot:
         Raises:
             ConfigurationError: Could not generate a valid configuration.
         """
-        config = {}
+        config = {
+            "PORTAGE_USERNAME": os_util.get_non_root_user(),
+        }
 
         default_toolchains = toolchain.FilterToolchains(
             toolchains, "default", True
