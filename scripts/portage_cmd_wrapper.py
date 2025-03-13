@@ -8,7 +8,6 @@ This script is meant to be used in generated wrapper scripts, not used directly.
 """
 
 import os
-from pathlib import Path
 from typing import Iterable, List, Optional
 
 from chromite.lib import build_query
@@ -122,9 +121,6 @@ def execute(opts: commandline.ArgumentNamespace) -> int:
         "PORTAGE_CONFIGROOT": opts.sysroot,
         "SYSROOT": opts.sysroot,
         "ROOT": opts.sysroot,
-        "PORTAGE_USERNAME": (
-            os.environ.get("PORTAGE_USERNAME") or Path("~").expanduser().name
-        ),
     }
 
     # If we try to use sudo when the sandbox is active, we get ugly warnings
