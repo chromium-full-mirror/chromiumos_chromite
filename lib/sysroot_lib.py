@@ -60,9 +60,6 @@ fi
 export CHOST="{chost}"
 export PORTAGE_CONFIGROOT="{sysroot}"
 export SYSROOT="{sysroot}"
-if [ -z "$PORTAGE_USERNAME" ]; then
-  export PORTAGE_USERNAME=$(basename "${{HOME}}")
-fi
 export ROOT="{sysroot}"
 exec sudo -E {command} "$@"
 """
