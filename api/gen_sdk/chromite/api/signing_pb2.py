@@ -15,7 +15,7 @@ from chromite.api.gen_sdk.chromite.api import build_api_pb2 as chromite_dot_api_
 from chromite.api.gen_sdk.chromiumos import common_pb2 as chromiumos_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/signing.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"\xd9\x01\n\x16\x43reatePreMPKeysRequest\x12\x14\n\x0c\x64ocker_image\x18\x05 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x06 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x07 \x01(\x08\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x19\n\x11skip_android_keys\x18\x03 \x01(\x08\x12\x0c\n\x04uefi\x18\x04 \x01(\x08\x12\x10\n\x08\x61\x64\x64_loem\x18\x08 \x01(\x08\"\x19\n\x17\x43reatePreMPKeysResponse2\x85\x01\n\x0eSigningService\x12`\n\x0f\x43reatePreMPKeys\x12$.chromite.api.CreatePreMPKeysRequest\x1a%.chromite.api.CreatePreMPKeysResponse\"\x00\x1a\x11\xc2\xed\x1a\r\n\x07signing\x10\x02 \x02\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/signing.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"\xd9\x01\n\x16\x43reatePreMPKeysRequest\x12\x14\n\x0c\x64ocker_image\x18\x05 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x06 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x07 \x01(\x08\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x19\n\x11skip_android_keys\x18\x03 \x01(\x08\x12\x0c\n\x04uefi\x18\x04 \x01(\x08\x12\x10\n\x08\x61\x64\x64_loem\x18\x08 \x01(\x08\"\x19\n\x17\x43reatePreMPKeysResponse\"\xdb\x01\n\x19\x43reateAccessoryKeyRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x11\n\taccessory\x18\x02 \x01(\t\x12\x11\n\tis_pre_mp\x18\x03 \x01(\x08\x12\x14\n\x0c\x64ocker_image\x18\x04 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x05 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x06 \x01(\x08\x12\x12\n\nis_staging\x18\x07 \x01(\x08\x12\x0f\n\x07version\x18\x08 \x01(\x05\"\x1c\n\x1a\x43reateAccessoryKeyResponse2\xf1\x01\n\x0eSigningService\x12`\n\x0f\x43reatePreMPKeys\x12$.chromite.api.CreatePreMPKeysRequest\x1a%.chromite.api.CreatePreMPKeysResponse\"\x00\x12j\n\x13\x43reateAccessoryKeys\x12\'.chromite.api.CreateAccessoryKeyRequest\x1a(.chromite.api.CreateAccessoryKeyResponse\"\x00\x1a\x11\xc2\xed\x1a\r\n\x07signing\x10\x02 \x02\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -30,6 +30,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_CREATEPREMPKEYSREQUEST']._serialized_end=317
   _globals['_CREATEPREMPKEYSRESPONSE']._serialized_start=319
   _globals['_CREATEPREMPKEYSRESPONSE']._serialized_end=344
-  _globals['_SIGNINGSERVICE']._serialized_start=347
-  _globals['_SIGNINGSERVICE']._serialized_end=480
+  _globals['_CREATEACCESSORYKEYREQUEST']._serialized_start=347
+  _globals['_CREATEACCESSORYKEYREQUEST']._serialized_end=566
+  _globals['_CREATEACCESSORYKEYRESPONSE']._serialized_start=568
+  _globals['_CREATEACCESSORYKEYRESPONSE']._serialized_end=596
+  _globals['_SIGNINGSERVICE']._serialized_start=599
+  _globals['_SIGNINGSERVICE']._serialized_end=840
 # @@protoc_insertion_point(module_scope)
