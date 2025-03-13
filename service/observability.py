@@ -70,7 +70,7 @@ def _get_version_component_regex() -> Pattern:
 
 
 def get_image_size_data(
-    image_details: Dict[os.PathLike, str]
+    image_details: Dict[os.PathLike, str],
 ) -> Dict[str, Dict[str, Dict[PackageIdentifier, portage_util.PackageSizes]]]:
     """Entry point method to parse input data and retrieve new data.
 

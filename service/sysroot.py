@@ -1246,7 +1246,7 @@ def _GetBaseInstallPackages(
 
 
 def _GetEmergeCommand(
-    sysroot: Optional[Union[str, os.PathLike]] = None
+    sysroot: Optional[Union[str, os.PathLike]] = None,
 ) -> List[Union[str, os.PathLike]]:
     """Get the emerge command to use with `cros build-packages`."""
     # TODO(xcl): Convert to directly importing and calling a Python lib instead

@@ -15,7 +15,6 @@ from chromite.lib import locking
 
 
 class EnforcedCleanupSection(cros_build_lib.PrimaryPidContextManager):
-
     """Context manager used to ensure that a section of cleanup code is run
 
     This is designed such that a child splits off, ensuring that even if the

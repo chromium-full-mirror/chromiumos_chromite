@@ -616,9 +616,9 @@ class PaygenPayload:
             # DLC module image has only one partition which is the image itself.
             dlc_id, dlc_package, appid = self._GetDlcImageParams(
                 self.tgt_image_file,
-                src_image=self.src_image_file
-                if self.payload.src_image
-                else None,
+                src_image=(
+                    self.src_image_file if self.payload.src_image else None
+                ),
             )
             self.partition_names = ("dlc/%s/%s" % (dlc_id, dlc_package),)
             self.tgt_partitions = (self.tgt_image_file,)

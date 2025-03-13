@@ -1195,9 +1195,11 @@ class FinalizeDlcsTest(cros_test_lib.MockTempDirTestCase):
                     dlc_lib.DLC_TMP_META_DIR,
                     dlc_lib.IMAGELOADER_JSON,
                 ),
-                factory_install_allowed_json
-                if num % 2
-                else factory_install_not_allowed_json,
+                (
+                    factory_install_allowed_json
+                    if num % 2
+                    else factory_install_not_allowed_json
+                ),
                 makedirs=True,
             )
         stateful = os.path.join(self.tempdir, "stateful")

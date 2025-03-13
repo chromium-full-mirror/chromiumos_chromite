@@ -68,7 +68,7 @@ class RemoteRef(_RemoteRef):
 
 
 def FindRepoDir(
-    path: Union[str, "os.PathLike[str]"]
+    path: Union[str, "os.PathLike[str]"],
 ) -> Optional[Union[str, "os.PathLike[str]"]]:
     """Returns the nearest higher-level repo dir from the specified path.
 
@@ -784,7 +784,7 @@ class ManifestCheckout(Manifest):
 
     @staticmethod
     def _GetManifestsBranch(
-        root: Union[str, "os.PathLike[str]"]
+        root: Union[str, "os.PathLike[str]"],
     ) -> Optional[str]:
         """Get the tracking branch of the manifest repository.
 
@@ -811,9 +811,11 @@ class ManifestCheckout(Manifest):
                 "It should be checked out to 'default'."
                 % (
                     root,
-                    "detached HEAD"
-                    if current_branch is None
-                    else current_branch,
+                    (
+                        "detached HEAD"
+                        if current_branch is None
+                        else current_branch
+                    ),
                 ),
             )
 
@@ -1005,7 +1007,7 @@ def FindGitTopLevel(path: Union[str, "os.PathLike[str]"]) -> Optional[str]:
 
 
 def GetProjectUserEmail(
-    git_repo: Union[str, "os.PathLike[str]"]
+    git_repo: Union[str, "os.PathLike[str]"],
 ) -> Optional[str]:
     """Get the email configured for the project."""
     output = RunGit(git_repo, ["var", "GIT_COMMITTER_IDENT"]).stdout
@@ -2150,7 +2152,7 @@ class CommitEntry(NamedTuple):
 
 
 def GetLastCommit(
-    git_repo: Union[str, "os.PathLike[str]"]
+    git_repo: Union[str, "os.PathLike[str]"],
 ) -> Optional[CommitEntry]:
     """Returns the last commit on git_repo.
 

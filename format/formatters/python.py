@@ -15,7 +15,7 @@ from chromite.lib import git
 
 
 def _find_pyproject_toml(
-    path: Optional[Union[str, os.PathLike]] = None
+    path: Optional[Union[str, os.PathLike]] = None,
 ) -> Path:
     """Locate pyproject.toml to use with |path|."""
     if path:

@@ -22,7 +22,7 @@ from chromite.lib.parser import package_info
 
 
 def make_request(
-    chroot_path: Union[str, os.PathLike, None] = "fake_chroot_path"
+    chroot_path: Union[str, os.PathLike, None] = "fake_chroot_path",
 ) -> sdk_subtools_pb2.BuildSdkSubtoolsRequest:
     """Helper to build a build request message."""
     request = sdk_subtools_pb2.BuildSdkSubtoolsRequest(

@@ -102,7 +102,7 @@ class Command:
 
 
 def parse_compile_command(
-    command_dict: Dict[str, Union[str, List[str]]]
+    command_dict: Dict[str, Union[str, List[str]]],
 ) -> Command:
     """Parse a single dict containing a compile command JSON into a Command."""
     for key in command_dict:

@@ -375,7 +375,7 @@ class ChrootPathResolver:
 
 
 def DetermineCheckout(
-    search_path: Optional[Union[str, "os.PathLike[str]"]] = None
+    search_path: Optional[Union[str, "os.PathLike[str]"]] = None,
 ) -> CheckoutInfo:
     """Gather information on the checkout we are in.
 

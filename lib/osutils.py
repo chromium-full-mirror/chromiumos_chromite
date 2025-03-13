@@ -1913,7 +1913,7 @@ def ResolveSymlinkInRoot(
 
 
 def ResolveSymlink(
-    file_name: Union[str, os.PathLike]
+    file_name: Union[str, os.PathLike],
 ) -> Union[str, os.PathLike]:
     """Resolve a symlink |file_name| to an absolute path.
 

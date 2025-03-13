@@ -705,9 +705,11 @@ def _fetch_binhosts(
     binhost_lookup_service_uri = "%s://%s/%s" % (
         _PROTOCOL,
         _CHROMEOS_PREBUILTS_DOMAIN,
-        _LOOKUP_BINHOSTS_ENDPOINT_STAGING
-        if is_staging
-        else _LOOKUP_BINHOSTS_ENDPOINT_PROD,
+        (
+            _LOOKUP_BINHOSTS_ENDPOINT_STAGING
+            if is_staging
+            else _LOOKUP_BINHOSTS_ENDPOINT_PROD
+        ),
     )
     response = requests.request(
         "GET",

@@ -834,9 +834,11 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(
             os.path,
             "realpath",
-            side_effect=lambda path: "/usr/wrongpath/foo"
-            if path == "/bin/foo"
-            else original_realpath(path),
+            side_effect=lambda path: (
+                "/usr/wrongpath/foo"
+                if path == "/bin/foo"
+                else original_realpath(path)
+            ),
         )
         # Double check the mock.
         self.assertEqual("/usr/wrongpath/foo", os.path.realpath("/bin/foo"))

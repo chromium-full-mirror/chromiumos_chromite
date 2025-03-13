@@ -132,12 +132,12 @@ class PackageIndexInfoTest(cros_test_lib.TestCase):
         return binpkg.PackageIndexInfo(
             snapshot_sha=sha,
             snapshot_number=number,
-            build_target=build_target_lib.BuildTarget(name=board)
-            if board
-            else None,
-            profile=sysroot_lib.Profile(name=profile_name)
-            if profile_name
-            else None,
+            build_target=(
+                build_target_lib.BuildTarget(name=board) if board else None
+            ),
+            profile=(
+                sysroot_lib.Profile(name=profile_name) if profile_name else None
+            ),
             location=location,
         )
 

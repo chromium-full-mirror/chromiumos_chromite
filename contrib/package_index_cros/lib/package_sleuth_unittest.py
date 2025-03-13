@@ -23,7 +23,7 @@ from chromite.lib import portage_util
 
 
 def _create_deptree_stdout(
-    package_name_to_deps: Dict[str, Iterable[package.PackageDependency]]
+    package_name_to_deps: Dict[str, Iterable[package.PackageDependency]],
 ) -> str:
     """Generate a valid-looking dependency tree stdout.
 

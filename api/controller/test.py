@@ -481,9 +481,9 @@ def GetArtifacts(
                 if paths:
                     generated.append(
                         {
-                            "paths": [paths]
-                            if isinstance(paths, str)
-                            else paths,
+                            "paths": (
+                                [paths] if isinstance(paths, str) else paths
+                            ),
                             "type": artifact_type,
                         }
                     )

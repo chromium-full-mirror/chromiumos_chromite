@@ -2408,7 +2408,7 @@ def FindEbuildForPackage(
 
 
 def FindEbuildsForOverlays(
-    overlays: List[Union[str, os.PathLike]]
+    overlays: List[Union[str, os.PathLike]],
 ) -> Iterator[Path]:
     """Get paths to ebuilds using the given overlay paths.
 

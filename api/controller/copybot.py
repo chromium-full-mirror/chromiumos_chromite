@@ -32,9 +32,7 @@ def _MockSuccess(_request, _response, _config) -> None:
 def RunCopybot(request, response, _config):
     """Run copybot. Translate all fields in the input protobuf to CLI args."""
 
-    cmd = [
-        constants.SOURCE_ROOT / "infra/copybot/copybot.py"
-    ]
+    cmd = [constants.SOURCE_ROOT / "infra/copybot/copybot.py"]
 
     if request.topic:
         cmd.extend(["--topic", request.topic])

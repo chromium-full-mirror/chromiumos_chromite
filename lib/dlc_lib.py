@@ -371,9 +371,11 @@ class EbuildParams:
         CheckAndRaise(self.version, "Missing DLC version")
         return "/".join(
             (
-                GS_LOCALMIRROR_PRIVATE_BUCKET
-                if private
-                else GS_LOCALMIRROR_BUCKET,
+                (
+                    GS_LOCALMIRROR_PRIVATE_BUCKET
+                    if private
+                    else GS_LOCALMIRROR_BUCKET
+                ),
                 GS_DLC_IMAGES_DIR,
                 self.dlc_id,
                 self.dlc_package,

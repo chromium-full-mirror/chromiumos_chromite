@@ -398,7 +398,7 @@ GROUP_BASELINE = dict(
                 "ml-core",
                 "arc-camera",
                 "odml",
-            }
+            },
         ),
         GroupEntry(group="chronos", gid=1000),
         GroupEntry(

@@ -1709,7 +1709,7 @@ def ReadUnknownEncodedFile(file_path, logging_text=None):
     file_txt = silent_chars_re.sub("", file_txt)
 
     illegal_chars_re = re.compile(
-        "[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]"
+        "[\x00-\x08\x0b\x0c\x0e-\x1f\ud800-\udfff\ufffe\uffff]"
     )
 
     if illegal_chars_re.findall(file_txt):

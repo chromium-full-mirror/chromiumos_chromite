@@ -1060,7 +1060,7 @@ def iflatten_instance(iterable, terminate_on_kls=(str, bytes)) -> Iterable[Any]:
 
 
 def UserDateTimeFormat(
-    timeval: Optional[Union[datetime.datetime, float]] = None
+    timeval: Optional[Union[datetime.datetime, float]] = None,
 ) -> str:
     """Format a date meant to be viewed by a user
 

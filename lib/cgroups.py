@@ -78,7 +78,6 @@ def EnsureInitialized(functor):
 
 
 class Cgroup:
-
     """Class representing a group in cgroups hierarchy.
 
     Note the instance may not exist on disk; it will be created as necessary.

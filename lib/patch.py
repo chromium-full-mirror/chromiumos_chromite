@@ -2067,9 +2067,11 @@ class GerritPatch(GerritFetchOnlyPatch):
         self.commit_timestamp = current_patch_set.get("date", 0)
         self.approval_timestamp = max(
             self.commit_timestamp,
-            max(x["grantedOn"] for x in self._approvals)
-            if self._approvals
-            else 0,
+            (
+                max(x["grantedOn"] for x in self._approvals)
+                if self._approvals
+                else 0
+            ),
         )
         self._commit_message = None
         self.commit_message = patch_dict.get("commitMessage")

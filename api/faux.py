@@ -30,7 +30,7 @@ BuildAPIFunction = Callable[
 
 def all_responses(
     faux_result_factory: BuildAPIFunction,
-) -> Callable[[BuildAPIFunction], BuildAPIFunction,]:
+) -> Callable[[BuildAPIFunction], BuildAPIFunction]:
     """A decorator to handle all mock responses.
 
     This is syntactic sugar for handling all the mock response types in a
@@ -59,7 +59,7 @@ def all_empty(func: BuildAPIFunction) -> BuildAPIFunction:
 
 def success(
     faux_result_factory: BuildAPIFunction,
-) -> Callable[[BuildAPIFunction], BuildAPIFunction,]:
+) -> Callable[[BuildAPIFunction], BuildAPIFunction]:
     """A decorator to handle mock call responses.
 
     Args:
@@ -108,7 +108,7 @@ def empty_success(func: BuildAPIFunction) -> BuildAPIFunction:
 
 def error(
     faux_error_factory: BuildAPIFunction,
-) -> Callable[[BuildAPIFunction], BuildAPIFunction,]:
+) -> Callable[[BuildAPIFunction], BuildAPIFunction]:
     """A decorator to handle mock error responses."""
 
     def decorator(func: BuildAPIFunction) -> BuildAPIFunction:

@@ -24,7 +24,7 @@ def _return_is_none(statement: cst.Return) -> bool:
 
 
 def _only_returns_none(
-    body: Sequence[Union[cst.SimpleStatementLine, cst.BaseCompoundStatement]]
+    body: Sequence[Union[cst.SimpleStatementLine, cst.BaseCompoundStatement]],
 ) -> bool:
     """Does a function body only return None?"""
     for statement in body:

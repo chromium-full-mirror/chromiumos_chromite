@@ -511,9 +511,11 @@ class CreateManifestFromSdkTest(
             ),
             sdk_path=common_pb2.Path(
                 path=self._sdk_path,
-                location=common_pb2.Path.Location.INSIDE
-                if inside
-                else common_pb2.Path.Location.OUTSIDE,
+                location=(
+                    common_pb2.Path.Location.INSIDE
+                    if inside
+                    else common_pb2.Path.Location.OUTSIDE
+                ),
             ),
             dest_dir=common_pb2.Path(
                 path=self._dest_dir,

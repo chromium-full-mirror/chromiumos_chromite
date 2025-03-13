@@ -48,7 +48,8 @@ class SDKSourceDetector(resources.ResourceDetector):
                 resource[
                     "manifest_sync_date"
                 ] = datetime.datetime.fromtimestamp(
-                    os.path.getmtime(manifest_repo), tz=datetime.timezone.utc
+                    os.path.getmtime(manifest_repo),
+                    tz=datetime.timezone.utc,
                 ).isoformat()
 
         workon_atoms = workon_helper.ListAllWorkedOnAtoms()
