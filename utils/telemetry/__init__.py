@@ -52,6 +52,8 @@ def initialize(
         log_traces: Indicates if the traces should be exported to console.
         enable: Indicates if the traces should be enabled.
     """
+    # Disable telemetry, see b/397474181.
+    return
 
     # Importing this inside the function to avoid performance overhead from the
     # global package import.
