@@ -44,6 +44,7 @@ def _telemetry_config(monkeypatch, tmp_path):
     yield config_file
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_no_exporter_for_non_google_host(
     monkeypatch, processors, telemetry_config
 ) -> None:
@@ -59,6 +60,7 @@ def test_no_exporter_for_non_google_host(
     assert len(processors) == 0
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_console_exporter_for_non_google_host_on_debug(
     monkeypatch, processors, telemetry_config
 ) -> None:
@@ -72,6 +74,7 @@ def test_console_exporter_for_non_google_host_on_debug(
     assert processors[0].span_exporter.__class__ == export.ConsoleSpanExporter
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_console_exporter_for_google_host_on_debug(
     monkeypatch, processors, telemetry_config
 ) -> None:
@@ -85,6 +88,7 @@ def test_console_exporter_for_google_host_on_debug(
     assert processors[0].span_exporter.__class__ == export.ConsoleSpanExporter
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_display_notice_to_user_on_google_host(
     capsys, monkeypatch, processors, telemetry_config
 ) -> None:
@@ -99,6 +103,7 @@ def test_initialize_to_display_notice_to_user_on_google_host(
     assert cfg.root_config.notice_countdown == 9
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_display_notice_and_print_spans_to_user_on_google_host(
     capsys, monkeypatch, processors, telemetry_config
 ) -> None:
@@ -114,6 +119,7 @@ def test_initialize_to_display_notice_and_print_spans_to_user_on_google_host(
     assert cfg.root_config.notice_countdown == 9
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_update_enabled_on_count_down_complete(
     capsys, monkeypatch, processors, telemetry_config
 ) -> None:
@@ -136,6 +142,7 @@ def test_initialize_to_update_enabled_on_count_down_complete(
     assert cfg.trace_config.enabled_reason == "AUTO"
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_skip_notice_when_trace_enabled_is_present(
     capsys, monkeypatch, processors, telemetry_config
 ) -> None:
@@ -155,6 +162,7 @@ def test_initialize_to_skip_notice_when_trace_enabled_is_present(
     assert cfg.trace_config.enabled_reason == "USER"
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_set_parent_from_traceparent_env(
     monkeypatch, telemetry_config
 ) -> None:
@@ -181,6 +189,7 @@ def test_initialize_to_set_parent_from_traceparent_env(
         )
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_skip_notice_if_tracecontext_present_in_env(
     capsys, monkeypatch, processors, telemetry_config
 ) -> None:
