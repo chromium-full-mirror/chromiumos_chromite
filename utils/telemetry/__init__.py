@@ -7,15 +7,15 @@
 import os
 from typing import Optional
 
-from chromite.third_party.opentelemetry import trace as otel_trace_api
-from chromite.third_party.opentelemetry.sdk import resources as otel_resources
-from chromite.third_party.opentelemetry.sdk import trace as otel_trace
-from chromite.third_party.opentelemetry.sdk.trace import export as otel_export
+# from chromite.third_party.opentelemetry import trace as otel_trace_api
+# from chromite.third_party.opentelemetry.sdk import resources as otel_resources
+# from chromite.third_party.opentelemetry.sdk import trace as otel_trace
+# from chromite.third_party.opentelemetry.sdk.trace import export as otel_export
 
 from chromite.utils.telemetry import config
-from chromite.utils.telemetry import detector
-from chromite.utils.telemetry import exporter
-from chromite.utils.telemetry import utils
+# from chromite.utils.telemetry import detector
+# from chromite.utils.telemetry import exporter
+# from chromite.utils.telemetry import utils
 
 
 NOTICE = """
@@ -33,12 +33,12 @@ automatically enabled after the notice has been displayed for 10 times.
 # time there are changes to `chromite.utils.telemetry` or telemetry collection
 # changes in chromite.
 _TELEMETRY_VERSION = "1"
-_DEFAULT_RESOURCE = otel_resources.Resource.create(
-    {
-        otel_resources.SERVICE_NAME: "chromite",
-        "telemetry.version": _TELEMETRY_VERSION,
-    }
-)
+# _DEFAULT_RESOURCE = otel_resources.Resource.create(
+#     {
+#         otel_resources.SERVICE_NAME: "chromite",
+#         "telemetry.version": _TELEMETRY_VERSION,
+#     }
+# )
 
 
 def initialize(
@@ -63,7 +63,8 @@ def initialize(
         debug: Indicates if the traces should be exported to console.
         enable: Indicates if the traces should be enabled.
     """
-
+    # Disable telemetry, see b/397474181.
+    return
     detected_resource = otel_resources.get_aggregated_resources(
         [
             otel_resources.ProcessResourceDetector(),
