@@ -6,6 +6,7 @@
 
 from chromite.third_party.opentelemetry.sdk import trace as trace_sdk
 from chromite.third_party.opentelemetry.sdk.trace import export
+import pytest
 
 from chromite.utils import telemetry
 from chromite.utils.telemetry import config
@@ -24,6 +25,7 @@ def _spy_add_span_processor(processors):
     return inner
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_no_exporter_for_non_google_host(monkeypatch, tmp_path):
     """Test initialize to not add exporters on non google host."""
 
@@ -45,6 +47,7 @@ def test_no_exporter_for_non_google_host(monkeypatch, tmp_path):
     assert len(processors) == 0
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_console_exporter_for_non_google_host_on_debug(monkeypatch, tmp_path):
     """Test initialize to print span to console on debug on non google host."""
 
@@ -63,6 +66,7 @@ def test_console_exporter_for_non_google_host_on_debug(monkeypatch, tmp_path):
     assert processors[0].span_exporter.__class__ == export.ConsoleSpanExporter
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_console_exporter_for_google_host_on_debug(monkeypatch, tmp_path):
     """Test initialize to print span to console on debug."""
 
@@ -81,6 +85,7 @@ def test_console_exporter_for_google_host_on_debug(monkeypatch, tmp_path):
     assert processors[0].span_exporter.__class__ == export.ConsoleSpanExporter
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_display_notice_to_user_on_google_host(
     capsys, monkeypatch, tmp_path
 ):
@@ -103,6 +108,7 @@ def test_initialize_to_display_notice_to_user_on_google_host(
     assert cfg.root_config.notice_countdown == 9
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_display_notice_and_print_spans_to_user_on_google_host(
     capsys, monkeypatch, tmp_path
 ):
@@ -126,6 +132,7 @@ def test_initialize_to_display_notice_and_print_spans_to_user_on_google_host(
     assert cfg.root_config.notice_countdown == 9
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_update_enabled_on_count_down_complete(
     capsys, monkeypatch, tmp_path
 ):
@@ -156,6 +163,7 @@ def test_initialize_to_update_enabled_on_count_down_complete(
     assert cfg.trace_config.enabled_reason == "AUTO"
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_skip_notice_when_trace_enabled_is_present(
     capsys, monkeypatch, tmp_path
 ):
@@ -183,6 +191,7 @@ def test_initialize_to_skip_notice_when_trace_enabled_is_present(
     assert cfg.trace_config.enabled_reason == "USER"
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_enable_telemetry_based_on_optin(
     capsys, monkeypatch, tmp_path
 ):
@@ -213,6 +222,7 @@ def test_initialize_to_enable_telemetry_based_on_optin(
     assert cfg.trace_config.enabled_reason == "USER"
 
 
+@pytest.mark.skip(reason="Telemetry disabled.")
 def test_initialize_to_disable_telemetry_based_on_optin(
     capsys, monkeypatch, tmp_path
 ):
