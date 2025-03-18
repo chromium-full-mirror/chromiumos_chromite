@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%chromiumos/test/lab/api/storage.proto\x12\x17\x63hromiumos.test.lab.api*v\n\x0bStorageType\x12\x0f\n\x0bUNSPECIFIED\x10\x00\x12\x14\n\x0cUNRECOGNIZED\x10\x01\x1a\x02\x08\x01\x12\x07\n\x03SSD\x10\x02\x12\x07\n\x03HDD\x10\x03\x12\x07\n\x03MMC\x10\x04\x12\x08\n\x04NVME\x10\x05\x12\x07\n\x03UFS\x10\x06\x12\x12\n\x0eNOT_RECOGNIZED\x10\x07\x42\x33Z1go.chromium.org/chromiumos/config/go/test/lab/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%chromiumos/test/lab/api/storage.proto\x12\x17\x63hromiumos.test.lab.api*`\n\x0bStorageType\x12\x0f\n\x0bUNSPECIFIED\x10\x00\x12\x07\n\x03SSD\x10\x02\x12\x07\n\x03HDD\x10\x03\x12\x07\n\x03MMC\x10\x04\x12\x08\n\x04NVME\x10\x05\x12\x07\n\x03UFS\x10\x06\x12\x12\n\x0eNOT_RECOGNIZED\x10\x07\x42\x33Z1go.chromium.org/chromiumos/config/go/test/lab/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.lab.api.storage_pb2', globals())
@@ -21,8 +21,6 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z1go.chromium.org/chromiumos/config/go/test/lab/api'
-  _STORAGETYPE.values_by_name["UNRECOGNIZED"]._options = None
-  _STORAGETYPE.values_by_name["UNRECOGNIZED"]._serialized_options = b'\010\001'
   _STORAGETYPE._serialized_start=66
-  _STORAGETYPE._serialized_end=184
+  _STORAGETYPE._serialized_end=162
 # @@protoc_insertion_point(module_scope)
