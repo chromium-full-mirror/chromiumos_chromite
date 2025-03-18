@@ -9,6 +9,7 @@ import os
 from chromite.api import api_config
 from chromite.api.controller import signing as signing_controller
 from chromite.api.gen.chromite.api import signing_pb2
+from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import cros_test_lib
 from chromite.service import image as image_service
 
@@ -177,3 +178,124 @@ class CreatePreMPKeysTest(
                 "board",
             ]
         )
+
+
+class SignTi50PaosTest(
+    cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
+):
+    """Sign ti50 paos tests."""
+
+    def setUp(self) -> None:
+        self.response = signing_pb2.SignTi50PaosResponse()
+        self.docker_image = (
+            "us-docker.pkg.dev/chromeos-release-bot/signing/signing:123"
+        )
+
+        os.environ["LUCI_CONTEXT"] = "/tmp/foo/bar/luci_context.1234"
+        os.environ["GCE_METADATA_HOST"] = "127.0.0.1:12345"
+        os.environ["GCE_METADATA_IP"] = "127.0.0.1:12345"
+        os.environ["GCE_METADATA_ROOT"] = "127.0.0.1:12345"
+
+    def _GetRequest(
+        self,
+        project,
+        location,
+        keyring,
+        key,
+        version,
+        filename,
+        result_dir,
+    ):
+        """Helper to build a request instance."""
+        return signing_pb2.SignTi50PaosRequest(
+            project=project,
+            location=location,
+            keyring=keyring,
+            key=key,
+            version=version,
+            filename=filename,
+            docker_image="signing:latest",
+            archive_dir="/tmp/temp-dir-archives/",
+            result_path=common_pb2.ResultPath(
+                path=common_pb2.Path(
+                    path=str(result_dir),
+                    location=common_pb2.Path.Location.OUTSIDE,
+                )
+            ),
+            tmp_path="/docker-tmp/signing_tmp",
+        )
+
+    def testDockerCalledWith(self) -> None:
+        """Verify that docker is called with the correct arguments."""
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        result_dir = os.path.join(self.tempdir, "out")
+        os.mkdir(result_dir)
+
+        request = self._GetRequest(
+            "project",
+            "location",
+            "keyring",
+            "key",
+            1,
+            "filename",
+            result_dir,
+        )
+        signing_controller.SignTi50Paos(request, self.response, self.api_config)
+
+        rc.assertCommandContains(
+            ["docker", "inspect", "--type=image", "signing:latest"]
+        )
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "--network",
+                "host",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-e",
+                "LUCI_CONTEXT=/tmp/luci/luci_context.1234",
+                "-e",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                "/tmp/temp-dir-archives/:/in",
+                "-v",
+                f"{result_dir}:/out",
+                "-v",
+                "/docker-tmp/signing_tmp:/tmp",
+                "--entrypoint",
+                "./ti50_pao_generate.sh",
+                "project",
+                "location",
+                "keyring",
+                "key",
+                "1",
+                "/in/filename",
+                "/out/filename",
+            ]
+        )
+
+    def testValidateOnly(self) -> None:
+        """Verify a validate-only call does not execute any logic."""
+        patch = self.PatchObject(image_service, "CallDocker")
+
+        request = self._GetRequest(
+            "project",
+            "location",
+            "keyring",
+            "key",
+            1,
+            "filename",
+            self.tempdir,
+        )
+        signing_controller.SignTi50Paos(
+            request, self.response, self.validate_only_config
+        )
+        patch.assert_not_called()

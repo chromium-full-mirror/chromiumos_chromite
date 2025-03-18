@@ -35,3 +35,43 @@ def CreatePreMPKeys(request, _response, _config) -> None:
         ],
         entrypoint_args=entrypoint_args,
     )
+
+
+@faux.all_empty
+@validate.require("project")
+@validate.require("location")
+@validate.require("keyring")
+@validate.require("key")
+@validate.require("version")
+@validate.require("filename")
+@validate.require("docker_image")
+@validate.validation_complete
+def SignTi50Paos(request, _response, _config) -> None:
+    """Signs PAOs inside the provided file."""
+
+    image.CallDocker(
+        request.docker_image,
+        docker_args=[
+            # Mount the archive dir as a volume.
+            "-v",
+            f"{request.archive_dir}:/in",
+            # Mount the output dir as a volume.
+            "-v",
+            f"{request.result_path.path.path}:/out",
+            # Mount a tmp dir for docker as a volume.
+            # Needed to avoid filling up our small boot partition.
+            "-v",
+            f"{request.tmp_path}:/tmp",
+            "--entrypoint",
+            "./ti50_pao_generate.sh",
+        ],
+        entrypoint_args=[
+            request.project,
+            request.location,
+            request.keyring,
+            request.key,
+            str(request.version),
+            f"/in/{request.filename}",
+            f"/out/{request.filename}",
+        ],
+    )
