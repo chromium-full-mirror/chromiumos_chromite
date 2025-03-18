@@ -869,10 +869,9 @@ class SecurityTestConfig:
 
     def _RunCommand(self, cmd, *args, **kwargs):
         """Run a command with the signing bin directory in PATH."""
-        extra_env = {
+        kwargs.setdefault("extra_env", {}).update({
             "PATH": "%s:%s" % (signing.CROS_SIGNING_BIN_DIR, os.environ["PATH"])
-        }
-        kwargs["extra_env"] = extra_env.update(kwargs.get("extra_env", {}))
+        })
         return cros_build_lib.run(cmd, *args, **kwargs)
 
 
