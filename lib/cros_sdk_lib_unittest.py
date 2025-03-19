@@ -706,7 +706,7 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         self.assertExists(etc / "hosts")
         self.assertExists(etc / "resolv.conf")
         self.assertIn(
-            'CROS_WORKON_SRCROOT="/mnt/host/source"',
+            f'PORTAGE_USERNAME="{TEST_USER}"',
             (etc / "env.d" / "99chromiumos").read_text(encoding="utf-8"),
         )
         self.assertEqual(
