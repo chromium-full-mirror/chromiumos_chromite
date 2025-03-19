@@ -536,7 +536,7 @@ fi
 # the source trunk for scripts that may need to print it (e.g.
 # build_image.sh).
 # TODO(b/307703861): Drop -i here.
-cmd=( sudo -u "${SUDO_USER}" --chdir="${FLAGS_working_dir}" -i )
+cmd=( /usr/bin/sudo -u "${SUDO_USER}" --chdir="${FLAGS_working_dir}" -i )
 
 # Split the command into environment variables and the command to run.
 while [[ "$1" == *=* ]]; do
