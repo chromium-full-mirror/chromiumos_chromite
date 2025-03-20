@@ -2792,12 +2792,13 @@ def CleanOutdatedBinaryPackages(
     return cros_build_lib.run(cmd)
 
 
-def _CheckHasTest(cp, sysroot, require_workon: bool = False) -> None:
+def _CheckHasTest(cp, sysroot, arch: str, require_workon: bool = False) -> None:
     """Checks if the ebuild for |cp| has tests.
 
     Args:
         cp: A portage package in the form category/package_name.
         sysroot: Path to the sysroot.
+        arch: The $ARCH setting for |sysroot|.
         require_workon: Whether to only test workon packages.
 
     Returns:
@@ -2812,7 +2813,7 @@ def _CheckHasTest(cp, sysroot, require_workon: bool = False) -> None:
     except cros_build_lib.RunCommandError as e:
         logging.error("FindEbuildForPackage error %s", e)
         raise failures_lib.PackageBuildFailure(e, "equery", [cp])
-    use_flags = ["test"]
+    use_flags = ["test", arch]
     if sysroot == "/":
         use_flags += ["cros_host"]
     ebuild = EBuild(
@@ -2842,7 +2843,8 @@ def PackagesWithTest(
     # script initialization.
     from chromite.lib import parallel
 
-    inputs = [(cp, sysroot, require_workon) for cp in packages]
+    arch = PortageqEnvvar("ARCH", sysroot=sysroot)
+    inputs = [(cp, sysroot, arch, require_workon) for cp in packages]
     pkg_with_test = set(parallel.RunTasksInProcessPool(_CheckHasTest, inputs))
 
     # CheckHasTest will return None for packages that do not have tests. We can

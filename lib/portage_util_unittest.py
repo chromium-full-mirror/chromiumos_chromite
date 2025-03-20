@@ -266,7 +266,7 @@ inherit cros-workon superpower
         package_path = os.path.join(self.tempdir, package_name)
         os.makedirs(package_path)
         with self.assertRaises(failures_lib.PackageBuildFailure):
-            portage_util._CheckHasTest(package_name, self.tempdir)
+            portage_util._CheckHasTest(package_name, self.tempdir, "amd64")
 
     def testEBuildGetAutotestTests(self) -> None:
         """Test extraction of test names from IUSE_TESTS variable.
