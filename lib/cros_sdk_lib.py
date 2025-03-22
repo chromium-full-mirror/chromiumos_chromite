@@ -690,6 +690,16 @@ def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
     # We expose /dev so we can access loopback & USB drives for flashing.
     osutils.Mount("/dev", path / "dev", None, osutils.MS_BIND | osutils.MS_REC)
 
+    # Fix permissions on shared memory to allow non-root users access to POSIX
+    # semaphores. Take special care to only change the permissions on the
+    # directory and not all of its contents.
+    dev_shm = path / "dev" / "shm"
+    try:
+        if (dev_shm.stat().st_mode & 0o7777) != 0o1777:
+            osutils.Chmod(dev_shm, 0o1777)
+    except FileNotFoundError:
+        pass
+
 
 FileSystemDebugInfo = collections.namedtuple(
     "FileSystemDebugInfo", ("fuser", "lsof", "ps")

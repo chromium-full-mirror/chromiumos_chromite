@@ -465,11 +465,6 @@ setup_env() {
 
     setup_git
 
-    # Fix permissions on shared memory to allow non-root users access to POSIX
-    # semaphores. Take special care to only change the permissions on the
-    # directory and not all of its contents.
-    chmod 1777 "${FLAGS_chroot}/dev/shm"
-
     # gsutil uses boto config to store settings and credentials. Copy
     # user's own boto file into the chroot if it exists.
     chroot_user_boto="${FLAGS_chroot}/home/${SUDO_USER}/.boto"
