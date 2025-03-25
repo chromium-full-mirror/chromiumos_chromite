@@ -27,7 +27,7 @@ MAX_GERRIT_CHANGES = 225
 REVIEWER_KEY_TEXT = "Original-Reviewed-by"
 AUTHOR_KEY_TEXT = "Original-Signed-off-by"
 COPYBOT_SERVICE_ACCOUNT = (
-    "chromeos-ci-prod@chromeos-bot.iam.gserviceaccount.com"
+    "copybot@chops-service-accounts.iam.gserviceaccount.com"
 )
 
 CONTRIBUTOR_FILTERS = {
