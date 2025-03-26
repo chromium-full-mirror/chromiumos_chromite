@@ -1205,9 +1205,20 @@ class ActionAccount(_ActionSimpleParallelCLs):
                     "sshkeys",
                     "gpgkeys",
                 ):
-                    data = gob_util.FetchUrlJson(
-                        helper.host, f"accounts/{arg}/{field}"
-                    )
+                    # Different Gerrit ACLs control access to these APIs.  While
+                    # we open up some (e.g. "View All Accounts"), others remain
+                    # restricted (e.g. "Modify Account").  Display what we can,
+                    # and skip the rest.
+                    try:
+                        data = gob_util.FetchUrlJson(
+                            helper.host,
+                            f"accounts/{arg}/{field}",
+                            expect=(200, 403),
+                        )
+                    except gob_util.GOBError as e:
+                        # Don't log anything as gob_util already did.
+                        if e.http_status != 403:
+                            raise
                     print_one(field, data)
 
         _run_parallel_tasks(task, opts.jobs, *opts.accounts)
