@@ -49,18 +49,16 @@ def GetParser():
         help="Force re-creating the board root.",
     )
     # The positive and negative versions of the arguments are used.
-    # TODO(saklein) Simplify usages to a single version of the argument.
-    parser.add_argument(
+    parser.add_bool_argument(
         "--usepkg",
-        action="store_true",
-        default=True,
-        dest="usepkg",
-        help="Use binary packages to bootstrap.",
+        True,
+        "Use binary packages to bootstrap.",
+        "Do not use binary packages to bootstrap.",
     )
+    # Legacy negative version of the argument.
     parser.add_argument(
         "--nousepkg",
         action="store_false",
-        default=True,
         dest="usepkg",
         help="Do not use binary packages to bootstrap.",
     )
