@@ -624,10 +624,6 @@ class UprevOverlayManager:
     This handles the standard uprev process that covers most packages. There are
     also specialized uprev processes for a few specific packages not handled by
     this class, e.g. chrome and android.
-
-    TODO (saklein): The manifest object for this class is used deep in the
-        portage_util uprev process. Look into whether it's possible to redo it
-        so the manifest isn't required.
     """
 
     def __init__(

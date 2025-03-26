@@ -1704,9 +1704,6 @@ def _ChooseProfile(
 ) -> None:
     """Helper function to execute cros_choose_profile.
 
-    TODO(saklein) Refactor cros_choose_profile to avoid needing the run
-    call here, and by extension this method all together.
-
     Args:
         target: The build target whose profile is being chosen.
         sysroot: The sysroot for which the profile is being chosen.

@@ -164,7 +164,7 @@ def BuildSetup(
 def _GetImageDir(build_root: str, target: str) -> Optional[str]:
     """Return path containing images for the given build target.
 
-    TODO(saklein) Expand image_lib.GetLatestImageLink to support this use case.
+    TODO(build): Expand image_lib.GetLatestImageLink to support this use case.
 
     Args:
         build_root: Path to checkout where build occurs.
