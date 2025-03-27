@@ -6,6 +6,8 @@
 
 import os
 
+import pytest
+
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import unittest_lib
@@ -28,7 +30,9 @@ class MainTest(cros_test_lib.OutputTestCase):
 
         with self.OutputCapturer() as output:
             # Running with --help should exit with code==0.
-            self.AssertFuncSystemExitZero(dep_tracker.main, argv)
+            with pytest.raises(SystemExit) as e:
+                dep_tracker.main(argv)
+            assert e.value.code == 0
 
         # Verify that a message beginning with "usage: " was printed.
         stdout = output.GetStdout()
