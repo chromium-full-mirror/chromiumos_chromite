@@ -60,20 +60,16 @@ from chromite.utils import shell_util
 try:
     import pytest  # pylint: disable=import-error
 
-    pytest_skip = pytest.skip
     pytestmark_inside_only = pytest.mark.inside_only
     pytestmark_network_test = pytest.mark.network_test
     pytestmark_skip = pytest.mark.skip
-    pytestmark_skipif = pytest.mark.skipif
 except (ImportError, AttributeError):
     # If Pytest is not present, or too old to allow pytest.mark,
     # define custom pytestmarks as null functions for test files to use.
     null_decorator = lambda obj: obj
-    pytest_skip = lambda allow_module_level: True  # type: ignore
     pytestmark_inside_only = null_decorator  # type: ignore
     pytestmark_network_test = null_decorator  # type: ignore
     pytestmark_skip = null_decorator  # type: ignore
-    pytestmark_skipif = lambda condition, reason=None: None  # type: ignore
 
 
 # Whether the current test session has --network tests enabled.  Since pytest
