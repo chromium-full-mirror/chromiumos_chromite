@@ -995,7 +995,7 @@ class TestRunCommandOutput(
         self.assertEqual(output, log_output)
 
 
-class HelperMethodSimpleTests(cros_test_lib.OutputTestCase):
+class HelperMethodSimpleTests(cros_test_lib.TestCase):
     """Tests for various helper methods without using mocks."""
 
     def testUserDateTime(self) -> None:

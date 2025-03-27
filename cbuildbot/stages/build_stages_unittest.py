@@ -221,7 +221,7 @@ class UprevStageTest(generic_stages_unittest.AbstractStageTestCase):
 
 
 class AllConfigsTestCase(
-    generic_stages_unittest.AbstractStageTestCase, cros_test_lib.OutputTestCase
+    generic_stages_unittest.AbstractStageTestCase, cros_test_lib.TestCase
 ):
     """Test case for testing against all bot configs."""
 
@@ -237,9 +237,7 @@ class AllConfigsTestCase(
                 rc.SetDefaultCmdResult()
                 if mock_configurator:
                     mock_configurator(rc)
-                with self.OutputCapturer():
-                    with cros_test_lib.LoggingCapturer():
-                        self.RunStage()
+                self.RunStage()
 
                 yield rc
 

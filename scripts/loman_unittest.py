@@ -26,7 +26,7 @@ class RunGitMock(partial_mock.PartialCmdMock):
         )
 
 
-class ParserTest(cros_test_lib.OutputTestCase):
+class ParserTest(cros_test_lib.TestCase):
     """Tests for the CLI parser."""
 
     def setUp(self) -> None:
@@ -34,21 +34,16 @@ class ParserTest(cros_test_lib.OutputTestCase):
 
     def testNoCommand(self) -> None:
         """Require a command at least."""
-        with self.OutputCapturer():
-            self.assertRaises(SystemExit, self.parser.parse_args, [])
+        self.assertRaises(SystemExit, self.parser.parse_args, [])
 
     def testBadCommand(self) -> None:
         """Reject unknown commands."""
-        with self.OutputCapturer():
-            self.assertRaises(SystemExit, self.parser.parse_args, ["flyaway"])
+        self.assertRaises(SystemExit, self.parser.parse_args, ["flyaway"])
 
     def testAddCommand(self) -> None:
         """Verify basic add command behavior."""
-        with self.OutputCapturer():
-            self.parser.parse_args(["add", "--workon", "project"])
-            self.parser.parse_args(
-                ["add", "project", "path", "--remote", "foo"]
-            )
+        self.parser.parse_args(["add", "--workon", "project"])
+        self.parser.parse_args(["add", "project", "path", "--remote", "foo"])
 
 
 class ManifestTest(cros_test_lib.TempDirTestCase):
@@ -74,7 +69,7 @@ class ManifestTest(cros_test_lib.TempDirTestCase):
         os.symlink(target, source)
 
 
-class AddTest(cros_test_lib.MockOutputTestCase, ManifestTest):
+class AddTest(cros_test_lib.MockTestCase, ManifestTest):
     """Tests for the add command."""
 
     def testRejectBadCommands(self) -> None:
@@ -89,12 +84,11 @@ class AddTest(cros_test_lib.MockOutputTestCase, ManifestTest):
             # Missing project.
             ["add", "path", "--remote", "remote"],
         )
-        with self.OutputCapturer():
-            for cmd in bad_cmds:
-                self.assertRaises(SystemExit, loman.main, cmd)
+        for cmd in bad_cmds:
+            self.assertRaises(SystemExit, loman.main, cmd)
 
 
-class NoMiniayoutTest(cros_test_lib.MockOutputTestCase, ManifestTest):
+class NoMiniayoutTest(cros_test_lib.MockTestCase, ManifestTest):
     """Check deprecated minilayout setups are detected."""
 
     def setUp(self) -> None:
@@ -108,8 +102,7 @@ class NoMiniayoutTest(cros_test_lib.MockOutputTestCase, ManifestTest):
 
         self.PatchObject(loman, "_AssertNotMiniLayout", side_effect=_Error)
         cmd = ["add", "-w", "foo"]
-        with self.OutputCapturer():
-            self.assertRaises(_Error, loman.main, cmd)
+        self.assertRaises(_Error, loman.main, cmd)
 
 
 class IncludeXmlTest(cros_test_lib.MockOutputTestCase, ManifestTest):
@@ -176,8 +169,7 @@ class IncludeXmlTest(cros_test_lib.MockOutputTestCase, ManifestTest):
             ]
         )
         cmd = ["add", "-w", self.PROJECT]
-        with self.OutputCapturer():
-            self.assertEqual(loman.main(cmd), 0)
+        self.assertEqual(loman.main(cmd), 0)
         self.assertNotExists(os.path.join(".repo", "local_manifest.xml"))
 
     def testAddNewProject(self) -> None:
@@ -197,8 +189,7 @@ class IncludeXmlTest(cros_test_lib.MockOutputTestCase, ManifestTest):
             ],
         )
         cmd = ["add", new_project, "path", "-r", "remote"]
-        with self.OutputCapturer():
-            self.assertEqual(loman.main(cmd), 0)
+        self.assertEqual(loman.main(cmd), 0)
         expected_local_manifest_nodes = ElementTree.fromstring(
             """
 <manifest>

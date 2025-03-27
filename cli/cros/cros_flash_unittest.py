@@ -23,9 +23,7 @@ class MockFlashCommand(command_unittest.MockCommand):
     COMMAND = "flash"
 
 
-class CrosFlashTest(
-    cros_test_lib.MockTempDirTestCase, cros_test_lib.OutputTestCase
-):
+class CrosFlashTest(cros_test_lib.MockTempDirTestCase):
     """Test calling `cros flash` with various arguments.
 
     These tests just check that arguments as specified on the command
@@ -105,8 +103,7 @@ class CrosFlashTest(
 
     def testFlashError(self) -> None:
         """Tests that FlashErrors are passed through."""
-        with self.OutputCapturer():
-            self.SetupCommandMock([self.DEVICE, self.IMAGE])
-            self.flash_mock.side_effect = flash.FlashError
-            with self.assertRaises(flash.FlashError):
-                self.cmd_mock.inst.Run()
+        self.SetupCommandMock([self.DEVICE, self.IMAGE])
+        self.flash_mock.side_effect = flash.FlashError
+        with self.assertRaises(flash.FlashError):
+            self.cmd_mock.inst.Run()

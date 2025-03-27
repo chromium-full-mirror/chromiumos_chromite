@@ -39,9 +39,7 @@ DEFAULT_BUILD_STAGE_ID = 313377
 
 # The inheritance order ensures the patchers are stopped before
 # cleaning up the temporary directories.
-class StageTestCase(
-    cros_test_lib.MockOutputTestCase, cros_test_lib.TempDirTestCase
-):
+class StageTestCase(cros_test_lib.MockTestCase, cros_test_lib.TempDirTestCase):
     """Test running a single stage in isolation."""
 
     TARGET_MANIFEST_BRANCH = "ooga_booga"
@@ -288,7 +286,7 @@ class AbstractStageTestCase(StageTestCase):
         self.assertTrue(results_lib.Results.BuildSucceededSoFar())
 
 
-class BuilderStageTest(AbstractStageTestCase):
+class BuilderStageTest(AbstractStageTestCase, cros_test_lib.OutputTestCase):
     """Tests for BuilderStage class."""
 
     def setUp(self) -> None:
@@ -389,8 +387,7 @@ class BuilderStageTest(AbstractStageTestCase):
     def testRunSmoke(self) -> None:
         """Basic passing test for the Run() function."""
         stage = self.ConstructStage()
-        with self.OutputCapturer():
-            stage.Run()
+        stage.Run()
 
     def _RunCapture(self, stage):
         """Helper method to run Run() with captured output."""

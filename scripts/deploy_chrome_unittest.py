@@ -34,18 +34,17 @@ def _ParseCommandLine(argv):
     return deploy_chrome._ParseCommandLine(["--log-level", "debug"] + argv)
 
 
-class InterfaceTest(cros_test_lib.OutputTestCase):
+class InterfaceTest(cros_test_lib.TestCase):
     """Tests the commandline interface of the script."""
 
     def testGsLocalPathUnSpecified(self) -> None:
         """Test no chrome path specified."""
-        with self.OutputCapturer():
-            self.assertRaises2(
-                SystemExit,
-                _ParseCommandLine,
-                list(_REGULAR_TO) + ["--board", _TARGET_BOARD],
-                check_attrs={"code": 2},
-            )
+        self.assertRaises2(
+            SystemExit,
+            _ParseCommandLine,
+            list(_REGULAR_TO) + ["--board", _TARGET_BOARD],
+            check_attrs={"code": 2},
+        )
 
     def testBuildDirSpecified(self) -> None:
         """Test case of build dir specified."""
@@ -102,10 +101,9 @@ class InterfaceTest(cros_test_lib.OutputTestCase):
         self.assertParseError(argv)
 
     def assertParseError(self, argv) -> None:
-        with self.OutputCapturer():
-            self.assertRaises2(
-                SystemExit, _ParseCommandLine, argv, check_attrs={"code": 2}
-            )
+        self.assertRaises2(
+            SystemExit, _ParseCommandLine, argv, check_attrs={"code": 2}
+        )
 
     def testMountOptionSetsTargetDir(self) -> None:
         argv = list(_REGULAR_TO) + [

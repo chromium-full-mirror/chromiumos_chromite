@@ -185,7 +185,7 @@ class PortageTreeFake:
         self.dbapi = dbapi
 
 
-class TestInstallPackageScanner(cros_test_lib.MockOutputTestCase):
+class TestInstallPackageScanner(cros_test_lib.MockTestCase):
     """Test the update package scanner."""
 
     _BOARD = "foo_board"

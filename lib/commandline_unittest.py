@@ -70,7 +70,7 @@ class TimedeltaTest(cros_test_lib.TestCase):
         self.assertEqual(opts.timedelta, datetime.timedelta(seconds=0))
 
 
-class GSPathTest(cros_test_lib.OutputTestCase):
+class GSPathTest(cros_test_lib.TestCase):
     """Test type=gs_path normalization functionality."""
 
     GS_REL_PATH = "bucket/path/to/artifacts"
@@ -124,14 +124,13 @@ class GSPathTest(cros_test_lib.OutputTestCase):
 
     def testInvalidPath(self) -> None:
         """Path cannot be normalized."""
-        with self.OutputCapturer():
-            self.assertRaises2(
-                SystemExit,
-                self._RunGSPathTestCase,
-                "http://badhost.com/path",
-                "",
-                check_attrs={"code": 2},
-            )
+        self.assertRaises2(
+            SystemExit,
+            self._RunGSPathTestCase,
+            "http://badhost.com/path",
+            "",
+            check_attrs={"code": 2},
+        )
 
 
 class BoolTest(cros_test_lib.TestCase):
@@ -272,7 +271,7 @@ def test_add_bool_argument_in_mutually_exclusive_group() -> None:
     assert not opts.default_true
 
 
-class DeviceParseTest(cros_test_lib.OutputTestCase):
+class DeviceParseTest(cros_test_lib.TestCase):
     """Test device parsing functionality."""
 
     _ALL_SCHEMES = (
@@ -327,8 +326,7 @@ class DeviceParseTest(cros_test_lib.OutputTestCase):
         """
         parser = commandline.ArgumentParser()
         parser.add_argument("device", type=commandline.DeviceParser(schemes))
-        with self.OutputCapturer():
-            self.assertRaises2(SystemExit, parser.parse_args, [device_input])
+        self.assertRaises2(SystemExit, parser.parse_args, [device_input])
 
     def testNoDevice(self) -> None:
         """Verify that an empty device specification fails."""

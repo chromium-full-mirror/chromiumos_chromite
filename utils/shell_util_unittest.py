@@ -101,7 +101,7 @@ def test_cmd_to_str(exp: str, data: List[Optional[str]]) -> None:
     assert shell_util.cmd_to_str(data) == exp
 
 
-class TestInput(cros_test_lib.MockOutputTestCase):
+class TestInput(cros_test_lib.MockTestCase):
     """Tests of input gathering functionality."""
 
     def test_boolean_prompt(self) -> None:

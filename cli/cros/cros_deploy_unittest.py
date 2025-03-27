@@ -23,9 +23,7 @@ class MockDeployCommand(command_unittest.MockCommand):
     COMMAND = "deploy"
 
 
-class CrosDeployTest(
-    cros_test_lib.MockTempDirTestCase, cros_test_lib.OutputTestCase
-):
+class CrosDeployTest(cros_test_lib.MockTempDirTestCase):
     """Test calling `cros deploy` with various arguments.
 
     These tests just check that arguments as specified on the command
@@ -96,8 +94,7 @@ class CrosDeployTest(
 
     def testDeployError(self) -> None:
         """Tests that DeployErrors are passed through."""
-        with self.OutputCapturer():
-            self.SetupCommandMock([self.DEVICE] + self.PACKAGES)
-            self.deploy_mock.side_effect = deploy.DeployError
-            with self.assertRaises(deploy.DeployError):
-                self.cmd_mock.inst.Run()
+        self.SetupCommandMock([self.DEVICE] + self.PACKAGES)
+        self.deploy_mock.side_effect = deploy.DeployError
+        with self.assertRaises(deploy.DeployError):
+            self.cmd_mock.inst.Run()
