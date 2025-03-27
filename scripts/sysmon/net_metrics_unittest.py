@@ -17,11 +17,7 @@ from chromite.scripts.sysmon import net_metrics
 
 snetio = psutil._common.snetio
 snicstats = psutil._common.snicstats
-snic = getattr(psutil._common, "snic", None)
-
-pytestmark = cros_test_lib.pytestmark_skipif(
-    snic is None, reason="Wrong version of psutil"
-)
+snic = psutil._common.snicaddr
 
 
 class TestNetMetrics(cros_test_lib.TestCase):
