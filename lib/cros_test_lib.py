@@ -1445,10 +1445,6 @@ class ProgressBarTestCase(MockOutputTestCase):
         self.AssertOutputContainsLine("100%")
 
 
-class MockLoggingTestCase(MockTestCase, LoggingTestCase):
-    """Convenience class mixing Logging and Mock."""
-
-
 @contextlib.contextmanager
 def SetTimeZone(tz: str) -> Generator[None, None, None]:
     """Temporarily set the timezone to the specified value.

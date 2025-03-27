@@ -215,7 +215,7 @@ class LogTest(cros_test_lib.TempDirTestCase):
         )
 
 
-class InterfaceTest(cros_test_lib.MockTestCase, cros_test_lib.LoggingTestCase):
+class InterfaceTest(cros_test_lib.MockTestCase):
     """Test the command line interface."""
 
     _GENERIC_PREFLIGHT = "amd64-generic-release"

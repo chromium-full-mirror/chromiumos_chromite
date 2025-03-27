@@ -13,10 +13,7 @@ from chromite.lib import osutils
 from chromite.lib import partial_mock
 
 
-class GetChromeLkgmTest(
-    cros_test_lib.MockTempDirTestCase,
-    cros_test_lib.LoggingTestCase,
-):
+class GetChromeLkgmTest(cros_test_lib.MockTempDirTestCase):
     """Tests GetChromeLkgm method."""
 
     def setUp(self) -> None:

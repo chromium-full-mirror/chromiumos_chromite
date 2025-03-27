@@ -319,7 +319,7 @@ test_git_repo = "/path/to/repo"
 test_package_path = "/path/to/repo/pkg"
 
 
-class TriciumCargoClippyTests(cros_test_lib.LoggingTestCase):
+class TriciumCargoClippyTests(cros_test_lib.TestCase):
     """Tests for Cargo Clippy."""
 
     def test_parse_locations(self) -> None:
