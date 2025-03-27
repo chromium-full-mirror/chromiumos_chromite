@@ -9,6 +9,8 @@ import os
 import sys
 from unittest import mock
 
+import pytest
+
 from chromite.cbuildbot import cbuildbot_run
 from chromite.cbuildbot import commands
 from chromite.cbuildbot.stages import generic_stages
@@ -286,7 +288,7 @@ class AbstractStageTestCase(StageTestCase):
         self.assertTrue(results_lib.Results.BuildSucceededSoFar())
 
 
-class BuilderStageTest(AbstractStageTestCase, cros_test_lib.OutputTestCase):
+class BuilderStageTest(AbstractStageTestCase):
     """Tests for BuilderStage class."""
 
     def setUp(self) -> None:
@@ -369,35 +371,27 @@ class BuilderStageTest(AbstractStageTestCase, cros_test_lib.OutputTestCase):
 
         self.assertEqual(stage.ConstructDashboardURL(stage=stage_name), exp_url)
 
+    @pytest.mark.usefixtures("legacy_capture_output")
     def test_PrintSmoke(self) -> None:
         """Basic test for the _Print() function."""
         stage = self.ConstructStage()
-        with self.OutputCapturer():
-            stage._Print("hi there")
-        self.AssertOutputContainsLine("hi there", check_stderr=True)
+        stage._Print("hi there")
+        captured = self.capfd.readouterr()
+        assert "hi there" in captured.err
 
+    @pytest.mark.usefixtures("legacy_capture_output")
     def test_PrintLoudlySmoke(self) -> None:
         """Basic test for the _PrintLoudly() function."""
         stage = self.ConstructStage()
-        with self.OutputCapturer():
-            stage._PrintLoudly("hi there")
-        self.AssertOutputContainsLine(r"\*{10}", check_stderr=True)
-        self.AssertOutputContainsLine("hi there", check_stderr=True)
+        stage._PrintLoudly("hi there")
+        captured = self.capfd.readouterr()
+        assert "**********" in captured.err
+        assert "** hi there" in captured.err
 
     def testRunSmoke(self) -> None:
         """Basic passing test for the Run() function."""
         stage = self.ConstructStage()
         stage.Run()
-
-    def _RunCapture(self, stage):
-        """Helper method to run Run() with captured output."""
-        output = self.OutputCapturer()
-        output.StartCapturing()
-        try:
-            stage.Run()
-        finally:
-            output.StopCapturing()
-        return output
 
     def testRunException(self) -> None:
         """Verify stage exceptions are handled."""
@@ -412,7 +406,7 @@ class BuilderStageTest(AbstractStageTestCase, cros_test_lib.OutputTestCase):
 
         stage = self.ConstructStage()
         results_lib.Results.Clear()
-        self.assertRaises(failures_lib.StepFailure, self._RunCapture, stage)
+        self.assertRaises(failures_lib.StepFailure, stage.Run)
 
         results = results_lib.Results.Get()[0]
         self.assertIsInstance(results.result, TestError)
@@ -437,7 +431,7 @@ class BuilderStageTest(AbstractStageTestCase, cros_test_lib.OutputTestCase):
 
         stage = self.ConstructStage()
         results_lib.Results.Clear()
-        self.assertRaises(failures_lib.StepFailure, self._RunCapture, stage)
+        self.assertRaises(failures_lib.StepFailure, stage.Run)
 
         results = results_lib.Results.Get()[0]
         self.assertIsInstance(results.result, TestError)
@@ -464,6 +458,7 @@ class BuilderStageTest(AbstractStageTestCase, cros_test_lib.OutputTestCase):
         )
         self.assertFalse(self.mock_cidb.StartBuildStage.called)
 
+    @pytest.mark.usefixtures("legacy_capture_output")
     def testRunSkipsPreviouslyCompletedStage(self) -> None:
         """Tests a stage that has run before is skipped, and marked as such."""
         handle_skip_mock = self.PatchObject(
@@ -483,10 +478,9 @@ class BuilderStageTest(AbstractStageTestCase, cros_test_lib.OutputTestCase):
         with open(self.tempdir / "foo", "r", encoding="utf-8") as out:
             results_lib.Results.RestoreCompletedStages(out)
 
-        output = self._RunCapture(stage)
-        all_out = output.GetStdout()
-        all_out += output.GetStderr()
-        self.assertTrue("[PREVIOUSLY PROCESSED]" in all_out)
+        stage.Run()
+        captured = self.capfd.readouterr()
+        assert "PREVIOUSLY PROCESSED]" in captured.err
         self.assertTrue(handle_skip_mock.called)
 
     def testHandleExceptionException(self) -> None:
@@ -509,7 +503,7 @@ class BuilderStageTest(AbstractStageTestCase, cros_test_lib.OutputTestCase):
 
         stage = self._ConstructStageWithExpectations(BadStage)
         results_lib.Results.Clear()
-        self.assertRaises(failures_lib.StepFailure, self._RunCapture, stage)
+        self.assertRaises(failures_lib.StepFailure, stage.Run)
 
         # Verify the results tracked the original exception.
         results = results_lib.Results.Get()[0]

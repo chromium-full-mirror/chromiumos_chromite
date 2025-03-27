@@ -7,6 +7,8 @@
 import os
 from xml.etree import ElementTree
 
+import pytest
+
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import partial_mock
@@ -105,7 +107,7 @@ class NoMiniayoutTest(cros_test_lib.MockTestCase, ManifestTest):
         self.assertRaises(_Error, loman.main, cmd)
 
 
-class IncludeXmlTest(cros_test_lib.MockOutputTestCase, ManifestTest):
+class IncludeXmlTest(cros_test_lib.MockTestCase, ManifestTest):
     """End to End tests for reading and producing XML trees."""
 
     PROJECT = "chromiumos/repohooks"
@@ -172,6 +174,7 @@ class IncludeXmlTest(cros_test_lib.MockOutputTestCase, ManifestTest):
         self.assertEqual(loman.main(cmd), 0)
         self.assertNotExists(os.path.join(".repo", "local_manifest.xml"))
 
+    @pytest.mark.usefixtures("legacy_capture_output")
     def testAddNewProject(self) -> None:
         """Add new project to the repo.
 
@@ -209,6 +212,5 @@ class IncludeXmlTest(cros_test_lib.MockOutputTestCase, ManifestTest):
 
         # Check that re-adding triggers error.
         cmd = ["add", new_project, "path", "-r", "remote"]
-        with self.OutputCapturer() as output:
-            self.assertRaises(SystemExit, loman.main, cmd)
-            self.assertIn("conflicts with", "\n".join(output.GetStderrLines()))
+        self.assertRaises(SystemExit, loman.main, cmd)
+        assert "conflicts with" in self.capfd.readouterr().err

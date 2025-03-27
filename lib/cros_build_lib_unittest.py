@@ -15,6 +15,8 @@ import subprocess
 from typing import Any
 from unittest import mock
 
+import pytest
+
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -865,11 +867,7 @@ class TestRunCommand(cros_test_lib.MockTestCase):
         self.assertEqual(self.stdin, unicode_input.encode("utf-8"))
 
 
-# TODO(crbug.com/1072139): Migrate tests to use 'legacy_capture_output' fixture
-#                          once this module is Python 3-only.
-class TestRunCommandOutput(
-    cros_test_lib.TempDirTestCase, cros_test_lib.OutputTestCase
-):
+class TestRunCommandOutput(cros_test_lib.TempDirTestCase):
     """Tests of run output options."""
 
     @_ForceLoggingLevel
@@ -946,20 +944,17 @@ class TestRunCommandOutput(
         self.assertEqual("out\n", osutils.ReadFile(stdout))
         self.assertEqual("err\n", osutils.ReadFile(stderr))
 
-    # TODO(crbug.com/1072139): Re-enable this test and migrate away from using
-    #                          OutputCapturer once this module is Python 3 only.
-    @cros_test_lib.pytestmark_skip
+    @pytest.mark.usefixtures("legacy_capture_output")
     def testRunCommandAtNoticeLevel(self) -> None:
         """Ensure that run prints output when mute_output is False."""
         # Needed by cros_sdk and brillo/cros chroot.
-        with self.OutputCapturer():
-            cros_build_lib.run(
-                ["echo", "foo"],
-                check=False,
-                print_cmd=False,
-                debug_level=logging.NOTICE,
-            )
-        self.AssertOutputContainsLine("foo")
+        cros_build_lib.run(
+            ["echo", "foo"],
+            check=True,
+            print_cmd=False,
+            debug_level=logging.NOTICE,
+        )
+        assert "foo" in self.capfd.readouterr().out
 
     def testRunCommandRedirectStdoutStderrOnCommandError(self) -> None:
         """Tests that stderr is captured when run raises."""

@@ -43,10 +43,8 @@ from chromite.lib import operation
 from chromite.lib import osutils
 from chromite.lib import partial_mock
 from chromite.lib import portage_util
-from chromite.lib import terminal
 from chromite.lib import timeout_util
 from chromite.utils import memoize
-from chromite.utils import outcap
 from chromite.utils import shell_util
 
 
@@ -62,14 +60,12 @@ try:
 
     pytestmark_inside_only = pytest.mark.inside_only
     pytestmark_network_test = pytest.mark.network_test
-    pytestmark_skip = pytest.mark.skip
 except (ImportError, AttributeError):
     # If Pytest is not present, or too old to allow pytest.mark,
     # define custom pytestmarks as null functions for test files to use.
     null_decorator = lambda obj: obj
     pytestmark_inside_only = null_decorator  # type: ignore
     pytestmark_network_test = null_decorator  # type: ignore
-    pytestmark_skip = null_decorator  # type: ignore
 
 
 # Whether the current test session has --network tests enabled.  Since pytest
@@ -877,297 +873,6 @@ class LoggingTestCase(TestCase):
         self.AssertLogsMatch(log_capturer, re.escape(msg), inverted=inverted)
 
 
-class OutputTestCase(TestCase):
-    """Base class for cros unit tests with utility methods."""
-
-    # These work with error output from operation module.
-    ERROR_MSG_RE = re.compile(
-        r"^\033\[1;%dm(.+?)(?:\033\[0m)+$" % (30 + terminal.Color.RED,),
-        re.DOTALL,
-    )
-    WARNING_MSG_RE = re.compile(
-        r"^\033\[1;%dm(.+?)(?:\033\[0m)+$" % (30 + terminal.Color.YELLOW,),
-        re.DOTALL,
-    )
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        """Base class __init__ takes a second argument."""
-        TestCase.__init__(self, *args, **kwargs)
-        self._output_capturer: Optional[outcap.OutputCapturer] = None
-
-    def OutputCapturer(
-        self, *args: Any, **kwargs: Any
-    ) -> outcap.OutputCapturer:
-        """Create and return OutputCapturer object."""
-        self._output_capturer = outcap.OutputCapturer(*args, **kwargs)
-        return self._output_capturer
-
-    def _GetOutputCapt(self) -> outcap.OutputCapturer:
-        """Internal access to existing OutputCapturer.
-
-        Raises RuntimeError if output capturing was never on.
-        """
-        if self._output_capturer:
-            return self._output_capturer
-
-        raise RuntimeError(
-            "Output capturing was never turned on for this test."
-        )
-
-    def _GenCheckMsgFunc(
-        self,
-        prefix_re: Optional[Union[re.Pattern[str], str]],
-        line_re: Optional[Union[re.Pattern[str], str]],
-    ) -> Callable[[str], Union[bool, re.Match[str], None]]:
-        """Return bool func to check a line given |prefix_re| and |line_re|."""
-
-        def _method(line: str) -> Union[bool, re.Match[str], None]:
-            if prefix_re:
-                # Prefix regexp will strip off prefix (and suffix) from line.
-                # str prefix_re is guaranteed to be compiled below.
-                match = prefix_re.search(line)  # type: ignore[union-attr]
-
-                if match:
-                    line = match.group(1)
-                else:
-                    return False
-
-            # str line_re is guaranteed to be compiled below.
-            return (
-                line_re.search(line)  # type: ignore[union-attr]
-                if line_re
-                else True
-            )
-
-        if isinstance(prefix_re, str):
-            prefix_re = re.compile(prefix_re)
-        if isinstance(line_re, str):
-            line_re = re.compile(line_re)
-
-        # Provide a description of what this function looks for in a line.
-        # Error messages can make use of this.
-        setattr(_method, "description", None)
-        if prefix_re and line_re:
-            setattr(
-                _method,
-                "description",
-                (
-                    "line matching prefix regexp %r then regexp %r"
-                    % (prefix_re.pattern, line_re.pattern)
-                ),
-            )
-        elif prefix_re:
-            setattr(
-                _method,
-                "description",
-                ("line matching prefix regexp %r" % prefix_re.pattern),
-            )
-        elif line_re:
-            setattr(
-                _method,
-                "description",
-                "line matching regexp %r" % line_re.pattern,
-            )
-        else:
-            raise RuntimeError(
-                "Nonsensical usage of _GenCheckMsgFunc: no prefix_re or line_re"
-            )
-
-        return _method
-
-    def _ContainsMsgLine(
-        self, lines: Iterable[str], msg_check_func: Callable[[str], Any]
-    ) -> bool:
-        return any(msg_check_func(ln) for ln in lines)
-
-    def _GenOutputDescription(
-        self, check_stdout: bool, check_stderr: bool
-    ) -> str:
-        # Some extra logic to make an error message useful.
-        if check_stdout and check_stderr:
-            return "stdout or stderr"
-        elif check_stdout:
-            return "stdout"
-        elif check_stderr:
-            return "stderr"
-        return ""
-
-    def _AssertOutputContainsMsg(
-        self,
-        check_msg_func: Callable[[str], Union[bool, re.Match[str], None]],
-        invert: bool,
-        check_stdout: bool,
-        check_stderr: bool,
-    ) -> None:
-        assert check_stdout or check_stderr
-
-        lines = []
-        if check_stdout:
-            lines.extend(self._GetOutputCapt().GetStdoutLines())
-        if check_stderr:
-            lines.extend(self._GetOutputCapt().GetStderrLines())
-
-        result = self._ContainsMsgLine(lines, check_msg_func)
-
-        # Some extra logic to make an error message useful.
-        output_desc = self._GenOutputDescription(check_stdout, check_stderr)
-
-        if invert:
-            msg = "expected %s to not contain %s,\nbut found it in:\n%s" % (
-                output_desc,
-                getattr(check_msg_func, "description"),
-                lines,
-            )
-            self.assertFalse(result, msg=msg)
-        else:
-            msg = "expected %s to contain %s,\nbut did not find it in:\n%s" % (
-                output_desc,
-                getattr(check_msg_func, "description"),
-                lines,
-            )
-            self.assertTrue(result, msg=msg)
-
-    def AssertOutputContainsError(
-        self,
-        regexp: Optional[re.Pattern[str]] = None,
-        invert: bool = False,
-        check_stdout: bool = True,
-        check_stderr: bool = False,
-    ) -> None:
-        """Assert requested output contains at least one error line.
-
-        If |regexp| is non-null, then the error line must also match it.
-        If |invert| is true, then assert the line is NOT found.
-
-        Raises RuntimeError if output capturing was never on for this test.
-        """
-        check_msg_func = self._GenCheckMsgFunc(self.ERROR_MSG_RE, regexp)
-        return self._AssertOutputContainsMsg(
-            check_msg_func, invert, check_stdout, check_stderr
-        )
-
-    def AssertOutputContainsWarning(
-        self,
-        regexp: Optional[re.Pattern[str]] = None,
-        invert: bool = False,
-        check_stdout: bool = True,
-        check_stderr: bool = False,
-    ) -> None:
-        """Assert requested output contains at least one warning line.
-
-        If |regexp| is non-null, then the warning line must also match it.
-        If |invert| is true, then assert the line is NOT found.
-
-        Raises RuntimeError if output capturing was never on for this test.
-        """
-        check_msg_func = self._GenCheckMsgFunc(self.WARNING_MSG_RE, regexp)
-        return self._AssertOutputContainsMsg(
-            check_msg_func, invert, check_stdout, check_stderr
-        )
-
-    def AssertOutputContainsLine(
-        self,
-        regexp: Optional[Union[re.Pattern[str], str]],
-        invert: bool = False,
-        check_stdout: bool = True,
-        check_stderr: bool = False,
-    ) -> None:
-        """Assert requested output contains line matching |regexp|.
-
-        If |invert| is true, then assert the line is NOT found.
-
-        Raises RuntimeError if output capturing was never on for this test.
-        """
-        check_msg_func = self._GenCheckMsgFunc(None, regexp)
-        return self._AssertOutputContainsMsg(
-            check_msg_func, invert, check_stdout, check_stderr
-        )
-
-    def _AssertOutputEndsInMsg(
-        self,
-        check_msg_func: Callable[[str], Union[bool, re.Match[str], None]],
-        check_stdout: bool,
-        check_stderr: bool,
-    ) -> None:
-        """Pass if requested output(s) ends(end) with an error message."""
-        assert check_stdout or check_stderr
-
-        lines = []
-        if check_stdout:
-            stdout_lines = self._GetOutputCapt().GetStdoutLines(
-                include_empties=False
-            )
-            if stdout_lines:
-                lines.append(stdout_lines[-1])
-        if check_stderr:
-            stderr_lines = self._GetOutputCapt().GetStderrLines(
-                include_empties=False
-            )
-            if stderr_lines:
-                lines.append(stderr_lines[-1])
-
-        result = self._ContainsMsgLine(lines, check_msg_func)
-
-        # Some extra logic to make an error message useful.
-        output_desc = self._GenOutputDescription(check_stdout, check_stderr)
-
-        msg = "expected %s to end with %s,\nbut did not find it in:\n%s" % (
-            output_desc,
-            getattr(check_msg_func, "description"),
-            lines,
-        )
-        self.assertTrue(result, msg=msg)
-
-    def AssertOutputEndsInError(
-        self,
-        regexp: Optional[re.Pattern[str]] = None,
-        check_stdout: bool = True,
-        check_stderr: bool = False,
-    ) -> None:
-        """Assert requested output ends in error line.
-
-        If |regexp| is non-null, then the error line must also match it.
-
-        Raises RuntimeError if output capturing was never on for this test.
-        """
-        check_msg_func = self._GenCheckMsgFunc(self.ERROR_MSG_RE, regexp)
-        return self._AssertOutputEndsInMsg(
-            check_msg_func, check_stdout, check_stderr
-        )
-
-    def AssertOutputEndsInWarning(
-        self,
-        regexp: Optional[re.Pattern[str]] = None,
-        check_stdout: bool = True,
-        check_stderr: bool = False,
-    ) -> None:
-        """Assert requested output ends in warning line.
-
-        If |regexp| is non-null, then the warning line must also match it.
-
-        Raises RuntimeError if output capturing was never on for this test.
-        """
-        check_msg_func = self._GenCheckMsgFunc(self.WARNING_MSG_RE, regexp)
-        return self._AssertOutputEndsInMsg(
-            check_msg_func, check_stdout, check_stderr
-        )
-
-    def AssertOutputEndsInLine(
-        self,
-        regexp: Optional[re.Pattern[str]] = None,
-        check_stdout: bool = True,
-        check_stderr: bool = False,
-    ) -> None:
-        """Assert requested output ends in line matching |regexp|.
-
-        Raises RuntimeError if output capturing was never on for this test.
-        """
-        check_msg_func = self._GenCheckMsgFunc(None, regexp)
-        return self._AssertOutputEndsInMsg(
-            check_msg_func, check_stdout, check_stderr
-        )
-
-
 class TempDirTestCase(TestCase):
     """Mixin used to give each test a tempdir that is cleansed upon finish"""
 
@@ -1398,11 +1103,7 @@ class MockTempDirTestCase(MockTestCase, TempDirTestCase):
     """Convenience class mixing TempDir and Mock."""
 
 
-class MockOutputTestCase(MockTestCase, OutputTestCase):
-    """Convenience class mixing Output and Mock."""
-
-
-class ProgressBarTestCase(MockOutputTestCase):
+class ProgressBarTestCase(MockTestCase):
     """Test class to test the progress bar."""
 
     # pylint: disable=protected-access
@@ -1421,12 +1122,12 @@ class ProgressBarTestCase(MockOutputTestCase):
             width, height
         )
 
-    def AssertProgressBarAllEvents(self, num_events: int) -> None:
+    def AssertProgressBarAllEvents(self, output: str, num_events: int) -> None:
         """Check that the progress bar generates expected events."""
         skipped = 0
         for i in range(num_events):
             try:
-                self.AssertOutputContainsLine("%d%%" % (i * 100 // num_events))
+                assert "%d%%" % (i * 100 // num_events) in output
             except AssertionError:
                 skipped += 1
 
@@ -1438,7 +1139,7 @@ class ProgressBarTestCase(MockOutputTestCase):
             "Skipped %s of %s progress updates" % (skipped, num_events),
         )
 
-        self.AssertOutputContainsLine("100%")
+        assert "100%" in output
 
 
 @contextlib.contextmanager

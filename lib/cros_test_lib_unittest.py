@@ -6,16 +6,13 @@
 
 import io
 import logging
-import os
 import subprocess
-import sys
 import time
 import unittest
 from unittest import mock
 
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
-from chromite.lib import osutils
 from chromite.lib import partial_mock
 from chromite.lib import timeout_util
 
@@ -229,71 +226,6 @@ class TestCaseTest(unittest.TestCase):
         # Run the test case, verifying it raises a TimeoutError.
         test = TimeoutTestCase(methodName="testSleeping")
         self.assertRaises(timeout_util.TimeoutError, test.testSleeping)
-
-
-class OutputTestCaseTest(
-    cros_test_lib.OutputTestCase, cros_test_lib.TempDirTestCase
-):
-    """Tests OutputTestCase functionality."""
-
-    def testStdoutAndStderr(self) -> None:
-        """Check capturing stdout and stderr."""
-        with self.OutputCapturer():
-            print("foo")
-            print("bar", file=sys.stderr)
-        self.AssertOutputContainsLine("foo")
-        self.AssertOutputContainsLine(
-            "bar", check_stdout=False, check_stderr=True
-        )
-
-    def testStdoutReadDuringCapture(self) -> None:
-        """Check reading stdout mid-capture."""
-        with self.OutputCapturer():
-            print("foo")
-            self.AssertOutputContainsLine("foo")
-            print("bar")
-            self.AssertOutputContainsLine("bar")
-        self.AssertOutputContainsLine("foo")
-        self.AssertOutputContainsLine("bar")
-
-    def testClearCaptured(self) -> None:
-        """Check writing data, clearing it, then writing more data."""
-        with self.OutputCapturer() as cap:
-            print("foo")
-            self.AssertOutputContainsLine("foo")
-            cap.ClearCaptured()
-            self.AssertOutputContainsLine("foo", invert=True)
-            print("bar")
-        self.AssertOutputContainsLine("bar")
-
-    @cros_test_lib.pytestmark_skip
-    def testRunCommandCapture(self) -> None:
-        """Check capturing run() subprocess output."""
-        with self.OutputCapturer():
-            cros_build_lib.run(["sh", "-c", "echo foo; echo bar >&2"])
-        self.AssertOutputContainsLine("foo")
-        self.AssertOutputContainsLine(
-            "bar", check_stdout=False, check_stderr=True
-        )
-
-    def testCapturingStdoutAndStderrToFile(self) -> None:
-        """Check that OutputCapturer captures to a named file."""
-        stdout_path = os.path.join(self.tempdir, "stdout")
-        stderr_path = os.path.join(self.tempdir, "stderr")
-        with self.OutputCapturer(
-            stdout_path=stdout_path, stderr_path=stderr_path
-        ):
-            print("foo")
-            print("bar", file=sys.stderr)
-
-        # Check that output can be read by OutputCapturer.
-        self.AssertOutputContainsLine("foo")
-        self.AssertOutputContainsLine(
-            "bar", check_stdout=False, check_stderr=True
-        )
-        # Verify that output is actually written to the correct files.
-        self.assertEqual("foo\n", osutils.ReadFile(stdout_path))
-        self.assertEqual("bar\n", osutils.ReadFile(stderr_path))
 
 
 class RunCommandTestCase(cros_test_lib.RunCommandTestCase):

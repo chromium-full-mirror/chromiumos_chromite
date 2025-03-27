@@ -9,9 +9,12 @@ import multiprocessing
 import os
 import sys
 
+import pytest
+
 from chromite.lib import cros_test_lib
 from chromite.lib import operation
 from chromite.lib import parallel
+from chromite.utils import outcap
 
 
 class TestWrapperProgressBarOperation(operation.ProgressBarOperation):
@@ -40,7 +43,6 @@ class FakeException(Exception):
 
 class ProgressBarOperationTest(
     cros_test_lib.MockTestCase,
-    cros_test_lib.OutputTestCase,
     cros_test_lib.LoggingTestCase,
 ):
     """Test the Progress Bar Operation class."""
@@ -67,7 +69,7 @@ class ProgressBarOperationTest(
             100, terminal_width
         )
         op = operation.ProgressBarOperation()
-        with self.OutputCapturer() as output:
+        with outcap.OutputCapturer() as output:
             op.ProgressBar(percent)
         stdout = output.GetStdout()
 
@@ -108,6 +110,7 @@ class ProgressBarOperationTest(
         # longer time so the test does not fail on highly loaded builders.
         self.assertTrue(op.WaitUntilComplete(10))
 
+    @pytest.mark.usefixtures("legacy_capture_output")
     def testRun(self) -> None:
         """Test that ParseOutput is called and foo is run in background."""
         expected_output = "hi"
@@ -116,11 +119,11 @@ class ProgressBarOperationTest(
             print(expected_output)
 
         op = TestWrapperProgressBarOperation()
-        with self.OutputCapturer():
-            op.Run(func, update_period=0.05)
+        op.Run(func, update_period=0.05)
+        captured = self.capfd.readouterr()
 
         # Check that foo is executed and its output is captured.
-        self.AssertOutputContainsLine(expected_output)
+        assert expected_output in captured.out
         # Check that ParseOutput is executed at least once. It can be called
         # twice:
         #   Once in the while loop.
@@ -128,8 +131,9 @@ class ProgressBarOperationTest(
         #   However, it is possible for func to execute and finish before the
         #   while statement is executed even once in which case ParseOutput
         #   would only be called once.
-        self.AssertOutputContainsLine("Calling ParseOutput")
+        assert "Calling ParseOutput" in captured.out
 
+    @pytest.mark.usefixtures("legacy_capture_output")
     def testExceptionHandling(self) -> None:
         """Test exception handling."""
 
@@ -139,20 +143,21 @@ class ProgressBarOperationTest(
             raise FakeException()
 
         op = TestWrapperProgressBarOperation()
-        with self.OutputCapturer():
-            try:
-                with cros_test_lib.LoggingCapturer() as logs:
-                    op.Run(func)
-            except parallel.BackgroundFailure:
-                pass
+        try:
+            with cros_test_lib.LoggingCapturer() as logs:
+                op.Run(func)
+        except parallel.BackgroundFailure:
+            pass
 
         # Check that the output was dumped correctly.
+        captured = self.capfd.readouterr()
         self.AssertLogsContain(logs, "Something went wrong.")
-        self.AssertOutputContainsLine("Captured stdout was")
-        self.AssertOutputContainsLine("Captured stderr was")
-        self.AssertOutputContainsLine("foo")
-        self.AssertOutputContainsLine("bar", check_stderr=True)
+        assert "Captured stdout was" in captured.out
+        assert "Captured stderr was" in captured.out
+        assert "foo" in captured.out
+        assert "bar" in captured.out or "bar" in captured.err
 
+    @pytest.mark.usefixtures("legacy_capture_output")
     def testLogLevel(self) -> None:
         """Test that the log level of the function running is set correctly."""
         func_log_level = logging.DEBUG
@@ -165,17 +170,18 @@ class ProgressBarOperationTest(
 
         logging.getLogger().setLevel(test_log_level)
         op = TestWrapperProgressBarOperation()
-        with self.OutputCapturer():
-            op.Run(func, update_period=0.05, log_level=func_log_level)
+        op.Run(func, update_period=0.05, log_level=func_log_level)
 
         # Check that OutputCapturer contains the expected output. This means
         # that the log level was changed.
-        self.AssertOutputContainsLine(expected_output)
+        captured = self.capfd.readouterr()
+        assert expected_output in captured.out
         # Check that the log level was restored after the function executed.
         self.assertEqual(
             logging.getLogger().getEffectiveLevel(), test_log_level
         )
 
+    @pytest.mark.usefixtures("legacy_capture_output")
     def testParallelEmergeOperationParseOutputTotalNotFound(self) -> None:
         """Test that ParallelEmergeOperation.ParseOutput if total is not set."""
 
@@ -183,12 +189,14 @@ class ProgressBarOperationTest(
             print("hi")
 
         op = operation.ParallelEmergeOperation()
-        with self.OutputCapturer():
-            op.Run(func)
+        op.Run(func)
 
         # Check that the output is empty.
-        self.AssertOutputContainsLine("hi", check_stderr=True, invert=True)
+        captured = self.capfd.readouterr()
+        assert not captured.out
+        assert not captured.err
 
+    @pytest.mark.usefixtures("legacy_capture_output")
     def testParallelEmergeOperationParseOutputTotalIsZero(self) -> None:
         """Test that ParallelEmergeOperation.ParseOutput if total is zero."""
 
@@ -196,15 +204,17 @@ class ProgressBarOperationTest(
             print("Total: 0 packages.")
 
         op = operation.ParallelEmergeOperation()
-        with self.OutputCapturer():
-            with cros_test_lib.LoggingCapturer() as logs:
-                op.Run(func)
+        with cros_test_lib.LoggingCapturer() as logs:
+            op.Run(func)
 
         # Check that no progress bar is printed.
-        self.AssertOutputContainsLine("%", check_stderr=True, invert=True)
+        captured = self.capfd.readouterr()
+        assert "%" not in captured.out
+        assert "%" not in captured.err
         # Check logs contain message.
         self.AssertLogsContain(logs, "No packages to build.")
 
+    @pytest.mark.usefixtures("legacy_capture_output")
     def testParallelEmergeOperationParseOutputTotalNonZero(self) -> None:
         """Verify ParallelEmergeOperation.ParseOutput's progress bar updates."""
 
@@ -216,10 +226,10 @@ class ProgressBarOperationTest(
 
         queue = multiprocessing.Queue()
         op = FakeParallelEmergeOperation(queue)
-        with self.OutputCapturer():
-            op.Run(func, queue, update_period=0.005)
+        op.Run(func, queue, update_period=0.005)
 
         # Check that progress bar prints correctly at 0%, 50%, and 100%.
-        self.AssertOutputContainsLine("0%")
-        self.AssertOutputContainsLine("50%")
-        self.AssertOutputContainsLine("100%")
+        captured = self.capfd.readouterr()
+        assert "0%" in captured.out
+        assert "50%" in captured.out
+        assert "100%" in captured.out

@@ -21,21 +21,21 @@ pytestmark = cros_test_lib.pytestmark_inside_only
 # pylint: disable=protected-access
 
 
-class MainTest(cros_test_lib.OutputTestCase):
+class MainTest(cros_test_lib.TestCase):
     """Tests for the main() function."""
 
+    @pytest.mark.usefixtures("legacy_capture_output")
     def testHelp(self) -> None:
         """Test that --help is functioning."""
         argv = ["--help"]
 
-        with self.OutputCapturer() as output:
-            # Running with --help should exit with code==0.
-            with pytest.raises(SystemExit) as e:
-                dep_tracker.main(argv)
-            assert e.value.code == 0
+        # Running with --help should exit with code==0.
+        with pytest.raises(SystemExit) as e:
+            dep_tracker.main(argv)
+        assert e.value.code == 0
 
         # Verify that a message beginning with "usage: " was printed.
-        stdout = output.GetStdout()
+        stdout = self.capfd.readouterr().out
         self.assertTrue(stdout.startswith("usage: "))
 
 

@@ -24,6 +24,7 @@ from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import partial_mock
 from chromite.lib import timeout_util
+from chromite.utils import outcap
 
 
 # pylint: disable=protected-access
@@ -433,7 +434,7 @@ class TestParallelMock(TestBackgroundWrapper):
             self.assertEqual(list(range(11, 21)), result)
 
 
-class TestExceptions(cros_test_lib.MockOutputTestCase):
+class TestExceptions(cros_test_lib.MockTestCase):
     """Test cases where child processes raise exceptions."""
 
     def _SystemExit(self) -> None:
@@ -457,7 +458,7 @@ class TestExceptions(cros_test_lib.MockOutputTestCase):
             lambda: parallel.RunParallelSteps([fn]),
         ):
             output_str = ex_str = ex = None
-            with self.OutputCapturer() as capture:
+            with outcap.OutputCapturer() as capture:
                 with self.assertRaises(parallel.BackgroundFailure) as ex:
                     task()
                 output_str = capture.GetStdout()
@@ -506,7 +507,7 @@ class _TestForegroundException(Exception):
     """An exception to be raised by the foreground process."""
 
 
-class TestHalting(cros_test_lib.MockOutputTestCase, TestBackgroundWrapper):
+class TestHalting(cros_test_lib.MockTestCase, TestBackgroundWrapper):
     """Test that child processes are halted when exceptions occur."""
 
     def setUp(self) -> None:
@@ -547,7 +548,7 @@ class TestHalting(cros_test_lib.MockOutputTestCase, TestBackgroundWrapper):
         """Test that exceptions halt all running steps."""
         steps = [self._Exit, self._Fail, self._Pass, self._Fail]
         output_str, ex_str = None, None
-        with self.OutputCapturer() as capture:
+        with outcap.OutputCapturer() as capture:
             try:
                 parallel.RunParallelSteps(steps, halt_on_error=True)
             except parallel.BackgroundFailure as ex:
@@ -594,7 +595,7 @@ class TestHalting(cros_test_lib.MockOutputTestCase, TestBackgroundWrapper):
         ex_str = None
         error_str = None
         with mock.patch.multiple(parallel._BackgroundTask, **kwargs):
-            with self.OutputCapturer() as capture:
+            with outcap.OutputCapturer() as capture:
                 try:
                     with cros_test_lib.LoggingCapturer():
                         parallel.RunParallelSteps(steps)

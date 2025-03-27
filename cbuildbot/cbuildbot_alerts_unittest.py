@@ -4,103 +4,54 @@
 
 """Tests for cbuildbot_alerts."""
 
+import pytest
+
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import cros_test_lib
 
 
-class CrosloggingTest(cros_test_lib.OutputTestCase):
+class CrosloggingTest(cros_test_lib.TestCase):
     """Test logging works as expected."""
 
     def setUp(self) -> None:
         # pylint: disable=protected-access
         cbuildbot_alerts._buildbot_markers_enabled = False
 
-    def AssertLogContainsMsg(self, msg, functor, *args, **kwargs) -> None:
-        """Asserts that calling functor logs a line that contains msg.
-
-        Args:
-            msg: The message to look for.
-            functor: A function taking no arguments to test.
-            *args, **kwargs: passthrough arguments to AssertLogContainsMsg.
-        """
-        with self.OutputCapturer():
-            functor()
-        self.AssertOutputContainsLine(msg, *args, **kwargs)
-
+    @pytest.mark.usefixtures("legacy_capture_output")
     def testPrintBuildbotFunctionsNoMarker(self) -> None:
-        # pylint: disable-next=line-too-long
-        """PrintBuildbot* without markers should not be recognized by buildbot."""
-        self.AssertLogContainsMsg(
-            "@@@STEP_LINK@",
-            lambda: cbuildbot_alerts.PrintBuildbotLink("name", "url"),
-            check_stderr=True,
-            invert=True,
-        )
-        self.AssertLogContainsMsg(
-            "@@@@STEP_TEXT@",
-            lambda: cbuildbot_alerts.PrintBuildbotStepText("text"),
-            check_stderr=True,
-            invert=True,
-        )
-        self.AssertLogContainsMsg(
-            "@@@STEP_WARNINGS@@@",
-            cbuildbot_alerts.PrintBuildbotStepWarnings,
-            check_stderr=True,
-            invert=True,
-        )
-        self.AssertLogContainsMsg(
-            "@@@STEP_FAILURE@@@",
-            cbuildbot_alerts.PrintBuildbotStepFailure,
-            check_stderr=True,
-            invert=True,
-        )
-        self.AssertLogContainsMsg(
-            "@@@BUILD_STEP",
-            lambda: cbuildbot_alerts.PrintBuildbotStepName("name"),
-            check_stderr=True,
-            invert=True,
-        )
-        self.AssertLogContainsMsg(
-            "@@@SET_BUILD_PROPERTY",
-            lambda: cbuildbot_alerts.PrintKitchenSetBuildProperty(
-                "name", {"a": "value"}
-            ),
-            check_stderr=True,
-            invert=True,
-        )
+        """PrintBuildbot* w/out markers should not be recognized by buildbot."""
+        cbuildbot_alerts.PrintBuildbotLink("name", "url")
+        cbuildbot_alerts.PrintBuildbotStepText("text")
+        cbuildbot_alerts.PrintBuildbotStepWarnings()
+        cbuildbot_alerts.PrintBuildbotStepFailure()
+        cbuildbot_alerts.PrintBuildbotStepName("name")
+        cbuildbot_alerts.PrintKitchenSetBuildProperty("name", {"a": "value"})
 
+        captured = self.capfd.readouterr()
+        assert "STEP_LINK" in captured.err
+        assert "STEP_TEXT" in captured.err
+        assert "STEP_WARNINGS" in captured.err
+        assert "STEP_FAILURE" in captured.err
+        assert "BUILD_STEP" in captured.err
+        assert "SET_BUILD_PROPERTY" in captured.err
+        assert "@@@" not in captured.out
+        assert "@@@" not in captured.err
+
+    @pytest.mark.usefixtures("legacy_capture_output")
     def testPrintBuildbotFunctionsWithMarker(self) -> None:
         """PrintBuildbot* with markers should be recognized by buildbot."""
         cbuildbot_alerts.EnableBuildbotMarkers()
-        self.AssertLogContainsMsg(
-            "@@@STEP_LINK@name@url@@@",
-            lambda: cbuildbot_alerts.PrintBuildbotLink("name", "url"),
-            check_stderr=True,
-        )
-        self.AssertLogContainsMsg(
-            "@@@STEP_TEXT@text@@@",
-            lambda: cbuildbot_alerts.PrintBuildbotStepText("text"),
-            check_stderr=True,
-        )
-        self.AssertLogContainsMsg(
-            "@@@STEP_WARNINGS@@@",
-            cbuildbot_alerts.PrintBuildbotStepWarnings,
-            check_stderr=True,
-        )
-        self.AssertLogContainsMsg(
-            "@@@STEP_FAILURE@@@",
-            cbuildbot_alerts.PrintBuildbotStepFailure,
-            check_stderr=True,
-        )
-        self.AssertLogContainsMsg(
-            "@@@BUILD_STEP@name@@@",
-            lambda: cbuildbot_alerts.PrintBuildbotStepName("name"),
-            check_stderr=True,
-        )
-        self.AssertLogContainsMsg(
-            '@@@SET_BUILD_PROPERTY@name@"value"@@@',
-            lambda: cbuildbot_alerts.PrintKitchenSetBuildProperty(
-                "name", "value"
-            ),
-            check_stderr=True,
-        )
+        cbuildbot_alerts.PrintBuildbotLink("name", "url")
+        cbuildbot_alerts.PrintBuildbotStepText("text")
+        cbuildbot_alerts.PrintBuildbotStepWarnings()
+        cbuildbot_alerts.PrintBuildbotStepFailure()
+        cbuildbot_alerts.PrintBuildbotStepName("name")
+        cbuildbot_alerts.PrintKitchenSetBuildProperty("name", "value")
+
+        captured = self.capfd.readouterr()
+        assert "@@@STEP_LINK@name@url@@@" in captured.err
+        assert "@@@STEP_TEXT@text@@@" in captured.err
+        assert "@@@STEP_WARNINGS@@@" in captured.err
+        assert "@@@STEP_FAILURE@@@" in captured.err
+        assert "@@@BUILD_STEP@name@@@" in captured.err
+        assert '@@@SET_BUILD_PROPERTY@name@"value"@@@' in captured.err

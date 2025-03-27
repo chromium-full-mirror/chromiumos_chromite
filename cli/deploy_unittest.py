@@ -10,6 +10,8 @@ import os
 import sys
 from unittest import mock
 
+import pytest
+
 from chromite.cli import command
 from chromite.cli import deploy
 from chromite.lib import build_target_lib
@@ -869,6 +871,7 @@ class TestDeploy(
         # Check that BrilloDeployOperation.Run was called.
         self.assertTrue(run.called)
 
+    @pytest.mark.usefixtures("legacy_capture_output")
     def testBrilloDeployMergeOperation(self) -> None:
         """Test that BrilloDeployOperation works for merge."""
 
@@ -882,12 +885,13 @@ class TestDeploy(
         # Emerge one package.
         op = BrilloDeployOperationFake(True, queue)
 
-        with self.OutputCapturer():
-            op.Run(func, queue)
+        op.Run(func, queue)
 
         # Check that the progress bar prints correctly.
-        self.AssertProgressBarAllEvents(len(op.MERGE_EVENTS))
+        captured = self.capfd.readouterr()
+        self.AssertProgressBarAllEvents(captured.out, len(op.MERGE_EVENTS))
 
+    @pytest.mark.usefixtures("legacy_capture_output")
     def testBrilloDeployUnmergeOperation(self) -> None:
         """Test that BrilloDeployOperation works for unmerge."""
 
@@ -901,8 +905,8 @@ class TestDeploy(
         # Unmerge one package.
         op = BrilloDeployOperationFake(False, queue)
 
-        with self.OutputCapturer():
-            op.Run(func, queue)
+        op.Run(func, queue)
 
         # Check that the progress bar prints correctly.
-        self.AssertProgressBarAllEvents(len(op.UNMERGE_EVENTS))
+        captured = self.capfd.readouterr()
+        self.AssertProgressBarAllEvents(captured.out, len(op.UNMERGE_EVENTS))

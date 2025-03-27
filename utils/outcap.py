@@ -136,7 +136,7 @@ class OutputCapturer:
     Class is designed as a 'ContextManager'.
 
     Examples:
-        with cros_build_lib.OutputCapturer() as output:
+        with outcap.OutputCapturer() as output:
             # Capturing of stdout/stderr automatically starts now.
             # Do stuff that sends output to stdout/stderr.
             # Capturing automatically stops at end of 'with' block.
@@ -144,11 +144,8 @@ class OutputCapturer:
         # stdout/stderr can be retrieved from the OutputCapturer object:
         stdout = output.GetStdoutLines() # Or other access methods
 
-        # Some Assert methods are only valid if capturing was used in test.
-        self.AssertOutputContainsError() # Or other related methods
-
         # OutputCapturer can also be used to capture output to specified files.
-        with self.OutputCapturer(stdout_path='/tmp/stdout.txt') as output:
+        with outcap.OutputCapturer(stdout_path='/tmp/stdout.txt') as output:
             # Do stuff.
             # stdout will be captured to /tmp/stdout.txt.
     """
