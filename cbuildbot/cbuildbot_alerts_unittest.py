@@ -4,9 +4,6 @@
 
 """Tests for cbuildbot_alerts."""
 
-import logging
-import sys
-
 from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import cros_test_lib
 
@@ -15,9 +12,6 @@ class CrosloggingTest(cros_test_lib.OutputTestCase):
     """Test logging works as expected."""
 
     def setUp(self) -> None:
-        self.logger = logging.getLogger()
-        sh = logging.StreamHandler(sys.stdout)
-        self.logger.addHandler(sh)
         # pylint: disable=protected-access
         cbuildbot_alerts._buildbot_markers_enabled = False
 
@@ -32,14 +26,6 @@ class CrosloggingTest(cros_test_lib.OutputTestCase):
         with self.OutputCapturer():
             functor()
         self.AssertOutputContainsLine(msg, *args, **kwargs)
-
-    def testNotice(self) -> None:
-        """Test logging.notice works and is between INFO and WARNING."""
-        msg = "notice message"
-        self.logger.setLevel(logging.INFO)
-        self.AssertLogContainsMsg(msg, lambda: logging.notice(msg))
-        self.logger.setLevel(logging.WARNING)
-        self.AssertLogContainsMsg(msg, lambda: logging.notice(msg), invert=True)
 
     def testPrintBuildbotFunctionsNoMarker(self) -> None:
         # pylint: disable-next=line-too-long

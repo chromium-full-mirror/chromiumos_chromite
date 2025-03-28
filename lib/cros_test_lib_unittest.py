@@ -4,6 +4,8 @@
 
 """Unittest for cros_test_lib (tests for tests? Who'd a thunk it)."""
 
+import io
+import logging
 import os
 import subprocess
 import sys
@@ -350,3 +352,25 @@ class RunCommandTestCase(cros_test_lib.RunCommandTestCase):
         )
         self.assertEqual(b"err", result.stderr)
         self.assertEqual(b"out", result.stdout)
+
+
+def test_logging_notice() -> None:
+    """Test logging.notice works and is between INFO and WARNING.
+
+    This is testing chromite/__init__.py, but we don't have a great place to
+    hold those tests, so here it lives.
+    """
+    logger = logging.getLogger()
+    stream = io.StringIO()
+    logger.addHandler(logging.StreamHandler(stream))
+
+    logger.setLevel(logging.INFO)
+    logging.notice("info level")
+    logger.setLevel(logging.NOTICE)
+    logging.notice("notice level")
+    logger.setLevel(logging.WARNING)
+    logging.notice("warning level")
+    output = stream.getvalue()
+    assert "info level" in output
+    assert "notice level" in output
+    assert "warning level" not in output
