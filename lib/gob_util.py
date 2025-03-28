@@ -1017,7 +1017,7 @@ def SetReview(
     if revision is None:
         revision = "current"
     # Ignore 'notify' on purpose - it's not empty by default in the caller.
-    if not any((msg, labels, reviewers, cc, ready, wip)):
+    if not any((msg, labels, reviewers, remove_reviewers, cc, ready, wip)):
         return
     path = "%s/revisions/%s/review" % (_GetChangePath(change), revision)
     body = {"reviewers": []}
