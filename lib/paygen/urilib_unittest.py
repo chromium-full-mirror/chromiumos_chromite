@@ -6,6 +6,8 @@
 
 import os
 
+import pytest
+
 from chromite.lib import cros_test_lib
 from chromite.lib import gs
 from chromite.lib import osutils
@@ -46,7 +48,7 @@ class TestUrilib(cros_test_lib.MockTempDirTestCase):
             for uri in tests[uri_type]:
                 self.assertEqual(uri_type, urilib.GetUriType(uri))
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testURLRetrieve(self) -> None:
         good_url = (
             "https://codereview.chromium.org/download/issue11731004_1_2.diff"

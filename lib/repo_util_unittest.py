@@ -7,6 +7,8 @@
 import logging
 import os
 
+import pytest
+
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -342,7 +344,7 @@ class RepositoryCommandMethodTest(cros_test_lib.RunCommandTempDirTestCase):
         )
 
 
-@cros_test_lib.pytestmark_network_test
+@pytest.mark.network_test
 class RepositoryIntegrationTest(cros_test_lib.TempDirTestCase):
     """Tests for repo_util.Repository that actually call `repo` and `git`.
 

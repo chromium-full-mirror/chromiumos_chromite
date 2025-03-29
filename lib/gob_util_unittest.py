@@ -11,6 +11,8 @@ import tempfile
 import time
 import urllib.request
 
+import pytest
+
 from chromite.lib import config_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import gob_util
@@ -221,7 +223,7 @@ class GetCookieTests(cros_test_lib.TestCase):
             self.assertEqual(cookies, {})
 
 
-@cros_test_lib.pytestmark_network_test
+@pytest.mark.network_test
 class NetworkGobTest(cros_test_lib.TestCase):
     """Unittests that talk to real Gerrit."""
 

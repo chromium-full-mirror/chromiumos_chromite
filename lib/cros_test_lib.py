@@ -59,19 +59,17 @@ try:
     import pytest  # pylint: disable=import-error
 
     pytestmark_inside_only = pytest.mark.inside_only
-    pytestmark_network_test = pytest.mark.network_test
 except (ImportError, AttributeError):
     # If Pytest is not present, or too old to allow pytest.mark,
     # define custom pytestmarks as null functions for test files to use.
     null_decorator = lambda obj: obj
     pytestmark_inside_only = null_decorator  # type: ignore
-    pytestmark_network_test = null_decorator  # type: ignore
 
 
 # Whether the current test session has --network tests enabled.  Since pytest
 # doesn't have a way of detecting markers dynamically, we set this with a global
 # fixture for other places to read.  This does not indicate whether the current
-# test itself has pytestmark_network_test enabled, only the overall session.
+# test itself has pytest.mark.network_test enabled, only the overall session.
 NETWORK_TESTS_ENABLED = False
 
 

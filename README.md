@@ -184,8 +184,8 @@ flow described above to obtain a functional-testing environment.
 ### Network Tests
 
 By default, any test that reaches out to the network (those wrapped in a
-`@cros_test_lib.pytestmark_network_test` decorator) will not be run. To include
-these tests, add the `--network` option:
+`@pytest.mark.network_test` decorator) will not be run. To include these tests,
+add the `--network` option:
 ```shell
 $ ./run_tests --network -- ...
 ```

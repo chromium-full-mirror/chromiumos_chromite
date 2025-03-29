@@ -8,6 +8,8 @@ import os
 from pathlib import Path
 from unittest import mock
 
+import pytest
+
 from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import cros_test_lib
@@ -46,7 +48,7 @@ PATH boo/baz.tbz2
 
         binpkg.FetchTarballs([uri], self.tempdir)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testFetchRealPackages(self) -> None:
         """Actually fetch a real binhost from the network."""
         # pylint: disable=line-too-long

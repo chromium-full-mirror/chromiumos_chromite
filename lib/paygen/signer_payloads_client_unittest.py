@@ -10,6 +10,8 @@ import shutil
 import tempfile
 from unittest import mock
 
+import pytest
+
 from chromite.api.gen.chromiumos import build_report_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.api.gen.chromiumos import signing_pb2
@@ -405,7 +407,7 @@ class SignerPayloadsClientIntegrationTest(cros_test_lib.MockTempDirTestCase):
         downloads = self.client._DownloadSignatures(uris)
         self.assertEqual(downloads, uris)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testGetHashSignatures(self) -> None:
         """Integration test that talks to the real signer with test hashes."""
         ctx = gs.GSContext()
@@ -479,7 +481,7 @@ class SignerPayloadsClientIntegrationTest(cros_test_lib.MockTempDirTestCase):
             # Cleanup when we are over.
             ctx.Remove(clean_uri, ignore_missing=True)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testGetHashSignaturesDuplicates(self) -> None:
         """Integration test with real signer with duplicate test hashes."""
         ctx = gs.GSContext()

@@ -12,6 +12,8 @@ import os
 import pickle
 import traceback
 
+import pytest
+
 from chromite.lib import cros_test_lib
 from chromite.lib import gs
 from chromite.lib import osutils
@@ -209,7 +211,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
         cache = download_cache.DownloadCache(self.cache_dir)
         self._validateCacheContents(cache, ())
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testGetFileObject(self) -> None:
         """Just create a download cache, and GetFile on it."""
 
@@ -245,7 +247,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
             cache, (self.hash_a, self.hash_b, self.hash_large)
         )
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testGetFileCopy(self) -> None:
         """Just create a download cache, and GetFileCopy from it."""
 
@@ -272,7 +274,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
 
         self.assertEqual(contents_a, contents_b)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testPurgeLogic(self) -> None:
         cache = download_cache.DownloadCache(self.cache_dir)
 
@@ -299,7 +301,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
         cache.Purge(max_age=1000)
         self._validateCacheContents(cache, (self.hash_b,))
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testContextMgr(self) -> None:
         """Make sure we behave properly with 'with'."""
 
@@ -318,7 +320,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
         # After the with exited, which should have purged everything.
         self._validateCacheContents(cache, ())
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testThreadedDownloads(self) -> None:
         """Spin off multiple processes and fetch a file.
 
@@ -340,7 +342,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
             results.sort()
             self.assertEqual(results, [False] * 19 + [True])
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testThreadedGetFile(self) -> None:
         """Spin off multiple processes and call GetFile.
 
@@ -364,7 +366,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
             expected = [contents_a] * 20
             self.assertEqual(results, expected)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testThreadedGetFileMultiple(self) -> None:
         """Spin off multiple processes and call GetFile with multiple uris.
 
@@ -395,7 +397,7 @@ class DownloadCacheTest(cros_test_lib.TempDirTestCase):
             expected = [contents_a, contents_b] * 10
             self.assertEqual(results, expected)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testThreadedGetFileMultiplePurge(self) -> None:
         """Do fetches and purges in a multiprocess environment.
 

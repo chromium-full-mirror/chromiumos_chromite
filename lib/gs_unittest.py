@@ -13,6 +13,8 @@ import string
 import sys
 from unittest import mock
 
+import pytest
+
 from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -217,7 +219,7 @@ class GetSizeTest(AbstractGSContextTest):
 class UnmockedGetSizeTest(cros_test_lib.TempDirTestCase):
     """Tests GetSize functionality w/out mocks."""
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testBasic(self) -> None:
         """Simple test."""
         ctx = gs.GSContext()
@@ -272,7 +274,7 @@ class GetCreationTimeTest(AbstractGSContextTest):
 class UnMockedGetCreationTimeTest(cros_test_lib.TempDirTestCase):
     """Test GetCreationTime functionality without mocks."""
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testGetCreationTime(self) -> None:
         """Test getting the creation time of a file."""
         ctx = gs.GSContext()
@@ -329,7 +331,7 @@ class GetCreationTimeSinceTest(AbstractGSContextTest):
 class UnMockedGetCreationTimeSinceTest(cros_test_lib.TempDirTestCase):
     """Test GetCreationTimeSince functionality without mocks."""
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testGetCreationTimeSince(self) -> None:
         """Test getting the creation time of a file."""
         ctx = gs.GSContext()
@@ -490,7 +492,7 @@ class UnmockedLSTest(cros_test_lib.TempDirTestCase):
         found.sort()
         self.assertEqual(files, found)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testRemotePath(self) -> None:
         """Tests listing remote paths."""
         ctx = gs.GSContext()
@@ -666,7 +668,7 @@ class CopyTest(AbstractGSContextTest, cros_test_lib.TempDirTestCase):
 class UnmockedCopyTest(cros_test_lib.TempDirTestCase):
     """Tests Copy functionality w/out mocks."""
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testNormal(self) -> None:
         """Test normal upload/download behavior."""
         ctx = gs.GSContext()
@@ -698,7 +700,7 @@ class UnmockedCopyTest(cros_test_lib.TempDirTestCase):
             new_content = osutils.ReadFile(local_dst_file)
             self.assertEqual(content, new_content)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testCompress(self) -> None:
         """Test auto_compress behavior."""
         ctx = gs.GSContext()
@@ -734,7 +736,7 @@ class UnmockedCopyTest(cros_test_lib.TempDirTestCase):
             new_content = osutils.ReadFile(local_dst_file)
             self.assertEqual(content, new_content)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testVersion(self) -> None:
         """Test version (generation) behavior."""
         ctx = gs.GSContext()
@@ -815,7 +817,7 @@ class RemoveTest(AbstractGSContextTest):
 class UnmockedRemoveTest(cros_test_lib.TestCase):
     """Tests Remove functionality w/out mocks."""
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testNormal(self) -> None:
         """Test normal remove behavior."""
         ctx = gs.GSContext()
@@ -823,7 +825,7 @@ class UnmockedRemoveTest(cros_test_lib.TestCase):
             ctx.Copy("/dev/null", tempuri)
             self.assertEqual(ctx.Remove(tempuri), None)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testMissing(self) -> None:
         """Test behavior w/missing files."""
         ctx = gs.GSContext()
@@ -832,7 +834,7 @@ class UnmockedRemoveTest(cros_test_lib.TestCase):
             # This one should not throw an exception.
             ctx.Remove(tempuri, ignore_missing=True)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testRecursive(self) -> None:
         """Verify recursive mode works."""
         files = ("a", "b/c", "d/e/ffff")
@@ -844,7 +846,7 @@ class UnmockedRemoveTest(cros_test_lib.TestCase):
             for p in files:
                 self.assertFalse(ctx.Exists(os.path.join(tempuri, p)))
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testMultiple(self) -> None:
         """Test handling of multiple paths."""
         files = ("a", "b/c", "d/e/ffff")
@@ -856,7 +858,7 @@ class UnmockedRemoveTest(cros_test_lib.TestCase):
             for p in files:
                 self.assertFalse(ctx.Exists(os.path.join(tempuri, p)))
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testGeneration(self) -> None:
         """Test conditional remove behavior."""
         ctx = gs.GSContext()
@@ -1563,7 +1565,7 @@ class GSContextTest(AbstractGSContextTest):
 class UnmockedGSContextTest(cros_test_lib.TempDirTestCase):
     """Tests for GSContext that go over the network."""
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testIncrement(self) -> None:
         ctx = gs.GSContext()
         with gs.TemporaryURL("testIncrement") as url:
@@ -1573,7 +1575,7 @@ class UnmockedGSContextTest(cros_test_lib.TempDirTestCase):
                 self.assertEqual(i, counter.Increment())
                 self.assertEqual(i, counter.Get())
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testGetGsNamesWithWait(self) -> None:
         """Tests getting files from remote paths."""
         file_name = "chromeos_R17-1413.0.0-a1_x86-mario_full_dev.bin"
@@ -1751,7 +1753,7 @@ class StatTest(AbstractGSContextTest):
 class UnmockedStatTest(cros_test_lib.TempDirTestCase):
     """Tests Stat functionality w/out mocks."""
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testStat(self) -> None:
         """Test ability to get the generation of a file."""
         ctx = gs.GSContext()
@@ -1775,7 +1777,7 @@ class UnmockedStatTest(cros_test_lib.TempDirTestCase):
         self.assertIsInstance(result.generation, int)
         self.assertEqual(result.metageneration, 1)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testMissing(self) -> None:
         """Test exceptions when the file doesn't exist."""
         ctx = gs.GSContext()
@@ -1822,7 +1824,7 @@ class CatTest(cros_test_lib.TempDirTestCase):
         with self.assertRaises(gs.GSContextException):
             ctx.Cat(filename)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testNetworkFile(self) -> None:
         """Tests catting a GS file."""
         ctx = gs.GSContext()
@@ -1834,7 +1836,7 @@ class CatTest(cros_test_lib.TempDirTestCase):
             ctx.Copy(filename, tempuri)
             self.assertEqual(content, ctx.Cat(tempuri, encoding="utf-8"))
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testNetworkMissingFile(self) -> None:
         """Tests catting a missing GS file."""
         ctx = gs.GSContext()
@@ -1842,7 +1844,7 @@ class CatTest(cros_test_lib.TempDirTestCase):
             with self.assertRaises(gs.GSNoSuchKey):
                 ctx.Cat(tempuri)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testStreamingRemoteFile(self) -> None:
         """Test streaming a remote file."""
         ctx = gs.GSContext()
@@ -2113,34 +2115,34 @@ class UnmockedGSCounterTest(cros_test_lib.TestCase):
         """Set the test counter to |value|."""
         counter.AtomicCounterOperation(value, lambda x: value)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testGetInitial(self) -> None:
         """Test Get when the counter doesn't exist."""
         with self._Counter() as counter:
             self.assertEqual(counter.Get(), 0)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testGet(self) -> None:
         """Basic Get() test."""
         with self._Counter() as counter:
             self._SetCounter(counter, 100)
             self.assertEqual(counter.Get(), 100)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testIncrement(self) -> None:
         """Basic Increment() test."""
         with self._Counter() as counter:
             self._SetCounter(counter, 100)
             self.assertEqual(counter.Increment(), 101)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testDecrement(self) -> None:
         """Basic Decrement() test."""
         with self._Counter() as counter:
             self._SetCounter(counter, 100)
             self.assertEqual(counter.Decrement(), 99)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testReset(self) -> None:
         """Basic Reset() test."""
         with self._Counter() as counter:
@@ -2148,28 +2150,28 @@ class UnmockedGSCounterTest(cros_test_lib.TestCase):
             self.assertEqual(counter.Reset(), 0)
             self.assertEqual(counter.Get(), 0)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testStreakIncrement(self) -> None:
         """Basic StreakIncrement() test."""
         with self._Counter() as counter:
             self._SetCounter(counter, 100)
             self.assertEqual(counter.StreakIncrement(), 101)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testStreakIncrementReset(self) -> None:
         """Test StreakIncrement() when the counter is negative."""
         with self._Counter() as counter:
             self._SetCounter(counter, -100)
             self.assertEqual(counter.StreakIncrement(), 1)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testStreakDecrement(self) -> None:
         """Basic StreakDecrement() test."""
         with self._Counter() as counter:
             self._SetCounter(counter, -100)
             self.assertEqual(counter.StreakDecrement(), -101)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testStreakDecrementReset(self) -> None:
         """Test StreakDecrement() when the counter is positive."""
         with self._Counter() as counter:

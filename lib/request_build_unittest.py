@@ -10,6 +10,7 @@ from chromite.third_party.infra_libs.buildbucket.proto import (
     builder_common_pb2,
     common_pb2,
 )
+import pytest
 
 from chromite.lib import buildbucket_v2
 from chromite.lib import config_lib
@@ -277,7 +278,7 @@ class RequestBuildHelperTestsNetork(RequestBuildHelperTestsBase):
         self.assertCountEqual(request.tags, expected_tags)
         self.assertCountEqual(request.properties, expected_properties)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testMinTestBucket(self) -> None:
         """Talk to a test buildbucket instance with min job settings."""
         job = self._CreateJobMin()
@@ -315,7 +316,7 @@ class RequestBuildHelperTestsNetork(RequestBuildHelperTestsBase):
             expected_properties,
         )
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testMaxTestBucket(self) -> None:
         """Talk to a test buildbucket instance with max job settings."""
         job = self._CreateJobMax()

@@ -229,7 +229,7 @@ def _check_network_test(request) -> None:
 
     This can be helpful for code to detect when network traffic is attempted but
     network tests weren't requested which indicates a bad test -- one that needs
-    to be decorated with @cros_test_lib.pytestmark_network_test.
+    to be decorated with @pytest.mark.network_test.
     """
     for item in request.session.items:
         if item.get_closest_marker("network_test") is not None:

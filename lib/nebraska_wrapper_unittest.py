@@ -9,6 +9,8 @@ import os
 import subprocess
 from unittest import mock
 
+import pytest
+
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import gob_util
@@ -228,7 +230,7 @@ class RemoteNebraskaWrapperTest(cros_test_lib.MockTempDirTestCase):
             "?format=text",
         )
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     @mock.patch.object(
         path_util,
         "DetermineCheckout",

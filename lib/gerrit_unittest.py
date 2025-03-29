@@ -22,6 +22,8 @@ import stat
 from unittest import mock
 import urllib.parse
 
+import pytest
+
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -366,7 +368,7 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(email, jmsg["email"])
 
 
-@cros_test_lib.pytestmark_network_test
+@pytest.mark.network_test
 class GerritHelperTest(GerritTestCase):
     """Unittests for GerritHelper."""
 
@@ -775,7 +777,7 @@ class GerritParserTest(cros_test_lib.TestCase):
         self.assertIsNone(changenum)
 
 
-@cros_test_lib.pytestmark_network_test
+@pytest.mark.network_test
 class DirectGerritHelperTest(cros_test_lib.TestCase):
     """Unittests for GerritHelper that use the real Chromium instance."""
 

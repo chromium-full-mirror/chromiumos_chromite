@@ -15,6 +15,8 @@ import shutil
 import tempfile
 from unittest import mock
 
+import pytest
+
 from chromite.lib import cros_test_lib
 from chromite.lib import gs_unittest
 from chromite.lib.xbuddy import artifact_info
@@ -292,7 +294,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
                     any(d.ARTIFACT_NAME.endswith(name) for name in known_names)
                 )
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testProcessBuildArtifact(self) -> None:
         """Processes a real tarball from GSUtil and stages it."""
         artifact = build_artifact.Artifact(
@@ -309,7 +311,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
         )
         self._CheckMarker(artifact.marker_name, artifact.installed_files)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testProcessTarball(self) -> None:
         """Downloads a real tarball and untars it."""
         artifact = build_artifact.BundledArtifact(
@@ -331,7 +333,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
         )
         self._CheckMarker(artifact.marker_name, artifact.installed_files)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testProcessTarballWithFile(self) -> None:
         """Downloads a real tarball and only untars one file from it."""
         file_to_download = "autotest/test_suites/control.provision"
@@ -397,7 +399,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
             cwd=install_dir,
         )
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testStatefulPayloadArtifact(self) -> None:
         """Tests downloading the stateful payload."""
         factory = build_artifact.ChromeOSArtifactFactory(
@@ -416,7 +418,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
             self.assertExists(f)
         self._CheckMarker(artifact.marker_name, artifact.installed_files)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testAUFullPayloadArtifact(self) -> None:
         """Tests downloading the full update payload."""
         factory = build_artifact.ChromeOSArtifactFactory(
@@ -439,7 +441,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
             self.assertExists(f)
         self._CheckMarker(artifact.marker_name, artifact.installed_files)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testAUDeltaPayloadArtifact(self) -> None:
         """Tests downloading the delta update payload."""
         factory = build_artifact.ChromeOSArtifactFactory(
@@ -462,7 +464,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
             self.assertExists(f)
         self._CheckMarker(artifact.marker_name, artifact.installed_files)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testImageUnzip(self) -> None:
         """Downloads and stages a zip file and extracts a test image."""
         files_to_extract = ["chromiumos_test_image.bin"]
@@ -482,7 +484,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
             self.assertExists(f)
         self._CheckMarker(artifact.marker_name, artifact.installed_files)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testImageUnzipWithExcludes(self) -> None:
         """Downloads and stages a zip file while excluding all large files."""
         artifact = build_artifact.BundledArtifact(
@@ -503,7 +505,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
         )
         self._CheckMarker(artifact.marker_name, artifact.installed_files)
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testArtifactFactory(self) -> None:
         """Tests that BuildArtifact works for both named and file artifacts."""
         name_artifact = "test_suites"  # This file is in every real GS dir.
@@ -567,7 +569,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
             str(saved_exception).split("\n")[0],
         )
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testArtifactStaged(self) -> None:
         """Tests the artifact staging verification logic."""
         artifact = build_artifact.BundledArtifact(
@@ -592,7 +594,7 @@ class BuildArtifactTest(cros_test_lib.MockTestCase):
         self.assertFalse(artifact.ArtifactStaged())
         self.assertNotExists(os.path.join(self.work_dir, artifact.marker_name))
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testStagedFiles(self) -> None:
         """Tests getting the staged files."""
         files_to_extract = ["config.txt", "boot_images/vmlinuz"]

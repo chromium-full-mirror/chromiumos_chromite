@@ -9,6 +9,8 @@ import os
 import time
 from unittest import mock
 
+import pytest
+
 from chromite.cli.cros import cros_chrome_sdk_unittest
 from chromite.lib import chrome_util
 from chromite.lib import cros_build_lib
@@ -552,7 +554,7 @@ class StagingTest(cros_test_lib.MockTempDirTestCase):
             chrome_util._COPY_PATHS_CHROME,
         )
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testUploadStagingDir(self) -> None:
         """Upload staging directory."""
         mockGsCopy = self.PatchObject(gs.GSContext, "Copy")
@@ -569,7 +571,7 @@ class StagingTest(cros_test_lib.MockTempDirTestCase):
             ],
         )
 
-    @cros_test_lib.pytestmark_network_test
+    @pytest.mark.network_test
     def testUploadStagingPublicReadACL(self) -> None:
         """Upload staging directory with public-read ACL."""
         mockGsCopy = self.PatchObject(gs.GSContext, "Copy")
