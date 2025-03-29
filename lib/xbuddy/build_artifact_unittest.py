@@ -25,7 +25,7 @@ from chromite.lib.xbuddy import devserver_constants
 from chromite.lib.xbuddy import downloader
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 _VERSION = "R80-12653.0.0-rc1"

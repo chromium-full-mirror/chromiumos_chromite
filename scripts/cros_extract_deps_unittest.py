@@ -4,11 +4,13 @@
 
 """Test cros_extract_deps."""
 
+import pytest
+
 from chromite.lib import cros_test_lib
 from chromite.scripts import cros_extract_deps
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 class FlattenDepTreeTest(cros_test_lib.TestCase):

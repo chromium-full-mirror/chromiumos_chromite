@@ -25,7 +25,7 @@ from chromite.lib.parser import package_info
 from chromite.scripts import cros_portage_upgrade as cpu
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 # This left in, but disabled, until we can get GetCurrentVersionsTest

@@ -19,7 +19,7 @@ from chromite.lib import path_util
 from chromite.lib.xbuddy import xbuddy
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 # pylint: disable=protected-access

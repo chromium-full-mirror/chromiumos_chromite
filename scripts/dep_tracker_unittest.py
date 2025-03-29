@@ -14,7 +14,7 @@ from chromite.lib import unittest_lib
 from chromite.scripts import dep_tracker
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 # Allow access private members for testing:

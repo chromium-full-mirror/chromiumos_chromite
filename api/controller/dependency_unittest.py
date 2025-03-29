@@ -6,6 +6,8 @@
 
 import os
 
+import pytest
+
 from chromite.api import api_config
 from chromite.api.controller import dependency
 from chromite.api.gen.chromite.api import depgraph_pb2
@@ -18,7 +20,7 @@ from chromite.lib.parser import package_info
 from chromite.service import dependency as dependency_service
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 class BoardBuildDependencyTest(

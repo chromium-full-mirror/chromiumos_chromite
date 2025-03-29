@@ -7,6 +7,8 @@
 import os
 from unittest import mock
 
+import pytest
+
 from chromite.cbuildbot import commands
 from chromite.cbuildbot import manifest_version
 from chromite.cbuildbot import repository
@@ -18,7 +20,7 @@ from chromite.lib import cros_test_lib
 from chromite.lib.buildstore import FakeBuildStore
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 # It's normal for unittests to access protected members.

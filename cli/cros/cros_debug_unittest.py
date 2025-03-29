@@ -4,6 +4,8 @@
 
 """This module tests the cros debug command."""
 
+import pytest
+
 from chromite.cli import command_unittest
 from chromite.cli.cros import cros_debug
 from chromite.lib import cros_test_lib
@@ -11,7 +13,7 @@ from chromite.lib import remote_access
 from chromite.utils import shell_util
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 class MockCompletedProcess:

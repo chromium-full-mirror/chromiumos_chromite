@@ -45,24 +45,6 @@ from chromite.utils import memoize
 from chromite.utils import shell_util
 
 
-# Define custom pytestmarks, allowing us to run/skip tests by category.
-# Our Pytest marks are documented in chromite/pytest.ini.
-# For more about marks, see https://docs.pytest.org/en/latest/mark.html
-# Because Pytest is not always present outside the chroot, we must wrap
-# our mark definitions in a try/except block.
-# TODO(crbug.com/1058422): Once pytest is available in all runtime envs,
-# add pytestmarks directly in test files.
-try:
-    import pytest  # pylint: disable=import-error
-
-    pytestmark_inside_only = pytest.mark.inside_only
-except (ImportError, AttributeError):
-    # If Pytest is not present, or too old to allow pytest.mark,
-    # define custom pytestmarks as null functions for test files to use.
-    null_decorator = lambda obj: obj
-    pytestmark_inside_only = null_decorator  # type: ignore
-
-
 # Whether the current test session has --network tests enabled.  Since pytest
 # doesn't have a way of detecting markers dynamically, we set this with a global
 # fixture for other places to read.  This does not indicate whether the current

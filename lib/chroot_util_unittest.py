@@ -6,6 +6,8 @@
 
 import itertools
 
+import pytest
+
 from chromite.lib import chroot_util
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -13,7 +15,7 @@ from chromite.lib import cros_test_lib
 from chromite.utils import os_util
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 if cros_build_lib.IsInsideChroot():
     from chromite.scripts import cros_list_modified_packages

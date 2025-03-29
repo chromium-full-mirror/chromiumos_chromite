@@ -27,7 +27,7 @@ from chromite.utils import os_util
 from chromite.utils import shell_util
 
 
-pytestmark = [cros_test_lib.pytestmark_inside_only]
+pytestmark = pytest.mark.inside_only
 
 
 if cros_build_lib.IsInsideChroot():

@@ -8,6 +8,8 @@ import builtins
 import os
 from unittest import mock
 
+import pytest
+
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -19,7 +21,7 @@ from chromite.service import android
 from chromite.service import packages
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 class CrosMarkAndroidAsStable(cros_test_lib.MockTempDirTestCase):

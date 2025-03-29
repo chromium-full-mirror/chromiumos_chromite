@@ -8,13 +8,15 @@ import os
 import shutil
 import tempfile
 
+import pytest
+
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib.xbuddy import common_util
 from chromite.lib.xbuddy import devserver_constants
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 # Fake Dev Server Layout:

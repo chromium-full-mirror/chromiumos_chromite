@@ -10,12 +10,14 @@ import os
 import smtplib
 import socket
 
+import pytest
+
 from chromite.lib import alerts
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 # No need to make unittests sleep.

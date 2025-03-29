@@ -16,7 +16,7 @@ from chromite.lib import partial_mock
 from chromite.scripts import cros_run_unit_tests
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 class CrosRunUnitTestsTest(cros_test_lib.MockTestCase):

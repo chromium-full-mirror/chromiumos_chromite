@@ -4,11 +4,13 @@
 
 """This module tests the cros stage command and subfunctions."""
 
+import pytest
+
 from chromite.cli.cros import cros_stage
 from chromite.lib import cros_test_lib
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 class GSURLRegexHelperTest(cros_test_lib.TestCase):

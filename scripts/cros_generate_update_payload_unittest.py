@@ -4,6 +4,8 @@
 
 """Unit tests for cros_generate_update_payload."""
 
+import pytest
+
 from chromite.lib import chroot_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import partial_mock
@@ -11,7 +13,7 @@ from chromite.lib.paygen import paygen_payload_lib
 from chromite.scripts import cros_generate_update_payload
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 class CrOSGenerateUpdatePayloadTest(cros_test_lib.MockTestCase):

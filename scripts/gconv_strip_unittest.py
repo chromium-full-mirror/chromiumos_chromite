@@ -14,12 +14,14 @@ pytest.ini assumes pytest-xdist is installed, which it is not inside the chroot.
 import glob
 import os
 
+import pytest
+
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.scripts import gconv_strip
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 class GconvStripTest(cros_test_lib.MockTempDirTestCase):

@@ -7,6 +7,8 @@
 import os
 from unittest import mock
 
+import pytest
+
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -20,7 +22,7 @@ from chromite.lib import repo_util
 from chromite.scripts import cros_mark_as_stable
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 class RunGitMock(partial_mock.PartialCmdMock):

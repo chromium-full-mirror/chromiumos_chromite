@@ -7,17 +7,18 @@
 import os
 from unittest import mock
 
+import pytest
+
 from chromite.cbuildbot import cbuildbot_unittest
 from chromite.cbuildbot import commands
 from chromite.cbuildbot.stages import generic_stages
 from chromite.cbuildbot.stages import generic_stages_unittest
 from chromite.cbuildbot.stages import test_stages
-from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib.buildstore import FakeBuildStore
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 # pylint: disable=too-many-ancestors,protected-access

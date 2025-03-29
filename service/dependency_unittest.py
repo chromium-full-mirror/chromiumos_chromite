@@ -17,7 +17,7 @@ from chromite.lib.parser import package_info
 from chromite.service import dependency
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 class DependencyTests(cros_test_lib.MockTestCase):

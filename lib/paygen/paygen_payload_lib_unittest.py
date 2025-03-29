@@ -11,6 +11,8 @@ import subprocess
 import tempfile
 from unittest import mock
 
+import pytest
+
 from chromite.api.gen.chromite.api import payload_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import chroot_lib
@@ -30,7 +32,7 @@ from chromite.lib.paygen import urilib
 from chromite.lib.paygen import utils
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 # We access a lot of protected members during testing.
 # pylint: disable=protected-access

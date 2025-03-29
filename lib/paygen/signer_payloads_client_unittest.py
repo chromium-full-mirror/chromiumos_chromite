@@ -28,7 +28,7 @@ from chromite.lib.paygen import signer_payloads_client
 from chromite.service import image
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 # pylint: disable=protected-access
 

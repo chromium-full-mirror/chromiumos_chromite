@@ -21,7 +21,7 @@ from chromite.scripts import cros_set_lsb_release
 from chromite.utils import outcap
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 # pylint: disable=protected-access

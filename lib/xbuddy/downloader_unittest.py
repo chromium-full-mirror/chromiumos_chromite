@@ -9,6 +9,8 @@ import shutil
 import tempfile
 from unittest import mock
 
+import pytest
+
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import gs
@@ -17,7 +19,7 @@ from chromite.lib.xbuddy import build_artifact
 from chromite.lib.xbuddy import downloader
 
 
-pytestmark = cros_test_lib.pytestmark_inside_only
+pytestmark = pytest.mark.inside_only
 
 
 # pylint: disable=protected-access,no-value-for-parameter
