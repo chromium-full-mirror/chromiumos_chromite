@@ -22,11 +22,9 @@ from typing import (
     Dict,
     Generator,
     Iterable,
-    Iterator,
     List,
     Optional,
     Sequence,
-    Tuple,
     Type,
     Union,
 )
@@ -327,140 +325,6 @@ class StackedSetup(type):
             raise exc_info[1].with_traceback(  # type: ignore[union-attr]
                 exc_info[2]
             )
-
-
-class TruthTable:
-    """Class to represent a boolean truth table, useful in unit tests.
-
-    If you find yourself testing the behavior of some function that should
-    basically follow the behavior of a particular truth table, then this class
-    can allow you to fully test that function without being overly verbose
-    in the unit test code.
-
-    The following usage is supported on a constructed TruthTable:
-    1) Iterate over input lines of the truth table, expressed as tuples of
-    bools.
-    2) Access a particular input line by index, expressed as a tuple of bools.
-    3) Access the expected output for a set of inputs.
-
-    For example, say function "Foo" in module "mod" should consist of the
-    following code:
-
-    def Foo(A, B, C):
-      return A and B and not C
-
-    In the unittest for Foo, do this:
-
-    def testFoo(self):
-      truth_table = cros_test_lib.TruthTable(inputs=[(True, True, True)])
-      for inputs in truth_table:
-        a, b, c = inputs
-        result = mod.Foo(a, b, c)
-        self.assertEqual(result, truth_table.GetOutput(inputs))
-    """
-
-    class TruthTableInputIterator:
-        """Class to support iteration over inputs of a TruthTable."""
-
-        def __init__(self, truth_table: TruthTable) -> None:
-            self.truth_table = truth_table
-            self.next_line = 0
-
-        def __iter__(self) -> Iterator[Tuple[bool]]:
-            return self
-
-        def __next__(self) -> Tuple[bool]:
-            if self.next_line < self.truth_table.num_lines:
-                self.next_line += 1
-                return self.truth_table.GetInputs(self.next_line - 1)
-            else:
-                raise StopIteration()
-
-        # Python 2 glue.
-        next = __next__
-
-    def __init__(
-        self, inputs: Sequence[Tuple[bool]], input_result: bool = True
-    ) -> None:
-        """Construct a TruthTable from given inputs.
-
-        Args:
-            inputs: Iterable of input lines, each expressed as a tuple of bools.
-                Each tuple must have the same length.
-            input_result: The output intended for each specified input.  For
-                truth tables that mostly output True it is more concise to
-                specify the false inputs and then set input_result to False.
-        """
-        # At least one input required.
-        if not inputs:
-            raise ValueError("Inputs required to construct TruthTable.")
-
-        # Save each input tuple in a set.  Also confirm that the length
-        # of each input tuple is the same.
-        self.dimension: int = len(inputs[0])
-        self.num_lines: int = pow(2, self.dimension)
-        self.expected_inputs = set()
-        self.expected_inputs_result = input_result
-
-        for input_vals in inputs:
-            if len(input_vals) != self.dimension:
-                raise ValueError(
-                    "All TruthTable inputs must have same dimension."
-                )
-
-            self.expected_inputs.add(input_vals)
-
-        # Start generator index at 0.
-        self.next_line = 0
-
-    def __len__(self) -> int:
-        return self.num_lines
-
-    def __iter__(self) -> Iterator[Tuple[bool]]:
-        return self.TruthTableInputIterator(self)
-
-    def GetInputs(self, inputs_index: int) -> Tuple[bool]:
-        """Get the input line at the given input index.
-
-        Args:
-            inputs_index: Following must hold: 0 <= inputs_index <
-                self.num_lines.
-
-        Returns:
-            Tuple of bools representing one line of inputs.
-        """
-        if 0 <= inputs_index < self.num_lines:
-            line_values = []
-
-            # Iterate through each column in truth table.  Any order will
-            # produce a valid truth table, but going backward through
-            # columns will produce the traditional truth table ordering.
-            # For 2-dimensional example: F,F then F,T then T,F then T,T.
-            for col in range(self.dimension - 1, -1, -1):
-                line_values.append(bool(inputs_index // pow(2, col) % 2))
-
-            return tuple(line_values)  # type: ignore[return-value]
-
-        raise ValueError(
-            "This truth table has no line at index %r." % inputs_index
-        )
-
-    def GetOutput(self, inputs: Tuple[bool]) -> bool:
-        """Get the boolean output for the given inputs.
-
-        Args:
-            inputs: Tuple of bools, length must be equal to self.dimension.
-
-        Returns:
-            bool value representing truth table output for given inputs.
-        """
-        if not isinstance(inputs, tuple):
-            raise TypeError("Truth table inputs must be specified as a tuple.")
-
-        if not len(inputs) == self.dimension:
-            raise ValueError("Truth table inputs must match table dimension.")
-
-        return self.expected_inputs_result == (inputs in self.expected_inputs)
 
 
 class EasyAttr(Dict[Any, Any]):
