@@ -9,6 +9,7 @@ import glob
 import os
 import random
 import shutil
+import unittest
 
 from chromite.lib import cidb
 from chromite.lib import constants
@@ -301,13 +302,13 @@ class SchemaDumpTest(CIDBIntegrationTest):
         old_dump = osutils.ReadFile(DUMP_FILE)
 
         if new_dump != old_dump:
-            if cros_test_lib.GlobalTestConfig.UPDATE_GENERATED_FILES:
+            if os.getenv("UPDATE_GENERATED_FILES"):
                 osutils.WriteFile(DUMP_FILE, new_dump)
             else:
                 self.fail(
                     "schema.dump does not match the "
                     "migrations generated schema. Run "
-                    "lib/cidb_integration_test --update"
+                    "UPDATE_GENERATED_FILES=1 lib/cidb_integration_test"
                 )
 
 
@@ -969,4 +970,4 @@ def _SimulateBuildStart(db, metadata, master_build_id=None, important=None):
 def main(_argv) -> None:
     # TODO(akeshet): Allow command line args to specify alternate CIDB instance
     # for testing.
-    cros_test_lib.main(module=__name__)
+    unittest.main(module=__name__)
