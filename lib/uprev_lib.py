@@ -153,7 +153,7 @@ def get_version_from_refs(refs: List[GitRef]) -> Tuple[str, str]:
         assert commit_data.startswith(b")]}'\n"), commit_data
         commit_data = json.loads(commit_data[5:])
         m = re.search(
-            r"Cr-Commit-Position: refs/heads/main@{#(\d+)}",
+            r"^Cr-Commit-Position: refs/heads/main@{#(\d+)}",
             commit_data["message"],
             flags=re.M,
         )
