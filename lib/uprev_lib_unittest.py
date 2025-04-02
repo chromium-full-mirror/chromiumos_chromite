@@ -4,9 +4,12 @@
 
 """uprev_lib tests."""
 
+import io
+import json
 import os
 import pathlib
 from unittest import mock
+import urllib.request
 
 import pytest
 
@@ -15,6 +18,7 @@ from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
+from chromite.lib import gob_util
 from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import uprev_lib
@@ -82,6 +86,108 @@ class ChromeVersionTest(cros_test_lib.TestCase):
         """Test no versions given."""
         with self.assertRaises(uprev_lib.NoRefsError):
             uprev_lib.get_version_from_refs([])
+
+
+class ChromeMainVersionTest(cros_test_lib.MockTestCase):
+    """Tests for get_version_from_refs for non-release of Chrome uprev."""
+
+    def setUp(self) -> None:
+        self._main_commit = "deadbeef"
+        self._main_revert_commit = "beefdead"
+        self._canary_commit = "deadfeed"
+        self._main_revert_version = "136.0.1346.0_pre1122444"
+        self._main_version = "136.0.1345.0_pre1122334"
+        self._canary_version = "136.0.1345.0"
+        self._main_ref = uprev_lib.GitRef(
+            path="/path", ref="refs/heads/main", revision=self._main_commit
+        )
+        self._main_revert_ref = uprev_lib.GitRef(
+            path="/path",
+            ref="refs/heads/main",
+            revision=self._main_revert_commit,
+        )
+        self._canary_ref = uprev_lib.GitRef(
+            path="/path",
+            ref=f"refs/tags/{self._canary_version}",
+            revision=self._canary_commit,
+        )
+        self._mock_urlopen = self.PatchObject(urllib.request, "urlopen")
+        self._mock_gob = self.PatchObject(gob_util, "GetFileContents")
+
+    def _mock_gitile(
+        self, standard_chrome_version: str, commit_message: str
+    ) -> None:
+        versions = standard_chrome_version.split(".")
+        self._mock_gob.return_value = (
+            f"MAJOR={versions[0]}\n"
+            f"MINOR={versions[1]}\n"
+            f"BUILD={versions[2]}\n"
+            f"PATCH={versions[3]}\n"
+        )
+        commit_json = {"message": commit_message}
+        self._mock_urlopen.return_value.__enter__.return_value = io.BytesIO(
+            b")]}'\n" + json.dumps(commit_json).encode()
+        )
+
+    def _assert_gitile(self, commit: str) -> None:
+        self._mock_gob.assert_called_with(
+            "https://chromium.googlesource.com/chromium/src.git",
+            "chrome/VERSION",
+            commit,
+        )
+        self._mock_urlopen.assert_called_with(
+            (
+                "https://chromium.googlesource.com/chromium/src.git/"
+                f"+/{commit}?format=JSON"
+            )
+        )
+
+    def test_main_ref(self) -> None:
+        self._mock_gitile(
+            self._main_version.split("_", maxsplit=1)[0],
+            (
+                "chromeos: fix bug\n\n"
+                "Bug: 12312312\n"
+                "Change-Id: I123123812312312312312312\n"
+                "Cr-Commit-Position: refs/heads/main@{#1122334}\n"
+            ),
+        )
+        self.assertEqual(
+            (self._main_version, self._main_commit),
+            uprev_lib.get_version_from_refs([self._main_ref]),
+        )
+        self._assert_gitile(self._main_commit)
+
+    def test_main_revert(self) -> None:
+        self._mock_gitile(
+            self._main_revert_version.split("_", maxsplit=1)[0],
+            (
+                'Revert "chromeos: fix bug"\n\n'
+                "This reverts commit deadbeef\n\n"
+                "Reason for revert: test\n\n"
+                "Original change's description:\n"
+                "> chromeos: fix bug\n\n"
+                "> Bug: 12312312\n"
+                "> Change-Id: I123123812312312312312312\n"
+                "> Cr-Commit-Position: refs/heads/main@{#1122334}\n\n"
+                "Bug: 12312312, 123999\n"
+                "Change-Id: I12318832193838333\n"
+                "Cr-Commit-Position: refs/heads/main@{#1122444}\n"
+            ),
+        )
+        self.assertEqual(
+            (self._main_revert_version, self._main_revert_commit),
+            uprev_lib.get_version_from_refs([self._main_revert_ref]),
+        )
+        self._assert_gitile(self._main_revert_commit)
+
+    def test_canary_no_network(self) -> None:
+        self.assertEqual(
+            (self._canary_version, self._canary_commit),
+            uprev_lib.get_version_from_refs([self._canary_ref]),
+        )
+        self._mock_gob.assert_not_called()
+        self._mock_urlopen.assert_not_called()
 
 
 class ChromeEbuildVersionTest(cros_test_lib.MockTempDirTestCase):
