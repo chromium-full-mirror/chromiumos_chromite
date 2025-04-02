@@ -36,10 +36,10 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
         self.PatchObject(
             image_lib, "GetImageDiskPartitionInfo", return_value=fake_partitions
         )
-        self.PatchObject(os.path, "exists", return_value=True)
         create_tarball_mock = self.PatchObject(
             compression_lib, "create_tarball"
         )
+        os.makedirs(os.path.join(self.tempdir, "dir-1/unencrypted"))
 
         paygen_stateful_payload_lib.GenerateStatefulPayload(
             "dev/null", self.tempdir
@@ -71,7 +71,6 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
         self.PatchObject(
             image_lib, "GetImageDiskPartitionInfo", return_value=fake_partitions
         )
-        self.PatchObject(os.path, "exists", return_value=False)
         create_tarball_mock = self.PatchObject(
             compression_lib, "create_tarball"
         )
@@ -106,10 +105,10 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
         self.PatchObject(
             image_lib, "GetImageDiskPartitionInfo", return_value=fake_partitions
         )
-        self.PatchObject(os.path, "exists", return_value=True)
         create_tarball_mock = self.PatchObject(
             compression_lib, "create_tarball"
         )
+        os.makedirs(os.path.join(self.tempdir, "dir-1/unencrypted"))
 
         # Assuming the fd is 1.
         paygen_stateful_payload_lib.GenerateStatefulPayload("dev/null", 1)
@@ -140,10 +139,10 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
         self.PatchObject(
             image_lib, "GetImageDiskPartitionInfo", return_value=fake_partitions
         )
-        self.PatchObject(os.path, "exists", return_value=True)
         create_tarball_mock = self.PatchObject(
             compression_lib, "create_tarball"
         )
+        os.makedirs(os.path.join(self.tempdir, "dir-1/unencrypted"))
 
         paygen_stateful_payload_lib.GenerateZstdStatefulPayload(
             "dev/null", self.tempdir
@@ -175,7 +174,6 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
         self.PatchObject(
             image_lib, "GetImageDiskPartitionInfo", return_value=fake_partitions
         )
-        self.PatchObject(os.path, "exists", return_value=False)
         create_tarball_mock = self.PatchObject(
             compression_lib, "create_tarball"
         )
@@ -210,10 +208,10 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
         self.PatchObject(
             image_lib, "GetImageDiskPartitionInfo", return_value=fake_partitions
         )
-        self.PatchObject(os.path, "exists", return_value=True)
         create_tarball_mock = self.PatchObject(
             compression_lib, "create_tarball"
         )
+        os.makedirs(os.path.join(self.tempdir, "dir-1/unencrypted"))
 
         # Assuming the fd is 1.
         paygen_stateful_payload_lib.GenerateZstdStatefulPayload("dev/null", 1)
@@ -225,6 +223,43 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
             compression=compression_lib.CompressionType.ZSTD,
             compressor=["zstdmt", "-19"],
             inputs=["dev_image", "var_overlay", "unencrypted"],
+            extra_args=[
+                "--selinux",
+                "--directory=%s" % os.path.join(self.tempdir, "dir-1"),
+                "--transform=s,^dev_image,dev_image_new,",
+                "--transform=s,^var_overlay,var_new,",
+                "--transform=s,^unencrypted/dev_image.block,unencrypted/dev_image_new.block,",
+            ],
+        )
+
+    def testGenerateStatefulPayloadDeveloperToolsImage(self) -> None:
+        """Test correct arguments propagated to tar call."""
+
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+        fake_partitions = (image_lib.PartitionInfo(3, 0, 4, "fs", "STATE"),)
+        self.PatchObject(
+            image_lib, "GetImageDiskPartitionInfo", return_value=fake_partitions
+        )
+        create_tarball_mock = self.PatchObject(
+            compression_lib, "create_tarball"
+        )
+        os.makedirs(os.path.join(self.tempdir, "dir-1/unencrypted"))
+        os.mknod(
+            os.path.join(self.tempdir, "dir-1/unencrypted/dev_image.block")
+        )
+
+        # Assuming the fd is 1.
+        paygen_stateful_payload_lib.GenerateZstdStatefulPayload("dev/null", 1)
+
+        create_tarball_mock.assert_called_once_with(
+            1,
+            ".",
+            sudo=True,
+            compression=compression_lib.CompressionType.ZSTD,
+            compressor=["zstdmt", "-19"],
+            inputs=["unencrypted"],
             extra_args=[
                 "--selinux",
                 "--directory=%s" % os.path.join(self.tempdir, "dir-1"),
