@@ -4,9 +4,7 @@
 
 """Unittests for chromite.lib.metrics."""
 
-import sys
 import tempfile
-import unittest
 from unittest import mock
 
 from chromite.third_party.infra_libs import ts_mon
@@ -70,7 +68,6 @@ class TestIndirectMetrics(cros_test_lib.MockTestCase):
             mock.Mock(time=mock.Mock(side_effect=TimeIterator())),
         )
 
-    @unittest.skipIf(sys.version_info.major < 3, "Requires py3")
     def testShortLived(self) -> None:
         """Tests that configuring ts-mon to use short-lived processes works."""
         self.patchTime()
@@ -81,7 +78,6 @@ class TestIndirectMetrics(cros_test_lib.MockTestCase):
                 # pylint: disable=protected-access
                 self.assertTrue(ts_mon_config._WasSetup)
 
-    @unittest.skipIf(sys.version_info.major < 3, "Requires py3")
     def testResetAfter(self) -> None:
         """Tests that the reset_after flag works to send metrics only once."""
         # By mocking out its "time" module, the forked flushing process will

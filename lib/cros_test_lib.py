@@ -672,14 +672,6 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
     failUnlessRaises = _disable("failUnlessRaises", "assertRaises")
     failIf = _disable("failIf", "assertFalse")
 
-    # Python 3 renamed these.
-    if sys.version_info.major < 3:
-        assertCountEqual = (
-            unittest.TestCase.assertItemsEqual  # type: ignore[attr-defined]
-        )
-        assertRaisesRegex = unittest.TestCase.assertRaisesRegexp
-        assertRegex = unittest.TestCase.assertRegexpMatches
-
     assertItemsEqual = _disable("assertItemsEqual", "assertCountEqual")
     assertRaisesRegexp = _disable("assertRaisesRegexp", "assertRaisesRegex")
     assertRegexpMatches = _disable("assertRegexpMatches", "assertRegex")

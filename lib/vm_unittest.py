@@ -9,7 +9,6 @@ import logging
 import multiprocessing
 import os
 import socket
-import sys
 from unittest import mock
 
 from chromite.lib import constants
@@ -556,11 +555,10 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
 
         fcntl_mock.return_value = 0
 
-        builtin = "__builtin__" if sys.version_info[0] == 2 else "builtins"
         m = mock.mock_open()
         filehandle = m()
         filehandle.readline.side_effect = readline_impl
-        with mock.patch("%s.open" % builtin, m, create=True):
+        with mock.patch("builtins.open", m, create=True):
             self._vm.SaveVMImageOnShutdown("/some/dir/")
 
         self.assertTrue(self._vm.copy_image_on_shutdown)
@@ -602,13 +600,12 @@ class VMTester(cros_test_lib.RunCommandTempDirTestCase):
         fcntl_mock.return_value = 0
 
         self._vm.copy_on_write = True
-        builtin = "__builtin__" if sys.version_info[0] == 2 else "builtins"
         m = mock.mock_open()
         filehandle = m()
         filehandle.readline.side_effect = IOError(
             "Resource temporarily unavailable"
         )
-        with mock.patch("%s.open" % builtin, m, create=True):
+        with mock.patch("builtins.open", m, create=True):
             self._vm.SaveVMImageOnShutdown("/some/dir/")
 
         self.assertEqual(sleep_mock.call_count, 1)

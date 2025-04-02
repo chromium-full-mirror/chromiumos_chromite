@@ -25,7 +25,6 @@ bundled, but there will be no attempt to upload / distribute them.
 
 import argparse
 from pathlib import Path
-import sys
 from typing import List, Optional, Protocol
 
 import chromite
@@ -37,8 +36,6 @@ from chromite.lib import osutils
 from chromite.lib import sysroot_lib
 from chromite.service import sdk_subtools
 
-
-assert sys.version_info >= (3, 8), "build_sdk_subtools uses Python 3.8 features"
 
 logger = chromite.ChromiteLogger.getLogger(__name__)
 
