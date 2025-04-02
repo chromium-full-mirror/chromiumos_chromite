@@ -644,23 +644,6 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
 
         raise self.failureException(msg)
 
-    def GetSequenceDiff(self, seq1: Sequence[Any], seq2: Sequence[Any]) -> str:
-        """Get a string describing the difference between two sequences.
-
-        Args:
-            seq1: First sequence to compare.
-            seq2: Second sequence to compare.
-
-        Returns:
-            A string that describes how the two sequences differ.
-        """
-        try:
-            self.assertSequenceEqual(seq1, seq2)
-        except AssertionError as ex:
-            return str(ex)
-        else:
-            return "no differences"
-
     # Upstream deprecated these in Python 3, but left them in Python 2.
     # Deprecate them ourselves to help with migration.  We can delete these
     # once upstream drops them.
