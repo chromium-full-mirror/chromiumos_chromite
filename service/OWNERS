@@ -4,3 +4,4 @@
 
 per-file android* = file:chromiumos/owners:v1:/arc/OWNERS.infra
 per-file toolchain* = file:chromiumos/third_party/toolchain-utils:/OWNERS.toolchain
+per-file third_party_inventory* = file:chromiumos/owners:v1:/infra/OWNERS.security

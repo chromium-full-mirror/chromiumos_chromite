@@ -6,5 +6,6 @@ per-file cros_update* = file:chromiumos/owners:v1:/platform/OWNERS.au
 per-file deploy_chrome*=file:/OWNERS.chrome
 per-file fwgdb.py=file:/OWNERS.fw
 per-file lint_package* = file:chromiumos/third_party/toolchain-utils:/OWNERS.toolchain
+per-file collect_third_party_inventory* = file:chromiumos/owners:v1:/infra/OWNERS.security
 per-file tricium_cargo_clippy* = file:chromiumos/third_party/toolchain-utils:/OWNERS.toolchain
 per-file tricium_clang_tidy* = file:chromiumos/third_party/toolchain-utils:/OWNERS.toolchain

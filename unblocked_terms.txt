@@ -7,3 +7,4 @@
 master
 sanity
 slave
+multiprocessing.dummy
