@@ -611,6 +611,9 @@ else
   setup_env
 fi
 
+# b/408385001 - Disable io_uring because it's buggy and causes a dead lock.
+sysctl kernel.io_uring_disabled=1
+
 CHROOT_PASSTHRU=(
   "CHROMEOS_RELEASE_APPID=${CHROMEOS_RELEASE_APPID:-{DEV-BUILD}}"
   "EXTERNAL_TRUNK_PATH=${FLAGS_trunk}"
