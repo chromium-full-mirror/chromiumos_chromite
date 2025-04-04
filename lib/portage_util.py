@@ -1678,6 +1678,10 @@ class InstalledPackage:
         return self._ReadField("CATEGORY")
 
     @property
+    def description(self):
+        return self._ReadField("DESCRIPTION")
+
+    @property
     def homepage(self):
         return self._ReadField("HOMEPAGE")
 

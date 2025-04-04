@@ -1756,6 +1756,7 @@ class InstalledPackageTest(cros_test_lib.TempDirTestCase):
             ("package-1.ebuild", "EAPI=1"),
             ("CATEGORY", "category-1\n"),
             ("DEPEND", "dev-libs/foo !dev-libs/bar >=sys-apps/pkg-12:0/0\n"),
+            ("DESCRIPTION", "Package description\n"),
             ("HOMEPAGE", "http://example.com\n"),
             ("LICENSE", "GPL-2\n"),
             ("NEEDED", "/usr/sbin/bootlockboxd libmetrics.so,libhwsec.so\n"),
@@ -1778,6 +1779,7 @@ class InstalledPackageTest(cros_test_lib.TempDirTestCase):
             ["dev-libs/foo", "!dev-libs/bar", ">=sys-apps/pkg-12:0/0"],
             pkg.depend.reduce(),
         )
+        self.assertEqual("Package description", pkg.description)
         self.assertEqual("http://example.com", pkg.homepage)
         self.assertEqual("GPL-2", pkg.license)
         self.assertEqual(
