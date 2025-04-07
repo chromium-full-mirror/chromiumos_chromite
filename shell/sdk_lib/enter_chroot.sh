@@ -618,7 +618,7 @@ else
 fi
 
 # b/408385001 - Disable io_uring because it's buggy and causes a dead lock.
-sysctl kernel.io_uring_disabled=1
+sysctl -q kernel.io_uring_disabled=1
 
 CHROOT_PASSTHRU=(
   "CHROMEOS_RELEASE_APPID=${CHROMEOS_RELEASE_APPID:-{DEV-BUILD}}"
