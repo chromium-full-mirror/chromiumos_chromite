@@ -40,14 +40,7 @@ def _generate_stateful_payload(
 
         try:
             logging.info("Tarring up /usr/local and /var!")
-            inputs = []
-            # On devices with USE=default_key_stateful, dev_image and
-            # var_overlay are bind-mounted from unencrypted/dev_image.block.
-            # Ignore the directory if the image exists.
-            if not os.path.exists(
-                os.path.join(stateful_dir, "unencrypted/dev_image.block")
-            ):
-                inputs += ["dev_image", "var_overlay"]
+            inputs = ["dev_image", "var_overlay"]
             if os.path.exists(os.path.join(stateful_dir, "unencrypted")):
                 inputs += ["unencrypted"]
             compression_lib.create_tarball(
