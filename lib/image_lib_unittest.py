@@ -119,7 +119,6 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(glob, "glob", return_value=LOOP_PARTS_LIST)
         self.mount_mock = self.PatchObject(osutils, "MountDir")
         self.umount_mock = self.PatchObject(osutils, "UmountDir")
-        self.umount_tree_mock = self.PatchObject(osutils, "UmountTree")
         self.retry_mock = self.PatchObject(retry_util, "RetryException")
         self.addpart_mock = self.PatchObject(
             image_lib.LoopbackPartitions, "_AddPartitions"
@@ -268,9 +267,11 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
         # Unmount half of them, confirm that they were unmounted.
         lb.Unmount((1, "ROOT-B"))
         for p in (1, 5):
-            self.umount_tree_mock.assert_any_call(f"{self.tempdir}/dir-{p:d}")
-        self.assertEqual(2, self.umount_tree_mock.call_count)
-        self.umount_tree_mock.reset_mock()
+            self.umount_mock.assert_any_call(
+                "%s/dir-%d" % (self.tempdir, p), cleanup=False
+            )
+        self.assertEqual(2, self.umount_mock.call_count)
+        self.umount_mock.reset_mock()
 
         # Check that Mounted has been updated
         mounts = lb.Mounted()
@@ -285,8 +286,10 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
         # Close the object, so that we unmount the other half of them.
         lb.close()
         for p in (3, 7):
-            self.umount_tree_mock.assert_any_call(f"{self.tempdir}/dir-{p:d}")
-        self.assertEqual(2, self.umount_tree_mock.call_count)
+            self.umount_mock.assert_any_call(
+                "%s/dir-%d" % (self.tempdir, p), cleanup=False
+            )
+        self.assertEqual(2, self.umount_mock.call_count)
 
         # Verify that the directories were cleaned up.
         for p in (1, 3):
