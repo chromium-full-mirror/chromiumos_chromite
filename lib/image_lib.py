@@ -386,10 +386,7 @@ class LoopbackPartitions:
         for part_id in part_ids:
             for part in self._gpt_table:
                 if part_id in (part.name, part.number):
-                    location = self._Mount(part, mount_opts)
-                    ret.append(location)
-                    if part.name == constants.PART_STATE:
-                        _mount_stateful_dev_image_block(Path(location))
+                    ret.append(self._Mount(part, mount_opts))
                     break
             else:
                 raise KeyError(repr(part_id))
@@ -509,7 +506,7 @@ class LoopbackPartitions:
         dest_number, _ = self._GetMountPointAndSymlink(part)
         # Due to crosbug/358933, the RmDir call might fail. So we skip the
         # cleanup.
-        osutils.UmountTree(dest_number)
+        osutils.UmountDir(dest_number, cleanup=False)
         self._mounted.remove(part)
         self._to_be_rmdir.add(dest_number)
 
@@ -582,25 +579,6 @@ class LoopbackPartitions:
     def __del__(self) -> None:
         if self.delete:
             self.close()
-
-
-def _mount_stateful_dev_image_block(stateful_partition: Path) -> None:
-    """Mount the dev_image.block in the stateful partition.
-
-    Args:
-        stateful_partition: Path to an already-mounted stateful partition.
-    """
-    dev_block = stateful_partition / "unencrypted" / "dev_image.block"
-    if dev_block.exists():
-        dev_tools = stateful_partition / "developer_tools"
-        dev_img_src = dev_tools / "dev_image"
-        dev_img_tgt = stateful_partition / "dev_image"
-        var_overlay_src = dev_tools / "var_overlay"
-        var_overlay_tgt = stateful_partition / "var_overlay"
-
-        osutils.MountDir(dev_block, dev_tools)
-        osutils.MountDir(dev_img_src, dev_img_tgt, mount_opts=("bind",))
-        osutils.MountDir(var_overlay_src, var_overlay_tgt, mount_opts=("bind",))
 
 
 def WriteLsbRelease(sysroot, fields) -> None:
