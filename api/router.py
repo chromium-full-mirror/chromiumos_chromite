@@ -42,6 +42,7 @@ from chromite.api.gen.chromite.api import sdk_subtools_pb2
 from chromite.api.gen.chromite.api import signing_pb2
 from chromite.api.gen.chromite.api import sysroot_pb2
 from chromite.api.gen.chromite.api import test_pb2
+from chromite.api.gen.chromite.api import third_party_inventory_pb2
 from chromite.api.gen.chromite.api import toolchain_pb2
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -630,6 +631,7 @@ def RegisterServices(router: Router) -> None:
     router.Register(signing_pb2)
     router.Register(sysroot_pb2)
     router.Register(test_pb2)
+    router.Register(third_party_inventory_pb2)
     router.Register(toolchain_pb2)
     logging.debug("Services registered successfully.")
 
