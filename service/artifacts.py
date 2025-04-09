@@ -318,27 +318,41 @@ def BundleChromeOSConfig(
     chroot: "chroot_lib.Chroot",
     sysroot: "sysroot_lib.Sysroot",
     archive_dir: str,
-) -> Optional[str]:
+) -> List[str]:
     """Outputs the ChromeOS Config payload.
+
+    Looks for both the config.yaml and config_protos.zip artifacts from the
+    build.
 
     Args:
         chroot: The chroot to be used.
         sysroot: Sysroot whose config is being fetched.
-        archive_dir: The directory to drop the config in.
+        archive_dir: The directory to drop the configs in.
 
     Returns:
-        The file name of the output config, None if no config found.
+        The file names of the output configs, empty if no config found.
     """
-    config_path = chroot.full_path(
-        sysroot.path, "usr/share/chromeos-config/yaml/config.yaml"
-    )
+    config_paths = [
+        p
+        for p in [
+            chroot.full_path(
+                sysroot.path, "usr/share/chromeos-config/yaml/config.yaml"
+            ),
+            chroot.full_path(
+                sysroot.path,
+                "build/share/chromeos-config-bsp-private/config_protos.zip",
+            ),
+        ]
+        if os.path.exists(p)
+    ]
 
-    if not os.path.exists(config_path):
-        return None
+    config_outputs = []
+    for p in config_paths:
+        config_output = os.path.join(archive_dir, os.path.basename(p))
+        shutil.copy(p, config_output)
+        config_outputs.append(os.path.basename(config_output))
 
-    config_output = os.path.join(archive_dir, "config.yaml")
-    shutil.copy(config_path, config_output)
-    return os.path.basename(config_output)
+    return config_outputs
 
 
 def BundleSimpleChromeArtifacts(

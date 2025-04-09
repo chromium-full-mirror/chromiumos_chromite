@@ -778,6 +778,14 @@ def _BundleChromeOSConfigResponse(request, response, _config) -> None:
             location=common_pb2.Path.OUTSIDE,
         )
     )
+    response.artifacts.add(
+        artifact_path=common_pb2.Path(
+            path=os.path.join(
+                request.result_path.path.path, "config_protos.zip"
+            ),
+            location=common_pb2.Path.OUTSIDE,
+        )
+    )
 
 
 @faux.success(_BundleChromeOSConfigResponse)
@@ -795,22 +803,21 @@ def BundleChromeOSConfig(
     chroot = controller_util.ParseChroot(request.chroot)
     sysroot = controller_util.ParseSysroot(request.sysroot)
 
-    chromeos_config = artifacts.BundleChromeOSConfig(
-        chroot, sysroot, output_dir
-    )
+    configs = artifacts.BundleChromeOSConfig(chroot, sysroot, output_dir)
 
-    if not chromeos_config:
+    if not configs:
         logging.warning(
             "Could not create ChromeOS Config for %s.", sysroot.path
         )
         return
 
-    response.artifacts.add(
-        artifact_path=common_pb2.Path(
-            path=os.path.join(output_dir, chromeos_config),
-            location=common_pb2.Path.OUTSIDE,
+    for c in configs:
+        response.artifacts.add(
+            artifact_path=common_pb2.Path(
+                path=os.path.join(output_dir, c),
+                location=common_pb2.Path.OUTSIDE,
+            )
         )
-    )
 
 
 def _BundleSimpleChromeArtifactsResponse(request, response, _config) -> None:

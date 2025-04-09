@@ -581,16 +581,22 @@ class BundleChromeOSConfigTest(BundleTestCase):
             self.sysroot_request, self.response, self.mock_call_config
         )
         patch.assert_not_called()
-        self.assertEqual(len(self.response.artifacts), 1)
+        self.assertEqual(len(self.response.artifacts), 2)
         self.assertEqual(
             self.response.artifacts[0].artifact_path.path,
             os.path.join(self.output_dir, "config.yaml"),
+        )
+        self.assertEqual(
+            self.response.artifacts[1].artifact_path.path,
+            os.path.join(self.output_dir, "config_protos.zip"),
         )
 
     def testBundleChromeOSConfigSuccess(self) -> None:
         """Test standard success case."""
         bundle_chromeos_config = self.PatchObject(
-            artifacts_svc, "BundleChromeOSConfig", return_value="config.yaml"
+            artifacts_svc,
+            "BundleChromeOSConfig",
+            return_value=["config.yaml", "config_protos.zip"],
         )
         artifacts.BundleChromeOSConfig(
             self.sysroot_request, self.response, self.api_config
@@ -600,7 +606,10 @@ class BundleChromeOSConfigTest(BundleTestCase):
                 artifact.artifact_path.path
                 for artifact in self.response.artifacts
             ],
-            [os.path.join(self.output_dir, "config.yaml")],
+            [
+                os.path.join(self.output_dir, "config.yaml"),
+                os.path.join(self.output_dir, "config_protos.zip"),
+            ],
         )
 
         self.assertEqual(

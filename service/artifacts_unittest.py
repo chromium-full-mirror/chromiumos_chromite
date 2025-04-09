@@ -356,7 +356,7 @@ class BundleChromeOSConfigTest(cros_test_lib.MockTempDirTestCase):
         self.archive_dir = self.tempdir
 
     def testBundleChromeOSConfig(self) -> None:
-        """Verifies that the correct ChromeOS config file is bundled."""
+        """Verifies that the correct ChromeOS config files are bundled."""
         # Create parent dir for ChromeOS Config output.
         config_parent_dir = self.chroot.full_path("build")
 
@@ -374,43 +374,71 @@ class BundleChromeOSConfigTest(cros_test_lib.MockTempDirTestCase):
                     "private-model.yaml",
                 ],
             ),
+            cros_test_lib.Directory(
+                "chromeos-config-bsp-private", ["config_protos.zip"]
+            ),
         )
-        config_files_root = os.path.join(
-            config_parent_dir, "%s/usr/share/chromeos-config" % self.board
+        config_files_root = os.path.join(config_parent_dir, "%s" % self.board)
+        config_yaml_root = os.path.join(
+            config_files_root, "usr/share/chromeos-config"
         )
+        config_protos_root = os.path.join(config_files_root, "build/share")
+
         # Generate a representative set of config files produced by a typical
         # build.
-        cros_test_lib.CreateOnDiskHierarchy(config_files_root, config_files)
+        cros_test_lib.CreateOnDiskHierarchy(config_yaml_root, config_files[1:2])
+        cros_test_lib.CreateOnDiskHierarchy(
+            config_protos_root, config_files[2:]
+        )
+
+        # Create a test config_protos.zip file
+        with open(
+            os.path.join(
+                config_protos_root,
+                "chromeos-config-bsp-private",
+                "config_protos.zip",
+            ),
+            "w",
+            encoding="utf-8",
+        ) as f:
+            f.write("Test zip file.")
 
         # Write a payload to the config.yaml file.
         test_config_payload = {
             "chromeos": {"configs": [{"identity": {"platform-name": "Samus"}}]}
         }
         with open(
-            os.path.join(config_files_root, "yaml", "config.yaml"),
+            os.path.join(config_yaml_root, "yaml", "config.yaml"),
             "w",
             encoding="utf-8",
         ) as f:
             json.dump(test_config_payload, f)
 
-        config_filename = artifacts.BundleChromeOSConfig(
+        config_filenames = artifacts.BundleChromeOSConfig(
             self.chroot, self.sysroot, self.archive_dir
         )
-        self.assertEqual("config.yaml", config_filename)
+        self.assertEqual(["config.yaml", "config_protos.zip"], config_filenames)
 
         with open(
-            os.path.join(self.archive_dir, config_filename),
+            os.path.join(self.archive_dir, config_filenames[0]),
             "r",
             encoding="utf-8",
         ) as f:
             self.assertEqual(test_config_payload, json.load(f))
 
+        self.assertTrue(
+            os.path.exists(os.path.join(self.archive_dir, "config_protos.zip"))
+        )
+
     def testNoChromeOSConfigFound(self) -> None:
         """Verifies None is returned when no ChromeOS config file is found."""
-        self.assertIsNone(
-            artifacts.BundleChromeOSConfig(
-                self.chroot, self.sysroot, self.archive_dir
-            )
+        self.assertEqual(
+            len(
+                artifacts.BundleChromeOSConfig(
+                    self.chroot, self.sysroot, self.archive_dir
+                )
+            ),
+            0,
         )
 
 
