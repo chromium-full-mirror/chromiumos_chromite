@@ -12,7 +12,6 @@ import glob
 import json
 import logging
 import os
-from pathlib import Path
 import stat
 import textwrap
 from typing import Optional
@@ -1619,19 +1618,6 @@ class ChromeSDKCommand(command.CliCommand):
         """Perform the command."""
         if os.environ.get(SDKFetcher.SDK_VERSION_ENV) is not None:
             cros_build_lib.Die("Already in an SDK shell.")
-
-        # Migrate config file from old to new path.
-        old_config = Path("~/.chromite/chrome_sdk.bashrc").expanduser()
-        if (
-            old_config.exists()
-            and not chromite_config.CHROME_SDK_BASHRC.exists()
-        ):
-            chromite_config.initialize()
-            old_config.rename(chromite_config.CHROME_SDK_BASHRC)
-            try:
-                old_config.parent.rmdir()
-            except OSError:
-                pass
 
         if self.options.chrome_branding or self.options.internal:
             gclient_path = gclient.FindGclientFile(self.options.chrome_src)
