@@ -15,6 +15,7 @@ from chromite.cli.cros import cros_cron
 from chromite.lib import commandline
 from chromite.lib import cros_sdk_lib
 from chromite.lib import path_util
+from chromite.utils import xdg_util
 
 
 # pylint is unaware of pytest fixtures.
@@ -113,8 +114,13 @@ def test_cros_cron_run_citc(tmp_path: Path, outside_sdk) -> None:
 
 
 @pytest.fixture
-def has_systemd(monkeypatch: pytest.MonkeyPatch):
+def has_systemd(monkeypatch: pytest.MonkeyPatch, tmp_path):
     """Fixture which mocks out the system having/not having systemd."""
+
+    # TODO(build): Ideally we would patch HOME for the entire test env, but
+    # that causes some tests to randomly flake & crash, so patch this one
+    # until we can figure out the rest.
+    monkeypatch.setattr(xdg_util, "CONFIG_HOME", tmp_path / ".config")
 
     def factory(enable_systemd: bool) -> None:
         monkeypatch.setattr(
