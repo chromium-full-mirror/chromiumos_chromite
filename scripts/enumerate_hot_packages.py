@@ -25,6 +25,23 @@ def contains_hot_marker(file_path: Path):
     return "cros_optimize_package_for_speed" in ebuild_contents
 
 
+def find_package_bashrc_files(package_dir: Path) -> List[Path]:
+    """Returns bashrc files that can influence builds of the given package."""
+    results = []
+
+    # bashrc files must be in either `${PN}.bashrc` of the package dir, or in
+    # `cros/bashrc`.
+    pn_bashrc = package_dir / f"{package_dir.name}.bashrc"
+    if pn_bashrc.exists():
+        results.append(pn_bashrc)
+
+    cros_bashrc = package_dir / "cros" / "bashrc"
+    if cros_bashrc.exists():
+        results.append(cros_bashrc)
+
+    return results
+
+
 def locate_all_package_ebuilds(
     overlays: Iterable[Path],
 ) -> Iterable[Tuple[Path, str, List[Path], List[Path]]]:
@@ -39,20 +56,7 @@ def locate_all_package_ebuilds(
         # that specifically only searches for cros_workon candidates. We care
         # about everything we can possibly build.
         for package_dir in overlay.glob("*/*"):
-            resolved_bashrc_files = []
-            # `*.bashrc` files can either be a single file, or a directory
-            # containing a series of files.
-            for bashrc in package_dir.glob("*.bashrc"):
-                if bashrc.is_file():
-                    resolved_bashrc_files.append(bashrc)
-                    continue
-
-                # Ignore nested subdirectories. Those aren't observed in any
-                # CrOS overlays at the moment.
-                resolved_bashrc_files.extend(
-                    x for x in bashrc.iterdir() if x.is_file()
-                )
-
+            resolved_bashrc_files = find_package_bashrc_files(package_dir)
             ebuilds = list(package_dir.glob("*.ebuild"))
             if not (ebuilds or resolved_bashrc_files):
                 continue
