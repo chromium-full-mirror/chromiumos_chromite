@@ -388,6 +388,8 @@ def process_model(
             f"Trying to copy from old config but {model} doesn't have "
             "config yet."
         )
+    else:
+        old_message = firmware_config_pb2.FirmwareConfigForModel()
 
     # TODO get the old image name. The image name is the same between
     # old branch and new branch.
