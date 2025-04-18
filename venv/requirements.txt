@@ -11,7 +11,6 @@ GitPython==2.1.1
 google-api-core==1.19.0
 google-auth==1.14.0
 google-gax==0.12.5
-google-cloud-logging==1.15.1
 googleapis-common-protos==1.51.0
 grpc-google-logging-v2==0.8.1
 grpc-google-pubsub-v1==0.8.1
