@@ -7,6 +7,7 @@
 import base64
 import http.client
 import json
+from pathlib import Path
 import tempfile
 import time
 import urllib.request
@@ -221,6 +222,18 @@ class GetCookieTests(cros_test_lib.TestCase):
             self.assertEqual(cookies, {})
             cookies = gob_util.GetCookies("foo.googlesource.com", "/", [f.name])
             self.assertEqual(cookies, {})
+
+
+class ParseConfigFileTest(cros_test_lib.TestCase):
+    """Unittest for ParseConfig()"""
+
+    def testSimple(self) -> None:
+        with tempfile.NamedTemporaryFile(mode="w+") as f:
+            secret = "Basic S0MEVERYL0NGSTR1NGHERETHATWENEEDT0GET="
+            f.write(f"[http]\n\t\tExtraHeader = Authorization: {secret}\n")
+            f.flush()
+            headers = gob_util.ParseConfig(Path(f.name))
+            self.assertEqual(headers, {"Authorization": secret})
 
 
 @pytest.mark.network_test

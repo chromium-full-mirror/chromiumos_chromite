@@ -8,6 +8,7 @@ https://gerrit-review.googlesource.com/Documentation/rest-api.html
 """
 
 import base64
+import configparser
 import datetime
 import functools
 import html.parser
@@ -19,7 +20,9 @@ import os
 from pathlib import Path
 import re
 import socket
+import subprocess
 import sys
+import time
 from typing import Any, Dict, Iterable, Optional, Tuple, Union
 import urllib.parse
 import urllib.request
@@ -34,6 +37,7 @@ from chromite.lib import cros_build_lib
 from chromite.lib import git
 from chromite.lib import retry_util
 from chromite.lib import timeout_util
+from chromite.utils import key_value_store
 
 
 _GAE_VERSION = "GAE_VERSION"
@@ -117,7 +121,15 @@ GOB_CONFLICT_ERRORS_RE = re.compile(
 GOB_ERROR_REASON_CLOSED_CHANGE = "CLOSED CHANGE"
 
 
-class GOBError(Exception):
+class Error(Exception):
+    """Base Error class for the module."""
+
+
+class SsoNotSupportedError(Error):
+    """Error type when SSO credentials are not supported."""
+
+
+class GOBError(Error):
     """Error communicating with the GoB service."""
 
     def __init__(self, http_status=None, reason=None) -> None:
@@ -172,67 +184,111 @@ def CookieWalker(path: Path) -> Iterable[str]:
                 yield fields
 
 
-def GetSsoCookies(host: str, user: Optional[str] = None) -> Dict[str, str]:
-    """Load the SSO cookies for this host if available.
+def ParseConfig(config_path: Path) -> Dict[str, str]:
+    """Parses an INI-style config for SSO settings.
+
+    Args:
+        config_path: the path to the config file.
+
+    Returns:
+        A dict containing authorization settings.
+    """
+    headers = {}
+    if not config_path.is_file():
+        return headers
+    config = configparser.ConfigParser()
+    config.read(config_path)
+    if not config.has_option("http", "extraHeader"):
+        return headers
+    headers["Authorization"] = (
+        config["http"]["extraHeader"].split(":")[1].strip()
+    )
+    return headers
+
+
+def GetSsoConfig(host: str) -> Tuple[Dict[str, str], Dict[str, str], str]:
+    """Get the SSO config for this host if available.
 
     Args:
         host: The hostname of the Gerrit service.
-        user: The username to look up for the SSO cookies.
 
     Returns:
-        A dict of cookie name to value, with no URL encoding applied.
+        A tuple with cookies, headers, and proxy to use.
+
+    Raises:
+        SsoNotSupportedError if SSO creds are not supported.
     """
 
-    # See if this system is using SSO.
-    def find_sso_file(name: str) -> Optional[Path]:
-        """Find the |name| file under the sso dir."""
-        path = Path(f"/run/ccache/sso-{user}/{name}")
-        if path.is_file():
-            return path
-
-        path = Path(f"~/.sso/{name}").expanduser()
-        if path.is_file():
-            return path
-
-        return None
-
-    cookies = {}
-
-    if user is None:
-        user = os.environ.get("USER")
-    if user is None:
-        return cookies
-
-    path = find_sso_file("cookie")
-    if not path:
-        return cookies
-    lines = path.read_text(encoding="utf-8").splitlines()
-    if not lines:
-        return cookies
-
-    lines = lines[0].split(",")
-    fields = dict(x.split("=", 1) for x in lines)
-
-    gob = host.split(".")[0][:-7]
-
-    path = Path(f"/run/ccache/sso-{user}/git-persistent-https-cookies.txt")
-    if not path.is_file():
-        # Try to poke the bear.  The side-effects might clear stale cookies.
-        cros_build_lib.dbg_run(
+    def _refresh_sso_creds():
+        return cros_build_lib.dbg_run(
             ["git", "ls-remote", f"sso://{gob}/All-Projects"],
             check=False,
             capture_output=True,
         )
+
+    def _read_sso_creds(path: Path, git_host: str):
+        cookies = {}
         if not path.is_file():
             return cookies
+        now_ts = time.time()
+        for fields in CookieWalker(path):
+            domain, expiration_ts, key, value = (
+                fields[0],
+                fields[4],
+                fields[5],
+                fields[6],
+            )
+            if int(expiration_ts) < now_ts:
+                continue
+            if http.cookiejar.domain_match(git_host, domain):
+                cookies[key] = value
+        return cookies
 
+    gob = host.split(".")[0]
+    if gob.endswith("-review"):
+        gob = gob[:-7]
+
+    cmd = ["git-remote-sso", "--print_config", f"sso://{gob}"]
+    try:
+        result = cros_build_lib.dbg_run(
+            cmd,
+            input=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+            encoding="utf-8",
+        )
+    except cros_build_lib.RunCommandError as e:
+        # Only warn on Googler systems with SSO tools installed.
+        if not isinstance(e.exception, FileNotFoundError):
+            logging.warning("Unable to get SSO config: %s", e.result.stderr)
+        raise SsoNotSupportedError(
+            "git-remote-sso not found. Unable to get SSO creds."
+        )
+
+    config = key_value_store.LoadData(result.stdout)
+    proxy = config.get("http.proxy", "localhost:999")
+    # git-remote-sso produces a temporary file with a PID at the end,
+    # and then copies that file to the same path without the PID.
+    # Example output:
+    # /var/run/ccache/sso-{user}/git-persistent-https-cookies.txt.1986292
+    cookie_path = Path(config.get("http.cookiefile", "").rsplit(".", 1)[0])
+    config_path = Path(config.get("include.path", ""))
     git_host = f"{gob}.git.corp.google.com"
-    for fields in CookieWalker(path):
-        domain, key, value = fields[0], fields[5], fields[6]
-        if http.cookiejar.domain_match(git_host, domain):
-            cookies[key] = value
 
-    return cookies
+    cookies = _read_sso_creds(cookie_path, git_host)
+    # There's an issue with git-remote-sso where the cookies
+    # are not always properly created. As a workaround,
+    # we use a canned git operation to warm up the cookies.
+    # b/342644760
+    if not cookies:
+        result = _refresh_sso_creds()
+        if result.returncode:
+            logging.warning("SSO refresh failed with: %s", result.stderr)
+        cookies = _read_sso_creds(cookie_path, git_host)
+
+    headers = ParseConfig(config_path)
+    return cookies, headers, proxy
 
 
 def GetCookies(
@@ -272,8 +328,6 @@ def GetCookies(
             ):
                 cookies[key] = value
 
-    cookies.update(GetSsoCookies(host))
-
     return cookies
 
 
@@ -302,13 +356,29 @@ def CreateHttpReq(
         except httplib2.ServerNotFoundError:
             pass
 
-    cookies = GetCookies(host, path)
+    protocol = "https"
+    # Determine if we have SSO creds. If so, use them.
+    try:
+        cookies, sso_headers, proxy = GetSsoConfig(host)
+        if cookies and sso_headers:
+            # Good SSO creds found. Let's use a trusted host.
+            host = host.replace("googlesource.com", "git.corp.google.com")
+            # SSO requires us to make an http request via uplink (go/uplink)
+            protocol = "http"
+            os.environ["http_proxy"] = proxy
+            headers.update(sso_headers)
+        else:
+            cookies = GetCookies(host, path)
+    except SsoNotSupportedError:
+        cookies = GetCookies(host, path)
+
+    # Add relevant cookies and authorization creds.
     if "Cookie" not in headers and cookies:
-        logging.debug("Using cookies for GoB authorization.")
         headers["Cookie"] = "; ".join(
             "%s=%s" % (n, v) for n, v in cookies.items()
         )
-    elif "Authorization" not in headers:
+
+    if "Cookie" not in headers and "Authorization" not in headers:
         try:
             git_creds = auth.GitCreds()
         except auth.AccessTokenError:
@@ -342,15 +412,16 @@ def CreateHttpReq(
         body = json.JSONEncoder().encode(body).encode("utf-8")
         headers.setdefault("Content-Type", "application/json")
     if logging.getLogger().isEnabledFor(logging.DEBUG):
-        logging.debug("%s https://%s%s", reqtype, host, path)
+        logging.debug("%s %s://%s%s", reqtype, protocol, host, path)
         for key, val in headers.items():
             if key.lower() in ("authorization", "cookie"):
                 val = "HIDDEN"
-            logging.debug("%s: %s", key, val)
+            logging.debug("HEADER: %s: %s", key, val)
         if body:
             logging.debug(body)
+
     return urllib.request.Request(
-        f"https://{host}{path}", data=body, headers=headers, method=reqtype
+        f"{protocol}://{host}{path}", data=body, headers=headers, method=reqtype
     )
 
 
