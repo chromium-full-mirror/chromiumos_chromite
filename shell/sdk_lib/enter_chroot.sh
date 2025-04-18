@@ -56,8 +56,6 @@ FILES_TO_COPY_TO_CHROOT=(
   # Creds used to authenticate with GCP services.
   .config/gcloud/application_default_credentials.json
 
-  .gdata_cred.txt             # User/password for Google Docs on chromium.org
-  .gdata_token                # Auth token for Google Docs on chromium.org
   .googleapikeys              # Google API keys for Chrome
   .inputrc                    # Preserve command line customizations
 )
