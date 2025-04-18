@@ -444,10 +444,6 @@ setup_env() {
     if [ -f "${SUDO_HOME}/.boto" ]; then
       # Pass --remote-destination to overwrite a symlink.
       user_cp "--remove-destination" "${SUDO_HOME}/.boto" "${chroot_user_boto}"
-    elif [ -f "/etc/boto.cfg" ]; then
-      # For GCE instances, the non-chroot .boto file is not deployed so
-      # use the system /etc/boto.cfg if it exists.
-      user_cp "--remove-destination" "/etc/boto.cfg" "${chroot_user_boto}"
     fi
 
     # If user doesn't have a boto file, check if the private overlays
