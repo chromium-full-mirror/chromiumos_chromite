@@ -436,21 +436,14 @@ setup_env() {
 
     setup_git
 
-    # gsutil uses boto config to store settings and credentials. Copy
-    # user's own boto file into the chroot if it exists.
+    # gsutil uses boto config to store settings and credentials.  Symlink the
+    # common private overlay so devs can run gsutil directly to fetch files.
     chroot_user_boto="${FLAGS_chroot}/home/${SUDO_USER}/.boto"
-    if [ -f "${SUDO_HOME}/.boto" ]; then
-      # Pass --remote-destination to overwrite a symlink.
-      user_cp "--remove-destination" "${SUDO_HOME}/.boto" "${chroot_user_boto}"
-    fi
-
-    # If user doesn't have a boto file, check if the private overlays
-    # are installed and use those credentials.
     boto='src/private-overlays/chromeos-overlay/googlestorage_account.boto'
     if [ -s "${FLAGS_trunk}/${boto}" ]; then
-      if [ ! -e "${chroot_user_boto}" ]; then
-        user_symlink "${CHROOT_TRUNK_DIR}/${boto}" "${chroot_user_boto}"
-      fi
+      user_symlink "${CHROOT_TRUNK_DIR}/${boto}" "${chroot_user_boto}"
+    else
+      rm -f "${chroot_user_boto}"
     fi
 
     # Have found a few chroots where ~/.gsutil is owned by root:root, probably
