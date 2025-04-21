@@ -123,11 +123,11 @@ def initialize(
     detected_resource = otel_resources.get_aggregated_resources(
         # pylint: disable=line-too-long
         [
-            otel_resources.ProcessResourceDetector(),  # type: ignore[no-untyped-call]
-            otel_resources.OTELResourceDetector(),  # type: ignore[no-untyped-call]
+            otel_resources.ProcessResourceDetector(raise_on_error=True),  # type: ignore[no-untyped-call]
+            otel_resources.OTELResourceDetector(raise_on_error=True),  # type: ignore[no-untyped-call]
             detector.ProcessDetector(),
-            cros_detector.SDKSourceDetector(),  # type: ignore[no-untyped-call]
-            detector.SystemDetector(),  # type: ignore[no-untyped-call]
+            cros_detector.SDKSourceDetector(raise_on_error=True),  # type: ignore[no-untyped-call]
+            detector.SystemDetector(raise_on_error=True),  # type: ignore[no-untyped-call]
             cros_detector.DevelopmentDetector(force_dev=development_mode),
             cros_detector.UserDetector(user_uuid=user_uuid),
         ]
