@@ -23,11 +23,11 @@ import re
 import shutil
 import subprocess
 import sys
-from typing import Callable, Iterable, List, Set, Tuple
+from typing import Callable, Iterable
 import urllib.request
 
 
-assert sys.version_info >= (3, 8), "Python 3.8+ required"
+assert sys.version_info >= (3, 11), "Python 3.11+ required"
 
 
 # Terminal escape sequence to erase the current line after the cursor.
@@ -47,7 +47,7 @@ class GitConfig:
             self.config.read(self.path)
 
     @staticmethod
-    def key_to_section_option(key: str) -> Tuple[str, str]:
+    def key_to_section_option(key: str) -> tuple[str, str]:
         section, option = key.split(".", 1)
         if section in {"remote", "branch"}:
             qual, option = option.split(".", 1)
@@ -69,7 +69,7 @@ class GitConfig:
             self.set(key, value)
 
 
-def run(cmd: List[str], auto_output=True, **kwargs):
+def run(cmd: list[str], auto_output=True, **kwargs):
     """Hook around subprocess.run for logging."""
     cwd = kwargs.get("cwd")
     assert cwd is not None, f"{cmd} missing cwd="
@@ -188,7 +188,7 @@ def capture_output(func: Callable, repo: Path):
 
 
 def cleanup_old_projects(
-    opts: argparse.Namespace, live_repos: Set[Path]
+    opts: argparse.Namespace, live_repos: set[Path]
 ) -> None:
     """Prune old projects that have been archived or deleted from the host."""
     local_repos = set(
