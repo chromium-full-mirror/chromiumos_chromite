@@ -110,7 +110,18 @@ def create_repo(opts: argparse.Namespace, repo: Path) -> None:
 
     # Only run the init steps once.
     if commit_msg.exists():
-        run(["git", "pull", "-q"], cwd=path, auto_output=False)
+        # Automatically rebase as it's common for commits to be merged and get
+        # a different commit id.
+        try:
+            run(["git", "pull", "-q", "--rebase"], cwd=path, auto_output=False)
+        except subprocess.CalledProcessError:
+            run(
+                ["git", "rebase", "--abort"],
+                cwd=path,
+                auto_output=False,
+                check=False,
+            )
+            raise
         return
 
     path.mkdir(parents=True, exist_ok=True)
