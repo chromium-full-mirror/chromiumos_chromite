@@ -11,8 +11,8 @@ custom features and signing.
 
 import logging
 import os
-import pathlib
-from typing import List, Optional
+from pathlib import Path
+from typing import List, Optional, Sequence
 
 from chromite.lib import build_target_lib
 from chromite.lib import constants
@@ -51,8 +51,8 @@ class Builder:
         """
         self._board = board
         # Store paths as Path objects internally.
-        self._work_dir = pathlib.Path(work_dir)
-        self._install_root = pathlib.Path(install_root)
+        self._work_dir = Path(work_dir)
+        self._install_root = Path(install_root)
         # Convert jobs to emerge argument string.
         self.jobs_arg = f"--jobs={jobs}" if jobs is not None else None
         self._build_target = build_target_lib.BuildTarget(self._board)
@@ -326,3 +326,186 @@ class Builder:
             ) from e
 
         logging.info("Kernel image created successfully at %s", output_image)
+
+    # --- Integrated High-Level Methods ---
+
+    def _get_default_base_features(self, kernel_ramfs: str) -> List[str]:
+        """Returns the default list of base kernel features for recovery."""
+        # Note: Features starting with '-' are disabled, others enabled.
+        # Ensure the specified ramfs is included.
+        # Trusted Platform Module support.
+        # I2C device interface.
+        # FAT filesystem support (common for EFI/USB).
+        # Use XZ compression for the kernel.
+        # PC serial port support.
+        # Disable AutoFDO for kernel (typical for recovery).
+        # Disable AutoFDO verification.
+        return [
+            kernel_ramfs,
+            "tpm",
+            "i2cdev",
+            "vfat",
+            "kernel_compress_xz",
+            "pcserial",
+            "-kernel_afdo",
+            "-kernel_afdo_verify",
+        ]
+
+    def BuildCustomKernelImage(
+        self,
+        kernel_version: str = "0.0.1",
+        kernel_ramfs: str = "recovery_ramfs",
+        kernel_flags: Optional[List[str]] = None,
+        base_kernel_features: Optional[Sequence[str]] = None,
+        kernel_serial_console: Optional[str] = None,
+        keys_dir: str = constants.VBOOT_DEVKEYS_DIR,
+        public_key: str = constants.KERNEL_PUBLIC_SUBKEY,
+        private_key: str = constants.KERNEL_DATA_PRIVATE_KEY,
+        keyblock: str = constants.KERNEL_KEYBLOCK,
+        disable_rootfs_verification: bool = False,
+        output_filename: str = constants.KERNEL_IMAGE_IMG,
+    ) -> Path:
+        """Builds a custom kernel package and creates a bootable kernel image.
+
+        This is a higher-level method that orchestrates:
+        1. Determining the full set of USE flags (base + custom).
+        2. Calling `CreateCustomKernel` to build and install the kernel package.
+        3. Calling `CreateKernelImage` to create the final signed image file.
+
+        Defaults are often set for creating a recovery kernel image.
+
+        Args:
+            kernel_version: The version to embed in the kernel command line.
+            kernel_ramfs: The specific kernel initramfs variant USE flag
+                Added to features if `base_kernel_features` is None.
+            kernel_flags: Additional USE flags for this build
+                (e.g. ["-debug"]).
+            base_kernel_features: Explicit list of base USE flags. If None, the
+                defaults suitable for recovery are used (see
+                `_get_default_base_features`). If provided, ensure you include
+                the desired ramfs flag.
+            kernel_serial_console: Serial console for kernel command line.
+            keys_dir: Path to kernel signing keys directory.
+            public_key: Public key filename within keys_dir.
+            private_key: Private key filename within keys_dir.
+            keyblock: Keyblock filename within keys_dir.
+            disable_rootfs_verification: Disable rootfs verification.
+            output_filename: The name of the final kernel image file to be
+                created within the builder's work_dir.
+
+        Returns:
+            The absolute Path to the generated kernel image file.
+
+        Raises:
+            KernelBuildError: If any step of the build process fails.
+        """
+        logging.info(
+            "Starting custom kernel image build for board '%s'",
+            self._board,
+        )
+
+        # 1. Determine Kernel Features (USE flags).
+        if base_kernel_features is None:
+            actual_base_features = self._get_default_base_features(kernel_ramfs)
+            logging.info(
+                "Using default base kernel features for '%s'.", kernel_ramfs
+            )
+        else:
+            # Use the provided list directly. User must include ramfs flag.
+            if kernel_ramfs not in base_kernel_features:
+                raise KernelBuildError(
+                    "Provided `base_kernel_features` must include the "
+                    f"specified `kernel_ramfs` flag: {kernel_ramfs}"
+                )
+            actual_base_features = base_kernel_features
+            logging.info("Using provided base kernel features.")
+
+        # Combine base features with user-provided additional flags.
+        final_kernel_flags = list(actual_base_features)
+        if kernel_flags:
+            final_kernel_flags.extend(kernel_flags)
+
+        # Filter conflicting ramfs flags from environment USE flags.
+        # This prevents accidental overrides if USE env var has
+        # e.g. 'dev_ramfs'.
+        env_use_flags = os.environ.get("USE", "").split()
+        filtered_use_flags = [
+            x for x in env_use_flags if not x.endswith("_ramfs")
+        ]
+        logging.debug(
+            "Base environment USE flags (ramfs filtered): %s",
+            filtered_use_flags,
+        )
+
+        # 2. Build and install the kernel package using determined flags.
+        logging.info(
+            "Building kernel package with features: %s", final_kernel_flags
+        )
+        self.CreateCustomKernel(
+            kernel_flags=final_kernel_flags,
+            use_flags_override=filtered_use_flags,
+        )
+
+        # 3. Prepare for final image creation.
+        kernel_image_path = self._work_dir / output_filename
+        # Kernel command line arguments.
+        # Ensure version is clean.
+        # NOTE: Make cmdline args more configurable if needed beyond version.
+        boot_args = f"noinitrd panic=60 version={kernel_version.strip()}"
+        logging.info("Using kernel command line: %s", boot_args)
+
+        # 4. Create the final signed kernel image.
+        self.CreateKernelImage(
+            output_image=str(kernel_image_path),
+            boot_args=boot_args,
+            serial=kernel_serial_console,
+            keys_dir=keys_dir,
+            public_key=public_key,
+            private_key=private_key,
+            keyblock=keyblock,
+            disable_rootfs_verification=disable_rootfs_verification,
+        )
+
+        logging.info(
+            "Successfully generated custom kernel image: %s", kernel_image_path
+        )
+        return kernel_image_path
+
+    def GenerateBootableImage(
+        self, kernel_image_path: Path, *args, **kwargs
+    ) -> Path:
+        """Generates a bootable disk image containing the kernel.
+
+        (Placeholder) This method is intended to take the generated kernel
+        (from `BuildCustomKernelImage` or `CreateKernelImage`) and other
+        necessary components (like a root filesystem, bootloader configuration)
+        and assemble them into a final bootable disk image (e.g., USB image).
+
+        Args:
+            kernel_image_path: Path to the kernel image (e.g., kernel.image).
+            # ... other parameters needed for image creation ...
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            The Path to the generated bootable disk image.
+
+        Raises:
+            NotImplementedError: This function is not yet implemented.
+        """
+        # NOTE: Implement the logic to create a bootable image.
+        # This would typically involve using tools like `cros build-image`
+        # or custom scripting with `cgpt`, `mkfs`, bootloader setup etc.
+        # It would likely need access to self._board, self._work_dir, etc.
+        logging.info("Placeholder method called: generate_bootable_image.")
+        logging.info("Board: %s", self._board)
+        logging.info("Work directory: %s", self._work_dir)
+        logging.info("Input Kernel image: %s", kernel_image_path)
+        logging.info("Args: %s, Kwargs: %s", args, kwargs)
+
+        raise NotImplementedError(
+            "Bootable disk image generation is not yet implemented "
+            "in this class."
+        )
+        # Example return (when implemented):
+        # return self._work_dir / "final_bootable_image.bin"
