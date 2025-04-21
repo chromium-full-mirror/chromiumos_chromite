@@ -2,7 +2,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""A set of utilities to build the Chrome OS kernel."""
+"""Utilities for building ChromeOS kernels.
+
+Provides a Builder class with methods for various kernel build steps,
+including generating specific kernel images (e.g., for recovery) with
+custom features and signing.
+"""
 
 import logging
 import os
@@ -13,6 +18,7 @@ from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import kernel_cmdline
+from chromite.lib import osutils
 
 
 class Error(Exception):
@@ -24,10 +30,14 @@ class KernelBuildError(Error):
 
 
 class Builder:
-    """A class for building kernel images."""
+    """A class for building kernel images and related artifacts."""
 
     def __init__(
-        self, board: str, work_dir: str, install_root: str, jobs: int
+        self,
+        board: str,
+        work_dir: str | os.PathLike,
+        install_root: str | os.PathLike,
+        jobs: Optional[int] = None,
     ) -> None:
         """Initialize this class.
 
@@ -36,111 +46,120 @@ class Builder:
             work_dir: The directory for keeping intermediary files.
             install_root: A directory to put the built kernel files (e.g.
                 vmlinuz).
-            jobs: The number of packages to build in parallel.
+            jobs: The number of packages to build in parallel. If None, emerge's
+                default might be used (often based on core count).
         """
         self._board = board
+        # Store paths as Path objects internally.
         self._work_dir = pathlib.Path(work_dir)
         self._install_root = pathlib.Path(install_root)
-        # Convert to string since all cmds require bytes/strings/Path.
-        self.jobs = f"--jobs={jobs}"
-
+        # Convert jobs to emerge argument string.
+        self.jobs_arg = f"--jobs={jobs}" if jobs is not None else None
+        self._build_target = build_target_lib.BuildTarget(self._board)
         self._board_root = build_target_lib.get_default_sysroot_path(board)
+
+        # Ensure work_dir exists.
+        self._work_dir.mkdir(parents=True, exist_ok=True)
+        # install_root might be managed elsewhere (like emerge --root=),
+        # so don't create it here unless necessary, but ensure it's a Path.
 
     def CreateCustomKernel(
         self,
         kernel_flags: List[str],
         use_flags_override: Optional[List[str]] = None,
     ) -> None:
-        """Builds a custom kernel and initramfs.
+        """Builds a custom kernel package and installs it to the install_root.
+
+        This method handles building the kernel package (`.tbz2`) using the
+        specified USE flags and then installing that package into the
+        `install_root` directory configured for this Builder instance. It also
+        builds the necessary initramfs package first.
 
         Args:
-            kernel_flags: A list of USE flags for building the kernel.
-            use_flags_override: A list of USE flags to override the default env
-                USE variable.
+            kernel_flags: A list of USE flags specific to this kernel build.
+            use_flags_override: A list of USE flags to entirely replace the
+                default environment USE variable for this build. If None,
+                the environment USE flags are combined with kernel_flags.
         """
         pkgdir = self._work_dir / "packages"
         logging.info("Using PKGDIR: %s", pkgdir)
+        # Ensure pkgdir exists and is clean for sudo operations later.
         try:
-            self._CreateCustomKernel(
+            # Attempt cleanup first in case of stale permissions or contents.
+            osutils.RmDir(pkgdir, ignore_missing=True, sudo=True)
+        except cros_build_lib.RunCommandError as e:
+            logging.warning(
+                "Failed initial cleanup of %s: %s. Proceeding anyway.",
+                pkgdir,
+                e,
+            )
+        pkgdir.mkdir(parents=True, exist_ok=True)
+
+        try:
+            self._CreateCustomKernelInternal(
                 str(pkgdir), kernel_flags, use_flags_override
             )
         finally:
-            # The reason we need to specifically remove the pkgdir is that some
-            # content of this directory will be read-only by non-root and tools
-            # like shutil.rmtree won't be able to remove them. So we just do a
-            # force delete.
+            # Force delete the pkgdir as it may contain root-owned files.
             try:
-                cros_build_lib.sudo_run(["rm", "-rf", str(pkgdir)])
+                osutils.RmDir(pkgdir, ignore_missing=True, sudo=True)
             except cros_build_lib.RunCommandError as e:
-                logging.error(
-                    "Failed to delete directory %s with error: %s", pkgdir, e
+                # Log error but don't fail the whole process just for cleanup.
+                logging.warning(
+                    "Failed to delete temp pkgdir %s: %s", pkgdir, e
                 )
-                # For whatever reason it failed but, for now we just ignore it.
-                # It is probably going to fail at the end anyway.
 
-    def _CreateCustomKernel(
+    def _CreateCustomKernelInternal(
         self,
         pkgdir: str,
         kernel_flags: List[str],
         use_flags_override: Optional[List[str]] = None,
     ) -> None:
-        """Internal function for CreateCustomKernel()
-
-        This code is mainly borrowed from
-        src/scripts/build_library/build_common.sh.
-
-        Args:
-            pkgdir: The path to a working dir for installing packages.
-            kernel_flags: See CreateCustomKernel().
-            use_flags_override: See CreateCustomKernel().
-        """
-        logging.info("Building custom kernel.")
-        # Clean up any leftover state in custom directories.
-        use_flags = use_flags_override or os.environ.get("USE", "").split()
-        use_flags += kernel_flags
+        """Internal implementation for CreateCustomKernel()."""
+        logging.info("Building custom kernel package.")
+        # Determine final USE flags.
+        use_flags = (
+            list(use_flags_override)
+            if use_flags_override is not None
+            else os.environ.get("USE", "").split()
+        ) + list(kernel_flags)
         logging.debug("Using USE flags: %s", use_flags)
         extra_env = {"PKGDIR": pkgdir, "USE": " ".join(use_flags)}
-        build_target = build_target_lib.BuildTarget(self._board)
-        emerge = build_target.get_command("emerge")
+        emerge = self._build_target.get_command("emerge")
 
-        # Update chromeos-initramfs to contain the latest binaries from the
-        # build tree. This is basically just packaging up already-built binaries
-        # from root. We are careful not to muck with the existing prebuilts so
-        # that prebuilts can be uploaded in parallel.
-        #
-        # TODO(davidjames): Implement ABI deps so that chromeos-initramfs will
-        #   be rebuilt automatically when its dependencies change.
-        logging.info("Building initramfs package.")
+        # Prepare emerge command base args.
+        emerge_cmd_base = [emerge]
+        if self.jobs_arg:
+            emerge_cmd_base.append(self.jobs_arg)
+
+        # 1. Build/Update chromeos-initramfs package.
+        logging.info("Ensuring chromeos-initramfs package is up-to-date.")
+        initramfs_pkg = "chromeos-base/chromeos-initramfs"
         try:
+            # Run pretend first to check dependencies without building.
             cros_build_lib.run(
-                [
-                    emerge,
-                    self.jobs,
-                    "--pretend",
-                    "chromeos-base/chromeos-initramfs",
-                ],
+                emerge_cmd_base + ["--pretend", initramfs_pkg],
                 enter_chroot=True,
                 extra_env=extra_env,
             )
+            # Build the initramfs package.
             cros_build_lib.run(
-                [emerge, self.jobs, "chromeos-base/chromeos-initramfs"],
+                emerge_cmd_base + [initramfs_pkg],
                 enter_chroot=True,
                 extra_env=extra_env,
             )
         except cros_build_lib.RunCommandError as e:
             raise KernelBuildError(
-                "kernel_builder: Failed to build initramfs package: %s" % e
-            )
+                f"Failed to build initramfs package '{initramfs_pkg}': {e}"
+            ) from e
 
-        # Verify all dependencies of the kernel are installed. This should be a
-        # no-op, but it's good to check in case a developer didn't run
-        # `cros build-packages`.  We need the `expand_virtual` call to work
-        # around a bug in portage where it only installs the virtual pkg.
-        logging.info("Verifying dependencies of the kernel.")
+        # 2. Verify kernel dependencies.
+        logging.info("Verifying kernel dependencies.")
         try:
-            kernel = cros_build_lib.run(
+            # Find the actual kernel package name (e.g., chromeos-kernel-5_15).
+            kernel_pkg = cros_build_lib.run(
                 [
-                    build_target.get_command("portageq"),
+                    self._build_target.get_command("portageq"),
                     "expand_virtual",
                     self._board_root,
                     "virtual/linux-sources",
@@ -149,75 +168,75 @@ class Builder:
                 enter_chroot=True,
                 capture_output=True,
             ).stdout.strip()
-            logging.debug("Building kernel package %s", kernel)
+
+            if not kernel_pkg:
+                raise KernelBuildError(
+                    "Could not determine kernel package name for "
+                    "virtual/linux-sources"
+                )
+
+            logging.debug("Target kernel package: %s", kernel_pkg)
+
+            # Emerge dependencies only.
             cros_build_lib.run(
-                [emerge, self.jobs, "--onlydeps", kernel],
+                emerge_cmd_base + ["--onlydeps", kernel_pkg],
                 enter_chroot=True,
                 extra_env=extra_env,
-                # build-image sets a very aggressive INSTALL_MASK that isn't
-                # suitable for building build time dependencies. We clear
-                # it out so we use the defaults defined by the profile.
                 clear_env=["INSTALL_MASK"],
             )
         except cros_build_lib.RunCommandError as e:
             raise KernelBuildError(
-                "kernel_builder: Failed verify all kernel "
-                "dependencies are built: %s" % e
-            )
+                f"Failed to satisfy kernel dependencies for '{kernel_pkg}': {e}"
+            ) from e
 
-        # Build the kernel. This uses the standard root so that we can pick up
-        # the initramfs from there. But we don't actually install the kernel to
-        # the standard root, because that'll muck up the kernel debug symbols
-        # there, which we want to upload in parallel.
-        logging.info("Building the custom kernel.")
+        # 3. Build the kernel package only (into PKGDIR).
+        logging.info("Building the custom kernel package.")
         try:
             cros_build_lib.run(
-                [emerge, self.jobs, "--buildpkgonly", kernel],
+                emerge_cmd_base + ["--buildpkgonly", kernel_pkg],
                 enter_chroot=True,
                 extra_env=extra_env,
             )
         except cros_build_lib.RunCommandError as e:
             raise KernelBuildError(
-                "kernel_builder: Failed to build the custom kernel: %s" % e
-            )
+                f"Failed to build kernel package '{kernel_pkg}': {e}"
+            ) from e
 
+        # 4. Install the built kernel package into the specified install_root.
         logging.info(
-            "Installing the custom kernel image into install root %s.",
+            "Installing custom kernel package into install root '%s'.",
             self._install_root,
         )
-        # Install the custom kernel to the provided install root.
         try:
+            # Use --usepkgonly to ensure we install the package just built.
+            # Use --root to specify the installation target directory.
+            install_cmd = emerge_cmd_base + [
+                "--usepkgonly",
+                f"--root={self._install_root}",
+                kernel_pkg,
+            ]
+            # Run pretend first for better debugging if install fails.
             cros_build_lib.run(
-                [
-                    emerge,
-                    self.jobs,
-                    "--pretend",
-                    "--usepkgonly",
-                    f"--root={self._install_root}",
-                    kernel,
-                ],
+                install_cmd + ["--pretend"],
                 enter_chroot=True,
                 extra_env=extra_env,
             )
             cros_build_lib.run(
-                [
-                    emerge,
-                    self.jobs,
-                    "--usepkgonly",
-                    f"--root={self._install_root}",
-                    kernel,
-                ],
+                install_cmd,
                 enter_chroot=True,
                 extra_env=extra_env,
             )
         except cros_build_lib.RunCommandError as e:
             raise KernelBuildError(
-                "kernel_builder: Failed to install the custom kernel: %s" % e
-            )
+                "Failed to install kernel package "
+                f"'{kernel_pkg}' into '{self._install_root}': {e}"
+            ) from e
+
+        logging.info("Custom kernel package built and installed successfully.")
 
     def CreateKernelImage(
         self,
-        output: str,
+        output_image: str,
         boot_args: Optional[str] = None,
         serial: Optional[str] = None,
         keys_dir: str = constants.VBOOT_DEVKEYS_DIR,
@@ -226,27 +245,28 @@ class Builder:
         keyblock: str = constants.KERNEL_KEYBLOCK,
         disable_rootfs_verification: bool = False,
     ) -> None:
-        """Builds the final initramfs kernel image.
+        """Builds the final bootable kernel image (e.g., kernel.image).
+
+        This uses the vmlinuz file previously installed into `install_root`
+        (typically by `CreateCustomKernel`) and packages it with specified
+        boot arguments and signing keys using `build_kernel_image.sh`.
 
         Args:
-            output: The output file to put the final kernel image.
-            boot_args: A string of kernel boot arguments.
-            serial: Serial ports for printks.
-            keys_dir: The path to kernel keys directories. Default is dev keys.
-            public_key: Filename to the public key whose private part signed the
-                keyblock.
-            private_key: Filename to the private key whose public part is baked
-                into the keyblock.
-            keyblock: Filename to the kernel keyblock.
-            disable_rootfs_verification: If True, the rootfs verification is
-                disabled.
+            output_image: The path where the final kernel image will be written.
+            boot_args: Kernel command line arguments.
+            serial: Serial port configuration string.
+            keys_dir: Path to the directory containing kernel signing keys.
+            public_key: Filename of the public key within keys_dir.
+            private_key: Filename of the private key within keys_dir.
+            keyblock: Filename of the kernel keyblock within keys_dir.
+            disable_rootfs_verification: If True, add flags to disable rootfs
+                verification in the kernel command line.
         """
-        logging.info("Building kernel image into %s.", output)
+        logging.info("Building final kernel image: %s", output_image)
 
-        portageq = build_target_lib.BuildTarget(self._board).get_command(
-            "portageq"
-        )
+        portageq = self._build_target.get_command("portageq")
         try:
+            # Query the architecture for the target board.
             arch = cros_build_lib.run(
                 [portageq, "envvar", "ARCH"],
                 encoding="utf-8",
@@ -256,39 +276,53 @@ class Builder:
             logging.debug("Using architecture %s", arch)
         except cros_build_lib.RunCommandError as e:
             raise KernelBuildError(
-                "kernel_builder: Failed to query kernel architecture: %s" % e
-            )
+                "Failed to query kernel architecture for board "
+                f"{self._board}: {e}"
+            ) from e
 
-        vmlinuz = self._install_root / "boot" / "vmlinuz"
+        vmlinuz_path = self._install_root / "boot" / "vmlinuz"
+
+        # Construct the command for build_kernel_image.sh.
         cmd = [
             constants.CROSUTILS_DIR / "build_kernel_image.sh",
             f"--board={self._board}",
             f"--arch={arch}",
-            f"--to={output}",
-            f"--vmlinuz={vmlinuz}",
+            f"--to={output_image}",
+            f"--vmlinuz={vmlinuz_path}",
+            # Pass work_dir as a string, as the script expects it.
             f"--working_dir={self._work_dir}",
-            # Clean up is left to the caller of this class.
+            # Keep intermediate files in work_dir for debugging.
             "--keep_work",
             f"--keys_dir={keys_dir}",
             f"--public={public_key}",
             f"--private={private_key}",
             f"--keyblock={keyblock}",
         ]
-        if disable_rootfs_verification:
-            cmd += ["--noenable_rootfs_verification"]
-        if boot_args:
-            arg_list = kernel_cmdline.KernelArgList(boot_args)
-            cmd += [f"--boot_args={arg_list.Format()}"]
-        if serial:
-            if not serial.startswith("tty"):
-                raise KernelBuildError(
-                    "Possibly invalid argument for serial port: %s" % serial
-                )
-            cmd += [f"--enable_serial={serial}"]
 
+        # Add optional arguments.
+        if disable_rootfs_verification:
+            cmd.append("--noenable_rootfs_verification")
+        if boot_args:
+            # Format boot args consistently.
+            arg_list = kernel_cmdline.KernelArgList(boot_args)
+            cmd.append(f"--boot_args={arg_list.Format()}")
+        if serial:
+            # Basic validation for serial format.
+            if not serial.startswith("tty"):
+                logging.warning(
+                    "Serial port '%s' does not start with 'tty'. "
+                    "Ensure this is correct.",
+                    serial,
+                )
+            cmd.append(f"--enable_serial={serial}")
+
+        # Execute the script within the chroot.
         try:
             cros_build_lib.run(cmd, enter_chroot=True)
         except cros_build_lib.RunCommandError as e:
             raise KernelBuildError(
-                "kernel_builder: Failed to create kernel image: %s" % e
-            )
+                "Failed to create kernel image using build_kernel_image.sh: "
+                f"{e}"
+            ) from e
+
+        logging.info("Kernel image created successfully at %s", output_image)
