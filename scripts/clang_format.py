@@ -16,9 +16,9 @@ from chromite.utils import gs_urls_util
 CLANG_FORMAT_BUCKET = "gs://chromium-clang-format"
 
 # The SHA-1 checksum of the clang-format binary.
-# Refer to clang-format.sha1 to see what chromium uses:
-# https://chromium.googlesource.com/chromium/src/+/HEAD/buildtools/linux64/clang-format.sha1
-CLANG_FORMAT_SHA1 = "b42097ca924d1f1736a5a7806068fed9d7345eb4"
+# Refer to "linux64-format" to see what chromium uses:
+# https://chromium.googlesource.com/chromium/src/+/HEAD/buildtools/DEPS
+CLANG_FORMAT_SHA1 = "79a7b4e5336339c17b828de10d80611ff0f85961"
 
 
 class ClangFormatCache(cache.RemoteCache):
