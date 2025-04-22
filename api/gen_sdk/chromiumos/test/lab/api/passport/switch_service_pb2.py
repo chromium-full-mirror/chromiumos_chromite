@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n5chromiumos/test/lab/api/passport/switch_service.proto\x12 chromiumos.test.lab.api.passport\"\x1b\n\rSwitchFixture\x12\n\n\x02id\x18\x01 \x01(\t\"\x14\n\x12GetSwitchesRequest\"X\n\x13GetSwitchesResponse\x12\x41\n\x08switches\x18\x01 \x03(\x0b\x32/.chromiumos.test.lab.api.passport.SwitchFixture\"\x19\n\x17ResetAllSwitchesRequest\"\x1a\n\x18ResetAllSwitchesResponse\"q\n\x1a\x43onfigureSwitchPortRequest\x12\x11\n\tswitch_id\x18\x01 \x01(\t\x12@\n\x05state\x18\x02 \x01(\x0e\x32\x31.chromiumos.test.lab.api.passport.SwitchPortState\"\x1d\n\x1b\x43onfigureSwitchPortResponse*s\n\x0fSwitchPortState\x12\x17\n\x13SWITCH_PORT_UNKNOWN\x10\x00\x12\x18\n\x14SWITCH_PORT_DISABLED\x10\x01\x12\x17\n\x13SWITCH_PORT_ENABLED\x10\x02\x12\x14\n\x10SWITCH_PORT_FLIP\x10\x03\x32\xb2\x03\n\rSwitchService\x12|\n\x0bGetSwitches\x12\x34.chromiumos.test.lab.api.passport.GetSwitchesRequest\x1a\x35.chromiumos.test.lab.api.passport.GetSwitchesResponse\"\x00\x12\x8b\x01\n\x10ResetAllSwitches\x12\x39.chromiumos.test.lab.api.passport.ResetAllSwitchesRequest\x1a:.chromiumos.test.lab.api.passport.ResetAllSwitchesResponse\"\x00\x12\x94\x01\n\x13\x43onfigureSwitchPort\x12<.chromiumos.test.lab.api.passport.ConfigureSwitchPortRequest\x1a=.chromiumos.test.lab.api.passport.ConfigureSwitchPortResponse\"\x00\x42<Z:go.chromium.org/chromiumos/config/go/test/lab/api/passportb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n5chromiumos/test/lab/api/passport/switch_service.proto\x12 chromiumos.test.lab.api.passport\"\x1b\n\rSwitchFixture\x12\n\n\x02id\x18\x01 \x01(\t\"\x14\n\x12GetSwitchesRequest\"X\n\x13GetSwitchesResponse\x12\x41\n\x08switches\x18\x01 \x03(\x0b\x32/.chromiumos.test.lab.api.passport.SwitchFixture\"\x19\n\x17ResetAllSwitchesRequest\"\x1a\n\x18ResetAllSwitchesResponse\"\x82\x01\n\x1a\x43onfigureSwitchPortRequest\x12\x11\n\tswitch_id\x18\x01 \x01(\t\x12@\n\x05state\x18\x02 \x01(\x0e\x32\x31.chromiumos.test.lab.api.passport.SwitchPortState\x12\x0f\n\x07port_id\x18\x03 \x01(\t\"\x1d\n\x1b\x43onfigureSwitchPortResponse*s\n\x0fSwitchPortState\x12\x17\n\x13SWITCH_PORT_UNKNOWN\x10\x00\x12\x18\n\x14SWITCH_PORT_DISABLED\x10\x01\x12\x17\n\x13SWITCH_PORT_ENABLED\x10\x02\x12\x14\n\x10SWITCH_PORT_FLIP\x10\x03\x32\xb2\x03\n\rSwitchService\x12|\n\x0bGetSwitches\x12\x34.chromiumos.test.lab.api.passport.GetSwitchesRequest\x1a\x35.chromiumos.test.lab.api.passport.GetSwitchesResponse\"\x00\x12\x8b\x01\n\x10ResetAllSwitches\x12\x39.chromiumos.test.lab.api.passport.ResetAllSwitchesRequest\x1a:.chromiumos.test.lab.api.passport.ResetAllSwitchesResponse\"\x00\x12\x94\x01\n\x13\x43onfigureSwitchPort\x12<.chromiumos.test.lab.api.passport.ConfigureSwitchPortRequest\x1a=.chromiumos.test.lab.api.passport.ConfigureSwitchPortResponse\"\x00\x42<Z:go.chromium.org/chromiumos/config/go/test/lab/api/passportb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -22,8 +22,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z:go.chromium.org/chromiumos/config/go/test/lab/api/passport'
-  _globals['_SWITCHPORTSTATE']._serialized_start=433
-  _globals['_SWITCHPORTSTATE']._serialized_end=548
+  _globals['_SWITCHPORTSTATE']._serialized_start=451
+  _globals['_SWITCHPORTSTATE']._serialized_end=566
   _globals['_SWITCHFIXTURE']._serialized_start=91
   _globals['_SWITCHFIXTURE']._serialized_end=118
   _globals['_GETSWITCHESREQUEST']._serialized_start=120
@@ -34,10 +34,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_RESETALLSWITCHESREQUEST']._serialized_end=257
   _globals['_RESETALLSWITCHESRESPONSE']._serialized_start=259
   _globals['_RESETALLSWITCHESRESPONSE']._serialized_end=285
-  _globals['_CONFIGURESWITCHPORTREQUEST']._serialized_start=287
-  _globals['_CONFIGURESWITCHPORTREQUEST']._serialized_end=400
-  _globals['_CONFIGURESWITCHPORTRESPONSE']._serialized_start=402
-  _globals['_CONFIGURESWITCHPORTRESPONSE']._serialized_end=431
-  _globals['_SWITCHSERVICE']._serialized_start=551
-  _globals['_SWITCHSERVICE']._serialized_end=985
+  _globals['_CONFIGURESWITCHPORTREQUEST']._serialized_start=288
+  _globals['_CONFIGURESWITCHPORTREQUEST']._serialized_end=418
+  _globals['_CONFIGURESWITCHPORTRESPONSE']._serialized_start=420
+  _globals['_CONFIGURESWITCHPORTRESPONSE']._serialized_end=449
+  _globals['_SWITCHSERVICE']._serialized_start=569
+  _globals['_SWITCHSERVICE']._serialized_end=1003
 # @@protoc_insertion_point(module_scope)

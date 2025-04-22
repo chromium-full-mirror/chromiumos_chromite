@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n2chromiumos/config/api/software/health_config.proto\x12\x1e\x63hromiumos.config.api.software\"\xd6\x04\n\x0cHealthConfig\x12\x45\n\x07\x62\x61ttery\x18\x01 \x01(\x0b\x32\x34.chromiumos.config.api.software.HealthConfig.Battery\x12J\n\ncached_vpd\x18\x02 \x01(\x0b\x32\x36.chromiumos.config.api.software.HealthConfig.CachedVpd\x12G\n\x08routines\x18\x03 \x01(\x0b\x32\x35.chromiumos.config.api.software.HealthConfig.Routines\x1a)\n\x07\x42\x61ttery\x12\x1e\n\x16has_smart_battery_info\x18\x01 \x01(\x08\x1a#\n\tCachedVpd\x12\x16\n\x0ehas_sku_number\x18\x01 \x01(\x08\x1a\x35\n\rBatteryHealth\x12$\n\x1cpercent_battery_wear_allowed\x18\x01 \x01(\r\x1a-\n\rNvmeWearLevel\x12\x1c\n\x14wear_level_threshold\x18\x01 \x01(\r\x1a\xb3\x01\n\x08Routines\x12R\n\x0e\x62\x61ttery_health\x18\x01 \x01(\x0b\x32:.chromiumos.config.api.software.HealthConfig.BatteryHealth\x12S\n\x0fnvme_wear_level\x18\x02 \x01(\x0b\x32:.chromiumos.config.api.software.HealthConfig.NvmeWearLevelB3Z1go.chromium.org/chromiumos/config/go/api/softwareb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n2chromiumos/config/api/software/health_config.proto\x12\x1e\x63hromiumos.config.api.software\"\x81\x06\n\x0cHealthConfig\x12\x45\n\x07\x62\x61ttery\x18\x01 \x01(\x0b\x32\x34.chromiumos.config.api.software.HealthConfig.Battery\x12J\n\ncached_vpd\x18\x02 \x01(\x0b\x32\x36.chromiumos.config.api.software.HealthConfig.CachedVpd\x12G\n\x08routines\x18\x03 \x01(\x0b\x32\x35.chromiumos.config.api.software.HealthConfig.Routines\x1a)\n\x07\x42\x61ttery\x12\x1e\n\x16has_smart_battery_info\x18\x01 \x01(\x08\x1a#\n\tCachedVpd\x12\x16\n\x0ehas_sku_number\x18\x01 \x01(\x08\x1aR\n\rBatteryHealth\x12$\n\x1cpercent_battery_wear_allowed\x18\x01 \x01(\r\x12\x1b\n\x13maximum_cycle_count\x18\x02 \x01(\r\x1a-\n\rNvmeWearLevel\x12\x1c\n\x14wear_level_threshold\x18\x01 \x01(\r\x1a\x34\n\x0f\x42\x61tteryCapacity\x12\x10\n\x08high_mah\x18\x01 \x01(\r\x12\x0f\n\x07low_mah\x18\x02 \x01(\r\x1a\x8b\x02\n\x08Routines\x12R\n\x0e\x62\x61ttery_health\x18\x01 \x01(\x0b\x32:.chromiumos.config.api.software.HealthConfig.BatteryHealth\x12S\n\x0fnvme_wear_level\x18\x02 \x01(\x0b\x32:.chromiumos.config.api.software.HealthConfig.NvmeWearLevel\x12V\n\x10\x62\x61ttery_capacity\x18\x03 \x01(\x0b\x32<.chromiumos.config.api.software.HealthConfig.BatteryCapacityB3Z1go.chromium.org/chromiumos/config/go/api/softwareb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -23,15 +23,17 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z1go.chromium.org/chromiumos/config/go/api/software'
   _globals['_HEALTHCONFIG']._serialized_start=87
-  _globals['_HEALTHCONFIG']._serialized_end=685
+  _globals['_HEALTHCONFIG']._serialized_end=856
   _globals['_HEALTHCONFIG_BATTERY']._serialized_start=323
   _globals['_HEALTHCONFIG_BATTERY']._serialized_end=364
   _globals['_HEALTHCONFIG_CACHEDVPD']._serialized_start=366
   _globals['_HEALTHCONFIG_CACHEDVPD']._serialized_end=401
   _globals['_HEALTHCONFIG_BATTERYHEALTH']._serialized_start=403
-  _globals['_HEALTHCONFIG_BATTERYHEALTH']._serialized_end=456
-  _globals['_HEALTHCONFIG_NVMEWEARLEVEL']._serialized_start=458
-  _globals['_HEALTHCONFIG_NVMEWEARLEVEL']._serialized_end=503
-  _globals['_HEALTHCONFIG_ROUTINES']._serialized_start=506
-  _globals['_HEALTHCONFIG_ROUTINES']._serialized_end=685
+  _globals['_HEALTHCONFIG_BATTERYHEALTH']._serialized_end=485
+  _globals['_HEALTHCONFIG_NVMEWEARLEVEL']._serialized_start=487
+  _globals['_HEALTHCONFIG_NVMEWEARLEVEL']._serialized_end=532
+  _globals['_HEALTHCONFIG_BATTERYCAPACITY']._serialized_start=534
+  _globals['_HEALTHCONFIG_BATTERYCAPACITY']._serialized_end=586
+  _globals['_HEALTHCONFIG_ROUTINES']._serialized_start=589
+  _globals['_HEALTHCONFIG_ROUTINES']._serialized_end=856
 # @@protoc_insertion_point(module_scope)
