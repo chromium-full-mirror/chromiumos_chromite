@@ -18,6 +18,7 @@ import shutil
 from typing import Any, Callable, Iterable, List, Optional, Tuple
 
 from chromite.lib import alerts
+from chromite.lib import chroot_lib
 from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import gob_util
@@ -409,7 +410,10 @@ def _GetCombinedAFDOName(cwp_versions, cwp_arch, benchmark_versions):
 
 
 def _CompressAFDOFiles(
-    targets: Iterable[Path], input_dir: Path, output_dir: Path, suffix: str
+    targets: Iterable[Path],
+    input_dir: Optional[Path],
+    output_dir: Path,
+    suffix: str,
 ) -> List[Path]:
     """Compress files using AFDO compression type.
 
@@ -449,7 +453,7 @@ def _CompressAFDOFiles(
     return ret
 
 
-def _RankValidCWPProfiles(name: str) -> int:
+def _RankValidCWPProfiles(name: str) -> Optional[int]:
     """Calculate a value used to rank valid CWP profiles.
 
     Args:
@@ -533,7 +537,7 @@ class _CommonPrepareBundle:
     def __init__(
         self,
         artifact_name,
-        chroot=None,
+        chroot: chroot_lib.Chroot,
         sysroot_path=None,
         build_target=None,
         input_artifacts=None,
@@ -914,7 +918,7 @@ class _CommonPrepareBundle:
                 for match, sub in patterns:
                     line, count = match.subn(sub, line, count=1)
                     if count:
-                        want.remove((match, sub))
+                        want.remove(_Patterns(match, sub))
                         # Can only match one pattern.
                         break
                 new.write(line)
@@ -1241,7 +1245,7 @@ class _CommonPrepareBundle:
 
         def _GetOrderedMergeableProfiles(
             benchmark_listing: Iterable[gs.GSListResult],
-        ) -> Iterable[gs.GSListResult]:
+        ) -> List[gs.GSListResult]:
             """Get list of mergeable profiles ordered by increasing version."""
             # Exclude merged profiles, because merging merged profiles into
             # merged profiles is likely bad. _ValidBenchmarkProfileVersion takes
@@ -1402,7 +1406,7 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
     def __init__(
         self,
         artifact_name,
-        chroot,
+        chroot: chroot_lib.Chroot,
         sysroot_path,
         build_target,
         input_artifacts,
@@ -1792,7 +1796,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
     def __init__(
         self,
         artifact_name,
-        chroot,
+        chroot: chroot_lib.Chroot,
         sysroot_path,
         build_target,
         output_dir,
@@ -2262,15 +2266,16 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         )
         return output_compressed
 
-    def _BundleToolchainWarningLogs(self):
+    def _BundleToolchainWarningLogs(self) -> List[str]:
         """Bundle the compiler warnings for upload for werror checker."""
         with self.chroot.tempdir() as tempdir:
+            assert tempdir, f"Could not get chroot '{self.chroot}' tempdir"
             try:
                 return [
                     self._CreateCrOSArtifactBundle(
                         "toolchain/fatal_clang_warnings",
                         "fatal_clang_warnings",
-                        tempdir,
+                        str(tempdir),
                         ".json",
                         # Collecting warning logs is generally only done with
                         # experimental toolchains (e.g., llvm-next), so a green
@@ -2287,12 +2292,15 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         See bugs.chromium.org/p/chromium/issues/detail?id=1056904 for context.
         """
         with osutils.TempDir(prefix="clang_crash_diagnoses_tarball") as tempdir:
+            assert (
+                tempdir
+            ), "Could not get clang_crash_diagnoses_tarball tempdir"
             try:
                 return [
                     self._CreateCrOSArtifactBundle(
                         "toolchain/clang_crash_diagnostics",
                         "clang_crash_diagnostics",
-                        tempdir,
+                        str(tempdir),
                         # If the compiler crashed, the package almost
                         # definitely failed to build.
                         include_incomplete_packages=True,
@@ -2309,12 +2317,13 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         is set in the environment for monitoring compiler performance.
         """
         with self.chroot.tempdir() as tempdir:
+            assert tempdir, f"Could not get chroot '{self.chroot}' tempdir"
             try:
                 return [
                     self._CreateCrOSArtifactBundle(
                         "toolchain/clang_rusage_logs",
                         "clang_rusage_logs",
-                        tempdir,
+                        str(tempdir),
                         ".json",
                         include_incomplete_packages=False,
                     )
@@ -2407,9 +2416,15 @@ class GetUpdatedFilesHandler:
             kernel_name in afdo_versions
         ), f"To update {kernel_name}, the entry should be in kernel_afdo.json"
         old_value = afdo_versions[kernel_name]["name"]
-        update_to_newer_profile = _RankValidCWPProfiles(
-            old_value
-        ) < _RankValidCWPProfiles(profile_version)
+        old_rank = _RankValidCWPProfiles(old_value)
+        potentially_new_profile_rank = _RankValidCWPProfiles(profile_version)
+        if potentially_new_profile_rank is None:
+            update_to_newer_profile = False
+        elif old_rank is None:
+            update_to_newer_profile = True
+        else:
+            update_to_newer_profile = old_rank < potentially_new_profile_rank
+
         # This function is called after Bundle, so normally the profile is newer
         # is guaranteed because Bundle function only runs when a new profile is
         # needed to verify at the beginning of the builder. This check is to
