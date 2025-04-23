@@ -2134,7 +2134,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
 
         subpaths_to_search = [_PACKAGE_ARTIFACTS_PATH]
         if include_incomplete_packages:
-            subpaths_to_search.append("var/tmp/portage")
+            subpaths_to_search += ("var/tmp/portage", "tmp/portage")
 
         artifact_dirs = []
         for root in portage_roots:
