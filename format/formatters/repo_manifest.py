@@ -235,6 +235,11 @@ def Data(
 
                 attr_indent = " " * len(node_start)
                 if node.attributes:
+                    # Special case <manifest> which should have no attributes.
+                    assert (
+                        node.nodeName != "manifest" or not node.attributes
+                    ), "<manifest> may not have attributes"
+
                     # Indent all the attributes.
                     first = True
                     for name, value in orderAttrs(node):

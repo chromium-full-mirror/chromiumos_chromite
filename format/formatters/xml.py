@@ -32,8 +32,13 @@ def Data(
         root = ElementTree.fromstring(data)
     except ElementTree.ParseError as e:
         raise formatters.ParseError(path) from e
-    if root.tag == "manifest":
+
+    # If the XML file has a single <manifest> element at the root, and the
+    # <manifest> has no attributes, assume it's a repo manifest file.  This
+    # isn't perfect, but seems to be the best way to sniff atm.
+    if root.tag == "manifest" and not root.attrib:
         data = formatters.repo_manifest.Data(data)
     else:
         data = formatters.whitespace.Data(data)
+
     return data
