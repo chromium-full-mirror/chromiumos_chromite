@@ -603,6 +603,17 @@ class _CommonPrepareBundle:
         )
         paths = glob.glob(glob_path_str)
         logging.info("Glob path %s yielded: %s", glob_path_str, paths)
+        if package == constants.CHROME_PN:
+            # Ignore any `_pre` ebuilds; these are a new (& manual) construct,
+            # and they can't be easily represented as distinct in our existing
+            # AFDO paths.
+            paths = [x for x in paths if "_pre" not in os.path.basename(x)]
+            logging.info(
+                "Filtered paths for %s down to %s", glob_path_str, paths
+            )
+        if not paths:
+            raise ValueError(f"No ebuilds found for {package}; can't resolve.")
+
         if len(paths) == 1:
             PV = os.path.splitext(os.path.split(paths[0])[1])[0]
             info = _EbuildInfo(
