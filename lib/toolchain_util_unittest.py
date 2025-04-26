@@ -317,6 +317,7 @@ class CommonPrepareBundleTest(PrepareBundleTest):
             "chromeos-chrome-78.0.3893.0_rc-r1.ebuild",
             "chromeos-chrome-78.0.3893.100_rc-r1.ebuild",
             "chromeos-chrome-78.0.3893.10_rc-r1.ebuild",
+            "chromeos-chrome-78.0.3893.10_pre1234_rc-r2.ebuild",
         ]
         ret = self.obj._GetEbuildInfo("chromeos-chrome")
         self.assertEqual(ret.CPV.vr, "78.0.3893.100_rc-r1")
