@@ -247,14 +247,16 @@ class ChromeLKGMCommitter:
         self._message = message
         self._external_manifest_position = external_manifest_position
         self._internal_manifest_position = internal_manifest_position
+        self._footers = {}
 
         self._allow_uprev_to_older_release = allow_uprev_to_older_release
 
         # Storing metadata in the git footer for automated processing.
-        self._footers = {GIT_FOOTER_LKGM: self._lkgm}
+        self._footers[GIT_FOOTER_LKGM] = self._lkgm
 
         # Manual bypass for go/cl-merge-blocker
-        self._footers = {"Merge-Approval-Bypass": "Automated LKGM update"}
+        self._footers["Merge-Approval-Bypass"] = "Automated LKGM update"
+
         if buildbucket_id:
             self._footers["Cr-Build-Id"] = str(buildbucket_id)
         if external_manifest_position:
