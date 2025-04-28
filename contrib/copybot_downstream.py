@@ -55,7 +55,7 @@ class CopybotDownstream:
                 dry_run: If True dry-run this pass without acting on gerrit
                 cq_dry_run: If True, use CQ+1 instead of CQ+2
                 limit: Limit the number of CL's to be downstreamed
-                stop_at: Stop at the specified change(CL Number)
+                stop_at: Stop at the specified change(CL Number), exclusive.
                 ignore_warnings: Ignore warnings and submit changes
                 include_dependencies: Apply CR/CQ to dependencies found
         """
