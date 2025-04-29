@@ -12,6 +12,8 @@ from pathlib import Path
 import stat
 from unittest import mock
 
+import pytest
+
 from chromite.lib import chromeos_version
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -24,7 +26,6 @@ from chromite.lib import partial_mock
 from chromite.lib import portage_util
 from chromite.lib import retry_util
 from chromite.utils import c_loop
-from chromite.utils import os_util
 
 
 # pylint: disable=protected-access
@@ -102,6 +103,9 @@ class LoopbackPartitionsMock(image_lib.LoopbackPartitions):
         pass
 
 
+# Patch osutils.IsRootUser() to pretend running as root so we attempt to do all
+# the setup directly instead of falling back to our sudo helper.
+@pytest.mark.usefixtures("as_root_user")
 class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
     """Test the loopback partitions class"""
 
@@ -132,10 +136,6 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
             return val
 
         self.PatchObject(osutils, "Which", side_effect=fake_which)
-
-        # Patch osutils.IsRootUser() to pretend running as root so we attempt to
-        # do all the setup directly instead of falling back to our sudo helper.
-        self.PatchObject(os_util, "is_root_user", return_value=True)
 
     def testContextManager(self) -> None:
         """Test using the loopback class as a context manager."""
@@ -397,14 +397,12 @@ class LoopbackPartitionsTest(cros_test_lib.MockTempDirTestCase):
         lb.close()
 
 
+# Patch osutils.IsRootUser() to pretend running as root, so reading/writing the
+# lsb-release file doesn't require escalated privileges and the test can clean
+# itself up correctly.
+@pytest.mark.usefixtures("as_root_user")
 class LsbUtilsTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests the various LSB utilities."""
-
-    def setUp(self) -> None:
-        # Patch osutils.IsRootUser() to pretend running as root, so
-        # reading/writing the lsb-release file doesn't require escalated
-        # privileges and the test can clean itself up correctly.
-        self.PatchObject(os_util, "is_root_user", return_value=True)
 
     def testWriteLsbRelease(self) -> None:
         """Tests writing out the lsb_release file using WriteLsbRelease(..)."""

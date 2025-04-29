@@ -7,6 +7,8 @@
 import os
 from typing import Iterable, List, Optional, Tuple
 
+import pytest
+
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import constants
@@ -17,18 +19,16 @@ from chromite.lib import sysroot_lib
 from chromite.lib import toolchain
 from chromite.lib import unittest_lib
 from chromite.lib.parser import package_info
-from chromite.utils import os_util
 
 
+# Fake being root to avoid running all filesystem commands with sudo_run.
+@pytest.mark.usefixtures("as_root_user")
 class SysrootLibTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for sysroot_lib.py"""
 
     def setUp(self) -> None:
         """Setup the test environment."""
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
-        # Fake being root to avoid running all filesystem commands with
-        # sudo_run.
-        self.PatchObject(os_util, "is_root_user", return_value=True)
         sysroot_path = os.path.join(self.tempdir, "sysroot")
         osutils.SafeMakedirs(sysroot_path)
         self.sysroot = sysroot_lib.Sysroot(sysroot_path)
@@ -293,6 +293,8 @@ class ProfileTest(cros_test_lib.TestCase):
         self.assertNotEqual(profile, None)
 
 
+# Fake being root to avoid running all filesystem commands with sudo_run.
+@pytest.mark.usefixtures("as_root_user")
 class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for sysroot_lib.py"""
 
@@ -300,9 +302,6 @@ class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
 
     def setUp(self) -> None:
         """Setup the test environment."""
-        # Fake being root to avoid running all filesystem commands with
-        # sudo_run.
-        self.PatchObject(os_util, "is_root_user", return_value=True)
         self.sysroot = sysroot_lib.Sysroot(self.tempdir)
         self.make_conf_generic_target = os.path.join(
             self.tempdir, "make.conf.generic-target"
@@ -393,13 +392,12 @@ class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
         assert retrieved == target == self.sysroot.build_target
 
 
+@pytest.mark.usefixtures("as_root_user")
 class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):
     """Unittests for GenerateBinhostConf method in sysroot_lib.py"""
 
     def setUp(self) -> None:
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
-
-        self.PatchObject(os_util, "is_root_user", return_value=True)
 
         sysroot_path = os.path.join(self.tempdir, "sysroot")
         osutils.SafeMakedirs(sysroot_path)
@@ -584,14 +582,13 @@ class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(lines, expected)
 
 
+# Fake being root to avoid running all filesystem commands with sudo_run.
+@pytest.mark.usefixtures("as_root_user")
 class SysrootLibToolchainUpdateTest(cros_test_lib.RunCommandTempDirTestCase):
     """Sysroot.ToolchanUpdate tests."""
 
     def setUp(self) -> None:
         """Setup the test environment."""
-        # Fake being root to avoid running commands with sudo_run.
-        self.PatchObject(os_util, "is_root_user", return_value=True)
-
         # Avoid any logging functions that inpsect or change filesystem state.
         self.PatchObject(osutils, "rotate_log_file")
 

@@ -6,10 +6,11 @@
 
 import os
 
+import pytest
+
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import user_db
-from chromite.utils import os_util
 
 
 MOCK_PASSWD_CONTENTS = "root:x:0:0:root:/root:/bin/bash"
@@ -17,6 +18,7 @@ MOCK_PASSWD_CONTENTS = "root:x:0:0:root:/root:/bin/bash"
 MOCK_GROUP_CONTENTS = "root:x:0:"
 
 
+@pytest.mark.usefixtures("as_root_user")
 class UserDBTest(cros_test_lib.MockTempDirTestCase):
     """Tests for chromite.lib.user_db."""
 
@@ -36,7 +38,6 @@ class UserDBTest(cros_test_lib.MockTempDirTestCase):
         """Set up a test environment."""
         self._SetupDatabases(MOCK_PASSWD_CONTENTS, MOCK_GROUP_CONTENTS)
         self._user_db = user_db.UserDB(self.tempdir)
-        self.PatchObject(os_util, "is_root_user", return_value=True)
 
     def testAcceptsKnownUser(self) -> None:
         """Check that we do appropriate things with valid users."""

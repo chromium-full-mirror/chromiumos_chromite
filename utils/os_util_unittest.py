@@ -13,20 +13,6 @@ import pytest
 from chromite.utils import os_util
 
 
-@pytest.fixture(name="as_root_user")
-def _as_root_user(monkeypatch):
-    """Monkeypatch the euid as 0."""
-    monkeypatch.setattr(os, "geteuid", lambda: 0)
-    yield
-
-
-@pytest.fixture(name="as_non_root_user")
-def _as_non_root_user(monkeypatch):
-    """Monkeypatch the euid as non-0."""
-    monkeypatch.setattr(os, "geteuid", lambda: 1)
-    yield
-
-
 # pylint: disable=unused-argument
 def test_root_user_checks_as_root_user(as_root_user) -> None:
     """Test is_[non_]root_user as the root user."""

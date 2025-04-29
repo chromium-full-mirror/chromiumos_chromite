@@ -9,6 +9,8 @@ import os
 from pathlib import Path
 from typing import Iterable
 
+import pytest
+
 from chromite.lib import build_target_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import dependency_graph
@@ -20,7 +22,6 @@ from chromite.lib import sysroot_lib
 from chromite.lib import unittest_lib
 from chromite.lib import workon_helper
 from chromite.lib.parser import package_info
-from chromite.utils import os_util
 
 
 BOARD = "this_is_a_board_name"
@@ -45,6 +46,8 @@ InstalledPackageMock = collections.namedtuple(
 )
 
 
+# We do a lot of work as root. Pretend to be root so that we never call sudo.
+@pytest.mark.usefixtures("as_root_user")
 class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
     """Tests for chromite.lib.workon_helper."""
 
@@ -185,9 +188,6 @@ class WorkonHelperTest(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(
             depgraph, "get_build_target_dependency_graph", return_value=graph
         )
-        # We do a lot of work as root. Pretend to be root so that we never have
-        # to call sudo.
-        self.PatchObject(os_util, "is_root_user", return_value=True)
 
     def CreateHelper(self, host=False):
         """Creates and returns a WorkonHelper object.

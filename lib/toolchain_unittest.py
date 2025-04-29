@@ -7,6 +7,8 @@
 import os
 from unittest import mock
 
+import pytest
+
 from chromite.lib import build_target_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -15,7 +17,6 @@ from chromite.lib import partial_mock
 from chromite.lib import sysroot_lib
 from chromite.lib import toolchain
 from chromite.lib.parser import package_info
-from chromite.utils import os_util
 
 
 BASE_TOOLCHAIN_CONF = """# The root of all evil is money, err, this config.
@@ -244,6 +245,8 @@ class ToolchainInfoTest(cros_test_lib.MockTestCase):
         )
 
 
+# Avoid sudo password prompt for _WriteConfigs.
+@pytest.mark.usefixtures("as_root_user")
 class ToolchainInstallerTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests for the toolchain installer class."""
 
@@ -337,9 +340,6 @@ class ToolchainInstallerTest(cros_test_lib.RunCommandTempDirTestCase):
 
         pkgdir = os.path.join(self.tempdir, "var/lib/portage/pkgs")
         self.updater = toolchain.ToolchainInstaller(False, True, "tc", pkgdir)
-
-        # Avoid sudo password prompt for _WriteConfigs.
-        self.PatchObject(os_util, "is_root_user", return_value=True)
 
     def testUpdateProvided(self) -> None:
         """Test the updates to the package.provided file."""

@@ -1072,11 +1072,9 @@ class Test_iflatten_instance(cros_test_lib.TestCase):
         self.assertEqual([b"12", b"34"], f([b"12", b"34"]))
 
 
-class TestAssertRootUserCheck(cros_test_lib.MockTestCase):
+@pytest.mark.usefixtures("as_root_user")
+class TestAssertRootUserCheck(cros_test_lib.TestCase):
     """Tests root/Non-root user functionality for a root user."""
-
-    def setUp(self) -> None:
-        self.geteuid_mock = self.PatchObject(os, "geteuid", return_value=0)
 
     def testAssertNonRootUserForRoot(self) -> None:
         """Verify AssertNonRootUser raises an exception"""
@@ -1089,11 +1087,9 @@ class TestAssertRootUserCheck(cros_test_lib.MockTestCase):
         cros_build_lib.AssertRootUser()
 
 
-class TestAssertNonRootUserCheck(cros_test_lib.MockTestCase):
+@pytest.mark.usefixtures("as_non_root_user")
+class TestAssertNonRootUserCheck(cros_test_lib.TestCase):
     """Tests root/Non-root user functionality for a non-root user."""
-
-    def setUp(self) -> None:
-        self.geteuid_mock = self.PatchObject(os, "geteuid", return_value=20)
 
     def testAssertNonRootUserforNonRoot(self) -> None:
         """Verify AssertNonRootUser doesn't raise an exception"""

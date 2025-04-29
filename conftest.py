@@ -256,3 +256,23 @@ def tmp_path_cleanup_sudo(tmp_path):
 def outside_sdk(monkeypatch) -> None:
     """Fixture to make it look like the test is running outside the SDK."""
     monkeypatch.setattr(cros_build_lib, "IsInsideChroot", lambda: False)
+
+
+@pytest.fixture(name="as_root_user")
+def _as_root_user(monkeypatch):
+    """Monkeypatch the euid as 0.
+
+    We guarantee utils.os_util APIs reflect the correct state.
+    """
+    monkeypatch.setattr(os, "geteuid", lambda: 0)
+    yield
+
+
+@pytest.fixture(name="as_non_root_user")
+def _as_non_root_user(monkeypatch):
+    """Monkeypatch the euid as non-0.
+
+    We guarantee utils.os_util APIs reflect the correct state.
+    """
+    monkeypatch.setattr(os, "geteuid", lambda: 1)
+    yield

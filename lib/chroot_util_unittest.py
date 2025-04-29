@@ -12,7 +12,6 @@ from chromite.lib import chroot_util
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
-from chromite.utils import os_util
 
 
 pytestmark = pytest.mark.inside_only
@@ -89,10 +88,9 @@ class ChrootUtilTest(cros_test_lib.RunCommandTempDirTestCase):
             self.assertEqual(bool(jobs), "--jobs=%d" % jobs in cmd)
             self.assertEqual(debug_output, "--show-output" in cmd)
 
+    @pytest.mark.usefixtures("as_root_user")
     def testRunUnittests(self) -> None:
         """Tests running unit tests invoking emerge with provided flags"""
-
-        self.PatchObject(os_util, "is_root_user", return_value=True)
         chroot_util.RunUnittests(
             sysroot="/sysroot/",
             packages=["package1", "package2"],

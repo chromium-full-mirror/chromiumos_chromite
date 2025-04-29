@@ -23,7 +23,6 @@ from chromite.lib import remote_access
 from chromite.lib import sysroot_lib
 from chromite.lib import unittest_lib
 from chromite.lib.parser import package_info
-from chromite.utils import os_util
 from chromite.utils import shell_util
 
 
@@ -556,6 +555,8 @@ class TestInstallPackageScanner(cros_test_lib.MockTestCase):
         )
 
 
+# Fake being root to avoid running filesystem commands with sudo_run.
+@pytest.mark.usefixtures("as_root_user")
 class TestDeploy(
     cros_test_lib.ProgressBarTestCase, cros_test_lib.MockTempDirTestCase
 ):
@@ -568,8 +569,6 @@ class TestDeploy(
         }
 
     def setUp(self) -> None:
-        # Fake being root to avoid running filesystem commands with sudo_run.
-        self.PatchObject(os_util, "is_root_user", return_value=True)
         self._sysroot = os.path.join(self.tempdir, "sysroot")
         osutils.SafeMakedirs(self._sysroot)
         self.device = ChromiumOSDeviceHandlerFake()

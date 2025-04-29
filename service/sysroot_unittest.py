@@ -13,6 +13,8 @@ import shutil
 from typing import Optional, Union
 from unittest import mock
 
+import pytest
+
 from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
@@ -31,7 +33,6 @@ from chromite.lib.parser import package_info
 from chromite.service import binhost
 from chromite.service import sdk
 from chromite.service import sysroot
-from chromite.utils import os_util
 
 
 class SetupBoardTest(cros_test_lib.MockTestCase):
@@ -76,13 +77,12 @@ class SetupBoardTest(cros_test_lib.MockTestCase):
         install_toolchain_mock.assert_not_called()
 
 
+# Avoid sudo password prompt for config writing.
+@pytest.mark.usefixtures("as_root_user")
 class CreateTest(cros_test_lib.RunCommandTempDirTestCase):
     """Create function tests."""
 
     def setUp(self) -> None:
-        # Avoid sudo password prompt for config writing.
-        self.PatchObject(os_util, "is_root_user", return_value=True)
-
         # It has to be run inside the chroot.
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=True)
 
