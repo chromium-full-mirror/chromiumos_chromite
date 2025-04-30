@@ -1,7 +1,5 @@
 # Copyright 2023 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
-seancarpenter@google.com
-kmshelton@chromium.org
+include chromiumos/owners:v1:/engprod/OWNERS.baseos
 zland@google.com
