@@ -821,77 +821,184 @@ class GetAllFirmwareVersionsTest(cros_test_lib.RunCommandTempDirTestCase):
 
     def setUp(self) -> None:
         self.board = "test-board"
+        # This is the result of running
+        # "/build/hana/usr/sbin/chromeos-firmwareupdate --manifest" inside the
+        # CrOS SDK on 2026-04-30.
+        #
         # pylint: disable=line-too-long
         self.rc.SetDefaultCmdResult(
-            stdout="""
-
-flashrom(8): 68935ee2fcfcffa47af81b966269cd2b */build/reef/usr/sbin/flashrom
-             ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked, for GNU/Linux 2.6.32, BuildID[sha1]=e102cc98d45300b50088999d53775acbeff407dc, stripped
-             0.9.9  : bbb2d6a : Jul 28 2017 15:12:34 UTC
-
-Model:        reef
-BIOS image:   1b535280fe688ac284d95276492b06f6 */build/reef/tmp/portage/chromeos-base/chromeos-firmware-reef-0.0.1-r79/temp/tmp7rHApL.pack_firmware-99001/models/reef/image.bin
-BIOS version: Google_Reef.9042.87.1
-BIOS (RW) image:   0ef265eb8f2d228c09f75b011adbdcbb */build/reef/tmp/portage/chromeos-base/chromeos-firmware-reef-0.0.1-r79/temp/tmp7rHApL.pack_firmware-99001/models/reef/image.binrw
-BIOS (RW) version: Google_Reef.9042.110.0
-EC image:     2e8b4b5fa73cc5dbca4496de97a917a9 */build/reef/tmp/portage/chromeos-base/chromeos-firmware-reef-0.0.1-r79/temp/tmp7rHApL.pack_firmware-99001/models/reef/ec.bin
-EC version:   reef_v1.1.5900-ab1ee51
-EC (RW) version: reef_v1.1.5909-bd1f0c9
-
-Model:        pyro
-BIOS image:   9e62447ebf22a724a4a835018ab6234e */build/reef/tmp/portage/chromeos-base/chromeos-firmware-reef-0.0.1-r79/temp/tmp7rHApL.pack_firmware-99001/models/pyro/image.bin
-BIOS version: Google_Pyro.9042.87.1
-BIOS (RW) image:   1897457303c85de99f3e98b2eaa0eccc */build/reef/tmp/portage/chromeos-base/chromeos-firmware-reef-0.0.1-r79/temp/tmp7rHApL.pack_firmware-99001/models/pyro/image.binrw
-BIOS (RW) version: Google_Pyro.9042.110.0
-EC image:     44b93ed591733519e752e05aa0529eb5 */build/reef/tmp/portage/chromeos-base/chromeos-firmware-reef-0.0.1-r79/temp/tmp7rHApL.pack_firmware-99001/models/pyro/ec.bin
-EC version:   pyro_v1.1.5900-ab1ee51
-EC (RW) version: pyro_v1.1.5909-bd1f0c9
-
-Model:        snappy
-BIOS image:   3ab63ff080596bd7de4e7619f003bb64 */build/reef/tmp/portage/chromeos-base/chromeos-firmware-reef-0.0.1-r79/temp/tmp7rHApL.pack_firmware-99001/models/snappy/image.bin
-BIOS version: Google_Snappy.9042.110.0
-EC image:     c4db159e84428391d2ee25368c5fe5b6 */build/reef/tmp/portage/chromeos-base/chromeos-firmware-reef-0.0.1-r79/temp/tmp7rHApL.pack_firmware-99001/models/snappy/ec.bin
-EC version:   snappy_v1.1.5909-bd1f0c9
-
-Model:        sand
-BIOS image:   387da034a4f0a3f53e278ebfdcc2a412 */build/reef/tmp/portage/chromeos-base/chromeos-firmware-reef-0.0.1-r79/temp/tmp7rHApL.pack_firmware-99001/models/sand/image.bin
-BIOS version: Google_Sand.9042.110.0
-EC image:     411562e0589dacec131f5fdfbe95a561 */build/reef/tmp/portage/chromeos-base/chromeos-firmware-reef-0.0.1-r79/temp/tmp7rHApL.pack_firmware-99001/models/sand/ec.bin
-EC version:   sand_v1.1.5909-bd1f0c9
-
-Model:        electro
-BIOS image:   1b535280fe688ac284d95276492b06f6 */build/reef/tmp/portage/chromeos-base/chromeos-firmware-reef-0.0.1-r79/temp/tmp7rHApL.pack_firmware-99001/models/reef/image.bin
-BIOS version: Google_Reef.9042.87.1
-BIOS (RW) image:   0ef265eb8f2d228c09f75b011adbdcbb */build/reef/tmp/portage/chromeos-base/chromeos-firmware-reef-0.0.1-r79/temp/tmp7rHApL.pack_firmware-99001/models/reef/image.binrw
-BIOS (RW) version: Google_Reef.9042.110.0
-EC image:     2e8b4b5fa73cc5dbca4496de97a917a9 */build/reef/tmp/portage/chromeos-base/chromeos-firmware-reef-0.0.1-r79/temp/tmp7rHApL.pack_firmware-99001/models/reef/ec.bin
-EC version:   reef_v1.1.5900-ab1ee51
-EC (RW) version: reef_v1.1.5909-bd1f0c9
-
-Package Content:
-612e7bb6ed1fb0a05abf2ebdc834c18b *./updater4.sh
-0eafbee07282315829d0f42135ec7c0c *./gbb_utility
-6074e3ca424cb30a67c378c1d9681f9c *./mosys
-68935ee2fcfcffa47af81b966269cd2b *./flashrom
-0eafbee07282315829d0f42135ec7c0c *./dump_fmap
-490c95d6123c208d20d84d7c16857c7c *./crosfw.sh
-60899148600b8673ddb711faa55aee40 *./common.sh
-3c3a99346d1ca1273cbcd86c104851ff *./shflags
-de7ce035e1f82a89f8909d888ee402c0 *./crosutil.sh
-f9334372bdb9036ba09a6fd9bf30e7a2 *./crossystem
-22257a8d5f0adc1f50a1916c3a4a35dd *./models/reef/ec.bin
-faf12dbb7cdaf21ce153bdffb67841fd *./models/reef/bios.bin
-c9bbb417b7921b85a7ed999ee42f550e *./models/reef/setvars.sh
-29823d46f1ec1491ecacd7b830fd2686 *./models/pyro/ec.bin
-2320463aba8b22eb5ea836f094d281b3 *./models/pyro/bios.bin
-81614833ad77c9cd093360ba7bea76b8 *./models/pyro/setvars.sh
-411562e0589dacec131f5fdfbe95a561 *./models/sand/ec.bin
-387da034a4f0a3f53e278ebfdcc2a412 *./models/sand/bios.bin
-fcd8cb0ac0e2ed6be220aaae435d43ff *./models/sand/setvars.sh
-c4db159e84428391d2ee25368c5fe5b6 *./models/snappy/ec.bin
-3ab63ff080596bd7de4e7619f003bb64 *./models/snappy/bios.bin
-fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
-79aabd7cd8a215a54234c53d7bb2e6fb *./vpd
+            stdout="""{
+  "birch": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "hana": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "hanawl": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "hanawl-PHOEBE": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "hanawl-PROWISE": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "maple": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "maple14": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "sycamore": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "sycamore360": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "telesu": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  }
+}
 """
         )
         # pylint: enable=line-too-long
@@ -900,55 +1007,106 @@ fe5d699f2e9e4a7de031497953313dbd *./models/snappy/setvars.sh
         """Tests get_firmware_versions with mocked output."""
         build_target = build_target_lib.BuildTarget(self.board)
         result = packages.get_all_firmware_versions(build_target)
-        self.assertEqual(len(result), 5)
+
+        self.assertEqual(len(result), 10)
         self.assertEqual(
-            result["reef"],
+            result["birch"],
             packages.FirmwareVersions(
-                "reef",
-                "Google_Reef.9042.87.1",
-                "Google_Reef.9042.110.0",
-                "reef_v1.1.5900-ab1ee51",
-                "reef_v1.1.5909-bd1f0c9",
+                "birch",
+                "Google_Hana.8438.206.0",
+                "Google_Hana.8438.235.0",
+                "hana_v1.1.4824-d58e50539",
+                "hana_v1.1.4825-1473136d99",
             ),
         )
         self.assertEqual(
-            result["pyro"],
+            result["hana"],
             packages.FirmwareVersions(
-                "pyro",
-                "Google_Pyro.9042.87.1",
-                "Google_Pyro.9042.110.0",
-                "pyro_v1.1.5900-ab1ee51",
-                "pyro_v1.1.5909-bd1f0c9",
+                "hana",
+                "Google_Hana.8438.206.0",
+                "Google_Hana.8438.235.0",
+                "hana_v1.1.4824-d58e50539",
+                "hana_v1.1.4825-1473136d99",
             ),
         )
         self.assertEqual(
-            result["snappy"],
+            result["hanawl"],
             packages.FirmwareVersions(
-                "snappy",
-                "Google_Snappy.9042.110.0",
-                None,
-                "snappy_v1.1.5909-bd1f0c9",
-                None,
+                "hanawl",
+                "Google_Hana.8438.206.0",
+                "Google_Hana.8438.235.0",
+                "hana_v1.1.4824-d58e50539",
+                "hana_v1.1.4825-1473136d99",
             ),
         )
         self.assertEqual(
-            result["sand"],
+            result["hanawl-PHOEBE"],
             packages.FirmwareVersions(
-                "sand",
-                "Google_Sand.9042.110.0",
-                None,
-                "sand_v1.1.5909-bd1f0c9",
-                None,
+                "hanawl-PHOEBE",
+                "Google_Hana.8438.206.0",
+                "Google_Hana.8438.235.0",
+                "hana_v1.1.4824-d58e50539",
+                "hana_v1.1.4825-1473136d99",
             ),
         )
         self.assertEqual(
-            result["electro"],
+            result["hanawl-PROWISE"],
             packages.FirmwareVersions(
-                "electro",
-                "Google_Reef.9042.87.1",
-                "Google_Reef.9042.110.0",
-                "reef_v1.1.5900-ab1ee51",
-                "reef_v1.1.5909-bd1f0c9",
+                "hanawl-PROWISE",
+                "Google_Hana.8438.206.0",
+                "Google_Hana.8438.235.0",
+                "hana_v1.1.4824-d58e50539",
+                "hana_v1.1.4825-1473136d99",
+            ),
+        )
+        self.assertEqual(
+            result["maple"],
+            packages.FirmwareVersions(
+                "maple",
+                "Google_Hana.8438.206.0",
+                "Google_Hana.8438.235.0",
+                "hana_v1.1.4824-d58e50539",
+                "hana_v1.1.4825-1473136d99",
+            ),
+        )
+        self.assertEqual(
+            result["maple14"],
+            packages.FirmwareVersions(
+                "maple14",
+                "Google_Hana.8438.206.0",
+                "Google_Hana.8438.235.0",
+                "hana_v1.1.4824-d58e50539",
+                "hana_v1.1.4825-1473136d99",
+            ),
+        )
+        self.assertEqual(
+            result["sycamore"],
+            packages.FirmwareVersions(
+                "sycamore",
+                "Google_Hana.8438.206.0",
+                "Google_Hana.8438.235.0",
+                "hana_v1.1.4824-d58e50539",
+                "hana_v1.1.4825-1473136d99",
+            ),
+        )
+        self.assertEqual(
+            result["sycamore360"],
+            packages.FirmwareVersions(
+                "sycamore360",
+                "Google_Hana.8438.206.0",
+                "Google_Hana.8438.235.0",
+                "hana_v1.1.4824-d58e50539",
+                "hana_v1.1.4825-1473136d99",
+            ),
+        )
+        self.assertEqual(
+            result["telesu"],
+            packages.FirmwareVersions(
+                "telesu",
+                "Google_Hana.8438.206.0",
+                "Google_Hana.8438.235.0",
+                "hana_v1.1.4824-d58e50539",
+                "hana_v1.1.4825-1473136d99",
             ),
         )
 
@@ -966,33 +1124,184 @@ class GetFirmwareVersionsTest(cros_test_lib.RunCommandTempDirTestCase):
 
     def setUp(self) -> None:
         self.board = "test-board"
+        # This is the result of running
+        # "/build/hana/usr/sbin/chromeos-firmwareupdate --manifest" inside the
+        # CrOS SDK on 2026-04-30.
+        #
         # pylint: disable=line-too-long
         self.rc.SetDefaultCmdResult(
-            stdout="""
-
-flashrom(8): a8f99c2e61e7dc09c4b25ef5a76ef692 */build/kevin/usr/sbin/flashrom
-             ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), statically linked, for GNU/Linux 2.d
-             0.9.4  : 860875a : Apr 10 2017 23:54:29 UTC
-
-BIOS image:   6b5b855a0b8fd1657546d1402c15b206 *chromeos-firmware-kevin-0.0.1/.dist/kevin_fw_8785.178.0.n
-BIOS version: Google_Kevin.8785.178.0
-EC image:     1ebfa9518e6cac0558a80b7ab2f5b489 *chromeos-firmware-kevin-0.0.1/.dist/kevin_ec_8785.178.0.n
-EC version:kevin_v1.10.184-459421c
-
-Package Content:
-a8f99c2e61e7dc09c4b25ef5a76ef692 *./flashrom
-3c3a99346d1ca1273cbcd86c104851ff *./shflags
-457a8dc8546764affc9700f8da328d23 *./dump_fmap
-c392980ddb542639edf44a965a59361a *./updater5.sh
-490c95d6123c208d20d84d7c16857c7c *./crosfw.sh
-6b5b855a0b8fd1657546d1402c15b206 *./bios.bin
-7b5bef0d2da90c23ff2e157250edf0fa *./crosutil.sh
-d78722e4f1a0dc2d8c3d6b0bc7010ae3 *./crossystem
-457a8dc8546764affc9700f8da328d23 *./gbb_utility
-1ebfa9518e6cac0558a80b7ab2f5b489 *./ec.bin
-c98ca54db130886142ad582a58e90ddc *./common.sh
-5ba978bdec0f696f47f0f0de90936880 *./mosys
-312e8ee6122057f2a246d7bcf1572f49 *./vpd
+            stdout="""{
+  "birch": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "hana": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "hanawl": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "hanawl-PHOEBE": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "hanawl-PROWISE": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "maple": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "maple14": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "sycamore": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "sycamore360": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  },
+  "telesu": {
+    "host": {
+      "versions": {
+        "ro": "Google_Hana.8438.206.0",
+        "rw": "Google_Hana.8438.235.0"
+      },
+      "keys": { "root": "b11d74edd286c144e1135b49e7f0bc20cf041f10", "recovery": "c14bd720b70d97394257e3e826bd8f43de48d4ed" },
+      "image": "images/bios-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    },
+    "ec": {
+      "versions": {
+        "ro": "hana_v1.1.4824-d58e50539",
+        "rw": "hana_v1.1.4825-1473136d99"
+      },
+      "image": "images/ec-hana.ro-8438-206-0.rw-8438-235-0.bin"
+    }
+  }
+}
 """
         )
         # pylint: enable=line-too-long
@@ -1002,11 +1311,11 @@ c98ca54db130886142ad582a58e90ddc *./common.sh
         build_target = build_target_lib.BuildTarget(self.board)
         result = packages.get_firmware_versions(build_target)
         versions = packages.FirmwareVersions(
-            None,
-            "Google_Kevin.8785.178.0",
-            None,
-            "kevin_v1.10.184-459421c",
-            None,
+            "birch",
+            "Google_Hana.8438.206.0",
+            "Google_Hana.8438.235.0",
+            "hana_v1.1.4824-d58e50539",
+            "hana_v1.1.4825-1473136d99",
         )
         self.assertEqual(result, versions)
 

@@ -1831,14 +1831,10 @@ def get_all_firmware_versions(build_target: "build_target_lib.BuildTarget"):
     cmd_result = _get_firmware_version_cmd_result(build_target)
 
     if cmd_result:
-        # There is a blank line between the version info for each model.
-        firmware_version_payloads = cmd_result.split("\n\n")
-        for firmware_version_payload in firmware_version_payloads:
-            if "BIOS" in firmware_version_payload:
-                firmware_version = _find_firmware_versions(
-                    firmware_version_payload
-                )
-                result[firmware_version.model] = firmware_version
+        result = {
+            version.model: version
+            for version in _find_firmware_versions(cmd_result)
+        }
     return result
 
 
@@ -1871,7 +1867,14 @@ def get_firmware_versions(build_target: "build_target_lib.BuildTarget"):
     cros_build_lib.AssertInsideChroot()
     cmd_result = _get_firmware_version_cmd_result(build_target)
     if cmd_result:
-        return _find_firmware_versions(cmd_result)
+        versions = _find_firmware_versions(cmd_result)
+        if len(versions) > 1:
+            logging.warning(
+                "chromeos-firmwareupdate reported %d models; returning one "
+                "and ignoring the others",
+                len(versions),
+            )
+        return versions[0]
     else:
         return FirmwareVersions(None, None, None, None, None)
 
@@ -1894,7 +1897,7 @@ def _get_firmware_version_cmd_result(
     # Call the updater using the chroot-based path.
     try:
         return cros_build_lib.run(
-            [updater, "-V"],
+            [updater, "--manifest"],
             capture_output=True,
             log_output=True,
             encoding="utf-8",
@@ -1911,44 +1914,25 @@ def _find_firmware_versions(cmd_output):
         cmd_output: The raw output to search against.
 
     Returns:
-        FirmwareVersions namedtuple with results.
+        List of FirmwareVersions namedtuple with results.
         Each element will either be set to the string output by the firmware
         updater shellball, or None if there is no match.
     """
 
-    # Sometimes a firmware bundle includes a special combination of RO+RW
-    # firmware.  In this case, the RW firmware version is indicated with a "(RW)
-    # version" field.  In other cases, the "(RW) version" field is not present.
-    # Therefore, search for the "(RW)" fields first and if they aren't present,
-    # fallback to the other format. e.g. just "BIOS version:".
-    # TODO(mmortensen): Use JSON once the firmware updater supports it.
-    main = None
-    main_rw = None
-    ec = None
-    ec_rw = None
-    model = None
+    output = json.loads(cmd_output)
 
-    match = re.search(r"BIOS version:\s*(?P<version>.*)", cmd_output)
-    if match:
-        main = match.group("version")
-
-    match = re.search(r"BIOS \(RW\) version:\s*(?P<version>.*)", cmd_output)
-    if match:
-        main_rw = match.group("version")
-
-    match = re.search(r"EC version:\s*(?P<version>.*)", cmd_output)
-    if match:
-        ec = match.group("version")
-
-    match = re.search(r"EC \(RW\) version:\s*(?P<version>.*)", cmd_output)
-    if match:
-        ec_rw = match.group("version")
-
-    match = re.search(r"Model:\s*(?P<model>.*)", cmd_output)
-    if match:
-        model = match.group("model")
-
-    return FirmwareVersions(model, main, main_rw, ec, ec_rw)
+    return [
+        FirmwareVersions(
+            model,
+            # The .get(key1, {}).get(key2, {})...get(keyN) pattern ensures that
+            # these fields resolve to None if any of the keys are missing.
+            value.get("host", {}).get("versions", {}).get("ro"),
+            value.get("host", {}).get("versions", {}).get("rw"),
+            value.get("ec", {}).get("versions", {}).get("ro"),
+            value.get("ec", {}).get("versions", {}).get("rw"),
+        )
+        for model, value in output.items()
+    ]
 
 
 class MainEcFirmwareVersions(NamedTuple):
