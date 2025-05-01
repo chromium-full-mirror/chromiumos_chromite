@@ -85,7 +85,7 @@ class ProfileTest(cros_test_lib.TempDirTestCase):
                                 "etc",
                                 (
                                     D(
-                                        "portage", ()
+                                        "portage"
                                     ),  # make.profile parent directory.
                                     "make.conf.board_setup",
                                 ),

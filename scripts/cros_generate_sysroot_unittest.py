@@ -44,7 +44,7 @@ class CrosGenMock(partial_mock.PartialMock):
 
     def VerifyTarball(self, tarball) -> None:
         dir_struct = [
-            Dir(".", []),
+            Dir("."),
             self.TOOLCHAIN,
             self.KERNEL_HEADERS,
             self.BUILD_DEPS,

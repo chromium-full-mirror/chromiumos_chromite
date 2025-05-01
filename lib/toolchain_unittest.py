@@ -285,7 +285,7 @@ class ToolchainInstallerTest(cros_test_lib.RunCommandTempDirTestCase):
                                             ),
                                         ),
                                     ),
-                                    D("lib", (D("portage", (D("pkgs", ()),)),)),
+                                    D("lib", (D("portage", (D("pkgs"),)),)),
                                 ),
                             ),
                         ),

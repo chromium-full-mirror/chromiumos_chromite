@@ -106,7 +106,7 @@ class FakeChrootDiskLayout:
                 (
                     "regular.file",
                     "another.file",
-                    D("empty_subdir", ()),
+                    D("empty_subdir"),
                     D("subdir", ("ebuild_owned.file", "subdir.file")),
                 ),
             ),

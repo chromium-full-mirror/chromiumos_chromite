@@ -310,7 +310,7 @@ class SysrootLibInstallConfigTest(cros_test_lib.MockTempDirTestCase):
 
         D = cros_test_lib.Directory
         filesystem = (
-            D("etc", ()),
+            D("etc"),
             "make.conf.generic-target",
             "make.conf.user",
         )

@@ -578,14 +578,14 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
                 D(
                     "etc",
                     (
-                        D("env.d", ()),
+                        D("env.d"),
                         "passwd",
                         "group",
                         "shadow",
                         D("skel", (D(".ssh", ("foo",)),)),
                     ),
                 ),
-                D("lib", (D("modules", ()),)),
+                D("lib", (D("modules"),)),
                 D(
                     "var",
                     (
@@ -593,7 +593,7 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
                             "cache",
                             (D("edb", ("counter",)),),
                         ),
-                        D("log", (D("portage", ()),)),
+                        D("log", (D("portage"),)),
                     ),
                 ),
             ),

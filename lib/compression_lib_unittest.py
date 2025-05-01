@@ -92,7 +92,7 @@ class TarballTests(cros_test_lib.TempDirTestCase):
         dir_path.mkdir()
         D = cros_test_lib.Directory
         dir_structure = [
-            D(".", []),
+            D("."),
             D("test", ["file1.txt"]),
             D("foo", ["file1.txt"]),
             D("bar", ["file1.txt", "file2.c"]),

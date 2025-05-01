@@ -1004,7 +1004,7 @@ class FindInPathParentsTest(cros_test_lib.TempDirTestCase):
 
     D = cros_test_lib.Directory
 
-    DIR_STRUCT = [D("a", [D(".repo", []), D("b", [D("c", [])])])]
+    DIR_STRUCT = [D("a", [D(".repo"), D("b", [D("c")])])]
 
     START_PATH = os.path.join("a", "b", "c")
 
@@ -1617,7 +1617,7 @@ class MoveDirContentsTestCase(cros_test_lib.MockTempDirTestCase):
         D = cros_test_lib.Directory
         src_layout = (
             D("a", ["foo.txt"]),
-            D("b", []),
+            D("b"),
         )
         dest_layout = (D("a", ["bar.txt"]),)
         cros_test_lib.CreateOnDiskHierarchy(self.from_dir, src_layout)

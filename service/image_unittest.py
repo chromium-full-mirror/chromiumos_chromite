@@ -516,11 +516,11 @@ class ImageTestTest(cros_test_lib.RunCommandTempDirTestCase):
             D(
                 "outside",
                 (
-                    D("results", ()),
+                    D("results"),
                     D(
                         "inside",
                         (
-                            D("results_inside", ()),
+                            D("results_inside"),
                             D(
                                 "build",
                                 (

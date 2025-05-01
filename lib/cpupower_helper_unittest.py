@@ -23,7 +23,7 @@ class TestCpuGovernorSwitch(
         D = cros_test_lib.Directory
         config_dir_name = chromite_config.DIR.name
         cpu_policy_files = (
-            D(config_dir_name, ()),
+            D(config_dir_name),
             D(
                 "cpu",
                 (
@@ -202,7 +202,7 @@ class TestNoCpuGovernors(
     def setUp(self) -> None:
         D = cros_test_lib.Directory
         config_dir_name = chromite_config.DIR.name
-        cpu_policy_files = (D(config_dir_name, ()),)
+        cpu_policy_files = (D(config_dir_name),)
         cros_test_lib.CreateOnDiskHierarchy(self.tempdir, cpu_policy_files)
 
         cfg_dir = self.tempdir / config_dir_name

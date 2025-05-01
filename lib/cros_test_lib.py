@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import collections
 import contextlib
 import io
 import logging
@@ -23,6 +22,7 @@ from typing import (
     Generator,
     Iterable,
     List,
+    NamedTuple,
     Optional,
     Sequence,
     Type,
@@ -52,7 +52,14 @@ from chromite.utils import shell_util
 NETWORK_TESTS_ENABLED = False
 
 
-Directory = collections.namedtuple("Directory", ["name", "contents"])
+class Directory(NamedTuple):
+    """A single directory with entries.
+
+    For use with CreateOnDiskHierarchy.
+    """
+
+    name: str
+    contents: Iterable[Directory | str] = ()
 
 
 def _FlattenStructure(

@@ -1419,7 +1419,7 @@ class ArchiveSysrootTest(cros_test_lib.TempDirTestCase):
         sysroot_path = chroot_path / "build" / "testBoard"
         self.sysroot = sysroot_lib.Sysroot(sysroot_path)
         self.dir_structure = [
-            cros_test_lib.Directory(".", []),
+            cros_test_lib.Directory("."),
             cros_test_lib.Directory("test", ["foo.bar"]),
         ]
 
@@ -1464,7 +1464,7 @@ class ExtractSysrootTest(cros_test_lib.TempDirTestCase):
         self.sysroot_archive = sysroot_lib.Sysroot(self.sysroot_archive_path)
         self.build_target = build_target_lib.BuildTarget("testBoard")
         self.archive_dir_structure = [
-            cros_test_lib.Directory(".", []),
+            cros_test_lib.Directory("."),
             cros_test_lib.Directory("test", ["foo.bar"]),
         ]
         self.sysroot_dir_structure = [

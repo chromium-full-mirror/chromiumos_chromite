@@ -44,7 +44,7 @@ def create_tast_layout(
                 ),
                 D(
                     "share",
-                    (D("tast", (D("data", (D("go.chromium.org", ()),)),)),),
+                    (D("tast", (D("data", (D("go.chromium.org"),)),)),),
                 ),
             ),
         ),

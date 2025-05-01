@@ -225,9 +225,9 @@ class DirCopyTest(FileCopyTest):
         Dir("monkey1", FILES + [Dir(".git", FILES)]),
         Dir("monkey2", FILES),
         Dir("monkey3", FILES),
-        Dir("foon1", []),
-        Dir("foon2", []),
-        Dir("foon3", []),
+        Dir("foon1"),
+        Dir("foon2"),
+        Dir("foon3"),
     ]
     ELEMENTS_GLOB = "monkey*"
     DIR_SRC_NAME = "dir_src"

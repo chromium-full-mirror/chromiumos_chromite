@@ -60,7 +60,7 @@ class VerifyTarballTest(cros_test_lib.MockTempDirTestCase):
     def testNormPath(self) -> None:
         """Test path normalization."""
         tar_contents = ["./", "./foo/", "./foo/./a", "./foo/./b"]
-        dir_struct = [Dir(".", []), Dir("foo", ["a", "b"])]
+        dir_struct = [Dir("."), Dir("foo", ["a", "b"])]
         self._MockTarList(tar_contents)
         cros_test_lib.VerifyTarball(self.tarball, dir_struct)
 
