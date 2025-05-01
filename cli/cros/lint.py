@@ -587,7 +587,15 @@ class DocStringChecker(pylint.checkers.BaseChecker):
                 "results",
             },
             "Yields": {"yield", "yeild", "yeilds"},
-            "Raises": {"raise", "riase", "riases", "throw", "throws"},
+            "Raises": {
+                "except",
+                "exceptions",
+                "raise",
+                "riase",
+                "riases",
+                "throw",
+                "throws",
+            },
         }
 
         invalid_sections_map = {}
