@@ -295,8 +295,6 @@ class GSContext:
         b"doesn't match cloud-supplied digest",
         b"ssl.SSLError: [Errno 8]",
         b"EOF occurred in violation of protocol",
-        # TODO(nxia): crbug.com/775330 narrow down the criteria for retrying
-        b"AccessDeniedException",
     )
 
     # We have seen flaky errors with 5xx return codes
