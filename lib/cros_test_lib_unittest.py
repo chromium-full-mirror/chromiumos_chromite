@@ -64,6 +64,22 @@ class CreateOnDiskHierarchyTest(cros_test_lib.TempDirTestCase):
             "subfile2",
         ]
 
+    def test_file_data(self) -> None:
+        """Create files with contents."""
+        D = cros_test_lib.Directory
+        F = cros_test_lib.File
+        layout = (
+            D(
+                "dir",
+                (F("file", "data"),),
+            ),
+        )
+        cros_test_lib.CreateOnDiskHierarchy(self.tempdir, layout)
+
+        f = self.tempdir / "dir" / "file"
+        self.assertExists(f)
+        assert f.read_text(encoding="utf-8") == "data"
+
 
 class VerifyOnDiskHierarchyTest(cros_test_lib.TempDirTestCase):
     """Test VerifyOnDiskHierarchy."""

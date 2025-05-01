@@ -21,6 +21,7 @@ from typing import (
     Dict,
     Generator,
     Iterable,
+    Iterator,
     List,
     NamedTuple,
     Optional,
@@ -52,6 +53,16 @@ from chromite.utils import shell_util
 NETWORK_TESTS_ENABLED = False
 
 
+class File(NamedTuple):
+    """A single file with contents.
+
+    For use with CreateOnDiskHierarchy.
+    """
+
+    name: str
+    contents: str = ""
+
+
 class Directory(NamedTuple):
     """A single directory with entries.
 
@@ -59,7 +70,7 @@ class Directory(NamedTuple):
     """
 
     name: str
-    contents: Iterable[Directory | str] = ()
+    contents: Iterable[Directory | File | str] = ()
 
 
 def _FlattenStructure(
@@ -76,6 +87,28 @@ def _FlattenStructure(
             assert isinstance(obj, str)
             flattened.append(os.path.join(base_path, obj))
     return flattened
+
+
+def _walk_structure(
+    base: Path, struct: Iterable[Directory | str]
+) -> Iterator[tuple[Path, Directory | File]]:
+    """Walk the directory structure and yield each path one at a time.
+
+    A Directory will be yielded once for itself, and then each subpath it
+    contains.
+    """
+    for obj in struct:
+        if isinstance(obj, Directory):
+            yield (base, obj)
+            yield from _walk_structure(base / obj.name, obj.contents)
+        elif isinstance(obj, File):
+            yield (base, obj)
+        else:
+            assert isinstance(obj, str)
+            if obj.endswith(os.sep) or not obj:
+                yield (base, Directory(obj))
+            else:
+                yield (base, File(obj))
 
 
 def CreateOnDiskHierarchy(
@@ -95,13 +128,16 @@ def CreateOnDiskHierarchy(
                 - ['file1', Directory('directory', ['deepfile1', 'deepfile2']),
                     'file2']
     """
-    flattened = _FlattenStructure(base_path, dir_struct)
-    for f in flattened:
-        f = os.path.join(base_path, f)
-        if f.endswith(os.sep):
-            osutils.SafeMakedirs(f)  # type: ignore[no-untyped-call]
+    if isinstance(base_path, str):
+        base_path = Path(base_path)
+
+    for dirpath, obj in _walk_structure(base_path, dir_struct):
+        if isinstance(obj, Directory):
+            osutils.SafeMakedirs(dirpath / obj.name)
+        elif obj.contents:
+            osutils.WriteFile(dirpath / obj.name, obj.contents, makedirs=True)
         else:
-            osutils.Touch(f, makedirs=True)
+            osutils.Touch(dirpath / obj.name, makedirs=True)
 
 
 def _VerifyDirectoryIterables(
