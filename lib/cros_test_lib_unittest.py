@@ -11,6 +11,8 @@ import time
 import unittest
 from unittest import mock
 
+import pytest
+
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import partial_mock
@@ -37,6 +39,95 @@ class CrosTestCaseTest(cros_test_lib.TestCase):
         self.assertRaises(AssertionError, self.assertEndsWith, s, suffix)
         suffix = "def"
         self.assertEndsWith(s, suffix)
+
+
+class CreateOnDiskHierarchyTest(cros_test_lib.TempDirTestCase):
+    """Test CreateOnDiskHierarchy."""
+
+    def testBasic(self) -> None:
+        """Basic testing."""
+        D = cros_test_lib.Directory
+        layout = (
+            D(
+                "dir",
+                (D("subdir", ("subfile1", "subfile2")), D("empty"), "file1"),
+            ),
+        )
+        cros_test_lib.CreateOnDiskHierarchy(self.tempdir, layout)
+
+        get_paths = lambda p: sorted(x.name for x in p.iterdir())
+        assert get_paths(self.tempdir) == ["dir"]
+        assert get_paths(self.tempdir / "dir") == ["empty", "file1", "subdir"]
+        assert get_paths(self.tempdir / "dir" / "empty") == []
+        assert get_paths(self.tempdir / "dir" / "subdir") == [
+            "subfile1",
+            "subfile2",
+        ]
+
+
+class VerifyOnDiskHierarchyTest(cros_test_lib.TempDirTestCase):
+    """Test VerifyOnDiskHierarchy."""
+
+    def setUp(self) -> None:
+        """Setup disk layout for testing.
+
+        NB: Do not use CreateOnDiskHierarchy as it uses the same internal APIs
+        as VerifyOnDiskHierarchy, so if one is broken, it's likely the other is
+        too, so the test wouldn't catch anything.
+        """
+        d = self.tempdir / "dir"
+        (d / "subdir").mkdir(parents=True)
+        (d / "subdir" / "subfile1").touch()
+        (d / "subdir" / "subfile2").touch()
+        (d / "empty").mkdir()
+        (d / "file1").touch()
+
+        D = cros_test_lib.Directory
+        self.layout = (
+            D(
+                "dir",
+                (D("subdir", ("subfile1", "subfile2")), D("empty"), "file1"),
+            ),
+        )
+
+    def testBasic(self) -> None:
+        """Basic verify checks."""
+        cros_test_lib.VerifyOnDiskHierarchy(self.tempdir, self.layout)
+
+    def test_missing_file(self) -> None:
+        """Fail due to missing files."""
+        (self.tempdir / "dir" / "file1").unlink()
+        with pytest.raises(AssertionError):
+            cros_test_lib.VerifyOnDiskHierarchy(self.tempdir, self.layout)
+
+    def test_missing_dir(self) -> None:
+        """Fail due to missing dirs."""
+        (self.tempdir / "dir" / "empty").rmdir()
+        with pytest.raises(AssertionError):
+            cros_test_lib.VerifyOnDiskHierarchy(self.tempdir, self.layout)
+
+    def test_extra_file(self) -> None:
+        """Fail due to extra files."""
+        (self.tempdir / "dir" / "file3").touch()
+        with pytest.raises(AssertionError):
+            cros_test_lib.VerifyOnDiskHierarchy(self.tempdir, self.layout)
+
+    def test_extra_dir(self) -> None:
+        """Fail due to extra dirs."""
+        (self.tempdir / "dir" / "dirdir").mkdir()
+        with pytest.raises(AssertionError):
+            cros_test_lib.VerifyOnDiskHierarchy(self.tempdir, self.layout)
+
+    def test_extra_hidden_file(self) -> None:
+        """Fail due to extra "hidden" files."""
+        (self.tempdir / "dir" / ".file").touch()
+        with pytest.raises(AssertionError):
+            cros_test_lib.VerifyOnDiskHierarchy(self.tempdir, self.layout)
+
+    def test_create_verify_roundtrip(self) -> None:
+        """Create should match verify."""
+        cros_test_lib.CreateOnDiskHierarchy(self.tempdir, self.layout)
+        cros_test_lib.VerifyOnDiskHierarchy(self.tempdir, self.layout)
 
 
 class VerifyTarballTest(cros_test_lib.MockTempDirTestCase):
