@@ -125,46 +125,43 @@ AFDO_ARTIFACT_EBUILD_REPL = r'\g<bef>"%s"\g<aft>'
 class ChromeVersion:
     """Represents a Chrome version."""
 
-    major: int
-    minor: int
-    build: int
-    patch: int
-    revision: int
-
-    _VERSION_WITH_REV_RE = re.compile(r"(\d+)\.(\d+)\.(\d+)\.(\d+)-r(\d+)")
+    info: package_info.PackageInfo
 
     @classmethod
     def parse(cls, s: str) -> "ChromeVersion":
-        match = cls._VERSION_WITH_REV_RE.fullmatch(s)
-        if not match:
-            raise ValueError(f"Invalid Chrome version: {s}")
-        return cls(*[int(x) for x in match.groups()])
+        info = package_info.parse(f"chromeos-base/chromeos-chrome-{s}")
+        return cls(info)
 
     @property
     def version_no_rev(self):
-        return f"{self.major}.{self.minor}.{self.build}.{self.patch}"
+        return self.info.version.removesuffix("_rc")
 
     @property
     def version_rc(self):
-        return f"{self.version_no_rev}_rc-r{self.revision}"
+        return self.info.vr
+
+    @property
+    def version_no_rc(self):
+        return self.info.vr.replace("_rc", "")
 
 
 BENCHMARK_PROFILE_NAME_REGEX = r"""
        ^chromeos-chrome-(?:\w+)-
-       (\d+)\.                    # Major
-       (\d+)\.                    # Minor
-       (\d+)\.                    # Build
-       (\d+)                      # Patch
-       (?:_rc)?-r(\d+)            # Revision
+       ([^-]+                     # V
+       -r\d+)                     # R
        (-merged)?\.
        afdo(?:\.bz2)?$            # We don't care about the presence of .bz2,
                                   # so we use the ignore-group '?:' operator.
 """
 
-BenchmarkProfileVersion = collections.namedtuple(
-    "BenchmarkProfileVersion",
-    ["major", "minor", "build", "patch", "revision", "is_merged"],
-)
+
+@dataclasses.dataclass(frozen=True, eq=True, order=True)
+class BenchmarkProfileVersion:
+    """Represents a benchmark profile version."""
+
+    version: ChromeVersion
+    is_merged: bool
+
 
 CWP_PROFILE_NAME_REGEX = r"""
       ^R(\d+)-                      # Major
@@ -193,11 +190,8 @@ MERGED_PROFILE_NAME_REGEX = r"""
       -(\d+)                                     # Clock; breaks ties sometimes.
       # Benchmark parts
       -benchmark
-      -(\d+)                                     # Major
-      \.(\d+)                                    # Minor
-      \.(\d+)                                    # Build
-      \.(\d+)                                    # Patch
-      -r(\d+)                                    # Revision
+      -([^-]+                                    # Version
+      -r\d+)                                     # Revision
       -redacted\.afdo                            # suffix for release profile.
       (?:\.xz)?$
 """
@@ -254,21 +248,17 @@ def _ExtractChromeVersionFromDebugFileName(
     """Extracts the Chrome version from a chrome.debug file name.
 
     Returns:
-        A tuple containing:
-            - The version with rev included.
-            - The version without a rev included.
+        A ChromeVersion object.
 
     >>> _ExtractChromeVersionFromDebugFileName(
             "chromeos-chrome-amd64-130.0.6700.0_rc-r1.debug.bz2")
-    ChromeVersion(130, 0, 6700, 0, 1)
+    "130.0.6700.0_rc-r1"
     """
-    r = re.compile(r"chromeos-chrome-[^-]+-([^_]+)_rc-(r\d+).*")
+    r = re.compile(r"chromeos-chrome-[^-]+-([^-]+-r\d+)\..+")
     match = r.fullmatch(debug_file_name)
     if not match:
         raise ValueError(f"Debug file name {debug_file_name} doesn't match {r}")
-    version_no_rev = match.group(1)
-    rev = match.group(2)
-    return ChromeVersion.parse(f"{version_no_rev}-{rev}")
+    return ChromeVersion.parse(match.group(1))
 
 
 def _ParseBenchmarkProfileName(profile_name):
@@ -278,7 +268,7 @@ def _ParseBenchmarkProfileName(profile_name):
         with input: profile_name='chromeos-chrome-amd64-77.0.3849.0_rc-r1.afdo'
         the function returns:
         BenchmarkProfileVersion(
-            major=77, minor=0, build=3849, patch=0, revision=1, is_merged=False)
+            ChromeVersion.parse("77.0.3849.0_rc-r1"), is_merged=False)
 
     Args:
         profile_name: The name of a benchmark profile.
@@ -295,11 +285,9 @@ def _ParseBenchmarkProfileName(profile_name):
             "Unparseable benchmark profile name: %s" % profile_name
         )
 
-    groups = match.groups()
-    version_groups = groups[:-1]
-    is_merged = groups[-1]
     return BenchmarkProfileVersion(
-        *[int(x) for x in version_groups], is_merged=bool(is_merged)
+        version=ChromeVersion.parse(match.group(1)),
+        is_merged=bool(match.group(2)),
     )
 
 
@@ -338,11 +326,7 @@ def _ParseMergedProfileName(
         the function returns:
         (
             BenchmarkProfileVersion(
-                major=77,
-                minor=0,
-                build=3849,
-                patch=0,
-                revision=1,
+                ChromeVersion.parse("77.0.3849.0_rc-r1"),
                 is_merged=False,
             ),
             CWPProfileVersion(major=77, build=3809, patch=38, clock=1562580965)
@@ -362,10 +346,10 @@ def _ParseMergedProfileName(
         )
     groups = match.groups()
     cwp_groups = groups[:4]
-    benchmark_groups = groups[4:]
     return (
         BenchmarkProfileVersion(
-            *[int(x) for x in benchmark_groups], is_merged=False
+            ChromeVersion.parse(groups[4]),
+            is_merged=False,
         ),
         CWPProfileVersion(*[int(x) for x in cwp_groups]),
     )
@@ -376,7 +360,7 @@ def _GetCombinedAFDOName(cwp_versions, cwp_arch, benchmark_versions):
 
     Examples:
         If benchmark AFDO is BenchmarkProfileVersion(
-            major=77, minor=0, build=3849, patch=0, revision=1, is_merged=False)
+            ChromeVersion.parse("77.0.3849.0_rc-r1"), is_merged=False)
         and CWP AFDO is CWPProfileVersion(
             major=77, build=3809, patch=38, clock=1562580965),
         and cwp_arch is 'atom',
@@ -399,12 +383,8 @@ def _GetCombinedAFDOName(cwp_versions, cwp_arch, benchmark_versions):
         cwp_versions.patch,
         cwp_versions.clock,
     )
-    benchmark_piece = "benchmark-%d.%d.%d.%d-r%d" % (
-        benchmark_versions.major,
-        benchmark_versions.minor,
-        benchmark_versions.build,
-        benchmark_versions.patch,
-        benchmark_versions.revision,
+    benchmark_piece = "benchmark-%s" % (
+        benchmark_versions.version.version_no_rc
     )
     return "%s-%s" % (cwp_piece, benchmark_piece)
 
@@ -607,14 +587,6 @@ class _CommonPrepareBundle:
             for path in glob.glob(glob_path_str)
         ]
         logging.info("Glob path %s yielded: %s", glob_path_str, paths)
-        if package == constants.CHROME_PN:
-            # Ignore any `_pre` ebuilds; these are a new (& manual) construct,
-            # and they can't be easily represented as distinct in our existing
-            # AFDO paths.
-            paths = [x for x in paths if "_pre" not in os.path.basename(x)]
-            logging.info(
-                "Filtered paths for %s down to %s", glob_path_str, paths
-            )
         if not paths:
             raise ValueError(f"No ebuilds found for {package}; can't resolve.")
 
@@ -671,7 +643,7 @@ class _CommonPrepareBundle:
             vernorev = forced_version.version_no_rev
         else:
             ver = pkg.vr
-            vernorev = pkg.version.split("_")[0]
+            vernorev = pkg.version.removesuffix("_rc")
         afdo_spec = {
             "arch": self.arch,
             "package": pkg.package,

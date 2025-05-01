@@ -59,11 +59,7 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(
             result,
             toolchain_util.BenchmarkProfileVersion(
-                major=77,
-                minor=0,
-                build=3849,
-                patch=0,
-                revision=1,
+                toolchain_util.ChromeVersion.parse("77.0.3849.0_rc-r1"),
                 is_merged=False,
             ),
         )
@@ -74,11 +70,7 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(
             result,
             toolchain_util.BenchmarkProfileVersion(
-                major=77,
-                minor=0,
-                build=3849,
-                patch=0,
-                revision=1,
+                toolchain_util.ChromeVersion.parse("77.0.3849.0_rc-r1"),
                 is_merged=False,
             ),
         )
@@ -88,8 +80,8 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
             "chromeos-chrome-amd64-130.0.6700.0_rc-r1.debug.bz2"
         )
         self.assertEqual(
-            toolchain_util.ChromeVersion(130, 0, 6700, 0, 1),
-            result,
+            "130.0.6700.0_rc-r1",
+            result.version_rc,
         )
 
         # Missing revision.
@@ -144,11 +136,7 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
             result,
             (
                 toolchain_util.BenchmarkProfileVersion(
-                    major=77,
-                    minor=0,
-                    build=3849,
-                    patch=0,
-                    revision=1,
+                    toolchain_util.ChromeVersion.parse("77.0.3849.0-r1"),
                     is_merged=False,
                 ),
                 toolchain_util.CWPProfileVersion(
@@ -166,11 +154,7 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
             result,
             (
                 toolchain_util.BenchmarkProfileVersion(
-                    major=77,
-                    minor=0,
-                    build=3849,
-                    patch=0,
-                    revision=1,
+                    toolchain_util.ChromeVersion.parse("77.0.3849.0-r1"),
                     is_merged=False,
                 ),
                 toolchain_util.CWPProfileVersion(
