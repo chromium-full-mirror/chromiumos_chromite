@@ -4,6 +4,8 @@
 
 """cros cp: Copy files to/from a target device."""
 
+from typing import Optional
+
 from chromite.cli import command
 from chromite.lib import commandline
 from chromite.lib import remote_access
@@ -31,17 +33,17 @@ Examples:
     def __init__(self, options) -> None:
         """Initializes CpCommand."""
         super().__init__(options)
-        self.device = None
-        self.hostname = None
-        self.port = None
-        self.username = None
-        self.to_local = None
-        self.mode = None
-        self.chmod = None
-        self.chown = None
-        self.src = None
-        self.dest = None
-        self.kwargs = {}
+        self.device: Optional[remote_access.ChromiumOSDevice] = None
+        self.hostname: Optional[str] = None
+        self.port: Optional[int] = None
+        self.username: Optional[str] = None
+        self.to_local: Optional[bool] = None
+        self.mode: Optional[str] = None
+        self.src: Optional[list[commandline.Device]] = None
+        self.dest: Optional[commandline.Device] = None
+        # Store raw option values, process them into kwargs later.
+        self._chmod: Optional[str] = None
+        self._chown: Optional[str] = None
 
     @classmethod
     def AddParser(cls, parser) -> None:
@@ -99,8 +101,9 @@ Examples:
         self.username = remote.username
         self.port = self.options.port
         self.mode = self.options.mode
-        self.kwargs.setdefault("chmod", self.options.chmod)
-        self.kwargs.setdefault("chown", self.options.chown)
+        # Store raw options to be processed later.
+        self._chmod = self.options.chmod
+        self._chown = self.options.chown
 
     def _StartCp(self) -> None:
         """Starts copying files from/to device.
@@ -121,12 +124,14 @@ Examples:
             if self.to_local
             else self.device.CopyToDevice
         )
+
         for src in self.src:
             func(
                 src=src.path,
                 dest=self.dest.path,
                 mode=self.mode,
-                **self.kwargs,
+                chmod=self._chmod,
+                chown=self._chown,
             )
 
     def Run(self):
