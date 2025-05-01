@@ -322,6 +322,8 @@ class CommonPrepareBundleTest(PrepareBundleTest):
         ret = self.obj._GetEbuildInfo("chromeos-chrome")
         self.assertEqual(ret.CPV.vr, "78.0.3893.100_rc-r1")
         self.assertEqual(ret.CPV.version, "78.0.3893.100_rc")
+        self.assertEqual(ret.CPV.category, "chromeos-base")
+        self.assertEqual(ret.CPV.package, "chromeos-chrome")
         self.assertEqual(ret.CPV.revision, 1)
 
     def test_GetArtifactVersionInGob(self) -> None:

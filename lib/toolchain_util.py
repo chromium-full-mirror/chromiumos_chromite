@@ -601,7 +601,11 @@ class _CommonPrepareBundle:
             package,
             "*-*.*.ebuild",
         )
-        paths = glob.glob(glob_path_str)
+
+        paths = [
+            Path(os.path.join(category, package, path))
+            for path in glob.glob(glob_path_str)
+        ]
         logging.info("Glob path %s yielded: %s", glob_path_str, paths)
         if package == constants.CHROME_PN:
             # Ignore any `_pre` ebuilds; these are a new (& manual) construct,
@@ -615,10 +619,7 @@ class _CommonPrepareBundle:
             raise ValueError(f"No ebuilds found for {package}; can't resolve.")
 
         if len(paths) == 1:
-            PV = os.path.splitext(os.path.split(paths[0])[1])[0]
-            info = _EbuildInfo(
-                paths[0], package_info.parse("%s/%s" % (category, PV))
-            )
+            info = _EbuildInfo(paths[0], package_info.parse(paths[0]))
             self._ebuild_info[package] = info
             return info
 
@@ -626,22 +627,17 @@ class _CommonPrepareBundle:
             raise ValueError(
                 f"Multiple stable ebuilds found for {package}; can't resolve."
             )
-        latest_version = ChromeVersion(0, 0, 0, 0, 0)
+        latest_pkg_info = None
         candidate = None
         for p in paths:
-            PV = os.path.splitext(os.path.split(p)[1])[0]
-            info = _EbuildInfo(p, package_info.parse("%s/%s" % (category, PV)))
+            pkg_info = package_info.parse(p)
+            info = _EbuildInfo(p, pkg_info)
             if not info.CPV.revision:
                 # Ignore versions without a rev
                 continue
-            version_re = re.compile(
-                r"^chromeos-chrome-(\d+)\.(\d+)\.(\d+)\.(\d+)_rc-r(\d+)"
-            )
-            m = version_re.search(PV)
-            assert m, f"failed to recognize Chrome ebuild name {p}"
-            version = ChromeVersion(*[int(x) for x in m.groups()])
-            if version > latest_version:
-                latest_version = version
+
+            if not latest_pkg_info or pkg_info > latest_pkg_info:
+                latest_pkg_info = pkg_info
                 candidate = info
         if not candidate:
             raise NoStableEbuildError()
