@@ -1757,7 +1757,7 @@ def _FirstSubstring(superstring, haystack):
 
 
 @contextlib.contextmanager
-def TemporaryURL(prefix):
+def TemporaryURL(ctx: GSContext, prefix: str):
     """Context manager to generate a random URL.
 
     At the end, the URL will be deleted.
@@ -1768,7 +1768,6 @@ def TemporaryURL(prefix):
         getpass.getuser(),
         cros_build_lib.GetRandomString(),
     )
-    ctx = GSContext()
     ctx.Remove(url, ignore_missing=True, recursive=True)
     try:
         yield url

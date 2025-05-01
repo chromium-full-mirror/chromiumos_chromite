@@ -121,7 +121,7 @@ class GSLockTest(cros_test_lib.MockTestCase):
             cros_build_lib, "MachineDetails", return_value="TestHost"
         )
 
-        with gs.TemporaryURL("gslock") as lock_uri:
+        with gs.TemporaryURL(self.ctx, "gslock") as lock_uri:
             lock = gslock.Lock(lock_uri)
 
             self.assertFalse(self.ctx.Exists(lock_uri))
@@ -142,7 +142,7 @@ class GSLockTest(cros_test_lib.MockTestCase):
             cros_build_lib, "MachineDetails", return_value="TestHost"
         )
 
-        with gs.TemporaryURL("gslock") as lock_uri:
+        with gs.TemporaryURL(self.ctx, "gslock") as lock_uri:
             lock = gslock.Lock(lock_uri)
 
             self.assertFalse(self.ctx.Exists(lock_uri))
@@ -164,7 +164,7 @@ class GSLockTest(cros_test_lib.MockTestCase):
     @pytest.mark.network_test
     def testLockConflict(self) -> None:
         """Test lock conflict."""
-        with gs.TemporaryURL("gslock") as lock_uri:
+        with gs.TemporaryURL(self.ctx, "gslock") as lock_uri:
             lock1 = gslock.Lock(lock_uri)
             lock2 = gslock.Lock(lock_uri)
 
@@ -188,7 +188,7 @@ class GSLockTest(cros_test_lib.MockTestCase):
     @pytest.mark.network_test
     def testLockTimeout(self) -> None:
         """Test getting a lock when an old timed out one is present."""
-        with gs.TemporaryURL("gslock") as lock_uri:
+        with gs.TemporaryURL(self.ctx, "gslock") as lock_uri:
             # Both locks are always timed out.
             lock1 = gslock.Lock(lock_uri, lock_timeout_mins=-1)
             lock2 = gslock.Lock(lock_uri, lock_timeout_mins=-1)
@@ -200,9 +200,9 @@ class GSLockTest(cros_test_lib.MockTestCase):
     def testRaceToAcquire(self) -> None:
         """Have lots of processes race to acquire the same lock."""
         count = self.NUM_THREADS
-        with gs.TemporaryURL("gslock") as lock_uri, multiprocessing.Pool(
-            processes=count
-        ) as pool:
+        with gs.TemporaryURL(
+            self.ctx, "gslock"
+        ) as lock_uri, multiprocessing.Pool(processes=count) as pool:
             results = pool.map(_InProcessAcquire, [lock_uri] * count)
 
             # Clean up the lock since the processes explicitly only acquire.
@@ -215,9 +215,9 @@ class GSLockTest(cros_test_lib.MockTestCase):
     def testRaceToDoubleAcquire(self) -> None:
         """Have lots of processes race to double acquire the same lock."""
         count = self.NUM_THREADS
-        with gs.TemporaryURL("gslock") as lock_uri, multiprocessing.Pool(
-            processes=count
-        ) as pool:
+        with gs.TemporaryURL(
+            self.ctx, "gslock"
+        ) as lock_uri, multiprocessing.Pool(processes=count) as pool:
             results = pool.map(_InProcessDoubleAcquire, [lock_uri] * count)
 
             # Clean up the lock since the processes explicitly only acquire.
@@ -231,9 +231,9 @@ class GSLockTest(cros_test_lib.MockTestCase):
     def testMultiProcessDataUpdate(self) -> None:
         """Have lots of processes update a GS file protected by a lock."""
         count = self.NUM_THREADS
-        with gs.TemporaryURL("gslock") as lock_uri, multiprocessing.Pool(
-            processes=count
-        ) as pool:
+        with gs.TemporaryURL(
+            self.ctx, "gslock"
+        ) as lock_uri, multiprocessing.Pool(processes=count) as pool:
             data_uri = lock_uri + ".data"
             results = pool.map(
                 _InProcessDataUpdate, [(lock_uri, data_uri)] * count
@@ -247,7 +247,7 @@ class GSLockTest(cros_test_lib.MockTestCase):
     @pytest.mark.network_test
     def testDryrunLock(self) -> None:
         """Ensure that lock can be obtained and released in dry-run mode."""
-        with gs.TemporaryURL("gslock") as lock_uri:
+        with gs.TemporaryURL(self.ctx, "gslock") as lock_uri:
             lock = gslock.Lock(lock_uri, dry_run=True)
             self.assertIsNone(lock.Acquire())
             self.assertFalse(self.ctx.Exists(lock_uri))
@@ -256,7 +256,7 @@ class GSLockTest(cros_test_lib.MockTestCase):
     @pytest.mark.network_test
     def testDryrunLockRepetition(self) -> None:
         """Test acquiring same lock multiple times in dry-run mode."""
-        with gs.TemporaryURL("gslock") as lock_uri:
+        with gs.TemporaryURL(self.ctx, "gslock") as lock_uri:
             lock = gslock.Lock(lock_uri, dry_run=True)
             self.assertIsNone(lock.Acquire())
             self.assertIsNone(lock.Acquire())

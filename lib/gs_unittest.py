@@ -227,7 +227,7 @@ class UnmockedGetSizeTest(cros_test_lib.TempDirTestCase):
         local_file = os.path.join(self.tempdir, "foo")
         osutils.WriteFile(local_file, "!" * 5)
 
-        with gs.TemporaryURL("chromite.getsize") as tempuri:
+        with gs.TemporaryURL(ctx, "chromite.getsize") as tempuri:
             ctx.Copy(local_file, tempuri)
             self.assertEqual(ctx.GetSize(tempuri), 5)
 
@@ -278,7 +278,7 @@ class UnMockedGetCreationTimeTest(cros_test_lib.TempDirTestCase):
     def testGetCreationTime(self) -> None:
         """Test getting the creation time of a file."""
         ctx = gs.GSContext()
-        with gs.TemporaryURL("testGetCreationTime") as url:
+        with gs.TemporaryURL(ctx, "testGetCreationTime") as url:
             self.assertRaises(gs.GSNoSuchKey, ctx.GetCreationTime, url)
 
             ctx.CreateWithContents(url, "test file contents")
@@ -335,7 +335,7 @@ class UnMockedGetCreationTimeSinceTest(cros_test_lib.TempDirTestCase):
     def testGetCreationTimeSince(self) -> None:
         """Test getting the creation time of a file."""
         ctx = gs.GSContext()
-        with gs.TemporaryURL("testGetCreationTime") as url:
+        with gs.TemporaryURL(ctx, "testGetCreationTime") as url:
             with self.assertRaises(gs.GSNoSuchKey):
                 self.assertRaises(
                     gs.GSNoSuchKey, ctx.GetCreationTimeSince, url, NOW_RAW
@@ -497,7 +497,7 @@ class UnmockedLSTest(cros_test_lib.TempDirTestCase):
         """Tests listing remote paths."""
         ctx = gs.GSContext()
 
-        with gs.TemporaryURL("chromite.ls") as tempuri:
+        with gs.TemporaryURL(ctx, "chromite.ls") as tempuri:
             # The path shouldn't exist by default.
             with self.assertRaises(gs.GSNoSuchKey):
                 ctx.LS(tempuri)
@@ -680,7 +680,7 @@ class UnmockedCopyTest(cros_test_lib.TempDirTestCase):
 
         osutils.WriteFile(local_src_file, content)
 
-        with gs.TemporaryURL("chromite.cp") as tempuri:
+        with gs.TemporaryURL(ctx, "chromite.cp") as tempuri:
             # Upload the file.
             gen = ctx.Copy(local_src_file, tempuri)
 
@@ -716,7 +716,7 @@ class UnmockedCopyTest(cros_test_lib.TempDirTestCase):
 
         osutils.WriteFile(local_src_file, content)
 
-        with gs.TemporaryURL("chromite.cp") as tempuri:
+        with gs.TemporaryURL(ctx, "chromite.cp") as tempuri:
             # Upload & compress the file.
             gen = ctx.Copy(local_src_file, tempuri, auto_compress=True)
 
@@ -743,7 +743,7 @@ class UnmockedCopyTest(cros_test_lib.TempDirTestCase):
 
         local_src_file = os.path.join(self.tempdir, "src.txt")
 
-        with gs.TemporaryURL("chromite.cp") as tempuri:
+        with gs.TemporaryURL(ctx, "chromite.cp") as tempuri:
             # Upload the file.
             osutils.WriteFile(local_src_file, "gen0")
             gen = ctx.Copy(local_src_file, tempuri, version=0)
@@ -821,7 +821,7 @@ class UnmockedRemoveTest(cros_test_lib.TestCase):
     def testNormal(self) -> None:
         """Test normal remove behavior."""
         ctx = gs.GSContext()
-        with gs.TemporaryURL("chromite.rm") as tempuri:
+        with gs.TemporaryURL(ctx, "chromite.rm") as tempuri:
             ctx.Copy("/dev/null", tempuri)
             self.assertEqual(ctx.Remove(tempuri), None)
 
@@ -829,7 +829,7 @@ class UnmockedRemoveTest(cros_test_lib.TestCase):
     def testMissing(self) -> None:
         """Test behavior w/missing files."""
         ctx = gs.GSContext()
-        with gs.TemporaryURL("chromite.rm") as tempuri:
+        with gs.TemporaryURL(ctx, "chromite.rm") as tempuri:
             self.assertRaises(gs.GSNoSuchKey, ctx.Remove, tempuri)
             # This one should not throw an exception.
             ctx.Remove(tempuri, ignore_missing=True)
@@ -839,7 +839,7 @@ class UnmockedRemoveTest(cros_test_lib.TestCase):
         """Verify recursive mode works."""
         files = ("a", "b/c", "d/e/ffff")
         ctx = gs.GSContext()
-        with gs.TemporaryURL("chromite.rm") as tempuri:
+        with gs.TemporaryURL(ctx, "chromite.rm") as tempuri:
             for p in files:
                 ctx.Copy("/dev/null", os.path.join(tempuri, p))
             ctx.Remove(tempuri, recursive=True)
@@ -851,7 +851,7 @@ class UnmockedRemoveTest(cros_test_lib.TestCase):
         """Test handling of multiple paths."""
         files = ("a", "b/c", "d/e/ffff")
         ctx = gs.GSContext()
-        with gs.TemporaryURL("chromite.rm") as tempuri:
+        with gs.TemporaryURL(ctx, "chromite.rm") as tempuri:
             for p in files:
                 ctx.Copy("/dev/null", os.path.join(tempuri, p))
             ctx.Remove(["%s/%s" % (tempuri, x) for x in files])
@@ -862,7 +862,7 @@ class UnmockedRemoveTest(cros_test_lib.TestCase):
     def testGeneration(self) -> None:
         """Test conditional remove behavior."""
         ctx = gs.GSContext()
-        with gs.TemporaryURL("chromite.rm") as tempuri:
+        with gs.TemporaryURL(ctx, "chromite.rm") as tempuri:
             ctx.Copy("/dev/null", tempuri)
             gen, _ = ctx.GetGeneration(tempuri)
             self.assertRaises(
@@ -1318,7 +1318,7 @@ class GSContextTest(AbstractGSContextTest):
 
     def testTemporaryUrl(self) -> None:
         """Just verify the url helper generates valid URLs."""
-        with gs.TemporaryURL("mock") as url:
+        with gs.TemporaryURL(self.ctx, "mock") as url:
             base = url[0 : len(constants.TRASH_BUCKET)]
             self.assertEqual(base, constants.TRASH_BUCKET)
 
@@ -1568,7 +1568,7 @@ class UnmockedGSContextTest(cros_test_lib.TempDirTestCase):
     @pytest.mark.network_test
     def testIncrement(self) -> None:
         ctx = gs.GSContext()
-        with gs.TemporaryURL("testIncrement") as url:
+        with gs.TemporaryURL(ctx, "testIncrement") as url:
             counter = ctx.Counter(url)
             self.assertEqual(0, counter.Get())
             for i in range(1, 4):
@@ -1583,7 +1583,7 @@ class UnmockedGSContextTest(cros_test_lib.TempDirTestCase):
 
         ctx = gs.GSContext()
 
-        with gs.TemporaryURL("testGetGsNamesWithWait") as url:
+        with gs.TemporaryURL(ctx, "testGetGsNamesWithWait") as url:
             # The path shouldn't exist by default.
             with self.assertRaises(gs.GSNoSuchKey):
                 ctx.GetGsNamesWithWait(pattern, url, period=2, timeout=1)
@@ -1757,7 +1757,7 @@ class UnmockedStatTest(cros_test_lib.TempDirTestCase):
     def testStat(self) -> None:
         """Test ability to get the generation of a file."""
         ctx = gs.GSContext()
-        with gs.TemporaryURL("testStat") as url:
+        with gs.TemporaryURL(ctx, "testStat") as url:
             # The URL doesn't exist. Test Stat for this case.
             self.assertRaises(gs.GSNoSuchKey, ctx.Stat, url)
 
@@ -1781,7 +1781,7 @@ class UnmockedStatTest(cros_test_lib.TempDirTestCase):
     def testMissing(self) -> None:
         """Test exceptions when the file doesn't exist."""
         ctx = gs.GSContext()
-        with gs.TemporaryURL("testStat") as url:
+        with gs.TemporaryURL(ctx, "testStat") as url:
             self.assertRaises(gs.GSNoSuchKey, ctx.Stat, url)
             self.assertFalse(ctx.Exists(url))
 
@@ -1832,7 +1832,7 @@ class CatTest(cros_test_lib.TempDirTestCase):
         content = "fOoOoOoo1\n\thi@!*!(\r\r\nend"
         osutils.WriteFile(filename, content)
 
-        with gs.TemporaryURL("chromite.cat") as tempuri:
+        with gs.TemporaryURL(ctx, "chromite.cat") as tempuri:
             ctx.Copy(filename, tempuri)
             self.assertEqual(content, ctx.Cat(tempuri, encoding="utf-8"))
 
@@ -1840,7 +1840,7 @@ class CatTest(cros_test_lib.TempDirTestCase):
     def testNetworkMissingFile(self) -> None:
         """Tests catting a missing GS file."""
         ctx = gs.GSContext()
-        with gs.TemporaryURL("chromite.cat") as tempuri:
+        with gs.TemporaryURL(ctx, "chromite.cat") as tempuri:
             with self.assertRaises(gs.GSNoSuchKey):
                 ctx.Cat(tempuri)
 
@@ -1848,7 +1848,7 @@ class CatTest(cros_test_lib.TempDirTestCase):
     def testStreamingRemoteFile(self) -> None:
         """Test streaming a remote file."""
         ctx = gs.GSContext()
-        with gs.TemporaryURL("chromite.cat") as url:
+        with gs.TemporaryURL(ctx, "chromite.cat") as url:
             # The default chunksize is 0x100000 (1MB).
             first_chunk = b"a" * 0x100000
             second_chunk = b"aaaaaaaaabbbbbbccc"
@@ -2107,7 +2107,7 @@ class UnmockedGSCounterTest(cros_test_lib.TestCase):
     @contextlib.contextmanager
     def _Counter():
         ctx = gs.GSContext()
-        with gs.TemporaryURL("chromite.counter") as tempuri:
+        with gs.TemporaryURL(ctx, "chromite.counter") as tempuri:
             yield gs.GSCounter(ctx, tempuri)
 
     @staticmethod
