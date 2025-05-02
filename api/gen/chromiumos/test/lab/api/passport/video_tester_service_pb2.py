@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n;chromiumos/test/lab/api/passport/video_tester_service.proto\x12 chromiumos.test.lab.api.passport\"\'\n\x0bVideoTester\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"\x18\n\x16GetVideoTestersRequest\"Y\n\x17GetVideoTestersResponse\x12>\n\x07testers\x18\x01 \x03(\x0b\x32-.chromiumos.test.lab.api.passport.VideoTester\"$\n\x16OpenVideoTesterRequest\x12\n\n\x02id\x18\x01 \x01(\t\"*\n\x17OpenVideoTesterResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"%\n\x17\x43loseVideoTesterRequest\x12\n\n\x02id\x18\x01 \x01(\t\"+\n\x18\x43loseVideoTesterResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x1d\n\x0fGetRolesRequest\x12\n\n\x02id\x18\x01 \x01(\t\"I\n\x10GetRolesResponse\x12\x35\n\x05roles\x18\x01 \x03(\x0e\x32&.chromiumos.test.lab.api.passport.Role\"R\n\x0eSetRoleRequest\x12\n\n\x02id\x18\x01 \x01(\t\x12\x34\n\x04role\x18\x02 \x01(\x0e\x32&.chromiumos.test.lab.api.passport.Role\"\"\n\x0fSetRoleResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"6\n\x1aLoadEdidVideoTesterRequest\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04\x65\x64id\x18\x02 \x01(\x0c\".\n\x1bLoadEdidVideoTesterResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08*\x8c\x01\n\x04Role\x12\x14\n\x10ROLE_UNSPECIFIED\x10\x00\x12\x1a\n\x16ROLE_DPSOURCE_USBCSINK\x10\x01\x12\x18\n\x14ROLE_DPSOURCE_DPSINK\x10\x02\x12\x1c\n\x18ROLE_USBCSOURCE_USBCSINK\x10\x03\x12\x1a\n\x16ROLE_USBCSOURCE_DPSINK\x10\x04\x32\xc0\x06\n\x12VideoTesterService\x12\x86\x01\n\x0fGetVideoTesters\x12\x38.chromiumos.test.lab.api.passport.GetVideoTestersRequest\x1a\x39.chromiumos.test.lab.api.passport.GetVideoTestersResponse\x12\x86\x01\n\x0fOpenVideoTester\x12\x38.chromiumos.test.lab.api.passport.OpenVideoTesterRequest\x1a\x39.chromiumos.test.lab.api.passport.OpenVideoTesterResponse\x12\x89\x01\n\x10\x43loseVideoTester\x12\x39.chromiumos.test.lab.api.passport.CloseVideoTesterRequest\x1a:.chromiumos.test.lab.api.passport.CloseVideoTesterResponse\x12|\n\x13GetRolesVideoTester\x12\x31.chromiumos.test.lab.api.passport.GetRolesRequest\x1a\x32.chromiumos.test.lab.api.passport.GetRolesResponse\x12y\n\x12SetRoleVideoTester\x12\x30.chromiumos.test.lab.api.passport.SetRoleRequest\x1a\x31.chromiumos.test.lab.api.passport.SetRoleResponse\x12\x92\x01\n\x13LoadEdidVideoTester\x12<.chromiumos.test.lab.api.passport.LoadEdidVideoTesterRequest\x1a=.chromiumos.test.lab.api.passport.LoadEdidVideoTesterResponseB<Z:go.chromium.org/chromiumos/config/go/test/lab/api/passportb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n;chromiumos/test/lab/api/passport/video_tester_service.proto\x12 chromiumos.test.lab.api.passport\"\'\n\x0bVideoTester\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"\x18\n\x16GetVideoTestersRequest\"Y\n\x17GetVideoTestersResponse\x12>\n\x07testers\x18\x01 \x03(\x0b\x32-.chromiumos.test.lab.api.passport.VideoTester\"$\n\x16OpenVideoTesterRequest\x12\n\n\x02id\x18\x01 \x01(\t\"*\n\x17OpenVideoTesterResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"%\n\x17\x43loseVideoTesterRequest\x12\n\n\x02id\x18\x01 \x01(\t\"+\n\x18\x43loseVideoTesterResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x1d\n\x0fGetRolesRequest\x12\n\n\x02id\x18\x01 \x01(\t\"I\n\x10GetRolesResponse\x12\x35\n\x05roles\x18\x01 \x03(\x0e\x32&.chromiumos.test.lab.api.passport.Role\"R\n\x0eSetRoleRequest\x12\n\n\x02id\x18\x01 \x01(\t\x12\x34\n\x04role\x18\x02 \x01(\x0e\x32&.chromiumos.test.lab.api.passport.Role\"\"\n\x0fSetRoleResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"I\n\x1aLoadEdidVideoTesterRequest\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04\x65\x64id\x18\x02 \x01(\x0c\x12\x11\n\tid_stream\x18\x03 \x01(\x03\".\n\x1bLoadEdidVideoTesterResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"-\n\x1fGetStreamInfoVideoTesterRequest\x12\n\n\x02id\x18\x01 \x01(\t\"\xc7\x02\n\x15StreamInfoVideoTester\x12\x17\n\nframe_rate\x18\x01 \x01(\x01H\x00\x88\x01\x01\x12\x14\n\x07hactive\x18\x02 \x01(\x03H\x01\x88\x01\x01\x12\x14\n\x07vactive\x18\x03 \x01(\x03H\x02\x88\x01\x01\x12\x13\n\x06htotal\x18\x04 \x01(\x03H\x03\x88\x01\x01\x12\x13\n\x06vtotal\x18\x05 \x01(\x03H\x04\x88\x01\x01\x12\x13\n\x06hstart\x18\x06 \x01(\x03H\x05\x88\x01\x01\x12\x13\n\x06vstart\x18\x07 \x01(\x03H\x06\x88\x01\x01\x12\x14\n\x07hswidth\x18\x08 \x01(\x03H\x07\x88\x01\x01\x12\x14\n\x07vswidth\x18\t \x01(\x03H\x08\x88\x01\x01\x42\r\n\x0b_frame_rateB\n\n\x08_hactiveB\n\n\x08_vactiveB\t\n\x07_htotalB\t\n\x07_vtotalB\t\n\x07_hstartB\t\n\x07_vstartB\n\n\x08_hswidthB\n\n\x08_vswidth\"l\n GetStreamInfoVideoTesterResponse\x12H\n\x07streams\x18\x01 \x03(\x0b\x32\x37.chromiumos.test.lab.api.passport.StreamInfoVideoTester\"=\n\x1cScreenshotVideoTesterRequest\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tid_stream\x18\x02 \x01(\x03\"3\n\x1dScreenshotVideoTesterResponse\x12\x12\n\nscreenshot\x18\x01 \x01(\x0c\"\xc3\x01\n\x19SetLinkVideoTesterRequest\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x03mst\x18\x02 \x01(\x08H\x00\x88\x01\x01\x12\x1b\n\x0emst_sink_count\x18\x03 \x01(\x03H\x01\x88\x01\x01\x12\x1a\n\rscambler_seed\x18\x04 \x01(\x03H\x02\x88\x01\x01\x12\x15\n\x08max_lane\x18\x05 \x01(\x03H\x03\x88\x01\x01\x42\x06\n\x04_mstB\x11\n\x0f_mst_sink_countB\x10\n\x0e_scambler_seedB\x0b\n\t_max_lane\"\x1c\n\x1aSetLinkVideoTesterResponse\"\'\n\x19GetLinkVideoTesterRequest\x12\n\n\x02id\x18\x01 \x01(\t\"\xb8\x01\n\x1aGetLinkVideoTesterResponse\x12\x10\n\x03mst\x18\x01 \x01(\x08H\x00\x88\x01\x01\x12\x1b\n\x0emst_sink_count\x18\x02 \x01(\x03H\x01\x88\x01\x01\x12\x1a\n\rscambler_seed\x18\x03 \x01(\x03H\x02\x88\x01\x01\x12\x15\n\x08max_lane\x18\x04 \x01(\x03H\x03\x88\x01\x01\x42\x06\n\x04_mstB\x11\n\x0f_mst_sink_countB\x10\n\x0e_scambler_seedB\x0b\n\t_max_lane\"6\n\x18\x41ttachVideoTesterRequest\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0e\n\x06\x61ttach\x18\x02 \x01(\x08\"\x1b\n\x19\x41ttachVideoTesterResponse\"^\n\x1aHpdPulseVideoTesterRequest\x12\n\n\x02id\x18\x01 \x01(\t\x12\x1e\n\x11pulse_duration_ms\x18\x02 \x01(\x03H\x00\x88\x01\x01\x42\x14\n\x12_pulse_duration_ms\"\x1d\n\x1bHpdPulseVideoTesterResponse*\x8c\x01\n\x04Role\x12\x14\n\x10ROLE_UNSPECIFIED\x10\x00\x12\x1a\n\x16ROLE_DPSOURCE_USBCSINK\x10\x01\x12\x18\n\x14ROLE_DPSOURCE_DPSINK\x10\x02\x12\x1c\n\x18ROLE_USBCSOURCE_USBCSINK\x10\x03\x12\x1a\n\x16ROLE_USBCSOURCE_DPSINK\x10\x04\x32\xc7\r\n\x12VideoTesterService\x12\x86\x01\n\x0fGetVideoTesters\x12\x38.chromiumos.test.lab.api.passport.GetVideoTestersRequest\x1a\x39.chromiumos.test.lab.api.passport.GetVideoTestersResponse\x12\x86\x01\n\x0fOpenVideoTester\x12\x38.chromiumos.test.lab.api.passport.OpenVideoTesterRequest\x1a\x39.chromiumos.test.lab.api.passport.OpenVideoTesterResponse\x12\x89\x01\n\x10\x43loseVideoTester\x12\x39.chromiumos.test.lab.api.passport.CloseVideoTesterRequest\x1a:.chromiumos.test.lab.api.passport.CloseVideoTesterResponse\x12|\n\x13GetRolesVideoTester\x12\x31.chromiumos.test.lab.api.passport.GetRolesRequest\x1a\x32.chromiumos.test.lab.api.passport.GetRolesResponse\x12y\n\x12SetRoleVideoTester\x12\x30.chromiumos.test.lab.api.passport.SetRoleRequest\x1a\x31.chromiumos.test.lab.api.passport.SetRoleResponse\x12\x92\x01\n\x13LoadEdidVideoTester\x12<.chromiumos.test.lab.api.passport.LoadEdidVideoTesterRequest\x1a=.chromiumos.test.lab.api.passport.LoadEdidVideoTesterResponse\x12\xa1\x01\n\x18GetStreamInfoVideoTester\x12\x41.chromiumos.test.lab.api.passport.GetStreamInfoVideoTesterRequest\x1a\x42.chromiumos.test.lab.api.passport.GetStreamInfoVideoTesterResponse\x12\x98\x01\n\x15ScreenshotVideoTester\x12>.chromiumos.test.lab.api.passport.ScreenshotVideoTesterRequest\x1a?.chromiumos.test.lab.api.passport.ScreenshotVideoTesterResponse\x12\x8f\x01\n\x12SetLinkVideoTester\x12;.chromiumos.test.lab.api.passport.SetLinkVideoTesterRequest\x1a<.chromiumos.test.lab.api.passport.SetLinkVideoTesterResponse\x12\x8f\x01\n\x12GetLinkVideoTester\x12;.chromiumos.test.lab.api.passport.GetLinkVideoTesterRequest\x1a<.chromiumos.test.lab.api.passport.GetLinkVideoTesterResponse\x12\x8c\x01\n\x11\x41ttachVideoTester\x12:.chromiumos.test.lab.api.passport.AttachVideoTesterRequest\x1a;.chromiumos.test.lab.api.passport.AttachVideoTesterResponse\x12\x92\x01\n\x13HpdPulseVideoTester\x12<.chromiumos.test.lab.api.passport.HpdPulseVideoTesterRequest\x1a=.chromiumos.test.lab.api.passport.HpdPulseVideoTesterResponseB<Z:go.chromium.org/chromiumos/config/go/test/lab/api/passportb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.lab.api.passport.video_tester_service_pb2', globals())
@@ -21,8 +21,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z:go.chromium.org/chromiumos/config/go/test/lab/api/passport'
-  _ROLE._serialized_start=752
-  _ROLE._serialized_end=892
+  _ROLE._serialized_start=2042
+  _ROLE._serialized_end=2182
   _VIDEOTESTER._serialized_start=97
   _VIDEOTESTER._serialized_end=136
   _GETVIDEOTESTERSREQUEST._serialized_start=138
@@ -46,9 +46,35 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _SETROLERESPONSE._serialized_start=611
   _SETROLERESPONSE._serialized_end=645
   _LOADEDIDVIDEOTESTERREQUEST._serialized_start=647
-  _LOADEDIDVIDEOTESTERREQUEST._serialized_end=701
-  _LOADEDIDVIDEOTESTERRESPONSE._serialized_start=703
-  _LOADEDIDVIDEOTESTERRESPONSE._serialized_end=749
-  _VIDEOTESTERSERVICE._serialized_start=895
-  _VIDEOTESTERSERVICE._serialized_end=1727
+  _LOADEDIDVIDEOTESTERREQUEST._serialized_end=720
+  _LOADEDIDVIDEOTESTERRESPONSE._serialized_start=722
+  _LOADEDIDVIDEOTESTERRESPONSE._serialized_end=768
+  _GETSTREAMINFOVIDEOTESTERREQUEST._serialized_start=770
+  _GETSTREAMINFOVIDEOTESTERREQUEST._serialized_end=815
+  _STREAMINFOVIDEOTESTER._serialized_start=818
+  _STREAMINFOVIDEOTESTER._serialized_end=1145
+  _GETSTREAMINFOVIDEOTESTERRESPONSE._serialized_start=1147
+  _GETSTREAMINFOVIDEOTESTERRESPONSE._serialized_end=1255
+  _SCREENSHOTVIDEOTESTERREQUEST._serialized_start=1257
+  _SCREENSHOTVIDEOTESTERREQUEST._serialized_end=1318
+  _SCREENSHOTVIDEOTESTERRESPONSE._serialized_start=1320
+  _SCREENSHOTVIDEOTESTERRESPONSE._serialized_end=1371
+  _SETLINKVIDEOTESTERREQUEST._serialized_start=1374
+  _SETLINKVIDEOTESTERREQUEST._serialized_end=1569
+  _SETLINKVIDEOTESTERRESPONSE._serialized_start=1571
+  _SETLINKVIDEOTESTERRESPONSE._serialized_end=1599
+  _GETLINKVIDEOTESTERREQUEST._serialized_start=1601
+  _GETLINKVIDEOTESTERREQUEST._serialized_end=1640
+  _GETLINKVIDEOTESTERRESPONSE._serialized_start=1643
+  _GETLINKVIDEOTESTERRESPONSE._serialized_end=1827
+  _ATTACHVIDEOTESTERREQUEST._serialized_start=1829
+  _ATTACHVIDEOTESTERREQUEST._serialized_end=1883
+  _ATTACHVIDEOTESTERRESPONSE._serialized_start=1885
+  _ATTACHVIDEOTESTERRESPONSE._serialized_end=1912
+  _HPDPULSEVIDEOTESTERREQUEST._serialized_start=1914
+  _HPDPULSEVIDEOTESTERREQUEST._serialized_end=2008
+  _HPDPULSEVIDEOTESTERRESPONSE._serialized_start=2010
+  _HPDPULSEVIDEOTESTERRESPONSE._serialized_end=2039
+  _VIDEOTESTERSERVICE._serialized_start=2185
+  _VIDEOTESTERSERVICE._serialized_end=3920
 # @@protoc_insertion_point(module_scope)

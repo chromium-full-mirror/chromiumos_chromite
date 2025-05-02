@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&chromiumos/test/api/ctp2_filters.proto\x12\x13\x63hromiumos.test.api\"|\n\x1aGenericFilterStreamRequest\x12S\n\x1ainternal_testplan_fragment\x18\x01 \x01(\x0b\x32-.chromiumos.test.api.InternalTestplanFragmentH\x00\x42\t\n\x07message\"\xb7\x01\n\x1bGenericFilterStreamResponse\x12S\n\x1ainternal_testplan_fragment\x18\x01 \x01(\x0b\x32-.chromiumos.test.api.InternalTestplanFragmentH\x00\x12\x38\n\x0clog_fragment\x18\x02 \x01(\x0b\x32 .chromiumos.test.api.LogFragmentH\x00\x42\t\n\x07message\"e\n\x10\x46ragmentMetadata\x12\x12\n\ntotal_size\x18\x01 \x01(\x03\x12\x17\n\x0ftotal_fragments\x18\x02 \x01(\x03\x12\r\n\x05index\x18\x03 \x01(\x03\x12\x15\n\rfragment_size\x18\x04 \x01(\x03\"e\n\x18InternalTestplanFragment\x12\x10\n\x08\x66ragment\x18\x01 \x01(\x0c\x12\x37\n\x08metadata\x18\x02 \x01(\x0b\x32%.chromiumos.test.api.FragmentMetadata\"X\n\x0bLogFragment\x12\x10\n\x08\x66ragment\x18\x01 \x01(\x0c\x12\x37\n\x08metadata\x18\x02 \x01(\x0b\x32%.chromiumos.test.api.FragmentMetadataB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&chromiumos/test/api/ctp2_filters.proto\x12\x13\x63hromiumos.test.api\"\xc1\x01\n\x1aGenericFilterStreamRequest\x12S\n\x1ainternal_testplan_fragment\x18\x01 \x01(\x0b\x32-.chromiumos.test.api.InternalTestplanFragmentH\x00\x12\x43\n\rauth_fragment\x18\x02 \x01(\x0b\x32*.chromiumos.test.api.AuthorizationFragmentH\x00\x42\t\n\x07message\"\xfc\x01\n\x1bGenericFilterStreamResponse\x12S\n\x1ainternal_testplan_fragment\x18\x01 \x01(\x0b\x32-.chromiumos.test.api.InternalTestplanFragmentH\x00\x12\x38\n\x0clog_fragment\x18\x02 \x01(\x0b\x32 .chromiumos.test.api.LogFragmentH\x00\x12\x43\n\rauth_fragment\x18\x03 \x01(\x0b\x32*.chromiumos.test.api.AuthorizationFragmentH\x00\x42\t\n\x07message\"e\n\x10\x46ragmentMetadata\x12\x12\n\ntotal_size\x18\x01 \x01(\x03\x12\x17\n\x0ftotal_fragments\x18\x02 \x01(\x03\x12\r\n\x05index\x18\x03 \x01(\x03\x12\x15\n\rfragment_size\x18\x04 \x01(\x03\"e\n\x18InternalTestplanFragment\x12\x10\n\x08\x66ragment\x18\x01 \x01(\x0c\x12\x37\n\x08metadata\x18\x02 \x01(\x0b\x32%.chromiumos.test.api.FragmentMetadata\"X\n\x0bLogFragment\x12\x10\n\x08\x66ragment\x18\x01 \x01(\x0c\x12\x37\n\x08metadata\x18\x02 \x01(\x0b\x32%.chromiumos.test.api.FragmentMetadata\"@\n\x14\x41uthorizationRequest\x12\x18\n\x10\x63redential_paths\x18\x01 \x03(\t\x12\x0e\n\x06scopes\x18\x02 \x03(\t\"&\n\x15\x41uthorizationResponse\x12\r\n\x05token\x18\x01 \x01(\t\"b\n\x15\x41uthorizationFragment\x12\x10\n\x08\x66ragment\x18\x01 \x01(\x0c\x12\x37\n\x08metadata\x18\x02 \x01(\x0b\x32%.chromiumos.test.api.FragmentMetadataB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -22,14 +22,20 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z-go.chromium.org/chromiumos/config/go/test/api'
-  _globals['_GENERICFILTERSTREAMREQUEST']._serialized_start=63
-  _globals['_GENERICFILTERSTREAMREQUEST']._serialized_end=187
-  _globals['_GENERICFILTERSTREAMRESPONSE']._serialized_start=190
-  _globals['_GENERICFILTERSTREAMRESPONSE']._serialized_end=373
-  _globals['_FRAGMENTMETADATA']._serialized_start=375
-  _globals['_FRAGMENTMETADATA']._serialized_end=476
-  _globals['_INTERNALTESTPLANFRAGMENT']._serialized_start=478
-  _globals['_INTERNALTESTPLANFRAGMENT']._serialized_end=579
-  _globals['_LOGFRAGMENT']._serialized_start=581
-  _globals['_LOGFRAGMENT']._serialized_end=669
+  _globals['_GENERICFILTERSTREAMREQUEST']._serialized_start=64
+  _globals['_GENERICFILTERSTREAMREQUEST']._serialized_end=257
+  _globals['_GENERICFILTERSTREAMRESPONSE']._serialized_start=260
+  _globals['_GENERICFILTERSTREAMRESPONSE']._serialized_end=512
+  _globals['_FRAGMENTMETADATA']._serialized_start=514
+  _globals['_FRAGMENTMETADATA']._serialized_end=615
+  _globals['_INTERNALTESTPLANFRAGMENT']._serialized_start=617
+  _globals['_INTERNALTESTPLANFRAGMENT']._serialized_end=718
+  _globals['_LOGFRAGMENT']._serialized_start=720
+  _globals['_LOGFRAGMENT']._serialized_end=808
+  _globals['_AUTHORIZATIONREQUEST']._serialized_start=810
+  _globals['_AUTHORIZATIONREQUEST']._serialized_end=874
+  _globals['_AUTHORIZATIONRESPONSE']._serialized_start=876
+  _globals['_AUTHORIZATIONRESPONSE']._serialized_end=914
+  _globals['_AUTHORIZATIONFRAGMENT']._serialized_start=916
+  _globals['_AUTHORIZATIONFRAGMENT']._serialized_end=1014
 # @@protoc_insertion_point(module_scope)
