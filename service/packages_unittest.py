@@ -823,7 +823,7 @@ class GetAllFirmwareVersionsTest(cros_test_lib.RunCommandTempDirTestCase):
         self.board = "test-board"
         # This is the result of running
         # "/build/hana/usr/sbin/chromeos-firmwareupdate --manifest" inside the
-        # CrOS SDK on 2026-04-30.
+        # CrOS SDK on 2025-04-30.
         #
         # pylint: disable=line-too-long
         self.rc.SetDefaultCmdResult(
@@ -1126,7 +1126,7 @@ class GetFirmwareVersionsTest(cros_test_lib.RunCommandTempDirTestCase):
         self.board = "test-board"
         # This is the result of running
         # "/build/hana/usr/sbin/chromeos-firmwareupdate --manifest" inside the
-        # CrOS SDK on 2026-04-30.
+        # CrOS SDK on 2025-04-30.
         #
         # pylint: disable=line-too-long
         self.rc.SetDefaultCmdResult(

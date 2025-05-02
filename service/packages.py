@@ -1897,7 +1897,7 @@ def _get_firmware_version_cmd_result(
     # Call the updater using the chroot-based path.
     try:
         return cros_build_lib.run(
-            [updater, "--manifest"],
+            [updater, "--manifest", "--fast"],
             capture_output=True,
             log_output=True,
             encoding="utf-8",
