@@ -14,7 +14,7 @@ from chromite.third_party.google.protobuf import json_format
 
 from chromite.api import controller
 from chromite.api import faux
-from chromite.api import validation_complete
+from chromite.api import validate
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 
@@ -35,10 +35,9 @@ def RunQualbot(request, response, _config):
 
     with tempfile.TemporaryDirectory() as temp_dir:
         json_output_path = Path(temp_dir) / "qualbot_output.json"
-        cmd.extend(["--json-out", json_output_path])
+        cmd.extend(["--json-out", json_output_path, request.task])
 
         if request.task:
-            cmd.append(request.task)
             if request.task == "create-schedule":
                 if request.build_id:
                     cmd.extend(
