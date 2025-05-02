@@ -38,6 +38,7 @@ from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
+from chromite.lib import parallel
 
 
 CROS_CONFIG = "cros_config"
@@ -64,7 +65,7 @@ EC_BRANCH_CONFIG = {
 
 def get_parser() -> commandline.ArgumentParser:
     """Build the argument parser."""
-    parser = commandline.ArgumentParser(description=__doc__)
+    parser = commandline.ArgumentParser(description=__doc__, jobs=True)
     parser.add_argument(
         "-b",
         "--board",
@@ -357,6 +358,115 @@ def get_firmware_version_from_option(
     return get_firmware_version(ctx, gs_uri)
 
 
+def process_model(
+    model: str,
+    cros_config_dict: dict,
+    opts: commandline.ArgumentNamespace,
+    config_path: Path,
+    ctx: gs.GSContext,
+) -> None:
+    """Process a model."""
+    if config_path.exists():
+        old_message = text_format.Parse(
+            config_path.read_text(),
+            firmware_config_pb2.FirmwareConfigForModel(),
+        )
+    elif OLD_TXTPB in (
+        opts.ap_ro_version,
+        opts.ap_rw_version,
+        opts.ec_ro_version,
+        opts.ec_rw_version,
+    ):
+        cros_build_lib.Die(
+            f"Trying to copy from old config but {model} doesn't have "
+            "config yet."
+        )
+
+    # TODO get the old image name. The image name is the same between
+    # old branch and new branch.
+
+    # Getting the AP build target.  Assume the AP build target is same.
+
+    # chromeos-binaries (BCS):
+    # .../chromeos-firmware-brya/Anahera.14505.586.0.tbz2
+    # firmware-image-archive:
+    # .../14505.782.118/anahera.14505.782.118.tar.bz2
+    #
+    # We want to construct gs_uri in firmware-image-archive so make it
+    # lower case.
+    old_uri = cros_config_dict[model]["ap_firmware"]["ro_firmware"]
+    ap_image_name = old_uri.split("/")[-1].split(".")[0].lower()
+
+    get_ap_uri = functools.partial(
+        get_firmware_image_archive_uri, opts.board, ap_image_name
+    )
+    ap_ro_firmware = get_firmware_version_from_option(
+        ctx,
+        opts.ap_ro_version,
+        cros_config_dict[model]["ap_firmware"]["ro_firmware"],
+        opts.fix_sha,
+        old_message.ap_firmware.ro_firmware,
+        get_ap_uri,
+    )
+    ap_rw_firmware = get_firmware_version_from_option(
+        ctx,
+        opts.ap_rw_version,
+        cros_config_dict[model]["ap_firmware"]["rw_firmware"],
+        opts.fix_sha,
+        old_message.ap_firmware.rw_firmware,
+        get_ap_uri,
+    )
+    ap_firmware = firmware_config_pb2.FirmwareConfig(
+        ro_firmware=ap_ro_firmware,
+        rw_firmware=ap_rw_firmware,
+    )
+
+    ec_ro_firmware = get_firmware_version_from_option(
+        ctx,
+        opts.ec_ro_version,
+        cros_config_dict[model]["ec_firmware"]["ro_firmware"],
+        opts.fix_sha,
+        old_message.ec_firmware.ro_firmware,
+        None,
+    )
+    ec_rw_firmware = get_firmware_version_from_option(
+        ctx,
+        opts.ec_rw_version,
+        cros_config_dict[model]["ec_firmware"]["rw_firmware"],
+        opts.fix_sha,
+        old_message.ec_firmware.rw_firmware,
+        None,
+    )
+    ec_firmware = firmware_config_pb2.FirmwareConfig(
+        ro_firmware=ec_ro_firmware,
+        rw_firmware=ec_rw_firmware,
+    )
+
+    ap_firmware_for_ec_rw = get_firmware_version_from_option(
+        ctx,
+        opts.ec_rw_version,
+        cros_config_dict[model]["ap_firmware_for_ec_rw"],
+        opts.fix_sha,
+        old_message.ap_firmware_for_ec_rw,
+        None,
+    )
+
+    message = firmware_config_pb2.FirmwareConfigForModel(
+        model=model,
+        signing=firmware_config_pb2.ModelSigningConfig(
+            key_id=cros_config_dict[model]["signing"]["key_id"],
+            brand_code=cros_config_dict[model]["signing"]["brand_code"],
+        ),
+        ap_firmware=ap_firmware,
+        ec_firmware=ec_firmware,
+        ap_firmware_for_ec_rw=ap_firmware_for_ec_rw,
+    )
+
+    config_path.write_text(
+        text_format.MessageToString(message), encoding="utf-8"
+    )
+
+
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
     """Main."""
     opts = parse_arguments(argv)
@@ -378,104 +488,11 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
 
     ctx = gs.GSContext()
 
+    funcs = []
     for model in target_models:
-        output_path = config_dir / f"{model}.txtpb"
-        if output_path.exists():
-            old_message = text_format.Parse(
-                output_path.read_text(),
-                firmware_config_pb2.FirmwareConfigForModel(),
-            )
-        elif OLD_TXTPB in (
-            opts.ap_ro_version,
-            opts.ap_rw_version,
-            opts.ec_ro_version,
-            opts.ec_rw_version,
-        ):
-            cros_build_lib.Die(
-                f"Trying to copy from old config but {model} doesn't have "
-                "config yet."
-            )
-
-        # TODO get the old image name. The image name is the same between
-        # old branch and new branch.
-
-        # Getting the AP build target.  Assume the AP build target is same.
-
-        # chromeos-binaries (BCS):
-        # .../chromeos-firmware-brya/Anahera.14505.586.0.tbz2
-        # firmware-image-archive:
-        # .../14505.782.118/anahera.14505.782.118.tar.bz2
-        #
-        # We want to construct gs_uri in firmware-image-archive so make it
-        # lower case.
-        old_uri = cros_config_dict[model]["ap_firmware"]["ro_firmware"]
-        ap_image_name = old_uri.split("/")[-1].split(".")[0].lower()
-
-        get_ap_uri = functools.partial(
-            get_firmware_image_archive_uri, opts.board, ap_image_name
+        config_path = config_dir / f"{model}.txtpb"
+        func = functools.partial(
+            process_model, model, cros_config_dict, opts, config_path, ctx
         )
-        ap_ro_firmware = get_firmware_version_from_option(
-            ctx,
-            opts.ap_ro_version,
-            cros_config_dict[model]["ap_firmware"]["ro_firmware"],
-            opts.fix_sha,
-            old_message.ap_firmware.ro_firmware,
-            get_ap_uri,
-        )
-        ap_rw_firmware = get_firmware_version_from_option(
-            ctx,
-            opts.ap_rw_version,
-            cros_config_dict[model]["ap_firmware"]["rw_firmware"],
-            opts.fix_sha,
-            old_message.ap_firmware.rw_firmware,
-            get_ap_uri,
-        )
-        ap_firmware = firmware_config_pb2.FirmwareConfig(
-            ro_firmware=ap_ro_firmware,
-            rw_firmware=ap_rw_firmware,
-        )
-
-        ec_ro_firmware = get_firmware_version_from_option(
-            ctx,
-            opts.ec_ro_version,
-            cros_config_dict[model]["ec_firmware"]["ro_firmware"],
-            opts.fix_sha,
-            old_message.ec_firmware.ro_firmware,
-            None,
-        )
-        ec_rw_firmware = get_firmware_version_from_option(
-            ctx,
-            opts.ec_rw_version,
-            cros_config_dict[model]["ec_firmware"]["rw_firmware"],
-            opts.fix_sha,
-            old_message.ec_firmware.rw_firmware,
-            None,
-        )
-        ec_firmware = firmware_config_pb2.FirmwareConfig(
-            ro_firmware=ec_ro_firmware,
-            rw_firmware=ec_rw_firmware,
-        )
-
-        ap_firmware_for_ec_rw = get_firmware_version_from_option(
-            ctx,
-            opts.ec_rw_version,
-            cros_config_dict[model]["ap_firmware_for_ec_rw"],
-            opts.fix_sha,
-            old_message.ap_firmware_for_ec_rw,
-            None,
-        )
-
-        message = firmware_config_pb2.FirmwareConfigForModel(
-            model=model,
-            signing=firmware_config_pb2.ModelSigningConfig(
-                key_id=cros_config_dict[model]["signing"]["key_id"],
-                brand_code=cros_config_dict[model]["signing"]["brand_code"],
-            ),
-            ap_firmware=ap_firmware,
-            ec_firmware=ec_firmware,
-            ap_firmware_for_ec_rw=ap_firmware_for_ec_rw,
-        )
-
-        output_path.write_text(
-            text_format.MessageToString(message), encoding="utf-8"
-        )
+        funcs.append(func)
+    parallel.RunParallelSteps(funcs, max_parallel=opts.jobs, halt_on_error=True)
