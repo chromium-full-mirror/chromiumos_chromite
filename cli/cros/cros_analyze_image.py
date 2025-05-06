@@ -31,7 +31,7 @@ from chromite.cli import command
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.lib import dev_server_wrapper as ds_wrapper
+from chromite.lib import dev_server_wrapper
 from chromite.lib import image_lib
 from chromite.lib import osutils
 from chromite.utils import file_util
@@ -141,7 +141,7 @@ def fetch_image(board: str, version: str, local_path: str = None) -> str:
     Returns:
         Local path to image file.
     """
-    _, image_path = ds_wrapper.GetImagePathWithXbuddy(
+    _, image_path = dev_server_wrapper.GetImagePathWithXbuddy(
         "xBuddy://remote", board, version
     )
 

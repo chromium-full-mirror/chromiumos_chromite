@@ -13,7 +13,7 @@ from chromite.cli import device_imager
 from chromite.cli.cros import cros_chrome_sdk
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
-from chromite.lib import dev_server_wrapper as ds_wrapper
+from chromite.lib import dev_server_wrapper
 from chromite.lib import operation
 from chromite.lib import osutils
 from chromite.lib import path_util
@@ -276,7 +276,7 @@ class USBImager:
             image_path = _ChooseImageFromDirectory(self.image)
         else:
             # Translate the xbuddy path to get the exact image to use.
-            _, image_path = ds_wrapper.GetImagePathWithXbuddy(
+            _, image_path = dev_server_wrapper.GetImagePathWithXbuddy(
                 self.image, self.board, self.version
             )
 
@@ -423,8 +423,8 @@ def Flash(
         yes = True
 
     if clear_cache:
-        ds_wrapper.DevServerWrapper.WipeStaticDirectory()
-    ds_wrapper.DevServerWrapper.CreateStaticDirectory()
+        dev_server_wrapper.DevServerWrapper.WipeStaticDirectory()
+    dev_server_wrapper.DevServerWrapper.CreateStaticDirectory()
 
     # The user may not have specified a source image, use version as the
     # default.
