@@ -656,12 +656,24 @@ def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
     # Setup ~/.
     external_home = os_util.non_root_home()
     internal_home = path / "home" / os_util.get_non_root_user()
-    for subpath in (".cidb_creds", ".config/chromite", ".config/chrome_infra"):
+    for subpath in (
+        # go/keep-sorted start
+        ".cidb_creds",
+        ".config/chrome_infra",
+        ".config/chromite",
+        ".ssh/known_hosts",
+        # go/keep-sorted end
+    ):
         src = external_home / subpath
         if not src.exists():
             continue
         dst = internal_home / subpath
-        osutils.SafeMakedirsNonRoot(dst)
+        if not dst.exists():
+            if src.is_dir():
+                osutils.SafeMakedirsNonRoot(dst)
+            else:
+                osutils.SafeMakedirsNonRoot(dst.parent)
+                osutils.Touch(dst)
         osutils.Mount(src, dst, None, osutils.MS_BIND)
 
     defflags = (

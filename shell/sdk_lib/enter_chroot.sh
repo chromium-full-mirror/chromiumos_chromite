@@ -356,12 +356,6 @@ setup_env() {
       TARGET_DIR="${FLAGS_chroot}${target_ssh}"
       user_mkdir "${TARGET_DIR}"
 
-      local known_hosts="${SUDO_HOME}/.ssh/known_hosts"
-      if [[ -e ${known_hosts} ]]; then
-        # Ensure there is a file to bind mount onto for setup_mount.
-        touch "${TARGET_DIR}/known_hosts"
-        setup_mount "${known_hosts}" "${target_ssh}/known_hosts"
-      fi
       copy_ssh_config "${TARGET_DIR}"
       chown -R "${SUDO_UID}:${SUDO_GID}" "${TARGET_DIR}"
 
