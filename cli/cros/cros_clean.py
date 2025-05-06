@@ -392,7 +392,7 @@ class CleanCommand(command.CliCommand):
                 with timer.timer(
                     dev_server_wrapper.DEFAULT_STATIC_DIR, logging.debug
                 ):
-                    dev_server_wrapper.DevServerWrapper.WipeStaticDirectory()
+                    dev_server_wrapper.WipeStaticDirectory()
 
         if self.options.images:
             logging.debug("Clean the images cache.")

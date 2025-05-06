@@ -423,8 +423,8 @@ def Flash(
         yes = True
 
     if clear_cache:
-        dev_server_wrapper.DevServerWrapper.WipeStaticDirectory()
-    dev_server_wrapper.DevServerWrapper.CreateStaticDirectory()
+        dev_server_wrapper.WipeStaticDirectory()
+    dev_server_wrapper.CreateStaticDirectory()
 
     # The user may not have specified a source image, use version as the
     # default.

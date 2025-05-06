@@ -333,7 +333,7 @@ NOTES:
             self.staged_image_name,
             self.options.remote,
         )
-        dev_server_wrapper.DevServerWrapper.CreateStaticDirectory()
+        dev_server_wrapper.CreateStaticDirectory()
 
         with osutils.TempDir() as tempdir:
             if self._remote_image:

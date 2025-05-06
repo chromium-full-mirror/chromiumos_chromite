@@ -149,6 +149,25 @@ def GetIPv4Address(dev=None, global_ip=True):
     return None
 
 
+def CreateStaticDirectory(static_dir: str = DEFAULT_STATIC_DIR) -> None:
+    """Creates |static_dir|.
+
+    Args:
+        static_dir: path to the static directory of the devserver instance.
+    """
+    osutils.SafeMakedirsNonRoot(static_dir)
+
+
+def WipeStaticDirectory(static_dir: str = DEFAULT_STATIC_DIR) -> None:
+    """Cleans up |static_dir|.
+
+    Args:
+        static_dir: path to the static directory of the devserver instance.
+    """
+    logging.info("Clearing cache directory %s", static_dir)
+    osutils.RmDir(static_dir, ignore_missing=True, sudo=True)
+
+
 class DevServerException(Exception):
     """Base exception class of devserver errors."""
 
@@ -264,25 +283,6 @@ class DevServerWrapper(multiprocessing.Process):
             if not ignore_url_error:
                 logging.error("Cannot connect to devserver (%s)", e)
                 raise DevServerConnectionError(e)
-
-    @classmethod
-    def CreateStaticDirectory(cls, static_dir=DEFAULT_STATIC_DIR) -> None:
-        """Creates |static_dir|.
-
-        Args:
-            static_dir: path to the static directory of the devserver instance.
-        """
-        osutils.SafeMakedirsNonRoot(static_dir)
-
-    @classmethod
-    def WipeStaticDirectory(cls, static_dir=DEFAULT_STATIC_DIR) -> None:
-        """Cleans up |static_dir|.
-
-        Args:
-            static_dir: path to the static directory of the devserver instance.
-        """
-        logging.info("Clearing cache directory %s", static_dir)
-        osutils.RmDir(static_dir, ignore_missing=True, sudo=True)
 
     def _ReadPortNumber(self) -> None:
         """Read port number from file."""
