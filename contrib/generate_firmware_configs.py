@@ -78,6 +78,12 @@ def get_parser() -> commandline.ArgumentParser:
         help="Full model name including custom label name. If specified, only "
         "update this model.",
     )
+    parser.add_bool_argument(
+        "--build",
+        True,
+        "Build chromeos-config",
+        "Do not build chromeos-config",
+    )
     parser.add_argument(
         "--fix-sha",
         action="store_true",
@@ -156,7 +162,7 @@ def parse_arguments(argv: Optional[List[str]]) -> commandline.ArgumentNamespace:
 
 def build_config(
     chroot: chroot_lib.Chroot, build_target: build_target_lib.BuildTarget
-) -> Path:
+) -> None:
     """Build the model configuration JSON and return the path to it."""
     chroot.run(
         [
@@ -173,16 +179,6 @@ def build_config(
             "--newuse",
             "chromeos-base/chromeos-config",
         ]
-    )
-    return Path(
-        chroot.full_path(
-            Path(build_target.root)
-            / "usr"
-            / "share"
-            / "chromeos-config"
-            / "yaml"
-            / "config.yaml"
-        )
     )
 
 
@@ -245,12 +241,23 @@ def get_bcs_uri(bcs_overlay: str, bcs_uri: Optional[str]) -> Optional[str]:
     return gs_uri
 
 
-def get_cros_config_dict(board: str) -> dict:
+def get_cros_config_dict(board: str, build: bool) -> dict:
     """Get the firmware config from the full cros config."""
     chroot = chroot_lib.Chroot()
     build_target = build_target_lib.BuildTarget(board)
-    config_path = build_config(chroot, build_target)
-    with config_path.open(encoding="utf-8") as f:
+    if build:
+        build_config(chroot, build_target)
+    cros_config_path = Path(
+        chroot.full_path(
+            Path(build_target.root)
+            / "usr"
+            / "share"
+            / "chromeos-config"
+            / "yaml"
+            / "config.yaml"
+        )
+    )
+    with cros_config_path.open(encoding="utf-8") as f:
         cros_config = json.load(f)
 
     configs_by_model = get_configs_by_model(cros_config)
@@ -478,7 +485,7 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     config_dir = firmware_config_repo / opts.board
     config_dir.mkdir(parents=True, exist_ok=True)
 
-    cros_config_dict = get_cros_config_dict(opts.board)
+    cros_config_dict = get_cros_config_dict(opts.board, opts.build)
 
     target_models = []
     if opts.model:
