@@ -591,6 +591,8 @@ def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
         ("sdk/run/lock", 0o1777, True),
         # Some distros (e.g. Ubuntu) might have /dev/shm symlinked to /run/shm.
         ("sdk/run/shm", 0o1777, True),
+        # Create /var/log/asan directory as unittests write to it (b/222311476).
+        ("sdk/logs/asan", 0o1777, False),
     ):
         kwargs = {}
         if mode is not None:

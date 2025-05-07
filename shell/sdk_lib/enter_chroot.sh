@@ -348,9 +348,6 @@ setup_env() {
     fi
     unset REFERENCE_DIR
 
-    # Create /var/log/asan directory (b/222311476).
-    user_mkdir "${FLAGS_chroot}/var/log/asan"
-
     if [[ -n "${SSH_AUTH_SOCK}" ]] && [[ -d "${SUDO_HOME}/.ssh" ]]; then
       local target_ssh="/home/${SUDO_USER}/.ssh"
       TARGET_DIR="${FLAGS_chroot}${target_ssh}"
