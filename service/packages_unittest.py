@@ -2480,10 +2480,10 @@ oof
         self.assertEqual(new_ebuild_content, found_content)
 
     def test_uprev_head(self) -> None:
-        self.uprev("head-20230101-r42-rc123")
+        self.uprev("head-20230101-rc123")
 
     def test_uprev_release(self) -> None:
-        self.uprev("release-20230101-r42-rc123")
+        self.uprev("release-20230101-rc123")
 
 
 class UprevHeliumArtifactsTest(cros_test_lib.RunCommandTempDirTestCase):
@@ -2570,7 +2570,7 @@ oof
         self.assertEqual(new_ebuild_content, found_content)
 
     def test_uprev_head(self) -> None:
-        self.uprev("head-20230101-r42-rc123")
+        self.uprev("head-20230101-rc123")
 
     def test_uprev_release(self) -> None:
         self.uprev("release-20230101-r42-rc123")

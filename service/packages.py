@@ -1311,9 +1311,9 @@ def uprev_starbase_artifacts(
 
     For instance:
 
-    GS_MIRROR/distfiles/starbase-head-20230101-r00-rc001/starbase-foo.tar.zst
+    GS_MIRROR/distfiles/starbase-head-20230101-rc001/starbase-foo.tar.zst
     or
-    GS_MIRROR/distfiles/starbase-release-20230101-r00-rc001/starbase-foo.tar.zst
+    GS_MIRROR/distfiles/starbase-release-20230101-rc001/starbase-foo.tar.zst
 
     Note that each directory can contain multiple tar files.  The "refs"
     parameter is a list with one element for each tar file (or package).  Only
