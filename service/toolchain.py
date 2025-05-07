@@ -14,6 +14,7 @@ from typing import Dict, Iterable, List, NamedTuple, Optional, Set, Tuple
 
 from chromite.lib import chroot_util
 from chromite.lib import cros_build_lib
+from chromite.lib import ensure_bootstrap
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import portage_util
@@ -195,6 +196,11 @@ class BuildLinter:
             return []
 
         self._reset_temporary_files_for_linting()
+
+        # b/416306368: ensure_bootstrap to ensure all linters are properly
+        # installed.
+        logging.info("Bootstrapping chromite tools")
+        ensure_bootstrap.for_lint()
 
         # First build the dependencies separately without linting flags to
         # prevent unsupported packages from being linted.
