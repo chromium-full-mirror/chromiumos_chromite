@@ -4,6 +4,7 @@
 
 """Toolchain-related operations."""
 
+import collections
 import logging
 import os
 from pathlib import Path
@@ -69,9 +70,11 @@ class LinterFinding(NamedTuple):
 
     name: str
     message: str
-    locations: Tuple[CodeLocation]
+    # Variably-sized tuple.
+    locations: Iterable[CodeLocation]
     linter: str
-    suggested_fixes: Tuple[SuggestedFix]
+    # Variably-sized tuple.
+    suggested_fixes: Iterable[SuggestedFix]
     package: package_info.PackageInfo
 
 
@@ -305,7 +308,7 @@ class BuildLinter:
 
     def _get_added_lines(
         self, git_repos: Dict[str, str]
-    ) -> Dict[str, Tuple[int, int]]:
+    ) -> Dict[str, Set[Tuple[int, int]]]:
         """Parses the lines with additions from git diff for the provided repos.
 
         Args:
@@ -320,7 +323,7 @@ class BuildLinter:
         # TODO(b/230400788): Support differential linting of arbitrary CLs or
         #   contiguous chains of CLs
 
-        new_lines = {}
+        new_lines = collections.defaultdict(set)
 
         # Example File Paths in Git Logs:
         #   --- a/api/controller/toolchain.py
@@ -352,8 +355,6 @@ class BuildLinter:
                     continue
                 position_match = re.match(position_pattern, str(line))
                 if position_match:
-                    if current_file not in new_lines:
-                        new_lines[current_file] = set()
                     line_num = int(position_match.group("line_num"))
                     line_count = position_match.group("lines_added")
                     line_count = (
@@ -402,7 +403,7 @@ class BuildLinter:
             )
         return findings_tuples
 
-    def _fetch_tidy_lints(self) -> List[LinterFinding]:
+    def _fetch_tidy_lints(self) -> Set[LinterFinding]:
         """Get lints created by Clang Tidy during emerge."""
         cros_build_lib.AssertInsideChroot()
 
