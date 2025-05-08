@@ -70,6 +70,7 @@ add_user() {
   groupmod -R "${CHROOT_ROOT}" -a -U "${TARGET_USER}" portage
   groupmod -R "${CHROOT_ROOT}" -a -U "${TARGET_USER}" "${SDK_USER_GROUP}"
   groupmod -R "${CHROOT_ROOT}" -a -U "${TARGET_USER}" wheel
+  groupmod -R "${CHROOT_ROOT}" -a -U "${TARGET_USER}" tty
 }
 
 give_user_sudo() {
