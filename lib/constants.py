@@ -722,6 +722,7 @@ PART_KERN_A = "KERN-A"
 PART_KERN_B = "KERN-B"
 PART_MINIOS_A = "MINIOS-A"
 PART_MINIOS_B = "MINIOS-B"
+PART_POWERWASH_DATA = "POWERWASH-DATA"
 
 # Crossystem related constants.
 MINIOS_PRIORITY = "minios_priority"
