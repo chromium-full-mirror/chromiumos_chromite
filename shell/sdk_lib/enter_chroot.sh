@@ -57,7 +57,6 @@ FILES_TO_COPY_TO_CHROOT=(
   .config/gcloud/application_default_credentials.json
 
   .googleapikeys              # Google API keys for Chrome
-  .inputrc                    # Preserve command line customizations
 )
 if [[ "${SUDO_USER}" == "chrome-bot" ]]; then
   # Builders still haven't migrated fully to gitcookies.

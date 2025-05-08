@@ -663,6 +663,7 @@ def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
         ".cidb_creds",
         ".config/chrome_infra",
         ".config/chromite",
+        ".inputrc",
         ".ssh/known_hosts",
         # go/keep-sorted end
     ):
