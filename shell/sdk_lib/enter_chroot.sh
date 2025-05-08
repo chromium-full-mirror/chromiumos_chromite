@@ -55,8 +55,6 @@ switch_to_strict_mode
 FILES_TO_COPY_TO_CHROOT=(
   # Creds used to authenticate with GCP services.
   .config/gcloud/application_default_credentials.json
-
-  .googleapikeys              # Google API keys for Chrome
 )
 if [[ "${SUDO_USER}" == "chrome-bot" ]]; then
   # Builders still haven't migrated fully to gitcookies.
