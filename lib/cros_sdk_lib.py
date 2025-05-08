@@ -759,6 +759,18 @@ def MountChrootPaths(
         external_home / ".ssh", internal_home / ".ssh", uid=uid, gid=gid
     )
 
+    # Pass the current ssh auth socket into the SDK so we can ssh to e.g. DUTs.
+    ssh_auth_sock = Path(os.getenv("SSH_AUTH_SOCK", "/"))
+    try:
+        is_socket = ssh_auth_sock.is_socket()
+    except OSError:
+        is_socket = False
+    if is_socket:
+        ssh_auth_sock_mnt = path / "tmp" / "ssh-auth-sock"
+        if not ssh_auth_sock_mnt.exists():
+            osutils.Touch(ssh_auth_sock_mnt)
+        osutils.Mount(ssh_auth_sock, ssh_auth_sock_mnt, None, osutils.MS_BIND)
+
     defflags = (
         osutils.MS_NOSUID
         | osutils.MS_NODEV
@@ -1516,11 +1528,13 @@ class ChrootEnteror:
             "LANG=C.UTF-8",
         ]
 
-        # Needs to be checked after we run the enter_chroot script above as it
-        # initializes the ssh-auth-sock socket.
+        # Needs to be checked after we run MountChrootPaths as it initializes
+        # the ssh-auth-sock socket.
         ssh_auth_sock = Path(self.chroot.path) / "tmp" / "ssh-auth-sock"
         if ssh_auth_sock.is_socket():
             os.environ["SSH_AUTH_SOCK"] = "/tmp/ssh-auth-sock"
+        else:
+            os.environ.pop("SSH_AUTH_SOCK", None)
 
         wrapper += [
             f"{v}={os.getenv(v)}"

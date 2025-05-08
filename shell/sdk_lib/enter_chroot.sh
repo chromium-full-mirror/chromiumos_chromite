@@ -292,11 +292,6 @@ setup_env() {
     fi
     unset REFERENCE_DIR
 
-    if [[ -S "${SSH_AUTH_SOCK}" ]]; then
-      touch "${FLAGS_chroot}/tmp/ssh-auth-sock"
-      setup_mount "${SSH_AUTH_SOCK}" "/tmp/ssh-auth-sock"
-    fi
-
     # Mount additional directories as specified in .local_mounts file.
     local local_mounts="${FLAGS_trunk}/src/scripts/.local_mounts"
     if [[ -f "${local_mounts}" ]]; then
