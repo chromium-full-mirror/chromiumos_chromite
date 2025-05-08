@@ -505,12 +505,87 @@ def fetch_remote_tarballs(
     return tarball_dest
 
 
-def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
+_SSH_CONFIG_HEADER = """\
+### DO NOT EDIT ###
+# File is imported & synced from the copy outside of the SDK.
+# Modifications to this version will be lost!
+#
+# If you want directives to change behavior between inside & outside of the SDK:
+#   Match Exec "test -f /etc/cros_chroot_version"
+
+"""
+
+
+def _setup_ssh_configs(
+    srcdir: Path,
+    dstdir: Path,
+    uid: Optional[int] = None,
+    gid: Optional[int] = None,
+) -> None:
+    """Copy .ssh/ settings from |srcdir| to |dstdir|.
+
+    Copy user ssh settings into the chroot filtering out strings not supported
+    by the chroot ssh.
+
+    Args:
+        srcdir: Path to ~/.ssh/ to copy settings from.
+        dstdir: Path to .ssh/ (inside the SDK) to copy settings to.
+        uid: The user id to use (e.g. for testing).
+        gid: The group id to use (e.g. for testing).
+    """
+    osutils.SafeMakedirsNonRoot(dstdir)
+
+    src_config = srcdir / "config"
+    dst_config = dstdir / "config"
+    try:
+        src_data = src_config.read_text(encoding="utf-8")
+    except OSError:
+        return
+
+    try:
+        dst_data = dst_config.read_text(encoding="utf-8")
+    except OSError:
+        dst_data = None
+
+    # ssh options to filter out.  The entire strings containing these substrings
+    # will be deleted before copying.
+    BAD_OPTIONS = (
+        "UseProxyIf",
+        "GSSAPIAuthentication",
+        "GSSAPIKeyExchange",
+        "ProxyUseFdpass",
+    )
+    lines = [
+        x for x in src_data.splitlines() if not any(o in x for o in BAD_OPTIONS)
+    ]
+    src_data = _SSH_CONFIG_HEADER + "\n".join(lines) + "\n"
+    if src_data != dst_data:
+        logging.debug(
+            "%s: Updating with new content from %s", dst_config, src_config
+        )
+        dst_config.write_text(src_data, encoding="utf-8")
+        if uid is None:
+            uid = -1
+        if gid is None:
+            gid = -1
+        os.chown(dst_config, uid, gid)
+
+
+def MountChrootPaths(
+    chroot: chroot_lib.Chroot,
+    uid: Optional[int] = None,
+    gid: Optional[int] = None,
+) -> None:
     """Setup all the mounts for the |chroot|.
 
     NB: This assumes running in a unique mount namespace.  If it is running in
     the root mount namespace, then it will probably change settings for the
     worse.
+
+    Args:
+        chroot: The chroot to update.
+        uid: The user id to use (e.g. for testing).
+        gid: The group id to use (e.g. for testing).
     """
     KNOWN_FILESYSTEMS = set(
         x.split()[-1]
@@ -679,6 +754,10 @@ def MountChrootPaths(chroot: chroot_lib.Chroot) -> None:
                 osutils.SafeMakedirsNonRoot(dst.parent)
                 osutils.Touch(dst)
         osutils.Mount(src, dst, None, osutils.MS_BIND)
+
+    _setup_ssh_configs(
+        external_home / ".ssh", internal_home / ".ssh", uid=uid, gid=gid
+    )
 
     defflags = (
         osutils.MS_NOSUID
@@ -1319,7 +1398,7 @@ CROS_COG_WORKSPACE_ID="{cog_workspace_id}"
             self.init_etc(user=user)
             self.init_var(uid=uid)
 
-        MountChrootPaths(self.chroot)
+        MountChrootPaths(self.chroot, uid=uid, gid=gid)
 
         self._make_chroot()
 

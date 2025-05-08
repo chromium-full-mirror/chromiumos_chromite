@@ -70,14 +70,6 @@ CHROME_ROOT_CONFIG="/var/cache/chrome_root"   # inside chroot
 LOCKFILE="${FLAGS_chroot}/.enter_chroot.lock"
 MOUNTED_PATH=$(readlink -f "${FLAGS_chroot}")
 
-# Writes stdin to the given file name as the sudo user in overwrite mode.
-#
-# $@ - The output file names.
-user_clobber() {
-  # shellcheck disable=SC2154
-  install -m644 -o "${SUDO_UID}" -g "${SUDO_GID}" /dev/stdin "$@"
-}
-
 # Copies the specified file owned by the user to the specified location.
 # If the copy fails as root (e.g. due to root_squash and NFS), retry the copy
 # with the user's account before failing.
@@ -147,51 +139,6 @@ setup_mount() {
     fi
     ;;
   esac
-}
-
-copy_ssh_config() {
-  # Copy user .ssh/config into the chroot filtering out strings not supported
-  # by the chroot ssh. The chroot .ssh directory is passed in as the first
-  # parameter.
-
-  # ssh options to filter out. The entire strings containing these substrings
-  # will be deleted before copying.
-  local bad_options=(
-    'UseProxyIf'
-    'GSSAPIAuthentication'
-    'GSSAPIKeyExchange'
-    'ProxyUseFdpass'
-  )
-  local sshc="${SUDO_HOME}/.ssh/config"
-  local chroot_ssh_dir="${1}"
-  local filter
-  local option
-
-  if ! user_cp "${sshc}" "${chroot_ssh_dir}/config.orig" 2>/dev/null; then
-    return # Nothing to copy.
-  fi
-
-  for option in "${bad_options[@]}"
-  do
-    if [ -z "${filter}" ]; then
-      filter="${option}"
-    else
-      filter+="\\|${option}"
-    fi
-  done
-
-  (
-  cat <<EOF
-### DO NOT EDIT ###
-# File is imported & synced from the copy outside of the SDK.
-# Modifications to this version will be lost!
-#
-# If you want directives to change behavior between inside & outside of the SDK:
-#   Match Exec "test -f /etc/cros_chroot_version"
-
-EOF
-  sed "/^.*\(${filter}\).*$/d" "${chroot_ssh_dir}/config.orig"
-  ) | user_clobber "${chroot_ssh_dir}/config"
 }
 
 copy_into_chroot_if_exists() {
@@ -345,18 +292,9 @@ setup_env() {
     fi
     unset REFERENCE_DIR
 
-    if [[ -n "${SSH_AUTH_SOCK}" ]] && [[ -d "${SUDO_HOME}/.ssh" ]]; then
-      local target_ssh="/home/${SUDO_USER}/.ssh"
-      TARGET_DIR="${FLAGS_chroot}${target_ssh}"
-      user_mkdir "${TARGET_DIR}"
-
-      copy_ssh_config "${TARGET_DIR}"
-      chown -R "${SUDO_UID}:${SUDO_GID}" "${TARGET_DIR}"
-
-      if [ -S "${SSH_AUTH_SOCK}" ]; then
-        touch "${FLAGS_chroot}/tmp/ssh-auth-sock"
-        setup_mount "${SSH_AUTH_SOCK}" "/tmp/ssh-auth-sock"
-      fi
+    if [[ -S "${SSH_AUTH_SOCK}" ]]; then
+      touch "${FLAGS_chroot}/tmp/ssh-auth-sock"
+      setup_mount "${SSH_AUTH_SOCK}" "/tmp/ssh-auth-sock"
     fi
 
     # Mount additional directories as specified in .local_mounts file.

@@ -626,6 +626,7 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         TEST_GID = 9082010
         self.PatchObject(cros_sdk_lib.ChrootCreator, "_make_chroot")
         chown_mock = self.PatchObject(osutils, "Chown")
+        self.PatchObject(os, "chown")
         # We have to mock the cachedir lookup because, when run inside the SDK,
         # it always returns /mnt/host/source/ paths.  This is normally correct,
         # but we want to assert all paths to chown are safe by virtue of being
@@ -756,6 +757,7 @@ class ChrootCreatorTests(cros_test_lib.MockTempDirTestCase):
         TEST_GID = 100
         self.PatchObject(cros_sdk_lib.ChrootCreator, "_make_chroot")
         chown_mock = self.PatchObject(osutils, "Chown")
+        self.PatchObject(os, "chown")
         # We have to mock the cachedir lookup because, when run inside the SDK,
         # it always returns /mnt/host/source/ paths.  This is normally correct,
         # but we want to assert all paths to chown are safe by virtue of being
@@ -1278,3 +1280,36 @@ class ChrootWritableTests(cros_test_lib.MockTempDirTestCase):
         )
         assert self.rc_mock.call_count == 2
         assert osutils.IsMountedReadOnly("/")
+
+
+def test_setup_ssh_configs_no_ssh(tmp_path) -> None:
+    """Test _setup_ssh_configs with no ~/.ssh."""
+    cros_sdk_lib._setup_ssh_configs(tmp_path / "src" / ".ssh", tmp_path)
+
+
+def test_setup_ssh_configs_no_ssh_config(tmp_path) -> None:
+    """Test _setup_ssh_configs with no ~/.ssh/config."""
+    cros_sdk_lib._setup_ssh_configs(tmp_path, tmp_path / ".ssh")
+
+
+def test_setup_ssh_configs_no_mods(tmp_path) -> None:
+    """Test _setup_ssh_configs with straight copy of ~/.ssh/config."""
+    src_config = tmp_path / "src" / "config"
+    dst_config = tmp_path / "dst" / "config"
+    src_config.parent.mkdir()
+    src_config.write_text("# foo\n", encoding="utf-8")
+    cros_sdk_lib._setup_ssh_configs(src_config.parent, dst_config.parent)
+    assert "# foo\n" in dst_config.read_text(encoding="utf-8")
+
+
+def test_setup_ssh_configs_delete_line(tmp_path) -> None:
+    """Test _setup_ssh_configs with line removal in ~/.ssh/config."""
+    src_config = tmp_path / "src" / "config"
+    dst_config = tmp_path / "dst" / "config"
+    src_config.parent.mkdir()
+    src_config.write_text(
+        "host foo\n\tUseProxyIf true\n\tHostName localhost\n", encoding="utf-8"
+    )
+    cros_sdk_lib._setup_ssh_configs(src_config.parent, dst_config.parent)
+    data = dst_config.read_text(encoding="utf-8")
+    assert data.endswith("host foo\n\tHostName localhost\n")
