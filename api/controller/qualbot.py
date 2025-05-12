@@ -31,7 +31,11 @@ def _MockSuccess(_request, _response, _config) -> None:
 def RunQualbot(request, response, _config):
     """Run qualbot. Translate all fields in the input protobuf to CLI args."""
 
-    cmd = [constants.SOURCE_ROOT / "infra/fw_qual_automation/auto_qual_main.py"]
+    cmd = [
+        constants.SOURCE_ROOT / "infra/fw_qual_automation/auto_qual_main.py",
+        "--log-level",
+        "DEBUG",
+    ]
 
     with tempfile.TemporaryDirectory() as temp_dir:
         json_output_path = Path(temp_dir) / "qualbot_output.json"
