@@ -8,6 +8,7 @@ Provides a Builder class with methods for various kernel build steps,
 including generating specific kernel images (e.g., for recovery) with
 custom features and signing.
 """
+from __future__ import annotations
 
 import logging
 import os
