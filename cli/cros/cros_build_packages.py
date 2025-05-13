@@ -15,7 +15,6 @@ packages and any dependencies they might need.
 
 import argparse
 import logging
-import os
 import urllib.error
 import urllib.request
 
@@ -35,6 +34,8 @@ tracer = trace.get_tracer(__name__)
 @command.command_decorator("build-packages")
 class BuildPackagesCommand(command.CliCommand):
     """Update the set of binary packages used by ChromiumOS."""
+
+    use_jobs_options = True
 
     @classmethod
     def AddParser(cls, parser: commandline.ArgumentParser):
@@ -237,15 +238,6 @@ class BuildPackagesCommand(command.CliCommand):
             True,
             "Run eclean to delete old binpkgs.",
             "Don't run eclean.",
-        )
-        group.add_argument(
-            "--jobs",
-            type=int,
-            default=os.cpu_count(),
-            help=(
-                "Number of packages to build in parallel. (Default: "
-                "%(default)s)"
-            ),
         )
         group.add_bool_argument(
             "--expandedbinhosts",

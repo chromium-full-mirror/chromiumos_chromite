@@ -134,6 +134,8 @@ class CliCommand(abc.ABC):
     use_caching_options = False
     # Whether command uses dry-run options.
     use_dryrun_options = False
+    # Whether command supports multiple parallel jobs options.
+    use_jobs_options = False
 
     # Indicates whether command uses filter related commandline options.
     use_filter_options = False

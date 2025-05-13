@@ -13,7 +13,7 @@ from chromite.lib import cros_build_lib
 
 @pytest.fixture(name="parser")
 def _parser():
-    parser = commandline.ArgumentParser()
+    parser = commandline.ArgumentParser(jobs=True)
     cros_build_packages.BuildPackagesCommand.AddParser(parser)
     yield parser
 

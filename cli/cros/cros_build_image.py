@@ -34,7 +34,6 @@ adjust-part='STATE:=1G' --  make the stateful partition 1 GB
 import argparse
 import contextlib
 import logging
-import os
 from pathlib import Path
 import sys
 from typing import Iterable, List, Optional, TYPE_CHECKING
@@ -205,6 +204,8 @@ def build_shell_string_style_args(
 class BuildImageCommand(command.CliCommand):
     """Build a ChromiumOS image."""
 
+    use_jobs_options = True
+
     @classmethod
     def AddParser(cls, parser: commandline.ArgumentParser) -> None:
         """Build the parser.
@@ -329,15 +330,6 @@ class BuildImageCommand(command.CliCommand):
             "output_root.",
             deprecation_note,
             "build-root",
-        )
-        group.add_argument(
-            "-j",
-            "--jobs",
-            dest="jobs",
-            type=int,
-            default=os.cpu_count(),
-            help="Number of packages to build in parallel at maximum. "
-            "(Default: %(default)s).",
         )
         build_shell_bool_style_args(
             group,

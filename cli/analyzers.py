@@ -53,6 +53,7 @@ class AnalyzerCommand(command.CliCommand):
 
     # CliCommand overrides.
     use_filter_options = True
+    use_jobs_options = True
 
     @classmethod
     def AddParser(cls, parser) -> None:
@@ -84,14 +85,6 @@ class AnalyzerCommand(command.CliCommand):
                 action="store_false",
                 help="Write to stdout",
             )
-
-        parser.add_argument(
-            "-j",
-            "--jobs",
-            type=int,
-            default=None,
-            help="Number of files to process in parallel.",
-        )
 
         parser.add_argument(
             "--commit",
