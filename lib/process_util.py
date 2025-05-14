@@ -5,6 +5,7 @@
 """Process related utilities."""
 
 import errno
+import logging
 import os
 import signal
 import sys
@@ -43,6 +44,15 @@ def ExitAsStatus(status: int) -> NoReturn:
     exit_status = os.WEXITSTATUS(status)
 
     if os.WIFSIGNALED(status):
+        # Try and flush stdout/stderr before killing ourselves.
+        # We don't call logging.shutdown() here because that would make logging
+        # unusable.  If something were to go wrong here and we tried to log from
+        # the callers, it wouldn't work.
+        for h in logging.root.handlers:
+            h.flush()
+        sys.stdout.flush()
+        sys.stderr.flush()
+
         # Kill ourselves with the same signal.
         sig_status = os.WTERMSIG(status)
         pid = os.getpid()
