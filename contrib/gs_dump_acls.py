@@ -82,7 +82,7 @@ def get_parser() -> commandline.ArgumentParser:
     """Get CLI parser."""
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--workdir",
+        "--working-dir",
         required=True,
         type="dir_exists",
         help="Directory for saving intermediate artifacts",
@@ -110,7 +110,7 @@ def main(argv: Optional[list[str]]) -> Optional[int]:
     bucket = gs_urls_util.extract_gs_bucket(opts.bucket)
     url_base = f"{gs_urls_util.BASE_GS_URL}{bucket}"
 
-    workdir = opts.workdir
+    workdir = opts.working_dir
     log_list = workdir / f"{bucket}.list"
     log_summary = workdir / f"{bucket}.summary"
 

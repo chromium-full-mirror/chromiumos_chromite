@@ -14,15 +14,15 @@ if you already have a packages/ directory to test against.  This assumes the
 remote tree is a binpkg repository -- i.e. there is a "packages" directory and
 it contains all the packages.
 
-$ ./eval_binpkg_compression --workdir eve-14665.0.0 \
+$ ./eval_binpkg_compression --working-dir eve-14665.0.0 \
     --url gs://chromeos-dev-installer/board/eve/14665.0.0
 
 $ portageq-amd64-generic envvar PORTAGE_BINHOST
-$ ./eval_binpkg_compression --workdir amd64-generic-R102-14665.0.0-rc1 \
+$ ./eval_binpkg_compression --working-dir amd64-generic-R102-14665.0.0-rc1 \
     --url gs://chromeos-prebuilt/board/amd64-generic/full-R102-14665.0.0-rc1
 
 $ portageq envvar PORTAGE_BINHOST
-$ ./eval_binpkg_compression --workdir chroot-2022.04.03.163758 \
+$ ./eval_binpkg_compression --working-dir chroot-2022.04.03.163758 \
     --url gs://chromeos-prebuilt/host/amd64/amd64-host/chroot-2022.04.03.163758
 
 The table will be written to stdout and should be pasteable to spreadsheets.
@@ -392,7 +392,7 @@ def get_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "-w",
-        "--workdir",
+        "--working-dir",
         type=Path,
         required=True,
         help="Base directory to write all work",
@@ -424,16 +424,18 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     if not check_tools():
         sys.exit("please install tools first")
 
-    atoms = fetch_binpkgs(opts.workdir, opts.url)
-    unpack_binpkgs(opts.workdir, atoms, threads_decompress=threads_decompress)
+    atoms = fetch_binpkgs(opts.working_dir, opts.url)
+    unpack_binpkgs(
+        opts.working_dir, atoms, threads_decompress=threads_decompress
+    )
     compress_tars(
-        opts.workdir,
+        opts.working_dir,
         atoms,
         threads_compress=threads_compress,
         threads_decompress=threads_decompress,
     )
     gather_stats(
-        opts.workdir,
+        opts.working_dir,
         threads_compress=threads_compress,
         threads_decompress=threads_decompress,
     )
