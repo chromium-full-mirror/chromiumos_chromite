@@ -738,6 +738,8 @@ def MountChrootPaths(
         ".cidb_creds",
         ".config/chrome_infra",
         ".config/chromite",
+        # Creds used to authenticate with GCP services (e.g. RBE).
+        ".config/gcloud/application_default_credentials.json",
         ".googleapikeys",
         ".inputrc",
         ".ssh/known_hosts",

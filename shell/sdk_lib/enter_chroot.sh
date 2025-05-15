@@ -52,10 +52,7 @@ switch_to_strict_mode
 
 # These config files are to be copied into chroot if they exist in home dir.
 # Additionally, git relevant files are copied by setup_git.
-FILES_TO_COPY_TO_CHROOT=(
-  # Creds used to authenticate with GCP services.
-  .config/gcloud/application_default_credentials.json
-)
+FILES_TO_COPY_TO_CHROOT=()
 if [[ "${SUDO_USER}" == "chrome-bot" ]]; then
   # Builders still haven't migrated fully to gitcookies.
   # https://crbug.com/1032944
