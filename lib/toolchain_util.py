@@ -2265,7 +2265,13 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 f"No {extension} files in {src_subdir}"
             )
 
-        now = datetime.datetime.strftime(datetime.datetime.now(), "%Y%m%d")
+        # b/418195520: builders may upload multiple of these tarballs; if one
+        # builder is `return`ed two tarballs with the same name to upload, it'll
+        # replace one with the other. Embed the current time here so there
+        # aren't collisions.
+        now = datetime.datetime.strftime(
+            datetime.datetime.now(), "%Y%m%d_%H%M%S%f"
+        )
         name = f"{self.build_target}.{now}.{tarball}.tar.xz"
         output_compressed = os.path.join(self.output_dir, name)
         compression_lib.create_tarball(
