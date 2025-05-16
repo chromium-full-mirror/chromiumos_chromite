@@ -1896,7 +1896,7 @@ def PreloadDlc(
                     if os.path.exists(install_stateful_path):
                         logging.warning(
                             "Removing factory installed DLC %s on test images, "
-                            "this is to address the double dipping of stroage "
+                            "this is to address the double dipping of storage "
                             "use.",
                             dlc_id,
                         )
