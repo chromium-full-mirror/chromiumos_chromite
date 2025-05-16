@@ -81,15 +81,6 @@ user_mkdir() {
   install -o "${SUDO_UID}" -g "${SUDO_GID}" -d "$@"
 }
 
-# Create the specified symlink as the sudo user.
-#
-# $1 - Link target
-# $2 - Link name
-user_symlink() {
-  ln -sfT "$1" "$2"
-  chown -h "${SUDO_UID}:${SUDO_GID}" "$2"
-}
-
 # Return 0 if $1 is mounted read-only.
 mount_is_ro() {
   awk -v mount="$1" '
@@ -353,16 +344,6 @@ setup_env() {
     done
 
     setup_git
-
-    # gsutil uses boto config to store settings and credentials.  Symlink the
-    # common private overlay so devs can run gsutil directly to fetch files.
-    chroot_user_boto="${FLAGS_chroot}/home/${SUDO_USER}/.boto"
-    boto='src/private-overlays/chromeos-overlay/googlestorage_account.boto'
-    if [ -s "${FLAGS_trunk}/${boto}" ]; then
-      user_symlink "${CHROOT_TRUNK_DIR}/${boto}" "${chroot_user_boto}"
-    else
-      rm -f "${chroot_user_boto}"
-    fi
 
     # Have found a few chroots where ~/.gsutil is owned by root:root, probably
     # as a result of old gsutil or tools. This causes permission errors when

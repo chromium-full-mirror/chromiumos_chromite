@@ -757,6 +757,34 @@ def MountChrootPaths(
                 osutils.Touch(dst)
         osutils.Mount(src, dst, None, osutils.MS_BIND)
 
+    # gsutil uses boto config to store settings and credentials.  Symlink the
+    # common private overlay so devs can run gsutil directly to fetch files.
+    boto = (
+        constants.SOURCE_ROOT
+        / constants.CHROMEOS_OVERLAY_DIR
+        / "googlestorage_account.boto"
+    )
+    boto_home = internal_home / ".boto"
+    if boto.exists():
+        want_target = Path(path_util.ToChrootPath(boto))
+        try:
+            have_target = boto_home.readlink()
+        except FileNotFoundError:
+            have_target = None
+        except OSError:
+            # Handle plain files instead of symlinks.
+            boto_home.unlink()
+            have_target = None
+        # Recreate the symlink if it isn't pointing to the correct place.
+        if have_target != want_target:
+            if have_target:
+                boto_home.unlink()
+            # NB: This creates the symlink as root, but since the home dir is
+            # world readable & owned by the user, they can read & modify it.
+            boto_home.symlink_to(want_target)
+    else:
+        boto_home.unlink(missing_ok=True)
+
     _setup_ssh_configs(
         external_home / ".ssh", internal_home / ".ssh", uid=uid, gid=gid
     )
