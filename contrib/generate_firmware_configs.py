@@ -222,7 +222,7 @@ def get_firmware_image_archive_uri(board: str, model: str, version: str) -> str:
     branch = version.rsplit(".", maxsplit=1)[0]
     gs_uri = (
         f"gs://firmware-image-archive/firmware-android-{board}-{branch}.B/"
-        f"{version}/{model.title()}.{version}.tbz2"
+        f"{version}/{model}.{version}.tar.bz2"
     )
     return gs_uri
 
