@@ -453,6 +453,7 @@ class Upgrader:
             ebuild_path = result.stdout.strip()
             return Upgrader._SplitEBuildPath(ebuild_path)
         else:
+            oper.Warning(f"equery failed:\n{result.stdout}")
             return None
 
     def _EqueryBoardWhich(
