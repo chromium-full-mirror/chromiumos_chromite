@@ -1258,11 +1258,14 @@ class TestGerritPatch(TestGitRepoPatch):
 
         for msg in self._MakeCommitMessages():
             for footers in self._MakeFooters():
-                with mock.patch(
-                    "chromite.lib.patch.FooterForApproval",
-                    new=mock.Mock(side_effect=itertools.cycle(footers)),
-                ), mock.patch.object(
-                    patch, "_approvals", new=[approval] * len(footers)
+                with (
+                    mock.patch(
+                        "chromite.lib.patch.FooterForApproval",
+                        new=mock.Mock(side_effect=itertools.cycle(footers)),
+                    ),
+                    mock.patch.object(
+                        patch, "_approvals", new=[approval] * len(footers)
+                    ),
                 ):
                     patch._commit_message = msg
 

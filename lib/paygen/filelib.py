@@ -89,9 +89,10 @@ def CopyFileSegment(
 
     # TODO(b/236161656): Fix.
     # pylint: disable-next=unspecified-encoding
-    with open(in_file, in_mode) as in_stream, open(
-        out_file, out_mode
-    ) as out_stream:
+    with (
+        open(in_file, in_mode) as in_stream,
+        open(out_file, out_mode) as out_stream,
+    ):
         in_stream.seek(in_seek)
         remaining = in_len
         while remaining:

@@ -200,9 +200,10 @@ class GSLockTest(cros_test_lib.MockTestCase):
     def testRaceToAcquire(self) -> None:
         """Have lots of processes race to acquire the same lock."""
         count = self.NUM_THREADS
-        with gs.TemporaryURL(
-            self.ctx, "gslock"
-        ) as lock_uri, multiprocessing.Pool(processes=count) as pool:
+        with (
+            gs.TemporaryURL(self.ctx, "gslock") as lock_uri,
+            multiprocessing.Pool(processes=count) as pool,
+        ):
             results = pool.map(_InProcessAcquire, [lock_uri] * count)
 
             # Clean up the lock since the processes explicitly only acquire.
@@ -215,9 +216,10 @@ class GSLockTest(cros_test_lib.MockTestCase):
     def testRaceToDoubleAcquire(self) -> None:
         """Have lots of processes race to double acquire the same lock."""
         count = self.NUM_THREADS
-        with gs.TemporaryURL(
-            self.ctx, "gslock"
-        ) as lock_uri, multiprocessing.Pool(processes=count) as pool:
+        with (
+            gs.TemporaryURL(self.ctx, "gslock") as lock_uri,
+            multiprocessing.Pool(processes=count) as pool,
+        ):
             results = pool.map(_InProcessDoubleAcquire, [lock_uri] * count)
 
             # Clean up the lock since the processes explicitly only acquire.
@@ -231,9 +233,10 @@ class GSLockTest(cros_test_lib.MockTestCase):
     def testMultiProcessDataUpdate(self) -> None:
         """Have lots of processes update a GS file protected by a lock."""
         count = self.NUM_THREADS
-        with gs.TemporaryURL(
-            self.ctx, "gslock"
-        ) as lock_uri, multiprocessing.Pool(processes=count) as pool:
+        with (
+            gs.TemporaryURL(self.ctx, "gslock") as lock_uri,
+            multiprocessing.Pool(processes=count) as pool,
+        ):
             data_uri = lock_uri + ".data"
             results = pool.map(
                 _InProcessDataUpdate, [(lock_uri, data_uri)] * count

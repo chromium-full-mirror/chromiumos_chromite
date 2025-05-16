@@ -44,11 +44,10 @@ def mock_emerge_fixture():
 @pytest.fixture(name="mock_exporter", autouse=True)
 def mock_exporter_fixture():
     """Stubs the exporter for InstalledSubtools to avoid side-effects."""
-    with mock.patch(
-        "chromite.lib.subtool_lib.InstalledSubtools"
-    ) as installed, mock.patch(
-        "chromite.lib.subtool_lib.BundledSubtools"
-    ) as bundled:
+    with (
+        mock.patch("chromite.lib.subtool_lib.InstalledSubtools") as installed,
+        mock.patch("chromite.lib.subtool_lib.BundledSubtools") as bundled,
+    ):
         yield {"installed": installed, "bundled": bundled}
 
 

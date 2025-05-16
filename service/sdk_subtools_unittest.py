@@ -87,16 +87,21 @@ def test_bundle_private_only(tmp_path: Path) -> None:
             return private_subtool
         assert False, f"Unexpected path: {path}"
 
-    with mock.patch.object(
-        subtool_lib.Subtool,
-        "from_file",
-        new=_fake_subtool_from_file,
-    ), mock.patch.object(
-        sdk_subtools, "SUBTOOLS_EXPORTS_CONFIG_DIR", new=tmp_path / "config"
-    ), mock.patch.object(
-        sdk_subtools, "SUBTOOLS_BUNDLE_WORK_DIR", new=tmp_path / "work"
-    ), mock.patch.object(
-        sdk_subtools, "is_inside_subtools_chroot", return_value=True
+    with (
+        mock.patch.object(
+            subtool_lib.Subtool,
+            "from_file",
+            new=_fake_subtool_from_file,
+        ),
+        mock.patch.object(
+            sdk_subtools, "SUBTOOLS_EXPORTS_CONFIG_DIR", new=tmp_path / "config"
+        ),
+        mock.patch.object(
+            sdk_subtools, "SUBTOOLS_BUNDLE_WORK_DIR", new=tmp_path / "work"
+        ),
+        mock.patch.object(
+            sdk_subtools, "is_inside_subtools_chroot", return_value=True
+        ),
     ):
         sdk_subtools.bundle_and_prepare_upload(private_only=True)
 

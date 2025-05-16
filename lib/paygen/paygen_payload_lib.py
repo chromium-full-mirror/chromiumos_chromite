@@ -920,13 +920,16 @@ class PaygenPayload:
         """
         logging.info("Calculating hashes on %s.", payload_file)
 
-        with tempfile.NamedTemporaryFile(
-            prefix="metadata_hash",
-            dir=self.work_dir,
-        ) as metadata_hash_file, tempfile.NamedTemporaryFile(
-            prefix="payload_hash",
-            dir=self.work_dir,
-        ) as payload_hash_file:
+        with (
+            tempfile.NamedTemporaryFile(
+                prefix="metadata_hash",
+                dir=self.work_dir,
+            ) as metadata_hash_file,
+            tempfile.NamedTemporaryFile(
+                prefix="payload_hash",
+                dir=self.work_dir,
+            ) as payload_hash_file,
+        ):
             cmd = [
                 "delta_generator",
                 "--in_file=" + self.chroot.chroot_path(payload_file),

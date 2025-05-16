@@ -673,11 +673,12 @@ def test_ebuild_multiple_packages_raises_error(template_proto: Wrapper) -> None:
         package_info.parse(p)
         for p in ["sys-devel/binutils-2.39-r3", "cross-foo/binutils-0.1"]
     ]
-    with pytest.raises(
-        subtool_lib.ManifestBundlingError
-    ) as error_info, mock.patch(
-        "chromite.lib.portage_util.FindPackageNameMatches"
-    ) as mock_find_package_name_matches:
+    with (
+        pytest.raises(subtool_lib.ManifestBundlingError) as error_info,
+        mock.patch(
+            "chromite.lib.portage_util.FindPackageNameMatches"
+        ) as mock_find_package_name_matches,
+    ):
         mock_find_package_name_matches.return_value = fake_matches
         subtool.bundle()
     assert "'binutils' must match exactly one package" in str(error_info.value)
@@ -732,11 +733,12 @@ def test_ebuild_not_installed_raises_error(template_proto: Wrapper) -> None:
         [path_mapping("/etc/profile", ebuild_filter="baselayout")]
     )
     subtool = template_proto.create(writes_files=True)
-    with pytest.raises(
-        subtool_lib.ManifestBundlingError
-    ) as error_info, mock.patch(
-        "chromite.lib.portage_util.PortageDB.GetInstalledPackage"
-    ) as mock_get_installed_package:
+    with (
+        pytest.raises(subtool_lib.ManifestBundlingError) as error_info,
+        mock.patch(
+            "chromite.lib.portage_util.PortageDB.GetInstalledPackage"
+        ) as mock_get_installed_package,
+    ):
         mock_get_installed_package.return_value = None
         subtool.bundle()
 
@@ -1165,9 +1167,10 @@ def test_gcs_bundle_and_upload(
 
     uploader = subtool_lib.BundledSubtools([subtool.metadata_dir])
 
-    with mock.patch.object(
-        gs.GSContext, "Exists", return_value=exists
-    ), mock.patch.object(gs.GSContext, "Copy") as copy:
+    with (
+        mock.patch.object(gs.GSContext, "Exists", return_value=exists),
+        mock.patch.object(gs.GSContext, "Copy") as copy,
+    ):
         uploader.upload(use_production=False, dryrun=dryrun)
         if dryrun or exists:
             copy.assert_not_called()

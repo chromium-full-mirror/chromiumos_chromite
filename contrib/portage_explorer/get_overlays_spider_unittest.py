@@ -18,24 +18,27 @@ def test_execute() -> None:
     each overlay starting from 'src/' and get the correct overlay name. The
     overlays should follow alphabetical order of the src paths.
     """
-    with mock.patch(
-        "chromite.lib.portage_util.FindOverlays",
-        return_value=[
-            "/mnt/host/source/src/overlays/overlay-elm",
-            "/mnt/host/source/src/private-overlays/overlay-elm-private",
-            "/mnt/host/source/src/overlays/baseboard-brya",
-            "/mnt/host/source/src/private-overlays/chipset-picasso-private",
-            "/mnt/host/source/src/third_party/portage-stable",
-        ],
-    ), mock.patch(
-        "chromite.lib.portage_util.GetOverlayName",
-        side_effect=[
-            "baseboard-brya",
-            "elm",
-            "chipset-picasso-private",
-            "elm-private",
-            "portage-stable",
-        ],
+    with (
+        mock.patch(
+            "chromite.lib.portage_util.FindOverlays",
+            return_value=[
+                "/mnt/host/source/src/overlays/overlay-elm",
+                "/mnt/host/source/src/private-overlays/overlay-elm-private",
+                "/mnt/host/source/src/overlays/baseboard-brya",
+                "/mnt/host/source/src/private-overlays/chipset-picasso-private",
+                "/mnt/host/source/src/third_party/portage-stable",
+            ],
+        ),
+        mock.patch(
+            "chromite.lib.portage_util.GetOverlayName",
+            side_effect=[
+                "baseboard-brya",
+                "elm",
+                "chipset-picasso-private",
+                "elm-private",
+                "portage-stable",
+            ],
+        ),
     ):
         test_output = spiderlib.SpiderOutput()
         get_overlays_spider.execute(test_output)

@@ -341,9 +341,10 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
 
     def testExpectedFilesCompleteFailure(self, _) -> None:
         """Verify if no files are processed, all expected files give errors"""
-        with parallel_unittest.ParallelMock() and self.assertLogs(
-            level=logging.WARNING
-        ) as cm:
+        with (
+            parallel_unittest.ParallelMock()
+            and self.assertLogs(level=logging.WARNING) as cm
+        ):
             ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
                 self.board, sysroot=self.board_dir
             )
@@ -376,9 +377,10 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
             return 1
 
         gen_mock.side_effect = _SetFound
-        with parallel_unittest.ParallelMock() and self.assertLogs(
-            level=logging.WARNING
-        ) as cm:
+        with (
+            parallel_unittest.ParallelMock()
+            and self.assertLogs(level=logging.WARNING) as cm
+        ):
             ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
                 self.board, sysroot=self.board_dir
             )
@@ -407,9 +409,10 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
             cros_generate_breakpad_symbols.ExpectedFiles.ASH_CHROME,
             cros_generate_breakpad_symbols.ExpectedFiles.LIBC,
         ]
-        with parallel_unittest.ParallelMock() and self.assertLogs(
-            level=logging.WARNING
-        ) as cm:
+        with (
+            parallel_unittest.ParallelMock()
+            and self.assertLogs(level=logging.WARNING) as cm
+        ):
             ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
                 self.board,
                 sysroot=self.board_dir,
@@ -436,9 +439,10 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
 
     def testExpectedFilesWithAllIgnored(self, _) -> None:
         """If all expected files are ignored, there is no error"""
-        with parallel_unittest.ParallelMock() and self.assertLogs(
-            level=logging.WARNING
-        ) as cm:
+        with (
+            parallel_unittest.ParallelMock()
+            and self.assertLogs(level=logging.WARNING) as cm
+        ):
             ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
                 self.board,
                 sysroot=self.board_dir,
@@ -465,9 +469,10 @@ class GenerateSymbolsTest(cros_test_lib.MockTempDirTestCase):
             return 1
 
         gen_mock.side_effect = _SetFound
-        with parallel_unittest.ParallelMock() and self.assertLogs(
-            level=logging.WARNING
-        ) as cm:
+        with (
+            parallel_unittest.ParallelMock()
+            and self.assertLogs(level=logging.WARNING) as cm
+        ):
             ret = cros_generate_breakpad_symbols.GenerateBreakpadSymbols(
                 self.board,
                 sysroot=self.board_dir,
@@ -906,9 +911,10 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
         ]
 
         for file in VALID_SYMBOL_FILES:
-            with self.subTest(
-                file=file
-            ), multiprocessing.Manager() as mp_manager:
+            with (
+                self.subTest(file=file),
+                multiprocessing.Manager() as mp_manager,
+            ):
                 found_files = mp_manager.list()
                 self.assertTrue(
                     cros_generate_breakpad_symbols.ValidateSymbolFile(
@@ -1006,9 +1012,10 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
         ]
 
         for file in INVALID_SYMBOL_FILES:
-            with self.subTest(
-                file=file.filename
-            ), multiprocessing.Manager() as mp_manager:
+            with (
+                self.subTest(file=file.filename),
+                multiprocessing.Manager() as mp_manager,
+            ):
                 found_files = mp_manager.list()
                 with self.assertLogs(level=logging.WARNING) as cm:
                     self.assertFalse(
@@ -1060,9 +1067,10 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
         ]
 
         for file in INVALID_SYMBOL_FILES:
-            with self.subTest(
-                file=file.filename
-            ), multiprocessing.Manager() as mp_manager:
+            with (
+                self.subTest(file=file.filename),
+                multiprocessing.Manager() as mp_manager,
+            ):
                 found_files = mp_manager.list()
                 self.assertRaisesRegex(
                     ValueError,
@@ -1211,9 +1219,10 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
             ),
         ]
         for test in CHROME_SYMBOL_TESTS:
-            with self.subTest(
-                name=test.name
-            ), multiprocessing.Manager() as mp_manager:
+            with (
+                self.subTest(name=test.name),
+                multiprocessing.Manager() as mp_manager,
+            ):
                 sym_file = self.tempdir / "chrome.sym"
                 self._CreateSymbolFile(
                     sym_file,
@@ -1289,9 +1298,10 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
             ),
         ]
         for test in LIBC_SYMBOL_TESTS:
-            with self.subTest(
-                name=test.name
-            ), multiprocessing.Manager() as mp_manager:
+            with (
+                self.subTest(name=test.name),
+                multiprocessing.Manager() as mp_manager,
+            ):
                 sym_file = self.tempdir / "libc.so.sym"
                 self._CreateSymbolFile(
                     sym_file,
@@ -1377,9 +1387,10 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
             ),
         ]
         for test in CRASH_REPORTER_SYMBOL_TESTS:
-            with self.subTest(
-                name=test.name
-            ), multiprocessing.Manager() as mp_manager:
+            with (
+                self.subTest(name=test.name),
+                multiprocessing.Manager() as mp_manager,
+            ):
                 sym_file = self.tempdir / "crash_reporter.sym"
                 self._CreateSymbolFile(
                     sym_file,
@@ -1474,9 +1485,10 @@ class ValidateSymbolFileTest(cros_test_lib.TempDirTestCase):
             ),
         ]
         for test in LIBMETRICS_SYMBOL_TESTS:
-            with self.subTest(
-                name=test.name
-            ), multiprocessing.Manager() as mp_manager:
+            with (
+                self.subTest(name=test.name),
+                multiprocessing.Manager() as mp_manager,
+            ):
                 sym_file = self.tempdir / "libmetrics.so.sym"
                 self._CreateSymbolFile(
                     sym_file,

@@ -247,7 +247,10 @@ def _deploy_ssh(
         else:
             passthrough_args = fw_config.flash_extra_flags_futility
 
-    with tempfile.NamedTemporaryFile() as tmpfile, tempfile.NamedTemporaryFile() as tmpfile2:  # pylint: disable=line-too-long
+    with (
+        tempfile.NamedTemporaryFile() as tmpfile,
+        tempfile.NamedTemporaryFile() as tmpfile2,
+    ):
         shutil.copyfile(_ssh_id_filename, tmpfile.name)
         ssh_keys = [tmpfile.name]
         if os.path.exists(_ssh_partner_id_filename):
@@ -457,7 +460,10 @@ def ssh_read(
         bool: True on success, False on failure.
     """
     logging.info("Connecting to: %s\n", ip)
-    with tempfile.NamedTemporaryFile() as tmpfile, tempfile.NamedTemporaryFile() as tmpfile2:  # pylint: disable=line-too-long
+    with (
+        tempfile.NamedTemporaryFile() as tmpfile,
+        tempfile.NamedTemporaryFile() as tmpfile2,
+    ):
         shutil.copyfile(_ssh_id_filename, tmpfile.name)
         ssh_keys = [tmpfile.name]
 

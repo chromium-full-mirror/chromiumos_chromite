@@ -38,7 +38,9 @@ def generate_copybot_arg_parser(
         "--limit", type=int, help="How many changes to modify, from the oldest."
     )
     parser.add_argument(
-        "--stop-at", type=int, help="Stop at the specified change number, exclusive."
+        "--stop-at",
+        type=int,
+        help="Stop at the specified change number, exclusive.",
     )
     parser.add_argument(
         "--ignore-warnings",

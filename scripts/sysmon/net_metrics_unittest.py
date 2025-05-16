@@ -33,15 +33,14 @@ class TestNetMetrics(cros_test_lib.TestCase):
         self.addCleanup(patcher.stop)
 
     def test_collect(self) -> None:
-        with mock.patch(
-            "psutil.net_io_counters", autospec=True
-        ) as net_io_counters, mock.patch(
-            "psutil.net_if_stats", autospec=True
-        ) as net_if_stats, mock.patch(
-            "socket.getfqdn", autospec=True
-        ) as getfqdn, mock.patch(
-            "psutil.net_if_addrs", autospec=True
-        ) as net_if_addrs:
+        with (
+            mock.patch(
+                "psutil.net_io_counters", autospec=True
+            ) as net_io_counters,
+            mock.patch("psutil.net_if_stats", autospec=True) as net_if_stats,
+            mock.patch("socket.getfqdn", autospec=True) as getfqdn,
+            mock.patch("psutil.net_if_addrs", autospec=True) as net_if_addrs,
+        ):
             net_io_counters.return_value = {
                 "lo": snetio(
                     bytes_sent=17247495681,

@@ -33,9 +33,10 @@ def _generate_stateful_payload(
     logging.info("Generating stateful update payload.")
 
     # Mount the image to pull out the important directories.
-    with osutils.TempDir() as stateful_mnt, image_lib.LoopbackPartitions(
-        image_path, stateful_mnt
-    ) as image:
+    with (
+        osutils.TempDir() as stateful_mnt,
+        image_lib.LoopbackPartitions(image_path, stateful_mnt) as image,
+    ):
         stateful_dir = image.Mount((constants.PART_STATE,))[0]
 
         try:

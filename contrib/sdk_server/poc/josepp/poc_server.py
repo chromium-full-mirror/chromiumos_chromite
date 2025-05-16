@@ -37,7 +37,10 @@ class SdkServiceServicer(sdk_pb2_grpc.SdkServiceServicer):
         """Performs Chroot Update by calling build_api script"""
 
         # build_api requires protos in files
-        with NamedTemporaryFile() as proto_in, NamedTemporaryFile() as proto_out:
+        with (
+            NamedTemporaryFile() as proto_in,
+            NamedTemporaryFile() as proto_out,
+        ):
             proto_in.write(request.SerializeToString())
 
             in_path = str(Path(proto_in.name))

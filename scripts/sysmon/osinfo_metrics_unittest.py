@@ -37,8 +37,9 @@ class TestOSInfoMetrics(cros_test_lib.TestCase):
             distro = ("", "", "")
             dist = None
 
-        with mock.patch("platform.system", autospec=True) as system, mock.patch(
-            "sys.maxsize", 2**64
+        with (
+            mock.patch("platform.system", autospec=True) as system,
+            mock.patch("sys.maxsize", 2**64),
         ):
             system.return_value = "Linux"
             if dist is not None:

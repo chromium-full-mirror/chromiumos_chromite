@@ -112,11 +112,10 @@ def get_image_sizes(
         A dictionary of path -> size.
     """
     sizes = {}
-    with osutils.TempDir(
-        prefix=TEMPFILE_PREFIX
-    ) as temp_dir, image_lib.LoopbackPartitions(
-        image_filepath, temp_dir
-    ) as image:
+    with (
+        osutils.TempDir(prefix=TEMPFILE_PREFIX) as temp_dir,
+        image_lib.LoopbackPartitions(image_filepath, temp_dir) as image,
+    ):
         root_path = image.Mount([constants.PART_ROOT_A])[0]
         for path, size in sub_paths_size_iter(root_path):
             if required_paths:

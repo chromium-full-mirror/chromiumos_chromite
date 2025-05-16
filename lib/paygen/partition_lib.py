@@ -74,11 +74,10 @@ def PatchKernel(image: str, kern_file: str) -> None:
         kern_file: The kernel file.
     """
 
-    with tempfile.NamedTemporaryFile(
-        prefix="stateful"
-    ) as state_out, tempfile.NamedTemporaryFile(
-        prefix="vmlinuz_hd.vblock"
-    ) as vblock:
+    with (
+        tempfile.NamedTemporaryFile(prefix="stateful") as state_out,
+        tempfile.NamedTemporaryFile(prefix="vmlinuz_hd.vblock") as vblock,
+    ):
         ExtractPartition(image, constants.PART_STATE, state_out)
         cros_build_lib.run(
             ["e2cp", "%s:/vmlinuz_hd.vblock" % state_out, vblock]

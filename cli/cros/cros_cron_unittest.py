@@ -46,13 +46,16 @@ def test_prefetch_repo(run_mock) -> None:
 def test_prefetch_sdks(tmp_path: Path) -> None:
     """Test the prefetch_sdks function."""
     prefetch_versions = {"1.2.3", "4.5.6"}
-    with mock.patch.object(
-        cros_sdk_lib,
-        "get_prefetch_sdk_versions",
-        return_value=prefetch_versions,
-    ), mock.patch.object(
-        cros_sdk_lib, "fetch_remote_tarballs"
-    ) as fetch_remote_tarballs:
+    with (
+        mock.patch.object(
+            cros_sdk_lib,
+            "get_prefetch_sdk_versions",
+            return_value=prefetch_versions,
+        ),
+        mock.patch.object(
+            cros_sdk_lib, "fetch_remote_tarballs"
+        ) as fetch_remote_tarballs,
+    ):
         cros_cron.prefetch_sdks(tmp_path)
         fetch_remote_tarballs.assert_any_call(
             tmp_path / "sdks",
@@ -86,13 +89,13 @@ def _main(args: List[str]) -> int:
 def test_cros_cron_run(tmp_path: Path, outside_sdk) -> None:
     """Test the "cros cron run" command."""
     del outside_sdk
-    with mock.patch.object(
-        path_util, "DetermineCheckout", return_value=FAKE_REPO_CHECKOUT
-    ), mock.patch.object(
-        cros_cron, "prefetch_repo"
-    ) as prefetch_repo, mock.patch.object(
-        cros_cron, "prefetch_sdks"
-    ) as prefetch_sdks:
+    with (
+        mock.patch.object(
+            path_util, "DetermineCheckout", return_value=FAKE_REPO_CHECKOUT
+        ),
+        mock.patch.object(cros_cron, "prefetch_repo") as prefetch_repo,
+        mock.patch.object(cros_cron, "prefetch_sdks") as prefetch_sdks,
+    ):
         _main(["run", "--cache-dir", str(tmp_path)])
         prefetch_repo.assert_called_once_with(FAKE_REPO_CHECKOUT)
         prefetch_sdks.assert_called_once_with(tmp_path)
@@ -101,13 +104,13 @@ def test_cros_cron_run(tmp_path: Path, outside_sdk) -> None:
 def test_cros_cron_run_citc(tmp_path: Path, outside_sdk) -> None:
     """Test the "cros cron run" command for a CitC checkout."""
     del outside_sdk
-    with mock.patch.object(
-        path_util, "DetermineCheckout", return_value=FAKE_CITC_CHECKOUT
-    ), mock.patch.object(
-        cros_cron, "prefetch_repo"
-    ) as prefetch_repo, mock.patch.object(
-        cros_cron, "prefetch_sdks"
-    ) as prefetch_sdks:
+    with (
+        mock.patch.object(
+            path_util, "DetermineCheckout", return_value=FAKE_CITC_CHECKOUT
+        ),
+        mock.patch.object(cros_cron, "prefetch_repo") as prefetch_repo,
+        mock.patch.object(cros_cron, "prefetch_sdks") as prefetch_sdks,
+    ):
         _main(["run", "--cache-dir", str(tmp_path)])
         prefetch_repo.assert_not_called()
         prefetch_sdks.assert_called_once_with(tmp_path)

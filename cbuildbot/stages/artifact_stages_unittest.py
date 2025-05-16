@@ -329,11 +329,12 @@ class DebugSymbolsStageTest(
         self._Prepare()
         stage = self.ConstructStage()
 
-        with mock.patch.object(
-            os.path, "exists"
-        ) as mock_exists, mock.patch.object(
-            artifact_stages.DebugSymbolsStage, "UploadArtifact"
-        ) as mock_upload:
+        with (
+            mock.patch.object(os.path, "exists") as mock_exists,
+            mock.patch.object(
+                artifact_stages.DebugSymbolsStage, "UploadArtifact"
+            ) as mock_upload,
+        ):
             mock_exists.return_value = True
             self.assertRaises(
                 artifact_stages.DebugSymbolsUploadException,
@@ -359,13 +360,14 @@ class UploadTestArtifactsStageMock(
     )
 
     def BuildAutotestTarballs(self, *args, **kwargs) -> None:
-        with mock.patch.object(
-            commands, "BuildTarball", autospec=True
-        ), mock.patch.object(
-            commands,
-            "FindFilesWithPattern",
-            autospec=True,
-            return_value=["foo.txt"],
+        with (
+            mock.patch.object(commands, "BuildTarball", autospec=True),
+            mock.patch.object(
+                commands,
+                "FindFilesWithPattern",
+                autospec=True,
+                return_value=["foo.txt"],
+            ),
         ):
             self.backup["BuildAutotestTarballs"](*args, **kwargs)
 

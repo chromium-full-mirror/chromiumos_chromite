@@ -918,9 +918,10 @@ class _CommonPrepareBundle:
         )
 
         want = patterns.copy()
-        with open(old_name, encoding="utf-8") as old, open(
-            new_name, "w", encoding="utf-8"
-        ) as new:
+        with (
+            open(old_name, encoding="utf-8") as old,
+            open(new_name, "w", encoding="utf-8") as new,
+        ):
             for line in old:
                 for match, sub in patterns:
                     line, count = match.subn(sub, line, count=1)

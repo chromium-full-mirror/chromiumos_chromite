@@ -553,9 +553,10 @@ def _main(options, argv):
     depot_tools_path = os.path.join(buildroot, constants.DEPOT_TOOLS_SUBPATH)
 
     # Does the entire build pass or fail.
-    with metrics.Presence(METRIC_ACTIVE), metrics.SuccessCounter(
-        METRIC_COMPLETED
-    ) as s_fields:
+    with (
+        metrics.Presence(METRIC_ACTIVE),
+        metrics.SuccessCounter(METRIC_COMPLETED) as s_fields,
+    ):
         # Preliminary set, mostly command line parsing.
         with metrics.SuccessCounter(METRIC_INVOKED):
             if options.enable_buildbot_tags:
@@ -590,9 +591,10 @@ def _main(options, argv):
 
         # Run cbuildbot inside the full ChromeOS checkout, on the specified
         # branch.
-        with metrics.SecondsTimer(
-            METRIC_CBUILDBOT
-        ), metrics.SecondsInstanceTimer(METRIC_CBUILDBOT_INSTANCE):
+        with (
+            metrics.SecondsTimer(METRIC_CBUILDBOT),
+            metrics.SecondsInstanceTimer(METRIC_CBUILDBOT_INSTANCE),
+        ):
             if previous_build_state.is_valid():
                 argv.append("--previous-build-state")
                 argv.append(

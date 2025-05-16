@@ -46,8 +46,9 @@ def _patch_time(sleep_delta):
     Patches behavior for time.time() and time.sleep()
     """
     mock_time = _MockTime(sleep_delta)
-    with mock.patch("time.time", mock_time.time), mock.patch(
-        "time.sleep", mock_time.sleep
+    with (
+        mock.patch("time.time", mock_time.time),
+        mock.patch("time.sleep", mock_time.sleep),
     ):
         yield mock_time
 
