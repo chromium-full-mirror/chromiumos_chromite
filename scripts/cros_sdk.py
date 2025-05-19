@@ -839,7 +839,7 @@ def main(argv) -> None:
         if options.proxy_sim:
             _ProxySimSetup(options)
 
-        distfiles_cache = os.path.join(chroot.cache_dir, "distfiles")
+        distfiles_cache = Path(chroot.cache_dir) / "distfiles"
         osutils.SafeMakedirsNonRoot(chroot.cache_dir)
         osutils.SafeMakedirsNonRoot(distfiles_cache)
         osutils.SafeMakedirsNonRoot(options.out_dir)
@@ -847,6 +847,21 @@ def main(argv) -> None:
         # some usages want to create tmp files here even before we've fully
         # mounted the SDK.
         osutils.SafeMakedirsNonRoot(options.out_dir / "tmp", mode=0o1777)
+
+        # Set up ccache tree. If this is a fresh or wiped chroot, then things
+        # might not be set up yet.
+        ccache_dir = distfiles_cache / "ccache"
+        osutils.SafeMakedirsNonRoot(ccache_dir)
+        st = ccache_dir.stat()
+        if (st.st_mode & 0o7777) != 0o2775:
+            ccache_dir.chmod(0o2775)
+        if st.st_gid != 250:
+            os.chown(ccache_dir, -1, 250)
+        ccache_conf = ccache_dir / "ccache.conf"
+        if not ccache_conf.exists():
+            ccache_conf.write_text(
+                "max_files = 0\nmax_size = 11G\n", encoding="utf-8"
+            )
 
         mounted = False
         if replace_for_update or options.create:

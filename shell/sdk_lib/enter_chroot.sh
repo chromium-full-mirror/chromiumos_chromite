@@ -325,19 +325,6 @@ setup_env() {
       fi
     fi
 
-    # Set up ccache tree. If this is a fresh or wiped chroot, then things might
-    # not be set up yet.
-    ccache_dir="${FLAGS_chroot}/var/cache/distfiles/ccache"
-    if [[ ! -d ${ccache_dir} ]]; then
-      # shellcheck disable=SC2174
-      mkdir -p -m 2775 "${ccache_dir}"
-      chgrp 250 "${ccache_dir}"
-    fi
-    if [[ ! -e ${ccache_dir}/ccache.conf ]]; then
-      chroot "${FLAGS_chroot}" env CCACHE_DIR=/var/cache/distfiles/ccache \
-        CCACHE_UMASK=002 ccache -F 0 -M 11G >/dev/null
-    fi
-
     # Certain files get copied into the chroot when entering.
     for fn in "${FILES_TO_COPY_TO_CHROOT[@]}"; do
       copy_into_chroot_if_exists "${SUDO_HOME}/${fn}" "/home/${SUDO_USER}/${fn}"
