@@ -60,6 +60,7 @@ EC_BRANCH_CONFIG = {
     "corsola": EcBranchType.FIRMWARE,
     "geralt": EcBranchType.FIRMWARE,
     "nissa": EcBranchType.FIRMWARE,
+    "rauru": EcBranchType.FIRMWARE,
 }
 
 
