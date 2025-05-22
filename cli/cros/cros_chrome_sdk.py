@@ -1388,6 +1388,8 @@ class ChromeSDKCommand(command.CliCommand):
 
         # Use Chrome's host sysroot settings and pkg_config for building outside
         # the chroot.
+        gn_args.pop("cros_host_sysroot", None)
+        gn_args.pop("cros_v8_snapshot_sysroot", None)
         gn_args.pop("use_sysroot", None)
         gn_args.pop("pkg_config", None)
         gn_args.pop("host_pkg_config", None)
