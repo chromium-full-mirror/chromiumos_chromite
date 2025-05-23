@@ -5,10 +5,10 @@
 """Recovery service tests."""
 
 from chromite.api import api_config
-from chromite.api.controller import controller_util
 from chromite.api.controller import recovery as recovery_controller
 from chromite.api.gen.chromite.api import recovery_pb2
 from chromite.lib import cros_test_lib
+from chromite.service import kernel_image
 
 
 class CreateRecoveryKernelTest(
@@ -27,14 +27,17 @@ class CreateRecoveryKernelTest(
 
     def testCreateRecoveryKernel(self) -> None:
         """Verify nothing breaks."""
+        patch = self.PatchObject(kernel_image, "BuildKernel")
+
         request = self._GetRequest(board="board")
         recovery_controller.CreateRecoveryKernel(
             request, self.response, self.api_config
         )
+        patch.assert_called()
 
     def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
-        patch = self.PatchObject(controller_util, "ParseChroot")
+        patch = self.PatchObject(kernel_image, "BuildKernel")
 
         request = self._GetRequest(board="board")
         recovery_controller.CreateRecoveryKernel(

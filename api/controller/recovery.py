@@ -8,8 +8,11 @@ from typing import TYPE_CHECKING
 
 from chromite.api import faux
 from chromite.api import validate
-from chromite.api.controller import controller_util
 from chromite.api.gen.chromite.api import recovery_pb2
+from chromite.api.gen.chromiumos import common_pb2
+from chromite.lib import build_target_lib
+from chromite.lib import osutils
+from chromite.service import kernel_image
 
 
 if TYPE_CHECKING:
@@ -21,19 +24,26 @@ if TYPE_CHECKING:
 @validate.validation_complete
 def CreateRecoveryKernel(
     request: recovery_pb2.CreateRecoveryKernelRequest,
-    _response: recovery_pb2.CreateRecoveryKernelResponse,
+    response: recovery_pb2.CreateRecoveryKernelResponse,
     _config: "api_config.ApiConfig",
 ) -> None:
     """Create a recovery kernel."""
-    _chroot = controller_util.ParseChroot(request.chroot)
     board = request.build_target.name
 
     # call out to script.
-    # TODO(b/371247934): replace with real script when it's stable and merged.
-    cmd = ["path/to/your/actual_script.sh", "--board", board]
-    if request.flags.CREATE_BOOTABLE_IMAGE_FIELD_NUMBER:
-        cmd += ["--create-bootable-image"]
-    # We'll need to rename the vars without the underscores once we're ready to
-    # use, but the linter is angry at that.
-    # path = chroot.run(cmd)
-    # response.recovery_kernel = path
+    install_root_path = build_target_lib.get_default_sysroot_path(
+        build_target_name=board
+    )
+
+    work_dir_path = f"{install_root_path}/custom-packages"
+    osutils.SafeMakedirs(work_dir_path, sudo=True)
+    osutils.Chown(work_dir_path, user=True)
+
+    path = kernel_image.BuildKernel(
+        board,
+        work_dir_path,
+        install_root_path,
+        request.flags.create_bootable_image,
+    )
+    response.recovery_kernel.path = str(path)
+    response.recovery_kernel.location = common_pb2.Path.INSIDE
