@@ -61,6 +61,7 @@ EC_BRANCH_CONFIG = {
     "geralt": EcBranchType.FIRMWARE,
     "nissa": EcBranchType.FIRMWARE,
     "rauru": EcBranchType.FIRMWARE,
+    "fatcat": EcBranchType.FIRMWARE,
 }
 
 
