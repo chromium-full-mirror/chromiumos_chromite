@@ -454,6 +454,7 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
     if arguments.backtrack is not None:
         emerge_cmd_base.append(f"--backtrack={arguments.backtrack}")
     cmd = emerge_cmd_base.copy()
+    excluded_packages = set()
     if not arguments.build_source:
         cmd += ["--getbinpkg"]
 
@@ -474,7 +475,11 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
             encoding="utf-8",
         )
         pkgs += result.stdout.split()
-        cmd += (f"--useoldpkg-atoms={x}" for x in pkgs)
+        excluded_packages = set(pkgs)
+        # b/420918706: Forcibly `--exclude` these, since major version upgrades
+        # of toolchain packages can lead to portage preferring to e.g., rebuild
+        # llvm from scratch.
+        cmd += (f"--exclude={x}" for x in pkgs)
 
     # Build cros_workon packages when they are changed.
     result = cros_build_lib.run(
@@ -483,7 +488,13 @@ def _Update(arguments: UpdateArguments) -> UpdateResult:
         encoding="utf-8",
     )
     for pkg in result.stdout.split():
-        cmd += [f"--reinstall-atoms={pkg}", f"--usepkg-exclude={pkg}"]
+        if pkg in excluded_packages:
+            logging.info(
+                "Skipping reinstall of %s; it's a toolchain package", pkg
+            )
+        else:
+            cmd += (f"--reinstall-atoms={pkg}", f"--usepkg-exclude={pkg}")
+
     cmd += [
         "virtual/target-sdk",
         "world",
