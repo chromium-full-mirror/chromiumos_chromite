@@ -1241,6 +1241,9 @@ def starbase_find_and_uprev(
     return modified_files
 
 
+# Note: the reference to the package "chromeos-base/starbase-apps" below is
+# misleading.  This function uprevs multiple packages, including starbase-apps,
+# in multiple repositories.
 @uprevs_versioned_package("chromeos-base/starbase-apps")
 def uprev_starbase_artifacts(
     _build_targets: List["build_target_lib.BuildTarget"],
@@ -1346,29 +1349,40 @@ def uprev_starbase_artifacts(
             _, category, package_name = ref.ref.split("/", 2)
         else:
             category, package_name = ref.ref.split("/", 1)
-        # Helium ARCVM artifacts uprev the ebuild in the Helium overlay.
-        # Because the ebuild is in the Helium overlay, and the package name
-        # there is "chrome-base/chromeos-board-default-arc-apps-selphie". But
-        # the tarball is built and stored via starbase Rapid pupr, so the
-        # resolved package name here is "starbase-helium-arcvm-artifacts". Thus
-        # the overlay root and the package name are updated here.
+
+        # We uprev packages in different repos, and in some cases in multiple
+        # repos.  For instance, the starbase-base package is meant to be
+        # (eventually) included in both project-starline-private (for
+        # production images only) and overlay-selphie-private (for all images).
+        #
+        # `uprevs` is an array of pairs (<overlay-root>, <package-name>).
+        uprevs = []
         if package_name == "starbase-helium-arcvm-artifacts":
-            overlay_root = helium_overlay_root
-            package_name = "chromeos-board-default-arc-apps-selphie"
+            uprevs.append(
+                (helium_overlay_root, "chromeos-board-default-arc-apps-selphie")
+            )
+        elif package_name == "starbase-base":
+            uprevs.append((helium_overlay_root, package_name))
         else:
-            overlay_root = starline_overlay_root
+            uprevs.append((starline_overlay_root, package_name))
         version_id = ref.revision
-        modified_files = starbase_find_and_uprev(
-            tarfile_name,
-            tarfile_hash,
-            category,
-            package_name,
-            version_id,
-            overlay_root,
-            chroot,
-        )
-        # AFAICT, version_id in the "result" is only used in the commit message.
-        result.add_result(version_id, modified_files)
+
+        for uprev in uprevs:
+            overlay_root = uprev[0]
+            package_name = uprev[1]
+            modified_files = starbase_find_and_uprev(
+                tarfile_name,
+                tarfile_hash,
+                category,
+                package_name,
+                version_id,
+                overlay_root,
+                chroot,
+            )
+            # AFAICT, version_id in the "result" is only used in the commit
+            # message.
+            result.add_result(version_id, modified_files)
+
     return result
 
 
