@@ -1303,12 +1303,13 @@ def uprev_starbase_artifacts(
 
     VERSION_ID = the version ID of the tar file, which is also the version ID
     of the Rapid "release candidate" of the workflow that generated and
-    uploaded the file. VERSION_ID will contain the prefix starbase-HEAD for
-    version built at HEAD or starbase-release for released version.
+    uploaded the file. VERSION_ID contains the prefix "starbase-head" for
+    versions built at HEAD, and "starbase-release" for versions built on
+    release branches.
 
     GS_MIRROR = gs://chromeos-localmirror-private
 
-    The tar file stored at this GS path:
+    The tar file is stored at this GS path:
 
     GS_MIRROR/distfiles/starbase-VERSION_ID/TARFILE_NAME
 
@@ -1319,23 +1320,22 @@ def uprev_starbase_artifacts(
     GS_MIRROR/distfiles/starbase-release-20230101-rc001/starbase-foo.tar.zst
 
     Note that each directory can contain multiple tar files.  The "refs"
-    parameter is a list with one element for each tar file (or package).  Only
-    the packages included in "refs" are uprevved.
+    parameter is a list with one element for each tar file (i.e. each package).
+    Only the packages included in "refs" are uprevved.
 
     Returns:
         UprevVersionedPackageResult: The result of updating this ebuild.
     """
+
+    # The path to the repo with the packages to be modified.  For future
+    # reference, note that this uprev handler can uprev packages in multiple
+    # repos. Just repeat the uprevs with different overlay roots.  However,
+    # keeping all google3 packages in one repo makes version management easier.
     starline_overlay_root = str(
         constants.SOURCE_ROOT
         / "src"
         / "private-overlays"
         / "project-starline-private"
-    )
-    helium_overlay_root = str(
-        constants.SOURCE_ROOT
-        / "src"
-        / "private-overlays"
-        / "overlay-selphie-private"
     )
     logging.info("Starbase uprev: %d refs[] = %s", len(refs), refs)
 
@@ -1350,38 +1350,19 @@ def uprev_starbase_artifacts(
         else:
             category, package_name = ref.ref.split("/", 1)
 
-        # We uprev packages in different repos, and in some cases in multiple
-        # repos.  For instance, the starbase-base package is meant to be
-        # (eventually) included in both project-starline-private (for
-        # production images only) and overlay-selphie-private (for all images).
-        #
-        # `uprevs` is an array of pairs (<overlay-root>, <package-name>).
-        uprevs = []
-        if package_name == "starbase-helium-arcvm-artifacts":
-            uprevs.append(
-                (helium_overlay_root, "chromeos-board-default-arc-apps-selphie")
-            )
-        elif package_name == "starbase-base":
-            uprevs.append((helium_overlay_root, package_name))
-        else:
-            uprevs.append((starline_overlay_root, package_name))
         version_id = ref.revision
-
-        for uprev in uprevs:
-            overlay_root = uprev[0]
-            package_name = uprev[1]
-            modified_files = starbase_find_and_uprev(
-                tarfile_name,
-                tarfile_hash,
-                category,
-                package_name,
-                version_id,
-                overlay_root,
-                chroot,
-            )
-            # AFAICT, version_id in the "result" is only used in the commit
-            # message.
-            result.add_result(version_id, modified_files)
+        modified_files = starbase_find_and_uprev(
+            tarfile_name,
+            tarfile_hash,
+            category,
+            package_name,
+            version_id,
+            starline_overlay_root,
+            chroot,
+        )
+        # AFAICT, version_id in the "result" is only used in the commit
+        # message.
+        result.add_result(version_id, modified_files)
 
     return result
 
