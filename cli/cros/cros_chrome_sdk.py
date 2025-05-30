@@ -1394,6 +1394,9 @@ class ChromeSDKCommand(command.CliCommand):
         gn_args.pop("pkg_config", None)
         gn_args.pop("host_pkg_config", None)
 
+        # Use Chrome's host remote build related flags.
+        gn_args.pop("use_siso", None)
+
         # --internal == --chrome-branding + --official
         if options.chrome_branding or options.internal:
             gn_args["is_chrome_branded"] = True
