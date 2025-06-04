@@ -197,16 +197,8 @@ def Update(
     build_source = request.flags.build_source
     targets = [target.name for target in request.toolchain_targets]
     toolchain_changed = request.flags.toolchain_changed
-    force_update = (
-        build_source or toolchain_changed or request.flags.force_update
-    )
 
-    if not force_update:
-        logging.info("SDK update skipped.")
-        response.skipped = True
-        return None
-
-    logging.info("Updating SDK due to force_update = True")
+    logging.info("Updating SDK")
 
     args = sdk.UpdateArguments(
         build_source=build_source,
