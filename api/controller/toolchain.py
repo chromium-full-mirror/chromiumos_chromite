@@ -444,6 +444,21 @@ def EmergeWithLinting(
                 )
             )
 
+        suggestions = []
+        for suggestion in finding.suggested_fixes:
+            suggestions.append(
+                toolchain_pb2.LinterSuggestedFix(
+                    location=toolchain_pb2.LinterFindingLocation(
+                        filepath=suggestion.location.filepath,
+                        line_start=suggestion.location.line_start,
+                        line_end=suggestion.location.line_end,
+                        col_start=suggestion.location.col_start,
+                        col_end=suggestion.location.col_end,
+                    ),
+                    replacement=suggestion.replacement,
+                )
+            )
+
         pkg = PackageInfo()
         if finding.package:
             pkg.category = finding.package.category
@@ -453,6 +468,7 @@ def EmergeWithLinting(
             toolchain_pb2.LinterFinding(
                 message=finding.message,
                 locations=locations,
+                suggested_fixes=suggestions,
                 linter=LINTER_CODES[finding.linter],
                 package=pkg,
             )
