@@ -301,16 +301,18 @@ class BuildLinter:
             return findings
         repo_paths_dict = {repo_path: "HEAD" for repo_path in repo_paths}
 
-        new_findings = []
         new_lines = self._get_added_lines(repo_paths_dict)
-        for finding in findings:
+
+        def is_finding_in_new_lines(finding: LinterFinding) -> bool:
             for loc in finding.locations:
                 for addition_start, addition_end in new_lines.get(
                     loc.filepath, []
                 ):
                     if addition_start <= loc.line_start < addition_end:
-                        new_findings.append(finding)
-        return new_findings
+                        return True
+            return False
+
+        return [x for x in findings if is_finding_in_new_lines(x)]
 
     def _get_added_lines(
         self, git_repos: Dict[str, str]
