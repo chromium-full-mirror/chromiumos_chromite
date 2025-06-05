@@ -335,6 +335,57 @@ class TriciumCargoClippyTests(cros_test_lib.TestCase):
             )
             self.assertEqual(locations, exp_results["locations"])
 
+    def test_parse_locations_handles_platform2(self) -> None:
+        """Tests that parse_locations is as expected."""
+        spans_json = [
+            {
+                "file_name": "/var/tmp/something/platform2/pkg/foo.rs",
+                "line_start": 0,
+                "line_end": 0,
+                "column_start": 0,
+                "column_end": 0,
+            },
+            {
+                "file_name": "/var/tmp/something/non-platform2/pkg/bar.rs",
+                "line_start": 0,
+                "line_end": 0,
+                "column_start": 0,
+                "column_end": 0,
+            },
+            {
+                "file_name": "/foo/bar/work/baz/qux/platform2/pkg/baz.rs",
+                "line_start": 0,
+                "line_end": 0,
+                "column_start": 0,
+                "column_end": 0,
+            },
+        ]
+
+        locations = list(
+            tricium_cargo_clippy.parse_locations(
+                orig_json={"message": {"spans": spans_json}},
+                package_path="/path/to/platform2/pkg",
+                git_repo="/path/to/platform2",
+            )
+        )
+
+        expected_locations = [
+            tricium_cargo_clippy.CodeLocation(
+                file_path=x,
+                line_start=0,
+                line_end=0,
+                column_start=0,
+                column_end=0,
+            )
+            for x in (
+                "pkg/foo.rs",
+                "/var/tmp/something/non-platform2/pkg/bar.rs",
+                "pkg/baz.rs",
+            )
+        ]
+
+        self.assertEqual(locations, expected_locations)
+
     def test_parse_locations_ebuild_directories(self) -> None:
         """Tests that parse_locations strips ebuild work directories."""
         expected_location = "src/foo"

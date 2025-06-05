@@ -130,6 +130,12 @@ def parse_locations(
             file_path = re.sub(
                 r"(.*/)?([^/]+)-[^/]+/work/[^/]+/+", "", file_path
             )
+
+            # b/422200984: Some pieces of code are unpacked to
+            # "${WORKDIR}/some/other/dir/platform2/..." If `platform2/` is
+            # present, assume that's the root of any platform2 sources.
+            file_path = re.sub(r"(^|.*/)platform2/", "", file_path)
+
         location = CodeLocation(
             file_path=file_path,
             line_start=span.get("line_start"),
