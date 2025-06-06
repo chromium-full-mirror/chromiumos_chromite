@@ -80,6 +80,12 @@ def get_parser() -> commandline.ArgumentParser:
         help="Full model name including custom label name. If specified, only "
         "update this model.",
     )
+    parser.add_argument(
+        "--ignore-models",
+        action="split_extend",
+        help="Ignore these device models while updating. "
+        "Space-separated list and/or pass multiple times.",
+    )
     parser.add_bool_argument(
         "--build",
         True,
@@ -496,6 +502,8 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
         target_models.append(opts.model)
     else:
         target_models.extend(cros_config_dict.keys())
+
+    target_models = [x for x in target_models if x not in opts.ignore_models]
 
     ctx = gs.GSContext()
 
