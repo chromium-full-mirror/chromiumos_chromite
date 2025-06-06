@@ -8,7 +8,8 @@ import dataclasses
 import enum
 import logging
 import os
-from typing import List, Optional
+from pathlib import Path
+from typing import List, Mapping, Optional
 
 from chromite.contrib.package_index_cros.lib import constants
 from chromite.contrib.package_index_cros.lib import setup
@@ -232,6 +233,16 @@ class Package:
     # src/third_party.
     src_categories = ["chromeos-base", "brillo-base"]
 
+    # Ebuild variables to pull out of the build environment.
+    ebuild_variables = [
+        "CROS_WORKON_DESTDIR",
+        "CROS_WORKON_LOCALNAME",
+        "CROS_WORKON_OUTOFTREE_BUILD",
+        "CROS_WORKON_PROJECT",
+        "CROS_WORKON_SRCROOT",
+        "S",
+    ]
+
     def __init__(
         self,
         setup_data: setup.Setup,
@@ -263,6 +274,7 @@ class Package:
         # initialized and non-None.
         self._temp_dir: Optional[str] = None
         self._build_dir: Optional[str] = None
+        self._environment: Optional[Mapping[str, str]] = None
         self._src_dir_matches: Optional[List[TempActualDichotomy]] = None
 
     @property
@@ -335,18 +347,17 @@ class Package:
 
     @property
     def is_built_from_actual_sources(self) -> bool:
-        out_of_tree_build = (
-            _check_ebuild_var(
-                # pylint: disable-next=protected-access
-                self.unstable_ebuild_path,
-                "CROS_WORKON_OUTOFTREE_BUILD",
+        # When CROS_WORKON_OUTOFTREE_BUILD == 1 we only have one project.
+        # If the src checkout matches the SHA pinned in CROS_WORKON_COMMIT
+        # then S will point to the src checkout, otherwise a copy of the code
+        # is placed into the WORKDIR.
+        return (
+            self._environment["CROS_WORKON_OUTOFTREE_BUILD"] == "1"
+            and self._environment["CROS_WORKON_SRCROOT"]
+            and self._environment["S"].startswith(
+                self._environment["CROS_WORKON_SRCROOT"]
             )
-            or "0"
-        ) == "1"
-        # Instead of calling 'cros-workon list', just check if workon version is
-        # present.
-        is_not_stable = "9999" in self.temp_dir
-        return out_of_tree_build and is_not_stable
+        )
 
     def initialize(self) -> None:
         """Find directories associated with the package and check they exist.
@@ -359,11 +370,18 @@ class Package:
         """
         logging.debug("%s: Initializing", self.full_name)
 
+        # This doesn't actually respect the ebuild version number, not sure why.
         self._temp_dir = self._get_temp_dir()
         logging.debug("%s: Temp dir: %s", self.full_name, self.temp_dir)
 
         self._build_dir = self._get_build_dir()
         logging.debug("%s: Build dir: %s", self.full_name, self.build_dir)
+
+        enviroment_path = os.path.join(self._temp_dir, "../temp/environment")
+        self._environment = osutils.SourceEnvironment(
+            enviroment_path, Package.ebuild_variables, multiline=True
+        )
+        logging.debug("%s: environment: %s", self.full_name, self._environment)
 
         self._src_dir_matches = self._get_source_dirs_to_temp_source_dirs_map()
 
@@ -438,25 +456,6 @@ class Package:
 
         raise DirsException(self, "Cannot find build dir")
 
-    def _get_temp_source_base_dir(self) -> Optional[str]:
-        """Return the base source path within the temp dir (${S} in portage).
-
-        See S on
-        https://devmanual.gentoo.org/ebuild-writing/variables/index.html.
-
-        The base source dir contains copied source files.
-        """
-        for version in self._get_ordered_version_suffixes():
-            source_dir = os.path.join(
-                self.temp_dir, f"{self.ebuild.pkgname}-{version}"
-            )
-            if os.path.isdir(source_dir):
-                return source_dir
-
-        logging.debug("ls %s: %s", self.temp_dir, os.listdir(self.temp_dir))
-
-        return None
-
     def _get_ebuild_source_dirs(self) -> List[str]:
         """Return actual source dirs.
 
@@ -469,21 +468,7 @@ class Package:
         if self.ebuild.category not in Package.src_categories:
             source_base_dir = os.path.join(source_base_dir, "third_party")
 
-        # CROS_WORKON_SRCPATH and CROS_WORKON_LOCALNAME declare paths relative
-        # to base source dir.
-        source_dirs = _check_ebuild_var(
-            # pylint: disable-next=protected-access
-            self.unstable_ebuild_path,
-            "CROS_WORKON_SRCPATH",
-            "",
-        )
-        if not source_dirs:
-            source_dirs = _check_ebuild_var(
-                # pylint: disable-next=protected-access
-                self.unstable_ebuild_path,
-                "CROS_WORKON_LOCALNAME",
-                "",
-            )
+        source_dirs = self._environment["CROS_WORKON_LOCALNAME"]
 
         if not source_dirs:
             raise DirsException(
@@ -496,7 +481,7 @@ class Package:
             os.path.join(source_base_dir, dir) for dir in source_dirs.split(",")
         ]
 
-    def _get_ebuilds_dest_dirs(self, temp_source_basedir: str) -> List[str]:
+    def _get_ebuilds_dest_dirs(self) -> List[str]:
         """Return destination source dirs.
 
         Dest dirs contain temp copy of source dirs.
@@ -505,21 +490,19 @@ class Package:
         https://crsrc.org/o/src/third_party/chromiumos-overlay/eclass/cros-workon.eclass;drc=236057acc44bead024a78b50362ec2c82205c286;l=474
         """
 
-        # CROS_WORKON_DESTDIR declares abs paths in |temp_source_basedir|.
-        dest_dirs = _check_ebuild_var(
-            # pylint: disable-next=protected-access
-            self.unstable_ebuild_path,
-            "CROS_WORKON_DESTDIR",
-            temp_source_basedir,
-        )
+        # |dest_dirs| is a comma-separated list of absolute paths to dirs.
+        dest_dirs = self._environment["CROS_WORKON_DESTDIR"]
 
         if not dest_dirs:
-            # Defaults to ${S}:
-            # https://crsrc.org/o/src/third_party/chromiumos-overlay/eclass/cros-workon.eclass;drc=236057acc44bead024a78b50362ec2c82205c286;l=583
-            return [temp_source_basedir]
-        else:
-            # |dest_dirs| is a comma-separated list of absolute paths to dirs.
-            return dest_dirs.split(",")
+            raise DirsException(
+                self, "Cannot extract dest dir(s) from ebuild file"
+            )
+
+        out = self.setup.chroot.out_path
+        return [
+            str(out / Path(dest_dir).relative_to("/"))
+            for dest_dir in dest_dirs.split(",")
+        ]
 
     def _get_source_dirs_to_temp_source_dirs_map(
         self,
@@ -536,37 +519,30 @@ class Package:
             DirsException: Cannot find temp source dirs.
             DirsException: Cannot map actual source dirs to temp source dirs.
         """
-        temp_source_basedir = self._get_temp_source_base_dir()
 
-        if not temp_source_basedir:
-            if not self.is_built_from_actual_sources:
-                raise DirsException(
-                    self,
-                    "Only workon and out-of-tree packages may not have temp "
-                    "source copy",
-                )
+        if self.is_built_from_actual_sources:
             # Out-of-tree packages are not copied but are built from the actual
             # sources.
             source_dirs = self._get_ebuild_source_dirs()
-            return [
+            matches = [
                 TempActualDichotomy(temp=source_dir, actual=source_dir)
                 for source_dir in source_dirs
             ]
+        else:
+            # cros-workon.eclass maps source dirs to dest dirs extracted from
+            # the ebuild, in the order that they are declared.
+            source_dirs = self._get_ebuild_source_dirs()
+            dest_dirs = self._get_ebuilds_dest_dirs()
 
-        # cros-workon.eclass maps source dirs to dest dirs extracted from the
-        # ebuild, in the order that they are declared.
-        source_dirs = self._get_ebuild_source_dirs()
-        dest_dirs = self._get_ebuilds_dest_dirs(temp_source_basedir)
+            if len(source_dirs) != len(dest_dirs):
+                raise DirsException(
+                    self, "Different number of src and temp src dirs"
+                )
 
-        if len(source_dirs) != len(dest_dirs):
-            raise DirsException(
-                self, "Different number of src and temp src dirs"
-            )
-
-        matches = [
-            TempActualDichotomy(temp=dest, actual=source)
-            for source, dest in zip(source_dirs, dest_dirs)
-        ]
+            matches = [
+                TempActualDichotomy(temp=dest, actual=source)
+                for source, dest in zip(source_dirs, dest_dirs)
+            ]
 
         for match in matches:
             if not os.path.isdir(match.actual):

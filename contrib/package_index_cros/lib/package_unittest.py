@@ -8,6 +8,7 @@ import os
 
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import testing_utils
+from chromite.lib import constants
 from chromite.lib import portage_util
 
 
@@ -220,3 +221,68 @@ class GetBuildDirTestCase(testing_utils.TestCase):
             pkg._get_build_dir()
         self.touch(os.path.join(var_cache_build_dir, "args.gn"))
         self.assertEqual(pkg._get_build_dir(), var_cache_build_dir)
+
+
+# pylint: disable=protected-access
+class SrcDirMatchesTestCase(testing_utils.TestCase):
+    """Test cases for Package.src_dir_matches()."""
+
+    def _get_pkg_src_temp_dir(self, pkg: package.Package) -> None:
+        """Make sure the package's temp_dir exists."""
+        return os.path.join(
+            self.setup.board_dir,
+            "tmp",
+            "portage",
+            pkg.ebuild.category,
+            f"{pkg.ebuild.pkgname}-{pkg.ebuild.version}",
+            "work",
+            f"{pkg.ebuild.pkgname}-{pkg.ebuild.version_no_rev}",
+        )
+
+    def test_regular_ebuild(self) -> None:
+        pkg = self.new_package()
+        self.assertEqual(pkg.is_built_from_actual_sources, False)
+        self.assertEqual(
+            pkg.src_dir_matches,
+            [
+                package.TempActualDichotomy(
+                    temp=self._get_pkg_src_temp_dir(pkg),
+                    actual=self.setup.platform2_dir,
+                )
+            ],
+        )
+
+    def test_out_of_tree_ebuild(self) -> None:
+        pkg = self.new_package(
+            additional_ebuild_contents=f"""
+            CROS_WORKON_OUTOFTREE_BUILD=1
+            S={constants.CHROOT_SOURCE_ROOT / "src" / "platform2"}
+        """
+        )
+        self.assertEqual(pkg.is_built_from_actual_sources, True)
+        self.assertEqual(
+            pkg.src_dir_matches,
+            [
+                package.TempActualDichotomy(
+                    temp=self.setup.platform2_dir,
+                    actual=self.setup.platform2_dir,
+                )
+            ],
+        )
+
+    def test_out_of_tree_ebuild_not_checked_out(self) -> None:
+        pkg = self.new_package(
+            additional_ebuild_contents="""
+            CROS_WORKON_OUTOFTREE_BUILD=1
+        """
+        )
+        self.assertEqual(pkg.is_built_from_actual_sources, False)
+        self.assertEqual(
+            pkg.src_dir_matches,
+            [
+                package.TempActualDichotomy(
+                    temp=self._get_pkg_src_temp_dir(pkg),
+                    actual=self.setup.platform2_dir,
+                )
+            ],
+        )

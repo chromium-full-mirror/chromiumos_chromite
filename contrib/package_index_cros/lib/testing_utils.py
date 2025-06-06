@@ -312,7 +312,6 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
 
     def new_package(  # pylint: disable=docstring-misnamed-args
         self,
-        src_dir_matches: Optional[List[package.TempActualDichotomy]] = None,
         dependencies: Optional[List[package.PackageDependency]] = None,
         **create_ebuild_kwargs: Any,
     ) -> package.Package:
@@ -320,16 +319,36 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
         ebuild = self._create_ebuild(**create_ebuild_kwargs)
         pkg = package.Package(self.setup, ebuild, deps=dependencies)
 
-        temp_dir = os.path.join(
-            self.setup.board_dir,
-            "tmp/portage",
-            pkg.ebuild.category,
-            f"{pkg.ebuild.pkgname}-{pkg.ebuild.version_no_rev}",
-            "work",
+        base_dir = (
+            Path(self.setup.board_dir)
+            / "tmp/portage"
+            / pkg.ebuild.category
+            / f"{pkg.ebuild.pkgname}-{pkg.ebuild.version}"
         )
         # Since some paths might be reused by multiple packages, it's OK if they
         # already exist.
-        Path(temp_dir).mkdir(parents=True, exist_ok=True)
+        (base_dir / "work").mkdir(parents=True, exist_ok=True)
+        (base_dir / "temp").mkdir(parents=True, exist_ok=True)
+
+        s = (
+            base_dir
+            / "work"
+            / f"{pkg.ebuild.pkgname}-{pkg.ebuild.version_no_rev}"
+        )
+        s.mkdir(exist_ok=True)
+
+        environment = Path(ebuild.ebuild_path).read_text("utf-8")
+        # We don't actually inherit cros-workon, so set the defaults.
+        # We use conditional assigns so `additional_ebuild_contents` can
+        # override these values.
+        environment += f"""
+        : ${{CROS_WORKON_OUTOFTREE_BUILD:=}}
+        : ${{CROS_WORKON_SRCROOT:={constants.CHROOT_SOURCE_ROOT}}}
+        : ${{S:={self.setup.chroot.chroot_path(s)}}}
+        : ${{CROS_WORKON_DESTDIR:=$S}}
+        """
+        (base_dir / "temp" / "environment").write_text(environment)
+
         build_dir = os.path.join(
             self.setup.board_dir,
             "var/cache/portage",
@@ -339,12 +358,7 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
         )
         self.touch(os.path.join(build_dir, "args.gn"))
 
-        with self.PatchObject(
-            package.Package,
-            "_get_source_dirs_to_temp_source_dirs_map",
-            return_value=src_dir_matches or [],
-        ):
-            pkg.initialize()
+        pkg.initialize()
 
         return pkg
 
