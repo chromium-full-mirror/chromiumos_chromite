@@ -1040,6 +1040,20 @@ def BuildPackages(
                         packages=failed_pkgs,
                     ) from e
 
+            # Hack up prefix in pkg-config files.  We can't do this at build
+            # time as binpkgs might be shared among diff broots.
+            logging.info("Rewriting prefix in broot pkg-config files")
+            prefix = target.broot / "usr"
+            for pc in (prefix / "share" / "pkgconfig").glob("*.pc"):
+                data = pc.read_text(encoding="utf-8")
+                lines = data.splitlines()
+                try:
+                    i = lines.index("prefix=/usr")
+                    lines[i] = f"prefix={prefix}"
+                    osutils.WriteFile(pc, "\n".join(lines) + "\n", sudo=True)
+                except ValueError:
+                    pass
+
             # Clean out any stale binpkgs we've accumulated. This is done
             # immediately after regenerating the cache in case ebuilds have been
             # removed (e.g. from a revert).
