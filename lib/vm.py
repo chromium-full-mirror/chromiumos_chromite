@@ -180,7 +180,7 @@ class VM(device.Device):
         self.qemu_path = opts.qemu_path
         self.qemu_img_path = opts.qemu_img_path
         self.qemu_bios_path = opts.qemu_bios_path
-        self.qemu_m = opts.qemu_m
+        self.qemu_mem = opts.qemu_mem
         self.qemu_cpu = opts.qemu_cpu
         # x86_64 is used by default instead of aarch64
         self.is_x86 = True
@@ -496,7 +496,7 @@ class VM(device.Device):
 
         qemu_args += [
             "-m",
-            self.qemu_m,
+            self.qemu_mem,
             "-smp",
             str(self.qemu_smp),
             "-daemonize",
@@ -861,11 +861,12 @@ class VM(device.Device):
             help="Path of qemu binary to launch with --start.",
         )
         group.add_argument(
-            "--qemu-m",
+            "--qemu-mem",
             metavar="MEM",
             type=str,
             default="8G",
-            help="Memory argument that will be passed to qemu.",
+            help="Memory argument that will be passed to qemu -m. "
+            "(default: %(default)s)",
         )
         group.add_argument(
             "--qemu-smp",
