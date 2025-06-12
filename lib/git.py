@@ -1006,6 +1006,36 @@ def FindGitTopLevel(path: Union[str, "os.PathLike[str]"]) -> Optional[str]:
         return None
 
 
+class Identity(NamedTuple):
+    """Git identity information."""
+
+    name: Optional[str]
+    email: Optional[str]
+
+
+def parse_user_identity(identity: str) -> Identity:
+    """Parse the name & email from standard identity.
+
+    Basically this splits apart contact info like:
+    Some Developer <email@example.com>
+    """
+    m = re.search(r"([^<]*) <([^>]*)>", identity.strip())
+    return Identity(*(m.groups() if m else (None, None)))
+
+
+def get_user_identity(
+    git_repo: Optional[Union[str, "os.PathLike[str]"]] = constants.CHROMITE_DIR,
+) -> Identity:
+    """Get the name & email configured for the project.
+
+    By default, we load the settings from the chromite dir.  If repo is
+    initialized with a custom name & e-mail address, we should load that and not
+    the one from the user's ~/.
+    """
+    result = RunGit(git_repo, ["var", "GIT_COMMITTER_IDENT"])
+    return parse_user_identity(result.stdout)
+
+
 def GetProjectUserEmail(
     git_repo: Optional[Union[str, "os.PathLike[str]"]] = constants.CHROMITE_DIR,
 ) -> Optional[str]:
@@ -1015,9 +1045,7 @@ def GetProjectUserEmail(
     initialized with a custom name & e-mail address, we should load that and not
     the one from the user's ~/.
     """
-    output = RunGit(git_repo, ["var", "GIT_COMMITTER_IDENT"]).stdout
-    m = re.search(r"<([^>]*)>", output.strip())
-    return m.group(1) if m else None
+    return get_user_identity(git_repo).email
 
 
 def MatchBranchName(

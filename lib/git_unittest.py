@@ -12,6 +12,8 @@ import shutil
 import unittest
 from unittest import mock
 
+import pytest
+
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -1346,3 +1348,37 @@ CommitDate: 2023-08-24T15:41:32+00:00
                 ),
             ],
         )
+
+
+@pytest.mark.parametrize(
+    ("data", "exp"),
+    (
+        ("Foo Bar <help@example.com> 1234", ("Foo Bar", "help@example.com")),
+        ("First '>' Last <e@c>", ("First '>' Last", "e@c")),
+        ("Hmmmm", (None, None)),
+    ),
+)
+def test_parse_user_identity(data, exp) -> None:
+    """Verify parse_user_identity."""
+    assert git.parse_user_identity(data) == git.Identity(*exp)
+
+
+def test_get_user_identity(monkeypatch: "pytest.MonkeyPatch") -> None:
+    """Verify get_user_identity.
+
+    Most logic lives in parse_user_identity, so this is fairly light testing.
+    """
+    ident = git.Identity("I Robit", "chromite@example.com")
+    monkeypatch.setenv("GIT_COMMITTER_NAME", ident.name)
+    monkeypatch.setenv("GIT_COMMITTER_EMAIL", ident.email)
+    assert ident == git.get_user_identity("/")
+
+
+def test_GetProjectUserEmail(monkeypatch: "pytest.MonkeyPatch") -> None:
+    """Verify GetProjectUserEmail.
+
+    Most logic lives in parse_user_identity, so this is fairly light testing.
+    """
+    monkeypatch.setenv("GIT_COMMITTER_NAME", "I Robit")
+    monkeypatch.setenv("GIT_COMMITTER_EMAIL", "chromite@example.com")
+    assert "chromite@example.com" == git.GetProjectUserEmail("/")
