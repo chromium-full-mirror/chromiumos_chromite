@@ -1007,9 +1007,14 @@ def FindGitTopLevel(path: Union[str, "os.PathLike[str]"]) -> Optional[str]:
 
 
 def GetProjectUserEmail(
-    git_repo: Union[str, "os.PathLike[str]"],
+    git_repo: Optional[Union[str, "os.PathLike[str]"]] = constants.CHROMITE_DIR,
 ) -> Optional[str]:
-    """Get the email configured for the project."""
+    """Get the email configured for the project.
+
+    By default, we load the settings from the chromite dir.  If repo is
+    initialized with a custom name & e-mail address, we should load that and not
+    the one from the user's ~/.
+    """
     output = RunGit(git_repo, ["var", "GIT_COMMITTER_IDENT"]).stdout
     m = re.search(r"<([^>]*)>", output.strip())
     return m.group(1) if m else None

@@ -286,8 +286,7 @@ def FindUserEmail(options):
     if options.committer_email:
         return options.committer_email
 
-    cwd = os.path.dirname(os.path.realpath(__file__))
-    return git.GetProjectUserEmail(cwd)
+    return git.GetProjectUserEmail()
 
 
 def PushLocalPatches(local_patches, user_email, dryrun=False):
