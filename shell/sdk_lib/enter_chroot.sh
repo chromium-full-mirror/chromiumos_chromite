@@ -50,15 +50,6 @@ eval set -- "${FLAGS_ARGV}"
 # TODO: replace shflags with something less error-prone, or contribute a fix.
 switch_to_strict_mode
 
-# These config files are to be copied into chroot if they exist in home dir.
-# Additionally, git relevant files are copied by setup_git.
-FILES_TO_COPY_TO_CHROOT=()
-if [[ "${SUDO_USER}" == "chrome-bot" ]]; then
-  # Builders still haven't migrated fully to gitcookies.
-  # https://crbug.com/1032944
-  FILES_TO_COPY_TO_CHROOT+=( .netrc )
-fi
-
 INNER_CHROME_ROOT=${FLAGS_chrome_root_mount}  # inside chroot
 CHROME_ROOT_CONFIG="/var/cache/chrome_root"   # inside chroot
 
@@ -324,11 +315,6 @@ setup_env() {
         setup_gclient_cache_dir_mount "${CHROME_ROOT}"
       fi
     fi
-
-    # Certain files get copied into the chroot when entering.
-    for fn in "${FILES_TO_COPY_TO_CHROOT[@]}"; do
-      copy_into_chroot_if_exists "${SUDO_HOME}/${fn}" "/home/${SUDO_USER}/${fn}"
-    done
 
     setup_git
 
