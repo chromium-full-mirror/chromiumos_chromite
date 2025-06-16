@@ -317,6 +317,11 @@ Note: When flashing a signed image, ssh connection to the device will be lost
 
     def Run(self) -> None:
         """Run the cros flash command inside sudo wrappers."""
+        if cros_build_lib.IsInsideChroot():
+            logging.warning(
+                "It's recommended to run `cros flash` outside the SDK."
+            )
+
         # In most (all?) cases, "cros flash" requires sudo.  Ensure that sudo
         # is cached here ahead of everything, because
         # operation.ProgressBarOperation, which is run in RunParallelSteps,
