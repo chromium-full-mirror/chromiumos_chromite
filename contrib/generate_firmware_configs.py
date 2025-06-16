@@ -83,6 +83,7 @@ def get_parser() -> commandline.ArgumentParser:
     parser.add_argument(
         "--ignore-models",
         action="split_extend",
+        default=[],
         help="Ignore these device models while updating. "
         "Space-separated list and/or pass multiple times.",
     )
