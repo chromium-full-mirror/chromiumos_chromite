@@ -420,6 +420,12 @@ _COPY_PATHS_CHROME_WITHOUT_EXE = (
         cond=C.GnSetTo(_IS_CHROME_BRANDED, True),
         optional=True,
     ),
+    Path(
+        "libshape_detection_internal.so",
+        exe=True,
+        cond=C.GnSetTo(_IS_CHROME_BRANDED, True),
+        optional=True,
+    ),
     Path("libEGL.so", exe=True, optional=True),
     Path("libGLESv2.so", exe=True, optional=True),
     # Widevine CDM is already pre-stripped.  In addition, it doesn't
