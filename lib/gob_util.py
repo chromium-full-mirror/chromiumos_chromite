@@ -372,13 +372,9 @@ def CreateHttpReq(
     except SsoNotSupportedError:
         cookies = GetCookies(host, path)
 
-    # Add relevant cookies and authorization creds.
-    if "Cookie" not in headers and cookies:
-        headers["Cookie"] = "; ".join(
-            "%s=%s" % (n, v) for n, v in cookies.items()
-        )
-
-    if "Cookie" not in headers and "Authorization" not in headers:
+    # Add relevant cookies and authorization creds. Prefer LUCI auth over
+    # cookies.
+    if "Authorization" not in headers:
         try:
             git_creds = auth.GitCreds()
         except auth.AccessTokenError:
@@ -386,6 +382,12 @@ def CreateHttpReq(
         if git_creds:
             headers.setdefault("Authorization", "Bearer %s" % git_creds)
             logging.debug("Using LUCI git cred for GoB authorization.")
+
+    if "Cookie" not in headers and "Authorization" not in headers:
+        if cookies:
+            headers["Cookie"] = "; ".join(
+                "%s=%s" % (n, v) for n, v in cookies.items()
+            )
         else:
             logging.debug(
                 "No gitcookies file, Appengine credentials, or LUCI git creds "
