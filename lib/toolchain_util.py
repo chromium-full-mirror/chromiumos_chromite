@@ -197,6 +197,9 @@ MERGED_PROFILE_NAME_REGEX = r"""
 """
 
 CHROME_ARCH_VERSION = "%(package)s-%(arch)s-%(version)s"
+CHROME_UNVERIFIED_PERF_AFDO_FILE_GLOB = (
+    "%(package)s-%(arch)s-%(versionnosuffix)s*.perf.data"
+)
 CHROME_PERF_AFDO_FILE = "%(package)s-%(arch)s-%(versionnorev)s.perf.data"
 CHROME_BENCHMARK_AFDO_FILE = "%s%s" % (CHROME_ARCH_VERSION, AFDO_SUFFIX)
 CHROME_DEBUG_BINARY_NAME = "%s.debug" % CHROME_ARCH_VERSION
@@ -240,6 +243,22 @@ class UpdateEbuildWithAFDOArtifactsError(Error):
 
 class NoProfilesInGsBucketError(Error):
     """Raised when _FindLatestAFDOArtifact doesn't find profiles."""
+
+
+def _RemoveVersionSuffixes(raw_version: str) -> str:
+    """Returns the given version with revisions and suffixes removed.
+
+    >>> _RemoveVersionSuffixes("1.2.3")
+    "1.2.3"
+    >>> _RemoveVersionSuffixes("1.2.3_pre456_p789-r2")
+    "1.2.3"
+    >>> _RemoveVersionSuffixes("1.2.3-r2")
+    "1.2.3"
+    """
+    # Per Portage's version specification, all suffixes must start with `_`, and
+    # revisions must be preceded by `-`. Version numbers aren't allowed to
+    # contain either of those.
+    return raw_version.split("_")[0].split("-")[0]
 
 
 def _ExtractChromeVersionFromDebugFileName(
@@ -638,17 +657,21 @@ class _CommonPrepareBundle:
         if wildcard_version:
             ver = "*"
             vernorev = "*"
+            vernosuffix = "*"
         elif forced_version:
             ver = forced_version.version_rc
             vernorev = forced_version.version_no_rev
+            vernosuffix = _RemoveVersionSuffixes(forced_version.info.version)
         else:
             ver = pkg.vr
             vernorev = pkg.version.removesuffix("_rc")
+            vernosuffix = _RemoveVersionSuffixes(pkg.version)
         afdo_spec = {
             "arch": self.arch,
             "package": pkg.package,
             "version": ver,
             "versionnorev": vernorev,
+            "versionnosuffix": vernosuffix,
         }
         return template % afdo_spec
 
@@ -862,6 +885,27 @@ class _CommonPrepareBundle:
                         "file."
                     )
                 return found_paths[0]
+        return None
+
+    def _FindNewestArtifact(
+        self, name: str, gs_urls: Iterable[str]
+    ) -> Optional[str]:
+        """Find an artifact matching |name|, from a list of |gs_urls|.
+
+        If multiple artifacts are found, the newest is preferred.
+
+        Args:
+            name: The name of the artifact (supports wildcards).
+            gs_urls: List of full gs:// directory paths to check.
+
+        Returns:
+            The url of the located artifact, or None.
+        """
+        for url in gs_urls:
+            path = os.path.join(url, name)
+            if found_artifacts := self.gs_context.List(path):
+                newest = max(found_artifacts, key=lambda x: x.creation_time)
+                return newest.url
         return None
 
     def _PatchEbuild(self, info, rules, uprev):
@@ -1494,9 +1538,21 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
         # We're going to fetch the perf profile corresponding with this
         # chrome.debug version, since (as mentioned earlier) the source tree
         # might've changed between the build of Chrome & this function running.
-        perf_name = (
+        #
+        # b/427175054: This is the 'ideal' perf name, which is expected later in
+        # the builder. The _reality_ is that these names can't easily be
+        # replicated anymore on builders, so we download the newest profile
+        # based on a glob, and rename.
+        ideal_perf_name = (
             self._GetBenchmarkAFDOName(
                 template=CHROME_PERF_AFDO_FILE,
+                forced_version=chrome_debug_version,
+            )
+            + BZ2_COMPRESSION_SUFFIX
+        )
+        perf_name_glob = (
+            self._GetBenchmarkAFDOName(
+                template=CHROME_UNVERIFIED_PERF_AFDO_FILE_GLOB,
                 forced_version=chrome_debug_version,
             )
             + BZ2_COMPRESSION_SUFFIX
@@ -1520,14 +1576,14 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
             print_cmd=True,
         )
 
-        perf_compressed = self._AfdoTmpPath(perf_name)
+        perf_compressed = self._AfdoTmpPath(ideal_perf_name)
         gs_loc = self.input_artifacts.get(
             "UnverifiedChromeBenchmarkPerfFile", []
         )
-        perf_url = self._FindArtifact(perf_name, gs_loc)
+        perf_url = self._FindNewestArtifact(perf_name_glob, gs_loc)
         if not perf_url:
             raise PrepareForBuildHandlerError(
-                f'Could not find "{perf_name}" in {gs_loc}.'
+                f'Could not find matches for "{perf_name_glob}" in {gs_loc}.'
             )
         self.gs_context.Copy(perf_url, self.chroot.full_path(perf_compressed))
         self.chroot.run(

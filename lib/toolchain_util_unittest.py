@@ -218,6 +218,32 @@ class ProfilesNameHelperTest(cros_test_lib.MockTempDirTestCase):
         ret = toolchain_util._GetProfileAge(last_day_profile, "kernel_afdo")
         self.assertEqual(1, ret)
 
+    def testRemoveVersionSuffixes(self) -> None:
+        self.assertEqual(
+            toolchain_util._RemoveVersionSuffixes(
+                package_info.parse(
+                    "chromeos-base/chromeos-chrome-79.0.3900.0_rc-r1"
+                ).version
+            ),
+            "79.0.3900.0",
+        )
+        self.assertEqual(
+            toolchain_util._RemoveVersionSuffixes(
+                package_info.parse(
+                    "chromeos-base/chromeos-chrome-79.0.3900.0_pre123_rc-r1"
+                ).version
+            ),
+            "79.0.3900.0",
+        )
+        self.assertEqual(
+            toolchain_util._RemoveVersionSuffixes(
+                package_info.parse(
+                    "chromeos-base/chromeos-chrome-79.0.3900.0-r1"
+                ).version
+            ),
+            "79.0.3900.0",
+        )
+
 
 class PrepareBundleTest(cros_test_lib.RunCommandTempDirTestCase):
     """Setup code common to Prepare/Bundle class methods."""
@@ -475,6 +501,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         }
         self.gsc_exists = None
         self.gsc_ls = None
+        self.gsc_list = None
         self.patch_ebuild = mock.MagicMock()
         # Save datetime for use in mocks.
         self.dt = datetime.datetime
@@ -547,6 +574,9 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         self.gsc_ls = self.PatchObject(
             self.gs_context, "LS", return_value=["gs://path"]
         )
+        self.gsc_list = self.PatchObject(
+            self.gs_context, "List", return_value=["gs://path"]
+        )
         if mock_patch:
             self.patch_ebuild = self.PatchObject(
                 toolchain_util._CommonPrepareBundle, "_PatchEbuild"
@@ -576,7 +606,14 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
                 "gs://image-archive/path/to/"
                 "chromeos-chrome-amd64-1.2.3.4_rc-r1.debug"
             ],
-            ["gs://image-archive/path/to/perf"],
+        )
+        self.gsc_list.side_effect = (
+            [
+                gs.GSListResult(
+                    url="gs://image-archive/path/to/perf",
+                    creation_time=1,
+                ),
+            ],
         )
         self.assertEqual(
             toolchain_util.PrepareForBuildReturn.NEEDED, self.obj.Prepare()
@@ -591,13 +628,16 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             mock.call(
                 "gs://image-archive/path/chromeos-chrome-amd64-*.debug.bz2"
             ),
+        ]
+        expected_list = [
             mock.call(
                 "gs://path/to/perfdata/"
-                "chromeos-chrome-amd64-1.2.3.4.perf.data.bz2"
+                "chromeos-chrome-amd64-1.2.3.4*.perf.data.bz2"
             ),
         ]
         self.assertEqual(expected_exists, self.gs_context.Exists.call_args_list)
         self.assertEqual(expected_ls, self.gs_context.LS.call_args_list)
+        self.assertEqual(expected_list, self.gs_context.List.call_args_list)
         # There is no need to patch the ebuild.
         self.patch_ebuild.assert_not_called()
 
@@ -615,7 +655,14 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
                 "gs://image-archive/path/to/"
                 "chromeos-chrome-arm-4.3.2.1_rc-r2.debug"
             ],
-            ["gs://image-archive/path/to/perf"],
+        )
+        self.gsc_list.side_effect = (
+            [
+                gs.GSListResult(
+                    "gs://image-archive/path/to/perf",
+                    creation_time=1,
+                ),
+            ],
         )
         self.assertEqual(
             toolchain_util.PrepareForBuildReturn.NEEDED, self.obj.Prepare()
@@ -631,13 +678,16 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             mock.call(
                 "gs://image-archive/path/chromeos-chrome-arm-*.debug.bz2"
             ),
+        ]
+        expected_list = [
             mock.call(
                 "gs://path/to/perfdata/"
-                "chromeos-chrome-arm-4.3.2.1.perf.data.bz2"
+                "chromeos-chrome-arm-4.3.2.1*.perf.data.bz2"
             ),
         ]
         self.assertEqual(expected_exists, self.gs_context.Exists.call_args_list)
         self.assertEqual(expected_ls, self.gs_context.LS.call_args_list)
+        self.assertEqual(expected_list, self.gs_context.List.call_args_list)
         # There is no need to patch the ebuild.
         self.patch_ebuild.assert_not_called()
 
@@ -647,6 +697,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         # Published artifact is missing, debug binary is missing.
         self.gsc_exists.return_value = False
         self.gsc_ls.return_value = []
+        self.gsc_list.return_value = []
         with self.assertRaisesRegex(
             toolchain_util.PrepareForBuildHandlerError,
             r"Could not find an artifact matching the pattern "
@@ -666,11 +717,12 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
                 "gs://image-archive/path/to/"
                 "chromeos-chrome-amd64-1.2.3.4_rc-r1.debug"
             ],
-            [],
         )
+        self.gsc_list.side_effect = ([],)
         with self.assertRaisesRegex(
             toolchain_util.PrepareForBuildHandlerError,
-            r'Could not find "chromeos-chrome-amd64-1.2.3.4.perf.data.bz2" '
+            r"Could not find matches for "
+            r'"chromeos-chrome-amd64-1.2.3.4\*.perf.data.bz2" '
             r"in \['gs://path/to/perfdata'\].",
         ):
             self.obj.Prepare()
