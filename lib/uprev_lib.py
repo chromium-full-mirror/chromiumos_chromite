@@ -474,9 +474,11 @@ class UprevChromeManager:
         logging.debug(
             "Modified ebuild(s) for %s: %s", package, result.changed_files
         )
-        if candidate and not candidate.IsSticky():
-            osutils.SafeUnlink(candidate.ebuild_path)
-            self._removed_ebuild_files.append(candidate.ebuild_path)
+        for old in stable_ebuilds:
+            if old.IsSticky():
+                continue
+            osutils.SafeUnlink(old.ebuild_path)
+            self._removed_ebuild_files.append(old.ebuild_path)
 
         return result
 
