@@ -34,7 +34,7 @@ def RunQualbot(request, response, _config):
     cmd = [
         constants.SOURCE_ROOT / "infra/fw_qual_automation/auto_qual_main.py",
         "--log-level",
-        "DEBUG",
+        "INFO",
     ]
 
     with tempfile.TemporaryDirectory() as temp_dir:
