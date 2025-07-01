@@ -1083,6 +1083,7 @@ class InstallPackagesTest(
             use_flags=[],
             use_remoteexec=True,
             reproxy_cfg_file=cfg_file_name,
+            use_siso=False,
             incremental_build=False,
             dryrun=False,
             backtrack=sysroot_controller.DEFAULT_BACKTRACK,

@@ -492,6 +492,7 @@ class BuildPackagesRunConfigTest(
         extra_env = instance.GetExtraEnv()
 
         self.assertNotIn("USE_REMOTEEXEC", extra_env)
+        self.assertNotIn("USE_SISO", extra_env)
 
         # Test when use_flags are specified.
         use_flags = ["flag1", "flag2"]
@@ -648,6 +649,38 @@ class BuildPackagesRunConfigTest(
 
         self.assertEqual(extra_env.get("USE_REMOTEEXEC"), "true")
         self.assertEqual(extra_env.get("REPROXY_CFG_FILE"), reproxy_cfg_file)
+        self.assertNotIn("USE_SISO", extra_env)
+
+    def testGetBuildPackagesSiso(self) -> None:
+        """Test the `cros build-packages` with siso."""
+        # Test the default config.
+        instance = sysroot.BuildPackagesRunConfig()
+
+        instance.use_siso = True
+        reproxy_cfg_file = "reproxy_release.cfg"
+        instance.reproxy_cfg_file = reproxy_cfg_file
+
+        extra_env = instance.GetExtraEnv()
+
+        self.assertNotIn("USE_REMOTEEXEC", extra_env)
+        self.assertNotIn("REPROXY_CFG_FILE", extra_env)
+        self.assertEqual(extra_env.get("USE_SISO"), "true")
+
+    def testGetBuildPackagesSisoRemoteExecution(self) -> None:
+        """Test the `cros build-packages` with siso remote execution."""
+        # Test the default config.
+        instance = sysroot.BuildPackagesRunConfig()
+
+        instance.use_remoteexec = True
+        instance.use_siso = True
+        reproxy_cfg_file = "reproxy_release.cfg"
+        instance.reproxy_cfg_file = reproxy_cfg_file
+
+        extra_env = instance.GetExtraEnv()
+
+        self.assertEqual(extra_env.get("USE_REMOTEEXEC"), "true")
+        self.assertEqual(extra_env.get("REPROXY_CFG_FILE"), reproxy_cfg_file)
+        self.assertEqual(extra_env.get("USE_SISO"), "true")
 
 
 class BuildPackagesTest(

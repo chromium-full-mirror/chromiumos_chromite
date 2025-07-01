@@ -375,6 +375,8 @@ def InstallPackages(
     reproxy_cfg_file = ""
     if use_remoteexec:
         reproxy_cfg_file = request.remoteexec_config.reproxy_cfg_file
+    # TODO(b/420873456): add siso flag in request?
+    use_siso = False
 
     target_sysroot = sysroot_lib.Sysroot(request.sysroot.path)
     build_target = controller_util.ParseBuildTarget(
@@ -432,6 +434,7 @@ def InstallPackages(
         use_flags=use_flags,
         use_remoteexec=use_remoteexec,
         reproxy_cfg_file=reproxy_cfg_file,
+        use_siso=use_siso,
         incremental_build=False,
         dryrun=dryrun,
         backtrack=DEFAULT_BACKTRACK,
