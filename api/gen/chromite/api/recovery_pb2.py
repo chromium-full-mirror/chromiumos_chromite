@@ -15,7 +15,7 @@ from chromite.api.gen.chromite.api import build_api_pb2 as chromite_dot_api_dot_
 from chromite.api.gen.chromiumos import common_pb2 as chromiumos_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x63hromite/api/recovery.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"\xd8\x01\n\x1b\x43reateRecoveryKernelRequest\x12\"\n\x06\x63hroot\x18\x01 \x01(\x0b\x32\x12.chromiumos.Chroot\x12-\n\x0c\x62uild_target\x18\x02 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12>\n\x05\x66lags\x18\x03 \x01(\x0b\x32/.chromite.api.CreateRecoveryKernelRequest.Flags\x1a&\n\x05\x46lags\x12\x1d\n\x15\x63reate_bootable_image\x18\x01 \x01(\x08\"I\n\x1c\x43reateRecoveryKernelResponse\x12)\n\x0frecovery_kernel\x18\x01 \x01(\x0b\x32\x10.chromiumos.Path2\x94\x01\n\x0fRecoveryService\x12o\n\x14\x43reateRecoveryKernel\x12).chromite.api.CreateRecoveryKernelRequest\x1a*.chromite.api.CreateRecoveryKernelResponse\"\x00\x1a\x10\xc2\xed\x1a\x0c\n\x08recovery\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x63hromite/api/recovery.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"\x82\x02\n\x1b\x43reateRecoveryKernelRequest\x12\"\n\x06\x63hroot\x18\x01 \x01(\x0b\x32\x12.chromiumos.Chroot\x12-\n\x0c\x62uild_target\x18\x02 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12>\n\x05\x66lags\x18\x03 \x01(\x0b\x32/.chromite.api.CreateRecoveryKernelRequest.Flags\x12(\n\x0eshellball_path\x18\x04 \x01(\x0b\x32\x10.chromiumos.Path\x1a&\n\x05\x46lags\x12\x1d\n\x15\x63reate_bootable_image\x18\x01 \x01(\x08\"I\n\x1c\x43reateRecoveryKernelResponse\x12)\n\x0frecovery_kernel\x18\x01 \x01(\x0b\x32\x10.chromiumos.Path2\x94\x01\n\x0fRecoveryService\x12o\n\x14\x43reateRecoveryKernel\x12).chromite.api.CreateRecoveryKernelRequest\x1a*.chromite.api.CreateRecoveryKernelResponse\"\x00\x1a\x10\xc2\xed\x1a\x0c\n\x08recovery\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromite.api.recovery_pb2', globals())
@@ -26,11 +26,11 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _RECOVERYSERVICE._options = None
   _RECOVERYSERVICE._serialized_options = b'\302\355\032\014\n\010recovery\020\001'
   _CREATERECOVERYKERNELREQUEST._serialized_start=101
-  _CREATERECOVERYKERNELREQUEST._serialized_end=317
-  _CREATERECOVERYKERNELREQUEST_FLAGS._serialized_start=279
-  _CREATERECOVERYKERNELREQUEST_FLAGS._serialized_end=317
-  _CREATERECOVERYKERNELRESPONSE._serialized_start=319
-  _CREATERECOVERYKERNELRESPONSE._serialized_end=392
-  _RECOVERYSERVICE._serialized_start=395
-  _RECOVERYSERVICE._serialized_end=543
+  _CREATERECOVERYKERNELREQUEST._serialized_end=359
+  _CREATERECOVERYKERNELREQUEST_FLAGS._serialized_start=321
+  _CREATERECOVERYKERNELREQUEST_FLAGS._serialized_end=359
+  _CREATERECOVERYKERNELRESPONSE._serialized_start=361
+  _CREATERECOVERYKERNELRESPONSE._serialized_end=434
+  _RECOVERYSERVICE._serialized_start=437
+  _RECOVERYSERVICE._serialized_end=585
 # @@protoc_insertion_point(module_scope)

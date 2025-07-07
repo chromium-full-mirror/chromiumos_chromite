@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n5chromiumos/test/lab/api/passport/camera_service.proto\x12 chromiumos.test.lab.api.passport\"\x13\n\x11GetCamerasRequest\"\"\n\x06\x43\x61mera\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"O\n\x12GetCamerasResponse\x12\x39\n\x07\x63\x61meras\x18\x01 \x03(\x0b\x32(.chromiumos.test.lab.api.passport.Camera\"+\n\x16GetAveragePixelRequest\x12\x11\n\tdevice_id\x18\x01 \x01(\t\"3\n\x05Pixel\x12\t\n\x01r\x18\x01 \x01(\x05\x12\t\n\x01g\x18\x02 \x01(\x05\x12\t\n\x01\x62\x18\x03 \x01(\x05\x12\t\n\x01\x61\x18\x04 \x01(\x05\"`\n\x17GetAveragePixelResponse\x12\x36\n\x05pixel\x18\x01 \x01(\x0b\x32\'.chromiumos.test.lab.api.passport.Pixel\x12\r\n\x05\x66rame\x18\x02 \x01(\x0c\x32\x95\x02\n\rCameraService\x12y\n\nGetCameras\x12\x33.chromiumos.test.lab.api.passport.GetCamerasRequest\x1a\x34.chromiumos.test.lab.api.passport.GetCamerasResponse\"\x00\x12\x88\x01\n\x0fGetAveragePixel\x12\x38.chromiumos.test.lab.api.passport.GetAveragePixelRequest\x1a\x39.chromiumos.test.lab.api.passport.GetAveragePixelResponse\"\x00\x42<Z:go.chromium.org/chromiumos/config/go/test/lab/api/passportb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n5chromiumos/test/lab/api/passport/camera_service.proto\x12 chromiumos.test.lab.api.passport\"\x13\n\x11GetCamerasRequest\"\"\n\x06\x43\x61mera\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"O\n\x12GetCamerasResponse\x12\x39\n\x07\x63\x61meras\x18\x01 \x03(\x0b\x32(.chromiumos.test.lab.api.passport.Camera\"J\n\x16GetAveragePixelRequest\x12\x11\n\tdevice_id\x18\x01 \x01(\t\x12\x1d\n\x15\x65xposure_microseconds\x18\x02 \x01(\x05\"3\n\x05Pixel\x12\t\n\x01r\x18\x01 \x01(\x05\x12\t\n\x01g\x18\x02 \x01(\x05\x12\t\n\x01\x62\x18\x03 \x01(\x05\x12\t\n\x01\x61\x18\x04 \x01(\x05\"`\n\x17GetAveragePixelResponse\x12\x36\n\x05pixel\x18\x01 \x01(\x0b\x32\'.chromiumos.test.lab.api.passport.Pixel\x12\r\n\x05\x66rame\x18\x02 \x01(\x0c\"5\n\x03HSV\x12\x0b\n\x03hue\x18\x01 \x01(\x02\x12\x12\n\nsaturation\x18\x02 \x01(\x02\x12\r\n\x05value\x18\x03 \x01(\x02\"q\n\x07HSVMask\x12\x32\n\x03min\x18\x01 \x01(\x0b\x32%.chromiumos.test.lab.api.passport.HSV\x12\x32\n\x03max\x18\x02 \x01(\x0b\x32%.chromiumos.test.lab.api.passport.HSV\"\xed\x01\n\x11\x41nalyzeHSVRequest\x12\x11\n\tdevice_id\x18\x01 \x01(\t\x12M\n\x05masks\x18\x02 \x03(\x0b\x32>.chromiumos.test.lab.api.passport.AnalyzeHSVRequest.MasksEntry\x12\x1d\n\x15\x65xposure_microseconds\x18\x03 \x01(\x05\x1aW\n\nMasksEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x38\n\x05value\x18\x02 \x01(\x0b\x32).chromiumos.test.lab.api.passport.HSVMask:\x02\x38\x01\"\xc6\x01\n\x12\x41nalyzeHSVResponse\x12g\n\x12percentage_matched\x18\x01 \x03(\x0b\x32K.chromiumos.test.lab.api.passport.AnalyzeHSVResponse.PercentageMatchedEntry\x12\r\n\x05\x66rame\x18\x02 \x01(\x0c\x1a\x38\n\x16PercentageMatchedEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x02:\x02\x38\x01\x32\x95\x03\n\rCameraService\x12y\n\nGetCameras\x12\x33.chromiumos.test.lab.api.passport.GetCamerasRequest\x1a\x34.chromiumos.test.lab.api.passport.GetCamerasResponse\"\x00\x12\x88\x01\n\x0fGetAveragePixel\x12\x38.chromiumos.test.lab.api.passport.GetAveragePixelRequest\x1a\x39.chromiumos.test.lab.api.passport.GetAveragePixelResponse\"\x00\x12~\n\x0f\x41nalyzeImageHSV\x12\x33.chromiumos.test.lab.api.passport.AnalyzeHSVRequest\x1a\x34.chromiumos.test.lab.api.passport.AnalyzeHSVResponse\"\x00\x42<Z:go.chromium.org/chromiumos/config/go/test/lab/api/passportb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -22,6 +22,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z:go.chromium.org/chromiumos/config/go/test/lab/api/passport'
+  _ANALYZEHSVREQUEST_MASKSENTRY._options = None
+  _ANALYZEHSVREQUEST_MASKSENTRY._serialized_options = b'8\001'
+  _ANALYZEHSVRESPONSE_PERCENTAGEMATCHEDENTRY._options = None
+  _ANALYZEHSVRESPONSE_PERCENTAGEMATCHEDENTRY._serialized_options = b'8\001'
   _globals['_GETCAMERASREQUEST']._serialized_start=91
   _globals['_GETCAMERASREQUEST']._serialized_end=110
   _globals['_CAMERA']._serialized_start=112
@@ -29,11 +33,23 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_GETCAMERASRESPONSE']._serialized_start=148
   _globals['_GETCAMERASRESPONSE']._serialized_end=227
   _globals['_GETAVERAGEPIXELREQUEST']._serialized_start=229
-  _globals['_GETAVERAGEPIXELREQUEST']._serialized_end=272
-  _globals['_PIXEL']._serialized_start=274
-  _globals['_PIXEL']._serialized_end=325
-  _globals['_GETAVERAGEPIXELRESPONSE']._serialized_start=327
-  _globals['_GETAVERAGEPIXELRESPONSE']._serialized_end=423
-  _globals['_CAMERASERVICE']._serialized_start=426
-  _globals['_CAMERASERVICE']._serialized_end=703
+  _globals['_GETAVERAGEPIXELREQUEST']._serialized_end=303
+  _globals['_PIXEL']._serialized_start=305
+  _globals['_PIXEL']._serialized_end=356
+  _globals['_GETAVERAGEPIXELRESPONSE']._serialized_start=358
+  _globals['_GETAVERAGEPIXELRESPONSE']._serialized_end=454
+  _globals['_HSV']._serialized_start=456
+  _globals['_HSV']._serialized_end=509
+  _globals['_HSVMASK']._serialized_start=511
+  _globals['_HSVMASK']._serialized_end=624
+  _globals['_ANALYZEHSVREQUEST']._serialized_start=627
+  _globals['_ANALYZEHSVREQUEST']._serialized_end=864
+  _globals['_ANALYZEHSVREQUEST_MASKSENTRY']._serialized_start=777
+  _globals['_ANALYZEHSVREQUEST_MASKSENTRY']._serialized_end=864
+  _globals['_ANALYZEHSVRESPONSE']._serialized_start=867
+  _globals['_ANALYZEHSVRESPONSE']._serialized_end=1065
+  _globals['_ANALYZEHSVRESPONSE_PERCENTAGEMATCHEDENTRY']._serialized_start=1009
+  _globals['_ANALYZEHSVRESPONSE_PERCENTAGEMATCHEDENTRY']._serialized_end=1065
+  _globals['_CAMERASERVICE']._serialized_start=1068
+  _globals['_CAMERASERVICE']._serialized_end=1473
 # @@protoc_insertion_point(module_scope)
