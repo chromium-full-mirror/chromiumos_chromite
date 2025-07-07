@@ -8,6 +8,7 @@ Provides a Builder class with methods for various kernel build steps,
 including generating specific kernel images (e.g., for recovery) with
 custom features and signing.
 """
+
 from __future__ import annotations
 
 import logging
@@ -216,6 +217,8 @@ class Builder:
                 f"--root={self._install_root}",
                 kernel_pkg,
             ]
+            # Ensure the install root exists and is owned by root.
+            osutils.SafeMakedirs(self._install_root, sudo=True)
             # Run pretend first for better debugging if install fails.
             cros_build_lib.run(
                 install_cmd + ["--pretend"],

@@ -5,10 +5,12 @@
 """Test the kernel_builder module."""
 
 import os
+from pathlib import Path
 
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
 from chromite.lib import kernel_builder
+from chromite.lib import osutils
 
 
 class BuilderTest(cros_test_lib.RunCommandTestCase):
@@ -22,7 +24,7 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
 
     def testCreateCustomKernel(self) -> None:
         """Tests CreateCustomKernel()."""
-        self.PatchObject(os.environ, "get", return_value="z")
+        self.PatchDict(os.environ, {"USE": "z"})
         self.rc.AddCmdResult(
             [
                 "portageq-foo-board",
@@ -33,7 +35,9 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
             stdout="kernel",
         )
 
+        safe_makedirs_mock = self.PatchObject(osutils, "SafeMakedirs")
         self._kb.CreateCustomKernel(["x", "y"])
+        safe_makedirs_mock.assert_called_with(Path("foo-root"), sudo=True)
 
         emerge_board = "emerge-foo-board"
         extra_env = {
@@ -80,7 +84,9 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
             stdout="kernel",
         )
 
+        safe_makedirs_mock = self.PatchObject(osutils, "SafeMakedirs")
         self._kb.CreateCustomKernel(["x", "y"], ["foo"])
+        safe_makedirs_mock.assert_called_with(Path("foo-root"), sudo=True)
 
         emerge_board = "emerge-foo-board"
         extra_env = {
