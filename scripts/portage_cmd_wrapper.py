@@ -61,11 +61,6 @@ def parse_arguments(argv: List[str]) -> commandline.ArgumentNamespace:
     return opts
 
 
-def is_pretend_cmd(command: List[str]) -> bool:
-    """Checks is --pretend or -p is present in the command."""
-    return "--pretend" in command or "-p" in command
-
-
 def parse_pkgs(command: List[str], build_target_name: str) -> Iterable[str]:
     """Parse packages from a command."""
     pkg_fragments = set()
@@ -94,26 +89,18 @@ def parse_pkgs(command: List[str], build_target_name: str) -> Iterable[str]:
                 yield ebuild.package_info.cpvr
 
 
+# TODO: Find a better name and a reusable location for this.
 @osutils.rotate_log_file(portage_util.get_die_hook_status_file())
-def run_cmd_with_failed_pkg_parsing(command, extra_env):
-    """Wrapper for sudo_run or run that adds DIE_HOOK_STATUS_FILE usage."""
+def sudo_run_cmd_with_failed_pkg_parsing(command, extra_env):
+    """Wrapper for sudo_run that adds DIE_HOOK_STATUS_FILE usage."""
     extra_env = extra_env.copy()
     try:
-        # b/427282300 - Run --pretend commands without sudo to avoid
-        # a permissions race condition when constructing the edb.
-        if is_pretend_cmd(command):
-            return cros_build_lib.run(
-                command,
-                print_cmd=False,
-                extra_env=extra_env,
-            )
-        else:
-            return cros_build_lib.sudo_run(
-                command,
-                print_cmd=False,
-                preserve_env=True,
-                extra_env=extra_env,
-            )
+        return cros_build_lib.sudo_run(
+            command,
+            print_cmd=False,
+            preserve_env=True,
+            extra_env=extra_env,
+        )
     except cros_build_lib.RunCommandError as e:
         raise sysroot_lib.PackageInstallError(
             "Merging board packages failed",
@@ -155,7 +142,7 @@ def execute(opts: commandline.ArgumentNamespace) -> int:
         }
     )
 
-    result = run_cmd_with_failed_pkg_parsing(opts.command, extra_env)
+    result = sudo_run_cmd_with_failed_pkg_parsing(opts.command, extra_env)
     return result.returncode
 
 
