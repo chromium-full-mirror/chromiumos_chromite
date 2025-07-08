@@ -502,6 +502,9 @@ class BuildPackagesRunConfig:
         if self.dryrun:
             flags.append("--pretend")
 
+        if logging.getLogger().isEnabledFor(logging.DEBUG):
+            flags.append("--debug")
+
         if self.usepkg or self.local_pkg or self.usepkgonly:
             # Use binary packages. Include all build-time dependencies, so as to
             # avoid unnecessary differences between source and binary builds.
