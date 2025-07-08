@@ -269,6 +269,11 @@ def get_parser() -> argparse.ArgumentParser:
         help="Number of jobs to run in parallel (default: %(default)s)",
     )
     parser.add_argument(
+        "--filter",
+        default=".*",
+        help="Only process repos matching this regex",
+    )
+    parser.add_argument(
         "--output", type=Path, help="The root directory to write to"
     )
     parser.add_argument("gob", help="The GoB hostname")
@@ -290,7 +295,7 @@ def main(argv) -> None:
 
     cleanup_old_projects(opts, live_repos)
 
-    repos = sorted(live_repos)
+    repos = sorted(x for x in live_repos if re.fullmatch(opts.filter, str(x)))
     capture = functools.partial(capture_output, func)
     with multiprocessing.Pool(opts.jobs) as pool:
         finished = 0
