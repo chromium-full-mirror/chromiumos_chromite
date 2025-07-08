@@ -34,6 +34,13 @@ assert sys.version_info >= (3, 11), "Python 3.11+ required"
 CSI_ERASE_LINE_AFTER = "\x1b[K"
 
 
+def print_status(msg: str, *args, **kwargs) -> None:
+    """Print a status message with terminal status lines."""
+    if "flush" not in kwargs and kwargs.get("end") == "":
+        kwargs["flush"] = True
+    print(f"\r{msg} {CSI_ERASE_LINE_AFTER}", *args, **kwargs)
+
+
 class GitConfig:
     """Access to .git/config settings."""
 
@@ -198,10 +205,9 @@ def cleanup_old_projects(
     old_repos = sorted(local_repos - live_repos, reverse=True)
     num_repos = len(old_repos)
     for i, repo in enumerate(old_repos, start=1):
-        print(
-            f"\r[{i}/{num_repos}] Removing old {repo} {CSI_ERASE_LINE_AFTER}",
+        print_status(
+            f"[{i}/{num_repos}] Removing old {repo}",
             end="",
-            flush=True,
         )
         root = opts.output / repo
 
@@ -288,11 +294,14 @@ def main(argv) -> None:
         opts.output = Path.cwd() / opts.gob
 
     # Cache the hook once.
+    print_status("Caching commit-msg hook ...", end="")
     get_hook_commit_msg(opts)
 
     func = functools.partial(create_repo, opts)
+    print_status("Gathering project list ...", end="")
     live_repos = set(get_repos(opts.gob))
 
+    print_status("Cleaning old projects ...", end="")
     cleanup_old_projects(opts, live_repos)
 
     repos = sorted(x for x in live_repos if re.fullmatch(opts.filter, str(x)))
@@ -302,13 +311,12 @@ def main(argv) -> None:
         num_repos = len(repos)
         for repo, output in pool.imap_unordered(capture, repos):
             finished += 1
-            print(
-                f"\r[{finished}/{num_repos}] {repo}{CSI_ERASE_LINE_AFTER}",
+            print_status(
+                f"[{finished}/{num_repos}] {repo}",
                 output,
                 end="\n" if output else "",
-                flush=not output,
             )
-        print()
+    print()
 
 
 if __name__ == "__main__":
