@@ -9,7 +9,7 @@ from pathlib import Path
 
 from chromite.cli import command
 from chromite.lib import commandline
-from chromite.lib import kernel_builder
+from chromite.service import kernel_image
 from chromite.utils import timer
 
 
@@ -138,60 +138,16 @@ class BuildKernelCommand(command.CliCommand):
             if v is not None
         }
 
-        logging.info(
-            "Starting kernel image generation for board: %s",
-            self.options.board,
-        )
-
-        self.builder = kernel_builder.Builder(
+        kernel_image_path = kernel_image.BuildKernel(
             board=self.options.board,
             work_dir=self.options.working_dir,
             install_root=self.options.install_root,
+            bootable_image=self.options.bootable_image,
+            **kernel_options,
         )
 
-        self.kernel_image_path = self.builder.BuildCustomKernelImage(
-            **kernel_options
-        )
-        logging.info(
-            "Successfully generated kernel image: %s",
-            self.kernel_image_path,
-        )
-
-        if self.options.bootable_image:
-            if not self.builder or not self.kernel_image_path:
-                logging.error(
-                    "Cannot create bootable image: Kernel build state is "
-                    "invalid."
-                )
-                return 1
-
-            logging.info(
-                "Attempting to generate bootable image (using placeholder "
-                "function)..."
-            )
-            try:
-                bootable_image_path = self.builder.generate_bootable_image(
-                    kernel_image_path=self.kernel_image_path,
-                )
-                logging.info(
-                    "Placeholder generated bootable image: %s",
-                    bootable_image_path,
-                )
-                logging.warning(
-                    "Bootable image generation function is currently a "
-                    "placeholder."
-                )
-
-            except NotImplementedError:
-                logging.warning(
-                    "Bootable image generation step was called, but it is "
-                    "not yet implemented in the library."
-                )
-            except AttributeError:
-                logging.warning(
-                    "The 'generate_bootable_image' method is not available on "
-                    "the Builder object. Bootable image generation skipped."
-                )
+        if kernel_image_path is None:
+            return 1
 
         logging.info("Build process finished.")
         return 0

@@ -7,15 +7,10 @@
 import os
 from pathlib import Path
 
-import pytest  # pylint: disable=import-error
-
 from chromite.cli import command_unittest
 from chromite.cli.cros import cros_build_kernel
 from chromite.lib import cros_test_lib
-from chromite.lib import kernel_builder
-
-
-# pylint: disable=protected-access
+from chromite.service import kernel_image
 
 
 class MockBuildKernelCommand(command_unittest.MockCommand):
@@ -26,7 +21,6 @@ class MockBuildKernelCommand(command_unittest.MockCommand):
     COMMAND = "build-kernel"
 
 
-@pytest.mark.usefixtures("testcase_caplog")
 class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
     """Test calling `cros build-kernel` with various options."""
 
@@ -57,10 +51,9 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
         self.cmd_mock = None
         # Mock the main builder class using autospec.
         # Autospec ensures the mock has the same interface as the real class.
-        builder_patcher = self.PatchObject(
-            kernel_builder, "Builder", autospec=True
+        self.builder_mock = self.PatchObject(
+            kernel_image, "BuildKernel", autospec=True
         )
-        self.builder_mock = builder_patcher.return_value
 
         # Mock the chroot check.
         self.chroot_mock = self.PatchObject(
@@ -69,9 +62,7 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
 
         # Default mock return values for methods known by autospec.
         # Convert string path to Path object for consistency.
-        self.builder_mock.BuildCustomKernelImage.return_value = Path(
-            self.KERNEL_IMG_PATH
-        )
+        self.builder_mock.return_value = Path(self.KERNEL_IMG_PATH)
         # NOTE: generate_bootable_image is NOT mocked because autospec
         # likely determined it does not exist on the real Builder class.
 
@@ -85,22 +76,13 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
 
         # Check Builder initialization.
         # Expect Path object for install_root.
-        kernel_builder.Builder.assert_called_once_with(
+        self.builder_mock.assert_called_once_with(
             board="test-board",
             work_dir=Path(self.tempdir / "work"),
             install_root=Path(self.INSTALL_ROOT_PATH_STR),
-        )
-
-        # Check build call.
-        self.builder_mock.BuildCustomKernelImage.assert_called_once_with(
+            bootable_image=False,
             kernel_ramfs="recovery_ramfs",
             kernel_version="0.0.1",
-        )
-
-        # Check log message.
-        self.assertIn(
-            f"Successfully generated kernel image: {self.KERNEL_IMG_PATH}",
-            self.caplog.text,
         )
 
     def testOptionalKernelArgs(self) -> None:
@@ -127,48 +109,22 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
         # Defaults shouldn't be passed if not specified.
         # Expect Path object for keys_dir.
         # Expect updated flag list.
-        self.builder_mock.BuildCustomKernelImage.assert_called_once_with(
+        self.builder_mock.assert_called_once_with(
+            board="test-board",
+            work_dir=Path(self.tempdir / "work"),
+            install_root=Path(self.INSTALL_ROOT_PATH_STR),
+            bootable_image=False,
             kernel_ramfs="recovery_ramfs",
             kernel_version="5.15.1",
             kernel_flags=["+myflag", flag_value_2],
             keys_dir=keys_dir_path,
         )
 
-    def testCreateBootableImageFlagWarning(self) -> None:
-        """Tests warning when --create-bootable-image used."""
-        # This test verifies the warning logged when the flag is used,
-        # but the underlying Builder (as mocked by autospec) lacks the
-        # necessary method. setUp's autospec handles the mock setup.
-
-        self.cmd_mock = self.SetupCommandMock(["--bootable-image"])
-        rc = self.cmd_mock.inst.Run()
-
-        # Command should still succeed overall.
-        self.assertEqual(rc, 0)
-        self.builder_mock.BuildCustomKernelImage.assert_called_once()
-
-        # Verify the specific warning about the missing method is logged.
-        self.assertIn(
-            "The 'generate_bootable_image' method is not available on the "
-            "Builder object. Bootable image generation skipped.",
-            self.caplog.text,
-        )
-        # Verify the standard success message for kernel image is still logged.
-        self.assertIn(
-            f"Successfully generated kernel image: {self.KERNEL_IMG_PATH}",
-            self.caplog.text,
-        )
-        # Verify NO message about successful *bootable* image generation.
-        self.assertNotIn(
-            "Placeholder generated bootable image:",
-            self.caplog.text,
-        )
-
     def testKernelBuildFailure(self) -> None:
         """Tests when BuildCustomKernelImage fails."""
         # Configure mock to raise a standard error.
         build_error = RuntimeError("Kernel compilation failed")
-        self.builder_mock.BuildCustomKernelImage.side_effect = build_error
+        self.builder_mock.side_effect = build_error
 
         self.cmd_mock = self.SetupCommandMock([])
 
@@ -179,17 +135,7 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
         # Check that the raised exception is the one we set up
         self.assertEqual(context_manager.exception, build_error)
 
-        self.builder_mock.BuildCustomKernelImage.assert_called_once()
-        self.assertIn(
-            "Starting kernel image generation for board:",
-            self.caplog.text,
-        )
-
-        # Ensure the success message was NOT logged
-        self.assertNotIn(
-            "Successfully generated kernel image:",
-            self.caplog.text,
-        )
+        self.builder_mock.assert_called_once()
 
     def testWorkDirCreation(self) -> None:
         """Tests that the work directory is created if it doesn't exist."""
@@ -204,11 +150,13 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
         self.assertTrue(work_dir.is_dir())
 
         # Check Builder was called with the correct Path objects.
-        kernel_builder.Builder.assert_called_once_with(
+        self.builder_mock.assert_called_once_with(
             board="test-board",
             # Expect Path object for work_dir.
             work_dir=work_dir,
             # Expect Path object for install_root.
             install_root=Path(self.INSTALL_ROOT_PATH_STR),
+            bootable_image=False,
+            kernel_ramfs="recovery_ramfs",
+            kernel_version="0.0.1",
         )
-        self.builder_mock.BuildCustomKernelImage.assert_called_once()
