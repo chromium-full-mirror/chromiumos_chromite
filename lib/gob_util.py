@@ -383,7 +383,7 @@ def CreateHttpReq(
             headers.setdefault("Authorization", "Bearer %s" % git_creds)
             logging.debug("Using LUCI git cred for GoB authorization.")
 
-    if "Cookie" not in headers and "Authorization" not in headers:
+    if "Cookie" not in headers:
         if cookies:
             headers["Cookie"] = "; ".join(
                 "%s=%s" % (n, v) for n, v in cookies.items()
