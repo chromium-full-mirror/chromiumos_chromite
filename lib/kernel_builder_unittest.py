@@ -37,7 +37,9 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
 
         safe_makedirs_mock = self.PatchObject(osutils, "SafeMakedirs")
         self._kb.CreateCustomKernel(["x", "y"])
-        safe_makedirs_mock.assert_called_with(Path("foo-root"), sudo=True)
+        safe_makedirs_mock.assert_called_once_with(
+            Path("foo-tmp") / "packages", sudo=True
+        )
 
         emerge_board = "emerge-foo-board"
         extra_env = {
@@ -45,24 +47,46 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
             "USE": "z x y",
         }
         self.assertCommandCalled(
-            [emerge_board, "--jobs=777", "chromeos-base/chromeos-initramfs"],
-            enter_chroot=True,
-            extra_env=extra_env,
-        )
-        self.assertCommandCalled(
-            [emerge_board, "--jobs=777", "--onlydeps", "kernel"],
-            enter_chroot=True,
-            extra_env=extra_env,
-            clear_env=["INSTALL_MASK"],
-        )
-        self.assertCommandCalled(
-            [emerge_board, "--jobs=777", "--buildpkgonly", "kernel"],
+            [
+                emerge_board,
+                "--verbose",
+                "-g",
+                "--jobs=777",
+                "chromeos-base/chromeos-initramfs",
+            ],
             enter_chroot=True,
             extra_env=extra_env,
         )
         self.assertCommandCalled(
             [
                 emerge_board,
+                "--verbose",
+                "-g",
+                "--jobs=777",
+                "--onlydeps",
+                "kernel",
+            ],
+            enter_chroot=True,
+            extra_env=extra_env,
+            clear_env=["INSTALL_MASK"],
+        )
+        self.assertCommandCalled(
+            [
+                emerge_board,
+                "--verbose",
+                "-g",
+                "--jobs=777",
+                "--buildpkgonly",
+                "kernel",
+            ],
+            enter_chroot=True,
+            extra_env=extra_env,
+        )
+        self.assertCommandCalled(
+            [
+                emerge_board,
+                "--verbose",
+                "-g",
                 "--jobs=777",
                 "--usepkgonly",
                 "--root=foo-root",
@@ -86,7 +110,9 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
 
         safe_makedirs_mock = self.PatchObject(osutils, "SafeMakedirs")
         self._kb.CreateCustomKernel(["x", "y"], ["foo"])
-        safe_makedirs_mock.assert_called_with(Path("foo-root"), sudo=True)
+        safe_makedirs_mock.assert_called_once_with(
+            Path("foo-tmp") / "packages", sudo=True
+        )
 
         emerge_board = "emerge-foo-board"
         extra_env = {
@@ -94,24 +120,46 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
             "USE": "foo x y",
         }
         self.assertCommandCalled(
-            [emerge_board, "--jobs=777", "chromeos-base/chromeos-initramfs"],
-            enter_chroot=True,
-            extra_env=extra_env,
-        )
-        self.assertCommandCalled(
-            [emerge_board, "--jobs=777", "--onlydeps", "kernel"],
-            enter_chroot=True,
-            extra_env=extra_env,
-            clear_env=["INSTALL_MASK"],
-        )
-        self.assertCommandCalled(
-            [emerge_board, "--jobs=777", "--buildpkgonly", "kernel"],
+            [
+                emerge_board,
+                "--verbose",
+                "-g",
+                "--jobs=777",
+                "chromeos-base/chromeos-initramfs",
+            ],
             enter_chroot=True,
             extra_env=extra_env,
         )
         self.assertCommandCalled(
             [
                 emerge_board,
+                "--verbose",
+                "-g",
+                "--jobs=777",
+                "--onlydeps",
+                "kernel",
+            ],
+            enter_chroot=True,
+            extra_env=extra_env,
+            clear_env=["INSTALL_MASK"],
+        )
+        self.assertCommandCalled(
+            [
+                emerge_board,
+                "--verbose",
+                "-g",
+                "--jobs=777",
+                "--buildpkgonly",
+                "kernel",
+            ],
+            enter_chroot=True,
+            extra_env=extra_env,
+        )
+        self.assertCommandCalled(
+            [
+                emerge_board,
+                "--verbose",
+                "-g",
                 "--jobs=777",
                 "--usepkgonly",
                 "--root=foo-root",

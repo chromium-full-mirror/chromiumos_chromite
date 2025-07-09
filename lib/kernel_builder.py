@@ -95,7 +95,7 @@ class Builder:
                 pkgdir,
                 e,
             )
-        pkgdir.mkdir(parents=True, exist_ok=True)
+        osutils.SafeMakedirs(pkgdir, sudo=True)
 
         try:
             self._CreateCustomKernelInternal(
@@ -130,7 +130,9 @@ class Builder:
         emerge = self._build_target.get_command("emerge")
 
         # Prepare emerge command base args.
-        emerge_cmd_base = [emerge]
+        # Add --verbose to print out the dep list.
+        # Add -g to use binpkgs.
+        emerge_cmd_base = [emerge, "--verbose", "-g"]
         if self.jobs_arg:
             emerge_cmd_base.append(self.jobs_arg)
 
@@ -138,12 +140,6 @@ class Builder:
         logging.info("Ensuring chromeos-initramfs package is up-to-date.")
         initramfs_pkg = "chromeos-base/chromeos-initramfs"
         try:
-            # Run pretend first to check dependencies without building.
-            cros_build_lib.run(
-                emerge_cmd_base + ["--pretend", initramfs_pkg],
-                enter_chroot=True,
-                extra_env=extra_env,
-            )
             # Build the initramfs package.
             cros_build_lib.run(
                 emerge_cmd_base + [initramfs_pkg],
@@ -217,14 +213,6 @@ class Builder:
                 f"--root={self._install_root}",
                 kernel_pkg,
             ]
-            # Ensure the install root exists and is owned by root.
-            osutils.SafeMakedirs(self._install_root, sudo=True)
-            # Run pretend first for better debugging if install fails.
-            cros_build_lib.run(
-                install_cmd + ["--pretend"],
-                enter_chroot=True,
-                extra_env=extra_env,
-            )
             cros_build_lib.run(
                 install_cmd,
                 enter_chroot=True,
