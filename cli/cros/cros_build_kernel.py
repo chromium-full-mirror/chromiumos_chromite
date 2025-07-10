@@ -9,7 +9,6 @@ from pathlib import Path
 
 from chromite.cli import command
 from chromite.lib import commandline
-from chromite.lib import osutils
 from chromite.service import kernel_image
 from chromite.utils import timer
 
@@ -119,7 +118,7 @@ class BuildKernelCommand(command.CliCommand):
         """Executes the kernel build process."""
         commandline.RunInsideChroot()
 
-        osutils.SafeMakedirs(self.options.working_dir, sudo=True)
+        self.options.working_dir.mkdir(parents=True, exist_ok=True)
         logging.info(
             "Using working directory: %s", self.options.working_dir.resolve()
         )
@@ -144,7 +143,6 @@ class BuildKernelCommand(command.CliCommand):
             work_dir=self.options.working_dir,
             install_root=self.options.install_root,
             bootable_image=self.options.bootable_image,
-            jobs=self.options.jobs,
             **kernel_options,
         )
 

@@ -7,7 +7,6 @@
 import logging
 import os
 from pathlib import Path
-from typing import Optional
 
 from chromite.lib import cros_build_lib
 from chromite.lib import kernel_builder
@@ -18,7 +17,6 @@ def BuildKernel(
     work_dir: str | os.PathLike,
     install_root: str | os.PathLike,
     bootable_image: bool,
-    jobs: Optional[int] = None,
     **kwargs,
 ) -> Path:
     """Build a ChromeOS kernel image.
@@ -28,7 +26,6 @@ def BuildKernel(
         work_dir: Directory for intermediate build artifacts.
         install_root: Path to the installed board root directory.
         bootable_image: Generate a bootable disk image.
-        jobs: The number of parallel jobs.
         **kwargs: Additional kernel options.
 
     Returns:
@@ -45,7 +42,6 @@ def BuildKernel(
         board=board,
         work_dir=work_dir,
         install_root=install_root,
-        jobs=jobs,
     )
 
     kernel_image_path = builder.BuildCustomKernelImage(**kwargs)
