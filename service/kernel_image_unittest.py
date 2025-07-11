@@ -54,6 +54,7 @@ class BuildKernelImageTest(cros_test_lib.MockTempDirTestCase):
             work_dir=self.WORK_DIR,
             install_root=self.INSTALL_ROOT_PATH_STR,
             bootable_image=False,
+            jobs=16,
         )
 
         self.chroot_mock.assert_called_once()
@@ -64,6 +65,7 @@ class BuildKernelImageTest(cros_test_lib.MockTempDirTestCase):
             board=self.BOARD,
             work_dir=self.WORK_DIR,
             install_root=self.INSTALL_ROOT_PATH_STR,
+            jobs=16,
         )
 
         # Check build call.

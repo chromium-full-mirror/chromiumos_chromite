@@ -44,6 +44,7 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
         full_args = [arg for arg in full_args if arg is not None]
         cmd_mock = MockBuildKernelCommand(full_args)
         self.StartPatcher(cmd_mock)
+        cmd_mock.inst.options.jobs = 4
         return cmd_mock
 
     def setUp(self) -> None:
@@ -81,6 +82,7 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
             work_dir=Path(self.tempdir / "work"),
             install_root=Path(self.INSTALL_ROOT_PATH_STR),
             bootable_image=False,
+            jobs=4,
             kernel_ramfs="recovery_ramfs",
             kernel_version="0.0.1",
         )
@@ -114,6 +116,7 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
             work_dir=Path(self.tempdir / "work"),
             install_root=Path(self.INSTALL_ROOT_PATH_STR),
             bootable_image=False,
+            jobs=4,
             kernel_ramfs="recovery_ramfs",
             kernel_version="5.15.1",
             kernel_flags=["+myflag", flag_value_2],
@@ -142,6 +145,14 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
         work_dir = self.tempdir / "new_work_dir"
         self.assertFalse(work_dir.exists())
 
+        self.PatchObject(
+            cros_build_kernel.osutils,
+            "SafeMakedirs",
+            side_effect=lambda path, sudo=False: os.makedirs(
+                path, exist_ok=True
+            ),
+        )
+
         self.cmd_mock = self.SetupCommandMock(["--working-dir", str(work_dir)])
         rc = self.cmd_mock.inst.Run()
 
@@ -157,6 +168,7 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
             # Expect Path object for install_root.
             install_root=Path(self.INSTALL_ROOT_PATH_STR),
             bootable_image=False,
+            jobs=4,
             kernel_ramfs="recovery_ramfs",
             kernel_version="0.0.1",
         )
