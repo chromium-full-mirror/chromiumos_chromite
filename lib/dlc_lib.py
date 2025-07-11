@@ -1293,11 +1293,11 @@ class DlcGenerator:
 
         # Create the image into |self.temp_root| and copy the DLC files to it.
         self.CreateImage()
-        # Verify the image created is within pre-allocated size.
-        self.VerifyImageSize(self.dest_image)
         # Generate hash tree and other metadata and save them under
         # |self.temp_root|.
         self.GenerateVerity(_SHORT_SALT if self.reproducible else None)
+        # Verify the image created is within pre-allocated size.
+        self.VerifyImageSize(self.dest_image)
         # Copy the files from |self.temp_root| into the build directory.
         self.CopyTempContentsToBuildDir()
 
@@ -1322,8 +1322,8 @@ class DlcGenerator:
             The `DlcArtifacts` class.
         """
         self.CreateImage()
-        self.VerifyImageSize(self.dest_image)
         self.GenerateVerity(_SHORT_SALT if self.reproducible else None)
+        self.VerifyImageSize(self.dest_image)
         self.CopyArtifactsToOutput(self.dest_image, output)
         return DlcArtifacts(
             image=os.path.join(output, DLC_IMAGE),
