@@ -20,6 +20,8 @@ from typing import Callable, Optional
 from chromite.third_party.google.protobuf import field_mask_pb2
 from chromite.third_party.infra_libs.buildbucket.proto import (
     builder_common_pb2,
+    builder_service_pb2,
+    builder_service_prpc_pb2,
     builds_service_pb2,
     builds_service_prpc_pb2,
     common_pb2,
@@ -468,10 +470,18 @@ class BuildbucketV2:
                 BBV2_URL_ENDPOINT_TEST,
                 builds_service_prpc_pb2.BuildsServiceDescription,
             )
+            self.builder_client = Client(
+                BBV2_URL_ENDPOINT_TEST,
+                builder_service_prpc_pb2.BuildersServiceDescription,
+            )
         else:
             self.client = Client(
                 BBV2_URL_ENDPOINT_PROD,
                 builds_service_prpc_pb2.BuildsServiceDescription,
+            )
+            self.builder_client = Client(
+                BBV2_URL_ENDPOINT_PROD,
+                builder_service_prpc_pb2.BuildersServiceDescription,
             )
 
         self._access_token_retriever = access_token_retriever
@@ -922,6 +932,38 @@ class BuildbucketV2:
 
         return self.client.SearchBuilds(
             search_build_request, **self._client_kwargs
+        )
+
+    @retry_util.WithRetry(max_retry=3, sleep=0.2, exception=SSLError)
+    @retry_util.WithRetry(max_retry=3, sleep=0.2, exception=socket.error)
+    def ListBuilders(
+        self,
+        project: str,
+        bucket: str,
+        page_size: int = 100,
+        page_token: str = "",
+    ) -> builder_service_pb2.ListBuildersResponse:
+        """ListBuilders RPC call wrapping function.
+
+        Args:
+            project: The name of the builder project (e.g. chromeos)
+            bucket: The name of the builder bucket (e.g. release)
+            page_size: How many results to return (default: 100)
+            page_token: A page token, received from a previous `ListBuilders`
+            call. Provide this to retrieve the subsequent page.
+
+        Returns:
+            A ListBuildersResponse instance corresponding to the query.
+        """
+        list_builders_request = builder_service_pb2.ListBuildersRequest(
+            project=project,
+            bucket=bucket,
+            page_size=page_size,
+            page_token=page_token,
+        )
+
+        return self.builder_client.ListBuilders(
+            list_builders_request, **self._client_kwargs
         )
 
     def GetBuildHistory(

@@ -14,6 +14,7 @@ from chromite.third_party.google.protobuf.timestamp_pb2 import Timestamp
 from chromite.third_party.infra_libs.buildbucket.proto import (
     build_pb2,
     builder_common_pb2,
+    builder_service_pb2,
     builds_service_pb2,
     common_pb2,
     step_pb2,
@@ -63,6 +64,10 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
     def testCreatesClient(self) -> None:
         ret = buildbucket_v2.BuildbucketV2(test_env=True)
         self.assertIsInstance(ret.client, Client)
+
+    def testCreatesBuilderClient(self) -> None:
+        ret = buildbucket_v2.BuildbucketV2(test_env=True)
+        self.assertIsInstance(ret.builder_client, Client)
 
     def testBatchCancelBuilds(self) -> None:
         fake_field_mask = field_mask_pb2.FieldMask(paths=["properties"])
@@ -508,6 +513,24 @@ class BuildbucketV2Test(cros_test_lib.MockTestCase):
         search_builds_fn.assert_called_once_with(
             builds_service_pb2.SearchBuildsRequest(
                 predicate=build_predicate, fields=fields, page_size=123
+            )
+        )
+
+    def testListBuilders(self) -> None:
+        """Test redirection to the underlying RPC call."""
+        bbv2 = buildbucket_v2.BuildbucketV2()
+        list_builders_fn = self.PatchObject(bbv2.builder_client, "ListBuilders")
+        project = "chromeos"
+        bucket = "release"
+        page_size = 999
+        page_token = "some_token"
+        bbv2.ListBuilders(project, bucket, page_size, page_token)
+        list_builders_fn.assert_called_once_with(
+            builder_service_pb2.ListBuildersRequest(
+                project=project,
+                bucket=bucket,
+                page_size=page_size,
+                page_token=page_token,
             )
         )
 
