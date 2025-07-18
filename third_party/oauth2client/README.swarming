@@ -3,7 +3,7 @@ Short Name: oauth2client
 URL: https://github.com/google/oauth2client/archive/v1.5.2.tar.gz
 Version: 1.5.2
 Revision: 73d9d55447de97dfe541395817a0c8241701f7d6
-License: Apache License, Version 2.0
+License: Apache-2.0
 License File: LICENSE
 Security Critical: no
 Shipped: no
