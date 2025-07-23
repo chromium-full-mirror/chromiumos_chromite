@@ -492,8 +492,8 @@ class ActionMine(_ActionSearchQuery):
         PrintCls(opts, cls)
 
 
-def _BreadthFirstSearch(to_visit, children, visited_key=lambda x: x):
-    """Runs breadth first search starting from the nodes in |to_visit|
+def _DepthFirstSearch(to_visit, children, visited_key=lambda x: x):
+    """Runs depth first search starting from the nodes in |to_visit|
 
     Args:
         to_visit: the starting nodes
@@ -504,17 +504,26 @@ def _BreadthFirstSearch(to_visit, children, visited_key=lambda x: x):
     Returns:
         A list of nodes which are reachable from any node in |to_visit| by
         calling
-        |children| any number of times.
+        |children| any number of times. The nodes are in order from child to
+        parent.
     """
-    to_visit = list(to_visit)
-    seen = set(visited_key(x) for x in to_visit)
-    for node in to_visit:
-        for child in children(node):
-            key = visited_key(child)
-            if key not in seen:
-                seen.add(key)
-                to_visit.append(child)
-    return to_visit
+    results = []
+    seen = set()
+
+    for initial in to_visit:
+        processed = []
+        stack = [initial]
+
+        while stack:
+            node = stack.pop()
+            if visited_key(node) in seen:
+                continue
+            processed.append(node)
+            seen.add(visited_key(node))
+            for child in children(node):
+                stack.append(child)
+        results.extend(reversed(processed))
+    return results
 
 
 class ActionDeps(_ActionSearchQuery):
@@ -536,7 +545,7 @@ class ActionDeps(_ActionSearchQuery):
         def _QueryChange(cl, helper=None):
             return _Query(opts, cl, raw=False, helper=helper)
 
-        transitives = _BreadthFirstSearch(
+        transitives = _DepthFirstSearch(
             cls,
             functools.partial(self._Children, opts, _QueryChange),
             visited_key=lambda cl: cl.PatchLink(),
