@@ -66,6 +66,10 @@ def initialize(publish: bool = True) -> None:
     if not hostname_util.is_google_host():
         return
 
+    # Don't gather telemetry inside of ebuilds.
+    if "PORT_LOGDIR" in os.environ:
+        return
+
     if not chromite_config.initialize():
         # Error initializing as non-root user, e.g. b/327285178.
         # This is weird, bail, we're probably not losing out on much anyway.
