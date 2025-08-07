@@ -22,12 +22,14 @@ from chromite.lib import cros_build_lib
 from chromite.utils import compat
 
 
-def _bootimage_enabled(build_target: build_target_lib.BuildTarget) -> bool:
+def _bootimage_enabled(
+    build_target: build_target_lib.BuildTarget,
+) -> bool | None:
     """Return true if "bootimage" is in use_flags.
 
     Designed for use with _PATH_RULES below.
     """
-    return "bootimage" in build_target.board.use_flags
+    return True if "bootimage" in build_target.board.use_flags else None
 
 
 @functools.lru_cache(maxsize=1)
@@ -58,13 +60,15 @@ def _chromite_path_rule(
 # can map to a function which determines if the change is relevant).
 # The first argument of the callable is the BuildTarget under consideration.
 # Regex groups are applied to the remaining arguments of the function.  If
-# the function returns true, the path is considered relevant.  If it returns
-# false, the path is considered irrelevant.
+# the function returns True, the path is considered relevant.  If it returns
+# False, the path is considered irrelevant.  If it returns None, the rule is
+# inconclusive.
 #
 # Returns:
 #     True: The change is relevant for this path.
 #     False: The change is not relevant for this path.
-_PATH_RULES: List[Tuple[str, Callable[..., bool]]] = [
+#     None: Relevancy could not be determined.
+_PATH_RULES: List[Tuple[str, Callable[..., bool | None]]] = [
     (r"manifest(?:-internal)?/.*\.xml", lambda _: True),
     (r"chromite/(.*)", _chromite_path_rule),
     (r"src/scripts/.*", lambda _: True),
@@ -402,11 +406,6 @@ def get_relevant_build_targets(
         for pattern, func in _PATH_RULES:
             match = _re(pattern).fullmatch(str(path))
             if match:
-                # If a path matches any path rule, that means we shouldn't
-                # consider the regular belongs logic for that path.  We discard
-                # it from the path set.
-                paths.discard(path)
-
                 logging.debug(
                     "Using path rule %s to evaluate relevancy for %s",
                     pattern,
@@ -415,6 +414,12 @@ def get_relevant_build_targets(
 
                 for build_target in list(considered):
                     result = func(build_target, *match.groups())
+                    if result is not None:
+                        # If the rule was conclusive (i.e. it returns either
+                        # True or False, but not None), that means we shouldn't
+                        # consider the regular belongs logic for that path.  We
+                        # discard it from the path set.
+                        paths.discard(path)
                     if result:
                         logging.debug(
                             "%s is applicable to %s by path rule %s",
