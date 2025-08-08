@@ -1293,7 +1293,7 @@ def UploadCL(git_repo, remote, branch, local_branch='HEAD', draft=False,
 
 
 def GitPush(git_repo, refspec, push_to, force=False, dry_run=False,
-            capture_output=True, skip=False, **kwargs):
+            capture_output=True, skip=False, options=(), **kwargs):
   """Wrapper for pushing to a branch.
 
   Args:
@@ -1305,12 +1305,14 @@ def GitPush(git_repo, refspec, push_to, force=False, dry_run=False,
     capture_output: Whether to capture output for this command.
     skip: Log the git command that would have been run, but don't run it; this
       avoids e.g. remote access checks that still apply to |dry_run|.
+    options: Push options to pass to the remote server (i.e. -o).
   """
   cmd = ['push', push_to.remote, '%s:%s' % (refspec, push_to.ref)]
   if force:
     cmd.append('--force')
   if dry_run:
     cmd.append('--dry-run')
+  cmd.extend('--push-option=%s' % (x,) for x in options)
 
   if skip:
     logging.info('Would have run "%s"', cmd)

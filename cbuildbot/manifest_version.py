@@ -181,7 +181,8 @@ def _PushGitChanges(git_repo, message, dry_run=False, push_to=None):
 
   logging.info('Pushing to branch (%s) with message: %s %s',
                push_to, message, ' (dryrun)' if dry_run else '')
-  git.GitPush(git_repo, PUSH_BRANCH, push_to, skip=dry_run)
+  git.GitPush(git_repo, PUSH_BRANCH, push_to, skip=dry_run,
+              options=['push-justification=b/437327708'])
 
 
 def CreateSymlink(src_file, dest_file):
