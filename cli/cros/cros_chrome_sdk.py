@@ -1441,20 +1441,34 @@ class ChromeSDKCommand(command.CliCommand):
                 nacl_helper_tc_path, "usr", self.sdk.ARM32_TUPLE
             )
 
-        gn_args["cros_target_cc"] = env["CC"]
-        gn_args["cros_target_cxx"] = env["CXX"]
-        gn_args["cros_target_ld"] = env["LD"]
-        gn_args["cros_target_nm"] = env["NM"]
-        gn_args["cros_target_ar"] = env["AR"]
-        gn_args["cros_target_readelf"] = env["READELF"]
-        gn_args["cros_target_extra_cflags"] = env.get("CFLAGS", "")
-        gn_args["cros_target_extra_cxxflags"] = env.get("CXXFLAGS", "")
-        gn_args["cros_host_cc"] = env["CC_host"]
-        gn_args["cros_host_cxx"] = env["CXX_host"]
-        gn_args["cros_host_ld"] = env["LD_host"]
-        gn_args["cros_v8_snapshot_cc"] = env["CC_host"]
-        gn_args["cros_v8_snapshot_cxx"] = env["CXX_host"]
-        gn_args["cros_v8_snapshot_ld"] = env["LD_host"]
+        if "cros_target_cc" in gn_args:
+            gn_args["cros_target_cc"] = env["CC"]
+        if "cros_target_cxx" in gn_args:
+            gn_args["cros_target_cxx"] = env["CXX"]
+        if "cros_target_ld" in gn_args:
+            gn_args["cros_target_ld"] = env["LD"]
+        if "cros_target_nm" in gn_args:
+            gn_args["cros_target_nm"] = env["NM"]
+        if "cros_target_ar" in gn_args:
+            gn_args["cros_target_ar"] = env["AR"]
+        if "cros_target_readelf" in gn_args:
+            gn_args["cros_target_readelf"] = env["READELF"]
+        if "cros_target_extra_cflags" in gn_args:
+            gn_args["cros_target_extra_cflags"] = env.get("CFLAGS", "")
+        if "cros_target_extra_cxxflags" in gn_args:
+            gn_args["cros_target_extra_cxxflags"] = env.get("CXXFLAGS", "")
+        if "cros_host_cc" in gn_args:
+            gn_args["cros_host_cc"] = env["CC_host"]
+        if "cros_host_cxx" in gn_args:
+            gn_args["cros_host_cxx"] = env["CXX_host"]
+        if "cros_host_ld" in gn_args:
+            gn_args["cros_host_ld"] = env["LD_host"]
+        if "cros_v8_snapshot_cc" in gn_args:
+            gn_args["cros_v8_snapshot_cc"] = env["CC_host"]
+        if "cros_v8_snapshot_cxx" in gn_args:
+            gn_args["cros_v8_snapshot_cxx"] = env["CXX_host"]
+        if "cros_v8_snapshot_ld" in gn_args:
+            gn_args["cros_v8_snapshot_ld"] = env["LD_host"]
         # Let Chromium's build files pick defaults for the following.
         gn_args.pop("cros_host_nm", None)
         gn_args.pop("cros_host_ar", None)

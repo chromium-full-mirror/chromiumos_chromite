@@ -393,10 +393,6 @@ class RunThroughTest(
             with open(board_arg_file, encoding="utf-8") as f:
                 content = f.read()
                 self.assertIn('cros_sdk_version = "4567.8.9-123456"', content)
-                self.assertIn(
-                    "/%s+4567.8.9-123456+target_toolchain/" % (board),
-                    content,
-                )
 
     def testManyBoardsBrokenArgs(self) -> None:
         """Tests that malformed args.gn files will be fixed in --boards."""
