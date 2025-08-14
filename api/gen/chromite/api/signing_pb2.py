@@ -15,7 +15,7 @@ from chromite.api.gen.chromite.api import build_api_pb2 as chromite_dot_api_dot_
 from chromite.api.gen.chromiumos import common_pb2 as chromiumos_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/signing.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"\xd9\x01\n\x16\x43reatePreMPKeysRequest\x12\x14\n\x0c\x64ocker_image\x18\x05 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x06 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x07 \x01(\x08\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x19\n\x11skip_android_keys\x18\x03 \x01(\x08\x12\x0c\n\x04uefi\x18\x04 \x01(\x08\x12\x10\n\x08\x61\x64\x64_loem\x18\x08 \x01(\x08\"\x19\n\x17\x43reatePreMPKeysResponse\"\xdb\x01\n\x19\x43reateAccessoryKeyRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x11\n\taccessory\x18\x02 \x01(\t\x12\x11\n\tis_pre_mp\x18\x03 \x01(\x08\x12\x14\n\x0c\x64ocker_image\x18\x04 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x05 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x06 \x01(\x08\x12\x12\n\nis_staging\x18\x07 \x01(\x08\x12\x0f\n\x07version\x18\x08 \x01(\x05\"\x1c\n\x1a\x43reateAccessoryKeyResponse\"\xe3\x01\n\x13SignTi50PaosRequest\x12\x0f\n\x07project\x18\x01 \x01(\t\x12\x10\n\x08location\x18\x02 \x01(\t\x12\x0f\n\x07keyring\x18\x03 \x01(\t\x12\x0b\n\x03key\x18\x04 \x01(\t\x12\x0f\n\x07version\x18\x05 \x01(\x05\x12\x13\n\x0b\x61rchive_dir\x18\x06 \x01(\t\x12+\n\x0bresult_path\x18\x07 \x01(\x0b\x32\x16.chromiumos.ResultPath\x12\x10\n\x08\x66ilename\x18\x08 \x01(\t\x12\x14\n\x0c\x64ocker_image\x18\t \x01(\t\x12\x10\n\x08tmp_path\x18\n \x01(\t\"\x16\n\x14SignTi50PaosResponse2\xca\x02\n\x0eSigningService\x12`\n\x0f\x43reatePreMPKeys\x12$.chromite.api.CreatePreMPKeysRequest\x1a%.chromite.api.CreatePreMPKeysResponse\"\x00\x12j\n\x13\x43reateAccessoryKeys\x12\'.chromite.api.CreateAccessoryKeyRequest\x1a(.chromite.api.CreateAccessoryKeyResponse\"\x00\x12W\n\x0cSignTi50Paos\x12!.chromite.api.SignTi50PaosRequest\x1a\".chromite.api.SignTi50PaosResponse\"\x00\x1a\x11\xc2\xed\x1a\r\n\x07signing\x10\x02 \x02\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/signing.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"\xd9\x01\n\x16\x43reatePreMPKeysRequest\x12\x14\n\x0c\x64ocker_image\x18\x05 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x06 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x07 \x01(\x08\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x19\n\x11skip_android_keys\x18\x03 \x01(\x08\x12\x0c\n\x04uefi\x18\x04 \x01(\x08\x12\x10\n\x08\x61\x64\x64_loem\x18\x08 \x01(\x08\"\xcc\x01\n\x17\x43reatePreMPKeysResponse\x12<\n\x06status\x18\x01 \x01(\x0e\x32,.chromite.api.CreatePreMPKeysResponse.Status\x12\x33\n\x0erequest_status\x18\x02 \x01(\x0e\x32\x1b.chromite.api.RequestStatus\">\n\x06Status\x12\x12\n\x0eSTATUS_UNKNOWN\x10\x00\x12\x0f\n\x0bSTATUS_PASS\x10\x01\x12\x0f\n\x0bSTATUS_FAIL\x10\x02\"\xdb\x01\n\x19\x43reateAccessoryKeyRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x11\n\taccessory\x18\x02 \x01(\t\x12\x11\n\tis_pre_mp\x18\x03 \x01(\x08\x12\x14\n\x0c\x64ocker_image\x18\x04 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x05 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x06 \x01(\x08\x12\x12\n\nis_staging\x18\x07 \x01(\x08\x12\x0f\n\x07version\x18\x08 \x01(\x05\"Q\n\x1a\x43reateAccessoryKeyResponse\x12\x33\n\x0erequest_status\x18\x01 \x01(\x0e\x32\x1b.chromite.api.RequestStatus\"\xe3\x01\n\x13SignTi50PaosRequest\x12\x0f\n\x07project\x18\x01 \x01(\t\x12\x10\n\x08location\x18\x02 \x01(\t\x12\x0f\n\x07keyring\x18\x03 \x01(\t\x12\x0b\n\x03key\x18\x04 \x01(\t\x12\x0f\n\x07version\x18\x05 \x01(\x05\x12\x13\n\x0b\x61rchive_dir\x18\x06 \x01(\t\x12+\n\x0bresult_path\x18\x07 \x01(\x0b\x32\x16.chromiumos.ResultPath\x12\x10\n\x08\x66ilename\x18\x08 \x01(\t\x12\x14\n\x0c\x64ocker_image\x18\t \x01(\t\x12\x10\n\x08tmp_path\x18\n \x01(\t\"\x16\n\x14SignTi50PaosResponse\"\xa2\x01\n\x11\x43reateCertRequest\x12\x14\n\x0c\x64ocker_image\x18\x01 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x02 \x01(\x08\x12\x12\n\nis_staging\x18\x03 \x01(\x08\x12\x0f\n\x07keyring\x18\x04 \x01(\t\x12\x10\n\x08key_name\x18\x05 \x01(\t\x12\x10\n\x08out_path\x18\x06 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x07 \x01(\t\"\\\n\x12\x43reateCertResponse\x12\x33\n\x0erequest_status\x18\x01 \x01(\x0e\x32\x1b.chromite.api.RequestStatus\x12\x11\n\tcert_path\x18\x02 \x01(\t*E\n\rRequestStatus\x12\x12\n\x0eSTATUS_UNKNOWN\x10\x00\x12\x0f\n\x0bSTATUS_PASS\x10\x01\x12\x0f\n\x0bSTATUS_FAIL\x10\x02\x32\x9d\x03\n\x0eSigningService\x12`\n\x0f\x43reatePreMPKeys\x12$.chromite.api.CreatePreMPKeysRequest\x1a%.chromite.api.CreatePreMPKeysResponse\"\x00\x12j\n\x13\x43reateAccessoryKeys\x12\'.chromite.api.CreateAccessoryKeyRequest\x1a(.chromite.api.CreateAccessoryKeyResponse\"\x00\x12W\n\x0cSignTi50Paos\x12!.chromite.api.SignTi50PaosRequest\x1a\".chromite.api.SignTi50PaosResponse\"\x00\x12Q\n\nCreateCert\x12\x1f.chromite.api.CreateCertRequest\x1a .chromite.api.CreateCertResponse\"\x00\x1a\x11\xc2\xed\x1a\r\n\x07signing\x10\x02 \x02\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromite.api.signing_pb2', globals())
@@ -25,18 +25,26 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._serialized_options = b'Z6go.chromium.org/chromiumos/infra/proto/go/chromite/api'
   _SIGNINGSERVICE._options = None
   _SIGNINGSERVICE._serialized_options = b'\302\355\032\r\n\007signing\020\002 \002'
+  _REQUESTSTATUS._serialized_start=1344
+  _REQUESTSTATUS._serialized_end=1413
   _CREATEPREMPKEYSREQUEST._serialized_start=100
   _CREATEPREMPKEYSREQUEST._serialized_end=317
-  _CREATEPREMPKEYSRESPONSE._serialized_start=319
-  _CREATEPREMPKEYSRESPONSE._serialized_end=344
-  _CREATEACCESSORYKEYREQUEST._serialized_start=347
-  _CREATEACCESSORYKEYREQUEST._serialized_end=566
-  _CREATEACCESSORYKEYRESPONSE._serialized_start=568
-  _CREATEACCESSORYKEYRESPONSE._serialized_end=596
-  _SIGNTI50PAOSREQUEST._serialized_start=599
-  _SIGNTI50PAOSREQUEST._serialized_end=826
-  _SIGNTI50PAOSRESPONSE._serialized_start=828
-  _SIGNTI50PAOSRESPONSE._serialized_end=850
-  _SIGNINGSERVICE._serialized_start=853
-  _SIGNINGSERVICE._serialized_end=1183
+  _CREATEPREMPKEYSRESPONSE._serialized_start=320
+  _CREATEPREMPKEYSRESPONSE._serialized_end=524
+  _CREATEPREMPKEYSRESPONSE_STATUS._serialized_start=462
+  _CREATEPREMPKEYSRESPONSE_STATUS._serialized_end=524
+  _CREATEACCESSORYKEYREQUEST._serialized_start=527
+  _CREATEACCESSORYKEYREQUEST._serialized_end=746
+  _CREATEACCESSORYKEYRESPONSE._serialized_start=748
+  _CREATEACCESSORYKEYRESPONSE._serialized_end=829
+  _SIGNTI50PAOSREQUEST._serialized_start=832
+  _SIGNTI50PAOSREQUEST._serialized_end=1059
+  _SIGNTI50PAOSRESPONSE._serialized_start=1061
+  _SIGNTI50PAOSRESPONSE._serialized_end=1083
+  _CREATECERTREQUEST._serialized_start=1086
+  _CREATECERTREQUEST._serialized_end=1248
+  _CREATECERTRESPONSE._serialized_start=1250
+  _CREATECERTRESPONSE._serialized_end=1342
+  _SIGNINGSERVICE._serialized_start=1416
+  _SIGNINGSERVICE._serialized_end=1829
 # @@protoc_insertion_point(module_scope)
