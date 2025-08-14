@@ -5,6 +5,7 @@
 """Signing service tests."""
 
 import os
+from typing import Optional
 
 from chromite.api import api_config
 from chromite.api.controller import signing as signing_controller
@@ -512,6 +513,112 @@ class SignTi50PaosTest(
             self.tempdir,
         )
         signing_controller.SignTi50Paos(
+            request, self.response, self.validate_only_config
+        )
+        patch.assert_not_called()
+
+
+class CreateCertTest(
+    cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
+):
+    """Create cert tests."""
+
+    def setUp(self) -> None:
+        self.response = signing_pb2.CreateCertResponse()
+        self.docker_image = (
+            "us-docker.pkg.dev/chromeos-release-bot/signing/signing:123"
+        )
+
+        os.environ["LUCI_CONTEXT"] = "/tmp/foo/bar/luci_context.1234"
+        os.environ["GCE_METADATA_HOST"] = "127.0.0.1:12345"
+        os.environ["GCE_METADATA_IP"] = "127.0.0.1:12345"
+        os.environ["GCE_METADATA_ROOT"] = "127.0.0.1:12345"
+
+    def _GetRequest(
+        self,
+        keyring: Optional[str] = None,
+        key_name: Optional[str] = None,
+        out_path: Optional[str] = None,
+        result_dir: Optional[str] = None,
+        dry_run: bool = False,
+        is_staging: bool = False,
+    ) -> signing_pb2.CreateCertRequest:
+        """Helper to build a request instance."""
+        return signing_pb2.CreateCertRequest(
+            docker_image="signing:latest",
+            release_keys_checkout=str(self.tempdir),
+            keyring=keyring,
+            key_name=key_name,
+            out_path=out_path,
+            result_path=common_pb2.ResultPath(
+                path=common_pb2.Path(
+                    path=str(result_dir),
+                    location=common_pb2.Path.Location.OUTSIDE,
+                )
+            ),
+            dry_run=dry_run,
+            is_staging=is_staging,
+        )
+
+    def testCertCreated(self) -> None:
+        """Verify docker is called with correct arguments."""
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        result_dir = os.path.join(self.tempdir, "out")
+        os.mkdir(result_dir)
+
+        request = self._GetRequest(
+            keyring="keyring",
+            key_name="key_name",
+            out_path="/out",
+            result_dir=result_dir,
+        )
+        signing_controller.CreateCert(request, self.response, self.api_config)
+
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "--network",
+                "host",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-e",
+                "LUCI_CONTEXT=/tmp/luci/luci_context.1234",
+                "-e",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{self.tempdir}:/keys",
+                "-v",
+                f"{result_dir}:/out",
+                "--entrypoint",
+                "./create_cert.py",
+                "signing:latest",
+                "--keyring",
+                "keyring",
+                "--key-name",
+                "key_name",
+                "--out-location",
+                "/out",
+            ]
+        )
+
+    def testValidateOnly(self) -> None:
+        """Verify a validate-only call does not execute any logic."""
+        patch = self.PatchObject(image_service, "CallDocker")
+
+        request = self._GetRequest(
+            keyring="keyring",
+            key_name="key_name",
+            out_path="/out",
+        )
+        signing_controller.CreateCert(
             request, self.response, self.validate_only_config
         )
         patch.assert_not_called()

@@ -113,3 +113,43 @@ def SignTi50Paos(request, _response, _config) -> None:
             f"/out/{request.filename}",
         ],
     )
+
+
+@faux.all_empty
+@validate.require("docker_image")
+@validate.require("keyring")
+@validate.require("key_name")
+@validate.require("out_path")
+@validate.exists("release_keys_checkout")
+@validate.validation_complete
+def CreateCert(request, _response, _config) -> None:
+    """Generate cert keys for the specified key."""
+    entrypoint_args = [
+        "--keyring",
+        request.keyring,
+        "--key-name",
+        request.key_name,
+        "--out-location",
+        request.out_path,
+    ]
+
+    if request.dry_run:
+        entrypoint_args.append("--dry-run")
+    if request.is_staging:
+        entrypoint_args.append("--dev")
+    entrypoint_script = "./create_cert.py"
+
+    image.CallDocker(
+        request.docker_image,
+        docker_args=[
+            # Mount the keyset checkout as a volume.
+            "-v",
+            f"{request.release_keys_checkout}:/keys",
+            # Mount the output dir as a volume.
+            "-v",
+            f"{request.result_path.path.path}:/out",
+            "--entrypoint",
+            entrypoint_script,
+        ],
+        entrypoint_args=entrypoint_args,
+    )
