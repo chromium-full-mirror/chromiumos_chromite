@@ -6,6 +6,7 @@
 
 import os
 from pathlib import Path
+from pathlib import PurePath
 from typing import Dict, Iterator, List, Optional, Union
 from unittest import mock
 
@@ -22,7 +23,7 @@ from chromite.lib.parser import package_info
 
 
 def make_request(
-    chroot_path: Union[str, os.PathLike, None] = "fake_chroot_path",
+    chroot_path: Union[str, PurePath, None] = "fake_chroot_path",
 ) -> sdk_subtools_pb2.BuildSdkSubtoolsRequest:
     """Helper to build a build request message."""
     request = sdk_subtools_pb2.BuildSdkSubtoolsRequest(

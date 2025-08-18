@@ -5,7 +5,7 @@
 """Decorators to help handle mock calls and errors in the Build API."""
 
 import functools
-from typing import Any, Callable, Dict, Iterable, TYPE_CHECKING
+from typing import Callable, ParamSpec, TYPE_CHECKING, TypeVar
 
 from chromite.api import controller
 
@@ -16,16 +16,10 @@ if TYPE_CHECKING:
     from chromite.api import api_config
 
 
-BuildAPIFunction = Callable[
-    [
-        "protobuf_message.Message",
-        "protobuf_message.Message",
-        "api_config.ApiConfig",
-        Iterable[Any],
-        Dict[Any, Any],
-    ],
-    int,
-]
+P = ParamSpec("P")  # Represents the parameters of the decorated function
+R = TypeVar("R")  # Represents the return type of the decorated function
+
+BuildAPIFunction = Callable[P, R]
 
 
 def all_responses(
@@ -70,17 +64,14 @@ def success(
     def decorator(func: BuildAPIFunction) -> BuildAPIFunction:
         @functools.wraps(func)
         def _success(
-            request: "protobuf_message.Message",
-            response: "protobuf_message.Message",
-            config: "api_config.ApiConfig",
-            *args: Any,
-            **kwargs: Any,
-        ) -> int:
-            if config.mock_call:
-                faux_result_factory(request, response, config, *args, **kwargs)
+            *args: P.args,
+            **kwargs: P.kwargs,
+        ) -> R:
+            if args[2].mock_call:
+                faux_result_factory(*args, **kwargs)
                 return controller.RETURN_CODE_SUCCESS
 
-            return func(request, response, config, *args, **kwargs)
+            return func(*args, **kwargs)
 
         return _success
 
@@ -92,16 +83,13 @@ def empty_success(func: BuildAPIFunction) -> BuildAPIFunction:
 
     @functools.wraps(func)
     def _empty_success(
-        request: "protobuf_message.Message",
-        response: "protobuf_message.Message",
-        config: "api_config.ApiConfig",
-        *args: Any,
-        **kwargs: Any,
-    ) -> int:
-        if config.mock_call:
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ) -> R:
+        if args[2].mock_call:
             return controller.RETURN_CODE_SUCCESS
 
-        return func(request, response, config, *args, **kwargs)
+        return func(*args, **kwargs)
 
     return _empty_success
 
@@ -114,17 +102,14 @@ def error(
     def decorator(func: BuildAPIFunction) -> BuildAPIFunction:
         @functools.wraps(func)
         def _error(
-            request: "protobuf_message.Message",
-            response: "protobuf_message.Message",
-            config: "api_config.ApiConfig",
-            *args: Any,
-            **kwargs: Any,
-        ) -> int:
-            if config.mock_error:
-                faux_error_factory(request, response, config, *args, **kwargs)
+            *args: P.args,
+            **kwargs: P.kwargs,
+        ) -> R:
+            if args[2].mock_error:
+                faux_error_factory(*args, **kwargs)
                 return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
 
-            return func(request, response, config, *args, **kwargs)
+            return func(*args, **kwargs)
 
         return _error
 
@@ -136,16 +121,13 @@ def empty_error(func: BuildAPIFunction) -> BuildAPIFunction:
 
     @functools.wraps(func)
     def _empty_error(
-        request: "protobuf_message.Message",
-        response: "protobuf_message.Message",
-        config: "api_config.ApiConfig",
-        *args: Any,
-        **kwargs: Any,
-    ) -> int:
-        if config.mock_error:
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ) -> R:
+        if args[2].mock_error:
             return controller.RETURN_CODE_UNRECOVERABLE
 
-        return func(request, response, config, *args, **kwargs)
+        return func(*args, **kwargs)
 
     return _empty_error
 
@@ -157,15 +139,12 @@ def empty_completed_unsuccessfully_error(
 
     @functools.wraps(func)
     def _empty_error(
-        request: "protobuf_message.Message",
-        response: "protobuf_message.Message",
-        config: "api_config.ApiConfig",
-        *args: Any,
-        **kwargs: Any,
-    ) -> int:
-        if config.mock_error:
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ) -> R:
+        if args[2].mock_error:
             return controller.RETURN_CODE_COMPLETED_UNSUCCESSFULLY
 
-        return func(request, response, config, *args, **kwargs)
+        return func(*args, **kwargs)
 
     return _empty_error

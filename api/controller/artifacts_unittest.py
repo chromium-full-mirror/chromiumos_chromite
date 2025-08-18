@@ -6,7 +6,7 @@
 
 import os
 import pathlib
-from typing import Optional
+from typing import Any, Optional, Union
 from unittest import mock
 
 from chromite.api import api_config
@@ -31,19 +31,22 @@ from chromite.service import artifacts as artifacts_svc
 class BundleRequestMixin:
     """Mixin to provide bundle request methods."""
 
-    def EmptyRequest(self):
+    def EmptyRequest(self) -> artifacts_pb2.BundleRequest:
         return artifacts_pb2.BundleRequest()
 
     def BuildTargetRequest(
-        self, build_target=None, output_dir=None, chroot=None
-    ):
+        self,
+        build_target: str | None = None,
+        output_dir: str | None = None,
+        chroot: str | None = None,
+    ) -> artifacts_pb2.BundleRequest:
         """Get a build target format request instance."""
         request = self.EmptyRequest()
         if build_target:
             request.build_target.name = build_target
         if output_dir:
             request.result_path.path.path = str(output_dir)
-            request.result_path.path.location = common_pb2.Path.Location.OUTSIDE
+            request.result_path.path.location = common_pb2.Path.OUTSIDE
         if chroot:
             request.chroot.path = chroot
 
@@ -51,12 +54,12 @@ class BundleRequestMixin:
 
     def SysrootRequest(
         self,
-        sysroot=None,
-        build_target=None,
-        output_dir=None,
-        chroot=None,
-        chroot_out=None,
-    ):
+        sysroot: str | None = None,
+        build_target: str | None = None,
+        output_dir: str | None = None,
+        chroot: Union[str, pathlib.Path, None] = None,
+        chroot_out: Union[str, pathlib.Path, None] = None,
+    ) -> artifacts_pb2.BundleRequest:
         """Get a sysroot format request instance."""
         request = self.EmptyRequest()
         if sysroot:
@@ -65,7 +68,7 @@ class BundleRequestMixin:
             request.sysroot.build_target.name = build_target
         if output_dir:
             request.result_path.path.path = output_dir
-            request.result_path.path.location = common_pb2.Path.Location.OUTSIDE
+            request.result_path.path.location = common_pb2.Path.OUTSIDE
         if chroot:
             request.chroot.path = str(chroot)
         if chroot_out:
@@ -650,15 +653,15 @@ class BundleTestUpdatePayloadsTest(
         self.request.build_target.name = self.target
         self.request.output_dir = self.archive_root
         self.request.result_path.path.path = self.archive_root
-        self.request.result_path.path.location = (
-            common_pb2.Path.Location.OUTSIDE
-        )
+        self.request.result_path.path.location = common_pb2.Path.OUTSIDE
 
         self.response = artifacts_pb2.BundleResponse()
 
         self.PatchObject(constants, "SOURCE_ROOT", new=self.source_root)
 
-        def MockPayloads(_, image_path, archive_dir):
+        def MockPayloads(
+            _: Any, image_path: str, archive_dir: str
+        ) -> list[str]:
             osutils.WriteFile(
                 os.path.join(archive_dir, "payload1.bin"), image_path
             )
@@ -722,7 +725,11 @@ class BundleTestUpdatePayloadsTest(
         actual = [
             os.path.basename(path)
             for path in osutils.DirectoryIterator(
-                os.path.dirname(self.response.artifacts[0].artifact_path.path)
+                pathlib.Path(
+                    os.path.dirname(
+                        self.response.artifacts[0].artifact_path.path
+                    )
+                )
             )
         ]
         self.assertCountEqual(actual, expected)
@@ -1148,8 +1155,8 @@ class FetchCentralizedSuitesTestCase(
         self.PatchObject(cros_build_lib, "AssertOutsideChroot")
 
     def createFetchCentralizedSuitesRequest(
-        self, use_sysroot_path=True, use_chroot=True
-    ):
+        self, use_sysroot_path: bool = True, use_chroot: bool = True
+    ) -> artifacts_pb2.FetchCentralizedSuitesRequest:
         """Construct a FetchCentralizedSuitesRequest for use in test cases."""
         request = artifacts_pb2.FetchCentralizedSuitesRequest()
         if use_sysroot_path:
@@ -1250,8 +1257,8 @@ class FetchMetadataTestCase(
         self.PatchObject(cros_build_lib, "AssertOutsideChroot")
 
     def createFetchMetadataRequest(
-        self, use_sysroot_path=True, use_chroot=True
-    ):
+        self, use_sysroot_path: bool = True, use_chroot: bool = True
+    ) -> artifacts_pb2.FetchMetadataRequest:
         """Construct a FetchMetadataRequest for use in test cases."""
         request = artifacts_pb2.FetchMetadataRequest()
         if use_sysroot_path:
@@ -1343,8 +1350,8 @@ class FetchTestHarnessMetadataTestCase(
         self.PatchObject(cros_build_lib, "AssertOutsideChroot")
 
     def createFetchTestHarnessMetadataRequest(
-        self, use_sysroot_path=True, use_chroot=True
-    ):
+        self, use_sysroot_path: bool = True, use_chroot: bool = True
+    ) -> artifacts_pb2.FetchTestHarnessMetadataRequest:
         """Construct a FetchTestHarnessMetadataRequest for use in test cases."""
         request = artifacts_pb2.FetchTestHarnessMetadataRequest()
         if use_sysroot_path:
@@ -1418,7 +1425,7 @@ class GetTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         self.sysroot_path = "/build/target"
         self.sysroot = sysroot_lib.Sysroot(self.sysroot_path)
 
-    def _InputProto(self):
+    def _InputProto(self) -> artifacts_pb2.GetRequest:
         """Helper to build an input proto instance."""
         # pylint: disable=line-too-long
         return artifacts_pb2.GetRequest(
@@ -1428,7 +1435,7 @@ class GetTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
                     output_artifacts=[
                         common_pb2.ArtifactsByService.Sysroot.ArtifactInfo(
                             artifact_types=[
-                                common_pb2.ArtifactsByService.Sysroot.ArtifactType.FUZZER_SYSROOT
+                                common_pb2.ArtifactsByService.Sysroot.FUZZER_SYSROOT
                             ]
                         )
                     ],
@@ -1437,7 +1444,7 @@ class GetTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
                     output_artifacts=[
                         common_pb2.ArtifactsByService.Image.ArtifactInfo(
                             artifact_types=[
-                                common_pb2.ArtifactsByService.Image.ArtifactType.LICENSE_CREDITS
+                                common_pb2.ArtifactsByService.Image.LICENSE_CREDITS
                             ]
                         )
                     ],
@@ -1446,7 +1453,7 @@ class GetTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
                     output_artifacts=[
                         common_pb2.ArtifactsByService.Test.ArtifactInfo(
                             artifact_types=[
-                                common_pb2.ArtifactsByService.Test.ArtifactType.HWQUAL
+                                common_pb2.ArtifactsByService.Test.HWQUAL
                             ]
                         )
                     ],
@@ -1458,7 +1465,7 @@ class GetTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
         )
         # pylint: enable=line-too-long
 
-    def _OutputProto(self):
+    def _OutputProto(self) -> artifacts_pb2.GetResponse:
         """Helper to build an output proto instance."""
         return artifacts_pb2.GetResponse()
 
@@ -1471,7 +1478,7 @@ class GetTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             return_value=[
                 {
                     "paths": ["/foo/bar/license_credits.html"],
-                    "type": common_pb2.ArtifactsByService.Image.ArtifactType.LICENSE_CREDITS,
+                    "type": common_pb2.ArtifactsByService.Image.LICENSE_CREDITS,
                 }
             ],
         )
@@ -1480,7 +1487,7 @@ class GetTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             "GetArtifacts",
             return_value=[
                 {
-                    "type": common_pb2.ArtifactsByService.Sysroot.ArtifactType.FUZZER_SYSROOT,
+                    "type": common_pb2.ArtifactsByService.Sysroot.FUZZER_SYSROOT,
                     "failed": True,
                     "failure_reason": "Bad data!",
                 }
@@ -1492,7 +1499,7 @@ class GetTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             return_value=[
                 {
                     "paths": ["/foo/bar/hwqual.tar.xz"],
-                    "type": common_pb2.ArtifactsByService.Test.ArtifactType.HWQUAL,
+                    "type": common_pb2.ArtifactsByService.Test.HWQUAL,
                 }
             ],
         )
@@ -1515,7 +1522,7 @@ class GetTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             sysroot=common_pb2.UploadedArtifactsByService.Sysroot(
                 artifacts=[
                     common_pb2.UploadedArtifactsByService.Sysroot.ArtifactPaths(
-                        artifact_type=common_pb2.ArtifactsByService.Sysroot.ArtifactType.FUZZER_SYSROOT,
+                        artifact_type=common_pb2.ArtifactsByService.Sysroot.FUZZER_SYSROOT,
                         failed=True,
                         failure_reason="Bad data!",
                     )
@@ -1524,7 +1531,7 @@ class GetTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             image=common_pb2.UploadedArtifactsByService.Image(
                 artifacts=[
                     common_pb2.UploadedArtifactsByService.Image.ArtifactPaths(
-                        artifact_type=common_pb2.ArtifactsByService.Image.ArtifactType.LICENSE_CREDITS,
+                        artifact_type=common_pb2.ArtifactsByService.Image.LICENSE_CREDITS,
                         paths=[
                             common_pb2.Path(
                                 path="/foo/bar/license_credits.html",
@@ -1537,7 +1544,7 @@ class GetTest(cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin):
             test=common_pb2.UploadedArtifactsByService.Test(
                 artifacts=[
                     common_pb2.UploadedArtifactsByService.Test.ArtifactPaths(
-                        artifact_type=common_pb2.ArtifactsByService.Test.ArtifactType.HWQUAL,
+                        artifact_type=common_pb2.ArtifactsByService.Test.HWQUAL,
                         paths=[
                             common_pb2.Path(
                                 path="/foo/bar/hwqual.tar.xz",

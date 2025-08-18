@@ -570,7 +570,9 @@ def SafeUnlink(path: Union[Path, str], sudo: bool = False):
     return True
 
 
-def SafeMakedirs(path, mode=0o775, sudo=False, user="root"):
+def SafeMakedirs(
+    path, mode: int = 0o775, sudo: bool = False, user: str = "root"
+) -> bool:
     """Make parent directories if needed. Ignore if existing.
 
     Args:
