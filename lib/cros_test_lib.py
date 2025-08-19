@@ -737,16 +737,16 @@ class TempDirTestCase(TestCase):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         TestCase.__init__(self, *args, **kwargs)
-        self._tempdir: Union[str, Path] = ""
+        self._tempdir: Optional[Path] = None
         self._tempdir_obj: Optional[osutils.TempDir] = None
 
     @property
-    def tempdir(self) -> Union[str, Path]:
+    def tempdir(self) -> Path:
         assert self._tempdir
         return self._tempdir
 
     @classmethod
-    def SkipCleanup(cls) -> Union[str, Path]:
+    def SkipCleanup(cls) -> Path:
         """Leave behind tempdirs created by instances of this class.
 
         Calling this function ensures that all future instances will leak their
@@ -794,7 +794,7 @@ class TempDirTestCase(TestCase):
         if self._tempdir_obj is not None:
             self._tempdir_obj.Cleanup()
             self._tempdir_obj = None
-            self._tempdir = None  # type: ignore[assignment]
+            self._tempdir = None
 
     def ExpectRootOwnedFiles(self) -> None:
         """Tells us that we may need to clean up root owned files."""
