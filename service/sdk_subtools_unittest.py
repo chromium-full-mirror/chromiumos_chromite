@@ -6,6 +6,7 @@
 
 import contextlib
 from pathlib import Path
+from typing import Any
 import unittest
 from unittest import mock
 
@@ -26,7 +27,7 @@ from chromite.service import sdk_subtools
     return_value=contextlib.nullcontext(),
 )
 def test_install_packages(
-    _, __, run_mock: cros_test_lib.RunCommandMock
+    _: Any, __: Any, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
     """Test that arguments are passed correctly to emerge."""
     run_mock.SetDefaultCmdResult(0)
@@ -47,7 +48,7 @@ def test_install_packages(
     return_value=contextlib.nullcontext(),
 )
 def test_install_packages_failure(
-    _, __, run_mock: cros_test_lib.RunCommandMock
+    _: Any, __: Any, run_mock: cros_test_lib.RunCommandMock
 ) -> None:
     """Test that PackageInstallError is raised on emerge failure."""
     run_mock.AddCmdResult(
@@ -80,7 +81,9 @@ def test_bundle_private_only(tmp_path: Path) -> None:
     private_subtool = mock.Mock()
     private_subtool.private_packages = ["some-category/package-0.0.1-r1"]
 
-    def _fake_subtool_from_file(path: Path, *_args, **_kwargs):
+    def _fake_subtool_from_file(
+        path: Path, *_args: Any, **_kwargs: Any
+    ) -> mock.Mock:
         if path.name == "public.textproto":
             return public_subtool
         if path.name == "private.textproto":
