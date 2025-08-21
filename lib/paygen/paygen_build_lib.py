@@ -18,7 +18,9 @@ class Error(Exception):
     """Exception base class for this module."""
 
 
-def DefaultPayloadUri(payload, random_str=None):
+def DefaultPayloadUri(
+    payload: gspaths.Payload, random_str: str | None = None
+) -> str:
     """Compute the default output URI for a payload.
 
     For a glob that matches all potential URIs for this

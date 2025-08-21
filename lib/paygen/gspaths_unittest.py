@@ -4,6 +4,8 @@
 
 """Test gspaths library."""
 
+from typing import Any, Mapping
+
 from chromite.lib import cros_test_lib
 from chromite.lib.paygen import gspaths
 
@@ -180,7 +182,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
             **self.unsigned_image_archive_attrs,
         )
 
-    def _Populate(self, template, **kwargs):
+    def _Populate(self, template: str, **kwargs: Any) -> str:
         """Populates a template string with override attributes.
 
         This will use the default test attributes to populate a given string
@@ -194,7 +196,9 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
         attrs = dict(self.all_attrs, **kwargs)
         return template % attrs
 
-    def _PopulateGsPath(self, base_path, suffix=None, **kwargs):
+    def _PopulateGsPath(
+        self, base_path: str, suffix: str | None = None, **kwargs: Any
+    ) -> str:
         """Populates a Google Storage path template w/ optional suffix.
 
         Args:
@@ -287,7 +291,7 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
         )
 
     @staticmethod
-    def _IncrementVersion(version, inc_amount=1):
+    def _IncrementVersion(version: str, inc_amount: int = 1) -> str:
         version_part = version.rpartition(".")
         return ".".join(
             (version_part[0], str(int(version_part[2]) + inc_amount))
@@ -701,37 +705,46 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
             image_version=image_version,
         )
 
+        payload_url: Mapping[Any, object] | None = (
+            gspaths.ChromeosReleases.ParsePayloadUri(full_uri)
+        )
+        expected_payload: Mapping[Any, object] = payload_url or {}
         self.assertDictEqual(
-            gspaths.ChromeosReleases.ParsePayloadUri(full_uri),
+            expected_payload,
             gspaths.Payload(
+                False,
                 **{
                     "tgt_image": gspaths.Image(build=self.build, key=self.key),
                     "src_image": None,
                     "build": self.build,
                     "uri": full_uri,
-                    "exists": False,
                     "minios": None,
-                }
+                },
             ),
         )
 
+        payload_url = gspaths.ChromeosReleases.ParsePayloadUri(delta_uri)
+        expected_payload = payload_url or {}
         self.assertDictEqual(
-            gspaths.ChromeosReleases.ParsePayloadUri(delta_uri),
+            expected_payload,
             gspaths.Payload(
+                False,
                 **{
                     "src_image": gspaths.Image(build=self.src_build),
                     "tgt_image": gspaths.Image(build=self.build, key=self.key),
                     "build": self.build,
                     "uri": delta_uri,
-                    "exists": False,
                     "minios": None,
-                }
+                },
             ),
         )
 
+        payload_url = gspaths.ChromeosReleases.ParsePayloadUri(max_full_uri)
+        expected_payload = payload_url or {}
         self.assertDictEqual(
-            gspaths.ChromeosReleases.ParsePayloadUri(max_full_uri),
+            expected_payload,
             gspaths.Payload(
+                False,
                 **{
                     "tgt_image": gspaths.Image(
                         build=self.build,
@@ -742,15 +755,16 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
                     "src_image": None,
                     "build": self.build,
                     "uri": max_full_uri,
-                    "exists": False,
                     "minios": None,
-                }
+                },
             ),
         )
-
+        payload_url = gspaths.ChromeosReleases.ParsePayloadUri(max_delta_uri)
+        expected_payload = payload_url or {}
         self.assertDictEqual(
-            gspaths.ChromeosReleases.ParsePayloadUri(max_delta_uri),
+            expected_payload,
             gspaths.Payload(
+                False,
                 **{
                     "src_image": gspaths.Image(build=self.src_build),
                     "tgt_image": gspaths.Image(
@@ -761,9 +775,8 @@ class GsPathsChromeosReleasesTest(cros_test_lib.TestCase):
                     ),
                     "build": self.build,
                     "uri": max_delta_uri,
-                    "exists": False,
                     "minios": None,
-                }
+                },
             ),
         )
 

@@ -14,17 +14,17 @@ This includes definitions for various build flags:
         gs://chromeos-releases/blah-channel/board-name/1.2.3/payloads/LOCK_flag
 """
 
-from enum import Enum
+import enum
 import logging
 import os
 import re
-from typing import Optional
+from typing import Any, ClassVar, List, Mapping, Union
 
 from chromite.lib import cros_build_lib
 from chromite.lib.paygen import utils
 
 
-class OSType(Enum):
+class OSType(enum.Enum):
     """Define different OS types"""
 
     CROS = 1
@@ -51,7 +51,9 @@ class Build(utils.RestrictedAttrDict):
     _name = "Build definition"
 
     @staticmethod
-    def BuildValuesFromUri(uri_re, uri):
+    def BuildValuesFromUri(
+        uri_re: str, uri: str
+    ) -> Union[dict[str, Union[str, Any]], None]:
         """Builds a dictionary from a URI using a regular expression.
 
         In addition, it removes the 'board', 'version', 'channel', and 'bucket'
@@ -98,7 +100,7 @@ class Image(utils.RestrictedAttrDict):
     """
 
     _name = "Image definition"
-    _slots = (
+    _slots: ClassVar[tuple[str, ...]] = (
         "build",
         "image_type",
         "key",
@@ -106,9 +108,11 @@ class Image(utils.RestrictedAttrDict):
         "image_version",
         "uri",
     )
-    DEFAULT_IMAGE_TYPE = "recovery"
+    DEFAULT_IMAGE_TYPE: str = "recovery"
+    image_type: str
+    uri: str | None
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         # Pylint isn't able to follow utils.RestrictedAttrDict & _slots
@@ -149,7 +153,7 @@ class DLCImage(Image):
         dlc_image: File name of a DLC module image.
     """
 
-    _name = "DLC Image definition"
+    _name: str = "DLC Image definition"
     _slots = Image._slots + ("dlc_id", "dlc_package", "dlc_image")
 
     def __str__(self) -> str:
@@ -173,7 +177,7 @@ class MiniOSImage(Image):
     _name = "MiniOS Image definition"
     _slots = Image._slots + ("minios",)
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.minios = True
 
@@ -200,7 +204,12 @@ class UnsignedImageArchive(utils.RestrictedAttrDict):
     """
 
     _name = "Unsigned image archive definition"
-    _slots = ("build", "milestone", "image_type", "uri")
+    _slots: ClassVar[tuple[str, ...]] = (
+        "build",
+        "milestone",
+        "image_type",
+        "uri",
+    )
 
     def __str__(self) -> str:
         if self.uri:
@@ -220,9 +229,9 @@ class UnsignedMiniOSImageArchive(UnsignedImageArchive):
     """Define a unsigned MiniOS image archive."""
 
     _name = "Unsigned MiniOS image archive definition"
-    _slots = UnsignedImageArchive._slots + ("minios",)
+    _slots = UnsignedImageArchive._slots + ("minios",)  # type ignore [has-type]
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.minios = True
 
@@ -252,8 +261,10 @@ class Payload(utils.RestrictedAttrDict):
 
     _name = "Payload definition"
     _slots = ("tgt_image", "src_image", "build", "uri", "exists", "minios")
+    build: Build | None
+    uri: str | None
 
-    def __init__(self, exists=False, *args, **kwargs) -> None:
+    def __init__(self, exists: bool = False, *args: Any, **kwargs: Any) -> None:
         kwargs.update(exists=exists)
         super().__init__(*args, **kwargs)
 
@@ -291,7 +302,7 @@ class ChromeosReleases:
     UNSIGNED_IMAGE_TYPES = ("test", "recovery", "base")
 
     @staticmethod
-    def BuildUri(build):
+    def BuildUri(build: Build) -> str:
         """Creates the gspath for a given build.
 
         Args:
@@ -309,7 +320,7 @@ class ChromeosReleases:
         )
 
     @staticmethod
-    def BuildPayloadsUri(build):
+    def BuildPayloadsUri(build: Build) -> str:
         """Creates the gspath for the payloads of a given build.
 
         Args:
@@ -322,7 +333,7 @@ class ChromeosReleases:
         return os.path.join(ChromeosReleases.BuildUri(build), "payloads")
 
     @staticmethod
-    def BuildPayloadsSigningUri(build):
+    def BuildPayloadsSigningUri(build: Build) -> str:
         """Creates the base gspath for payload signing files.
 
         We create a number of files during signer interaction. This method
@@ -341,7 +352,7 @@ class ChromeosReleases:
         return os.path.join(ChromeosReleases.BuildPayloadsUri(build), "signing")
 
     @staticmethod
-    def BuildPayloadsFlagUri(build, flag):
+    def BuildPayloadsFlagUri(build: Build, flag: str) -> str:
         """Creates the gspath for a given build flag.
 
         LOCK - means that payload processing is in progress on the host which
@@ -363,7 +374,9 @@ class ChromeosReleases:
         )
 
     @staticmethod
-    def ImageName(channel, board, version, key, image_type):
+    def ImageName(
+        channel: str, board: str, version: str, key: str, image_type: str
+    ) -> str:
         """Creates the base file name for a given build image.
 
         Args:
@@ -394,7 +407,7 @@ class ChromeosReleases:
         }
 
     @staticmethod
-    def DLCImageName():
+    def DLCImageName() -> str:
         """Creates file name for a DLC image.
 
         Returns:
@@ -403,7 +416,9 @@ class ChromeosReleases:
         return "dlc.img"
 
     @staticmethod
-    def UnsignedImageArchiveName(board, version, milestone, image_type):
+    def UnsignedImageArchiveName(
+        board: str, version: str, milestone: str, image_type: str
+    ) -> str:
         """The base name for the tarball containing an unsigned build image.
 
         Args:
@@ -431,8 +446,12 @@ class ChromeosReleases:
 
     @staticmethod
     def ImageUri(
-        build, key, image_type, image_channel=None, image_version=None
-    ):
+        build: Build,
+        key: str,
+        image_type: str,
+        image_channel: str | None = None,
+        image_version: str | None = None,
+    ) -> str:
         """Creates the gspath for a given build image.
 
         Args:
@@ -450,21 +469,20 @@ class ChromeosReleases:
                 gs://chromeos-releases/blah-channel/board-name/1.2.3/
                     chromeos_1.2.3_board-name_recovery_blah-channel_key.bin
         """
-        if not image_channel:
-            image_channel = build.channel
-
-        if not image_version:
-            image_version = build.version
 
         return os.path.join(
             ChromeosReleases.BuildUri(build),
             ChromeosReleases.ImageName(
-                image_channel, build.board, image_version, key, image_type
+                image_channel if image_channel else build.channel,
+                build.board,
+                image_version if image_version else build.version,
+                key,
+                image_type,
             ),
         )
 
     @staticmethod
-    def UnsignedImageUri(build, milestone, image_type):
+    def UnsignedImageUri(build: Build, milestone: str, image_type: str) -> str:
         """Creates the gspath for a given unsigned build image archive.
 
         Args:
@@ -486,7 +504,9 @@ class ChromeosReleases:
         )
 
     @staticmethod
-    def DLCImageUri(build, dlc_id, dlc_package, dlc_image):
+    def DLCImageUri(
+        build: Build, dlc_id: str, dlc_package: str, dlc_image: str
+    ) -> str:
         """Creates the gspath for a given dlc image archive.
 
         Args:
@@ -509,7 +529,7 @@ class ChromeosReleases:
         )
 
     @staticmethod
-    def DLCImagesUri(build):
+    def DLCImagesUri(build: Build) -> str:
         """Creates the gspath for DLC images for a given build image archive."""
 
         # DLC images are located at:
@@ -523,7 +543,9 @@ class ChromeosReleases:
         )
 
     @classmethod
-    def _ParseImageUriValues(cls, image_uri):
+    def _ParseImageUriValues(
+        cls, image_uri: str
+    ) -> Union[dict[str, Union[str, Any]], None]:
         # The named values in this regex must match the arguments to
         # gspaths.Image.
         exp = (
@@ -536,7 +558,9 @@ class ChromeosReleases:
         return Build.BuildValuesFromUri(exp, image_uri)
 
     @classmethod
-    def ParseImageUri(cls, image_uri, os_type):
+    def ParseImageUri(
+        cls, image_uri: str, os_type: OSType
+    ) -> Union[dict[str, Union[str, Any]], None]:
         """Parse the URI of an image into an Image object."""
 
         values = cls._ParseImageUriValues(image_uri)
@@ -555,7 +579,7 @@ class ChromeosReleases:
         ](values)
 
     @classmethod
-    def ParseMiniOSImageUri(cls, image_uri):
+    def ParseMiniOSImageUri(cls, image_uri: str) -> Union[MiniOSImage, None]:
         """Parse the URI of an MiniOS image into an Image object."""
 
         values = cls._ParseImageUriValues(image_uri)
@@ -569,7 +593,9 @@ class ChromeosReleases:
         return MiniOSImage(values)
 
     @classmethod
-    def ParseUnsignedImageUri(cls, image_uri, os_type):
+    def ParseUnsignedImageUri(
+        cls, image_uri: str, os_type: OSType
+    ) -> UnsignedImageArchive | UnsignedMiniOSImageArchive | None:
         """Parse the URI of an image into an UnsignedImageArchive object."""
 
         # The named values in this regex must match the arguments to
@@ -596,7 +622,7 @@ class ChromeosReleases:
         }[os_type](values)
 
     @classmethod
-    def ParseDLCImageUri(cls, image_uri):
+    def ParseDLCImageUri(cls, image_uri: str) -> Union[DLCImage, None]:
         """Parse the URI of a DLC image into an Image object."""
 
         # The named values in this regex must match the arguments to
@@ -620,15 +646,15 @@ class ChromeosReleases:
 
     @staticmethod
     def DLCPayloadName(
-        channel,
-        board,
-        version,
-        dlc_id,
-        dlc_package,
-        random_str=None,
-        src_version=None,
-        sign=True,
-    ):
+        channel: str,
+        board: str,
+        version: str,
+        dlc_id: str,
+        dlc_package: str,
+        random_str: str | None = None,
+        src_version: str | None = None,
+        sign: bool = True,
+    ) -> str:
         """Creates the payload file name of a DLC image.
 
         Args:
@@ -692,14 +718,14 @@ class ChromeosReleases:
 
     @staticmethod
     def MiniOSPayloadName(
-        channel,
-        board,
-        version,
-        key=None,
-        random_str=None,
-        src_version=None,
-        unsigned_image_type: Optional[str] = "test",
-    ):
+        channel: str,
+        board: str,
+        version: str,
+        key: str | None = None,
+        random_str: str | None = None,
+        src_version: str | None = None,
+        unsigned_image_type: str | None = "test",
+    ) -> str:
         """Creates the payload file name of a DLC image.
 
         Args:
@@ -740,14 +766,14 @@ class ChromeosReleases:
 
     @staticmethod
     def PayloadName(
-        channel,
-        board,
-        version,
-        key=None,
-        random_str=None,
-        src_version=None,
-        unsigned_image_type="test",
-    ):
+        channel: str,
+        board: str,
+        version: str,
+        key: str | None = None,
+        random_str: str | None = None,
+        src_version: str | None = None,
+        unsigned_image_type: str = "test",
+    ) -> str:
         """Creates the gspath for a payload associated with a given build.
 
         Args:
@@ -814,14 +840,14 @@ class ChromeosReleases:
 
     @staticmethod
     def DLCPayloadUri(
-        build,
-        random_str,
-        dlc_id,
-        dlc_package,
-        image_channel=None,
-        image_version=None,
-        src_version=None,
-    ):
+        build: Build,
+        random_str: str | None,
+        dlc_id: str,
+        dlc_package: str,
+        image_channel: str | None = None,
+        image_version: str | None = None,
+        src_version: str | None = None,
+    ) -> str:
         """Creates the gspath for a payload associated with a given build.
 
         Args:
@@ -836,11 +862,6 @@ class ChromeosReleases:
             src_version: If this payload is a delta, this is the version of the
                 image it updates from.
         """
-        if image_channel is None:
-            image_channel = build.channel
-
-        if image_version is None:
-            image_version = build.version
 
         # DLC payloads are pushed to dlc/|dlc_id|/|dlc_package| subfolder.
         return os.path.join(
@@ -849,9 +870,9 @@ class ChromeosReleases:
             dlc_id,
             dlc_package,
             ChromeosReleases.DLCPayloadName(
-                image_channel,
+                image_channel if image_channel else build.channel,
                 build.board,
-                image_version,
+                image_version if image_version else build.version,
                 dlc_id,
                 dlc_package,
                 random_str,
@@ -861,13 +882,13 @@ class ChromeosReleases:
 
     @staticmethod
     def MiniOSPayloadUri(
-        build,
-        random_str,
-        key=None,
-        image_channel=None,
-        image_version=None,
-        src_version=None,
-    ):
+        build: Build,
+        random_str: str | None,
+        key: str | None = None,
+        image_channel: str | None = None,
+        image_version: str | None = None,
+        src_version: str | None = None,
+    ) -> str:
         """Creates the gspath for a payload associated with a given build.
 
         Args:
@@ -893,20 +914,15 @@ class ChromeosReleases:
                 minios/chromeos_2913.377.0_x86-alex_stable-channel_full_mp-v3.
                 bin-610c97c30fae8561bde01a6116d65cb9.signed
         """
-        if image_channel is None:
-            image_channel = build.channel
-
-        if image_version is None:
-            image_version = build.version
 
         # MiniOS payloads are pushed to minios subfolder.
         return os.path.join(
             ChromeosReleases.BuildPayloadsUri(build),
             "minios",
             ChromeosReleases.MiniOSPayloadName(
-                image_channel,
+                image_channel if image_channel else build.channel,
                 build.board,
-                image_version,
+                image_version if image_version else build.version,
                 key,
                 random_str,
                 src_version,
@@ -915,13 +931,13 @@ class ChromeosReleases:
 
     @staticmethod
     def PayloadUri(
-        build,
-        random_str,
-        key=None,
-        image_channel=None,
-        image_version=None,
-        src_version=None,
-    ):
+        build: Build,
+        random_str: str | None,
+        key: str | None = None,
+        image_channel: str | None = None,
+        image_version: str | None = None,
+        src_version: str | None = None,
+    ) -> str:
         """Creates the gspath for a payload associated with a given build.
 
         Args:
@@ -947,18 +963,13 @@ class ChromeosReleases:
                 chromeos_2913.377.0_x86-alex_stable-channel_full_mp-v3.
                 bin-610c97c30fae8561bde01a6116d65cb9.signed
         """
-        if image_channel is None:
-            image_channel = build.channel
-
-        if image_version is None:
-            image_version = build.version
 
         return os.path.join(
             ChromeosReleases.BuildPayloadsUri(build),
             ChromeosReleases.PayloadName(
-                image_channel,
+                image_channel if image_channel else build.channel,
                 build.board,
-                image_version,
+                image_version if image_version else build.version,
                 key,
                 random_str,
                 src_version,
@@ -966,7 +977,7 @@ class ChromeosReleases:
         )
 
     @classmethod
-    def ParsePayloadUri(cls, payload_uri):
+    def ParsePayloadUri(cls, payload_uri: str) -> Mapping[Any, object] | None:
         """Parse the URI of an image into an Image object."""
 
         # Sample Delta URI:
@@ -1048,7 +1059,13 @@ class ChromeosImageArchive:
     BUCKET = "chromeos-image-archive"
 
     @classmethod
-    def BuildUri(cls, board, milestone, version, bucket=None):
+    def BuildUri(
+        cls,
+        board: str,
+        milestone: str,
+        version: str,
+        bucket: str | None = None,
+    ) -> str:
         """Creates the gspath for a given build.
 
         Args:
@@ -1067,7 +1084,7 @@ class ChromeosImageArchive:
         return "gs://%s/%s-release/R%s-%s" % (bucket, board, milestone, version)
 
 
-def VersionKey(version):
+def VersionKey(version: str) -> List[int]:
     """Convert a version string to a comparable value.
 
     All old style values are considered older than all new style values.
@@ -1095,7 +1112,7 @@ def VersionKey(version):
         return [0] + key
 
 
-def VersionGreater(left, right):
+def VersionGreater(left: str, right: str) -> bool:
     """Compare two version strings.
 
     left > right
@@ -1110,7 +1127,7 @@ def VersionGreater(left, right):
     return VersionKey(left) > VersionKey(right)
 
 
-def IsImage(a):
+def IsImage(a: Any) -> bool:
     """Return if the object is of Image type.
 
     Args:
@@ -1122,7 +1139,7 @@ def IsImage(a):
     return isinstance(a, Image)
 
 
-def IsUnsignedImageArchive(a):
+def IsUnsignedImageArchive(a: Any) -> bool:
     """Return if the object is of UnsignedImageArchive type.
 
     Args:
@@ -1134,7 +1151,7 @@ def IsUnsignedImageArchive(a):
     return isinstance(a, UnsignedImageArchive)
 
 
-def IsUnsignedMiniOSImageArchive(a):
+def IsUnsignedMiniOSImageArchive(a: Any) -> bool:
     """Return if the object is of UnsignedMiniOSImageArchive type.
 
     Args:
@@ -1146,7 +1163,7 @@ def IsUnsignedMiniOSImageArchive(a):
     return isinstance(a, UnsignedMiniOSImageArchive)
 
 
-def IsDLCImage(a):
+def IsDLCImage(a: Any) -> bool:
     """Return if the object is of DLCImage type.
 
     Args:
@@ -1158,7 +1175,7 @@ def IsDLCImage(a):
     return isinstance(a, DLCImage)
 
 
-def IsMiniOSImage(obj):
+def IsMiniOSImage(obj: Any) -> bool:
     """Return if the |obj| is of MiniOSImage type.
 
     Args:

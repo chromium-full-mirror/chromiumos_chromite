@@ -4,16 +4,16 @@
 
 """Common python commands used by various internal build scripts."""
 
-from collections import namedtuple
+import collections
 import multiprocessing
 import os
 import time
-from typing import Any, Callable, Optional, Tuple
+from typing import Any, Callable, ClassVar, Optional, Tuple
 
 from chromite.utils import key_value_store
 
 
-AcquireResult = namedtuple("AcquireResult", ["result", "reason"])
+AcquireResult = collections.namedtuple("AcquireResult", ["result", "reason"])
 
 MINOR_VERSION = "PAYLOAD_MINOR_VERSION"
 
@@ -36,7 +36,7 @@ class RestrictedAttrDict(dict):
     The keys will belong to a restricted list of values.
     """
 
-    _slots = ()
+    _slots: ClassVar[tuple[str, ...]] = ()
 
     def __init__(self, *args, **kwargs) -> None:
         """Ensure that only the expected keys are added."""
