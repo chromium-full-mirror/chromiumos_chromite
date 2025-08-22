@@ -9,8 +9,11 @@ import logging
 import os
 from pathlib import Path
 import pprint
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 
+
+if TYPE_CHECKING:
+    from chromite.lib import build_target_lib
 
 ZERO_COVERAGE_EXEC_COUNT = 0
 ZERO_COVERAGE_START_COL = 1
@@ -590,13 +593,13 @@ def GetZeroCoverageDirectories(
     if not owners_json:
         raise ValueError(f"Could not read board ownership json {owners_path}")
 
-    if owners_json[build_target] is None:
+    if owners_json[build_target.name] is None:
         raise ValueError(
             f"No ownership data found for {build_target} at {owners_path}"
         )
 
     dirs = []
-    for d in owners_json[build_target]:
+    for d in owners_json[build_target.name]:
         if str(d).startswith(exclude_dirs):
             logging.info("Directory excluded from zero code coverage : %s", d)
         else:

@@ -32,7 +32,7 @@ from chromite.utils import shell_util
 class PartialDict:
     """Used as key value matcher in a mocked call."""
 
-    def __init__(self, key, value) -> None:
+    def __init__(self, key: Any, value: Any) -> None:
         self.key = key
         self.value = value
 
@@ -51,7 +51,7 @@ class BuildTargetUnitTestResultTest(cros_test_lib.TestCase):
     def testPackageFailure(self) -> None:
         """Test packages failed."""
         # Supposed to be CPVs, but not actually necessary at the moment.
-        packages = ["a", "b"]
+        packages = [package_info.parse(p) for p in ("a", "b")]
         # Should have a non-zero return code when packages fail.
         result = test.BuildTargetUnitTestResult(1, packages)
         self.assertFalse(result.success)
@@ -291,7 +291,7 @@ class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):
         osutils.SafeMakedirs(self.output_dir)
         osutils.SafeMakedirs(self.cov_dir)
 
-        self.chroot = chroot_lib.Chroot(chroot_dir, out_path=out_dir)
+        self.chroot = chroot_lib.Chroot(path=chroot_dir, out_path=out_dir)
         osutils.SafeMakedirs(self.chroot.tmp)
 
         sysroot_path = Path("build/board")
@@ -355,7 +355,7 @@ class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):
         (self.cov_dir / "abc.gcov").write_text("some text", encoding="utf-8")
 
         mapping_file = self.cov_dir / "src_to_build_dest_map.json"
-        content = [
+        mapping_content = [
             {
                 "src_path": "src/third_party/../platform2",
                 "build_dest_path": (
@@ -365,7 +365,7 @@ class BundleE2ECodeCoverageTest(cros_test_lib.MockTempDirTestCase):
                 ),
             },
         ]
-        mapping_file.write_text(json.dumps(content), encoding="utf-8")
+        mapping_file.write_text(json.dumps(mapping_content), encoding="utf-8")
 
         self.PatchObject(
             code_coverage_util, "GatherPathMapping", return_value=[]
@@ -407,7 +407,10 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
 
         test.BundleCodeCoverageLlvmJson(
-            "brya", self.chroot, self.sysroot, self.output_dir
+            build_target_lib.BuildTarget("brya"),
+            self.chroot,
+            self.sysroot,
+            self.output_dir,
         )
         GatherCodeCoverageLlvmJsonFile_mock.assert_called_once()
 
@@ -420,7 +423,10 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
 
         result = test.BundleCodeCoverageLlvmJson(
-            "brya", self.chroot, self.sysroot, self.output_dir
+            build_target_lib.BuildTarget("brya"),
+            self.chroot,
+            self.sysroot,
+            self.output_dir,
         )
         self.assertIsNone(result)
 
@@ -453,7 +459,10 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
 
         test.BundleCodeCoverageLlvmJson(
-            "brya", self.chroot, self.sysroot, self.output_dir
+            build_target_lib.BuildTarget("brya"),
+            self.chroot,
+            self.sysroot,
+            self.output_dir,
         )
         create_tarball_mock.assert_called_once()
 
@@ -484,7 +493,10 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
 
         test.BundleCodeCoverageLlvmJson(
-            "brya", self.chroot, self.sysroot, self.output_dir
+            build_target_lib.BuildTarget("brya"),
+            self.chroot,
+            self.sysroot,
+            self.output_dir,
         )
 
         GenerateZeroCoverageLlvm_mock.assert_called_once()
@@ -504,7 +516,10 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
 
         result = test.BundleCodeCoverageLlvmJson(
-            "brya", self.chroot, self.sysroot, self.output_dir
+            build_target_lib.BuildTarget("brya"),
+            self.chroot,
+            self.sysroot,
+            self.output_dir,
         )
         self.assertIsNone(result)
 
@@ -537,7 +552,10 @@ class BundleCodeCoverageLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
 
         result = test.BundleCodeCoverageLlvmJson(
-            "brya", self.chroot, self.sysroot, self.output_dir
+            build_target_lib.BuildTarget("brya"),
+            self.chroot,
+            self.sysroot,
+            self.output_dir,
         )
 
         self.assertEqual(
@@ -559,7 +577,7 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         out_dir = self.tempdir / "out"
         osutils.SafeMakedirs(chroot_dir)
         osutils.SafeMakedirs(out_dir)
-        self.chroot = chroot_lib.Chroot(chroot_dir, out_path=out_dir)
+        self.chroot = chroot_lib.Chroot(path=chroot_dir, out_path=out_dir)
         osutils.SafeMakedirs(self.chroot.tmp)
 
         sysroot_path = os.path.join(os.path.sep, "build", "board")
@@ -575,7 +593,10 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
 
         test.BundleCodeCoverageRustLlvmJson(
-            "brya", self.chroot, self.sysroot, self.output_dir
+            build_target_lib.BuildTarget("brya"),
+            self.chroot,
+            self.sysroot,
+            self.output_dir,
         )
         GatherCodeCoverageLlvmJsonFile_mock.assert_called_once()
 
@@ -588,7 +609,10 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
 
         result = test.BundleCodeCoverageRustLlvmJson(
-            "brya", self.chroot, self.sysroot, self.output_dir
+            build_target_lib.BuildTarget("brya"),
+            self.chroot,
+            self.sysroot,
+            self.output_dir,
         )
         self.assertIsNone(result)
 
@@ -621,7 +645,10 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
 
         test.BundleCodeCoverageRustLlvmJson(
-            "brya", self.chroot, self.sysroot, self.output_dir
+            build_target_lib.BuildTarget("brya"),
+            self.chroot,
+            self.sysroot,
+            self.output_dir,
         )
         create_tarball_mock.assert_called_once()
 
@@ -652,7 +679,10 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
 
         test.BundleCodeCoverageRustLlvmJson(
-            "brya", self.chroot, self.sysroot, self.output_dir
+            build_target_lib.BuildTarget("brya"),
+            self.chroot,
+            self.sysroot,
+            self.output_dir,
         )
 
         GenerateZeroCoverageLlvm_mock.assert_called_once()
@@ -672,7 +702,10 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
 
         result = test.BundleCodeCoverageRustLlvmJson(
-            "brya", self.chroot, self.sysroot, self.output_dir
+            build_target_lib.BuildTarget("brya"),
+            self.chroot,
+            self.sysroot,
+            self.output_dir,
         )
         self.assertIsNone(result)
 
@@ -705,7 +738,10 @@ class BundleCodeCoverageRustLlvmJsonTest(cros_test_lib.MockTempDirTestCase):
         )
 
         result = test.BundleCodeCoverageRustLlvmJson(
-            "brya", self.chroot, self.sysroot, self.output_dir
+            build_target_lib.BuildTarget("brya"),
+            self.chroot,
+            self.sysroot,
+            self.output_dir,
         )
 
         self.assertEqual(
@@ -722,8 +758,8 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
     def getCodeCoverageLlvmContents(
         self,
         filenames: List[str],
-        version="1",
-        file_type="llvm.coverage.json.export",
+        version: str = "1",
+        file_type: str = "llvm.coverage.json.export",
     ) -> str:
         """Helper for generating the contents of an llvm code coverage file."""
         return json.dumps(
@@ -734,7 +770,9 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
             }
         )
 
-    def writeCodeCoverageLlvm(self, filename, content: str = None) -> None:
+    def writeCodeCoverageLlvm(
+        self, filename: Path, content: str | None = None
+    ) -> None:
         """Helper to write a code coverage file."""
         if content is None:
             content = self.getCodeCoverageLlvmContents(["a.txt"])
@@ -744,7 +782,7 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
     def testJoinedFilePathsMatchesNumFilesProcessed(self) -> None:
         """Test that all coverage files are found."""
         input_dir = Path(self.tempdir) / "input"
-        self.writeCodeCoverageLlvm(os.path.join(input_dir, "a/coverage.json"))
+        self.writeCodeCoverageLlvm(input_dir / "a/coverage.json")
         self.writeCodeCoverageLlvm(input_dir / "a/b/c/coverage.json")
         self.writeCodeCoverageLlvm(input_dir / "a/b/c/d/coverage.json")
         self.writeCodeCoverageLlvm(input_dir / "a/b/c/d/e/coverage.json")
@@ -817,7 +855,7 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
 class GatherCodeCoverageGolangTests(cros_test_lib.MockTempDirTestCase):
     """GatherCodeCoverageGolang Tests."""
 
-    def writeCodeCoverageGolang(self, filename) -> None:
+    def writeCodeCoverageGolang(self, filename: str) -> None:
         """Helper to write a code coverage file."""
         osutils.WriteFile(
             filename,
@@ -1026,4 +1064,4 @@ class BundleHwqualTarballTest(cros_test_lib.MockTempDirTestCase):
                 "chromeos-hwqual-foo-bar",
             ],
         )
-        self.assertStartsWith(created, self.output_dir)
+        self.assertStartsWith(created or "", self.output_dir)
