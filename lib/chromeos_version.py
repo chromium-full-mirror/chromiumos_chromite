@@ -11,7 +11,7 @@ from pathlib import Path
 import re
 import shutil
 import tempfile
-from typing import Any, Optional, Union
+from typing import Any, List, Optional, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -21,7 +21,7 @@ from chromite.lib import git
 _PUSH_BRANCH = "temp_auto_checkin_branch"
 
 
-def IsPlatformVersion(platform_version) -> bool:
+def IsPlatformVersion(platform_version: str) -> bool:
     """Checks if the given string is a platform version.
 
     Examples:
@@ -38,7 +38,7 @@ def IsPlatformVersion(platform_version) -> bool:
     )
 
 
-def IsFullVersion(full_version) -> bool:
+def IsFullVersion(full_version: str) -> bool:
     """Checks if the given string is a full version.
 
     Examples:
@@ -59,7 +59,7 @@ def IsFullVersion(full_version) -> bool:
     )
 
 
-def IsFullVersionWithSnapshotSuffix(full_version) -> bool:
+def IsFullVersionWithSnapshotSuffix(full_version: str) -> bool:
     """Checks if the given string is a full version with snapshot.
 
     Examples:
@@ -98,12 +98,22 @@ class VersionInfo:
     VALID_INCR_TYPES = ("chrome_branch", "build", "branch", "patch")
     DATE_TIME_FORMAT = "%Y_%m_%d_%H%M%S"
 
+    # Type declarations for instance variables.
+    chrome_branch: str
+    build_number: str
+    branch_build_number: str
+    patch_number: str
+    snapshot_suffix: Optional[str]
+    date_time_suffix: Optional[str]
+    version_file: Optional[Path]
+    incr_type: str
+
     def __init__(
         self,
         version_string: Optional[str] = None,
         chrome_branch: Optional[str] = None,
         incr_type: str = "build",
-        version_file: Optional[Union[str, os.PathLike]] = None,
+        version_file: Optional[Union[str, os.PathLike[str]]] = None,
     ) -> None:
         """Initialize.
 
@@ -120,36 +130,49 @@ class VersionInfo:
             version_file: version file location.
         """
         if version_file:
+            # Initialize attributes to satisfy mypy.
+            self.chrome_branch = ""
+            self.build_number = ""
+            self.branch_build_number = ""
+            self.patch_number = ""
             self.snapshot_suffix = None
             self.date_time_suffix = None
 
-            if isinstance(version_file, str):
-                version_file = Path(version_file)
-            self.version_file = version_file
-            logging.debug("Using VERSION_FILE = %s", version_file)
+            self.version_file = Path(version_file)
+            logging.debug("Using VERSION_FILE = %s", self.version_file)
             self._LoadFromFile()
         else:
+            if not version_string:
+                raise ValueError(
+                    "version_string must be provided if version_file is not"
+                )
             match = re.search(self.VER_PATTERN, version_string)
+            if not match:
+                raise ValueError(f"Invalid version string: {version_string}")
+
             self.build_number = match.group(1)
             self.branch_build_number = match.group(2)
             self.patch_number = match.group(3)
             self.snapshot_suffix = match.group(4)
             self.date_time_suffix = None
-            self.chrome_branch = chrome_branch
+            self.chrome_branch = chrome_branch or "Unknown"
             self.version_file = None
 
         self.incr_type = incr_type
 
     @classmethod
-    def from_repo(cls, source_repo: Union[str, os.PathLike], **kwargs):
+    def from_repo(
+        cls, source_repo: Union[str, os.PathLike[str]], **kwargs: Any
+    ) -> "VersionInfo":
         kwargs["version_file"] = Path(source_repo) / constants.VERSION_FILE
         return cls(**kwargs)
 
-    def _GetDateTime(self):
+    def _GetDateTime(self) -> str:
         return datetime.datetime.now().strftime(self.DATE_TIME_FORMAT)
 
     def _LoadFromFile(self) -> None:
         """Read the version file and set the version components"""
+        assert self.version_file is not None
         with open(self.version_file, "r", encoding="utf-8") as version_fh:
             for line in version_fh:
                 if not line.strip():
@@ -198,7 +221,7 @@ class VersionInfo:
 
     def _PushGitChanges(
         self,
-        git_repo: Union[str, os.PathLike],
+        git_repo: Union[str, os.PathLike[str]],
         message: str,
         dry_run: bool = False,
         push_to: Optional[git.RemoteRef] = None,
@@ -211,11 +234,16 @@ class VersionInfo:
             dry_run: If true, don't actually push changes to the server.
             push_to: The remote branch to push the changes to. Defaults to the
                 tracking branch of the current branch.
+
+        Raises:
+            ValueError if the remove branch ref is empty.
         """
         if push_to is None:
             push_to = git.GetTrackingBranch(
                 git_repo, for_checkout=False, for_push=True
             )
+        if push_to is None:
+            raise ValueError("Remote branch reference must not be empty.")
 
         git.RunGit(git_repo, ["add", "-A"])
 
@@ -236,7 +264,7 @@ class VersionInfo:
         )
         git.GitPush(git_repo, _PUSH_BRANCH, push_to, skip=dry_run)
 
-    def FindValue(self, key, line):
+    def FindValue(self, key: str, line: str) -> Optional[str]:
         """Given the key find the value from the line, if it finds key = value
 
         Args:
@@ -250,7 +278,7 @@ class VersionInfo:
         match = re.search(self.KEY_VALUE_PATTERN % (key,), line)
         return match.group(1) if match else None
 
-    def IncrementVersion(self):
+    def IncrementVersion(self) -> str:
         """Updates the version file by incrementing the patch component."""
         if not self.incr_type or self.incr_type not in self.VALID_INCR_TYPES:
             raise VersionUpdateException(
@@ -273,7 +301,12 @@ class VersionInfo:
 
         return self.VersionString()
 
-    def UpdateVersionFile(self, message, dry_run, push_to=None) -> None:
+    def UpdateVersionFile(
+        self,
+        message: str,
+        dry_run: bool,
+        push_to: Optional[git.RemoteRef] = None,
+    ) -> None:
         """Update the version file with our current version.
 
         Args:
@@ -323,7 +356,7 @@ class VersionInfo:
                 # local commit.
                 git.CleanAndCheckoutUpstream(repo_dir)
 
-    def VersionString(self):
+    def VersionString(self) -> str:
         """returns the version string"""
         version_str = (
             f"{self.build_number}.{self.branch_build_number}."
@@ -333,7 +366,7 @@ class VersionInfo:
             version_str += f"-{self.snapshot_suffix}"
         return version_str
 
-    def VersionStringWithDateTime(self):
+    def VersionStringWithDateTime(self) -> str:
         """returns the version string with date and time."""
         version_str = (
             f"{self.build_number}.{self.branch_build_number}."
@@ -345,13 +378,13 @@ class VersionInfo:
             version_str += f"-{self.date_time_suffix}"
         return version_str
 
-    def VersionComponents(self):
+    def VersionComponents(self) -> List[int]:
         """Return an array of ints of the version fields for comparing.
 
         The returned value is intended only for comparison, not for display,
         since it may contain a placeholder number for comparison.
         """
-        components = [
+        components: List[int] = [
             int(self.build_number),
             int(self.branch_build_number),
             int(self.patch_number),
@@ -369,35 +402,41 @@ class VersionInfo:
         return components
 
     @classmethod
-    def VersionCompare(cls, version_string):
+    def VersionCompare(cls, version_string: str) -> List[int]:
         """Useful method to return a comparable version of a LKGM string.
 
         The returned value is intended only for comparison, not for display,
         since it may contain a placeholder number for comparison.
         """
+        # A chrome_branch is required, but not part of a simple version string.
+        # Provide a default value.
         return cls(version_string).VersionComponents()
 
-    def __lt__(self, other) -> bool:
+    def __lt__(self, other: "VersionInfo") -> bool:
         return self.VersionComponents() < other.VersionComponents()
 
-    def __le__(self, other) -> bool:
+    def __le__(self, other: "VersionInfo") -> bool:
         return self.VersionComponents() <= other.VersionComponents()
 
     def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, VersionInfo):
+            return NotImplemented
         return self.VersionComponents() == other.VersionComponents()
 
     def __ne__(self, other: Any) -> bool:
+        if not isinstance(other, VersionInfo):
+            return NotImplemented
         return self.VersionComponents() != other.VersionComponents()
 
-    def __gt__(self, other) -> bool:
+    def __gt__(self, other: "VersionInfo") -> bool:
         return self.VersionComponents() > other.VersionComponents()
 
-    def __ge__(self, other) -> bool:
+    def __ge__(self, other: "VersionInfo") -> bool:
         return self.VersionComponents() >= other.VersionComponents()
 
-    __hash__ = None
+    __hash__ = None  # type: ignore[assignment]
 
-    def BuildPrefix(self):
+    def BuildPrefix(self) -> str:
         """Get the build prefix to match the buildspecs in manifest-versions."""
         if self.incr_type == "branch":
             if self.patch_number == "0":
@@ -408,4 +447,4 @@ class VersionInfo:
         return ""
 
     def __str__(self) -> str:
-        return "%s(%s)" % (self.__class__, self.VersionString())
+        return f"{self.__class__.__name__}({self.VersionString()})"

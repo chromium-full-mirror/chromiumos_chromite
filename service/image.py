@@ -9,11 +9,12 @@ import errno
 import glob
 import json
 import logging
+import multiprocessing
 import os
 from pathlib import Path
 import re
 import shutil
-from typing import Dict, Iterable, List, NamedTuple, Optional, Union
+from typing import cast, Dict, Iterable, List, NamedTuple, Optional, Union
 
 from chromite.api.gen.chromiumos import signing_pb2
 from chromite.lib import build_target_lib
@@ -93,7 +94,7 @@ class DlcArtifactsMetadata:
 
     image_hash: str
     image_name: str
-    uri_path: Union[str, os.PathLike]
+    uri_path: Union[str, os.PathLike[str]]
     identifier: str
 
 
@@ -132,15 +133,15 @@ class BuildConfig(NamedTuple):
     output_dir_suffix: Optional[str] = None
     adjust_partition: Optional[str] = None
     boot_args: str = "noinitrd"
-    output_root: Union[str, os.PathLike] = (
+    output_root: Union[str, os.PathLike[str]] = (
         constants.DEFAULT_BUILD_ROOT / "images"
     )
-    build_root: Union[str, os.PathLike] = (
+    build_root: Union[str, os.PathLike[str]] = (
         constants.DEFAULT_BUILD_ROOT / "images"
     )
     enable_serial: Optional[str] = None
     kernel_loglevel: int = 7
-    jobs: int = os.cpu_count()
+    jobs: int = multiprocessing.cpu_count()
     base_is_recovery: bool = False
 
 
@@ -148,7 +149,7 @@ class BuildConfig(NamedTuple):
 # build_image.sh is removed.
 def GetBuildImageCommand(
     config: BuildConfig, image_names: Iterable[str], board: str
-) -> List[Union[str, os.PathLike]]:
+) -> List[str | Path]:
     """Get the build_image command for the configuration.
 
     Args:
@@ -159,7 +160,7 @@ def GetBuildImageCommand(
     Returns:
         List with build_image command with arguments.
     """
-    cmd = [
+    cmd: List[str | Path] = [
         constants.CHROMITE_SHELL_DIR / "build_image.sh",
         "--script-is-run-only-by-chromite-and-not-users",
         "--board",
@@ -185,8 +186,10 @@ def GetBuildImageCommand(
         ]
     )
     cmd.extend(["--boot_args", _config["boot_args"]])
-    cmd.extend(["--loglevel", f"{_config['kernel_loglevel']}"])
-    cmd.extend(["--jobs", f"{_config['jobs']}"])
+    if _config["kernel_loglevel"] is not None:
+        cmd.extend(["--loglevel", f"{_config['kernel_loglevel']}"])
+    if _config["jobs"] is not None:
+        cmd.extend(["--jobs", f"{_config['jobs']}"])
 
     cmd.extend(image_names)
     return cmd
@@ -202,11 +205,11 @@ class BuildResult:
             image_types: A list of image names that were requested to be built.
         """
         self._unbuilt_image_types = image_types
-        self.images = {}
-        self.return_code = None
-        self._failed_packages = []
-        self.output_dir = None
-        self.exception = None
+        self.images: Dict[str, Path] = {}
+        self.return_code: Optional[int] = None
+        self._failed_packages: List[package_info.PackageInfo] = []
+        self.output_dir: Optional[Path] = None
+        self.exception: Optional[Exception] = None
 
     @property
     def failed_packages(self) -> List[package_info.PackageInfo]:
@@ -266,10 +269,10 @@ class BuildResult:
 
 
 def Build(
-    board: str,
+    board: str | None,
     images: List[str],
     config: Optional[BuildConfig] = None,
-    extra_env: Optional[dict] = None,
+    extra_env: Optional[Dict[str, str]] = None,
 ) -> BuildResult:
     """Build an image.
 
@@ -325,6 +328,7 @@ def Build(
     )
 
     try:
+        assert version_info.chrome_branch is not None
         build_dir, output_dir, image_dir = image_lib.CreateBuildDir(
             config.build_root,
             config.output_root,
@@ -350,7 +354,9 @@ def Build(
     )
 
     with osutils.TempDir() as tempdir:
-        status_file = os.path.join(tempdir, PARALLEL_EMERGE_STATUS_FILE_NAME)
+        status_file = os.path.join(
+            str(tempdir), PARALLEL_EMERGE_STATUS_FILE_NAME
+        )
         extra_env_local[constants.PARALLEL_EMERGE_STATUS_FILE_ENVVAR] = (
             status_file
         )
@@ -375,10 +381,10 @@ def Build(
                     build_target=build_target_lib.BuildTarget(board),
                     version=version_info.VersionString(),
                     work_dir=build_dir,
-                    keys_dir=constants.VBOOT_DEVKEYS_DIR,
-                    public_key=constants.KERNEL_PUBLIC_SUBKEY,
-                    private_key=constants.KERNEL_DATA_PRIVATE_KEY,
-                    keyblock=constants.KERNEL_KEYBLOCK,
+                    keys_dir=Path(constants.VBOOT_DEVKEYS_DIR),
+                    public_key=Path(constants.KERNEL_PUBLIC_SUBKEY),
+                    private_key=Path(constants.KERNEL_DATA_PRIVATE_KEY),
+                    keyblock=Path(constants.KERNEL_KEYBLOCK),
                     serial=config.enable_serial,
                     jobs=config.jobs,
                     build_kernel=True,
@@ -444,7 +450,7 @@ def Build(
         if image_type is constants.IMAGE_TYPE_RECOVERY:
             continue
         # Get the image path relative to the CWD.
-        image_path = os.path.relpath(image_path)
+        image_path = Path(os.path.relpath(image_path))
         msg = (
             f"{_IMAGE_TYPE_DESCRIPTION[filename]} image created as {filename}\n"
         )
@@ -472,7 +478,7 @@ def Build(
 
 
 def _GetResultAndAddImage(
-    board: str, cmd: list, image_path: Path = None
+    board: str, cmd: List[str | Path], image_path: Optional[Path] = None
 ) -> BuildResult:
     """Add an image to the BuildResult.
 
@@ -521,7 +527,7 @@ def CopyBaseToRecovery(board: str, image_path: Path) -> BuildResult:
     """
     image_name = constants.IMAGE_TYPE_TO_NAME[constants.IMAGE_TYPE_RECOVERY]
     recovery_image_path = image_path.parent / image_name
-    cmd = ["cp", image_path, recovery_image_path]
+    cmd: List[str | Path] = ["cp", image_path, recovery_image_path]
     return _GetResultAndAddImage(board, cmd, recovery_image_path)
 
 
@@ -543,7 +549,7 @@ def BuildRecoveryImage(
     if not board:
         raise InvalidArgumentError("board is required.")
 
-    cmd = [
+    cmd: List[str | Path] = [
         constants.CROSUTILS_DIR / "mod_image_for_recovery.sh",
         "--board",
         board,
@@ -606,7 +612,7 @@ def CreateVm(
 def CreateGuestVm(
     image_dir: str,
     is_test: bool = False,
-    chroot: chroot_lib.Chroot = None,
+    chroot: Optional[chroot_lib.Chroot] = None,
 ) -> str:
     """Convert an existing image into a guest VM image.
 
@@ -623,17 +629,17 @@ def CreateGuestVm(
 
     cmd = [os.path.join(TERMINA_TOOLS_DIR, "termina_build_image.py")]
 
-    image_dir = chroot.chroot_path(image_dir)
+    image_dir_chroot_path = chroot.chroot_path(image_dir)
 
     image_file = (
         constants.TEST_IMAGE_BIN if is_test else constants.BASE_IMAGE_BIN
     )
-    image_path = os.path.join(image_dir, image_file)
+    image_path = os.path.join(image_dir_chroot_path, image_file)
 
     output_dir = (
         constants.TEST_GUEST_VM_DIR if is_test else constants.BASE_GUEST_VM_DIR
     )
-    output_path = os.path.join(image_dir, output_dir)
+    output_path = os.path.join(image_dir_chroot_path, output_dir)
 
     cmd.append(image_path)
     cmd.append(output_path)
@@ -653,7 +659,7 @@ def CreateGuestVm(
 
 
 def generate_dlc_artifacts_metadata_list(
-    sysroot_path: str,
+    sysroot_path: Path,
 ) -> List[DlcArtifactsMetadata]:
     """Generates a list of `DlcArtifacts` from base_path.
 
@@ -663,12 +669,11 @@ def generate_dlc_artifacts_metadata_list(
     Returns:
         A list of `DlcArtifacts`, empty if none.
     """
-    ret = []
+    ret: List[DlcArtifactsMetadata] = []
 
-    artifacts_meta_dir = os.path.join(
-        sysroot_path, dlc_lib.DLC_BUILD_DIR_ARTIFACTS_META
-    )
-    if not os.path.exists(artifacts_meta_dir):
+    artifacts_meta_dir = sysroot_path / dlc_lib.DLC_BUILD_DIR_ARTIFACTS_META
+
+    if not artifacts_meta_dir.exists():
         logging.info(
             "The DLC artifacts metadata directory doesn't exist at %s",
             artifacts_meta_dir,
@@ -733,7 +738,7 @@ def generate_dlc_artifacts_metadata_list(
     return ret
 
 
-def copy_dlc_image(base_path: str, output_dir: str) -> List[str]:
+def copy_dlc_image(base_path: Path, output_dir: Path) -> Optional[List[str]]:
     """Copy DLC images from base_path to output_dir.
 
     Args:
@@ -749,7 +754,7 @@ def copy_dlc_image(base_path: str, output_dir: str) -> List[str]:
         (dlc_lib.DLC_BUILD_DIR, dlc_lib.DLC_DIR),
         (dlc_lib.DLC_BUILD_DIR_SCALED, dlc_lib.DLC_DIR_SCALED),
     ):
-        dlc_source_path = os.path.join(base_path, dlc_build_dir)
+        dlc_source_path = base_path / Path(dlc_build_dir)
         if not os.path.exists(dlc_source_path):
             continue
 
@@ -804,7 +809,7 @@ def copy_dlc_image(base_path: str, output_dir: str) -> List[str]:
 
 def copy_license_credits(
     board: str, output_dir: str, symlink: Optional[str] = None
-) -> List[str]:
+) -> Optional[str]:
     """Copies license_credits.html from image build dir to output_dir.
 
     Args:
@@ -827,7 +832,9 @@ def copy_license_credits(
     return license_credits_dest_path
 
 
-def Test(board: str, result_directory: str, image_dir: str = None) -> bool:
+def Test(
+    board: str, result_directory: str, image_dir: Optional[str] = None
+) -> bool:
     """Run tests on an already built image.
 
     Currently this is just running test_image.
@@ -873,7 +880,7 @@ def create_factory_image_zip(
     chroot: chroot_lib.Chroot,
     sysroot_class: sysroot_lib.Sysroot,
     factory_shim_dir: Path,
-    version: str,
+    version: Optional[str],
     output_dir: str,
 ) -> Union[str, None]:
     """Build factory_image.zip in archive_dir.
@@ -935,7 +942,7 @@ def create_factory_image_zip(
         version_filename = "BUILD_VERSION"
         # Creates a staging temporary folder.
         with osutils.TempDir() as temp_dir:
-            version_file = os.path.join(temp_dir, version_filename)
+            version_file = os.path.join(str(temp_dir), version_filename)
             osutils.WriteFile(version_file, version)
             cros_build_lib.run(
                 cmd + [version_filename], cwd=temp_dir, capture_output=True
@@ -958,11 +965,16 @@ def create_stripped_packages_tar(
 
     Returns:
         The path to the zipfile if it could be created, else None.
+
+    Raises:
+        ValueError when build target name is not set.
     """
     package_globs = [
         "chromeos-base/chromeos-chrome",
         "sys-kernel/*kernel*",
     ]
+    if not build_target.name:
+        raise ValueError("Build target name is not set")
     board = build_target.name
     stripped_pkg_dir = chroot.full_path(build_target.root, "stripped-packages")
     tarball_paths = []
@@ -1038,7 +1050,12 @@ def create_image_scripts_archive(
 
     Returns:
         The path to the archive, or None if it couldn't be created.
+
+    Raises:
+        ValueError when the build_target name is not available.
     """
+    if not build_target.name:
+        raise ValueError("Build target name is not set.")
     image_dir = image_lib.GetLatestImageLink(build_target.name)
     if not os.path.exists(image_dir):
         logging.warning("Image build directory not found.")
@@ -1062,7 +1079,7 @@ def _get_auth_args() -> List[str]:
         )
     args = []
     # First, we need LUCI_CONTEXT.
-    luci_context_location = os.environ.get("LUCI_CONTEXT")
+    luci_context_location = os.environ["LUCI_CONTEXT"]
     luci_context_filename = os.path.basename(luci_context_location)
     # Mount the file location as a volume.
     args.extend(
@@ -1082,7 +1099,7 @@ def CallDocker(
     docker_args: List[str],
     entrypoint_args: List[str],
     stdin_input: Optional[str] = None,
-):
+) -> None:
     """Call the signing docker container with the given args.
 
     Args:
@@ -1148,7 +1165,7 @@ def SignImage(
     with osutils.TempDir() as tempdir:
         # Serialize the proto to a file.
         osutils.WriteFile(
-            os.path.join(tempdir, "proto.bin"),
+            os.path.join(str(tempdir), "proto.bin"),
             signing_configs.SerializeToString(),
             mode="wb",
         )
@@ -1219,15 +1236,15 @@ class PushImageArguments:
     yes: bool = False
 
     @property
-    def profile(self):
+    def profile(self) -> str:
         return self.build_target.profile
 
     def get_cli_args(self, urls_file: Optional[Path] = None) -> List[str]:
         """Get the pushimage CLI args."""
-        args = [
+        args: List[str] = [
             self.image_dir,
             "--board",
-            self.build_target.name,
+            self.build_target.name or "",
         ]
 
         if self.profile and self.profile != "base":
@@ -1249,7 +1266,7 @@ class PushImageArguments:
             args.append("--yes")
 
         if urls_file:
-            args.extend(["--instruction-urls-file", urls_file])
+            args.extend(["--instruction-urls-file", str(urls_file)])
 
         return args
 
@@ -1263,7 +1280,7 @@ def run_push_image(args: PushImageArguments) -> Dict[str, List[str]]:
     some time.
     """
     with osutils.TempDir() as tmpdir:
-        urls_file = Path(tmpdir) / "urls.json"
+        urls_file = Path(str(tmpdir)) / "urls.json"
         cmd = [
             constants.CHROMITE_BIN_DIR / "pushimage",
             *args.get_cli_args(urls_file),
@@ -1274,4 +1291,7 @@ def run_push_image(args: PushImageArguments) -> Dict[str, List[str]]:
         except cros_build_lib.RunCommandError as e:
             raise PushImageError(f"Error running pushimage: {e}") from e
 
-        return json.loads(osutils.ReadFile(urls_file))
+        return cast(
+            Dict[str, List[str]],
+            json.loads(osutils.ReadFile(urls_file)),
+        )
