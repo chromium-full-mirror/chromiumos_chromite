@@ -18,7 +18,7 @@ https://libcst.readthedocs.io/en/latest/index.html
 # >
 # wheel: <
 #   name: "infra/python/wheels/typing-extensions-py3"
-#   version: "version:4.0.1"
+#   version: "version:4.14.0"
 # >
 # wheel: <
 #   name: "infra/python/wheels/typing-inspect-py3"
