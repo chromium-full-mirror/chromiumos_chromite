@@ -196,14 +196,11 @@ def get_parser():
         "Cache packages from the network before running tests.",
         "Skip precaching packages from the network.",
     )
-    parser.add_argument(
-        "--no-chroot",
-        dest="chroot",
-        action="store_false",
-        help=(
-            "Don't initialize or enter a chroot for the test invocation. May "
-            "cause tests to unexpectedly fail!"
-        ),
+    parser.add_bool_argument(
+        "--chroot",
+        True,
+        "Run all tests inside of the SDK for hermetic runtime.",
+        "Do not initialize or attempt to enter the SDK for tests.",
     )
     parser.add_argument(
         "pytest_args",
