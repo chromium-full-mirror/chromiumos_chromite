@@ -85,6 +85,7 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
             jobs=4,
             kernel_ramfs="recovery_ramfs",
             kernel_version="0.0.1",
+            extra_pkgs=[],
         )
 
     def testOptionalKernelArgs(self) -> None:
@@ -102,6 +103,8 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
             flag_value_2,
             "--keys-dir",
             str(keys_dir_path),
+            "--extra-pkgs",
+            "pkga pkgb",
         ]
         self.cmd_mock = self.SetupCommandMock(args)
         rc = self.cmd_mock.inst.Run()
@@ -121,6 +124,7 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
             kernel_version="5.15.1",
             kernel_flags=["+myflag", flag_value_2],
             keys_dir=keys_dir_path,
+            extra_pkgs=["pkga", "pkgb"],
         )
 
     def testKernelBuildFailure(self) -> None:
@@ -171,4 +175,5 @@ class BuildKernelTest(cros_test_lib.MockTempDirTestCase):
             jobs=4,
             kernel_ramfs="recovery_ramfs",
             kernel_version="0.0.1",
+            extra_pkgs=[],
         )

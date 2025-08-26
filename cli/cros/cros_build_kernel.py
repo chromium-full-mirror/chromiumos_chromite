@@ -95,6 +95,13 @@ class BuildKernelCommand(command.CliCommand):
             type=str,
             help="Filename of the kernel keyblock.",
         )
+        group.add_argument(
+            "--extra-pkgs",
+            action="split_extend",
+            default=[],
+            help="A list of extra packages to be built into kernel initramfs "
+            "separated by space.",
+        )
 
         group = parser.add_argument_group("Image Generation Options")
         group.add_bool_argument(
@@ -135,6 +142,7 @@ class BuildKernelCommand(command.CliCommand):
                 "public_key": self.options.public_key,
                 "private_key": self.options.private_key,
                 "keyblock": self.options.keyblock,
+                "extra_pkgs": self.options.extra_pkgs,
             }.items()
             if v is not None
         }

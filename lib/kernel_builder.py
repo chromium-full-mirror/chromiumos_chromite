@@ -69,6 +69,7 @@ class Builder:
         self,
         kernel_flags: List[str],
         use_flags_override: Optional[List[str]] = None,
+        extra_pkgs: Optional[List[str]] = None,
     ) -> None:
         """Builds a custom kernel package and installs it to the install_root.
 
@@ -82,6 +83,7 @@ class Builder:
             use_flags_override: A list of USE flags to entirely replace the
                 default environment USE variable for this build. If None,
                 the environment USE flags are combined with kernel_flags.
+            extra_pkgs: Extra packages to be built before building initramfs.
         """
         pkgdir = self._work_dir / "packages"
         logging.info("Using PKGDIR: %s", pkgdir)
@@ -99,7 +101,7 @@ class Builder:
 
         try:
             self._CreateCustomKernelInternal(
-                str(pkgdir), kernel_flags, use_flags_override
+                str(pkgdir), kernel_flags, use_flags_override, extra_pkgs
             )
         finally:
             # Force delete the pkgdir as it may contain root-owned files.
@@ -116,6 +118,7 @@ class Builder:
         pkgdir: str,
         kernel_flags: List[str],
         use_flags_override: Optional[List[str]] = None,
+        extra_pkgs: Optional[List[str]] = None,
     ) -> None:
         """Internal implementation for CreateCustomKernel()."""
         logging.info("Building custom kernel package.")
@@ -138,6 +141,20 @@ class Builder:
         # 1. Build/Update chromeos-initramfs package.
         logging.info("Ensuring chromeos-initramfs package is up-to-date.")
         initramfs_pkg = "chromeos-base/chromeos-initramfs"
+        try:
+            # Build the extra packages before initramfs.
+            if extra_pkgs:
+                for pkg in extra_pkgs:
+                    cros_build_lib.run(
+                        emerge_cmd_base + [pkg],
+                        enter_chroot=True,
+                        extra_env=extra_env,
+                    )
+        except cros_build_lib.RunCommandError as e:
+            raise KernelBuildError(
+                f"Failed to build the extra package: {e}"
+            ) from e
+
         try:
             # Build the initramfs package.
             cros_build_lib.run(
@@ -355,6 +372,7 @@ class Builder:
         keyblock: str = constants.KERNEL_KEYBLOCK,
         disable_rootfs_verification: bool = False,
         output_filename: str = constants.KERNEL_IMAGE_IMG,
+        extra_pkgs: Optional[List[str]] = None,
     ) -> Path:
         """Builds a custom kernel package and creates a bootable kernel image.
 
@@ -383,6 +401,7 @@ class Builder:
             disable_rootfs_verification: Disable rootfs verification.
             output_filename: The name of the final kernel image file to be
                 created within the builder's work_dir.
+            extra_pkgs: Extra packages to be built before building initramfs.
 
         Returns:
             The absolute Path to the generated kernel image file.
@@ -435,6 +454,7 @@ class Builder:
         self.CreateCustomKernel(
             kernel_flags=final_kernel_flags,
             use_flags_override=filtered_use_flags,
+            extra_pkgs=extra_pkgs,
         )
 
         # 3. Prepare for final image creation.
