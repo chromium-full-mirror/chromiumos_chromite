@@ -67,7 +67,7 @@ class FileTypeDecoder:
         # complicated for mypy to detect.  If these didn't actually exist,
         # unittests will fail.
         # pylint: disable-next=line-too-long
-        self._mime: magic.compat.Magic = magic.open(magic.MIME_TYPE)  # type: ignore[attr-defined]
+        self._mime: magic.compat.Magic = magic.open(magic.MIME_TYPE)  # type: ignore[attr-defined,name-defined]
         self._mime.load()
 
     def __del__(self) -> None:

@@ -30,11 +30,11 @@ https://libcst.readthedocs.io/en/latest/index.html
 # >
 # wheel: <
 #   name: "infra/python/wheels/mypy-py3"
-#   version: "version:1.2.0"
+#   version: "version:1.13.0"
 # >
 # wheel: <
 #   name: "infra/python/wheels/mypy-extensions-py3"
-#   version: "version:1.0.0"
+#   version: "version:1.1.0"
 # >
 # [VPYTHON:END]
 
