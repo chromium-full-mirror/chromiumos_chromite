@@ -25,8 +25,10 @@ $ ./run_tests -- --collect-only
 $ ./run_tests -- --lf
 """
 
+import contextlib
 import logging
 import os
+import subprocess
 import sys
 
 import debugpy  # pylint: disable=import-error
@@ -117,8 +119,38 @@ def main(argv) -> None:
         debugpy.wait_for_client()
         logging.notice("Debugger connected.")
 
-    logging.debug("Running: pytest %s", shell_util.cmd_to_str(pytest_args))
-    sys.exit(pytest.main(pytest_args))
+    with contextlib.ExitStack() as stack:
+        # If the user is running custom pytest stuff, like specific tests,
+        # don't run the typing logic too.
+        if opts.pytest_args:
+            logging.info("Skipping type checking due to custom test args")
+            typing_proc = None
+        else:
+            # Launch type checking in parallel with pytest.
+            typing_proc = stack.enter_context(
+                subprocess.Popen(
+                    [constants.CHROMITE_SCRIPTS_DIR / "run_typing"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    stdin=subprocess.DEVNULL,
+                    encoding="utf-8",
+                )
+            )
+
+        logging.debug("Running: pytest %s", shell_util.cmd_to_str(pytest_args))
+        returncode = pytest.main(pytest_args)
+
+        if typing_proc is not None:
+            # Typing should be finished by now, so collect the results.
+            stdout = typing_proc.communicate()[0].strip()
+            if stdout:
+                logging.notice("Python type checking results (KI ignored):")
+                print(stdout)
+            if returncode == 0:
+                # If unittests already failed, no need to check typing.
+                returncode = typing_proc.returncode
+
+    sys.exit(returncode)
 
 
 def re_execute_inside_chroot(argv) -> None:
@@ -126,7 +158,7 @@ def re_execute_inside_chroot(argv) -> None:
     if cros_build_lib.IsInsideChroot():
         return
 
-    target = constants.CHROMITE_DIR / "scripts" / "run_tests"
+    target = constants.CHROMITE_SCRIPTS_DIR / "run_tests"
     relpath = os.path.relpath(target, ".")
     # If we're in the scripts dir, make sure we always have a relative path,
     # otherwise cros_sdk will search $PATH and fail.
@@ -201,6 +233,12 @@ def get_parser():
         True,
         "Run all tests inside of the SDK for hermetic runtime.",
         "Do not initialize or attempt to enter the SDK for tests.",
+    )
+    parser.add_bool_argument(
+        "--typing",
+        True,
+        "Run codebase through type checking.",
+        "Do not type check the codebase.",
     )
     parser.add_argument(
         "pytest_args",

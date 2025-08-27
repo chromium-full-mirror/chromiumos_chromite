@@ -9,6 +9,7 @@ access.
 """
 
 import functools
+from pathlib import Path
 
 from chromite.api import compile_build_api_proto
 from chromite.format import formatters
@@ -24,6 +25,13 @@ from chromite.scripts import clang_format
 # pylint: disable=protected-access
 
 
+def _vpython_bootstrap(spec: Path) -> None:
+    """Bootstrap a vpython spec."""
+    cros_build_lib.dbg_run(
+        ["vpython3", "-vpython-tool", "install", spec], capture_output=True
+    )
+
+
 @functools.lru_cache(maxsize=None)
 def for_format() -> None:
     """Ensure formatting tools have been bootstrapped from the network."""
@@ -35,24 +43,12 @@ def for_format() -> None:
     parallel.RunParallelSteps(
         [
             functools.partial(
-                cros_build_lib.dbg_run,
-                [
-                    "vpython3",
-                    "-vpython-tool",
-                    "install",
-                    constants.CHROMITE_DIR / "scripts" / "black",
-                ],
-                capture_output=True,
+                _vpython_bootstrap,
+                constants.CHROMITE_SCRIPTS_DIR / "black",
             ),
             functools.partial(
-                cros_build_lib.dbg_run,
-                [
-                    "vpython3",
-                    "-vpython-tool",
-                    "install",
-                    constants.CHROMITE_DIR / "scripts" / "isort",
-                ],
-                capture_output=True,
+                _vpython_bootstrap,
+                constants.CHROMITE_SCRIPTS_DIR / "isort",
             ),
             formatters.gn._find_gn,
             formatters.rust._find_rustfmt,
@@ -80,6 +76,8 @@ def for_everything() -> None:
     compile_build_api_proto.InstallProtoc(
         compile_build_api_proto.ProtocVersion.CHROMITE
     )
+
+    _vpython_bootstrap(constants.CHROMITE_SCRIPTS_DIR / "mypy")
 
     for_format()
     for_lint()
