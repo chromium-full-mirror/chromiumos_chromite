@@ -265,9 +265,9 @@ def _InstallMissingInits(
         return
 
     logging.info("Adding missing __init__.py files in %s.", directory)
-    # glob ** returns only directories.
     for current in directory.rglob("**"):
-        (current / "__init__.py").touch()
+        if current.is_dir():
+            (current / "__init__.py").touch()
 
 
 def _PostprocessFiles(directory: Path, protoc_version: ProtocVersion) -> None:
