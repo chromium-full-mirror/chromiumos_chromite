@@ -1081,6 +1081,7 @@ def CallDocker(
     docker_image: str,
     docker_args: List[str],
     entrypoint_args: List[str],
+    stdin_input: Optional[str] = None,
 ):
     """Call the signing docker container with the given args.
 
@@ -1088,6 +1089,8 @@ def CallDocker(
         docker_image: docker image to run.
         docker_args: Args to be passed to docker.
         entrypoint_args: Args to be passed.
+        stdin_input: input to be passed to the entrypoint via stdin.
+            Must be accompanied by docker args "-a", "stdin", "-i".
     """
     # First, verify that the docker image exists.
     try:
@@ -1116,7 +1119,8 @@ def CallDocker(
             docker_image,
             # Args passed into the entrypoint.
             *entrypoint_args,
-        ]
+        ],
+        input=stdin_input,
     )
 
 

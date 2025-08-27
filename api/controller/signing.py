@@ -153,3 +153,22 @@ def CreateCert(request, _response, _config) -> None:
         ],
         entrypoint_args=entrypoint_args,
     )
+
+
+@faux.all_empty
+@validate.require("docker_image")
+@validate.validation_complete
+def SignViaOnlineHsm(request, _response, _config) -> None:
+    """Sign an artifact via the online HSM."""
+    image.CallDocker(
+        request.docker_image,
+        docker_args=[
+            "-a",
+            "stdin",
+            "-i",
+            "--entrypoint",
+            "signer_client",
+        ],
+        entrypoint_args=["test"],
+        stdin_input="DATA",
+    )
