@@ -21,7 +21,6 @@ from chromite.lib import cros_build_lib
 # to update the baseline when bad lines move around.
 KNOWN_ISSUES = (
     # go/keep-sorted start
-    "api/api_config.py",
     "api/gen_test/go/chromium/org/luci/vpython/api/vpython/pep425_pb2.py",
     "api/gen_test/go/chromium/org/luci/vpython/api/vpython/spec_pb2.py",
     "cli/cros/lint.py",
@@ -35,7 +34,6 @@ KNOWN_ISSUES = (
     "contrib/fwgdb.py",
     "contrib/gob-meta-config-checkout.py",
     "contrib/libcst_tool.py",
-    "cros/test/image_test.py",
     "cros/test/usergroup_baseline.py",
     "format/formatters/json.py",
     "format/formatters/repo_manifest.py",
@@ -191,8 +189,10 @@ def main(argv: Optional[list[str]] = None) -> Optional[int]:
         paths.append(arg)
     if not paths:
         paths = [os.path.relpath(constants.CHROMITE_DIR)]
+        full_run = True
     else:
         paths.clear()
+        full_run = False
 
     # Run the tool, parse its output, sort it, then show it.
     # NB: It's important that we capture the output and post-process before we
@@ -206,8 +206,11 @@ def main(argv: Optional[list[str]] = None) -> Optional[int]:
         encoding="utf-8",
         stdout=True,
     )
+    # Check for stale baselines.
+    stale_exceptions = set(KNOWN_ISSUES)
     relaxed_returncode = 0
     for report in sort_results(result.stdout):
+        stale_exceptions.discard(report.file)
         new_problem = (
             report.file not in KNOWN_ISSUES and report.severity != "note"
         )
@@ -217,4 +220,12 @@ def main(argv: Optional[list[str]] = None) -> Optional[int]:
             str(report),
             "[chromite/NEW ERROR]" if new_problem else "[chromite/ignoring KI]",
         )
+
+    if full_run and stale_exceptions:
+        print(
+            f"error: {__file__}: please remove old KNOWN_ISSUES:",
+            " ".join(sorted(stale_exceptions)),
+        )
+        return 1
+
     return relaxed_returncode if opts.relaxed else result.returncode
