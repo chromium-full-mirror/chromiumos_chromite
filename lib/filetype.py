@@ -62,7 +62,12 @@ class FileTypeDecoder:
                 be assumed as the root directory for absolute symlinks.
         """
         self._root = root
-        self._mime = magic.open(magic.MIME_TYPE)
+        # The python-magic module defines APIs like magic_xxx and then
+        # dynamically assigns `xxx = magic_xxx`.  This dynamic init is too
+        # complicated for mypy to detect.  If these didn't actually exist,
+        # unittests will fail.
+        # pylint: disable-next=line-too-long
+        self._mime: magic.compat.Magic = magic.open(magic.MIME_TYPE)  # type: ignore[attr-defined]
         self._mime.load()
 
     def __del__(self) -> None:

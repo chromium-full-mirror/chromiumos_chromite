@@ -53,7 +53,6 @@ KNOWN_ISSUES = (
     "lib/dlc_allowlist.py",
     "lib/factory.py",
     "lib/failure_message_lib.py",
-    "lib/filetype.py",
     "lib/firmware/ap_firmware_config/__init__.py",
     "lib/gmerge_binhost.py",
     "lib/gs.py",
