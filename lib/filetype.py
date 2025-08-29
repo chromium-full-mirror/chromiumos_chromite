@@ -26,7 +26,7 @@ import os
 import re
 import stat
 
-import magic  # pylint: disable=import-error
+import magic
 
 from chromite.lib import parseelf
 from chromite.utils.parser import shebang
