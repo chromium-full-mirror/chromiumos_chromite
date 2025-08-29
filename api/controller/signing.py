@@ -163,16 +163,8 @@ def SignViaOnlineHsm(request, _response, _config) -> None:
     image.CallDocker(
         request.docker_image,
         docker_args=[
-            "-a",
-            "stdin",
-            "-a",
-            "stdout",
-            "-a",
-            "stderr",
-            "-i",
             "--entrypoint",
-            "signer_client",
+            "./sign_with_hsm.sh",
         ],
         entrypoint_args=["test"],
-        stdin_input="DATA",
     )
