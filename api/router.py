@@ -38,6 +38,7 @@ from chromite.api.gen.chromite.api import portage_explorer_pb2
 from chromite.api.gen.chromite.api import qualbot_pb2
 from chromite.api.gen.chromite.api import recovery_pb2
 from chromite.api.gen.chromite.api import relevancy_pb2
+from chromite.api.gen.chromite.api import satlab_monitor_pb2
 from chromite.api.gen.chromite.api import sdk_pb2
 from chromite.api.gen.chromite.api import sdk_subtools_pb2
 from chromite.api.gen.chromite.api import signing_pb2
@@ -628,6 +629,7 @@ def RegisterServices(router: Router) -> None:
     router.Register(qualbot_pb2)
     router.Register(recovery_pb2)
     router.Register(relevancy_pb2)
+    router.Register(satlab_monitor_pb2)
     router.Register(sdk_pb2)
     router.Register(sdk_subtools_pb2)
     router.Register(signing_pb2)
