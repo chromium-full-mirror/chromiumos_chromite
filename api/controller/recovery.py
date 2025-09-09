@@ -44,6 +44,8 @@ def CreateRecoveryKernel(
         work_dir_path,
         install_root_path,
         request.flags.create_bootable_image,
+        None,
+        kernel_ramfs="desktop_recovery_ramfs",
     )
     response.recovery_kernel.path = str(path)
     response.recovery_kernel.location = common_pb2.Path.INSIDE
