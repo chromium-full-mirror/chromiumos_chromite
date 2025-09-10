@@ -45,7 +45,7 @@ def CreateRecoveryKernel(
         install_root_path,
         request.flags.create_bootable_image,
         None,
-        kernel_ramfs="desktop_recovery_ramfs",
+        kernel_ramfs=request.RamfsType.Name(request.flags.ramfs_type).lower(),
     )
     response.recovery_kernel.path = str(path)
     response.recovery_kernel.location = common_pb2.Path.INSIDE
