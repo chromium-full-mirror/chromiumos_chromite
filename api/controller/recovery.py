@@ -11,6 +11,7 @@ from chromite.api import validate
 from chromite.api.gen.chromite.api import recovery_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import build_target_lib
+from chromite.lib import constants
 from chromite.lib import osutils
 from chromite.service import kernel_image
 
@@ -46,6 +47,9 @@ def CreateRecoveryKernel(
         request.flags.create_bootable_image,
         None,
         kernel_ramfs=request.RamfsType.Name(request.flags.ramfs_type).lower(),
+        public_key=constants.RECOVERY_PUBLIC_KEY,
+        private_key=constants.RECOVERY_DATA_PRIVATE_KEY,
+        keyblock=constants.RECOVERY_KEYBLOCK,
     )
     response.recovery_kernel.path = str(path)
     response.recovery_kernel.location = common_pb2.Path.INSIDE

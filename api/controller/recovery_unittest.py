@@ -7,7 +7,10 @@
 from chromite.api import api_config
 from chromite.api.controller import recovery as recovery_controller
 from chromite.api.gen.chromite.api import recovery_pb2
+from chromite.lib import build_target_lib
+from chromite.lib import constants
 from chromite.lib import cros_test_lib
+from chromite.lib import osutils
 from chromite.service import kernel_image
 
 
@@ -18,11 +21,22 @@ class CreateRecoveryKernelTest(
 
     def setUp(self) -> None:
         self.response = recovery_pb2.CreateRecoveryKernelResponse()
+        self.PatchObject(
+            build_target_lib, "get_default_sysroot_path", return_value="/sys"
+        )
+        self.PatchObject(osutils, "SafeMakedirs")
+        self.PatchObject(osutils, "Chown")
 
     def _GetRequest(self, board=None):
         """Helper to build a request instance."""
         return recovery_pb2.CreateRecoveryKernelRequest(
             build_target={"name": board},
+            flags={
+                "create_bootable_image": False,
+                "ramfs_type": (
+                    recovery_pb2.CreateRecoveryKernelRequest.DESKTOP_RECOVERY_RAMFS
+                ),
+            },
         )
 
     def testCreateRecoveryKernel(self) -> None:
@@ -33,7 +47,17 @@ class CreateRecoveryKernelTest(
         recovery_controller.CreateRecoveryKernel(
             request, self.response, self.api_config
         )
-        patch.assert_called()
+        patch.assert_called_with(
+            "board",
+            "/sys/custom-packages",
+            "/sys",
+            False,
+            None,
+            kernel_ramfs="desktop_recovery_ramfs",
+            public_key=constants.RECOVERY_PUBLIC_KEY,
+            private_key=constants.RECOVERY_DATA_PRIVATE_KEY,
+            keyblock=constants.RECOVERY_KEYBLOCK,
+        )
 
     def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
