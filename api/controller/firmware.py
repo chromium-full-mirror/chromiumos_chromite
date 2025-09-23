@@ -103,6 +103,8 @@ def BuildAllFirmware(request, response, _config):
     """Build all of the firmware targets at the specified location."""
 
     args = ["--code-coverage"] if request.code_coverage else []
+    if request.avb_enabled:
+        args.append("--avb-enabled")
     if request.firmware_targets:
         firmware_targets = ",".join(t.name for t in request.firmware_targets)
         args.append(f"--firmware-targets={firmware_targets}")
@@ -127,6 +129,8 @@ def TestAllFirmware(request, response, _config):
     """Runs all of the firmware tests at the specified location."""
 
     args = ["--code-coverage"] if request.code_coverage else []
+    if request.avb_enabled:
+        args.append("--avb-enabled")
     if request.firmware_targets:
         firmware_targets = ",".join(t.name for t in request.firmware_targets)
         args.append(f"--firmware-targets={firmware_targets}")
