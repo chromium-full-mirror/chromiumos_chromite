@@ -174,7 +174,7 @@ ANDROID_BUCKET_URL = "gs://android-build-chromeos/builds"
 # definitions for corresponding architecture (and public for the `apps` target).
 ARC_BUCKET_ACL_ARM = "googlestorage_acl_arm.txt"
 ARC_BUCKET_ACL_X86 = "googlestorage_acl_x86.txt"
-ARC_BUCKET_ACL_PUBLIC = "googlestorage_acl_public.txt"
+ARC_BUCKET_ACL_APPS = "googlestorage_acl_apps.txt"
 
 
 # The overlay that hosts Android packages.
@@ -393,7 +393,7 @@ def _GetAcl(target: str, package_dir: str) -> str:
     if "x86" in target:
         return os.path.join(package_dir, ARC_BUCKET_ACL_X86)
     if target.startswith("apps"):
-        return os.path.join(package_dir, ARC_BUCKET_ACL_PUBLIC)
+        return os.path.join(package_dir, ARC_BUCKET_ACL_APPS)
     raise ValueError(f"Unknown target {target}")
 
 

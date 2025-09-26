@@ -94,20 +94,20 @@ class MockAndroidBuildArtifactsTest(cros_test_lib.MockTempDirTestCase):
 
         self.arm_acl_data = "-g google.com:READ"
         self.x86_acl_data = "-g google.com:WRITE"
-        self.public_acl_data = "-u AllUsers:READ"
+        self.apps_acl_data = "-g google,com:READ"
         self.arm_acl = os.path.join(
             self.mock_android_dir, android.ARC_BUCKET_ACL_ARM
         )
         self.x86_acl = os.path.join(
             self.mock_android_dir, android.ARC_BUCKET_ACL_X86
         )
-        self.public_acl = os.path.join(
-            self.mock_android_dir, android.ARC_BUCKET_ACL_PUBLIC
+        self.apps_acl = os.path.join(
+            self.mock_android_dir, android.ARC_BUCKET_ACL_APPS
         )
 
         osutils.WriteFile(self.arm_acl, self.arm_acl_data, makedirs=True)
         osutils.WriteFile(self.x86_acl, self.x86_acl_data, makedirs=True)
-        osutils.WriteFile(self.public_acl, self.public_acl_data, makedirs=True)
+        osutils.WriteFile(self.apps_acl, self.apps_acl_data, makedirs=True)
 
         self.bucket_url = "gs://u"
         self.gs_mock = self.StartPatcher(gs_unittest.GSContextMock())
@@ -227,7 +227,7 @@ class MockAndroidBuildArtifactsTest(cros_test_lib.MockTempDirTestCase):
 
         # Allow setting ACL on dest files.
         acls = {
-            "apps": self.public_acl_data,
+            "apps": self.apps_acl_data,
             "target_arm": self.arm_acl_data,
             "target_x86": self.x86_acl_data,
         }
