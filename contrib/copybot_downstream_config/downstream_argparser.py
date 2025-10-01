@@ -11,10 +11,12 @@ import argparse
 from typing import Optional
 
 from chromite.lib import commandline
+from chromite.lib import constants
 
 
 def generate_copybot_arg_parser(
     project: Optional[str] = None,
+    gob_default: str = constants.EXTERNAL_GOB_INSTANCE,
 ) -> argparse.Namespace:
     """Create a copybot downstreaming arg parser and return it to the caller."""
     # TODO(b/278748731): Add option to rebase CLs.
@@ -53,6 +55,12 @@ def generate_copybot_arg_parser(
         help="Limit search to a specific repo (e.g. "
         "chromiumos/third_party/zephyr). Useful if changes exist in multiple "
         "repos under one project",
+    )
+    parser.add_argument(
+        "-g",
+        "--gob",
+        default=gob_default,
+        help="Gerrit (on borg) instance to query (default: %(default)s)",
     )
 
     #

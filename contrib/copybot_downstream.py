@@ -17,7 +17,6 @@ import re
 from typing import Callable, Dict, List, NamedTuple, Tuple
 
 from chromite.contrib.copybot_downstream_config import downstream_argparser
-from chromite.lib import config_lib
 from chromite.lib import gerrit
 
 
@@ -58,10 +57,10 @@ class CopybotDownstream:
                 stop_at: Stop at the specified change(CL Number), exclusive.
                 ignore_warnings: Ignore warnings and submit changes
                 include_dependencies: Apply CR/CQ to dependencies found
+                gob: Gerrit (on borg) instance to query
         """
-        self.gerrit_helper = gerrit.GetGerritHelper(
-            config_lib.GetSiteParams().EXTERNAL_REMOTE
-        )
+        logging.info("Using GOB: %s", opts.gob)
+        self.gerrit_helper = gerrit.GetGerritHelper(opts.gob)
 
         # Map of functions to be called when the project in the key is
         # encountered.
@@ -87,12 +86,13 @@ class CopybotDownstream:
         #   Key - CL Number
         #   Value - Gerrit dictionary data
         self.cl_info = {}
-        if not opts.limit or opts.limit > MAX_GERRIT_CHANGES:
-            logging.info(
-                "Limiting to maximum Gerrit changes (%d)", MAX_GERRIT_CHANGES
-            )
-            opts.limit = MAX_GERRIT_CHANGES
-        self.limit = opts.limit
+        if opts.limit:
+            args_limit = min(opts.limit, MAX_GERRIT_CHANGES)
+        else:
+            args_limit = MAX_GERRIT_CHANGES
+
+        logging.info("Limiting to maximum Gerrit changes (%d)", args_limit)
+        self.limit = args_limit
         default_check_funcs = [
             [self.check_commit_message, ["\nC[Qq]-Depend:.*"]],
             [self.check_hashtags, ["copybot-skip"]],
