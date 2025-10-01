@@ -60,7 +60,6 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
             [
                 "minios",
                 "minios_ramfs",
-                "tpm",
                 "i2cdev",
                 "vfat",
                 "kernel_compress_xz",
@@ -105,7 +104,6 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
             [
                 "minios",
                 "minios_ramfs",
-                "tpm",
                 "i2cdev",
                 "vfat",
                 "kernel_compress_xz",
@@ -150,7 +148,6 @@ class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
             [
                 "minios",
                 "minios_ramfs",
-                "tpm",
                 "i2cdev",
                 "vfat",
                 "kernel_compress_xz",

@@ -19,7 +19,6 @@ MINIOS_KERNEL_IMAGE = "minios_vmlinuz.image"
 KERNEL_FLAGS = [
     "minios",
     "minios_ramfs",
-    "tpm",
     "i2cdev",
     "vfat",
     "kernel_compress_xz",

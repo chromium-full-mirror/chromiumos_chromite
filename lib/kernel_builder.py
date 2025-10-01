@@ -350,7 +350,6 @@ class Builder:
         # Disable AutoFDO verification.
         return [
             kernel_ramfs,
-            "tpm",
             "i2cdev",
             "vfat",
             "kernel_compress_xz",
