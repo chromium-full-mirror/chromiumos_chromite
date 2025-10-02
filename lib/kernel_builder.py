@@ -372,6 +372,7 @@ class Builder:
         disable_rootfs_verification: bool = False,
         output_filename: str = constants.KERNEL_IMAGE_IMG,
         extra_pkgs: Optional[List[str]] = None,
+        debug: bool = False,
     ) -> Path:
         """Builds a custom kernel package and creates a bootable kernel image.
 
@@ -462,6 +463,8 @@ class Builder:
         # Ensure version is clean.
         # NOTE: Make cmdline args more configurable if needed beyond version.
         boot_args = f"noinitrd panic=60 version={kernel_version.strip()}"
+        if debug:
+            boot_args += " cros_debug"
         logging.info("Using kernel command line: %s", boot_args)
 
         # 4. Create the final signed kernel image.
