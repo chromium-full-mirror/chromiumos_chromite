@@ -62,6 +62,7 @@ EC_BRANCH_CONFIG = {
     "nissa": EcBranchType.FIRMWARE,
     "rauru": EcBranchType.FIRMWARE,
     "fatcat": EcBranchType.FIRMWARE,
+    "ocelot": EcBranchType.FIRMWARE,
 }
 
 
@@ -504,6 +505,7 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     else:
         target_models.extend(cros_config_dict.keys())
 
+    # Remove the following to build only device model specified?
     target_models = [x for x in target_models if x not in opts.ignore_models]
 
     ctx = gs.GSContext()
