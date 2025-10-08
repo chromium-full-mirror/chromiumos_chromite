@@ -150,9 +150,6 @@ def main(argv) -> None:
     # semantics of chromite logging CLI args.
     if "-v" in argv or "--verbose" in argv:
         emerge_args.append("--verbose")
-    # Same for --debug.
-    if "--debug" in argv:
-        emerge_args.append("--debug")
 
     cmd = ["emerge"] + emerge_args
     cmd_str = shell_util.cmd_to_str(cmd)
