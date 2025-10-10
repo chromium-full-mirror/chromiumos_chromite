@@ -99,7 +99,7 @@ def Data(data: str) -> List[str]:
     Returns:
         Any errors found.
     """
-    issues = []
+    issues: List[str] = []
 
     issues += _check_march_flags(data)
     return issues

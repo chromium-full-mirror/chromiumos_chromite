@@ -5,9 +5,10 @@
 """Provides utility for linting whitespace."""
 
 import logging
+from pathlib import Path
 
 
-def Data(data: str, path: "Path") -> bool:
+def Data(data: str, path: Path) -> bool:
     """Run basic whitespace checks on |data|.
 
     Args:

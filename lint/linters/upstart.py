@@ -127,7 +127,7 @@ def Data(
     label = os.path.basename(path)
     ignore_set = set(GetIgnoreLookup().get(label, [])) if relaxed else ()
 
-    found = []
+    found: list[str] = []
     for cmd in ExtractCommands(job):
         norm_cmd = " ".join(cmd)
         if norm_cmd not in ignore_set:
@@ -135,8 +135,8 @@ def Data(
 
     if found:
         logging.error('Init script "%s" has unsafe commands:', path)
-        for cmd in found:
-            logging.error("    %s", cmd)
+        for cmd_found in found:
+            logging.error("    %s", cmd_found)
         logging.error(
             "Please use a tmpfiles.d config for the commands or have "
             'them reviewed by security and add "# croslint: disable:". '
