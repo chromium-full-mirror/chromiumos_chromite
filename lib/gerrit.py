@@ -7,7 +7,7 @@
 import logging
 import operator
 import re
-from typing import Tuple
+from typing import Any, Tuple
 
 from chromite.lib import config_lib
 from chromite.lib import constants
@@ -705,19 +705,21 @@ class GerritHelper:
 
     def CherryPick(
         self,
-        change,
-        branch,
+        change: str,
+        branch: str,
+        base_commit: str | None = None,
         rev: str = "current",
         msg: str = "",
         allow_conflicts: bool = False,
         dryrun: bool = False,
-        notify=None,
-    ):
+        notify: str | None = None,
+    ) -> Any:
         """Cherry pick a CL to a branch.
 
         Args:
             change: A gerrit change number.
             branch: The destination branch.
+            base_commit: The commit which will be the parent commit.
             rev: The specific revision to cherry pick back.
             msg: An additional message to include.
             allow_conflicts: Allow cherry-picks to contain conflicts.
@@ -736,6 +738,7 @@ class GerritHelper:
             self.host,
             self._to_changenum(change),
             branch,
+            base_commit=base_commit,
             rev=rev,
             msg=msg,
             allow_conflicts=allow_conflicts,

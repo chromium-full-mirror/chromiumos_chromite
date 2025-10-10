@@ -59,7 +59,9 @@ class GobTest(cros_test_lib.MockTestCase):
     UTF8_DATA = b"That\xe2\x80\x99s an error. That\xe2\x80\x99s all we know."
 
     def setUp(self) -> None:
-        self.PatchObject(gob_util, "CreateHttpReq", autospec=False)
+        self.create_http_request = self.PatchObject(
+            gob_util, "CreateHttpReq", autospec=False
+        )
         self.conn = self.PatchObject(urllib.request, "urlopen")
 
     def testUtf8Response(self) -> None:
@@ -76,6 +78,33 @@ class GobTest(cros_test_lib.MockTestCase):
 
         with self.assertRaises(gob_util.InternalGOBError):
             gob_util.FetchUrl("", "")
+
+    def testCherryPick(self) -> None:
+        """Test correct format of cherry-pick request."""
+        body = json.dumps({"change_id": "I0001"}).encode()
+        xss_protection_prefix = b")]}'\n"
+        body = xss_protection_prefix + body
+        self.conn.return_value.__enter__.return_value = FakeHTTPResponse(
+            body=body
+        )
+        gob_util.CherryPick(
+            host="chromium",
+            change=1234,
+            branch="target_branch",
+            base_commit="I123",
+        )
+        self.create_http_request.assert_called_with(
+            "chromium",
+            "changes/1234/revisions/current/cherrypick",
+            reqtype="POST",
+            headers=None,
+            body={
+                "destination": "target_branch",
+                "message": "",
+                "allow_conflicts": False,
+                "base": "I123",
+            },
+        )
 
     def testConnectionTimeout(self) -> None:
         """Exercise the timeout process."""

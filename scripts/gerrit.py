@@ -971,6 +971,11 @@ class ActionCherryPick(UserAction):
         """Add arguments to this action's subparser."""
         # Should we add an option to walk Cq-Depend and try to cherry-pick them?
         parser.add_argument(
+            "--base-commit",
+            "--base",
+            help="The commit which will be the parent commit",
+        )
+        parser.add_argument(
             "--rev",
             "--revision",
             default="current",
@@ -1012,6 +1017,7 @@ class ActionCherryPick(UserAction):
                 ret = helper.CherryPick(
                     cl,
                     branch,
+                    base_commit=opts.base_commit,
                     rev=opts.rev,
                     msg=opts.msg,
                     allow_conflicts=opts.allow_conflicts,

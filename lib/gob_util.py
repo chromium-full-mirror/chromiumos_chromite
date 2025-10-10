@@ -854,14 +854,15 @@ def Delete(host, change) -> None:
 
 
 def CherryPick(
-    host,
-    change,
-    branch,
-    rev="current",
-    msg="",
+    host: str,
+    change: str,
+    branch: str,
+    base_commit: str | None = None,
+    rev: str = "current",
+    msg: str = "",
     allow_conflicts: bool = False,
-    notify=None,
-):
+    notify: str | None = None,
+) -> Any:
     """Cherry pick a change to a branch."""
     path = "%s/revisions/%s/cherrypick" % (_GetChangePath(change), rev)
     body = {
@@ -869,6 +870,8 @@ def CherryPick(
         "message": msg,
         "allow_conflicts": allow_conflicts,
     }
+    if base_commit is not None:
+        body["base"] = base_commit
     if notify is not None:
         body["notify"] = notify
     return FetchUrlJson(host, path, reqtype="POST", body=body)
