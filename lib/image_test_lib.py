@@ -26,7 +26,7 @@ class _ImageTestMixin:
     """A mixin to hold image test's specific info."""
 
     _board = None
-    _image_type: ImageType = None
+    _image_type: ImageType | None = None
     _result_dir = None
 
     def SetBoard(self, board) -> None:

@@ -54,7 +54,6 @@ KNOWN_ISSUES = (
     "lib/firmware/ap_firmware_config/__init__.py",
     "lib/gmerge_binhost.py",
     "lib/gs.py",
-    "lib/image_test_lib.py",
     "lib/kernel_cmdline.py",
     "lib/luci/test_support/auto_stub.py",
     "lib/terminal.py",
