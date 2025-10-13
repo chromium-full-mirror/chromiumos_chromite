@@ -28,6 +28,7 @@ import chromite
 from chromite.api.gen.chromiumos.build.api import subtools_pb2
 from chromite.lib import cipd
 from chromite.lib import compression_lib
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
 from chromite.lib import osutils
@@ -947,7 +948,6 @@ class BundledSubtools:
                 "%s: Metadata not recognized as either CIPD or GCS.  Skipping.",
                 path,
             )
-            return
 
     def _upload_bundle_cipd(
         self,
@@ -1020,6 +1020,11 @@ class BundledSubtools:
     ) -> None:
         """Uploads a single bundle to GCS."""
         bucket = bucket_override or gcs_metadata.bucket
+        acl = "public-read"
+        # Our trash bucket doesn't support public ACLs.  Since we only upload
+        # to it for testing purposes, use the bucket default.
+        if bucket_override == constants.TRASH_BUCKET:
+            acl = None
 
         url_parts = []
         if gcs_metadata.prefix:
@@ -1064,7 +1069,7 @@ class BundledSubtools:
                 gs_uri,
             )
         else:
-            context.Copy(dest_tarball, gs_uri, acl="public-read")
+            context.Copy(dest_tarball, gs_uri, acl=acl)
 
         http_url = gs_urls_util.GsUrlToHttp(gs_uri, public=False)
         self.uploaded_subtool_names.append(path.name)
