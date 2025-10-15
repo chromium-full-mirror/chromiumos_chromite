@@ -1020,11 +1020,6 @@ class BundledSubtools:
     ) -> None:
         """Uploads a single bundle to GCS."""
         bucket = bucket_override or gcs_metadata.bucket
-        acl = "public-read"
-        # Our trash bucket doesn't support public ACLs.  Since we only upload
-        # to it for testing purposes, use the bucket default.
-        if bucket_override == constants.TRASH_BUCKET:
-            acl = None
 
         url_parts = []
         if gcs_metadata.prefix:
@@ -1044,6 +1039,11 @@ class BundledSubtools:
             suburl="/".join(url_parts),
             for_gsutil=True,
         )
+        acl = "public-read"
+        # Our trash bucket doesn't support public ACLs.  Since we only upload
+        # to it for testing purposes, use the bucket default.
+        if gs_uri.startswith(constants.TRASH_BUCKET):
+            acl = None
 
         logger.debug("URI for %s: %s", gcs_metadata.package_name, gs_uri)
 
