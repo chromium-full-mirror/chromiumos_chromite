@@ -19,7 +19,16 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from typing import Dict, NamedTuple, Optional
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    NamedTuple,
+    Optional,
+    Union,
+)
 import urllib.parse
 
 from chromite.lib import auth
@@ -139,7 +148,7 @@ class GSListResult(NamedTuple):
     """Detailed results of GSContext.List."""
 
     url: str
-    creation_time: Optional[int] = None
+    creation_time: Optional[datetime.datetime] = None
     content_length: Optional[int] = None
     generation: Optional[int] = None
     metageneration: Optional[int] = None
@@ -150,14 +159,14 @@ class ErrorDetails(NamedTuple):
 
     type: str
     retriable: bool
-    message_pattern: Optional[str] = ""
+    message_pattern: str = ""
     exception: Optional[GSContextException] = None
 
 
 class GSCounter:
     """A counter class for Google Storage."""
 
-    def __init__(self, ctx, path) -> None:
+    def __init__(self, ctx: "GSContext", path: str) -> None:
         """Create a counter object.
 
         Args:
@@ -167,14 +176,16 @@ class GSCounter:
         self.ctx = ctx
         self.path = path
 
-    def Get(self):
+    def Get(self) -> int:
         """Get the current value of a counter."""
         try:
             return int(self.ctx.Cat(self.path))
         except GSNoSuchKey:
             return 0
 
-    def AtomicCounterOperation(self, default_value, operation):
+    def AtomicCounterOperation(
+        self, default_value: int, operation: Callable[[int], int]
+    ) -> Optional[int]:
         """Atomically set the counter value using |operation|.
 
         Args:
@@ -206,8 +217,9 @@ class GSCounter:
                 if new_generation == generation:
                     raise
                 generation = new_generation
+        return None
 
-    def Increment(self):
+    def Increment(self) -> Optional[int]:
         """Increment the counter.
 
         Returns:
@@ -215,7 +227,7 @@ class GSCounter:
         """
         return self.AtomicCounterOperation(1, lambda x: x + 1)
 
-    def Decrement(self):
+    def Decrement(self) -> Optional[int]:
         """Decrement the counter.
 
         Returns:
@@ -223,7 +235,7 @@ class GSCounter:
         """
         return self.AtomicCounterOperation(-1, lambda x: x - 1)
 
-    def Reset(self):
+    def Reset(self) -> Optional[int]:
         """Reset the counter to zero.
 
         Returns:
@@ -231,7 +243,7 @@ class GSCounter:
         """
         return self.AtomicCounterOperation(0, lambda x: 0)
 
-    def StreakIncrement(self):
+    def StreakIncrement(self) -> Optional[int]:
         """Increment the counter if it is positive, otherwise set it to 1.
 
         Returns:
@@ -239,7 +251,7 @@ class GSCounter:
         """
         return self.AtomicCounterOperation(1, lambda x: x + 1 if x > 0 else 1)
 
-    def StreakDecrement(self):
+    def StreakDecrement(self) -> Optional[int]:
         """Decrement the counter if it is negative, otherwise set it to -1.
 
         Returns:
@@ -262,9 +274,9 @@ class GSContext:
     DEFAULT_BOTO_FILE = os.path.expanduser("~/.boto")
     DEFAULT_GSUTIL_TRACKER_DIR = os.path.expanduser("~/.gsutil/tracker-files")
     # This is set for ease of testing.
-    _DEFAULT_GSUTIL_BIN = None
+    _DEFAULT_GSUTIL_BIN: Optional[str] = None
     _DEFAULT_GSUTIL_BUILDER_BIN = "/b/build/third_party/gsutil/gsutil"
-    _CRCMOD_METHOD = None
+    _CRCMOD_METHOD: Optional[str] = None
     # How many times to retry uploads.
     DEFAULT_RETRIES = 3
 
@@ -322,8 +334,16 @@ class GSContext:
         b"cannot read from timed out object",
     )
 
+    # Hack to workaround List() method in this class.
+    # TODO(b/452716731): Migrate everyone to `list` and require Python 3.9.
+    typeList = List  # pylint: disable=used-before-assignment
+
     @classmethod
-    def InitializeCache(cls, cache_dir=None, cache_user=None) -> None:
+    def InitializeCache(
+        cls,
+        cache_dir: Optional[str] = None,
+        cache_user: Optional[str] = None,
+    ) -> None:
         """Setup the gsutil cache if needed."""
         if cls._DEFAULT_GSUTIL_BIN is not None:
             return
@@ -361,7 +381,7 @@ class GSContext:
         else:
             # Check if the default gsutil path for builders exists. If
             # not, try locating gsutil. If none exists, simply use 'gsutil'.
-            gsutil_bin = cls._DEFAULT_GSUTIL_BUILDER_BIN
+            gsutil_bin: Optional[str] = cls._DEFAULT_GSUTIL_BUILDER_BIN
             if not os.path.exists(gsutil_bin):
                 gsutil_bin = osutils.Which("gsutil")
             if gsutil_bin is None:
@@ -369,7 +389,7 @@ class GSContext:
             cls._DEFAULT_GSUTIL_BIN = gsutil_bin
 
     @classmethod
-    def _DetermineCrcmodStrategy(cls, path: Path):
+    def _DetermineCrcmodStrategy(cls, path: Path) -> str:
         """Figure out how we'll get a compiled crcmod.
 
         The compiled crcmod code is much faster than the python implementation,
@@ -398,7 +418,8 @@ class GSContext:
         # See if the system includes one in which case we're done.
         # We'll use the active python interp to run gsutil directly.
         try:
-            from crcmod.crcmod import _usingExtension
+            # pylint: disable=import-outside-toplevel
+            from crcmod.crcmod import _usingExtension  # type: ignore[import]
 
             if _usingExtension:
                 cls._CRCMOD_METHOD = "import"
@@ -455,16 +476,16 @@ class GSContext:
         # See if the local copy has one.
         logging.debug("Attempting to compile local crcmod for gsutil")
         with osutils.TempDir(prefix="chromite.gsutil.crcmod") as tempdir:
-            tempdir = Path(tempdir)
+            tempdir_path = Path(tempdir)
             result = cros_build_lib.run(
                 [
                     sys.executable,
                     "setup.py",
                     "build",
                     "--build-base",
-                    str(tempdir),
+                    str(tempdir_path),
                     "--build-platlib",
-                    str(tempdir),
+                    str(tempdir_path),
                 ],
                 cwd=src_root,
                 capture_output=True,
@@ -476,7 +497,7 @@ class GSContext:
 
             # Locate the module in the build dir.
             copied = False
-            for mod_path in tempdir.glob("crcmod/_crcfunext*.so"):
+            for mod_path in tempdir_path.glob("crcmod/_crcfunext*.so"):
                 dst_mod_path = src_root / "python3" / "crcmod" / mod_path.name
                 try:
                     shutil.copy2(mod_path, dst_mod_path)
@@ -511,8 +532,6 @@ wheel: <
   version: "version:1.7.chromium.4"
 >
 """
-        # TODO(vapier): Drop str() once WriteFile accepts Path objects.
-        spec = str(spec)
         try:
             osutils.WriteFile(spec, data, mode="wb", atomic=True)
         except OSError:
@@ -523,16 +542,16 @@ wheel: <
 
     def __init__(
         self,
-        boto_file=None,
-        cache_dir=None,
-        acl=None,
-        dry_run=False,
-        gsutil_bin=None,
-        init_boto=False,
-        retries=None,
-        sleep=None,
-        cache_user=None,
-        use_luci_auth=False,
+        boto_file: Optional[str] = None,
+        cache_dir: Optional[str] = None,
+        acl: Optional[str] = None,
+        dry_run: bool = False,
+        gsutil_bin: Optional[str] = None,
+        init_boto: bool = False,
+        retries: Optional[int] = None,
+        sleep: Optional[int] = None,
+        cache_user: Optional[str] = None,
+        use_luci_auth: bool = False,
     ) -> None:
         """Constructor.
 
@@ -561,7 +580,10 @@ wheel: <
             self.InitializeCache(cache_dir=cache_dir, cache_user=cache_user)
             gsutil_bin = self._DEFAULT_GSUTIL_BIN
             if self._CRCMOD_METHOD == "vpython":
-                self._gsutil_bin = ["vpython3", gsutil_bin]
+                self._gsutil_bin: List[Optional[str]] = [
+                    "vpython3",
+                    gsutil_bin,
+                ]
             else:
                 self._gsutil_bin = [sys.executable, gsutil_bin]
         else:
@@ -569,12 +591,12 @@ wheel: <
             self._gsutil_bin = [gsutil_bin]
 
         # The version of gsutil is retrieved on demand and cached here.
-        self._gsutil_version = None
+        self._gsutil_version: Optional[str] = None
 
         # Increase the number of retries. With 10 retries, Boto will try a total
         # of 11 times and wait up to 2**11 seconds (~30 minutes) in total, not
         # including the time spent actually uploading or downloading.
-        self.gsutil_flags = ["-o", "Boto:num_retries=10"]
+        self.gsutil_flags: List[str] = ["-o", "Boto:num_retries=10"]
 
         # The default state directory (~/.gsutil) is not writable for the root
         # account, as the SDK mounts /root as read-only.  Use a directory in
@@ -619,7 +641,7 @@ wheel: <
             # Only set boto file to DEFAULT_BOTO_FILE if it exists.
             boto_file = self.DEFAULT_BOTO_FILE
 
-        self.boto_file = boto_file
+        self.boto_file: Optional[str] = boto_file
 
         self.acl = acl
 
@@ -634,7 +656,7 @@ wheel: <
             self._InitBoto()
 
     @property
-    def gsutil_version(self):
+    def gsutil_version(self) -> str:
         """Return the version of the gsutil in this context."""
         if not self._gsutil_version:
             if self.dry_run:
@@ -650,6 +672,7 @@ wheel: <
 
                 # Expect output like: 'gsutil version 3.35' or
                 # 'gsutil version: 4.5'.
+                assert isinstance(result.stdout, str)
                 match = re.search(
                     r"^\s*gsutil\s+version:?\s+([\d.]+)",
                     result.stdout,
@@ -659,13 +682,13 @@ wheel: <
                     self._gsutil_version = match.group(1)
                 else:
                     raise GSContextException(
-                        'Unexpected output format from "%s":\n%s.'
-                        % (result.cmdstr, result.stdout)
+                        "Unexpected output format from"
+                        f' "{result.cmdstr}":\n{result.stdout}.'
                     )
 
         return self._gsutil_version
 
-    def _CheckFile(self, errmsg, afile) -> None:
+    def _CheckFile(self, errmsg: str, afile: str) -> None:
         """Pre-flight check for valid inputs.
 
         Args:
@@ -673,9 +696,11 @@ wheel: <
             afile: Fully qualified path to test file existence.
         """
         if not os.path.isfile(afile):
-            raise GSContextException("%s, %s is not a file" % (errmsg, afile))
+            raise GSContextException(f"{errmsg}, {afile} is not a file")
 
-    def _TestGSLs(self, path=AUTHENTICATION_BUCKET, **kwargs):
+    def _TestGSLs(
+        self, path: str = AUTHENTICATION_BUCKET, **kwargs: Any
+    ) -> bool:
         """Quick test of gsutil functionality."""
         # The AUTHENTICATION_BUCKET is readable by any authenticated account.
         # If we can list its contents, we have valid authentication.
@@ -717,8 +742,10 @@ wheel: <
                 print_cmd=False,
             )
         finally:
-            if os.path.exists(self.boto_file) and not os.path.getsize(
+            if (
                 self.boto_file
+                and os.path.exists(self.boto_file)
+                and not os.path.getsize(self.boto_file)
             ):
                 os.remove(self.boto_file)
                 raise GSContextException("GS config could not be set up.")
@@ -727,7 +754,7 @@ wheel: <
         if not self._TestGSLs():
             self._ConfigureBotoConfig()
 
-    def Cat(self, path, **kwargs):
+    def Cat(self, path: str, **kwargs: Any) -> Union[str, bytes]:
         """Returns the contents of a GS object."""
         kwargs.setdefault("stdout", True)
         encoding = kwargs.setdefault("encoding", None)
@@ -742,9 +769,7 @@ wheel: <
                 )
             except Exception as e:
                 if getattr(e, "errno", None) == errno.ENOENT:
-                    raise GSNoSuchKey(
-                        "Cat Error: file %s does not exist" % path
-                    )
+                    raise GSNoSuchKey(f"Cat Error: file {path} does not exist")
                 else:
                     raise GSContextException(str(e))
         elif self.dry_run:
@@ -752,7 +777,9 @@ wheel: <
         else:
             return self.DoCommand(["cat", path], **kwargs).stdout
 
-    def StreamingCat(self, path, chunksize=0x100000):
+    def StreamingCat(
+        self, path: str, chunksize: int = 0x100000
+    ) -> Iterable[bytes]:
         """Returns the content of a GS file as a stream.
 
         Unlike Cat or Copy, this function doesn't support any internal retry or
@@ -770,7 +797,7 @@ wheel: <
         assert gs_urls_util.PathIsGs(path)
 
         if self.dry_run:
-            yield ""
+            yield b""
             return
 
         env = None
@@ -786,6 +813,7 @@ wheel: <
         def read_content():
             try:
                 while True:
+                    assert proc.stdout
                     data = proc.stdout.read(chunksize)
                     if not data and proc.poll() is not None:
                         break
@@ -795,18 +823,27 @@ wheel: <
                 rc = proc.poll()
                 if rc:
                     raise GSCommandError(
-                        "Cannot stream cat %s from Google Storage!" % path,
-                        rc,
-                        None,
+                        cros_build_lib.CompletedProcess(
+                            f"Cannot stream cat {path} from Google Storage!",
+                            rc,
+                            None,
+                        ),
                     )
             finally:
                 if proc.returncode is None:
+                    assert proc.stdout
                     proc.stdout.close()
                     proc.terminate()
 
         yield from read_content()
 
-    def CopyInto(self, local_path, remote_dir, filename=None, **kwargs):
+    def CopyInto(
+        self,
+        local_path: str,
+        remote_dir: str,
+        filename: Optional[str] = None,
+        **kwargs,
+    ) -> Optional[int]:
         """Upload a local file into a directory in google storage.
 
         Args:
@@ -830,7 +867,7 @@ wheel: <
         )
 
     @staticmethod
-    def GetTrackerFilenames(dest_path):
+    def GetTrackerFilenames(dest_path: str) -> typeList[str]:
         """Returns a list of gsutil tracker filenames.
 
         Tracker files are used by gsutil to resume downloads/uploads. This
@@ -876,7 +913,7 @@ wheel: <
 
         return hashed_filenames
 
-    def _RetryFilter(self, e):
+    def _RetryFilter(self, e: Exception) -> bool:
         """Returns whether to retry RunCommandError exception |e|.
 
         Args:
@@ -889,7 +926,7 @@ wheel: <
             raise error_details.exception
         return error_details.retriable
 
-    def _MatchKnownError(self, e):
+    def _MatchKnownError(self, e: Exception) -> ErrorDetails:
         """Function to match known RunCommandError exceptions.
 
         Args:
@@ -907,6 +944,7 @@ wheel: <
             return ErrorDetails(type=error_type, retriable=False)
 
         # e is guaranteed by above filter to be a RunCommandError
+        assert isinstance(e, cros_build_lib.RunCommandError)
         if e.returncode < 0:
             sig_name = signals.StrSignal(-e.returncode)
             logging.info(
@@ -922,16 +960,17 @@ wheel: <
         if error:
             # Since the captured error will use the encoding the user requested,
             # normalize to bytes for testing below.
-            if isinstance(error, str):
-                error = error.encode("utf-8")
+            error_bytes = (
+                error.encode("utf-8") if isinstance(error, str) else error
+            )
 
             # gsutil usually prints PreconditionException when a precondition
             # fails. It may also print "ResumableUploadAbortException: 412
             # Precondition Failed", so the logic needs to be a little more
             # general.
             if (
-                b"PreconditionException" in error
-                or b"412 Precondition Failed" in error
+                b"PreconditionException" in error_bytes
+                or b"412 Precondition Failed" in error_bytes
             ):
                 return ErrorDetails(
                     type="precondition_exception",
@@ -944,9 +983,9 @@ wheel: <
             # it also outputs to stdout instead of stderr and so will not be
             # caught here regardless.
             if (
-                b"CommandException: No URLs matched" in error
-                or b"NotFoundException:" in error
-                or b"One or more URLs matched no objects" in error
+                b"CommandException: No URLs matched" in error_bytes
+                or b"NotFoundException:" in error_bytes
+                or b"One or more URLs matched no objects" in error_bytes
             ):
                 return ErrorDetails(
                     type="no_such_key",
@@ -960,7 +999,7 @@ wheel: <
             # can hit a different backend. This should be removed after the
             # bug is fixed by the Google Storage team (see crbug.com/308300).
             resumable_error = _FirstSubstring(
-                error, self.RESUMABLE_ERROR_MESSAGE
+                error_bytes, self.RESUMABLE_ERROR_MESSAGE
             )
             if resumable_error:
                 # Only remove the tracker files if we try to upload/download a
@@ -971,7 +1010,8 @@ wheel: <
                     # path, which is already required for GSContext.Copy().
                     tracker_filenames = self.GetTrackerFilenames(e.cmd[-1])
                     logging.info(
-                        "Potential list of tracker files: %s", tracker_filenames
+                        "Potential list of tracker files: %s",
+                        tracker_filenames,
                     )
                     for tracker_filename in tracker_filenames:
                         tracker_file_path = os.path.join(
@@ -995,7 +1035,7 @@ wheel: <
                 )
 
             transient_error = _FirstSubstring(
-                error, self.TRANSIENT_ERROR_MESSAGE
+                error_bytes, self.TRANSIENT_ERROR_MESSAGE
             )
             if transient_error:
                 return ErrorDetails(
@@ -1036,13 +1076,13 @@ wheel: <
     # TODO(mtennant): Make a private method.
     def DoCommand(
         self,
-        gsutil_cmd,
-        headers=(),
-        retries=None,
-        version=None,
-        parallel=False,
-        **kwargs,
-    ) -> None:
+        gsutil_cmd: typeList[str],
+        headers: tuple = (),
+        retries: Optional[int] = None,
+        version: Optional[int] = None,
+        parallel: bool = False,
+        **kwargs: Any,
+    ) -> cros_build_lib.CompletedProcess:
         """Run a gsutil command, suppressing output, and setting retry/sleep.
 
         Args:
@@ -1098,8 +1138,10 @@ wheel: <
                 self.__class__.__name__,
                 shell_util.cmd_to_str(cmd),
             )
+            return cros_build_lib.CompletedProcess(args=cmd)
         else:
             if "PYTEST_CURRENT_TEST" in os.environ:
+                # pylint: disable-next=import-outside-toplevel
                 from chromite.lib import cros_test_lib
 
                 # Only allow tests to call us directly when network tests are
@@ -1155,14 +1197,14 @@ wheel: <
 
     def Copy(
         self,
-        src_path,
-        dest_path,
-        acl=None,
-        recursive=False,
-        skip_symlinks=True,
-        auto_compress=False,
-        **kwargs,
-    ):
+        src_path: str,
+        dest_path: str,
+        acl: Optional[str] = None,
+        recursive: bool = False,
+        skip_symlinks: bool = True,
+        auto_compress: bool = False,
+        **kwargs: Any,
+    ) -> Optional[int]:
         """Copy to/from GS bucket.
 
         Canned ACL permissions can be specified on the gsutil cp command line.
@@ -1262,8 +1304,14 @@ wheel: <
                     e,
                 )
                 raise
+        return None
 
-    def CreateWithContents(self, gs_uri, contents, **kwargs) -> None:
+    def CreateWithContents(
+        self,
+        gs_uri: str,
+        contents: Union[str, bytes],
+        **kwargs: Any,
+    ) -> None:
         """Creates the specified file with specified contents.
 
         Args:
@@ -1277,7 +1325,7 @@ wheel: <
         self.Copy("-", gs_uri, input=contents, **kwargs)
 
     # TODO: Merge LS() and List()?
-    def LS(self, path, **kwargs):
+    def LS(self, path: str, **kwargs: Any) -> typeList[str]:
         """Does a directory listing of the given gs path.
 
         Args:
@@ -1300,11 +1348,18 @@ wheel: <
                 kwargs.setdefault("stdout", True)
             kwargs.setdefault("encoding", "utf-8")
             result = cros_build_lib.run(["ls", path], **kwargs)
+            assert isinstance(result.stdout, str)
             return result.stdout.splitlines()
         else:
             return [x.url for x in self.List(path, **kwargs)]
 
-    def List(self, path, details=False, generation=False, **kwargs):
+    def List(
+        self,
+        path: Union[str, typeList[str]],
+        details: bool = False,
+        generation: bool = False,
+        **kwargs: Any,
+    ) -> typeList[GSListResult]:
         """Does a directory listing of the given gs path.
 
         Args:
@@ -1317,7 +1372,7 @@ wheel: <
             A list of GSListResult objects that matched |path|.  Might be more
             than one if a directory or path include wildcards/etc...
         """
-        ret = []
+        ret: List[GSListResult] = []
         if self.dry_run:
             return ret
 
@@ -1338,7 +1393,9 @@ wheel: <
         # We always request the extended details as the overhead compared to a
         # plain listing is negligible.
         kwargs["stdout"] = True
-        lines = self.DoCommand(cmd, **kwargs).stdout.splitlines()
+        result = self.DoCommand(cmd, **kwargs)
+        assert isinstance(result.stdout, str)
+        lines = result.stdout.splitlines()
 
         if details:
             # The last line is expected to be a summary line.  Ignore it.
@@ -1352,19 +1409,18 @@ wheel: <
             ls_re = LS_RE
 
         # Handle optional fields.
-        intify = lambda x: int(x) if x else None
+        intify: Callable[[Any], Optional[int]] = lambda x: int(x) if x else None
 
         # Parse out each result and build up the results list.
         for line in lines:
             match = ls_re.search(line)
             if not match:
-                raise GSContextException("unable to parse line: %s" % line)
+                raise GSContextException(f"unable to parse line: {line}")
+            timestamp: Optional[datetime.datetime] = None
             if match.group("creation_time"):
                 timestamp = datetime.datetime.strptime(
                     match.group("creation_time"), DATETIME_FORMAT
                 )
-            else:
-                timestamp = None
 
             ret.append(
                 GSListResult(
@@ -1378,24 +1434,27 @@ wheel: <
 
         return ret
 
-    def GetSize(self, path, **kwargs):
+    def GetSize(self, path: str, **kwargs: Any) -> int:
         """Returns size of a single object (local or GS)."""
         if not gs_urls_util.PathIsGs(path):
             return os.path.getsize(path)
         else:
-            return self.Stat(path, **kwargs).content_length
+            return int(self.Stat(path, **kwargs).content_length)
 
-    def GetCreationTime(self, path: str, **kwargs) -> datetime.datetime:
+    def GetCreationTime(self, path: str, **kwargs: Any) -> datetime.datetime:
         """Returns the creation time of a single object."""
         return self.Stat(path, **kwargs).creation_time
 
     def GetCreationTimeSince(
-        self, path: str, since_date: datetime.datetime, **kwargs
+        self,
+        path: str,
+        since_date: datetime.datetime,
+        **kwargs: Any,
     ) -> datetime.timedelta:
         """Returns the time since since_date of a single object."""
         return since_date - self.GetCreationTime(path, **kwargs)
 
-    def Move(self, src_path, dest_path, **kwargs):
+    def Move(self, src_path: str, dest_path: str, **kwargs: Any) -> None:
         """Move/rename to/from GS bucket.
 
         Args:
@@ -1406,9 +1465,14 @@ wheel: <
             **kwargs: See options that DoCommand takes.
         """
         cmd = ["mv", "--", src_path, dest_path]
-        return self.DoCommand(cmd, **kwargs)
+        self.DoCommand(cmd, **kwargs)
 
-    def SetACL(self, path, acl=None, **kwargs) -> None:
+    def SetACL(
+        self,
+        path: Union[str, typeList[str]],
+        acl: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
         """Set access on a file already in google storage.
 
         Args:
@@ -1432,7 +1496,11 @@ wheel: <
         self.DoCommand(cmd, **kwargs)
 
     def ChangeACL(
-        self, upload_url, acl_args_file=None, acl_args=None, **kwargs
+        self,
+        upload_url: str,
+        acl_args_file: Optional[str] = None,
+        acl_args: Optional[typeList[str]] = None,
+        **kwargs: Any,
     ) -> None:
         """Change access on a file already in google storage with "acl ch".
 
@@ -1474,7 +1542,7 @@ wheel: <
             **kwargs,
         )
 
-    def Exists(self, path, **kwargs):
+    def Exists(self, path: str, **kwargs: Any) -> bool:
         """Checks whether the given object exists.
 
         Args:
@@ -1495,7 +1563,11 @@ wheel: <
         return True
 
     def Remove(
-        self, path, recursive=False, ignore_missing=False, **kwargs
+        self,
+        path: Union[str, typeList[str]],
+        recursive: bool = False,
+        ignore_missing: bool = False,
+        **kwargs: Any,
     ) -> None:
         """Remove the specified file.
 
@@ -1521,7 +1593,7 @@ wheel: <
             if not ignore_missing:
                 raise
 
-    def GetGeneration(self, path):
+    def GetGeneration(self, path: str) -> tuple[int, int]:
         """Get the generation and metageneration of the given |path|.
 
         Returns:
@@ -1534,7 +1606,7 @@ wheel: <
 
         return res.generation, res.metageneration
 
-    def Stat(self, path, **kwargs):
+    def Stat(self, path: str, **kwargs: Any) -> GSStatResult:
         """Stat a GS file, and get detailed information.
 
         Args:
@@ -1557,6 +1629,7 @@ wheel: <
             # Example lines:
             # No URLs matched gs://bucket/file
             # Some more msg: No URLs matched gs://bucket/file
+            assert e.result
             if e.stderr and any(
                 x.startswith("No URLs matched") for x in e.stderr.splitlines()
             ):
@@ -1594,10 +1667,11 @@ wheel: <
         #     Generation:         1408776800850000
         #     Metageneration:     1
 
+        assert isinstance(res.stdout, str)
         if not res.stdout.startswith("gs://"):
             raise GSContextException(f"Unexpected stat output: {res.stdout}")
 
-        def _GetField(name, optional=False):
+        def _GetField(name: str, optional: bool = False) -> Optional[str]:
             m = re.search(r"%s:\s*(.+)" % re.escape(name), res.stdout)
             if m:
                 return m.group(1)
@@ -1605,7 +1679,7 @@ wheel: <
                 return None
             else:
                 raise GSContextException(
-                    'Field "%s" missing in "%s"' % (name, res.stdout)
+                    f'Field "{name}" missing in "{res.stdout}"'
                 )
 
         return GSStatResult(
@@ -1621,7 +1695,7 @@ wheel: <
             metageneration=int(_GetField("Metageneration")),
         )
 
-    def Counter(self, path):
+    def Counter(self, path: str) -> GSCounter:
         """Return a GSCounter object pointing at a |path| in Google Storage.
 
         Args:
@@ -1629,7 +1703,12 @@ wheel: <
         """
         return GSCounter(self, path)
 
-    def WaitForGsPaths(self, paths, timeout, period=10) -> None:
+    def WaitForGsPaths(
+        self,
+        paths: typeList[str],
+        timeout: int,
+        period: int = 10,
+    ) -> None:
         """Wait until a list of files exist in GS.
 
         Args:
@@ -1647,15 +1726,15 @@ wheel: <
         def _CheckForExistence() -> None:
             pending_paths[:] = [x for x in pending_paths if not self.Exists(x)]
 
-        def _Retry(_return_value):
+        def _Retry(_return_value: Any) -> bool:
             # Retry, if there are any pending paths left.
-            return pending_paths
+            return bool(pending_paths)
 
         timeout_util.WaitForSuccess(
             _Retry, _CheckForExistence, timeout=timeout, period=period
         )
 
-    def ContainsWildcard(self, url):
+    def ContainsWildcard(self, url: str) -> bool:
         """Checks whether url_string contains a wildcard.
 
         Args:
@@ -1667,8 +1746,13 @@ wheel: <
         return bool(WILDCARD_REGEX.search(url))
 
     def GetGsNamesWithWait(
-        self, pattern, url, timeout=600, period=10, is_regex_pattern=False
-    ):
+        self,
+        pattern: str,
+        url: str,
+        timeout: int = 600,
+        period: int = 10,
+        is_regex_pattern: bool = False,
+    ) -> Optional[typeList[str]]:
         """Returns the Google Storage names specified by the given pattern.
 
         This method polls Google Storage until the target files specified by the
@@ -1697,7 +1781,7 @@ wheel: <
             timeout_util.TimeoutError.
         """
 
-        def _GetGsName():
+        def _GetGsName() -> List[str]:
             uploaded_list = [os.path.basename(p.url) for p in self.List(url)]
 
             if is_regex_pattern:
@@ -1714,7 +1798,7 @@ wheel: <
             matching_names = None
             if not (is_regex_pattern or self.ContainsWildcard(pattern)):
                 try:
-                    self.WaitForGsPaths(["%s/%s" % (url, pattern)], timeout)
+                    self.WaitForGsPaths([f"{url}/{pattern}"], timeout)
                     return [os.path.basename(pattern)]
                 except GSCommandError:
                     pass
@@ -1762,7 +1846,7 @@ wheel: <
             )
 
 
-def _FirstMatch(predicate, elems):
+def _FirstMatch(predicate: Callable[[Any], bool], elems: List[Any]):
     """Returns the first element matching the given |predicate|.
 
     Args:
@@ -1773,7 +1857,7 @@ def _FirstMatch(predicate, elems):
     return matches[0] if matches else None
 
 
-def _FirstSubstring(superstring, haystack):
+def _FirstSubstring(superstring: bytes, haystack: List[str]) -> Optional[bytes]:
     """Return the first elem of |haystack|, a substring of |superstring|.
 
     Args:
@@ -1784,7 +1868,7 @@ def _FirstSubstring(superstring, haystack):
 
 
 @contextlib.contextmanager
-def TemporaryURL(ctx: GSContext, prefix: str):
+def TemporaryURL(ctx: GSContext, prefix: str) -> Iterable[str]:
     """Context manager to generate a random URL.
 
     At the end, the URL will be deleted.

@@ -1969,7 +1969,7 @@ class DryRunTest(cros_test_lib.RunCommandTestCase):
     def testStreamingCat(self) -> None:
         """Test StreamingCat in dry_run mode."""
         result = self.ctx.StreamingCat("gs://foo/bar")
-        self.assertEqual(next(result), "")
+        self.assertEqual(next(result), b"")
         with self.assertRaises(StopIteration):
             next(result)
 
