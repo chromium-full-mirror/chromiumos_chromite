@@ -95,6 +95,12 @@ def get_parser() -> commandline.ArgumentParser:
         "Do not build chromeos-config",
     )
     parser.add_argument(
+        "--edit-board-config",
+        action="store_true",
+        help="Update configs in the board directory instead of the model "
+        "directory.",
+    )
+    parser.add_argument(
         "--fix-sha",
         action="store_true",
         help="Fix the sha256 for FirmwareVersion from the old textproto "
@@ -494,9 +500,6 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
         constants.SOURCE_ROOT / "src" / "platform" / "firmware-config"
     )
 
-    config_dir = firmware_config_repo / opts.board
-    config_dir.mkdir(parents=True, exist_ok=True)
-
     cros_config_dict = get_cros_config_dict(opts.board, opts.build)
 
     target_models = []
@@ -510,8 +513,17 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
 
     ctx = gs.GSContext()
 
+    if opts.edit_board_config:
+        board_config_dir = firmware_config_repo / opts.board
+        board_config_dir.mkdir(parents=True, exist_ok=True)
+
     funcs = []
     for model in target_models:
+        if opts.edit_board_config:
+            config_dir = board_config_dir
+        else:
+            config_dir = firmware_config_repo / f"{model}"
+            config_dir.mkdir(parents=True, exist_ok=True)
         config_path = config_dir / f"{model}.txtpb"
         func = functools.partial(
             process_model, model, cros_config_dict, opts, config_path, ctx
