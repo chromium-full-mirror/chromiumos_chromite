@@ -78,8 +78,11 @@ def get_parser() -> commandline.ArgumentParser:
     )
     parser.add_argument(
         "--model",
-        help="Full model name including custom label name. If specified, only "
-        "update this model.",
+        action="split_extend",
+        default=[],
+        help="Full model name including custom label name. "
+        "Space-separated list and/or pass multiple times. "
+        "If specified, only update the given models.",
     )
     parser.add_argument(
         "--ignore-models",
@@ -504,7 +507,7 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
 
     target_models = []
     if opts.model:
-        target_models.append(opts.model)
+        target_models.extend(opts.model)
     else:
         target_models.extend(cros_config_dict.keys())
 
