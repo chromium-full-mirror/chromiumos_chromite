@@ -1509,7 +1509,6 @@ in
             "--keep_going=%s" % ("false" if bazel_lite else "true"),
             "--experimental_execution_log_compact_file="
             + BAZEL_ALLPACKAGES_EXEC_LOG_FILE,
-            "--config=hash_tracer",
             "--config=collect_logs",
             "--config=collect_ebuild_metadata",
             "--build_event_json_file=%s" % BAZEL_BUILD_EVENT_JSON_FILE_PATH,
