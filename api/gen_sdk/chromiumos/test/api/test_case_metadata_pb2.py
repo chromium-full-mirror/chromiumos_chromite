@@ -15,7 +15,7 @@ from chromite.api.gen_sdk.chromiumos.test.api import test_case_pb2 as chromiumos
 from chromite.api.gen_sdk.chromiumos.test.api import test_harness_pb2 as chromiumos_dot_test_dot_api_dot_test__harness__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n,chromiumos/test/api/test_case_metadata.proto\x12\x13\x63hromiumos.test.api\x1a#chromiumos/test/api/test_case.proto\x1a&chromiumos/test/api/test_harness.proto\"\xba\x01\n\x10TestCaseMetadata\x12\x30\n\ttest_case\x18\x01 \x01(\x0b\x32\x1d.chromiumos.test.api.TestCase\x12\x39\n\x0etest_case_exec\x18\x02 \x01(\x0b\x32!.chromiumos.test.api.TestCaseExec\x12\x39\n\x0etest_case_info\x18\x03 \x01(\x0b\x32!.chromiumos.test.api.TestCaseInfo\"F\n\x0cTestCaseExec\x12\x36\n\x0ctest_harness\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.TestHarness\"\x8f\x04\n\x0cTestCaseInfo\x12,\n\x06owners\x18\x01 \x03(\x0b\x32\x1c.chromiumos.test.api.Contact\x12\x36\n\x0crequirements\x18\x02 \x03(\x0b\x32 .chromiumos.test.api.Requirement\x12\x38\n\rbug_component\x18\x03 \x01(\x0b\x32!.chromiumos.test.api.BugComponent\x12/\n\x08\x63riteria\x18\x04 \x01(\x0b\x32\x1d.chromiumos.test.api.Criteria\x12\x34\n\x0bhw_agnostic\x18\x05 \x01(\x0b\x32\x1f.chromiumos.test.api.HwAgnostic\x12=\n\x10life_cycle_stage\x18\x06 \x01(\x0b\x32#.chromiumos.test.api.LifeCycleStage\x12\x41\n\x10variant_category\x18\x07 \x01(\x0b\x32\'.chromiumos.test.api.DDDVariantCategory\x12\x44\n\nextra_info\x18\x08 \x03(\x0b\x32\x30.chromiumos.test.api.TestCaseInfo.ExtraInfoEntry\x1a\x30\n\x0e\x45xtraInfoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x18\n\x07\x43ontact\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"\x1c\n\x0bRequirement\x12\r\n\x05value\x18\x01 \x01(\t\"\x1d\n\x0c\x42ugComponent\x12\r\n\x05value\x18\x01 \x01(\t\"\x19\n\x08\x43riteria\x12\r\n\x05value\x18\x01 \x01(\t\"\x1b\n\nHwAgnostic\x12\r\n\x05value\x18\x01 \x01(\x08\"\xf1\x01\n\x0eLifeCycleStage\x12<\n\x05value\x18\x01 \x01(\x0e\x32-.chromiumos.test.api.LifeCycleStage.LifeCycle\"\xa0\x01\n\tLifeCycle\x12\x1f\n\x1bLIFE_CYCLE_PRODUCTION_READY\x10\x00\x12\x17\n\x13LIFE_CYCLE_DISABLED\x10\x01\x12\x1d\n\x19LIFE_CYCLE_IN_DEVELOPMENT\x10\x02\x12\x1a\n\x16LIFE_CYCLE_MANUAL_ONLY\x10\x03\x12\x1e\n\x1aLIFE_CYCLE_OWNER_MONITORED\x10\x04\"#\n\x12\x44\x44\x44VariantCategory\x12\r\n\x05value\x18\x01 \x01(\t\"M\n\x14TestCaseMetadataList\x12\x35\n\x06values\x18\x01 \x03(\x0b\x32%.chromiumos.test.api.TestCaseMetadataB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n,chromiumos/test/api/test_case_metadata.proto\x12\x13\x63hromiumos.test.api\x1a#chromiumos/test/api/test_case.proto\x1a&chromiumos/test/api/test_harness.proto\"\xba\x01\n\x10TestCaseMetadata\x12\x30\n\ttest_case\x18\x01 \x01(\x0b\x32\x1d.chromiumos.test.api.TestCase\x12\x39\n\x0etest_case_exec\x18\x02 \x01(\x0b\x32!.chromiumos.test.api.TestCaseExec\x12\x39\n\x0etest_case_info\x18\x03 \x01(\x0b\x32!.chromiumos.test.api.TestCaseInfo\"F\n\x0cTestCaseExec\x12\x36\n\x0ctest_harness\x18\x01 \x01(\x0b\x32 .chromiumos.test.api.TestHarness\"\xc3\x04\n\x0cTestCaseInfo\x12,\n\x06owners\x18\x01 \x03(\x0b\x32\x1c.chromiumos.test.api.Contact\x12\x36\n\x0crequirements\x18\x02 \x03(\x0b\x32 .chromiumos.test.api.Requirement\x12\x38\n\rbug_component\x18\x03 \x01(\x0b\x32!.chromiumos.test.api.BugComponent\x12/\n\x08\x63riteria\x18\x04 \x01(\x0b\x32\x1d.chromiumos.test.api.Criteria\x12\x34\n\x0bhw_agnostic\x18\x05 \x01(\x0b\x32\x1f.chromiumos.test.api.HwAgnostic\x12=\n\x10life_cycle_stage\x18\x06 \x01(\x0b\x32#.chromiumos.test.api.LifeCycleStage\x12\x41\n\x10variant_category\x18\x07 \x01(\x0b\x32\'.chromiumos.test.api.DDDVariantCategory\x12\x44\n\nextra_info\x18\x08 \x03(\x0b\x32\x30.chromiumos.test.api.TestCaseInfo.ExtraInfoEntry\x12\x32\n\nparameters\x18\t \x03(\x0b\x32\x1e.chromiumos.test.api.Parameter\x1a\x30\n\x0e\x45xtraInfoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x18\n\x07\x43ontact\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"\x1c\n\x0bRequirement\x12\r\n\x05value\x18\x01 \x01(\t\"\x1d\n\x0c\x42ugComponent\x12\r\n\x05value\x18\x01 \x01(\t\"\x19\n\x08\x43riteria\x12\r\n\x05value\x18\x01 \x01(\t\"\x1b\n\nHwAgnostic\x12\r\n\x05value\x18\x01 \x01(\x08\"\x1a\n\tParameter\x12\r\n\x05value\x18\x01 \x01(\t\"\xf1\x01\n\x0eLifeCycleStage\x12<\n\x05value\x18\x01 \x01(\x0e\x32-.chromiumos.test.api.LifeCycleStage.LifeCycle\"\xa0\x01\n\tLifeCycle\x12\x1f\n\x1bLIFE_CYCLE_PRODUCTION_READY\x10\x00\x12\x17\n\x13LIFE_CYCLE_DISABLED\x10\x01\x12\x1d\n\x19LIFE_CYCLE_IN_DEVELOPMENT\x10\x02\x12\x1a\n\x16LIFE_CYCLE_MANUAL_ONLY\x10\x03\x12\x1e\n\x1aLIFE_CYCLE_OWNER_MONITORED\x10\x04\"#\n\x12\x44\x44\x44VariantCategory\x12\r\n\x05value\x18\x01 \x01(\t\"M\n\x14TestCaseMetadataList\x12\x35\n\x06values\x18\x01 \x03(\x0b\x32%.chromiumos.test.api.TestCaseMetadataB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -31,25 +31,27 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_TESTCASEEXEC']._serialized_start=335
   _globals['_TESTCASEEXEC']._serialized_end=405
   _globals['_TESTCASEINFO']._serialized_start=408
-  _globals['_TESTCASEINFO']._serialized_end=935
-  _globals['_TESTCASEINFO_EXTRAINFOENTRY']._serialized_start=887
-  _globals['_TESTCASEINFO_EXTRAINFOENTRY']._serialized_end=935
-  _globals['_CONTACT']._serialized_start=937
-  _globals['_CONTACT']._serialized_end=961
-  _globals['_REQUIREMENT']._serialized_start=963
-  _globals['_REQUIREMENT']._serialized_end=991
-  _globals['_BUGCOMPONENT']._serialized_start=993
-  _globals['_BUGCOMPONENT']._serialized_end=1022
-  _globals['_CRITERIA']._serialized_start=1024
-  _globals['_CRITERIA']._serialized_end=1049
-  _globals['_HWAGNOSTIC']._serialized_start=1051
-  _globals['_HWAGNOSTIC']._serialized_end=1078
-  _globals['_LIFECYCLESTAGE']._serialized_start=1081
-  _globals['_LIFECYCLESTAGE']._serialized_end=1322
-  _globals['_LIFECYCLESTAGE_LIFECYCLE']._serialized_start=1162
-  _globals['_LIFECYCLESTAGE_LIFECYCLE']._serialized_end=1322
-  _globals['_DDDVARIANTCATEGORY']._serialized_start=1324
-  _globals['_DDDVARIANTCATEGORY']._serialized_end=1359
-  _globals['_TESTCASEMETADATALIST']._serialized_start=1361
-  _globals['_TESTCASEMETADATALIST']._serialized_end=1438
+  _globals['_TESTCASEINFO']._serialized_end=987
+  _globals['_TESTCASEINFO_EXTRAINFOENTRY']._serialized_start=939
+  _globals['_TESTCASEINFO_EXTRAINFOENTRY']._serialized_end=987
+  _globals['_CONTACT']._serialized_start=989
+  _globals['_CONTACT']._serialized_end=1013
+  _globals['_REQUIREMENT']._serialized_start=1015
+  _globals['_REQUIREMENT']._serialized_end=1043
+  _globals['_BUGCOMPONENT']._serialized_start=1045
+  _globals['_BUGCOMPONENT']._serialized_end=1074
+  _globals['_CRITERIA']._serialized_start=1076
+  _globals['_CRITERIA']._serialized_end=1101
+  _globals['_HWAGNOSTIC']._serialized_start=1103
+  _globals['_HWAGNOSTIC']._serialized_end=1130
+  _globals['_PARAMETER']._serialized_start=1132
+  _globals['_PARAMETER']._serialized_end=1158
+  _globals['_LIFECYCLESTAGE']._serialized_start=1161
+  _globals['_LIFECYCLESTAGE']._serialized_end=1402
+  _globals['_LIFECYCLESTAGE_LIFECYCLE']._serialized_start=1242
+  _globals['_LIFECYCLESTAGE_LIFECYCLE']._serialized_end=1402
+  _globals['_DDDVARIANTCATEGORY']._serialized_start=1404
+  _globals['_DDDVARIANTCATEGORY']._serialized_end=1439
+  _globals['_TESTCASEMETADATALIST']._serialized_start=1441
+  _globals['_TESTCASEMETADATALIST']._serialized_end=1518
 # @@protoc_insertion_point(module_scope)
