@@ -18,10 +18,7 @@ from chromite.lib import gs
 
 # List of Android Portage packages. When adding/removing packages make sure the
 # ANDROID_PACKAGE_TO_BUILD_TARGETS / ARTIFACTS_TO_COPY maps are also updated.
-ANDROID_PI_PACKAGE = "android-container-pi"
 ANDROID_RVC_PACKAGE = "android-container-rvc"
-ANDROID_VMRVC_PACKAGE = "android-vm-rvc"
-ANDROID_VMSC_PACKAGE = "android-vm-sc"
 ANDROID_VMTM_PACKAGE = "android-vm-tm"
 ANDROID_VMVIC_PACKAGE = "android-vm-vic"
 
@@ -30,36 +27,12 @@ ANDROID_VMVIC_PACKAGE = "android-vm-vic"
 # in Android ebuilds to Android build targets. Used during Android uprev to fill
 # in corresponding variables.
 ANDROID_PACKAGE_TO_BUILD_TARGETS = {
-    ANDROID_PI_PACKAGE: {
-        "APPS_TARGET": "apps",
-        "ARM_TARGET": "cheets_arm-user",
-        "ARM64_TARGET": "cheets_arm64-user",
-        "X86_TARGET": "cheets_x86-user",
-        "X86_64_TARGET": "cheets_x86_64-user",
-        "ARM_USERDEBUG_TARGET": "cheets_arm-userdebug",
-        "ARM64_USERDEBUG_TARGET": "cheets_arm64-userdebug",
-        "X86_USERDEBUG_TARGET": "cheets_x86-userdebug",
-        "X86_64_USERDEBUG_TARGET": "cheets_x86_64-userdebug",
-        "SDK_GOOGLE_X86_USERDEBUG_TARGET": "sdk_cheets_x86-userdebug",
-        "SDK_GOOGLE_X86_64_USERDEBUG_TARGET": "sdk_cheets_x86_64-userdebug",
-    },
     ANDROID_RVC_PACKAGE: {
         "APPS_TARGET": "apps",
         "ARM64_TARGET": "cheets_arm64-user",
         "X86_64_TARGET": "cheets_x86_64-user",
         "ARM64_USERDEBUG_TARGET": "cheets_arm64-userdebug",
         "X86_64_USERDEBUG_TARGET": "cheets_x86_64-userdebug",
-    },
-    ANDROID_VMRVC_PACKAGE: {
-        "APPS_TARGET": "apps",
-        "ARM64_TARGET": "bertha_arm64-user",
-        "X86_64_TARGET": "bertha_x86_64-user",
-        "ARM64_USERDEBUG_TARGET": "bertha_arm64-userdebug",
-        "X86_64_USERDEBUG_TARGET": "bertha_x86_64-userdebug",
-    },
-    ANDROID_VMSC_PACKAGE: {
-        "ARM64_USERDEBUG_TARGET": "bertha_arm64-userdebug",
-        "X86_64_USERDEBUG_TARGET": "bertha_x86_64-userdebug",
     },
     ANDROID_VMTM_PACKAGE: {
         "APPS_TARGET": "apps",
@@ -80,19 +53,6 @@ ANDROID_PACKAGE_TO_BUILD_TARGETS = {
 
 # Regex patterns of artifacts to copy for each branch and build target.
 ARTIFACTS_TO_COPY = {
-    ANDROID_PI_PACKAGE: {
-        "apps": "org.chromium.arc.cachebuilder.jar",
-        "cheets_arm-user": r"\.zip$",
-        "cheets_arm64-user": r"\.zip$",
-        "cheets_x86-user": r"\.zip$",
-        "cheets_x86_64-user": r"\.zip$",
-        "cheets_arm-userdebug": r"\.zip$",
-        "cheets_arm64-userdebug": r"\.zip$",
-        "cheets_x86-userdebug": r"\.zip$",
-        "cheets_x86_64-userdebug": r"\.zip$",
-        "sdk_cheets_x86-userdebug": r"\.zip$",
-        "sdk_cheets_x86_64-userdebug": r"\.zip$",
-    },
     ANDROID_RVC_PACKAGE: {
         # org.chromium.cts.helpers.apk contains helpers needed for CTS.  It is
         # installed on the board, but not into the VM.
@@ -103,29 +63,6 @@ ARTIFACTS_TO_COPY = {
             r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
         ),
         "cheets_x86_64-userdebug": (
-            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
-        ),
-    },
-    ANDROID_VMRVC_PACKAGE: {
-        # org.chromium.cts.helpers.apk contains helpers needed for CTS.  It is
-        # installed on the board, but not into the VM.
-        "apps": "org.chromium.arc.cachebuilder.jar",
-        "bertha_arm64-user": (r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"),
-        "bertha_x86_64-user": (r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"),
-        "bertha_arm64-userdebug": (
-            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
-        ),
-        "bertha_x86_64-userdebug": (
-            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
-        ),
-    },
-    ANDROID_VMSC_PACKAGE: {
-        # org.chromium.cts.helpers.apk contains helpers needed for CTS.  It is
-        # installed on the board, but not into the VM.
-        "bertha_arm64-userdebug": (
-            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
-        ),
-        "bertha_x86_64-userdebug": (
             r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
         ),
     },
@@ -194,7 +131,7 @@ def GetAndroidPackageDir(
     """Returns the Portage package directory of the given Android package.
 
     Args:
-        android_package: the Android package name e.g. 'android-vm-rvc'
+        android_package: the Android package name e.g. 'android-vm-tm'
         overlay_dir: specify to override the default overlay.
 
     Returns:
@@ -207,16 +144,13 @@ def GetAndroidBranchForPackage(android_package: str) -> str:
     """Returns the default Android branch of given Android package.
 
     Args:
-        android_package: the Android package name e.g. 'android-vm-rvc'
+        android_package: the Android package name e.g. 'android-vm-tm'
 
     Returns:
-        The corresponding Android branch e.g. 'git_rvc-arc'
+        The corresponding Android branch e.g. 'git_tm-arc'
     """
     mapping = {
-        ANDROID_PI_PACKAGE: "git_pi-arc",
         ANDROID_RVC_PACKAGE: "git_rvc-arc",
-        ANDROID_VMRVC_PACKAGE: "git_rvc-arc",
-        ANDROID_VMSC_PACKAGE: "git_sc-arc-dev",
         ANDROID_VMTM_PACKAGE: "git_tm-arc",
         ANDROID_VMVIC_PACKAGE: "git_vic-arc",
     }

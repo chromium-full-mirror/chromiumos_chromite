@@ -655,7 +655,7 @@ class AndroidVersionsTest(cros_test_lib.MockTestCase):
 
     def setUp(self) -> None:
         package_result = [
-            "chromeos-base/android-container-nyc-4717008-r1",
+            "chromeos-base/android-vm-tm-4717008-r1",
             "chromeos-base/update_engine-0.0.3-r3408",
         ]
         self.PatchObject(
@@ -665,10 +665,10 @@ class AndroidVersionsTest(cros_test_lib.MockTestCase):
         self.PatchObject(
             portage_util,
             "FindEbuildForBoardPackage",
-            return_value="chromeos-base/android-container-nyc",
+            return_value="chromeos-base/android-vm-tm",
         )
         FakeEnvironment = {
-            "ARM_TARGET": "3-linux-target",
+            "ARM64_TARGET": "3-linux-target",
         }
         self.PatchObject(
             osutils, "SourceEnvironment", return_value=FakeEnvironment
@@ -720,7 +720,7 @@ class AndroidVersionsTest(cros_test_lib.MockTestCase):
     def test_determine_android_target(self) -> None:
         """Tests that a valid android target is returned."""
         target = packages.determine_android_target(self.board)
-        self.assertEqual(target, "cheets")
+        self.assertEqual(target, "bertha")
 
     def test_determine_android_target_when_not_present(self) -> None:
         """Tests a None is returned for target when android is not present."""

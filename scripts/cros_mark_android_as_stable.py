@@ -9,12 +9,12 @@ Android version atom string included. A caller could then use this atom with
 emerge to build the newly uprevved version of Android e.g.
 
 ./cros_mark_android_as_stable \
-    --android_build_branch=git_pi-arc \
-    --android_package=android-container-pi
+    --android_build_branch=git_tm-arc \
+    --android_package=android-vm-tm
 
-Returns {"android_atom": "chromeos-base/android-container-pi-6417892-r1"}
+Returns {"android_atom": "chromeos-base/android-vm-tm-6417892-r1"}
 
-emerge-eve =chromeos-base/android-container-pi-6417892-r1
+emerge-eve =chromeos-base/android-vm-tm-6417892-r1
 """
 
 import filecmp

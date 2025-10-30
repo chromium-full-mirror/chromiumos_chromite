@@ -411,8 +411,8 @@ def NeedsChromeSource(request, response, _config) -> None:
 
 def _GetAndroidMetadataResponse(_request, response, _config) -> None:
     """Mock Android metadata on successful run."""
-    response.android_package = "android-vm-rvc"
-    response.android_branch = "git_rvc-arc"
+    response.android_package = "android-vm-tm"
+    response.android_branch = "git_tm-arc"
     response.android_version = "7123456"
 
 
@@ -424,7 +424,7 @@ def GetAndroidMetadata(request, response, _config) -> None:
     """Returns Android-related metadata."""
     build_target = controller_util.ParseBuildTarget(request.build_target)
     # This returns a full CPVR string, e.g.
-    # 'chromeos-base/android-vm-rvc-7336577-r1'
+    # 'chromeos-base/android-vm-tm-7336577-r1'
     android_full_package = packages.determine_android_package(build_target.name)
     if android_full_package:
         logging.info("Found Android package: %s", android_full_package)
