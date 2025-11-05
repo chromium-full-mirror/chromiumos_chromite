@@ -337,6 +337,7 @@ def InstallToolchain(request, response, _config):
         request.sysroot.build_target
     )
     target_sysroot = sysroot_lib.Sysroot(sysroot_path)
+    target_sysroot.SetForceToolchainUpdate(request.flags.force_toolchain_update)
     run_configs = sysroot.SetupBoardRunConfig(usepkg=not compile_source)
 
     _LogBinhost(build_target.name)

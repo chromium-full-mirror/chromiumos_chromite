@@ -335,6 +335,7 @@ class Sysroot:
 
         self._cache_file = self.JoinPath(_CACHE_PATH)
         self._cache_file_lock = self._cache_file + ".lock"
+        self._force_toolchain_update = False
 
     def __eq__(self, other):
         """Equality check."""
@@ -436,6 +437,9 @@ class Sysroot:
             if value is not None:
                 lines.append('%s="%s"' % (field, value))
             osutils.WriteFile(self._cache_file, "\n".join(lines), sudo=True)
+
+    def SetForceToolchainUpdate(self, value: bool):
+        self._force_toolchain_update = value
 
     @property
     def build_target_name(self) -> str:
@@ -544,6 +548,10 @@ class Sysroot:
     def portage_logdir(self) -> str:
         """Get the PORTAGE_LOGDIR property for this sysroot."""
         return portage_util.PortageqEnvvar("PORTAGE_LOGDIR", sysroot=self.path)
+
+    @property
+    def force_toolchain_update(self) -> bool:
+        return self._force_toolchain_update
 
     def get_overlays(
         self, build_target_only: bool = False, relative: bool = False
@@ -1237,7 +1245,10 @@ PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
 
     def IsToolchainInstalled(self) -> bool:
         """Check if the toolchain has been installed."""
-        return self.GetCachedField(_IMPLICIT_SYSROOT_DEPS_KEY) == "yes"
+        return (
+            self.GetCachedField(_IMPLICIT_SYSROOT_DEPS_KEY) == "yes"
+            and not self.force_toolchain_update
+        )
 
     def Delete(self, background: bool = False) -> None:
         """Delete the sysroot.
