@@ -15,7 +15,7 @@ from chromite.api.gen_sdk.chromite.api import build_api_pb2 as chromite_dot_api_
 from chromite.api.gen_sdk.chromiumos import common_pb2 as chromiumos_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x63hromite/api/recovery.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"\xfd\x03\n\x1b\x43reateRecoveryKernelRequest\x12\"\n\x06\x63hroot\x18\x01 \x01(\x0b\x32\x12.chromiumos.Chroot\x12-\n\x0c\x62uild_target\x18\x02 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12>\n\x05\x66lags\x18\x03 \x01(\x0b\x32/.chromite.api.CreateRecoveryKernelRequest.Flags\x12(\n\x0eshellball_path\x18\x04 \x01(\x0b\x32\x10.chromiumos.Path\x1ao\n\x05\x46lags\x12\x1d\n\x15\x63reate_bootable_image\x18\x01 \x01(\x08\x12G\n\nramfs_type\x18\x02 \x01(\x0e\x32\x33.chromite.api.CreateRecoveryKernelRequest.RamfsType\"\xaf\x01\n\tRamfsType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x1a\n\x16\x44\x45SKTOP_RECOVERY_RAMFS\x10\x01\x12\x19\n\x15\x46\x41\x43TORY_NETBOOT_RAMFS\x10\x02\x12\x16\n\x12\x46\x41\x43TORY_SHIM_RAMFS\x10\x03\x12\x12\n\x0eRECOVERY_RAMFS\x10\x04\x12\x10\n\x0cMINIOS_RAMFS\x10\x05\x12\x10\n\x0c\x46LEXOR_RAMFS\x10\x06\x12\x0e\n\nPROD_RAMFS\x10\x07\"I\n\x1c\x43reateRecoveryKernelResponse\x12)\n\x0frecovery_kernel\x18\x01 \x01(\x0b\x32\x10.chromiumos.Path2\x94\x01\n\x0fRecoveryService\x12o\n\x14\x43reateRecoveryKernel\x12).chromite.api.CreateRecoveryKernelRequest\x1a*.chromite.api.CreateRecoveryKernelResponse\"\x00\x1a\x10\xc2\xed\x1a\x0c\n\x08recovery\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x63hromite/api/recovery.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"\x9a\x04\n\x1b\x43reateRecoveryKernelRequest\x12\"\n\x06\x63hroot\x18\x01 \x01(\x0b\x32\x12.chromiumos.Chroot\x12-\n\x0c\x62uild_target\x18\x02 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12>\n\x05\x66lags\x18\x03 \x01(\x0b\x32/.chromite.api.CreateRecoveryKernelRequest.Flags\x12(\n\x0eshellball_path\x18\x04 \x01(\x0b\x32\x10.chromiumos.Path\x1ao\n\x05\x46lags\x12\x1d\n\x15\x63reate_bootable_image\x18\x01 \x01(\x08\x12G\n\nramfs_type\x18\x02 \x01(\x0e\x32\x33.chromite.api.CreateRecoveryKernelRequest.RamfsType\"\xcc\x01\n\tRamfsType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x1a\n\x16\x44\x45SKTOP_RECOVERY_RAMFS\x10\x01\x12\x19\n\x15\x46\x41\x43TORY_NETBOOT_RAMFS\x10\x02\x12\x16\n\x12\x46\x41\x43TORY_SHIM_RAMFS\x10\x03\x12\x12\n\x0eRECOVERY_RAMFS\x10\x04\x12\x10\n\x0cMINIOS_RAMFS\x10\x05\x12\x10\n\x0c\x46LEXOR_RAMFS\x10\x06\x12\x0e\n\nPROD_RAMFS\x10\x07\x12\x1b\n\x17\x44\x45SKTOP_PROVISION_RAMFS\x10\x08\"I\n\x1c\x43reateRecoveryKernelResponse\x12)\n\x0frecovery_kernel\x18\x01 \x01(\x0b\x32\x10.chromiumos.Path2\x94\x01\n\x0fRecoveryService\x12o\n\x14\x43reateRecoveryKernel\x12).chromite.api.CreateRecoveryKernelRequest\x1a*.chromite.api.CreateRecoveryKernelResponse\"\x00\x1a\x10\xc2\xed\x1a\x0c\n\x08recovery\x10\x01\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -27,13 +27,13 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _RECOVERYSERVICE._options = None
   _RECOVERYSERVICE._serialized_options = b'\302\355\032\014\n\010recovery\020\001'
   _globals['_CREATERECOVERYKERNELREQUEST']._serialized_start=101
-  _globals['_CREATERECOVERYKERNELREQUEST']._serialized_end=610
+  _globals['_CREATERECOVERYKERNELREQUEST']._serialized_end=639
   _globals['_CREATERECOVERYKERNELREQUEST_FLAGS']._serialized_start=321
   _globals['_CREATERECOVERYKERNELREQUEST_FLAGS']._serialized_end=432
   _globals['_CREATERECOVERYKERNELREQUEST_RAMFSTYPE']._serialized_start=435
-  _globals['_CREATERECOVERYKERNELREQUEST_RAMFSTYPE']._serialized_end=610
-  _globals['_CREATERECOVERYKERNELRESPONSE']._serialized_start=612
-  _globals['_CREATERECOVERYKERNELRESPONSE']._serialized_end=685
-  _globals['_RECOVERYSERVICE']._serialized_start=688
-  _globals['_RECOVERYSERVICE']._serialized_end=836
+  _globals['_CREATERECOVERYKERNELREQUEST_RAMFSTYPE']._serialized_end=639
+  _globals['_CREATERECOVERYKERNELRESPONSE']._serialized_start=641
+  _globals['_CREATERECOVERYKERNELRESPONSE']._serialized_end=714
+  _globals['_RECOVERYSERVICE']._serialized_start=717
+  _globals['_RECOVERYSERVICE']._serialized_end=865
 # @@protoc_insertion_point(module_scope)
