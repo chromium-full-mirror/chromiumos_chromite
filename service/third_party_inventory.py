@@ -48,6 +48,7 @@ def _collect_in_sysroot(
 
         # Populate package info.
         pkg_info = pkg.package_info
+        out.category = pkg_info.category
         out.name = pkg_info.package
         out.version = pkg_info.version
         out.revision = pkg_info.revision
