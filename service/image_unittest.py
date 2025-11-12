@@ -551,13 +551,13 @@ class ImageTestTest(cros_test_lib.RunCommandTempDirTestCase):
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         with self.assertRaises(image.InvalidArgumentError):
-            image.Test(None, None)  # type: ignore[arg-type]
+            image.Test(None, None)
         with self.assertRaises(image.InvalidArgumentError):
             image.Test("", "")
         with self.assertRaises(image.InvalidArgumentError):
-            image.Test(None, self.outside_result_dir)  # type: ignore[arg-type]
+            image.Test(None, self.outside_result_dir)
         with self.assertRaises(image.InvalidArgumentError):
-            image.Test(self.board, None)  # type: ignore[arg-type]
+            image.Test(self.board, None)
         with self.assertRaises(image.ChrootError):
             image.Test(self.board, self.outside_result_dir)
 
@@ -1068,9 +1068,8 @@ class TestCopyDlcImages(cros_test_lib.MockTempDirTestCase):
             dlc_bad_artifact_with_dir, dlc_artifact="some-dir/some-file"
         )
 
-        output_path = self.tempdir / "_output"
+        output_path = os.path.join(self.tempdir, "_output")
         dst_paths = image.copy_dlc_image(self.tempdir, output_path)
-        assert dst_paths is not None
         self.assertEqual(len(dst_paths), 2)
         # pylint: disable=unsubscriptable-object
         path = dst_paths[0]
@@ -1153,7 +1152,6 @@ class TestCopyDlcImages(cros_test_lib.MockTempDirTestCase):
         )
 
         dst_paths = image.copy_dlc_image(self.tempdir, self.tempdir)
-        assert dst_paths is not None
         self.assertEqual(len(dst_paths), 2)
         # pylint: disable=unsubscriptable-object
         path = dst_paths[0]
@@ -1243,7 +1241,6 @@ class TestCopyDlcImages(cros_test_lib.MockTempDirTestCase):
         )
 
         dst_paths = image.copy_dlc_image(self.tempdir, self.tempdir)
-        assert dst_paths is not None
         self.assertEqual(len(dst_paths), 4)
         # pylint: disable=unsubscriptable-object
         path0 = dst_paths[0]
@@ -1364,7 +1361,7 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
         signed_artifacts = image.SignImage(
             signing_pb2.BuildTargetSigningConfigs(),
             "/tmp/temp-dir-archives/",
-            Path(result_dir),
+            result_dir,
             "/docker-tmp/signing_tmp",
             "signing:latest",
         )
@@ -1446,7 +1443,7 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
             image.SignImage(
                 signing_pb2.BuildTargetSigningConfigs(),
                 "/tmp/temp-dir-archives/",
-                Path(result_dir),
+                result_dir,
                 "/docker-tmp/signing_tmp",
                 "signing:latest",
             )
@@ -1455,7 +1452,7 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
 class PushImageArgTest(cros_test_lib.TempDirTestCase):
     """PushImageArguments tests."""
 
-    def test_cli_translation_minimal(self) -> None:
+    def test_cli_translation_minimal(self):
         """Test minimal arguments."""
         image_dir = "gs://some/path"
         board = "board"
@@ -1469,7 +1466,7 @@ class PushImageArgTest(cros_test_lib.TempDirTestCase):
 
         self.assertListEqual(expected, args.get_cli_args())
 
-    def test_cli_translation_full(self) -> None:
+    def test_cli_translation_full(self):
         """Test all arguments."""
         image_dir = "gs://some/path"
         board = "board"
@@ -1488,7 +1485,7 @@ class PushImageArgTest(cros_test_lib.TempDirTestCase):
             ["--dry-run"],
             ["--channels", " ".join(channels)],
             ["--dest-bucket", destination_bucket],
-            ["--instruction-urls-file", str(file_path)],
+            ["--instruction-urls-file", file_path],
         ]
 
         args = image.PushImageArguments(
@@ -1520,7 +1517,7 @@ class PushImageArgTest(cros_test_lib.TempDirTestCase):
 class RunPushImageTest(cros_test_lib.RunCommandTempDirTestCase):
     """run_push_image tests."""
 
-    def test_command_building(self) -> None:
+    def test_command_building(self):
         """Verify the command is built correctly."""
         image_dir = "gs://some/path"
         board = "board"
@@ -1547,9 +1544,7 @@ class RunPushImageTest(cros_test_lib.RunCommandTempDirTestCase):
                 f"ChromeOS-recovery-R100-12345.0.0-{board}.instructions",
             ],
         }
-        content = pformat.json(expected_uri_mapping)
-        assert content is not None
-        osutils.WriteFile(expected_path, content)
+        osutils.WriteFile(expected_path, pformat.json(expected_uri_mapping))
 
         expected_cmd = [
             constants.CHROMITE_BIN_DIR / "pushimage",
@@ -1566,7 +1561,7 @@ class RunPushImageTest(cros_test_lib.RunCommandTempDirTestCase):
             "--dest-bucket",
             destination_bucket,
             "--instruction-urls-file",
-            str(expected_path),
+            expected_path,
         ]
 
         args = image.PushImageArguments(
