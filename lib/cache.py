@@ -154,25 +154,27 @@ class CacheReference:
     def SetDefault(self, default_path, lock=False) -> None:
         """Assigns default_path if the entry doesn't exist.
 
+        This method is atomic.
+
         Args:
             default_path: The path to assign if the entry doesn't exist.
             lock: Acquire and maintain a read lock on the entry.
         """
+        # If the entry exists, we can return early. If a lock is requested,
+        # Exists() will acquire it for us. This is an optimization to avoid
+        # acquiring a write lock if we don't need to.
+        if self.Exists(lock=lock):
+            return
 
-        if lock:
-            # If a process has already taken a write lock and is in the
-            # process of populating the entry, we don't want any additional
-            # processes queuing up to perform the same work. By taking a read
-            # lock before checking for existence we can delay the existence
-            # check until the entry has been populated.
-            self._ReadLock()
+        # The entry does not appear to exist. Acquire a write lock to create it.
+        # We must re-check for existence after acquiring the lock to avoid a
+        # race condition with another process that might have created the entry.
+        with self._lock.write_lock():
+            if not self._Exists():
+                self._cache._Insert(self.key, default_path)
 
-        if not self._Exists():
-            # This will take a write lock before populating the entry and drop
-            # the lock afterwards. Ideally we would just downgrade the lock to
-            # a read lock.
-            self._Assign(default_path)
-
+        # If a lock was requested, acquire one now that we're sure the entry
+        # exists.
         if lock:
             self._ReadLock()
 
