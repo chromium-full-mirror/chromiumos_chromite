@@ -75,7 +75,8 @@ def get_parser() -> commandline.ArgumentParser:
         "--board",
         "--build-target",
         required=True,
-        help="Build target name.",
+        help='Build target name. "brya" is still use old firmware branch. '
+        "The rest of boards use new firmware branch.",
     )
     parser.add_argument(
         "--model",
@@ -110,6 +111,16 @@ def get_parser() -> commandline.ArgumentParser:
         help="Fix the sha256 for FirmwareVersion from the old textproto "
         "config.  Only download the firmware and update the sha256 without "
         "modifying other fields in the output .txtpb files.",
+    )
+    parser.add_argument(
+        "--tot-build-id",
+        type=str,
+        default="",
+        metavar="SUFFIX-ID",
+        help="This is FALLBACK when the branched builder fails. Specifies the "
+        "artifact from the main branch postsubmit builder. Format: 6 digit "
+        "suffix - 19 digit build ID (e.g., 123456-1234567890123456789). "
+        "All specified versions have to be the same version.",
     )
     parser.add_argument(
         "--ap-ro-version",
@@ -231,18 +242,36 @@ def get_firmware_version(
     """Download the firmware from uri and return the FirmwareVersion for it."""
     if not gs_uri:
         return None
+    resolved_gs_uri = ctx.List(gs_uri)
+    assert (
+        len(resolved_gs_uri) == 1
+    ), f"{gs_uri} is ambiguous. Found {resolved_gs_uri}"
+    gs_uri = resolved_gs_uri[0].url
     return firmware_config_pb2.FirmwareVersion(
         uri=gs_uri,
         sha256=sha256sum_gs_uri(ctx, gs_uri),
     )
 
 
-def get_firmware_image_archive_uri(board: str, model: str, version: str) -> str:
+def get_firmware_image_archive_uri(
+    board: str, tot_build_id: Optional[str], model: str, version: str
+) -> str:
     """Get firmware image archive URI."""
-    branch = version.rsplit(".", maxsplit=1)[0]
+    branch_point = version.rsplit(".", maxsplit=1)[0]
+    version_folder = version
+    if board == "brya":
+        bucket = "firmware-image-archive"
+        branch = "firmware-android-brya-14505.782.B"
+    else:
+        if tot_build_id:
+            bucket = "chromeos-image-archive"
+            branch = "firmware-android-postsubmit"
+            version_folder = f"R*-{version}-{tot_build_id}"
+        else:
+            bucket = "firmware-image-archive"
+            branch = f"firmware-android-R*-{branch_point}.B"
     gs_uri = (
-        f"gs://firmware-image-archive/firmware-android-{board}-{branch}.B/"
-        f"{version}/{model}.{version}.tar.bz2"
+        f"gs://{bucket}/{branch}/{version_folder}/{model}.{version}.tar.bz2"
     )
     return gs_uri
 
@@ -426,9 +455,21 @@ def process_model(
     old_uri = cros_config_dict[model]["ap_firmware"]["ro_firmware"]
     ap_image_name = old_uri.split("/")[-1].split(".")[0].lower()
 
-    get_ap_uri = functools.partial(
-        get_firmware_image_archive_uri, opts.board, ap_image_name
-    )
+    if opts.board == "brya":
+        get_ap_uri = functools.partial(
+            get_firmware_image_archive_uri,
+            opts.board,
+            None,
+            ap_image_name,
+        )
+    else:
+        get_ap_uri = functools.partial(
+            get_firmware_image_archive_uri,
+            opts.board,
+            opts.tot_build_id,
+            ap_image_name,
+        )
+
     ap_ro_firmware = get_firmware_version_from_option(
         ctx,
         opts.ap_ro_version,
