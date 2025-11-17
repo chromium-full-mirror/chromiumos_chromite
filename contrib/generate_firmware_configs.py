@@ -26,6 +26,7 @@ import enum
 import functools
 import hashlib
 import json
+import logging
 from pathlib import Path
 from typing import List, Optional
 
@@ -520,12 +521,21 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
         board_config_dir = firmware_config_repo / opts.board
         board_config_dir.mkdir(parents=True, exist_ok=True)
 
+    possible_prefix = [str(p.name) for p in firmware_config_repo.iterdir()]
+    possible_prefix.sort(reverse=True)
     funcs = []
     for model in target_models:
         if opts.edit_board_config:
             config_dir = board_config_dir
         else:
-            config_dir = firmware_config_repo / f"{model}"
+            dir_path = model
+            for prefix in possible_prefix:
+                if dir_path.startswith(prefix):
+                    if dir_path != prefix:
+                        logging.info("Update %s in %s/.", dir_path, prefix)
+                        dir_path = prefix
+                    break
+            config_dir = firmware_config_repo / dir_path
             config_dir.mkdir(parents=True, exist_ok=True)
         config_path = config_dir / f"{model}.txtpb"
         func = functools.partial(
