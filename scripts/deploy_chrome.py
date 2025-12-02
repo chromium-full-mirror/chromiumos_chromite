@@ -1218,11 +1218,7 @@ def main(argv) -> None:
     options = _ParseCommandLine(argv)
     _PostParseCheck(options)
 
-    with osutils.TempDir(
-        set_global=True,
-        # Allow test infra CFT container to override to somewhere tmpfs.
-        base_dir=os.getenv("DEPLOY_CHROME_TMP_BASEDIR"),
-    ) as tempdir:
+    with osutils.TempDir(set_global=True) as tempdir:
         staging_dir = options.staging_dir
         if not staging_dir:
             staging_dir = os.path.join(tempdir, "chrome")
