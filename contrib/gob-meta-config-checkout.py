@@ -6,7 +6,7 @@
 """Generate tree for working with refs/meta/config.
 
 # To checkout refs/meta/config for all projects in the chromium GoB:
-$ ./gob-meta-config-checkout.py -o ~/src/gob/chromium chromium
+$ ./gob-meta-config-checkout.py --output ~/src/gob/chromium chromium
 
 Rerunning the command on an existing output will refresh & update new projects.
 """
