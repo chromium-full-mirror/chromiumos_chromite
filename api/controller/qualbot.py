@@ -39,6 +39,15 @@ def RunQualbot(request, response, _config):
 
     with tempfile.TemporaryDirectory() as temp_dir:
         json_output_path = Path(temp_dir) / "qualbot_output.json"
+        extra_cmd_arg = []
+        if request.is_staging:
+            match request.task:
+                case "analyze-test-efforts":
+                    extra_cmd_arg.append("--test-tables")
+                case "auto-schedule":
+                    extra_cmd_arg.append("--dry-run")
+        else:
+            extra_cmd_arg.append("--upload")
         cmd.extend(
             [
                 "--json-out",
@@ -49,10 +58,10 @@ def RunQualbot(request, response, _config):
                 "Cr-Build-Url: "
                 "https://cr-buildbucket.appspot.com/"
                 f"build/{request.build_id}",
-                "--upload",
                 "--bot",
             ]
         )
+        cmd.extend(extra_cmd_arg)
         try:
             cros_build_lib.run(cmd)
         except cros_build_lib.RunCommandError:
