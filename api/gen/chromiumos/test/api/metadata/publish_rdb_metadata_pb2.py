@@ -17,7 +17,7 @@ from chromite.api.gen.chromiumos.test.api import firmware_provision_pb2 as chrom
 from chromite.api.gen.chromiumos.test.api import post_test_service_pb2 as chromiumos_dot_test_dot_api_dot_post__test__service__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n7chromiumos/test/api/metadata/publish_rdb_metadata.proto\x12\x1c\x63hromiumos.test.api.metadata\x1a*chromiumos/test/artifact/test_result.proto\x1a\x1e\x63hromiumos/test/api/ctp2.proto\x1a,chromiumos/test/api/firmware_provision.proto\x1a+chromiumos/test/api/post_test_service.proto\"\x8d\x06\n\x12PublishRdbMetadata\x12\x1d\n\x15\x63urrent_invocation_id\x18\x01 \x01(\t\x12\x39\n\x0btest_result\x18\x02 \x01(\x0b\x32$.chromiumos.test.artifact.TestResult\x12\x19\n\rstainless_url\x18\x03 \x01(\tB\x02\x18\x01\x12\x14\n\x0ctesthaus_url\x18\x04 \x01(\t\x12I\n\x07sources\x18\x05 \x01(\x0b\x32\x38.chromiumos.test.api.metadata.PublishRdbMetadata.Sources\x12W\n\x0c\x62\x61se_variant\x18\x06 \x03(\x0b\x32\x41.chromiumos.test.api.metadata.PublishRdbMetadata.BaseVariantEntry\x12J\n\x16post_process_responses\x18\x07 \x01(\x0b\x32*.chromiumos.test.api.RunActivitiesResponse\x12S\n\x1b\x66irmware_provision_response\x18\x08 \x01(\x0b\x32..chromiumos.test.api.FirmwareProvisionResponse\x12S\n\x08\x65qc_info\x18\t \x03(\x0b\x32=.chromiumos.test.api.metadata.PublishRdbMetadata.EqcInfoEntryB\x02\x18\x01\x12\x35\n\x0cpublish_keys\x18\n \x03(\x0b\x32\x1f.chromiumos.test.api.PublishKey\x1a\x37\n\x07Sources\x12\x0f\n\x07gs_path\x18\x01 \x01(\t\x12\x1b\n\x13is_deployment_dirty\x18\x02 \x01(\x08\x1a\x32\n\x10\x42\x61seVariantEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a.\n\x0c\x45qcInfoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x38Z6go.chromium.org/chromiumos/config/go/test/api/metadatab\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n7chromiumos/test/api/metadata/publish_rdb_metadata.proto\x12\x1c\x63hromiumos.test.api.metadata\x1a*chromiumos/test/artifact/test_result.proto\x1a\x1e\x63hromiumos/test/api/ctp2.proto\x1a,chromiumos/test/api/firmware_provision.proto\x1a+chromiumos/test/api/post_test_service.proto\"\xe9\x06\n\x12PublishRdbMetadata\x12\x1d\n\x15\x63urrent_invocation_id\x18\x01 \x01(\t\x12\x39\n\x0btest_result\x18\x02 \x01(\x0b\x32$.chromiumos.test.artifact.TestResult\x12\x19\n\rstainless_url\x18\x03 \x01(\tB\x02\x18\x01\x12\x14\n\x0ctesthaus_url\x18\x04 \x01(\t\x12I\n\x07sources\x18\x05 \x01(\x0b\x32\x38.chromiumos.test.api.metadata.PublishRdbMetadata.Sources\x12W\n\x0c\x62\x61se_variant\x18\x06 \x03(\x0b\x32\x41.chromiumos.test.api.metadata.PublishRdbMetadata.BaseVariantEntry\x12J\n\x16post_process_responses\x18\x07 \x01(\x0b\x32*.chromiumos.test.api.RunActivitiesResponse\x12S\n\x1b\x66irmware_provision_response\x18\x08 \x01(\x0b\x32..chromiumos.test.api.FirmwareProvisionResponse\x12S\n\x08\x65qc_info\x18\t \x03(\x0b\x32=.chromiumos.test.api.metadata.PublishRdbMetadata.EqcInfoEntryB\x02\x18\x01\x12\x35\n\x0cpublish_keys\x18\n \x03(\x0b\x32\x1f.chromiumos.test.api.PublishKey\x12\x1a\n\x12root_invocation_id\x18\x0b \x01(\t\x12\x19\n\x11root_work_unit_id\x18\x0c \x01(\t\x12#\n\x1broot_work_unit_update_token\x18\r \x01(\t\x1a\x37\n\x07Sources\x12\x0f\n\x07gs_path\x18\x01 \x01(\t\x12\x1b\n\x13is_deployment_dirty\x18\x02 \x01(\x08\x1a\x32\n\x10\x42\x61seVariantEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a.\n\x0c\x45qcInfoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x38Z6go.chromium.org/chromiumos/config/go/test/api/metadatab\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.api.metadata.publish_rdb_metadata_pb2', globals())
@@ -34,11 +34,11 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _PUBLISHRDBMETADATA.fields_by_name['eqc_info']._options = None
   _PUBLISHRDBMETADATA.fields_by_name['eqc_info']._serialized_options = b'\030\001'
   _PUBLISHRDBMETADATA._serialized_start=257
-  _PUBLISHRDBMETADATA._serialized_end=1038
-  _PUBLISHRDBMETADATA_SOURCES._serialized_start=883
-  _PUBLISHRDBMETADATA_SOURCES._serialized_end=938
-  _PUBLISHRDBMETADATA_BASEVARIANTENTRY._serialized_start=940
-  _PUBLISHRDBMETADATA_BASEVARIANTENTRY._serialized_end=990
-  _PUBLISHRDBMETADATA_EQCINFOENTRY._serialized_start=992
-  _PUBLISHRDBMETADATA_EQCINFOENTRY._serialized_end=1038
+  _PUBLISHRDBMETADATA._serialized_end=1130
+  _PUBLISHRDBMETADATA_SOURCES._serialized_start=975
+  _PUBLISHRDBMETADATA_SOURCES._serialized_end=1030
+  _PUBLISHRDBMETADATA_BASEVARIANTENTRY._serialized_start=1032
+  _PUBLISHRDBMETADATA_BASEVARIANTENTRY._serialized_end=1082
+  _PUBLISHRDBMETADATA_EQCINFOENTRY._serialized_start=1084
+  _PUBLISHRDBMETADATA_EQCINFOENTRY._serialized_end=1130
 # @@protoc_insertion_point(module_scope)
