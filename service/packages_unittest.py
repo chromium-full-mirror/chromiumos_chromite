@@ -7,7 +7,9 @@
 import io
 import json
 import os
+from pathlib import Path
 import re
+import shutil
 from unittest import mock
 
 import pytest
@@ -21,7 +23,9 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import dependency_graph
 from chromite.lib import depgraph
+from chromite.lib import git
 from chromite.lib import osutils
+from chromite.lib import parallel_unittest
 from chromite.lib import partial_mock
 from chromite.lib import portage_util
 from chromite.lib import uprev_lib
@@ -32,6 +36,7 @@ from chromite.service import packages
 
 
 D = cros_test_lib.Directory
+F = cros_test_lib.File
 
 
 class UprevAndroidTest(cros_test_lib.RunCommandTestCase):
@@ -2574,3 +2579,115 @@ oof
 
     def test_uprev_release(self) -> None:
         self.uprev("release-20230101-r42-rc123")
+
+
+class UprevCroshTest(cros_test_lib.MockTempDirTestCase):
+    """Tests of uprev of crosh packages."""
+
+    # pylint: disable=protected-access
+
+    def setUp(self) -> None:
+        self.StartPatcher(parallel_unittest.ParallelMock())
+
+        manifest_contents = """<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <default revision="refs/heads/main" remote="cros" />
+  <remote name="cros" fetch="http://localhost" />
+  <project path="src/third_party/libapps" name="apps/libapps" />
+  <project path="src/third_party/chromiumos-overlay" name="chromiumos/overlays/chromiumos-overlay" />
+</manifest>
+"""
+        # Exact values here don't really need.
+        cros_version_contents = """
+CHROME_BRANCH=145
+CHROME_VERSION=
+CHROMEOS_BUILD=16515
+CHROMEOS_BRANCH=0
+CHROMEOS_PATCH=0
+CHROMEOS_VERSION_STRING=16515.0.0
+"""
+        file_layout = (
+            # Internal manifest layout.
+            D(
+                ".repo",
+                [D("manifests", []), F("manifest.xml", manifest_contents)],
+            ),
+            # The libapps source tree.
+            D(
+                "src/third_party/libapps",
+                [
+                    D(
+                        "nassh",
+                        [
+                            F(
+                                "manifest.json",
+                                '{\n"version": "1.0"\n}\n',
+                            ),
+                        ],
+                    )
+                ],
+            ),
+            # The ebuild overlay.
+            D(
+                constants.CHROMIUMOS_OVERLAY_DIR,
+                [
+                    F(
+                        "chromeos/config/chromeos_version.sh",
+                        cros_version_contents,
+                    ),
+                    D(
+                        packages._CROSH_CP,
+                        [D("files")],
+                    ),
+                ],
+            ),
+        )
+        cros_test_lib.CreateOnDiskHierarchy(self.tempdir, file_layout)
+
+        # Copy real files over that are used to uprev.
+        for efile in (
+            "crosh-extension-9999.ebuild",
+            "Manifest",
+            "files/chromeos-version.sh",
+        ):
+            subpath = (
+                Path(constants.CHROMIUMOS_OVERLAY_DIR)
+                / packages._CROSH_CP
+                / efile
+            )
+            shutil.copy(constants.SOURCE_ROOT / subpath, self.tempdir / subpath)
+
+        # Init skeleton libapps tree for uprev lib.
+        libapps_root = self.tempdir / "src" / "third_party" / "libapps"
+        git.Init(libapps_root)
+        git.AddPath(libapps_root / "nassh")
+        git.Commit(libapps_root, "init")
+
+        # No need to test this code path.
+        self.PatchObject(uprev_lib, "clean_stale_packages")
+
+    def test_initial_uprev(self) -> None:
+        """Verify initial uprev works."""
+        result = packages.uprev_libapps(
+            None,
+            [
+                uprev_lib.GitRef(
+                    "src/third_party/libapps",
+                    "refs/heads/main",
+                    "HEAD",
+                )
+            ],
+            None,
+            source_root=self.tempdir,
+        )
+
+        assert result.uprevved
+        new_ebuild = (
+            self.tempdir
+            / constants.CHROMIUMOS_OVERLAY_DIR
+            / packages._CROSH_CP
+            / "crosh-extension-1.0-r1.ebuild"
+        )
+        self.assertExists(new_ebuild)
+
+        assert str(new_ebuild) in result.modified[0].files

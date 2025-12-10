@@ -635,6 +635,7 @@ class UprevOverlayManager:
         build_targets: List["build_target_lib.BuildTarget"] = None,
         chroot: chroot_lib.Chroot = None,
         output_dir: str = None,
+        source_root: "Path" = constants.SOURCE_ROOT,
     ) -> None:
         """Init function.
 
@@ -645,12 +646,14 @@ class UprevOverlayManager:
                 No effect unless |chroot| is provided.
             chroot: The chroot to clean, if desired.
             output_dir: The path to optionally dump result files.
+            source_root: Where to find the source checkout.
         """
         self.overlays = overlays
         self.manifest = manifest
         self.build_targets = build_targets or []
         self.chroot = chroot
         self.output_dir = output_dir
+        self._source_root = source_root
 
         self._revved_packages = None
         self._new_package_atoms = None
@@ -661,9 +664,7 @@ class UprevOverlayManager:
         # We cleaned up self-referential ebuilds by this version, but don't
         # enforce the check on older ones to avoid breaking factory/firmware
         # branches.
-        root_version = chromeos_version.VersionInfo.from_repo(
-            constants.SOURCE_ROOT
-        )
+        root_version = chromeos_version.VersionInfo.from_repo(self._source_root)
         no_self_repos_version = chromeos_version.VersionInfo("13099.0.0")
         self._reject_self_repo = root_version >= no_self_repos_version
 
@@ -767,7 +768,7 @@ class UprevOverlayManager:
         )
         try:
             result = ebuild.RevWorkOnEBuild(
-                os.path.join(constants.SOURCE_ROOT, "src"),
+                os.path.join(self._source_root, "src"),
                 self.manifest,
                 reject_self_repo=self._reject_self_repo,
             )
@@ -822,9 +823,7 @@ class UprevOverlayManager:
             force: Boolean indicating whether to consider deny-listed ebuilds.
         """
         # See crrev.com/c/1257944 for origins of this.
-        root_version = chromeos_version.VersionInfo.from_repo(
-            constants.SOURCE_ROOT
-        )
+        root_version = chromeos_version.VersionInfo.from_repo(self._source_root)
         subdir_removal = chromeos_version.VersionInfo("10363.0.0")
         require_subdir_support = root_version < subdir_removal
 

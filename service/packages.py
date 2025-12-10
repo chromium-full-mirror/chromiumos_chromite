@@ -1375,11 +1375,15 @@ def uprev_starbase_artifacts(
     return result
 
 
-@uprevs_versioned_package("chromeos-base/crosh-extension")
+_CROSH_CP = "chromeos-base/crosh-extension"
+
+
+@uprevs_versioned_package(_CROSH_CP)
 def uprev_libapps(
     _build_targets: Optional[List["build_target_lib.BuildTarget"]],
     refs: List[uprev_lib.GitRef],
     _chroot: "chroot_lib.Chroot",
+    source_root: Path = constants.SOURCE_ROOT,
 ) -> "uprev_lib.UprevVersionedPackageResult":
     """Updates libapps to latest revision
 
@@ -1389,18 +1393,14 @@ def uprev_libapps(
 
     See: uprev_versioned_package.
     """
-    overlay = os.path.join(
-        constants.SOURCE_ROOT, constants.CHROMIUMOS_OVERLAY_DIR
-    )
-    repo_path = os.path.join(
-        constants.SOURCE_ROOT, "src", "third_party", "libapps"
-    )
+    overlay = source_root / constants.CHROMIUMOS_OVERLAY_DIR
+    repo_path = source_root / "src" / "third_party" / "libapps"
     manifest = git.ManifestCheckout.Cached(repo_path)
 
-    uprev_manager = uprev_lib.UprevOverlayManager([overlay], manifest)
-    uprev_manager.uprev(
-        package_list=["chromeos-base/crosh-extension"], force=True
+    uprev_manager = uprev_lib.UprevOverlayManager(
+        [overlay], manifest, source_root=source_root
     )
+    uprev_manager.uprev(package_list=[_CROSH_CP], force=True)
 
     updated_files = uprev_manager.modified_ebuilds
     result = uprev_lib.UprevVersionedPackageResult()
