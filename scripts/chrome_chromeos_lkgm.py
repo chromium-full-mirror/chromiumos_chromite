@@ -198,6 +198,7 @@ class ChromeLKGMCommitter:
             "chromeos-brya-chrome",
             "chromeos-jacuzzi-chrome",
             "chromeos-reven-chrome",
+            "chromeos-trogdor-chrome",
             "chromeos-volteer-chrome",
         ),
         "luci.chromium.try": (
