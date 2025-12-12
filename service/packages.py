@@ -1375,6 +1375,65 @@ def uprev_starbase_artifacts(
     return result
 
 
+def _sync_libapps_archives(libapps_path: Path, ebuild_dir: Path) -> None:
+    """Extract external artifacts to download from the source.
+
+    Automatically update the SRC_URI & Manifest settings.
+    """
+    # Collect all the files to use in this build.
+    # The json files have the form:
+    # {
+    #   "...": {
+    #     "crosh": true,
+    #     "size": "1234",
+    #     "url": "https:/...",
+    #     "hashes": {"sha256": "abcd..."}
+    #   }
+    # }
+    artifacts = []
+    for p in libapps_path.glob("*/fetch.json"):
+        data = json.loads(p.read_bytes())
+        version = int(data.get("_version", "0"))
+        if version != 0:
+            raise ValueError(f"{p}: Unsupported version {version}")
+        for value in data.values():
+            if not isinstance(value, dict) or not value.get("crosh"):
+                continue
+            artifacts += [value]
+    artifacts.sort(key=lambda x: x["url"])
+
+    # Update the Manifest file.
+    manifest_file = ebuild_dir / "Manifest"
+    dists = {}
+    for line in manifest_file.read_text(encoding="utf-8").splitlines():
+        if line.startswith("DIST"):
+            dists[line.split()[1]] = line
+    for artifact in artifacts:
+        name = artifact["url"].rsplit("/", 1)[-1]
+        dists[name] = (
+            f"DIST {name} {artifact['size']} "
+            f"SHA256 {artifact['hashes']['sha256']}"
+        )
+        logging.debug("Generated manifest entry: %s", dists[name])
+    manifest_file.write_text(
+        "".join(f"{x}\n" for x in sorted(dists.values())),
+        encoding="utf-8",
+    )
+
+    # Update the ebuild.  We include whitespace to help readability and because
+    # it's not too difficult.
+    ebuild = next(ebuild_dir.glob("*-9999.ebuild"))
+    data = ebuild.read_text(encoding="utf-8")
+    src_uri = "".join(f"\t{x['url']}\n" for x in artifacts)
+    data = re.sub(
+        r'^(PUPR_SRC_URI=")[^"]*(")',
+        f"\\1\n{src_uri}\\2",
+        data,
+        flags=re.M,
+    )
+    ebuild.write_text(data, encoding="utf-8")
+
+
 _CROSH_CP = "chromeos-base/crosh-extension"
 
 
@@ -1394,8 +1453,11 @@ def uprev_libapps(
     See: uprev_versioned_package.
     """
     overlay = source_root / constants.CHROMIUMOS_OVERLAY_DIR
+    ebuild_dir = overlay / _CROSH_CP
     repo_path = source_root / "src" / "third_party" / "libapps"
     manifest = git.ManifestCheckout.Cached(repo_path)
+
+    _sync_libapps_archives(repo_path, ebuild_dir)
 
     uprev_manager = uprev_lib.UprevOverlayManager(
         [overlay], manifest, source_root=source_root
@@ -1404,7 +1466,14 @@ def uprev_libapps(
 
     updated_files = uprev_manager.modified_ebuilds
     result = uprev_lib.UprevVersionedPackageResult()
-    result.add_result(refs[-1].revision, updated_files)
+    result.add_result(
+        refs[-1].revision,
+        [
+            str(ebuild_dir / "Manifest"),
+            str(ebuild_dir / "crosh-extension-9999.ebuild"),
+        ]
+        + updated_files,
+    )
     return result
 
 

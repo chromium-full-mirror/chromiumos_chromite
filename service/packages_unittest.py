@@ -2606,6 +2606,22 @@ CHROMEOS_BRANCH=0
 CHROMEOS_PATCH=0
 CHROMEOS_VERSION_STRING=16515.0.0
 """
+        nassh_fetch_contents = """
+{
+  "_version": 0,
+  "ignore": {
+    "size": "0",
+    "url": "http://",
+    "hashes": {}
+  },
+  "inc": {
+    "crosh": true,
+    "size": "123",
+    "url": "http://foo/bar.zip",
+    "hashes": {"sha256": "abcd"}
+  }
+}
+"""
         file_layout = (
             # Internal manifest layout.
             D(
@@ -2619,6 +2635,7 @@ CHROMEOS_VERSION_STRING=16515.0.0
                     D(
                         "nassh",
                         [
+                            F("fetch.json", nassh_fetch_contents),
                             F(
                                 "manifest.json",
                                 '{\n"version": "1.0"\n}\n',
@@ -2681,6 +2698,7 @@ CHROMEOS_VERSION_STRING=16515.0.0
             source_root=self.tempdir,
         )
 
+        # Check generated ebuild.
         assert result.uprevved
         new_ebuild = (
             self.tempdir
@@ -2690,4 +2708,26 @@ CHROMEOS_VERSION_STRING=16515.0.0
         )
         self.assertExists(new_ebuild)
 
+        assert (
+            """PUPR_SRC_URI="\n\thttp://foo/bar.zip\n"\n"""
+            in new_ebuild.read_text(encoding="utf-8")
+        )
+
+        # Check updated files
+        assert str(new_ebuild.with_name("Manifest")) in result.modified[0].files
+        assert (
+            str(new_ebuild.with_name("crosh-extension-9999.ebuild"))
+            in result.modified[0].files
+        )
         assert str(new_ebuild) in result.modified[0].files
+
+        # Check generated Manifest.
+        manifest = (
+            self.tempdir
+            / constants.CHROMIUMOS_OVERLAY_DIR
+            / packages._CROSH_CP
+            / "Manifest"
+        )
+        assert "DIST bar.zip 123 SHA256 abcd\n" in manifest.read_text(
+            encoding="utf-8"
+        )
