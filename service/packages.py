@@ -42,6 +42,7 @@ from chromite.lib import sysroot_lib
 from chromite.lib import uprev_lib
 from chromite.lib.parser import package_info
 from chromite.service import android
+from chromite.utils.parser import ebuild_manifest
 
 
 if TYPE_CHECKING:
@@ -1226,9 +1227,10 @@ def starbase_find_and_uprev(
     portage_util.UpdateEbuildManifest(rev0_ebuild_path, chroot)
 
     # Compare Manifest hash against the one passed by Rapid.
-    found_hash = portage_util.EbuildManifestFileHash(
-        package_dir, tarfile_name, "SHA512"
+    manifest = ebuild_manifest.parse(
+        (package_dir / "Manifest").read_text(encoding="utf-8")
     )
+    found_hash = manifest.dist[tarfile_name].hashes["SHA512"]
     if found_hash != tarfile_hash:
         logging.error(
             "Manifest hash and passed hash do not match.\n"
@@ -1404,21 +1406,18 @@ def _sync_libapps_archives(libapps_path: Path, ebuild_dir: Path) -> None:
 
     # Update the Manifest file.
     manifest_file = ebuild_dir / "Manifest"
-    dists = {}
-    for line in manifest_file.read_text(encoding="utf-8").splitlines():
-        if line.startswith("DIST"):
-            dists[line.split()[1]] = line
+    manifest = ebuild_manifest.parse(manifest_file.read_text(encoding="utf-8"))
     for artifact in artifacts:
         name = artifact["url"].rsplit("/", 1)[-1]
-        dists[name] = (
-            f"DIST {name} {artifact['size']} "
-            f"SHA256 {artifact['hashes']['sha256']}"
+        manifest.dist[name] = ebuild_manifest.Dist(
+            name,
+            artifact["size"],
+            {
+                "SHA256": artifact["hashes"]["sha256"],
+            },
         )
-        logging.debug("Generated manifest entry: %s", dists[name])
-    manifest_file.write_text(
-        "".join(f"{x}\n" for x in sorted(dists.values())),
-        encoding="utf-8",
-    )
+        logging.debug("Generated manifest entry: %s", manifest.dist[name])
+    manifest_file.write_text(manifest.to_string(), encoding="utf-8")
 
     # Update the ebuild.  We include whitespace to help readability and because
     # it's not too difficult.

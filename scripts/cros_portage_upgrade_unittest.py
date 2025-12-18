@@ -9,7 +9,6 @@ import logging
 import os
 import re
 import subprocess
-from typing import Any
 import unittest
 from unittest import mock
 
@@ -332,67 +331,6 @@ def _VerifyDepsGraphOnePkg(deps_graph, pkg):
 def _GenDepsGraphVerifier(pkgs):
     """Generate a graph verification function for the given package."""
     return lambda deps_graph: _VerifyDepsGraph(deps_graph, pkgs)
-
-
-class ManifestLine:
-    """Class to represent a Manifest line."""
-
-    __slots__ = (
-        "type",  # DIST, EBUILD, etc.
-        "file",
-        "size",
-        "RMD160",
-        "SHA1",
-        "SHA256",
-    )
-
-    __attrlist__ = __slots__
-
-    def __init__(self, line=None, **kwargs) -> None:
-        """Parse |line| from manifest file."""
-        if line:
-            tokens = line.split()
-            self.type = tokens[0]
-            self.file = tokens[1]
-            self.size = tokens[2]
-            self.RMD160 = tokens[4]
-            self.SHA1 = tokens[6]
-            self.SHA256 = tokens[8]
-
-            assert tokens[3] == "RMD160"
-            assert tokens[5] == "SHA1"
-            assert tokens[7] == "SHA256"
-
-        # Entries in kwargs are overwrites.
-        for attr in self.__attrlist__:
-            if attr in kwargs or not hasattr(self, attr):
-                setattr(self, attr, kwargs.get(attr))
-
-    def __str__(self) -> str:
-        return "%s %s %s RMD160 %s SHA1 %s SHA256 %s" % (
-            self.type,
-            self.file,
-            self.size,
-            self.RMD160,
-            self.SHA1,
-            self.SHA256,
-        )
-
-    def __eq__(self, other: Any) -> bool:
-        """Equality support."""
-        if not isinstance(other, type(self)):
-            return False
-
-        no_attr = object()
-        for attr in self.__attrlist__:
-            if getattr(self, attr, no_attr) != getattr(other, attr, no_attr):
-                return False
-
-        return True
-
-    def __ne__(self, other: Any) -> bool:
-        """Inequality for completeness."""
-        return not self == other
 
 
 class PInfoTest(cros_test_lib.TestCase):

@@ -2344,31 +2344,6 @@ class RegenDependencyCacheTest(
         self.assertCommandContains(["--jobs=10"])
 
 
-# Manifest file format:
-# https://wiki.gentoo.org/wiki/Repository_format/package/Manifest
-_EBUILD_MANIFEST_CONTENT = """\
-DIST foo 7 BLAKE2B 123abc SHA512 456def
-DIST bar 8 SHA256 abc123 WHIRLPOOL xyz789 SHA512 def456
-AUX foobar 99 MD5 abc123def
-"""
-
-
-class EbuildManifestFileHashTest(cros_test_lib.TempDirTestCase):
-    """Test for EbuildManifestFileHash."""
-
-    def testEbuildManifestFileHash(self) -> None:
-        manifest_path = os.path.join(self.tempdir, "Manifest")
-        osutils.WriteFile(manifest_path, _EBUILD_MANIFEST_CONTENT)
-        h = portage_util.EbuildManifestFileHash(self.tempdir, "foo", "SHA512")
-        self.assertEqual(h, "456def")
-        h = portage_util.EbuildManifestFileHash(self.tempdir, "bar", "SHA256")
-        self.assertEqual(h, "abc123")
-        h = portage_util.EbuildManifestFileHash(
-            self.tempdir, "foobar", "MD5", entry_type="AUX"
-        )
-        self.assertEqual(h, "abc123def")
-
-
 @pytest.mark.parametrize(
     "data,expected",
     (
