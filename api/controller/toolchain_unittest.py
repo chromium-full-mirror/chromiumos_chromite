@@ -14,7 +14,6 @@ from chromite.api.gen.chromite.api import sysroot_pb2
 from chromite.api.gen.chromite.api import toolchain_pb2
 from chromite.api.gen.chromiumos import builder_config_pb2
 from chromite.api.gen.chromiumos import common_pb2
-from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import toolchain as toolchain_lib
@@ -31,15 +30,10 @@ class UpdateEbuildWithAFDOArtifactsTest(
 ):
     """Unittests for UpdateEbuildWithAFDOArtifacts."""
 
-    @staticmethod
-    def mock_die(message, *args) -> None:
-        raise cros_build_lib.DieSystemExit(message % args)
-
     def setUp(self) -> None:
         self.board = "board"
         self.response = toolchain_pb2.VerifyAFDOArtifactsResponse()
         self.invalid_artifact_type = toolchain_pb2.BENCHMARK_AFDO
-        self.PatchObject(cros_build_lib, "die", new=self.mock_die)
 
     def _GetRequest(self, build_target=None, artifact_type=None):
         return toolchain_pb2.VerifyAFDOArtifactsRequest(
