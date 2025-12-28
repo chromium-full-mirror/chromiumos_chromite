@@ -168,7 +168,7 @@ def _run_inside_subtools_chroot(opts: Options) -> None:
         try:
             sdk_subtools.update_packages(opts.packages, opts.jobs)
         except sysroot_lib.PackageInstallError as e:
-            cros_build_lib.Die(e)
+            cros_build_lib.die(e)
 
     # When dry-running, prepare everything when --upload not specified.
     upload_filter = None if opts.dryrun and not opts.upload else opts.upload
@@ -233,7 +233,7 @@ def build_sdk_subtools(opts: Options, argv: List[str]) -> int:
             _setup_base_sdk(build_target, opts.setup_chroot)
             return 0
         else:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "build_sdk_subtools must be run outside the chroot."
             )
 

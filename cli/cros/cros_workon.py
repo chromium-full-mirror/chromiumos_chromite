@@ -226,11 +226,11 @@ Examples:
                     use_workon_only=self.options.workon_only,
                 )
             else:
-                cros_build_lib.Die(
+                cros_build_lib.die(
                     f"No implementation for {self.options.action}"
                 )
         except workon_helper.WorkonError as e:
-            cros_build_lib.Die(e)
+            cros_build_lib.die(e)
         return 0
 
     def TranslateToChrootArgv(self):

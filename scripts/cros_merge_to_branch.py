@@ -252,7 +252,7 @@ def main(argv):
         patches = gerrit.GetGerritPatchInfo(changes)
     except ValueError as e:
         logging.error("Invalid patch: %s", e)
-        cros_build_lib.Die("Did you swap the branch/gerrit number?")
+        cros_build_lib.die("Did you swap the branch/gerrit number?")
 
     # Suppress all logging info output unless we're running debug.
     if not options.debug:

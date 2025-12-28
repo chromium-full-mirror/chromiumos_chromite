@@ -157,10 +157,10 @@ def ValidateClobber(buildroot):
     """
     cwd = os.path.dirname(os.path.realpath(__file__))
     if cwd.startswith(buildroot):
-        cros_build_lib.Die("You are trying to clobber this chromite checkout!")
+        cros_build_lib.die("You are trying to clobber this chromite checkout!")
 
     if buildroot == "/":
-        cros_build_lib.Die("Refusing to clobber your system!")
+        cros_build_lib.die("Refusing to clobber your system!")
 
     if os.path.exists(buildroot):
         return shell_util.boolean_prompt(default=False)

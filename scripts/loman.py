@@ -22,7 +22,7 @@ class LocalManifest:
         if os.path.isfile(path):
             return cls(osutils.ReadFile(path))
         elif empty_if_missing:
-            cros_build_lib.Die("Manifest file, %r, not found", path)
+            cros_build_lib.die("Manifest file, %r, not found", path)
         return cls()
 
     def __init__(self, text=None) -> None:
@@ -114,7 +114,7 @@ def _AddProjectsToManifestGroups(options, new_group) -> None:
 
 
 def _AssertNotMiniLayout() -> None:
-    cros_build_lib.Die(
+    cros_build_lib.die(
         "Your repository checkout is using the old minilayout.xml workflow; "
         "Autoupdate is no longer supported, reinstall your tree."
     )

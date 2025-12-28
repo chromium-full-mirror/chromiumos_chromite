@@ -129,7 +129,7 @@ def PreParseArguments(argv):
 
     # This option isn't required for cbuildbot, but is for us.
     if not options.buildroot:
-        cros_build_lib.Die("--buildroot is a required option.")
+        cros_build_lib.die("--buildroot is a required option.")
 
     return options
 
@@ -631,7 +631,7 @@ def main(argv):
     options = PreParseArguments(argv)
 
     if not options.build_config_name in known_cbb_configs:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "cbuildbot is no longer supported; see b/266847445. "
             f"Got build_config_name: {options.build_config_name}"
         )

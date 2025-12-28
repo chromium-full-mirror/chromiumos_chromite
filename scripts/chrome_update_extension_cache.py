@@ -143,7 +143,7 @@ def CreateCacheTarball(extensions, outputdir, identifier, tarball) -> None:
         extension = extensions[ext]
         # It should not be in use at this moment.
         if "managed_users" in extension:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "managed_users is deprecated and not supported. "
                 "Please use user_type."
             )
@@ -162,7 +162,7 @@ def CreateCacheTarball(extensions, outputdir, identifier, tarball) -> None:
             extension["user_type"] = user_type
         else:
             if "child_users" in extension:
-                cros_build_lib.Die(
+                cros_build_lib.die(
                     "child_users is not supported when user_type is set."
                 )
 
@@ -175,11 +175,11 @@ def CreateCacheTarball(extensions, outputdir, identifier, tarball) -> None:
             "guest",
         }
         if not extension["user_type"]:
-            cros_build_lib.Die("user_type is not set")
+            cros_build_lib.die("user_type is not set")
         ext_keys = set(extension["user_type"])
         unknown_keys = ext_keys - allowed_user_types
         if unknown_keys:
-            cros_build_lib.Die("user_type %s is not allowed", unknown_keys)
+            cros_build_lib.die("user_type %s is not allowed", unknown_keys)
 
         cache_crx = extension.get("cache_crx", "yes")
 
@@ -189,7 +189,7 @@ def CreateCacheTarball(extensions, outputdir, identifier, tarball) -> None:
         elif cache_crx == "no":
             pass
         else:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 'Unknown value for "cache_crx" %s for %s', cache_crx, ext
             )
 
@@ -201,7 +201,7 @@ def CreateCacheTarball(extensions, outputdir, identifier, tarball) -> None:
         pformat.json(extension, fp=json_file)
 
     if was_errors:
-        cros_build_lib.Die("FAIL to download some extensions")
+        cros_build_lib.die("FAIL to download some extensions")
 
     CreateValidationFiles(validationdir, crxdir, identifier)
     compression_lib.create_tarball(tarball, outputdir)
@@ -237,10 +237,10 @@ def main(argv) -> None:
         os.chdir(options.path)
 
     if not (options.create or options.upload):
-        cros_build_lib.Die("Need at least --create or --upload args")
+        cros_build_lib.die("Need at least --create or --upload args")
 
     if not os.path.exists("external_extensions.json"):
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "No external_extensions.json in %s. Did you forget the "
             "--path option?",
             os.getcwd(),
@@ -260,7 +260,7 @@ def main(argv) -> None:
         ctx = gs.GSContext()
         url = os.path.join(UPLOAD_URL_BASE, tarball)
         if ctx.Exists(url):
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "This version already exists on Google Storage (%s)!\n"
                 "NEVER REWRITE EXISTING FILE. IT WILL BREAK CHROME OS "
                 "BUILD!!!",

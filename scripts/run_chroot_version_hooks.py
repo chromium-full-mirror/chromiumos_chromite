@@ -55,7 +55,7 @@ def main(argv) -> None:
         try:
             cros_sdk_lib.RunChrootVersionHooks()
         except cros_sdk_lib.InvalidChrootVersionError as e:
-            cros_build_lib.Die(e)
+            cros_build_lib.die(e)
         except cros_sdk_lib.Error as e:
             logging.error(e)
             logging.warning(

@@ -917,7 +917,7 @@ class DieSystemExit(SystemExit):
     """Custom Exception used so we can intercept this if necessary."""
 
 
-def Die(message, *args, **kwargs) -> NoReturn:
+def die(message, *args, **kwargs) -> NoReturn:
     """Emits an error message with a stack trace and halts execution.
 
     Args:
@@ -925,6 +925,10 @@ def Die(message, *args, **kwargs) -> NoReturn:
     """
     logging.error(message, *args, **kwargs)
     raise DieSystemExit(1)
+
+
+# TODO(build): Drop this compat name.
+Die = die
 
 
 def GetSysrootToolPath(sysroot: str, tool_name: str) -> str:
@@ -964,13 +968,13 @@ def IsOutsideChroot() -> bool:
 def AssertInsideChroot() -> None:
     """Die if we are outside the chroot"""
     if not IsInsideChroot():
-        Die("%s: please run inside the chroot", os.path.basename(sys.argv[0]))
+        die("%s: please run inside the chroot", os.path.basename(sys.argv[0]))
 
 
 def AssertOutsideChroot() -> None:
     """Die if we are inside the chroot"""
     if IsInsideChroot():
-        Die("%s: please run outside the chroot", os.path.basename(sys.argv[0]))
+        die("%s: please run outside the chroot", os.path.basename(sys.argv[0]))
 
 
 def AssertRootUser() -> None:
@@ -978,7 +982,7 @@ def AssertRootUser() -> None:
     try:
         os_util.assert_root_user()
     except AssertionError as e:
-        Die(e)
+        die(e)
 
 
 def AssertNonRootUser() -> None:
@@ -986,7 +990,7 @@ def AssertNonRootUser() -> None:
     try:
         os_util.assert_non_root_user()
     except AssertionError as e:
-        Die(e)
+        die(e)
 
 
 # Suppress whacked complaints about abstract class being unused.
@@ -1166,12 +1170,12 @@ def GetBoard(
     board = device_board or GetDefaultBoard()
     if not device_board:
         if not board and strict:
-            Die("No board specified and no default board found.")
+            die("No board specified and no default board found.")
         msg = "Cannot detect board name; using default board %s." % board
         if not force and not shell_util.boolean_prompt(
             default=False, prolog=msg
         ):
-            Die("Exiting...")
+            die("Exiting...")
 
         logging.warning(msg)
 

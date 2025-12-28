@@ -232,7 +232,7 @@ class CleanUpStage(generic_stages.BuilderStage):
             and self._run.options.clobber
         ):
             if not commands.ValidateClobber(self._build_root):
-                cros_build_lib.Die("--clobber in local mode must be approved.")
+                cros_build_lib.die("--clobber in local mode must be approved.")
 
         # If we can't get a manifest out of it, then it's not usable and must be
         # clobbered.

@@ -830,31 +830,31 @@ def _FinishParsing(options) -> None:
     options.pass_through_args.extend(accepted)
 
     if options.local or options.remote:
-        cros_build_lib.Die("Deprecated usage. Please use cros tryjob instead.")
+        cros_build_lib.die("Deprecated usage. Please use cros tryjob instead.")
 
     if not options.buildroot:
-        cros_build_lib.Die("A buildroot is required to build.")
+        cros_build_lib.die("A buildroot is required to build.")
 
     if options.chrome_root:
         if options.chrome_rev != constants.CHROME_REV_LOCAL:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "Chrome rev must be %s if chrome_root is set."
                 % constants.CHROME_REV_LOCAL
             )
     elif options.chrome_rev == constants.CHROME_REV_LOCAL:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Chrome root must be set if chrome_rev is %s."
             % constants.CHROME_REV_LOCAL
         )
 
     if options.chrome_version:
         if options.chrome_rev != constants.CHROME_REV_SPEC:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "Chrome rev must be %s if chrome_version is set."
                 % constants.CHROME_REV_SPEC
             )
     elif options.chrome_rev == constants.CHROME_REV_SPEC:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Chrome rev must not be %s if chrome_version is not set."
             % constants.CHROME_REV_SPEC
         )
@@ -865,12 +865,12 @@ def _FinishParsing(options) -> None:
     # code. We want checked-in cbuildbot/scripts to prevent errors, and we want
     # to build a release image with checked-in code for CrOS packages.
     if options.buildbot and patches and not options.debug:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Cannot provide patches when running with --buildbot!"
         )
 
     if options.buildbot and options.remote_trybot:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "--buildbot and --remote-trybot cannot be used together."
         )
 
@@ -906,14 +906,14 @@ def _PostParseCheck(parser, options, site_config) -> None:
 
     # Ensure that all args are legitimate config targets.
     if options.build_config_name not in site_config:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             'Unknown build config: "%s"' % options.build_config_name
         )
 
     build_config = site_config[options.build_config_name]
 
     if options.channels:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "--channel must only be used with a payload config,"
             " not target (%s)." % options.build_config_name
         )
@@ -924,7 +924,7 @@ def _PostParseCheck(parser, options, site_config) -> None:
         options.debug = True
 
     if not (config_lib.isTryjobConfig(build_config) or options.buildbot):
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Refusing to run non-tryjob config as a tryjob.\n"
             'Please "repo sync && cros tryjob --list %s" for alternatives.\n'
             "See go/cros-explicit-tryjob-build-configs-psa.",
@@ -939,7 +939,7 @@ def _PostParseCheck(parser, options, site_config) -> None:
     if options.force_version and not (
         options.buildbot or build_config.internal
     ):
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Cannot specify --version without --buildbot for an"
             " external target (%s)." % options.build_config_name
         )
@@ -957,7 +957,7 @@ def ParseCommandLine(parser, argv):
     # Record the configs targeted. Strip out null arguments.
     build_config_names = [x for x in args if x]
     if len(build_config_names) != 1:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Expected exactly one build config. Got: %r", build_config_names
         )
     options.build_config_name = build_config_names[-1]
@@ -1089,7 +1089,7 @@ def main(argv) -> None:
         and not hostname_util.host_is_ci_builder()
     ):
         # --buildbot can only be used on a real builder, unless it's debug.
-        cros_build_lib.Die("This host is not a supported build machine.")
+        cros_build_lib.die("This host is not a supported build machine.")
 
     # Only one config arg is allowed in this mode, which was confirmed earlier.
     build_config = site_config[options.build_config_name]
@@ -1132,7 +1132,7 @@ def main(argv) -> None:
     if not repository.IsARepoRoot(options.buildroot) and git.FindRepoDir(
         options.buildroot
     ):
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Configured buildroot %s is a subdir of an existing repo checkout."
             % options.buildroot
         )

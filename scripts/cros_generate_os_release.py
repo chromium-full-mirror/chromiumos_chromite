@@ -32,7 +32,7 @@ def GenerateOsRelease(root, default_params=None) -> None:
 
             key_value = line.split("=", 1)
             if len(key_value) != 2:
-                cros_build_lib.Die("Malformed line in /etc/os-release")
+                cros_build_lib.die("Malformed line in /etc/os-release")
 
             mapping[key_value[0]] = key_value[1].strip()
 
@@ -40,7 +40,7 @@ def GenerateOsRelease(root, default_params=None) -> None:
         for filepath in os.listdir(os_released_path):
             key = os.path.basename(filepath)
             if key in mapping:
-                cros_build_lib.Die(
+                cros_build_lib.die(
                     "key %s defined in /etc/os-release.d but already "
                     "defined in /etc/os-release." % key
                 )

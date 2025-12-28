@@ -53,7 +53,7 @@ def get_led() -> Path:
 
     checkout_led = constants.DEPOT_TOOLS_DIR / "led"
     if not os.access(str(checkout_led), os.X_OK):
-        cros_build_lib.Die("Install led utility and put it in your PATH")
+        cros_build_lib.die("Install led utility and put it in your PATH")
 
     return checkout_led
 
@@ -69,7 +69,7 @@ def check_led_auth() -> None:
         cros_build_lib.dbg_run(cmd, capture_output=True)
     except cros_build_lib.RunCommandError as e:
         logging.fatal(e.stderr.decode("utf-8"))
-        cros_build_lib.Die(
+        cros_build_lib.die(
             f"""Login with led by running:
  {led} auth-login"""
         )
@@ -96,10 +96,10 @@ def get_swarming() -> Path:
             _CHECKOUT_CIPD_ROOT_PATH,
         )
     except cros_build_lib.RunCommandError as e:
-        cros_build_lib.Die(e)
+        cros_build_lib.die(e)
 
     if not os.access(str(_SWARMING_BIN_PATH), os.X_OK):
-        cros_build_lib.Die(
+        cros_build_lib.die(
             r"""Automatic installation of swarming failed.
  Install swarming tool manually and add it to your $PATH.
  To install, cd to your CIPD root (to create a new CIPD root, make a folder and
@@ -124,7 +124,7 @@ def check_swarming_auth() -> None:
         cros_build_lib.dbg_run(cmd, capture_output=True)
     except cros_build_lib.RunCommandError as e:
         logging.fatal(e.stderr.decode("utf-8"))
-        cros_build_lib.Die(
+        cros_build_lib.die(
             f"""Login to swarming by running:
   {swarming} login"""
         )
@@ -142,7 +142,7 @@ def get_base_job_template(bucket: str, builder: str, debug: bool) -> str:
             cmd, print_cmd=debug, capture_output=True, encoding="utf-8"
         )
     except cros_build_lib.RunCommandError as e:
-        cros_build_lib.Die(e)
+        cros_build_lib.die(e)
     return result.stdout
 
 
@@ -201,7 +201,7 @@ def add_cls_to_job(job: str, cls: List[str], debug: bool) -> str:
             )
             job = result.stdout
         except cros_build_lib.RunCommandError as e:
-            cros_build_lib.Die(e)
+            cros_build_lib.die(e)
     return job
 
 
@@ -756,7 +756,7 @@ class Test:
             )
             return result.stdout
         except cros_build_lib.RunCommandError as e:
-            cros_build_lib.Die(e)
+            cros_build_lib.die(e)
 
     def GetSwarmingResults(
         self, ignore_failed: bool
@@ -837,7 +837,7 @@ class Test:
         try:
             cros_build_lib.run(cmd, capture_output=True)
         except cros_build_lib.RunCommandError as e:
-            cros_build_lib.Die(e)
+            cros_build_lib.die(e)
 
         try:
             build_proto_json_path = (
@@ -1064,12 +1064,12 @@ def process_subcommand(options: commandline.ArgumentNamespace) -> None:
         )
         swarming_results = t.GetSwarmingResults(options.ignore_failed)
         if swarming_results.failed_jobs and not options.ignore_failed:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "Some tests have failed, skipping processing. "
                 "Use --ignore-failed to process the results anyway."
             )
         if not swarming_results.complete:
-            cros_build_lib.Die("Test is not finished, skipping processing.")
+            cros_build_lib.die("Test is not finished, skipping processing.")
 
         swarming_results.PrintIndividualBuildsStepsTable(
             options.csv, options.min_seconds

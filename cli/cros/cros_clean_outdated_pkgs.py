@@ -463,7 +463,7 @@ class CleanOutdatedCommand(command.CliCommand):
         try:
             cros_build_lib.sudo_run(unmerge_cmd)
         except cros_build_lib.RunCommandError as e:
-            cros_build_lib.Die(e)
+            cros_build_lib.die(e)
 
     def ensure_pkg_min_version(
         self,
@@ -492,7 +492,7 @@ class CleanOutdatedCommand(command.CliCommand):
         try:
             cros_build_lib.sudo_run(upgrade_pkg_cmd)
         except cros_build_lib.RunCommandError:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "Failed to upgrade %s to version >= %s. Try `repo sync`.",
                 pkg_cp,
                 min_version,
@@ -501,7 +501,7 @@ class CleanOutdatedCommand(command.CliCommand):
         if pkg_is_at_min_version():
             return
 
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Failed to upgrade %s to version >= %s. Try `repo sync`.",
             pkg_cp,
             min_version,

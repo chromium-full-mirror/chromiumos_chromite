@@ -347,7 +347,7 @@ def Create(
                             image_dir=img_dir,
                         )
                 except image.ImageToVmError as e:
-                    cros_build_lib.Die(e)
+                    cros_build_lib.die(e)
 
             _add_image_to_proto(response, vm_path, vm_type, board)
 
@@ -375,7 +375,7 @@ def Create(
                         board,
                     )
                 else:
-                    cros_build_lib.Die("Failed to create recovery image.")
+                    cros_build_lib.die("Failed to create recovery image.")
             elif mod_type == _NETBOOT_ID:
                 factory_shim_dir = os.path.dirname(
                     factory_result.images[constants.IMAGE_TYPE_FACTORY_SHIM]
@@ -388,7 +388,7 @@ def Create(
                     except cros_build_lib.RunCommandError as e:
                         logging.warning(e)
             else:
-                cros_build_lib.Die(
+                cros_build_lib.die(
                     "_RECOVERY_ID and _NETBOOT_ID are the only mod_image_type."
                 )
 
@@ -474,7 +474,7 @@ def _ParseImagesToCreate(to_build: List[int]) -> ImageTypes:
             image_types.add(_IMAGE_MAPPING[current])
         else:
             # Not expected, but at least it will be obvious if this comes up.
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "The service's known image types do not match those in "
                 "image.proto. Unknown Enum ID: %s",
                 current,
@@ -483,7 +483,7 @@ def _ParseImagesToCreate(to_build: List[int]) -> ImageTypes:
     # We can only build one type of these images at a time since image_to_vm.sh
     # uses the default path if a name is not provided.
     if vm_types.issuperset({_BASE_VM_ID, _TEST_VM_ID}):
-        cros_build_lib.Die("Cannot create more than one VM.")
+        cros_build_lib.die("Cannot create more than one VM.")
 
     return ImageTypes(
         images=image_types, vms=vm_types, mod_images=mod_image_types
@@ -596,7 +596,7 @@ def Test(
     result_directory = request.result.directory
 
     if not os.path.isfile(image_path) or not image_path.endswith(".bin"):
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "The image.path must be an existing image file with a .bin "
             "extension."
         )

@@ -72,7 +72,7 @@ def _ValidateImages(
     try:
         tgt_image = getattr(request, tgt_name)
     except AttributeError:
-        cros_build_lib.Die("%s is not a known tgt image type", tgt_name)
+        cros_build_lib.die("%s is not a known tgt image type", tgt_name)
 
     # Resolve the src image oneof.
     src_name = request.WhichOneof("src_image_oneof")
@@ -85,17 +85,17 @@ def _ValidateImages(
         try:
             src_image = getattr(request, src_name)
         except AttributeError:
-            cros_build_lib.Die("%s is not a known src image type", src_name)
+            cros_build_lib.die("%s is not a known src image type", src_name)
 
     # Ensure they are compatible oneofs.
     if (src_name, tgt_name) not in _VALID_IMAGE_PAIRS:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "%s and %s are not valid image pairs", src_image, tgt_image
         )
 
     # Ensure that miniOS payloads are only requested for compatible image types.
     if request.minios and (src_name, tgt_name) not in _VALID_MINIOS_PAIRS:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "%s and %s are not valid image pairs for miniOS",
             src_image,
             tgt_image,
@@ -128,7 +128,7 @@ def GeneratePayload(
     src_image, tgt_image = _ValidateImages(request)
 
     if request.use_local_signing:
-        cros_build_lib.Die("local signing not supported for this endpoint")
+        cros_build_lib.die("local signing not supported for this endpoint")
 
     # Find the value of bucket or default to 'chromeos-releases'.
     destination_bucket = request.bucket or "chromeos-releases"
@@ -319,11 +319,11 @@ def FinalizePayload(
 
     if request.use_local_signing:
         if not request.docker_image:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "local signing enabled but no docker image specified"
             )
         if not request.keyset:
-            cros_build_lib.Die("local signing enabled but no keyset specified")
+            cros_build_lib.die("local signing enabled but no keyset specified")
 
     # Find the value of bucket or default to 'chromeos-releases'.
     destination_bucket = request.bucket or "chromeos-releases"

@@ -116,7 +116,7 @@ def check_upstream_changes(repo: Path) -> None:
             repo, branch, for_checkout=False
         )
         if not upstream:
-            cros_build_lib.Die("Failed to get upstream for %s.", repo)
+            cros_build_lib.die("Failed to get upstream for %s.", repo)
     else:
         # Detached head.
         branch = "HEAD"
@@ -141,7 +141,7 @@ def check_upstream_changes(repo: Path) -> None:
     # commit is either not found (git exits with an error - 129), or missing
     # from the branch. In either case, there is no output to stdout.
     if not branches.stdout:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "The checked-out branch (%s) at %s is missing the remote head.\n"
             "Please repo sync (and rebase), or skip this check by passing"
             " --no-check-upstream-proto-changes-included.",
@@ -469,7 +469,7 @@ def main(argv):
                 postprocess=opts.postprocess,
             )
         except Error as e:
-            cros_build_lib.Die("Error compiling bindings to destination: %s", e)
+            cros_build_lib.die("Error compiling bindings to destination: %s", e)
         else:
             return 0
 
@@ -484,13 +484,13 @@ def main(argv):
         try:
             CompileProto(protoc_version=ProtocVersion.CHROMITE)
         except Error as e:
-            cros_build_lib.Die("Error compiling chromite bindings: %s", e)
+            cros_build_lib.die("Error compiling chromite bindings: %s", e)
 
     if ProtocVersion.CHROMITE_PYI in opts.protoc_version:
         try:
             CompileProto(protoc_version=ProtocVersion.CHROMITE_PYI)
         except Error as e:
-            cros_build_lib.Die("Error compiling type annotations: %s", e)
+            cros_build_lib.die("Error compiling type annotations: %s", e)
 
     if ProtocVersion.SDK in opts.protoc_version:
         # Compile the SDK bindings.
@@ -511,4 +511,4 @@ def main(argv):
             try:
                 CompileProto(protoc_version=ProtocVersion.SDK)
             except Error as e:
-                cros_build_lib.Die("Error compiling SDK bindings: %s", e)
+                cros_build_lib.die("Error compiling SDK bindings: %s", e)

@@ -822,7 +822,7 @@ def main(argv: Optional[List[str]] = None) -> None:
             default=False,
             prolog=prolog,
         ):
-            cros_build_lib.Die("better safe than sorry")
+            cros_build_lib.die("better safe than sorry")
 
     instruction_urls = PushImage(
         opts.image_dir,

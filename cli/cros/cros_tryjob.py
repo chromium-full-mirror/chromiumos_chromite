@@ -196,7 +196,7 @@ def RunLocal(options):
         "b/333917859 for deprecation timeline."
     )
     if cros_build_lib.IsInsideChroot():
-        cros_build_lib.Die("Local tryjobs cannot be started inside the chroot.")
+        cros_build_lib.die("Local tryjobs cannot be started inside the chroot.")
 
     args = CbuildbotArgs(options)
 
@@ -224,7 +224,7 @@ def RunCbuildbot(options):
         Exit code of build as an int.
     """
     if cros_build_lib.IsInsideChroot():
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "cbuildbot tryjobs cannot be started inside the chroot."
         )
 
@@ -404,7 +404,7 @@ def VerifyOptions(options, site_config) -> None:
 
     # Validate specified build_configs.
     if not options.build_configs:
-        cros_build_lib.Die("At least one build_config is required.")
+        cros_build_lib.die("At least one build_config is required.")
 
     on_branch = options.branch != "main"
 
@@ -418,7 +418,7 @@ def VerifyOptions(options, site_config) -> None:
                 "for %s?" % ", ".join(unknown_build_configs)
             )
             if not shell_util.boolean_prompt(prompt=prompt, default=False):
-                cros_build_lib.Die("No confirmation.")
+                cros_build_lib.die("No confirmation.")
 
     unsupported_tryjobs = []
     for build_config in options.build_configs:
@@ -448,7 +448,7 @@ def VerifyOptions(options, site_config) -> None:
             if int(version.split(".")[0]) >= 15183:
                 unsupported_branch = True
         if (not on_branch and not specified_version) or unsupported_branch:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "`cros tryjob` is unsupported for %s on milestones >= 108, "
                 "please use `cros try`.",
                 ",".join(unsupported_tryjobs),
@@ -479,18 +479,18 @@ def VerifyOptions(options, site_config) -> None:
 
             if options.branch == "main":
                 # On main branch, we know the status of configs for sure.
-                cros_build_lib.Die(msg)
+                cros_build_lib.die(msg)
             elif not options.yes:
                 # On branches, we are just guessing. Let people override.
                 prompt = "%s\nAre you sure you want to continue?" % msg
                 if not shell_util.boolean_prompt(prompt=prompt, default=False):
-                    cros_build_lib.Die("No confirmation.")
+                    cros_build_lib.die("No confirmation.")
 
     patches_given = options.gerrit_patches or options.local_patches
     if options.production:
         # Make sure production builds don't have patches.
         if patches_given and not options.debug:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "Patches cannot be included in production builds."
             )
     elif options.where != CBUILDBOT:
@@ -502,19 +502,19 @@ def VerifyOptions(options, site_config) -> None:
                 % (options.branch if options.branch else "ToT")
             )
             if not shell_util.boolean_prompt(prompt=prompt, default=False):
-                cros_build_lib.Die("No confirmation.")
+                cros_build_lib.die("No confirmation.")
 
     if options.where in (REMOTE, INFRA_TESTING):
         if options.buildroot:
-            cros_build_lib.Die("--buildroot is not used for remote tryjobs.")
+            cros_build_lib.die("--buildroot is not used for remote tryjobs.")
 
         if options.git_cache_dir:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "--git-cache-dir is not used for remote tryjobs."
             )
     else:
         if options.json:
-            cros_build_lib.Die("--json can only be used for remote tryjobs.")
+            cros_build_lib.die("--json can only be used for remote tryjobs.")
 
 
 @command.command_decorator("tryjob")

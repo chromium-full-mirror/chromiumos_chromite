@@ -715,7 +715,7 @@ class SDKFetcher:
                 elif build_report and "toolchains" in build_report:
                     target_tc = build_report["toolchains"][0]
                 else:
-                    cros_build_lib.Die(
+                    cros_build_lib.die(
                         "Toolchains not found in metadata or build report.\n"
                         f"Metadata: {json.dumps(metadata)}\n"
                         f"Build report: {json.dumps(build_report)}"
@@ -727,7 +727,7 @@ class SDKFetcher:
                 elif build_report and "toolchainUrl" in build_report:
                     toolchain_url = build_report["toolchainUrl"]
                 else:
-                    cros_build_lib.Die(
+                    cros_build_lib.die(
                         "Toolchain URL not found in metadata or build report.\n"
                         f"Metadata: {json.dumps(metadata)}\n"
                         f"Build report: {json.dumps(build_report)}"
@@ -1636,12 +1636,12 @@ class ChromeSDKCommand(command.CliCommand):
     def Run(self):
         """Perform the command."""
         if os.environ.get(SDKFetcher.SDK_VERSION_ENV) is not None:
-            cros_build_lib.Die("Already in an SDK shell.")
+            cros_build_lib.die("Already in an SDK shell.")
 
         if self.options.chrome_branding or self.options.internal:
             gclient_path = gclient.FindGclientFile(self.options.chrome_src)
             if not gclient_path:
-                cros_build_lib.Die(
+                cros_build_lib.die(
                     "Found a Chrome checkout at %s with no .gclient file.",
                     self.options.chrome_src,
                 )
@@ -1653,7 +1653,7 @@ class ChromeSDKCommand(command.CliCommand):
                     continue
                 if solution.get("custom_vars", {}).get("checkout_src_internal"):
                     break
-                cros_build_lib.Die(
+                cros_build_lib.die(
                     "You've passed in '--chrome-branding' or '--internal' to "
                     "Simple Chrome, but your .gclient file at %s lacks "
                     "'checkout_src_internal'. Set that var to True in the "
@@ -1662,10 +1662,10 @@ class ChromeSDKCommand(command.CliCommand):
                 )
 
         if self.options.version and self.options.sdk_path:
-            cros_build_lib.Die("Cannot specify both --version and --sdk-path.")
+            cros_build_lib.die("Cannot specify both --version and --sdk-path.")
 
         if self.options.cfi and not self.options.thinlto:
-            cros_build_lib.Die("CFI requires ThinLTO.")
+            cros_build_lib.die("CFI requires ThinLTO.")
 
         # Fix read-only dirs in the cache.
         SDKFetcher.FixCachePermissions(self.options.cache_dir)

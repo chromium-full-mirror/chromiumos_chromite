@@ -73,7 +73,7 @@ class SudoKeepAlive(cros_build_lib.PrimaryPidContextManager):
 
     def _enter(self) -> None:
         if osutils.IsRootUser():
-            cros_build_lib.Die("This script cannot be run as root.")
+            cros_build_lib.die("This script cannot be run as root.")
 
         start_for_tty = self._DaemonNeeded()
         if not start_for_tty:
@@ -123,7 +123,7 @@ class SudoKeepAlive(cros_build_lib.PrimaryPidContextManager):
                 except cros_build_lib.RunCommandError:
                     if idx == 0:
                         raise
-                    cros_build_lib.Die(
+                    cros_build_lib.die(
                         "tty_tickets must be disabled. " + tty_msg, url
                     )
 

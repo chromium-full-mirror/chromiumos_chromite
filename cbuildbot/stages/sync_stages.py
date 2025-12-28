@@ -74,7 +74,7 @@ class PatchChangesStage(generic_stages.BuilderStage):
                 conflict[0].id,
             )
 
-        cros_build_lib.Die("Duplicate patches were encountered: %s", duplicates)
+        cros_build_lib.die("Duplicate patches were encountered: %s", duplicates)
 
     def _PatchSeriesFilter(self, series, changes):
         return self._CheckForDuplicatePatches(series, changes)
@@ -98,7 +98,7 @@ class PatchChangesStage(generic_stages.BuilderStage):
             self.HandleApplyFailures(failures)
 
     def HandleApplyFailures(self, failures) -> None:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Failed applying patches: %s", "\n".join(str(x) for x in failures)
         )
 

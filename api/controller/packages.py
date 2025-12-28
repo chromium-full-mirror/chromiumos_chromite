@@ -51,7 +51,7 @@ def Uprev(request, response, _config) -> None:
         )
     except packages.Error as e:
         # Handle module errors nicely, let everything else bubble up.
-        cros_build_lib.Die(e)
+        cros_build_lib.die(e)
 
     for path in modified_ebuilds:
         response.modified_ebuilds.add().path = path
@@ -95,7 +95,7 @@ def UprevVersionedPackage(request, response, _config) -> None:
         )
     except packages.Error as e:
         # Handle module errors nicely, let everything else bubble up.
-        cros_build_lib.Die(e)
+        cros_build_lib.die(e)
 
     for modified in result.modified:
         uprev_response = response.responses.add()

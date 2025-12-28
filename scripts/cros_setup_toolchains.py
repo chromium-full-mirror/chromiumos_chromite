@@ -1235,7 +1235,7 @@ def _BuildInitialPackageRoot(
                     ),
                 )
                 # TODO(crbug.com/917193): Make this fatal.
-                # cros_build_lib.Die('Unable to resolve lib conflicts')
+                # cros_build_lib.die('Unable to resolve lib conflicts')
                 continue
             basenamelibs.add(lib)
 
@@ -1661,7 +1661,7 @@ def main(argv):
         cros_build_lib.AssertInsideChroot()
         # This has to be always run as root.
         if osutils.IsNonRootUser():
-            cros_build_lib.Die("this script must be run as root")
+            cros_build_lib.die("this script must be run as root")
 
         Crossdev.Load(options.reconfig)
         root = options.sysroot or "/"

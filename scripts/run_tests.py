@@ -98,12 +98,12 @@ def main(argv) -> None:
     # Check the environment.  https://crbug.com/1015450
     st = os.stat("/")
     if st.st_mode & 0o007 != 0o005:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             f"The root directory has broken permissions: {st.st_mode:o}\n"
             "Fix with: sudo chmod o+rx-w /"
         )
     if st.st_uid or st.st_gid:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             f"The root directory has broken ownership: {st.st_uid}:{st.st_gid}"
             " (should be 0:0)\nFix with: sudo chown 0:0 /"
         )

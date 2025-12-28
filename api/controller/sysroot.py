@@ -238,7 +238,7 @@ def Create(request, response, _config):
             build_target, run_configs, accept_licenses=_ACCEPTED_LICENSES
         )
     except sysroot.Error as e:
-        cros_build_lib.Die(e)
+        cros_build_lib.die(e)
 
     response.sysroot.path = created.path
     response.sysroot.build_target.name = build_target.name
@@ -423,7 +423,7 @@ def InstallPackages(
         )
 
     if not target_sysroot.IsToolchainInstalled():
-        cros_build_lib.Die("Toolchain must first be installed.")
+        cros_build_lib.die("Toolchain must first be installed.")
 
     _LogBinhost(build_target.name)
 

@@ -65,4 +65,4 @@ def main(argv) -> None:
 
     except cros_build_lib.RunCommandError as ex:
         # Hide the stack trace using Die.
-        cros_build_lib.Die("%s", ex)
+        cros_build_lib.die("%s", ex)

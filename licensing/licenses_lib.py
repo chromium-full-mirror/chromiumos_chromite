@@ -1370,7 +1370,7 @@ after fixing the license."""
                     sln,
                     pkg.fullnamerev,
                 )
-                cros_build_lib.Die(e)
+                cros_build_lib.die(e)
             license_pointers.append(
                 "<li><a href='#%s'>%s License %s</a></li>"
                 % (sln, license_type, sln)

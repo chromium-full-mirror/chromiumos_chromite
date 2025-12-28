@@ -139,7 +139,7 @@ def main(argv) -> None:
 
     repo = repo_util.Repository.Find(options.repo_path)
     if repo is None:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "No repo found in --repo_path %r.", options.repo_path
         )
 
@@ -158,7 +158,7 @@ def main(argv) -> None:
             snapshot_projects.setdefault(project.name, []).append(project)
 
     if snapshot_projects and not snapshot_ref:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Some project(s) need snapshot refs but no "
             "--snapshot-ref specified."
         )

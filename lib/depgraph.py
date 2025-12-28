@@ -136,7 +136,7 @@ class DepGraphGenerator:
         emerge_args += self.ParseParallelEmergeArgs(args)
 
         if self.sysroot and self.board:
-            cros_build_lib.Die("--sysroot and --board are incompatible.")
+            cros_build_lib.die("--sysroot and --board are incompatible.")
 
         # Setup various environment variables based on our current board. These
         # variables are normally setup inside emerge-${BOARD}, but since we

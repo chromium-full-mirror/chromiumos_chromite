@@ -158,7 +158,7 @@ class EnableSub(command.CliCommand):
         cros_build_lib.AssertNonRootUser()
 
         if not detect_systemd():
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "Your system is not running systemd.  I'll presume you know "
                 "how to set up a cron job on your system.  Create a job which "
                 "calls this command hourly as your user account: %s cron run",
@@ -205,7 +205,7 @@ class DisableSub(command.CliCommand):
         cros_build_lib.AssertNonRootUser()
 
         if not detect_systemd():
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "Your system is not running systemd.  Please manually disable "
                 "the cron job you created."
             )
@@ -225,7 +225,7 @@ class StatusSub(command.CliCommand):
         cros_build_lib.AssertNonRootUser()
 
         if not detect_systemd():
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "Your system is not running systemd.  Please check your "
                 "distribution's documentation on how to view cron job status."
             )

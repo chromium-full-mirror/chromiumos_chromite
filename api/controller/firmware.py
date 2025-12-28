@@ -53,7 +53,7 @@ def _call_entry(fw_loc, metric_proto, subcmd, *args, **kwargs):
 
     fw_path = get_fw_loc(fw_loc)
     if not fw_path:
-        cros_build_lib.Die(f"Unknown firmware location {fw_loc}.")
+        cros_build_lib.die(f"Unknown firmware location {fw_loc}.")
 
     entry_point = os.path.join(
         constants.SOURCE_ROOT, fw_path, "firmware_builder.py"

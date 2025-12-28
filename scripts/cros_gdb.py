@@ -753,7 +753,7 @@ def main(argv) -> None:
             inf_cmd.lstrip("/"),
         )
         if not os.path.exists(fname):
-            cros_build_lib.Die("Cannot find program %s.", fname)
+            cros_build_lib.die("Cannot find program %s.", fname)
     else:
         if inf_args:
             parser.error("Cannot specify arguments without a program.")
@@ -813,4 +813,4 @@ def main(argv) -> None:
         else:
             # TODO(b/236161656): Fix.
             # pylint: disable-next=raising-bad-type
-            raise cros_build_lib.Die(str(e))
+            raise cros_build_lib.die(str(e))

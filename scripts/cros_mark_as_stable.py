@@ -347,7 +347,7 @@ def main(argv) -> None:
     if options.overlays:
         for path in options.overlays.split(":"):
             if not os.path.isdir(path):
-                cros_build_lib.Die("Cannot find overlay: %s", path)
+                cros_build_lib.die("Cannot find overlay: %s", path)
             overlays.append(os.path.realpath(path))
     elif options.overlay_type:
         overlays = portage_util.FindOverlays(
@@ -567,14 +567,14 @@ def _CommitOverlays(
         # adding/removing an overlay in existing_commit.
         git_root = git.FindGitTopLevel(overlay)
         if git_root is None:
-            cros_build_lib.Die("No git repo at overlay directory %s.", overlay)
+            cros_build_lib.die("No git repo at overlay directory %s.", overlay)
 
         work_branch = GitBranch(
             constants.STABLE_EBUILD_BRANCH, tracking_branch, cwd=git_root
         )
         work_branch.CreateBranch()
         if not work_branch.Exists():
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "Unable to create stabilizing branch in %s" % overlay
             )
 

@@ -70,7 +70,7 @@ To build the AP Firmware only for foo-variant:
                 dry_run=self.options.dryrun,
             )
         except firmware_lib.Error as e:
-            cros_build_lib.Die(e)
+            cros_build_lib.die(e)
 
 
 @APCommand.subcommand("read", dryrun=True)
@@ -288,7 +288,7 @@ e.g.:
                 passthrough_args=passthrough_args,
             )
         except firmware_lib.Error as e:
-            cros_build_lib.Die(e)
+            cros_build_lib.die(e)
 
     def TranslateToChrootArgv(self):
         """Get reexec args for cros ap flash."""
@@ -350,4 +350,4 @@ This command removes firmware-related packages, including everything in
         try:
             firmware_lib.clean(self.build_target, self.options.dryrun)
         except firmware_lib.Error as e:
-            cros_build_lib.Die(e)
+            cros_build_lib.die(e)

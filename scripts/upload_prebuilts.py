@@ -1102,7 +1102,7 @@ def main(argv) -> None:
                 buildroot=options.build_path,
             )
             if acl is None:
-                cros_build_lib.Die(
+                cros_build_lib.die(
                     "No Google Storage ACL file %s found in %s overlay.",
                     _GOOGLESTORAGE_GSUTIL_FILE,
                     target.board,

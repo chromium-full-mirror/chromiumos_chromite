@@ -329,7 +329,7 @@ def BundleTestUpdatePayloads(
     valid_images = [x for x in img_paths if os.path.exists(x)]
 
     if not valid_images:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             'Expected to find an image of type among %r for target "%s" '
             "at path %s.",
             img_types,

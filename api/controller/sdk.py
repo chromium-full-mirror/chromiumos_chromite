@@ -99,7 +99,7 @@ def CreateManifestFromSdk(
     def _assert_path_is_absolute(path: str, name: str) -> None:
         """Raise an exception if the given path is not absolute."""
         if not os.path.isabs(path):
-            cros_build_lib.Die(f"The {name} must be absolute; got {path}")
+            cros_build_lib.die(f"The {name} must be absolute; got {path}")
 
     _assert_path_is_absolute(request.chroot.path, "chroot path")
     _assert_path_is_absolute(request.sdk_path.path, "SDK path")
@@ -161,13 +161,13 @@ def Create(
     try:
         version = sdk.Create(args)
     except sdk.SdkCreateError as e:
-        cros_build_lib.Die(e)
+        cros_build_lib.die(e)
 
     if version:
         response.version.version = version
     else:
         # This should be very rare, if ever used, but worth noting.
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "No chroot version could be found. There was likely an"
             "error creating the chroot that was not detected."
         )

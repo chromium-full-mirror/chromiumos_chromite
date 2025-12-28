@@ -233,7 +233,7 @@ def process_add_remove_lists(items: List[str]) -> Tuple[Set[str], Set[str]]:
             remove_list.discard(item)
 
     if invalid_list:
-        cros_build_lib.Die("Invalid arguments: %s", ", ".join(invalid_list))
+        cros_build_lib.die("Invalid arguments: %s", ", ".join(invalid_list))
 
     return (add_list, remove_list)
 
@@ -1590,4 +1590,4 @@ def main(argv) -> None:
         gerrit.GerritException,
         gob_util.GOBError,
     ) as e:
-        cros_build_lib.Die(e)
+        cros_build_lib.die(e)

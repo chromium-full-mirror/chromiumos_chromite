@@ -39,7 +39,7 @@ class UpdateEbuildWithAFDOArtifactsTest(
         self.board = "board"
         self.response = toolchain_pb2.VerifyAFDOArtifactsResponse()
         self.invalid_artifact_type = toolchain_pb2.BENCHMARK_AFDO
-        self.PatchObject(cros_build_lib, "Die", new=self.mock_die)
+        self.PatchObject(cros_build_lib, "die", new=self.mock_die)
 
     def _GetRequest(self, build_target=None, artifact_type=None):
         return toolchain_pb2.VerifyAFDOArtifactsRequest(

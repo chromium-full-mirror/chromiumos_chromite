@@ -282,7 +282,7 @@ def get_cros_config_dict(board: str, build: bool) -> dict:
 
     configs_by_model = get_configs_by_model(cros_config)
     if not board in EC_BRANCH_CONFIG:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             f"No config for {board}. "
             "Can't determine the source of ec branch."
         )
@@ -364,7 +364,7 @@ def get_firmware_version_from_option(
             'option_value' is ''.
 
     Raises:
-        cros_build_lib.Die: If 'option_value' is not 'CROS_CONFIG', 'OLD_TXTPB',
+        cros_build_lib.die: If 'option_value' is not 'CROS_CONFIG', 'OLD_TXTPB',
             or '', and 'get_version_uri' is None.
     """
 
@@ -379,7 +379,7 @@ def get_firmware_version_from_option(
     if option_value == "":
         return None
     if not get_version_uri:
-        cros_build_lib.Die("Can't get the version URI.")
+        cros_build_lib.die("Can't get the version URI.")
     version = option_value
     gs_uri = get_version_uri(version)
     return get_firmware_version(ctx, gs_uri)
@@ -404,7 +404,7 @@ def process_model(
         opts.ec_ro_version,
         opts.ec_rw_version,
     ):
-        cros_build_lib.Die(
+        cros_build_lib.die(
             f"Trying to copy from old config but {model} doesn't have "
             "config yet."
         )

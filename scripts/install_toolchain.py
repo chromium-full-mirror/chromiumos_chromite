@@ -56,7 +56,7 @@ def _GetToolchain(toolchain_name, sysroot):
     # Fetch the value from the sysroot.
     toolchain_name = sysroot.GetStandardField(sysroot_lib.STANDARD_FIELD_CHOST)
     if not toolchain_name:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "No toolchain specified in the sysroot or command line."
         )
 
@@ -89,4 +89,4 @@ def main(argv) -> None:
             configure=opts.configure,
         )
     except (toolchain.Error, cros_build_lib.RunCommandError, ValueError) as e:
-        cros_build_lib.Die(e)
+        cros_build_lib.die(e)

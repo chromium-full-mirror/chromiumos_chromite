@@ -256,7 +256,7 @@ def _ProxySimSetup(options) -> None:
             for cmd in commands:
                 cros_build_lib.dbg_run(cmd)
         except cros_build_lib.RunCommandError as e:
-            cros_build_lib.Die("Proxy setup failed!\n%s", e)
+            cros_build_lib.die("Proxy setup failed!\n%s", e)
 
         proxy_url = "http://%s:%u" % (PROXY_HOST_IP, PROXY_PORT)
         for proto in ("http", "https", "ftp"):
@@ -339,7 +339,7 @@ def _ProxySimSetup(options) -> None:
             cros_build_lib.run(cmd_cleanup, print_cmd=False)
         except cros_build_lib.RunCommandError:
             logging.error("running %r failed", cmd_cleanup)
-        cros_build_lib.Die("Proxy network setup failed!\n%s", e)
+        cros_build_lib.die("Proxy network setup failed!\n%s", e)
 
     # Signal the child that the net ns/proxy is fully configured now.
     ns_setup_lock.Post()
@@ -700,7 +700,7 @@ def main(argv) -> None:
     try:
         version_conf = cros_sdk_lib.SdkVersionConfig.load()
     except FileNotFoundError:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "No SDK version was found. "
             "Are you in a Chromium source tree instead of ChromiumOS?\n\n"
             "Please change to a directory inside your ChromiumOS source tree\n"
@@ -716,7 +716,7 @@ def main(argv) -> None:
 
     host = os.uname()[4]
     if host != "x86_64":
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "cros_sdk is currently only supported on x86_64; you're running"
             " %s.  Please find a x86_64 machine." % (host,)
         )
@@ -748,7 +748,7 @@ def main(argv) -> None:
         if options.force:
             logging.warning("Proceeding with an invalid chroot due to --force.")
         else:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "Your chroot directory (%s) doesn't look like a chroot, nor a "
                 "safe place to make one.  If you really want to trash this "
                 "directory, pass --force and --delete (or --no-delete-out-dir "
@@ -763,7 +763,7 @@ def main(argv) -> None:
     if not options.delete:
         chroot_version = cros_sdk_lib.GetChrootVersion(chroot.path)
         if chroot_version and chroot_version <= 223:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "Your SDK is too old to be entered!  Please copy any state you "
                 "need out of your chroot, and run `cros_sdk --replace`.  "
                 "(chroot_version=%s)",
@@ -827,7 +827,7 @@ def main(argv) -> None:
             log_path_holders(chroot.lock_path, {str(delete_proc.pid)})
             delete_proc.join()
         if delete_proc.exitcode != 0:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "SDK deletion failed (exit code=%s)", delete_proc.exitcode
             )
 

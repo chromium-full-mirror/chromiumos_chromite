@@ -52,7 +52,7 @@ def is_inside_subtools_chroot() -> bool:
 def assert_inside_subtools_chroot() -> None:
     """Die if not _is_inside_subtools_chroot()."""
     if not is_inside_subtools_chroot():
-        cros_build_lib.Die("Not in subtools SDK")
+        cros_build_lib.die("Not in subtools SDK")
 
 
 def setup_base_sdk(

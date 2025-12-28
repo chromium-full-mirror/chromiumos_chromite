@@ -60,7 +60,7 @@ def _GetPylintrc(path: Path) -> Path:
         dotpylintrc = pylintrc.with_name(".pylintrc")
         # Only allow one of these to exist to avoid confusing which one is used.
         if pylintrc.exists() and dotpylintrc.exists():
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 '%s: Only one of "pylintrc" or ".pylintrc" is allowed',
                 pylintrc.parent,
             )

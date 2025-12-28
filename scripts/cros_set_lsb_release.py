@@ -137,12 +137,12 @@ def _ParseArguments(argv):
     opts.freeze()
 
     if not os.path.isdir(opts.sysroot):
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "The target sysroot does not exist: %s" % opts.sysroot
         )
 
     if not opts.version_string:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "version_string must not be empty.  Was "
             "chromeos_version.sh sourced correctly in the calling "
             "script?"

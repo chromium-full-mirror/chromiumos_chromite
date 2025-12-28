@@ -81,7 +81,7 @@ def GetPrivatePrebuiltAclArgs(request, response, _config) -> None:
     try:
         args = binhost.GetPrebuiltAclArgs(build_target)
     except binhost.Error as e:
-        cros_build_lib.Die(e)
+        cros_build_lib.die(e)
 
     for arg, value in args:
         new_arg = response.args.add()
@@ -119,7 +119,7 @@ def PrepareBinhostUploads(
     sysroot_path = request.sysroot.path
 
     if not sysroot_path and not build_target_msg.name:
-        cros_build_lib.Die("Sysroot.path is required.")
+        cros_build_lib.die("Sysroot.path is required.")
 
     build_target = controller_util.ParseBuildTarget(build_target_msg)
     chroot = controller_util.ParseChroot(request.chroot)

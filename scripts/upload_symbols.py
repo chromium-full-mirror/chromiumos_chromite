@@ -745,25 +745,25 @@ def main(argv):
         sym_paths = [opts.breakpad_root]
     elif opts.root:
         if not opts.board:
-            cros_build_lib.Die("--board must be set if --root is used.")
+            cros_build_lib.die("--board must be set if --root is used.")
         breakpad_dir = cros_generate_breakpad_symbols.FindBreakpadDir(
             opts.board
         )
         sym_paths = [os.path.join(opts.root, breakpad_dir.lstrip("/"))]
     else:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "--sym_paths, --breakpad_root, or --root must be set."
         )
 
     if opts.sym_paths or opts.breakpad_root:
         if opts.regenerate:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "--regenerate may not be used with specific files, "
                 "or breakpad_root"
             )
     else:
         if opts.board is None:
-            cros_build_lib.Die("--board is required")
+            cros_build_lib.die("--board is required")
 
     # Figure out which crash server to upload too.
     upload_url = opts.server
@@ -799,7 +799,7 @@ def main(argv):
             default=False,
             prolog=prolog,
         ):
-            cros_build_lib.Die("better safe than sorry")
+            cros_build_lib.die("better safe than sorry")
 
     ret = 0
 

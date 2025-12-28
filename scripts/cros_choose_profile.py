@@ -310,14 +310,14 @@ def main(argv) -> None:
     board = _GetBoard(opts)
 
     if not os.path.exists(board.root):
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "The board has not been setup, please run setup_board first."
         )
 
     try:
         profile = _GetProfile(opts, board)
     except ProfileDirectoryNotFoundError as e:
-        cros_build_lib.Die(e)
+        cros_build_lib.die(e)
 
     # Change the profile to the selected.
     logging.info("Selecting profile: %s for %s", profile.directory, board.root)
@@ -325,4 +325,4 @@ def main(argv) -> None:
     try:
         ChooseProfile(board, profile)
     except MakeProfileIsNotLinkError as e:
-        cros_build_lib.Die(e)
+        cros_build_lib.die(e)

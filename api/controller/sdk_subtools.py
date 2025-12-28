@@ -86,7 +86,7 @@ def UploadSdkSubtools(
 ) -> Optional[int]:
     """Uploads a list of bundled subtools."""
     if any(p.location != common_pb2.Path.OUTSIDE for p in request.bundle_paths):
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "UploadSdkSubtools requires outside-chroot bundle paths."
         )
 

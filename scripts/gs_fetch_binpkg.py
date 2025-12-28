@@ -56,4 +56,4 @@ def main(argv) -> None:
         Copy(ctx, options.uri, options.filename)
     except gs.GSContextException as ex:
         # Hide the stack trace using Die.
-        cros_build_lib.Die("%s", ex)
+        cros_build_lib.die("%s", ex)

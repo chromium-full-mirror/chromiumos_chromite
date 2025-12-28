@@ -1104,7 +1104,7 @@ def ExecuteCoverageCommand(options) -> None:
     if not IsInstrumentedWithClangCoverage(fuzzer_sysroot_path.chroot):
         # Don't run the fuzzer if it isn't instrumented with source based
         # coverage. Quit and let the user know how to build the fuzzer properly.
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "%s is not instrumented with source based coverage.\nSpecify "
             "--package to do a coverage build or build with USE flag: "
             '"coverage".',

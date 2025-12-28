@@ -973,7 +973,7 @@ def _PostParseCheck(options) -> None:
         options: The options object returned by the cli parser.
     """
     if options.local_pkg_path and not os.path.isfile(options.local_pkg_path):
-        cros_build_lib.Die("%s is not a file.", options.local_pkg_path)
+        cros_build_lib.die("%s is not a file.", options.local_pkg_path)
 
     if not options.gn_args:
         gn_env = os.getenv("GN_ARGS")

@@ -2509,7 +2509,7 @@ def GeneratePatchesFromRepo(
     sha1s = result.stdout.splitlines()
     if not sha1s:
         if not allow_empty:
-            cros_build_lib.Die("No changes found in %s:%s", project, branch)
+            cros_build_lib.die("No changes found in %s:%s", project, branch)
         return
 
     for sha1 in sha1s:
@@ -2547,9 +2547,9 @@ def _CheckLocalPatches(manifest, local_patches):
 
         checkouts = manifest.FindCheckouts(project)
         if not checkouts:
-            cros_build_lib.Die("Project %s does not exist.", project)
+            cros_build_lib.die("Project %s does not exist.", project)
         if len(checkouts) > 1:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "We do not yet support local patching for projects that are "
                 "checked out to multiple directories. Try uploading your "
                 "patch to gerrit and referencing it via the -g option "
@@ -2571,12 +2571,12 @@ def _CheckLocalPatches(manifest, local_patches):
             verified_patches.append("%s:%s" % (project, local_branch))
         else:
             if branch:
-                cros_build_lib.Die(
+                cros_build_lib.die(
                     "Project %s (checked out at %s) has no branch %s"
                     % (checkout["name"], checkout["path"], branch)
                 )
             else:
-                cros_build_lib.Die(
+                cros_build_lib.die(
                     "Project %s is not on a branch!" % (project,)
                 )
 
@@ -2605,7 +2605,7 @@ def PrepareLocalPatches(manifest, patches):
             )
 
         if not project_patch_info:
-            cros_build_lib.Die("No changes found in %s:%s", project, branch)
+            cros_build_lib.die("No changes found in %s:%s", project, branch)
         patch_info.extend(project_patch_info)
 
     return patch_info

@@ -269,14 +269,14 @@ To debug a process by its pid:
                     [p for p in procs if int(p.split()[1]) in pids]
                 )
             except ValueError:
-                cros_build_lib.Die("Parsing output failed:\n%s", result.stdout)
+                cros_build_lib.die("Parsing output failed:\n%s", result.stdout)
 
             print(
                 "\nList running processes of %s on device %s:\n%s\n%s"
                 % (self.exe, self.ssh_hostname, header, info)
             )
         except cros_build_lib.RunCommandError:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "Failed to find any running process on device %s",
                 self.ssh_hostname,
             )
@@ -369,7 +369,7 @@ To debug a process by its pid:
         os.chroot(self.sysroot)
 
         if shutil.which(self.debugger_path) is None:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "Debugger path %s was not found in the board sysroot."
                 " Did you build dev-util/lldb-server for your board "
                 "with the USE='local-lldb' flag?",
@@ -416,7 +416,7 @@ To debug a process by its pid:
 
             logging.debug("Executable path is %s", self.exe)
             if not using_lldb and not device.IsFileExecutable(self.exe):
-                cros_build_lib.Die(
+                cros_build_lib.die(
                     'File path "%s" does not exist or is not executable on '
                     "device %s",
                     self.exe,

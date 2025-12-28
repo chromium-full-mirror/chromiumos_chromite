@@ -388,7 +388,7 @@ def build(
         try:
             sysroot.SetupBoard(build_target)
         except (portage_util.MissingOverlayError, sysroot.Error):
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 "setup_board with default specifications failed. "
                 "Please configure the board's sysroot separately."
             )

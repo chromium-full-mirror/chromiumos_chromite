@@ -59,13 +59,13 @@ def main(argv) -> None:
     # run uncommitted migrations.
     uncommitted_files = git.RunGit(os.getcwd(), ["status", "-s"]).stdout
     if uncommitted_files:
-        cros_build_lib.Die("You appear to have uncommitted files. Aborting!")
+        cros_build_lib.die("You appear to have uncommitted files. Aborting!")
 
     remote_branches = git.RunGit(
         os.getcwd(), ["branch", "-r", "--contains"]
     ).stdout
     if not remote_branches:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "You appear to be on a local branch of chromite. Aborting!"
         )
 
@@ -88,12 +88,12 @@ def main(argv) -> None:
             'If so, type "%s" now.\n'
         ) % (os.path.join(options.cred_dir, "host.txt"), positive_confirmation)
     else:
-        cros_build_lib.Die("No command or unsupported command. Exiting.")
+        cros_build_lib.die("No command or unsupported command. Exiting.")
 
     print(warn)
     conf_string = input("(%s)?: " % positive_confirmation)
     if conf_string != positive_confirmation:
-        cros_build_lib.Die("You changed your mind. Aborting.")
+        cros_build_lib.die("You changed your mind. Aborting.")
 
     if options.command == MIGRATE:
         print("OK, applying migrations...")

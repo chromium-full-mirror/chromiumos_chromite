@@ -184,7 +184,7 @@ def main(argv) -> None:
         except ValueError:
             continue
     else:
-        cros_build_lib.Die("No project found for %s.", opts.path)
+        cros_build_lib.die("No project found for %s.", opts.path)
 
     if opts.upstream_sha:
         attrs["sha"] = git.RunGit(

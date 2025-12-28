@@ -148,7 +148,7 @@ def fetch_image(board: str, version: str, local_path: str = None) -> str:
         try:
             shutil.copyfile(image_path, local_path)
         except OSError as e:
-            cros_build_lib.Die(
+            cros_build_lib.die(
                 f"Copy error '{image_path}' to '{local_path}': {e}"
             )
 

@@ -44,7 +44,7 @@ def _value(
         try:
             value = getattr(value, part)
         except AttributeError as e:
-            cros_build_lib.Die("Invalid field: %s", e)
+            cros_build_lib.die("Invalid field: %s", e)
 
     return value
 
@@ -68,7 +68,7 @@ def exists(*fields: str):
 
                     value = _value(field, request)
                     if not value or not os.path.exists(value):
-                        cros_build_lib.Die(
+                        cros_build_lib.die(
                             "%s path does not exist: %s", field, value
                         )
 
@@ -98,7 +98,7 @@ def eq(field: str, expected_value: Any):
                 actual_value = _value(field, request)
 
                 if actual_value != expected_value:
-                    cros_build_lib.Die(
+                    cros_build_lib.die(
                         "%s (%r) must be equal to %r",
                         field,
                         actual_value,
@@ -130,7 +130,7 @@ def is_in(field: str, values: Iterable):
                 value = _value(field, request)
 
                 if value not in values:
-                    cros_build_lib.Die(
+                    cros_build_lib.die(
                         "%s (%r) must be in %r", field, value, values
                     )
 
@@ -165,7 +165,7 @@ def each_in(
             if config.do_validation:
                 members = _value(field, request) or []
                 if not optional and not members:
-                    cros_build_lib.Die("The %s field is empty.", field)
+                    cros_build_lib.die("The %s field is empty.", field)
                 for member in members:
                     logging.debug(
                         "Validating %s.[each].%s is in %r.",
@@ -175,7 +175,7 @@ def each_in(
                     )
                     value = _value(subfield, member)
                     if value not in values:
-                        cros_build_lib.Die(
+                        cros_build_lib.die(
                             "%s.[each].%s (%r) must be in %r is required.",
                             field,
                             subfield,
@@ -252,7 +252,7 @@ def check_constraint(field: str, checkfunc: Callable):
 
                     for value, msg in failed:
                         msg += "  %s: %s\n" % (value, msg)
-                    cros_build_lib.Die(msg)
+                    cros_build_lib.die(msg)
 
             return func(request, response, config, *args, **kwargs)
 
@@ -279,7 +279,7 @@ def require(*fields: str):
 
                     value = _value(field, request)
                     if not value:
-                        cros_build_lib.Die("%s is required.", field)
+                        cros_build_lib.die("%s is required.", field)
 
             return func(request, response, config, *args, **kwargs)
 
@@ -307,7 +307,7 @@ def require_any(*fields: str):
                     if value:
                         break
                 else:
-                    cros_build_lib.Die(
+                    cros_build_lib.die(
                         "At least one of the following must be set: %s",
                         ", ".join(fields),
                     )
@@ -344,7 +344,7 @@ def require_each(
             if config.do_validation:
                 members = _value(field, request) or []
                 if not allow_empty and not members:
-                    cros_build_lib.Die("The %s field is empty.", field)
+                    cros_build_lib.die("The %s field is empty.", field)
                 for member in members:
                     for subfield in subfields:
                         logging.debug(
@@ -352,7 +352,7 @@ def require_each(
                         )
                         value = _value(subfield, member)
                         if not value:
-                            cros_build_lib.Die("%s is required.", field)
+                            cros_build_lib.die("%s is required.", field)
 
             return func(request, response, config, *args, **kwargs)
 

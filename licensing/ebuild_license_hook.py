@@ -40,4 +40,4 @@ def main(args) -> None:
     try:
         licenses_lib.HookPackageProcess(opts.builddir, sysroot)
     except licenses_lib.PackageLicenseError as e:
-        cros_build_lib.Die("Licensing error needs resolving: %s", e)
+        cros_build_lib.die("Licensing error needs resolving: %s", e)

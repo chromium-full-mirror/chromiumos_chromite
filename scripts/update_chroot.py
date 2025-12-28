@@ -94,7 +94,7 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     opts.freeze()
 
     if not opts.force:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Automatic chroot upgrade is done by `cros_sdk --update` (normally "
             "enabled by default), and there's generally no need to manually "
             "call update_chroot.  If you really want to update your SDK "

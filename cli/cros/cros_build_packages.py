@@ -407,7 +407,7 @@ class BuildPackagesCommand(command.CliCommand):
                     logging.notice("Tree Status: %s", request.read().decode())
             except urllib.error.HTTPError:
                 pass
-            cros_build_lib.Die(e)
+            cros_build_lib.die(e)
 
 
 @tracer.start_as_current_span("cli.cros.cros_build_packages.build_packages")

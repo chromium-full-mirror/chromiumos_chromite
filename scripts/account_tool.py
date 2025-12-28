@@ -133,6 +133,6 @@ def main(argv):
     elif options.action == ACTION_INSTALL_GROUP:
         account_db.InstallGroup(options.name, installed_users, gid=options.gid)
     else:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Unsupported account type: %s" % options.account_type
         )

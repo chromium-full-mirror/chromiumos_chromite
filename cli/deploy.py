@@ -1163,7 +1163,7 @@ def _Emerge(
                 "(also see crbug.com/920140 for more context)\n"
                 % (pattern, pkg_name)
             )
-            cros_build_lib.Die(error)
+            cros_build_lib.die(error)
     except Exception:
         logging.error("Failed to emerge packages %s", pkg_names)
         raise

@@ -70,7 +70,7 @@ def SyncChrome(gclient_path, options) -> None:
     try:
         gclient.Sync(gclient_path, options.chrome_root, reset=options.reset)
     except cros_build_lib.RunCommandError as e:
-        cros_build_lib.Die(f"gclient sync exited {e.returncode}")
+        cros_build_lib.die(f"gclient sync exited {e.returncode}")
 
 
 def main(argv):

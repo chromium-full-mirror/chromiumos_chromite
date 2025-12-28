@@ -161,7 +161,7 @@ def main(argv) -> None:
     package = options.package
     ebuild_path = portage_util.FindEbuildForBoardPackage(package, board)
     if not ebuild_path:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Could not find package %s for board %s.", package, board
         )
     logging.info("Found corresponding ebuild at: %s", ebuild_path)
@@ -170,7 +170,7 @@ def main(argv) -> None:
     start_date = options.start_date
     end_date = options.end_date
     if start_date and end_date and start_date > end_date:
-        cros_build_lib.Die("Start date must be before end date.")
+        cros_build_lib.die("Start date must be before end date.")
 
     ebuild_commits = get_directory_commits(
         os.path.dirname(ebuild.ebuild_path),
@@ -183,7 +183,7 @@ def main(argv) -> None:
     ebuild_uprev_commit_count = len(ebuild_uprev_commits)
     logging.info("%d of those commits were uprevs.", ebuild_uprev_commit_count)
     if ebuild_uprev_commit_count < 2:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Alas, you need at least 2 uprevs to compute uprev frequency. "
             "Try setting a larger time range?",
             ebuild_uprev_commit_count,

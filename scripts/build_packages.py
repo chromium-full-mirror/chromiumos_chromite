@@ -19,7 +19,7 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
     argv = argv or sys.argv[1:]
     new_argv = ["build-packages", *argv]
     new_command_str = shell_util.cmd_to_str(["cros", *new_argv])
-    cros_build_lib.Die(
+    cros_build_lib.die(
         "build_packages has been renamed to `cros build-packages`.  Please call"
         f" as `{new_command_str}`."
     )

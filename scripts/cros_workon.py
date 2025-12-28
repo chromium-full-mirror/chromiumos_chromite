@@ -96,7 +96,7 @@ def main(argv):
         friendly_name = options.board
         sysroot = build_target_lib.get_default_sysroot_path(options.board)
     else:
-        cros_build_lib.Die("You must specify either --host, --board")
+        cros_build_lib.die("You must specify either --host, --board")
 
     helper = workon_helper.WorkonHelper(sysroot, friendly_name)
     try:
@@ -134,6 +134,6 @@ def main(argv):
                 use_workon_only=options.workon_only,
             )
     except workon_helper.WorkonError as e:
-        cros_build_lib.Die(e)
+        cros_build_lib.die(e)
 
     return 0

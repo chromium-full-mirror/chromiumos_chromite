@@ -87,6 +87,6 @@ def main(argv):
             vboot_hash=opts.vboot_hash,
         )
     except image_lib.Error as e:
-        cros_build_lib.Die(e)
+        cros_build_lib.die(e)
     else:
         return 0 if success else 1

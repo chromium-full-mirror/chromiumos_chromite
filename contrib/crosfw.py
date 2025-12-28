@@ -370,7 +370,7 @@ def SetupBuild(options):
                 if board_format in (PRE_KCONFIG, KCONFIG):
                     target = fields[0]
     if not arch:
-        cros_build_lib.Die(
+        cros_build_lib.die(
             "Selected board '%s' not found in boards.cfg." % board
         )
 
@@ -391,7 +391,7 @@ def SetupBuild(options):
         )
         compiler = result.stdout.strip()
         if not compiler:
-            cros_build_lib.Die("Selected arch '%s' not supported.", arch)
+            cros_build_lib.die("Selected arch '%s' not supported.", arch)
 
     base = [
         "make",

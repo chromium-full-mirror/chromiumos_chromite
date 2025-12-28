@@ -1190,7 +1190,7 @@ class ChrootCreator:
         for line in lines:
             existing_user = line.split(":", 1)[0]
             if existing_user == user:
-                cros_build_lib.Die(
+                cros_build_lib.die(
                     f"{user}: this account cannot be used to build CrOS"
                 )
 
@@ -1255,7 +1255,7 @@ class ChrootCreator:
                 # one. This often comes up with e.g. the "users" group.
                 if entry[2] == str(gid):
                     return
-                cros_build_lib.Die(
+                cros_build_lib.die(
                     f"{group}: this group cannot be used to build CrOS"
                 )
             if entry[0] in groups:
@@ -1513,7 +1513,7 @@ class ChrootEnteror:
             Path(self.chroot.full_path(Path("/") / "usr" / "bin" / "sudo"))
         )
         if st.f_flag & os.ST_NOSUID:
-            cros_build_lib.Die("chroot cannot be in a nosuid mount")
+            cros_build_lib.die("chroot cannot be in a nosuid mount")
 
     def _enter_chroot(
         self, cmd: Optional[List[str]] = None, cwd: Optional[Path] = None

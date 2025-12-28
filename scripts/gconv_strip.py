@@ -116,7 +116,7 @@ class GconvModules:
                         )
                     self._alias[fromset] = toset
                 else:
-                    cros_build_lib.Die("Unknown line: %s", line)
+                    cros_build_lib.die("Unknown line: %s", line)
 
         logging.debug(
             "Found %d modules and %d alias in %s",
@@ -230,7 +230,7 @@ class GconvModules:
                         # Alias to an used module
                         result.append(line)
                 else:
-                    cros_build_lib.Die("Unknown line: %s", line)
+                    cros_build_lib.die("Unknown line: %s", line)
 
         if not dryrun:
             osutils.WriteFile(self._filename, "".join(result))
@@ -271,7 +271,7 @@ def GconvStrip(opts):
     """
     root_st = os.lstat(opts.root)
     if not stat.S_ISDIR(root_st.st_mode):
-        cros_build_lib.Die("root (%s) must be a directory.", opts.root)
+        cros_build_lib.die("root (%s) must be a directory.", opts.root)
 
     # Detect the possible locations of the gconv-modules file.
     gconv_modules_files = glob.glob(os.path.join(opts.root, GCONV_MODULES_PATH))
@@ -283,7 +283,7 @@ def GconvStrip(opts):
     # Only one gconv-modules files should be present, either on /usr/lib or
     # /usr/lib64, but not both.
     if len(gconv_modules_files) > 1:
-        cros_build_lib.Die("Found several gconv-modules files.")
+        cros_build_lib.die("Found several gconv-modules files.")
 
     gconv_modules_file = gconv_modules_files[0]
     logging.info(

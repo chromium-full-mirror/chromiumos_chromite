@@ -49,7 +49,7 @@ def main(argv):
         json1 = json.loads(file1.read_bytes())
         json2 = json.loads(file2.read_bytes())
     except (FileNotFoundError, json.decoder.JSONDecodeError) as e:
-        cros_build_lib.Die("%s", e)
+        cros_build_lib.die("%s", e)
 
     if json1 == json2:
         logging.info("Files are the same")
