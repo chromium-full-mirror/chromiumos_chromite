@@ -45,7 +45,7 @@ def ParseArgs(argv):
     )
     parser.add_argument("pkgs", nargs="*", default=_DEFAULT_PACKAGES)
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

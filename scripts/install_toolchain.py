@@ -73,7 +73,7 @@ def _ParseArgs(argv):
     # Make sure the toolchain value reflects the toolchain we will be using.
     opts.toolchain = _GetToolchain(opts.toolchain, opts.sysroot)
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

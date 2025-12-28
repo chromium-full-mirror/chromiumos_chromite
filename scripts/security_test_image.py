@@ -72,7 +72,7 @@ def _ParseArgs(argv):
         message = re.sub(r"\|(\w+)\|", r"--\1", str(e))
         parser.error(message)
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

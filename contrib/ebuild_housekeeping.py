@@ -617,7 +617,7 @@ def main(argv) -> None:
     opts.overlays = [Path(x).resolve() for x in opts.overlays]
     if opts.grep:
         opts.grep = re.compile(opts.grep)
-    opts.Freeze()
+    opts.freeze()
 
     for overlay in opts.overlays:
         process_overlay(opts, opts.mode, overlay)

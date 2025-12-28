@@ -463,7 +463,7 @@ def parse_args(argv: List[str]):
     """Parses arguments in argv and returns the options."""
     parser = get_arg_parser()
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     # A package must be specified unless we are in fetch-only mode
     if not (opts.fetch_only or opts.packages):

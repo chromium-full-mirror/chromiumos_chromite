@@ -445,7 +445,7 @@ def GetParser():
 def main(argv) -> None:
     parser = GetParser()
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     overlay_dir = os.path.abspath(_OVERLAY_DIR % {"srcroot": options.srcroot})
     android_package_dir = android.GetAndroidPackageDir(

@@ -48,7 +48,7 @@ def main(argv: List[str]) -> int:
     cros_build_lib.AssertInsideChroot()
     parser = create_parser()
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     if options.sysroot is not None:
         sysroot = options.sysroot

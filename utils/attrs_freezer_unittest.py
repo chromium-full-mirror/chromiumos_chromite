@@ -65,7 +65,7 @@ def test_set_existing_attr_after_freezing(
     obj = freezable_class()
     obj.a = 1
     assert obj.a == obj.expected_set_value(1)
-    obj.Freeze()
+    obj.freeze()
     with pytest.raises(attrs_freezer.CannotModifyFrozenAttribute):
         obj.a = 3
     assert obj.a == obj.expected_set_value(1)
@@ -77,7 +77,7 @@ def test_set_new_attr_after_freezing(
 ) -> None:
     """Make sure setattr does nothing to a new attr after freezing."""
     obj = freezable_class()
-    obj.Freeze()
+    obj.freeze()
     assert not hasattr(obj, "c"), "obj.c unexpectedly present before setting"
     with pytest.raises(attrs_freezer.CannotModifyFrozenAttribute):
         obj.c = 3  # type: ignore[attr-defined]
@@ -91,16 +91,16 @@ def test_freezing_one_doesnt_affect_another(
     """Make sure freezing one instance doesn't cause the other to freeze."""
     obj1 = freezable_class()
     obj2 = freezable_class()
-    obj1.Freeze()
+    obj1.freeze()
     obj2.a = 1
 
 
 def test_cannot_override_freeze_method() -> None:
-    """Make sure Freezable subclasses can't override Freeze()."""
+    """Make sure Freezable subclasses can't override freeze()."""
     with pytest.raises(attrs_freezer.CannotCreateFreezableClass):
 
         class _FreezableStub(attrs_freezer.Freezable):
-            def Freeze(self) -> None:
+            def freeze(self) -> None:
                 pass
 
 
@@ -119,7 +119,7 @@ class _FreezableStubWithCustomErrorMessage(
 def test_custom_error_message() -> None:
     """Make sure we can set a custom error message, and it gets used."""
     obj = _FreezableStubWithCustomErrorMessage()
-    obj.Freeze()
+    obj.freeze()
     with pytest.raises(
         attrs_freezer.CannotModifyFrozenAttribute,
         match=r"^Cannot rejigger frozen attribute my_int!$",

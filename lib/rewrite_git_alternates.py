@@ -314,7 +314,7 @@ def main(argv) -> None:
     """The main func!"""
     parser = get_parser()
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     ret = RebuildRepoCheckout(
         opts.repository_root,

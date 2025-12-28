@@ -142,7 +142,7 @@ def ParseArgs(argv):
     parser.add_argument("keysets", nargs="*")
 
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
     return options
 
 

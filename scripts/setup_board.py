@@ -226,7 +226,7 @@ def _ParseArgs(args):
         backtrack=opts.backtrack,
     )
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

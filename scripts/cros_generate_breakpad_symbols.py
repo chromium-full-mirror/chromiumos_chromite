@@ -998,7 +998,7 @@ def parse_args(argv: Optional[List[str]]):
     if opts.board is None and opts.sysroot is None:
         parser.error("--board or --sysroot is required")
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

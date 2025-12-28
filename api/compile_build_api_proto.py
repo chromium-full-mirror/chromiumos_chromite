@@ -452,7 +452,7 @@ def _ParseArguments(argv):
     if opts.destination:
         opts.destination = Path(opts.destination)
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

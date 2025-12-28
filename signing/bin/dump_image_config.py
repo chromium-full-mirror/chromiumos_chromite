@@ -15,6 +15,6 @@ def main(argv) -> None:
     )
 
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     imagefile.DumpConfig(options.input_image)

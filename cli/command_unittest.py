@@ -202,7 +202,7 @@ def test_command_group(args: List[str], expected_return_code: int) -> None:
         except SystemExit as e:
             return e.code or 0
         MainGroup.ProcessOptions(parser, opts)
-        opts.Freeze()
+        opts.freeze()
         cmd = MainGroup(opts)
         try:
             return cmd.Run() or 0

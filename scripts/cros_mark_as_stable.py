@@ -320,7 +320,7 @@ def main(argv) -> None:
         options.buildroot = constants.SOURCE_ROOT
     options.srcroot = None
 
-    options.Freeze()
+    options.freeze()
 
     if options.command == "commit":
         if not options.packages and not options.all:

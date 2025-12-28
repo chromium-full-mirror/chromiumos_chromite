@@ -50,7 +50,7 @@ def Copy(ctx, uri, filename) -> None:
 def main(argv) -> None:
     parser = GetParser()
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
     ctx = gs.GSContext(boto_file=options.boto)
     try:
         Copy(ctx, options.uri, options.filename)

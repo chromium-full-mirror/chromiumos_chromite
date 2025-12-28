@@ -36,7 +36,7 @@ def _parse_arguments(argv):
 
     opts.files = [Path(x) for x in opts.files]
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

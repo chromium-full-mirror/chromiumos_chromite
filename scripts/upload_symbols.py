@@ -736,7 +736,7 @@ def main(argv):
     )
 
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     # Figure out the symbol files/directories to upload.
     if opts.sym_paths:

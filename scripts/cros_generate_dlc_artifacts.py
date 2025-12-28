@@ -154,7 +154,7 @@ def ParseArguments(argv: List[str]) -> commandline.ArgumentNamespace:
     if opts.fs_type != dlc_lib.BLOB_TYPE and not opts.license:
         parser.error("The --license is required for non-blob DLCs.")
 
-    opts.Freeze()
+    opts.freeze()
 
     return opts
 

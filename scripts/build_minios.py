@@ -150,7 +150,7 @@ def GetParser():
 def main(argv) -> None:
     parser = GetParser()
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     if opts.kernel_only:
         if not opts.kernel_output:

@@ -106,7 +106,7 @@ def ParseArgs(argv):
     )
     parser.add_argument("pkgs", nargs="*")
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

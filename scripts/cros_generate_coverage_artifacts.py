@@ -146,7 +146,7 @@ def parse_arguments(argv: Optional[List[str]]) -> argparse.Namespace:
 def main(argv: Optional[List[str]]) -> Optional[int]:
     """Main."""
     opts = parse_arguments(argv)
-    opts.Freeze()
+    opts.freeze()
     if opts.object_files:
         data = generate_llvm_artifacts(opts.object_files)
         (opts.output_dir / _COVERAGE_FILENAME).write_text(

@@ -134,7 +134,7 @@ def _ParseArguments(argv):
     if not opts.devserver:
         opts.devserver = "http://%s:8080" % hostname
 
-    opts.Freeze()
+    opts.freeze()
 
     if not os.path.isdir(opts.sysroot):
         cros_build_lib.Die(

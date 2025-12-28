@@ -60,7 +60,7 @@ def parse_args(argv: List[str]):
     )
 
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
     return options
 
 

@@ -303,7 +303,7 @@ def main(argv: List[str]) -> None:
 
     parser = get_arg_parser()
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     input_dir = resolve_path(opts.clippy_json_dir)
     output_path = resolve_path(opts.output)

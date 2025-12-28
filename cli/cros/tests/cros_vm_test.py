@@ -63,6 +63,6 @@ def _ParseArguments(argv):
 def main(argv) -> None:
     """Main function of the script."""
     options = _ParseArguments(argv)
-    options.Freeze()
+    options.freeze()
     test = CrosVMTest(options.board, options.image_path)
     test.Run()

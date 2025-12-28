@@ -1117,10 +1117,10 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
         options.cls_tested = options.cls_tested.split(",")
         if options.cls_baseline is not None:
             options.cls_baseline = options.cls_baseline.split(",")
-        options.Freeze()
+        options.freeze()
         launch_subcommand(options)
     elif options.subcommand == "process":
-        options.Freeze()
+        options.freeze()
         process_subcommand(options)
     else:
         assert options.subcommand in (

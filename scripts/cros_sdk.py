@@ -679,7 +679,7 @@ def _FinalizeOptions(
     if options.delete_out_dir is None:
         options.delete_out_dir = not options.update
 
-    options.Freeze()
+    options.freeze()
 
     if options.read_only_sticky:
         # Notify the user when toggling stickiness.

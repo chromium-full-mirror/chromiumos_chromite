@@ -81,7 +81,7 @@ def ParseArgs(argv):
     binhost.set_defaults(command="generate-binhosts")
 
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
     return options
 
 

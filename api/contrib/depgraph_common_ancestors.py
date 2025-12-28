@@ -80,7 +80,7 @@ def _ParseArguments(argv):
     if len(opts.packages) < 2:
         parser.error("Must specify at least 2 packages.")
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

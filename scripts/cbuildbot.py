@@ -144,7 +144,7 @@ def _RunBuildStagesWrapper(options, site_config, build_config) -> None:
     # TODO(mtennant): one by one identify each options value override and see if
     # it can be handled another way.  Try to push this freeze closer and closer
     # to the start of the script (e.g. in or after _PostParseCheck).
-    options.Freeze()
+    options.freeze()
 
     metadata_dump_dict = {
         # A detected default has been set before now if it wasn't explicit.

@@ -28,7 +28,7 @@ def main(args) -> None:
     )
 
     opts = parser.parse_args(args)
-    opts.Freeze()
+    opts.freeze()
 
     if not os.path.isdir(opts.builddir):
         parser.error(f"--builddir must be a directory: {opts.builddir}")

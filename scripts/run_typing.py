@@ -174,7 +174,7 @@ def get_parser() -> commandline.ArgumentParser:
 def main(argv: Optional[list[str]] = None) -> Optional[int]:
     parser = get_parser()
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     # Hacky heuristic to see if a path was specified.  If not, use chromite.
     paths = []

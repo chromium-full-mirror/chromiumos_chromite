@@ -734,7 +734,7 @@ def main(argv) -> None:
     )
 
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     gdb_args = []
     inf_args = []

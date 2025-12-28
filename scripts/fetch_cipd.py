@@ -45,7 +45,7 @@ def ParseCipdUri(uri):
 def main(argv) -> None:
     parser = GetParser()
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     (pkgpath, version) = ParseCipdUri(options.uri)
     try:

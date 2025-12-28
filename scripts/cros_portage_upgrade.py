@@ -2015,7 +2015,7 @@ def main(argv) -> None:
     parser = _CreateParser()
     options = parser.parse_args(argv)
     # TODO: Can't freeze until options.host modification below is sorted.
-    # options.Freeze()
+    # options.freeze()
 
     oper.verbose = options.verbose
 

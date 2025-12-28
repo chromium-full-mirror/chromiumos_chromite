@@ -63,7 +63,7 @@ class Options(Protocol):
     upload: List[str]
     jobs: int
 
-    def Freeze(self) -> None:
+    def freeze(self) -> None:
         pass
 
 
@@ -144,7 +144,7 @@ def parse_args(argv: Optional[List[str]]) -> Options:
 
     parser = get_parser()
     opts: Options = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

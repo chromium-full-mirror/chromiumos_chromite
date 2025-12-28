@@ -112,7 +112,7 @@ def main(argv) -> None:
     """Helper method mostly used for manual testing."""
     parser = get_parser()
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     ProcessSymbolsTarball(
         opts.symbols_file, opts.breakpad_dir, opts.symbols_path

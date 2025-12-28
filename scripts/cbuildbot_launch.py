@@ -125,7 +125,7 @@ def PreParseArguments(argv):
             options.buildroot, "repository", ".cache"
         )
 
-    options.Freeze()
+    options.freeze()
 
     # This option isn't required for cbuildbot, but is for us.
     if not options.buildroot:

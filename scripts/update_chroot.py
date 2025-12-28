@@ -91,7 +91,7 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
 
     parser = get_parser()
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     if not opts.force:
         cros_build_lib.Die(

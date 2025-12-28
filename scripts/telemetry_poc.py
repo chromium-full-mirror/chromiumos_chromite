@@ -35,7 +35,7 @@ def parse_arguments(argv: List) -> argparse.Namespace:
     parser = get_parser()
     opts = parser.parse_args(argv)
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

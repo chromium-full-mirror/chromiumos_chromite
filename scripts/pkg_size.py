@@ -87,7 +87,7 @@ def main(argv) -> None:
 
     parser = _get_parser()
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     vdb = package_install_path = ""
     if opts.partition_name == "stateful":

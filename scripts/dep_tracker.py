@@ -297,7 +297,7 @@ def ParseArgs(argv):
     )
 
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

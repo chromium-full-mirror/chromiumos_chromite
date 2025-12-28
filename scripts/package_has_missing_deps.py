@@ -648,7 +648,7 @@ def main(argv: Optional[List[str]]) -> None:
     """Main."""
     commandline.RunInsideChroot()
     opts = parse_arguments(argv)
-    opts.Freeze()
+    opts.freeze()
 
     board = opts.board
     root = build_target_lib.get_default_sysroot_path(board)

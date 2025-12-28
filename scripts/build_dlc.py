@@ -236,7 +236,7 @@ def ValidateArguments(parser, opts, req_flags, invalid_flags) -> None:
 def main(argv) -> None:
     parser = GetParser()
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
     per_dlc_req_args = ["id"]
     per_dlc_invalid_args = []
     if opts.build_package:

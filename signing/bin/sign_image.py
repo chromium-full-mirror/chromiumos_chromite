@@ -86,7 +86,7 @@ def main(argv):
     )
 
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     # See what kind of image this is.
     call_args = SignImageArgs.get(options.image_type, None)

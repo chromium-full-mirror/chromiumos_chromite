@@ -203,6 +203,6 @@ def convert_to_lvm_stateful(in_image_name: Path, out_image_name: Path) -> int:
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
     parser = get_parser()
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     return convert_to_lvm_stateful(opts.from_image, opts.to_image)

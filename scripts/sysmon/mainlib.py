@@ -83,7 +83,7 @@ def main() -> None:
         help="time (in seconds) between sampling system metrics",
     )
     opts = parser.parse_args()
-    opts.Freeze()
+    opts.freeze()
 
     # This call returns a context manager that doesn't do anything, so we
     # ignore the return value.

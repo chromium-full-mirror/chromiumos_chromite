@@ -298,7 +298,7 @@ def ParseArgs(argv):
     PathPrefixDecorator.prefix = opts.filesystem_prefix
     del opts.filesystem_prefix
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

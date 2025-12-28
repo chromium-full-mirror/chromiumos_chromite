@@ -48,7 +48,7 @@ DEBUGGER_PORT = 5678
 def main(argv) -> None:
     parser = get_parser()
     opts = parser.parse_args()
-    opts.Freeze()
+    opts.freeze()
 
     pytest_args = opts.pytest_args
 

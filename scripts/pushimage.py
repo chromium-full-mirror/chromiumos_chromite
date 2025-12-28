@@ -795,7 +795,7 @@ def _parse_args(
                 "--instruction-urls-file must be in a directory that exists."
             )
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

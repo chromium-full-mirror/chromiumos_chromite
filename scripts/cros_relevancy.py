@@ -32,7 +32,7 @@ def parse_arguments(argv: List[str]) -> commandline.ArgumentNamespace:
     """Parse and validate arguments."""
     parser = get_parser()
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

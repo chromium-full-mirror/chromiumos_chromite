@@ -746,7 +746,7 @@ def main(argv: List[str]) -> None:
     cros_build_lib.AssertInsideChroot()
     parser = get_parser()
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     only_files = {Path(f).resolve() for f in opts.file}
 

@@ -150,7 +150,7 @@ def ParseArguments(argv):
 
     opts.path = Path(opts.path).relative_to(constants.SOURCE_ROOT)
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

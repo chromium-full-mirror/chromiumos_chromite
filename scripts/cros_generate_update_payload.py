@@ -67,7 +67,7 @@ def ParseArguments(argv):
     )
 
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     return opts
 

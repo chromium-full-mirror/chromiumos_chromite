@@ -242,6 +242,6 @@ def main(argv) -> None:
     )
 
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     ProcessSymbolsZip(opts.symbols_file, opts.breakpad_dir)

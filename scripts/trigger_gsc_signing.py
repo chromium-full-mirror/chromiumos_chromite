@@ -152,7 +152,7 @@ def LaunchOne(dryrun, builder, properties) -> None:
 def main(argv):
     parser = GetParser()
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     passes = True
 

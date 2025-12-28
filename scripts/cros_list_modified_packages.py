@@ -247,7 +247,7 @@ def _ParseArguments(argv):
     target.add_argument("--sysroot", help="Sysroot path.")
 
     flags = parser.parse_args(argv)
-    flags.Freeze()
+    flags.freeze()
     return flags
 
 

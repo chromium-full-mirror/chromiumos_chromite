@@ -78,7 +78,7 @@ def _main(args: List[str]) -> int:
     except SystemExit as e:
         return e.code or 0
     cros_cron.CronCommand.ProcessOptions(parser, opts)
-    opts.Freeze()
+    opts.freeze()
     cmd = cros_cron.CronCommand(opts)
     try:
         return cmd.Run() or 0

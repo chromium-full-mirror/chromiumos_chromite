@@ -387,7 +387,7 @@ def parse_args(argv):
         argv, namespace=commandline.ArgumentNamespace()
     )
 
-    known.Freeze()
+    known.freeze()
 
     if len(known.parse) > 2:
         parser.error("Unable to compare more than two files.")

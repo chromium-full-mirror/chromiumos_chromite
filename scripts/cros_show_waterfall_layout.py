@@ -12,7 +12,7 @@ def _ParseArguments(argv):
     parser = commandline.ArgumentParser(description=__doc__)
 
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

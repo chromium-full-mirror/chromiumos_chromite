@@ -196,7 +196,7 @@ def parse_args(argv: Optional[List[str]]) -> commandline.ArgumentParser:
     opts.ignore_category = set(opts.ignore_category)
     opts.ignore_package = set(opts.ignore_package)
     opts.ignore_use = set(opts.ignore_use)
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

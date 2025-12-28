@@ -161,7 +161,7 @@ def GetParser():
 def main(argv) -> None:
     parser = GetParser()
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     try:
         os.makedirs(options.output_dir)

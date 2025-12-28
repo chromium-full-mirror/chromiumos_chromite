@@ -9,5 +9,5 @@ from chromite.lib import cros_test
 
 def main(argv):
     opts = cros_test.ParseCommandLine(argv)
-    opts.Freeze()
+    opts.freeze()
     return cros_test.CrOSTest(opts).Run()

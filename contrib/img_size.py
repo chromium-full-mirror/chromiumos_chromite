@@ -69,7 +69,7 @@ def parse_arguments(argv: List) -> argparse.Namespace:
 
     opts.packages = [package_info.parse(x) for x in opts.packages]
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

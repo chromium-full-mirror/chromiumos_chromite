@@ -26,7 +26,7 @@ def ParseArguments(argv):
         help="The path to the directory to output the stateful" "update file.",
     )
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     return opts
 

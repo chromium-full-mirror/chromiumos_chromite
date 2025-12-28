@@ -171,7 +171,7 @@ def parse_arguments(argv: Optional[List[str]]) -> commandline.ArgumentNamespace:
     """Parse and validate arguments."""
     parser = get_parser()
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
 
     if not opts.ap_ro_version in (CROS_CONFIG, OLD_TXTPB, ""):
         verify_version_number(parser, opts.ap_ro_version)

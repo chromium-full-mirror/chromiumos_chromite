@@ -67,7 +67,7 @@ def main(argv) -> None:
     parser.add_argument("--version", help="The image version string.")
     parser.add_argument("--build_id", help="The image build ID string.")
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     default_params = {
         "NAME": "Chromium OS",

@@ -74,7 +74,7 @@ def GetParser():
 def main(argv):
     parser = GetParser()
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     if options.command == "list-all":
         board_to_packages = workon_helper.ListAllWorkedOnAtoms()

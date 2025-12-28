@@ -1571,7 +1571,7 @@ def main(argv) -> None:
         else:
             opts.format = OutputFormat.RAW
 
-    opts.Freeze()
+    opts.freeze()
 
     # pylint: disable=global-statement
     global COLOR

@@ -155,7 +155,7 @@ def get_parser():
 def main(argv) -> None:
     parser = get_parser()
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     board = options.board
     package = options.package

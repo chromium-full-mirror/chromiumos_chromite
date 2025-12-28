@@ -894,7 +894,7 @@ class ParseArgsTest(cros_test_lib.TestCase):
         self.assertEqual("Arick", options.aaa)
 
         # Now freeze the options and try altering again.
-        options.Freeze()
+        options.freeze()
         self.assertRaises(
             commandline.attrs_freezer.CannotModifyFrozenAttribute,
             setattr,

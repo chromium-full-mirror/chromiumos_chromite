@@ -35,7 +35,7 @@ def ParseArguments(argv):
     if not os.path.isdir(opts.output):
         parser.error("Please pass in a valid output directory.")
 
-    opts.Freeze()
+    opts.freeze()
 
     return opts
 

@@ -217,7 +217,7 @@ def _ParseArgs(argv):
         opts.force or opts.build_target.name != read_build_target_file()
     )
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

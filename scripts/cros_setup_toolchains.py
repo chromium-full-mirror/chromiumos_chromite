@@ -1617,7 +1617,7 @@ def GetParser():
 def main(argv):
     parser = GetParser()
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     # Figure out what we're supposed to do and reject conflicting options.
     conflicting_options = (

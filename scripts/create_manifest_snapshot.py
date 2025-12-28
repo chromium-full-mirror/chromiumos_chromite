@@ -131,7 +131,7 @@ def _GitPushProjectUpstream(repo_root, project, dryrun) -> None:
 def main(argv) -> None:
     parser = GetParser()
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     snapshot_ref = options.snapshot_ref
     if snapshot_ref and not snapshot_ref.startswith("refs/"):

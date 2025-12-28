@@ -114,7 +114,7 @@ def ParseArgs(argv: Optional[List[str]]) -> argparse.Namespace:
     )
 
     opts = parser.parse_args(argv)
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

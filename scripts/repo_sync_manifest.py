@@ -219,7 +219,7 @@ def ResolveLocalManifestPath(options):
 def main(argv):
     parser = GetParser()
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     local_manifest = ResolveLocalManifestPath(options)
 

@@ -132,7 +132,7 @@ def _ParseArgs(argv, router):
     opts.config = api_config_lib.build_config_from_proto(config_msg)
     opts.config_handler = handler
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

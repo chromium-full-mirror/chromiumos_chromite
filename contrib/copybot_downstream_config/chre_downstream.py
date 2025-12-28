@@ -24,5 +24,5 @@ def main(args) -> None:
         project="chre", gob_default=constants.INTERNAL_GOB_INSTANCE
     )
     opts = parser.parse_args(args)
-    opts.Freeze()
+    opts.freeze()
     ChreDownstream(opts).run(opts.cmd)

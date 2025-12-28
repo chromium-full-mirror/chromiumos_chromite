@@ -57,7 +57,7 @@ def parse_arguments(argv: List[str]) -> commandline.ArgumentNamespace:
     parser = get_parser()
     opts = parser.parse_args(argv)
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

@@ -33,7 +33,7 @@ def _parse_arguments(argv):
     parser = get_parser()
     opts = parser.parse_args(argv)
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

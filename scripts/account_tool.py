@@ -78,7 +78,7 @@ def GetOptions(argv):
         )
 
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
     return options
 
 

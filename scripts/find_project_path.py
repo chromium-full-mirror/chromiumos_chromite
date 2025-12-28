@@ -38,7 +38,7 @@ def get_parser():
 def main(argv) -> None:
     parser = get_parser()
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
     if options.manifest_file:
         manifest = repo_manifest.Manifest.FromFile(options.manifest_file)
     else:

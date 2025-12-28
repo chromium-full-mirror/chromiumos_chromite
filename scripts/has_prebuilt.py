@@ -65,7 +65,7 @@ def _ParseArguments(argv):
         packages.append(cpv)
     opts.packages = packages
 
-    opts.Freeze()
+    opts.freeze()
     return opts
 
 

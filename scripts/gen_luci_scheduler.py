@@ -242,7 +242,7 @@ def GetParser():
 def main(argv) -> None:
     parser = GetParser()
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     site_config = config_lib.GetConfig()
     with (

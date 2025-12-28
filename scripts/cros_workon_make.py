@@ -75,7 +75,7 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
 def DoMain(argv: Optional[List[str]]) -> Optional[int]:
     parser = GetParser()
     options = parser.parse_args(argv)
-    options.Freeze()
+    options.freeze()
 
     board = options.board
     sysroot = build_target_lib.get_default_sysroot_path(board)
