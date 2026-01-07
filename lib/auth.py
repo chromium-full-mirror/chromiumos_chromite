@@ -6,6 +6,7 @@
 
 import logging
 import os
+from typing import List
 
 from chromite.third_party import httplib2
 
@@ -71,6 +72,19 @@ def GetLuciGitCreds(
         "git-credential-luci",
         instance_id,
     )
+
+
+def Context(cmd: List[str], scopes: List[str] = None) -> List[str]:
+    """Helper to wrap cmd with `luci-auth context --scopes=... -- [cmd]`."""
+    wrapped = [GetLuciAuth(), "context"]
+
+    # By default use basic userinfo.email scope only, the caller should provide
+    # specific scopes as required.
+    use_scopes = ["https://www.googleapis.com/auth/userinfo.email"]
+    if scopes:
+        use_scopes = scopes
+
+    return wrapped + ["-scopes", " ".join(use_scopes), "--"] + cmd
 
 
 def Login(service_account_json=None) -> None:

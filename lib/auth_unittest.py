@@ -21,6 +21,38 @@ class AuthTest(cros_test_lib.RunCommandTestCase):
             auth, "GetLuciGitCreds", return_value="git-credential-luci"
         )
 
+    def testContextDefaultScopes(self) -> None:
+        """Test Context with default scopes."""
+        self.assertEqual(
+            auth.Context(["gsutil", "ls"]),
+            [
+                "luci-auth",
+                "context",
+                "-scopes",
+                "https://www.googleapis.com/auth/userinfo.email",
+                "--",
+                "gsutil",
+                "ls",
+            ],
+        )
+
+    def testContextSuppliedScopes(self) -> None:
+        """Test Context with scopes supplied."""
+        self.assertEqual(
+            auth.Context(
+                ["gsutil", "ls"], ["https://fake-scope", "https://fake-scope2"]
+            ),
+            [
+                "luci-auth",
+                "context",
+                "-scopes",
+                "https://fake-scope https://fake-scope2",
+                "--",
+                "gsutil",
+                "ls",
+            ],
+        )
+
     def testLoginFailed(self) -> None:
         """Test Login failing."""
         self.rc.AddCmdResult(["luci-auth", "login"], stderr="", returncode=1)
