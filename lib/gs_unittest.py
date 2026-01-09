@@ -15,6 +15,7 @@ from unittest import mock
 
 import pytest
 
+from chromite.lib import auth
 from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -984,6 +985,16 @@ class GSContextInitTest(cros_test_lib.MockTempDirTestCase):
         gs.GSContext.DEFAULT_BOTO_FILE = "foo/bar/doesnotexist"
         self.assertEqual(gs.GSContext().boto_file, None)
 
+    def testInitLuciAuthEnvVar(self) -> None:
+        """Test that CROS_USE_LUCI_AUTH env var is honored."""
+        # pylint: disable=protected-access
+        os.environ["CROS_USE_LUCI_AUTH"] = "true"
+        self.assertTrue(gs.GSContext()._use_luci_auth)
+
+        os.environ["CROS_USE_LUCI_AUTH"] = "false"
+        self.assertFalse(gs.GSContext()._use_luci_auth)
+        self.assertFalse(gs.GSContext(use_luci_auth=True)._use_luci_auth)
+
     def testInitAclFile(self) -> None:
         """Test ACL selection logic in __init__."""
         self.assertEqual(gs.GSContext().acl, None)
@@ -1122,6 +1133,18 @@ class GSDoCommandTest(cros_test_lib.TestCase):
     def testDoCommandRecursiveCopy(self) -> None:
         """Test that recursive copy command is honored."""
         self._testDoCommand(self.ctx, recursive=True)
+
+    def testDoCommandLuciAuth(self) -> None:
+        """Test that luci-auth is used when requested."""
+        # pylint: disable=protected-access
+        ctx = gs.GSContext(use_luci_auth=True)
+        with mock.patch.object(
+            auth, "Context", side_effect=lambda cmd, **kwargs: cmd
+        ) as mock_auth:
+            self._testDoCommand(ctx)
+            mock_auth.assert_called_once_with(
+                mock.ANY, scopes=gs._LUCI_AUTH_STORAGE_SCOPES
+            )
 
 
 class GSRetryFilterTest(cros_test_lib.TestCase):

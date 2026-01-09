@@ -22,6 +22,7 @@ import tempfile
 from typing import Dict, NamedTuple, Optional
 import urllib.parse
 
+from chromite.lib import auth
 from chromite.lib import cache
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -38,6 +39,9 @@ from chromite.utils import shell_util
 
 # This bucket has the allAuthenticatedUsers:READER ACL.
 AUTHENTICATION_BUCKET = "gs://chromeos-authentication-bucket/"
+
+# Use luci-auth credentials for GCS authentication instead of .boto credentials.
+_CROS_USE_LUCI_AUTH_DEFAULT = False
 
 # Format used by "gsutil ls -l" when reporting modified time.
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
@@ -63,6 +67,11 @@ LS_LA_RE = re.compile(
 LS_RE = re.compile(
     r"^\s*(?P<content_length>)(?P<creation_time>)(?P<url>.*)"
     r"(?P<generation>)(?P<metageneration>)\s*$"
+)
+
+_LUCI_AUTH_STORAGE_SCOPES = (
+    "https://www.googleapis.com/auth/devstorage.full_control",
+    "https://www.googleapis.com/auth/userinfo.email",
 )
 
 # Format used by ContainsWildCard, which is duplicated from
@@ -523,6 +532,7 @@ wheel: <
         retries=None,
         sleep=None,
         cache_user=None,
+        use_luci_auth=False,
     ) -> None:
         """Constructor.
 
@@ -543,6 +553,9 @@ wheel: <
             retries: Number of times to retry a command before failing.
             sleep: Amount of time to sleep between failures.
             cache_user: user for creating cache_dir for gsutil. Default is None.
+            use_luci_auth: If set to True, the gsutil command will be wrapped
+                with luci-auth context and any configured boto file will be
+                ignored.
         """
         if gsutil_bin is None:
             self.InitializeCache(cache_dir=cache_dir, cache_user=cache_user)
@@ -568,6 +581,11 @@ wheel: <
         # /tmp for the root account.
         if osutils.IsRootUser():
             self.gsutil_flags += ["-o", "GSUtil:state_dir=/tmp/gsutil.root"]
+
+        self._use_luci_auth = shell_util.boolean_value(
+            os.environ.get("CROS_USE_LUCI_AUTH"),
+            use_luci_auth or _CROS_USE_LUCI_AUTH_DEFAULT,
+        )
 
         # Set HTTP proxy if environment variable http_proxy is set
         # (crbug.com/325032).
@@ -1096,6 +1114,10 @@ wheel: <
                 print(cmd)
 
             try:
+                # Wrap command with luci-auth context to authenticate with
+                # luci-auth creds instead of .boto credentials.
+                if self._use_luci_auth:
+                    cmd = auth.Context(cmd, scopes=_LUCI_AUTH_STORAGE_SCOPES)
                 return retry_stats.RetryWithStats(
                     retry_stats.GSUTIL,
                     self._RetryFilter,
@@ -1107,7 +1129,14 @@ wheel: <
                     **kwargs,
                 )
             except cros_build_lib.RunCommandError as e:
-                if any(
+                if self._use_luci_auth:
+                    if "Not logged in.\n\nLogin by running:" in e.result.stderr:
+                        scopes = " ".join(_LUCI_AUTH_STORAGE_SCOPES)
+                        print(
+                            "Not logged in. Login by running: "
+                            f"luci-auth login -scopes '{scopes}'"
+                        )
+                elif any(
                     text in e.result.stderr
                     for text in [
                         # No .boto file exists
