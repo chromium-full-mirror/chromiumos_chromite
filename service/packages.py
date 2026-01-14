@@ -1677,14 +1677,56 @@ def uprev_mtk_optee_os(_build_targets, refs, chroot):
         UprevVersionedPackageResult: The result of updating mtk-optee-os-ta
         ebuilds.
     """
+    # Clone the repository of mtk-optee-os manually.
+    # mtk-optee-os is not in manifest.xml because the source visibility is
+    # limited. The PUpr has the access permission.
+    MTK_OPTEE_OS_DIR = os.path.join(
+        constants.SOURCE_ROOT, "src/partner_private/mediatek/mtk-optee-os"
+    )
+    MTK_OPTEE_OS_GIT_URL = os.path.join(
+        constants.INTERNAL_GOB_URL, "chromeos/vendor/mtk-optee-os"
+    )
+    git.Clone(MTK_OPTEE_OS_DIR, MTK_OPTEE_OS_GIT_URL, depth=1)
+
+    # Create local manifest.xml that contains mtk-optee-os project.
+    # This is necessary to pass the project path sanity check in
+    # ebuild.RevWorkOnEBuild().
+    mtk_optee_os_manifest_path = os.path.join(
+        constants.SOURCE_ROOT, ".repo", "mtk_optee_os_manifest.xml"
+    )
+
+    if os.path.exists(mtk_optee_os_manifest_path):
+        raise UprevError("mtk_optee_os_manifest.xml already exists")
+
+    # local manifest works with `repo` command but not with the code in this
+    # chromite code such as `git.ManifestCheckout`. So here the new tiny
+    # manifest is created.
+    with open(mtk_optee_os_manifest_path, "w", encoding="utf-8") as file:
+        revision = refs[-1].revision
+        logging.info("mtk-optee-os reversion: %s", revision)
+        file.write(
+            "<manifest>\n"
+            '  <include name="default.xml" />\n'
+            '  <project path="src/partner_private/mediatek/mtk-optee-os"\n'
+            '    remote="cros-internal"\n'
+            f'    revision="{revision}"'
+            '    name="chromeos/vendor/mtk-optee-os" />\n'
+            "</manifest>\n"
+        )
+
+    mtk_optee_os_manifest = git.ManifestCheckout(
+        constants.SOURCE_ROOT, mtk_optee_os_manifest_path
+    )
+
+    result = uprev_lib.UprevVersionedPackageResult()
     overlay = os.path.join(
         constants.SOURCE_ROOT,
         constants.CHROMEOS_PARTNER_OVERLAY_DIR,
     )
-    manifest = git.ManifestCheckout.Cached(constants.SOURCE_ROOT)
-    result = uprev_lib.UprevVersionedPackageResult()
 
-    mtk_optee_os_uprev_result = uprev_mtk_optee_os_ebuild(overlay, manifest)
+    mtk_optee_os_uprev_result = uprev_mtk_optee_os_ebuild(
+        overlay, mtk_optee_os_manifest
+    )
     # No uprev is needed.
     if not mtk_optee_os_uprev_result:
         return uprev_lib.UprevVersionedPackageResult()
@@ -1694,7 +1736,7 @@ def uprev_mtk_optee_os(_build_targets, refs, chroot):
     # When mtk-optee-os-ta is upreved, we uprev mtk-optee-os-ta-bins too.
     # Uprev mtk-optee-os-ta-bins to the same version.
     bins_new_ebuild_path = uprev_mtk_optee_os_bins_ebuild(
-        overlay, manifest, new_version
+        overlay, mtk_optee_os_manifest, new_version
     )
     if not bins_new_ebuild_path:
         raise UprevError("Failed to uprev mtk-optee-os-ta-bins ebuild")
