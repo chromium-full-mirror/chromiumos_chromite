@@ -442,6 +442,31 @@ class TestOsutils(cros_test_lib.MockTempDirTestCase):
         self.assertExists(path)
         self.assertEqual(os.stat(path).st_uid, 0)
 
+    def testSafeMakedirsNonRoot(self) -> None:
+        """Test user-owned directory creation inside root-owned directory."""
+        self.ExpectRootOwnedFiles()
+
+        # First, create a root-owned parent directory.
+        root_owned_dir = os.path.join(self.tempdir, "root_owned_dir")
+        self.assertTrue(osutils.SafeMakedirs(root_owned_dir, sudo=True))
+        self.assertExists(root_owned_dir)
+        self.assertEqual(os.stat(root_owned_dir).st_uid, 0)
+
+        # Create some nested non-root-owned directories within the root-owned
+        # parent directory. Because the parent directory is root-owned,
+        # SafeMakedirsNonRoot will be forced to make the directories with sudo
+        # and then chown them back to the non-root user. SafeMakedirsNonRoot
+        # should not chown the parent directory; it should remain root-owned.
+        path_a = os.path.join(root_owned_dir, "a")
+        path_ab = os.path.join(root_owned_dir, "a", "b")
+        path_abc = os.path.join(root_owned_dir, "a", "b", "c")
+        self.assertTrue(osutils.SafeMakedirsNonRoot(path_abc))
+        self.assertExists(path_abc)
+        self.assertEqual(os.stat(root_owned_dir).st_uid, 0)
+        self.assertNotEqual(os.stat(path_a).st_uid, 0)
+        self.assertNotEqual(os.stat(path_ab).st_uid, 0)
+        self.assertNotEqual(os.stat(path_abc).st_uid, 0)
+
     def testSafeMakedirsNoSudoRootOwnedDirs(self) -> None:
         """Test that we can recover some root owned directories."""
         self.ExpectRootOwnedFiles()

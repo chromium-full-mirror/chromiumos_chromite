@@ -299,7 +299,7 @@ def Touch(
 
     # Create the file if nonexistent.
     try:
-        path.open("ab").close()
+        path.open("ab").close()  # pylint: disable=consider-using-with
     except PermissionError:
         # If the file exists, updating the timestamp below via os.utime often
         # works (even if it's owned by someone else).  But if it doesn't exist,
@@ -571,7 +571,10 @@ def SafeUnlink(path: Union[Path, str], sudo: bool = False):
 
 
 def SafeMakedirs(
-    path, mode: int = 0o775, sudo: bool = False, user: str = "root"
+    path: Union[str, os.PathLike],
+    mode: int = 0o775,
+    sudo: bool = False,
+    user: str = "root",
 ) -> bool:
     """Make parent directories if needed. Ignore if existing.
 
@@ -633,7 +636,11 @@ class MakingDirsAsRoot(Exception):
     """Raised when creating directories as root."""
 
 
-def SafeMakedirsNonRoot(path, mode=0o775, user=None) -> bool:
+def SafeMakedirsNonRoot(
+    path: Union[str, os.PathLike],
+    mode: int = 0o775,
+    user: Optional[str] = None,
+) -> bool:
     """Create directories and make sure they are not owned by root.
 
     See SafeMakedirs for the arguments and returns.
@@ -644,18 +651,29 @@ def SafeMakedirsNonRoot(path, mode=0o775, user=None) -> bool:
     if user is None or user == "root":
         raise MakingDirsAsRoot(f"Refusing to create {path} as user {user}!")
 
+    # We want to chown any directories created by SafeMakedirs. Alternatively,
+    # if the directory already exists, we want to make sure it's owned by the
+    # user.
+    current_path = Path(path)
+    dirs_to_chown = [current_path]
+    for parent in current_path.parents:
+        if parent.exists():
+            break
+        dirs_to_chown.append(parent)
+
     created = False
-    should_chown = False
     try:
         created = SafeMakedirs(path, mode=mode)
     except OSError as e:
         if e.errno == errno.EACCES:
             # Create as root and then chown.
-            created = should_chown = SafeMakedirs(path, mode=mode, sudo=True)
+            created = SafeMakedirs(path, mode=mode, sudo=True)
 
-    if os.path.exists(path) and not should_chown:
+    # Chown any of the created directories if necessary.
+    for dir_to_chown in (x for x in dirs_to_chown if x.exists()):
+        should_chown = False
         # Check the owner when we aren't already sure.
-        owner_id = os.stat(path).st_uid
+        owner_id = dir_to_chown.stat().st_uid
         if not owner_id:
             # Owned by root, need to chown.
             should_chown = True
@@ -666,12 +684,13 @@ def SafeMakedirsNonRoot(path, mode=0o775, user=None) -> bool:
             except KeyError as e:
                 # Unexpected, but worth handling, assume chown necessary.
                 logging.debug(
-                    "Unexpected owner, couldn't identify %s: %s", owner_id, e
+                    "Unexpected owner, couldn't identify %s: %s",
+                    owner_id,
+                    e,
                 )
                 should_chown = True
-
-    if should_chown:
-        Chown(path, user=user)
+        if should_chown:
+            Chown(dir_to_chown, user=user)
 
     return created
 
