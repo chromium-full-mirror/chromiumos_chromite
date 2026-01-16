@@ -15,6 +15,7 @@ import re
 import shlex
 import shutil
 import sys
+import tempfile
 from typing import (
     Dict,
     Iterable,
@@ -1488,71 +1489,76 @@ def build_mtk_optee_os_ta_and_upload_bucket(chroot, bins_ebuild_name):
         "mt8196": "rauru",
     }
 
-    tmp_dir = chroot.tempdir()
-    for chipset, board in MTK_OPTEE_OS_BOARDS.items():
-        # Build mtk-optee-os-ta
-        command = [
-            "cros",
-            "build-packages",
-            "--board",
-            board,
-            "mtk-optee-os-ta",
-        ]
-        try:
-            chroot.run(command)
-        except cros_build_lib.RunCommandError:
-            logging.error("Failed build mtk-optee-os-ta: %s", command)
-            raise BuildPackageError
+    with tempfile.TemporaryDirectory() as tmp_dir_path:
+        for chipset, board in MTK_OPTEE_OS_BOARDS.items():
+            # Build mtk-optee-os-ta
+            command = [
+                "cros",
+                "build-packages",
+                "--board",
+                board,
+                "mtk-optee-os-ta",
+            ]
+            try:
+                chroot.run(command)
+            except cros_build_lib.RunCommandError:
+                logging.error("Failed build mtk-optee-os-ta: %s", command)
+                raise BuildPackageError
 
-        sysroot = sysroot_lib.Sysroot(os.path.join("build", board))
-        mtk_optee_os_ta_root = chroot.full_path(
-            sysroot.JoinPath("lib", "mtk-optee-os-ta")
-        )
-        if not os.path.exists(mtk_optee_os_ta_root):
-            logging.error(
-                "mtk-optee-os-ta artifacts not found: %s", mtk_optee_os_ta_root
+            sysroot = sysroot_lib.Sysroot(os.path.join("build", board))
+            mtk_optee_os_ta_root = chroot.full_path(
+                sysroot.JoinPath("lib", "mtk-optee-os-ta")
             )
-            raise BuildPackageError
+            if not os.path.exists(mtk_optee_os_ta_root):
+                logging.error(
+                    "mtk-optee-os-ta artifacts not found: %s",
+                    mtk_optee_os_ta_root,
+                )
+                raise BuildPackageError
 
-        # Collect the built files to the board directory in the temp directory.
-        board_artifacts = []
-        board_dir = os.path.join(tmp_dir.tempdir, chipset)
-        shutil.copytree(mtk_optee_os_ta_root, board_dir)
+            # Collect the built files to the board directory in the temporary
+            # directory.
+            board_artifacts = []
+            board_dir = os.path.join(tmp_dir_path, chipset)
+            shutil.copytree(mtk_optee_os_ta_root, board_dir)
 
-        for root, _, files in os.walk(board_dir):
-            for file in files:
-                board_artifacts.append(os.path.join(root, file))
-        logging.debug("board_artifacts: %s", sorted(board_artifacts))
+            for root, _, files in os.walk(board_dir):
+                for file in files:
+                    board_artifacts.append(os.path.join(root, file))
+            logging.debug("board_artifacts: %s", sorted(board_artifacts))
 
-        if not board_artifacts:
-            logging.error(
-                "no files found in mtk-optee-os-ta: %s", mtk_optee_os_ta_root
+            if not board_artifacts:
+                logging.error(
+                    "no files found in mtk-optee-os-ta: %s",
+                    mtk_optee_os_ta_root,
+                )
+                raise BuildPackageError
+
+        # Compress the board artifiacts.
+        with tempfile.TemporaryDirectory() as tmp_dir2_path:
+            archieve_file = os.path.join(
+                tmp_dir2_path, bins_ebuild_name + ".tar.xz"
             )
-            raise BuildPackageError
+            source_list = []
+            for root, _, files in os.walk(tmp_dir_path):
+                for file in files:
+                    source_list.append(
+                        os.path.relpath(os.path.join(root, file), tmp_dir_path)
+                    )
 
-    # Compress the board artifiacts.
-    tmp_dir2 = chroot.tempdir()
-    archieve_file = os.path.join(tmp_dir2.tempdir, bins_ebuild_name + ".tar.xz")
-    source_list = []
-    for root, _, files in os.walk(tmp_dir.tempdir):
-        for file in files:
-            source_list.append(
-                os.path.relpath(os.path.join(root, file), tmp_dir.tempdir)
+            logging.debug("source list: %s", source_list)
+            compression_lib.create_tarball(
+                archieve_file,
+                tmp_dir_path,
+                compression=compression_lib.CompressionType.XZ,
+                chroot=chroot.path,
+                input=source_list,
             )
 
-    logging.debug("source list: %s", source_list)
-    compression_lib.create_tarball(
-        archieve_file,
-        tmp_dir.tempdir,
-        compression=compression_lib.CompressionType.XZ,
-        chroot=chroot.path,
-        input=source_list,
-    )
-
-    # Upload the artifacts to the bucket
-    gs_context = gs.GSContext()
-    gs_url = "gs://chromeos-localmirror-private/distfiles"
-    gs_context.CopyInto(archieve_file, gs_url)
+            # Upload the artifacts to the bucket
+            gs_context = gs.GSContext()
+            gs_url = "gs://chromeos-localmirror-private/distfiles"
+            gs_context.CopyInto(archieve_file, gs_url)
 
 
 def get_ebuild(overlay, package):
