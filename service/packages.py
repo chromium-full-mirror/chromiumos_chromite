@@ -1618,18 +1618,21 @@ def uprev_mtk_optee_os_ebuild(overlay, manifest):
 
     The new version is 0.0.$`x+1` if the current version is 0.0.`x`. For
     instance, if the current ebuild file is
-    `mtk-optee-os-ta-bins-0.0.4-rXXX.ebuild`, then the new ebuild file is
-    `mtk-optee-os-ta-bins-0.0.5-r1.ebuild`.
+    `mtk-optee-os-ta-0.0.4-rXXX.ebuild`, then the new ebuild file is
+    `mtk-optee-os-ta-0.0.5-r1.ebuild`.
 
     Args:
-        overlay: The overlay the mtk-optee-os-ta-bins.ebuild belongs to.
+        overlay: The overlay the mtk-optee-os-ta.ebuild belongs to.
         manifest: The manifest object.
 
     Returns:
-        The path to the new ebuild path and the version of it.
+        The new version of ebuild file and the list of file paths to register
+        for UprevVersionedPackageResult.
         Returns None if no uprev is needed.
     """
     ebuild = get_ebuild(overlay, "sys-firmware/mtk-optee-os-ta")
+    logging.debug("Ebuild path in mtk-optee-os-ta: %s", ebuild.ebuild_path)
+
     new_version = get_new_version(ebuild)
 
     result = ebuild.RevWorkOnEBuild(
@@ -1641,7 +1644,11 @@ def uprev_mtk_optee_os_ebuild(overlay, manifest):
         return None
 
     new_ebuild_path = result[1]
-    return (new_ebuild_path, new_version)
+    modified_ebuild_paths = [new_ebuild_path]
+    # Add the old ebuild file to remove if it is not -9999.ebuild.
+    if ebuild.version != portage_util.WORKON_EBUILD_VERSION:
+        modified_ebuild_paths.append(ebuild.ebuild_path)
+    return (new_version, modified_ebuild_paths)
 
 
 def uprev_mtk_optee_os_bins_ebuild(overlay, manifest, new_version):
@@ -1656,9 +1663,12 @@ def uprev_mtk_optee_os_bins_ebuild(overlay, manifest, new_version):
         new_version: The new of the new ebuild file.
 
     Returns:
-        The path to the new ebuild path. Returns None if no uprev is needed.
+        The path to the new ebuild path and the list of file paths to register
+        for UprevVersionedPackageResult.
+        Returns None if no uprev is needed.
     """
     ebuild = get_ebuild(overlay, "sys-firmware/mtk-optee-os-ta-bins")
+    logging.debug("Ebuild path in mtk-optee-os-ta-bins: %s", ebuild.ebuild_path)
 
     # Uprev the ebuild to the new version.
     result = ebuild.RevWorkOnEBuild(
@@ -1670,7 +1680,11 @@ def uprev_mtk_optee_os_bins_ebuild(overlay, manifest, new_version):
         return None
 
     new_ebuild_path = result[1]
-    return new_ebuild_path
+    modified_ebuild_paths = [new_ebuild_path]
+    # Add the old ebuild file to remove if it is not -9999.ebuild.
+    if ebuild.version != portage_util.WORKON_EBUILD_VERSION:
+        modified_ebuild_paths.append(ebuild.ebuild_path)
+    return (new_ebuild_path, modified_ebuild_paths)
 
 
 @uprevs_versioned_package("sys-firmware/mtk-optee-os-ta")
@@ -1736,20 +1750,24 @@ def uprev_mtk_optee_os(_build_targets, refs, chroot):
     # No uprev is needed.
     if not mtk_optee_os_uprev_result:
         return uprev_lib.UprevVersionedPackageResult()
-    mtk_optee_os_ebuild_path, new_version = mtk_optee_os_uprev_result
-    result.add_result(refs[-1].revision, mtk_optee_os_ebuild_path)
+
+    new_version, modified_ebuild_paths = mtk_optee_os_uprev_result
+    result.add_result(refs[-1].revision, modified_ebuild_paths)
 
     # When mtk-optee-os-ta is upreved, we uprev mtk-optee-os-ta-bins too.
     # Uprev mtk-optee-os-ta-bins to the same version.
-    bins_new_ebuild_path = uprev_mtk_optee_os_bins_ebuild(
-        overlay, mtk_optee_os_manifest, new_version
+    bins_new_ebuild_path, modified_bins_ebuild_paths = (
+        uprev_mtk_optee_os_bins_ebuild(
+            overlay, mtk_optee_os_manifest, new_version
+        )
     )
+
     if not bins_new_ebuild_path:
         raise UprevError("Failed to uprev mtk-optee-os-ta-bins ebuild")
 
     bins_dir = os.path.dirname(bins_new_ebuild_path)
     bins_new_ebuild_file_name = os.path.basename(bins_new_ebuild_path)
-    result.add_result(refs[-1].revision, bins_new_ebuild_path)
+    result.add_result(refs[-1].revision, modified_bins_ebuild_paths)
 
     # Build mtk-optee-os-ta and uploads the artifacts the Google Storage bucket
     # whose name is the new mtk-optee-os-ta-bins ebuild.
@@ -1763,7 +1781,8 @@ def uprev_mtk_optee_os(_build_targets, refs, chroot):
     portage_util.UpdateEbuildManifest(bins_new_ebuild_path, chroot)
     bins_new_manifest = os.path.join(bins_dir, "Manifest")
 
-    result.add_result(refs[-1].revision, bins_new_manifest)
+    result.add_result(refs[-1].revision, [bins_new_manifest])
+    logging.debug("Modified files list: %s", result.modified)
     return result
 
 
