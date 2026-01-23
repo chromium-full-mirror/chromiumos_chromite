@@ -1671,13 +1671,16 @@ def uprev_mtk_optee_os_bins_ebuild(overlay, manifest, new_version):
     logging.debug("Ebuild path in mtk-optee-os-ta-bins: %s", ebuild.ebuild_path)
 
     # Uprev the ebuild to the new version.
+    # We skip the same ebuild check because the stable ebuild file's content of
+    # mtk-optee-os-ta-bins are identical among different versions as intended.
     result = ebuild.RevWorkOnEBuild(
         os.path.join(constants.SOURCE_ROOT, "src"),
         manifest,
         new_version=new_version,
+        check_same_ebuild=False,
     )
     if not result:
-        return None
+        raise UprevError("Failed to uprev mtk-optee-os-ta-bins ebuild")
 
     new_ebuild_path = result[1]
     modified_ebuild_paths = [new_ebuild_path]

@@ -1202,7 +1202,12 @@ class EBuild:
             return '"%s"' % unformatted_list[0]
 
     def RevWorkOnEBuild(
-        self, srcroot, manifest, reject_self_repo=True, new_version=None
+        self,
+        srcroot,
+        manifest,
+        reject_self_repo=True,
+        new_version=None,
+        check_same_ebuild=True,
     ) -> Optional[Tuple[str, str, Optional[str]]]:
         """Revs a workon ebuild given the git commit hash.
 
@@ -1217,6 +1222,8 @@ class EBuild:
                 git repo as it is tracking for uprevs.
             new_version: The new version number for this ebuild. No revision
                 number.
+            check_same_ebuild: Whether to check if the new ebuild is identical
+                to the old one and skip the uprev if so.
 
         Returns:
             If the revved package is different than the old ebuild, return a
@@ -1355,7 +1362,10 @@ class EBuild:
 
         old_ebuild_path = self.ebuild_path
         if (
-            EBuild._AlmostSameEBuilds(old_ebuild_path, new_stable_ebuild_path)
+            check_same_ebuild
+            and EBuild._AlmostSameEBuilds(
+                old_ebuild_path, new_stable_ebuild_path
+            )
             and not unstable_ebuild_or_files_changed
         ):
             logging.info(
