@@ -19,6 +19,12 @@ Update AP version to 15194.225.185 and preserve EC version.
 ./generate_firmware_configs -b corsola \\
     --ap-ro-version 15194.225.185 --ap-rw-version "" \\
     --ec-ro-version old_txtpb --ec-rw-version old_txtpb
+
+Update EC version to 16660.0.0 and preserve AP version.
+./generate_firmware_configs -b rauru --model navi --no-build \\
+    --ap-ro-version old_txtpb --ap-rw-version old_txtpb \\
+    --ec-ro-version 16660.0.0 --ec-rw-version 16660.0.0 \\
+    --ec-tot-build-id=118396-8683328236611256305
 """
 
 from collections.abc import Callable
@@ -144,20 +150,34 @@ def get_parser() -> commandline.ArgumentParser:
         "a.b.c: specify version.",
     )
     parser.add_argument(
+        "--ec-tot-build-id",
+        type=str,
+        default="",
+        metavar="SUFFIX-ID",
+        help="Specifies the artifact from the main branch Zephyr postsubmit "
+        "builder. Format: 6 digit suffix - 19 digit build ID "
+        "(e.g., 123456-1234567890123456789). All specified versions have to "
+        "be the same version.",
+    )
+    parser.add_argument(
         "--ec-ro-version",
-        choices=(CROS_CONFIG, OLD_TXTPB),
+        type=str,
         default=CROS_CONFIG,
         help="The version of EC RO FW. "
         "cros_config: from cros_config. "
-        "old_txtpb: from old txtpb.",
+        "old_txtpb: from old txtpb. "
+        '"": empty field. '
+        "a.b.c: specify version.",
     )
     parser.add_argument(
         "--ec-rw-version",
-        choices=(CROS_CONFIG, OLD_TXTPB),
+        type=str,
         default=CROS_CONFIG,
         help="The version of EC RW FW. "
         "cros_config: from cros_config. "
-        "old_txtpb: from old txtpb.",
+        "old_txtpb: from old txtpb. "
+        '"": empty field. '
+        "a.b.c: specify version.",
     )
     return parser
 
@@ -189,6 +209,10 @@ def parse_arguments(argv: Optional[List[str]]) -> commandline.ArgumentNamespace:
         verify_version_number(parser, opts.ap_ro_version)
     if not opts.ap_rw_version in (CROS_CONFIG, OLD_TXTPB, ""):
         verify_version_number(parser, opts.ap_rw_version)
+    if not opts.ec_ro_version in (CROS_CONFIG, OLD_TXTPB, ""):
+        verify_version_number(parser, opts.ec_ro_version)
+    if not opts.ec_rw_version in (CROS_CONFIG, OLD_TXTPB, ""):
+        verify_version_number(parser, opts.ec_rw_version)
     return opts
 
 
@@ -255,7 +279,11 @@ def get_firmware_version(
 
 
 def get_firmware_image_archive_uri(
-    board: str, tot_build_id: Optional[str], model: str, version: str
+    board: str,
+    tot_build_id: Optional[str],
+    ec_tot_build_id: Optional[str],
+    model: str,
+    version: str,
 ) -> str:
     """Get firmware image archive URI."""
     branch_point = version.rsplit(".", maxsplit=1)[0]
@@ -268,6 +296,10 @@ def get_firmware_image_archive_uri(
             bucket = "chromeos-image-archive"
             branch = "firmware-android-postsubmit"
             version_folder = f"R*-{version}-{tot_build_id}"
+        elif ec_tot_build_id:
+            bucket = "chromeos-image-archive"
+            branch = "firmware-zephyr-postsubmit"
+            version_folder = f"R*-{version}-{ec_tot_build_id}"
         else:
             bucket = "firmware-image-archive"
             branch = f"firmware-android-R*-{branch_point}.B"
@@ -461,14 +493,30 @@ def process_model(
             get_firmware_image_archive_uri,
             opts.board,
             None,
+            None,
             ap_image_name,
+        )
+        get_ec_uri = functools.partial(
+            get_firmware_image_archive_uri,
+            opts.board,
+            None,
+            None,
+            ap_image_name + ".EC",
         )
     else:
         get_ap_uri = functools.partial(
             get_firmware_image_archive_uri,
             opts.board,
             opts.tot_build_id,
+            None,
             ap_image_name,
+        )
+        get_ec_uri = functools.partial(
+            get_firmware_image_archive_uri,
+            opts.board,
+            None,
+            opts.ec_tot_build_id,
+            ap_image_name + ".EC",
         )
 
     ap_ro_firmware = get_firmware_version_from_option(
@@ -498,7 +546,7 @@ def process_model(
         cros_config_dict[model]["ec_firmware"]["ro_firmware"],
         opts.fix_sha,
         old_message.ec_firmware.ro_firmware,
-        None,
+        get_ec_uri,
     )
     ec_rw_firmware = get_firmware_version_from_option(
         ctx,
@@ -506,7 +554,7 @@ def process_model(
         cros_config_dict[model]["ec_firmware"]["rw_firmware"],
         opts.fix_sha,
         old_message.ec_firmware.rw_firmware,
-        None,
+        get_ec_uri,
     )
     ec_firmware = firmware_config_pb2.FirmwareConfig(
         ro_firmware=ec_ro_firmware,
@@ -515,11 +563,15 @@ def process_model(
 
     ap_firmware_for_ec_rw = get_firmware_version_from_option(
         ctx,
-        opts.ec_rw_version,
+        (
+            opts.ec_rw_version
+            if opts.ec_rw_version in (CROS_CONFIG, OLD_TXTPB)
+            else ""
+        ),
         cros_config_dict[model]["ap_firmware_for_ec_rw"],
         opts.fix_sha,
         old_message.ap_firmware_for_ec_rw,
-        None,
+        get_ap_uri,
     )
 
     message = firmware_config_pb2.FirmwareConfigForModel(
