@@ -261,7 +261,7 @@ def get_firmware_image_archive_uri(
     version_folder = version
     if board == "brya":
         bucket = "firmware-image-archive"
-        branch = "firmware-android-brya-14505.782.B"
+        branch = "firmware-android-brya-14505.885.B"
     else:
         if tot_build_id:
             bucket = "chromeos-image-archive"
