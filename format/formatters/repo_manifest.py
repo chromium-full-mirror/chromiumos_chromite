@@ -28,11 +28,11 @@ import collections
 import io
 import os
 import re
-from typing import List, Optional, Union
+from typing import Iterator, Optional, Union
 from xml.dom import minidom
 
 
-def attrsToDict(node):
+def attrs_to_dict(node):
     """Turn the attributes into a dict for easier management.
 
     The XML API is not easy to work with.
@@ -44,7 +44,7 @@ def attrsToDict(node):
     return ret
 
 
-# Force ordering for some elements/attributes.
+# Force ordering for some elements/attributes.  Default is alphabetical.
 ATTR_ORDER = {
     "annotation": ("name", "value", "keep"),
     "copyfile": ("src", "dest"),
@@ -55,9 +55,9 @@ ATTR_ORDER = {
 }
 
 
-def orderAttrs(node):
+def order_attrs(node):
     """Yields |node|'s attributes in the preferred order."""
-    attrs = attrsToDict(node)
+    attrs = attrs_to_dict(node)
     for name in ATTR_ORDER.get(node.nodeName, ()):
         if name in attrs:
             yield (name, attrs.pop(name))
@@ -84,7 +84,7 @@ def has_children(node) -> bool:
     return False
 
 
-def _sort_children(nodes: List[minidom.Node]) -> List[minidom.Node]:
+def _sort_children(nodes: list[minidom.Node]) -> Iterator[minidom.Node]:
     """Sort |nodes| based on attributes.
 
     Currently this only sorts <project> nodes.
@@ -92,7 +92,7 @@ def _sort_children(nodes: List[minidom.Node]) -> List[minidom.Node]:
 
     def project_key(node):
         """Find the sort key for the project |node|."""
-        attrs = attrsToDict(node)
+        attrs = attrs_to_dict(node)
         # Splitting out numbers allows for natural sorting of versioned paths.
         parts = re.split(r"([0-9]+)", attrs.get("path", attrs["name"]).lower())
         for i, part in enumerate(parts):
@@ -242,7 +242,7 @@ def Data(
 
                     # Indent all the attributes.
                     first = True
-                    for name, value in orderAttrs(node):
+                    for name, value in order_attrs(node):
                         if not first and node.nodeName not in ONE_LINE_NODES:
                             buffer.write("\n" + attr_indent)
                         first = False
