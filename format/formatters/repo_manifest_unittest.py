@@ -114,6 +114,20 @@ maybe -->
 </manifest>
 """,
     ),
+    # Project elements are cleaned up.
+    (
+        """<?xml version="1.0" encoding="UTF-8"?>
+        <manifest>
+        <project name="foo" path="/bar" groups=" one, two " />
+        </manifest>""",
+        """<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <project path="bar"
+           name="foo"
+           groups="one,two" />
+</manifest>
+""",
+    ),
 )
 
 

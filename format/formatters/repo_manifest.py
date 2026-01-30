@@ -24,7 +24,6 @@ The format we enforce:
 See the files in our manifest repos for living examples.
 """
 
-import collections
 import io
 import os
 import re
@@ -32,16 +31,18 @@ from typing import Iterator, Optional, Union
 from xml.dom import minidom
 
 
+def iter_attrs(node) -> Iterator:
+    """Iterate over node attributes."""
+    for i in range(node.attributes.length):
+        yield node.attributes.item(i)
+
+
 def attrs_to_dict(node):
     """Turn the attributes into a dict for easier management.
 
     The XML API is not easy to work with.
     """
-    ret = collections.OrderedDict()
-    for i in range(node.attributes.length):
-        attr = node.attributes.item(i)
-        ret[attr.name] = attr.value
-    return ret
+    return dict((x.name, x.value) for x in iter_attrs(node))
 
 
 # Force ordering for some elements/attributes.  Default is alphabetical.
@@ -152,6 +153,24 @@ def _sort_children(nodes: list[minidom.Node]) -> Iterator[minidom.Node]:
     yield from flush()
 
 
+def scrub_attrs(node) -> None:
+    """Scrub various attributes."""
+    match node.nodeName:
+        case "manifest":
+            # <manifest> should have no attributes.
+            assert not node.attributes, "<manifest> may not have attributes"
+
+        case "project":
+            for attr in iter_attrs(node):
+                match attr.name:
+                    case "name" | "path":
+                        attr.value = attr.value.strip().strip("/")
+                    case "groups":
+                        attr.value = ",".join(
+                            x.strip() for x in attr.value.split(",")
+                        )
+
+
 def Data(
     data: str,
     # pylint: disable=unused-argument
@@ -173,6 +192,10 @@ def Data(
     ) -> None:
         """Recursively format the nodes starting at |root|."""
         indent = "  " * level
+
+        # Scrub attributes first as it affects sorting.
+        for node in (x for x in root.childNodes if x.attributes):
+            scrub_attrs(node)
 
         for node in _sort_children(root.childNodes):
             if node.nodeType == node.COMMENT_NODE:
@@ -235,11 +258,6 @@ def Data(
 
                 attr_indent = " " * len(node_start)
                 if node.attributes:
-                    # Special case <manifest> which should have no attributes.
-                    assert (
-                        node.nodeName != "manifest" or not node.attributes
-                    ), "<manifest> may not have attributes"
-
                     # Indent all the attributes.
                     first = True
                     for name, value in order_attrs(node):
