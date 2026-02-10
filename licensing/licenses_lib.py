@@ -117,6 +117,8 @@ COPYRIGHT_ATTRIBUTION_LICENSES = {
     "BSD-with-disclosure",
     "ISC",  # so does ISC https://opensource.org/licenses/ISC
     "MIT",
+    # NB: MIT-0 does not need attribution.
+    # "MIT-0",
     "MIT-with-advertising",
     "Old-MIT",
 }
