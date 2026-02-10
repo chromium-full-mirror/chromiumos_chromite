@@ -113,7 +113,6 @@ def create_repo(opts: argparse.Namespace, repo: Path) -> None:
     gitdir = path / ".git"
     hooks = gitdir / "hooks"
     commit_msg = hooks / "commit-msg"
-    head = gitdir / "HEAD"
 
     # Only run the init steps once.
     if commit_msg.exists():
@@ -147,10 +146,24 @@ def create_repo(opts: argparse.Namespace, repo: Path) -> None:
         "+refs/meta/config:refs/remotes/origin/meta-config",
     )
     config.set("remote.origin.push", "HEAD:refs/meta/config")
-    if (
-        head.read_text(encoding="utf-8").strip()
-        != "ref: refs/heads/meta-config"
-    ):
+    if not config.exists("remote.review.url"):
+        config.set("remote.review.url", uri)
+    if not config.exists("remote.review.push"):
+        config.set("remote.review.push", "HEAD:refs/for/refs/meta/config")
+
+    orphan = False
+    result = run(
+        ["git", "rev-parse", "remotes/origin/meta-config"],
+        cwd=path,
+        check=False,
+        auto_output=False,
+    )
+    if result.returncode:
+        if result.returncode != 128:
+            result.check_returncode()
+
+        # If it doesn't exist in the remote, the project might not have been
+        # initialized by Gerrit.
         result = run(
             ["git", "fetch", "-q", "origin"],
             cwd=path,
@@ -158,25 +171,23 @@ def create_repo(opts: argparse.Namespace, repo: Path) -> None:
             auto_output=False,
         )
         if result.returncode:
-            # 128 means refs/heads/meta-config doesn't exist which is OK?
             if result.returncode != 128:
                 result.check_returncode()
-            return
-    run(
-        [
-            "git",
-            "checkout",
-            "-q",
-            "-b",
-            "meta-config",
-            "remotes/origin/meta-config",
-        ],
-        cwd=path,
-    )
-    if not config.exists("remote.review.url"):
-        config.set("remote.review.url", uri)
-    if not config.exists("remote.review.push"):
-        config.set("remote.review.push", "HEAD:refs/for/refs/meta/config")
+
+            # Remote doesn't exist yet, so we have to fake it.
+            orphan = True
+
+    cmd = ["git", "checkout", "-q"]
+    if orphan:
+        cmd += ["--orphan", "meta-config"]
+        run(["git", "config", "branch.meta-config.remote", "origin"], cwd=path)
+        run(
+            ["git", "config", "branch.meta-config.merge", "refs/meta/config"],
+            cwd=path,
+        )
+    else:
+        cmd += ["-b", "meta-config", "remotes/origin/meta-config"]
+    run(cmd, cwd=path)
 
     # Do this last as a marker that we finished initializing.
     if not commit_msg.exists():
