@@ -1647,6 +1647,7 @@ def uprev_mtk_optee_os_ebuild(overlay, manifest):
     modified_ebuild_paths = [new_ebuild_path]
     # Add the old ebuild file to remove if it is not -9999.ebuild.
     if ebuild.version != portage_util.WORKON_EBUILD_VERSION:
+        osutils.SafeUnlink(ebuild.ebuild_path)
         modified_ebuild_paths.append(ebuild.ebuild_path)
     return (new_version, modified_ebuild_paths)
 
@@ -1686,6 +1687,7 @@ def uprev_mtk_optee_os_bins_ebuild(overlay, manifest, new_version):
     modified_ebuild_paths = [new_ebuild_path]
     # Add the old ebuild file to remove if it is not -9999.ebuild.
     if ebuild.version != portage_util.WORKON_EBUILD_VERSION:
+        osutils.SafeUnlink(ebuild.ebuild_path)
         modified_ebuild_paths.append(ebuild.ebuild_path)
     return (new_ebuild_path, modified_ebuild_paths)
 
