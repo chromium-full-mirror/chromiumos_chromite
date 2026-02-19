@@ -4,6 +4,8 @@
 
 """Recovery service tests."""
 
+from unittest import mock
+
 from chromite.api import api_config
 from chromite.api.controller import recovery as recovery_controller
 from chromite.api.gen.chromite.api import recovery_pb2
@@ -52,7 +54,7 @@ class CreateRecoveryKernelTest(
             "/sys/custom-packages",
             "/sys",
             False,
-            None,
+            mock.ANY,
             kernel_ramfs="desktop_recovery_ramfs",
             public_key=constants.RECOVERY_PUBLIC_KEY,
             private_key=constants.RECOVERY_DATA_PRIVATE_KEY,
