@@ -201,10 +201,6 @@ class ChromeLKGMCommitter:
             "chromeos-trogdor-chrome",
             "chromeos-volteer-chrome",
         ),
-        "luci.chromium.try": (
-            "chromeos-octopus-rel",
-            "chromeos-jacuzzi-rel",
-        ),
     }
     # Files needed in a local checkout to successfully update the LKGM. The
     # OWNERS file allows the --tbr-owners mechanism to select an appropriate
