@@ -128,7 +128,9 @@ def create_repo(opts: argparse.Namespace, repo: Path) -> None:
                 auto_output=False,
                 check=False,
             )
-            raise
+            # This is a reserved project that no one really gets access to.
+            if str(repo) != "All-Users":
+                raise
         return
 
     path.mkdir(parents=True, exist_ok=True)
