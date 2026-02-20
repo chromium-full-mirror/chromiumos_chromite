@@ -1217,8 +1217,6 @@ class ActionAccount(_ActionSimpleParallelCLs):
                     "groups",
                     "capabilities",
                     "preferences",
-                    "sshkeys",
-                    "gpgkeys",
                 ):
                     # Different Gerrit ACLs control access to these APIs.  While
                     # we open up some (e.g. "View All Accounts"), others remain
