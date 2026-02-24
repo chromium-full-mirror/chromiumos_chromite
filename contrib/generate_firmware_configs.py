@@ -64,6 +64,7 @@ EC_BRANCH_CONFIG = {
     "rauru": EcBranchType.FIRMWARE,
     "fatcat": EcBranchType.FIRMWARE,
     "ocelot": EcBranchType.FIRMWARE,
+    "tanjiro": EcBranchType.FIRMWARE,
 }
 
 
