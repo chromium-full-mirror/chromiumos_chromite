@@ -1397,6 +1397,13 @@ class ChromeSDKCommand(command.CliCommand):
         # Use Chrome's host remote build related flags.
         gn_args.pop("use_siso", None)
 
+        # The ebuild sets clang_diagnostic_dir to an absolute path, and this
+        # becomes /tmp/..., which is not accessible in RBE.
+        # We want to use the default value in chrome build system, which is
+        # relative to the root build dir (e.g. clang-crashreports) which works
+        # on both local and RBE.
+        gn_args.pop("clang_diagnostic_dir", None)
+
         # --internal == --chrome-branding + --official
         if options.chrome_branding or options.internal:
             gn_args["is_chrome_branded"] = True
