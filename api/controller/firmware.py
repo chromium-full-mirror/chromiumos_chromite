@@ -45,6 +45,7 @@ def get_fw_loc(fw_loc: int) -> str:
         common_pb2.PLATFORM_DAGWOOD: "src/platform/dagwood/",
         common_pb2.PLATFORM_EC_LEGACY: "src/platform/ec-legacy/",
         common_pb2.PLATFORM_EC_LEGACY_RENODE: "src/platform/ec-legacy/util/renode/",  # pylint: disable=line-too-long
+        common_pb2.PLATFORM_PDC: "src/platform/pdc",
     }.get(fw_loc, "")
 
 
