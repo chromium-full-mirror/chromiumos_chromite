@@ -337,7 +337,11 @@ def main(argv) -> None:
     else:
         func = functools.partial(create_repo, opts)
 
-    repos = sorted(x for x in live_repos if re.fullmatch(opts.filter, str(x)))
+    # Prioritize missing projects.
+    all_repos = {x for x in live_repos if re.fullmatch(opts.filter, str(x))}
+    missing_repos = {x for x in all_repos if not (opts.output / x).is_dir()}
+    repos = sorted(missing_repos) + sorted(all_repos - missing_repos)
+
     capture = functools.partial(capture_output, func)
     with multiprocessing.Pool(opts.jobs) as pool:
         finished = 0
