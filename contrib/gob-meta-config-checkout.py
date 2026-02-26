@@ -183,6 +183,28 @@ def create_repo(opts: argparse.Namespace, repo: Path) -> None:
         commit_msg.symlink_to(get_hook_commit_msg(opts))
 
 
+def check_repo(opts: argparse.Namespace, repo: Path) -> None:
+    """Check the current |repo| status."""
+    path = opts.output / repo
+    gitdir = path / ".git"
+
+    if not gitdir.is_dir():
+        return
+
+    result = run(["git", "status", "--short"], cwd=path, capture_output=True)
+    for line in result.stdout.splitlines():
+        if line.startswith("??") and line.endswith("/"):
+            continue
+        print(line)
+    result = run(
+        ["git", "rev-list", "--count", "origin/meta-config..HEAD"],
+        cwd=path,
+        capture_output=True,
+    )
+    if result.stdout.strip() != "0":
+        run(["git", "branch", "--verbose"], cwd=path)
+
+
 def capture_output(func: Callable, repo: Path):
     output = io.StringIO()
     with contextlib.redirect_stderr(sys.stdout):
@@ -282,6 +304,11 @@ def get_parser() -> argparse.ArgumentParser:
         help="Only process repos matching this regex",
     )
     parser.add_argument(
+        "--status",
+        action="store_true",
+        help="Show git status instead of updating",
+    )
+    parser.add_argument(
         "--output", type=Path, help="The root directory to write to"
     )
     parser.add_argument("gob", help="The GoB hostname")
@@ -299,12 +326,16 @@ def main(argv) -> None:
     print_status("Caching commit-msg hook ...", end="")
     get_hook_commit_msg(opts)
 
-    func = functools.partial(create_repo, opts)
     print_status("Gathering project list ...", end="")
     live_repos = set(get_repos(opts.gob))
 
     print_status("Cleaning old projects ...", end="")
     cleanup_old_projects(opts, live_repos)
+
+    if opts.status:
+        func = functools.partial(check_repo, opts)
+    else:
+        func = functools.partial(create_repo, opts)
 
     repos = sorted(x for x in live_repos if re.fullmatch(opts.filter, str(x)))
     capture = functools.partial(capture_output, func)
