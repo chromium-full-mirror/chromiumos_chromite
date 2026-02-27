@@ -17,7 +17,7 @@ from chromite.api.gen_sdk.chromiumos import storage_path_pb2 as chromiumos_dot_s
 from chromite.api.gen_sdk.chromiumos.test.api import cros_test_cli_pb2 as chromiumos_dot_test_dot_api_dot_cros__test__cli__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n.chromiumos/test/api/cros_publish_service.proto\x12\x13\x63hromiumos.test.api\x1a\'chromiumos/longrunning/operations.proto\x1a\x19google/protobuf/any.proto\x1a\x1d\x63hromiumos/storage_path.proto\x1a\'chromiumos/test/api/cros_test_cli.proto\"\xd2\x01\n\x0ePublishRequest\x12\x32\n\x11\x61rtifact_dir_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\x12<\n\rtest_response\x18\x02 \x01(\x0b\x32%.chromiumos.test.api.CrosTestResponse\x12\x13\n\x0bretry_count\x18\x03 \x01(\x05\x12&\n\x08metadata\x18\x04 \x01(\x0b\x32\x14.google.protobuf.Any\x12\x11\n\tis_3d_run\x18\x05 \x01(\x08\"\xed\x01\n\x0fPublishResponse\x12;\n\x06status\x18\x01 \x01(\x0e\x32+.chromiumos.test.api.PublishResponse.Status\x12\x0f\n\x07message\x18\x02 \x01(\t\x12&\n\x08metadata\x18\x03 \x01(\x0b\x32\x14.google.protobuf.Any\"d\n\x06Status\x12\x16\n\x12STATUS_UNSPECIFIED\x10\x00\x12\x12\n\x0eSTATUS_SUCCESS\x10\x01\x12\x1a\n\x16STATUS_INVALID_REQUEST\x10\x02\x12\x12\n\x0eSTATUS_FAILURE\x10\x03\x32\x91\x01\n\x15GenericPublishService\x12x\n\x07Publish\x12#.chromiumos.test.api.PublishRequest\x1a!.chromiumos.longrunning.Operation\"%\xd2\x41\"\n\x0fPublishResponse\x12\x0fPublishMetadataB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n.chromiumos/test/api/cros_publish_service.proto\x12\x13\x63hromiumos.test.api\x1a\'chromiumos/longrunning/operations.proto\x1a\x19google/protobuf/any.proto\x1a\x1d\x63hromiumos/storage_path.proto\x1a\'chromiumos/test/api/cros_test_cli.proto\"\xd2\x01\n\x0ePublishRequest\x12\x32\n\x11\x61rtifact_dir_path\x18\x01 \x01(\x0b\x32\x17.chromiumos.StoragePath\x12<\n\rtest_response\x18\x02 \x01(\x0b\x32%.chromiumos.test.api.CrosTestResponse\x12\x13\n\x0bretry_count\x18\x03 \x01(\x05\x12&\n\x08metadata\x18\x04 \x01(\x0b\x32\x14.google.protobuf.Any\x12\x11\n\tis_3d_run\x18\x05 \x01(\x08\"\xca\x02\n\x0fPublishResponse\x12;\n\x06status\x18\x01 \x01(\x0e\x32+.chromiumos.test.api.PublishResponse.Status\x12\x0f\n\x07message\x18\x02 \x01(\t\x12&\n\x08metadata\x18\x03 \x01(\x0b\x32\x14.google.protobuf.Any\x12\x38\n\x05links\x18\x04 \x03(\x0b\x32).chromiumos.test.api.PublishResponse.Link\x1a!\n\x04Link\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0b\n\x03url\x18\x02 \x01(\t\"d\n\x06Status\x12\x16\n\x12STATUS_UNSPECIFIED\x10\x00\x12\x12\n\x0eSTATUS_SUCCESS\x10\x01\x12\x1a\n\x16STATUS_INVALID_REQUEST\x10\x02\x12\x12\n\x0eSTATUS_FAILURE\x10\x03\x32\x91\x01\n\x15GenericPublishService\x12x\n\x07Publish\x12#.chromiumos.test.api.PublishRequest\x1a!.chromiumos.longrunning.Operation\"%\xd2\x41\"\n\x0fPublishResponse\x12\x0fPublishMetadataB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -31,9 +31,11 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_PUBLISHREQUEST']._serialized_start=212
   _globals['_PUBLISHREQUEST']._serialized_end=422
   _globals['_PUBLISHRESPONSE']._serialized_start=425
-  _globals['_PUBLISHRESPONSE']._serialized_end=662
-  _globals['_PUBLISHRESPONSE_STATUS']._serialized_start=562
-  _globals['_PUBLISHRESPONSE_STATUS']._serialized_end=662
-  _globals['_GENERICPUBLISHSERVICE']._serialized_start=665
-  _globals['_GENERICPUBLISHSERVICE']._serialized_end=810
+  _globals['_PUBLISHRESPONSE']._serialized_end=755
+  _globals['_PUBLISHRESPONSE_LINK']._serialized_start=620
+  _globals['_PUBLISHRESPONSE_LINK']._serialized_end=653
+  _globals['_PUBLISHRESPONSE_STATUS']._serialized_start=655
+  _globals['_PUBLISHRESPONSE_STATUS']._serialized_end=755
+  _globals['_GENERICPUBLISHSERVICE']._serialized_start=758
+  _globals['_GENERICPUBLISHSERVICE']._serialized_end=903
 # @@protoc_insertion_point(module_scope)

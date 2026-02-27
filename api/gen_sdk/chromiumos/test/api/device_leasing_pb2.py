@@ -15,7 +15,7 @@ from google.protobuf import duration_pb2 as google_dot_protobuf_dot_duration__pb
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(chromiumos/test/api/device_leasing.proto\x12\x13\x63hromiumos.test.api\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbf\x02\n\x0eVMRequirements\x12\x11\n\tgce_image\x18\x01 \x01(\t\x12\x12\n\ngce_region\x18\x02 \x01(\t\x12\x13\n\x0bgce_project\x18\x03 \x01(\t\x12\x13\n\x0bgce_network\x18\x04 \x01(\t\x12\x12\n\ngce_subnet\x18\x05 \x01(\t\x12#\n\x1bsubnet_mode_network_enabled\x18\x0b \x01(\x08\x12\x18\n\x10gce_machine_type\x18\x06 \x01(\t\x12\x11\n\tgce_scope\x18\x07 \x01(\t\x12\x16\n\x0egce_ip_address\x18\x08 \x01(\t\x12\x15\n\rgce_disk_size\x18\n \x01(\x03\x12\x1c\n\x14gce_min_cpu_platform\x18\x0c \x01(\t\x12)\n\x04type\x18\t \x01(\x0e\x32\x1b.chromiumos.test.api.VMType\"\x84\x02\n\x14HardwareRequirements\x12\\\n\x12schedulable_labels\x18\x01 \x03(\x0b\x32@.chromiumos.test.api.HardwareRequirements.SchedulableLabelsEntry\x1a\x1d\n\x0bLabelValues\x12\x0e\n\x06values\x18\x01 \x03(\t\x1ao\n\x16SchedulableLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x44\n\x05value\x18\x02 \x01(\x0b\x32\x35.chromiumos.test.api.HardwareRequirements.LabelValues:\x02\x38\x01\"\xf7\x01\n\x12\x45xtendLeaseRequest\x12\x10\n\x08lease_id\x18\x01 \x01(\t\x12\x32\n\x0f\x65xtend_duration\x18\x02 \x01(\x0b\x32\x19.google.protobuf.Duration\x12\x17\n\x0fidempotency_key\x18\x03 \x01(\t\x12N\n\x0cuser_payload\x18\x04 \x03(\x0b\x32\x38.chromiumos.test.api.ExtendLeaseRequest.UserPayloadEntry\x1a\x32\n\x10UserPayloadEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\\\n\x13\x45xtendLeaseResponse\x12\x10\n\x08lease_id\x18\x01 \x01(\t\x12\x33\n\x0f\x65xpiration_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp*E\n\x06VMType\x12\x17\n\x13VM_TYPE_UNSPECIFIED\x10\x00\x12\x0f\n\x0bVM_TYPE_DUT\x10\x01\x12\x11\n\rVM_TYPE_DRONE\x10\x02\x42/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(chromiumos/test/api/device_leasing.proto\x12\x13\x63hromiumos.test.api\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbf\x02\n\x0eVMRequirements\x12\x11\n\tgce_image\x18\x01 \x01(\t\x12\x12\n\ngce_region\x18\x02 \x01(\t\x12\x13\n\x0bgce_project\x18\x03 \x01(\t\x12\x13\n\x0bgce_network\x18\x04 \x01(\t\x12\x12\n\ngce_subnet\x18\x05 \x01(\t\x12#\n\x1bsubnet_mode_network_enabled\x18\x0b \x01(\x08\x12\x18\n\x10gce_machine_type\x18\x06 \x01(\t\x12\x11\n\tgce_scope\x18\x07 \x01(\t\x12\x16\n\x0egce_ip_address\x18\x08 \x01(\t\x12\x15\n\rgce_disk_size\x18\n \x01(\x03\x12\x1c\n\x14gce_min_cpu_platform\x18\x0c \x01(\t\x12)\n\x04type\x18\t \x01(\x0e\x32\x1b.chromiumos.test.api.VMType\"\x84\x02\n\x14HardwareRequirements\x12\\\n\x12schedulable_labels\x18\x01 \x03(\x0b\x32@.chromiumos.test.api.HardwareRequirements.SchedulableLabelsEntry\x1a\x1d\n\x0bLabelValues\x12\x0e\n\x06values\x18\x01 \x03(\t\x1ao\n\x16SchedulableLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x44\n\x05value\x18\x02 \x01(\x0b\x32\x35.chromiumos.test.api.HardwareRequirements.LabelValues:\x02\x38\x01\"\xb7\x02\n\x12\x45xtendLeaseRequest\x12\x10\n\x08lease_id\x18\x01 \x01(\t\x12\x32\n\x0f\x65xtend_duration\x18\x02 \x01(\x0b\x32\x19.google.protobuf.Duration\x12\x17\n\x0fidempotency_key\x18\x03 \x01(\t\x12N\n\x0cuser_payload\x18\x04 \x03(\x0b\x32\x38.chromiumos.test.api.ExtendLeaseRequest.UserPayloadEntry\x12>\n\x17on_expiration_dut_state\x18\x05 \x01(\x0e\x32\x1d.chromiumos.test.api.DutState\x1a\x32\n\x10UserPayloadEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\\\n\x13\x45xtendLeaseResponse\x12\x10\n\x08lease_id\x18\x01 \x01(\t\x12\x33\n\x0f\x65xpiration_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp*E\n\x06VMType\x12\x17\n\x13VM_TYPE_UNSPECIFIED\x10\x00\x12\x0f\n\x0bVM_TYPE_DUT\x10\x01\x12\x11\n\rVM_TYPE_DRONE\x10\x02*W\n\x08\x44utState\x12\x19\n\x15\x44UT_STATE_UNSPECIFIED\x10\x00\x12\x14\n\x10\x44UT_STATE_NORMAL\x10\x01\x12\x1a\n\x16\x44UT_STATE_NEEDS_REPAIR\x10\x02\x42/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -28,8 +28,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _HARDWAREREQUIREMENTS_SCHEDULABLELABELSENTRY._serialized_options = b'8\001'
   _EXTENDLEASEREQUEST_USERPAYLOADENTRY._options = None
   _EXTENDLEASEREQUEST_USERPAYLOADENTRY._serialized_options = b'8\001'
-  _globals['_VMTYPE']._serialized_start=1059
-  _globals['_VMTYPE']._serialized_end=1128
+  _globals['_VMTYPE']._serialized_start=1123
+  _globals['_VMTYPE']._serialized_end=1192
+  _globals['_DUTSTATE']._serialized_start=1194
+  _globals['_DUTSTATE']._serialized_end=1281
   _globals['_VMREQUIREMENTS']._serialized_start=131
   _globals['_VMREQUIREMENTS']._serialized_end=450
   _globals['_HARDWAREREQUIREMENTS']._serialized_start=453
@@ -39,9 +41,9 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_HARDWAREREQUIREMENTS_SCHEDULABLELABELSENTRY']._serialized_start=602
   _globals['_HARDWAREREQUIREMENTS_SCHEDULABLELABELSENTRY']._serialized_end=713
   _globals['_EXTENDLEASEREQUEST']._serialized_start=716
-  _globals['_EXTENDLEASEREQUEST']._serialized_end=963
-  _globals['_EXTENDLEASEREQUEST_USERPAYLOADENTRY']._serialized_start=913
-  _globals['_EXTENDLEASEREQUEST_USERPAYLOADENTRY']._serialized_end=963
-  _globals['_EXTENDLEASERESPONSE']._serialized_start=965
-  _globals['_EXTENDLEASERESPONSE']._serialized_end=1057
+  _globals['_EXTENDLEASEREQUEST']._serialized_end=1027
+  _globals['_EXTENDLEASEREQUEST_USERPAYLOADENTRY']._serialized_start=977
+  _globals['_EXTENDLEASEREQUEST_USERPAYLOADENTRY']._serialized_end=1027
+  _globals['_EXTENDLEASERESPONSE']._serialized_start=1029
+  _globals['_EXTENDLEASERESPONSE']._serialized_end=1121
 # @@protoc_insertion_point(module_scope)
