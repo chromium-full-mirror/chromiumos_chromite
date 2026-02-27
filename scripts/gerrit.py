@@ -25,6 +25,7 @@ import signal
 import subprocess
 import sys
 from typing import List, Set, Tuple
+import urllib.parse
 
 from chromite.lib import chromite_config
 from chromite.lib import commandline
@@ -1235,6 +1236,52 @@ class ActionAccount(_ActionSimpleParallelCLs):
                     print_one(field, data)
 
         _run_parallel_tasks(task, opts.jobs, *opts.accounts)
+
+
+class ActionCheckAccess(UserAction):
+    """Check access to projects"""
+
+    COMMAND = "check-access"
+
+    @staticmethod
+    def init_subparser(parser) -> None:
+        """Add arguments to this action's subparser."""
+        parser.add_argument(
+            "--perm",
+            "--permission",
+            help="The permission to check, e.g. 'push'",
+        )
+        parser.add_argument(
+            "--ref",
+            help="The ref to check, e.g. 'refs/heads/main'",
+        )
+        parser.add_argument(
+            "--account",
+            default="self",
+            help="The account to check (default: %(default)s)",
+        )
+        parser.add_argument("project", help="The project to check")
+
+    @classmethod
+    def __call__(cls, opts) -> None:
+        """Implement the action."""
+        helper, _ = GetGerrit(opts)
+
+        project = urllib.parse.quote(opts.project, safe="")
+
+        fields = {"account": opts.account}
+        if opts.perm:
+            fields["perm"] = opts.perm
+        if opts.ref:
+            fields["ref"] = urllib.parse.quote(opts.ref, safe="")
+        qs = "&".join(f"{k}={v}" for k, v in fields.items())
+
+        data = gob_util.FetchUrlJson(
+            helper.host,
+            f"projects/{project}/check.access?{qs}",
+        )
+        compact = opts.format is OutputFormat.JSON
+        print(pformat.json(data, compact=compact).rstrip())
 
 
 class ActionConfig(UserAction):
