@@ -117,7 +117,6 @@ _wrapper_dir = "/usr/local/bin"
 _IMPLICIT_SYSROOT_DEPS_KEY = "IMPLICIT_SYSROOT_DEPS"
 _IMPLICIT_SYSROOT_DEPS = [
     "sys-kernel/linux-headers",
-    "sys-libs/gcc-libs",
     "sys-libs/libcxx",
 ]
 
@@ -1193,7 +1192,7 @@ PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
         """Updates the toolchain packages.
 
         This will install both the toolchains and the packages that are
-        implicitly needed (gcc-libs, linux-headers).
+        implicitly needed (linux-headers).
 
         Args:
             board: The name of the board.

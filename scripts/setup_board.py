@@ -7,7 +7,7 @@
 The setup_board process includes the simple directory creations, installs
 several configuration files, sets up portage command wrappers and configs,
 and installs the toolchain and some core dependency packages (e.g. kernel
-headers, gcc-libs).
+headers).
 """
 
 import argparse
