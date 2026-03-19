@@ -471,7 +471,6 @@ _COPY_PATHS_CHROME_WITHOUT_EXE = (
     # will be used by a Tast test that is too large to pass on the command
     # line from a swarming task.
     Path("variations_seed.txt", optional=True),
-    Path("xdg-settings"),
     Path("*.png"),
 ) + _COPY_PATHS_COMMON
 
