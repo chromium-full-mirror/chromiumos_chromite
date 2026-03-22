@@ -75,12 +75,22 @@ class NonClassTests(cros_test_lib.MockTestCase):
 
         git_mock.AddCmdResult(["checkout", self._branch])
 
+        allowed_authors = [
+            "chrome-bot",
+            "chromeos-ci-prod",
+            "chromeos-ci-release",
+            "chromeos-firmware",
+        ]
+
+        # Create a regex filter for allowed bot authors.
+        author_filter = f"^(?!{'|'.join(allowed_authors)})"
+
         cmd = [
             "log",
             "--format=short",
             "--perl-regexp",
             "--author",
-            "^(?!chrome-bot|chromeos-ci-prod|chromeos-ci-release)",
+            author_filter,
             "refs/remotes/gerrit/master..%s" % self._branch,
         ]
 

@@ -144,9 +144,16 @@ def PushChange(
         return
 
     # Add a failsafe check here.  Only CLs from these users should be here.
-    #  - 'chrome-bot',
-    #  - 'chromeos-ci-prod'
-    #  - 'chromeos-ci-release'
+    allowed_authors = [
+        "chrome-bot",
+        "chromeos-ci-prod",
+        "chromeos-ci-release",
+        "chromeos-firmware",
+    ]
+
+    # Create a regex filter for allowed bot authors.
+    author_filter = f"^(?!{'|'.join(allowed_authors)})"
+
     # If any other CLs are found then complain. In dryruns extra CLs are normal,
     # though, and can be ignored.
     bad_cl_cmd = [
@@ -154,14 +161,14 @@ def PushChange(
         "--format=short",
         "--perl-regexp",
         "--author",
-        "^(?!chrome-bot|chromeos-ci-prod|chromeos-ci-release)",
+        author_filter,
         "%s..%s" % (remote_ref.ref, stable_branch),
     ]
     bad_cls = git.RunGit(cwd, bad_cl_cmd).stdout
     if bad_cls.strip() and not dryrun:
         logging.error(
-            "The Uprev stage found changes from users other than "
-            "chrome-bot or chromeos-ci-prod or chromeos-ci-release:\n\n%s",
+            "The Uprev stage found changes from users other than %s:\n\n%s",
+            ", ".join(allowed_authors),
             bad_cls,
         )
         raise AssertionError("Unexpected CLs found during uprev stage.")
