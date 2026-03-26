@@ -757,6 +757,11 @@ def SelectActiveToolchains(targets, root="/") -> None:
             desired = desired_num[0]
             # *-config does not play revisions, strip them, keep just PV.
             desired = portage.versions.pkgsplit("%s-%s" % (package, desired))[1]
+            # Modern toolchain.eclass uses GCC major version for profiles
+            # (e.g. "15") when PV contains a _p* snapshot suffix, while
+            # older ebuilds use the full PV (e.g. "10.2.0").
+            if "_p" in desired:
+                desired = desired.split(".")[0]
 
             if target.startswith("host"):
                 # *-config is the only tool treating host identically (by
