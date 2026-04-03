@@ -128,8 +128,8 @@ def _ReapChildren(
                 raise
 
 
-def _SafeTcSetPgrp(fd, pgrp) -> None:
-    """Set |pgrp| as the controller of the tty |fd|."""
+def _SafeTcSetPgrp(fd: int, pgrp: int) -> None:
+    """Set |pgrp| as the controller of the tty associated with |fd|."""
     try:
         curr_pgrp = os.tcgetpgrp(fd)
     except OSError as e:
@@ -142,6 +142,14 @@ def _SafeTcSetPgrp(fd, pgrp) -> None:
     # stopped by the kernel with SIGTTOU and that'll hit the whole group.
     if curr_pgrp == os.getpgrp():
         os.tcsetpgrp(fd, pgrp)
+
+
+def _ForwardControlOfTerminal(pgrp: int) -> None:
+    """Forward control of the terminal(s) connected to stdio to |pgrp|."""
+    # Try all of the stdio fd's as some of them might be bound to /dev/null.
+    # _SafeTcSetPgrp is idempotent so it's fine if we touch the same tty again.
+    for fp in (sys.stdin, sys.stdout, sys.stderr):
+        _SafeTcSetPgrp(fp.fileno(), pgrp)
 
 
 def _ForwardToChildPid(
@@ -247,7 +255,7 @@ def CreatePidNs(uid: Optional[int] = None, gid: Optional[int] = None) -> int:
 
         # Forward the control of the terminal to the child so it can manage
         # input.
-        _SafeTcSetPgrp(sys.stdin.fileno(), pid)
+        _ForwardControlOfTerminal(pid)
 
         # Signal our child it can move forward.
         lock.Post()
@@ -316,7 +324,7 @@ def CreatePidNs(uid: Optional[int] = None, gid: Optional[int] = None) -> int:
 
             # Forward the control of the terminal to the child so it can manage
             # input.
-            _SafeTcSetPgrp(sys.stdin.fileno(), pid)
+            _ForwardControlOfTerminal(pid)
 
             # Signal our child it can move forward.
             lock.Post()
