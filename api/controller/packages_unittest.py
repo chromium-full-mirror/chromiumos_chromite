@@ -189,7 +189,7 @@ class UprevVersionedPackageTest(cros_test_lib.MockTestCase, ApiConfigMixin):
     def testOutputHandling(self) -> None:
         """Test the modified files are getting correctly added to the output."""
         version = "1.2.3.4"
-        result = uprev_lib.UprevVersionedPackageResult().add_result(
+        result = uprev_lib.UprevVersionedResult().add_result(
             version, ["/file/one", "/file/two"]
         )
 

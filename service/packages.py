@@ -268,7 +268,7 @@ def uprev_android_lkgb(
     android_package: str,
     build_targets: List["build_target_lib.BuildTarget"],
     chroot: "chroot_lib.Chroot",
-) -> uprev_lib.UprevVersionedPackageResult:
+) -> uprev_lib.UprevVersionedResult:
     """Uprevs an Android package to the version specified in the LKGB file.
 
     This is the PUpr handler for Android packages, triggered whenever the
@@ -284,15 +284,14 @@ def uprev_android_lkgb(
         chroot: The chroot to enter.
 
     Returns:
-        An uprev_lib.UprevVersionedPackageResult containing the new version and
-        a list of modified files.
+        The new version and a list of modified files.
     """
     android_package_dir = android.GetAndroidPackageDir(android_package)
     lkgb = android.ReadLKGB(android_package_dir)
     android_version = lkgb["build_id"]
     android_branch = lkgb.get("branch", None)
 
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     uprev_result = uprev_android(
         android_package,
         chroot,
@@ -409,7 +408,7 @@ def uprev_versioned_package(
     build_targets: List["build_target_lib.BuildTarget"],
     refs: List[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
-) -> "uprev_lib.UprevVersionedPackageResult":
+) -> "uprev_lib.UprevVersionedResult":
     """Call registered uprev handler function for the package.
 
     Args:
@@ -432,14 +431,17 @@ def uprev_versioned_package(
 
 
 @uprevs_versioned_package("media-libs/virglrenderer")
-def uprev_virglrenderer(_build_targets, refs, _chroot):
+def uprev_virglrenderer(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    _chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates virglrenderer ebuilds.
 
     See: uprev_versioned_package.
 
     Returns:
-        UprevVersionedPackageResult: The result of updating virglrenderer
-        ebuilds.
+        The result of updating virglrenderer ebuilds.
     """
     overlay = os.path.join(
         constants.SOURCE_ROOT, constants.CHROMIUMOS_OVERLAY_DIR
@@ -456,20 +458,23 @@ def uprev_virglrenderer(_build_targets, refs, _chroot):
     uprev_manager.uprev(package_list=["media-libs/virglrenderer"], force=True)
 
     updated_files = uprev_manager.modified_ebuilds
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     result.add_result(refs[-1].revision, updated_files)
     return result
 
 
 @uprevs_versioned_package("x11-apps/igt-gpu-tools")
-def uprev_igt_gpu_tools(_build_targets, refs, _chroot):
+def uprev_igt_gpu_tools(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    _chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates igt-gpu-tools ebuilds.
 
     See: uprev_versioned_package.
 
     Returns:
-        UprevVersionedPackageResult: The result of updating igt-gpu-tools
-        ebuilds.
+        The result of updating igt-gpu-tools ebuilds.
     """
     overlay = os.path.join(
         constants.SOURCE_ROOT, constants.CHROMIUMOS_OVERLAY_DIR
@@ -483,24 +488,28 @@ def uprev_igt_gpu_tools(_build_targets, refs, _chroot):
     uprev_manager.uprev(package_list=["x11-apps/igt-gpu-tools"], force=True)
 
     updated_files = uprev_manager.modified_ebuilds
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     result.add_result(refs[-1].revision, updated_files)
     return result
 
 
 @uprevs_versioned_package("chromeos-base/drivefs")
-def uprev_drivefs(_build_targets, refs, chroot):
+def uprev_drivefs(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates drivefs ebuilds.
 
     DriveFS versions follow the tag format of refs/tags/drivefs_1.2.3.
     See: uprev_versioned_package.
 
     Returns:
-        UprevVersionedPackageResult: The result of updating drivefs ebuilds.
+        The result of updating drivefs ebuilds.
     """
 
     DRIVEFS_PATH_PREFIX = "src/private-overlays/chromeos-overlay/chromeos-base"
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     all_changed_files = []
 
     DRIVEFS_REFS_PREFIX = "refs/tags/drivefs_"
@@ -527,16 +536,20 @@ def uprev_drivefs(_build_targets, refs, chroot):
 
 @uprevs_versioned_package("chromeos-base/perfetto")
 @uprevs_versioned_package("dev-go/perfetto-protos")
-def uprev_perfetto(_build_targets, refs, chroot):
+def uprev_perfetto(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates Perfetto ebuilds.
 
     Perfetto versions follow the tag format of refs/tags/v1.2.
     See: uprev_versioned_package.
 
     Returns:
-        UprevVersionedPackageResult: The result of updating Perfetto ebuilds.
+        The result of updating Perfetto ebuilds.
     """
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
 
     PERFETTO_REFS_PREFIX = "refs/tags/v"
 
@@ -594,10 +607,17 @@ class AfdoMetadata(NamedTuple):
 
 
 @uprevs_versioned_package("afdo/kernel-profiles")
-def uprev_kernel_afdo(_build_targets, _refs, chroot: "chroot_lib.Chroot"):
+def uprev_kernel_afdo(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    _refs: List[uprev_lib.GitRef],
+    chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates kernel ebuilds with versions from kernel_afdo.json.
 
     See: uprev_versioned_package.
+
+    Returns:
+        The result of updating kernel ebuilds.
 
     Raises:
         EbuildManifestError: When ebuild manifest does not complete
@@ -622,7 +642,7 @@ def uprev_kernel_afdo(_build_targets, _refs, chroot: "chroot_lib.Chroot"):
         ),
     )
 
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     for metadata in metadata_files:
         with open(metadata.path, "r", encoding="utf-8") as f:
             versions = json.load(f)
@@ -664,13 +684,20 @@ def uprev_kernel_afdo(_build_targets, _refs, chroot: "chroot_lib.Chroot"):
 
 @uprevs_versioned_package("chromeos-base/termina-dlc")
 @uprevs_versioned_package("chromeos-base/termina-tools-dlc")
-def uprev_termina_dlcs(_build_targets, _refs, chroot):
+def uprev_termina_dlcs(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    _refs: List[uprev_lib.GitRef],
+    chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates shared termina-dlc and termina-tools-dlc ebuilds.
 
     termina-dlc - chromeos-base/termina-dlc
     termina-tools-dlc - chromeos-base/termina-tools-dlc
 
     See: uprev_versioned_package.
+
+    Returns:
+        The result of updating termina-dlc ebuilds.
     """
     termina_dlc_pkg = "termina-dlc"
     termina_dlc_pkg_path = os.path.join(
@@ -696,13 +723,17 @@ def uprev_termina_dlcs(_build_targets, _refs, chroot):
 
 
 @uprevs_versioned_package("app-emulation/parallels-desktop")
-def uprev_parallels_desktop(_build_targets, _refs, chroot):
+def uprev_parallels_desktop(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    _refs: List[uprev_lib.GitRef],
+    chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates Parallels Desktop ebuild - app-emulation/parallels-desktop.
 
-    See: uprev_versioned_package
+    See: uprev_versioned_package.
 
     Returns:
-        UprevVersionedPackageResult: The result.
+        The result of updating Parallels Desktop ebuilds.
     """
     package = "parallels-desktop"
     package_path = os.path.join(
@@ -748,10 +779,17 @@ def uprev_parallels_desktop(_build_targets, _refs, chroot):
 
 
 @uprevs_versioned_package("chromeos-base/borealis-dlc")
-def uprev_borealis_dlc(_build_targets, _refs, chroot):
+def uprev_borealis_dlc(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    _refs: List[uprev_lib.GitRef],
+    chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates shared borealis-dlc ebuild - chromeos-base/borealis-dlc.
 
     See: uprev_versioned_package.
+
+    Returns:
+        The result of updating borealis-dlc ebuilds.
     """
     package_path = os.path.join(
         "src",
@@ -768,10 +806,17 @@ def uprev_borealis_dlc(_build_targets, _refs, chroot):
 
 
 @uprevs_versioned_package("chromeos-base/borealis-dlc-nvidia")
-def uprev_borealis_dlc_nvidia(_build_targets, _refs, chroot):
+def uprev_borealis_dlc_nvidia(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    _refs: List[uprev_lib.GitRef],
+    chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates shared chromeos-base/borealis-dlc-nvidia ebuild.
 
     See: uprev_versioned_package.
+
+    Returns:
+        The result of updating borealis-dlc-nvidia ebuilds.
     """
     package_path = os.path.join(
         "src",
@@ -788,10 +833,17 @@ def uprev_borealis_dlc_nvidia(_build_targets, _refs, chroot):
 
 
 @uprevs_versioned_package("chromeos-base/borealis-dlc-chroot")
-def uprev_borealis_dlc_chroot(_build_targets, _refs, chroot):
+def uprev_borealis_dlc_chroot(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    _refs: List[uprev_lib.GitRef],
+    chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates shared chromeos-base/borealis-dlc-chroot ebuild.
 
     See: uprev_versioned_package.
+
+    Returns:
+        The result of updating borealis-dlc-chroot ebuilds.
     """
     package_path = os.path.join(
         "src",
@@ -808,10 +860,17 @@ def uprev_borealis_dlc_chroot(_build_targets, _refs, chroot):
 
 
 @uprevs_versioned_package("chromeos-base/chromeos-ec-token")
-def uprev_chromeos_ec_token(_build_targets, _refs, chroot):
+def uprev_chromeos_ec_token(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    _refs: List[uprev_lib.GitRef],
+    chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates shared chromeos-base/chromeos-ec-token ebuild.
 
     See: uprev_versioned_package.
+
+    Returns:
+        The result of updating chromeos-ec-token ebuilds.
     """
     package_path = os.path.join(
         constants.CHROMIUMOS_OVERLAY_DIR, "chromeos-base", "chromeos-ec-token"
@@ -820,7 +879,7 @@ def uprev_chromeos_ec_token(_build_targets, _refs, chroot):
     version_pin_src_path = _get_version_pin_src_path(package_path)
     version_no_rev = osutils.ReadFile(version_pin_src_path).strip()
 
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     uprev = uprev_lib.uprev_workon_ebuild_to_version(
         package_path, version_no_rev, chroot
     )
@@ -834,10 +893,17 @@ def _get_version_pin_src_path(package_path):
 
 
 @uprevs_versioned_package(constants.CHROME_CP)
-def uprev_chrome_from_ref(build_targets, refs, _chroot):
+def uprev_chrome_from_ref(
+    build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    _chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Uprev chrome and its related packages.
 
     See: uprev_versioned_package.
+
+    Returns:
+        The result of updating chrome ebuilds.
     """
     # Determine the version from the refs (tags), i.e. the chrome versions are
     # the tag names.
@@ -854,7 +920,7 @@ def uprev_chrome_from_ref(build_targets, refs, _chroot):
 def revbump_chrome(
     build_targets: List["build_target_lib.BuildTarget"] = None,
     chroot: Optional["chroot_lib.Chroot"] = None,
-) -> uprev_lib.UprevVersionedPackageResult:
+) -> uprev_lib.UprevVersionedResult:
     """Attempt to revbump chrome.
 
     Revbumps are done by executing an uprev using the current stable version.
@@ -871,12 +937,12 @@ def uprev_chrome(
     commit_hash: str,
     build_targets: Optional[List["build_target_lib.BuildTarget"]],
     chroot: Optional["chroot_lib.Chroot"],
-) -> uprev_lib.UprevVersionedPackageResult:
+) -> uprev_lib.UprevVersionedResult:
     """Attempt to uprev chrome and its related packages to the given version."""
     uprev_manager = uprev_lib.UprevChromeManager(
         chrome_version, commit_hash, build_targets=build_targets, chroot=chroot
     )
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     # TODO(crbug.com/1080429): Handle all possible outcomes of a Chrome uprev
     #     attempt. The expected behavior is documented in the following table:
     #
@@ -972,7 +1038,11 @@ def _get_private_overlay_package_root(ref: uprev_lib.GitRef, package: str):
 
 
 @uprevs_versioned_package("chromeos-base/crosvm")
-def uprev_crosvm(_build_targets, refs, _chroot):
+def uprev_crosvm(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    _chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates crosvm ebuilds to latest revision
 
     crosvm is not versioned. We are updating to the latest commit on the main
@@ -981,7 +1051,7 @@ def uprev_crosvm(_build_targets, refs, _chroot):
     See: uprev_versioned_package.
 
     Returns:
-        UprevVersionedPackageResult: The result of updating crosvm ebuilds.
+        The result of updating crosvm ebuilds.
     """
     overlay = os.path.join(
         constants.SOURCE_ROOT, constants.CHROMIUMOS_OVERLAY_DIR
@@ -1009,13 +1079,17 @@ def uprev_crosvm(_build_targets, refs, _chroot):
     )
 
     updated_files = uprev_manager.modified_ebuilds
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     result.add_result(refs[0].revision, updated_files)
     return result
 
 
 @uprevs_versioned_package("chromeos-base/ti50-emulator")
-def uprev_ti50_emulator(_build_targets, refs, _chroot):
+def uprev_ti50_emulator(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    _chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates ti50-emulator ebuilds to latest revision
 
     ti50-emulator is not versioned. We are updating to the latest commit on the
@@ -1024,8 +1098,7 @@ def uprev_ti50_emulator(_build_targets, refs, _chroot):
     See: uprev_versioned_package.
 
     Returns:
-        UprevVersionedPackageResult: The result of updating ti50-emulator
-        ebuild.
+        The result of updating ti50-emulator ebuilds.
     """
     overlay = os.path.join(
         constants.SOURCE_ROOT, constants.CHROMEOS_OVERLAY_DIR
@@ -1041,13 +1114,17 @@ def uprev_ti50_emulator(_build_targets, refs, _chroot):
     )
 
     updated_files = uprev_manager.modified_ebuilds
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     result.add_result(refs[-1].revision, updated_files)
     return result
 
 
 @uprevs_versioned_package("chromeos-base/ec-devutils")
-def uprev_ecdevutils(_build_targets, refs, _chroot):
+def uprev_ecdevutils(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    _chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates ec-devutils ebuilds to latest revision
 
     ec-devutils is not versioned. We are updating to the latest commit on the
@@ -1056,7 +1133,7 @@ def uprev_ecdevutils(_build_targets, refs, _chroot):
     See: uprev_versioned_package.
 
     Returns:
-        UprevVersionedPackageResult: The result of updating ec-devutils ebuilds.
+        The result of updating ec-devutils ebuilds.
     """
     overlay = os.path.join(
         constants.SOURCE_ROOT, constants.CHROMIUMOS_OVERLAY_DIR
@@ -1073,13 +1150,17 @@ def uprev_ecdevutils(_build_targets, refs, _chroot):
     )
 
     updated_files = uprev_manager.modified_ebuilds
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     result.add_result(refs[0].revision, updated_files)
     return result
 
 
 @uprevs_versioned_package("chromeos-base/ec-utils")
-def uprev_ecutils(_build_targets, refs, _chroot):
+def uprev_ecutils(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    _chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates ec-utils ebuilds to latest revision
 
     ec-utils is not versioned. We are updating to the latest commit on the main
@@ -1088,7 +1169,7 @@ def uprev_ecutils(_build_targets, refs, _chroot):
     See: uprev_versioned_package.
 
     Returns:
-        UprevVersionedPackageResult: The result of updating ec-utils ebuilds.
+        The result of updating ec-utils ebuilds.
     """
     overlay = os.path.join(
         constants.SOURCE_ROOT, constants.CHROMIUMOS_OVERLAY_DIR
@@ -1105,13 +1186,17 @@ def uprev_ecutils(_build_targets, refs, _chroot):
     )
 
     updated_files = uprev_manager.modified_ebuilds
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     result.add_result(refs[0].revision, updated_files)
     return result
 
 
 @uprevs_versioned_package("chromeos-base/ec-utils-test")
-def uprev_ecutilstest(_build_targets, refs, _chroot):
+def uprev_ecutilstest(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    _chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates ec-utils-test ebuilds to latest revision
 
     ec-utils-test is not versioned. We are updating to the latest commit on the
@@ -1120,8 +1205,7 @@ def uprev_ecutilstest(_build_targets, refs, _chroot):
     See: uprev_versioned_package.
 
     Returns:
-        UprevVersionedPackageResult: The result of updating ec-utils-test
-        ebuilds.
+        The result of updating ec-utils-test ebuilds.
     """
     overlay = os.path.join(
         constants.SOURCE_ROOT, constants.CHROMIUMOS_OVERLAY_DIR
@@ -1138,13 +1222,17 @@ def uprev_ecutilstest(_build_targets, refs, _chroot):
     )
 
     updated_files = uprev_manager.modified_ebuilds
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     result.add_result(refs[0].revision, updated_files)
     return result
 
 
 @uprevs_versioned_package("chromeos-base/protofiles")
-def uprev_protofiles(_build_targets, refs, _chroot):
+def uprev_protofiles(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    _chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Uprevs chromeos-base/protofiles package.
 
     Uprevs protofiles package with ToT hashes of components/policy,
@@ -1155,13 +1243,16 @@ def uprev_protofiles(_build_targets, refs, _chroot):
 
     The dependencies are not tagged in git. chromeos-base/protofiles is updated
     to the latest commit on the main branch for each project.
+
+    Returns:
+        The result of updating protofiles ebuilds.
     """
 
     modified_files: protofiles_lib.ProtofilesModifiedPaths = (
         protofiles_lib.ProtofilesLib().Uprev(constants.SOURCE_ROOT)
     )
 
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     result.add_result(
         refs[-1].revision,
         [
@@ -1260,7 +1351,7 @@ def uprev_starbase_artifacts(
     _build_targets: List["build_target_lib.BuildTarget"],
     refs: List[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
-) -> uprev_lib.UprevVersionedPackageResult:
+) -> uprev_lib.UprevVersionedResult:
     """Updates one or more starbase ebuilds to fetch their latest tar file.
 
     Additional documentation at go/starbase-rapid-pupr.  However, the source of
@@ -1335,7 +1426,7 @@ def uprev_starbase_artifacts(
     Only the packages included in "refs" are uprevved.
 
     Returns:
-        UprevVersionedPackageResult: The result of updating this ebuild.
+        The result of updating this ebuild.
     """
 
     # The path to the repo with the packages to be modified.  For future
@@ -1350,7 +1441,7 @@ def uprev_starbase_artifacts(
     )
     logging.info("Starbase uprev: %d refs[] = %s", len(refs), refs)
 
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     for ref in refs:
         # We're ignoring the meaning of the `ref` fields and reusing them for
         # our purposes.  See absurdly long comment above.
@@ -1443,7 +1534,7 @@ def uprev_libapps(
     refs: List[uprev_lib.GitRef],
     _chroot: "chroot_lib.Chroot",
     source_root: Path = constants.SOURCE_ROOT,
-) -> "uprev_lib.UprevVersionedPackageResult":
+) -> "uprev_lib.UprevVersionedResult":
     """Updates libapps to latest revision
 
     This uses the same uprev process as cros_workon ebuilds use by default,
@@ -1451,6 +1542,9 @@ def uprev_libapps(
     repo doesn't use the ChromeOS CQ.
 
     See: uprev_versioned_package.
+
+    Returns:
+        The result of updating libapps ebuilds.
     """
     overlay = source_root / constants.CHROMIUMOS_OVERLAY_DIR
     ebuild_dir = overlay / _CROSH_CP
@@ -1465,7 +1559,7 @@ def uprev_libapps(
     uprev_manager.uprev(package_list=[_CROSH_CP], force=True)
 
     updated_files = uprev_manager.modified_ebuilds
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     result.add_result(
         refs[-1].revision,
         [
@@ -1626,8 +1720,7 @@ def uprev_mtk_optee_os_ebuild(overlay, manifest):
         manifest: The manifest object.
 
     Returns:
-        The new version of ebuild file and the list of file paths to register
-        for UprevVersionedPackageResult.
+        The new version of ebuild file and the list of file paths to register.
         Returns None if no uprev is needed.
     """
     ebuild = get_ebuild(overlay, "sys-firmware/mtk-optee-os-ta")
@@ -1664,8 +1757,7 @@ def uprev_mtk_optee_os_bins_ebuild(overlay, manifest, new_version):
         new_version: The new of the new ebuild file.
 
     Returns:
-        The path to the new ebuild path and the list of file paths to register
-        for UprevVersionedPackageResult.
+        The path to the new ebuild path and the list of file paths to register.
         Returns None if no uprev is needed.
     """
     ebuild = get_ebuild(overlay, "sys-firmware/mtk-optee-os-ta-bins")
@@ -1693,14 +1785,17 @@ def uprev_mtk_optee_os_bins_ebuild(overlay, manifest, new_version):
 
 
 @uprevs_versioned_package("sys-firmware/mtk-optee-os-ta")
-def uprev_mtk_optee_os(_build_targets, refs, chroot):
+def uprev_mtk_optee_os(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
     """Updates mtk-optee-os-ta ebuilds to the latest commit of mtk-optee-os
 
     See: uprev_versioned_package.
 
     Returns:
-        UprevVersionedPackageResult: The result of updating mtk-optee-os-ta
-        ebuilds.
+        The result of updating mtk-optee-os-ta ebuilds.
     """
     # Clone the repository of mtk-optee-os manually.
     # mtk-optee-os is not in manifest.xml because the source visibility is
@@ -1743,7 +1838,7 @@ def uprev_mtk_optee_os(_build_targets, refs, chroot):
         constants.SOURCE_ROOT, mtk_optee_os_manifest_path
     )
 
-    result = uprev_lib.UprevVersionedPackageResult()
+    result = uprev_lib.UprevVersionedResult()
     overlay = os.path.join(
         constants.SOURCE_ROOT,
         constants.CHROMEOS_PARTNER_OVERLAY_DIR,
@@ -1754,7 +1849,7 @@ def uprev_mtk_optee_os(_build_targets, refs, chroot):
     )
     # No uprev is needed.
     if not mtk_optee_os_uprev_result:
-        return uprev_lib.UprevVersionedPackageResult()
+        return uprev_lib.UprevVersionedResult()
 
     new_version, modified_ebuild_paths = mtk_optee_os_uprev_result
     result.add_result(refs[-1].revision, modified_ebuild_paths)

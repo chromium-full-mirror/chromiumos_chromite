@@ -211,7 +211,7 @@ class UprevAndroidLKGBTest(cros_test_lib.MockTestCase):
         self.assertListEqual(
             result.modified,
             [
-                uprev_lib.UprevVersionedPackageModifications(
+                uprev_lib.UprevVersionedModifications(
                     "android-lkgb",
                     [
                         os.path.join("overlay-dir", "file1"),
@@ -1858,7 +1858,7 @@ class NeedsChromeSourceTest(cros_test_lib.MockTestCase):
         self.PatchObject(
             packages,
             "uprev_chrome",
-            return_value=uprev_lib.UprevVersionedPackageResult(),
+            return_value=uprev_lib.UprevVersionedResult(),
         )
 
         build_target = build_target_lib.BuildTarget("build_target")
@@ -1885,7 +1885,7 @@ class NeedsChromeSourceTest(cros_test_lib.MockTestCase):
         self.PatchObject(
             packages,
             "uprev_chrome",
-            return_value=uprev_lib.UprevVersionedPackageResult(),
+            return_value=uprev_lib.UprevVersionedResult(),
         )
 
         build_target = build_target_lib.BuildTarget("build_target")
@@ -1909,7 +1909,7 @@ class NeedsChromeSourceTest(cros_test_lib.MockTestCase):
         self.PatchObject(
             packages,
             "uprev_chrome",
-            return_value=uprev_lib.UprevVersionedPackageResult(),
+            return_value=uprev_lib.UprevVersionedResult(),
         )
 
         build_target = build_target_lib.BuildTarget("build_target")
@@ -1936,7 +1936,7 @@ class NeedsChromeSourceTest(cros_test_lib.MockTestCase):
         self.PatchObject(
             packages,
             "uprev_chrome",
-            return_value=uprev_lib.UprevVersionedPackageResult(),
+            return_value=uprev_lib.UprevVersionedResult(),
         )
 
         build_target = build_target_lib.BuildTarget("build_target")
@@ -1964,7 +1964,7 @@ class NeedsChromeSourceTest(cros_test_lib.MockTestCase):
         self.PatchObject(
             packages,
             "uprev_chrome",
-            return_value=uprev_lib.UprevVersionedPackageResult(),
+            return_value=uprev_lib.UprevVersionedResult(),
         )
 
         build_target = build_target_lib.BuildTarget("build_target")
@@ -1988,7 +1988,7 @@ class NeedsChromeSourceTest(cros_test_lib.MockTestCase):
         self.PatchObject(
             packages,
             "uprev_chrome",
-            return_value=uprev_lib.UprevVersionedPackageResult(),
+            return_value=uprev_lib.UprevVersionedResult(),
         )
 
         build_target = build_target_lib.BuildTarget("build_target")
@@ -2013,7 +2013,7 @@ class NeedsChromeSourceTest(cros_test_lib.MockTestCase):
         )
         self.PatchObject(packages, "has_prebuilt", return_value=False)
 
-        uprev_result = uprev_lib.UprevVersionedPackageResult()
+        uprev_result = uprev_lib.UprevVersionedResult()
         uprev_result.add_result("1.2.3.4", ["/tmp/foo"])
         self.PatchObject(packages, "uprev_chrome", return_value=uprev_result)
 
@@ -2185,7 +2185,7 @@ class UprevKernelAfdo(cros_test_lib.RunCommandTempDirTestCase):
             "sys-kernel",
         )
         expect_result = [
-            uprev_lib.UprevVersionedPackageModifications(
+            uprev_lib.UprevVersionedModifications(
                 new_version="R106-12345.0-0123456789",
                 files=[
                     os.path.join(
@@ -2198,7 +2198,7 @@ class UprevKernelAfdo(cros_test_lib.RunCommandTempDirTestCase):
                     ),
                 ],
             ),
-            uprev_lib.UprevVersionedPackageModifications(
+            uprev_lib.UprevVersionedModifications(
                 new_version="R107-67890.0-0123456789",
                 files=[
                     os.path.join(

@@ -17,6 +17,7 @@ from typing import (
     Collection,
     Iterable,
     List,
+    NamedTuple,
     Optional,
     Tuple,
     TYPE_CHECKING,
@@ -911,13 +912,15 @@ def clean_stale_packages(
     parallel.RunTasksInProcessPool(_do_clean_stale_packages, tasks)
 
 
-UprevVersionedPackageModifications = collections.namedtuple(
-    "UprevVersionedPackageModifications", ("new_version", "files")
-)
+class UprevVersionedModifications(NamedTuple):
+    """Data object for versioned uprev modifications."""
+
+    new_version: str
+    files: List[str]
 
 
-class UprevVersionedPackageResult:
-    """Data object for uprev_versioned_package."""
+class UprevVersionedResult:
+    """Data object for uprev result."""
 
     def __init__(self) -> None:
         self.modified = []
@@ -932,27 +935,23 @@ class UprevVersionedPackageResult:
             new_version: New version number of package.
             modified_files: List of files modified for the given version.
         """
-        result = UprevVersionedPackageModifications(new_version, modified_files)
+        result = UprevVersionedModifications(new_version, modified_files)
         self.modified.append(result)
         return self
 
-    def extend(self, other: "UprevVersionedPackageResult"):
+    def extend(self, other: "UprevVersionedResult"):
         """Adds another result from an existing result."""
         self.modified.extend(other.modified)
         return self
 
-    def __iadd__(
-        self, other: "UprevVersionedPackageResult"
-    ) -> "UprevVersionedPackageResult":
+    def __iadd__(self, other: "UprevVersionedResult") -> "UprevVersionedResult":
         """Adds another result from an existing result."""
         self.extend(other)
         return self
 
-    def __add__(
-        self, other: "UprevVersionedPackageResult"
-    ) -> "UprevVersionedPackageResult":
+    def __add__(self, other: "UprevVersionedResult") -> "UprevVersionedResult":
         """Adds two result objects to create a new one."""
-        return UprevVersionedPackageResult().extend(self).extend(other)
+        return UprevVersionedResult().extend(self).extend(other)
 
     @property
     def uprevved(self):
@@ -1022,7 +1021,7 @@ def get_stable_ebuild_version(
 
 def uprev_ebuild_from_pin(
     package_path: str, version_no_rev: str, chroot: chroot_lib.Chroot
-) -> UprevVersionedPackageResult:
+) -> UprevVersionedResult:
     """Changes the package ebuild's version to match the version pin file.
 
     Args:
@@ -1077,7 +1076,7 @@ def uprev_ebuild_from_pin(
             "Unable to update manifest for %s: %s" % (package, e.stderr)
         )
 
-    result = UprevVersionedPackageResult()
+    result = UprevVersionedResult()
     result.add_result(
         version,
         [new_ebuild_src_path, stable_ebuild.ebuild_path, manifest_src_path],
