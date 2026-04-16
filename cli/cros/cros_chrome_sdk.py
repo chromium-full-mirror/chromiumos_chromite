@@ -1540,14 +1540,19 @@ class ChromeSDKCommand(command.CliCommand):
         gn_args["blink_symbol_level"] = -1
 
         # Remove symbol_level specified in the ebuild to use the default.
-        # Currently that is 1 when is_debug=false, instead of 2 specified by the
+        # Currently that is 0 when is_debug=false, instead of 2 specified by the
         # ebuild. This results in faster builds in Simple Chrome.
         if "symbol_level" in gn_args:
             symbol_level = gn_args.pop("symbol_level")
+            use_debug_fission = gn_args.pop("use_debug_fission")
+            msg = "symbol_level = %d" % symbol_level
+            if use_debug_fission is not None:
+                msg += " and use_debug_fission = %s" % use_debug_fission
+
             logging.info(
-                "Removing symbol_level = %d from gn args, use "
-                "--gn-extra-args to specify a non default value.",
-                symbol_level,
+                "Removing %s from gn args, use --gn-extra-args to specify a "
+                "non default value.",
+                msg,
             )
 
         gn_args["reclient_cros_cc_wrapper"] = self._GenerateReclientWrapper(
