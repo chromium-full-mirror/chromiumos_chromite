@@ -5,13 +5,14 @@
 """Utilities for reading and manipulating chromeos_version.sh script."""
 
 import datetime
+import io
 import logging
 import os
 from pathlib import Path
 import re
 import shutil
 import tempfile
-from typing import Any, Optional, Union
+from typing import Any, Iterable, Optional, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -103,7 +104,7 @@ class VersionInfo:
         version_string: Optional[str] = None,
         chrome_branch: Optional[str] = None,
         incr_type: str = "build",
-        version_file: Optional[Union[str, os.PathLike]] = None,
+        version_file: Optional[Union[str, os.PathLike, "io.TextIOBase"]] = None,
     ) -> None:
         """Initialize.
 
@@ -123,11 +124,15 @@ class VersionInfo:
             self.snapshot_suffix = None
             self.date_time_suffix = None
 
-            if isinstance(version_file, str):
-                version_file = Path(version_file)
-            self.version_file = version_file
-            logging.debug("Using VERSION_FILE = %s", version_file)
-            self._LoadFromFile()
+            if hasattr(version_file, "read"):
+                self.version_file = None
+                self._LoadFrom(version_file)
+            else:
+                if isinstance(version_file, str):
+                    version_file = Path(version_file)
+                self.version_file = version_file
+                logging.debug("Using VERSION_FILE = %s", version_file)
+                self._LoadFromFile()
         else:
             match = re.search(self.VER_PATTERN, version_string)
             self.build_number = match.group(1)
@@ -148,53 +153,57 @@ class VersionInfo:
     def _GetDateTime(self):
         return datetime.datetime.now().strftime(self.DATE_TIME_FORMAT)
 
+    def _LoadFrom(self, version_fh: Iterable[str]) -> None:
+        """Read the version from a file object and set the version components.
+
+        Args:
+            version_fh: An iterable yielding lines of the version file.
+        """
+        for line in version_fh:
+            if not line.strip():
+                continue
+
+            match = self.FindValue("CHROME_BRANCH", line)
+            if match:
+                self.chrome_branch = match
+                logging.debug(
+                    "Set the Chrome branch number to:%s", self.chrome_branch
+                )
+                continue
+
+            match = self.FindValue("CHROMEOS_BUILD", line)
+            if match:
+                self.build_number = match
+                logging.debug("Set the build version to:%s", self.build_number)
+                continue
+
+            match = self.FindValue("CHROMEOS_BRANCH", line)
+            if match:
+                self.branch_build_number = match
+                logging.debug(
+                    "Set the branch version to:%s", self.branch_build_number
+                )
+                continue
+
+            match = self.FindValue("CHROMEOS_PATCH", line)
+            if match:
+                self.patch_number = match
+                # For developer builds, append a date and time string.
+                if os.environ.get("CHROMEOS_OFFICIAL") != "1":
+                    self.date_time_suffix = f"d{self._GetDateTime()}"
+                    logging.debug(
+                        "Set the date suffix to:%s",
+                        self.date_time_suffix,
+                    )
+                logging.debug("Set the patch version to:%s", self.patch_number)
+                continue
+
+        logging.debug(self.VersionString())
+
     def _LoadFromFile(self) -> None:
         """Read the version file and set the version components"""
         with open(self.version_file, "r", encoding="utf-8") as version_fh:
-            for line in version_fh:
-                if not line.strip():
-                    continue
-
-                match = self.FindValue("CHROME_BRANCH", line)
-                if match:
-                    self.chrome_branch = match
-                    logging.debug(
-                        "Set the Chrome branch number to:%s", self.chrome_branch
-                    )
-                    continue
-
-                match = self.FindValue("CHROMEOS_BUILD", line)
-                if match:
-                    self.build_number = match
-                    logging.debug(
-                        "Set the build version to:%s", self.build_number
-                    )
-                    continue
-
-                match = self.FindValue("CHROMEOS_BRANCH", line)
-                if match:
-                    self.branch_build_number = match
-                    logging.debug(
-                        "Set the branch version to:%s", self.branch_build_number
-                    )
-                    continue
-
-                match = self.FindValue("CHROMEOS_PATCH", line)
-                if match:
-                    self.patch_number = match
-                    # For developer builds, append a date and time string.
-                    if os.environ.get("CHROMEOS_OFFICIAL") != "1":
-                        self.date_time_suffix = f"d{self._GetDateTime()}"
-                        logging.debug(
-                            "Set the date suffix to:%s",
-                            self.date_time_suffix,
-                        )
-                    logging.debug(
-                        "Set the patch version to:%s", self.patch_number
-                    )
-                    continue
-
-        logging.debug(self.VersionString())
+            self._LoadFrom(version_fh)
 
     def _PushGitChanges(
         self,

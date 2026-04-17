@@ -8,6 +8,7 @@ import collections
 import enum
 import filecmp
 import functools
+import io
 import json
 import logging
 import os
@@ -36,6 +37,7 @@ from chromite.lib import parallel
 from chromite.lib import portage_util
 from chromite.utils import key_value_store
 from chromite.utils import pms
+from chromite.utils import repo_manifest
 
 
 if TYPE_CHECKING:
@@ -939,7 +941,7 @@ class UprevVersionedResult:
         self.modified.append(result)
         return self
 
-    def extend(self, other: "UprevVersionedResult"):
+    def extend(self, other: "UprevVersionedResult") -> "UprevVersionedResult":
         """Adds another result from an existing result."""
         self.modified.extend(other.modified)
         return self
@@ -1210,3 +1212,42 @@ def uprev_workon_ebuild_to_version(
         result.changed_files.append(stable_ebuild.ebuild_path)
 
     return result
+
+
+def get_version_with_snapshot_from_manifest(rev: str) -> str:
+    """Retrieves the ChromeOS version string with snapshot ID from the manifest.
+
+    Args:
+        rev: The revision of the manifest to inspect.
+
+    Returns:
+        A string combining the ChromeOS version and the snapshot identifier.
+    """
+    manifest_repo = constants.SOURCE_ROOT / "manifest-internal"
+    manifest = git.Log(manifest_repo, format=":%B", max_count=1, rev=rev)
+    snapshot_id_matches = re.findall(
+        r"^Cr-Snapshot-Identifier: ([0-9]*)", manifest, flags=re.M
+    )
+    if not snapshot_id_matches:
+        raise ValueError("No snapshot identifier found.")
+    elif len(snapshot_id_matches) > 1:
+        raise ValueError("Too many snapshot identifier found.")
+    else:
+        snapshot_id = snapshot_id_matches[0]
+    snapshot_manifest = git.GetObjectAtRev(manifest_repo, "snapshot.xml", rev)
+    manifest_obj = repo_manifest.Manifest.FromString(snapshot_manifest)
+    projects = [
+        p
+        for p in manifest_obj.Projects()
+        if p.Path() == constants.CHROMIUMOS_OVERLAY_DIR
+    ]
+    if len(projects) != 1:
+        raise ValueError("Unexpected manifest.")
+    overlay = projects[0].Revision()
+    version_file = git.GetObjectAtRev(
+        _CHROME_OVERLAY_PATH, "chromeos/config/chromeos_version.sh", overlay
+    )
+    version = chromeos_version.VersionInfo(
+        version_file=io.StringIO(version_file)
+    ).VersionString()
+    return f"{version}-{snapshot_id}"

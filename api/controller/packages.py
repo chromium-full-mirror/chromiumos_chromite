@@ -104,6 +104,56 @@ def UprevVersionedPackage(request, response, _config) -> None:
             uprev_response.modified_ebuilds.add().path = path
 
 
+def _UprevVersionFileResponse(
+    _request: packages_pb2.UprevVersionFileRequest,
+    response: packages_pb2.UprevVersionFileResponse,
+    _config: "api_config.ApiConfig",
+) -> None:
+    """Add fake paths to a successful uprev version file response."""
+    uprev_response = response.responses.add()
+    uprev_response.modified_files.append("/uprev/response/path")
+
+
+@faux.success(_UprevVersionFileResponse)
+@faux.empty_error
+@validate.require("versions")
+@validate.require("file_path")
+@validate.validation_complete
+def UprevVersionFile(
+    request: packages_pb2.UprevVersionFileRequest,
+    response: packages_pb2.UprevVersionFileResponse,
+    _config: "api_config.ApiConfig",
+) -> None:
+    """Uprev a version file.
+
+    See go/pupr-generator for details about this endpoint.
+    """
+    chroot = controller_util.ParseChroot(request.chroot)
+    refs = []
+    for ref in request.versions:
+        refs.append(
+            uprev_lib.GitRef(
+                path=ref.repository, ref=ref.ref, revision=ref.revision
+            )
+        )
+
+    try:
+        result = packages.uprev_version_file(
+            request.file_path,
+            refs,
+            chroot,
+        )
+    except packages.Error as e:
+        # Handle module errors nicely, let everything else bubble up.
+        cros_build_lib.die(e)
+
+    for modified in result.modified:
+        uprev_response = response.responses.add()
+        uprev_response.version = modified.new_version
+        for path in modified.files:
+            uprev_response.modified_files.append(path)
+
+
 @faux.success(_UprevVersionedPackageResponse)
 @faux.empty_error
 @validate.validation_complete

@@ -6,7 +6,7 @@
 
 from unittest import mock
 
-from chromite.api.api_config import ApiConfigMixin
+from chromite.api import api_config
 from chromite.api.controller import controller_util
 from chromite.api.controller import packages as packages_controller
 from chromite.api.gen.chromite.api import binhost_pb2
@@ -22,7 +22,7 @@ from chromite.lib.parser import package_info
 from chromite.service import packages as packages_service
 
 
-class UprevTest(cros_test_lib.MockTestCase, ApiConfigMixin):
+class UprevTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """Uprev tests."""
 
     _PUBLIC = binhost_pb2.OVERLAYTYPE_PUBLIC
@@ -114,7 +114,9 @@ class UprevTest(cros_test_lib.MockTestCase, ApiConfigMixin):
             self.assertTrue(pkg.version.startswith("1.1"))
 
 
-class UprevVersionedPackageTest(cros_test_lib.MockTestCase, ApiConfigMixin):
+class UprevVersionedPackageTest(
+    cros_test_lib.MockTestCase, api_config.ApiConfigMixin
+):
     """UprevVersionedPackage tests."""
 
     def setUp(self) -> None:
@@ -216,7 +218,98 @@ class UprevVersionedPackageTest(cros_test_lib.MockTestCase, ApiConfigMixin):
             )
 
 
-class GetBestVisibleTest(cros_test_lib.MockTestCase, ApiConfigMixin):
+class UprevVersionFileTest(
+    cros_test_lib.MockTestCase, api_config.ApiConfigMixin
+):
+    """UprevVersionFile tests."""
+
+    def setUp(self) -> None:
+        self.response = packages_pb2.UprevVersionFileResponse()
+
+    def _addVersion(
+        self, request: packages_pb2.UprevVersionFileRequest, version: str
+    ) -> None:
+        """Helper method to add a full version message to the request."""
+        ref = request.versions.add()
+        ref.repository = "/some/path"
+        ref.ref = f"refs/tags/{version}"
+        ref.revision = "abc123"
+
+    def testValidateOnly(self) -> None:
+        """Sanity check validate only calls are working properly."""
+        service = self.PatchObject(packages_service, "uprev_version_file")
+
+        request = packages_pb2.UprevVersionFileRequest()
+        self._addVersion(request, "1.2.3.4")
+        request.file_path = "some/file/path"
+
+        packages_controller.UprevVersionFile(
+            request, self.response, self.validate_only_config
+        )
+
+        service.assert_not_called()
+
+    def testMockCall(self) -> None:
+        """Test a mock call does not execute logic, returns mocked value."""
+        patch = self.PatchObject(packages_service, "uprev_version_file")
+        request = packages_pb2.UprevVersionFileRequest()
+        packages_controller.UprevVersionFile(
+            request, self.response, self.mock_call_config
+        )
+        patch.assert_not_called()
+        self.assertTrue(self.response.responses)
+        self.assertTrue(self.response.responses[0].modified_files)
+
+    def testNoVersions(self) -> None:
+        """Test no versions provided."""
+        request = packages_pb2.UprevVersionFileRequest()
+        request.file_path = "some/file/path"
+
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            packages_controller.UprevVersionFile(
+                request, self.response, self.api_config
+            )
+
+    def testNoFilePath(self) -> None:
+        """Test no file path provided."""
+        request = packages_pb2.UprevVersionFileRequest()
+        self._addVersion(request, "1.2.3.4")
+
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            packages_controller.UprevVersionFile(
+                request, self.response, self.api_config
+            )
+
+    def testOutputHandling(self) -> None:
+        """Test the modified files are getting correctly added to the output."""
+        version = "1.2.3.4"
+        result = uprev_lib.UprevVersionedResult().add_result(
+            version, ["/file/one", "/file/two"]
+        )
+
+        self.PatchObject(
+            packages_service, "uprev_version_file", return_value=result
+        )
+
+        request = packages_pb2.UprevVersionFileRequest()
+        self._addVersion(request, version)
+        request.file_path = "some/file/path"
+
+        packages_controller.UprevVersionFile(
+            request, self.response, self.api_config
+        )
+
+        for idx, uprev_response in enumerate(self.response.responses):
+            self.assertEqual(
+                result.modified[idx].new_version, uprev_response.version
+            )
+            self.assertCountEqual(
+                result.modified[idx].files,
+                list(uprev_response.modified_files),
+            )
+
+
+class GetBestVisibleTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """GetBestVisible tests."""
 
     def setUp(self) -> None:
@@ -275,7 +368,7 @@ class GetBestVisibleTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         self.assertEqual(package_info_msg.version, pkg.vr)
 
 
-class GetChromeVersion(cros_test_lib.MockTestCase, ApiConfigMixin):
+class GetChromeVersion(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """GetChromeVersion tests."""
 
     def setUp(self) -> None:
@@ -347,7 +440,9 @@ class GetChromeVersion(cros_test_lib.MockTestCase, ApiConfigMixin):
         self.assertFalse(self.response.version)
 
 
-class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
+class GetTargetVersionsTest(
+    cros_test_lib.MockTestCase, api_config.ApiConfigMixin
+):
     """GetTargetVersions tests."""
 
     def setUp(self) -> None:
@@ -562,7 +657,9 @@ class GetTargetVersionsTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         self.assertEqual(self.response.platform_version, platform_version)
 
 
-class GetBuilderMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
+class GetBuilderMetadataTest(
+    cros_test_lib.MockTestCase, api_config.ApiConfigMixin
+):
     """GetBuilderMetadata tests."""
 
     def setUp(self) -> None:
@@ -915,7 +1012,9 @@ class GetBuilderMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         self.assertEqual(response.build_target_metadata[0].fingerprints, [])
 
 
-class HasChromePrebuiltTest(cros_test_lib.MockTestCase, ApiConfigMixin):
+class HasChromePrebuiltTest(
+    cros_test_lib.MockTestCase, api_config.ApiConfigMixin
+):
     """HasChromePrebuilt tests."""
 
     def setUp(self) -> None:
@@ -961,7 +1060,7 @@ class HasChromePrebuiltTest(cros_test_lib.MockTestCase, ApiConfigMixin):
             )
 
 
-class BuildsChromeTest(cros_test_lib.MockTestCase, ApiConfigMixin):
+class BuildsChromeTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
     """BuildsChrome tests."""
 
     def setUp(self) -> None:
@@ -1032,7 +1131,9 @@ class BuildsChromeTest(cros_test_lib.MockTestCase, ApiConfigMixin):
         )
 
 
-class NeedsChromeSourceTest(cros_test_lib.MockTempDirTestCase, ApiConfigMixin):
+class NeedsChromeSourceTest(
+    cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
+):
     """NeedsChromeSource tests."""
 
     def setUp(self) -> None:
@@ -1106,7 +1207,9 @@ class NeedsChromeSourceTest(cros_test_lib.MockTempDirTestCase, ApiConfigMixin):
         )
 
 
-class GetAndroidMetadataTest(cros_test_lib.MockTestCase, ApiConfigMixin):
+class GetAndroidMetadataTest(
+    cros_test_lib.MockTestCase, api_config.ApiConfigMixin
+):
     """GetAndroidMetadata tests."""
 
     def setUp(self) -> None:

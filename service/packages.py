@@ -17,6 +17,7 @@ import shutil
 import sys
 import tempfile
 from typing import (
+    Callable,
     Dict,
     Iterable,
     List,
@@ -24,6 +25,7 @@ from typing import (
     Optional,
     Tuple,
     TYPE_CHECKING,
+    TypeVar,
     Union,
 )
 
@@ -152,21 +154,69 @@ def patch_ebuild_vars(ebuild_path, variables) -> None:
         fileinput.close()
 
 
-def uprevs_versioned_package(package):
-    """Decorator to register package uprev handlers."""
-    assert package
+F = TypeVar("F", bound=Callable)
 
-    def register(func):
-        """Registers |func| as a handler for |package|."""
-        _UPREV_FUNCS[package] = func
 
-        @functools.wraps(func)
-        def pass_through(*args, **kwargs):
-            return func(*args, **kwargs)
+def _register_uprev_handler(key: str) -> Callable[[F], F]:
+    """Decorator to register uprev handlers.
 
-        return pass_through
+    Args:
+        key: The key to register the handler under.
+
+    Returns:
+        The decorator function.
+    """
+
+    def register(func: F) -> F:
+        """Registers the given handler function."""
+        _UPREV_FUNCS[key] = func
+        return func
 
     return register
+
+
+PackageUprevHandler = Callable[
+    [
+        List["build_target_lib.BuildTarget"],
+        List[uprev_lib.GitRef],
+        "chroot_lib.Chroot",
+    ],
+    uprev_lib.UprevVersionedResult,
+]
+
+
+def uprevs_versioned_package(
+    package: str,
+) -> Callable[[PackageUprevHandler], PackageUprevHandler]:
+    """Decorator to register package uprev handlers.
+
+    Args:
+        package: The package name to register the handler for.
+
+    Returns:
+        The decorator function.
+    """
+    return _register_uprev_handler(package)
+
+
+FileUprevHandler = Callable[
+    [List[uprev_lib.GitRef], "chroot_lib.Chroot"],
+    uprev_lib.UprevVersionedResult,
+]
+
+
+def uprevs_version_file(
+    file_path: str,
+) -> Callable[[FileUprevHandler], FileUprevHandler]:
+    """Decorator to register file uprev handlers.
+
+    Args:
+        file_path: The path of the file to register the handler for.
+
+    Returns:
+        The decorator function.
+    """
+    return _register_uprev_handler(file_path)
 
 
 class UprevAndroidResult(NamedTuple):
@@ -428,6 +478,31 @@ def uprev_versioned_package(
         )
 
     return _UPREV_FUNCS[package.cp](build_targets, refs, chroot)
+
+
+def uprev_version_file(
+    file_path: str,
+    refs: List[uprev_lib.GitRef],
+    chroot: "chroot_lib.Chroot",
+) -> "uprev_lib.UprevVersionedResult":
+    """Call registered uprev handler function for the package.
+
+    Args:
+        file_path: The file being uprevved.
+        refs: git refs of new commits
+        chroot: The chroot to enter for cleaning.
+
+    Returns:
+        The result.
+    """
+    assert file_path
+
+    if file_path not in _UPREV_FUNCS:
+        raise UnknownPackageError(
+            f'File "{file_path}" does not have a registered handler.'
+        )
+
+    return _UPREV_FUNCS[file_path](refs, chroot)
 
 
 @uprevs_versioned_package("media-libs/virglrenderer")
@@ -1883,6 +1958,30 @@ def uprev_mtk_optee_os(
 
     result.add_result(refs[-1].revision, [bins_new_manifest])
     logging.debug("Modified files list: %s", result.modified)
+    return result
+
+
+@uprevs_version_file("chrome/src/chromeos/CHROMEOS_LKGM")
+def uprev_cros_lkgm_file_on_chrome_repo(
+    refs: List[uprev_lib.GitRef], chroot: "chroot_lib.Chroot"
+) -> uprev_lib.UprevVersionedResult:
+    """Uprevs the CHROMEOS_LKGM file to the specified revision.
+
+    Args:
+        refs: A list of git refs to uprev.
+        chroot: The chroot to use.
+
+    Returns:
+        The new version and modified files.
+    """
+    if refs[-1].ref not in ("refs/heads/snapshot", "refs/heads/stable"):
+        raise UprevError(f"Invalid ref: {refs[-1].ref}")
+    lkgm_path = os.path.join(chroot.chrome_root, "src/chromeos/CHROMEOS_LKGM")
+    result = uprev_lib.UprevVersionedResult()
+    rev = refs[-1].revision
+    version = uprev_lib.get_version_with_snapshot_from_manifest(rev)
+    osutils.WriteFile(lkgm_path, version)
+    result.add_result(version, [lkgm_path])
     return result
 
 

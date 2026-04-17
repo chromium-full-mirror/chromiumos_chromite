@@ -2731,3 +2731,35 @@ CHROMEOS_VERSION_STRING=16515.0.0
         assert "DIST bar.zip 123 SHA256 abcd\n" in manifest.read_text(
             encoding="utf-8"
         )
+
+
+class UprevLkgmFileTest(cros_test_lib.MockTempDirTestCase):
+    """uprev_cros_lkgm_file_on_chrome_repo tests."""
+
+    def test_invalid_ref(self) -> None:
+        """Verify invalid ref raises error."""
+        with self.assertRaises(packages.UprevError):
+            packages.uprev_cros_lkgm_file_on_chrome_repo(
+                [uprev_lib.GitRef("path", "refs/heads/invalid", "HEAD")],
+                None,
+            )
+
+    def test_success(self) -> None:
+        """Verify successful uprev."""
+        chroot = mock.Mock()
+        chroot.chrome_root = str(self.tempdir)
+        lkgm_dir = self.tempdir / "src" / "chromeos"
+        osutils.SafeMakedirs(lkgm_dir)
+        self.PatchObject(
+            uprev_lib,
+            "get_version_with_snapshot_from_manifest",
+            return_value="1.2.3-12345",
+        )
+        res = packages.uprev_cros_lkgm_file_on_chrome_repo(
+            [uprev_lib.GitRef("path", "refs/heads/snapshot", "HEAD")],
+            chroot,
+        )
+        self.assertTrue(res)
+        self.assertEqual(res.modified[0].new_version, "1.2.3-12345")
+        lkgm_path = lkgm_dir / "CHROMEOS_LKGM"
+        self.assertEqual(lkgm_path.read_text(encoding="utf-8"), "1.2.3-12345")

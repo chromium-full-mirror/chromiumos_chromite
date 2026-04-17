@@ -1198,3 +1198,43 @@ def test_uprev_workon_ebuild_to_version_newer_exists(
 
     assert not result
     assert result.outcome is uprev_lib.Outcome.NEWER_VERSION_EXISTS
+
+
+def test_get_version_with_snapshot_from_manifest(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Test get_version_with_snapshot_from_manifest."""
+    monkeypatch.setattr(
+        uprev_lib.git,
+        "Log",
+        mock.Mock(return_value="Cr-Snapshot-Identifier: 12345\n"),
+    )
+    mock_run = mock.Mock()
+    mock_run.stdout = (
+        '<manifest><project path="src/third_party/chromiumos-overlay" '
+        'revision="abcdef" /></manifest>'
+    )
+
+    def side_effect(
+        _git_repo: str, cmd: list[str], **_kwargs: object
+    ) -> mock.Mock:
+        """Mock side effect for RunGit."""
+        if "snapshot.xml" in cmd[1]:
+            return mock_run
+        res = mock.Mock()
+        res.stdout = (
+            "CHROMEOS_BUILD=1\n"
+            "CHROMEOS_BRANCH=2\n"
+            "CHROMEOS_PATCH=3\n"
+            "CHROME_BRANCH=4\n"
+        )
+        return res
+
+    monkeypatch.setattr(
+        uprev_lib.git, "RunGit", mock.Mock(side_effect=side_effect)
+    )
+
+    assert (
+        uprev_lib.get_version_with_snapshot_from_manifest("HEAD")
+        == "1.2.3-12345"
+    )
