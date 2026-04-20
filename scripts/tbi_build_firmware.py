@@ -23,7 +23,9 @@ def get_parser() -> commandline.ArgumentParser:
         "--location",
         type=int,
         required=True,
-        help="Firmware location (int).",
+        # pylint: disable=line-too-long
+        help="Firmware location enum (int). See https://chromium.googlesource.com/chromiumos/infra/proto/+/refs/heads/main/src/chromiumos/common.proto",
+        # pylint: enable=line-too-long
     )
     parser.add_argument(
         "--targets",
