@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from chromite.api.gen_sdk.chromiumos.test.lab.api import dut_pb2 as chromiumos_dot_test_dot_lab_dot_api_dot_dut__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n/chromiumos/test/lab/api/inventory_service.proto\x12\x17\x63hromiumos.test.lab.api\x1a!chromiumos/test/lab/api/dut.proto\"L\n\x15GetDutTopologyRequest\x12\x33\n\x02id\x18\x01 \x01(\x0b\x32\'.chromiumos.test.lab.api.DutTopology.Id\"\xa3\x02\n\x16GetDutTopologyResponse\x12J\n\x07success\x18\x01 \x01(\x0b\x32\x37.chromiumos.test.lab.api.GetDutTopologyResponse.SuccessH\x00\x12J\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32\x37.chromiumos.test.lab.api.GetDutTopologyResponse.FailureH\x00\x1a\x45\n\x07Success\x12:\n\x0c\x64ut_topology\x18\x01 \x01(\x0b\x32$.chromiumos.test.lab.api.DutTopology\x1a \n\x07\x46\x61ilure\x12\x15\n\rerror_message\x18\x01 \x01(\tB\x08\n\x06result2\x87\x01\n\x10InventoryService\x12s\n\x0eGetDutTopology\x12..chromiumos.test.lab.api.GetDutTopologyRequest\x1a/.chromiumos.test.lab.api.GetDutTopologyResponse0\x01\x42\x33Z1go.chromium.org/chromiumos/config/go/test/lab/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n/chromiumos/test/lab/api/inventory_service.proto\x12\x17\x63hromiumos.test.lab.api\x1a!chromiumos/test/lab/api/dut.proto\"L\n\x15GetDutTopologyRequest\x12\x33\n\x02id\x18\x01 \x01(\x0b\x32\'.chromiumos.test.lab.api.DutTopology.Id\"\xa3\x02\n\x16GetDutTopologyResponse\x12J\n\x07success\x18\x01 \x01(\x0b\x32\x37.chromiumos.test.lab.api.GetDutTopologyResponse.SuccessH\x00\x12J\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32\x37.chromiumos.test.lab.api.GetDutTopologyResponse.FailureH\x00\x1a\x45\n\x07Success\x12:\n\x0c\x64ut_topology\x18\x01 \x01(\x0b\x32$.chromiumos.test.lab.api.DutTopology\x1a \n\x07\x46\x61ilure\x12\x15\n\rerror_message\x18\x01 \x01(\tB\x08\n\x06result\"W\n\x17GetStableVersionRequest\x12<\n\x06target\x18\x01 \x01(\x0b\x32,.chromiumos.test.lab.api.StableVersionTarget\"S\n\x18GetStableVersionResponse\x12\x37\n\x07version\x18\x01 \x01(\x0b\x32&.chromiumos.test.lab.api.StableVersion\"\xb4\x01\n\rStableVersion\x12\x12\n\nos_version\x18\x01 \x01(\t\x12\x15\n\ros_image_path\x18\x02 \x01(\t\x12\x1b\n\x13\x66irmware_ro_version\x18\x03 \x01(\t\x12\x1e\n\x16\x66irmware_ro_image_path\x18\x04 \x01(\t\x12\x1b\n\x13\x66irmware_rw_version\x18\x05 \x01(\t\x12\x1e\n\x16\x66irmware_rw_image_path\x18\x06 \x01(\t\"l\n\x13StableVersionTarget\x12\x13\n\x0b\x64\x65vice_type\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65vice_name\x18\x02 \x01(\t\x12\r\n\x05\x62oard\x18\x03 \x01(\t\x12\r\n\x05model\x18\x04 \x01(\t\x12\r\n\x05pools\x18\x05 \x03(\t2\x87\x01\n\x10InventoryService\x12s\n\x0eGetDutTopology\x12..chromiumos.test.lab.api.GetDutTopologyRequest\x1a/.chromiumos.test.lab.api.GetDutTopologyResponse0\x01\x42\x33Z1go.chromium.org/chromiumos/config/go/test/lab/apib\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -31,6 +31,14 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_GETDUTTOPOLOGYRESPONSE_SUCCESS']._serialized_end=437
   _globals['_GETDUTTOPOLOGYRESPONSE_FAILURE']._serialized_start=439
   _globals['_GETDUTTOPOLOGYRESPONSE_FAILURE']._serialized_end=471
-  _globals['_INVENTORYSERVICE']._serialized_start=484
-  _globals['_INVENTORYSERVICE']._serialized_end=619
+  _globals['_GETSTABLEVERSIONREQUEST']._serialized_start=483
+  _globals['_GETSTABLEVERSIONREQUEST']._serialized_end=570
+  _globals['_GETSTABLEVERSIONRESPONSE']._serialized_start=572
+  _globals['_GETSTABLEVERSIONRESPONSE']._serialized_end=655
+  _globals['_STABLEVERSION']._serialized_start=658
+  _globals['_STABLEVERSION']._serialized_end=838
+  _globals['_STABLEVERSIONTARGET']._serialized_start=840
+  _globals['_STABLEVERSIONTARGET']._serialized_end=948
+  _globals['_INVENTORYSERVICE']._serialized_start=951
+  _globals['_INVENTORYSERVICE']._serialized_end=1086
 # @@protoc_insertion_point(module_scope)
