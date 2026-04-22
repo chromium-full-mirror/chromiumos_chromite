@@ -166,3 +166,32 @@ def SignViaOnlineHsm(request, _response, _config) -> None:
         ],
         entrypoint_args=["test"],
     )
+
+
+@faux.all_empty
+@validate.require("docker_image")
+@validate.require("keyset_name")
+@validate.exists("release_keys_checkout")
+@validate.validation_complete
+def CreateKeysWithOnlineHsm(request, _response, _config) -> None:
+    """Request key creation from the online HSM."""
+    entrypoint_args = [
+        "--keyset-name",
+        request.keyset_name,
+        "--keyset-repo",
+        "/keys",
+    ]
+    if request.dry_run:
+        entrypoint_args.append("--dry-run")
+
+    image.CallDocker(
+        request.docker_image,
+        docker_args=[
+            # Mount the keyset checkout as a volume.
+            "-v",
+            f"{request.release_keys_checkout}:/keys",
+            "--entrypoint",
+            "./create_keys_with_hsm.py",
+        ],
+        entrypoint_args=entrypoint_args,
+    )
