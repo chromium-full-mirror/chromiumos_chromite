@@ -10,10 +10,18 @@ writing files to arbitrary locations.
 """
 
 import json
+import logging
+import os
+import shutil
 import subprocess
-from typing import List, Optional
+from typing import Any, List, Optional
 
+from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import commandline
+
+
+# A shorter name for some very long proto types
+ARTIFACT_TYPE = common_pb2.ArtifactsByService.Firmware.ArtifactType
 
 
 def get_parser() -> commandline.ArgumentParser:
@@ -42,19 +50,118 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
 
     # TODO(ayatane): setup chroot
 
+    # pylint: disable=line-too-long
+    # proto-file: https://chromium.googlesource.com/chromiumos/infra/proto/+/refs/heads/main/src/chromite/api/firmware.proto
+    # proto-message: BuildAllFirmwareRequest
+    # pylint: enable=line-too-long
     request = {
         "firmwareLocation": opts.location,
         "firmwareTargets": [{"name": t} for t in opts.targets],
     }
-    with open("input.json", "w", encoding="utf-8") as f:
+    ret = _run_build_api(
+        "chromite.api.FirmwareService/BuildAllFirmware",
+        request,
+        input_file="input_build.json",
+        output_file="output_build.json",
+    )
+    if ret != 0:
+        return ret
+
+    ret = _run_build_api(
+        "chromite.api.FirmwareService/TestAllFirmware",
+        request,
+        input_file="input_test.json",
+        output_file="output_test.json",
+    )
+    if ret != 0:
+        return ret
+
+    # pylint: disable=line-too-long
+    # proto-file: https://chromium.googlesource.com/chromiumos/infra/proto/+/refs/heads/main/src/chromite/api/firmware.proto
+    # proto-message: BundleFirmwareArtifactsRequest
+    # pylint: enable=line-too-long
+    request = {
+        "artifacts": {
+            "outputArtifacts": [
+                {
+                    "artifactTypes": [
+                        ARTIFACT_TYPE.FIRMWARE_TARBALL,
+                        ARTIFACT_TYPE.FIRMWARE_TARBALL_INFO,
+                        ARTIFACT_TYPE.FIRMWARE_TOKEN_DATABASE,
+                    ],
+                    "location": opts.location,
+                },
+            ],
+        },
+        "firmwareLocation": opts.location,
+        "firmwareTargets": [{"name": t} for t in opts.targets],
+    }
+    ret = _run_build_api(
+        "chromite.api.FirmwareService/BundleFirmwareArtifacts",
+        request,
+        input_file="input_bundle.json",
+        output_file="output_bundle.json",
+    )
+    if ret != 0:
+        return ret
+
+    with open("output_bundle.json", "r", encoding="utf-8") as f:
+        bundle_data = json.load(f)
+
+    artifact_dir = bundle_data["artifactDir"]["path"]
+    output_dir = "tbi_build_output"
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Current dir is chromite in build environment
+    out_root = os.path.abspath(os.path.join("..", "out"))
+
+    for artifact_entry in bundle_data.get("artifacts", {}).get("artifacts", []):
+        for path_entry in artifact_entry.get("paths", []):
+            chroot_src_path = path_entry["path"]
+            rel_path = os.path.relpath(chroot_src_path, artifact_dir)
+            dest_path = os.path.join(output_dir, rel_path)
+            outside_path = os.path.join(
+                out_root, os.path.relpath(chroot_src_path, "/")
+            )
+
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+            logging.info(
+                "Copying artifact from %r to %r", outside_path, dest_path
+            )
+            shutil.copy2(outside_path, dest_path)
+
+    return 0
+
+
+def _run_build_api(
+    method: str,
+    request: Any,
+    *,
+    input_file: str = "input.json",
+    output_file: str = "output.json",
+) -> int:
+    """Run a Build API method.
+
+    Args:
+        method: The Build API method to call.
+        request: The request object to pass as input.
+        input_file: Path to the input JSON file.
+        output_file: Path to the output JSON file.
+
+    Returns:
+        The return code of the Build API call.
+    """
+    with open(input_file, "w", encoding="utf-8") as f:
         json.dump(request, f, indent=2)
 
     p = subprocess.run(
         [
             "bin/build_api",
-            "chromite.api.FirmwareService/BuildAllFirmware",
-            "--input-json=input.json",
-            "--output-json=output.json",
+            method,
+            f"--input-json={input_file}",
+            f"--output-json={output_file}",
         ],
         check=False,
     )
