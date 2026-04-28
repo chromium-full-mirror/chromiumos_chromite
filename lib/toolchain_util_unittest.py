@@ -632,7 +632,8 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         expected_list = [
             mock.call(
                 "gs://path/to/perfdata/"
-                "chromeos-chrome-amd64-1.2.3.4*.perf.data.bz2"
+                "chromeos-chrome-amd64-1.2.3.4*.perf.data.bz2",
+                details=True,
             ),
         ]
         self.assertEqual(expected_exists, self.gs_context.Exists.call_args_list)
@@ -682,7 +683,8 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         expected_list = [
             mock.call(
                 "gs://path/to/perfdata/"
-                "chromeos-chrome-arm-4.3.2.1*.perf.data.bz2"
+                "chromeos-chrome-arm-4.3.2.1*.perf.data.bz2",
+                details=True,
             ),
         ]
         self.assertEqual(expected_exists, self.gs_context.Exists.call_args_list)

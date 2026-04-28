@@ -903,7 +903,7 @@ class _CommonPrepareBundle:
         """
         for url in gs_urls:
             path = os.path.join(url, name)
-            if found_artifacts := self.gs_context.List(path):
+            if found_artifacts := self.gs_context.List(path, details=True):
                 newest = max(found_artifacts, key=lambda x: x.creation_time)
                 return newest.url
         return None
