@@ -39,19 +39,17 @@ def CreatePreMPKeys(request, _response, _config) -> None:
 
 @faux.all_empty
 @validate.require("docker_image")
-@validate.require("build_target.name")
 @validate.require("accessory")
 @validate.exists("release_keys_checkout")
 @validate.validation_complete
 def CreateAccessoryKeys(request, _response, _config) -> None:
     """Generate Accessory keys for the specified build target."""
     entrypoint_args = [
-        "-b",
-        request.build_target.name,
         "-a",
         request.accessory,
     ]
-
+    if request.build_target and request.build_target.name:
+        entrypoint_args.extend(["-b", request.build_target.name])
     if request.is_pre_mp:
         entrypoint_args.append("--pre-mp")
     if request.version:

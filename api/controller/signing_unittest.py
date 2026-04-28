@@ -207,10 +207,13 @@ class CreateAccessoryKeysTest(
         is_staging=False,
     ):
         """Helper to build a request instance."""
+        build_target = None
+        if board:
+            build_target = {"name": board}
         return signing_pb2.CreateAccessoryKeyRequest(
             docker_image="signing:latest",
             release_keys_checkout=str(self.tempdir),
-            build_target={"name": board},
+            build_target=build_target,
             accessory=accessory,
             version=version,
             dry_run=dry_run,
@@ -252,8 +255,46 @@ class CreateAccessoryKeysTest(
                 "--entrypoint",
                 "./generate_accessory_keys.py",
                 "signing:latest",
+                "-a",
+                "accessory",
                 "-b",
                 "board",
+                "--pre-mp",
+            ]
+        )
+
+    def testDockerCalledForPreMpKeyWithoutBuildTarget(self) -> None:
+        """Verify docker is called with correct arguments for PreMP key."""
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(accessory="accessory", is_pre_mp=True)
+        signing_controller.CreateAccessoryKeys(
+            request, self.response, self.api_config
+        )
+
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "--network",
+                "host",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-e",
+                "LUCI_CONTEXT=/tmp/luci/luci_context.1234",
+                "-e",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{self.tempdir}:/keys",
+                "--entrypoint",
+                "./generate_accessory_keys.py",
+                "signing:latest",
                 "-a",
                 "accessory",
                 "--pre-mp",
@@ -292,10 +333,10 @@ class CreateAccessoryKeysTest(
                 "--entrypoint",
                 "./generate_accessory_keys.py",
                 "signing:latest",
-                "-b",
-                "board",
                 "-a",
                 "accessory",
+                "-b",
+                "board",
             ]
         )
 
@@ -333,10 +374,10 @@ class CreateAccessoryKeysTest(
                 "--entrypoint",
                 "./generate_accessory_keys.py",
                 "signing:latest",
-                "-b",
-                "board",
                 "-a",
                 "accessory",
+                "-b",
+                "board",
                 "-kv",
                 "3",
             ]
@@ -378,10 +419,10 @@ class CreateAccessoryKeysTest(
                 "--entrypoint",
                 "./generate_accessory_keys.py",
                 "signing:latest",
-                "-b",
-                "board",
                 "-a",
                 "accessory",
+                "-b",
+                "board",
                 "--dry-run",
             ]
         )
