@@ -1862,12 +1862,12 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
                 input_to_text,
             ],
             [
-                os.path.join(chroot_afdo_tools_dir, "remove_indirect_calls.py"),
+                os.path.join(chroot_afdo_tools_dir, "remove_indirect_calls"),
                 "--input=" + input_to_text,
                 "--output=" + removed_temp,
             ],
             [
-                os.path.join(chroot_afdo_tools_dir, "remove_cold_functions.py"),
+                os.path.join(chroot_afdo_tools_dir, "remove_cold_functions"),
                 "--input=" + removed_temp,
                 "--output=" + reduced_temp,
                 "--number=" + str(reduce_functions),
@@ -1925,14 +1925,14 @@ class ReleaseChromeAFDOProfileTest(PrepareBundleTest):
                 "-output",
                 input_to_text,
             ],
-            [os.path.join(chroot_afdo_tools_dir, "redact_profile.py")],
+            [os.path.join(chroot_afdo_tools_dir, "redact_profile")],
             [
-                os.path.join(chroot_afdo_tools_dir, "remove_indirect_calls.py"),
+                os.path.join(chroot_afdo_tools_dir, "remove_indirect_calls"),
                 "--input=" + redacted_temp,
                 "--output=" + removed_temp,
             ],
             [
-                os.path.join(chroot_afdo_tools_dir, "remove_cold_functions.py"),
+                os.path.join(chroot_afdo_tools_dir, "remove_cold_functions"),
                 "--input=" + removed_temp,
                 "--output=" + reduced_temp,
                 "--number=" + str(reduce_functions),
