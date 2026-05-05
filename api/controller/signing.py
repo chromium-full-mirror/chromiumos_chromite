@@ -173,7 +173,7 @@ def SignViaOnlineHsm(request, _response, _config) -> None:
 @validate.require("keyset_name")
 @validate.exists("release_keys_checkout")
 @validate.validation_complete
-def CreateKeysWithOnlineHsm(request, _response, _config) -> None:
+def CreateKeysHsm(request, _response, _config) -> None:
     """Request key creation from the online HSM."""
     entrypoint_args = [
         "--keyset-name",

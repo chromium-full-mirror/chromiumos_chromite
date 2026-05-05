@@ -665,7 +665,7 @@ class CreateCertTest(
         patch.assert_not_called()
 
 
-class CreateKeysWithOnlineHsmTest(
+class CreateKeysHsmTest(
     cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
 ):
     """Create key with online HSM tests."""
@@ -700,7 +700,7 @@ class CreateKeysWithOnlineHsmTest(
         rc.SetDefaultCmdResult()
 
         request = self._GetRequest(keyset_name="setkey")
-        signing_controller.CreateKeysWithOnlineHsm(
+        signing_controller.CreateKeysHsm(
             request, self.response, self.api_config
         )
 
@@ -741,7 +741,7 @@ class CreateKeysWithOnlineHsmTest(
             keyset_name="setkey",
             dry_run=True,
         )
-        signing_controller.CreateKeysWithOnlineHsm(
+        signing_controller.CreateKeysHsm(
             request, self.response, self.api_config
         )
 
@@ -779,7 +779,7 @@ class CreateKeysWithOnlineHsmTest(
         patch = self.PatchObject(image_service, "CallDocker")
 
         request = self._GetRequest(keyset_name="setkey")
-        signing_controller.CreateKeysWithOnlineHsm(
+        signing_controller.CreateKeysHsm(
             request, self.response, self.validate_only_config
         )
         patch.assert_not_called()
