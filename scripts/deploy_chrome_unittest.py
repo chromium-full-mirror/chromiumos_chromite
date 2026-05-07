@@ -630,29 +630,6 @@ class TestDeploymentType(DeployTestBuildDir):
             ]
         )
 
-    def testAppShellDetection(self) -> None:
-        """Check for an app_shell deployment"""
-        osutils.Touch(
-            os.path.join(self.deploy.options.build_dir, "app_shell"),
-            makedirs=True,
-        )
-        self.deploy._CheckDeployType()
-        self.assertTrue(self.getCopyPath("app_shell"))
-        self.assertFalse(self.getCopyPath("chrome"))
-
-    def testChromeAndAppShellDetection(self) -> None:
-        """Check for a chrome deployment when app_shell also exists."""
-        osutils.Touch(
-            os.path.join(self.deploy.options.build_dir, "chrome"), makedirs=True
-        )
-        osutils.Touch(
-            os.path.join(self.deploy.options.build_dir, "app_shell"),
-            makedirs=True,
-        )
-        self.deploy._CheckDeployType()
-        self.assertTrue(self.getCopyPath("chrome"))
-        self.assertFalse(self.getCopyPath("app_shell"))
-
     def testChromeDetection(self) -> None:
         """Check for a regular chrome deployment"""
         osutils.Touch(
@@ -660,7 +637,6 @@ class TestDeploymentType(DeployTestBuildDir):
         )
         self.deploy._CheckDeployType()
         self.assertTrue(self.getCopyPath("chrome"))
-        self.assertFalse(self.getCopyPath("app_shell"))
 
 
 class TestDeploymentTypeSectionsEmbedded(DeployTestBuildDir):

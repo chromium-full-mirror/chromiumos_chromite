@@ -279,11 +279,7 @@ class LinkageTest(image_test_lib.ImageTestCase):
         if not self._IsPackageMerged(
             "chromeos-base/chromeos-chrome[pgo_generate]"
         ):
-            if self._IsPackageMerged(
-                "chromeos-base/chromeos-chrome[app_shell]"
-            ):
-                binaries.append("opt/google/chrome/app_shell")
-            elif self._IsPackageMerged("chromeos-base/chromeos-chrome"):
+            if self._IsPackageMerged("chromeos-base/chromeos-chrome"):
                 binaries.append("opt/google/chrome/chrome")
 
         if self._IsPackageMerged("net-print/hplip"):

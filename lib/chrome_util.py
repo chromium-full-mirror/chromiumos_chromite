@@ -398,11 +398,6 @@ _COPY_PATHS_COMMON = (
     Path("snapshot_blob.bin", optional=True),
 )
 
-_COPY_PATHS_APP_SHELL = (
-    Path("app_shell", exe=True),
-    Path("extensions_shell_and_test.pak"),
-) + _COPY_PATHS_COMMON
-
 _COPY_PATHS_CHROME_WITHOUT_EXE = (
     Path("chrome-wrapper"),
     Path("chrome_100_percent.pak"),
@@ -484,7 +479,6 @@ _COPY_PATHS_CHROME_SECTIONS_EMBEDDED = (
 
 
 _COPY_PATHS_MAP = {
-    "app_shell": _COPY_PATHS_APP_SHELL,
     "chrome": _COPY_PATHS_CHROME,
     "chrome_sections_embedded": _COPY_PATHS_CHROME_SECTIONS_EMBEDDED,
 }
@@ -503,7 +497,7 @@ def GetCopyPaths(deployment_type="chrome"):
 
     Args:
         deployment_type: String describing the deployment type. Either
-            "app_shell" or "chrome".
+            "chrome" or "chrome_sections_embedded".
 
     Returns:
         The list of paths to use as a filter for staging files.

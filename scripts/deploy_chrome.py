@@ -528,11 +528,6 @@ class DeployChrome:
                         "build section_embedded_chrome_binary target."
                     )
 
-            # Handle non-Chrome deployments.
-            if not BinaryExists("chrome"):
-                if BinaryExists("app_shell"):
-                    self.copy_paths = chrome_util.GetCopyPaths("app_shell")
-
     def _PrepareStagingDir(self) -> None:
         _PrepareStagingDir(
             self.options,
