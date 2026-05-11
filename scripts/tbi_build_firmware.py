@@ -16,6 +16,9 @@ import shutil
 import subprocess
 from typing import Any, List, Optional
 
+from chromite.third_party.google.protobuf import json_format
+
+from chromite.api.gen.chromite.api import sdk_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import commandline
 
@@ -48,13 +51,28 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     parser = get_parser()
     opts = parser.parse_args(argv or [])
 
-    # TODO(ayatane): setup chroot
+    chroot = common_pb2.Chroot()
+    chroot.path = "cros_chroot"
+    chroot.env.use_flags.append(common_pb2.UseFlag(flag="chrome_internal"))
+
+    request = sdk_pb2.CreateRequest()
+    request.chroot.CopyFrom(chroot)
+    request.skip_chroot_upgrade = True
+    ret = _run_build_api(
+        "chromite.api.SdkService/Create",
+        json_format.MessageToDict(request),
+        input_file="input_sdk.json",
+        output_file="output_sdk.json",
+    )
+    if ret != 0:
+        return ret
 
     # pylint: disable=line-too-long
     # proto-file: https://chromium.googlesource.com/chromiumos/infra/proto/+/refs/heads/main/src/chromite/api/firmware.proto
     # proto-message: BuildAllFirmwareRequest
     # pylint: enable=line-too-long
     request = {
+        "chroot": json_format.MessageToDict(chroot),
         "firmwareLocation": opts.location,
         "firmwareTargets": [{"name": t} for t in opts.targets],
     }
@@ -81,6 +99,7 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     # proto-message: BundleFirmwareArtifactsRequest
     # pylint: enable=line-too-long
     request = {
+        "chroot": json_format.MessageToDict(chroot),
         "artifacts": {
             "outputArtifacts": [
                 {
