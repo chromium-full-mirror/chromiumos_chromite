@@ -333,15 +333,15 @@ def main(argv) -> None:
     if not opts.output:
         opts.output = Path.cwd() / opts.gob
 
-    # Cache the hook once.
-    print_status("Caching commit-msg hook ...", end="")
-    get_hook_commit_msg(opts)
-
     print_status("Gathering project list ...", end="")
     live_repos = set(get_repos(opts.gob))
 
     print_status("Cleaning old projects ...", end="")
     cleanup_old_projects(opts, live_repos)
+
+    # Cache the hook once.
+    print_status("Caching commit-msg hook ...", end="")
+    get_hook_commit_msg(opts)
 
     if opts.status:
         func = functools.partial(check_repo, opts)
