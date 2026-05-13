@@ -25,9 +25,5 @@ cscope.out
 /.vimrc
 /.vscode/
 
-# Obsolete
-/virtualenv/
-/.venv/
-
 # Intellij files.
 *.iml

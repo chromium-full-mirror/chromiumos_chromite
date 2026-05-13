@@ -94,8 +94,6 @@ The wrapper figures out the directory of the executable script and the
 `$PYTHONPATH`. Finally, it invokes the correct Python installation by moving up
 the directory structure to find which git repo is making the call.
 
-Do not use `virtualenv_wrapper.py` in new code.
-
 ### chromite/shell
 
 This directory is a staging area for migrating shell scripts to Python.

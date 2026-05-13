@@ -6,7 +6,6 @@ target-version = ['py311']
 exclude = [
     'third_party/',
     'sdk/bin/',
-    'venv/',
     '_pb2\.pyi?$',
     '_grpc\.pyi?$',
 ]

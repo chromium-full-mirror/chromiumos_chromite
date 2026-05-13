@@ -62,7 +62,6 @@ KNOWN_ISSUES = (
     "scripts/cros_setup_toolchains.py",
     "scripts/gconv_strip.py",
     "scripts/run_tests.py",
-    "scripts/virtualenv_wrapper.py",
     "scripts/vpython_consistency_unittest.py",
     "scripts/vpython_wrapper.py",
     "service/dependency.py",

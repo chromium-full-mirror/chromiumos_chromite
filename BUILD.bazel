@@ -42,13 +42,6 @@ pkg_files(
             "test/**",
             "third_party/**",
             "utils/**",
-            # venv includes a recursive symlink to Chromite that confuses
-            # Bazel, so exclude it since it's not needed anyway. We can't use
-            # the exclude list below to filter it out because the recursive
-            # symlink messes up Bazel before that exclusion is considered,
-            # which is why we can't just include "**" rather than enumerate all
-            # the subdirs.
-            # "venv/**"
             # Include all files, in addition to the subdirs above
             "*",
         ],
