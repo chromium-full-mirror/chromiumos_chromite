@@ -40,6 +40,7 @@ from chromite.utils import pformat
 
 COMMAND_NAME = "chrome-sdk"
 CUSTOM_VERSION = "custom"
+TEST_METADATA_JSONPB = "test_metadata.jsonpb"
 
 
 def Log(*args, **kwargs) -> None:
@@ -345,6 +346,37 @@ class SDKFetcher:
                 ref.AssignText(raw_json)
 
         return json.loads(raw_json)
+
+    def _GetTestMetadata(self, version_base: str) -> cache.CacheReference:
+        """Download test_metadata.jsonpb for a given version.
+
+        Args:
+            version_base: The base path in Google Storage for the version.
+
+        Returns:
+            A reference object pointing to the downloaded metadata file.
+        """
+        test_metadata_path = os.path.join(
+            version_base, "metadata", TEST_METADATA_JSONPB
+        )
+        test_metadata_key = self._GetTarballCacheKey(
+            TEST_METADATA_JSONPB, test_metadata_path
+        )
+        ref = self.misc_cache.Lookup(test_metadata_key)
+        if not ref.Exists(lock=True):
+            Log("SDK: Fetching test metadata %s", test_metadata_path)
+            try:
+                raw_data = self.gs_ctx.Cat(
+                    test_metadata_path,
+                    debug_level=logging.DEBUG,
+                    encoding="utf-8",
+                )
+                ref.AssignText(raw_data)
+            except gs.GSNoSuchKey:
+                cros_build_lib.die(
+                    f"Test metadata not found: {test_metadata_path}"
+                )
+        return ref
 
     @classmethod
     def _LookupMiscCache(cls, cache_dir, key):
@@ -702,6 +734,12 @@ class SDKFetcher:
         self._InstallSquashfsFromCipd()
         self._InstallZstdFromCipd()
 
+        if TEST_METADATA_JSONPB in components:
+            test_metadata_ref = self._GetTestMetadata(version_base)
+            key_map[TEST_METADATA_JSONPB] = test_metadata_ref
+            test_metadata_ref.Acquire()
+            components.remove(TEST_METADATA_JSONPB)
+
         if not target_tc or not toolchain_url:
             # Look-up the toolchain data in both metadata.json and
             # build_report.json. We can stop using metadata.json once no one
@@ -994,6 +1032,12 @@ class ChromeSDKCommand(command.CliCommand):
             default=True,
             enabled_desc="Enable RBE client for the build.",
             disabled_desc="Disable RBE client for the build.",
+        )
+        parser.add_bool_argument(
+            "--download-test-metadata",
+            default=False,
+            enabled_desc="Download test metadata from cloud storage.",
+            disabled_desc="Do not download test metadata from cloud storage.",
         )
         parser.add_argument(
             "--version",
@@ -1729,6 +1773,8 @@ class ChromeSDKCommand(command.CliCommand):
         components.append("autotest_server_package.tar.bz2")
         if self.options.download_vm:
             components.append(constants.TEST_IMAGE_TAR)
+        if self.options.download_test_metadata:
+            components.append(TEST_METADATA_JSONPB)
 
         with self.sdk.Prepare(
             components,

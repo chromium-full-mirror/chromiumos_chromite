@@ -147,6 +147,7 @@ class SDKFetcherMock(partial_mock.PartialMock):
         "UpdateDefaultVersion",
         "_GetTarballCacheKey",
         "_GetBuildReport",
+        "_GetTestMetadata",
     )
 
     FAKE_METADATA = """
@@ -234,6 +235,15 @@ class SDKFetcherMock(partial_mock.PartialMock):
             stdout=self.FAKE_METADATA,
         )
         return self.backup["_GetMetadata"](inst, *args, **kwargs)
+
+    @_DependencyMockCtx
+    def _GetTestMetadata(self, inst, *args, **kwargs):
+        self.gs_mock.SetDefaultCmdResult()
+        self.gs_mock.AddCmdResult(
+            partial_mock.ListRegex("cat .*/metadata/test_metadata.jsonpb"),
+            stdout='{"fake_test_metadata": true}',
+        )
+        return self.backup["_GetTestMetadata"](inst, *args, **kwargs)
 
     @_DependencyMockCtx
     def _GetBuildReport(self, inst, *args, **kwargs):
@@ -355,6 +365,57 @@ class RunThroughTest(
         with cros_test_lib.LoggingCapturer():
             self.cmd_mock.inst.Run()
 
+    def testTestMetadata(self) -> None:
+        """Test that test metadata is downloaded."""
+        self.SetupCommandMock(extra_args=["--download-test-metadata"])
+        with cros_test_lib.LoggingCapturer():
+            self.cmd_mock.inst.Run()
+
+            cache_file = os.path.join(
+                self.tempdir,
+                "chrome-sdk",
+                "misc",
+                cros_chrome_sdk.TEST_METADATA_JSONPB,
+                "some-fake-hash",
+            )
+            self.assertExists(cache_file)
+            self.assertEqual(
+                osutils.ReadFile(cache_file), '{"fake_test_metadata": true}'
+            )
+
+    def testNoTestMetadata(self) -> None:
+        """Test that test metadata is NOT downloaded when disabled."""
+        self.SetupCommandMock(extra_args=["--no-download-test-metadata"])
+        self.cmd_mock.inst.ProcessOptions(
+            self.cmd_mock.parser, self.cmd_mock.inst.options
+        )
+        with cros_test_lib.LoggingCapturer():
+            self.cmd_mock.inst.Run()
+
+            cache_file = os.path.join(
+                self.tempdir,
+                "chrome-sdk",
+                "misc",
+                cros_chrome_sdk.TEST_METADATA_JSONPB,
+                "some-fake-hash",
+            )
+            self.assertNotExists(cache_file)
+
+    def testDefaultNoTestMetadata(self) -> None:
+        """Test that test metadata is NOT downloaded by default."""
+        self.SetupCommandMock()
+        with cros_test_lib.LoggingCapturer():
+            self.cmd_mock.inst.Run()
+
+            cache_file = os.path.join(
+                self.tempdir,
+                "chrome-sdk",
+                "misc",
+                cros_chrome_sdk.TEST_METADATA_JSONPB,
+                "some-fake-hash",
+            )
+            self.assertNotExists(cache_file)
+
     def testManyBoards(self) -> None:
         """Test a runthrough when multiple boards are specified via --boards."""
         self.SetupCommandMock(many_boards=True)
@@ -433,6 +494,13 @@ class RunThroughTest(
             os.path.join(sdk_dir, constants.BUILD_REPORT_JSON),
             SDKFetcherMock.FAKE_BUILD_REPORT,
         )
+        osutils.WriteFile(
+            os.path.join(
+                sdk_dir, "metadata", cros_chrome_sdk.TEST_METADATA_JSONPB
+            ),
+            "{}",
+            makedirs=True,
+        )
         self.SetupCommandMock(extra_args=["--sdk-path", sdk_dir])
         with cros_test_lib.LoggingCapturer():
             self.cmd_mock.inst.Run()
@@ -448,6 +516,13 @@ class RunThroughTest(
         osutils.WriteFile(
             os.path.join(sdk_dir, constants.BUILD_REPORT_JSON),
             SDKFetcherMock.FAKE_BUILD_REPORT,
+        )
+        osutils.WriteFile(
+            os.path.join(
+                sdk_dir, "metadata", cros_chrome_sdk.TEST_METADATA_JSONPB
+            ),
+            "{}",
+            makedirs=True,
         )
         self.SetupCommandMock(extra_args=["--sdk-path", sdk_dir])
         with cros_test_lib.LoggingCapturer():
