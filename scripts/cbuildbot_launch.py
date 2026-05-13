@@ -621,12 +621,7 @@ def _main(options, argv):
 
 
 def main(argv):
-    known_cbb_configs = {
-        # TODO(b/312367018): Remove gWifi builder.
-        "gwifi-release",
-        "gale-release",
-        "mistral-release",
-    }
+    known_cbb_configs = {}
 
     options = PreParseArguments(argv)
 
