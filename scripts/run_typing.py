@@ -66,7 +66,6 @@ KNOWN_ISSUES = (
     "scripts/vpython_wrapper.py",
     "service/dependency.py",
     "test/portage_testables_unittest.py",
-    "utils/code_coverage_util.py",
     "utils/field_mask_util.py",
     "utils/os_util_unittest.py",
     "utils/parser/ebuild_license_unittest.py",
