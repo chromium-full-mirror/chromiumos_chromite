@@ -15,6 +15,7 @@ from typing import Iterator, Optional
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import terminal
 
 
 # These files we haven't cleaned up yet.  We filter entire files to avoid having
@@ -201,18 +202,25 @@ def main(argv: Optional[list[str]] = None) -> Optional[int]:
     )
     # Check for stale baselines.
     stale_exceptions = set(KNOWN_ISSUES)
-    relaxed_returncode = 0
+    new_reports = []
+    known_reports = []
     for report in sort_results(result.stdout):
         stale_exceptions.discard(report.file)
         new_problem = (
             report.file not in KNOWN_ISSUES and report.severity != "note"
         )
         if new_problem:
-            relaxed_returncode = 1
-        print(
-            str(report),
-            "[chromite/NEW ERROR]" if new_problem else "[chromite/ignoring KI]",
-        )
+            new_reports.append(str(report))
+        else:
+            known_reports.append(str(report))
+
+    relaxed_returncode = bool(new_reports)
+    # Print all known reports first since those will be "ignored".
+    color = terminal.Color()
+    for report in known_reports:
+        print(report, color.Color(color.YELLOW, "[chromite/ignoring KI]"))
+    for report in new_reports:
+        print(report, color.Color(color.RED, "[chromite/NEW ERROR]"))
 
     if full_run and stale_exceptions:
         print(
