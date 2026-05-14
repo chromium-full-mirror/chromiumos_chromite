@@ -1647,7 +1647,9 @@ def uprev_libapps(
 
 
 def build_mtk_optee_os_ta_and_upload_bucket(chroot, bins_ebuild_name):
-    """Build mtk-optee-os-ta and uploads the artifacts to Google Storage.
+    """Build mtk-optee-os-ta(-chromeos) and uploads the artifacts.
+
+       The artifiacts are uploaded to Google Storage.
 
     Args:
         chroot: The chroot to enter.
@@ -1658,6 +1660,10 @@ def build_mtk_optee_os_ta_and_upload_bucket(chroot, bins_ebuild_name):
         "mt8196": "rauru",
     }
 
+    package_name = "mtk-optee-os-ta"
+    if "chromeos" in bins_ebuild_name:
+        package_name = "mtk-optee-os-ta-chromeos"
+
     with tempfile.TemporaryDirectory() as tmp_dir_path:
         for chipset, board in MTK_OPTEE_OS_BOARDS.items():
             # Build mtk-optee-os-ta
@@ -1666,21 +1672,22 @@ def build_mtk_optee_os_ta_and_upload_bucket(chroot, bins_ebuild_name):
                 "build-packages",
                 "--board",
                 board,
-                "mtk-optee-os-ta",
+                package_name,
             ]
             try:
                 chroot.run(command)
             except cros_build_lib.RunCommandError:
-                logging.error("Failed build mtk-optee-os-ta: %s", command)
+                logging.error("Failed build %s: %s", package_name, command)
                 raise BuildPackageError
 
             sysroot = sysroot_lib.Sysroot(os.path.join("build", board))
             mtk_optee_os_ta_root = chroot.full_path(
-                sysroot.JoinPath("lib", "mtk-optee-os-ta")
+                sysroot.JoinPath("lib", package_name)
             )
             if not os.path.exists(mtk_optee_os_ta_root):
                 logging.error(
-                    "mtk-optee-os-ta artifacts not found: %s",
+                    "%s artifacts not found: %s",
+                    package_name,
                     mtk_optee_os_ta_root,
                 )
                 raise BuildPackageError
@@ -1698,7 +1705,8 @@ def build_mtk_optee_os_ta_and_upload_bucket(chroot, bins_ebuild_name):
 
             if not board_artifacts:
                 logging.error(
-                    "no files found in mtk-optee-os-ta: %s",
+                    "no files found in %s: %s",
+                    package_name,
                     mtk_optee_os_ta_root,
                 )
                 raise BuildPackageError
@@ -1782,8 +1790,8 @@ def get_new_version(ebuild, default="0.0.1"):
     return new_version
 
 
-def uprev_mtk_optee_os_ebuild(overlay, manifest):
-    """Uprev mtk-optee-os-ta.ebuild with a new version.
+def uprev_mtk_optee_os_ebuild(overlay, manifest, ebuild_name):
+    """Uprev mtk-optee-os-ta(-chromeos).ebuild with a new version.
 
     The new version is 0.0.$`x+1` if the current version is 0.0.`x`. For
     instance, if the current ebuild file is
@@ -1793,13 +1801,16 @@ def uprev_mtk_optee_os_ebuild(overlay, manifest):
     Args:
         overlay: The overlay the mtk-optee-os-ta.ebuild belongs to.
         manifest: The manifest object.
+        ebuild_name: The name of the ebuild file, either "mtk-optee-os-ta" or
+            "mtk-optee-os-ta-chromeos".
 
     Returns:
         The new version of ebuild file and the list of file paths to register.
         Returns None if no uprev is needed.
     """
-    ebuild = get_ebuild(overlay, "sys-firmware/mtk-optee-os-ta")
-    logging.debug("Ebuild path in mtk-optee-os-ta: %s", ebuild.ebuild_path)
+
+    ebuild = get_ebuild(overlay, "sys-firmware/" + ebuild_name)
+    logging.debug("Ebuild path in %s: %s", ebuild_name, ebuild.ebuild_path)
 
     new_version = get_new_version(ebuild)
 
@@ -1820,8 +1831,8 @@ def uprev_mtk_optee_os_ebuild(overlay, manifest):
     return (new_version, modified_ebuild_paths)
 
 
-def uprev_mtk_optee_os_bins_ebuild(overlay, manifest, new_version):
-    """Uprev mtk-optee-os-ta-bins.ebuild to the new version.
+def uprev_mtk_optee_os_bins_ebuild(overlay, manifest, new_version, ebuild_name):
+    """Uprev mtk-optee-os-ta-bins(-chromeos).ebuild to the new version.
 
     For example, if the new version is 0.0.5, the created ebuild file is
     `mtk-optee-os-ta-bins-0.0.5-r1.ebuild`. An old ebuild is removed on success.
@@ -1830,13 +1841,16 @@ def uprev_mtk_optee_os_bins_ebuild(overlay, manifest, new_version):
         overlay: The overlay the mtk-optee-os-ta-bins.ebuild belongs to.
         manifest: The manifest object.
         new_version: The new of the new ebuild file.
+        ebuild_name: The name of the ebuild file, either "mtk-optee-os-ta-bins"
+            or "mtk-optee-os-ta-bins-chromeos".
 
     Returns:
         The path to the new ebuild path and the list of file paths to register.
         Returns None if no uprev is needed.
     """
-    ebuild = get_ebuild(overlay, "sys-firmware/mtk-optee-os-ta-bins")
-    logging.debug("Ebuild path in mtk-optee-os-ta-bins: %s", ebuild.ebuild_path)
+
+    ebuild = get_ebuild(overlay, "sys-firmware/" + ebuild_name)
+    logging.debug("Ebuild path in %s: %s", ebuild_name, ebuild.ebuild_path)
 
     # Uprev the ebuild to the new version.
     # We skip the same ebuild check because the stable ebuild file's content of
@@ -1848,7 +1862,7 @@ def uprev_mtk_optee_os_bins_ebuild(overlay, manifest, new_version):
         check_same_ebuild=False,
     )
     if not result:
-        raise UprevError("Failed to uprev mtk-optee-os-ta-bins ebuild")
+        raise UprevError("Failed to uprev %s ebuild" % ebuild_name)
 
     new_ebuild_path = result[1]
     modified_ebuild_paths = [new_ebuild_path]
@@ -1859,18 +1873,29 @@ def uprev_mtk_optee_os_bins_ebuild(overlay, manifest, new_version):
     return (new_ebuild_path, modified_ebuild_paths)
 
 
-@uprevs_versioned_package("sys-firmware/mtk-optee-os-ta")
-def uprev_mtk_optee_os(
+def uprev_mtk_optee_os_internal(
     _build_targets: List["build_target_lib.BuildTarget"],
     refs: List[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
+    is_chromeos: bool,
 ) -> uprev_lib.UprevVersionedResult:
-    """Updates mtk-optee-os-ta ebuilds to the latest commit of mtk-optee-os
+    """Updates mtk-optee-os-ta(-chromeos) ebuild.
+
+      The latest commit of mtk-optee-os(-chromeos) and their ebuilds.
+      The built artifacts with the latest ebuild are uploaded to Google Storage.
 
     See: uprev_versioned_package.
 
+    Args:
+        _build_targets: Not used.
+        refs: List[uprev_lib.GitRef],
+        chroot: "chroot_lib.Chroot",
+        is_chromeos: If true, uprev mtk-optee-os-ta-chromeos. Otherwise, uprev
+            mtk-optee-os-ta.
+
     Returns:
-        The result of updating mtk-optee-os-ta ebuilds.
+        The result of updating mtk-optee-os-ta(-chromeos) and
+        mtk-optee-os-ta-bins(-chromeos) ebuilds.
     """
     # Clone the repository of mtk-optee-os manually.
     # mtk-optee-os is not in manifest.xml because the source visibility is
@@ -1919,8 +1944,14 @@ def uprev_mtk_optee_os(
         constants.CHROMEOS_PARTNER_OVERLAY_DIR,
     )
 
+    mtk_optee_os_ebuild_name = "mtk-optee-os-ta"
+    mtk_optee_os_bins_ebuild_name = "mtk-optee-os-ta-bins"
+    if is_chromeos:
+        mtk_optee_os_ebuild_name = "mtk-optee-os-ta-chromeos"
+        mtk_optee_os_bins_ebuild_name = "mtk-optee-os-ta-bins-chromeos"
+
     mtk_optee_os_uprev_result = uprev_mtk_optee_os_ebuild(
-        overlay, mtk_optee_os_manifest
+        overlay, mtk_optee_os_manifest, mtk_optee_os_ebuild_name
     )
     # No uprev is needed.
     if not mtk_optee_os_uprev_result:
@@ -1933,7 +1964,10 @@ def uprev_mtk_optee_os(
     # Uprev mtk-optee-os-ta-bins to the same version.
     bins_new_ebuild_path, modified_bins_ebuild_paths = (
         uprev_mtk_optee_os_bins_ebuild(
-            overlay, mtk_optee_os_manifest, new_version
+            overlay,
+            mtk_optee_os_manifest,
+            new_version,
+            mtk_optee_os_bins_ebuild_name,
         )
     )
 
@@ -1947,7 +1981,8 @@ def uprev_mtk_optee_os(
     # Build mtk-optee-os-ta and uploads the artifacts the Google Storage bucket
     # whose name is the new mtk-optee-os-ta-bins ebuild.
     build_mtk_optee_os_ta_and_upload_bucket(
-        chroot, bins_new_ebuild_file_name.replace("-r1.ebuild", "")
+        chroot,
+        bins_new_ebuild_file_name.replace("-r1.ebuild", ""),
     )
 
     # Update the Manifest of mtk-optee-os-ta-bins ebuild for the new artifacts
@@ -1959,6 +1994,28 @@ def uprev_mtk_optee_os(
     result.add_result(refs[-1].revision, [bins_new_manifest])
     logging.debug("Modified files list: %s", result.modified)
     return result
+
+
+@uprevs_versioned_package("sys-firmware/mtk-optee-os-ta")
+def uprev_mtk_optee_os(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
+    return uprev_mtk_optee_os_internal(
+        _build_targets, refs, chroot, is_chromeos=False
+    )
+
+
+@uprevs_versioned_package("sys-firmware/mtk-optee-os-ta-chromeos")
+def uprev_mtk_optee_os_chromeos(
+    _build_targets: List["build_target_lib.BuildTarget"],
+    refs: List[uprev_lib.GitRef],
+    chroot: "chroot_lib.Chroot",
+) -> uprev_lib.UprevVersionedResult:
+    return uprev_mtk_optee_os_internal(
+        _build_targets, refs, chroot, is_chromeos=True
+    )
 
 
 @uprevs_version_file("chrome/src/chromeos/CHROMEOS_LKGM")
