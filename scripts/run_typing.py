@@ -46,7 +46,6 @@ KNOWN_ISSUES = (
     "ide_tooling/scripts/compdb_no_chroot_unittest.py",
     "ide_tooling/scripts/detect_indent.py",
     "ide_tooling/scripts/detect_indent_unittest.py",
-    "lib/build_requests.py",
     "lib/buildbot_annotations.py",
     "lib/cidb.py",
     "lib/cidb_unittest.py",
