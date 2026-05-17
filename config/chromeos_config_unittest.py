@@ -6,8 +6,6 @@
 
 from unittest import mock
 
-from chromite.cbuildbot import builders
-from chromite.cbuildbot.builders import generic_builders
 from chromite.config import chromeos_config
 from chromite.lib import config_lib
 from chromite.lib import constants
@@ -477,19 +475,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                         "-" + flag in useflag_set,
                         msg % (build_name, flag, flag),
                     )
-
-    def testCheckBuilderClass(self) -> None:
-        """Verify builder_class_name is a valid value."""
-        for build_name, config in self.site_config.items():
-            builder_class_name = config["builder_class_name"]
-            if builder_class_name is None:
-                continue
-
-            cls = builders.GetBuilderClass(builder_class_name)
-            self.assertTrue(
-                issubclass(cls, generic_builders.Builder),
-                msg="config %s has a broken builder_class_name" % build_name,
-            )
 
     def testCanaryBuildTimeouts(self) -> None:
         """Verify we get the expected timeout values."""

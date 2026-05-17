@@ -60,12 +60,6 @@ It is a configurable bot that builds ChromeOS.
 This project is heavily deprecated as everything has moved to LUCI recipes and
 the BuildAPI interface. Do not use this project for anything new.
 
-### chromite/cbuildbot/builders
-
-This folder contains configurations of the different builders in use. Each has
-its own set of stages to run usually called under RunStages function. Most
-builders used regularly are derived from SimpleBuilder class.
-
 ### chromite/cbuildbot/stages
 
 Each file here has implementations of stages in the build process grouped by
