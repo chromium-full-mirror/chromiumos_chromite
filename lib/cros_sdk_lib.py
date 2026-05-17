@@ -733,9 +733,9 @@ def MountChrootPaths(
     # Setup ~/.
     external_home = os_util.non_root_home()
     internal_home = path / "home" / os_util.get_non_root_user()
+    osutils.SafeMakedirsNonRoot(internal_home)
     for subpath in (
         # go/keep-sorted start
-        ".cidb_creds",
         ".config/chrome_infra",
         ".config/chromite",
         # Creds used to authenticate with GCP services (e.g. RBE).

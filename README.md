@@ -127,7 +127,7 @@ writing tests in other modules easier.
 ### chromite/*
 
 There are smaller folders with miscellaneous functions like config, licencing,
-cidb, etc.
+etc.
 
 ## Testing your Chromite changes
 

@@ -16,7 +16,6 @@ from unittest import mock
 import pytest
 
 import chromite as cr
-from chromite.lib import cidb
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -34,22 +33,6 @@ from chromite.lib.parser import package_info
 # that the only items visible to a wildcard import are pytest fixtures,
 # usually by declaring __all__ if necessary.
 from chromite.test.portage_fixtures import *
-
-
-@pytest.fixture(scope="class", autouse=True)
-def mock_cidb_connection() -> None:
-    """Ensure that the CIDB connection factory is initialized as a mock.
-
-    Unit tests should never connect to any live instances of CIDB and this
-    initialization ensures that they only ever get a mock connection instance.
-
-    Previously cros_test_lib.TestProgram.runTests was responsible for globally
-    initializing this mock and multiple tests are flaky if this mock connection
-    is not initialized before any tests are run.
-    """
-    # pylint: disable=protected-access
-    cidb.CIDBConnectionFactory._ClearCIDBSetup()
-    cidb.CIDBConnectionFactory.SetupMockCidb()
 
 
 @pytest.fixture(scope="class", autouse=True)
