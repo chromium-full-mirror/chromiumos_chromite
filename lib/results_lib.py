@@ -6,36 +6,11 @@
 
 import collections
 import datetime
-import logging
 import math
-import os
 
 from chromite.cbuildbot import cbuildbot_alerts
-from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import failures_lib
-
-
-def _GetCheckpointFile(buildroot):
-    return os.path.join(buildroot, ".completed_stages")
-
-
-def WriteCheckpoint(buildroot) -> None:
-    """Drops a completed stages file with current state."""
-    completed_stages_file = _GetCheckpointFile(buildroot)
-    with open(completed_stages_file, "w+", encoding="utf-8") as save_file:
-        Results.SaveCompletedStages(save_file)
-
-
-def LoadCheckpoint(buildroot) -> None:
-    """Restore completed stage info from checkpoint file."""
-    completed_stages_file = _GetCheckpointFile(buildroot)
-    if not os.path.exists(completed_stages_file):
-        logging.warning("Checkpoint file not found in buildroot %s", buildroot)
-        return
-
-    with open(completed_stages_file, "r", encoding="utf-8") as load_file:
-        Results.RestoreCompletedStages(load_file)
 
 
 class RecordedTraceback:
@@ -92,82 +67,6 @@ class _Results:
     def Clear(self) -> None:
         """Clear existing stage results."""
         self.__init__()
-
-    def PreviouslyCompletedRecord(self, name):
-        """Check to see if this stage was previously completed.
-
-        Returns:
-            A boolean showing the stage was successful in the previous run.
-        """
-        return self._previous.get(name)
-
-    def BuildSucceededSoFar(
-        self, buildstore=None, buildbucket_id=None, name=None
-    ):
-        """Return true if all stages so far have passing states.
-
-        This method returns true if all was successful or forgiven or skipped.
-
-        Args:
-            buildstore: A BuildStore instance to make DB calls.
-            buildbucket_id: buildbucket_id of the build to check.
-            name: stage name of current stage.
-        """
-        build_succeess = all(
-            entry.result in self.NON_FAILURE_TYPES
-            for entry in self._results_log
-        )
-
-        # When timeout happens and background tasks are killed, the statuses
-        # of the background stage tasks may get lost. BuildSucceededSoFar may
-        # still return build_succeess = True when the killed stage tasks were
-        # failed. Add one more verification step in _BuildSucceededFromCIDB to
-        # check the stage status in CIDB.
-        return build_succeess and self._BuildSucceededFromCIDB(
-            buildstore=buildstore, buildbucket_id=buildbucket_id, name=name
-        )
-
-    def _BuildSucceededFromCIDB(
-        self, buildstore=None, buildbucket_id=None, name=None
-    ):
-        """Return True if all stages recorded in buildbucket passed.
-
-        Args:
-            buildstore: A BuildStore instance to make DB calls.
-            buildbucket_id: buildbucket_id of the build to check.
-            name: stage name of current stage.
-        """
-        if (
-            buildstore is not None
-            and buildstore.AreClientsReady()
-            and buildbucket_id is not None
-        ):
-            stages = buildstore.GetBuildsStages(
-                buildbucket_ids=[buildbucket_id]
-            )
-            for stage in stages:
-                if name is not None and stage["name"] == name:
-                    logging.info(
-                        "Ignore status of %s as it's the current stage.",
-                        stage["name"],
-                    )
-                    continue
-                if (
-                    stage["status"]
-                    not in constants.BUILDER_NON_FAILURE_STATUSES
-                ):
-                    logging.warning(
-                        "Failure in previous stage %s with status %s.",
-                        stage["name"],
-                        stage["status"],
-                    )
-                    return False
-
-        return True
-
-    def StageHasResults(self, name):
-        """Return true if stage has posted results."""
-        return name in [entry.name for entry in self._results_log]
 
     def _RecordStageFailureMessage(
         self, name, exception, prefix=None, build_stage_id=None
@@ -228,36 +127,6 @@ class _Results:
             A list with one entry per stage run with a result.
         """
         return self._results_log
-
-    def GetPrevious(self):
-        """Fetch stage results.
-
-        Returns:
-            A list of stages names that were completed in a previous run.
-        """
-        return self._previous
-
-    def SaveCompletedStages(self, out) -> None:
-        """Save the successfully completed stages to the provided file |out|."""
-        for entry in self._results_log:
-            if entry.result != self.SUCCESS:
-                break
-            out.write(self.SPLIT_TOKEN.join(str(x) for x in entry) + "\n")
-
-    def RestoreCompletedStages(self, out) -> None:
-        """Load the successfully completed stages from |out|."""
-        # Read the file, and strip off the newlines.
-        for line in out:
-            record = line.strip().split(self.SPLIT_TOKEN)
-            if len(record) != len(_result_fields):
-                logging.warning(
-                    "State file does not match expected format, ignoring."
-                )
-                # Wipe any partial state.
-                self._previous = {}
-                break
-
-            self._previous[record[0]] = Result(*record)
 
     def GetTracebacks(self):
         """Get a list of the exceptions that failed the build.
