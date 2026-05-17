@@ -60,11 +60,6 @@ It is a configurable bot that builds ChromeOS.
 This project is heavily deprecated as everything has moved to LUCI recipes and
 the BuildAPI interface. Do not use this project for anything new.
 
-### chromite/cbuildbot/stages
-
-Each file here has implementations of stages in the build process grouped by
-similarity. Each stage usually has PerformStage as its primary function.
-
 ### chromite/docs
 
 Additional documentation.
