@@ -7,7 +7,6 @@
 import logging
 
 from chromite.config import chromeos_config
-from chromite.format import formatters
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -22,15 +21,6 @@ def main(argv) -> None:
     logging.info("Regenerating config_dump.json")
     site_config = chromeos_config.GetConfig()
     site_config.SaveConfigToFile(constants.CHROMEOS_CONFIG_FILE)
-
-    # Regenerate `waterfall_layout_dump.txt`.
-    logging.info("Regenerating waterfall_layout_dump.txt")
-    cmd = constants.CHROMITE_BIN_DIR / "cros_show_waterfall_layout"
-    result = cros_build_lib.run(
-        [cmd], capture_output=True, encoding="utf-8", debug_level=logging.DEBUG
-    )
-    waterfall_data = formatters.whitespace.Data(result.stdout)
-    osutils.WriteFile(constants.WATERFALL_CONFIG_FILE, waterfall_data)
 
     # Regenerate `luci-scheduler.cfg`.
     logging.info("Regenerating luci-scheduler.cfg")

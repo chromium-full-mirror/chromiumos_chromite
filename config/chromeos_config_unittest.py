@@ -9,7 +9,6 @@ from unittest import mock
 from chromite.cbuildbot import builders
 from chromite.cbuildbot.builders import generic_builders
 from chromite.config import chromeos_config
-from chromite.format import formatters
 from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -45,28 +44,6 @@ class ConfigDumpTest(ChromeosConfigTestBase):
             self.fail(
                 "config_dump.json does not match the defined configs. Run "
                 "config/refresh_generated_files"
-            )
-
-        # watefall_layout_dump.txt
-        # We run this as a sep program to avoid the config cache.
-        cmd = constants.CHROMITE_BIN_DIR / "cros_show_waterfall_layout"
-        result = cros_build_lib.run(
-            [cmd], capture_output=True, encoding="utf-8"
-        )
-
-        # Capturing cros_show_waterfall_layout gives 2 newlines at the end, but
-        # cros format wants 1, which refresh_generated_files uses to prevent
-        # presubmit hook errors, so format the data.
-        new_dump_raw = result.stdout
-        new_dump = formatters.whitespace.Data(new_dump_raw)
-        # Quick verification of above comment.
-        self.assertEqual(new_dump_raw.strip(), new_dump.strip())
-        old_dump = osutils.ReadFile(constants.WATERFALL_CONFIG_FILE)
-
-        if new_dump != old_dump:
-            self.fail(
-                "waterfall_layout_dump.txt does not match the defined configs. "
-                "Run config/refresh_generated_files"
             )
 
         # luci-scheduler.cfg

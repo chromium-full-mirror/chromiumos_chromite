@@ -66,9 +66,6 @@ DIE_HOOK_STATUS_FILE_NAME = "FAILED_PACKAGES"
 METRICS_FILE = "METRICS_FILE"
 
 CHROMEOS_CONFIG_FILE = os.path.join(CHROMITE_DIR, "config", "config_dump.json")
-WATERFALL_CONFIG_FILE = os.path.join(
-    CHROMITE_DIR, "config", "waterfall_layout_dump.txt"
-)
 LUCI_SCHEDULER_CONFIG_FILE = os.path.join(
     CHROMITE_DIR, "config", "luci-scheduler.cfg"
 )
