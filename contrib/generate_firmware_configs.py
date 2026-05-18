@@ -46,6 +46,7 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
 from chromite.lib import parallel
+from chromite.utils import gs_urls_util
 
 
 CROS_CONFIG = "cros_config"
@@ -313,6 +314,12 @@ def get_bcs_uri(bcs_overlay: str, bcs_uri: Optional[str]) -> Optional[str]:
     """Get GS URI from BCS URI."""
     if not bcs_uri:
         return None
+    if gs_urls_util.PathIsGs(bcs_uri):
+        return bcs_uri
+    if not bcs_uri.startswith("bcs://"):
+        cros_build_lib.die(
+            f"Invalid uri, must start with gs:// or bcs://, was {bcs_uri}"
+        )
     bcs_name = bcs_overlay.removeprefix("overlay-")
     ebuild_name = bcs_name.split("-")[0]
     file_name = bcs_uri.removeprefix("bcs://")
