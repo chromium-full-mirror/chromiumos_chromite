@@ -4,12 +4,9 @@
 
 """uprev_lib tests."""
 
-import io
-import json
 import os
 import pathlib
 from unittest import mock
-import urllib.request
 
 import pytest
 
@@ -111,35 +108,33 @@ class ChromeMainVersionTest(cros_test_lib.MockTestCase):
             ref=f"refs/tags/{self._canary_version}",
             revision=self._canary_commit,
         )
-        self._mock_urlopen = self.PatchObject(urllib.request, "urlopen")
-        self._mock_gob = self.PatchObject(gob_util, "GetFileContents")
+        self._mock_fetch_url_json = self.PatchObject(gob_util, "FetchUrlJson")
+        self._mock_get_file_contents = self.PatchObject(
+            gob_util, "GetFileContents"
+        )
 
     def _mock_gitile(
         self, standard_chrome_version: str, commit_message: str
     ) -> None:
         versions = standard_chrome_version.split(".")
-        self._mock_gob.return_value = (
+        self._mock_get_file_contents.return_value = (
             f"MAJOR={versions[0]}\n"
             f"MINOR={versions[1]}\n"
             f"BUILD={versions[2]}\n"
             f"PATCH={versions[3]}\n"
         )
         commit_json = {"message": commit_message}
-        self._mock_urlopen.return_value.__enter__.return_value = io.BytesIO(
-            b")]}'\n" + json.dumps(commit_json).encode()
-        )
+        self._mock_fetch_url_json.return_value = commit_json
 
     def _assert_gitile(self, commit: str) -> None:
-        self._mock_gob.assert_called_with(
+        self._mock_get_file_contents.assert_called_with(
             "https://chromium.googlesource.com/chromium/src.git",
             "chrome/VERSION",
             commit,
         )
-        self._mock_urlopen.assert_called_with(
-            (
-                "https://chromium.googlesource.com/chromium/src.git/"
-                f"+/{commit}?format=JSON"
-            )
+        self._mock_fetch_url_json.assert_called_with(
+            "chromium.googlesource.com",
+            f"chromium/src.git/+/{commit}?format=JSON",
         )
 
     def test_main_ref(self) -> None:
@@ -186,8 +181,8 @@ class ChromeMainVersionTest(cros_test_lib.MockTestCase):
             (self._canary_version, self._canary_commit),
             uprev_lib.get_version_from_refs([self._canary_ref]),
         )
-        self._mock_gob.assert_not_called()
-        self._mock_urlopen.assert_not_called()
+        self._mock_get_file_contents.assert_not_called()
+        self._mock_fetch_url_json.assert_not_called()
 
 
 class ChromeEbuildVersionTest(cros_test_lib.MockTempDirTestCase):

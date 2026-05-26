@@ -9,7 +9,6 @@ import enum
 import filecmp
 import functools
 import io
-import json
 import logging
 import os
 import re
@@ -24,7 +23,6 @@ from typing import (
     TYPE_CHECKING,
     Union,
 )
-import urllib.request
 
 from chromite.lib import chromeos_version
 from chromite.lib import chroot_lib
@@ -56,7 +54,9 @@ _CHROME_OVERLAY_PATH = os.path.join(
     constants.SOURCE_ROOT, constants.CHROMIUMOS_OVERLAY_DIR
 )
 
-_CHROME_GIT_URL = "https://chromium.googlesource.com/chromium/src.git"
+_CHROME_GIT_HOST = "chromium.googlesource.com"
+_CHROME_GIT_REPO = "chromium/src.git"
+_CHROME_GIT_REPO_URL = f"https://{_CHROME_GIT_HOST}/{_CHROME_GIT_REPO}"
 
 GitRef = collections.namedtuple("GitRef", ["path", "ref", "revision"])
 
@@ -148,13 +148,9 @@ def get_version_from_refs(refs: List[GitRef]) -> Tuple[str, str]:
 
     def _commit_position(commit: str) -> int:
         """Returns the commit position on main branch for given commit hash."""
-        with urllib.request.urlopen(
-            f"{_CHROME_GIT_URL}/+/{commit}?format=JSON"
-        ) as f:
-            commit_data = f.read()
-        # Python 3.8 does not have bytes.removeprefix.
-        assert commit_data.startswith(b")]}'\n"), commit_data
-        commit_data = json.loads(commit_data[5:])
+        commit_data = gob_util.FetchUrlJson(
+            _CHROME_GIT_HOST, f"{_CHROME_GIT_REPO}/+/{commit}?format=JSON"
+        )
         m = re.search(
             r"^Cr-Commit-Position: refs/heads/main@{#(\d+)}",
             commit_data["message"],
@@ -177,7 +173,7 @@ def get_version_from_refs(refs: List[GitRef]) -> Tuple[str, str]:
         # We need other ways on ChromeOS CQ to ensure a Chrome uprev won't be
         # submitted until last known green Chrome has passed the given commit.
         version_file = gob_util.GetFileContents(
-            _CHROME_GIT_URL, "chrome/VERSION", commit
+            _CHROME_GIT_REPO_URL, "chrome/VERSION", commit
         )
         versions = key_value_store.LoadData(version_file)
         return (
