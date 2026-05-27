@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\'chromiumos/test/api/tools_service.proto\x12\x13\x63hromiumos.test.api\"0\n\rADBRunRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x0e\n\x06params\x18\x02 \x03(\t\"C\n\x0e\x41\x44\x42RunResponse\x12\x0e\n\x06stdout\x18\x01 \x01(\x0c\x12\x0e\n\x06stderr\x18\x02 \x01(\x0c\x12\x11\n\texit_code\x18\x03 \x01(\x05\"5\n\x12\x46\x61stbootRunRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x0e\n\x06params\x18\x02 \x03(\t\"H\n\x13\x46\x61stbootRunResponse\x12\x0e\n\x06stdout\x18\x01 \x01(\x0c\x12\x0e\n\x06stderr\x18\x02 \x01(\x0c\x12\x11\n\texit_code\x18\x03 \x01(\x05\x32\xc7\x01\n\x0cToolsService\x12S\n\x06\x41\x44\x42Run\x12\".chromiumos.test.api.ADBRunRequest\x1a#.chromiumos.test.api.ADBRunResponse\"\x00\x12\x62\n\x0b\x46\x61stbootRun\x12\'.chromiumos.test.api.FastbootRunRequest\x1a(.chromiumos.test.api.FastbootRunResponse\"\x00\x42/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\'chromiumos/test/api/tools_service.proto\x12\x13\x63hromiumos.test.api\"0\n\rADBRunRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x0e\n\x06params\x18\x02 \x03(\t\"C\n\x0e\x41\x44\x42RunResponse\x12\x0e\n\x06stdout\x18\x01 \x01(\x0c\x12\x0e\n\x06stderr\x18\x02 \x01(\x0c\x12\x11\n\texit_code\x18\x03 \x01(\x05\"5\n\x12\x46\x61stbootRunRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x0e\n\x06params\x18\x02 \x03(\t\"H\n\x13\x46\x61stbootRunResponse\x12\x0e\n\x06stdout\x18\x01 \x01(\x0c\x12\x0e\n\x06stderr\x18\x02 \x01(\x0c\x12\x11\n\texit_code\x18\x03 \x01(\x05\"\xb4\x01\n\x13\x44ownloadFileRequest\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x18\n\x10\x64\x65stination_path\x18\x02 \x01(\t\x12\x46\n\x07headers\x18\x03 \x03(\x0b\x32\x35.chromiumos.test.api.DownloadFileRequest.HeadersEntry\x1a.\n\x0cHeadersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"0\n\x14\x44ownloadFileResponse\x12\x18\n\x10\x64\x65stination_path\x18\x01 \x01(\t2\xae\x02\n\x0cToolsService\x12S\n\x06\x41\x44\x42Run\x12\".chromiumos.test.api.ADBRunRequest\x1a#.chromiumos.test.api.ADBRunResponse\"\x00\x12\x62\n\x0b\x46\x61stbootRun\x12\'.chromiumos.test.api.FastbootRunRequest\x1a(.chromiumos.test.api.FastbootRunResponse\"\x00\x12\x65\n\x0c\x44ownloadFile\x12(.chromiumos.test.api.DownloadFileRequest\x1a).chromiumos.test.api.DownloadFileResponse\"\x00\x42/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.api.tools_service_pb2', globals())
@@ -21,6 +21,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z-go.chromium.org/chromiumos/config/go/test/api'
+  _DOWNLOADFILEREQUEST_HEADERSENTRY._options = None
+  _DOWNLOADFILEREQUEST_HEADERSENTRY._serialized_options = b'8\001'
   _ADBRUNREQUEST._serialized_start=64
   _ADBRUNREQUEST._serialized_end=112
   _ADBRUNRESPONSE._serialized_start=114
@@ -29,6 +31,12 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _FASTBOOTRUNREQUEST._serialized_end=236
   _FASTBOOTRUNRESPONSE._serialized_start=238
   _FASTBOOTRUNRESPONSE._serialized_end=310
-  _TOOLSSERVICE._serialized_start=313
-  _TOOLSSERVICE._serialized_end=512
+  _DOWNLOADFILEREQUEST._serialized_start=313
+  _DOWNLOADFILEREQUEST._serialized_end=493
+  _DOWNLOADFILEREQUEST_HEADERSENTRY._serialized_start=447
+  _DOWNLOADFILEREQUEST_HEADERSENTRY._serialized_end=493
+  _DOWNLOADFILERESPONSE._serialized_start=495
+  _DOWNLOADFILERESPONSE._serialized_end=543
+  _TOOLSSERVICE._serialized_start=546
+  _TOOLSSERVICE._serialized_end=848
 # @@protoc_insertion_point(module_scope)
