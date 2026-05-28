@@ -2037,6 +2037,12 @@ def uprev_cros_lkgm_file_on_chrome_repo(
     result = uprev_lib.UprevVersionedResult()
     rev = refs[-1].revision
     version = uprev_lib.get_version_with_snapshot_from_manifest(rev)
+
+    try:
+        uprev_lib.validate_lkgm_builds_succeeded(version, rev)
+    except uprev_lib.EbuildUprevError as e:
+        raise UprevError(str(e))
+
     osutils.WriteFile(lkgm_path, version)
     result.add_result(version, [lkgm_path])
     return result

@@ -8,10 +8,12 @@ import os
 import pathlib
 from unittest import mock
 
+from chromite.third_party.infra_libs.buildbucket.proto import common_pb2
 import pytest
 
 import chromite as cr
 from chromite.lib import build_target_lib
+from chromite.lib import buildbucket_v2
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
@@ -1233,3 +1235,230 @@ def test_get_version_with_snapshot_from_manifest(
         uprev_lib.get_version_with_snapshot_from_manifest("HEAD")
         == "1.2.3-12345"
     )
+
+
+def test_validate_lkgm_builds_succeeded_success(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify success of validate_lkgm_builds_succeeded."""
+    mock_build = mock.Mock(
+        id=1234500,
+        number=123,
+        builder=mock.Mock(
+            project="chromeos", bucket="postsubmit", builder="betty-snapshot"
+        ),
+        status=common_pb2.SUCCESS,
+        output=mock.Mock(properties={"chromeos_version": "R120-1.2.3-12345"}),
+        tags=[mock.Mock(key="relevance", value="relevant")],
+    )
+    mock_response = mock.Mock(builds=[mock_build])
+    monkeypatch.setattr(
+        buildbucket_v2.BuildbucketV2,
+        "SearchBuild",
+        mock.Mock(return_value=mock_response),
+    )
+
+    # This should run without raising any exceptions
+    uprev_lib.validate_lkgm_builds_succeeded(
+        "1.2.3-12345",
+        "12345",
+    )
+
+
+def test_validate_lkgm_builds_succeeded_broken_build(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify validate_lkgm_builds_succeeded fails when a build failed."""
+    mock_build = mock.Mock(
+        id=1234500,
+        number=123,
+        builder=mock.Mock(
+            project="chromeos", bucket="postsubmit", builder="betty-snapshot"
+        ),
+        status=common_pb2.FAILURE,
+        output=mock.Mock(properties={"chromeos_version": "R120-1.2.3-12345"}),
+    )
+    mock_response = mock.Mock(builds=[mock_build])
+    monkeypatch.setattr(
+        buildbucket_v2.BuildbucketV2,
+        "SearchBuild",
+        mock.Mock(return_value=mock_response),
+    )
+
+    with pytest.raises(uprev_lib.EbuildUprevError):
+        uprev_lib.validate_lkgm_builds_succeeded(
+            "1.2.3-12345",
+            "12345",
+        )
+
+
+def test_validate_lkgm_builds_succeeded_irrelevant_build(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify success when build is irrelevant but previous succeeds."""
+    monkeypatch.setattr(
+        uprev_lib.git,
+        "Log",
+        mock.Mock(return_value="12345\n12344\n"),
+    )
+
+    mock_build_12345 = mock.Mock(
+        id=1234500,
+        number=12345,
+        builder=mock.Mock(
+            project="chromeos", bucket="postsubmit", builder="betty-snapshot"
+        ),
+        status=common_pb2.SUCCESS,
+        tags=[
+            mock.Mock(key="relevance", value="not relevant"),
+            mock.Mock(
+                key="buildset",
+                value=(
+                    "commit/gitiles/chrome-internal.googlesource.com/"
+                    "chromeos/manifest-internal/+/12345"
+                ),
+            ),
+        ],
+    )
+    mock_build_12344 = mock.Mock(
+        id=1234400,
+        number=12344,
+        builder=mock.Mock(
+            project="chromeos", bucket="postsubmit", builder="betty-snapshot"
+        ),
+        status=common_pb2.SUCCESS,
+        tags=[
+            mock.Mock(key="relevance", value="relevant"),
+            mock.Mock(
+                key="buildset",
+                value=(
+                    "commit/gitiles/chrome-internal.googlesource.com/"
+                    "chromeos/manifest-internal/+/12344"
+                ),
+            ),
+        ],
+    )
+
+    def side_effect(predicate, **_kwargs):
+        if predicate.tags:
+            buildset = next(
+                t.value for t in predicate.tags if t.key == "buildset"
+            )
+            commit = buildset.split("/")[-1]
+            if commit == "12345":
+                return mock.Mock(builds=[mock_build_12345])
+        elif predicate.build:
+            if predicate.build.end_build_id == 1234500:
+                return mock.Mock(builds=[mock_build_12345, mock_build_12344])
+        return mock.Mock(builds=[])
+
+    monkeypatch.setattr(
+        buildbucket_v2.BuildbucketV2,
+        "SearchBuild",
+        mock.Mock(side_effect=side_effect),
+    )
+
+    # This should run without raising any exceptions because it falls back to
+    # 12344 which is success.
+    uprev_lib.validate_lkgm_builds_succeeded(
+        "1.2.3-12345",
+        "12345",
+    )
+
+
+def test_validate_lkgm_builds_succeeded_previous_broken_build(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify failure when previous build in chain is broken."""
+    monkeypatch.setattr(
+        uprev_lib.git,
+        "Log",
+        mock.Mock(return_value="12345\n12344\n"),
+    )
+
+    mock_build_12345 = mock.Mock(
+        id=1234500,
+        number=12345,
+        builder=mock.Mock(
+            project="chromeos", bucket="postsubmit", builder="betty-snapshot"
+        ),
+        status=common_pb2.SUCCESS,
+        tags=[
+            mock.Mock(key="relevance", value="not relevant"),
+            mock.Mock(
+                key="buildset",
+                value=(
+                    "commit/gitiles/chrome-internal.googlesource.com/"
+                    "chromeos/manifest-internal/+/12345"
+                ),
+            ),
+        ],
+    )
+    mock_build_12344 = mock.Mock(
+        id=1234400,
+        number=12344,
+        builder=mock.Mock(
+            project="chromeos", bucket="postsubmit", builder="betty-snapshot"
+        ),
+        status=common_pb2.FAILURE,
+        tags=[
+            mock.Mock(key="relevance", value="relevant"),
+            mock.Mock(
+                key="buildset",
+                value=(
+                    "commit/gitiles/chrome-internal.googlesource.com/"
+                    "chromeos/manifest-internal/+/12344"
+                ),
+            ),
+        ],
+    )
+
+    def side_effect(predicate, **_kwargs):
+        if predicate.tags:
+            buildset = next(
+                t.value for t in predicate.tags if t.key == "buildset"
+            )
+            commit = buildset.split("/")[-1]
+            if commit == "12345":
+                return mock.Mock(builds=[mock_build_12345])
+        elif predicate.build:
+            if predicate.build.end_build_id == 1234500:
+                return mock.Mock(builds=[mock_build_12345, mock_build_12344])
+        return mock.Mock(builds=[])
+
+    monkeypatch.setattr(
+        buildbucket_v2.BuildbucketV2,
+        "SearchBuild",
+        mock.Mock(side_effect=side_effect),
+    )
+
+    with pytest.raises(uprev_lib.EbuildUprevError):
+        uprev_lib.validate_lkgm_builds_succeeded(
+            "1.2.3-12345",
+            "12345",
+        )
+
+
+def test_validate_lkgm_builds_succeeded_no_build_found(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify validate_lkgm_builds_succeeded fails when a build is not found."""
+    monkeypatch.setattr(
+        uprev_lib.git,
+        "Log",
+        mock.Mock(return_value="12345\n"),
+    )
+
+    # Mock SearchBuild to return empty builds (not found)
+    mock_response = mock.Mock(builds=[])
+    monkeypatch.setattr(
+        buildbucket_v2.BuildbucketV2,
+        "SearchBuild",
+        mock.Mock(return_value=mock_response),
+    )
+
+    with pytest.raises(uprev_lib.EbuildUprevError):
+        uprev_lib.validate_lkgm_builds_succeeded(
+            "1.2.3-12345",
+            "12345",
+        )
