@@ -18,7 +18,6 @@ from chromite.api.controller import test as test_controller
 from chromite.api.gen.chromite.api import artifacts_pb2
 from chromite.api.gen.chromite.api import sysroot_pb2
 from chromite.api.gen.chromiumos import common_pb2
-from chromite.cbuildbot import commands
 from chromite.lib import chroot_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -443,7 +442,6 @@ class BundleFirmwareTest(BundleTestCase):
 
     def testBundleFirmwareNoLogs(self) -> None:
         """BundleFirmware dies when no firmware found."""
-        self.PatchObject(commands, "BuildFirmwareArchive", return_value=None)
         artifacts.BundleFirmware(
             self.sysroot_request, self.response, self.api_config
         )
