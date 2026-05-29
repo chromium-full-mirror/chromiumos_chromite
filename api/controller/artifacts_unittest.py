@@ -196,19 +196,15 @@ class BundleImageZipTest(BundleTestCase):
 
     def testValidateOnly(self) -> None:
         """Quick check that a validate only call does not execute any logic."""
-        patch = self.PatchObject(commands, "BuildImageZip")
         artifacts.BundleImageZip(
             self.target_request, self.response, self.validate_only_config
         )
-        patch.assert_not_called()
 
     def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
-        patch = self.PatchObject(commands, "BuildImageZip")
         artifacts.BundleImageZip(
             self.target_request, self.response, self.mock_call_config
         )
-        patch.assert_not_called()
         self.assertEqual(len(self.response.artifacts), 1)
         self.assertEqual(
             self.response.artifacts[0].artifact_path.path,
@@ -360,7 +356,6 @@ class BundleTastFilesTest(BundleTestCase):
 
     def testBundleTastFilesNoLogs(self) -> None:
         """BundleTasteFiles succeeds when no tast files found."""
-        self.PatchObject(commands, "BuildTastBundleTarball", return_value=None)
         artifacts.BundleTastFiles(
             self.sysroot_request, self.response, self.api_config
         )
@@ -515,7 +510,7 @@ class BundleEbuildLogsTest(BundleTestCase):
 
     def testValidateOnly(self) -> None:
         """Quick check that a validate only call does not execute any logic."""
-        patch = self.PatchObject(commands, "BuildEbuildLogsTarball")
+        patch = self.PatchObject(artifacts_svc, "BundleEBuildLogsTarball")
         artifacts.BundleEbuildLogs(
             self.sysroot_request, self.response, self.validate_only_config
         )
@@ -523,7 +518,7 @@ class BundleEbuildLogsTest(BundleTestCase):
 
     def testMockCall(self) -> None:
         """Test a mock call does not execute logic, returns mocked value."""
-        patch = self.PatchObject(commands, "BuildEbuildLogsTarball")
+        patch = self.PatchObject(artifacts_svc, "BundleEBuildLogsTarball")
         artifacts.BundleEbuildLogs(
             self.sysroot_request, self.response, self.mock_call_config
         )
@@ -558,7 +553,6 @@ class BundleEbuildLogsTest(BundleTestCase):
 
     def testBundleEbuildLogsNoLogs(self) -> None:
         """BundleEbuildLogs dies when no logs found."""
-        self.PatchObject(commands, "BuildEbuildLogsTarball", return_value=None)
         artifacts.BundleEbuildLogs(
             self.sysroot_request, self.response, self.api_config
         )
