@@ -832,3 +832,73 @@ def test_parse_options_sync_remote_latest_file(
     args.extend(extra_args)
     options, _ = prebuilt.ParseOptions(args)
     assert options.sync_remote_latest_sdk_file == expected_sync
+
+
+class TestGenerateHtmlIndex(cros_test_lib.MockTempDirTestCase):
+    """Test GenerateHtmlIndex."""
+
+    _REMOTE_BASE_GS = "gs://foo"
+    _REMOTE_BASE_PUB = f"{gs_urls_util.PUBLIC_BASE_HTTPS_URL}foo"
+
+    def _GenerateHtmlIndex(self, index, files):
+        prebuilt.GenerateHtmlIndex(
+            files, index, "board", "1.0.0", self._REMOTE_BASE_GS
+        )
+
+    def testGenerateHtmlIndexTuple(self) -> None:
+        """Verifies GenerateHtmlIndex gives us something good (input: tuple)"""
+        index = os.path.join(self.tempdir, "index.html")
+        files = (
+            "file1",
+            "monkey tree",
+            "flying phone",
+        )
+        self._GenerateHtmlIndex(index, files)
+        html = osutils.ReadFile(index)
+        for f in files:
+            self.assertIn(">%s</a>" % f, html)
+
+    def testGenerateHtmlIndexTupleDupe(self) -> None:
+        """Verifies GenerateHtmlIndex gives something unique (input: tuple)"""
+        index = os.path.join(self.tempdir, "index.html")
+        files = (
+            "file1",
+            "file1",
+            "file1",
+        )
+        self._GenerateHtmlIndex(index, files)
+        html = osutils.ReadFile(index)
+        self.assertEqual(html.count(">file1</a>"), 1)
+
+    def testGenerateHtmlIndexTuplePretty(self) -> None:
+        """Verifies GenerateHtmlIndex gives something pretty (input: tuple)"""
+        index = os.path.join(self.tempdir, "index.html")
+        files = (
+            "..|up",
+            "f.txt|MY FILE",
+            "m.log|MONKEY",
+            "b.bin|Yander",
+        )
+        self._GenerateHtmlIndex(index, files)
+        html = osutils.ReadFile(index)
+        for f in files:
+            a = f.split("|")
+            self.assertIn('href="%s/%s"' % (self._REMOTE_BASE_PUB, a[0]), html)
+            self.assertIn(">%s</a>" % a[1], html)
+
+    def testGenerateHtmlIndexDir(self) -> None:
+        """Verifies GenerateHtmlIndex gives us something good (input: dir)"""
+        index = os.path.join(self.tempdir, "index.html")
+        files = (
+            "a",
+            "b b b",
+            "c",
+            "dalsdkjfasdlkf",
+        )
+        simple_dir = os.path.join(self.tempdir, "dir")
+        for f in files:
+            osutils.Touch(os.path.join(simple_dir, f), makedirs=True)
+        self._GenerateHtmlIndex(index, files)
+        html = osutils.ReadFile(index)
+        for f in files:
+            self.assertIn(">%s</a>" % f, html)

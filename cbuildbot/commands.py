@@ -1314,62 +1314,6 @@ def GenerateUploadJSON(filepath, archive_path, uploaded) -> None:
     logging.info("GenerateUploadJSON completed in %s.", utcnow() - start)
 
 
-def GenerateHtmlIndex(index, files, title="Index", url_base=None) -> None:
-    """Generate a simple index.html file given a set of filenames
-
-    Args:
-        index: The file to write the html index to.
-        files: The list of files to create the index of.  If a string, then it
-            may be a path to a file (with one file per line), or a directory
-            (which will be listed).
-        title: Title string for the HTML file.
-        url_base: The URL to prefix to all elements (otherwise they'll be
-            relative).
-    """
-
-    def GenLink(target, name=None):
-        if name == "":
-            return ""
-        return '<li><a href="%s%s">%s</a></li>' % (
-            url_base,
-            target,
-            name if name else target,
-        )
-
-    if isinstance(files, str):
-        if os.path.isdir(files):
-            files = os.listdir(files)
-        else:
-            files = osutils.ReadFile(files).splitlines()
-    url_base = url_base + "/" if url_base else ""
-
-    # Head + open list.
-    html = "<html>"
-    html += "<head><title>%s</title></head>" % title
-    html += "<body><h2>%s</h2><ul>" % title
-
-    # List members.
-    dot = (".",)
-    dot_dot = ("..",)
-    links = []
-    for a in sorted(set(files)):
-        a = a.split("|")
-        if a[0] == ".":
-            dot = a
-        elif a[0] == "..":
-            dot_dot = a
-        else:
-            links.append(GenLink(*a))
-    links.insert(0, GenLink(*dot_dot))
-    links.insert(0, GenLink(*dot))
-    html += "\n".join(links)
-
-    # Close list and file.
-    html += "</ul></body></html>"
-
-    osutils.WriteFile(index, html)
-
-
 @failures_lib.SetFailureType(failures_lib.GSUploadFailure)
 def _UploadPathToGS(local_path, upload_urls, debug, timeout, acl=None) -> None:
     """Upload |local_path| to Google Storage.

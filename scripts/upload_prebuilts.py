@@ -30,7 +30,6 @@ import tempfile
 from typing import Any, Optional, Tuple
 
 from chromite.cbuildbot import cbuildbot_alerts
-from chromite.cbuildbot import commands
 from chromite.lib import binpkg
 from chromite.lib import chroot_lib
 from chromite.lib import commandline
@@ -271,16 +270,46 @@ def GenerateHtmlIndex(files, index, board, version, remote_location) -> None:
     """
     title = "Package Prebuilt Index: %s / %s" % (board, version)
 
-    files = files + [
+    files = list(files) + [
         ".|Google Storage Index",
         "..|",
     ]
-    commands.GenerateHtmlIndex(
-        index,
-        files,
-        title=title,
-        url_base=gs_urls_util.GsUrlToHttp(remote_location),
-    )
+    url_base = gs_urls_util.GsUrlToHttp(remote_location) + "/"
+
+    def GenLink(target, name=None):
+        if name == "":
+            return ""
+        return '<li><a href="%s%s">%s</a></li>' % (
+            url_base,
+            target,
+            name if name else target,
+        )
+
+    # Head + open list.
+    html = "<html>"
+    html += "<head><title>%s</title></head>" % title
+    html += "<body><h2>%s</h2><ul>" % title
+
+    # List members.
+    dot = (".",)
+    dot_dot = ("..",)
+    links = []
+    for a in sorted(set(files)):
+        a = a.split("|")
+        if a[0] == ".":
+            dot = a
+        elif a[0] == "..":
+            dot_dot = a
+        else:
+            links.append(GenLink(*a))
+    links.insert(0, GenLink(*dot_dot))
+    links.insert(0, GenLink(*dot))
+    html += "\n".join(links)
+
+    # Close list and file.
+    html += "</ul></body></html>"
+
+    osutils.WriteFile(index, html)
 
 
 def _GrabAllRemotePackageIndexes(binhost_urls):
