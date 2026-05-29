@@ -770,7 +770,7 @@ class CreateKeysHsmTest(
                 "signing:latest",
                 "--keyset-name",
                 "setkey",
-                "--dry-run",
+                "--mocks",
             ]
         )
 

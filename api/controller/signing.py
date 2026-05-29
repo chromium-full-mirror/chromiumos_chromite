@@ -182,7 +182,7 @@ def CreateKeysHsm(request, _response, _config) -> None:
         "/keys",
     ]
     if request.dry_run:
-        entrypoint_args.append("--dry-run")
+        entrypoint_args.append("--mocks")
 
     image.CallDocker(
         request.docker_image,
