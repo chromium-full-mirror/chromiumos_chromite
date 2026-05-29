@@ -6,7 +6,6 @@
 
 import abc
 import itertools
-import json
 
 
 class Annotation:
@@ -82,36 +81,6 @@ class StepFailure(_NamedAnnotation):
     """STEP_FAILURE annotation."""
 
     ANNOTATION_NAME = "STEP_FAILURE"
-
-
-class BuildStep(_NamedAnnotation):
-    """BUILD_STEP annotation."""
-
-    ANNOTATION_NAME = "BUILD_STEP"
-
-
-class SetBuildProperty(_NamedAnnotation):
-    """SET_BUILD_PROPERTY annotation."""
-
-    ANNOTATION_NAME = "SET_BUILD_PROPERTY"
-
-    def __init__(self, name, value) -> None:
-        super().__init__(name, json.dumps(value))
-
-
-class SetEmailNotifyProperty(_NamedAnnotation):
-    """SET_BUILD_PROPERTY annotation for email_notify."""
-
-    ANNOTATION_NAME = "SET_BUILD_PROPERTY"
-
-    def __init__(self, name, value) -> None:
-        super().__init__(name, json.dumps(value))
-
-    def __str__(self) -> str:
-        inner_text = "@".join(
-            text for text in itertools.chain([self.name], self.args)
-        )
-        return "@@@%s@@@" % (inner_text)
 
 
 def _EscapeArgText(text):

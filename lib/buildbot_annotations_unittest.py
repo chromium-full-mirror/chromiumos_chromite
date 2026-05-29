@@ -33,20 +33,6 @@ class TestAnnotation(cros_test_lib.TestCase):
         steplink = buildbot_annotations.StepText("some text")
         self.assertEqual(str(steplink), "@@@STEP_TEXT@some text@@@")
 
-    def testSetBuildProperty(self) -> None:
-        ann = buildbot_annotations.SetBuildProperty(
-            "some_property", "http://fun.com"
-        )
-        self.assertEqual(
-            str(ann), '@@@SET_BUILD_PROPERTY@some_property@"http://fun.com"@@@'
-        )
-
-    def testSetBuildPropertyComplex(self) -> None:
-        ann = buildbot_annotations.SetBuildProperty("some_property", {"a": 1})
-        self.assertEqual(
-            str(ann), '@@@SET_BUILD_PROPERTY@some_property@{"a": 1}@@@'
-        )
-
     def test_human_friendly_without_args(self) -> None:
         steplink = buildbot_annotations.Annotation("STEP_FAILURE", ())
         self.assertEqual(steplink.human_friendly, "STEP_FAILURE")
