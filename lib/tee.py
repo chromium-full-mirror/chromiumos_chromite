@@ -14,7 +14,6 @@ import sys
 import traceback
 import warnings
 
-from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import cros_build_lib
 
 
@@ -169,7 +168,6 @@ class _TeeProcess(multiprocessing.Process):
             failed = False
         except Exception:
             tb = traceback.format_exc()
-            cbuildbot_alerts.PrintBuildbotStepFailure(self._error_handle)
             self._error_handle.write(
                 f"Unhandled exception occurred in tee:\n{tb}\n"
             )

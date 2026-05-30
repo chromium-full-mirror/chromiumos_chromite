@@ -18,7 +18,6 @@ import sys
 import time
 import traceback
 
-from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import cros_build_lib
 from chromite.lib import failures_lib
 from chromite.lib import osutils
@@ -458,7 +457,6 @@ class _BackgroundTask(multiprocessing.Process):
 
                     # Print error messages if anything exceptional occurred.
                     if run_errors:
-                        cbuildbot_alerts.PrintBuildbotStepFailure()
                         traceback.print_stack()
                         logging.warning(
                             "\n".join(x.str for x in run_errors if x)

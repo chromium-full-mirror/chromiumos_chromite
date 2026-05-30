@@ -19,12 +19,10 @@ class CrosloggingTest(cros_test_lib.TestCase):
         cbuildbot_alerts.PrintBuildbotLink("name", "url")
         cbuildbot_alerts.PrintBuildbotStepText("text")
         cbuildbot_alerts.PrintBuildbotStepWarnings()
-        cbuildbot_alerts.PrintBuildbotStepFailure()
 
         captured = self.capfd.readouterr()
         assert "STEP_LINK" in captured.err
         assert "STEP_TEXT" in captured.err
         assert "STEP_WARNINGS" in captured.err
-        assert "STEP_FAILURE" in captured.err
         assert "@@@" not in captured.out
         assert "@@@" not in captured.err

@@ -48,8 +48,3 @@ def PrintBuildbotStepWarnings(handle=None) -> None:
     PrintBuildbotStepText("[FAILED BUT FORGIVEN]", handle=handle)
     # Warnings not supported by LUCI, so working around until re-added.
     _PrintForBuildbot(handle, _annotations.StepWarnings)
-
-
-def PrintBuildbotStepFailure(handle=None) -> None:
-    """Marks a stage as having failures."""
-    _PrintForBuildbot(handle, _annotations.StepFailure)

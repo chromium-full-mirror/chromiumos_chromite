@@ -12,8 +12,6 @@ import signal
 import threading
 import time
 
-from chromite.cbuildbot import cbuildbot_alerts
-
 
 class TimeoutError(Exception):  # pylint: disable=redefined-builtin
     """Raises when code within Timeout has been run too long."""
@@ -149,7 +147,6 @@ def FatalTimeout(max_run_time, display_message=None):
         )
         if display_message:
             error_message += " Timeout reason: %s" % display_message
-        cbuildbot_alerts.PrintBuildbotStepFailure()
         logging.error(error_message)
         raise SystemExit(error_message)
 
