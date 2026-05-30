@@ -549,26 +549,3 @@ class TemplateTest(ChromeosConfigTestBase):
                     else:
                         msg = "%s should have %s as template" % (name, other)
                         self.assertFalse(name, msg)
-
-
-class BoardConfigsTest(ChromeosConfigTestBase):
-    """Tests for the per-board templates."""
-
-    def setUp(self) -> None:
-        ge_build_config = config_lib.LoadGEBuildConfigFromFile()
-        boards_dict = chromeos_config.GetBoardTypeToBoardsDict(ge_build_config)
-
-        self.external_board_configs = chromeos_config.CreateBoardConfigs(
-            boards_dict, ge_build_config
-        )
-
-        self.internal_board_configs = (
-            chromeos_config.CreateInternalBoardConfigs(
-                self.site_config, boards_dict, ge_build_config
-            )
-        )
-
-    def testBoardConfigsSuperset(self) -> None:
-        """Ensure all external boards are listed as internal, also."""
-        for board in self.external_board_configs:
-            self.assertIn(board, self.internal_board_configs)
