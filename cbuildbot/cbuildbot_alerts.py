@@ -33,11 +33,6 @@ def _PrintForBuildbot(handle, annotation_class, *args) -> None:
     handle.write("\n" + line + "\n")
 
 
-def PrintBuildbotLink(text, url, handle=None) -> None:
-    """Prints out a link to buildbot."""
-    _PrintForBuildbot(handle, _annotations.StepLink, text, url)
-
-
 def PrintBuildbotStepText(text, handle=None) -> None:
     """Prints out stage text to buildbot."""
     _PrintForBuildbot(handle, _annotations.StepText, text)

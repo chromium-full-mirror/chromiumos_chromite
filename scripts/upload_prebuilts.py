@@ -29,7 +29,6 @@ import re
 import tempfile
 from typing import Any, Optional, Tuple
 
-from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import binpkg
 from chromite.lib import chroot_lib
 from chromite.lib import commandline
@@ -476,12 +475,13 @@ class PrebuiltUploader:
                 index.name, "%s/index.html" % remote_location.rstrip("/")
             )
 
-            link_name = "Prebuilts[%s]: %s" % (self._target, self._version)
             url = "%s%s/index.html" % (
                 gs_urls_util.PUBLIC_BASE_HTTPS_URL,
                 remote_location[len(gs_urls_util.BASE_GS_URL) :],
             )
-            cbuildbot_alerts.PrintBuildbotLink(link_name, url)
+            logging.info(
+                "Prebuilts[%s]: %s: %s", self._target, self._version, url
+            )
 
     def _UploadSdkTarball(
         self,

@@ -53,18 +53,6 @@ class _NamedAnnotation(Annotation, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
 
-class StepLink(_NamedAnnotation):
-    """STEP_LINK annotation."""
-
-    ANNOTATION_NAME = "STEP_LINK"
-
-    # Some callers pass in text/url by kwarg.  We leave the full signature here
-    # so the API is a bit cleaner/more obvious.
-    # pylint: disable=useless-super-delegation
-    def __init__(self, text, url) -> None:
-        super().__init__(text, url)
-
-
 class StepText(_NamedAnnotation):
     """STEP_TEXT annotation."""
 

@@ -16,12 +16,10 @@ class CrosloggingTest(cros_test_lib.TestCase):
     @pytest.mark.usefixtures("legacy_capture_output")
     def testPrintBuildbotFunctionsNoMarker(self) -> None:
         """PrintBuildbot* w/out markers should not be recognized by buildbot."""
-        cbuildbot_alerts.PrintBuildbotLink("name", "url")
         cbuildbot_alerts.PrintBuildbotStepText("text")
         cbuildbot_alerts.PrintBuildbotStepWarnings()
 
         captured = self.capfd.readouterr()
-        assert "STEP_LINK" in captured.err
         assert "STEP_TEXT" in captured.err
         assert "STEP_WARNINGS" in captured.err
         assert "@@@" not in captured.out
