@@ -47,7 +47,6 @@ while True:
         break
 del third_party
 
-from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import remote_access
@@ -368,10 +367,6 @@ class AdjustSymbolFileSizeTest(SymbolsTestBase):
         self.slim = self.createSymbolFile("slim.sym", self.SLIM_CONTENT)
         self.fat = self.createSymbolFile("fat.sym", self.FAT_CONTENT)
 
-        self.warn_mock = self.PatchObject(
-            cbuildbot_alerts, "PrintBuildbotStepWarnings"
-        )
-
     def _testNotStripped(self, symbol, size=None, content=None) -> None:
         start_file = symbol.file_name
         after = upload_symbols.AdjustSymbolFileSize(symbol, self.working, size)
@@ -414,8 +409,6 @@ class AdjustSymbolFileSizeTest(SymbolsTestBase):
         # Would like to Strip as part of this test, but that really copies all
         # of the sparse file content, which is too expensive for a unittest.
         self._testNotStripped(large, None, None)
-
-        self.assertEqual(self.warn_mock.call_count, 1)
 
 
 class DeduplicateTest(SymbolsTestBase):

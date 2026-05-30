@@ -8,7 +8,6 @@ import collections
 import datetime
 import math
 
-from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import cros_build_lib
 from chromite.lib import failures_lib
 
@@ -164,7 +163,6 @@ class _Results:
 
         out.write(line)
         out.write(edge + " Stage Results\n")
-        warnings = False
 
         for entry in results:
             name, result, run_time = (entry.name, entry.result, entry.time)
@@ -180,7 +178,6 @@ class _Results:
                 status = "PASS"
             elif result == self.FORGIVEN:
                 status = "FAILED BUT FORGIVEN"
-                warnings = True
             else:
                 status = "FAIL"
                 if isinstance(result, cros_build_lib.RunCommandError):
@@ -207,9 +204,6 @@ class _Results:
                 out.write("\nFailed in stage %s:\n\n" % x.failed_stage)
                 out.write(x.traceback)
                 out.write("\n")
-
-        if warnings:
-            cbuildbot_alerts.PrintBuildbotStepWarnings(out)
 
 
 Results = _Results()

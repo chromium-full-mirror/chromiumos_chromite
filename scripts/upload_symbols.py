@@ -23,7 +23,6 @@ import urllib.parse
 
 from chromite.third_party import requests
 
-from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import cache
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -289,7 +288,6 @@ def AdjustSymbolFileSize(symbol, tempdir, file_limit):
     # Hopefully the crash server will let it through.  But it probably won't.
     # Not sure what the best answer is in this case.
     if file_size >= CRASH_SERVER_FILE_LIMIT:
-        cbuildbot_alerts.PrintBuildbotStepWarnings()
         logging.warning(
             "upload file %s is awfully large, risking rejection by "
             "the symbol server (%s > %s)",
@@ -572,13 +570,11 @@ def ReportResults(symbols, failed_list):
     )
 
     if result_counts[SymbolFile.ERROR]:
-        cbuildbot_alerts.PrintBuildbotStepWarnings()
         logging.warning(
             "%d non-recoverable upload errors", result_counts[SymbolFile.ERROR]
         )
 
     if result_counts[SymbolFile.INITIAL]:
-        cbuildbot_alerts.PrintBuildbotStepWarnings()
         logging.warning(
             "%d upload(s) were skipped because of excessive errors",
             result_counts[SymbolFile.INITIAL],

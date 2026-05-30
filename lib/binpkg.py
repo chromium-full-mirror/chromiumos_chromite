@@ -21,7 +21,6 @@ from typing import Any, Dict, List, Optional, Union
 import urllib.error
 import urllib.request
 
-from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import build_target_lib
 from chromite.lib import cros_build_lib
 from chromite.lib import gerrit
@@ -428,7 +427,6 @@ def GrabRemotePackageIndex(binhost_url, **kwargs):
             f = _RetryUrlOpen(url)
         except urllib.error.HTTPError as e:
             if e.code in HTTP_FORBIDDEN_CODES:
-                cbuildbot_alerts.PrintBuildbotStepWarnings()
                 logging.error("Cannot GET %s: %s", url, e)
                 return None
             # Not found errors are normal if old prebuilts were cleaned out.
@@ -440,7 +438,6 @@ def GrabRemotePackageIndex(binhost_url, **kwargs):
             gs_context = gs.GSContext()
             output = gs_context.Cat(url, encoding="utf-8", **kwargs)
         except (cros_build_lib.RunCommandError, gs.GSNoSuchKey) as e:
-            cbuildbot_alerts.PrintBuildbotStepWarnings()
             logging.error("Cannot GET %s: %s", url, e)
             return None
         f = io.StringIO(output)

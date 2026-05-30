@@ -59,12 +59,6 @@ class StepText(_NamedAnnotation):
     ANNOTATION_NAME = "STEP_TEXT"
 
 
-class StepWarnings(_NamedAnnotation):
-    """STEP_WARNINGS annotation."""
-
-    ANNOTATION_NAME = "STEP_WARNINGS"
-
-
 def _EscapeArgText(text):
     """Escape annotation argument text.
 

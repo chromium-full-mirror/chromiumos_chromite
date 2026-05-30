@@ -26,7 +26,6 @@ import os
 import re
 from typing import List, Optional
 
-from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
@@ -597,7 +596,6 @@ def GenerateBreakpadSymbol(
     @metrics_lib.timed(f"{base_name}._CrashCheck")
     def _CrashCheck(result, file_or_files, msg) -> None:
         if result.returncode:
-            cbuildbot_alerts.PrintBuildbotStepWarnings()
             if result.returncode < 0:
                 logging.warning(
                     "dump_syms %s crashed with %s; %s",
@@ -667,7 +665,6 @@ def GenerateBreakpadSymbol(
         if result.returncode:
             # A lot of files (like kernel files) contain no debug information,
             # do not consider such occurrences as errors.
-            cbuildbot_alerts.PrintBuildbotStepWarnings()
             if b"file contains no debugging information" in result.stderr:
                 logging.warning("dump_syms failed; giving up entirely.")
                 logging.warning("No symbols found for %s", elf_file)
