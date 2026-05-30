@@ -8,14 +8,15 @@ import logging
 import os
 import re
 
-from chromite.cbuildbot import commands
 from chromite.cli import command
+from chromite.lib import autotest_util
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
 from chromite.lib import dev_server_wrapper
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import remote_access
+from chromite.lib import sysroot_lib
 from chromite.lib.paygen import paygen_payload_lib
 from chromite.lib.paygen import paygen_stateful_payload_lib
 from chromite.utils import shell_util
@@ -260,7 +261,14 @@ NOTES:
         """
         build_root = build_target_lib.get_default_sysroot_path(self.board)
         cwd = os.path.join(build_root, BOARD_BUILD_DIR)
-        commands.BuildAutotestTarballsForHWTest(build_root, cwd, tempdir)
+        sysroot = sysroot_lib.Sysroot(build_root)
+        builder = autotest_util.AutotestTarballBuilder(
+            cwd, tempdir, self.chroot, sysroot
+        )
+        builder.BuildAutotestControlFilesTarball()
+        builder.BuildAutotestPackagesTarball()
+        builder.BuildAutotestTestSuitesTarball()
+        builder.BuildAutotestServerPackageTarball()
 
     def _StageOnMoblab(self, tempdir) -> None:
         """Stage the generated payloads and test bits on a moblab device.
