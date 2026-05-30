@@ -34,7 +34,7 @@ TAST_SSP_CHROOT_FILES = [
 # =========================== Main Commands ===================================
 
 
-def BuildTarball(
+def _BuildTarball(
     buildroot, input_list, tarball_path, cwd=None, compressed=True, **kwargs
 ):
     """Tars and zips files and directories from input_list to tarball_path.
@@ -65,7 +65,7 @@ def BuildTarball(
     )
 
 
-def FindFilesWithPattern(pattern, target="./", cwd=os.curdir, exclude_dirs=()):
+def _FindFilesWithPattern(pattern, target="./", cwd=os.curdir, exclude_dirs=()):
     """Search the root directory recursively for matching filenames.
 
     Args:
@@ -93,7 +93,7 @@ def FindFilesWithPattern(pattern, target="./", cwd=os.curdir, exclude_dirs=()):
     return matches
 
 
-def BuildAutotestControlFilesTarball(buildroot, cwd, tarball_dir):
+def _BuildAutotestControlFilesTarball(buildroot, cwd, tarball_dir):
     """Tar up the autotest control files.
 
     Args:
@@ -105,14 +105,14 @@ def BuildAutotestControlFilesTarball(buildroot, cwd, tarball_dir):
         Path of the partial autotest control files tarball.
     """
     # Find the control files in autotest/
-    control_files = FindFilesWithPattern(
+    control_files = _FindFilesWithPattern(
         "control*",
         target="autotest",
         cwd=cwd,
         exclude_dirs=["autotest/test_suites"],
     )
     control_files_tarball = os.path.join(tarball_dir, "control_files.tar")
-    BuildTarball(
+    _BuildTarball(
         buildroot,
         control_files,
         control_files_tarball,
@@ -122,7 +122,7 @@ def BuildAutotestControlFilesTarball(buildroot, cwd, tarball_dir):
     return control_files_tarball
 
 
-def BuildAutotestPackagesTarball(buildroot, cwd, tarball_dir):
+def _BuildAutotestPackagesTarball(buildroot, cwd, tarball_dir):
     """Tar up the autotest packages.
 
     Args:
@@ -135,13 +135,13 @@ def BuildAutotestPackagesTarball(buildroot, cwd, tarball_dir):
     """
     input_list = ["autotest/packages"]
     packages_tarball = os.path.join(tarball_dir, "autotest_packages.tar")
-    BuildTarball(
+    _BuildTarball(
         buildroot, input_list, packages_tarball, cwd=cwd, compressed=False
     )
     return packages_tarball
 
 
-def BuildAutotestTestSuitesTarball(buildroot, cwd, tarball_dir):
+def _BuildAutotestTestSuitesTarball(buildroot, cwd, tarball_dir):
     """Tar up the autotest test suite control files.
 
     Args:
@@ -153,13 +153,13 @@ def BuildAutotestTestSuitesTarball(buildroot, cwd, tarball_dir):
         Path of the autotest test suites tarball.
     """
     test_suites_tarball = os.path.join(tarball_dir, "test_suites.tar.bz2")
-    BuildTarball(
+    _BuildTarball(
         buildroot, ["autotest/test_suites"], test_suites_tarball, cwd=cwd
     )
     return test_suites_tarball
 
 
-def BuildAutotestServerPackageTarball(buildroot, cwd, tarball_dir):
+def _BuildAutotestServerPackageTarball(buildroot, cwd, tarball_dir):
     """Tar up the autotest files required by the server package.
 
     Args:
@@ -171,7 +171,7 @@ def BuildAutotestServerPackageTarball(buildroot, cwd, tarball_dir):
         The path of the autotest server package tarball.
     """
     # Find all files in autotest excluding certain directories.
-    autotest_files = FindFilesWithPattern(
+    autotest_files = _FindFilesWithPattern(
         "*",
         target="autotest",
         cwd=cwd,
@@ -186,7 +186,7 @@ def BuildAutotestServerPackageTarball(buildroot, cwd, tarball_dir):
     tast_files, transforms = _GetTastServerFilesAndTarTransforms(buildroot)
 
     tarball = os.path.join(tarball_dir, AUTOTEST_SERVER_PACKAGE)
-    BuildTarball(
+    _BuildTarball(
         buildroot,
         autotest_files + tast_files,
         tarball,
@@ -249,10 +249,10 @@ def BuildAutotestTarballsForHWTest(buildroot, cwd, tarball_dir):
     use the API call.
     """
     return [
-        BuildAutotestControlFilesTarball(buildroot, cwd, tarball_dir),
-        BuildAutotestPackagesTarball(buildroot, cwd, tarball_dir),
-        BuildAutotestTestSuitesTarball(buildroot, cwd, tarball_dir),
-        BuildAutotestServerPackageTarball(buildroot, cwd, tarball_dir),
+        _BuildAutotestControlFilesTarball(buildroot, cwd, tarball_dir),
+        _BuildAutotestPackagesTarball(buildroot, cwd, tarball_dir),
+        _BuildAutotestTestSuitesTarball(buildroot, cwd, tarball_dir),
+        _BuildAutotestServerPackageTarball(buildroot, cwd, tarball_dir),
     ]
 
 

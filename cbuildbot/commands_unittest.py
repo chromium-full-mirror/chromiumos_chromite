@@ -15,6 +15,9 @@ from chromite.lib import partial_mock
 from chromite.lib import path_util
 
 
+# pylint: disable=protected-access
+
+
 class ChromeSDKTest(cros_test_lib.RunCommandTempDirTestCase):
     """Basic tests for ChromeSDK commands with run mocked out."""
 
@@ -126,8 +129,8 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
 
     def testBuildAutotestPackagesTarball(self) -> None:
         """Tests that generating the autotest packages tarball is correct."""
-        with mock.patch.object(commands, "BuildTarball") as m:
-            commands.BuildAutotestPackagesTarball(
+        with mock.patch.object(commands, "_BuildTarball") as m:
+            commands._BuildAutotestPackagesTarball(
                 self._buildroot, self._cwd, self._tarball_dir
             )
             m.assert_called_once_with(
@@ -144,10 +147,10 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
             "autotest/client/site_tests/testA/control",
             "autotest/server/site_tests/testB/control",
         ]
-        with mock.patch.object(commands, "FindFilesWithPattern") as find_mock:
+        with mock.patch.object(commands, "_FindFilesWithPattern") as find_mock:
             find_mock.return_value = control_file_list
-            with mock.patch.object(commands, "BuildTarball") as tar_mock:
-                commands.BuildAutotestControlFilesTarball(
+            with mock.patch.object(commands, "_BuildTarball") as tar_mock:
+                commands._BuildAutotestControlFilesTarball(
                     self._buildroot, self._cwd, self._tarball_dir
                 )
                 tar_mock.assert_called_once_with(
@@ -167,10 +170,10 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
         # Pass a copy of the file list so the code under test can't mutate it.
         self.PatchObject(
             commands,
-            "FindFilesWithPattern",
+            "_FindFilesWithPattern",
             return_value=list(control_file_list),
         )
-        tar_mock = self.PatchObject(commands, "BuildTarball")
+        tar_mock = self.PatchObject(commands, "_BuildTarball")
 
         expected_files = list(control_file_list)
 
@@ -189,7 +192,7 @@ class BuildTarballTests(cros_test_lib.RunCommandTempDirTestCase):
             open(path, "ab").close()
             expected_files.append(path)
 
-        commands.BuildAutotestServerPackageTarball(
+        commands._BuildAutotestServerPackageTarball(
             self._buildroot, self._cwd, self._tarball_dir
         )
 
@@ -233,19 +236,19 @@ class UnmockedTests(cros_test_lib.MockTempDirTestCase):
             self.tempdir, "FindFilesWithPatternTest"
         )
         cros_test_lib.CreateOnDiskHierarchy(search_files_root, search_files)
-        find_all = commands.FindFilesWithPattern("*", target=search_files_root)
+        find_all = commands._FindFilesWithPattern("*", target=search_files_root)
         expected_find_all = self.findFilesWithPatternExpectedResults(
             search_files_root, search_files
         )
         self.assertEqual(set(find_all), set(expected_find_all))
-        find_test_files = commands.FindFilesWithPattern(
+        find_test_files = commands._FindFilesWithPattern(
             "test*", target=search_files_root
         )
         find_test_expected = self.findFilesWithPatternExpectedResults(
             search_files_root, ["test1", "dir1/test1"]
         )
         self.assertEqual(set(find_test_files), set(find_test_expected))
-        find_exclude = commands.FindFilesWithPattern(
+        find_exclude = commands._FindFilesWithPattern(
             "*",
             target=search_files_root,
             exclude_dirs=(os.path.join(search_files_root, "dir1"),),
