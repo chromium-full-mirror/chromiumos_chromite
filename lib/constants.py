@@ -43,7 +43,6 @@ DEPOT_TOOLS_DIR = SOURCE_ROOT / DEPOT_TOOLS_SUBPATH
 CHROMITE_BIN_SUBDIR = Path("chromite/bin")
 CHROMITE_BIN_DIR = CHROMITE_DIR / "bin"
 CHROMITE_SCRIPTS_DIR = CHROMITE_DIR / "scripts"
-PATH_TO_CBUILDBOT = os.path.join(CHROMITE_BIN_SUBDIR, "cbuildbot")
 DEFAULT_CHROOT_DIR = "chroot"
 DEFAULT_CHROOT_PATH = os.path.join(SOURCE_ROOT, DEFAULT_CHROOT_DIR)
 DEFAULT_OUT_DIR = Path("out")
@@ -80,134 +79,6 @@ UNITTEST_PKG_PATH = "tmp/test-packages"
 
 # Path to the lsb-release file on the device.
 LSB_RELEASE_PATH = "/etc/lsb-release"
-
-# Buildbucket build status
-BUILDBUCKET_BUILDER_STATUS_CANCELED = "CANCELED"
-BUILDBUCKET_BUILDER_STATUS_FAILURE = "FAILURE"
-BUILDBUCKET_BUILDER_STATUS_INFRA_FAILURE = "INFRA_FAILURE"
-BUILDBUCKET_BUILDER_STATUS_SCHEDULED = "SCHEDULED"
-BUILDBUCKET_BUILDER_STATUS_STARTED = "STARTED"
-BUILDBUCKET_BUILDER_STATUS_SUCCESS = "SUCCESS"
-
-BUILDBUCKET_BUILDER_STATUSES = (
-    BUILDBUCKET_BUILDER_STATUS_FAILURE,
-    BUILDBUCKET_BUILDER_STATUS_INFRA_FAILURE,
-    BUILDBUCKET_BUILDER_STATUS_SCHEDULED,
-    BUILDBUCKET_BUILDER_STATUS_STARTED,
-    BUILDBUCKET_BUILDER_STATUS_SUCCESS,
-)
-
-# Builder status strings
-BUILDER_STATUS_FAILED = "fail"
-BUILDER_STATUS_PASSED = "pass"
-BUILDER_STATUS_INFLIGHT = "inflight"
-BUILDER_STATUS_MISSING = "missing"
-BUILDER_STATUS_ABORTED = "aborted"
-# The following statuses are currently only used for build stages.
-BUILDER_STATUS_PLANNED = "planned"
-BUILDER_STATUS_WAITING = "waiting"
-BUILDER_STATUS_SKIPPED = "skipped"
-BUILDER_STATUS_FORGIVEN = "forgiven"
-BUILDER_COMPLETED_STATUSES = (
-    BUILDER_STATUS_PASSED,
-    BUILDER_STATUS_FAILED,
-    BUILDER_STATUS_ABORTED,
-    BUILDER_STATUS_SKIPPED,
-    BUILDER_STATUS_FORGIVEN,
-)
-BUILDER_ALL_STATUSES = (
-    BUILDER_STATUS_FAILED,
-    BUILDER_STATUS_PASSED,
-    BUILDER_STATUS_INFLIGHT,
-    BUILDER_STATUS_MISSING,
-    BUILDER_STATUS_ABORTED,
-    BUILDER_STATUS_WAITING,
-    BUILDER_STATUS_PLANNED,
-    BUILDER_STATUS_SKIPPED,
-    BUILDER_STATUS_FORGIVEN,
-)
-BUILDER_NON_FAILURE_STATUSES = (
-    BUILDER_STATUS_PLANNED,
-    BUILDER_STATUS_PASSED,
-    BUILDER_STATUS_SKIPPED,
-    # Quick fix for Buildbucket race problems.
-    BUILDER_STATUS_INFLIGHT,
-    BUILDER_STATUS_FORGIVEN,
-)
-
-# Exception categories, as recorded in cidb
-EXCEPTION_CATEGORY_UNKNOWN = "unknown"
-EXCEPTION_CATEGORY_BUILD = "build"
-EXCEPTION_CATEGORY_TEST = "test"
-EXCEPTION_CATEGORY_INFRA = "infra"
-EXCEPTION_CATEGORY_LAB = "lab"
-
-EXCEPTION_CATEGORY_ALL_CATEGORIES = (
-    EXCEPTION_CATEGORY_UNKNOWN,
-    EXCEPTION_CATEGORY_BUILD,
-    EXCEPTION_CATEGORY_TEST,
-    EXCEPTION_CATEGORY_INFRA,
-    EXCEPTION_CATEGORY_LAB,
-)
-
-# Monarch metric names
-MON_LAST_SLAVE = "chromeos/cbuildbot/last_completed_slave"
-MON_BUILD_COMP_COUNT = "chromeos/cbuildbot/build/completed_count"
-MON_BUILD_DURATION = "chromeos/cbuildbot/build/durations"
-MON_STAGE_COMP_COUNT = "chromeos/cbuildbot/stage/completed_count"
-MON_STAGE_DURATION = "chromeos/cbuildbot/stage/durations"
-MON_STAGE_INSTANCE_DURATION = "chromeos/cbuildbot/stage/instance_durations"
-MON_STAGE_FAILURE_COUNT = "chromeos/cbuildbot/stage/failure_count"
-MON_REPO_SYNC_COUNT = "chromeos/cbuildbot/repo/sync_count"
-MON_REPO_SYNC_RETRY_COUNT = "chromeos/cbuildbot/repo/sync_retry_count"
-MON_REPO_SELFUPDATE_FAILURE_COUNT = (
-    "chromeos/cbuildbot/repo/selfupdate_failure_count"
-)
-MON_REPO_INIT_RETRY_COUNT = "chromeos/cbuildbot/repo/init_retry_count"
-MON_REPO_MANIFEST_FAILURE_COUNT = (
-    "chromeos/cbuildbot/repo/manifest_failure_count"
-)
-
-# Stage Categorization for failed stages metric.
-UNCATEGORIZED_STAGE = "Uncategorized"
-CI_INFRA_STAGE = "CI-Infra"
-PRODUCT_OS_STAGE = "Product-OS"
-PRODUCT_ANDROID_STAGE = "Product-Android"
-PRODUCT_CHROME_STAGE = "Product-Chrome"
-
-
-# Re-execution API constants.
-# Used by --resume and --bootstrap to decipher which options they
-# can pass to the target cbuildbot (since it may not have that
-# option).
-# Format is Major.Minor.  Minor is used for tracking new options added
-# that aren't critical to the older version if it's not ran.
-# Major is used for tracking heavy API breakage- for example, no longer
-# supporting the --resume option.
-REEXEC_API_MAJOR = 0
-REEXEC_API_MINOR = 12
-REEXEC_API_VERSION = "%i.%i" % (REEXEC_API_MAJOR, REEXEC_API_MINOR)
-
-# Support --master-build-id
-REEXEC_API_MASTER_BUILD_ID = 3
-# Support --git-cache-dir
-REEXEC_API_GIT_CACHE_DIR = 4
-# Support --goma_dir
-REEXEC_API_GOMA = 5
-# Support --ts-mon-task-num
-REEXEC_API_TSMON_TASK_NUM = 6
-# Support --sanity-check-build
-REEXEC_API_SANITY_CHECK_BUILD = 7
-# Support --previous-build-state
-REEXEC_API_PREVIOUS_BUILD_STATE = 8
-# Support --workspace
-REEXEC_API_WORKSPACE = 9
-# Support --master-buildbucket-id
-REEXEC_API_MASTER_BUILDBUCKET_ID = 10
-# Support --chromeos_goma_dir
-REEXEC_API_CHROMEOS_GOMA_DIR = 11
-# Support --chrome-preload-dir
-REEXEC_API_CHROME_PRELOAD_DIR = 12
 
 GOB_HOST = "%s.googlesource.com"
 
@@ -667,10 +538,6 @@ FIRMWARE_ARCHIVE_NAME = "firmware_from_source.tar.bz2"
 FIRMWARE_PINNED_ARCHIVE_NAME = "pinned_firmware.tar.bz2"
 FPMCU_UNITTESTS_ARCHIVE_NAME = "fpmcu_unittests.tar.bz2"
 
-# Global configuration constants.
-SYNC_RETRIES = 4
-SLEEP_TIMEOUT = 30
-
 # Email alias to add as reviewer in Gerrit, which GWSQ will then automatically
 # assign to the current gardener.
 CHROME_GARDENER_REVIEW_EMAIL = "chrome-os-gardeners-reviews@google.com"
@@ -678,31 +545,6 @@ CHROME_GARDENER_REVIEW_EMAIL = "chrome-os-gardeners-reviews@google.com"
 # Email validation regex. Not quite fully compliant with RFC 2822, but good
 # approximation.
 EMAIL_REGEX = r"[A-Za-z0-9._%~+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}"
-
-# Blocklist of files not allowed to be uploaded into the Partner Project Google
-# Storage Buckets:
-# debug.tgz contains debug symbols.
-# manifest.xml exposes all of our repo names.
-# vm_test_results can contain symbolicated crash dumps.
-EXTRA_BUCKETS_FILES_BLOCKLIST = [
-    "debug.tgz",
-    "manifest.xml",
-    "vm_test_results_*",
-]
-
-# Milo URL
-CHROMEOS_MILO_HOST = "https://ci.chromium.org/b/"
-
-# TODO(nxia): consolidate all run.metadata key constants,
-# add a unit test to avoid duplicated keys in run_metadata
-
-# Builder_run metadata keys
-METADATA_SCHEDULED_IMPORTANT_SLAVES = "scheduled_important_slaves"
-METADATA_SCHEDULED_EXPERIMENTAL_SLAVES = "scheduled_experimental_slaves"
-METADATA_UNSCHEDULED_SLAVES = "unscheduled_slaves"
-# List of builders marked as experimental through the tree status, not all the
-# experimental builders for a run.
-METADATA_EXPERIMENTAL_BUILDERS = "experimental_builders"
 
 # Partition labels.
 PART_STATE = "STATE"
@@ -732,10 +574,6 @@ FULL_PAYLOAD_KERN = "full_KERN.bin.zst"
 FULL_PAYLOAD_ROOT = "full_ROOT.bin.zst"
 FULL_PAYLOAD_MINIOS = "full_MINIOS.bin.zst"
 STATEFUL_PAYLOAD = "stateful.zst"
-
-# Mock build and stage IDs.
-MOCK_STAGE_ID = 313377
-MOCK_BUILD_ID = 31337
 
 # Dev key related names.
 VBOOT_DEVKEYS_DIR = os.path.join("/usr/share/vboot/devkeys")
