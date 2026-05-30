@@ -985,12 +985,6 @@ def PrettyJsonDict(dictionary):
     return pformat.json(dictionary, cls=ObjectJSONEncoder)
 
 
-def LoadConfigFromFile(config_file=constants.CHROMEOS_CONFIG_FILE):
-    """Load a Config a Json encoded file."""
-    json_string = osutils.ReadFile(config_file)
-    return LoadConfigFromString(json_string)
-
-
 def LoadConfigFromString(json_string):
     """Load a cbuildbot config from it's Json encoded string."""
     config_dict = json.loads(json_string)
@@ -1039,7 +1033,15 @@ def GetConfig():
     Returns:
         SiteConfig instance to use for this build.
     """
-    return LoadConfigFromFile(constants.CHROMEOS_CONFIG_FILE)
+    defaults = DefaultSettings()
+
+    # Git repository URL for our manifests.
+    #  https://chromium.googlesource.com/chromiumos/manifest
+    #  https://chrome-internal.googlesource.com/chromeos/manifest-internal
+    defaults["manifest_repo_url"] = constants.EXTERNAL_MANIFEST_URL
+
+    # site_config with no templates or build configurations.
+    return SiteConfig(defaults=defaults)
 
 
 @memoize.Memoize
