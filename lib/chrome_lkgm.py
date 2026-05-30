@@ -13,7 +13,6 @@ import os
 from typing import Optional, Tuple
 
 from chromite.lib import chromeos_version
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import gs
 from chromite.lib import osutils
@@ -122,12 +121,12 @@ def GetGsConfigName(
         if is_snapshot:
             return f"{board}-public-snapshot"
         else:
-            return f"{board}-{config_lib.CONFIG_TYPE_PUBLIC}"
+            return f"{board}-public"
     else:
         if is_snapshot:
             return f"{board}-snapshot"
         else:
-            return f"{board}-{config_lib.CONFIG_TYPE_RELEASE}"
+            return f"{board}-release"
 
 
 def GetArtifactsGsUrl(board, use_external_config, full_version):
