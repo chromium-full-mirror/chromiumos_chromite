@@ -21,7 +21,6 @@ import traceback
 from chromite.lib import cros_build_lib
 from chromite.lib import failures_lib
 from chromite.lib import osutils
-from chromite.lib import results_lib
 from chromite.lib import signals
 from chromite.lib import timeout_util
 from chromite.utils import prctl
@@ -373,7 +372,6 @@ class _BackgroundTask(multiprocessing.Process):
             # open our own file descriptor to ensure output is not lost.
             self._WaitForStartup()
             silent_death_time = time.time() + self.SILENT_TIMEOUT
-            results = []
             # Read as binary to avoid utf-8 decoding issues.
             with open(self._output.name, "rb") as output:
                 pos = 0
@@ -388,9 +386,7 @@ class _BackgroundTask(multiprocessing.Process):
                     running = self.is_alive()
 
                     try:
-                        errors, results = self._queue.get(
-                            True, self.PRINT_INTERVAL
-                        )
+                        errors = self._queue.get(True, self.PRINT_INTERVAL)
                         if errors:
                             task_errors.extend(errors)
 
@@ -466,10 +462,6 @@ class _BackgroundTask(multiprocessing.Process):
                     sys.stdout.flush()
                     sys.stderr.flush()
 
-            # Propagate any results.
-            for result in results:
-                results_lib.Results.Record(*result)
-
         finally:
             self.Cleanup(silent=True)
 
@@ -506,8 +498,7 @@ class _BackgroundTask(multiprocessing.Process):
             errors = self._Run()
         finally:
             if not self._killing.is_set() and os.getpid() == pid:
-                results = results_lib.Results.Get()
-                self._queue.put((errors, results))
+                self._queue.put(errors)
                 if self._semaphore is not None:
                     self._semaphore.release()
 
@@ -542,7 +533,6 @@ class _BackgroundTask(multiprocessing.Process):
 
             try:
                 self._started.set()
-                results_lib.Results.Clear()
 
                 # Reduce the silent timeout by the prescribed amount.
                 cls = self.__class__
