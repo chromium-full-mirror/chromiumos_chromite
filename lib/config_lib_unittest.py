@@ -5,7 +5,6 @@
 """Unittests for config."""
 
 import copy
-import json
 import pickle
 from typing import Any
 
@@ -760,70 +759,3 @@ class GetConfigTests(cros_test_lib.TestCase):
         # Ensure that we get a SiteConfig, and that the result is cached.
         self.assertIsInstance(config_a, config_lib.SiteConfig)
         self.assertIs(config_a, config_b)
-
-
-class GEBuildConfigTests(cros_test_lib.TestCase):
-    """Test GE build config related methods."""
-
-    def setUp(self) -> None:
-        self._fake_ge_build_config_json = """
-{
-  "metadata_version": "1.0",
-  "reference_board_unified_builds": [
-    {
-      "name": "reef",
-      "reference_board_name": "reef",
-      "builder": "RELEASE",
-      "experimental": true,
-      "arch": "X86_INTERNAL",
-      "models" : [
-        {
-          "board_name": "reef"
-        },
-        {
-          "board_name": "pyro"
-        }
-      ]
-    }
-  ],
-  "boards": [
-    {
-      "name": "reef",
-      "configs": [
-        {
-          "builder": "RELEASE",
-          "experimental": false,
-          "leader_board": true,
-          "board_group": "reef",
-          "arch": "X86_INTERNAL"
-        }
-      ]
-    }
-  ]
-}
-    """
-        self._fake_ge_build_config = json.loads(self._fake_ge_build_config_json)
-
-    def testGetArchBoardDict(self) -> None:
-        """Test GetArchBoardDict."""
-        ge_build_config = config_lib.LoadGEBuildConfigFromFile()
-        arch_board_dict = config_lib.GetArchBoardDict(ge_build_config)
-        self.assertIsNotNone(arch_board_dict)
-
-    def testGetArchBoardDictUnifiedBuilds(self) -> None:
-        """Test GetArchBoardDict."""
-        arch_board_dict = config_lib.GetArchBoardDict(
-            self._fake_ge_build_config
-        )
-        self.assertIsNotNone(arch_board_dict)
-        self.assertIs(1, len(arch_board_dict[config_lib.CONFIG_X86_INTERNAL]))
-
-    def testGetUnifiedBuildConfigAllBuilds(self) -> None:
-        uni_builds = config_lib.GetUnifiedBuildConfigAllBuilds(
-            self._fake_ge_build_config
-        )
-        self.assertEqual(1, len(uni_builds))
-
-    def testGetUnifiedBuildConfigAllBuildsWithNoBuilds(self) -> None:
-        uni_builds = config_lib.GetUnifiedBuildConfigAllBuilds({})
-        self.assertEqual(0, len(uni_builds))

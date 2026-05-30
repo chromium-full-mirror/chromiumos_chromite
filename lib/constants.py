@@ -67,10 +67,6 @@ METRICS_FILE = "METRICS_FILE"
 
 CHROMEOS_CONFIG_FILE = os.path.join(CHROMITE_DIR, "config", "config_dump.json")
 
-GE_BUILD_CONFIG_FILE = os.path.join(
-    CHROMITE_DIR, "config", "ge_build_config.json"
-)
-
 # SDK overlay tarballs created during SDK builder runs. The paths are relative
 # to the build root's chroot, which guarantees that they are reachable from it
 # and get cleaned up when it is removed.

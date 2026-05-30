@@ -23,10 +23,6 @@ class ChromeosConfigTestBase(cros_test_lib.TestCase):
     def setUp(self) -> None:
         self.site_config = chromeos_config.GetConfig()
 
-    def isReleaseBranch(self):
-        ge_build_config = config_lib.LoadGEBuildConfigFromFile()
-        return ge_build_config["release_branch"]
-
 
 class ConfigDumpTest(ChromeosConfigTestBase):
     """Tests related to config_dump.json & chromeos_config.py"""
@@ -101,15 +97,6 @@ class CBuildBotTest(ChromeosConfigTestBase):
                 all_slaves.update(config.slave_configs)
 
         return all_slaves
-
-    def _GetBoardTypeToBoardsDict(self):
-        """Get boards dict.
-
-        Returns:
-            A dict mapping a board type to a collections of board names.
-        """
-        ge_build_config = config_lib.LoadGEBuildConfigFromFile()
-        return chromeos_config.GetBoardTypeToBoardsDict(ge_build_config)
 
     def testConfigsKeysMismatch(self) -> None:
         """Verify that all configs contain exactly the default keys.
