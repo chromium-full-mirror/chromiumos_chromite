@@ -9,7 +9,6 @@ from unittest import mock
 from chromite.config import chromeos_config
 from chromite.lib import config_lib
 from chromite.lib import constants
-from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import git
 from chromite.lib import osutils
@@ -41,22 +40,6 @@ class ConfigDumpTest(ChromeosConfigTestBase):
         if new_dump != old_dump:
             self.fail(
                 "config_dump.json does not match the defined configs. Run "
-                "config/refresh_generated_files"
-            )
-
-        # luci-scheduler.cfg
-        # We run this as a sep program to avoid the config cache.
-        cmd = constants.CHROMITE_DIR / "scripts" / "gen_luci_scheduler"
-        result = cros_build_lib.run(
-            [cmd], capture_output=True, encoding="utf-8"
-        )
-
-        new_dump = result.stdout
-        old_dump = osutils.ReadFile(constants.LUCI_SCHEDULER_CONFIG_FILE)
-
-        if new_dump != old_dump:
-            self.fail(
-                "luci-scheduler.cfg does not match the defined configs. Run "
                 "config/refresh_generated_files"
             )
 

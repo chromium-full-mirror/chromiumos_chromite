@@ -66,9 +66,6 @@ DIE_HOOK_STATUS_FILE_NAME = "FAILED_PACKAGES"
 METRICS_FILE = "METRICS_FILE"
 
 CHROMEOS_CONFIG_FILE = os.path.join(CHROMITE_DIR, "config", "config_dump.json")
-LUCI_SCHEDULER_CONFIG_FILE = os.path.join(
-    CHROMITE_DIR, "config", "luci-scheduler.cfg"
-)
 
 GE_BUILD_CONFIG_FILE = os.path.join(
     CHROMITE_DIR, "config", "ge_build_config.json"

@@ -255,50 +255,6 @@
     "display_label": "tryjob",
     "luci_builder": "Try"
   },
-  "luci-scheduler-updater": {
-    "boards": [],
-    "build_type": "generic",
-    "builder_class_name": "config_builders.LuciSchedulerBuilder",
-    "description": "Deploy changes to luci_scheduler.cfg.",
-    "display_label": "utility",
-    "internal": true,
-    "luci_builder": "Infra",
-    "manifest_repo_url": "https://chrome-internal.googlesource.com/chromeos/manifest-internal",
-    "overlays": "both",
-    "schedule": "triggered",
-    "triggered_gitiles": [
-      [
-        "https://chromium.googlesource.com/chromiumos/chromite",
-        [
-          "refs/heads/main"
-        ],
-        [
-          "config/luci-scheduler.cfg"
-        ]
-      ],
-      [
-        "https://chrome-internal.googlesource.com/chromeos/infra/config",
-        [
-          "refs/heads/main"
-        ],
-        [
-          "generated/luci-scheduler.cfg"
-        ]
-      ]
-    ]
-  },
-  "luci-scheduler-updater-tryjob": {
-    "boards": [],
-    "build_type": "generic",
-    "builder_class_name": "config_builders.LuciSchedulerBuilder",
-    "debug": true,
-    "description": "Deploy changes to luci_scheduler.cfg.",
-    "display_label": "tryjob",
-    "internal": true,
-    "luci_builder": "Try",
-    "manifest_repo_url": "https://chrome-internal.googlesource.com/chromeos/manifest-internal",
-    "overlays": "both"
-  },
   "master-buildspec": {
     "_template": "buildspec",
     "build_timeout": 43200,

@@ -546,33 +546,6 @@ def SpecialtyBuilders(site_config) -> None:
         schedule="@hourly",
     )
 
-    site_config.AddWithoutTemplate(
-        "luci-scheduler-updater",
-        site_config.templates.internal,
-        site_config.templates.infra_builder,
-        display_label=config_lib.DISPLAY_LABEL_UTILITY,
-        description="Deploy changes to luci_scheduler.cfg.",
-        build_type=constants.GENERIC_TYPE,
-        boards=[],
-        builder_class_name="config_builders.LuciSchedulerBuilder",
-        schedule="triggered",
-        triggered_gitiles=[
-            [
-                "https://chromium.googlesource.com/chromiumos/chromite",
-                ["refs/heads/main"],
-                ["config/luci-scheduler.cfg"],
-            ],
-            [
-                (
-                    "https://chrome-internal.googlesource.com/chromeos/infra/"
-                    "config"
-                ),
-                ["refs/heads/main"],
-                ["generated/luci-scheduler.cfg"],
-            ],
-        ],
-    )
-
 
 def TryjobMirrors(site_config) -> None:
     """Create tryjob specialized variants of every build config.
