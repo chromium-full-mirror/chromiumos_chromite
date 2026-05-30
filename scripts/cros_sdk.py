@@ -23,7 +23,6 @@ import shlex
 import sys
 from typing import Iterable, List, Optional, Tuple
 
-from chromite.cbuildbot import cbuildbot_alerts
 from chromite.lib import chromite_config
 from chromite.lib import chroot_lib
 from chromite.lib import commandline
@@ -576,12 +575,6 @@ def CreateParser(
         "Internal Chromium OS Build Team Options",
         "Caution: these are for meant for the Chromium OS build team only",
     )
-    group.add_argument(
-        "--buildbot-log-version",
-        default=False,
-        action="store_true",
-        help="Log SDK version for buildbot consumption",
-    )
 
     return parser, commands
 
@@ -769,9 +762,6 @@ def main(argv) -> None:
                 "(chroot_version=%s)",
                 chroot_version,
             )
-
-    if options.buildbot_log_version:
-        cbuildbot_alerts.PrintBuildbotStepText(options.sdk_version)
 
     replace_for_update = False
 
