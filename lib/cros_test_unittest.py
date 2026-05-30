@@ -10,7 +10,6 @@ from unittest import mock
 
 import pytest  # pylint: disable=import-error
 
-from chromite.cbuildbot import commands
 from chromite.cli.cros import cros_chrome_sdk
 from chromite.lib import constants
 from chromite.lib import cros_test
@@ -618,7 +617,7 @@ class CrOSTesterTast(CrOSTesterBase):
         self._tester._device.private_key = "/tmp/.ssh/testing_rsa"
         fake_cache = cros_test_lib.FakeSDKCache(self._tester.cache_dir)
         autotest_pkg_dir = fake_cache.CreateCacheReference(
-            self._tester._device.board, commands.AUTOTEST_SERVER_PACKAGE
+            self._tester._device.board, cros_test._AUTOTEST_SERVER_PACKAGE_FILE
         )
         tast_bin_dir = os.path.join(autotest_pkg_dir, "tast")
         osutils.SafeMakedirs(tast_bin_dir)

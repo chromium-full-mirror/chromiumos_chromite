@@ -8,7 +8,6 @@ import datetime
 import logging
 import os
 
-from chromite.cbuildbot import commands
 from chromite.cli.cros import cros_chrome_sdk
 from chromite.lib import chrome_lkgm
 from chromite.lib import chrome_util
@@ -20,6 +19,9 @@ from chromite.lib import path_util
 from chromite.lib import retry_util
 from chromite.lib import vm
 from chromite.lib.xbuddy import xbuddy
+
+
+_AUTOTEST_SERVER_PACKAGE_FILE = "autotest_server_package.tar.bz2"
 
 
 class CrOSTest:
@@ -388,7 +390,7 @@ class CrOSTest:
         # Try using the Tast binaries that the SimpleChrome SDK downloads
         # automatically.
         autotest_pkg_dir = cros_chrome_sdk.SDKFetcher.GetCachePath(
-            commands.AUTOTEST_SERVER_PACKAGE,
+            _AUTOTEST_SERVER_PACKAGE_FILE,
             self.cache_dir,
             self._device.board,
         )
