@@ -48,7 +48,6 @@ KNOWN_ISSUES = (
     "lib/depgraph.py",
     "lib/dlc_allowlist.py",
     "lib/factory.py",
-    "lib/failure_message_lib.py",
     "lib/firmware/ap_firmware_config/__init__.py",
     "lib/gmerge_binhost.py",
     "lib/kernel_cmdline.py",
