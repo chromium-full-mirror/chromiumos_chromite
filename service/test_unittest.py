@@ -11,7 +11,6 @@ import shutil
 from typing import Any, List
 from unittest import mock
 
-from chromite.cbuildbot import commands
 from chromite.lib import autotest_util
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
@@ -21,12 +20,16 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import image_lib
 from chromite.lib import osutils
+from chromite.lib import partial_mock
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
 from chromite.service import test
 from chromite.utils import code_coverage_util
 from chromite.utils import shell_util
+
+
+# pylint: disable=protected-access
 
 
 class PartialDict:
@@ -188,6 +191,88 @@ class BuildTargetUnitTestTest(cros_test_lib.RunCommandTempDirTestCase):
         self.assertTrue(result.success)
 
 
+class ChromeSDKTest(cros_test_lib.RunCommandTempDirTestCase):
+    """Basic tests for ChromeSDK commands with run mocked out."""
+
+    BOARD = "daisy_foo"
+    EXTRA_ARGS = ("--monkey", "banana")
+    EXTRA_ARGS2 = ("--donkey", "kong")
+    CHROME_SRC = "chrome_src"
+    CMD = ["bar", "baz"]
+    CWD = "fooey"
+
+    def setUp(self) -> None:
+        self.inst = test._ChromeSDK(self.CWD, self.BOARD)
+
+    def testRunCommand(self) -> None:
+        """Test that running a command is possible."""
+        self.inst.Run(self.CMD)
+        self.assertCommandContains([self.BOARD] + self.CMD, cwd=self.CWD)
+
+    def testRunCommandWithRunArgs(self) -> None:
+        """Test run_args optional argument for run kwargs."""
+        self.inst.Run(self.CMD, run_args={"log_output": True})
+        self.assertCommandContains(
+            [self.BOARD] + self.CMD, cwd=self.CWD, log_output=True
+        )
+
+    def testRunCommandKwargs(self) -> None:
+        """Exercise optional arguments."""
+        custom_inst = test._ChromeSDK(
+            self.CWD,
+            self.BOARD,
+            extra_args=list(self.EXTRA_ARGS),
+            chrome_src=self.CHROME_SRC,
+            debug_log=True,
+        )
+        custom_inst.Run(self.CMD, list(self.EXTRA_ARGS2))
+        self.assertCommandContains(
+            ["debug", self.BOARD]
+            + list(self.EXTRA_ARGS)
+            + list(self.EXTRA_ARGS2)
+            + self.CMD,
+            cwd=self.CWD,
+        )
+
+    def MockGetDefaultTarget(self) -> None:
+        self.rc.AddCmdResult(
+            partial_mock.In("qlist-%s" % self.BOARD),
+            stdout="%s" % constants.CHROME_CP,
+        )
+
+    def testNinjaWithRunArgs(self) -> None:
+        """Test that running ninja with run_args.
+
+        run_args is an optional argument for run kwargs.
+        """
+        self.MockGetDefaultTarget()
+        self.inst.Ninja(run_args={"log_output": True})
+        self.assertCommandContains(
+            [
+                "autoninja",
+                "-C",
+                "out_%s/Release" % self.BOARD,
+                "chromiumos_preflight",
+            ],
+            cwd=self.CWD,
+            log_output=True,
+        )
+
+    def testNinjaOptions(self) -> None:
+        """Test that running ninja with non-default options."""
+        self.MockGetDefaultTarget()
+        custom_inst = test._ChromeSDK(self.CWD, self.BOARD)
+        custom_inst.Ninja(debug=True)
+        self.assertCommandContains(
+            [
+                "autoninja",
+                "-C",
+                "out_%s/Debug" % self.BOARD,
+                "chromiumos_preflight",
+            ]
+        )
+
+
 class SimpleChromeWorkflowTestTest(cros_test_lib.MockTempDirTestCase):
     """Unit tests for SimpleChromeWorkflowTest."""
 
@@ -196,7 +281,7 @@ class SimpleChromeWorkflowTestTest(cros_test_lib.MockTempDirTestCase):
         self.sysroot_path = "/chroot/path/sysroot/path"
         self.build_target = "board"
 
-        self.chrome_sdk_run_mock = self.PatchObject(commands.ChromeSDK, "Run")
+        self.chrome_sdk_run_mock = self.PatchObject(test._ChromeSDK, "Run")
 
         # SimpleChromeTest workflow creates directories based on objects that
         # are mocked for this test, so patch osutils.WriteFile
@@ -216,7 +301,7 @@ class SimpleChromeWorkflowTestTest(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(os.path, "exists", return_value=True)
 
         ninja_cmd = self.PatchObject(
-            commands.ChromeSDK, "GetNinjaCommand", return_value="ninja command"
+            test._ChromeSDK, "GetNinjaCommand", return_value="ninja command"
         )
 
         test.SimpleChromeWorkflowTest(
