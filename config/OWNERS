@@ -1,7 +1,0 @@
-# CI Team
-include chromiumos/owners:v1:/infra/OWNERS.ci
-
-# APAC Config Reviewers
-hidehiko@chromium.org
-chenghan@chromium.org
-cyueh@chromium.org

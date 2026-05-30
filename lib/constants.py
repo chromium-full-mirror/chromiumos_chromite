@@ -64,8 +64,6 @@ CROS_METRICS_DIR_ENVVAR = "CROS_METRICS_DIR"
 DIE_HOOK_STATUS_FILE_NAME = "FAILED_PACKAGES"
 METRICS_FILE = "METRICS_FILE"
 
-CHROMEOS_CONFIG_FILE = os.path.join(CHROMITE_DIR, "config", "config_dump.json")
-
 # SDK overlay tarballs created during SDK builder runs. The paths are relative
 # to the build root's chroot, which guarantees that they are reachable from it
 # and get cleaned up when it is removed.
