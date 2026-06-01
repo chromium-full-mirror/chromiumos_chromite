@@ -2041,9 +2041,10 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         afdo_path = os.path.join(output_dir_full, afdo_name)
         # The _BundleUnverifiedChromeBenchmarkAfdoFile should always run
         # before this, so the AFDO profile should already be created.
-        assert os.path.exists(
-            afdo_path
-        ), "No new AFDO profile created before creating Android/Linux profiles"
+        assert os.path.exists(afdo_path), (
+            f"No benchmark AFDO profile found at {afdo_path!r}; it should "
+            "have been created by prior steps"
+        )
 
         files = []
         # Merge recent benchmark profiles for Android/Linux use

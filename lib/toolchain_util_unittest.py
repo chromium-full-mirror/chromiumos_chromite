@@ -1485,7 +1485,7 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         )
         with self.assertRaises(AssertionError) as context:
             self.obj.Bundle()
-        self.assertIn("No new AFDO profile created", str(context.exception))
+        self.assertIn("No benchmark AFDO profile found", str(context.exception))
         merge_function.assert_not_called()
 
     def testBundleChromeAFDOProfileForAndroidLinuxPass(self) -> None:
