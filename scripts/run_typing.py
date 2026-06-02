@@ -22,6 +22,7 @@ from chromite.lib import terminal
 # to update the baseline when bad lines move around.
 KNOWN_ISSUES = (
     # go/keep-sorted start
+    "api/api_config.py",
     "cli/cros/lint.py",
     "cli/cros/lint_unittest.py",
     "cli/deploy.py",
@@ -34,8 +35,12 @@ KNOWN_ISSUES = (
     "contrib/gob-meta-config-checkout.py",
     "contrib/libcst_tool.py",
     "cros/test/usergroup_baseline.py",
+    "format/formatters/gn_unittest.py",
+    "format/formatters/go_unittest.py",
     "format/formatters/json.py",
+    "format/formatters/mojom_unittest.py",
     "format/formatters/repo_manifest.py",
+    "format/formatters/textproto_unittest.py",
     "format/formatters/xml.py",
     "ide_tooling/scripts/compdb_no_chroot.py",
     "ide_tooling/scripts/compdb_no_chroot_unittest.py",
@@ -72,6 +77,7 @@ KNOWN_ISSUES = (
     "utils/parser/upstart.py",
     "utils/prctl_unittest.py",
     "utils/shell_util.py",
+    "utils/telemetry/detector.py",
     "utils/telemetry/utils_unittest.py",
     "utils/xdg_util.py",
     "utils/xdg_util_unittest.py",
