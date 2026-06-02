@@ -19,6 +19,7 @@ from typing import List, Optional, Sequence
 from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import ensure_bootstrap
 from chromite.lib import kernel_cmdline
 from chromite.lib import osutils
 
@@ -413,6 +414,9 @@ class Builder:
             "Starting custom kernel image build for board '%s'",
             self._board,
         )
+
+        # We'll compile packages which might call `cros lint`.
+        ensure_bootstrap.for_lint()
 
         # 1. Determine Kernel Features (USE flags).
         if base_kernel_features is None:
