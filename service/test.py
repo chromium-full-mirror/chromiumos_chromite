@@ -236,6 +236,7 @@ def ChromiteUnitTest() -> bool:
     cmd = [
         constants.CHROMITE_DIR / "run_tests",
         "--debug",
+        "--typing",
         constants.CHROMITE_DIR,
     ]
     result = cros_build_lib.run(cmd, check=False)
