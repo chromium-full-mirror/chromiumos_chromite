@@ -190,6 +190,14 @@ def CreateKeysHsm(
     if request.dry_run:
         entrypoint_args.append("--mocks")
 
+    # Exporter dry-run defaults to request.dry_run unless explicitly overridden.
+    exporter_dry_run = request.dry_run
+    if request.HasField("exporter_dry_run"):
+        exporter_dry_run = request.exporter_dry_run
+
+    if exporter_dry_run:
+        entrypoint_args.append("--exporter-dry-run")
+
     response_bytes = image.CallDockerWithResponse(
         request.docker_image,
         docker_args=[

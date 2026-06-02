@@ -686,14 +686,19 @@ class CreateKeysHsmTest(
         self,
         keyset_name: str = "foo",
         dry_run: bool = False,
+        exporter_dry_run: Optional[bool] = None,
     ):
         """Helper to build a request instance."""
-        return signing_pb2.CreateKeysHsmRequest(
+        req = signing_pb2.CreateKeysHsmRequest(
             docker_image="signing:latest",
             keyset_name=keyset_name,
             dry_run=dry_run,
             release_keys_checkout=str(self.tempdir),
         )
+
+        if exporter_dry_run is not None:
+            req.exporter_dry_run = exporter_dry_run
+        return req
 
     def testSuccess(self) -> None:
         """CreateKeysHsm succeeds and returns a populated response."""
@@ -754,7 +759,7 @@ class CreateKeysHsmTest(
         self.assertIs(res, self.response)
 
     def testDryRun(self) -> None:
-        """Verify that dryrun mode passes --mocks to the entrypoint."""
+        """Verify that dryrun mode passes --mocks and --exporter-dry-run."""
         self.PatchObject(
             osutils.TempDir, "__enter__", return_value=self.tempdir
         )
@@ -773,6 +778,193 @@ class CreateKeysHsmTest(
         request = self._GetRequest(
             keyset_name="setkey",
             dry_run=True,
+        )
+        res = signing_controller.CreateKeysHsm(
+            request, self.response, self.api_config
+        )
+
+        rc.assertCommandContains(
+            ["docker", "inspect", "--type=image", "signing:latest"]
+        )
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "--network",
+                "host",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-e",
+                "LUCI_CONTEXT=/tmp/luci/luci_context.1234",
+                "-e",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "--entrypoint",
+                "./create_keys_with_hsm.py",
+                "signing:latest",
+                "--keyset-name",
+                "setkey",
+                "--keyset-repo",
+                "/keys",
+                "-o",
+                "/out",
+                "-p",
+                "out_proto.bin",
+                "--mocks",
+                "--exporter-dry-run",
+            ]
+        )
+        self.assertEqual(res, expected_response)
+        self.assertIs(res, self.response)
+
+    def testExporterDryRunTrue(self) -> None:
+        """Verify that exporter_dry_run=True passes --exporter-dry-run."""
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+        expected_response = signing_pb2.CreateKeysHsmResponse(
+            request_status=signing_pb2.STATUS_PASS
+        )
+        osutils.WriteFile(
+            os.path.join(self.tempdir, "out_proto.bin"),
+            expected_response.SerializeToString(),
+            mode="wb",
+        )
+
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(
+            keyset_name="setkey",
+            exporter_dry_run=True,
+        )
+        res = signing_controller.CreateKeysHsm(
+            request, self.response, self.api_config
+        )
+
+        rc.assertCommandContains(
+            ["docker", "inspect", "--type=image", "signing:latest"]
+        )
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "--network",
+                "host",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-e",
+                "LUCI_CONTEXT=/tmp/luci/luci_context.1234",
+                "-e",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "--entrypoint",
+                "./create_keys_with_hsm.py",
+                "signing:latest",
+                "--keyset-name",
+                "setkey",
+                "--keyset-repo",
+                "/keys",
+                "-o",
+                "/out",
+                "-p",
+                "out_proto.bin",
+                "--exporter-dry-run",
+            ]
+        )
+        self.assertEqual(res, expected_response)
+        self.assertIs(res, self.response)
+
+    def testExporterDryRunFalse(self) -> None:
+        """Verify that exporter_dry_run=False passes neither flag."""
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+        expected_response = signing_pb2.CreateKeysHsmResponse(
+            request_status=signing_pb2.STATUS_PASS
+        )
+        osutils.WriteFile(
+            os.path.join(self.tempdir, "out_proto.bin"),
+            expected_response.SerializeToString(),
+            mode="wb",
+        )
+
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(
+            keyset_name="setkey",
+            exporter_dry_run=False,
+        )
+        res = signing_controller.CreateKeysHsm(
+            request, self.response, self.api_config
+        )
+
+        rc.assertCommandContains(
+            ["docker", "inspect", "--type=image", "signing:latest"]
+        )
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "--network",
+                "host",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-e",
+                "LUCI_CONTEXT=/tmp/luci/luci_context.1234",
+                "-e",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "--entrypoint",
+                "./create_keys_with_hsm.py",
+                "signing:latest",
+                "--keyset-name",
+                "setkey",
+                "--keyset-repo",
+                "/keys",
+                "-o",
+                "/out",
+                "-p",
+                "out_proto.bin",
+            ]
+        )
+        self.assertEqual(res, expected_response)
+        self.assertIs(res, self.response)
+
+    def testMocksWithoutExporterDryRun(self) -> None:
+        """Verify dry_run=True & exporter_dry_run=False passes only --mocks."""
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+        expected_response = signing_pb2.CreateKeysHsmResponse(
+            request_status=signing_pb2.STATUS_PASS
+        )
+        osutils.WriteFile(
+            os.path.join(self.tempdir, "out_proto.bin"),
+            expected_response.SerializeToString(),
+            mode="wb",
+        )
+
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(
+            keyset_name="setkey",
+            dry_run=True,
+            exporter_dry_run=False,
         )
         res = signing_controller.CreateKeysHsm(
             request, self.response, self.api_config
