@@ -48,6 +48,10 @@ DEBUGGER_PORT = 5678
 def main(argv) -> None:
     parser = get_parser()
     opts = parser.parse_args()
+    if opts.typing is None:
+        opts.typing = not opts.pytest_args
+        if opts.pytest_args:
+            logging.info("Skipping type checking due to custom test args")
     opts.freeze()
 
     pytest_args = opts.pytest_args
@@ -122,8 +126,7 @@ def main(argv) -> None:
     with contextlib.ExitStack() as stack:
         # If the user is running custom pytest stuff, like specific tests,
         # don't run the typing logic too.
-        if opts.pytest_args:
-            logging.info("Skipping type checking due to custom test args")
+        if not opts.typing:
             typing_proc = None
         else:
             # Launch type checking in parallel with pytest.
@@ -236,7 +239,7 @@ def get_parser():
     )
     parser.add_bool_argument(
         "--typing",
-        True,
+        None,
         "Run codebase through type checking.",
         "Do not type check the codebase.",
     )
