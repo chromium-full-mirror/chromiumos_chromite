@@ -22,8 +22,6 @@ from chromite.lib import terminal
 # to update the baseline when bad lines move around.
 KNOWN_ISSUES = (
     # go/keep-sorted start
-    "api/gen_test/go/chromium/org/luci/vpython/api/vpython/pep425_pb2.py",
-    "api/gen_test/go/chromium/org/luci/vpython/api/vpython/spec_pb2.py",
     "cli/cros/lint.py",
     "cli/cros/lint_unittest.py",
     "cli/deploy.py",

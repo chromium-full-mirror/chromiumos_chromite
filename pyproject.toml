@@ -2,6 +2,8 @@
 line-length = 80
 target-version = ['py311']
 
+# https://mypy.readthedocs.io/en/stable/config_file.html
+# https://mypy.readthedocs.io/en/stable/command_line.html
 [tool.mypy]
 exclude = [
     'third_party/',
@@ -11,9 +13,12 @@ exclude = [
 ]
 
 [[tool.mypy.overrides]]
-module = "chromite.third_party.*"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "chromite.api.gen.*"
+# NB: Even though we've excluded pb2 modules above, mypy will still type check
+# imported modules.  We exclude the directories that only contain pb2 modules
+# to workaround.  If we start mixing pb2 with other files, this will get messy.
+module = [
+    "chromite.api.gen.*",
+    "chromite.api.gen_test.*",
+    "chromite.third_party.*",
+]
 ignore_errors = true
