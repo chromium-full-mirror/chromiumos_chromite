@@ -2845,3 +2845,72 @@ class UprevLkgmFileTest(cros_test_lib.MockTempDirTestCase):
         mock_validate.assert_called_once_with(
             "1.2.3-12345", "deadbeef12345678901234567890123456789012"
         )
+
+    def test_skip_older_version(self) -> None:
+        """Verify uprev is skipped if target version is older."""
+        chroot = mock.Mock()
+        chroot.chrome_root = str(self.tempdir)
+        lkgm_dir = self.tempdir / "src" / "chromeos"
+        osutils.SafeMakedirs(lkgm_dir)
+        lkgm_path = lkgm_dir / "CHROMEOS_LKGM"
+        osutils.WriteFile(lkgm_path, "2.0.0-12345")
+
+        self.PatchObject(
+            uprev_lib,
+            "get_version_with_snapshot_from_manifest",
+            return_value="1.0.0-12345",
+        )
+        res = packages.uprev_cros_lkgm_file_on_chrome_repo(
+            [uprev_lib.GitRef("path", "refs/heads/snapshot", "HEAD")],
+            chroot,
+        )
+        self.assertFalse(res)
+        self.assertEqual(lkgm_path.read_text(encoding="utf-8"), "2.0.0-12345")
+
+    def test_skip_same_version(self) -> None:
+        """Verify uprev is skipped if target version is equal."""
+        chroot = mock.Mock()
+        chroot.chrome_root = str(self.tempdir)
+        lkgm_dir = self.tempdir / "src" / "chromeos"
+        osutils.SafeMakedirs(lkgm_dir)
+        lkgm_path = lkgm_dir / "CHROMEOS_LKGM"
+        osutils.WriteFile(lkgm_path, "2.0.0-12345")
+
+        self.PatchObject(
+            uprev_lib,
+            "get_version_with_snapshot_from_manifest",
+            return_value="2.0.0-12345",
+        )
+        res = packages.uprev_cros_lkgm_file_on_chrome_repo(
+            [uprev_lib.GitRef("path", "refs/heads/snapshot", "HEAD")],
+            chroot,
+        )
+        self.assertFalse(res)
+        self.assertEqual(lkgm_path.read_text(encoding="utf-8"), "2.0.0-12345")
+
+    def test_newer_version_success(self) -> None:
+        """Verify uprev succeeds if target version is newer."""
+        chroot = mock.Mock()
+        chroot.chrome_root = str(self.tempdir)
+        lkgm_dir = self.tempdir / "src" / "chromeos"
+        osutils.SafeMakedirs(lkgm_dir)
+        lkgm_path = lkgm_dir / "CHROMEOS_LKGM"
+        osutils.WriteFile(lkgm_path, "1.0.0-12345")
+
+        self.PatchObject(
+            uprev_lib,
+            "get_version_with_snapshot_from_manifest",
+            return_value="2.0.0-12345",
+        )
+        self.PatchObject(
+            uprev_lib,
+            "validate_lkgm_builds_succeeded",
+            return_value=None,
+        )
+        res = packages.uprev_cros_lkgm_file_on_chrome_repo(
+            [uprev_lib.GitRef("path", "refs/heads/snapshot", "HEAD")],
+            chroot,
+        )
+        self.assertTrue(res)
+        self.assertEqual(res.modified[0].new_version, "2.0.0-12345")
+        self.assertEqual(lkgm_path.read_text(encoding="utf-8"), "2.0.0-12345")

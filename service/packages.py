@@ -2037,6 +2037,24 @@ def uprev_cros_lkgm_file_on_chrome_repo(
     result = uprev_lib.UprevVersionedResult()
     rev = refs[-1].revision
     version = uprev_lib.get_version_with_snapshot_from_manifest(rev)
+    if os.path.exists(lkgm_path):
+        try:
+            current_version_str = osutils.ReadFile(lkgm_path).strip()
+            if current_version_str:
+                current_version = chromeos_version.VersionInfo(
+                    current_version_str
+                )
+                new_version_info = chromeos_version.VersionInfo(version)
+                if new_version_info <= current_version:
+                    logging.warning(
+                        "Target LKGM version %s is older than or equal to "
+                        "current version %s. Skipping uprev.",
+                        version,
+                        current_version_str,
+                    )
+                    return result
+        except Exception as e:
+            logging.warning("Failed to parse current LKGM version: %s", e)
 
     try:
         uprev_lib.validate_lkgm_builds_succeeded(version, rev)
