@@ -173,18 +173,24 @@ def SignViaOnlineHsm(request, _response, _config) -> None:
 @validate.require("keyset_name")
 @validate.exists("release_keys_checkout")
 @validate.validation_complete
-def CreateKeysHsm(request, _response, _config) -> None:
+def CreateKeysHsm(
+    request, response, _config
+) -> "signing_pb2.CreateKeysHsmResponse":
     """Request key creation from the online HSM."""
     entrypoint_args = [
         "--keyset-name",
         request.keyset_name,
         "--keyset-repo",
         "/keys",
+        "-o",
+        "/out",
+        "-p",
+        "out_proto.bin",
     ]
     if request.dry_run:
         entrypoint_args.append("--mocks")
 
-    image.CallDocker(
+    response_bytes = image.CallDockerWithResponse(
         request.docker_image,
         docker_args=[
             # Mount the keyset checkout as a volume.
@@ -194,4 +200,15 @@ def CreateKeysHsm(request, _response, _config) -> None:
             "./create_keys_with_hsm.py",
         ],
         entrypoint_args=entrypoint_args,
+        output_file_name="out_proto.bin",
     )
+
+    if response_bytes is None:
+        raise ValueError(
+            "No response proto found from signing container. "
+            "Please check docker output for errors."
+        )
+
+    response.ParseFromString(response_bytes)
+
+    return response

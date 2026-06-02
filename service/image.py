@@ -1124,6 +1124,46 @@ def CallDocker(
     )
 
 
+def CallDockerWithResponse(
+    docker_image: str,
+    docker_args: List[str],
+    entrypoint_args: List[str],
+    output_file_name: str = "out_proto.bin",
+) -> Optional[bytes]:
+    """Call the signing docker container and retrieve a raw response file.
+
+    This helper sets up a host temporary directory, mounts it to /out inside
+    the container, runs the container, and reads and returns the contents
+    of the specified file within that temporary directory (if written).
+
+    The caller is responsible for ensuring their entrypoint arguments direct
+    the script inside the container to write its output to /out under the
+    specified output_file_name.
+
+    Args:
+        docker_image: docker image to run.
+        docker_args: Args to be passed to docker.
+        entrypoint_args: Args to be passed to the entrypoint.
+        output_file_name: The filename expected to contain the response.
+
+    Returns:
+        The raw bytes of the response file, or None if the file was not written.
+    """
+    with osutils.TempDir() as tempdir:
+        docker_args.extend(["-v", f"{tempdir}:/out"])
+        CallDocker(
+            docker_image,
+            docker_args=docker_args,
+            entrypoint_args=entrypoint_args,
+        )
+
+        out_path = os.path.join(tempdir, output_file_name)
+        try:
+            return osutils.ReadBytes(out_path)
+        except FileNotFoundError:
+            return None
+
+
 def SignImage(
     signing_configs: "signing_pb2.BuildTargetSigningConfigs",
     archive_dir: Union[str, Path],

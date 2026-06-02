@@ -12,6 +12,7 @@ from chromite.api.controller import signing as signing_controller
 from chromite.api.gen.chromite.api import signing_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import cros_test_lib
+from chromite.lib import osutils
 from chromite.service import image as image_service
 
 
@@ -694,13 +695,25 @@ class CreateKeysHsmTest(
             release_keys_checkout=str(self.tempdir),
         )
 
-    def testDockerCalledWith(self) -> None:
-        """Verify that docker is called with the correct arguments."""
+    def testSuccess(self) -> None:
+        """CreateKeysHsm succeeds and returns a populated response."""
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+        expected_response = signing_pb2.CreateKeysHsmResponse(
+            request_status=signing_pb2.STATUS_PASS
+        )
+        osutils.WriteFile(
+            os.path.join(self.tempdir, "out_proto.bin"),
+            expected_response.SerializeToString(),
+            mode="wb",
+        )
+
         rc = self.StartPatcher(cros_test_lib.RunCommandMock())
         rc.SetDefaultCmdResult()
 
         request = self._GetRequest(keyset_name="setkey")
-        signing_controller.CreateKeysHsm(
+        res = signing_controller.CreateKeysHsm(
             request, self.response, self.api_config
         )
 
@@ -729,11 +742,31 @@ class CreateKeysHsmTest(
                 "signing:latest",
                 "--keyset-name",
                 "setkey",
+                "--keyset-repo",
+                "/keys",
+                "-o",
+                "/out",
+                "-p",
+                "out_proto.bin",
             ]
         )
+        self.assertEqual(res, expected_response)
+        self.assertIs(res, self.response)
 
     def testDryRun(self) -> None:
-        """Verify that dryrun mode passes --dry-run to the entrypoint."""
+        """Verify that dryrun mode passes --mocks to the entrypoint."""
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+        expected_response = signing_pb2.CreateKeysHsmResponse(
+            request_status=signing_pb2.STATUS_PASS
+        )
+        osutils.WriteFile(
+            os.path.join(self.tempdir, "out_proto.bin"),
+            expected_response.SerializeToString(),
+            mode="wb",
+        )
+
         rc = self.StartPatcher(cros_test_lib.RunCommandMock())
         rc.SetDefaultCmdResult()
 
@@ -741,7 +774,7 @@ class CreateKeysHsmTest(
             keyset_name="setkey",
             dry_run=True,
         )
-        signing_controller.CreateKeysHsm(
+        res = signing_controller.CreateKeysHsm(
             request, self.response, self.api_config
         )
 
@@ -770,16 +803,40 @@ class CreateKeysHsmTest(
                 "signing:latest",
                 "--keyset-name",
                 "setkey",
+                "--keyset-repo",
+                "/keys",
+                "-o",
+                "/out",
+                "-p",
+                "out_proto.bin",
                 "--mocks",
             ]
         )
+        self.assertEqual(res, expected_response)
+        self.assertIs(res, self.response)
 
     def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
-        patch = self.PatchObject(image_service, "CallDocker")
+        patch = self.PatchObject(image_service, "CallDockerWithResponse")
 
         request = self._GetRequest(keyset_name="setkey")
         signing_controller.CreateKeysHsm(
             request, self.response, self.validate_only_config
         )
         patch.assert_not_called()
+
+    def testMissingResponse(self) -> None:
+        """Verify CreateKeysHsm raises ValueError when response is missing."""
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+        # We don't write any out_proto.bin to self.tempdir.
+
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(keyset_name="setkey")
+        with self.assertRaises(ValueError):
+            signing_controller.CreateKeysHsm(
+                request, self.response, self.api_config
+            )

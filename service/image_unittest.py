@@ -1577,3 +1577,72 @@ class RunPushImageTest(cros_test_lib.RunCommandTempDirTestCase):
 
         self.assertCommandContains(expected_cmd)
         self.assertDictEqual(result, expected_uri_mapping)
+
+
+class TestCallDockerWithResponse(cros_test_lib.MockTempDirTestCase):
+    """Unittests for CallDockerWithResponse."""
+
+    def testSuccess(self) -> None:
+        """CallDockerWithResponse runs correctly when file exists."""
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+
+        expected_bytes = b"test_proto_bytes"
+        osutils.WriteFile(
+            os.path.join(self.tempdir, "out_proto.bin"),
+            expected_bytes,
+            mode="wb",
+        )
+
+        call_docker_mock = self.PatchObject(image, "CallDocker")
+
+        response_bytes = image.CallDockerWithResponse(
+            "signing:latest",
+            ["-v", "/keys:/keys"],
+            ["--keyset-name", "foo", "-o", "/out", "-p", "out_proto.bin"],
+            output_file_name="out_proto.bin",
+        )
+
+        call_docker_mock.assert_called_once_with(
+            "signing:latest",
+            docker_args=["-v", "/keys:/keys", "-v", f"{self.tempdir}:/out"],
+            entrypoint_args=[
+                "--keyset-name",
+                "foo",
+                "-o",
+                "/out",
+                "-p",
+                "out_proto.bin",
+            ],
+        )
+        self.assertEqual(response_bytes, expected_bytes)
+
+    def testFileNotFound(self) -> None:
+        """CallDockerWithResponse returns None if file doesn't exist."""
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+
+        call_docker_mock = self.PatchObject(image, "CallDocker")
+
+        response_bytes = image.CallDockerWithResponse(
+            "signing:latest",
+            ["-v", "/keys:/keys"],
+            ["--keyset-name", "foo", "-o", "/out", "-p", "out_proto.bin"],
+            output_file_name="out_proto.bin",
+        )
+
+        call_docker_mock.assert_called_once_with(
+            "signing:latest",
+            docker_args=["-v", "/keys:/keys", "-v", f"{self.tempdir}:/out"],
+            entrypoint_args=[
+                "--keyset-name",
+                "foo",
+                "-o",
+                "/out",
+                "-p",
+                "out_proto.bin",
+            ],
+        )
+        self.assertIsNone(response_bytes)
