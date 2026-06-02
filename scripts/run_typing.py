@@ -29,8 +29,6 @@ KNOWN_ISSUES = (
     "cli/deploy_unittest.py",
     "contrib/codemod/auto_type_dunders.py",
     "contrib/codemod/auto_type_none.py",
-    "contrib/depgraph_visualization/depgraph_visualization/visualize.py",
-    "contrib/depgraph_visualization/setup.py",
     "contrib/fwgdb.py",
     "contrib/gob-meta-config-checkout.py",
     "contrib/libcst_tool.py",
