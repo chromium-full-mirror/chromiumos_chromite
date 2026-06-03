@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from chromite.api.gen.chromite.api import build_api_pb2 as chromite_dot_api_dot_build__api__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/qualbot.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\"G\n\x11RunQualbotRequest\x12\x0c\n\x04task\x18\x01 \x01(\t\x12\x10\n\x08\x62uild_id\x18\x02 \x01(\t\x12\x12\n\nis_staging\x18\x03 \x01(\x08\"\xc0\x01\n\x12RunQualbotResponse\x12\x46\n\x0e\x66\x61ilure_reason\x18\x01 \x01(\x0e\x32..chromite.api.RunQualbotResponse.FailureReason\"b\n\rFailureReason\x12\x13\n\x0f\x46\x41ILURE_UNKNOWN\x10\x00\x12\x1f\n\x1b\x46\x41ILURE_SCHEDULE_PUSH_ERROR\x10\x01\x12\x1b\n\x17\x46\x41ILURE_MERGE_CONFLICTS\x10\x02\x32p\n\x0eQualbotService\x12O\n\nRunQualbot\x12\x1f.chromite.api.RunQualbotRequest\x1a .chromite.api.RunQualbotResponse\x1a\r\xc2\xed\x1a\t\n\x07qualbotB8Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/qualbot.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\"G\n\x11RunQualbotRequest\x12\x0c\n\x04task\x18\x01 \x01(\t\x12\x10\n\x08\x62uild_id\x18\x02 \x01(\t\x12\x12\n\nis_staging\x18\x03 \x01(\x08\"\xd9\x01\n\x0cLaunchedTest\x12\x35\n\x08location\x18\x01 \x01(\x0e\x32#.chromite.api.LaunchedTest.Location\x12\x16\n\x0etest_effort_id\x18\x02 \x01(\t\x12\x18\n\x10test_effort_name\x18\x03 \x01(\t\x12\x10\n\x08test_url\x18\x04 \x01(\t\"N\n\x08Location\x12\x14\n\x10LOCATION_UNKNOWN\x10\x00\x12\x15\n\x11LOCATION_INTERNAL\x10\x01\x12\x15\n\x11LOCATION_EXTERNAL\x10\x02\"\xf4\x01\n\x12RunQualbotResponse\x12\x46\n\x0e\x66\x61ilure_reason\x18\x01 \x01(\x0e\x32..chromite.api.RunQualbotResponse.FailureReason\x12\x32\n\x0elaunched_tests\x18\x02 \x03(\x0b\x32\x1a.chromite.api.LaunchedTest\"b\n\rFailureReason\x12\x13\n\x0f\x46\x41ILURE_UNKNOWN\x10\x00\x12\x1f\n\x1b\x46\x41ILURE_SCHEDULE_PUSH_ERROR\x10\x01\x12\x1b\n\x17\x46\x41ILURE_MERGE_CONFLICTS\x10\x02\x32p\n\x0eQualbotService\x12O\n\nRunQualbot\x12\x1f.chromite.api.RunQualbotRequest\x1a .chromite.api.RunQualbotResponse\x1a\r\xc2\xed\x1a\t\n\x07qualbotB8Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromite.api.qualbot_pb2', globals())
@@ -26,10 +26,14 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _QUALBOTSERVICE._serialized_options = b'\302\355\032\t\n\007qualbot'
   _RUNQUALBOTREQUEST._serialized_start=74
   _RUNQUALBOTREQUEST._serialized_end=145
-  _RUNQUALBOTRESPONSE._serialized_start=148
-  _RUNQUALBOTRESPONSE._serialized_end=340
-  _RUNQUALBOTRESPONSE_FAILUREREASON._serialized_start=242
-  _RUNQUALBOTRESPONSE_FAILUREREASON._serialized_end=340
-  _QUALBOTSERVICE._serialized_start=342
-  _QUALBOTSERVICE._serialized_end=454
+  _LAUNCHEDTEST._serialized_start=148
+  _LAUNCHEDTEST._serialized_end=365
+  _LAUNCHEDTEST_LOCATION._serialized_start=287
+  _LAUNCHEDTEST_LOCATION._serialized_end=365
+  _RUNQUALBOTRESPONSE._serialized_start=368
+  _RUNQUALBOTRESPONSE._serialized_end=612
+  _RUNQUALBOTRESPONSE_FAILUREREASON._serialized_start=514
+  _RUNQUALBOTRESPONSE_FAILUREREASON._serialized_end=612
+  _QUALBOTSERVICE._serialized_start=614
+  _QUALBOTSERVICE._serialized_end=726
 # @@protoc_insertion_point(module_scope)
