@@ -74,5 +74,7 @@ def RunQualbot(request, response, _config):
             if not json_output_path.exists():
                 return controller.RETURN_CODE_UNRECOVERABLE
 
-            json_format.Parse(json_output_path.read_text(), response)
             return controller.RETURN_CODE_UNSUCCESSFUL_RESPONSE_AVAILABLE
+        finally:
+            if json_output_path.exists():
+                json_format.Parse(json_output_path.read_text(), response)
