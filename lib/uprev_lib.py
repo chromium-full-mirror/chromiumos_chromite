@@ -1258,22 +1258,6 @@ def get_version_with_snapshot_from_manifest(rev: str) -> str:
     return f"{version}-{snapshot_id}"
 
 
-def _get_build_url(build: build_pb2.Build) -> str:
-    """Returns the full Milo build URL for the build."""
-    project = build.builder.project or "chromeos"
-    bucket = build.builder.bucket or "postsubmit"
-    builder = build.builder.builder or ""
-    if build.number:
-        return (
-            f"https://ci.chromium.org/p/{project}/builders/{bucket}/"
-            f"{builder}/{build.number}"
-        )
-    return (
-        f"https://ci.chromium.org/p/{project}/builders/{bucket}/"
-        f"{builder}/b{build.id}"
-    )
-
-
 def validate_lkgm_builds_succeeded(
     version: str,
     rev: str,
@@ -1296,16 +1280,47 @@ def validate_lkgm_builds_succeeded(
         EbuildUprevError: if a board's build failed (is broken) or no successful
             relevant build is found.
     """
+
+    def _get_build_url(build: build_pb2.Build) -> str:
+        """Returns the full Milo build URL for the build."""
+        project = build.builder.project
+        bucket = build.builder.bucket
+        builder = build.builder.builder
+        base_url = (
+            f"https://ci.chromium.org/p/{project}/builders/"
+            f"{bucket}/{builder}"
+        )
+        if build.number:
+            return f"{base_url}/{build.number}"
+        return f"{base_url}/b{build.id}"
+
+    def _search_builds(
+        bb: buildbucket_v2.BuildbucketV2,
+        build_predicate: builds_service_pb2.BuildPredicate,
+        fields: field_mask_pb2.FieldMask,
+        page_size: int,
+        board: str,
+    ) -> builds_service_pb2.SearchBuildsResponse:
+        """Helper to query Buildbucket with error handling."""
+        try:
+            return bb.SearchBuild(
+                build_predicate, fields=fields, page_size=page_size
+            )
+        except Exception as e:
+            raise EbuildUprevError(
+                f"Failed to query Buildbucket status for board {board}: {e}"
+            ) from e
+
     manifest_repo = constants.SOURCE_ROOT / "manifest-internal"
 
     try:
         commits = git.Log(
             manifest_repo, format="%H", max_count=30, rev=rev
         ).splitlines()
-    except Exception as e:
+    except cros_build_lib.RunCommandError as e:
         raise EbuildUprevError(
             f"Failed to retrieve git history for manifest revision {rev}: {e}"
-        )
+        ) from e
 
     boards = (
         "betty",
@@ -1333,126 +1348,120 @@ def validate_lkgm_builds_succeeded(
             ]
         )
 
-        try:
-            # RPC 1: Check target revision build.
-            buildset = (
-                "commit/gitiles/chrome-internal.googlesource.com/"
-                f"chromeos/manifest-internal/+/{rev}"
+        # RPC 1: Check target revision build.
+        buildset = (
+            "commit/gitiles/chrome-internal.googlesource.com/"
+            f"chromeos/manifest-internal/+/{rev}"
+        )
+        tags = [common_pb2.StringPair(key="buildset", value=buildset)]
+        build_predicate = builds_service_pb2.BuildPredicate(
+            builder=builder_id, tags=tags
+        )
+        res = _search_builds(bb, build_predicate, fmask, 1, board)
+        if not res.builds:
+            raise EbuildUprevError(
+                f"No build found for board {board} at commit {rev} "
+                f"for version {version}"
             )
-            tags = [common_pb2.StringPair(key="buildset", value=buildset)]
-            build_predicate = builds_service_pb2.BuildPredicate(
-                builder=builder_id, tags=tags
+
+        target_build = res.builds[0]
+        build_url = _get_build_url(target_build)
+        status_name = common_pb2.Status.Name(target_build.status)
+
+        if target_build.status != common_pb2.SUCCESS:
+            raise EbuildUprevError(
+                f"Board {board} build {build_url} status is {status_name} "
+                f"at commit {rev} for version {version}"
             )
-            res = bb.SearchBuild(build_predicate, fields=fmask, page_size=1)
-            if not res.builds:
-                raise EbuildUprevError(
-                    f"No build found for board {board} at commit {rev} "
-                    f"for version {version}"
-                )
 
-            target_build = res.builds[0]
-            build_url = _get_build_url(target_build)
-            relevance = next(
-                (t.value for t in target_build.tags if t.key == "relevance"),
-                "relevant",
-            )
-            status_name = common_pb2.Status.Name(target_build.status)
+        relevance = next(
+            (t.value for t in target_build.tags if t.key == "relevance"),
+            "relevant",
+        )
 
-            if target_build.status != common_pb2.SUCCESS:
-                raise EbuildUprevError(
-                    f"Board {board} build {build_url} status is {status_name} "
-                    f"at commit {rev} for version {version}"
-                )
-
-            if relevance == "relevant":
-                logging.info(
-                    "Board %s build %s has a good image at commit %s "
-                    "(status: SUCCESS, relevant), uprev allowed.",
-                    board,
-                    build_url,
-                    rev,
-                )
-                continue
-
+        if relevance == "relevant":
             logging.info(
-                "Board %s build %s at commit %s is SUCCESS "
-                "(relevance: not relevant), checking previous commits.",
+                "Board %s build %s has a good image at commit %s "
+                "(status: SUCCESS, relevant), verification passed.",
                 board,
                 build_url,
                 rev,
             )
+            continue
 
-            # RPC 2: List up to 50 builds starting from target build.
-            build_range = builds_service_pb2.BuildRange(
-                end_build_id=target_build.id
-            )
-            build_predicate_history = builds_service_pb2.BuildPredicate(
-                builder=builder_id, build=build_range
-            )
-            res_history = bb.SearchBuild(
-                build_predicate_history, fields=fmask, page_size=50
-            )
+        logging.info(
+            "Board %s build %s at commit %s is SUCCESS "
+            "(relevance: not relevant), checking previous commits.",
+            board,
+            build_url,
+            rev,
+        )
 
-            # Map builds by commit locally.
-            build_map = {}
-            for b in res_history.builds:
-                b_buildset = next(
-                    (t.value for t in b.tags if t.key == "buildset"), None
+        # RPC 2: List up to 50 builds starting from target build.
+        build_range = builds_service_pb2.BuildRange(
+            end_build_id=target_build.id
+        )
+        build_predicate_history = builds_service_pb2.BuildPredicate(
+            builder=builder_id, build=build_range
+        )
+        res_history = _search_builds(
+            bb, build_predicate_history, fmask, 50, board
+        )
+
+        # Map builds by commit locally.
+        build_map = {}
+        for b in res_history.builds:
+            b_buildset = next(
+                (t.value for t in b.tags if t.key == "buildset"), None
+            )
+            if b_buildset:
+                b_commit = b_buildset.split("/")[-1]
+                build_map[b_commit] = b
+
+        # Check commits one by one locally.
+        # Skip the first commit because we already verified it's irrelevant.
+        for commit in commits[1:]:
+            if commit not in build_map:
+                raise EbuildUprevError(
+                    f"No build found for board {board} at commit {commit} "
+                    f"in history for version {version}"
                 )
-                if b_buildset:
-                    b_commit = b_buildset.split("/")[-1]
-                    build_map[b_commit] = b
 
-            # Check commits one by one locally.
-            # Skip the first commit because we already verified it's irrelevant.
-            for commit in commits[1:]:
-                if commit not in build_map:
-                    raise EbuildUprevError(
-                        f"No build found for board {board} at commit {commit} "
-                        f"in history for version {version}"
-                    )
+            build = build_map[commit]
+            build_url = _get_build_url(build)
+            b_relevance = next(
+                (t.value for t in build.tags if t.key == "relevance"),
+                "relevant",
+            )
+            b_status_name = common_pb2.Status.Name(build.status)
 
-                build = build_map[commit]
-                build_url = _get_build_url(build)
-                b_relevance = next(
-                    (t.value for t in build.tags if t.key == "relevance"),
-                    "relevant",
+            if build.status != common_pb2.SUCCESS:
+                raise EbuildUprevError(
+                    f"Board {board} build {build_url} status is "
+                    f"{b_status_name} at commit {commit} for "
+                    f"version {version}"
                 )
-                b_status_name = common_pb2.Status.Name(build.status)
 
-                if build.status != common_pb2.SUCCESS:
-                    raise EbuildUprevError(
-                        f"Board {board} build {build_url} status is "
-                        f"{b_status_name} at commit {commit} for "
-                        f"version {version}"
-                    )
-
-                if b_relevance == "relevant":
-                    logging.info(
-                        "Board %s build %s has a good image at commit %s "
-                        "(status: SUCCESS, relevant), uprev allowed.",
-                        board,
-                        build_url,
-                        commit,
-                    )
-                    break
-
+            if b_relevance == "relevant":
                 logging.info(
-                    "Board %s build %s at commit %s is SUCCESS "
-                    "(relevance: %s), checking previous commit.",
+                    "Board %s build %s has a good image at commit %s "
+                    "(status: SUCCESS, relevant), verification passed.",
                     board,
                     build_url,
                     commit,
-                    b_relevance,
                 )
-            else:
-                raise EbuildUprevError(
-                    f"Board {board} has no successful relevant build in the "
-                    f"last 30 commits for version {version}"
-                )
-        except EbuildUprevError:
-            raise
-        except Exception as e:
+                break
+
+            logging.info(
+                "Board %s build %s at commit %s is SUCCESS "
+                "(relevance: %s), checking previous commit.",
+                board,
+                build_url,
+                commit,
+                b_relevance,
+            )
+        else:
             raise EbuildUprevError(
-                f"Failed to query Buildbucket status for board {board}: {e}"
+                f"Board {board} has no successful relevant build in the "
+                f"last 30 commits for version {version}"
             )
