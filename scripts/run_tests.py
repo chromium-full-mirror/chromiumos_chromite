@@ -137,6 +137,7 @@ def main(argv) -> None:
                     stderr=subprocess.STDOUT,
                     stdin=subprocess.DEVNULL,
                     encoding="utf-8",
+                    cwd=constants.CHROMITE_DIR,
                 )
             )
 
