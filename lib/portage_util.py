@@ -1035,8 +1035,9 @@ class EBuild:
             real_project = manifest.FindCheckoutFromPath(subdir_path)["name"]
             if project != real_project:
                 raise Error(
-                    "Project name mismatch for %s (found %s, expected %s)"
-                    % (subdir_path, real_project, project)
+                    "EBUILD: %s: Project name mismatch "
+                    "for %s (found %s, expected %s)"
+                    % (self.ebuild_path, subdir_path, real_project, project)
                 )
 
             if subdir_path == ebuild_git_tree_path:
