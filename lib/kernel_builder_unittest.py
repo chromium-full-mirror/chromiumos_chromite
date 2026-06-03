@@ -5,7 +5,6 @@
 """Test the kernel_builder module."""
 
 import os
-from pathlib import Path
 
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
@@ -13,13 +12,13 @@ from chromite.lib import kernel_builder
 from chromite.lib import osutils
 
 
-class BuilderTest(cros_test_lib.RunCommandTestCase):
+class BuilderTest(cros_test_lib.RunCommandTempDirTestCase):
     """Test Builder."""
 
     def setUp(self) -> None:
         """Sets up common objects for testing."""
         self._kb = kernel_builder.Builder(
-            "foo-board", "foo-tmp", "foo-root", "777"
+            "foo-board", self.tempdir, "foo-root", "777"
         )
 
     def testCreateCustomKernel(self) -> None:
@@ -38,12 +37,12 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
         safe_makedirs_mock = self.PatchObject(osutils, "SafeMakedirs")
         self._kb.CreateCustomKernel(["x", "y"])
         safe_makedirs_mock.assert_called_once_with(
-            Path("foo-tmp") / "packages", sudo=True
+            self.tempdir / "packages", sudo=True
         )
 
         emerge_board = "emerge-foo-board"
         extra_env = {
-            "PKGDIR": os.path.join("foo-tmp", "packages"),
+            "PKGDIR": str(self.tempdir / "packages"),
             "USE": "z x y",
         }
         self.assertCommandCalled(
@@ -107,12 +106,12 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
         safe_makedirs_mock = self.PatchObject(osutils, "SafeMakedirs")
         self._kb.CreateCustomKernel(["x", "y"], ["foo"])
         safe_makedirs_mock.assert_called_once_with(
-            Path("foo-tmp") / "packages", sudo=True
+            self.tempdir / "packages", sudo=True
         )
 
         emerge_board = "emerge-foo-board"
         extra_env = {
-            "PKGDIR": os.path.join("foo-tmp", "packages"),
+            "PKGDIR": str(self.tempdir / "packages"),
             "USE": "foo x y",
         }
         self.assertCommandCalled(
@@ -176,7 +175,7 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
                 "--arch=foo-arch",
                 "--to=output",
                 "--vmlinuz=foo-root/boot/vmlinuz",
-                "--working_dir=foo-tmp",
+                f"--working_dir={self.tempdir}",
                 "--keep_work",
                 f"--keys_dir={constants.VBOOT_DEVKEYS_DIR}",
                 f"--public={constants.KERNEL_PUBLIC_SUBKEY}",
@@ -210,7 +209,7 @@ class BuilderTest(cros_test_lib.RunCommandTestCase):
                 "--arch=foo-arch",
                 "--to=output",
                 "--vmlinuz=foo-root/boot/vmlinuz",
-                "--working_dir=foo-tmp",
+                f"--working_dir={self.tempdir}",
                 "--keep_work",
                 f"--keys_dir={constants.VBOOT_DEVKEYS_DIR}",
                 f"--public={constants.RECOVERY_PUBLIC_KEY}",
