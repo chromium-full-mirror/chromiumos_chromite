@@ -130,9 +130,15 @@ def main(argv) -> None:
             typing_proc = None
         else:
             # Launch type checking in parallel with pytest.
+            cmd = [constants.CHROMITE_SCRIPTS_DIR / "run_typing"]
+            logging.debug(
+                "Running: %s in %s",
+                shell_util.cmd_to_str(cmd),
+                constants.CHROMITE_DIR,
+            )
             typing_proc = stack.enter_context(
                 subprocess.Popen(
-                    [constants.CHROMITE_SCRIPTS_DIR / "run_typing"],
+                    cmd,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     stdin=subprocess.DEVNULL,
