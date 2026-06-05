@@ -627,6 +627,22 @@ def GenerateBreakpadSymbol(
                 cmd_args = [debug_file]
                 file_or_files = debug_file
             else:
+                # TODO(b/519267103): Remove this workaround once the
+                # test files are no longer included, or dump_syms no longer
+                # crashes.
+                # Some builds are including test symbol files that are causing
+                # dump_syms to crash.
+                if elf_file.endswith(
+                    (
+                        "test32be",
+                        "test64be",
+                        "go-relocation-test-gcc930-ranges-no-rela-x86-64",
+                        "go-relocation-test-gcc930-ranges-with-rela-x86-64",
+                    )
+                ):
+                    logging.warning("skipping %s due to b/519267103", elf_file)
+                    return SymbolGenerationResult.EXPECTED_FAILURE
+
                 cmd_args = [elf_file, os.path.dirname(debug_file)]
                 file_or_files = [elf_file, debug_file]
 
