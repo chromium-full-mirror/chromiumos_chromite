@@ -755,8 +755,8 @@ class CreateKeysHsmTest(
                 "out_proto.bin",
             ]
         )
-        self.assertEqual(res, expected_response)
-        self.assertIs(res, self.response)
+        self.assertEqual(self.response, expected_response)
+        self.assertIsNone(res)
 
     def testDryRun(self) -> None:
         """Verify that dryrun mode passes --mocks and --exporter-dry-run."""
@@ -818,8 +818,8 @@ class CreateKeysHsmTest(
                 "--exporter-dry-run",
             ]
         )
-        self.assertEqual(res, expected_response)
-        self.assertIs(res, self.response)
+        self.assertEqual(self.response, expected_response)
+        self.assertIsNone(res)
 
     def testExporterDryRunTrue(self) -> None:
         """Verify that exporter_dry_run=True passes --exporter-dry-run."""
@@ -880,8 +880,8 @@ class CreateKeysHsmTest(
                 "--exporter-dry-run",
             ]
         )
-        self.assertEqual(res, expected_response)
-        self.assertIs(res, self.response)
+        self.assertEqual(self.response, expected_response)
+        self.assertIsNone(res)
 
     def testExporterDryRunFalse(self) -> None:
         """Verify that exporter_dry_run=False passes neither flag."""
@@ -941,8 +941,8 @@ class CreateKeysHsmTest(
                 "out_proto.bin",
             ]
         )
-        self.assertEqual(res, expected_response)
-        self.assertIs(res, self.response)
+        self.assertEqual(self.response, expected_response)
+        self.assertIsNone(res)
 
     def testMocksWithoutExporterDryRun(self) -> None:
         """Verify dry_run=True & exporter_dry_run=False passes only --mocks."""
@@ -1004,8 +1004,8 @@ class CreateKeysHsmTest(
                 "--mocks",
             ]
         )
-        self.assertEqual(res, expected_response)
-        self.assertIs(res, self.response)
+        self.assertEqual(self.response, expected_response)
+        self.assertIsNone(res)
 
     def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""

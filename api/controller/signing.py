@@ -173,9 +173,7 @@ def SignViaOnlineHsm(request, _response, _config) -> None:
 @validate.require("keyset_name")
 @validate.exists("release_keys_checkout")
 @validate.validation_complete
-def CreateKeysHsm(
-    request, response, _config
-) -> "signing_pb2.CreateKeysHsmResponse":
+def CreateKeysHsm(request, response, _config) -> None:
     """Request key creation from the online HSM."""
     entrypoint_args = [
         "--keyset-name",
@@ -218,5 +216,3 @@ def CreateKeysHsm(
         )
 
     response.ParseFromString(response_bytes)
-
-    return response
