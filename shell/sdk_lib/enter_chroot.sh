@@ -317,15 +317,6 @@ setup_env() {
     fi
 
     setup_git
-
-    # Have found a few chroots where ~/.gsutil is owned by root:root, probably
-    # as a result of old gsutil or tools. This causes permission errors when
-    # gsutil cp tries to create its cache files, so ensure the user can
-    # actually write to their directory.
-    gsutil_dir="${FLAGS_chroot}/home/${SUDO_USER}/.gsutil"
-    if [ -d "${gsutil_dir}" ]; then
-      chown -R "${SUDO_UID}:${SUDO_GID}" "${gsutil_dir}"
-    fi
   ) 200>>"${LOCKFILE}" || die "setup_env failed"
 }
 

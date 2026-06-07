@@ -785,6 +785,18 @@ def MountChrootPaths(
     else:
         boto_home.unlink(missing_ok=True)
 
+    # Have found a few chroots where ~/.gsutil is owned by root:root, probably
+    # as a result of old gsutil or tools. This causes permission errors when
+    # gsutil cp tries to create its cache files, so ensure the user can
+    # actually write to their directory.
+    gsutil_dir = internal_home / ".gsutil"
+    if gsutil_dir.is_dir():
+        if uid is None:
+            uid = int(os.environ.pop("SUDO_UID"))
+        if gid is None:
+            gid = int(os.environ.pop("SUDO_GID"))
+        osutils.Chown(gsutil_dir, uid, gid, recursive=True)
+
     _setup_ssh_configs(
         external_home / ".ssh", internal_home / ".ssh", uid=uid, gid=gid
     )
