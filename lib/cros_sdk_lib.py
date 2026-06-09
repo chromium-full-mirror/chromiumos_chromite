@@ -1479,7 +1479,7 @@ class ChrootEnteror:
     _RLIMIT_NOFILE_MIN = 262144
 
     # Path to sysctl knob.  Class-level constant for easy test overrides.
-    _SYSCTL_VM_MAX_MAP_COUNT = Path("/sys/vm/max_map_count")
+    _SYSCTL_VM_MAX_MAP_COUNT = Path("/proc/sys/vm/max_map_count")
 
     def __init__(
         self,
