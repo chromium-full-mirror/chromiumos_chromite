@@ -705,6 +705,7 @@ def GenerateBreakpadSymbol(
             result = _DumpAllowingBasicFallback()
 
         if result == SymbolGenerationResult.UNEXPECTED_FAILURE:
+            logging.error("Unexpected failure for %s", elf_file)
             num_errors.value += 1
             os.unlink(temp.name)
             return num_errors.value
