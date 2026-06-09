@@ -832,6 +832,13 @@ class ChrootEnterorTests(cros_test_lib.MockTempDirTestCase):
             self.sysctl_vm_max_map_count,
         )
 
+        self.sysctl_kernel_ptrace_scope = self.tempdir / "ptrace_scope"
+        self.PatchObject(
+            cros_sdk_lib.ChrootEnteror,
+            "_SYSCTL_KERNEL_PTRACE_SCOPE",
+            self.sysctl_kernel_ptrace_scope,
+        )
+
     def testRun(self) -> None:
         """Verify run works."""
         with self.PatchObject(cros_build_lib, "dbg_run"):
@@ -850,6 +857,31 @@ class ChrootEnterorTests(cros_test_lib.MockTempDirTestCase):
             int(self.sysctl_vm_max_map_count.read_text(encoding="utf-8")),
             self.enteror._RLIMIT_NOFILE_MIN,
         )
+
+    def test_setup_kernel_ptrace_scope(self) -> None:
+        """Verify _setup_kernel_ptrace_scope works."""
+
+        def _test(initial: str, expected: str) -> None:
+            self.sysctl_kernel_ptrace_scope.write_text(
+                f"{initial}\n", encoding="utf-8"
+            )
+            self.enteror._setup_kernel_ptrace_scope()
+            assert (
+                self.sysctl_kernel_ptrace_scope.read_text(
+                    encoding="utf-8"
+                ).strip()
+                == expected
+            )
+
+        # Acceptable values should not change.
+        _test("0", "0")
+        _test("1", "1")
+        # Mutable values that are too restrictive should reduce.
+        _test("2", "1")
+        # Locked values should be ignored.
+        _test("3", "3")
+        # Unknown values we should try and see what happens.
+        _test("4", "1")
 
 
 @pytest.fixture(name="chroot_version_file")

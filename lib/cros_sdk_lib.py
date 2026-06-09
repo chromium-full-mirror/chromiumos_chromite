@@ -1481,6 +1481,9 @@ class ChrootEnteror:
     # Path to sysctl knob.  Class-level constant for easy test overrides.
     _SYSCTL_VM_MAX_MAP_COUNT = Path("/proc/sys/vm/max_map_count")
 
+    # Path to ptrace knob.  Class-level constant for easy test overrides.
+    _SYSCTL_KERNEL_PTRACE_SCOPE = Path("/proc/sys/kernel/yama/ptrace_scope")
+
     def __init__(
         self,
         chroot: "chroot_lib.Chroot",
@@ -1675,6 +1678,38 @@ class ChrootEnteror:
                 str(self._RLIMIT_NOFILE_MIN), encoding="utf-8"
             )
 
+    def _setup_kernel_ptrace_scope(self) -> None:
+        """Enable ptrace support since our build uses it.
+
+        Gentoo's sandbox uses ptrace to manage statically linked programs.
+
+        https://docs.kernel.org/admin-guide/LSM/Yama.html#ptrace-scope
+        """
+        try:
+            current = self._SYSCTL_KERNEL_PTRACE_SCOPE.read_text(
+                encoding="utf-8"
+            ).strip()
+        except FileNotFoundError:
+            return
+
+        # These settings are known to work.
+        if current in ("0", "1"):
+            return
+
+        # This setting cannot be changed.
+        if current == "3":
+            logging.warning(
+                "%s is set to '3'; builds might fail",
+                self._SYSCTL_KERNEL_PTRACE_SCOPE,
+            )
+            return
+
+        logging.notice("Adjusting ptrace_scope from %r to %r", current, "1")
+        try:
+            self._SYSCTL_KERNEL_PTRACE_SCOPE.write_text("1", encoding="utf-8")
+        except OSError as e:
+            logging.warning("%s: %s", self._SYSCTL_KERNEL_PTRACE_SCOPE, e)
+
     def run(
         self, cmd: Optional[List[str]] = None, cwd: Optional[Path] = None
     ) -> cros_build_lib.CompletedProcess:
@@ -1683,6 +1718,7 @@ class ChrootEnteror:
             self.set_rlimits(os.environ.pop("CHROMEOS_SUDO_RLIMITS"))
         self._setup_rlimit_nproc()
         self._setup_vm_max_map_count()
+        self._setup_kernel_ptrace_scope()
         if self.read_only:
             with ChrootReadOnly(path=self.chroot.path):
                 return self._enter_chroot(cmd=cmd, cwd=cwd)
