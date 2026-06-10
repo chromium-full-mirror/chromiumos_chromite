@@ -14,7 +14,7 @@ import urllib.request
 
 import pytest
 
-from chromite.lib import config_lib
+from chromite.lib import constants
 from chromite.lib import cros_test_lib
 from chromite.lib import gob_util
 from chromite.lib import timeout_util
@@ -272,19 +272,17 @@ class NetworkGobTest(cros_test_lib.TestCase):
     def test200(self) -> None:
         """Test successful loading of change."""
         gob_util.FetchUrlJson(
-            config_lib.GetSiteParams().EXTERNAL_GOB_HOST,
+            constants.EXTERNAL_GOB_HOST,
             "changes/227254/detail",
         )
 
     def test404(self) -> None:
-        gob_util.FetchUrlJson(
-            config_lib.GetSiteParams().EXTERNAL_GOB_HOST, "foo/bar/baz"
-        )
+        gob_util.FetchUrlJson(constants.EXTERNAL_GOB_HOST, "foo/bar/baz")
 
     def test404Exception(self) -> None:
         with self.assertRaises(gob_util.GOBError) as ex:
             gob_util.FetchUrlJson(
-                config_lib.GetSiteParams().EXTERNAL_GOB_HOST,
+                constants.EXTERNAL_GOB_HOST,
                 "foo/bar/baz",
                 ignore_404=False,
             )
