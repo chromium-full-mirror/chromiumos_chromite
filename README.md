@@ -20,9 +20,9 @@ Chromite was intended to be the unified codebase for anything related to
 building ChromeOS/ChromiumOS. Currently, it is the codebase responsible for
 several things including: building the OS from the requisite packages for the
 necessary board (`parallel_emerge`), driving the infrastructure build workflow
-(CBuildBot), hosting a Google App Engine App, and providing utility functions
-for various scripts scattered around ChromeOS repositories. It is written for
-the most part in Python with some Bash sprinkled in.
+(BuildAPI), and providing utility functions for various scripts scattered around
+ChromeOS repositories. It is written for the most part in Python with some Bash
+sprinkled in.
 
 ## Directory Overview
 
@@ -50,15 +50,6 @@ source.chromium.org site.
 
 The Chromite API for the CI system. The API exposes a subset of the chromite
 functionality that needs to be strictly maintained as much as possible.
-
-### chromite/cbuildbot
-
-CBuildBot is the collection of entire code that runs on both the parent and the
-child build machines. It kicks off the individual stages in a particular build.
-It is a configurable bot that builds ChromeOS.
-
-This project is heavily deprecated as everything has moved to LUCI recipes and
-the BuildAPI interface. Do not use this project for anything new.
 
 ### chromite/docs
 

@@ -34,8 +34,6 @@ chromeos {
         project: "chromeos/config-internal"
         path: "test/plans/v2/ctpv1_compatible/legacy_default_vm.star"
       }
-      path_regexp_excludes: "cbuildbot/.*"
-      path_regexp_excludes: "config/.*"
     }
   }
 }

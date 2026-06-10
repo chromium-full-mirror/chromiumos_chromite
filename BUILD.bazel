@@ -21,7 +21,6 @@ pkg_files(
         [
             "api/**",
             "bin/**",
-            "cbuildbot/**",
             "cli/**",
             "config/**",
             "contrib/**",
