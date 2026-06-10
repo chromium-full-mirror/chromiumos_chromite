@@ -12,6 +12,7 @@ writing files to arbitrary locations.
 import json
 import logging
 import os
+import pwd
 import shutil
 import subprocess
 from typing import Any, List, Optional
@@ -21,6 +22,10 @@ from chromite.third_party.google.protobuf import json_format
 from chromite.api.gen.chromite.api import sdk_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import commandline
+from chromite.lib import constants
+from chromite.lib import cros_build_lib
+from chromite.lib import osutils
+from chromite.utils import os_util
 
 
 # A shorter name for some very long proto types
@@ -44,12 +49,47 @@ def get_parser() -> commandline.ArgumentParser:
         action="split_extend",
         help="Space-separated list of firmware target names.",
     )
+    parser.add_argument(
+        "-u",
+        "--user",
+        help="Drop privileges to this user if running as root.",
+    )
     return parser
+
+
+def _drop_to_user(user: str) -> None:
+    """Chown parent directory and drop privileges to user."""
+    try:
+        pw = pwd.getpwnam(user)
+    except KeyError:
+        cros_build_lib.die("User %s not found", user)
+
+    logging.info(
+        "Chowning contents of %s to %s:%s",
+        constants.SOURCE_ROOT,
+        user,
+        pw.pw_gid,
+    )
+    osutils.Chown(
+        constants.SOURCE_ROOT, user=user, group=pw.pw_gid, recursive=True
+    )
+
+    logging.info(
+        "Dropping privileges to %s (%s:%s)", user, pw.pw_uid, pw.pw_gid
+    )
+    os_util.switch_to_user(user, pw.pw_uid, pw.pw_gid, clear_saved_id=True)
+
+    # Update environment
+    os.environ["HOME"] = pw.pw_dir
 
 
 def main(argv: Optional[List[str]] = None) -> Optional[int]:
     parser = get_parser()
     opts = parser.parse_args(argv or [])
+
+    if opts.user:
+        os_util.assert_root_user()
+        _drop_to_user(opts.user)
 
     chroot = common_pb2.Chroot()
     chroot.path = "cros_chroot"

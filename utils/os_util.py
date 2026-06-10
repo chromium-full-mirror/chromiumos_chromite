@@ -102,6 +102,27 @@ def require_non_root_user(
     return outer
 
 
+def switch_to_user(
+    user: str,
+    uid: int,
+    gid: int,
+    clear_saved_id: bool = False,
+) -> None:
+    """Switch to the specified user.
+
+    Args:
+        user: Username.
+        uid: User ID.
+        gid: Group ID.
+        clear_saved_id: Whether to clear the saved-uid & saved-gid.  Retaining
+            will allow code to switch back to root via e.g. os.setuid() calls.
+    """
+    os.initgroups(user, gid)
+    os.setresgid(gid, gid, gid if clear_saved_id else -1)
+    os.setresuid(uid, uid, uid if clear_saved_id else -1)
+    os.environ["USER"] = user
+
+
 def switch_to_sudo_user(
     clear_saved_id: bool = False,
 ) -> None:
@@ -118,10 +139,7 @@ def switch_to_sudo_user(
     gid = int(os.environ.pop("SUDO_GID"))
     uid = int(os.environ.pop("SUDO_UID"))
     user = os.environ.pop("SUDO_USER")
-    os.initgroups(user, gid)
-    os.setresgid(gid, gid, gid if clear_saved_id else -1)
-    os.setresuid(uid, uid, uid if clear_saved_id else -1)
-    os.environ["USER"] = user
+    switch_to_user(user, uid, gid, clear_saved_id=clear_saved_id)
 
 
 def non_root_home() -> Path:
