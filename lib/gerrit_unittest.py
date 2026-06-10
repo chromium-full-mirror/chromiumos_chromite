@@ -24,7 +24,6 @@ import urllib.parse
 
 import pytest
 
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -63,6 +62,7 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
         [
             "cookie_names",
             "cookies_path",
+            "gob_instance",
             "gerrit_host",
             "gerrit_url",
             "git_host",
@@ -96,6 +96,7 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
         return self.GerritInstance(
             cookie_names=cookie_names,
             cookies_path=tmpcookies_path,
+            gob_instance=default_host,
             gerrit_host=gerrit_host,
             gerrit_url="https://%s/" % gerrit_host,
             git_host=git_host,
@@ -105,8 +106,7 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
 
     def setUp(self) -> None:
         """Sets up the gerrit instances in a class-specific temp dir."""
-        self.saved_params = {}
-        os.environ["HOME"] = self.tempdir
+        os.environ["HOME"] = str(self.tempdir)
 
         # Create gerrit instance.
         gi = self.gerrit_instance = self._create_gerrit_instance(self.tempdir)
@@ -136,29 +136,12 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
 
         self.PatchObject(gob_util, "GetCookies", GetCookies)
 
-        site_params = config_lib.GetSiteParams()
-
         # Make all chromite code point to the test server.
-        self.patched_params = {
-            "EXTERNAL_GOB_HOST": gi.git_host,
-            "EXTERNAL_GERRIT_HOST": gi.gerrit_host,
-            "EXTERNAL_GOB_URL": gi.git_url,
-            "EXTERNAL_GERRIT_URL": gi.gerrit_url,
-            "INTERNAL_GOB_HOST": gi.git_host,
-            "INTERNAL_GERRIT_HOST": gi.gerrit_host,
-            "INTERNAL_GOB_URL": gi.git_url,
-            "INTERNAL_GERRIT_URL": gi.gerrit_url,
-        }
-
-        for k in self.patched_params.keys():
-            self.saved_params[k] = site_params.get(k)
-
-        site_params.update(self.patched_params)
-
-    def tearDown(self) -> None:
-        # Restore the 'patched' site parameters.
-        site_params = config_lib.GetSiteParams()
-        site_params.update(self.saved_params)
+        self.PatchObject(
+            gerrit,
+            "GetGerritHelper",
+            return_value=gerrit.GerritHelper.FromGob(gi.gob_instance),
+        )
 
     def createProject(
         self,
@@ -177,13 +160,14 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
         if owners is not None:
             body["owners"] = owners
         path = "projects/%s" % urllib.parse.quote(name, "")
-        response = gob_util.CreateHttpConn(
+        request = gob_util.CreateHttpReq(
             self.gerrit_instance.gerrit_host, path, reqtype="PUT", body=body
         )
-        self.assertEqual(
-            201, response.status, "Expected 201, got %s" % response.status
-        )
-        s = io.BytesIO(response.read())
+        with urllib.request.urlopen(request) as response:
+            self.assertEqual(
+                201, response.status, "Expected 201, got %s" % response.status
+            )
+            s = io.BytesIO(response.read())
         self.assertEqual(b")]}'", s.readline().rstrip())
         jmsg = json.load(s)
         self.assertEqual(name, jmsg["name"])
@@ -358,11 +342,12 @@ class GerritTestCase(cros_test_lib.MockTempDirTestCase):
             if isinstance(groups, str):
                 groups = [groups]
             body["groups"] = groups
-        response = gob_util.CreateHttpConn(
+        request = gob_util.CreateHttpReq(
             self.gerrit_instance.gerrit_host, path, reqtype="PUT", body=body
         )
-        self.assertEqual(201, response.status)
-        s = io.BytesIO(response.read())
+        with urllib.request.urlopen(request) as response:
+            self.assertEqual(201, response.status)
+            s = io.BytesIO(response.read())
         self.assertEqual(b")]}'", s.readline().rstrip())
         jmsg = json.load(s)
         self.assertEqual(email, jmsg["email"])
