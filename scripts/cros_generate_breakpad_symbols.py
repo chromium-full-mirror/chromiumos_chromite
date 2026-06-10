@@ -12,8 +12,6 @@ the crash server to dump stack information.
 Basically it scans all the split .debug files in /build/$BOARD/usr/lib/debug/
 and converts them over using the `dump_syms` programs.  Those plain text .sym
 files are then stored in /build/$BOARD/usr/lib/debug/breakpad/.
-
-If you want to actually upload things, see upload_symbols.py.
 """
 
 import collections

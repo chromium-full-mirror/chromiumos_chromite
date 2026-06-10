@@ -263,7 +263,7 @@ class USBImager:
         if os.path.isfile(self.image):
             if not self.yes and not _IsFilePathGPTDiskImage(self.image):
                 # TODO(wnwen): Open the tarball and if there is just one file in
-                #   it, use that instead. Existing code in upload_symbols.py.
+                #   it, use that instead.
                 if shell_util.boolean_prompt(
                     prolog="The given image file is not a valid disk image. "
                     "Perhaps you forgot to untar it.",
