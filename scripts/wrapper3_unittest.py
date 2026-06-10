@@ -37,7 +37,7 @@ class FindTargetTests(cros_test_lib.TempDirTestCase):
         self.bindir.mkdir(parents=True)
         self.scripts_dir = self.chromite_dir / "scripts"
         self.scripts_dir.mkdir()
-        for subdir in ("api", "cbuildbot", "lib", "third_party", "utils"):
+        for subdir in ("api", "lib", "third_party", "utils"):
             (self.chromite_dir / subdir).symlink_to(
                 constants.CHROMITE_DIR / subdir
             )
