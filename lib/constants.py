@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""This module contains constants used by cbuildbot and related code."""
+"""A dumping ground for constants shared across multiple modules."""
 
 import os
 from pathlib import Path
@@ -100,16 +100,6 @@ INTERNAL_MANIFEST_REMOTE = "cros-internal"
 INTERNAL_MANIFEST_PROJECT = "chromeos/manifest-internal"
 INTERNAL_MANIFEST_URL = f"{INTERNAL_GOB_URL}/{INTERNAL_MANIFEST_PROJECT}"
 
-# URL template to Android symbols, used by factory builders which still run
-# cbuildbot as of time of writing..
-# TODO(b/230013833): Remove once cbuildbot is gone.
-ANDROID_SYMBOLS_URL_TEMPLATE = (
-    "gs://chromeos-arc-images/builds"
-    "/%(branch)s-linux-%(target)s_%(arch)s-%(variant)s/%(version)s"
-    "/%(target)s_%(arch)s-symbols-%(version)s.zip"
-)
-ANDROID_SYMBOLS_FILE = "android-symbols.zip"
-
 GOB_COOKIE_PATH = Path("~/.git-credential-cache/cookie").expanduser()
 GITCOOKIES_PATH = Path("~/.gitcookies").expanduser()
 
@@ -182,66 +172,12 @@ ALL_CHROME_PACKAGES = (CHROME_CP,) + OTHER_CHROME_PACKAGES
 USE_CHROME_INTERNAL = "chrome_internal"
 USE_AFDO_USE = "afdo_use"
 
-
-# Builds and validates _alpha ebuilds.  These builds sync to the latest
-# revsion of the Chromium src tree and build with that checkout.
-CHROME_REV_TOT = "tot"
-
-# Builds and validates chrome at a given revision through cbuildbot
-# --chrome_version
-CHROME_REV_SPEC = "spec"
-
-# Builds and validates the latest Chromium release as defined by
-# ~/trunk/releases in the Chrome src tree.  These ebuilds are suffixed with rc.
-CHROME_REV_LATEST = "latest_release"
-
-# Builds and validates the latest Chromium release for a specific Chromium
-# branch that we want to watch.  These ebuilds are suffixed with rc.
-CHROME_REV_STICKY = "stable_release"
-
-# Builds and validates Chromium for a pre-populated directory.
-# Also uses _alpha, since portage doesn't have anything lower.
-CHROME_REV_LOCAL = "local"
-VALID_CHROME_REVISIONS = [
-    CHROME_REV_TOT,
-    CHROME_REV_LATEST,
-    CHROME_REV_STICKY,
-    CHROME_REV_LOCAL,
-    CHROME_REV_SPEC,
-]
-
-
-# Build types supported.
-
-# Builds from source and non-incremental.  This builds fully wipe their
-# chroot before the start of every build and no not use a BINHOST.
-FULL_TYPE = "full"
-
-# Full but with versioned logic.
-CANARY_TYPE = "canary"
-
 # How long we should wait for the signing fleet to sign payloads.
 PAYLOAD_SIGNING_TIMEOUT = 10800
 
-# Generic type of tryjob only build configs.
-TRYJOB_TYPE = "tryjob"
-
 # Special build type for Chroot builders.  These builds focus on building
 # toolchains and validate that they work.
-CHROOT_BUILDER_TYPE = "chroot"
 CHROOT_BUILDER_BOARD = "amd64-host"
-
-# Use for builds that don't requite a type.
-GENERIC_TYPE = "generic"
-
-VALID_BUILD_TYPES = (
-    FULL_TYPE,
-    CANARY_TYPE,
-    CHROOT_BUILDER_TYPE,
-    CHROOT_BUILDER_BOARD,
-    TRYJOB_TYPE,
-    GENERIC_TYPE,
-)
 
 PUBLIC_OVERLAYS_DIR = "src/overlays"
 PUBLIC_OVERLAYS_PATH = SOURCE_ROOT / PUBLIC_OVERLAYS_DIR
