@@ -13,7 +13,7 @@ import sys
 from typing import Any, Dict, Optional, Tuple
 
 
-MIN_PYTHON_VERSION = (3, 8)
+MIN_PYTHON_VERSION = (3, 9)
 assert sys.version_info >= MIN_PYTHON_VERSION, (
     "Chromite requires Python %s.%s+" % MIN_PYTHON_VERSION
 )
