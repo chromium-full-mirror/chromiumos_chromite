@@ -898,37 +898,7 @@ class MockTestCase(TestCase):
 
         stop() will be called automatically during tearDown.
         """
-        # TODO(build): Fix all tests and delete this list.
-        ALLOWED_TESTS = {
-            "cbuildbot/repository_unittest.py": {
-                "RepoInitChromeBotTests": {
-                    "testInitializationWithoutRepoInitRetry (call)",
-                    "testInitializationWithRepoInitRetry (call)",
-                },
-                "RepoInitTests": {
-                    "testInitializationWithoutRepoInitRetry (call)",
-                    "testInitializationWithRepoInitRetry (call)",
-                },
-                "RepoSyncTests": {
-                    "test_RepoSelfupdateRaisesException (call)",
-                    "test_RepoSelfupdateRaisesWarning (call)",
-                    "test_RepoSelfupdateSucceeds (call)",
-                    "testSyncWithException (call)",
-                    "testSyncWithoutException (call)",
-                },
-            },
-        }
-
-        # The contents of this variable looks like:
-        # service/test_unittest.py::BundleHwqualTarballTest::testSuccess (call)
-        test_py, test_class, test_case = os.environ.get(
-            "PYTEST_CURRENT_TEST", "?::?::?"
-        ).split("::")
-        allowed_cases = ALLOWED_TESTS.get(test_py, {}).get(test_class, set())
-        assert test_case in allowed_cases or args[:2] != (
-            cros_build_lib,
-            "run",
-        ), (
+        assert args[:2] != (cros_build_lib, "run"), (
             "Do not mock cros_build_lib.run directly; use "
             "cros_test_lib.RunCommandTestCase/self.rc or "
             "self.StartPatcher/cros_test_lib.RunCommandMock instead"
