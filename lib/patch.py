@@ -18,7 +18,6 @@ from typing import Any, Dict, List, Optional, Tuple
 # that use mock.
 from unittest import mock
 
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import git
@@ -467,13 +466,14 @@ def StripPrefix(text):
     Returns:
         A tuple of the corresponding remote and the stripped text.
     """
-    site_params = config_lib.GetSiteParams()
+    external_prefix = f"{constants.EXTERNAL_GOB_INSTANCE}:"
+    internal_prefix = f"{constants.INTERNAL_GOB_INSTANCE}:"
     remote = constants.EXTERNAL_MANIFEST_REMOTE
-    if text.startswith(site_params.INTERNAL_CHANGE_PREFIX):
-        text = text[len(site_params.INTERNAL_CHANGE_PREFIX) :]
+    if text.startswith(internal_prefix):
+        text = text[len(internal_prefix) :]
         remote = constants.INTERNAL_MANIFEST_REMOTE
-    elif text.startswith(site_params.EXTERNAL_CHANGE_PREFIX):
-        text = text[len(site_params.EXTERNAL_CHANGE_PREFIX) :]
+    elif text.startswith(external_prefix):
+        text = text[len(external_prefix) :]
 
     return remote, text
 

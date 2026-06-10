@@ -13,7 +13,6 @@ import tempfile
 import time
 from unittest import mock
 
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -1090,9 +1089,12 @@ class TestGerritPatch(TestGitRepoPatch):
         return copy.deepcopy(FAKE_PATCH_JSON)
 
     def _MkPatch(self, source, sha1, ref="refs/heads/main", **kwargs):
-        site_params = config_lib.GetSiteParams()
         json = self.test_json
         remote = kwargs.pop("remote", constants.EXTERNAL_MANIFEST_REMOTE)
+        if remote == constants.EXTERNAL_MANIFEST_REMOTE:
+            change_prefix = f"{constants.EXTERNAL_GOB_INSTANCE}:"
+        else:
+            change_prefix = f"{constants.INTERNAL_GOB_INSTANCE}:"
         url_prefix = kwargs.pop("url_prefix", constants.EXTERNAL_GERRIT_URL)
         suppress_branch = kwargs.pop("suppress_branch", False)
         change_id = kwargs.pop("ChangeId", None)
@@ -1121,7 +1123,7 @@ class TestGerritPatch(TestGitRepoPatch):
             obj.id,
             "%s%s~%s~%s"
             % (
-                site_params.CHANGE_PREFIX[remote],
+                change_prefix,
                 json["project"],
                 json["branch"],
                 change_id,
