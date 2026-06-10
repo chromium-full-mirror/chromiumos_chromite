@@ -15,7 +15,6 @@ from chromite.third_party import requests
 
 from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
 from chromite.lib import binpkg
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import git
@@ -748,7 +747,6 @@ def _get_snapshot_shas() -> SnapshotShas:
         A SnapshotShas object with the internal, external SHAs populated based
         on the checkout types.
     """
-    site_params = config_lib.GetSiteParams()
     snapshot_shas = SnapshotShas([], [])
 
     # Get the repo.
@@ -761,27 +759,20 @@ def _get_snapshot_shas() -> SnapshotShas:
     manifest = repo.Manifest()
 
     # Get the snapshot SHAs for each checkout type.
-    if manifest.HasRemote(site_params.EXTERNAL_REMOTE):
-        snapshot_shas.external.extend(
-            _get_snapshot_shas_from_git_log(site_params, False)
-        )
-    if manifest.HasRemote(site_params.INTERNAL_REMOTE):
-        snapshot_shas.internal.extend(
-            _get_snapshot_shas_from_git_log(site_params, True)
-        )
+    if manifest.HasRemote(constants.EXTERNAL_MANIFEST_REMOTE):
+        snapshot_shas.external.extend(_get_snapshot_shas_from_git_log(False))
+    if manifest.HasRemote(constants.INTERNAL_MANIFEST_REMOTE):
+        snapshot_shas.internal.extend(_get_snapshot_shas_from_git_log(True))
     return snapshot_shas
 
 
-def _get_snapshot_shas_from_git_log(
-    site_params: config_lib.AttrDict, internal: bool
-) -> List[Optional[str]]:
+def _get_snapshot_shas_from_git_log(internal: bool) -> List[Optional[str]]:
     """Get the last n=_MAX_BINHOSTS snapshot SHAs using git log.
 
     We're intentionally swallowing errors related to determining the snapshot
     SHAs since the lookup service will contain logic for these error cases.
 
     Args:
-        site_params: site parameter configs.
         internal: Whether to get snapshot SHAs of the internal or external
             manifest.
 
@@ -792,7 +783,9 @@ def _get_snapshot_shas_from_git_log(
     manifest_type = "manifest-internal" if internal else "manifest"
     manifest_dir = os.path.join(constants.SOURCE_ROOT, manifest_type)
     manifest_remote_name = (
-        site_params.INTERNAL_REMOTE if internal else site_params.EXTERNAL_REMOTE
+        constants.INTERNAL_MANIFEST_REMOTE
+        if internal
+        else constants.EXTERNAL_MANIFEST_REMOTE
     )
 
     # Determine repo constants.
@@ -842,7 +835,6 @@ def lookup_binhosts(
         private = binhost_lookup_service_data.private
         is_staging = binhost_lookup_service_data.is_staging
     else:
-        site_params = config_lib.GetSiteParams()
         # Get the repo.
         try:
             repo = repo_util.Repository.MustFind(constants.SOURCE_ROOT)
@@ -895,8 +887,8 @@ def lookup_binhosts(
         manifest = repo.Manifest()
 
         if manifest.HasRemote(
-            site_params.INTERNAL_REMOTE
-        ) and manifest.HasRemote(site_params.EXTERNAL_REMOTE):
+            constants.INTERNAL_MANIFEST_REMOTE
+        ) and manifest.HasRemote(constants.EXTERNAL_MANIFEST_REMOTE):
             # Googlers
             if snapshot_shas_combined.internal:
                 snapshot_shas = snapshot_shas_combined.internal

@@ -468,10 +468,10 @@ def StripPrefix(text):
         A tuple of the corresponding remote and the stripped text.
     """
     site_params = config_lib.GetSiteParams()
-    remote = site_params.EXTERNAL_REMOTE
+    remote = constants.EXTERNAL_MANIFEST_REMOTE
     if text.startswith(site_params.INTERNAL_CHANGE_PREFIX):
         text = text[len(site_params.INTERNAL_CHANGE_PREFIX) :]
-        remote = site_params.INTERNAL_REMOTE
+        remote = constants.INTERNAL_MANIFEST_REMOTE
     elif text.startswith(site_params.EXTERNAL_CHANGE_PREFIX):
         text = text[len(site_params.EXTERNAL_CHANGE_PREFIX) :]
 
@@ -879,7 +879,7 @@ class GitRepoPatch(PatchQuery):
     @property
     def internal(self):
         """Whether patch is to an internal cros project."""
-        return self.remote == config_lib.GetSiteParams().INTERNAL_REMOTE
+        return self.remote == constants.INTERNAL_MANIFEST_REMOTE
 
     @staticmethod
     def _ExtractFooters(msg: str) -> List[Tuple[str, str]]:
@@ -2629,7 +2629,6 @@ def PrepareRemotePatches(patches):
                 tag: Denotes whether the project is an internal or external
                     project.
     """
-    site_params = config_lib.GetSiteParams()
     patch_info = []
     for patch in patches:
         try:
@@ -2646,9 +2645,9 @@ def PrepareRemotePatches(patches):
         if tag not in constants.PATCH_TAGS:
             raise ValueError("Bad remote patch format.  Unknown tag %s" % tag)
 
-        remote = site_params.EXTERNAL_REMOTE
+        remote = constants.EXTERNAL_MANIFEST_REMOTE
         if tag == constants.INTERNAL_PATCH_TAG:
-            remote = site_params.INTERNAL_REMOTE
+            remote = constants.INTERNAL_MANIFEST_REMOTE
 
         push_url = git.RemoteToGitServerUrl(remote)
         patch_info.append(

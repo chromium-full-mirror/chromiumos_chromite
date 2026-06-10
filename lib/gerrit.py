@@ -9,7 +9,6 @@ import operator
 import re
 from typing import Any, Tuple
 
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import git
@@ -839,11 +838,13 @@ def GetGerritPatchInfoWithPatchQueries(patches):
     Raises:
         PatchException if a patch can't be found.
     """
-    site_params = config_lib.GetSiteParams()
     seen = set()
     results = []
     order = {k.ToGerritQueryText(): idx for (idx, k) in enumerate(patches)}
-    for remote in site_params.CHANGE_PREFIX.keys():
+    for remote in (
+        constants.EXTERNAL_MANIFEST_REMOTE,
+        constants.INTERNAL_MANIFEST_REMOTE,
+    ):
         helper = GetGerritHelper(remote)
         raw_ids = [x.ToGerritQueryText() for x in patches if x.remote == remote]
         for k, change in helper.QueryMultipleCurrentPatchset(raw_ids):

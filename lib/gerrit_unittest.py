@@ -617,23 +617,26 @@ class GerritHelperTest(GerritTestCase):
             [gpatch.gerrit_number, "9876543"],
         )
 
-        site_params = config_lib.GetSiteParams()
         # Simple query by project/changeid/sha1.
         patch_info = helper.GrabPatchFromGerrit(
             gpatch.project, gpatch.change_id, gpatch.sha1
         )
         self.assertEqual(patch_info.gerrit_number, gpatch.gerrit_number)
-        self.assertEqual(patch_info.remote, site_params.EXTERNAL_REMOTE)
+        self.assertEqual(patch_info.remote, constants.EXTERNAL_MANIFEST_REMOTE)
 
         # Simple query by gerrit number to external remote.
         patch_info = gerrit.GetGerritPatchInfo([gpatch.gerrit_number])
         self.assertEqual(patch_info[0].gerrit_number, gpatch.gerrit_number)
-        self.assertEqual(patch_info[0].remote, site_params.EXTERNAL_REMOTE)
+        self.assertEqual(
+            patch_info[0].remote, constants.EXTERNAL_MANIFEST_REMOTE
+        )
 
         # Simple query by gerrit number to internal remote.
         patch_info = gerrit.GetGerritPatchInfo(["*" + gpatch.gerrit_number])
         self.assertEqual(patch_info[0].gerrit_number, gpatch.gerrit_number)
-        self.assertEqual(patch_info[0].remote, site_params.INTERNAL_REMOTE)
+        self.assertEqual(
+            patch_info[0].remote, constants.INTERNAL_MANIFEST_REMOTE
+        )
 
         # Query to external server by gerrit number and change-id which refer to
         # the same change should return one result.
@@ -643,7 +646,9 @@ class GerritHelperTest(GerritTestCase):
         )
         self.assertEqual(len(patch_info), 1)
         self.assertEqual(patch_info[0].gerrit_number, gpatch.gerrit_number)
-        self.assertEqual(patch_info[0].remote, site_params.EXTERNAL_REMOTE)
+        self.assertEqual(
+            patch_info[0].remote, constants.EXTERNAL_MANIFEST_REMOTE
+        )
 
         # Query to internal server by gerrit number and change-id which refer to
         # the same change should return one result.
@@ -652,7 +657,9 @@ class GerritHelperTest(GerritTestCase):
         )
         self.assertEqual(len(patch_info), 1)
         self.assertEqual(patch_info[0].gerrit_number, gpatch.gerrit_number)
-        self.assertEqual(patch_info[0].remote, site_params.INTERNAL_REMOTE)
+        self.assertEqual(
+            patch_info[0].remote, constants.INTERNAL_MANIFEST_REMOTE
+        )
 
     def testSubmitOutdatedCommit(self) -> None:
         """Tests that we can parse a json to check if a change is committed."""
@@ -724,7 +731,7 @@ class GerritParserTest(cros_test_lib.TestCase):
 
     # pylint: disable=protected-access
 
-    def _GetHelper(self, remote=config_lib.GetSiteParams().EXTERNAL_REMOTE):
+    def _GetHelper(self, remote=constants.EXTERNAL_MANIFEST_REMOTE):
         return gerrit.GetGerritHelper(remote)
 
     def testGetChangeFromStdoutPass(self) -> None:

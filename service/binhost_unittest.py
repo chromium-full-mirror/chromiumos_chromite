@@ -18,7 +18,6 @@ from chromite.api.gen.chromiumos import prebuilts_cloud_pb2
 from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
-from chromite.lib import config_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
@@ -946,7 +945,6 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
     )
 
     def setUp(self):
-        self.PatchObject(config_lib, "GetSiteParams")
         self.repo_mock = self.PatchObject(repo_util, "Repository")
         self.get_snapshot_shas = self.PatchObject(binhost, "_get_snapshot_shas")
         self.fetch_binhosts = self.PatchObject(binhost, "_fetch_binhosts")
