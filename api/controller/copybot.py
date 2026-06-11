@@ -103,6 +103,9 @@ def RunCopybot(request, response, _config):
     for include_path in request.include_paths:
         cmd.extend(["--include-downstream", include_path.path])
 
+    if request.git_dir:
+        cmd.extend(["--dev-mode-git-dir", request.git_dir])
+
     if request.build_id:
         cmd.extend(["--add-pseudoheader", f"Cr-Build-Id: {request.build_id}"])
 
