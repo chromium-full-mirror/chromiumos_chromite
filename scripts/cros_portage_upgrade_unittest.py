@@ -19,7 +19,6 @@ from chromite.lib import cros_test_lib
 from chromite.lib import depgraph
 from chromite.lib import osutils
 from chromite.lib import terminal
-from chromite.lib import upgrade_table as utable
 from chromite.lib.parser import package_info
 from chromite.scripts import cros_portage_upgrade as cpu
 
@@ -854,7 +853,7 @@ class GetPackageUpgradeStateTest(CpuTestBase):
             latest_upstream_cpv=None,
         )
         result = self._TestGetPackageUpgradeState(pinfo, exists_upstream=False)
-        self.assertEqual(result, utable.UpgradeTable.STATE_LOCAL_ONLY)
+        self.assertEqual(result, cpu.UpgradeTable.STATE_LOCAL_ONLY)
 
     def testGetPackageUpgradeStateUnknown(self) -> None:
         pinfo = cpu.PInfo(
@@ -864,7 +863,7 @@ class GetPackageUpgradeStateTest(CpuTestBase):
             latest_upstream_cpv=None,
         )
         result = self._TestGetPackageUpgradeState(pinfo, exists_upstream=False)
-        self.assertEqual(result, utable.UpgradeTable.STATE_UNKNOWN)
+        self.assertEqual(result, cpu.UpgradeTable.STATE_UNKNOWN)
 
     def testGetPackageUpgradeStateUpgradeAndDuplicated(self) -> None:
         pinfo = cpu.PInfo(
@@ -875,7 +874,7 @@ class GetPackageUpgradeStateTest(CpuTestBase):
         )
         result = self._TestGetPackageUpgradeState(pinfo, exists_upstream=True)
         self.assertEqual(
-            result, utable.UpgradeTable.STATE_NEEDS_UPGRADE_AND_DUPLICATED
+            result, cpu.UpgradeTable.STATE_NEEDS_UPGRADE_AND_DUPLICATED
         )
 
     def testGetPackageUpgradeStateUpgradeAndPatched(self) -> None:
@@ -887,7 +886,7 @@ class GetPackageUpgradeStateTest(CpuTestBase):
         )
         result = self._TestGetPackageUpgradeState(pinfo, exists_upstream=False)
         self.assertEqual(
-            result, utable.UpgradeTable.STATE_NEEDS_UPGRADE_AND_PATCHED
+            result, cpu.UpgradeTable.STATE_NEEDS_UPGRADE_AND_PATCHED
         )
 
     def testGetPackageUpgradeStateUpgrade(self) -> None:
@@ -898,7 +897,7 @@ class GetPackageUpgradeStateTest(CpuTestBase):
             latest_upstream_cpv="not important",
         )
         result = self._TestGetPackageUpgradeState(pinfo, exists_upstream=False)
-        self.assertEqual(result, utable.UpgradeTable.STATE_NEEDS_UPGRADE)
+        self.assertEqual(result, cpu.UpgradeTable.STATE_NEEDS_UPGRADE)
 
     def testGetPackageUpgradeStateDuplicated(self) -> None:
         pinfo = cpu.PInfo(
@@ -908,7 +907,7 @@ class GetPackageUpgradeStateTest(CpuTestBase):
             latest_upstream_cpv="not important",
         )
         result = self._TestGetPackageUpgradeState(pinfo, exists_upstream=True)
-        self.assertEqual(result, utable.UpgradeTable.STATE_DUPLICATED)
+        self.assertEqual(result, cpu.UpgradeTable.STATE_DUPLICATED)
 
     def testGetPackageUpgradeStatePatched(self) -> None:
         pinfo = cpu.PInfo(
@@ -918,7 +917,7 @@ class GetPackageUpgradeStateTest(CpuTestBase):
             latest_upstream_cpv="not important",
         )
         result = self._TestGetPackageUpgradeState(pinfo, exists_upstream=False)
-        self.assertEqual(result, utable.UpgradeTable.STATE_PATCHED)
+        self.assertEqual(result, cpu.UpgradeTable.STATE_PATCHED)
 
     def testGetPackageUpgradeStateCurrent(self) -> None:
         pinfo = cpu.PInfo(
@@ -928,7 +927,7 @@ class GetPackageUpgradeStateTest(CpuTestBase):
             latest_upstream_cpv="not important",
         )
         result = self._TestGetPackageUpgradeState(pinfo, exists_upstream=False)
-        self.assertEqual(result, utable.UpgradeTable.STATE_CURRENT)
+        self.assertEqual(result, cpu.UpgradeTable.STATE_CURRENT)
 
 
 @unittest.skip("playground setup needs more work")

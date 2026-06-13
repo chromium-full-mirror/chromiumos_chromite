@@ -22,7 +22,6 @@ from chromite.lib import git
 from chromite.lib import operation
 from chromite.lib import osutils
 from chromite.lib import portage_util
-from chromite.lib import upgrade_table as utable
 from chromite.lib.parser import package_info
 
 
@@ -34,6 +33,35 @@ UPGRADED = "Upgraded"
 
 # Files that we authored.
 CROS_AUTHORED_FILES = {"DIR_METADATA", "METADATA", "OWNERS", "README.md"}
+
+
+class UpgradeTable:
+    """Class to represent upgrade data in memory, can be written to csv."""
+
+    # Column names.  Note that 'ARCH' is replaced with a real arch name when
+    # these are accessed as attributes off an UpgradeTable object.
+    COL_PACKAGE = "Package"
+    COL_SLOT = "Slot"
+    COL_OVERLAY = "Overlay"
+    COL_CURRENT_VER = "Current ARCH Version"
+    COL_STABLE_UPSTREAM_VER = "Stable Upstream ARCH Version"
+    COL_LATEST_UPSTREAM_VER = "Latest Upstream ARCH Version"
+    COL_STATE = "State On ARCH"
+    COL_DEPENDS_ON = "Dependencies On ARCH"
+    COL_USED_BY = "Required By On ARCH"
+    COL_TARGET = "Root Target"
+    COL_UPGRADED = "Upgraded ARCH Version"
+
+    # COL_STATE values should be one of the following:
+    STATE_UNKNOWN = "unknown"
+    STATE_LOCAL_ONLY = "local only"
+    STATE_UPSTREAM_ONLY = "upstream only"
+    STATE_NEEDS_UPGRADE = "needs upgrade"
+    STATE_PATCHED = "patched locally"
+    STATE_DUPLICATED = "duplicated locally"
+    STATE_NEEDS_UPGRADE_AND_PATCHED = "needs upgrade and patched locally"
+    STATE_NEEDS_UPGRADE_AND_DUPLICATED = "needs upgrade and duplicated locally"
+    STATE_CURRENT = "current"
 
 
 # pylint: disable=attribute-defined-outside-init
@@ -57,7 +85,7 @@ class PInfo:
         "package_ver",  # The 'pv' in 'cpv'
         "slot",  # Current package slot
         "stable_upstream_cpv",  # Latest stable upstream cpv
-        "state",  # One of utable.UpgradeTable.STATE_*
+        "state",  # One of UpgradeTable.STATE_*
         "upgraded_cpv",  # If upgraded, it is to this cpv
         "upgraded_unmasked",  # Boolean. If upgraded_cpv, indicates if unmasked.
         "upstream_cpv",  # latest/stable upstream cpv according to request
@@ -917,24 +945,24 @@ class Upgrader:
             # if the package is coming from 'portage' or 'portage-stable'
             # overlays.
             if locally_patched and pinfo.latest_upstream_cpv is None:
-                state = utable.UpgradeTable.STATE_LOCAL_ONLY
+                state = UpgradeTable.STATE_LOCAL_ONLY
             elif not cpv:
-                state = utable.UpgradeTable.STATE_UPSTREAM_ONLY
+                state = UpgradeTable.STATE_UPSTREAM_ONLY
             else:
-                state = utable.UpgradeTable.STATE_UNKNOWN
+                state = UpgradeTable.STATE_UNKNOWN
         elif pinfo.cpv_cmp_upstream > 0:
             if locally_duplicated:
-                state = utable.UpgradeTable.STATE_NEEDS_UPGRADE_AND_DUPLICATED
+                state = UpgradeTable.STATE_NEEDS_UPGRADE_AND_DUPLICATED
             elif locally_patched:
-                state = utable.UpgradeTable.STATE_NEEDS_UPGRADE_AND_PATCHED
+                state = UpgradeTable.STATE_NEEDS_UPGRADE_AND_PATCHED
             else:
-                state = utable.UpgradeTable.STATE_NEEDS_UPGRADE
+                state = UpgradeTable.STATE_NEEDS_UPGRADE
         elif locally_duplicated:
-            state = utable.UpgradeTable.STATE_DUPLICATED
+            state = UpgradeTable.STATE_DUPLICATED
         elif locally_patched:
-            state = utable.UpgradeTable.STATE_PATCHED
+            state = UpgradeTable.STATE_PATCHED
         else:
-            state = utable.UpgradeTable.STATE_CURRENT
+            state = UpgradeTable.STATE_CURRENT
 
         return state
 
@@ -948,18 +976,18 @@ class Upgrader:
             action_stat = ""
 
         up_stat = {
-            utable.UpgradeTable.STATE_UNKNOWN: " no package found upstream!",
-            utable.UpgradeTable.STATE_LOCAL_ONLY: " (exists locally only)",
-            utable.UpgradeTable.STATE_NEEDS_UPGRADE: " -> %s" % upstream_cpv,
-            utable.UpgradeTable.STATE_NEEDS_UPGRADE_AND_PATCHED: (
+            UpgradeTable.STATE_UNKNOWN: " no package found upstream!",
+            UpgradeTable.STATE_LOCAL_ONLY: " (exists locally only)",
+            UpgradeTable.STATE_NEEDS_UPGRADE: " -> %s" % upstream_cpv,
+            UpgradeTable.STATE_NEEDS_UPGRADE_AND_PATCHED: (
                 " <-> %s" % upstream_cpv
             ),
-            utable.UpgradeTable.STATE_NEEDS_UPGRADE_AND_DUPLICATED: (
+            UpgradeTable.STATE_NEEDS_UPGRADE_AND_DUPLICATED: (
                 " (locally duplicated) <-> %s" % upstream_cpv
             ),
-            utable.UpgradeTable.STATE_PATCHED: " <- %s" % upstream_cpv,
-            utable.UpgradeTable.STATE_DUPLICATED: " (locally duplicated)",
-            utable.UpgradeTable.STATE_CURRENT: " (current)",
+            UpgradeTable.STATE_PATCHED: " <- %s" % upstream_cpv,
+            UpgradeTable.STATE_DUPLICATED: " (locally duplicated)",
+            UpgradeTable.STATE_CURRENT: " (current)",
         }[pinfo.state]
 
         oper.Info(
