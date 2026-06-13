@@ -68,7 +68,6 @@ METRICS_FILE = "METRICS_FILE"
 # to the build root's chroot, which guarantees that they are reachable from it
 # and get cleaned up when it is removed.
 SDK_TOOLCHAINS_OUTPUT = "tmp/toolchain-pkgs"
-SDK_OVERLAYS_OUTPUT = "tmp/sdk-overlays"
 # The filename of the SDK tarball created during SDK builder runs.
 SDK_TARBALL_NAME = "built-sdk.tar.zst"
 
@@ -107,14 +106,8 @@ GITCOOKIES_PATH = Path("~/.gitcookies").expanduser()
 # Dec 02 17:48:06 2014' and is assumed to be in UTC.
 GOB_COMMIT_TIME_FORMAT = "%a %b %d %H:%M:%S %Y"
 
-CHROMITE_PROJECT = "chromiumos/chromite"
-CHROMITE_URL = "%s/%s" % (EXTERNAL_GOB_URL, CHROMITE_PROJECT)
 CHROMIUM_SRC_PROJECT = "chromium/src"
 CHROMIUM_GOB_URL = "%s/%s.git" % (EXTERNAL_GOB_URL, CHROMIUM_SRC_PROJECT)
-
-DEFAULT_MANIFEST = "default.xml"
-OFFICIAL_MANIFEST = "official.xml"
-LKGM_MANIFEST = "LKGM/lkgm.xml"
 
 SHARED_CACHE_ENVVAR = "CROS_CACHEDIR"
 PARALLEL_EMERGE_STATUS_FILE_ENVVAR = "PARALLEL_EMERGE_STATUS_FILE"
@@ -122,9 +115,6 @@ PARALLEL_EMERGE_STATUS_FILE_ENVVAR = "PARALLEL_EMERGE_STATUS_FILE"
 PATCH_BRANCH = "patch_branch"
 STABLE_EBUILD_BRANCH = "stabilizing_branch"
 MERGE_BRANCH = "merge_branch"
-
-# These branches are deleted at the beginning of every buildbot run.
-CREATED_BRANCHES = [PATCH_BRANCH, STABLE_EBUILD_BRANCH, MERGE_BRANCH]
 
 # SDK target.
 TARGET_SDK = "virtual/target-sdk"
@@ -168,10 +158,6 @@ OTHER_CHROME_PACKAGES = (
 # Chrome + OTHER_CHROME_PACKAGES.
 ALL_CHROME_PACKAGES = (CHROME_CP,) + OTHER_CHROME_PACKAGES
 
-# Chrome use flags
-USE_CHROME_INTERNAL = "chrome_internal"
-USE_AFDO_USE = "afdo_use"
-
 # How long we should wait for the signing fleet to sign payloads.
 PAYLOAD_SIGNING_TIMEOUT = 10800
 
@@ -179,15 +165,10 @@ PAYLOAD_SIGNING_TIMEOUT = 10800
 # toolchains and validate that they work.
 CHROOT_BUILDER_BOARD = "amd64-host"
 
-PUBLIC_OVERLAYS_DIR = "src/overlays"
-PUBLIC_OVERLAYS_PATH = SOURCE_ROOT / PUBLIC_OVERLAYS_DIR
-PRIVATE_OVERLAYS_DIR = "src/private-overlays"
-PRIVATE_OVERLAYS_PATH = SOURCE_ROOT / PRIVATE_OVERLAYS_DIR
 CHROMIUMOS_OVERLAY_DIR = "src/third_party/chromiumos-overlay"
 CHROMEOS_OVERLAY_DIR = "src/private-overlays/chromeos-overlay/"
 PORTAGE_STABLE_OVERLAY_DIR = "src/third_party/portage-stable"
 ECLASS_OVERLAY_DIR = "src/third_party/eclass-overlay"
-TOOLCHAINS_OVERLAY_DIR = "src/third_party/toolchains-overlay"
 CHROMEOS_PARTNER_OVERLAY_DIR = "src/private-overlays/chromeos-partner-overlay/"
 PUBLIC_BINHOST_CONF_DIR = os.path.join(
     CHROMIUMOS_OVERLAY_DIR, "chromeos/binhost"
@@ -330,7 +311,6 @@ def ImageBinToGceTar(image_bin: str) -> str:
     return "%s_gce.tar.gz" % os.path.splitext(image_bin)[0]
 
 
-RELEASE_BUCKET = "gs://chromeos-releases"
 TRASH_BUCKET = "gs://chromeos-throw-away-bucket"
 CHROME_SYSROOT_TAR = "sysroot_%s.tar.xz" % _SlashToUnderscore(CHROME_CP)
 CHROME_ENV_TAR = "environment_%s.tar.xz" % _SlashToUnderscore(CHROME_CP)
@@ -338,7 +318,6 @@ CHROME_ENV_FILE = "environment"
 BASE_IMAGE_NAME = "chromiumos_base_image"
 BASE_IMAGE_TAR = "%s.tar.xz" % BASE_IMAGE_NAME
 BASE_IMAGE_BIN = "%s.bin" % BASE_IMAGE_NAME
-BASE_IMAGE_GCE_TAR = ImageBinToGceTar(BASE_IMAGE_BIN)
 IMAGE_SCRIPTS_NAME = "image_scripts"
 IMAGE_SCRIPTS_TAR = "%s.tar.xz" % IMAGE_SCRIPTS_NAME
 TARGET_SYSROOT_TAR = "sysroot_%s.tar.xz" % _SlashToUnderscore(TARGET_OS_PKG)
@@ -468,7 +447,6 @@ IMAGE_NAME_TO_TYPE = dict((v, k) for k, v in IMAGE_TYPE_TO_NAME.items())
 BUILD_REPORT_JSON = "build_report.json"
 METADATA_JSON = "metadata.json"
 PARTIAL_METADATA_JSON = "partial-metadata.json"
-METADATA_TAGS = "tags"
 
 FIRMWARE_ARCHIVE_NAME = "firmware_from_source.tar.bz2"
 FIRMWARE_PINNED_ARCHIVE_NAME = "pinned_firmware.tar.bz2"
