@@ -184,6 +184,15 @@ def main(argv: Optional[list[str]] = None) -> Optional[int]:
         paths.clear()
         full_run = False
 
+    # Refresh pyi files since the type checking needs it.  It only takes ~1 sec
+    # to run, so doing it all the time isn't a problem.
+    cros_build_lib.dbg_run(
+        [
+            constants.CHROMITE_DIR / "api" / "compile_build_api_proto",
+            "--pyi",
+        ]
+    )
+
     # Run the tool, parse its output, sort it, then show it.
     # NB: It's important that we capture the output and post-process before we
     # print it out.  This is because scripts/run_tests.py runs us in parallel
