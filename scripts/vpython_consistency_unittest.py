@@ -28,10 +28,7 @@ _INPUTS = (
 
 # The list of exceptions in the format emitted by assertions in this test. I.e.,
 # <wheel>: <path> wants <old-version> but <path> has <latest-version>
-_EXCEPTIONS = {
-    "infra/python/wheels/tomli-py3: scripts/black"
-    " wants 1.1.0 but scripts/run_tests.vpython3 has 2.0.1",
-}
+_EXCEPTIONS = frozenset()
 
 _BEGIN_GUARD = "[VPYTHON:BEGIN]"
 _END_GUARD = "[VPYTHON:END]"
