@@ -18,14 +18,13 @@ from chromite.lib import constants
 
 # The list of vpython environments to check for consistency. Paths are relative
 # to CHROMITE_DIR.
-_INPUTS = [
+_INPUTS = (
     "scripts/black",
     "scripts/isort",
     "scripts/mypy",
     "scripts/pylint",
-    "scripts/run_tests.vpython3",
     "scripts/vpython_wrapper.py",
-]
+)
 
 # The list of exceptions in the format emitted by assertions in this test. I.e.,
 # <wheel>: <path> wants <old-version> but <path> has <latest-version>
@@ -64,8 +63,21 @@ def _parse(path: Path) -> Tuple[Path, spec_pb2.Spec]:
     return (path, spec)
 
 
+def _find_vpython_specs() -> list[Path]:
+    """Find all files in chromite using a vpython spec."""
+    ret = set(Path(x) for x in _INPUTS)
+    # We currently only put vpython3 spec files in dirs 1 deep.  Since it's
+    # tied to the wrapper script, it seems unlikely to change at this point.
+    ret.update(
+        x.relative_to(constants.CHROMITE_DIR)
+        for x in constants.CHROMITE_DIR.glob("*/*.vpython3")
+        if not x.is_symlink()
+    )
+    return sorted(ret)
+
+
 def test_vpython_consistency() -> None:
-    specs = [_parse(Path(f)) for f in _INPUTS]
+    specs = [_parse(x) for x in _find_vpython_specs()]
 
     # Map of package names, and the list of versions for it used by each file.
     wheels: Dict[str, List[Tuple[version.Version, Path]]] = {}
