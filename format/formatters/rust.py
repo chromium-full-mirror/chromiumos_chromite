@@ -5,12 +5,18 @@
 """Provides utility for formatting Rust code."""
 
 import functools
+import itertools
 import os
 from pathlib import Path
+import re
 from typing import Optional, Union
 
 from chromite.lib import cipd
 from chromite.lib import cros_build_lib
+
+
+# The latest edition the prebuilt rustfmt tool supports.
+DEFAULT_EDITION = "2021"
 
 
 @functools.lru_cache(maxsize=None)
@@ -19,9 +25,24 @@ def _find_rustfmt() -> str:
     path = cipd.InstallPackage(
         cipd.GetCIPDFromCache(),
         "chromiumos/infra/tools/rustfmt",
-        "bCK_ZjJbnn741h6Cb1EkHlayx3vFVo1T7YBw5f4cCsUC",
+        "kwdBZ5MSo7uVIU3EJG-JYRvXKk-VfcEgpXGUIgSZBdwC",
     )
     return os.path.join(path, "bin", "rustfmt")
+
+
+def _find_edition(path: Path) -> str:
+    """Find the Rust edition from Cargo.toml in path or parents."""
+    for parent in itertools.chain([path], path.parents):
+        cargo_toml = parent / "Cargo.toml"
+        content = ""
+        try:
+            content = cargo_toml.read_text(encoding="utf-8")
+        except FileNotFoundError:
+            pass
+        match = re.search(r'edition\s*=\s*"([^"]+)"', content)
+        if match:
+            return match.group(1)
+    return DEFAULT_EDITION
 
 
 def Data(
@@ -37,14 +58,16 @@ def Data(
     Returns:
         Formatted data.
     """
+    edition = DEFAULT_EDITION
     if path is not None:
         # The path may not exist since the file can be from git history. Look up
         # for existing directory.
         path = Path(path).resolve()
         while not path.is_dir():
             path = path.parent
+        edition = _find_edition(path)
     result = cros_build_lib.run(
-        [_find_rustfmt(), "--edition", "2021"],
+        [_find_rustfmt(), "--edition", edition],
         capture_output=True,
         cwd=path,
         input=data,
