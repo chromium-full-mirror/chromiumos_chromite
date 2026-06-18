@@ -376,7 +376,6 @@ KNOWN_ISSUES = (
     "scripts/lint_package.py",
     "scripts/lint_package_unittest.py",
     "scripts/loman_unittest.py",
-    "scripts/mount_disk_image.py",
     "scripts/package_has_missing_deps.py",
     "scripts/parallel_emerge.py",
     "scripts/pkg_size.py",
