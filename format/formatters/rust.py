@@ -16,7 +16,7 @@ from chromite.lib import cros_build_lib
 
 
 # The latest edition the prebuilt rustfmt tool supports.
-DEFAULT_EDITION = "2021"
+DEFAULT_EDITION = "2024"
 
 
 @functools.lru_cache(maxsize=None)
