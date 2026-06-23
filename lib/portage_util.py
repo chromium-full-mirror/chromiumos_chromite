@@ -3459,70 +3459,6 @@ def CalculatePackageSize(
     )
 
 
-def GetOverlayRootOfEbuild(ebuild_path: Union[str, os.PathLike]) -> Path:
-    """Get the overlay root folder for an ebuild path."""
-    return Path(ebuild_path).resolve().parent.parent.parent
-
-
-@functools.lru_cache(maxsize=None)
-def _GetOverlayPathsMap(buildroot: Path) -> Dict[str, Path]:
-    """Scans and returns a map of repository names to their overlay paths."""
-    paths = (
-        "projects",
-        "src/overlays",
-        "src/private-overlays",
-        "src/third_party",
-    )
-    overlays = {}
-    for p in paths:
-        glob_path = os.path.join(str(buildroot), p, "*")
-        for overlay in sorted(glob.glob(glob_path)):
-            name = GetOverlayName(overlay)
-            if name:
-                overlays[name] = Path(overlay).resolve()
-    return overlays
-
-
-def GetOverlayMasters(
-    overlay_path: Union[str, os.PathLike],
-    buildroot=constants.SOURCE_ROOT,
-) -> List[Path]:
-    """Get paths of all master overlays for the given overlay path."""
-    overlay_path = Path(overlay_path).resolve()
-    target_name = GetOverlayName(str(overlay_path))
-    if not target_name:
-        return []
-
-    buildroot = Path(buildroot).resolve()
-    overlays = _GetOverlayPathsMap(buildroot)
-
-    try:
-        layout_path = overlay_path / "metadata" / "layout.conf"
-        masters = (
-            key_value_store.LoadFile(str(layout_path))
-            .get("masters", "")
-            .split()
-        )
-    except (KeyError, IOError):
-        masters = []
-
-    master_paths = []
-    for master in masters:
-        if master in overlays:
-            master_paths.append(overlays[master])
-            # Recursively add masters of masters.
-            master_paths.extend(GetOverlayMasters(overlays[master], buildroot))
-
-    # Return unique paths, preserving order (parents first).
-    seen = set()
-    deduped = []
-    for p in master_paths:
-        if p not in seen:
-            seen.add(p)
-            deduped.append(p)
-    return deduped
-
-
 def UpdateEbuildManifest(
     ebuild_path: Union[str, os.PathLike],
     chroot: chroot_lib.Chroot,
@@ -3536,33 +3472,10 @@ def UpdateEbuildManifest(
     Returns:
         The command result.
     """
+
     chroot_ebuild_path = chroot.chroot_path(ebuild_path)
     command = ["ebuild", chroot_ebuild_path, "manifest", "--force"]
-
-    # Auto-detect masters and add them to PORTDIR_OVERLAY
-    overlay_root = GetOverlayRootOfEbuild(ebuild_path)
-    masters = GetOverlayMasters(overlay_root)
-
-    extra_env = None
-    if masters:
-        resolver = path_util.ChrootPathResolver()
-        chroot_overlay_root = resolver.ToChroot(str(overlay_root))
-        chroot_masters = [resolver.ToChroot(str(m)) for m in masters]
-
-        # Combine target overlay and its masters.
-        overlays = [chroot_overlay_root] + chroot_masters
-
-        # Deduplicate while preserving order.
-        seen = set()
-        deduped_overlays = []
-        for o in overlays:
-            if o not in seen:
-                seen.add(o)
-                deduped_overlays.append(o)
-
-        extra_env = {"PORTDIR_OVERLAY": " ".join(deduped_overlays)}
-
-    return chroot.run(command, extra_env=extra_env)
+    return chroot.run(command)
 
 
 def read_depgraph_counters(
