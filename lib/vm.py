@@ -443,7 +443,7 @@ class VM(device.Device):
     def Run(self) -> None:
         """Perform an action, one of start, stop, or run a command in the VM."""
         if not self.start and not self.stop and not self.cmd:
-            raise VMError("Must specify one of start, stop, or cmd.")
+            raise VMError("Must specify one of --start, --stop, or --cmd.")
 
         if self.start:
             self.Start()
