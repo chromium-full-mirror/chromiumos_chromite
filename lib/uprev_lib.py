@@ -924,6 +924,7 @@ class UprevVersionedModifications(NamedTuple):
 
     new_version: str
     files: List[str]
+    additional_commit_info: str = ""
 
 
 class UprevVersionedResult:
@@ -935,14 +936,19 @@ class UprevVersionedResult:
     def __bool__(self) -> bool:
         return self.uprevved
 
-    def add_result(self, new_version, modified_files):
+    def add_result(
+        self, new_version, modified_files, additional_commit_info=""
+    ):
         """Adds version/ebuilds tuple to result.
 
         Args:
             new_version: New version number of package.
             modified_files: List of files modified for the given version.
+            additional_commit_info: Additional commit info for this uprev.
         """
-        result = UprevVersionedModifications(new_version, modified_files)
+        result = UprevVersionedModifications(
+            new_version, modified_files, additional_commit_info
+        )
         self.modified.append(result)
         return self
 

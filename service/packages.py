@@ -1014,6 +1014,12 @@ def uprev_chrome(
     chroot: Optional["chroot_lib.Chroot"],
 ) -> uprev_lib.UprevVersionedResult:
     """Attempt to uprev chrome and its related packages to the given version."""
+    old_commit = None
+    try:
+        _, old_commit = uprev_lib.get_stable_chrome_version()
+    except Exception as e:
+        logging.warning("Failed to get stable chrome version: %s", e)
+
     uprev_manager = uprev_lib.UprevChromeManager(
         chrome_version, commit_hash, build_targets=build_targets, chroot=chroot
     )
@@ -1049,7 +1055,17 @@ def uprev_chrome(
 
     if uprev_manager.modified_ebuilds:
         # Record changes when we have them.
-        return result.add_result(chrome_version, uprev_manager.modified_ebuilds)
+        diff_link = ""
+        if old_commit and commit_hash and old_commit != commit_hash:
+            diff_link = (
+                "Diff Link: https://chromium.googlesource.com/chromium/src/"
+                f"+log/{old_commit}..{commit_hash}?n=10000"
+            )
+        return result.add_result(
+            chrome_version,
+            uprev_manager.modified_ebuilds,
+            additional_commit_info=diff_link,
+        )
 
     return result
 

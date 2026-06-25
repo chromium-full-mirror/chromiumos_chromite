@@ -102,6 +102,10 @@ def UprevVersionedPackage(request, response, _config) -> None:
         uprev_response.version = modified.new_version
         for path in modified.files:
             uprev_response.modified_ebuilds.add().path = path
+        if modified.additional_commit_info:
+            uprev_response.additional_commit_info = (
+                modified.additional_commit_info
+            )
 
 
 def _UprevVersionFileResponse(
