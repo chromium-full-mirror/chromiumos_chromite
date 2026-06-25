@@ -2764,7 +2764,7 @@ class UprevLkgmFileTest(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(
             uprev_lib,
             "validate_lkgm_builds_succeeded",
-            return_value=None,
+            return_value=True,
         )
 
         res = packages.uprev_cros_lkgm_file_on_chrome_repo(
@@ -2783,7 +2783,7 @@ class UprevLkgmFileTest(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(lkgm_path.read_text(encoding="utf-8"), "1.2.3-12345")
 
     def test_missing_image(self) -> None:
-        """Verify uprev fails if build validation fails."""
+        """Verify uprev is skipped if build validation fails."""
         chroot = mock.Mock()
         chroot.chrome_root = str(self.tempdir)
         lkgm_dir = self.tempdir / "src" / "chromeos"
@@ -2796,7 +2796,38 @@ class UprevLkgmFileTest(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(
             uprev_lib,
             "validate_lkgm_builds_succeeded",
-            side_effect=uprev_lib.EbuildUprevError("Broken build"),
+            return_value=False,
+        )
+
+        res = packages.uprev_cros_lkgm_file_on_chrome_repo(
+            [
+                uprev_lib.GitRef(
+                    "manifest-internal",
+                    "refs/heads/snapshot",
+                    "deadbeef12345678901234567890123456789012",
+                )
+            ],
+            chroot,
+        )
+        self.assertFalse(res)
+        lkgm_path = lkgm_dir / "CHROMEOS_LKGM"
+        self.assertFalse(lkgm_path.exists())
+
+    def test_infra_error(self) -> None:
+        """Verify uprev fails if build validation has infra error."""
+        chroot = mock.Mock()
+        chroot.chrome_root = str(self.tempdir)
+        lkgm_dir = self.tempdir / "src" / "chromeos"
+        osutils.SafeMakedirs(lkgm_dir)
+        self.PatchObject(
+            uprev_lib,
+            "get_version_with_snapshot_from_manifest",
+            return_value="1.2.3-12345",
+        )
+        self.PatchObject(
+            uprev_lib,
+            "validate_lkgm_builds_succeeded",
+            side_effect=uprev_lib.EbuildUprevError("RPC error"),
         )
 
         with self.assertRaises(packages.UprevError):
@@ -2825,7 +2856,7 @@ class UprevLkgmFileTest(cros_test_lib.MockTempDirTestCase):
         mock_validate = self.PatchObject(
             uprev_lib,
             "validate_lkgm_builds_succeeded",
-            return_value=None,
+            return_value=True,
         )
 
         res = packages.uprev_cros_lkgm_file_on_chrome_repo(
@@ -2905,7 +2936,7 @@ class UprevLkgmFileTest(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(
             uprev_lib,
             "validate_lkgm_builds_succeeded",
-            return_value=None,
+            return_value=True,
         )
         res = packages.uprev_cros_lkgm_file_on_chrome_repo(
             [uprev_lib.GitRef("path", "refs/heads/snapshot", "HEAD")],

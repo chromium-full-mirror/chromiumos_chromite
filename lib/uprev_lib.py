@@ -1261,24 +1261,23 @@ def get_version_with_snapshot_from_manifest(rev: str) -> str:
 def validate_lkgm_builds_succeeded(
     version: str,
     rev: str,
-) -> None:
+) -> bool:
     """Validates that all required boards have successful builds in history.
 
     If the build at the target revision is successful and relevant, the board
     passes. If the target build is successful but irrelevant, we search back
     in the manifest history for a successful relevant build.
 
-    If the target build is not successful, if any build in the history chain
-    is not successful, or if no successful relevant build is found in the
-    checked history window, we raise EbuildUprevError.
-
     Args:
         version: The target version string.
         rev: Target revision commit hash of the manifest repo.
 
+    Returns:
+        True if all required boards have successful builds. False if any board's
+        build failed (is broken) or no successful relevant build is found.
+
     Raises:
-        EbuildUprevError: if a board's build failed (is broken) or no successful
-            relevant build is found.
+        EbuildUprevError: if a Buildbucket query or git log command fails.
     """
 
     def _get_build_url(build: build_pb2.Build) -> str:
@@ -1332,6 +1331,7 @@ def validate_lkgm_builds_succeeded(
         "reven-vmtest",
     )
     bb = buildbucket_v2.BuildbucketV2()
+    any_relevant = False
 
     for board in boards:
         builder_name = f"{board}-snapshot"
@@ -1369,10 +1369,15 @@ def validate_lkgm_builds_succeeded(
         status_name = common_pb2.Status.Name(target_build.status)
 
         if target_build.status != common_pb2.SUCCESS:
-            raise EbuildUprevError(
-                f"Board {board} build {build_url} status is {status_name} "
-                f"at commit {rev} for version {version}"
+            logging.warning(
+                "Board %s build %s status is %s at commit %s for version %s",
+                board,
+                build_url,
+                status_name,
+                rev,
+                version,
             )
+            return False
 
         relevance = next(
             (t.value for t in target_build.tags if t.key == "relevance"),
@@ -1380,6 +1385,7 @@ def validate_lkgm_builds_succeeded(
         )
 
         if relevance == "relevant":
+            any_relevant = True
             logging.info(
                 "Board %s build %s has a good image at commit %s "
                 "(status: SUCCESS, relevant), verification passed.",
@@ -1436,11 +1442,16 @@ def validate_lkgm_builds_succeeded(
             b_status_name = common_pb2.Status.Name(build.status)
 
             if build.status != common_pb2.SUCCESS:
-                raise EbuildUprevError(
-                    f"Board {board} build {build_url} status is "
-                    f"{b_status_name} at commit {commit} for "
-                    f"version {version}"
+                logging.warning(
+                    "Board %s build %s status is %s at commit %s for "
+                    "version %s",
+                    board,
+                    build_url,
+                    b_status_name,
+                    commit,
+                    version,
                 )
+                return False
 
             if b_relevance == "relevant":
                 logging.info(
@@ -1461,7 +1472,19 @@ def validate_lkgm_builds_succeeded(
                 b_relevance,
             )
         else:
-            raise EbuildUprevError(
-                f"Board {board} has no successful relevant build in the "
-                f"last 30 commits for version {version}"
+            logging.warning(
+                "Board %s has no successful relevant build in the last 30 "
+                "commits for version %s",
+                board,
+                version,
             )
+            return False
+
+    if not any_relevant:
+        logging.warning(
+            "All boards are irrelevant at commit %s. Skipping uprev.",
+            rev,
+        )
+        return False
+
+    return True

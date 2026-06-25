@@ -1258,8 +1258,7 @@ def test_validate_lkgm_builds_succeeded_success(
         mock.Mock(return_value=mock_response),
     )
 
-    # This should run without raising any exceptions
-    uprev_lib.validate_lkgm_builds_succeeded(
+    assert uprev_lib.validate_lkgm_builds_succeeded(
         "1.2.3-12345",
         "12345",
     )
@@ -1285,17 +1284,113 @@ def test_validate_lkgm_builds_succeeded_broken_build(
         mock.Mock(return_value=mock_response),
     )
 
-    with pytest.raises(uprev_lib.EbuildUprevError):
-        uprev_lib.validate_lkgm_builds_succeeded(
-            "1.2.3-12345",
-            "12345",
-        )
+    assert not uprev_lib.validate_lkgm_builds_succeeded(
+        "1.2.3-12345",
+        "12345",
+    )
 
 
 def test_validate_lkgm_builds_succeeded_irrelevant_build(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Verify success when build is irrelevant but previous succeeds."""
+    monkeypatch.setattr(
+        uprev_lib.git,
+        "Log",
+        mock.Mock(return_value="12345\n12344\n"),
+    )
+
+    mock_build_12345_irrelevant = mock.Mock(
+        id=1234500,
+        number=12345,
+        builder=mock.Mock(
+            project="chromeos", bucket="postsubmit", builder="betty-snapshot"
+        ),
+        status=common_pb2.SUCCESS,
+        tags=[
+            mock.Mock(key="relevance", value="not relevant"),
+            mock.Mock(
+                key="buildset",
+                value=(
+                    "commit/gitiles/chrome-internal.googlesource.com/"
+                    "chromeos/manifest-internal/+/12345"
+                ),
+            ),
+        ],
+    )
+    mock_build_12345_relevant = mock.Mock(
+        id=1234500,
+        number=12345,
+        builder=mock.Mock(
+            project="chromeos", bucket="postsubmit", builder="betty-snapshot"
+        ),
+        status=common_pb2.SUCCESS,
+        tags=[
+            mock.Mock(key="relevance", value="relevant"),
+            mock.Mock(
+                key="buildset",
+                value=(
+                    "commit/gitiles/chrome-internal.googlesource.com/"
+                    "chromeos/manifest-internal/+/12345"
+                ),
+            ),
+        ],
+    )
+    mock_build_12344 = mock.Mock(
+        id=1234400,
+        number=12344,
+        builder=mock.Mock(
+            project="chromeos", bucket="postsubmit", builder="betty-snapshot"
+        ),
+        status=common_pb2.SUCCESS,
+        tags=[
+            mock.Mock(key="relevance", value="relevant"),
+            mock.Mock(
+                key="buildset",
+                value=(
+                    "commit/gitiles/chrome-internal.googlesource.com/"
+                    "chromeos/manifest-internal/+/12344"
+                ),
+            ),
+        ],
+    )
+
+    def side_effect(predicate, **_kwargs):
+        builder = predicate.builder.builder
+        if predicate.tags:
+            buildset = next(
+                t.value for t in predicate.tags if t.key == "buildset"
+            )
+            commit = buildset.split("/")[-1]
+            if commit == "12345":
+                if builder == "betty-snapshot":
+                    return mock.Mock(builds=[mock_build_12345_relevant])
+                return mock.Mock(builds=[mock_build_12345_irrelevant])
+        elif predicate.build:
+            if predicate.build.end_build_id == 1234500:
+                return mock.Mock(
+                    builds=[mock_build_12345_irrelevant, mock_build_12344]
+                )
+        return mock.Mock(builds=[])
+
+    monkeypatch.setattr(
+        buildbucket_v2.BuildbucketV2,
+        "SearchBuild",
+        mock.Mock(side_effect=side_effect),
+    )
+
+    # This should return True because it falls back to
+    # 12344 which is success, and at least one board (betty) is relevant.
+    assert uprev_lib.validate_lkgm_builds_succeeded(
+        "1.2.3-12345",
+        "12345",
+    )
+
+
+def test_validate_lkgm_builds_succeeded_all_irrelevant(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify failure (return False) when all boards are irrelevant."""
     monkeypatch.setattr(
         uprev_lib.git,
         "Log",
@@ -1358,9 +1453,9 @@ def test_validate_lkgm_builds_succeeded_irrelevant_build(
         mock.Mock(side_effect=side_effect),
     )
 
-    # This should run without raising any exceptions because it falls back to
-    # 12344 which is success.
-    uprev_lib.validate_lkgm_builds_succeeded(
+    # This should return False because all boards are irrelevant at 12345
+    # (even though they fall back to 12344 successfully).
+    assert not uprev_lib.validate_lkgm_builds_succeeded(
         "1.2.3-12345",
         "12345",
     )
@@ -1432,11 +1527,10 @@ def test_validate_lkgm_builds_succeeded_previous_broken_build(
         mock.Mock(side_effect=side_effect),
     )
 
-    with pytest.raises(uprev_lib.EbuildUprevError):
-        uprev_lib.validate_lkgm_builds_succeeded(
-            "1.2.3-12345",
-            "12345",
-        )
+    assert not uprev_lib.validate_lkgm_builds_succeeded(
+        "1.2.3-12345",
+        "12345",
+    )
 
 
 def test_validate_lkgm_builds_succeeded_no_build_found(
