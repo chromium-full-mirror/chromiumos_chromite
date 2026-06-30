@@ -14,9 +14,11 @@ import os
 import re
 import sys
 from typing import (
+    Any,
     Collection,
     Iterable,
     List,
+    Mapping,
     NamedTuple,
     Optional,
     Tuple,
@@ -68,6 +70,44 @@ _CHROME_GIT_REPO = "chromium/src.git"
 _CHROME_GIT_REPO_URL = f"https://{_CHROME_GIT_HOST}/{_CHROME_GIT_REPO}"
 
 GitRef = collections.namedtuple("GitRef", ["path", "ref", "revision"])
+
+
+class LkgmRefType(enum.Enum):
+    """Types of git refs for LKGM validation."""
+
+    SNAPSHOT = "snapshot"
+    RELEASE = "release"
+    STAGING_SNAPSHOT = "staging-snapshot"
+
+
+LKGM_BOARDS = {
+    "betty": {LkgmRefType.SNAPSHOT, LkgmRefType.RELEASE},
+    "brya": {
+        LkgmRefType.SNAPSHOT,
+        LkgmRefType.RELEASE,
+        LkgmRefType.STAGING_SNAPSHOT,
+    },
+    "jacuzzi": {LkgmRefType.SNAPSHOT, LkgmRefType.RELEASE},
+    "octopus": {LkgmRefType.SNAPSHOT, LkgmRefType.RELEASE},
+    "trogdor": {LkgmRefType.SNAPSHOT, LkgmRefType.RELEASE},
+    "volteer": {LkgmRefType.SNAPSHOT, LkgmRefType.RELEASE},
+    "reven-vmtest": {LkgmRefType.SNAPSHOT, LkgmRefType.RELEASE},
+}
+
+
+def get_lkgm_boards(ref: str) -> tuple[str, ...]:
+    """Returns the required LKGM boards for a given git ref."""
+    if ref == "refs/heads/staging-snapshot":
+        target = LkgmRefType.STAGING_SNAPSHOT
+    elif ref.startswith("refs/heads/release-R"):
+        target = LkgmRefType.RELEASE
+    else:
+        target = LkgmRefType.SNAPSHOT
+
+    return tuple(
+        board for board, targets in LKGM_BOARDS.items() if target in targets
+    )
+
 
 # An alias of constants.SOURCE_ROOT. Can be mocked in unit tests.
 SRC_ROOT = constants.SOURCE_ROOT
@@ -1225,26 +1265,37 @@ def uprev_workon_ebuild_to_version(
     return result
 
 
-def get_version_with_snapshot_from_manifest(rev: str) -> str:
+def get_version_with_snapshot_from_manifest(rev: str, ref: str) -> str:
     """Retrieves the ChromeOS version string with snapshot ID from the manifest.
 
     Args:
         rev: The revision of the manifest to inspect.
+        ref: The git ref being uprevved (e.g. refs/heads/snapshot).
 
     Returns:
         A string combining the ChromeOS version and the snapshot identifier.
+
+    Raises:
+        ValueError: If snapshot ref is missing Cr-Snapshot-Identifier or
+            if ref does not start with refs/heads/.
     """
+    if not ref.startswith("refs/heads/"):
+        raise ValueError(f"ref must start with 'refs/heads/': {ref}")
+
     manifest_repo = constants.SOURCE_ROOT / "manifest-internal"
     manifest = git.Log(manifest_repo, format=":%B", max_count=1, rev=rev)
     snapshot_id_matches = re.findall(
-        r"^Cr-Snapshot-Identifier: ([0-9]*)", manifest, flags=re.M
+        r"^Cr-Snapshot-Identifier: ([0-9]+)", manifest, flags=re.M
     )
-    if not snapshot_id_matches:
-        raise ValueError("No snapshot identifier found.")
-    elif len(snapshot_id_matches) > 1:
-        raise ValueError("Too many snapshot identifier found.")
-    else:
-        snapshot_id = snapshot_id_matches[0]
+    is_release = ref.startswith("refs/heads/release-R")
+    if not is_release:
+        if not snapshot_id_matches:
+            raise ValueError("No snapshot identifier found in manifest commit.")
+        if len(snapshot_id_matches) > 1:
+            raise ValueError("Too many snapshot identifiers found.")
+
+    snapshot_id = snapshot_id_matches[0] if snapshot_id_matches else None
+
     snapshot_manifest = git.GetObjectAtRev(manifest_repo, "snapshot.xml", rev)
     manifest_obj = repo_manifest.Manifest.FromString(snapshot_manifest)
     projects = [
@@ -1261,14 +1312,157 @@ def get_version_with_snapshot_from_manifest(rev: str) -> str:
     version = chromeos_version.VersionInfo(
         version_file=io.StringIO(version_file)
     ).VersionString()
-    return f"{version}-{snapshot_id}"
+    return f"{version}-{snapshot_id}" if snapshot_id else version
 
 
-def validate_lkgm_builds_succeeded(
+def _get_build_url(build: build_pb2.Build) -> str:
+    """Returns the full Milo build URL for the build."""
+    project = build.builder.project
+    bucket = build.builder.bucket
+    builder = build.builder.builder
+    base_url = (
+        f"https://ci.chromium.org/p/{project}/builders/{bucket}/{builder}"
+    )
+    if build.number:
+        return f"{base_url}/{build.number}"
+    return f"{base_url}/b{build.id}"
+
+
+def _search_builds(
+    bb: buildbucket_v2.BuildbucketV2,
+    build_predicate: builds_service_pb2.BuildPredicate,
+    fields: field_mask_pb2.FieldMask,
+    page_size: int,
+    board: str,
+) -> builds_service_pb2.SearchBuildsResponse:
+    """Helper to query Buildbucket with error handling."""
+    try:
+        return bb.SearchBuild(
+            build_predicate, fields=fields, page_size=page_size
+        )
+    except Exception as e:
+        raise EbuildUprevError(
+            f"Failed to query Buildbucket status for board {board}: {e}"
+        ) from e
+
+
+def validate_release_lkgm_builds_succeeded(
+    version: str,
+    ref: str,
+) -> bool:
+    """Validates that release builds for all required boards succeeded.
+
+    Args:
+        version: The target version string.
+        ref: The release git ref (e.g.
+            refs/heads/release-R150-16700.B-snapshot).
+
+    Returns:
+        True if all required boards have successful release builds.
+        False otherwise.
+
+    Raises:
+        EbuildUprevError: if a Buildbucket query fails.
+    """
+    boards = get_lkgm_boards(ref)
+    bb = buildbucket_v2.BuildbucketV2()
+
+    if "staging-release" in ref:
+        raise EbuildUprevError(
+            "Staging release refs are not supported as they do not commit to "
+            f"git: {ref}"
+        )
+
+    release_branch = ref
+    if release_branch.startswith("refs/heads/"):
+        release_branch = release_branch[len("refs/heads/") :]
+    if release_branch.endswith("-snapshot"):
+        release_branch = release_branch[: -len("-snapshot")]
+    version_base = version.split("-")[0]
+    m = re.search(r"release-R(\d+)", release_branch)
+    if not m:
+        raise EbuildUprevError(
+            f"Could not extract Chrome milestone from release ref: {ref}"
+        )
+    chrome_branch = m.group(1)
+    expected_manifest_file = f"buildspecs/{chrome_branch}/{version_base}.xml"
+
+    for board in boards:
+        builder_name = f"{board}-{release_branch}"
+        builder_id = builder_common_pb2.BuilderID(
+            project="chromeos", bucket="release", builder=builder_name
+        )
+        fmask = field_mask_pb2.FieldMask(
+            paths=[
+                "builds.*.id",
+                "builds.*.status",
+                "builds.*.number",
+                "builds.*.builder",
+                "builds.*.input.properties",
+            ]
+        )
+        build_predicate = builds_service_pb2.BuildPredicate(builder=builder_id)
+        res = _search_builds(bb, build_predicate, fmask, 50, board)
+
+        matching_build: Optional[build_pb2.Build] = None
+        for b in res.builds:
+            if not b.input or not b.input.properties:
+                continue
+            cur: Union[Mapping[str, Any], str, None] = b.input.properties
+            for key in (
+                "$chromeos/cros_source",
+                "syncToManifest",
+                "manifestFile",
+            ):
+                if isinstance(cur, Mapping) and key in cur:
+                    cur = cur[key]
+                else:
+                    logging.warning(
+                        "Build %s input properties missing key %s (cur=%r)",
+                        b.id,
+                        key,
+                        cur,
+                    )
+                    cur = None
+                    break
+            if cur == expected_manifest_file:
+                matching_build = b
+                break
+
+        if not matching_build:
+            raise EbuildUprevError(
+                f"No release build found for board {board} for manifest "
+                f"{expected_manifest_file}"
+            )
+
+        build_url = _get_build_url(matching_build)
+        if matching_build.status != common_pb2.SUCCESS:
+            status_name = common_pb2.Status.Name(matching_build.status)
+            logging.warning(
+                "Board %s release build %s status is %s for manifest %s",
+                board,
+                build_url,
+                status_name,
+                expected_manifest_file,
+            )
+            return False
+
+        logging.info(
+            "Board %s release build %s succeeded for manifest %s",
+            board,
+            build_url,
+            expected_manifest_file,
+        )
+
+    return True
+
+
+def validate_snapshot_lkgm_builds_succeeded(
     version: str,
     rev: str,
+    ref: str,
 ) -> bool:
-    """Validates that all required boards have successful builds in history.
+    """Validates that snapshot builds for all required boards succeeded.
 
     If the build at the target revision is successful and relevant, the board
     passes. If the target build is successful but irrelevant, we search back
@@ -1277,6 +1471,7 @@ def validate_lkgm_builds_succeeded(
     Args:
         version: The target version string.
         rev: Target revision commit hash of the manifest repo.
+        ref: The git ref being uprevved (e.g. refs/heads/staging-snapshot).
 
     Returns:
         True if all required boards have successful builds. False if any board's
@@ -1285,37 +1480,8 @@ def validate_lkgm_builds_succeeded(
     Raises:
         EbuildUprevError: if a Buildbucket query or git log command fails.
     """
-
-    def _get_build_url(build: build_pb2.Build) -> str:
-        """Returns the full Milo build URL for the build."""
-        project = build.builder.project
-        bucket = build.builder.bucket
-        builder = build.builder.builder
-        base_url = (
-            f"https://ci.chromium.org/p/{project}/builders/"
-            f"{bucket}/{builder}"
-        )
-        if build.number:
-            return f"{base_url}/{build.number}"
-        return f"{base_url}/b{build.id}"
-
-    def _search_builds(
-        bb: buildbucket_v2.BuildbucketV2,
-        build_predicate: builds_service_pb2.BuildPredicate,
-        fields: field_mask_pb2.FieldMask,
-        page_size: int,
-        board: str,
-    ) -> builds_service_pb2.SearchBuildsResponse:
-        """Helper to query Buildbucket with error handling."""
-        try:
-            return bb.SearchBuild(
-                build_predicate, fields=fields, page_size=page_size
-            )
-        except Exception as e:
-            raise EbuildUprevError(
-                f"Failed to query Buildbucket status for board {board}: {e}"
-            ) from e
-
+    if not ref.startswith("refs/heads/"):
+        raise ValueError(f"ref must start with 'refs/heads/': {ref}")
     manifest_repo = constants.SOURCE_ROOT / "manifest-internal"
 
     try:
@@ -1327,22 +1493,21 @@ def validate_lkgm_builds_succeeded(
             f"Failed to retrieve git history for manifest revision {rev}: {e}"
         ) from e
 
-    boards = (
-        "betty",
-        "brya",
-        "jacuzzi",
-        "octopus",
-        "trogdor",
-        "volteer",
-        "reven-vmtest",
-    )
+    is_staging = ref == "refs/heads/staging-snapshot"
+    boards = get_lkgm_boards(ref)
     bb = buildbucket_v2.BuildbucketV2()
     any_relevant = False
 
     for board in boards:
-        builder_name = f"{board}-snapshot"
+        if is_staging:
+            bucket = "staging"
+            builder_name = f"staging-{board}-snapshot"
+        else:
+            bucket = "postsubmit"
+            builder_name = f"{board}-snapshot"
+
         builder_id = builder_common_pb2.BuilderID(
-            project="chromeos", bucket="postsubmit", builder=builder_name
+            project="chromeos", bucket=bucket, builder=builder_name
         )
         fmask = field_mask_pb2.FieldMask(
             paths=[
@@ -1494,3 +1659,30 @@ def validate_lkgm_builds_succeeded(
         return False
 
     return True
+
+
+def validate_lkgm_builds_succeeded(
+    version: str,
+    rev: str,
+    ref: str,
+) -> bool:
+    """Validates that all required boards have successful builds in history.
+
+    Args:
+        version: The target version string.
+        rev: Target revision commit hash of the manifest repo.
+        ref: The git ref being uprevved (e.g. refs/heads/staging-snapshot).
+
+    Returns:
+        True if all required boards have successful builds. False otherwise.
+    """
+    if not ref.startswith("refs/heads/"):
+        raise ValueError(f"ref must start with 'refs/heads/': {ref}")
+    if "staging-release" in ref:
+        raise EbuildUprevError(
+            "Staging release refs are not supported as they do not commit to "
+            f"git: {ref}"
+        )
+    if ref.startswith("refs/heads/release-R"):
+        return validate_release_lkgm_builds_succeeded(version, ref)
+    return validate_snapshot_lkgm_builds_succeeded(version, rev, ref=ref)

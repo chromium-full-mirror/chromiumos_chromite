@@ -2782,6 +2782,86 @@ class UprevLkgmFileTest(cros_test_lib.MockTempDirTestCase):
         lkgm_path = lkgm_dir / "CHROMEOS_LKGM"
         self.assertEqual(lkgm_path.read_text(encoding="utf-8"), "1.2.3-12345")
 
+    def test_staging_snapshot_success(self) -> None:
+        """Verify successful uprev with staging-snapshot ref."""
+        chroot = mock.Mock()
+        chroot.chrome_root = str(self.tempdir)
+        lkgm_dir = self.tempdir / "src" / "chromeos"
+        osutils.SafeMakedirs(lkgm_dir)
+        self.PatchObject(
+            uprev_lib,
+            "get_version_with_snapshot_from_manifest",
+            return_value="1.2.3-12345",
+        )
+        self.PatchObject(
+            uprev_lib,
+            "validate_lkgm_builds_succeeded",
+            return_value=True,
+        )
+
+        res = packages.uprev_cros_lkgm_file_on_chrome_repo(
+            [
+                uprev_lib.GitRef(
+                    "manifest-internal",
+                    "refs/heads/staging-snapshot",
+                    "deadbeef12345678901234567890123456789012",
+                )
+            ],
+            chroot,
+        )
+        self.assertTrue(res)
+        self.assertEqual(res.modified[0].new_version, "1.2.3-12345")
+        lkgm_path = lkgm_dir / "CHROMEOS_LKGM"
+        self.assertEqual(lkgm_path.read_text(encoding="utf-8"), "1.2.3-12345")
+
+    def test_release_branch_success(self) -> None:
+        """Verify successful uprev with release branch ref."""
+        chroot = mock.Mock()
+        chroot.chrome_root = str(self.tempdir)
+        lkgm_dir = self.tempdir / "src" / "chromeos"
+        osutils.SafeMakedirs(lkgm_dir)
+        self.PatchObject(
+            uprev_lib,
+            "get_version_with_snapshot_from_manifest",
+            return_value="1.2.3-12345",
+        )
+        self.PatchObject(
+            uprev_lib,
+            "validate_lkgm_builds_succeeded",
+            return_value=True,
+        )
+
+        res = packages.uprev_cros_lkgm_file_on_chrome_repo(
+            [
+                uprev_lib.GitRef(
+                    "manifest-internal",
+                    "refs/heads/release-R150-16700.B",
+                    "68a39269045385fcb60c3a1a74152b5d4b8b35ed",
+                )
+            ],
+            chroot,
+        )
+        self.assertTrue(res)
+        self.assertEqual(res.modified[0].new_version, "1.2.3-12345")
+        lkgm_path = lkgm_dir / "CHROMEOS_LKGM"
+        self.assertEqual(lkgm_path.read_text(encoding="utf-8"), "1.2.3-12345")
+
+    def test_staging_release_invalid_ref(self) -> None:
+        """Verify staging-release refs raise UprevError."""
+        chroot = mock.Mock()
+        chroot.chrome_root = str(self.tempdir)
+        with self.assertRaises(packages.UprevError):
+            packages.uprev_cros_lkgm_file_on_chrome_repo(
+                [
+                    uprev_lib.GitRef(
+                        "manifest-internal",
+                        "refs/heads/staging-release-R150-16700.B",
+                        "68a39269045385fcb60c3a1a74152b5d4b8b35ed",
+                    )
+                ],
+                chroot,
+            )
+
     def test_missing_image(self) -> None:
         """Verify uprev is skipped if build validation fails."""
         chroot = mock.Mock()
@@ -2874,7 +2954,9 @@ class UprevLkgmFileTest(cros_test_lib.MockTempDirTestCase):
         lkgm_path = lkgm_dir / "CHROMEOS_LKGM"
         self.assertEqual(lkgm_path.read_text(encoding="utf-8"), "1.2.3-12345")
         mock_validate.assert_called_once_with(
-            "1.2.3-12345", "deadbeef12345678901234567890123456789012"
+            "1.2.3-12345",
+            "deadbeef12345678901234567890123456789012",
+            ref="refs/heads/stable",
         )
 
     def test_skip_older_version(self) -> None:

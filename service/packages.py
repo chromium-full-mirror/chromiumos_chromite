@@ -2047,12 +2047,22 @@ def uprev_cros_lkgm_file_on_chrome_repo(
     Returns:
         The new version and modified files.
     """
-    if refs[-1].ref not in ("refs/heads/snapshot", "refs/heads/stable"):
+    if not (
+        refs[-1].ref
+        in (
+            "refs/heads/snapshot",
+            "refs/heads/staging-snapshot",
+            "refs/heads/stable",
+        )
+        or refs[-1].ref.startswith("refs/heads/release-R")
+    ):
         raise UprevError(f"Invalid ref: {refs[-1].ref}")
     lkgm_path = os.path.join(chroot.chrome_root, "src/chromeos/CHROMEOS_LKGM")
     result = uprev_lib.UprevVersionedResult()
     rev = refs[-1].revision
-    version = uprev_lib.get_version_with_snapshot_from_manifest(rev)
+    version = uprev_lib.get_version_with_snapshot_from_manifest(
+        rev, ref=refs[-1].ref
+    )
     if os.path.exists(lkgm_path):
         try:
             current_version_str = osutils.ReadFile(lkgm_path).strip()
@@ -2073,7 +2083,9 @@ def uprev_cros_lkgm_file_on_chrome_repo(
             logging.warning("Failed to parse current LKGM version: %s", e)
 
     try:
-        if not uprev_lib.validate_lkgm_builds_succeeded(version, rev):
+        if not uprev_lib.validate_lkgm_builds_succeeded(
+            version, rev, ref=refs[-1].ref
+        ):
             logging.warning(
                 "LKGM build validation failed for %s. Skipping uprev.",
                 version,

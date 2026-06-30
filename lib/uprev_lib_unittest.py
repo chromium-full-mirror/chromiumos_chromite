@@ -1232,9 +1232,19 @@ def test_get_version_with_snapshot_from_manifest(
     )
 
     assert (
-        uprev_lib.get_version_with_snapshot_from_manifest("HEAD")
+        uprev_lib.get_version_with_snapshot_from_manifest(
+            "HEAD", "refs/heads/snapshot"
+        )
         == "1.2.3-12345"
     )
+
+
+def test_get_version_with_snapshot_from_manifest_invalid_ref() -> None:
+    """Test get_version_with_snapshot_from_manifest invalid ref."""
+    with pytest.raises(ValueError, match="ref must start with 'refs/heads/':"):
+        uprev_lib.get_version_with_snapshot_from_manifest(
+            "HEAD", ref="invalid/ref"
+        )
 
 
 def test_validate_lkgm_builds_succeeded_success(
@@ -1261,7 +1271,104 @@ def test_validate_lkgm_builds_succeeded_success(
     assert uprev_lib.validate_lkgm_builds_succeeded(
         "1.2.3-12345",
         "12345",
+        "refs/heads/snapshot",
     )
+
+
+def test_validate_lkgm_builds_succeeded_staging_snapshot(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify checks brya only for staging-snapshot."""
+    mock_build = mock.Mock(
+        id=1234500,
+        number=123,
+        builder=mock.Mock(
+            project="chromeos",
+            bucket="staging",
+            builder="staging-brya-snapshot",
+        ),
+        status=common_pb2.SUCCESS,
+        output=mock.Mock(properties={"chromeos_version": "R120-1.2.3-12345"}),
+        tags=[mock.Mock(key="relevance", value="relevant")],
+    )
+    mock_response = mock.Mock(builds=[mock_build])
+    mock_search = mock.Mock(return_value=mock_response)
+    monkeypatch.setattr(
+        buildbucket_v2.BuildbucketV2,
+        "SearchBuild",
+        mock_search,
+    )
+
+    assert uprev_lib.validate_lkgm_builds_succeeded(
+        "1.2.3-12345",
+        "12345",
+        ref="refs/heads/staging-snapshot",
+    )
+    # Verify SearchBuild was called exactly once for brya only
+    assert mock_search.call_count == 1
+
+
+def test_validate_lkgm_builds_succeeded_release_branch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify checks release builders with manifestFile property."""
+    mock_build = mock.Mock(
+        id=1234500,
+        number=123,
+        builder=mock.Mock(
+            project="chromeos",
+            bucket="release",
+            builder="betty-release-R150-16700.B",
+        ),
+        status=common_pb2.SUCCESS,
+        input=mock.Mock(
+            properties={
+                "$chromeos/cros_source": {
+                    "syncToManifest": {
+                        "manifestFile": "buildspecs/150/16700.32.0.xml"
+                    }
+                }
+            }
+        ),
+    )
+    mock_response = mock.Mock(builds=[mock_build])
+    mock_search = mock.Mock(return_value=mock_response)
+    monkeypatch.setattr(
+        buildbucket_v2.BuildbucketV2,
+        "SearchBuild",
+        mock_search,
+    )
+
+    assert uprev_lib.validate_lkgm_builds_succeeded(
+        "16700.32.0-release",
+        "12345",
+        ref="refs/heads/release-R150-16700.B-snapshot",
+    )
+
+
+def test_validate_lkgm_builds_succeeded_staging_release() -> None:
+    """Verify raises EbuildUprevError for staging-release refs."""
+    with pytest.raises(
+        uprev_lib.EbuildUprevError,
+        match="Staging release refs are not supported",
+    ):
+        uprev_lib.validate_lkgm_builds_succeeded(
+            "16700.32.0",
+            "12345",
+            ref="refs/heads/staging-release-R150-16700.B",
+        )
+
+
+def test_validate_release_lkgm_builds_succeeded_invalid_milestone() -> None:
+    """Verify raises EbuildUprevError when milestone cannot be extracted."""
+    with pytest.raises(
+        uprev_lib.EbuildUprevError,
+        match="Could not extract Chrome milestone from release ref",
+    ):
+        uprev_lib.validate_release_lkgm_builds_succeeded(
+            "16700.32.0",
+            ref="refs/heads/release-16700.B",
+        )
 
 
 def test_validate_lkgm_builds_succeeded_broken_build(
@@ -1287,6 +1394,7 @@ def test_validate_lkgm_builds_succeeded_broken_build(
     assert not uprev_lib.validate_lkgm_builds_succeeded(
         "1.2.3-12345",
         "12345",
+        "refs/heads/snapshot",
     )
 
 
@@ -1384,6 +1492,7 @@ def test_validate_lkgm_builds_succeeded_irrelevant_build(
     assert uprev_lib.validate_lkgm_builds_succeeded(
         "1.2.3-12345",
         "12345",
+        "refs/heads/snapshot",
     )
 
 
@@ -1458,6 +1567,7 @@ def test_validate_lkgm_builds_succeeded_all_irrelevant(
     assert not uprev_lib.validate_lkgm_builds_succeeded(
         "1.2.3-12345",
         "12345",
+        "refs/heads/snapshot",
     )
 
 
@@ -1530,6 +1640,7 @@ def test_validate_lkgm_builds_succeeded_previous_broken_build(
     assert not uprev_lib.validate_lkgm_builds_succeeded(
         "1.2.3-12345",
         "12345",
+        "refs/heads/snapshot",
     )
 
 
@@ -1555,4 +1666,5 @@ def test_validate_lkgm_builds_succeeded_no_build_found(
         uprev_lib.validate_lkgm_builds_succeeded(
             "1.2.3-12345",
             "12345",
+            "refs/heads/snapshot",
         )
