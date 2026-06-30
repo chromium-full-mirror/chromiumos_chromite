@@ -943,7 +943,8 @@ class RemoteDevice:
 
         if ping and not self.Pingable():
             raise DeviceNotPingableError(
-                "Device %s is not pingable." % self.hostname
+                "Device %s is not pingable, maybe try the --no-ping option"
+                % self.hostname
             )
 
         if connect:
