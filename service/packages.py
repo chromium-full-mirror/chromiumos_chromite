@@ -1059,7 +1059,7 @@ def uprev_chrome(
         if old_commit and commit_hash and old_commit != commit_hash:
             diff_link = (
                 "Diff Link: https://chromium.googlesource.com/chromium/src/"
-                f"+log/{old_commit}..{commit_hash}?n=10000"
+                f"+log/{old_commit}..{commit_hash}?n=10000\n"
             )
         return result.add_result(
             chrome_version,
