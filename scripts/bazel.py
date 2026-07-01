@@ -17,11 +17,13 @@ from typing import List, Optional, Tuple
 
 from chromite.lib import cipd
 from chromite.lib import constants
+from chromite.lib import cros_build_lib
 from chromite.lib import osutils
+from chromite.lib import retry_util
 
 
 _BAZELISK_PACKAGE = "fuchsia/third_party/bazelisk/${os}-${arch}"
-_BAZELISK_VERSION = "version:2@1.20.0"
+_BAZELISK_VERSION = "version:2@1.25.0"
 
 # Symlinks which may exist in the workspace root without an underlying file in
 # src/bazel/workspace_root.
@@ -163,4 +165,33 @@ def main(argv: Optional[List[str]]) -> Optional[int]:
 
     bazelisk = _get_bazelisk()
     os.environ["CHROMITE_BAZEL_WRAPPER"] = "1"
+
+    # Pre-flight step: Ensure the Bazel binary is downloaded into cache.
+    # Running 'bazelisk --version' forces Bazelisk to fetch/download the
+    # Bazel binary without executing any Bazel targets or workspace actions.
+    def _fetch_bazel() -> None:
+        res = cros_build_lib.run(
+            [bazelisk, "--version"],
+            check=False,
+            capture_output=True,
+        )
+        if res.returncode != 0:
+            stderr = res.stderr.decode(errors="replace")
+            if (
+                "failed to download bazel" in stderr
+                or "unable to complete request" in stderr
+            ):
+                raise cros_build_lib.RunCommandError(
+                    "Bazelisk download failed", res
+                )
+
+    retry_util.GenericRetry(
+        lambda exc: isinstance(exc, cros_build_lib.RunCommandError),
+        max_retry=2,
+        functor=_fetch_bazel,
+        sleep=2,
+        backoff_factor=2,
+        log_all_retries=True,
+    )
+
     os.execv(bazelisk, [bazelisk, *bazel_args])
