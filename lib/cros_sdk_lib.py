@@ -813,6 +813,18 @@ def MountChrootPaths(
             osutils.Touch(ssh_auth_sock_mnt)
         osutils.Mount(ssh_auth_sock, ssh_auth_sock_mnt, None, osutils.MS_BIND)
 
+    # Pass the LUCI_CONTEXT file into the SDK chroot if present on host.
+    luci_context_mnt = path / "tmp" / "luci_context.json"
+    luci_context_env = os.getenv("LUCI_CONTEXT")
+    if luci_context_env and Path(luci_context_env).is_file():
+        if not luci_context_mnt.exists():
+            osutils.Touch(luci_context_mnt)
+        osutils.Mount(
+            Path(luci_context_env), luci_context_mnt, None, osutils.MS_BIND
+        )
+    else:
+        osutils.SafeUnlink(luci_context_mnt)
+
     defflags = (
         osutils.MS_NOSUID
         | osutils.MS_NODEV
@@ -1580,6 +1592,12 @@ class ChrootEnteror:
             os.environ["SSH_AUTH_SOCK"] = "/tmp/ssh-auth-sock"
         else:
             os.environ.pop("SSH_AUTH_SOCK", None)
+
+        luci_context_mnt = Path(self.chroot.path) / "tmp" / "luci_context.json"
+        if luci_context_mnt.is_file():
+            os.environ["LUCI_CONTEXT"] = "/tmp/luci_context.json"
+        else:
+            os.environ.pop("LUCI_CONTEXT", None)
 
         wrapper += [
             f"{v}={os.getenv(v)}"
