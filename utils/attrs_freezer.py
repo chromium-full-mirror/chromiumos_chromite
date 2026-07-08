@@ -97,9 +97,6 @@ class Freezable:
         # subclasses' custom overrides.
         object.__setattr__(self, "_frozen", True)
 
-    # TODO(build): Drop this compat name.
-    Freeze = freeze
-
     def raise_cannot_modify_error(self, name: str) -> NoReturn:
         """Raise a CannotModifyFrozenAttribute error.
 
