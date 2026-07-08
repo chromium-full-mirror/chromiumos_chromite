@@ -927,10 +927,6 @@ def die(message, *args, **kwargs) -> NoReturn:
     raise DieSystemExit(1)
 
 
-# TODO(build): Drop this compat name.
-Die = die
-
-
 def GetSysrootToolPath(sysroot: str, tool_name: str) -> str:
     """Returns the path to the sysroot specific version of a tool.
 
