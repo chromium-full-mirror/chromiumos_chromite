@@ -21,14 +21,12 @@ def _check_eapis_banned(settings: Dict[str, str]) -> Iterable[str]:
     if len(value) != len(unique):
         yield f"'{key}' must not contain duplicate entries: {value}"
 
-    required_banned = {"0", "1", "2", "3", "4"}
+    wanted = {"0", "1", "2", "3", "4", "5", "6"}
     if value:
-        missing = required_banned - unique
+        missing = wanted - unique
         if missing:
             yield f"'{key}' must include: {' '.join(missing)}"
     else:
-        # If it's not set at all, assume it's new and be more restrictive.
-        wanted = sorted(required_banned | {"5", "6"})
         yield f"'{key}' is missing; should be set to: {' '.join(wanted)}"
 
 

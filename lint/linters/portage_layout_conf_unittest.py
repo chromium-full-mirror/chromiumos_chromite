@@ -92,7 +92,6 @@ def test_eapis_banned() -> None:
     assert _get("")
 
     # Check valid values.
-    assert not _get("0 1 2 3 4")
     assert not _get("0 1 2 3 4 5 6")
 
     # Require older versions if we use it at all.
