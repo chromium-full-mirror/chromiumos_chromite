@@ -5,6 +5,7 @@
 """Unit tests for cros_run_unit_tests.py."""
 
 import os
+from pathlib import Path
 from typing import List
 from unittest import mock
 
@@ -54,17 +55,29 @@ class CrosRunUnitTestsTest(cros_test_lib.MockTestCase):
         ["--board", "amd64-generic", "--packages", "foo/bar"],
     ),
 )
-def test_failure_code(_, __, ___, run_mock, test_args: List[str]) -> None:
+def test_failure_code(
+    _, __, ___, run_mock, tmp_path: Path, test_args: List[str]
+) -> None:
     """Assert we propagate command failures as return codes."""
-    run_mock.AddCmdResult(
-        partial_mock.In(str(constants.CHROMITE_BIN_DIR / "parallel_emerge")),
-        returncode=42,
-    )
+    sysroot = tmp_path / "sysroot"
+    (sysroot / "etc" / "portage").mkdir(parents=True)
 
-    # Callers tend to look for non-zero, but we always use "1" for now.
-    assert cros_run_unit_tests.main(test_args) == 1
+    with mock.patch.object(
+        cros_run_unit_tests.build_target_lib,
+        "get_default_sysroot_path",
+        return_value=str(sysroot),
+    ):
+        run_mock.AddCmdResult(
+            partial_mock.In(
+                str(constants.CHROMITE_BIN_DIR / "parallel_emerge")
+            ),
+            returncode=42,
+        )
 
-    # Double-check we really hit the (mocked) parallel_emerge.
-    assert run_mock.CommandContains(
-        [constants.CHROMITE_BIN_DIR / "parallel_emerge"]
-    )
+        # Callers tend to look for non-zero, but we always use "1" for now.
+        assert cros_run_unit_tests.main(test_args) == 1
+
+        # Double-check we really hit the (mocked) parallel_emerge.
+        assert run_mock.CommandContains(
+            [constants.CHROMITE_BIN_DIR / "parallel_emerge"]
+        )

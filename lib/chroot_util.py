@@ -5,10 +5,12 @@
 """Utilities for updating and building in the chroot environment."""
 
 import os
+from pathlib import Path
 from typing import Dict, List, Optional, Set, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import osutils
 from chromite.lib import sysroot_lib
 from chromite.lib.telemetry import trace
 
@@ -116,6 +118,78 @@ def Emerge(
     cros_build_lib.sudo_run(cmd + packages, preserve_env=True)
 
 
+def _SetUpTestPortageConfig(
+    tempdir: Path, sysroot: Path, packages: Set[str]
+) -> None:
+    """Sets up a temporary PORTAGE_CONFIGROOT directory structure.
+
+    This allows us to isolate FEATURES configuration for the test run without
+    modifying the sysroot configuration directly.
+    """
+    # Ensure it is readable by portage (dropped privileges).
+    tempdir.chmod(0o755)
+
+    etc_dir = tempdir / "etc"
+    portage_dir = etc_dir / "portage"
+    env_dir = portage_dir / "env"
+
+    env_dir.mkdir(parents=True, exist_ok=True)
+
+    # Symlink make.conf files from sysroot.
+    sysroot_etc = sysroot / "etc"
+    for p in sysroot_etc.glob("make.conf*"):
+        (etc_dir / p.name).symlink_to(p)
+
+    # Symlink portage files from sysroot.
+    sysroot_portage = sysroot_etc / "portage"
+    for p in sysroot_portage.iterdir():
+        if p.name in ("env", "package.env"):
+            continue
+        (portage_dir / p.name).symlink_to(p)
+
+    # Symlink existing env files from sysroot.
+    sysroot_env = sysroot_portage / "env"
+    if sysroot_env.is_dir():
+        for p in sysroot_env.glob("*"):
+            if p.name not in ("no_tests.env", "enable_tests.env"):
+                (env_dir / p.name).symlink_to(p)
+
+    # Write env files.
+    # We want to run tests ONLY for the packages we explicitly target.
+    # If we pass FEATURES=test in the environment, it overrides all config files
+    # and forces tests for all dependencies (which often fail to run due to
+    # architecture mismatch when cross-compiling).
+    # By NOT setting FEATURES=test in the environment, we can use package.env
+    # to selectively enable it.
+    # Portage processes package.env matching lines in order.
+    # 1. We map '*/*' to 'no_tests.env' to disable tests for all packages
+    #    (including dependencies).
+    # 2. We map our target packages to 'enable_tests.env' to enable tests
+    #    for them.
+    # Since the target package rules are more specific and processed after
+    # the wildcard, they override the wildcard rule.
+    osutils.WriteFile(env_dir / "no_tests.env", 'FEATURES="-test"\n')
+    osutils.WriteFile(env_dir / "enable_tests.env", 'FEATURES="test"\n')
+
+    # Write package.env.
+    package_env_lines = []
+    sysroot_package_env = sysroot_portage / "package.env"
+    if sysroot_package_env.is_file():
+        content = sysroot_package_env.read_text(encoding="utf-8")
+        package_env_lines.append(content.rstrip() + "\n")
+    elif sysroot_package_env.is_dir():
+        for p in sorted(sysroot_package_env.iterdir()):
+            if p.is_file():
+                content = p.read_text(encoding="utf-8")
+                package_env_lines.append(content.rstrip() + "\n")
+
+    package_env_lines.append("*/* no_tests.env\n")
+    package_env_lines.extend(
+        f"{x} enable_tests.env\n" for x in sorted(packages)
+    )
+    osutils.WriteFile(portage_dir / "package.env", "".join(package_env_lines))
+
+
 @tracer.start_as_current_span("chroot_util.RunUnittests")
 def RunUnittests(
     sysroot: str,
@@ -151,12 +225,6 @@ def RunUnittests(
     )
 
     env = extra_env.copy() if extra_env else {}
-
-    if "FEATURES" in env:
-        env["FEATURES"] += " test"
-    else:
-        env["FEATURES"] = "test"
-
     env["PKGDIR"] = os.path.join(sysroot, constants.UNITTEST_PKG_PATH)
 
     command = [
@@ -176,4 +244,13 @@ def RunUnittests(
 
     command += list(packages)
 
-    cros_build_lib.sudo_run(command, extra_env=env)
+    # Set up a temporary PORTAGE_CONFIGROOT to manage FEATURES=test without
+    # modifying the sysroot config directly, and to avoid running tests for
+    # dependencies.
+    with osutils.TempDir() as tempdir:
+        tempdir_path = Path(tempdir)
+        _SetUpTestPortageConfig(tempdir_path, Path(sysroot), packages)
+        env["PORTAGE_CONFIGROOT"] = str(tempdir_path)
+        env["SYSROOT"] = sysroot
+
+        cros_build_lib.sudo_run(command, extra_env=env)
