@@ -46,6 +46,8 @@ def RunQualbot(request, response, _config):
                     extra_cmd_arg.append("--test-tables")
                 case "auto-schedule":
                     extra_cmd_arg.append("--dry-run")
+                case "pipeline":
+                    extra_cmd_arg.append("--dry-run")
         else:
             extra_cmd_arg.append("--upload")
         cmd.extend(
