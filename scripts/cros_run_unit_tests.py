@@ -171,8 +171,8 @@ def inner_main(opts: commandline.ArgumentNamespace):
 
     span = trace.get_current_span()
 
-    sysroot = (
-        opts.sysroot or "/"
+    sysroot = opts.sysroot or (
+        "/"
         if opts.host
         else build_target_lib.get_default_sysroot_path(opts.board)
     )

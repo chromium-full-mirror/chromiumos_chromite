@@ -116,7 +116,7 @@ def main(argv) -> None:
 
     if parsed_args.get("sysroot"):
         emerge_args.extend(["--sysroot", parsed_args["sysroot"]])
-        os.environ["PORTAGE_CONFIGROOT"] = parsed_args["sysroot"]
+        os.environ.setdefault("PORTAGE_CONFIGROOT", parsed_args["sysroot"])
 
     if parsed_args.get("root"):
         emerge_args.extend(["--root", parsed_args["root"]])
