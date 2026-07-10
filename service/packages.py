@@ -1337,14 +1337,21 @@ def uprev_starbase_artifacts(
 
     # The path to the repo with the packages to be modified.  For future
     # reference, note that this uprev handler can uprev packages in multiple
-    # repos. Just repeat the uprevs with different overlay roots.  However,
-    # keeping all google3 packages in one repo makes version management easier.
+    # repos. Just repeat the uprevs with different overlay roots (as we do here
+    # with starline_overlay_root and helium_overlay_root).
     starline_overlay_root = str(
         constants.SOURCE_ROOT
         / "src"
         / "private-overlays"
         / "project-starline-private"
     )
+    helium_overlay_root = str(
+        constants.SOURCE_ROOT
+        / "src"
+        / "private-overlays"
+        / "overlay-selphie-private"
+    )
+
     logging.info("Starbase uprev: %d refs[] = %s", len(refs), refs)
 
     result = uprev_lib.UprevVersionedPackageResult()
@@ -1358,6 +1365,16 @@ def uprev_starbase_artifacts(
         else:
             category, package_name = ref.ref.split("/", 1)
 
+        if package_name.startswith("starbase-helium-"):
+            overlay_root = helium_overlay_root
+        else:
+            overlay_root = starline_overlay_root
+        logging.info(
+            "Using overlay_root: %s for package %s",
+            overlay_root,
+            package_name,
+        )
+
         version_id = ref.revision
         modified_files = starbase_find_and_uprev(
             tarfile_name,
@@ -1365,7 +1382,7 @@ def uprev_starbase_artifacts(
             category,
             package_name,
             version_id,
-            starline_overlay_root,
+            overlay_root,
             chroot,
         )
         # AFAICT, version_id in the "result" is only used in the commit
