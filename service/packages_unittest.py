@@ -2574,3 +2574,40 @@ oof
 
     def test_uprev_release(self) -> None:
         self.uprev("release-20230101-r42-rc123")
+
+    def test_starbase_uprev_helium_routing(self) -> None:
+        """Test that Helium packages use the selphie overlay root."""
+        # Create a GitRef for a Helium package (e.g., starbase-helium-arcvm).
+        helium_ref = uprev_lib.GitRef(
+            path="starbase_helium-arcvm-artifacts_tarfile.tar.zst/hash",
+            ref="chromeos-base/starbase-helium-arcvm",
+            revision="deadbeef",
+        )
+
+        # Mock starbase_find_and_uprev to track the passed overlay_root.
+        mock_find = self.PatchObject(
+            packages, "starbase_find_and_uprev", return_value=["mock_modified"]
+        )
+
+        packages.uprev_starbase_artifacts(
+            None, [helium_ref], chroot_lib.Chroot()
+        )
+
+        # Verify it used the selphie overlay root.
+        expected_root = str(
+            constants.SOURCE_ROOT
+            / "src"
+            / "private-overlays"
+            / "overlay-selphie-private"
+        )
+
+        mock_find.assert_called_once_with(
+            mock.ANY,
+            mock.ANY,
+            mock.ANY,
+            "starbase-helium-arcvm",
+            "deadbeef",
+            expected_root,
+            mock.ANY,
+        )
+

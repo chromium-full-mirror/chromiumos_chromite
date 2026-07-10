@@ -367,7 +367,7 @@ def ReadOverlayFile(
 
 
 @functools.lru_cache(maxsize=None)
-def GetOverlayName(overlay: str) -> Optional[str]:
+def GetOverlayName(overlay: Union[str, os.PathLike]) -> Optional[str]:
     """Get the self-declared repo name for the |overlay| path."""
     try:
         return key_value_store.LoadFile(
@@ -3447,6 +3447,36 @@ def CalculatePackageSize(
     )
 
 
+@functools.lru_cache(maxsize=None)
+def GetOverlayMasters(
+    overlay_path: Path,
+    buildroot: Union[str, os.PathLike] = constants.SOURCE_ROOT,
+) -> List[Path]:
+    """Get paths of all transitive master overlays for the given overlay."""
+    target_name = GetOverlayName(overlay_path)
+    if not target_name:
+        return []
+
+    overlays = _GetKnownOverlays(buildroot)
+    if target_name not in overlays:
+        return []
+
+    master_paths = []
+    seen_names = {target_name}
+
+    def _dfs(name: str) -> None:
+        for master_name in overlays[name]["masters"]:
+            if master_name not in seen_names:
+                seen_names.add(master_name)
+                if master_name in overlays:
+                    # Recursively add masters of masters first for post-order.
+                    _dfs(master_name)
+                    master_paths.append(Path(overlays[master_name]["path"]))
+
+    _dfs(target_name)
+    return master_paths
+
+
 def UpdateEbuildManifest(
     ebuild_path: Union[str, os.PathLike],
     chroot: chroot_lib.Chroot,
@@ -3460,10 +3490,36 @@ def UpdateEbuildManifest(
     Returns:
         The command result.
     """
-
     chroot_ebuild_path = chroot.chroot_path(ebuild_path)
     command = ["ebuild", chroot_ebuild_path, "manifest", "--force"]
-    return chroot.run(command)
+
+    # Auto-detect masters and add them to PORTDIR_OVERLAY.
+    ebuild_path = Path(ebuild_path).absolute()
+    overlay_root = Path(EBuild(str(ebuild_path)).overlay)
+    target_name = GetOverlayName(overlay_root)
+
+    extra_env = None
+    if target_name:
+        masters = GetOverlayMasters(overlay_root)
+        chroot_overlay_root = chroot.chroot_path(overlay_root)
+        chroot_masters = [chroot.chroot_path(x) for x in masters]
+
+        if not chroot_masters:
+            extra_env = None
+        else:
+            # In Portage, the last overlay takes priority. We append the target
+            # overlay after the post-ordered masters so the target overlay
+            # takes highest priority. Deduplication is not needed because
+            # GetOverlayMasters already dedups.
+            overlays = chroot_masters + [chroot_overlay_root]
+            portdir_overlay_str = " ".join(str(x) for x in overlays)
+
+            logging.debug(
+                "Constructed PORTDIR_OVERLAY: %s", portdir_overlay_str
+            )
+            extra_env = {"PORTDIR_OVERLAY": portdir_overlay_str}
+
+    return chroot.run(command, extra_env=extra_env)
 
 
 def EbuildManifestFileHash(
