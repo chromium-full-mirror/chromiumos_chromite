@@ -344,7 +344,6 @@ class PrebuiltUploader:
         binhost_conf_dir,
         dryrun,
         target,
-        slave_targets,
         version,
         report,
         chroot=None,
@@ -371,7 +370,6 @@ class PrebuiltUploader:
             binhost_conf_dir: Directory where to store binhost.conf files.
             dryrun: Don't push or upload prebuilts.
             target: BuildTarget managed by this builder.
-            slave_targets: List of BuildTargets managed by slave builders.
             version: A unique string, intended to be included in the upload
                 path, which identifies the version number of the uploaded
                 prebuilts.
@@ -390,7 +388,6 @@ class PrebuiltUploader:
         self._binhost_conf_dir = binhost_conf_dir
         self._dryrun = dryrun
         self._target = target
-        self._slave_targets = slave_targets
         self._version = version
         self._report = report
         chroot_path = chroot or os.path.join(
@@ -624,8 +621,13 @@ class PrebuiltUploader:
 LATEST_SDK=\"{latest_sdk}\""""
 
     def _GetTargets(self):
-        """Retuns the list of targets to use."""
-        targets = self._slave_targets[:]
+        """Retuns the list of targets to use.
+
+        This used to support multiple targets at once, but that functionality
+        hasn't been used for a while as prebuilt uploading largely moved to the
+        recipes.
+        """
+        targets = []
         if self._target:
             targets.append(self._target)
 
@@ -649,9 +651,6 @@ LATEST_SDK=\"{latest_sdk}\""""
             sync_binhost_conf: If set, update binhost config file in
                 chromiumos-overlay for the host.
         """
-        # Slave boards are listed before the master board so that the master
-        # board takes priority (i.e. x86-generic preflight host prebuilts takes
-        # priority over preflight host prebuilts from other builders.)
         binhost_urls = []
         for target in self._GetTargets():
             url_suffix = _REL_HOST_PATH % {
@@ -813,24 +812,6 @@ LATEST_SDK=\"{latest_sdk}\""""
                 UpdateBinhostConfFile(binhost_conf, key, "")
 
 
-class _AddSlaveBoardAction(argparse.Action):
-    """Callback that adds a slave board to the list of slave targets."""
-
-    def __call__(self, parser, namespace, values, option_string=None) -> None:
-        getattr(namespace, self.dest).append(BuildTarget(values))
-
-
-class _AddSlaveProfileAction(argparse.Action):
-    """Callback that adds a slave profile to the list of slave targets."""
-
-    def __call__(self, parser, namespace, values, option_string=None) -> None:
-        if not namespace.slave_targets:
-            parser.error("Must specify --slave-board before --slave-profile")
-        if namespace.slave_targets[-1].profile is not None:
-            parser.error("Cannot specify --slave-profile twice for same board")
-        namespace.slave_targets[-1].profile = values
-
-
 def ParseOptions(argv) -> Tuple[argparse.Namespace, Optional[BuildTarget]]:
     """Returns options given by the user and the target specified.
 
@@ -891,20 +872,6 @@ def ParseOptions(argv) -> Tuple[argparse.Namespace, Optional[BuildTarget]]:
     )
     parser.add_argument(
         "--profile", help="Profile that was built on this machine"
-    )
-    parser.add_argument(
-        "--slave-board",
-        default=[],
-        action=_AddSlaveBoardAction,
-        dest="slave_targets",
-        help="Board type that was built on a slave machine. To "
-        "add a profile to this board, use --slave-profile.",
-    )
-    parser.add_argument(
-        "--slave-profile",
-        action=_AddSlaveProfileAction,
-        help="Board profile that was built on a slave machine. "
-        "Applies to previous slave board.",
     )
     parser.add_argument(
         "-p",
@@ -1028,15 +995,6 @@ def ParseOptions(argv) -> Tuple[argparse.Namespace, Optional[BuildTarget]]:
     if options.board:
         target = BuildTarget(options.board, options.profile)
 
-    if target in options.slave_targets:
-        parser.error("--board/--profile must not also be a slave target.")
-
-    if len(set(options.slave_targets)) != len(options.slave_targets):
-        parser.error("--slave-boards must not have duplicates.")
-
-    if options.slave_targets and options.git_sync:
-        parser.error("--slave-boards is not compatible with --git-sync")
-
     if (
         options.upload_board_tarball
         and options.skip_upload
@@ -1154,7 +1112,6 @@ def main(argv) -> None:
         binhost_conf_dir,
         options.dryrun,
         target,
-        options.slave_targets,
         version,
         report,
         chroot=options.chroot,
@@ -1166,7 +1123,7 @@ def main(argv) -> None:
             options.key, options.git_sync, options.sync_binhost_conf
         )
 
-    if options.board or options.slave_targets:
+    if options.board:
         uploader.SyncBoardPrebuilts(
             options.key,
             options.git_sync,
