@@ -63,6 +63,22 @@ def _get_path(
     if _is_chrome_bot() or os_util.is_root_user():
         return _get_homedir() / subdir
 
+    # https://github.com/srstevenson/xdg-base-dirs
+    try:
+        import xdg_base_dirs
+
+        attr = getattr(xdg_base_dirs, xdg_property, None)
+        if attr:
+            return attr()
+        elif not xdg_optional:
+            raise AttributeError(
+                f"xdg_base_dirs.{xdg_property} does not exist; "
+                "is your xdg-base-dirs old?"
+            )
+    except ImportError:
+        pass
+
+    # https://www.freedesktop.org/wiki/Software/pyxdg
     try:
         import xdg.BaseDirectory
 
