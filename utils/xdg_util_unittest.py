@@ -46,20 +46,22 @@ def test_chrome_bot_paths(as_chrome_bot) -> None:
     del as_chrome_bot  # Unused.
     assert xdg_util._is_chrome_bot()
 
+    tempdir = tempfile.gettempdir()
+
     d = xdg_util._get_cache_home()
     assert d.name == ".cache"
     # NB: This will crash if it isn't relative to the tempdir.
-    d.relative_to(tempfile.tempdir)
+    d.relative_to(tempdir)
 
     d = xdg_util._get_config_home()
     assert d.name == ".config"
     # NB: This will crash if it isn't relative to the tempdir.
-    d.relative_to(tempfile.tempdir)
+    d.relative_to(tempdir)
 
     d = xdg_util._get_state_home()
     assert d.parts[-2:] == (".local", "state")
     # NB: This will crash if it isn't relative to the tempdir.
-    d.relative_to(tempfile.tempdir)
+    d.relative_to(tempdir)
 
 
 def test_non_root_paths(as_not_chrome_bot, as_non_root_user) -> None:

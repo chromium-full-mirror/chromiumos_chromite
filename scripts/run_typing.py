@@ -455,8 +455,6 @@ KNOWN_ISSUES = (
     "utils/shell_util_unittest.py",
     "utils/telemetry/detector.py",
     "utils/telemetry/utils_unittest.py",
-    "utils/xdg_util.py",
-    "utils/xdg_util_unittest.py",
     # go/keep-sorted end
 )
 

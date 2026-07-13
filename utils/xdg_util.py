@@ -65,7 +65,7 @@ def _get_path(
 
     # https://github.com/srstevenson/xdg-base-dirs
     try:
-        import xdg_base_dirs
+        import xdg_base_dirs  # type: ignore[import]
 
         attr = getattr(xdg_base_dirs, xdg_property, None)
         if attr:
@@ -80,7 +80,7 @@ def _get_path(
 
     # https://www.freedesktop.org/wiki/Software/pyxdg
     try:
-        import xdg.BaseDirectory
+        import xdg.BaseDirectory  # type: ignore[import]
 
         attr = getattr(xdg.BaseDirectory, xdg_property, None)
         if attr:
