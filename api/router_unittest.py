@@ -22,6 +22,9 @@ from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 
 
+# pylint: disable=protected-access
+
+
 # A shorter name for some very long proto types
 ARTIFACT_TYPE = common_pb2.ArtifactsByService.Firmware.ArtifactType
 ARTIFACT_PATHS = common_pb2.UploadedArtifactsByService.Firmware.ArtifactPaths
@@ -399,7 +402,7 @@ class RouterTest(
         # location.
         tempdir = osutils.TempDir()
         original = tempdir.tempdir
-        tempdir.tempdir = self.subprocess_tempdir
+        tempdir._tempdir = self.subprocess_tempdir
         self.PatchObject(chroot_lib.Chroot, "tempdir", return_value=tempdir)
 
         expected_output_msg = build_api_test_pb2.TestResultMessage()
@@ -436,7 +439,7 @@ class RouterTest(
         self.binary_output_handler.read_into(output_msg)
         self.assertEqual(expected_output_msg, output_msg)
 
-        tempdir.tempdir = original
+        tempdir._tempdir = original
         del tempdir
 
     def testReexecEmptyOutput(self) -> None:
@@ -695,7 +698,7 @@ class RouterTest(
         tempdir = osutils.TempDir()
         original = tempdir.tempdir
         self.subprocess_tempdir = os.path.join(self.chroot.tmp, "abctmp")
-        tempdir.tempdir = self.subprocess_tempdir
+        tempdir._tempdir = self.subprocess_tempdir
         self.PatchObject(
             chroot_lib.Chroot,
             "tempdir",
@@ -866,5 +869,5 @@ class RouterTest(
             self.binary_output_handler.read_into(output_msg)
             self.assertEqual(expected_output_msg, output_msg)
 
-            tempdir.tempdir = original
+            tempdir._tempdir = original
             del tempdir

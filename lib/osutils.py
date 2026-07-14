@@ -1164,10 +1164,18 @@ class TempDir:
         """
         self.delete: bool = kwargs.pop("delete", True)
         self.sudo_rm: bool = kwargs.pop("sudo_rm", False)
-        self.tempdir: Optional[Union[str, Path]] = None
+        self._tempdir: Optional[Union[str, Path]] = None
         self._orig_tempdir_value: Optional[str] = None
         self._orig_tempdir_env: Optional[str] = None
         self._setup(**kwargs)
+
+    @property
+    def tempdir(self) -> Union[str, Path]:
+        """Return tempdir iff it's valid."""
+        if self._tempdir is None:
+            raise ValueError("tempdir is no longer valid")
+
+        return self._tempdir
 
     def SetSudoRm(self, enable: bool = True) -> None:
         """Sets |sudo_rm|, which forces us to delete temporary files as root."""
@@ -1188,7 +1196,7 @@ class TempDir:
         """
         # Stash the old tempdir that was used so we can
         # switch it back on the way out.
-        self.tempdir = tempfile.mkdtemp(prefix=prefix, dir=base_dir)
+        self._tempdir = tempfile.mkdtemp(prefix=prefix, dir=base_dir)
         os.chmod(self.tempdir, 0o700)
 
         if set_global:
@@ -1199,8 +1207,8 @@ class TempDir:
     def _teardown(self) -> None:
         """Cleanup tempdir if it's valid and we should delete it."""
         try:
-            if self.delete and self.tempdir is not None:
-                RmDir(self.tempdir, ignore_missing=True, sudo=self.sudo_rm)
+            if self.delete and self._tempdir is not None:
+                RmDir(self._tempdir, ignore_missing=True, sudo=self.sudo_rm)
         except EnvironmentError as e:
             # Suppress ENOENT since we may be invoked
             # in a context where parallel wipes of the tempdir
@@ -1214,13 +1222,13 @@ class TempDir:
 
     def Cleanup(self) -> None:
         """Clean up the temporary directory."""
-        if self.tempdir is not None:
+        if self._tempdir is not None:
             try:
                 self._teardown()
             finally:
-                self.tempdir = None
+                self._tempdir = None
 
-    def __enter__(self) -> Optional[Union[str, Path]]:
+    def __enter__(self) -> Union[str, Path]:
         """Return the temporary directory."""
         return self.tempdir
 
@@ -1239,7 +1247,7 @@ class TempDir:
                 # to resume.
                 logging.error("While exiting %s:", self, exc_info=True)
 
-                if self.tempdir:
+                if self._tempdir:
                     # Log all files in tempdir at the time of the failure.
                     try:
                         logging.error("Directory contents were:")
@@ -1267,7 +1275,7 @@ class TempDir:
         self.Cleanup()
 
     def __str__(self) -> str:
-        return str(self.tempdir) if self.tempdir else ""
+        return str(self.tempdir) if self._tempdir else ""
 
 
 # Flags synced from sys/mount.h.  See mount(2) for details.

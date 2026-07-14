@@ -849,7 +849,8 @@ class TempDirTests(cros_test_lib.TestCase):
 
         # Verify the tempdir object no longer contains a reference to the
         # tempdir.
-        self.assertIsNone(tempdir_obj.tempdir)
+        with pytest.raises(ValueError):
+            _ = tempdir_obj.tempdir
 
         # Cleanup the dir leaked by our mock exception.
         os.rmdir(tempdir)
@@ -875,7 +876,8 @@ class TempDirTests(cros_test_lib.TestCase):
 
         # Verify the tempdir object no longer contains a reference to the
         # tempdir.
-        self.assertIsNone(tempdir_obj.tempdir)
+        with pytest.raises(ValueError):
+            _ = tempdir_obj.tempdir
 
         # Cleanup the dir leaked by our mock exception.
         os.rmdir(tempdir)
@@ -886,7 +888,8 @@ class TempDirTests(cros_test_lib.TestCase):
         tempdir = tempdir_obj.tempdir
         tempdir_obj.Cleanup()
         # Ensure we cleaned up ...
-        self.assertIsNone(tempdir_obj.tempdir)
+        with pytest.raises(ValueError):
+            _ = tempdir_obj.tempdir
         # ... but leaked the directory.
         self.assertExists(tempdir)
         # Now really cleanup the directory leaked by the test.
