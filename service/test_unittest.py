@@ -866,7 +866,7 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
 
     def testJoinedFilePathsMatchesNumFilesProcessed(self) -> None:
         """Test that all coverage files are found."""
-        input_dir = Path(self.tempdir) / "input"
+        input_dir = self.tempdir / "input"
         self.writeCodeCoverageLlvm(input_dir / "a/coverage.json")
         self.writeCodeCoverageLlvm(input_dir / "a/b/c/coverage.json")
         self.writeCodeCoverageLlvm(input_dir / "a/b/c/d/coverage.json")
@@ -884,7 +884,7 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
             return_value=None,
         )
 
-        input_dir = Path(self.tempdir) / "input"
+        input_dir = self.tempdir / "input"
         self.writeCodeCoverageLlvm(input_dir / "a/coverage.json")
         self.writeCodeCoverageLlvm(input_dir / "a/b/c/coverage.json")
         self.writeCodeCoverageLlvm(input_dir / "a/b/c/d/coverage.json")
@@ -898,7 +898,7 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
     def testWritesCombinedFileToOutputDir(self) -> None:
         """Test all contents of valid files are combined into the output."""
 
-        input_dir = Path(self.tempdir) / "input"
+        input_dir = self.tempdir / "input"
         self.writeCodeCoverageLlvm(
             input_dir / "a/src2/coverage.json",
             self.getCodeCoverageLlvmContents(["/src2/a.txt", "/src2/b.txt"]),

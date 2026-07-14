@@ -394,7 +394,7 @@ class CleanLlvmFileNamesTest(cros_test_lib.TempDirTestCase):
             osutils.WriteFile(
                 path, json.dumps(path_mapping_json), makedirs=True
             )
-            code_coverage_util.GatherPathMapping(Path(self.tempdir))
+            code_coverage_util.GatherPathMapping(self.tempdir)
 
         self.assertTrue("Missing required keys" in str(context.exception))
 
@@ -418,7 +418,7 @@ class CleanLlvmFileNamesTest(cros_test_lib.TempDirTestCase):
         path = os.path.join(self.tempdir, "src_to_build_dest_map.json")
 
         osutils.WriteFile(path, json.dumps(path_mapping_json), makedirs=True)
-        result = code_coverage_util.GatherPathMapping(Path(self.tempdir))
+        result = code_coverage_util.GatherPathMapping(self.tempdir)
         self.assertEqual(len(result), 2)
         result1 = [x for x in result if x["src_path"] == "src/platform2"][0]
         result2 = [x for x in result if x["src_path"] == ""][0]

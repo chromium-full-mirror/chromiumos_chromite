@@ -217,7 +217,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
             f"category2/package4/{lints_dir}/linter4/a.out",
         ]
 
-        root = Path(self.tempdir) / "var/lib/chromeos/package-artifacts"
+        root = self.tempdir / "var/lib/chromeos/package-artifacts"
         expected_results = {
             "category1/package1": [
                 f"{str(root)}/category1/package1/{lints_dir}/linter1/a.out",
@@ -310,7 +310,7 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
             ("category3", "package3", "linter4", "category3/package3"),
         ]
 
-        root = Path(self.tempdir) / "var/lib/chromeos/package-artifacts"
+        root = self.tempdir / "var/lib/chromeos/package-artifacts"
         for case in test_cases:
             test_path = (
                 root

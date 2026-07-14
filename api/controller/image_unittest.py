@@ -431,9 +431,7 @@ class RecoveryImageTest(
         _build_result = image_service.BuildResult(image_types_names)
         _build_result.return_code = 0
         for image_type in image_types_names:
-            test_image = (
-                Path(self.tempdir) / constants.IMAGE_TYPE_TO_NAME[image_type]
-            )
+            test_image = self.tempdir / constants.IMAGE_TYPE_TO_NAME[image_type]
             test_image.touch()
             _build_result.add_image(image_type, test_image)
 

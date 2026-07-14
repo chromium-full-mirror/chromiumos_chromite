@@ -136,7 +136,7 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(cros_build_lib, "IsInsideChroot", return_value=False)
 
         self.build_target = "amd64-generic"
-        self.source_root = Path(self.tempdir) / "chromiumos"
+        self.source_root = self.tempdir / "chromiumos"
         self.source_root.mkdir()
         self.PatchObject(git.ManifestCheckout, "Cached", return_value=MANIFEST)
         self.PatchObject(

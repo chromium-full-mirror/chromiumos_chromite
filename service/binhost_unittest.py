@@ -240,10 +240,10 @@ class GetBinhostConfPathTest(cros_test_lib.MockTempDirTestCase):
         self.PatchObject(constants, "SOURCE_ROOT", new=self.tempdir)
 
         self.public_conf_dir = (
-            Path(self.tempdir) / constants.PUBLIC_BINHOST_CONF_DIR / "target"
+            self.tempdir / constants.PUBLIC_BINHOST_CONF_DIR / "target"
         )
         self.private_conf_dir = (
-            Path(self.tempdir) / constants.PRIVATE_BINHOST_CONF_DIR / "target"
+            self.tempdir / constants.PRIVATE_BINHOST_CONF_DIR / "target"
         )
 
     def testGetBinhostConfPathPublic(self) -> None:
