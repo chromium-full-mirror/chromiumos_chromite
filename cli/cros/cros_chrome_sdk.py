@@ -1428,7 +1428,9 @@ class ChromeSDKCommand(command.CliCommand):
         # SYSROOT is necessary for remoteexec and the sysroot wrapper.
         env["SYSROOT"] = sysroot
 
-        gn_args["target_sysroot"] = sysroot
+        gn_args["target_sysroot"] = "//" + os.path.relpath(
+            sysroot, options.chrome_src
+        )
 
         # Use Chrome's host sysroot settings and pkg_config for building outside
         # the chroot.

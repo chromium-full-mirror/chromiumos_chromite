@@ -670,6 +670,15 @@ class RunThroughTest(
         self.cmd_mock.inst.Run()
         self.assertExists(chrome_cache)
 
+    def testTargetSysrootRelative(self) -> None:
+        """Verify that target_sysroot is relative and starts with //."""
+        self.PatchObject(constants, "SOURCE_ROOT", new=Path(self.chrome_root))
+        self.SetupCommandMock(default_cache_dir=True)
+        self.cmd_mock.inst.Run()
+        gn_args = gn_helpers.FromGNArgs(self.cmd_mock.env["GN_ARGS"])
+        target_sysroot = gn_args["target_sysroot"]
+        self.assertTrue(target_sysroot.startswith("//build/"))
+
     def testSymlinkCache(self) -> None:
         """Verify the symlink cache contains valid tarball cache links."""
         self.SetupCommandMock()
