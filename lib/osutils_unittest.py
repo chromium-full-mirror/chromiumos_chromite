@@ -833,8 +833,8 @@ class TempDirTests(cros_test_lib.TestCase):
         tempdir_obj = osutils.TempDir(prefix=self.PREFIX)
 
         with mock.patch.object(
-            osutils,
-            "_TempDirTearDown",
+            osutils.TempDir,
+            "_teardown",
             side_effect=TempDirTests.HelperException,
         ):
             try:
@@ -860,8 +860,8 @@ class TempDirTests(cros_test_lib.TestCase):
         tempdir_obj = osutils.TempDir(prefix=self.PREFIX)
 
         with mock.patch.object(
-            osutils,
-            "_TempDirTearDown",
+            osutils.TempDir,
+            "_teardown",
             side_effect=TempDirTests.HelperException,
         ):
             try:

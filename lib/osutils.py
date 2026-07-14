@@ -1142,51 +1142,6 @@ def SetGlobalTempDir(tempdir_value, tempdir_env=None):
     return (old_tempdir_value, old_tempdir_env)
 
 
-def _TempDirSetup(
-    self,
-    prefix: str = "tmp",
-    set_global: bool = False,
-    base_dir: Optional[Union[str, Path]] = None,
-) -> None:
-    """Generate a tempdir, modifying the object, and env to use it.
-
-    Specifically, if set_global is True, then from this invocation forward,
-    python and all subprocesses will use this location for their tempdir.
-
-    The matching _TempDirTearDown restores the env to what it was.
-    """
-    # Stash the old tempdir that was used so we can
-    # switch it back on the way out.
-    self.tempdir = tempfile.mkdtemp(prefix=prefix, dir=base_dir)
-    os.chmod(self.tempdir, 0o700)
-
-    if set_global:
-        self._orig_tempdir_value, self._orig_tempdir_env = SetGlobalTempDir(
-            self.tempdir
-        )
-
-
-def _TempDirTearDown(self, force_sudo: bool, delete: bool = True) -> None:
-    # Note that _TempDirSetup may have failed, resulting in these attributes
-    # not being set; this is why we use getattr here (and must).
-    tempdir = getattr(self, "tempdir", None)
-    try:
-        if tempdir is not None and delete:
-            RmDir(tempdir, ignore_missing=True, sudo=force_sudo)
-    except EnvironmentError as e:
-        # Suppress ENOENT since we may be invoked
-        # in a context where parallel wipes of the tempdir
-        # may be occuring; primarily during hard shutdowns.
-        if e.errno != errno.ENOENT:
-            raise
-
-    # Restore environment modification if necessary.
-    orig_tempdir_value = getattr(self, "_orig_tempdir_value", None)
-    if orig_tempdir_value is not None:
-        # pylint: disable=protected-access
-        SetGlobalTempDir(orig_tempdir_value, self._orig_tempdir_env)
-
-
 class TempDir:
     """Object that creates a temporary directory.
 
@@ -1207,21 +1162,61 @@ class TempDir:
             sudo_rm: Whether the temporary dir will need root privileges to
                 remove. (default: False)
         """
-        self.kwargs: Any = kwargs.copy()
         self.delete: bool = kwargs.pop("delete", True)
         self.sudo_rm: bool = kwargs.pop("sudo_rm", False)
         self.tempdir: Optional[Union[str, Path]] = None
-        _TempDirSetup(self, **kwargs)
+        self._orig_tempdir_value: Optional[str] = None
+        self._orig_tempdir_env: Optional[str] = None
+        self._setup(**kwargs)
 
     def SetSudoRm(self, enable: bool = True) -> None:
         """Sets |sudo_rm|, which forces us to delete temporary files as root."""
         self.sudo_rm = enable
 
+    def _setup(
+        self,
+        prefix: str = "tmp",
+        set_global: bool = False,
+        base_dir: Optional[Union[str, Path]] = None,
+    ) -> None:
+        """Generate a tempdir, modifying the object, and env to use it.
+
+        Specifically, if set_global is True, then from this invocation forward,
+        python and all subprocesses will use this location for their tempdir.
+
+        The matching _teardown restores the env to what it was.
+        """
+        # Stash the old tempdir that was used so we can
+        # switch it back on the way out.
+        self.tempdir = tempfile.mkdtemp(prefix=prefix, dir=base_dir)
+        os.chmod(self.tempdir, 0o700)
+
+        if set_global:
+            self._orig_tempdir_value, self._orig_tempdir_env = SetGlobalTempDir(
+                self.tempdir
+            )
+
+    def _teardown(self) -> None:
+        """Cleanup tempdir if it's valid and we should delete it."""
+        try:
+            if self.delete and self.tempdir is not None:
+                RmDir(self.tempdir, ignore_missing=True, sudo=self.sudo_rm)
+        except EnvironmentError as e:
+            # Suppress ENOENT since we may be invoked
+            # in a context where parallel wipes of the tempdir
+            # may be occuring; primarily during hard shutdowns.
+            if e.errno != errno.ENOENT:
+                raise
+
+        # Restore environment modification if necessary.
+        if self._orig_tempdir_value is not None:
+            SetGlobalTempDir(self._orig_tempdir_value, self._orig_tempdir_env)
+
     def Cleanup(self) -> None:
         """Clean up the temporary directory."""
         if self.tempdir is not None:
             try:
-                _TempDirTearDown(self, self.sudo_rm, delete=self.delete)
+                self._teardown()
             finally:
                 self.tempdir = None
 
