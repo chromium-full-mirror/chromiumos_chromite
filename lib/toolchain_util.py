@@ -1704,7 +1704,15 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
         if self.chroot:
             self._PatchEbuild(
                 self._GetEbuildInfo(kernel_package_name, category="sys-kernel"),
-                {profile_var_name: afdo_name, "AFDO_LOCATION": afdo_dir},
+                {
+                    profile_var_name: afdo_name,
+                    "AFDO_LOCATION": afdo_dir,
+                    # b/534600113: Clear all frozen profiles; if we don't, the
+                    # ebuild will end up verifying the frozen profile, which
+                    # is... the opposite of what we want.
+                    "AFDO_FROZEN_PROFILE_VERSION": "",
+                    "ARM_AFDO_FROZEN_PROFILE_VERSION": "",
+                },
                 uprev=True,
             )
         return ret

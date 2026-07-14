@@ -786,6 +786,8 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         cwp_new_loc=None,
         cwp_old_ver=None,
         cwp_new_ver=None,
+        frozen_old_ver="R98-14400.0-1640000000",
+        frozen_new_ver="",
     ) -> None:
         """Helper function to set up and verify Prepare() call.
 
@@ -795,10 +797,14 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
                 "cwp_old_loc" before Prepare() and "cwp_new_loc" after.
                 Must contain {changing_cwp_ver} which resolves to
                 "cwp_old_ver" before Prepare() and "cwp_new_ver" after.
+                May contain {changing_frozen_ver} which resolves to
+                "frozen_old_ver" before Prepare() and "frozen_new_ver" after.
             cwp_old_loc: AFDO_LOCATION value before Prepare().
             cwp_new_loc: AFDO_LOCATION value after Prepare().
             cwp_old_ver: AFDO version before Prepare().
             cwp_new_ver: AFDO version after Prepare().
+            frozen_old_ver: frozen profile version before Prepare().
+            frozen_new_ver: frozen profile version after Prepare().
         """
         if not cwp_old_loc:
             cwp_old_loc = ""
@@ -818,10 +824,9 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             mock_patch=False,
         )
         kernel_package = "sys-kernel/chromeos-kernel-5_15-5.15.12-r1234"
-        ebuild_spec = "{c}/{p}-{v}-r{r}.ebuild"
         kernel_cpv = package_info.parse(kernel_package)
         ebuild_info_path = os.path.join(
-            self.sysroot_full_path, format(kernel_cpv, ebuild_spec)
+            self.sysroot_full_path, f"{kernel_cpv.category}/{kernel_cpv.ebuild}"
         )
         ebuild_info = toolchain_util._EbuildInfo(
             path=ebuild_info_path, CPV=kernel_cpv
@@ -837,6 +842,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         ebuild_old_str = "".join(ebuild_list_of_str).format(
             changing_cwp_loc=cwp_old_loc,
             changing_cwp_ver=cwp_old_ver,
+            changing_frozen_ver=frozen_old_ver,
         )
         self.WriteTempFile(
             ebuild_info_path,
@@ -847,15 +853,17 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         self.obj.Prepare()
 
         # Check contents in the uprevved package.
+        uprev_cpv = kernel_cpv.revision_bump()
         uprev_path = os.path.join(
             self.sysroot_full_path,
-            format(kernel_cpv.revision_bump(), ebuild_spec),
+            f"{uprev_cpv.category}/{uprev_cpv.ebuild}",
         )
         new_contents = self.ReadTempFile(uprev_path)
         self.assertEqual(
             "".join(ebuild_list_of_str).format(
                 changing_cwp_loc=cwp_new_loc,
                 changing_cwp_ver=cwp_new_ver,
+                changing_frozen_ver=frozen_new_ver,
             ),
             new_contents,
         )
@@ -865,7 +873,9 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         ebuild_data = (
             "# some comment\n",
             'AFDO_LOCATION="{changing_cwp_loc}"\n',
-            'AFDO_PROFILE_VERSION="{changing_cwp_ver}"',
+            'AFDO_PROFILE_VERSION="{changing_cwp_ver}"\n',
+            'AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"\n',
+            'ARM_AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"',
         )
         self.callPrepareVerifiedKernelCwpAfdoFile(ebuild_data)
 
@@ -874,7 +884,9 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         ebuild_data = (
             "# some comment\n",
             'export AFDO_LOCATION="{changing_cwp_loc}"\n',
-            'export AFDO_PROFILE_VERSION="{changing_cwp_ver}"',
+            'export AFDO_PROFILE_VERSION="{changing_cwp_ver}"\n',
+            'export AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"\n',
+            'export ARM_AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"',
         )
         self.callPrepareVerifiedKernelCwpAfdoFile(ebuild_data)
 
@@ -889,7 +901,9 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             "# some comment\n",
             'AFDO_LOCATION="{changing_cwp_loc}"\n',
             f'AFDO_PROFILE_VERSION="{fixed_version}"\n',
-            'ARM_AFDO_PROFILE_VERSION="{changing_cwp_ver}"',
+            'ARM_AFDO_PROFILE_VERSION="{changing_cwp_ver}"\n',
+            'AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"\n',
+            'ARM_AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"',
         )
         # Overwrite profile_info with arm profile info.
         self.profile_info = {
@@ -912,11 +926,70 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             "# some comment\n",
             'AFDO_LOCATION="{changing_cwp_loc}"\n',
             'AFDO_PROFILE_VERSION="{changing_cwp_ver}"\n',
-            f'ARM_AFDO_PROFILE_VERSION="{fixed_version}"',
+            f'ARM_AFDO_PROFILE_VERSION="{fixed_version}"\n',
+            'AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"\n',
+            'ARM_AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"',
         )
         self.callPrepareVerifiedKernelCwpAfdoFile(
             ebuild_data, cwp_old_ver=cwp_old_ver, cwp_new_ver=cwp_new_ver
         )
+
+    def testPrepareVerifiedKernelCwpAfdoFileFrozen(self) -> None:
+        """Test PrepareVerifiedKernelCwpAfdoFile clears frozen profile vars."""
+        cwp_old_loc = ""
+        cwp_new_loc = "gs://path/to/cwp/kernel/5.4"
+        cwp_old_ver = "R99-14469.8-1644229953"
+        cwp_new_ver = "R100-14496.0-1644834841"
+        frozen_ver = "R98-14400.0-1640000000"
+
+        self.SetUpPrepare(
+            "VerifiedKernelCwpAfdoFile",
+            {
+                "UnverifiedKernelCwpAfdoFile": [cwp_new_loc],
+                "VerifiedKernelCwpAfdoFile": [cwp_new_loc],
+            },
+            mock_patch=False,
+        )
+        kernel_package = "sys-kernel/chromeos-kernel-5_15-5.15.12-r1234"
+        kernel_cpv = package_info.parse(kernel_package)
+        ebuild_info_path = os.path.join(
+            self.sysroot_full_path, f"{kernel_cpv.category}/{kernel_cpv.ebuild}"
+        )
+        ebuild_info = toolchain_util._EbuildInfo(
+            path=ebuild_info_path, CPV=kernel_cpv
+        )
+        self.PatchObject(toolchain_util, "_GetProfileAge", return_value=0)
+        self.PatchObject(self.obj, "_GetEbuildInfo", return_value=ebuild_info)
+        kernel_cwp = os.path.join(cwp_new_loc, cwp_new_ver)
+        self.PatchObject(
+            self.obj, "_FindLatestAFDOArtifact", return_value=kernel_cwp
+        )
+        self.gsc_exists.return_value = False
+        ebuild_old_str = (
+            "# some comment\n"
+            f'AFDO_LOCATION="{cwp_old_loc}"\n'
+            f'AFDO_PROFILE_VERSION="{cwp_old_ver}"\n'
+            f'AFDO_FROZEN_PROFILE_VERSION="{frozen_ver}"\n'
+            f'ARM_AFDO_FROZEN_PROFILE_VERSION="{frozen_ver}"\n'
+        )
+        self.WriteTempFile(ebuild_info_path, ebuild_old_str, makedirs=True)
+
+        self.obj.Prepare()
+
+        uprev_cpv = kernel_cpv.revision_bump()
+        uprev_path = os.path.join(
+            self.sysroot_full_path,
+            f"{uprev_cpv.category}/{uprev_cpv.ebuild}",
+        )
+        new_contents = self.ReadTempFile(uprev_path)
+        expected_str = (
+            "# some comment\n"
+            f'AFDO_LOCATION="{cwp_new_loc}"\n'
+            f'AFDO_PROFILE_VERSION="{cwp_new_ver}"\n'
+            'AFDO_FROZEN_PROFILE_VERSION=""\n'
+            'ARM_AFDO_FROZEN_PROFILE_VERSION=""\n'
+        )
+        self.assertEqual(expected_str, new_contents)
 
     def mockFindLatestAFDOArtifact(self, gs_urls, _, arch=None):
         """Return artifacts from bench and cwp gs buckets."""
