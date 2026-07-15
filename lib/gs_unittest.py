@@ -995,6 +995,22 @@ class GSContextInitTest(cros_test_lib.MockTempDirTestCase):
         self.assertFalse(gs.GSContext()._use_luci_auth)
         self.assertFalse(gs.GSContext(use_luci_auth=True)._use_luci_auth)
 
+    def testInitLuciAuthLuciContext(self) -> None:
+        """Test that LUCI_CONTEXT env var enables luci-auth by default."""
+        os.environ["LUCI_CONTEXT"] = os.path.join(
+            self.tempdir, "luci_context.json"
+        )
+        self.assertTrue(gs.GSContext()._use_luci_auth)
+        self.assertTrue(gs.GSContext(use_luci_auth=True)._use_luci_auth)
+        self.assertFalse(gs.GSContext(use_luci_auth=False)._use_luci_auth)
+
+        # CROS_USE_LUCI_AUTH should still override LUCI_CONTEXT.
+        os.environ["CROS_USE_LUCI_AUTH"] = "false"
+        self.assertFalse(gs.GSContext()._use_luci_auth)
+
+        os.environ["CROS_USE_LUCI_AUTH"] = "true"
+        self.assertTrue(gs.GSContext()._use_luci_auth)
+
     def testInitAclFile(self) -> None:
         """Test ACL selection logic in __init__."""
         self.assertEqual(gs.GSContext().acl, None)
@@ -1061,7 +1077,7 @@ class GSContextInitTest(cros_test_lib.MockTempDirTestCase):
         self._testHTTPProxySettings(d)
 
 
-class GSDoCommandTest(cros_test_lib.TestCase):
+class GSDoCommandTest(cros_test_lib.TempDirTestCase):
     """Tests of gs.DoCommand behavior.
 
     This test class inherits from cros_test_lib.TestCase instead of from
@@ -1135,6 +1151,20 @@ class GSDoCommandTest(cros_test_lib.TestCase):
     def testDoCommandLuciAuth(self) -> None:
         """Test that luci-auth is used when requested."""
         ctx = gs.GSContext(use_luci_auth=True)
+        with mock.patch.object(
+            auth, "Context", side_effect=lambda cmd, **kwargs: cmd
+        ) as mock_auth:
+            self._testDoCommand(ctx)
+            mock_auth.assert_called_once_with(
+                mock.ANY, scopes=gs._LUCI_AUTH_STORAGE_SCOPES
+            )
+
+    def testDoCommandLuciAuthViaEnv(self) -> None:
+        """Test that luci-auth is used when LUCI_CONTEXT is in env."""
+        os.environ["LUCI_CONTEXT"] = os.path.join(
+            self.tempdir, "luci_context.json"
+        )
+        ctx = gs.GSContext()
         with mock.patch.object(
             auth, "Context", side_effect=lambda cmd, **kwargs: cmd
         ) as mock_auth:

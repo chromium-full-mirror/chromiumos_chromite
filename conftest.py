@@ -79,6 +79,8 @@ def set_testing_environment_variables():
         # Clear environment variables that chromite is globally sensitive to and
         # that should be suppressed for tests.
         os.environ.pop(constants.SHARED_CACHE_ENVVAR, None)
+        os.environ.pop("LUCI_CONTEXT", None)
+        os.environ.pop("CROS_USE_LUCI_AUTH", None)
 
         yield
 

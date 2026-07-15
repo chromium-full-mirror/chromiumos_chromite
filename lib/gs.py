@@ -551,7 +551,7 @@ wheel: <
         retries: Optional[int] = None,
         sleep: Optional[int] = None,
         cache_user: Optional[str] = None,
-        use_luci_auth: bool = False,
+        use_luci_auth: Optional[bool] = None,
     ) -> None:
         """Constructor.
 
@@ -604,9 +604,16 @@ wheel: <
         if osutils.IsRootUser():
             self.gsutil_flags += ["-o", "GSUtil:state_dir=/tmp/gsutil.root"]
 
+        if use_luci_auth is None:
+            default_use_luci_auth = _CROS_USE_LUCI_AUTH_DEFAULT or (
+                "LUCI_CONTEXT" in os.environ
+            )
+        else:
+            default_use_luci_auth = use_luci_auth
+
         self._use_luci_auth = shell_util.boolean_value(
             os.environ.get("CROS_USE_LUCI_AUTH"),
-            use_luci_auth or _CROS_USE_LUCI_AUTH_DEFAULT,
+            default_use_luci_auth,
         )
 
         # Set HTTP proxy if environment variable http_proxy is set
