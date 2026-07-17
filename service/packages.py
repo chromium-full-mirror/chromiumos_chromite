@@ -2063,15 +2063,16 @@ def uprev_cros_lkgm_file_on_chrome_repo(
     version = uprev_lib.get_version_with_snapshot_from_manifest(
         rev, ref=refs[-1].ref
     )
+    diff_link = ""
     if os.path.exists(lkgm_path):
         try:
             current_version_str = osutils.ReadFile(lkgm_path).strip()
             if current_version_str:
-                current_version = chromeos_version.VersionInfo(
+                current_version_info = chromeos_version.VersionInfo(
                     current_version_str
                 )
                 new_version_info = chromeos_version.VersionInfo(version)
-                if new_version_info <= current_version:
+                if new_version_info <= current_version_info:
                     logging.warning(
                         "Target LKGM version %s is older than or equal to "
                         "current version %s. Skipping uprev.",
@@ -2079,6 +2080,17 @@ def uprev_cros_lkgm_file_on_chrome_repo(
                         current_version_str,
                     )
                     return result
+                old_id = (
+                    current_version_info.snapshot_suffix
+                    or current_version_info.VersionString()
+                )
+                new_id = (
+                    new_version_info.snapshot_suffix
+                    or new_version_info.VersionString()
+                )
+                diff_link = (
+                    f"Diff Link: http://crosland/log/{old_id}..{new_id}\n"
+                )
         except Exception as e:
             logging.warning("Failed to parse current LKGM version: %s", e)
 
@@ -2095,7 +2107,7 @@ def uprev_cros_lkgm_file_on_chrome_repo(
         raise UprevError(str(e))
 
     osutils.WriteFile(lkgm_path, version)
-    result.add_result(version, [lkgm_path])
+    result.add_result(version, [lkgm_path], additional_commit_info=diff_link)
     return result
 
 

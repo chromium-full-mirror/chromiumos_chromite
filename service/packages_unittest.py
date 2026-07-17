@@ -2782,6 +2782,78 @@ class UprevLkgmFileTest(cros_test_lib.MockTempDirTestCase):
         lkgm_path = lkgm_dir / "CHROMEOS_LKGM"
         self.assertEqual(lkgm_path.read_text(encoding="utf-8"), "1.2.3-12345")
 
+    def test_diff_link_snapshot_to_snapshot(self) -> None:
+        """Verify diff link is generated when both old and new are snapshots."""
+        chroot = mock.Mock()
+        chroot.chrome_root = str(self.tempdir)
+        lkgm_dir = self.tempdir / "src" / "chromeos"
+        osutils.SafeMakedirs(lkgm_dir)
+        lkgm_path = lkgm_dir / "CHROMEOS_LKGM"
+        osutils.WriteFile(lkgm_path, "1.2.3-12340")
+
+        self.PatchObject(
+            uprev_lib,
+            "get_version_with_snapshot_from_manifest",
+            return_value="1.2.3-12345",
+        )
+        self.PatchObject(
+            uprev_lib,
+            "validate_lkgm_builds_succeeded",
+            return_value=True,
+        )
+
+        res = packages.uprev_cros_lkgm_file_on_chrome_repo(
+            [
+                uprev_lib.GitRef(
+                    "manifest-internal",
+                    "refs/heads/snapshot",
+                    "deadbeef12345678901234567890123456789012",
+                )
+            ],
+            chroot,
+        )
+        self.assertTrue(res)
+        self.assertEqual(
+            res.modified[0].additional_commit_info,
+            "Diff Link: http://crosland/log/12340..12345\n",
+        )
+
+    def test_diff_link_snapshot_to_release(self) -> None:
+        """Verify diff link when old version is snapshot and new is release."""
+        chroot = mock.Mock()
+        chroot.chrome_root = str(self.tempdir)
+        lkgm_dir = self.tempdir / "src" / "chromeos"
+        osutils.SafeMakedirs(lkgm_dir)
+        lkgm_path = lkgm_dir / "CHROMEOS_LKGM"
+        osutils.WriteFile(lkgm_path, "1.2.3-12340")
+
+        self.PatchObject(
+            uprev_lib,
+            "get_version_with_snapshot_from_manifest",
+            return_value="1.2.4",
+        )
+        self.PatchObject(
+            uprev_lib,
+            "validate_lkgm_builds_succeeded",
+            return_value=True,
+        )
+
+        res = packages.uprev_cros_lkgm_file_on_chrome_repo(
+            [
+                uprev_lib.GitRef(
+                    "manifest-internal",
+                    "refs/heads/snapshot",
+                    "deadbeef12345678901234567890123456789012",
+                )
+            ],
+            chroot,
+        )
+        self.assertTrue(res)
+        self.assertEqual(
+            res.modified[0].additional_commit_info,
+            "Diff Link: http://crosland/log/12340..1.2.4\n",
+        )
+
     def test_staging_snapshot_success(self) -> None:
         """Verify successful uprev with staging-snapshot ref."""
         chroot = mock.Mock()

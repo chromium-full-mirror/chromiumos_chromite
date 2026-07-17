@@ -156,6 +156,7 @@ def UprevVersionFile(
         uprev_response.version = modified.new_version
         for path in modified.files:
             uprev_response.modified_files.append(path)
+        uprev_response.additional_commit_info = modified.additional_commit_info
 
 
 @faux.success(_UprevVersionedPackageResponse)

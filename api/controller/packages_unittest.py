@@ -290,7 +290,9 @@ class UprevVersionFileTest(
         """Test the modified files are getting correctly added to the output."""
         version = "1.2.3.4"
         result = uprev_lib.UprevVersionedResult().add_result(
-            version, ["/file/one", "/file/two"]
+            version,
+            ["/file/one", "/file/two"],
+            additional_commit_info="Diff Link: test",
         )
 
         self.PatchObject(
@@ -312,6 +314,10 @@ class UprevVersionFileTest(
             self.assertCountEqual(
                 result.modified[idx].files,
                 list(uprev_response.modified_files),
+            )
+            self.assertEqual(
+                result.modified[idx].additional_commit_info,
+                uprev_response.additional_commit_info,
             )
 
 
