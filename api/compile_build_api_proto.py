@@ -11,7 +11,7 @@ import enum
 import logging
 from pathlib import Path
 import tempfile
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Sequence
 
 from chromite.lib import cipd
 from chromite.lib import commandline
@@ -191,6 +191,51 @@ def _CleanTargetDirectory(
             current.unlink()
 
 
+def _CompileProtos(
+    source: Path,
+    output: Path,
+    protos: list[Path],
+    protoc_version: ProtocVersion,
+    protoc_bin_path: Path,
+    import_paths: Sequence[Path] = (),
+) -> None:
+    """Compile specific protos.
+
+    Args:
+        source: Path to the proto source root directory.
+        output: Path to the output root directory.
+        protos: List of proto file paths to compile.
+        protoc_version: Which protoc version to target.
+        protoc_bin_path: The protoc command to use.
+        import_paths: Additional proto import search paths.
+    """
+    output_type = (
+        "pyi" if protoc_version is ProtocVersion.CHROMITE_PYI else "python"
+    )
+
+    cmd = [
+        protoc_bin_path,
+        *(f"--proto_path={x}" for x in import_paths),
+        f"--{output_type}_out",
+        output,
+        "--proto_path",
+        source,
+        *protos,
+    ]
+
+    result = cros_build_lib.dbg_run(
+        cmd,
+        cwd=source,
+        check=False,
+        enter_chroot=protoc_version is ProtocVersion.SDK,
+    )
+
+    if result.returncode:
+        raise GenerationError(
+            "Error compiling the proto. See the output for a message."
+        )
+
+
 def _GenerateFiles(
     source: Path,
     output: Path,
@@ -226,33 +271,16 @@ def _GenerateFiles(
             )
 
         for src_dir in dir_subset.get_source_dirs(source, chromeos_config_path):
-            targets.extend(list(src_dir.rglob("*.proto")))
+            targets.extend(src_dir.rglob("*.proto"))
 
-        output_type = (
-            "pyi" if protoc_version is ProtocVersion.CHROMITE_PYI else "python"
-        )
-        cmd = [
-            protoc_bin_path,
-            "-I",
-            chromeos_config_path / "proto",
-            f"--{output_type}_out",
-            output,
-            "--proto_path",
+        _CompileProtos(
             source,
-        ]
-        cmd.extend(targets)
-
-        result = cros_build_lib.dbg_run(
-            cmd,
-            cwd=source,
-            check=False,
-            enter_chroot=protoc_version is ProtocVersion.SDK,
+            output,
+            targets,
+            protoc_version,
+            protoc_bin_path,
+            import_paths=[chromeos_config_path / "proto"],
         )
-
-        if result.returncode:
-            raise GenerationError(
-                "Error compiling the proto. See the output for a message."
-            )
 
 
 def _InstallMissingInits(
@@ -326,6 +354,31 @@ def _PostprocessFiles(directory: Path, protoc_version: ProtocVersion) -> None:
         cros_build_lib.dbg_run(["sed", "-i", ";".join(seds)] + pb2)
 
 
+def _CompileLuciTestProto(
+    protoc_version: ProtocVersion,
+    protoc_bin_path: Path,
+    postprocess: bool = True,
+) -> None:
+    """Compile lib/luci/prpc/test/test.proto.
+
+    Args:
+        protoc_version: Which protoc version to target.
+        protoc_bin_path: The protoc command to use.
+        postprocess: Whether to run the postprocess step.
+    """
+    source = constants.CHROMITE_DIR / "lib" / "luci" / "prpc" / "test"
+    _CompileProtos(
+        source,
+        source,
+        [source / "test.proto"],
+        protoc_version,
+        protoc_bin_path,
+    )
+
+    if postprocess:
+        _PostprocessFiles(source, protoc_version)
+
+
 def CompileProto(
     protoc_version: ProtocVersion,
     output: Optional[Path] = None,
@@ -354,6 +407,11 @@ def CompileProto(
     _InstallMissingInits(output, protoc_version)
     if postprocess:
         _PostprocessFiles(output, protoc_version)
+
+    if protoc_version in (ProtocVersion.CHROMITE, ProtocVersion.CHROMITE_PYI):
+        _CompileLuciTestProto(
+            protoc_version, protoc_bin_path, postprocess=postprocess
+        )
 
 
 def GetParser():
