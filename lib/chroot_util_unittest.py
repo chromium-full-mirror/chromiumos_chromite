@@ -5,7 +5,6 @@
 """Tests the chroot_util module."""
 
 import itertools
-from unittest import mock
 
 import pytest
 
@@ -92,10 +91,8 @@ class ChrootUtilTest(cros_test_lib.RunCommandTempDirTestCase):
     @pytest.mark.usefixtures("as_root_user")
     def testRunUnittests(self) -> None:
         """Tests running unit tests invoking emerge with provided flags"""
-        sysroot = self.tempdir / "sysroot"
-        (sysroot / "etc" / "portage").mkdir(parents=True)
         chroot_util.RunUnittests(
-            sysroot=str(sysroot),
+            sysroot="/sysroot/",
             packages=["package1", "package2"],
             extra_env={
                 "USE": "chrome_internal coverage",
@@ -106,82 +103,14 @@ class ChrootUtilTest(cros_test_lib.RunCommandTempDirTestCase):
         self.rc.assertCommandCalled(
             [
                 constants.CHROMITE_BIN_DIR / "parallel_emerge",
-                f"--sysroot={sysroot}",
+                "--sysroot=/sysroot/",
                 "--keep-going=y",
                 "package1",
                 "package2",
             ],
             extra_env={
                 "USE": "chrome_internal coverage",
-                "FEATURES": "noclean",
-                "PKGDIR": f"{sysroot}/tmp/test-packages",
-                "PORTAGE_CONFIGROOT": mock.ANY,
+                "FEATURES": "noclean test",
+                "PKGDIR": "/sysroot/tmp/test-packages",
             },
-        )
-
-    def testSetUpTestPortageConfig(self) -> None:
-        """Tests the setup of temporary PORTAGE_CONFIGROOT."""
-        # pylint: disable=protected-access
-        sysroot = self.tempdir / "sysroot"
-        temp_config = self.tempdir / "temp_config"
-        temp_config.mkdir()
-
-        # Should crash if /etc/portage does not exist in sysroot.
-        with pytest.raises(FileNotFoundError):
-            chroot_util._SetUpTestPortageConfig(
-                temp_config, sysroot, {"foo-app/bar"}
-            )
-
-        # Populate mock sysroot configuration.
-        sysroot_portage = sysroot / "etc" / "portage"
-        sysroot_env = sysroot_portage / "env"
-        sysroot_env.mkdir(parents=True)
-        (sysroot / "etc" / "make.conf").write_text(
-            "CFLAGS=-O2", encoding="utf-8"
-        )
-        (sysroot_portage / "make.profile").write_text(
-            "profile", encoding="utf-8"
-        )
-        (sysroot_env / "custom.env").write_text("FOO=1", encoding="utf-8")
-        (sysroot_portage / "package.env").write_text(
-            "sys-kernel/chromeos-kernel-5_15 kernel.env\n", encoding="utf-8"
-        )
-
-        temp_config2 = self.tempdir / "temp_config2"
-        temp_config2.mkdir()
-        chroot_util._SetUpTestPortageConfig(
-            temp_config2, sysroot, {"foo-app/bar"}
-        )
-
-        etc_dir = temp_config2 / "etc"
-        portage_dir = etc_dir / "portage"
-        env_dir = portage_dir / "env"
-
-        self.assertEqual(
-            (etc_dir / "make.conf").read_text(encoding="utf-8"), "CFLAGS=-O2"
-        )
-        self.assertEqual(
-            (portage_dir / "make.profile").read_text(encoding="utf-8"),
-            "profile",
-        )
-        self.assertEqual(
-            (env_dir / "custom.env").read_text(encoding="utf-8"), "FOO=1"
-        )
-        self.assertEqual(
-            (env_dir / "no_tests.env").read_text(encoding="utf-8"),
-            'FEATURES="-test"\n',
-        )
-        self.assertEqual(
-            (env_dir / "enable_tests.env").read_text(encoding="utf-8"),
-            'FEATURES="test"\n',
-        )
-
-        expected_package_env = (
-            "sys-kernel/chromeos-kernel-5_15 kernel.env\n"
-            "*/* no_tests.env\n"
-            "foo-app/bar enable_tests.env\n"
-        )
-        self.assertEqual(
-            (portage_dir / "package.env").read_text(encoding="utf-8"),
-            expected_package_env,
         )
