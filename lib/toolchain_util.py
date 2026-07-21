@@ -1640,8 +1640,10 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
         verified_profile_url = KERNEL_PROFILE_VETTED_URL.format(arch=self.arch)
         profile_url = KERNEL_PROFILE_URL.format(arch=self.arch)
         profile_var_name = "AFDO_PROFILE_VERSION"
+        frozen_profile_var_name = "AFDO_FROZEN_PROFILE_VERSION"
         if self.arch == "arm":
             profile_var_name = "ARM_AFDO_PROFILE_VERSION"
+            frozen_profile_var_name = "ARM_AFDO_FROZEN_PROFILE_VERSION"
 
         has_assignment = self._GetArtifactVersionInEbuild(
             kernel_package_name, profile_var_name
@@ -1707,11 +1709,10 @@ class PrepareForBuildHandler(_CommonPrepareBundle):
                 {
                     profile_var_name: afdo_name,
                     "AFDO_LOCATION": afdo_dir,
-                    # b/534600113: Clear all frozen profiles; if we don't, the
+                    # b/534600113: Clear frozen profile; if we don't, the
                     # ebuild will end up verifying the frozen profile, which
                     # is... the opposite of what we want.
-                    "AFDO_FROZEN_PROFILE_VERSION": "",
-                    "ARM_AFDO_FROZEN_PROFILE_VERSION": "",
+                    frozen_profile_var_name: "",
                 },
                 uprev=True,
             )

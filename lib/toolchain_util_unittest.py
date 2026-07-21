@@ -875,7 +875,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             'AFDO_LOCATION="{changing_cwp_loc}"\n',
             'AFDO_PROFILE_VERSION="{changing_cwp_ver}"\n',
             'AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"\n',
-            'ARM_AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"',
+            'ARM_AFDO_FROZEN_PROFILE_VERSION="R98-14400.0-1640000000"',
         )
         self.callPrepareVerifiedKernelCwpAfdoFile(ebuild_data)
 
@@ -886,7 +886,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             'export AFDO_LOCATION="{changing_cwp_loc}"\n',
             'export AFDO_PROFILE_VERSION="{changing_cwp_ver}"\n',
             'export AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"\n',
-            'export ARM_AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"',
+            'export ARM_AFDO_FROZEN_PROFILE_VERSION="R98-14400.0-1640000000"',
         )
         self.callPrepareVerifiedKernelCwpAfdoFile(ebuild_data)
 
@@ -894,6 +894,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
         """Test PrepareVerifiedKernelCwpAfdoFile with the Arm profile."""
         cwp_old_ver = "R99-14469.8-1644229953"
         cwp_new_ver = "R100-14496.0-1644834841"
+        frozen_ver = "R98-14400.0-1640000000"
         # changing_cwp_ver is going to be resolved to cwp_old_ver
         # before Prepare() and cwp_new_ver after.
         fixed_version = cwp_old_ver
@@ -902,7 +903,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             'AFDO_LOCATION="{changing_cwp_loc}"\n',
             f'AFDO_PROFILE_VERSION="{fixed_version}"\n',
             'ARM_AFDO_PROFILE_VERSION="{changing_cwp_ver}"\n',
-            'AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"\n',
+            f'AFDO_FROZEN_PROFILE_VERSION="{frozen_ver}"\n',
             'ARM_AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"',
         )
         # Overwrite profile_info with arm profile info.
@@ -928,7 +929,7 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             'AFDO_PROFILE_VERSION="{changing_cwp_ver}"\n',
             f'ARM_AFDO_PROFILE_VERSION="{fixed_version}"\n',
             'AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"\n',
-            'ARM_AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"',
+            'ARM_AFDO_FROZEN_PROFILE_VERSION="R98-14400.0-1640000000"',
         )
         self.callPrepareVerifiedKernelCwpAfdoFile(
             ebuild_data, cwp_old_ver=cwp_old_ver, cwp_new_ver=cwp_new_ver
@@ -987,9 +988,23 @@ class PrepareForBuildHandlerTest(PrepareBundleTest):
             f'AFDO_LOCATION="{cwp_new_loc}"\n'
             f'AFDO_PROFILE_VERSION="{cwp_new_ver}"\n'
             'AFDO_FROZEN_PROFILE_VERSION=""\n'
-            'ARM_AFDO_FROZEN_PROFILE_VERSION=""\n'
+            f'ARM_AFDO_FROZEN_PROFILE_VERSION="{frozen_ver}"\n'
         )
         self.assertEqual(expected_str, new_contents)
+
+    def testPrepareVerifiedKernelCwpAfdoFileNoArmKeys(self) -> None:
+        """Test PrepareVerifiedKernelCwpAfdoFile when ARM keys are absent.
+
+        Older kernel ebuilds (such as 5.4 and 5.10) do not define ARM AFDO keys
+        (b/537041879).
+        """
+        ebuild_data = (
+            "# some comment\n",
+            'AFDO_LOCATION="{changing_cwp_loc}"\n',
+            'AFDO_PROFILE_VERSION="{changing_cwp_ver}"\n',
+            'AFDO_FROZEN_PROFILE_VERSION="{changing_frozen_ver}"\n',
+        )
+        self.callPrepareVerifiedKernelCwpAfdoFile(ebuild_data)
 
     def mockFindLatestAFDOArtifact(self, gs_urls, _, arch=None):
         """Return artifacts from bench and cwp gs buckets."""
