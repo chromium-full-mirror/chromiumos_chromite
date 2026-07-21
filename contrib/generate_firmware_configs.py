@@ -64,14 +64,17 @@ class EcBranchType(enum.Enum):
 
 
 EC_BRANCH_CONFIG = {
+    # go/keep-sorted start
+    "atria": EcBranchType.FIRMWARE,
     "brya": EcBranchType.FIRMWARE,
     "corsola": EcBranchType.FIRMWARE,
+    "fatcat": EcBranchType.FIRMWARE,
     "geralt": EcBranchType.FIRMWARE,
     "nissa": EcBranchType.FIRMWARE,
-    "rauru": EcBranchType.FIRMWARE,
-    "fatcat": EcBranchType.FIRMWARE,
     "ocelot": EcBranchType.FIRMWARE,
+    "rauru": EcBranchType.FIRMWARE,
     "tanjiro": EcBranchType.FIRMWARE,
+    # go/keep-sorted end
 }
 
 
