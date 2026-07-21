@@ -64,14 +64,12 @@ class EqTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
     def test_eq(self) -> None:
         """Test a valid value."""
 
-        @validate.eq("location", common_pb2.Path.Location.OUTSIDE)
+        @validate.eq("location", common_pb2.Path.OUTSIDE)
         def impl(_request, _response, _config) -> None:
             pass
 
         impl(
-            common_pb2.Path(
-                path="/", location=common_pb2.Path.Location.OUTSIDE
-            ),
+            common_pb2.Path(path="/", location=common_pb2.Path.OUTSIDE),
             None,
             self.api_config,
         )
@@ -79,16 +77,14 @@ class EqTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
     def test_not_eq(self) -> None:
         """Test an invalid value."""
 
-        @validate.eq("location", common_pb2.Path.Location.OUTSIDE)
+        @validate.eq("location", common_pb2.Path.OUTSIDE)
         def impl(_request, _response, _config) -> None:
             pass
 
         # Should be failing on the invalid value.
         with self.assertRaises(cros_build_lib.DieSystemExit):
             impl(
-                common_pb2.Path(
-                    path="/", location=common_pb2.Path.Location.INSIDE
-                ),
+                common_pb2.Path(path="/", location=common_pb2.Path.INSIDE),
                 None,
                 self.api_config,
             )
@@ -96,7 +92,7 @@ class EqTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
     def test_not_set(self) -> None:
         """Test an unset value."""
 
-        @validate.eq("location", common_pb2.Path.Location.OUTSIDE)
+        @validate.eq("location", common_pb2.Path.OUTSIDE)
         def impl(_request, _response, _config) -> None:
             pass
 
@@ -107,7 +103,7 @@ class EqTest(cros_test_lib.TestCase, api_config.ApiConfigMixin):
     def test_skip_validation(self) -> None:
         """Test skipping validation case."""
 
-        @validate.eq("location", common_pb2.Path.Location.OUTSIDE)
+        @validate.eq("location", common_pb2.Path.OUTSIDE)
         def impl(_request, _response, _config) -> None:
             pass
 

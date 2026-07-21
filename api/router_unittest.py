@@ -26,7 +26,7 @@ from chromite.lib import osutils
 
 
 # A shorter name for some very long proto types
-ARTIFACT_TYPE = common_pb2.ArtifactsByService.Firmware.ArtifactType
+ARTIFACT_TYPE = common_pb2.ArtifactsByService.Firmware
 ARTIFACT_PATHS = common_pb2.UploadedArtifactsByService.Firmware.ArtifactPaths
 
 # The executable we expect to be called when re-execing build_api

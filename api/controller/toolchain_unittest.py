@@ -25,23 +25,6 @@ from chromite.lib import toolchain_util
 BuilderConfig = builder_config_pb2.BuilderConfig
 
 
-class UpdateEbuildWithAFDOArtifactsTest(
-    cros_test_lib.MockTestCase, api_config.ApiConfigMixin
-):
-    """Unittests for UpdateEbuildWithAFDOArtifacts."""
-
-    def setUp(self) -> None:
-        self.board = "board"
-        self.response = toolchain_pb2.VerifyAFDOArtifactsResponse()
-        self.invalid_artifact_type = toolchain_pb2.BENCHMARK_AFDO
-
-    def _GetRequest(self, build_target=None, artifact_type=None):
-        return toolchain_pb2.VerifyAFDOArtifactsRequest(
-            build_target={"name": build_target},
-            artifact_type=artifact_type,
-        )
-
-
 class PrepareForBuildTest(
     cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
 ):

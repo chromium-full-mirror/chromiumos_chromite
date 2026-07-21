@@ -241,7 +241,7 @@ class UpdatePackageIndexTest(
         request = binhost_pb2.UpdatePackageIndexRequest(
             package_index_file=common_pb2.Path(
                 path=self._pkg_index_fp,
-                location=common_pb2.Path.Location.OUTSIDE,
+                location=common_pb2.Path.OUTSIDE,
             ),
             set_upload_location=True,
         )
@@ -275,7 +275,7 @@ class UpdatePackageIndexTest(
         request = binhost_pb2.UpdatePackageIndexRequest(
             package_index_file=common_pb2.Path(
                 path=self._pkg_index_fp,
-                location=common_pb2.Path.Location.OUTSIDE,
+                location=common_pb2.Path.OUTSIDE,
             ),
             set_upload_location=True,
             uri="gs://chromeos-prebuilt/board/amd64-host/packages/",

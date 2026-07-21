@@ -264,7 +264,7 @@ def pb2_path_to_pathlib_path(
     """
     if pb2_path.path[0] != "/":
         raise ValueError(f"Cannot convert relative path: {pb2_path.path}")
-    if pb2_path.location is common_pb2.Path.Location.OUTSIDE:
+    if pb2_path.location is common_pb2.Path.OUTSIDE:
         return Path(pb2_path.path)
     if chroot is None:
         raise ValueError("Cannot convert inside path without a chroot.")

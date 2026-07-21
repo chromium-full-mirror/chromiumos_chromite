@@ -253,11 +253,7 @@ class Pb2PathToPathlibPathTest(cros_test_lib.MockTestCase):
     @staticmethod
     def create_pb2_path(path: str, inside: bool) -> common_pb2.Path:
         """Helper function to create a common_pb2.Path."""
-        location = (
-            common_pb2.Path.Location.INSIDE
-            if inside
-            else common_pb2.Path.Location.OUTSIDE
-        )
+        location = common_pb2.Path.INSIDE if inside else common_pb2.Path.OUTSIDE
         return common_pb2.Path(path=path, location=location)
 
     def test_relative_inside(self) -> None:

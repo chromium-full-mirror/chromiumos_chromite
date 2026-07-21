@@ -225,7 +225,7 @@ def BuildTestServiceContainers(
 
         if (
             request.builder_type
-            == test_pb2.BuildTestServiceContainersRequest.BuilderType.PUBLIC
+            == test_pb2.BuildTestServiceContainersRequest.PUBLIC
         ):
             cmd += ["--is_public"]
 
@@ -430,19 +430,19 @@ def GetArtifacts(
 
     # pylint: disable=line-too-long
     artifact_types = {
-        in_proto.ArtifactType.CODE_COVERAGE_LLVM_JSON: functools.partial(
+        in_proto.CODE_COVERAGE_LLVM_JSON: functools.partial(
             test.BundleCodeCoverageLlvmJson, build_target.name
         ),
-        in_proto.ArtifactType.CODE_COVERAGE_RUST_LLVM_JSON: functools.partial(
+        in_proto.CODE_COVERAGE_RUST_LLVM_JSON: functools.partial(
             test.BundleCodeCoverageRustLlvmJson, build_target.name
         ),
-        in_proto.ArtifactType.HWQUAL: functools.partial(
+        in_proto.HWQUAL: functools.partial(
             test.BundleHwqualTarball,
             build_target.name,
             packages_service.determine_full_version(),
         ),
-        in_proto.ArtifactType.CODE_COVERAGE_GOLANG: test.BundleCodeCoverageGolang,
-        in_proto.ArtifactType.CODE_COVERAGE_E2E: test.bundle_e2e_code_coverage,
+        in_proto.CODE_COVERAGE_GOLANG: test.BundleCodeCoverageGolang,
+        in_proto.CODE_COVERAGE_E2E: test.bundle_e2e_code_coverage,
     }
     # pylint: enable=line-too-long
 

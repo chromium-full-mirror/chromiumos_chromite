@@ -29,7 +29,7 @@ from chromite.utils import os_util
 
 
 # A shorter name for some very long proto types
-ARTIFACT_TYPE = common_pb2.ArtifactsByService.Firmware.ArtifactType
+ARTIFACT_TYPE = common_pb2.ArtifactsByService.Firmware
 
 
 def get_parser() -> commandline.ArgumentParser:

@@ -512,14 +512,14 @@ class CreateManifestFromSdkTest(
             sdk_path=common_pb2.Path(
                 path=self._sdk_path,
                 location=(
-                    common_pb2.Path.Location.INSIDE
+                    common_pb2.Path.INSIDE
                     if inside
-                    else common_pb2.Path.Location.OUTSIDE
+                    else common_pb2.Path.OUTSIDE
                 ),
             ),
             dest_dir=common_pb2.Path(
                 path=self._dest_dir,
-                location=common_pb2.Path.Location.OUTSIDE,
+                location=common_pb2.Path.OUTSIDE,
             ),
         )
 
@@ -563,7 +563,7 @@ class CreateManifestFromSdkTest(
             Path(self._dest_dir),
         )
         self.assertEqual(
-            response.manifest_path.location, common_pb2.Path.Location.OUTSIDE
+            response.manifest_path.location, common_pb2.Path.OUTSIDE
         )
         self.assertEqual(response.manifest_path.path, self._manifest_path)
 
@@ -586,7 +586,7 @@ class CreateManifestFromSdkTest(
             Path(self._dest_dir),
         )
         self.assertEqual(
-            response.manifest_path.location, common_pb2.Path.Location.OUTSIDE
+            response.manifest_path.location, common_pb2.Path.OUTSIDE
         )
         self.assertEqual(response.manifest_path.path, self._manifest_path)
 
@@ -608,7 +608,7 @@ class BuildSdkToolchainTest(
         self._paths_for_generated_files = [
             common_pb2.Path(
                 path=os.path.join(constants.SDK_TOOLCHAINS_OUTPUT, fname),
-                location=common_pb2.Path.Location.INSIDE,
+                location=common_pb2.Path.INSIDE,
             )
             for fname in self._generated_filenames
         ]
@@ -623,7 +623,7 @@ class BuildSdkToolchainTest(
             result_path=common_pb2.ResultPath(
                 path=common_pb2.Path(
                     path=self._result_dir,
-                    location=common_pb2.Path.Location.OUTSIDE,
+                    location=common_pb2.Path.OUTSIDE,
                 )
             )
         )
@@ -644,7 +644,7 @@ class BuildSdkToolchainTest(
             response.generated_files.extend(
                 common_pb2.Path(
                     path=os.path.join(self._result_dir, fname),
-                    location=common_pb2.Path.Location.OUTSIDE,
+                    location=common_pb2.Path.OUTSIDE,
                 )
                 for fname in generated_filenames
             )

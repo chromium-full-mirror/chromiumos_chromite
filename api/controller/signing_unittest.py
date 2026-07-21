@@ -478,7 +478,7 @@ class SignTi50PaosTest(
             result_path=common_pb2.ResultPath(
                 path=common_pb2.Path(
                     path=str(result_dir),
-                    location=common_pb2.Path.Location.OUTSIDE,
+                    location=common_pb2.Path.OUTSIDE,
                 )
             ),
             tmp_path="/docker-tmp/signing_tmp",
@@ -595,7 +595,7 @@ class CreateCertTest(
             result_path=common_pb2.ResultPath(
                 path=common_pb2.Path(
                     path=str(result_dir),
-                    location=common_pb2.Path.Location.OUTSIDE,
+                    location=common_pb2.Path.OUTSIDE,
                 )
             ),
             dry_run=dry_run,

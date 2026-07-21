@@ -715,16 +715,16 @@ class GetArtifactsTest(cros_test_lib.MockTempDirTestCase):
     """Test GetArtifacts."""
 
     CODE_COVERAGE_LLVM_ARTIFACT_TYPE = (
-        common_pb2.ArtifactsByService.Test.ArtifactType.CODE_COVERAGE_LLVM_JSON
+        common_pb2.ArtifactsByService.Test.CODE_COVERAGE_LLVM_JSON
     )
 
     # pylint: disable=line-too-long
     _artifact_funcs = {
-        common_pb2.ArtifactsByService.Test.ArtifactType.CODE_COVERAGE_LLVM_JSON: test_service.BundleCodeCoverageLlvmJson,
-        common_pb2.ArtifactsByService.Test.ArtifactType.CODE_COVERAGE_RUST_LLVM_JSON: test_service.BundleCodeCoverageRustLlvmJson,
-        common_pb2.ArtifactsByService.Test.ArtifactType.HWQUAL: test_service.BundleHwqualTarball,
-        common_pb2.ArtifactsByService.Test.ArtifactType.CODE_COVERAGE_GOLANG: test_service.BundleCodeCoverageGolang,
-        common_pb2.ArtifactsByService.Test.ArtifactType.CODE_COVERAGE_E2E: test_service.bundle_e2e_code_coverage,
+        common_pb2.ArtifactsByService.Test.CODE_COVERAGE_LLVM_JSON: test_service.BundleCodeCoverageLlvmJson,
+        common_pb2.ArtifactsByService.Test.CODE_COVERAGE_RUST_LLVM_JSON: test_service.BundleCodeCoverageRustLlvmJson,
+        common_pb2.ArtifactsByService.Test.HWQUAL: test_service.BundleHwqualTarball,
+        common_pb2.ArtifactsByService.Test.CODE_COVERAGE_GOLANG: test_service.BundleCodeCoverageGolang,
+        common_pb2.ArtifactsByService.Test.CODE_COVERAGE_E2E: test_service.bundle_e2e_code_coverage,
     }
     # pylint: enable=line-too-long
 
@@ -794,7 +794,7 @@ class GetArtifactsTest(cros_test_lib.MockTempDirTestCase):
                     # Invalid
                     common_pb2.ArtifactsByService.Test.ArtifactInfo(
                         artifact_types=[
-                            common_pb2.ArtifactsByService.Test.ArtifactType.UNIT_TESTS
+                            common_pb2.ArtifactsByService.Test.UNIT_TESTS
                         ]
                     ),
                 ]
@@ -857,7 +857,7 @@ class GetArtifactsTest(cros_test_lib.MockTempDirTestCase):
         """Test with all artifact types when one type throws an exception."""
 
         self._mocks[
-            common_pb2.ArtifactsByService.Test.ArtifactType.CODE_COVERAGE_GOLANG
+            common_pb2.ArtifactsByService.Test.CODE_COVERAGE_GOLANG
         ].side_effect = Exception("foo bar")
         generated = test_controller.GetArtifacts(
             self._InputProto(), None, None, self.build_target, ""

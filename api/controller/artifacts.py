@@ -121,9 +121,7 @@ def Get(
             get_res.response.artifacts.add(
                 artifact_type=artifact_dict["type"],
                 paths=[
-                    common_pb2.Path(
-                        path=x, location=common_pb2.Path.Location.OUTSIDE
-                    )
+                    common_pb2.Path(path=x, location=common_pb2.Path.OUTSIDE)
                     for x in artifact_dict.get("paths", [])
                 ],
                 **kwargs,

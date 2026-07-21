@@ -261,13 +261,13 @@ class GetArtifactsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
 
     # pylint: disable=line-too-long
     _artifact_funcs = {
-        common_pb2.ArtifactsByService.Sysroot.ArtifactType.SIMPLE_CHROME_SYSROOT: sysroot_service.CreateSimpleChromeSysroot,
-        common_pb2.ArtifactsByService.Sysroot.ArtifactType.CHROME_EBUILD_ENV: sysroot_service.CreateChromeEbuildEnv,
-        common_pb2.ArtifactsByService.Sysroot.ArtifactType.BREAKPAD_DEBUG_SYMBOLS: sysroot_service.BundleBreakpadSymbols,
-        common_pb2.ArtifactsByService.Sysroot.ArtifactType.DEBUG_SYMBOLS: sysroot_service.BundleDebugSymbols,
-        common_pb2.ArtifactsByService.Sysroot.ArtifactType.FUZZER_SYSROOT: sysroot_service.CreateFuzzerSysroot,
-        common_pb2.ArtifactsByService.Sysroot.ArtifactType.SYSROOT_ARCHIVE: sysroot_service.ArchiveSysroot,
-        common_pb2.ArtifactsByService.Sysroot.ArtifactType.BAZEL_PERFORMANCE_ARTIFACTS: sysroot_service.CollectBazelPerformanceArtifacts,
+        common_pb2.ArtifactsByService.Sysroot.SIMPLE_CHROME_SYSROOT: sysroot_service.CreateSimpleChromeSysroot,
+        common_pb2.ArtifactsByService.Sysroot.CHROME_EBUILD_ENV: sysroot_service.CreateChromeEbuildEnv,
+        common_pb2.ArtifactsByService.Sysroot.BREAKPAD_DEBUG_SYMBOLS: sysroot_service.BundleBreakpadSymbols,
+        common_pb2.ArtifactsByService.Sysroot.DEBUG_SYMBOLS: sysroot_service.BundleDebugSymbols,
+        common_pb2.ArtifactsByService.Sysroot.FUZZER_SYSROOT: sysroot_service.CreateFuzzerSysroot,
+        common_pb2.ArtifactsByService.Sysroot.SYSROOT_ARCHIVE: sysroot_service.ArchiveSysroot,
+        common_pb2.ArtifactsByService.Sysroot.BAZEL_PERFORMANCE_ARTIFACTS: sysroot_service.CollectBazelPerformanceArtifacts,
     }
 
     # pylint: enable=line-too-long
@@ -315,7 +315,7 @@ class GetArtifactsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         """Test with all artifact types when one type throws an exception."""
 
         self._mocks[
-            common_pb2.ArtifactsByService.Sysroot.ArtifactType.FUZZER_SYSROOT
+            common_pb2.ArtifactsByService.Sysroot.FUZZER_SYSROOT
         ].side_effect = Exception("foo bar")
         generated = sysroot_controller.GetArtifacts(
             self._InputProto(), None, None, "build_target", ""
@@ -344,7 +344,7 @@ class GetArtifactsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
                 common_pb2.ArtifactsByService.Sysroot.ArtifactInfo(
                     artifact_types=[
                         # pylint: disable=line-too-long
-                        common_pb2.ArtifactsByService.Sysroot.ArtifactType.BREAKPAD_DEBUG_SYMBOLS
+                        common_pb2.ArtifactsByService.Sysroot.BREAKPAD_DEBUG_SYMBOLS
                         # pylint: enable=line-too-long
                     ]
                 )
@@ -352,8 +352,8 @@ class GetArtifactsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
             ignore_breakpad_symbol_generation_errors=True,
             ignore_breakpad_symbol_generation_expected_files=[
                 # pylint: disable=line-too-long
-                common_pb2.ArtifactsByService.Sysroot.BreakpadSymbolGenerationExpectedFile.EXPECTED_FILE_LIBC,
-                common_pb2.ArtifactsByService.Sysroot.BreakpadSymbolGenerationExpectedFile.EXPECTED_FILE_CRASH_REPORTER,
+                common_pb2.ArtifactsByService.Sysroot.EXPECTED_FILE_LIBC,
+                common_pb2.ArtifactsByService.Sysroot.EXPECTED_FILE_CRASH_REPORTER,
                 # pylint: enable=line-too-long
             ],
         )
@@ -362,7 +362,7 @@ class GetArtifactsTest(cros_test_lib.MockTestCase, api_config.ApiConfigMixin):
         )
         self._mocks[
             # pylint: disable=line-too-long
-            common_pb2.ArtifactsByService.Sysroot.ArtifactType.BREAKPAD_DEBUG_SYMBOLS
+            common_pb2.ArtifactsByService.Sysroot.BREAKPAD_DEBUG_SYMBOLS
             # pylint: enable=line-too-long
         ].assert_called_once_with(
             None,
@@ -506,7 +506,7 @@ class ExtractArchiveTest(
             chroot={"path": chroot_path},
             sysroot_archive={
                 "path": sysroot_archive,
-                "location": common_pb2.Path.Location.OUTSIDE,
+                "location": common_pb2.Path.OUTSIDE,
             },
         )
 

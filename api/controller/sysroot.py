@@ -158,13 +158,13 @@ def GetArtifacts(
     generated = []
     # pylint: disable=line-too-long
     artifact_types = {
-        in_proto.ArtifactType.SIMPLE_CHROME_SYSROOT: sysroot.CreateSimpleChromeSysroot,
-        in_proto.ArtifactType.CHROME_EBUILD_ENV: sysroot.CreateChromeEbuildEnv,
-        in_proto.ArtifactType.BREAKPAD_DEBUG_SYMBOLS: _BundleBreakpadSymbols,
-        in_proto.ArtifactType.DEBUG_SYMBOLS: sysroot.BundleDebugSymbols,
-        in_proto.ArtifactType.FUZZER_SYSROOT: sysroot.CreateFuzzerSysroot,
-        in_proto.ArtifactType.SYSROOT_ARCHIVE: sysroot.ArchiveSysroot,
-        in_proto.ArtifactType.BAZEL_PERFORMANCE_ARTIFACTS: sysroot.CollectBazelPerformanceArtifacts,
+        in_proto.SIMPLE_CHROME_SYSROOT: sysroot.CreateSimpleChromeSysroot,
+        in_proto.CHROME_EBUILD_ENV: sysroot.CreateChromeEbuildEnv,
+        in_proto.BREAKPAD_DEBUG_SYMBOLS: _BundleBreakpadSymbols,
+        in_proto.DEBUG_SYMBOLS: sysroot.BundleDebugSymbols,
+        in_proto.FUZZER_SYSROOT: sysroot.CreateFuzzerSysroot,
+        in_proto.SYSROOT_ARCHIVE: sysroot.ArchiveSysroot,
+        in_proto.BAZEL_PERFORMANCE_ARTIFACTS: sysroot.CollectBazelPerformanceArtifacts,
     }
     # pylint: enable=line-too-long
 

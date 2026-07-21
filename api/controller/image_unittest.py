@@ -252,11 +252,11 @@ class GetArtifactsTest(
 
     # pylint: disable=line-too-long
     _artifact_funcs = {
-        common_pb2.ArtifactsByService.Image.ArtifactType.DLC_IMAGE: image_service.copy_dlc_image,
-        common_pb2.ArtifactsByService.Image.ArtifactType.LICENSE_CREDITS: image_service.copy_license_credits,
-        common_pb2.ArtifactsByService.Image.ArtifactType.FACTORY_IMAGE: image_service.create_factory_image_zip,
-        common_pb2.ArtifactsByService.Image.ArtifactType.STRIPPED_PACKAGES: image_service.create_stripped_packages_tar,
-        common_pb2.ArtifactsByService.Image.ArtifactType.IMAGE_SCRIPTS: image_service.create_image_scripts_archive,
+        common_pb2.ArtifactsByService.Image.DLC_IMAGE: image_service.copy_dlc_image,
+        common_pb2.ArtifactsByService.Image.LICENSE_CREDITS: image_service.copy_license_credits,
+        common_pb2.ArtifactsByService.Image.FACTORY_IMAGE: image_service.create_factory_image_zip,
+        common_pb2.ArtifactsByService.Image.STRIPPED_PACKAGES: image_service.create_stripped_packages_tar,
+        common_pb2.ArtifactsByService.Image.IMAGE_SCRIPTS: image_service.create_image_scripts_archive,
     }
     # pylint: enable=line-too-long
 
@@ -316,7 +316,7 @@ class GetArtifactsTest(
         """Test with all artifact types when one type throws an exception."""
 
         self._mocks[
-            common_pb2.ArtifactsByService.Image.ArtifactType.STRIPPED_PACKAGES
+            common_pb2.ArtifactsByService.Image.STRIPPED_PACKAGES
         ].side_effect = Exception("foo bar")
         generated = image_controller.GetArtifacts(
             self._InputProto(),
@@ -819,7 +819,7 @@ class SignImageTest(
             result_path=common_pb2.ResultPath(
                 path=common_pb2.Path(
                     path="/tmp/result_path",
-                    location=common_pb2.Path.Location.OUTSIDE,
+                    location=common_pb2.Path.OUTSIDE,
                 )
             ),
             tmp_path="/path/to/docker/tmp",
