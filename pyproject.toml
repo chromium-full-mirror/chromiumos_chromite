@@ -5,6 +5,9 @@ target-version = ['py311']
 # https://mypy.readthedocs.io/en/stable/config_file.html
 # https://mypy.readthedocs.io/en/stable/command_line.html
 [tool.mypy]
+plugins = [
+    'lint/mypy_plugin.py',
+]
 exclude = [
     'third_party/',
     'sdk/bin/',

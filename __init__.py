@@ -10,7 +10,7 @@ Keep this to a minimum as every chromite import will automatically load it.
 import functools
 import logging
 import sys
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Final, Optional, Tuple
 
 
 MIN_PYTHON_VERSION = (3, 8)
@@ -19,7 +19,7 @@ assert sys.version_info >= MIN_PYTHON_VERSION, (
 )
 
 # Set a custom logging class inside this module that provides the NOTICE level.
-NOTICE = 25
+NOTICE: Final = 25
 
 
 class ChromiteLogger(logging.getLoggerClass()):  # type: ignore
