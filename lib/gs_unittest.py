@@ -1465,8 +1465,8 @@ class GSContextTest(AbstractGSContextTest):
     def testReuseCached(self) -> None:
         """Test that second fetch is a cache hit."""
         gs.GSContext(cache_dir=self.tempdir)
-        gs.GSUTIL_URL = None
-        gs.GSContext(cache_dir=self.tempdir)
+        with mock.patch.object(gs.GSContext, "GSUTIL_URL", None):
+            gs.GSContext(cache_dir=self.tempdir)
 
     def testUnknownError(self) -> None:
         """Verify when gsutil fails in an unknown way, we do the right thing."""
