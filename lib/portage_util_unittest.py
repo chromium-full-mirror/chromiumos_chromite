@@ -1547,27 +1547,6 @@ class GetOverlayEBuildsTest(cros_test_lib.MockTempDirTestCase):
         self._assertFoundPackages(ebuilds, [package_name])
 
 
-class ProjectMappingTest(cros_test_lib.TestCase):
-    """Tests related to Proejct Mapping."""
-
-    def testFindWorkonProjects(self) -> None:
-        """Test if we can find the list of workon projects."""
-        frecon = "sys-apps/frecon"
-        frecon_project = "chromiumos/platform/frecon"
-        dev_install = "chromeos-base/dev-install"
-        dev_install_project = "chromiumos/platform2"
-        matches = [
-            ([frecon], {frecon_project}),
-            ([dev_install], {dev_install_project}),
-            ([frecon, dev_install], {frecon_project, dev_install_project}),
-        ]
-        if portage_util.FindOverlays(constants.BOTH_OVERLAYS):
-            for packages, projects in matches:
-                self.assertEqual(
-                    projects, portage_util.FindWorkonProjects(packages)
-                )
-
-
 class PortageDBTest(cros_test_lib.TempDirTestCase):
     """Portage package Database related tests."""
 

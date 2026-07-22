@@ -2059,23 +2059,6 @@ def GetWorkonProjectMap(overlay, subdirectories):
             yield relpath, workon_vars.project
 
 
-def FindWorkonProjects(packages):
-    """Find the projects associated with the specified cros_workon packages.
-
-    Args:
-        packages: List of cros_workon packages.
-
-    Returns:
-        The set of projects associated with the specified cros_workon packages.
-    """
-    all_projects = set()
-    buildroot, both = constants.SOURCE_ROOT, constants.BOTH_OVERLAYS
-    for overlay in FindOverlays(both, buildroot=buildroot):
-        for _, projects in GetWorkonProjectMap(overlay, packages):
-            all_projects.update(projects)
-    return all_projects
-
-
 def _Equery(
     module: str,
     *args: str,
