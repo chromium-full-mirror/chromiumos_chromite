@@ -1985,7 +1985,7 @@ def RegenDependencyCache(
     cros_build_lib.run(cmd, enter_chroot=True)
 
 
-def ParseBashArray(value):
+def _ParseBashArray(value):
     """Parse a valid bash array into python list."""
     # The syntax for bash arrays is nontrivial, so let's use bash to do the
     # heavy lifting for us.
@@ -2672,8 +2672,8 @@ def GetRepositoryFromEbuildInfo(info):
     if not srcdir_match or not project_match:
         return None
 
-    srcdirs = ParseBashArray(srcdir_match.group(1))
-    projects = ParseBashArray(project_match.group(1))
+    srcdirs = _ParseBashArray(srcdir_match.group(1))
+    projects = _ParseBashArray(project_match.group(1))
     if len(srcdirs) != len(projects):
         return None
 
