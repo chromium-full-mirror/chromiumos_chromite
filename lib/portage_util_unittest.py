@@ -1620,15 +1620,6 @@ class PortageDBTest(cros_test_lib.TempDirTestCase):
             "".join(" ".join(entry) + "\n" for entry in self.fake_files),
         )
 
-    def testListInstalledPackages(self) -> None:
-        """Test if listing packages installed into a root works."""
-        packages = portage_util.ListInstalledPackages(self.fake_chroot)
-        # Sort the lists, because the filesystem might reorder the entries for
-        # us.
-        packages.sort()
-        self.fake_packages.sort()
-        self.assertEqual(self.fake_packages, packages)
-
     def testCalculatePackageSizes_ApparentSize(self) -> None:
         """Test if calculating disk usage of installed packages works."""
         fake_data = "FAKE DATA"

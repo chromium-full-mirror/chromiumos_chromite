@@ -2082,25 +2082,6 @@ def FindWorkonProjects(packages):
     return all_projects
 
 
-def ListInstalledPackages(sysroot):
-    """[DEPRECATED] Lists all portage packages in a given portage-managed root.
-
-    Assumes the existence of a /var/db/pkg package database.
-
-    This function is DEPRECATED, please use PortageDB.InstalledPackages instead.
-
-    Args:
-        sysroot: The root directory being inspected.
-
-    Returns:
-        A list of (cp,v) tuples in the given sysroot.
-    """
-    return [
-        ("%s/%s" % (pkg.category, pkg.package), pkg.version)
-        for pkg in PortageDB(sysroot).InstalledPackages()
-    ]
-
-
 def IsPackageInstalled(package, sysroot="/"):
     """Return whether a portage package is in a given portage-managed root.
 
@@ -2108,11 +2089,10 @@ def IsPackageInstalled(package, sysroot="/"):
         package: The CP to look for.
         sysroot: The root being inspected.
     """
-    for key, _version in ListInstalledPackages(sysroot):
-        if key == package:
-            return True
-
-    return False
+    return any(
+        x.package_info.cp == package
+        for x in PortageDB(sysroot).InstalledPackages()
+    )
 
 
 def _Equery(
