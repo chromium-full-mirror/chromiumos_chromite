@@ -67,7 +67,7 @@ def _IsWorkonEbuild(include_chrome, ebuild_path, ebuild_contents=None):
     # inherit from cros-workon / chromium-source class (chromium-os:19259).
     if (
         include_chrome
-        and portage_util.EbuildToCP(ebuild_path) == constants.CHROME_CP
+        and package_info.parse(Path(ebuild_path)).cp == constants.CHROME_CP
     ):
         return True
 
@@ -355,7 +355,7 @@ class WorkonHelper:
                 os.path.join(overlay, "*-*", "*", "*-9999.ebuild")
             )
             for ebuild_path in ebuild_paths:
-                atom = portage_util.EbuildToCP(ebuild_path)
+                atom = package_info.parse(Path(ebuild_path)).cp
                 if atom in atoms_to_ebuilds:
                     atoms_to_ebuilds[atom] = ebuild_path
 
@@ -391,7 +391,7 @@ class WorkonHelper:
         if ebuild_path is None:
             possible_atoms = set()
             for ebuild in self._GetWorkonEbuilds(filter_on_arch=False):
-                pkg_atom = portage_util.EbuildToCP(ebuild)
+                pkg_atom = package_info.parse(Path(ebuild)).cp
                 if package_fragment in pkg_atom:
                     possible_atoms.add(pkg_atom)
 
@@ -449,13 +449,11 @@ class WorkonHelper:
                 if package_info.parse(x).package == package_fragment
             ]
             if pn_possible_atoms:
-                autocompleted_package = portage_util.EbuildToCP(
+                autocompleted_package = package_info.parse(
                     pn_possible_atoms[0]
-                )
+                ).cp
             else:
-                autocompleted_package = portage_util.EbuildToCP(
-                    possible_atoms[0]
-                )
+                autocompleted_package = package_info.parse(possible_atoms[0]).cp
             # Sanity check to avoid infinite loop.
             if package_fragment == autocompleted_package:
                 logging.error("Resolved %s to itself", package_fragment)
@@ -484,7 +482,7 @@ class WorkonHelper:
             logging.warning(msg)
             return None
 
-        return portage_util.EbuildToCP(ebuild_path)
+        return package_info.parse(Path(ebuild_path)).cp
 
     def _GetCanonicalAtoms(
         self, package_fragments: Iterable[str], find_stale=False
@@ -660,7 +658,7 @@ class WorkonHelper:
 
         if filter_workon:
             ebuilds = _FilterWorkonOnlyEbuilds(self._AtomsToEbuilds(atoms))
-            return [portage_util.EbuildToCP(ebuild) for ebuild in ebuilds]
+            return [package_info.parse(Path(x)).cp for x in ebuilds]
 
         return atoms
 
@@ -737,7 +735,7 @@ class WorkonHelper:
         """
         if use_workon_only or use_all:
             ebuilds = self._GetWorkonEbuilds(filter_workon=use_workon_only)
-            packages = [portage_util.EbuildToCP(ebuild) for ebuild in ebuilds]
+            packages = [package_info.parse(Path(x)).cp for x in ebuilds]
         else:
             packages = self._GetLiveAtoms()
 
@@ -772,7 +770,7 @@ class WorkonHelper:
 
         if use_all or use_workon_only:
             ebuilds = self._GetWorkonEbuilds(filter_workon=use_workon_only)
-            atoms = [portage_util.EbuildToCP(ebuild) for ebuild in ebuilds]
+            atoms = [package_info.parse(Path(x)).cp for x in ebuilds]
         else:
             atoms = self._GetCanonicalAtoms(packages)
         atoms = set(atoms)
@@ -1048,7 +1046,7 @@ class WorkonHelper:
 
         result = []
         for ebuild in ebuilds:
-            package = portage_util.EbuildToCP(ebuild)
+            package = package_info.parse(Path(ebuild)).cp
             repos = ebuild_to_repos.get(ebuild, [])
             src_paths = ebuild_to_src_paths.get(ebuild, [])
             result.append(PackageInfo(package, repos, src_paths))

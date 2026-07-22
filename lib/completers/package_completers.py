@@ -25,7 +25,7 @@ def package_atom(
     prefix, action, parser, parsed_args  # pylint: disable=unused-argument
 ) -> List[str]:
     """List all packages without the package version."""
-    return [portage_util.EbuildToCP(x) for x in _get_ebuilds(parsed_args)]
+    return [package_info.parse(Path(x)).cp for x in _get_ebuilds(parsed_args)]
 
 
 def _get_sysroot(parsed_args: argparse.Namespace) -> sysroot_lib.Sysroot:

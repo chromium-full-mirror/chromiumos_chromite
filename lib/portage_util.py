@@ -2065,19 +2065,6 @@ def GetWorkonProjectMap(overlay, subdirectories):
             yield relpath, workon_vars.project
 
 
-def EbuildToCP(path):
-    """Return the category/path string from an ebuild path.
-
-    Args:
-        path: Path to an ebuild.
-
-    Returns:
-        '$CATEGORY/$PN' (e.g. 'sys-apps/dbus')
-    """
-    parts = os.path.splitext(path)[0].rsplit("/", 3)[-3:]
-    return os.path.join(*parts[0:2])
-
-
 def FindWorkonProjects(packages):
     """Find the projects associated with the specified cros_workon packages.
 
