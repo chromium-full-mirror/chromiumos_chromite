@@ -1814,14 +1814,11 @@ class InstalledPackage:
 
 def BestEBuild(ebuilds: List[EBuild]) -> Optional[EBuild]:
     """Returns the newest EBuild from a list of EBuild objects."""
-    # pylint: disable-next=import-error
-    from portage.versions import vercmp  # type: ignore
-
     if not ebuilds:
         return None
     winner = ebuilds[0]
     for ebuild in ebuilds[1:]:
-        if vercmp(winner.version, ebuild.version) < 0:
+        if pms.version_lt(winner.version, ebuild.version):
             winner = ebuild
     return winner
 
