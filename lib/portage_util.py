@@ -2019,24 +2019,6 @@ def WorkonEBuildGeneratorForDirectory(base_dir, subdir_support=False):
                 yield ebuild
 
 
-def WorkonEBuildGenerator(buildroot, overlay_type):
-    """Scans all overlays and yields cros_workon EBuilds.
-
-    Args:
-        buildroot: Path to source root to find overlays.
-        overlay_type: The type of overlay to use (one of
-            constants.VALID_OVERLAYS).
-
-    Yields:
-        A cros_workon EBuild instance.
-    """
-    # Get the list of all overlays.
-    overlays = FindOverlays(overlay_type, buildroot=buildroot)
-    # Iterate through overlays and gather all workon ebuilds
-    for overlay in overlays:
-        yield from WorkonEBuildGeneratorForDirectory(overlay)
-
-
 def GetWorkonProjectMap(overlay, subdirectories):
     """Get a mapping of cros_workon ebuilds to projects and source paths.
 
