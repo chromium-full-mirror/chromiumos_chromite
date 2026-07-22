@@ -2076,19 +2076,6 @@ def FindWorkonProjects(packages):
     return all_projects
 
 
-def IsPackageInstalled(package, sysroot="/"):
-    """Return whether a portage package is in a given portage-managed root.
-
-    Args:
-        package: The CP to look for.
-        sysroot: The root being inspected.
-    """
-    return any(
-        x.package_info.cp == package
-        for x in PortageDB(sysroot).InstalledPackages()
-    )
-
-
 def _Equery(
     module: str,
     *args: str,

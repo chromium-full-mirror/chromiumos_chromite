@@ -1180,12 +1180,11 @@ def InstallBaseDependencies(options) -> None:
     Args:
         options: The parsed arguments passed to this program.
     """
-    package = "virtual/implicit-system"
-    if not portage_util.IsPackageInstalled(
-        package, sysroot=SysrootPath.path_to_sysroot
-    ):
+    db = portage_util.PortageDB(SysrootPath.path_to_sysroot)
+    pkg = db.GetInstalledPackage("virtual", "implicit-system")
+    if pkg is None:
         build_type = getattr(options, "build_type", None)
-        BuildPackage(package, options.board, build_type)
+        BuildPackage("virtual/implicit-system", options.board, build_type)
 
 
 def ParseArgs(argv):

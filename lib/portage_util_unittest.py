@@ -1689,19 +1689,6 @@ class PortageDBTest(cros_test_lib.TempDirTestCase):
         total_size = sum(x for _, x in package_size_pairs)
         self.assertEqual(total_size, expected_size)
 
-    def testIsPackageInstalled(self) -> None:
-        """Test if checking the existence of an installed package works."""
-        self.assertTrue(
-            portage_util.IsPackageInstalled(
-                "category1/package", sysroot=self.fake_chroot
-            )
-        )
-        self.assertFalse(
-            portage_util.IsPackageInstalled(
-                "category1/foo", sysroot=self.fake_chroot
-            )
-        )
-
     def testListContents(self) -> None:
         """Test if the list of installed files is properly parsed."""
         pdb = portage_util.PortageDB(self.fake_chroot)
