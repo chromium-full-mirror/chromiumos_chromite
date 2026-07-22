@@ -26,6 +26,9 @@ from chromite.lib import partial_mock
 from chromite.lib import retry_stats
 
 
+# pylint: disable=protected-access
+
+
 GS_PACKAGES_PATH = "gs://test/Packages"
 GS_PACKAGES_WRONG_PATH = "gs://test/Pack"
 
@@ -183,7 +186,6 @@ class VersionTest(AbstractGSContextTest):
 
     def testGetVersionCached(self) -> None:
         """Simple gsutil_version fetch test from cache."""
-        # pylint: disable=protected-access
         self.ctx._gsutil_version = "3.37"
         self.assertEqual("3.37", self.ctx.gsutil_version)
 
@@ -928,7 +930,6 @@ class GSContextInitTest(cros_test_lib.MockTempDirTestCase):
 
     def testInitGsutilBin(self) -> None:
         """Test we use the given gsutil binary, erroring where appropriate."""
-        # pylint: disable=protected-access
         gs.GSContext._CRCMOD_METHOD = "missing"
         self.assertEqual(
             gs.GSContext()._gsutil_bin, [sys.executable, self.gsutil_bin]
@@ -987,7 +988,6 @@ class GSContextInitTest(cros_test_lib.MockTempDirTestCase):
 
     def testInitLuciAuthEnvVar(self) -> None:
         """Test that CROS_USE_LUCI_AUTH env var is honored."""
-        # pylint: disable=protected-access
         os.environ["CROS_USE_LUCI_AUTH"] = "true"
         self.assertTrue(gs.GSContext()._use_luci_auth)
 
@@ -1094,14 +1094,12 @@ class GSDoCommandTest(cros_test_lib.TestCase):
             retry_stats, "RetryWithStats", autospec=True, return_value=result
         ):
             ctx.Copy("/blah", "gs://foon", version=version, recursive=recursive)
-            # pylint: disable=protected-access
             cmd = self.ctx._gsutil_bin + self.ctx.gsutil_flags + list(headers)
             cmd += ["cp", "-v"]
             if recursive:
                 cmd += ["-r", "-e"]
             cmd += ["--", "/blah", "gs://foon"]
 
-            # pylint: disable=protected-access
             retry_stats.RetryWithStats.assert_called_once_with(
                 retry_stats.GSUTIL,
                 ctx._RetryFilter,
@@ -1136,7 +1134,6 @@ class GSDoCommandTest(cros_test_lib.TestCase):
 
     def testDoCommandLuciAuth(self) -> None:
         """Test that luci-auth is used when requested."""
-        # pylint: disable=protected-access
         ctx = gs.GSContext(use_luci_auth=True)
         with mock.patch.object(
             auth, "Context", side_effect=lambda cmd, **kwargs: cmd
@@ -1149,8 +1146,6 @@ class GSDoCommandTest(cros_test_lib.TestCase):
 
 class GSRetryFilterTest(cros_test_lib.TestCase):
     """Verifies that we filter and process gsutil errors correctly."""
-
-    # pylint: disable=protected-access
 
     LOCAL_PATH = "/tmp/file"
     REMOTE_PATH = (
@@ -1980,8 +1975,6 @@ class DryRunTest(cros_test_lib.RunCommandTestCase):
 
 class InitBotoTest(AbstractGSContextTest):
     """Test boto file interactive initialization."""
-
-    # pylint: disable=protected-access
 
     GS_LS_ERROR = """\
 You are attempting to access protected data with no configured credentials.
