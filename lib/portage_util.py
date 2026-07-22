@@ -1997,7 +1997,7 @@ def _ParseBashArray(value):
     ).stdout.split(sep)
 
 
-def WorkonEBuildGeneratorForDirectory(base_dir, subdir_support=False):
+def _WorkonEBuildGeneratorForDirectory(base_dir, subdir_support=False):
     """Yields cros_workon EBuilds in |base_dir|.
 
     Args:
@@ -2034,7 +2034,7 @@ def GetWorkonProjectMap(overlay, subdirectories):
     # Also filter out ebuilds which are not cros_workon.
     for subdir in subdirectories:
         base_dir = os.path.join(overlay, subdir)
-        for ebuild in WorkonEBuildGeneratorForDirectory(base_dir):
+        for ebuild in _WorkonEBuildGeneratorForDirectory(base_dir):
             full_path = ebuild.ebuild_path
             workon_vars = ebuild.cros_workon_vars
             relpath = os.path.relpath(full_path, start=overlay)
