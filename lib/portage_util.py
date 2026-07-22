@@ -1559,7 +1559,9 @@ class PortageDB:
         packages = []
 
         for path in glob.glob(ebuild_pattern):
-            category, pf, packagecheck = SplitEbuildPath(path)
+            category, pf, packagecheck = os.path.splitext(
+                os.path.relpath(path, self.db_path)
+            )[0].split(os.path.sep)
             if not _category_re.match(category):
                 continue
             if pf != packagecheck:
@@ -2072,27 +2074,8 @@ def EbuildToCP(path):
     Returns:
         '$CATEGORY/$PN' (e.g. 'sys-apps/dbus')
     """
-    return os.path.join(*SplitEbuildPath(path)[0:2])
-
-
-def SplitEbuildPath(path):
-    """Split an ebuild path into its components.
-
-    Given a specified ebuild filename, returns $CATEGORY, $PN, $P. It does not
-    perform any check on ebuild name elements or their validity, merely splits
-    a filename, absolute or relative, and returns the last 3 components.
-
-    Examples:
-        For /any/path/chromeos-base/power_manager/power_manager-9999.ebuild,
-        returns ('chromeos-base', 'power_manager', 'power_manager-9999').
-
-    Args:
-        path: Path to the ebuild.
-
-    Returns:
-        $CATEGORY, $PN, $P
-    """
-    return os.path.splitext(path)[0].rsplit("/", 3)[-3:]
+    parts = os.path.splitext(path)[0].rsplit("/", 3)[-3:]
+    return os.path.join(*parts[0:2])
 
 
 def FindWorkonProjects(packages):
@@ -2370,10 +2353,10 @@ def FindEbuildsForPackages(
     ret = dict(zip(packages_list, ebuilds_results))
     for full_package_name, ebuild_path in ret.items():
         cpv = package_info.parse(full_package_name)
-        path_category, path_package_name, _ = SplitEbuildPath(ebuild_path)
+        ebuild_info = package_info.parse(Path(ebuild_path))
         if not (
-            (cpv.category is None or path_category == cpv.category)
-            and cpv.package.startswith(path_package_name)
+            (cpv.category is None or ebuild_info.category == cpv.category)
+            and cpv.package.startswith(ebuild_info.package)
         ):
             mismatches.append(
                 "%s doesn't match %s" % (ebuild_path, full_package_name)

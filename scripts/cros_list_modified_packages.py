@@ -24,6 +24,7 @@ import errno
 import logging
 import multiprocessing
 import os
+from pathlib import Path
 import queue as Queue
 
 from chromite.lib import build_target_lib
@@ -37,6 +38,7 @@ from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
 from chromite.lib import workon_helper
+from chromite.lib.parser import package_info
 
 
 class ModificationTimeMonitor:
@@ -150,17 +152,12 @@ def ListWorkonPackagesInfo(sysroot):
         for filename, projects in portage_util.GetWorkonProjectMap(
             overlay, packages
         ):
-            # chromeos-base/power_manager/power_manager-9999
-            # cp = chromeos-base/power_manager
-            # cpv = chromeos-base/power_manager-9999
-            category, pn, p = portage_util.SplitEbuildPath(filename)
-            cp = "%s/%s" % (category, pn)
-            cpv = "%s/%s" % (category, p)
+            pkg_info = package_info.parse(Path(filename))
 
             # Get the time the package finished building. TODO(build): Teach
             # Portage to store the time the package started building and use
             # that here.
-            pkg_mtime_file = os.path.join(vdb_path, cpv, "BUILD_TIME")
+            pkg_mtime_file = os.path.join(vdb_path, pkg_info.cpv, "BUILD_TIME")
             try:
                 pkg_mtime = int(osutils.ReadFile(pkg_mtime_file))
             except EnvironmentError as ex:
@@ -175,8 +172,8 @@ def ListWorkonPackagesInfo(sysroot):
 
             # Write info into the results dictionary, overwriting any previous
             # values. This ensures that overlays override appropriately.
-            results[cp] = WorkonPackageInfo(
-                cp, pkg_mtime, projects, src_ebuild_mtime
+            results[pkg_info.cp] = WorkonPackageInfo(
+                pkg_info.cp, pkg_mtime, projects, src_ebuild_mtime
             )
 
     return list(results.values())

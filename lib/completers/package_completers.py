@@ -11,16 +11,14 @@ from typing import Iterator, List
 from chromite.lib import build_target_lib
 from chromite.lib import portage_util
 from chromite.lib import sysroot_lib
+from chromite.lib.parser import package_info
 
 
 def package(
     prefix, action, parser, parsed_args  # pylint: disable=unused-argument
 ) -> List[str]:
     """List all packages with the package version."""
-    packages = (
-        portage_util.SplitEbuildPath(x) for x in _get_ebuilds(parsed_args)
-    )
-    return [f"{cat}/{pv}" for (cat, _, pv) in packages]
+    return [package_info.parse(Path(x)).cpv for x in _get_ebuilds(parsed_args)]
 
 
 def package_atom(

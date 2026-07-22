@@ -1524,13 +1524,6 @@ class GetOverlayEBuildsTest(cros_test_lib.MockTempDirTestCase):
 class ProjectMappingTest(cros_test_lib.TestCase):
     """Tests related to Proejct Mapping."""
 
-    def testSplitEbuildPath(self) -> None:
-        """Test if we can split an ebuild path into its components."""
-        ebuild_path = "chromeos-base/platform2/platform2-9999.ebuild"
-        components = ["chromeos-base", "platform2", "platform2-9999"]
-        for path in (ebuild_path, "./" + ebuild_path, "foo.bar/" + ebuild_path):
-            self.assertEqual(components, portage_util.SplitEbuildPath(path))
-
     def testFindWorkonProjects(self) -> None:
         """Test if we can find the list of workon projects."""
         frecon = "sys-apps/frecon"
