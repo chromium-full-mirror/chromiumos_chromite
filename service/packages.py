@@ -2111,18 +2111,6 @@ def uprev_cros_lkgm_file_on_chrome_repo(
         except Exception as e:
             logging.warning("Failed to parse current LKGM version: %s", e)
 
-    try:
-        if not uprev_lib.validate_lkgm_builds_succeeded(
-            version, rev, ref=refs[-1].ref
-        ):
-            logging.warning(
-                "LKGM build validation failed for %s. Skipping uprev.",
-                version,
-            )
-            return result
-    except uprev_lib.EbuildUprevError as e:
-        raise UprevError(str(e))
-
     osutils.WriteFile(lkgm_path, version)
     result.add_result(version, [lkgm_path], additional_commit_info=diff_link)
     return result
