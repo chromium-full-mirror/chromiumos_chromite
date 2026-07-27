@@ -1306,9 +1306,28 @@ def get_version_with_snapshot_from_manifest(rev: str, ref: str) -> str:
     if len(projects) != 1:
         raise ValueError("Unexpected manifest.")
     overlay = projects[0].Revision()
-    version_file = git.GetObjectAtRev(
-        _CHROME_OVERLAY_PATH, "chromeos/config/chromeos_version.sh", overlay
-    )
+    # Read chromeos_version.sh from the local chromiumos-overlay checkout.
+    # On release branch builds, the local workspace checkout of
+    # chromiumos-overlay may be tracking main and might not contain git
+    # tree/blob objects for the new release branch commit SHA. If the revision
+    # is missing locally, fetch it from remote before retrying.
+    try:
+        version_file = git.GetObjectAtRev(
+            _CHROME_OVERLAY_PATH, "chromeos/config/chromeos_version.sh", overlay
+        )
+    except cros_build_lib.RunCommandError:
+        tracking = git.GetTrackingBranch(_CHROME_OVERLAY_PATH, fallback=True)
+        remote = tracking.remote if tracking else "cros"
+        logging.info(
+            "Revision %s not found in local %s, fetching from %s...",
+            overlay,
+            _CHROME_OVERLAY_PATH,
+            remote,
+        )
+        git.RunGit(_CHROME_OVERLAY_PATH, ["fetch", remote, overlay])
+        version_file = git.GetObjectAtRev(
+            _CHROME_OVERLAY_PATH, "chromeos/config/chromeos_version.sh", overlay
+        )
     version = chromeos_version.VersionInfo(
         version_file=io.StringIO(version_file)
     ).VersionString()

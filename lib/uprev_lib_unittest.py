@@ -1206,30 +1206,23 @@ def test_get_version_with_snapshot_from_manifest(
         "Log",
         mock.Mock(return_value="Cr-Snapshot-Identifier: 12345\n"),
     )
-    mock_run = mock.Mock()
-    mock_run.stdout = (
+    manifest_xml = (
         '<manifest><project path="src/third_party/chromiumos-overlay" '
         'revision="abcdef" /></manifest>'
     )
-
-    def side_effect(
-        _git_repo: str, cmd: list[str], **_kwargs: object
-    ) -> mock.Mock:
-        """Mock side effect for RunGit."""
-        if "snapshot.xml" in cmd[1]:
-            return mock_run
-        res = mock.Mock()
-        res.stdout = (
-            "CHROMEOS_BUILD=1\n"
-            "CHROMEOS_BRANCH=2\n"
-            "CHROMEOS_PATCH=3\n"
-            "CHROME_BRANCH=4\n"
-        )
-        return res
-
-    monkeypatch.setattr(
-        uprev_lib.git, "RunGit", mock.Mock(side_effect=side_effect)
+    version_sh = (
+        "CHROMEOS_BUILD=1\n"
+        "CHROMEOS_BRANCH=2\n"
+        "CHROMEOS_PATCH=3\n"
+        "CHROME_BRANCH=4\n"
     )
+
+    def mock_get_object_at_rev(_git_repo: str, obj: str, _rev: str) -> str:
+        if obj == "snapshot.xml":
+            return manifest_xml
+        return version_sh
+
+    monkeypatch.setattr(uprev_lib.git, "GetObjectAtRev", mock_get_object_at_rev)
 
     assert (
         uprev_lib.get_version_with_snapshot_from_manifest(
@@ -1237,6 +1230,61 @@ def test_get_version_with_snapshot_from_manifest(
         )
         == "1.2.3-12345"
     )
+
+
+def test_get_version_with_snapshot_from_manifest_fetch_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Test fetching missing overlay revision from origin."""
+    monkeypatch.setattr(
+        uprev_lib.git,
+        "Log",
+        mock.Mock(return_value="Cr-Snapshot-Identifier: 12345\n"),
+    )
+    manifest_xml = (
+        '<manifest><project path="src/third_party/chromiumos-overlay" '
+        'revision="abcdef" /></manifest>'
+    )
+    version_sh = (
+        "CHROMEOS_BUILD=1\n"
+        "CHROMEOS_BRANCH=2\n"
+        "CHROMEOS_PATCH=3\n"
+        "CHROME_BRANCH=4\n"
+    )
+    fetched_overlay_rev = []
+
+    def mock_get_object_at_rev(_git_repo: str, obj: str, _rev: str) -> str:
+        if obj == "snapshot.xml":
+            return manifest_xml
+        if not fetched_overlay_rev:
+            raise uprev_lib.cros_build_lib.RunCommandError(
+                "git show failed",
+                uprev_lib.cros_build_lib.CompletedProcess(returncode=128),
+            )
+        return version_sh
+
+    def mock_run_git(
+        _git_repo: str, cmd: list[str], **_kwargs: object
+    ) -> mock.Mock:
+        if cmd[0] == "fetch":
+            fetched_overlay_rev.append((cmd[1], cmd[2]))
+        return mock.Mock()
+
+    monkeypatch.setattr(
+        uprev_lib.git,
+        "GetTrackingBranch",
+        mock.Mock(return_value=mock.Mock(remote="cros")),
+    )
+    monkeypatch.setattr(uprev_lib.git, "GetObjectAtRev", mock_get_object_at_rev)
+    monkeypatch.setattr(uprev_lib.git, "RunGit", mock_run_git)
+
+    assert (
+        uprev_lib.get_version_with_snapshot_from_manifest(
+            "HEAD", "refs/heads/snapshot"
+        )
+        == "1.2.3-12345"
+    )
+    assert fetched_overlay_rev == [("cros", "abcdef")]
 
 
 def test_get_version_with_snapshot_from_manifest_invalid_ref() -> None:
