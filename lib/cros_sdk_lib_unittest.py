@@ -21,6 +21,7 @@ from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
+from chromite.lib import git
 from chromite.lib import osutils
 from chromite.lib import path_util
 from chromite.lib import retry_util
@@ -1345,3 +1346,91 @@ def test_setup_ssh_configs_delete_line(tmp_path) -> None:
     cros_sdk_lib._setup_ssh_configs(src_config.parent, dst_config.parent)
     data = dst_config.read_text(encoding="utf-8")
     assert data.endswith("host foo\n\tHostName localhost\n")
+
+
+def test_setup_git_configs_no_gitconfig(tmp_path) -> None:
+    """Test _setup_git_configs with no ~/.gitconfig."""
+    cros_sdk_lib._setup_git_configs(tmp_path / "src", tmp_path / "dst")
+    assert not (tmp_path / "dst" / ".gitconfig").exists()
+
+
+def test_setup_git_configs_strip_sso(tmp_path) -> None:
+    """Test _setup_git_configs strips url.sso sections."""
+    srcdir = tmp_path / "src"
+    dstdir = tmp_path / "dst"
+    srcdir.mkdir()
+    src_config = srcdir / ".gitconfig"
+    src_config.write_text(
+        "[user]\n\tname = Test User\n\temail = test@example.com\n"
+        '[url "sso://foo/"]\n\tinsteadOf = https://foo/\n',
+        encoding="utf-8",
+    )
+    cros_sdk_lib._setup_git_configs(srcdir, dstdir)
+    dst_config = dstdir / ".gitconfig"
+    assert dst_config.exists()
+    data = dst_config.read_text(encoding="utf-8")
+    assert "Test User" in data
+    assert "sso://foo/" not in data
+
+
+def test_setup_git_configs_cookies(tmp_path) -> None:
+    """Test _setup_git_configs copies .gitcookies."""
+    srcdir = tmp_path / "src"
+    dstdir = tmp_path / "dst"
+    srcdir.mkdir()
+    src_cookies = srcdir / ".gitcookies"
+    src_cookies.write_text("cookie data\n", encoding="utf-8")
+    src_config = srcdir / ".gitconfig"
+    src_config.write_text(
+        "[user]\n\tname = Test User\n\temail = test@example.com\n",
+        encoding="utf-8",
+    )
+    cros_sdk_lib._setup_git_configs(srcdir, dstdir, sudo_user="testuser")
+    dst_cookies = dstdir / ".gitcookies"
+    dst_config = dstdir / ".gitconfig"
+    assert dst_cookies.exists()
+    assert "cookie data" in dst_cookies.read_text(encoding="utf-8")
+    res = git.RunGit(None, ["config", "-f", dst_config, "http.cookiefile"])
+    assert res.stdout.strip() == "/home/testuser/.gitcookies"
+
+
+def test_setup_git_configs_cookies_custom_path(tmp_path) -> None:
+    """Test _setup_git_configs with custom http.cookiefile in .gitconfig."""
+    srcdir = tmp_path / "src"
+    dstdir = tmp_path / "dst"
+    srcdir.mkdir()
+    custom_cookies = srcdir / "custom_cookies"
+    custom_cookies.write_text("custom cookie data\n", encoding="utf-8")
+    src_config = srcdir / ".gitconfig"
+    src_config.write_text(
+        "[user]\n\tname = Test User\n\temail = test@example.com\n"
+        "[http]\n\tcookiefile = ~/custom_cookies\n",
+        encoding="utf-8",
+    )
+    cros_sdk_lib._setup_git_configs(srcdir, dstdir, sudo_user="testuser")
+    dst_cookies = dstdir / ".gitcookies"
+    dst_config = dstdir / ".gitconfig"
+    assert dst_cookies.exists()
+    assert "custom cookie data" in dst_cookies.read_text(encoding="utf-8")
+    res = git.RunGit(None, ["config", "-f", dst_config, "http.cookiefile"])
+    assert res.stdout.strip() == "/home/testuser/.gitcookies"
+
+
+def test_setup_git_configs_cookies_reentrant(tmp_path) -> None:
+    """Test _setup_git_configs handles cached chroots without host gitconfig."""
+    srcdir = tmp_path / "src"
+    dstdir = tmp_path / "dst"
+    srcdir.mkdir()
+    src_cookies = srcdir / ".gitcookies"
+    src_cookies.write_text("cookie data\n", encoding="utf-8")
+    # First invocation (e.g. on builder when host has only .gitcookies
+    # and no .gitconfig).
+    cros_sdk_lib._setup_git_configs(srcdir, dstdir, sudo_user="testuser")
+    # Second invocation on cached chroot (re-entrant call)
+    cros_sdk_lib._setup_git_configs(srcdir, dstdir, sudo_user="testuser")
+    dst_cookies = dstdir / ".gitcookies"
+    dst_config = dstdir / ".gitconfig"
+    assert dst_cookies.exists()
+    assert "cookie data" in dst_cookies.read_text(encoding="utf-8")
+    res = git.RunGit(None, ["config", "-f", dst_config, "http.cookiefile"])
+    assert res.stdout.strip() == "/home/testuser/.gitcookies"

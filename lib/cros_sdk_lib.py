@@ -29,6 +29,7 @@ from chromite.lib import chroot_lib
 from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import git
 from chromite.lib import locking
 from chromite.lib import metrics_lib
 from chromite.lib import osutils
@@ -571,6 +572,159 @@ def _setup_ssh_configs(
         os.chown(dst_config, uid, gid)
 
 
+def _setup_git_configs(
+    srcdir: Path,
+    dstdir: Path,
+    uid: Optional[int] = None,
+    gid: Optional[int] = None,
+    sudo_user: Optional[str] = None,
+) -> None:
+    """Copy .gitconfig/.gitcookies from |srcdir| to |dstdir| and sanitize.
+
+    Args:
+        srcdir: Path to user's home directory outside chroot.
+        dstdir: Path to user's home directory inside chroot.
+        uid: The user id to use (e.g. for testing).
+        gid: The group id to use (e.g. for testing).
+        sudo_user: The username of the non-root user outside chroot.
+    """
+    osutils.SafeMakedirsNonRoot(dstdir)
+    src_gitconfig = srcdir / ".gitconfig"
+    dst_gitconfig = dstdir / ".gitconfig"
+
+    if src_gitconfig.exists():
+        shutil.copy2(src_gitconfig, dst_gitconfig)
+
+    if dst_gitconfig.exists():
+        # Remove sso:// rewrites from chroot gitconfig since git-remote-sso is
+        # unavailable in chroot.
+        result = git.RunGit(
+            None,
+            ["config", "-f", dst_gitconfig, "--get-regexp", "^url\\.sso:"],
+            check=False,
+        )
+        if result.returncode == 0 and result.stdout:
+            sections = sorted(
+                {
+                    line.split(maxsplit=1)[0].rsplit(".", 1)[0]
+                    for line in result.stdout.splitlines()
+                    if "." in line and line.strip()
+                }
+            )
+            for section in sections:
+                git.RunGit(
+                    None,
+                    [
+                        "config",
+                        "-f",
+                        dst_gitconfig,
+                        "--remove-section",
+                        section,
+                    ],
+                    check=False,
+                )
+
+        # If username not in gitconfig, check default git settings.
+        email_res = git.RunGit(
+            None,
+            ["config", "-f", dst_gitconfig, "user.email"],
+            check=False,
+        )
+        if email_res.returncode != 0 or not email_res.stdout.strip():
+            if sudo_user:
+                ident_res = cros_build_lib.sudo_run(
+                    ["git", "var", "GIT_COMMITTER_IDENT"],
+                    user=sudo_user,
+                    check=False,
+                    capture_output=True,
+                    encoding="utf-8",
+                    print_cmd=False,
+                )
+            else:
+                ident_res = git.RunGit(
+                    None,
+                    ["var", "GIT_COMMITTER_IDENT"],
+                    check=False,
+                )
+            if ident_res.returncode == 0 and ident_res.stdout:
+                ident = git.parse_user_identity(ident_res.stdout)
+                if ident.name:
+                    git.RunGit(
+                        None,
+                        [
+                            "config",
+                            "-f",
+                            dst_gitconfig,
+                            "--replace-all",
+                            "user.name",
+                            ident.name,
+                        ],
+                        check=False,
+                    )
+                if ident.email:
+                    git.RunGit(
+                        None,
+                        [
+                            "config",
+                            "-f",
+                            dst_gitconfig,
+                            "--replace-all",
+                            "user.email",
+                            ident.email,
+                        ],
+                        check=False,
+                    )
+
+    # Copy the gitcookies file, updating the user's gitconfig to point to it.
+    src_cookies = srcdir / ".gitcookies"
+    dst_cookies = dstdir / ".gitcookies"
+    cookie_file = None
+    if src_gitconfig.exists():
+        cookie_res = git.RunGit(
+            None,
+            ["config", "-f", src_gitconfig, "http.cookiefile"],
+            check=False,
+        )
+        if cookie_res.returncode == 0 and cookie_res.stdout.strip():
+            cookie_path_str = cookie_res.stdout.strip()
+            if cookie_path_str.startswith("~/"):
+                cookie_file = srcdir / cookie_path_str[2:]
+            elif cookie_path_str == "~":
+                cookie_file = srcdir
+            else:
+                cookie_file = Path(cookie_path_str)
+                if not cookie_file.is_absolute():
+                    cookie_file = srcdir / cookie_file
+    if not cookie_file:
+        cookie_file = src_cookies
+
+    if cookie_file and cookie_file.exists():
+        shutil.copy2(cookie_file, dst_cookies)
+
+    if dst_cookies.exists():
+        username = sudo_user or dstdir.name
+        git.RunGit(
+            None,
+            [
+                "config",
+                "-f",
+                dst_gitconfig,
+                "--replace-all",
+                "http.cookiefile",
+                f"/home/{username}/.gitcookies",
+            ],
+            check=False,
+        )
+
+    # Enforce proper ownership and permissions.
+    chown_uid = -1 if uid is None else uid
+    chown_gid = -1 if gid is None else gid
+    for path in (dst_gitconfig, dst_cookies):
+        if path.exists():
+            path.chmod(0o644)
+            os.chown(path, chown_uid, chown_gid)
+
+
 def MountChrootPaths(
     chroot: chroot_lib.Chroot,
     uid: Optional[int] = None,
@@ -595,6 +749,27 @@ def MountChrootPaths(
     path = Path(chroot.path).resolve()
     out_dir = chroot.out_path
     cache_dir = Path(chroot.cache_dir)
+
+    sudo_user = os_util.get_non_root_user()
+    if os_util.is_root_user():
+        if uid is None:
+            sudo_uid = os.environ.get("SUDO_UID")
+            if sudo_uid:
+                uid = int(sudo_uid)
+            elif sudo_user:
+                try:
+                    uid = pwd.getpwnam(sudo_user).pw_uid
+                except KeyError:
+                    pass
+        if gid is None:
+            sudo_gid = os.environ.get("SUDO_GID")
+            if sudo_gid:
+                gid = int(sudo_gid)
+            elif sudo_user:
+                try:
+                    gid = pwd.getpwnam(sudo_user).pw_gid
+                except KeyError:
+                    pass
 
     logging.debug("Mounting chroot paths at %s", path)
 
@@ -790,15 +965,14 @@ def MountChrootPaths(
     # gsutil cp tries to create its cache files, so ensure the user can
     # actually write to their directory.
     gsutil_dir = internal_home / ".gsutil"
-    if gsutil_dir.is_dir():
-        if uid is None:
-            uid = int(os.environ.pop("SUDO_UID"))
-        if gid is None:
-            gid = int(os.environ.pop("SUDO_GID"))
+    if gsutil_dir.is_dir() and uid is not None and gid is not None:
         osutils.Chown(gsutil_dir, uid, gid, recursive=True)
 
     _setup_ssh_configs(
         external_home / ".ssh", internal_home / ".ssh", uid=uid, gid=gid
+    )
+    _setup_git_configs(
+        external_home, internal_home, uid=uid, gid=gid, sudo_user=sudo_user
     )
 
     # Pass the current ssh auth socket into the SDK so we can ssh to e.g. DUTs.

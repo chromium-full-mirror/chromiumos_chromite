@@ -150,43 +150,6 @@ git_config_path() {
   fi
 }
 
-setup_git() {
-  # Copy .gitconfig into chroot so repo and git can be used from inside.
-  # This is required for repo to work since it validates the email address.
-  copy_into_chroot_if_exists "${SUDO_HOME}/.gitconfig" \
-      "/home/${SUDO_USER}/.gitconfig"
-  local -r chroot_gitconfig="${FLAGS_chroot}/home/${SUDO_USER}/.gitconfig"
-
-  # If the user didn't set up their username in their gitconfig, look
-  # at the default git settings for the user.
-  if ! git config -f "${chroot_gitconfig}" user.email >& /dev/null; then
-    local ident
-    ident=$(cd /; sudo -u "${SUDO_USER}" -- git var GIT_COMMITTER_IDENT || :)
-    local ident_name=${ident%% <*}
-    local ident_email=${ident%%>*}; ident_email=${ident_email##*<}
-    git config -f "${chroot_gitconfig}" --replace-all user.name \
-        "${ident_name}" || :
-    git config -f "${chroot_gitconfig}" --replace-all user.email \
-        "${ident_email}" || :
-  fi
-
-  # Copy the gitcookies file, updating the user's gitconfig to point to it.
-  local gitcookies
-  if ! gitcookies="$(git_config_path --file "${chroot_gitconfig}" \
-                     --get http.cookiefile)"; then
-    # Try the default location anyway.
-    gitcookies="${SUDO_HOME}/.gitcookies"
-  fi
-  copy_into_chroot_if_exists "${gitcookies}" "/home/${SUDO_USER}/.gitcookies"
-  local -r chroot_gitcookies="${FLAGS_chroot}/home/${SUDO_USER}/.gitcookies"
-  if [[ -e "${chroot_gitcookies}" ]]; then
-    git config -f "${chroot_gitconfig}" --replace-all http.cookiefile \
-        "/home/${SUDO_USER}/.gitcookies"
-  fi
-  # This line must be at the end because using `git config` changes ownership of
-  # the .gitconfig.
-  chown "${SUDO_UID}:${SUDO_GID}" "${chroot_gitconfig}"
-}
 
 setup_gclient_cache_dir_mount() {
   # Mount "cache_dir" if a glient checkout depends on it.
@@ -316,7 +279,6 @@ setup_env() {
       fi
     fi
 
-    setup_git
   ) 200>>"${LOCKFILE}" || die "setup_env failed"
 }
 
