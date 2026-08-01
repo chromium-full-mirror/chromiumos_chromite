@@ -15,7 +15,6 @@ import threading
 
 from chromite.lib import gs
 from chromite.lib import osutils
-from chromite.lib.xbuddy import android_build
 from chromite.lib.xbuddy import build_artifact
 from chromite.lib.xbuddy import common_util
 
@@ -53,7 +52,7 @@ class Downloader:
     """Downloader of images to the devsever.
 
     This is the base class for different types of downloaders, including
-    GoogleStorageDownloader, LocalDownloader and AndroidBuildDownloader.
+    GoogleStorageDownloader & LocalDownloader.
 
     Given a URL to a build on the archive server:
         - Caches that build and the given artifacts onto the devserver.
@@ -443,89 +442,3 @@ class LocalDownloader(Downloader):
 
     def DescribeSource(self):
         return self.source_path
-
-
-class AndroidBuildDownloader(Downloader):
-    """Downloader of images to the devserver from Android's build server."""
-
-    def __init__(self, static_dir, branch, build_id, target) -> None:
-        """Initialize AndroidBuildDownloader.
-
-        Args:
-            static_dir: Root directory to store the build.
-            branch: Branch for the build. Download will always verify if
-                |build_id| is for the branch.
-            build_id: Build id of the Android build, e.g., 2155602.
-            target: Target of the Android build, e.g., shamu-userdebug.
-        """
-        build = "%s/%s/%s" % (branch, target, build_id)
-        build_dir = os.path.join(static_dir, "", build)
-
-        self.branch = branch
-        self.build_id = build_id
-        self.target = target
-
-        super().__init__(static_dir, build_dir, build)
-
-    def Wait(self, name, is_regex_name, alt_name, timeout):
-        """Verifies the local artifact exists and returns the appropriate names.
-
-        Args:
-            name: Name to look at.
-            is_regex_name: True if the name is a regex pattern.
-            alt_name: Not used.
-            timeout: How long to wait for the artifact to become available.
-
-        Returns:
-            A list of names that match.
-
-        Raises:
-            ArtifactDownloadError: An error occurred when obtaining artifact.
-        """
-        artifacts = android_build.BuildAccessor.GetArtifacts(
-            branch=self.branch, build_id=self.build_id, target=self.target
-        )
-
-        names = []
-        for artifact_name in [a["name"] for a in artifacts]:
-            match = (
-                re.match(name, artifact_name)
-                if is_regex_name
-                else name == artifact_name
-            )
-            if match:
-                names.append(artifact_name)
-
-        if not names:
-            raise build_artifact.ArtifactDownloadError(
-                "No artifact found with given name: %s for %s-%s. All "
-                "available artifacts are: %s"
-                % (
-                    name,
-                    self.target,
-                    self.build_id,
-                    ",".join([a["name"] for a in artifacts]),
-                )
-            )
-
-        return names
-
-    def Fetch(self, remote_name, local_path):
-        """Download artifact from Android's build server to |local_path|."""
-        dest_file = os.path.join(local_path, remote_name)
-        android_build.BuildAccessor.Download(
-            branch=self.branch,
-            build_id=self.build_id,
-            target=self.target,
-            resource_id=remote_name,
-            dest_file=dest_file,
-        )
-        return dest_file
-
-    def DescribeSource(self):
-        return "%s/%s/%s/%s" % (
-            android_build.DEFAULT_BUILDER,
-            self.branch,
-            self.target,
-            self.build_id,
-        )

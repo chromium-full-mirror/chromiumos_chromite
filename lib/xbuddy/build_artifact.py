@@ -954,18 +954,3 @@ class ChromeOSArtifactFactory(BaseArtifactFactory):
             build,
             artifact_info.CROS_REQUESTED_TO_OPTIONAL_MAP,
         )
-
-
-class AndroidArtifactFactory(BaseArtifactFactory):
-    """A factory class that generates Android build artifacts from names."""
-
-    def __init__(self, download_dir, artifacts, files, build) -> None:
-        """Pass the Android artifact map to the base class."""
-        super().__init__(
-            android_artifact_map,
-            download_dir,
-            artifacts,
-            files,
-            build,
-            artifact_info.ANDROID_REQUESTED_TO_OPTIONAL_MAP,
-        )

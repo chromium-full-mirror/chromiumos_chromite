@@ -286,7 +286,6 @@ KNOWN_ISSUES = (
     "lib/vm_unittest.py",
     "lib/workon_helper.py",
     "lib/workon_helper_unittest.py",
-    "lib/xbuddy/android_build.py",
     "lib/xbuddy/build_artifact.py",
     "lib/xbuddy/build_artifact_unittest.py",
     "lib/xbuddy/common_util.py",
