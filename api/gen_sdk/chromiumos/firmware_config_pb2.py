@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n chromiumos/firmware_config.proto\x12\nchromiumos\"8\n\x12ModelSigningConfig\x12\x0e\n\x06key_id\x18\x01 \x01(\t\x12\x12\n\nbrand_code\x18\x02 \x01(\t\".\n\x0f\x46irmwareVersion\x12\x0b\n\x03uri\x18\x01 \x01(\t\x12\x0e\n\x06sha256\x18\x02 \x01(\t\"t\n\x0e\x46irmwareConfig\x12\x30\n\x0bro_firmware\x18\x01 \x01(\x0b\x32\x1b.chromiumos.FirmwareVersion\x12\x30\n\x0brw_firmware\x18\x02 \x01(\x0b\x32\x1b.chromiumos.FirmwareVersion\"\xb1\x02\n\x16\x46irmwareConfigForModel\x12\r\n\x05model\x18\x01 \x01(\t\x12/\n\x07signing\x18\x02 \x01(\x0b\x32\x1e.chromiumos.ModelSigningConfig\x12/\n\x0b\x61p_firmware\x18\x03 \x01(\x0b\x32\x1a.chromiumos.FirmwareConfig\x12/\n\x0b\x65\x63_firmware\x18\x04 \x01(\x0b\x32\x1a.chromiumos.FirmwareConfig\x12:\n\x15\x61p_firmware_for_ec_rw\x18\x05 \x01(\x0b\x32\x1b.chromiumos.FirmwareVersion\x12\x39\n\x14\x66ingerprint_firmware\x18\x06 \x01(\x0b\x32\x1b.chromiumos.FirmwareVersionBY\n!com.google.chrome.crosinfra.protoZ4go.chromium.org/chromiumos/infra/proto/go/chromiumosb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n chromiumos/firmware_config.proto\x12\nchromiumos\"8\n\x12ModelSigningConfig\x12\x0e\n\x06key_id\x18\x01 \x01(\t\x12\x12\n\nbrand_code\x18\x02 \x01(\t\".\n\x0f\x46irmwareVersion\x12\x0b\n\x03uri\x18\x01 \x01(\t\x12\x0e\n\x06sha256\x18\x02 \x01(\t\".\n\x0f\x46irmwareArchive\x12\x0b\n\x03uri\x18\x01 \x01(\t\x12\x0e\n\x06sha256\x18\x02 \x01(\t\"y\n\x19\x43\x62\x66sTargetFirmwareArchive\x12,\n\x07\x61rchive\x18\x01 \x01(\x0b\x32\x1b.chromiumos.FirmwareArchive\x12\x13\n\x0btarget_name\x18\x02 \x01(\t\x12\x19\n\x11\x65xtract_from_cbfs\x18\x03 \x01(\x08\"\x94\x01\n\x15\x46irmwareTargetArchive\x12\x31\n\nfw_archive\x18\x01 \x01(\x0b\x32\x1b.chromiumos.FirmwareArchiveH\x00\x12=\n\x0c\x63\x62\x66s_archive\x18\x02 \x01(\x0b\x32%.chromiumos.CbfsTargetFirmwareArchiveH\x00\x42\t\n\x07\x61rchive\"\x97\x02\n\x13\x46irmwareVersionInfo\x12/\n\x02\x65\x63\x18\x01 \x01(\x0b\x32!.chromiumos.FirmwareTargetArchiveH\x00\x12/\n\x02\x61p\x18\x02 \x01(\x0b\x32!.chromiumos.FirmwareTargetArchiveH\x00\x12\x32\n\x05\x66pmcu\x18\x03 \x01(\x0b\x32!.chromiumos.FirmwareTargetArchiveH\x00\x12\x30\n\x03ish\x18\x04 \x01(\x0b\x32!.chromiumos.FirmwareTargetArchiveH\x00\x12\x30\n\x03pdc\x18\x05 \x01(\x0b\x32!.chromiumos.FirmwareTargetArchiveH\x00\x42\x06\n\x04info\"\xcb\x01\n\x12\x46irmwareDescriptor\x12\x43\n\x0breadability\x18\x01 \x03(\x0e\x32..chromiumos.FirmwareDescriptor.ReadabilityType\x12+\n\x02\x66w\x18\x02 \x01(\x0b\x32\x1f.chromiumos.FirmwareVersionInfo\"C\n\x0fReadabilityType\x12 \n\x1cREADABILITY_TYPE_UNSPECIFIED\x10\x00\x12\x06\n\x02RO\x10\x01\x12\x06\n\x02RW\x10\x02\"J\n\x15\x46irmwareConfiguration\x12\x31\n\tfw_config\x18\x01 \x03(\x0b\x32\x1e.chromiumos.FirmwareDescriptor\"t\n\x0e\x46irmwareConfig\x12\x30\n\x0bro_firmware\x18\x01 \x01(\x0b\x32\x1b.chromiumos.FirmwareVersion\x12\x30\n\x0brw_firmware\x18\x02 \x01(\x0b\x32\x1b.chromiumos.FirmwareVersion\"\x9d\x03\n\x16\x46irmwareConfigForModel\x12\r\n\x05model\x18\x01 \x01(\t\x12/\n\x07signing\x18\x02 \x01(\x0b\x32\x1e.chromiumos.ModelSigningConfig\x12/\n\x0b\x61p_firmware\x18\x03 \x01(\x0b\x32\x1a.chromiumos.FirmwareConfig\x12/\n\x0b\x65\x63_firmware\x18\x04 \x01(\x0b\x32\x1a.chromiumos.FirmwareConfig\x12:\n\x15\x61p_firmware_for_ec_rw\x18\x05 \x01(\x0b\x32\x1b.chromiumos.FirmwareVersion\x12\x34\n\tfw_config\x18\x06 \x01(\x0b\x32!.chromiumos.FirmwareConfiguration\x12\x35\n\x02os\x18\x07 \x03(\x0e\x32).chromiumos.FirmwareConfigForModel.OsType\"8\n\x06OsType\x12\x17\n\x13OS_TYPE_UNSPECIFIED\x10\x00\x12\x08\n\x04\x43ROS\x10\x01\x12\x0b\n\x07\x41NDROID\x10\x02\x42Y\n!com.google.chrome.crosinfra.protoZ4go.chromium.org/chromiumos/infra/proto/go/chromiumosb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -26,8 +26,24 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_MODELSIGNINGCONFIG']._serialized_end=104
   _globals['_FIRMWAREVERSION']._serialized_start=106
   _globals['_FIRMWAREVERSION']._serialized_end=152
-  _globals['_FIRMWARECONFIG']._serialized_start=154
-  _globals['_FIRMWARECONFIG']._serialized_end=270
-  _globals['_FIRMWARECONFIGFORMODEL']._serialized_start=273
-  _globals['_FIRMWARECONFIGFORMODEL']._serialized_end=578
+  _globals['_FIRMWAREARCHIVE']._serialized_start=154
+  _globals['_FIRMWAREARCHIVE']._serialized_end=200
+  _globals['_CBFSTARGETFIRMWAREARCHIVE']._serialized_start=202
+  _globals['_CBFSTARGETFIRMWAREARCHIVE']._serialized_end=323
+  _globals['_FIRMWARETARGETARCHIVE']._serialized_start=326
+  _globals['_FIRMWARETARGETARCHIVE']._serialized_end=474
+  _globals['_FIRMWAREVERSIONINFO']._serialized_start=477
+  _globals['_FIRMWAREVERSIONINFO']._serialized_end=756
+  _globals['_FIRMWAREDESCRIPTOR']._serialized_start=759
+  _globals['_FIRMWAREDESCRIPTOR']._serialized_end=962
+  _globals['_FIRMWAREDESCRIPTOR_READABILITYTYPE']._serialized_start=895
+  _globals['_FIRMWAREDESCRIPTOR_READABILITYTYPE']._serialized_end=962
+  _globals['_FIRMWARECONFIGURATION']._serialized_start=964
+  _globals['_FIRMWARECONFIGURATION']._serialized_end=1038
+  _globals['_FIRMWARECONFIG']._serialized_start=1040
+  _globals['_FIRMWARECONFIG']._serialized_end=1156
+  _globals['_FIRMWARECONFIGFORMODEL']._serialized_start=1159
+  _globals['_FIRMWARECONFIGFORMODEL']._serialized_end=1572
+  _globals['_FIRMWARECONFIGFORMODEL_OSTYPE']._serialized_start=1516
+  _globals['_FIRMWARECONFIGFORMODEL_OSTYPE']._serialized_end=1572
 # @@protoc_insertion_point(module_scope)
