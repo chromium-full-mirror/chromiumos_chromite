@@ -305,7 +305,6 @@ KNOWN_ISSUES = (
     "scripts/bazel.py",
     "scripts/build_minios_unittest.py",
     "scripts/build_sdk_subtools.py",
-    "scripts/chrome_chromeos_lkgm_unittest.py",
     "scripts/clang_format.py",
     "scripts/clang_format_unittest.py",
     "scripts/collect_third_party_inventory.py",

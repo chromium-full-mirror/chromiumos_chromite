@@ -377,15 +377,6 @@ class VersionInfo:
 
         return components
 
-    @classmethod
-    def VersionCompare(cls, version_string):
-        """Useful method to return a comparable version of a LKGM string.
-
-        The returned value is intended only for comparison, not for display,
-        since it may contain a placeholder number for comparison.
-        """
-        return cls(version_string).VersionComponents()
-
     def __lt__(self, other) -> bool:
         return self.VersionComponents() < other.VersionComponents()
 

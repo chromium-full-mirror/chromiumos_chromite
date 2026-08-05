@@ -2260,30 +2260,6 @@ class GerritPatch(GerritFetchOnlyPatch):
             gerrit_host, self.gerrit_number, path, revision=revision
         )
 
-    def GetOriginalFileContents(
-        self, path: str, revision: Optional[str] = None
-    ) -> Optional[str]:
-        """Get the contents of a file prior to a specific CL,
-
-        Args:
-            path: Path of the file in the repo to retrieve.
-            revision: The specific revision of the change. Defaults to the
-                latest revision.
-
-        Returns:
-            Contents of the file that is before the change.
-        """
-        # Retrieve the revision of previous.
-        revision_info = self.GetChangeCommit(revision=revision)
-        if revision_info is None:
-            return None
-        content = gob_util.GetFileContents(
-            constants.CHROMIUM_GOB_URL,
-            path,
-            ref=revision_info["parents"][0]["commit"],
-        )
-        return content
-
     def GetChangeCommit(
         self, revision: Optional[str] = None
     ) -> Optional[Dict[str, Any]]:

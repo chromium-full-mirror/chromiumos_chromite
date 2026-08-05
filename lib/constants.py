@@ -292,8 +292,6 @@ CHROOT_ENVIRONMENT_ALLOWLIST = (
 # Paths for Chrome LKGM which are relative to the Chromium base url.
 CHROME_LKGM_FILE = "CHROMEOS_LKGM"
 PATH_TO_CHROME_LKGM = "chromeos/%s" % CHROME_LKGM_FILE
-# Path for the Chrome LKGM's closest OWNERS file.
-PATH_TO_CHROME_CHROMEOS_OWNERS = "chromeos/OWNERS"
 
 # Cache constants.
 COMMON_CACHE = "common"
@@ -452,10 +450,6 @@ PARTIAL_METADATA_JSON = "partial-metadata.json"
 FIRMWARE_ARCHIVE_NAME = "firmware_from_source.tar.bz2"
 FIRMWARE_PINNED_ARCHIVE_NAME = "pinned_firmware.tar.bz2"
 FPMCU_UNITTESTS_ARCHIVE_NAME = "fpmcu_unittests.tar.bz2"
-
-# Email alias to add as reviewer in Gerrit, which GWSQ will then automatically
-# assign to the current gardener.
-CHROME_GARDENER_REVIEW_EMAIL = "chrome-os-gardeners-reviews@google.com"
 
 # Email validation regex. Not quite fully compliant with RFC 2822, but good
 # approximation.
