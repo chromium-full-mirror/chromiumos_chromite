@@ -1790,6 +1790,44 @@ class PowerwashSafeDlcsInRootfsTest(cros_test_lib.TempDirTestCase):
         )
 
 
+class FactoryInstallDlcTest(cros_test_lib.RunCommandTempDirTestCase):
+    """Tests for FactoryInstallDlc."""
+
+    def testFactoryInstallDlcHoistedChown(self) -> None:
+        """Test FactoryInstallDlc hoists chown to run once for multiple pkgs."""
+        dlc_build_dir = os.path.join(self.tempdir, "build")
+        stateful = os.path.join(self.tempdir, "stateful")
+        dlc_id = "sample-dlc"
+        pkg1_dir = os.path.join(dlc_build_dir, dlc_id, "package1")
+        pkg2_dir = os.path.join(dlc_build_dir, dlc_id, "package2")
+        osutils.SafeMakedirs(pkg1_dir)
+        osutils.SafeMakedirs(pkg2_dir)
+        osutils.Touch(os.path.join(pkg1_dir, "dlc.img"))
+        osutils.Touch(os.path.join(pkg2_dir, "dlc.img"))
+
+        self.PatchObject(dlc_lib, "IsFactoryInstallAllowed", return_value=True)
+        self.PatchObject(osutils, "Chmod")
+        self.PatchObject(osutils, "SafeMakedirs")
+
+        dlc_lib.FactoryInstallDlc(
+            dlc_build_dir=dlc_build_dir,
+            dlc_id=dlc_id,
+            stateful=stateful,
+        )
+
+        expected_root = os.path.join(stateful, dlc_lib.DLC_FACTORY_INSTALL_DIR)
+        expected_uid_gid = "%d:%d" % (dlc_lib.DLC_UID, dlc_lib.DLC_GID)
+        self.assertCommandContains(
+            ["chown", "-R", expected_uid_gid, expected_root]
+        )
+        chown_calls = [
+            call
+            for call in self.rc.patched["run"].call_args_list
+            if "chown" in call[0][0]
+        ]
+        self.assertEqual(len(chown_calls), 1)
+
+
 @pytest.mark.parametrize("bd", (True, False))
 @pytest.mark.parametrize("bd_scaled", (True, False))
 @pytest.mark.parametrize("bd_artifacts_meta", (True, False))

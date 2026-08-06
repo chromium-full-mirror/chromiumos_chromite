@@ -1957,8 +1957,8 @@ def FactoryInstallDlc(
         for direct in os.listdir(dlc_id_path)
         if os.path.isdir(os.path.join(dlc_id_path, direct))
     ]
+    install_stateful_root = os.path.join(stateful, DLC_FACTORY_INSTALL_DIR)
     for d_package in dlc_packages:
-        install_stateful_root = os.path.join(stateful, DLC_FACTORY_INSTALL_DIR)
         install_stateful_dir = os.path.join(
             install_stateful_root, dlc_id, d_package
         )
@@ -1986,6 +1986,7 @@ def FactoryInstallDlc(
                 sudo=True,
             )
 
+    if dlc_packages:
         # Change the owner + group of factory install directory.
         # Refer to
         # http://cs/chromeos_public/src/third_party/eclass-overlay
