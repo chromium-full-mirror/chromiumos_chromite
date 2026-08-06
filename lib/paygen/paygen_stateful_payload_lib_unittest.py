@@ -57,7 +57,10 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
                 "--directory=%s" % os.path.join(self.tempdir, "dir-1"),
                 "--transform=s,^dev_image,dev_image_new,",
                 "--transform=s,^var_overlay,var_new,",
-                "--transform=s,^unencrypted/dev_image.block,unencrypted/dev_image_new.block,",
+                (
+                    "--transform=s,^unencrypted/dev_image.block,"
+                    "unencrypted/dev_image_new.block,"
+                ),
             ],
         )
 
@@ -92,7 +95,10 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
                 "--directory=%s" % os.path.join(self.tempdir, "dir-1"),
                 "--transform=s,^dev_image,dev_image_new,",
                 "--transform=s,^var_overlay,var_new,",
-                "--transform=s,^unencrypted/dev_image.block,unencrypted/dev_image_new.block,",
+                (
+                    "--transform=s,^unencrypted/dev_image.block,"
+                    "unencrypted/dev_image_new.block,"
+                ),
             ],
         )
 
@@ -126,7 +132,10 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
                 "--directory=%s" % os.path.join(self.tempdir, "dir-1"),
                 "--transform=s,^dev_image,dev_image_new,",
                 "--transform=s,^var_overlay,var_new,",
-                "--transform=s,^unencrypted/dev_image.block,unencrypted/dev_image_new.block,",
+                (
+                    "--transform=s,^unencrypted/dev_image.block,"
+                    "unencrypted/dev_image_new.block,"
+                ),
             ],
         )
 
@@ -161,7 +170,48 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
                 "--directory=%s" % os.path.join(self.tempdir, "dir-1"),
                 "--transform=s,^dev_image,dev_image_new,",
                 "--transform=s,^var_overlay,var_new,",
-                "--transform=s,^unencrypted/dev_image.block,unencrypted/dev_image_new.block,",
+                (
+                    "--transform=s,^unencrypted/dev_image.block,"
+                    "unencrypted/dev_image_new.block,"
+                ),
+            ],
+        )
+
+    def testGenerateZstdStatefulPayloadCustomCompressionLevel(self) -> None:
+        """Test custom compression level propagated to tar call."""
+
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+        fake_partitions = (image_lib.PartitionInfo(3, 0, 4, "fs", "STATE"),)
+        self.PatchObject(
+            image_lib, "GetImageDiskPartitionInfo", return_value=fake_partitions
+        )
+        self.PatchObject(os.path, "exists", return_value=True)
+        create_tarball_mock = self.PatchObject(
+            compression_lib, "create_tarball"
+        )
+
+        paygen_stateful_payload_lib.GenerateZstdStatefulPayload(
+            "dev/null", self.tempdir, compression_level=3
+        )
+
+        create_tarball_mock.assert_called_once_with(
+            os.path.join(self.tempdir, constants.STATEFUL_PAYLOAD),
+            ".",
+            sudo=True,
+            compression=compression_lib.CompressionType.ZSTD,
+            compressor=["zstdmt", "-3"],
+            inputs=["dev_image", "var_overlay", "unencrypted"],
+            extra_args=[
+                "--selinux",
+                "--directory=%s" % os.path.join(self.tempdir, "dir-1"),
+                "--transform=s,^dev_image,dev_image_new,",
+                "--transform=s,^var_overlay,var_new,",
+                (
+                    "--transform=s,^unencrypted/dev_image.block,"
+                    "unencrypted/dev_image_new.block,"
+                ),
             ],
         )
 
@@ -196,7 +246,10 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
                 "--directory=%s" % os.path.join(self.tempdir, "dir-1"),
                 "--transform=s,^dev_image,dev_image_new,",
                 "--transform=s,^var_overlay,var_new,",
-                "--transform=s,^unencrypted/dev_image.block,unencrypted/dev_image_new.block,",
+                (
+                    "--transform=s,^unencrypted/dev_image.block,"
+                    "unencrypted/dev_image_new.block,"
+                ),
             ],
         )
 
@@ -230,6 +283,9 @@ class GenerateStatefulPayloadTest(cros_test_lib.RunCommandTempDirTestCase):
                 "--directory=%s" % os.path.join(self.tempdir, "dir-1"),
                 "--transform=s,^dev_image,dev_image_new,",
                 "--transform=s,^var_overlay,var_new,",
-                "--transform=s,^unencrypted/dev_image.block,unencrypted/dev_image_new.block,",
+                (
+                    "--transform=s,^unencrypted/dev_image.block,"
+                    "unencrypted/dev_image_new.block,"
+                ),
             ],
         )

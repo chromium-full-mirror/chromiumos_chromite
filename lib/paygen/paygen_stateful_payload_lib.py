@@ -56,7 +56,10 @@ def _generate_stateful_payload(
                     "--directory=%s" % stateful_dir,
                     "--transform=s,^dev_image,dev_image_new,",
                     "--transform=s,^var_overlay,var_new,",
-                    "--transform=s,^unencrypted/dev_image.block,unencrypted/dev_image_new.block,",
+                    (
+                        "--transform=s,^unencrypted/dev_image.block,"
+                        "unencrypted/dev_image_new.block,"
+                    ),
                 ],
             )
         except:
@@ -102,7 +105,9 @@ def GenerateStatefulPayload(
 
 @metrics_lib.timed("paygen_stateful_payload_lib.GenerateZstdStatefulPayload")
 def GenerateZstdStatefulPayload(
-    image_path: Union[Path, str], output: Union[Path, int, str]
+    image_path: Union[Path, str],
+    output: Union[Path, int, str],
+    compression_level: int = 19,
 ) -> Union[Path, int, str]:
     """Generates a zstd stateful update payload given a full path to an image.
 
@@ -110,6 +115,10 @@ def GenerateZstdStatefulPayload(
         image_path: Full path to the image.
         output: Can be either the path to the directory to leave the resulting
             payload or a file descriptor to write the payload into.
+        compression_level: The zstd compression level to use (default: 19).
+            Higher levels (e.g. 19) produce smaller payloads for releases at
+            the cost of CPU time; lower levels (e.g. 3) reduce CPU time for
+            test/CQ artifact generation.
 
     Returns:
         Union[Path, int, str]: The path or fd to the generated stateful update
@@ -124,7 +133,7 @@ def GenerateZstdStatefulPayload(
         image_path,
         output_zstd,
         compression_lib.CompressionType.ZSTD,
-        compressor=["zstdmt", "-19"],
+        compressor=["zstdmt", f"-{compression_level}"],
     )
 
     return output_zstd

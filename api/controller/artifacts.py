@@ -336,8 +336,12 @@ def BundleTestUpdatePayloads(
         )
     image = valid_images[0]
 
+    zstd_compression_level = request.zstd_compression_level or 19
     payloads = artifacts.BundleTestUpdatePayloads(
-        chroot, image, str(output_dir)
+        chroot,
+        image,
+        str(output_dir),
+        zstd_compression_level=zstd_compression_level,
     )
     for payload in payloads:
         response.artifacts.add(

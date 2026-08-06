@@ -625,7 +625,10 @@ def CreateChromeRoot(
 
 
 def BundleTestUpdatePayloads(
-    chroot: "chroot_lib.Chroot", image_path: str, output_dir: str
+    chroot: "chroot_lib.Chroot",
+    image_path: str,
+    output_dir: str,
+    zstd_compression_level: int = 19,
 ) -> List[str]:
     """Generate the test update payloads.
 
@@ -633,6 +636,8 @@ def BundleTestUpdatePayloads(
         chroot: Chroot we're operating with.
         image_path: The full path to an image file.
         output_dir: The path where the payloads should be generated.
+        zstd_compression_level: The zstd compression level for stateful
+            payloads.
 
     Returns:
         The list of generated payloads.
@@ -645,6 +650,7 @@ def BundleTestUpdatePayloads(
         stateful=True,
         delta=True,
         dlc=True,
+        zstd_compression_level=zstd_compression_level,
     )
     payloads.extend(
         paygen_provision_payload.GenerateProvisionPayloads(
@@ -672,6 +678,7 @@ def GenerateTestPayloads(
     delta: bool = False,
     stateful: bool = False,
     dlc: bool = False,
+    zstd_compression_level: int = 19,
 ) -> List[str]:
     """Generates the payloads for hw testing.
 
@@ -683,6 +690,7 @@ def GenerateTestPayloads(
         delta: Generate delta payloads.
         stateful: Generate stateful payload.
         dlc: Generate sample-dlc payload if available.
+        zstd_compression_level: Compression level for zstd stateful payload.
 
     Returns:
         The list of artifacts that were generated.
@@ -828,7 +836,9 @@ def GenerateTestPayloads(
     def _do_stateful_zstd():
         return [
             paygen_stateful_payload_lib.GenerateZstdStatefulPayload(
-                target_image_path, archive_dir
+                target_image_path,
+                archive_dir,
+                compression_level=zstd_compression_level,
             ),
         ]
 

@@ -652,8 +652,12 @@ class BundleTestUpdatePayloadsTest(
         self.PatchObject(constants, "SOURCE_ROOT", new=self.source_root)
 
         def MockPayloads(
-            _: Any, image_path: str, archive_dir: str
+            _: Any,
+            image_path: str,
+            archive_dir: str,
+            zstd_compression_level: int = 19,
         ) -> list[str]:
+            del zstd_compression_level  # Unused.
             osutils.WriteFile(
                 os.path.join(archive_dir, "payload1.bin"), image_path
             )
@@ -725,6 +729,23 @@ class BundleTestUpdatePayloadsTest(
             )
         ]
         self.assertCountEqual(actual, expected)
+
+    def testBundleTestUpdatePayloadsCustomCompressionLevel(self) -> None:
+        """BundleTestUpdatePayloads passes custom compression level."""
+        image_path = os.path.join(self.image_root, constants.BASE_IMAGE_BIN)
+        osutils.WriteFile(image_path, "image!", makedirs=True)
+
+        self.request.zstd_compression_level = 3
+        artifacts.BundleTestUpdatePayloads(
+            self.request, self.response, self.api_config
+        )
+
+        self.bundle_patch.assert_called_once_with(
+            mock.ANY,
+            image_path,
+            mock.ANY,
+            zstd_compression_level=3,
+        )
 
     def testBundleTestUpdatePayloadsNoImageDir(self) -> None:
         """BundleTestUpdatePayloads dies if no image dir is found."""

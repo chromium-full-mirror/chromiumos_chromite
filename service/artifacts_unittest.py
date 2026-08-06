@@ -1127,7 +1127,9 @@ class GeneratePayloadsTest(cros_test_lib.MockTempDirTestCase):
             self.chroot, self.target_image, self.tempdir, stateful=True
         )
         paygen_mock.assert_called_once_with(self.target_image, self.tempdir)
-        paygen_mock2.assert_called_once_with(self.target_image, self.tempdir)
+        paygen_mock2.assert_called_once_with(
+            self.target_image, self.tempdir, compression_level=19
+        )
 
 
 class BundleTastFilesTest(cros_test_lib.MockTempDirTestCase):
@@ -1431,8 +1433,45 @@ class BundleTestUpdatePayloadsTest(cros_test_lib.MockTempDirTestCase):
         paygen_mock_stateful_2.assert_called_once_with(
             self.target_image,
             str(self.tempdir),
+            compression_level=19,
         )
         paygen_provision_mock.assert_called_once_with(
             self.target_image,
             str(self.tempdir),
+        )
+
+    def testBundledGenerationCustomCompressionLevel(self) -> None:
+        """Test BundleTestUpdatePayloads propagates custom zstd level."""
+        self.PatchObject(
+            paygen_payload_lib,
+            "GenerateUpdatePayload",
+            return_value=["/path/to/payload"],
+        )
+        self.PatchObject(
+            paygen_stateful_payload_lib,
+            "GenerateStatefulPayload",
+            return_value="/path/to/stateful.tgz",
+        )
+        paygen_mock_zstd = self.PatchObject(
+            paygen_stateful_payload_lib,
+            "GenerateZstdStatefulPayload",
+            return_value="/path/to/stateful.zst",
+        )
+        self.PatchObject(
+            paygen_provision_payload,
+            "GenerateProvisionPayloads",
+            return_value=["/path/to/provision"],
+        )
+
+        artifacts.BundleTestUpdatePayloads(
+            self.chroot,
+            self.target_image,
+            str(self.tempdir),
+            zstd_compression_level=3,
+        )
+
+        paygen_mock_zstd.assert_called_once_with(
+            self.target_image,
+            str(self.tempdir),
+            compression_level=3,
         )
