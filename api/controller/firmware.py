@@ -21,6 +21,7 @@ from chromite.api.gen.chromite.api import firmware_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
+from chromite.lib import ensure_bootstrap
 from chromite.lib import osutils
 
 
@@ -104,6 +105,8 @@ def _BuildAllFirmwareResponse(_request, response, _config) -> None:
 # TODO(b/400498599): rename this method
 def BuildAllFirmware(request, response, _config):
     """Build all of the firmware targets at the specified location."""
+    logging.info("Bootstrapping chromite tools")
+    ensure_bootstrap.for_everything()
 
     args = ["--code-coverage"] if request.code_coverage else []
     if request.avb_enabled:
@@ -130,6 +133,8 @@ def _TestAllFirmwareResponse(_request, response, _config) -> None:
 # TODO(b/400498599): rename this method
 def TestAllFirmware(request, response, _config):
     """Runs all of the firmware tests at the specified location."""
+    logging.info("Bootstrapping chromite tools")
+    ensure_bootstrap.for_everything()
 
     args = ["--code-coverage"] if request.code_coverage else []
     if request.avb_enabled:
