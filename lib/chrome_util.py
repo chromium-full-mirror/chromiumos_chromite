@@ -463,7 +463,6 @@ _COPY_PATHS_CHROME_WITHOUT_EXE = (
     Path("Packages/chrome_mash/manifest.json", optional=True),
     Path("Packages/chrome_mash_content_browser/manifest.json", optional=True),
     Path("Packages/content_browser/manifest.json", optional=True),
-    Path("PrivacySandboxAttestationsPreloaded/", optional=True),
     Path("resources/accessibility/", optional=True),
     Path("resources/chromeos/"),
     Path("resources.pak"),
