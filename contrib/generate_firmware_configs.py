@@ -245,16 +245,13 @@ def build_config(
 def get_configs_by_model(config: dict) -> dict:
     """Transform a chromeos-config JSON into per-model configs."""
     result = {}
-    for model_config in config["chromeos"]["configs"]:
-        if "firmware" not in model_config:
+    for model_config in config.get("chromeos", {}).get("configs", []):
+        sig_id = model_config.get("firmware-signing", {}).get(
+            "signature-id"
+        ) or model_config.get("name")
+        if not sig_id:
             continue
-        if "firmware-signing" not in model_config:
-            continue
-        if "main-ro-image" not in model_config["firmware"]:
-            continue
-        if "ec-ro-image" not in model_config["firmware"]:
-            continue
-        result[model_config["firmware-signing"]["signature-id"]] = model_config
+        result[sig_id] = model_config
     return result
 
 
@@ -348,6 +345,8 @@ def get_cros_config_dict(board: str, build: bool) -> dict:
             / "config.yaml"
         )
     )
+    if not cros_config_path.exists():
+        return {}
     with cros_config_path.open(encoding="utf-8") as f:
         cros_config = json.load(f)
 
@@ -361,11 +360,13 @@ def get_cros_config_dict(board: str, build: bool) -> dict:
 
     cros_config_dict = {}
     for model_name, config in configs_by_model.items():
-        bcs_overlay = config["firmware"]["bcs-overlay"]
-        ap_ro_image = config["firmware"]["main-ro-image"]
-        ap_rw_image = config["firmware"].get("main-rw-image")
-        ec_ro_image = config["firmware"]["ec-ro-image"]
-        ec_rw_image = config["firmware"].get("ec-rw-image")
+        firmware = config.get("firmware", {})
+        signing = config.get("firmware-signing", {})
+        bcs_overlay = firmware.get("bcs-overlay", "")
+        ap_ro_image = firmware.get("main-ro-image")
+        ap_rw_image = firmware.get("main-rw-image")
+        ec_ro_image = firmware.get("ec-ro-image")
+        ec_rw_image = firmware.get("ec-rw-image")
 
         ap_firmware_for_ec = None
         if not ec_rw_image:
@@ -384,8 +385,8 @@ def get_cros_config_dict(board: str, build: bool) -> dict:
         model_dict = {
             "model": model_name,
             "signing": {
-                "key_id": config["firmware-signing"]["key-id"],
-                "brand_code": config["brand-code"],
+                "key_id": signing.get("key-id"),
+                "brand_code": config.get("brand-code"),
             },
             "ap_firmware": {
                 "ro_firmware": get_bcs_uri(bcs_overlay, ap_ro_image),
@@ -406,7 +407,7 @@ def get_cros_config_dict(board: str, build: bool) -> dict:
 def get_firmware_version_from_option(
     ctx: gs.GSContext,
     option_value: Optional[str],
-    cros_uri: str,
+    cros_uri: Optional[str],
     fix_sha: bool,
     old_firmware: Optional[firmware_config_pb2.FirmwareVersion],
     get_version_uri: Optional[Callable],
@@ -485,17 +486,18 @@ def process_model(
     # TODO get the old image name. The image name is the same between
     # old branch and new branch.
 
-    # Getting the AP build target.  Assume the AP build target is same.
-
-    # chromeos-binaries (BCS):
-    # .../chromeos-firmware-brya/Anahera.14505.586.0.tbz2
-    # firmware-image-archive:
-    # .../14505.782.118/anahera.14505.782.118.tar.bz2
-    #
-    # We want to construct gs_uri in firmware-image-archive so make it
-    # lower case.
-    old_uri = cros_config_dict[model]["ap_firmware"]["ro_firmware"]
-    ap_image_name = old_uri.split("/")[-1].split(".")[0].lower()
+    model_cros_config = cros_config_dict.get(model, {})
+    cros_ap_ro = model_cros_config.get("ap_firmware", {}).get("ro_firmware")
+    if cros_ap_ro:
+        ap_image_name = cros_ap_ro.split("/")[-1].split(".")[0].lower()
+    elif old_message.ap_firmware.ro_firmware.uri:
+        ap_image_name = (
+            old_message.ap_firmware.ro_firmware.uri.split("/")[-1]
+            .split(".")[0]
+            .lower()
+        )
+    else:
+        ap_image_name = model.lower()
 
     if opts.board == "brya":
         get_ap_uri = functools.partial(
@@ -531,7 +533,7 @@ def process_model(
     ap_ro_firmware = get_firmware_version_from_option(
         ctx,
         opts.ap_ro_version,
-        cros_config_dict[model]["ap_firmware"]["ro_firmware"],
+        model_cros_config.get("ap_firmware", {}).get("ro_firmware"),
         opts.fix_sha,
         old_message.ap_firmware.ro_firmware,
         get_ap_uri,
@@ -539,7 +541,7 @@ def process_model(
     ap_rw_firmware = get_firmware_version_from_option(
         ctx,
         opts.ap_rw_version,
-        cros_config_dict[model]["ap_firmware"]["rw_firmware"],
+        model_cros_config.get("ap_firmware", {}).get("rw_firmware"),
         opts.fix_sha,
         old_message.ap_firmware.rw_firmware,
         get_ap_uri,
@@ -552,7 +554,7 @@ def process_model(
     ec_ro_firmware = get_firmware_version_from_option(
         ctx,
         opts.ec_ro_version,
-        cros_config_dict[model]["ec_firmware"]["ro_firmware"],
+        model_cros_config.get("ec_firmware", {}).get("ro_firmware"),
         opts.fix_sha,
         old_message.ec_firmware.ro_firmware,
         get_ec_uri,
@@ -560,7 +562,7 @@ def process_model(
     ec_rw_firmware = get_firmware_version_from_option(
         ctx,
         opts.ec_rw_version,
-        cros_config_dict[model]["ec_firmware"]["rw_firmware"],
+        model_cros_config.get("ec_firmware", {}).get("rw_firmware"),
         opts.fix_sha,
         old_message.ec_firmware.rw_firmware,
         get_ec_uri,
@@ -577,17 +579,20 @@ def process_model(
             if opts.ec_rw_version in (CROS_CONFIG, OLD_TXTPB)
             else ""
         ),
-        cros_config_dict[model]["ap_firmware_for_ec_rw"],
+        model_cros_config.get("ap_firmware_for_ec_rw"),
         opts.fix_sha,
         old_message.ap_firmware_for_ec_rw,
         get_ap_uri,
     )
 
+    cros_signing = model_cros_config.get("signing", {})
     message = firmware_config_pb2.FirmwareConfigForModel(
         model=model,
         signing=firmware_config_pb2.ModelSigningConfig(
-            key_id=cros_config_dict[model]["signing"]["key_id"],
-            brand_code=cros_config_dict[model]["signing"]["brand_code"],
+            key_id=cros_signing.get("key_id") or old_message.signing.key_id,
+            brand_code=(
+                cros_signing.get("brand_code") or old_message.signing.brand_code
+            ),
         ),
         ap_firmware=ap_firmware,
         ec_firmware=ec_firmware,
@@ -615,8 +620,11 @@ def main(argv: Optional[List[str]] = None) -> Optional[int]:
     else:
         target_models.extend(cros_config_dict.keys())
 
-    # Remove the following to build only device model specified?
     target_models = [x for x in target_models if x not in opts.ignore_models]
+
+    if not target_models:
+        logging.warning("No target models found to process.")
+        return 0
 
     ctx = gs.GSContext()
 
