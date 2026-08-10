@@ -290,7 +290,6 @@ def get_firmware_image_archive_uri(
     version: str,
 ) -> str:
     """Get firmware image archive URI."""
-    branch_point = version.rsplit(".", maxsplit=1)[0]
     version_folder = version
     if board == "brya":
         bucket = "firmware-image-archive"
@@ -306,7 +305,7 @@ def get_firmware_image_archive_uri(
             version_folder = f"R*-{version}-{ec_tot_build_id}"
         else:
             bucket = "firmware-image-archive"
-            branch = f"firmware-android-R*-{branch_point}.B"
+            branch = f"{board}/firmware-*.B"
     gs_uri = (
         f"gs://{bucket}/{branch}/{version_folder}/{model}.{version}.tar.bz2"
     )
