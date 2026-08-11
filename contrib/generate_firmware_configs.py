@@ -589,9 +589,9 @@ def process_model(
     message = firmware_config_pb2.FirmwareConfigForModel(
         model=model,
         signing=firmware_config_pb2.ModelSigningConfig(
-            key_id=cros_signing.get("key_id") or old_message.signing.key_id,
+            key_id=old_message.signing.key_id or cros_signing.get("key_id"),
             brand_code=(
-                cros_signing.get("brand_code") or old_message.signing.brand_code
+                old_message.signing.brand_code or cros_signing.get("brand_code")
             ),
         ),
         ap_firmware=ap_firmware,
