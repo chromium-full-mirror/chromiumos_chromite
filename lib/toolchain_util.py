@@ -23,6 +23,7 @@ from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import gob_util
 from chromite.lib import gs
+from chromite.lib import locking
 from chromite.lib import osutils
 from chromite.lib.parser import package_info
 from chromite.utils import pformat
@@ -62,6 +63,10 @@ AFDO_SUFFIX = ".afdo"
 BZ2_COMPRESSION_SUFFIX = ".bz2"
 XZ_COMPRESSION_SUFFIX = ".xz"
 KERNEL_AFDO_COMPRESSION_SUFFIX = ".afdo.xz"
+# Empty profiles in a binary format can have a non-zero size
+# because of the header but they won't exceed the page size.
+# Normal profiles are usually >1MB.
+AFDO_PROFILE_MIN_BYTES = 4096
 # FIXME: we should only use constants.SOURCE_ROOT and use
 # path_util.ToChrootPath to convert to inchroot path when needed. So we
 # need fix all the use cases for this variable (we can remove all but one
@@ -1968,24 +1973,52 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             msg = f"No files found matching {afdo_tmp_path / debug_glob}"
         raise BundleArtifactsHandlerError(msg)
 
-    def _BundleUnverifiedChromeBenchmarkAfdoFile(self):
-        """Bundle a benchmark Chrome AFDO profile.
+    def _EnsureUnverifiedChromeBenchmarkAfdoFile(self) -> Path:
+        """Ensure unverified benchmark AFDO profile is created, and return inside path.
 
-        Raises:
-            BundleArtifactsHandlerError: If the output profile is empty.
+        Protects profile creation with a file lock so concurrent bundling
+        requests (e.g. UnverifiedChromeBenchmarkAfdoFile vs
+        ChromeAFDOProfileForAndroidLinux) do not race or fail if executed out of
+        order.
+
+        Returns:
+            The chroot-relative Path to the generated AFDO profile inside the tmpdir.
         """
-        files = []
-        # If the name of the provided binary is not 'chrome.unstripped', then
-        # create_llvm_prof demands it exactly matches the name of the unstripped
-        # binary.  Create a symbolic link named 'chrome.unstripped'.
-        CHROME_UNSTRIPPED_NAME = "chrome.unstripped"
-        bin_path_in = self._AfdoTmpPath(CHROME_UNSTRIPPED_NAME)
+        lock_file = self.chroot.full_path(
+            self._AfdoTmpPath("afdo_generate.lock")
+        )
+        with locking.FileLock(lock_file).write_lock():
+            return self._LockedEnsureUnverifiedChromeBenchmarkAfdoFile()
+
+    def _LockedEnsureUnverifiedChromeBenchmarkAfdoFile(self) -> Path:
+        """Core logic for ensuring the unverified benchmark AFDO profile exists.
+
+        Must be called with afdo_generate.lock held.
+        """
         benchmark_afdo_name = self._LocateChromeDebugInfo(
             afdo_tmp_path=Path(self.chroot.full_path(self._AfdoTmpPath())),
         ).name
         chrome_debug_version = _ExtractChromeVersionFromDebugFileName(
             benchmark_afdo_name
         )
+        afdo_name = self._GetBenchmarkAFDOName(
+            forced_version=chrome_debug_version
+        )
+        afdo_path_inside = self._AfdoTmpPath(afdo_name)
+        afdo_path_full = self.chroot.full_path(afdo_path_inside)
+
+        # Check that this exists while locked since processes
+        # generate directly to the result location. Also, check
+        # getsize >= AFDO_PROFILE_MIN_BYTES to indicate a prior
+        # profile generation failure.
+        if (
+            os.path.exists(afdo_path_full)
+            and os.path.getsize(afdo_path_full) >= AFDO_PROFILE_MIN_BYTES
+        ):
+            return afdo_path_inside
+
+        CHROME_UNSTRIPPED_NAME = "chrome.unstripped"
+        bin_path_in = self._AfdoTmpPath(CHROME_UNSTRIPPED_NAME)
         benchmark_chroot_path = self.chroot.full_path(bin_path_in)
         logging.info(
             "Linking %s => %s", benchmark_afdo_name, benchmark_chroot_path
@@ -1997,10 +2030,6 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 forced_version=chrome_debug_version,
             )
         )
-        afdo_name = self._GetBenchmarkAFDOName(
-            forced_version=chrome_debug_version
-        )
-        afdo_path_inside = self._AfdoTmpPath(afdo_name)
         # Generate the afdo profile.
         self.chroot.run(
             [
@@ -2014,12 +2043,8 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             ],
             print_cmd=True,
         )
-        profile_size = os.path.getsize(self.chroot.full_path(afdo_path_inside))
-        # Check if the profile is empty.
-        # Empty profiles in a binary format can have a non-zero size
-        # because of the header but they won't exceed the page size.
-        # Normal profiles are usually >1MB.
-        if profile_size < 4096:
+        profile_size = os.path.getsize(afdo_path_full)
+        if profile_size < AFDO_PROFILE_MIN_BYTES:
             raise BundleArtifactsHandlerError(
                 f"AFDO profile size has invalid size, {profile_size}"
             )
@@ -2029,7 +2054,16 @@ class BundleArtifactHandler(_CommonPrepareBundle):
             afdo_name,
             profile_size / (1024 * 1024),
         )
+        return afdo_path_inside
 
+    def _BundleUnverifiedChromeBenchmarkAfdoFile(self):
+        """Bundle a benchmark Chrome AFDO profile.
+
+        Raises:
+            BundleArtifactsHandlerError: If the output profile is empty.
+        """
+        afdo_path_inside = self._EnsureUnverifiedChromeBenchmarkAfdoFile()
+        afdo_name = os.path.basename(afdo_path_inside)
         # Compress and deliver the profile.
         afdo_path = os.path.join(
             self.output_dir, afdo_name + BZ2_COMPRESSION_SUFFIX
@@ -2040,25 +2074,18 @@ class BundleArtifactHandler(_CommonPrepareBundle):
                 stdout=f,
                 print_cmd=True,
             )
-        files.append(afdo_path)
-        return files
+        return [afdo_path]
 
     def _BundleChromeAFDOProfileForAndroidLinux(self):
         """Bundle Android/Linux Chrome profiles."""
-        afdo_name = self._GetBenchmarkAFDOName()
+        afdo_path_inside = self._EnsureUnverifiedChromeBenchmarkAfdoFile()
         output_dir_full = self.chroot.full_path(self._AfdoTmpPath())
-        afdo_path = os.path.join(output_dir_full, afdo_name)
-        # The _BundleUnverifiedChromeBenchmarkAfdoFile should always run
-        # before this, so the AFDO profile should already be created.
-        assert os.path.exists(afdo_path), (
-            f"No benchmark AFDO profile found at {afdo_path!r}; it should "
-            "have been created by prior steps"
-        )
+        afdo_path = self.chroot.full_path(afdo_path_inside)
 
         files = []
         # Merge recent benchmark profiles for Android/Linux use
         merged_profile = self._CreateAndUploadMergedAFDOProfile(
-            os.path.join(output_dir_full, afdo_name), output_dir_full
+            afdo_path, output_dir_full
         )
         if not merged_profile:
             return []

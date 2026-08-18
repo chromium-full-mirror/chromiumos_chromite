@@ -1571,14 +1571,21 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         merge_function = self.PatchObject(
             self.obj, "_CreateAndUploadMergedAFDOProfile"
         )
-        with self.assertRaises(AssertionError) as context:
+        with self.assertRaises(toolchain_util.BundleArtifactsHandlerError) as context:
             self.obj.Bundle()
-        self.assertIn("No benchmark AFDO profile found", str(context.exception))
+        self.assertIn("No files found matching", str(context.exception))
         merge_function.assert_not_called()
 
     def testBundleChromeAFDOProfileForAndroidLinuxPass(self) -> None:
         self.SetUpBundle("ChromeAFDOProfileForAndroidLinux")
+        chrome_debug_file = os.path.join(
+            self.afdo_tmp_path, self.debug_binary_name
+        )
+        osutils.WriteFile(
+            self.chroot.full_path(chrome_debug_file), "", makedirs=True
+        )
         self.PatchObject(os.path, "exists", return_value=True)
+        self.PatchObject(os.path, "getsize", return_value=100000)
         merge_function = self.PatchObject(
             self.obj,
             "_CreateAndUploadMergedAFDOProfile",
