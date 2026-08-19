@@ -542,13 +542,109 @@ class ActionDeps(_ActionSearchQuery):
         """Implement the action."""
         cls = _Query(opts, opts.query, raw=False)
 
+        # Cache of (helper.host, query_str) -> list of GerritPatch objects.
+        related_cache = {}
+        # Set of (helper.host, gerrit_number) for which related changes have
+        # been fetched.
+        fetched_related = set()
+
         @functools.lru_cache(maxsize=None)
         def _QueryChange(cl, helper=None):
+            if helper is None:
+                helper, _ = GetGerrit(opts)
+            key = (helper.host, cl)
+            if key in related_cache:
+                return related_cache[key]
             return _Query(opts, cl, raw=False, helper=helper)
+
+        def _FetchRelated(cl, helper):
+            """Fetch related changes for |cl| and populate |related_cache|."""
+            if not getattr(cl, "gerrit_number", None):
+                return
+            gerrit_num = str(cl.gerrit_number)
+            if (helper.host, gerrit_num) in fetched_related:
+                return
+            fetched_related.add((helper.host, gerrit_num))
+            try:
+                related = helper.GetRelatedChangesInfo(gerrit_num)
+            except Exception as e:
+                logging.debug(
+                    "Failed to get related changes for %s: %s", gerrit_num, e
+                )
+                return
+            if not related or "changes" not in related:
+                return
+
+            # Extract all open (NEW) changes in the stack to batch query full
+            # metadata (including commit messages for Cq-Depend and approvals).
+            new_change_nums = [
+                str(c["_change_number"])
+                for c in related.get("changes", [])
+                if c.get("status") == "NEW" and "_change_number" in c
+            ]
+            for c in related.get("changes", []):
+                if "_change_number" in c:
+                    fetched_related.add((helper.host, str(c["_change_number"])))
+
+            patches = []
+            chunk_size = 50
+            for i in range(0, len(new_change_nums), chunk_size):
+                chunk = new_change_nums[i : i + chunk_size]
+                query_str = " OR ".join(f"change:{num}" for num in chunk)
+                try:
+                    patches.extend(
+                        _Query(opts, query_str, raw=False, helper=helper)
+                    )
+                except Exception as e:
+                    logging.debug("Batch query failed for %s: %s", query_str, e)
+
+            url_prefix = gob_util.GetGerritFetchUrl(helper.host)
+            default_branch = getattr(cl, "tracking_branch", None) or "main"
+            patches_by_num = {str(p.gerrit_number): p for p in patches}
+
+            for c in related.get("changes", []):
+                change_num = c.get("_change_number")
+                if not change_num:
+                    continue
+                c_num = str(change_num)
+                patch_obj = patches_by_num.get(c_num)
+                if not patch_obj:
+                    patch_obj = self._PatchFromRelated(
+                        c, helper, url_prefix, default_branch
+                    )
+                commit_sha = c.get("commit", {}).get("commit")
+                change_id = c.get("change_id")
+
+                if commit_sha:
+                    related_cache[(helper.host, commit_sha)] = [patch_obj]
+                    related_cache[(helper.host, f"commit:{commit_sha}")] = [
+                        patch_obj
+                    ]
+                if change_num:
+                    related_cache[(helper.host, c_num)] = [patch_obj]
+                    related_cache[(helper.host, f"change:{c_num}")] = [
+                        patch_obj
+                    ]
+                if change_id:
+                    for k in (
+                        (helper.host, change_id),
+                        (helper.host, f"change:{change_id}"),
+                    ):
+                        existing = related_cache.setdefault(k, [])
+                        if patch_obj not in existing:
+                            existing.append(patch_obj)
+
+        def _ChildrenWrapper(cl):
+            if getattr(cl, "remote", None) and cl.remote in opts.gerrit:
+                helper = opts.gerrit[cl.remote]
+            else:
+                helper, _ = GetGerrit(opts)
+            _FetchRelated(cl, helper)
+            return self._Children(opts, _QueryChange, cl)
 
         transitives = _DepthFirstSearch(
             cls,
-            functools.partial(self._Children, opts, _QueryChange),
+            _ChildrenWrapper,
             visited_key=lambda cl: cl.PatchLink(),
         )
 
@@ -560,6 +656,49 @@ class ActionDeps(_ActionSearchQuery):
         else:
             transitives_raw = [cl.patch_dict for cl in transitives]
             PrintCls(opts, transitives_raw)
+
+    @staticmethod
+    def _PatchFromRelated(c, helper, url_prefix, default_branch="main"):
+        """Create a GerritPatch from a RelatedChangeAndCommitInfo dict."""
+        change_id = c.get("change_id", "").split("~")[-1]
+        parents = c.get("commit", {}).get("parents", [])
+        current_revision = c.get("commit", {}).get("commit", "")
+        subject = c.get("commit", {}).get("subject", "")
+        author = c.get("commit", {}).get("author", {})
+        change_num = c.get("_change_number")
+        rev_num = c.get(
+            "_current_revision_number", c.get("_revision_number", 1)
+        )
+        owner = {
+            "name": author.get("name", ""),
+            "email": author.get("email", ""),
+            "username": author.get("name", ""),
+        }
+        ref_num = str(change_num)[-2:].zfill(2)
+        ref = f"refs/changes/{ref_num}/{change_num}/{rev_num}"
+        patch_dict = {
+            "project": c.get("project", ""),
+            "branch": c.get("branch") or default_branch,
+            "id": change_id,
+            "number": str(change_num),
+            "url": gob_util.GetChangePageUrl(helper.host, change_num),
+            "status": c.get("status", "NEW"),
+            "subject": subject,
+            "commitMessage": subject,
+            "owner": owner,
+            "dependsOn": [
+                {"revision": p["commit"]} for p in parents if "commit" in p
+            ],
+            "currentPatchSet": {
+                "revision": current_revision,
+                "number": str(rev_num),
+                "ref": ref,
+                "approvals": [],
+                "draft": False,
+                "uploader": {"email": author.get("email", "")},
+            },
+        }
+        return patch.GerritPatch(patch_dict, helper.remote, url_prefix)
 
     @staticmethod
     def _ProcessDeps(opts, querier, cl, deps):

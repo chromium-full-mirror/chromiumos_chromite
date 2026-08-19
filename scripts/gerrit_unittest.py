@@ -63,3 +63,114 @@ def test_process_add_remove_lists_invalid() -> None:
     with pytest.raises(SystemExit) as excinfo:
         gerrit.process_add_remove_lists([""])
     assert excinfo.value.code != 0
+
+
+def test_action_deps_related_changes(capsys, monkeypatch) -> None:
+    """Test ActionDeps leverages related changes cache."""
+    helper = gerrit.gerrit.GetGerritHelper(remote="cros")
+
+    sha100 = "100" + "0" * 37
+    sha99 = "099" + "0" * 37
+    sha98 = "098" + "0" * 37
+
+    related_info = {
+        "changes": [
+            {
+                "project": "chromiumos/test",
+                "change_id": "I100",
+                "_change_number": 100,
+                "_current_revision_number": 1,
+                "status": "NEW",
+                "commit": {
+                    "commit": sha100,
+                    "parents": [{"commit": sha99}],
+                    "subject": "commit 100",
+                    "author": {"name": "User", "email": "user@test.org"},
+                },
+            },
+            {
+                "project": "chromiumos/test",
+                "change_id": "I99",
+                "_change_number": 99,
+                "_current_revision_number": 1,
+                "status": "NEW",
+                "commit": {
+                    "commit": sha99,
+                    "parents": [{"commit": sha98}],
+                    "subject": "commit 99",
+                    "author": {"name": "User", "email": "user@test.org"},
+                },
+            },
+            {
+                "project": "chromiumos/test",
+                "change_id": "I98",
+                "_change_number": 98,
+                "_current_revision_number": 1,
+                "status": "MERGED",
+                "commit": {
+                    "commit": sha98,
+                    "parents": [],
+                    "subject": "commit 98",
+                    "author": {"name": "User", "email": "user@test.org"},
+                },
+            },
+        ]
+    }
+
+    initial_patch = gerrit.patch.GerritPatch(
+        {
+            "project": "chromiumos/test",
+            "branch": "main",
+            "id": "I100",
+            "number": "100",
+            "url": "https://chromium-review.googlesource.com/c/100",
+            "status": "NEW",
+            "subject": "commit 100",
+            "commitMessage": "commit 100",
+            "owner": {"name": "User", "email": "user@test.org"},
+            "dependsOn": [{"revision": sha99}],
+            "currentPatchSet": {
+                "revision": sha100,
+                "number": "1",
+                "ref": "refs/changes/00/100/1",
+                "approvals": [],
+            },
+        },
+        "cros",
+        "https://chromium-review.googlesource.com/",
+    )
+
+    query_calls = []
+
+    def fake_query(_opts, query, **_kwargs):
+        query_calls.append(query)
+        if query == "100":
+            return [initial_patch]
+        return []
+
+    monkeypatch.setattr(gerrit, "_Query", fake_query)
+    monkeypatch.setattr(
+        helper, "GetRelatedChangesInfo", lambda _change: related_info
+    )
+
+    opts = type(
+        "Opts",
+        (),
+        {
+            "query": "100",
+            "format": gerrit.OutputFormat.RAW,
+            "gob": "chromium",
+            "debug": False,
+            "gerrit": {"cros": helper},
+        },
+    )()
+
+    action = gerrit.ActionDeps()
+    action(opts)
+
+    captured = capsys.readouterr()
+    lines = captured.out.strip().splitlines()
+    assert lines == ["chromium:99", "chromium:100"]
+    # Verify the initial query and batch query for open stack changes were made,
+    # without making separate 1-by-1 queries for each parent commit hash.
+    assert query_calls == ["100", "change:100 OR change:99"]
