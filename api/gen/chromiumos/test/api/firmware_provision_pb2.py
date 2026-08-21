@@ -15,7 +15,7 @@ from chromite.api.gen.chromiumos.build.api import firmware_config_pb2 as chromiu
 from chromite.api.gen.chromiumos import storage_path_pb2 as chromiumos_dot_storage__path__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n,chromiumos/test/api/firmware_provision.proto\x12\x13\x63hromiumos.test.api\x1a*chromiumos/build/api/firmware_config.proto\x1a\x1d\x63hromiumos/storage_path.proto\">\n FirmwareProvisionStartupMetadataJ\x04\x08\x01\x10\x02R\x14\x63\x61\x63he_server_address\"\xcf\x03\n FirmwareProvisionInstallMetadata\x12=\n\x0f\x66irmware_config\x18\x01 \x01(\x0b\x32$.chromiumos.build.api.FirmwareConfig\x12Q\n\x02os\x18\x02 \x01(\x0e\x32\x45.chromiumos.test.api.FirmwareProvisionInstallMetadata.OperatingSystem\x12 \n\x18\x66orce_flash_same_version\x18\x03 \x01(\x08\x12i\n\x13pdc_firmware_images\x18\x04 \x03(\x0b\x32L.chromiumos.test.api.FirmwareProvisionInstallMetadata.PdcFirmwareImagesEntry\x1aQ\n\x16PdcFirmwareImagesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.chromiumos.StoragePath:\x02\x38\x01\"9\n\x0fOperatingSystem\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08\x43HROMEOS\x10\x01\x12\x0b\n\x07\x41NDROID\x10\x02\"\x92\x01\n\x19\x46irmwareProvisionResponse\x12\x19\n\rerror_message\x18\x01 \x01(\tB\x02\x18\x01\x12\x15\n\rap_ro_version\x18\x02 \x01(\t\x12\x15\n\rap_rw_version\x18\x03 \x01(\t\x12\x15\n\rec_ro_version\x18\x04 \x01(\t\x12\x15\n\rec_rw_version\x18\x05 \x01(\tB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n,chromiumos/test/api/firmware_provision.proto\x12\x13\x63hromiumos.test.api\x1a*chromiumos/build/api/firmware_config.proto\x1a\x1d\x63hromiumos/storage_path.proto\">\n FirmwareProvisionStartupMetadataJ\x04\x08\x01\x10\x02R\x14\x63\x61\x63he_server_address\"\xe4\x03\n FirmwareProvisionInstallMetadata\x12=\n\x0f\x66irmware_config\x18\x01 \x01(\x0b\x32$.chromiumos.build.api.FirmwareConfig\x12Q\n\x02os\x18\x02 \x01(\x0e\x32\x45.chromiumos.test.api.FirmwareProvisionInstallMetadata.OperatingSystem\x12 \n\x18\x66orce_flash_same_version\x18\x03 \x01(\x08\x12i\n\x13pdc_firmware_images\x18\x04 \x03(\x0b\x32L.chromiumos.test.api.FirmwareProvisionInstallMetadata.PdcFirmwareImagesEntry\x12\x13\n\x0bunlock_csme\x18\x05 \x01(\x08\x1aQ\n\x16PdcFirmwareImagesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.chromiumos.StoragePath:\x02\x38\x01\"9\n\x0fOperatingSystem\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08\x43HROMEOS\x10\x01\x12\x0b\n\x07\x41NDROID\x10\x02\"7\n\x12PDCFirmwareVersion\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\"\xdf\x02\n\x19\x46irmwareProvisionResponse\x12\x19\n\rerror_message\x18\x01 \x01(\tB\x02\x18\x01\x12\x15\n\rap_ro_version\x18\x02 \x01(\t\x12\x15\n\rap_rw_version\x18\x03 \x01(\t\x12\x15\n\rec_ro_version\x18\x04 \x01(\t\x12\x15\n\rec_rw_version\x18\x05 \x01(\t\x12\x66\n\x15pdc_firmware_versions\x18\x06 \x03(\x0b\x32G.chromiumos.test.api.FirmwareProvisionResponse.PdcFirmwareVersionsEntry\x1a\x63\n\x18PdcFirmwareVersionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\x36\n\x05value\x18\x02 \x01(\x0b\x32\'.chromiumos.test.api.PDCFirmwareVersion:\x02\x38\x01\x42/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.api.firmware_provision_pb2', globals())
@@ -25,16 +25,22 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._serialized_options = b'Z-go.chromium.org/chromiumos/config/go/test/api'
   _FIRMWAREPROVISIONINSTALLMETADATA_PDCFIRMWAREIMAGESENTRY._options = None
   _FIRMWAREPROVISIONINSTALLMETADATA_PDCFIRMWAREIMAGESENTRY._serialized_options = b'8\001'
+  _FIRMWAREPROVISIONRESPONSE_PDCFIRMWAREVERSIONSENTRY._options = None
+  _FIRMWAREPROVISIONRESPONSE_PDCFIRMWAREVERSIONSENTRY._serialized_options = b'8\001'
   _FIRMWAREPROVISIONRESPONSE.fields_by_name['error_message']._options = None
   _FIRMWAREPROVISIONRESPONSE.fields_by_name['error_message']._serialized_options = b'\030\001'
   _FIRMWAREPROVISIONSTARTUPMETADATA._serialized_start=144
   _FIRMWAREPROVISIONSTARTUPMETADATA._serialized_end=206
   _FIRMWAREPROVISIONINSTALLMETADATA._serialized_start=209
-  _FIRMWAREPROVISIONINSTALLMETADATA._serialized_end=672
-  _FIRMWAREPROVISIONINSTALLMETADATA_PDCFIRMWAREIMAGESENTRY._serialized_start=532
-  _FIRMWAREPROVISIONINSTALLMETADATA_PDCFIRMWAREIMAGESENTRY._serialized_end=613
-  _FIRMWAREPROVISIONINSTALLMETADATA_OPERATINGSYSTEM._serialized_start=615
-  _FIRMWAREPROVISIONINSTALLMETADATA_OPERATINGSYSTEM._serialized_end=672
-  _FIRMWAREPROVISIONRESPONSE._serialized_start=675
-  _FIRMWAREPROVISIONRESPONSE._serialized_end=821
+  _FIRMWAREPROVISIONINSTALLMETADATA._serialized_end=693
+  _FIRMWAREPROVISIONINSTALLMETADATA_PDCFIRMWAREIMAGESENTRY._serialized_start=553
+  _FIRMWAREPROVISIONINSTALLMETADATA_PDCFIRMWAREIMAGESENTRY._serialized_end=634
+  _FIRMWAREPROVISIONINSTALLMETADATA_OPERATINGSYSTEM._serialized_start=636
+  _FIRMWAREPROVISIONINSTALLMETADATA_OPERATINGSYSTEM._serialized_end=693
+  _PDCFIRMWAREVERSION._serialized_start=695
+  _PDCFIRMWAREVERSION._serialized_end=750
+  _FIRMWAREPROVISIONRESPONSE._serialized_start=753
+  _FIRMWAREPROVISIONRESPONSE._serialized_end=1104
+  _FIRMWAREPROVISIONRESPONSE_PDCFIRMWAREVERSIONSENTRY._serialized_start=1005
+  _FIRMWAREPROVISIONRESPONSE_PDCFIRMWAREVERSIONSENTRY._serialized_end=1104
 # @@protoc_insertion_point(module_scope)
