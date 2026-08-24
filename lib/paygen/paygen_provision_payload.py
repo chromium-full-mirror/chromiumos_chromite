@@ -4,6 +4,7 @@
 
 """Utilities to handle/generate payloads for provisioning."""
 
+import functools
 import os
 from pathlib import Path
 from typing import List, Mapping, Optional, Union
@@ -11,6 +12,7 @@ from typing import List, Mapping, Optional, Union
 from chromite.lib import compression_lib
 from chromite.lib import constants
 from chromite.lib import osutils
+from chromite.lib import parallel
 from chromite.lib.paygen import partition_lib
 
 
@@ -70,14 +72,21 @@ def GenerateProvisionPayloads(
             Returns:
                 A list of compressed payload paths.
             """
+            steps = []
             compressed_payloads = []
             for partition, payload in mapping.items():
                 source = os.path.join(temp_dir, partition)
                 dest = os.path.join(archive_dir, payload)
-                compression_lib.compress_file(
-                    source, dest, compression_level=compression_level
+                steps.append(
+                    functools.partial(
+                        compression_lib.compress_file,
+                        source,
+                        dest,
+                        compression_level=compression_level,
+                    )
                 )
                 compressed_payloads.append(dest)
+            parallel.RunParallelSteps(steps)
             return compressed_payloads
 
         payloads.extend(CompressMappings(mapping))
