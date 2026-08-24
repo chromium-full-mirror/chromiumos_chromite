@@ -261,12 +261,20 @@ def BundleAutotestFiles(
     builder = autotest_util.AutotestTarballBuilder(
         archive_basedir, output_directory, chroot, sysroot
     )
-    results = {
-        ARCHIVE_CONTROL_FILES: builder.BuildAutotestControlFilesTarball(),
-        ARCHIVE_PACKAGES: builder.BuildAutotestPackagesTarball(),
-        ARCHIVE_SERVER_PACKAGES: builder.BuildAutotestServerPackageTarball(),
-        ARCHIVE_TEST_SUITES: builder.BuildAutotestTestSuitesTarball(),
-    }
+    steps = [
+        builder.BuildAutotestControlFilesTarball,
+        builder.BuildAutotestPackagesTarball,
+        builder.BuildAutotestServerPackageTarball,
+        builder.BuildAutotestTestSuitesTarball,
+    ]
+    keys = [
+        ARCHIVE_CONTROL_FILES,
+        ARCHIVE_PACKAGES,
+        ARCHIVE_SERVER_PACKAGES,
+        ARCHIVE_TEST_SUITES,
+    ]
+    step_results = parallel.RunParallelSteps(steps, return_values=True)
+    results = dict(zip(keys, step_results))
 
     # Strip the list down to just the successfully created archives.
     return {k: v for k, v in results.items() if v}
