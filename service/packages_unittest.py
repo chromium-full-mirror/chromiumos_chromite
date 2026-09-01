@@ -2495,12 +2495,12 @@ class UprevHeliumArtifactsTest(cros_test_lib.RunCommandTempDirTestCase):
     """Tests of uprev of Helium artifacts ebuild."""
 
     component = "chromeos-base"
-    package_name = "starbase-helium-arcvm"
+    package_name = "chromeos-board-default-arc-apps-selphie"
     version = "0.0.1"
     revision = "1"
     tarfile_name = "starbase_helium-arcvm-artifacts_tarfile.tar.zst"
     tarfile_hash = "42"
-    ebuild_name_format = "starbase-helium-arcvm-%s%s.ebuild"
+    ebuild_name_format = "chromeos-board-default-arc-apps-selphie-%s%s.ebuild"
     rev0_ebuild_name = ebuild_name_format % (version, "")
     old_ebuild_name = ebuild_name_format % (version, f"-r{revision}")
     ebuild_content_format = """# Buildable ebuild
