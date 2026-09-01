@@ -40,8 +40,12 @@ def get_fw_loc(fw_loc: int) -> str:
         common_pb2.PLATFORM_ZEPHYR: "src/platform/ec/zephyr/",
         common_pb2.PLATFORM_TI50: "src/platform/ti50/common/",
         common_pb2.PLATFORM_CR50: "src/platform/cr50/",
+        common_pb2.PLATFORM_CR50_PRIVATE: "src/platform/cr50-private/",
         common_pb2.PLATFORM_CHAMELEON: "src/platform/chameleon/v3/ec/",
         common_pb2.PLATFORM_GSC_UTILS: "src/platform/gsc-utils/",
+        common_pb2.PLATFORM_GSC_UTILS_PRIVATE: (
+            "src/platform/gsc-utils-private/"
+        ),
         common_pb2.PLATFORM_RENODE: "src/platform/ec/util/renode/",
         common_pb2.PLATFORM_DAGWOOD: "src/platform/dagwood/",
         common_pb2.PLATFORM_EC_LEGACY: "src/platform/ec-legacy/",
