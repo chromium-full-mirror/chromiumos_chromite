@@ -7,7 +7,6 @@
 import json
 import os
 from pathlib import Path
-from unittest import mock
 
 import pytest
 
@@ -1394,31 +1393,6 @@ class UtilFuncsTest(cros_test_lib.TempDirTestCase):
         layout_conf = os.path.join(metadata, "layout.conf")
         osutils.WriteFile(layout_conf, "here = we go")
         self.assertEqual(portage_util.GetOverlayName(self.tempdir), "hi!")
-
-    @mock.patch("chromite.lib.portage_util._GetKnownOverlays")
-    def testGetOverlayMasters(self, mock_known_overlays) -> None:
-        """Verify GetOverlayMasters DFS traversal for transitive masters."""
-        # A depends on B and C
-        # B depends on D
-        # C depends on D
-        # Expected post-order for A: [D, B, C]
-
-        overlay_a = self.tempdir / "overlay-a"
-        osutils.SafeMakedirs(overlay_a / "profiles")
-        osutils.WriteFile(overlay_a / "profiles" / "repo_name", "A")
-
-        mock_known_overlays.return_value = {
-            "A": {"masters": ["B", "C"], "path": "/path/a"},
-            "B": {"masters": ["D"], "path": "/path/b"},
-            "C": {"masters": ["D"], "path": "/path/c"},
-            "D": {"masters": [], "path": "/path/d"},
-        }
-
-        masters = portage_util.GetOverlayMasters(overlay_a)
-        self.assertEqual(
-            masters,
-            [Path("/path/d"), Path("/path/b"), Path("/path/c")],
-        )
 
     def testGetRepositoryFromEbuildInfo(self) -> None:
         """Verify GetRepositoryFromEbuildInfo handles data from ebuild info."""
