@@ -702,6 +702,33 @@ class GerritHelper:
             return
         gob_util.Delete(self.host, self._to_changenum(change))
 
+    def RebaseChange(
+        self,
+        change: str,
+        base: str | None = None,
+        allow_conflicts: bool = False,
+        on_behalf_of_uploader: bool = False,
+        dryrun: bool = False,
+    ) -> dict[str, Any] | None:
+        """Rebase a gerrit change using the JSON API."""
+        if dryrun:
+            logging.info(
+                "Would have rebased change %s (base=%s, allow_conflicts=%s, "
+                "on_behalf_of_uploader=%s)",
+                change,
+                base,
+                allow_conflicts,
+                on_behalf_of_uploader,
+            )
+            return None
+        return gob_util.Rebase(
+            self.host,
+            self._to_changenum(change),
+            base=base,
+            allow_conflicts=allow_conflicts,
+            on_behalf_of_uploader=on_behalf_of_uploader,
+        )
+
     def CherryPick(
         self,
         change: str,

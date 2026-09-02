@@ -336,7 +336,7 @@ def CreateHttpReq(
     path: str,
     reqtype: Optional[str] = "GET",
     headers: Optional[Dict[str, str]] = None,
-    body: Optional[Union[bytes, str]] = None,
+    body: Optional[Union[bytes, str, Dict[str, Any], list]] = None,
 ) -> urllib.request.Request:
     """Returns a https connection request object to a gerrit service."""
     path = "/a/" + path.lstrip("/")
@@ -410,9 +410,12 @@ def CreateHttpReq(
             )
         )
 
-    if body:
-        body = json.JSONEncoder().encode(body).encode("utf-8")
-        headers.setdefault("Content-Type", "application/json")
+    if body is not None:
+        if isinstance(body, (dict, list)):
+            body = json.JSONEncoder().encode(body).encode("utf-8")
+            headers.setdefault("Content-Type", "application/json")
+        elif isinstance(body, str):
+            body = body.encode("utf-8")
     if logging.getLogger().isEnabledFor(logging.DEBUG):
         logging.debug("%s %s://%s%s", reqtype, protocol, host, path)
         for key, val in headers.items():
@@ -1302,20 +1305,33 @@ def GetFileContentsFromGerrit(
 
 
 def Rebase(
-    host: str, change: str, allow_conflicts: bool = False
+    host: str,
+    change: str,
+    base: Optional[str] = None,
+    allow_conflicts: bool = False,
+    on_behalf_of_uploader: bool = False,
 ) -> Optional[Dict[str, Any]]:
-    """Rebase the CL to the main branch.
+    """Rebase the CL.
 
     Args:
         host: The Gerrit host to interact with.
         change: A Gerrit change number.
+        base: The new parent revision/commit/change. Empty string breaks
+            dependency towards a parent change and rebases onto target branch.
         allow_conflicts: True if allowing the merge-conflict after rebasing.
+        on_behalf_of_uploader: True if rebasing on behalf of the uploader.
 
     Returns:
-        ChangeInfo of the change after the reading.
+        ChangeInfo of the change after rebasing.
     """
     path = "%s/rebase" % (_GetChangePath(change),)
-    body = {"allow_conflicts": "true" if allow_conflicts else "false"}
+    body: Dict[str, Any] = {}
+    if base is not None:
+        body["base"] = base
+    if allow_conflicts:
+        body["allow_conflicts"] = True
+    if on_behalf_of_uploader:
+        body["on_behalf_of_uploader"] = True
     change_info = FetchUrlJson(host, path, body=body, reqtype="POST")
     if change_info is None:
         return None

@@ -174,3 +174,113 @@ def test_action_deps_related_changes(capsys, monkeypatch) -> None:
     # Verify the initial query and batch query for open stack changes were made,
     # without making separate 1-by-1 queries for each parent commit hash.
     assert query_calls == ["100", "change:100 OR change:99"]
+
+
+def test_action_rebase(capsys, monkeypatch) -> None:
+    """Test ActionRebase invokes RebaseChange."""
+    helper = gerrit.gerrit.GetGerritHelper(remote="cros")
+    rebase_calls = []
+
+    def fake_rebase_change(change, **kwargs):
+        rebase_calls.append((change, kwargs))
+        return {"_number": int(change)}
+
+    monkeypatch.setattr(helper, "RebaseChange", fake_rebase_change)
+
+    opts = type(
+        "Opts",
+        (),
+        {
+            "cls": ["123", "124"],
+            "base": "456",
+            "allow_conflicts": False,
+            "on_behalf_of_uploader": None,
+            "dryrun": False,
+            "format": gerrit.OutputFormat.RAW,
+            "gob": "chromium",
+            "parser": None,
+            "gerrit": {"chromium": helper},
+        },
+    )()
+
+    action = gerrit.ActionRebase()
+    action(opts)
+
+    captured = capsys.readouterr()
+    assert captured.out.strip().splitlines() == ["123", "124"]
+    assert rebase_calls == [
+        (
+            "123",
+            {
+                "base": "456",
+                "allow_conflicts": False,
+                "on_behalf_of_uploader": True,
+                "dryrun": False,
+            },
+        ),
+        (
+            "124",
+            {
+                "base": "456",
+                "allow_conflicts": False,
+                "on_behalf_of_uploader": True,
+                "dryrun": False,
+            },
+        ),
+    ]
+
+
+def test_action_rebase_allow_conflicts_default_uploader(monkeypatch) -> None:
+    """Test ActionRebase with allow_conflicts defaults uploader to False."""
+    helper = gerrit.gerrit.GetGerritHelper(remote="cros")
+    rebase_calls = []
+
+    def fake_rebase_change(change, **kwargs):
+        rebase_calls.append((change, kwargs))
+        return {"_number": int(change)}
+
+    monkeypatch.setattr(helper, "RebaseChange", fake_rebase_change)
+
+    opts = type(
+        "Opts",
+        (),
+        {
+            "cls": ["123"],
+            "base": None,
+            "allow_conflicts": True,
+            "on_behalf_of_uploader": None,
+            "dryrun": False,
+            "format": gerrit.OutputFormat.RAW,
+            "gob": "chromium",
+            "parser": None,
+            "gerrit": {"chromium": helper},
+        },
+    )()
+
+    action = gerrit.ActionRebase()
+    action(opts)
+
+    assert rebase_calls == [
+        (
+            "123",
+            {
+                "base": None,
+                "allow_conflicts": True,
+                "on_behalf_of_uploader": False,
+                "dryrun": False,
+            },
+        ),
+    ]
+
+
+def test_action_rebase_conflicts_and_on_behalf_of_uploader() -> None:
+    """Test ActionRebase rejects combining conflicts with on-behalf.
+
+    Both --allow-conflicts and --on-behalf-of-uploader cannot be used
+    together.
+    """
+    with pytest.raises(SystemExit) as excinfo:
+        gerrit.main(
+            ["rebase", "--allow-conflicts", "--on-behalf-of-uploader", "123"]
+        )
+    assert excinfo.value.code != 0

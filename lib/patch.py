@@ -2281,18 +2281,29 @@ class GerritPatch(GerritFetchOnlyPatch):
             gerrit_host, self.gerrit_number, revision=revision
         )
 
-    def Rebase(self, allow_conflicts: bool = False) -> Optional[Dict[str, Any]]:
-        """Rebase the CL to the main branch.
+    def Rebase(
+        self,
+        base: Optional[str] = None,
+        allow_conflicts: bool = False,
+        on_behalf_of_uploader: bool = False,
+    ) -> Optional[Dict[str, Any]]:
+        """Rebase the CL.
 
         Args:
+            base: The new parent revision/commit/change.
             allow_conflicts: True if allowing the merge-conflict after rebasing.
+            on_behalf_of_uploader: True if rebasing on behalf of the uploader.
 
         Returns:
             Returned value from gob_util.Rebase().
         """
         gerrit_host = git.RemoteToGerritHost(self.remote)
         change_info = gob_util.Rebase(
-            gerrit_host, self.gerrit_number, allow_conflicts=allow_conflicts
+            gerrit_host,
+            self.gerrit_number,
+            base=base,
+            allow_conflicts=allow_conflicts,
+            on_behalf_of_uploader=on_behalf_of_uploader,
         )
         return change_info
 

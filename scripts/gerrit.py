@@ -1175,6 +1175,78 @@ class ActionCherryPick(UserAction):
         _run_parallel_tasks(task, opts.jobs, *opts.branches)
 
 
+class ActionRebase(UserAction):
+    """Rebase CLs."""
+
+    COMMAND = "rebase"
+
+    @staticmethod
+    def init_subparser(parser) -> None:
+        """Add arguments to this action's subparser."""
+        parser.add_argument(
+            "--base",
+            "--base-commit",
+            "--parent",
+            help="The new parent revision, change number, or commit SHA. "
+            "Pass an empty string to break dependency and rebase onto the "
+            "target branch.",
+        )
+        parser.add_bool_argument(
+            "--allow-conflicts",
+            False,
+            "Allow rebase to succeed even if there are conflicts.",
+            "Fail if there are merge conflicts when rebasing.",
+        )
+        parser.add_bool_argument(
+            "--on-behalf-of-uploader",
+            None,
+            "Rebase on behalf of the uploader so the original "
+            "uploader remains the uploader. (DEFAULT unless --allow-conflicts)",
+            "Rebase as the current user.",
+        )
+        parser.add_argument(
+            "cls", nargs="+", metavar="CL", help="The CLs to rebase"
+        )
+
+    @staticmethod
+    def __call__(opts) -> None:
+        """Implement the action."""
+        on_behalf_of_uploader = opts.on_behalf_of_uploader
+        if on_behalf_of_uploader is None:
+            on_behalf_of_uploader = not opts.allow_conflicts
+        elif on_behalf_of_uploader and opts.allow_conflicts:
+            opts.parser.error(
+                "--allow-conflicts and --on-behalf-of-uploader cannot be "
+                "combined."
+            )
+
+        base = opts.base
+        if base:
+            if base.startswith("*"):
+                base = base[1:]
+            elif base.startswith("chrome-internal:"):
+                base = base[16:]
+            elif ":" in base:
+                base = base.split(":", 1)[1]
+
+        for arg in opts.cls:
+            helper, cl = GetGerrit(opts, arg)
+            ret = helper.RebaseChange(
+                cl,
+                base=base,
+                allow_conflicts=opts.allow_conflicts,
+                on_behalf_of_uploader=on_behalf_of_uploader,
+                dryrun=opts.dryrun,
+            )
+            logging.debug("Response: %s", ret)
+            if not opts.dryrun and ret:
+                if opts.format is OutputFormat.RAW:
+                    print(ret.get("_number", cl))
+                else:
+                    uri = f'https://{helper.host}/c/{ret.get("_number", cl)}'
+                    print(uri_lib.ShortenUri(uri))
+
+
 class ActionReview(_ActionSimpleParallelCLs):
     """Review CLs with multiple settings
 

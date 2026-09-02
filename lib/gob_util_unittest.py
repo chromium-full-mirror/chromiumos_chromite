@@ -232,6 +232,25 @@ Too bad..."""
         self.conn.return_value.__enter__.return_value = FakeHTTPResponse(
             body=body, status=200
         )
+        result = gob_util.Rebase(
+            "some.git.url",
+            "100000",
+            base="200000",
+            on_behalf_of_uploader=True,
+            allow_conflicts=False,
+        )
+        self.assertEqual(result, change_info)
+
+    def testRebaseDefault(self) -> None:
+        """Test for Rebase() with default arguments (body={})."""
+
+        change_info = {}
+        body = json.dumps(change_info).encode()
+        xss_protection_prefix = b")]}'\n"
+        body = xss_protection_prefix + body
+        self.conn.return_value.__enter__.return_value = FakeHTTPResponse(
+            body=body, status=200
+        )
         result = gob_util.Rebase("some.git.url", "100000")
         self.assertEqual(result, change_info)
 

@@ -768,6 +768,35 @@ class GerritParserTest(cros_test_lib.TestCase):
 
         self.assertIsNone(changenum)
 
+    def testRebaseChange(self) -> None:
+        """Verify RebaseChange delegates to gob_util.Rebase."""
+        helper = self._GetHelper()
+        with mock.patch.object(gob_util, "Rebase") as mock_rebase:
+            mock_rebase.return_value = {"_number": 123}
+            res = helper.RebaseChange(
+                "123",
+                base="456",
+                allow_conflicts=False,
+                on_behalf_of_uploader=True,
+                dryrun=False,
+            )
+            mock_rebase.assert_called_once_with(
+                helper.host,
+                "123",
+                base="456",
+                allow_conflicts=False,
+                on_behalf_of_uploader=True,
+            )
+            self.assertEqual(res, {"_number": 123})
+
+    def testRebaseChangeDryrun(self) -> None:
+        """Verify RebaseChange with dryrun does not call gob_util.Rebase."""
+        helper = self._GetHelper()
+        with mock.patch.object(gob_util, "Rebase") as mock_rebase:
+            res = helper.RebaseChange("123", dryrun=True)
+            mock_rebase.assert_not_called()
+            self.assertIsNone(res)
+
 
 @pytest.mark.network_test
 class DirectGerritHelperTest(cros_test_lib.TestCase):
