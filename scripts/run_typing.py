@@ -135,7 +135,6 @@ KNOWN_ISSUES = (
     "ide_tooling/scripts/compdb_no_chroot_unittest.py",
     "ide_tooling/scripts/detect_indent.py",
     "ide_tooling/scripts/detect_indent_unittest.py",
-    "lib/alerts_unittest.py",
     "lib/auth.py",
     "lib/auth_unittest.py",
     "lib/autotest_util.py",

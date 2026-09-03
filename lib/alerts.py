@@ -4,9 +4,9 @@
 
 """Chromite email utility functions."""
 
-from email.mime.application import MIMEApplication
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import email.mime.application
+import email.mime.multipart
+import email.mime.text
 import gzip
 import io
 import logging
@@ -118,21 +118,23 @@ def CreateEmail(
 
     extra_fields = extra_fields or {}
     sender = socket.getfqdn()
-    msg = MIMEMultipart()
+    msg = email.mime.multipart.MIMEMultipart()
     for key, val in extra_fields.items():
         msg[key] = val
     msg["From"] = sender
     msg["Subject"] = subject
     msg["To"] = ", ".join(recipients)
 
-    msg.attach(MIMEText(message))
+    msg.attach(email.mime.text.MIMEText(message))
     if attachment:
         if isinstance(attachment, str):
             attachment = attachment.encode()
         s = io.BytesIO()
         with gzip.GzipFile(fileobj=s, mode="wb") as f:
             f.write(attachment)
-        part = MIMEApplication(s.getvalue(), _subtype="x-gzip")
+        part = email.mime.application.MIMEApplication(
+            s.getvalue(), _subtype="x-gzip"
+        )
         s.close()
         part.add_header(
             "Content-Disposition", "attachment", filename="logs.txt.gz"
