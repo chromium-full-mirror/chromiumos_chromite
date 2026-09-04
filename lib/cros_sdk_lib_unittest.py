@@ -23,6 +23,7 @@ from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import git
 from chromite.lib import osutils
+from chromite.lib import partial_mock
 from chromite.lib import path_util
 from chromite.lib import retry_util
 
@@ -1434,3 +1435,50 @@ def test_setup_git_configs_cookies_reentrant(tmp_path) -> None:
     assert "cookie data" in dst_cookies.read_text(encoding="utf-8")
     res = git.RunGit(None, ["config", "-f", dst_config, "http.cookiefile"])
     assert res.stdout.strip() == "/home/testuser/.gitcookies"
+
+
+def test_setup_git_configs_user_fallback(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    run_mock: cros_test_lib.RunCommandMock,
+) -> None:
+    """Test _setup_git_configs falls back to git identity when email missing."""
+    monkeypatch.setattr(cros_build_lib, "STRICT_SUDO", True)
+    monkeypatch.setattr("chromite.utils.os_util.is_root_user", lambda: True)
+    monkeypatch.setenv("SUDO_USER", "testuser")
+    monkeypatch.setattr(osutils, "Chown", lambda *args, **kwargs: None)
+    srcdir = tmp_path / "src"
+    dstdir = tmp_path / "dst"
+    srcdir.mkdir()
+    src_config = srcdir / ".gitconfig"
+    src_config.write_text("# empty gitconfig\n", encoding="utf-8")
+
+    run_mock.AddCmdResult(
+        partial_mock.InOrder(["git", "var", "GIT_COMMITTER_IDENT"]),
+        stdout="Test User <test@example.com> 1234567890 +0000\n",
+    )
+    cros_sdk_lib._setup_git_configs(srcdir, dstdir, sudo_user="testuser")
+
+    run_mock.assertCommandContains(["git", "var", "GIT_COMMITTER_IDENT"])
+    run_mock.assertCommandContains(
+        [
+            "git",
+            "config",
+            "-f",
+            dstdir / ".gitconfig",
+            "--replace-all",
+            "user.name",
+            "Test User",
+        ]
+    )
+    run_mock.assertCommandContains(
+        [
+            "git",
+            "config",
+            "-f",
+            dstdir / ".gitconfig",
+            "--replace-all",
+            "user.email",
+            "test@example.com",
+        ]
+    )

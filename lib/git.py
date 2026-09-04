@@ -878,6 +878,8 @@ class ManifestCheckout(Manifest):
 def RunGit(
     git_repo: Optional[Union[str, "os.PathLike[str]"]],
     cmd: Iterable[Union[str, "os.PathLike[str]"]],
+    sudo: bool = False,
+    sudo_user: Optional[str] = None,
     **kwargs: Any,
 ) -> cros_build_lib.CompletedProcess:
     """Wrapper for git commands.
@@ -893,6 +895,9 @@ def RunGit(
         cmd: A sequence of the git subcommand to run.  The 'git' prefix is added
             automatically.  If you wished to run 'git remote update', this would
             be ['remote', 'update'] for example.
+        sudo: Whether to run the command via sudo_run.
+        sudo_user: If specified, run git via sudo_run as this user. Implies
+            sudo.
         **kwargs: Any run or GenericRetry options/overrides to use.
 
     Returns:
@@ -904,7 +909,14 @@ def RunGit(
         kwargs.setdefault("stdout", True)
         kwargs.setdefault("stderr", True)
     kwargs.setdefault("encoding", "utf-8")
-    return cros_build_lib.run(["git", *cmd], **kwargs)
+
+    run_func = cros_build_lib.run
+    if sudo or sudo_user:
+        run_func = cros_build_lib.sudo_run
+        if sudo_user:
+            kwargs["user"] = sudo_user
+
+    return run_func(["git", *cmd], **kwargs)
 
 
 def Init(
@@ -1025,14 +1037,32 @@ def parse_user_identity(identity: str) -> Identity:
 
 def get_user_identity(
     git_repo: Optional[Union[str, "os.PathLike[str]"]] = constants.CHROMITE_DIR,
+    sudo_user: Optional[str] = None,
+    check: bool = True,
 ) -> Identity:
-    """Get the name & email configured for the project.
+    """Get the name & email configured for the project or user.
 
     By default, we load the settings from the chromite dir.  If repo is
     initialized with a custom name & e-mail address, we should load that and not
     the one from the user's ~/.
+
+    Args:
+        git_repo: Pathway to the git repo to operate on. If None, the cwd is
+            used. Defaults to constants.CHROMITE_DIR.
+        sudo_user: If specified, run git as this user via sudo_run.
+        check: Whether to raise an exception if git exits with non-zero code.
+
+    Returns:
+        An Identity object containing name and email.
     """
-    result = RunGit(git_repo, ["var", "GIT_COMMITTER_IDENT"])
+    result = RunGit(
+        git_repo,
+        ["var", "GIT_COMMITTER_IDENT"],
+        sudo_user=sudo_user,
+        check=check,
+    )
+    if result.returncode != 0:
+        return Identity(None, None)
     return parse_user_identity(result.stdout)
 
 

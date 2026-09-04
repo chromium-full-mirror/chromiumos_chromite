@@ -1382,3 +1382,44 @@ def test_GetProjectUserEmail(monkeypatch: "pytest.MonkeyPatch") -> None:
     monkeypatch.setenv("GIT_COMMITTER_NAME", "I Robit")
     monkeypatch.setenv("GIT_COMMITTER_EMAIL", "chromite@example.com")
     assert "chromite@example.com" == git.GetProjectUserEmail("/")
+
+
+def test_RunGit_sudo(run_mock: cros_test_lib.RunCommandMock) -> None:
+    """Verify RunGit with sudo=True invokes sudo_run."""
+    git.RunGit("/repo", ["status"], sudo=True)
+    run_mock.assertCommandContains(["sudo", "--", "git", "status"])
+
+
+def test_RunGit_sudo_user(run_mock: cros_test_lib.RunCommandMock) -> None:
+    """Verify RunGit with sudo_user invokes sudo_run with the user."""
+    git.RunGit("/repo", ["status"], sudo_user="customuser")
+    run_mock.assertCommandContains(
+        ["sudo", "-u", "customuser", "--", "git", "status"]
+    )
+
+
+def test_get_user_identity_sudo_user(
+    run_mock: cros_test_lib.RunCommandMock,
+) -> None:
+    """Verify get_user_identity with sudo_user parameter routes to sudo_run."""
+    run_mock.AddCmdResult(
+        partial_mock.InOrder(["git", "var", "GIT_COMMITTER_IDENT"]),
+        stdout="Custom User <custom@example.com> 1234567890 +0000\n",
+    )
+    ident = git.get_user_identity(git_repo="/custom", sudo_user="customuser")
+    assert ident == git.Identity("Custom User", "custom@example.com")
+    run_mock.assertCommandContains(["git", "var", "GIT_COMMITTER_IDENT"])
+
+
+def test_get_user_identity_check_false(
+    run_mock: cros_test_lib.RunCommandMock,
+) -> None:
+    """Verify get_user_identity with check=False handles errors gracefully."""
+    run_mock.AddCmdResult(
+        partial_mock.InOrder(["git", "var", "GIT_COMMITTER_IDENT"]),
+        returncode=128,
+    )
+    ident = git.get_user_identity(
+        git_repo="/custom", sudo_user="customuser", check=False
+    )
+    assert ident == git.Identity(None, None)

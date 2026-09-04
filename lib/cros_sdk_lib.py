@@ -631,49 +631,35 @@ def _setup_git_configs(
             check=False,
         )
         if email_res.returncode != 0 or not email_res.stdout.strip():
-            if sudo_user:
-                ident_res = cros_build_lib.sudo_run(
-                    ["git", "var", "GIT_COMMITTER_IDENT"],
-                    user=sudo_user,
-                    check=False,
-                    capture_output=True,
-                    encoding="utf-8",
-                    print_cmd=False,
-                )
-            else:
-                ident_res = git.RunGit(
+            ident = git.get_user_identity(
+                git_repo=srcdir, sudo_user=sudo_user, check=False
+            )
+            if ident.name:
+                git.RunGit(
                     None,
-                    ["var", "GIT_COMMITTER_IDENT"],
+                    [
+                        "config",
+                        "-f",
+                        dst_gitconfig,
+                        "--replace-all",
+                        "user.name",
+                        ident.name,
+                    ],
                     check=False,
                 )
-            if ident_res.returncode == 0 and ident_res.stdout:
-                ident = git.parse_user_identity(ident_res.stdout)
-                if ident.name:
-                    git.RunGit(
-                        None,
-                        [
-                            "config",
-                            "-f",
-                            dst_gitconfig,
-                            "--replace-all",
-                            "user.name",
-                            ident.name,
-                        ],
-                        check=False,
-                    )
-                if ident.email:
-                    git.RunGit(
-                        None,
-                        [
-                            "config",
-                            "-f",
-                            dst_gitconfig,
-                            "--replace-all",
-                            "user.email",
-                            ident.email,
-                        ],
-                        check=False,
-                    )
+            if ident.email:
+                git.RunGit(
+                    None,
+                    [
+                        "config",
+                        "-f",
+                        dst_gitconfig,
+                        "--replace-all",
+                        "user.email",
+                        ident.email,
+                    ],
+                    check=False,
+                )
 
     # Copy the gitcookies file, updating the user's gitconfig to point to it.
     src_cookies = srcdir / ".gitcookies"
