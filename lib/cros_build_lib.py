@@ -272,7 +272,10 @@ def sudo_run(
         return run(cmd, **kwargs)
 
     if strict and STRICT_SUDO:
-        if "CROS_SUDO_KEEP_ALIVE" not in os.environ:
+        if (
+            not os_util.is_root_user()
+            and "CROS_SUDO_KEEP_ALIVE" not in os.environ
+        ):
             raise RunCommandError(
                 "We were invoked in a strict sudo non - interactive context, "
                 "but no sudo keep alive daemon is running. This is a bug in "

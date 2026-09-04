@@ -827,6 +827,65 @@ class TestRunCommand(cros_test_lib.MockTestCase):
             rc_kv={"user": "MMMMMonster", "shell": True},
         )
 
+    @mock.patch("chromite.utils.os_util.is_root_user", return_value=False)
+    def testSudoRunStrictSudoNonRootNoDaemonFails(self, _mock_root) -> None:
+        """Test strict sudo raises when non-root and daemon is missing."""
+        cmd_list = ["foo", "bar"]
+        with mock.patch.dict(os.environ, clear=True):
+            with mock.patch.object(cros_build_lib, "STRICT_SUDO", True):
+                with self.assertRaises(cros_build_lib.RunCommandError) as cm:
+                    cros_build_lib.sudo_run(cmd_list)
+                self.assertEqual(cm.exception.returncode, 126)
+
+    @mock.patch("chromite.utils.os_util.is_root_user", return_value=False)
+    def testSudoRunStrictSudoNonRootWithDaemonSucceeds(
+        self, _mock_root
+    ) -> None:
+        """Test strict sudo succeeds when daemon is present."""
+        cmd_list = ["foo", "bar"]
+        sudo_list = ["sudo", "-n", "CROS_SUDO_KEEP_ALIVE=1", "--"] + cmd_list
+        self.proc_mock.returncode = 0
+        with mock.patch.dict(
+            os.environ, {"CROS_SUDO_KEEP_ALIVE": "1"}, clear=True
+        ):
+            with mock.patch.object(cros_build_lib, "STRICT_SUDO", True):
+                self._TestCmd(cmd_list, sudo_list, sudo=True)
+
+    @mock.patch("chromite.utils.os_util.is_root_user", return_value=True)
+    def testSudoRunStrictSudoRootUserDropsPrivileges(self, _mock_root) -> None:
+        """Test strict sudo as root drops privileges without daemon."""
+        cmd_list = ["foo", "bar"]
+        sudo_list = ["sudo", "-n", "-u", "user1", "--"] + cmd_list
+        self.proc_mock.returncode = 0
+        with mock.patch.dict(os.environ, clear=True):
+            with mock.patch.object(cros_build_lib, "STRICT_SUDO", True):
+                self._TestCmd(
+                    cmd_list, sudo_list, sudo=True, rc_kv={"user": "user1"}
+                )
+
+    @mock.patch("chromite.utils.os_util.is_root_user", return_value=True)
+    def testSudoRunStrictSudoRootUserRunsAsRoot(self, _mock_root) -> None:
+        """Test strict sudo as root with user='root' bypasses sudo."""
+        cmd_list = ["foo", "bar"]
+        self.proc_mock.returncode = 0
+        with mock.patch.dict(os.environ, clear=True):
+            with mock.patch.object(cros_build_lib, "STRICT_SUDO", True):
+                self._TestCmd(
+                    cmd_list, cmd_list, sudo=True, rc_kv={"user": "root"}
+                )
+
+    @mock.patch("chromite.utils.os_util.is_root_user", return_value=False)
+    def testSudoRunStrictFalseSuppressesDaemonCheck(self, _mock_root) -> None:
+        """Test strict=False suppresses keep alive daemon requirement."""
+        cmd_list = ["foo", "bar"]
+        sudo_list = ["sudo", "--"] + cmd_list
+        self.proc_mock.returncode = 0
+        with mock.patch.dict(os.environ, clear=True):
+            with mock.patch.object(cros_build_lib, "STRICT_SUDO", True):
+                self._TestCmd(
+                    cmd_list, sudo_list, sudo=True, rc_kv={"strict": False}
+                )
+
     def testInputBytes(self) -> None:
         """Test that we can always pass non-UTF-8 bytes as input."""
         cmd_list = ["foo", "bar", "roger"]
