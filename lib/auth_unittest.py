@@ -5,7 +5,6 @@
 """Module that contains unittests for auth module."""
 
 import time
-from unittest import mock
 
 from chromite.lib import auth
 from chromite.lib import cros_test_lib
@@ -159,65 +158,3 @@ class AuthTest(cros_test_lib.RunCommandTestCase):
         )
         self.rc.AddCmdResult(["git-credential-luci", "get"], stdout=stdout)
         self.assertRaises(auth.AccessTokenError, auth.GitCreds)
-
-
-class AuthorizedHttp(cros_test_lib.MockTestCase):
-    """Test cases for AuthorizedHttp."""
-
-    def setUp(self) -> None:
-        self.mock_http = mock.Mock()
-        self.mock_resp = mock.Mock()
-        self.mock_get_token = self.PatchObject(
-            auth, "GetAccessToken", return_value="token"
-        )
-        self.account_json = "service_account_json"
-
-    def testAuthorize(self) -> None:
-        self.mock_resp.status = 200
-        self.mock_http.request.return_value = self.mock_resp, "content"
-
-        auth_http = auth.AuthorizedHttp(
-            auth.GetAccessToken,
-            self.mock_http,
-            service_account_json=self.account_json,
-        )
-        auth_http.request("url", "GET", body={}, headers={})
-        auth_http.request("url", "PUT", body={}, headers={})
-        auth_http.request("url", "POST", body={}, headers={})
-
-        self.assertEqual(1, self.mock_get_token.call_count)
-        self.assertEqual(3, self.mock_http.request.call_count)
-        self.mock_get_token.assert_called_with(
-            service_account_json=self.account_json
-        )
-
-    def testAuthorize2(self) -> None:
-        self.mock_resp.status = 401
-        self.mock_http.request.return_value = self.mock_resp, "content"
-
-        auth_http = auth.AuthorizedHttp(
-            auth.GetAccessToken,
-            self.mock_http,
-            service_account_json=self.account_json,
-        )
-        auth_http.request("url", "GET", body={}, headers={})
-        auth_http.request("url", "PUT", body={}, headers={})
-        auth_http.request("url", "POST", body={}, headers={})
-
-        self.assertEqual(4, self.mock_get_token.call_count)
-        self.assertEqual(6, self.mock_http.request.call_count)
-        self.mock_get_token.assert_called_with(
-            service_account_json=self.account_json, force_token_renew=True
-        )
-
-    def testAuthorize3(self) -> None:
-        self.mock_resp.status = 500
-        self.mock_http.request.return_value = self.mock_resp, "content"
-
-        auth_http = auth.AuthorizedHttp(auth.GetAccessToken, self.mock_http)
-        auth_http.request("url", "GET", body={}, headers={})
-        auth_http.request("url", "PUT", body={}, headers={})
-        auth_http.request("url", "POST", body={}, headers={})
-
-        self.assertEqual(1, self.mock_get_token.call_count)
-        self.mock_get_token.assert_called_with()

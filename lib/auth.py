@@ -2,13 +2,11 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Functions for authenticating httplib2 requests with OAuth2 tokens."""
+"""Functions for authenticating HTTP requests with OAuth2 tokens."""
 
 import logging
 import os
 from typing import List
-
-from chromite.third_party import httplib2
 
 from chromite.lib import cipd
 from chromite.lib import cros_build_lib
@@ -237,36 +235,3 @@ def GitCreds(service_account_json=None):
             return line.split("password=")[1].strip()
 
     raise AccessTokenError("Unable to fetch git credential.")
-
-
-class AuthorizedHttp:
-    """Authorized http instance"""
-
-    def __init__(self, get_access_token, http, **kwargs) -> None:
-        self.get_access_token = get_access_token
-        self.http = http if http is not None else httplib2.Http()
-        self.token = self.get_access_token(**kwargs)
-        self.kwargs = kwargs
-
-    # Adapted from oauth2client.OAuth2Credentials.authorize.
-    # We can't use oauthclient2 because the import will fail on slaves due to
-    # missing PyOpenSSL (crbug.com/498467).
-    def request(self, *args, **kwargs):
-        headers = kwargs.get("headers", {}).copy()
-        headers["Authorization"] = "Bearer %s" % self.token
-        kwargs["headers"] = headers
-
-        resp, content = self.http.request(*args, **kwargs)
-        if resp.status in REFRESH_STATUS_CODES:
-            logging.info("OAuth token TTL expired, auto-refreshing")
-
-            # Token expired, force token renew
-            kwargs_copy = dict(self.kwargs, force_token_renew=True)
-            self.token = self.get_access_token(**kwargs_copy)
-
-            # TODO(phobbs): delete the "access_token" key from the token file
-            #   used.
-            headers["Authorization"] = "Bearer %s" % self.token
-            resp, content = self.http.request(*args, **kwargs)
-
-        return resp, content
