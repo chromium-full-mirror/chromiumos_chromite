@@ -10,7 +10,6 @@ from typing import List
 
 from chromite.lib import cipd
 from chromite.lib import cros_build_lib
-from chromite.lib import retry_util
 
 
 REFRESH_STATUS_CODES = [401]
@@ -111,100 +110,6 @@ def Login(service_account_json=None) -> None:
         raise AccessTokenError(
             "Failed at logging in to chrome-infra-auth: %s, may retry."
         )
-
-
-def Token(service_account_json=None):
-    """Get the token using luci-auth.
-
-    Runs 'luci-auth token' to get the OAuth2 token.
-
-    Args:
-        service_account_json: A optional path to a service account.
-
-    Returns:
-        The token string if the command succeeded;
-
-    Raises:
-        AccessTokenError if token command failed.
-    """
-    cmd = [GetLuciAuth(), "token"]
-    if service_account_json and os.path.isfile(service_account_json):
-        cmd += ["-service-account-json=%s" % service_account_json]
-
-    result = cros_build_lib.run(
-        cmd, print_cmd=False, capture_output=True, check=False, encoding="utf-8"
-    )
-
-    if result.returncode:
-        raise AccessTokenError("Failed at getting the access token, may retry.")
-
-    return result.stdout.strip()
-
-
-def _TokenAndLoginIfNeed(service_account_json=None, force_token_renew=False):
-    """Run Token and Login opertions.
-
-    If force_token_renew is on, run Login operation first to force token renew,
-    then run Token operation to return token string.
-    If force_token_renew is off, run Token operation first. If no token found,
-    run Login operation to refresh the token. Throw an AccessTokenError after
-    running the Login operation, so that GetAccessToken can retry on
-    _TokenAndLoginIfNeed.
-
-    Args:
-        service_account_json: A optional path to a service account.
-        force_token_renew: Boolean indicating whether to force login to renew
-            token before returning a token. Default to False.
-
-    Returns:
-        The token string if the command succeeded; else, None.
-
-    Raises:
-        AccessTokenError if the Token operation failed.
-    """
-    if force_token_renew:
-        Login(service_account_json=service_account_json)
-        return Token(service_account_json=service_account_json)
-    else:
-        try:
-            return Token(service_account_json=service_account_json)
-        except AccessTokenError as e:
-            Login(service_account_json=service_account_json)
-            # Raise the error and let the caller decide wether to retry
-            raise e
-
-
-def GetAccessToken(**kwargs):
-    """Returns an OAuth2 access token using luci-auth.
-
-    Retry the _TokenAndLoginIfNeed function when the error thrown is an
-    AccessTokenError.
-
-    Args:
-        **kwargs: A list of keyword arguments to pass to _TokenAndLoginIfNeed.
-
-    Returns:
-        The access token string or None if failed to get access token.
-    """
-    service_account_json = kwargs.get("service_account_json")
-    force_token_renew = kwargs.get("force_token_renew", False)
-    retry = lambda e: isinstance(e, AccessTokenError)
-    try:
-        result = retry_util.GenericRetry(
-            retry,
-            RETRY_GET_ACCESS_TOKEN,
-            _TokenAndLoginIfNeed,
-            service_account_json=service_account_json,
-            force_token_renew=force_token_renew,
-            sleep=3,
-        )
-        return result
-    except AccessTokenError as e:
-        logging.error("Failed at getting the access token: %s ", e)
-        # Do not raise the AccessTokenError here.
-        # Let the response returned by the request handler
-        # tell the status and errors.
-        return
 
 
 def GitCreds(service_account_json=None):
