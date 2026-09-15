@@ -5,7 +5,7 @@
 """Signing service tests."""
 
 import os
-from typing import Optional
+from typing import List, Optional
 
 from chromite.api import api_config
 from chromite.api.controller import signing as signing_controller
@@ -1030,5 +1030,172 @@ class CreateKeysHsmTest(
         request = self._GetRequest(keyset_name="setkey")
         with self.assertRaises(ValueError):
             signing_controller.CreateKeysHsm(
+                request, self.response, self.api_config
+            )
+
+
+class KeysetManagerTest(
+    cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
+):
+    """Keyset manager tests."""
+
+    def setUp(self) -> None:
+        self.response = signing_pb2.KeysetManagerResponse()
+        self.docker_image = (
+            "us-docker.pkg.dev/chromeos-release-bot/signing/signing:123"
+        )
+        self.keys_dir = os.path.join(self.tempdir, "keys")
+        self.in_dir = os.path.join(self.tempdir, "in")
+        self.out_dir = os.path.join(self.tempdir, "out")
+        osutils.SafeMakedirs(self.keys_dir)
+        osutils.SafeMakedirs(self.in_dir)
+        osutils.SafeMakedirs(self.out_dir)
+
+        os.environ["LUCI_CONTEXT"] = "/tmp/foo/bar/luci_context.1234"
+        os.environ["GCE_METADATA_HOST"] = "127.0.0.1:12345"
+        os.environ["GCE_METADATA_IP"] = "127.0.0.1:12345"
+        os.environ["GCE_METADATA_ROOT"] = "127.0.0.1:12345"
+
+    def _GetRequest(
+        self,
+        operations: List[signing_pb2.KeysetOp],
+        keyset: str = "BryaMPKeys",
+        dry_run: bool = False,
+    ):
+        """Helper to build a request instance."""
+        return signing_pb2.KeysetManagerRequest(
+            docker_image="signing:latest",
+            keyset=keyset,
+            dry_run=dry_run,
+            release_keys_checkout=self.keys_dir,
+            operations=operations,
+        )
+
+    def testSuccess(self) -> None:
+        """KeysetManager succeeds and returns a populated response."""
+        self.PatchObject(
+            osutils.TempDir,
+            "__enter__",
+            side_effect=[self.in_dir, self.out_dir],
+        )
+        expected_response = signing_pb2.KeysetManagerResponse(
+            status=signing_pb2.KeysetManagerResponse.STATUS_SUCCESS,
+            results=[
+                signing_pb2.KeysetOpResult(
+                    op_name="MiniOsVersionBump",
+                    status=signing_pb2.KeysetOpResult.OP_STATUS_SUCCESS,
+                    modified_files=[
+                        "BryaMPKeys-v25/kernel_data_key.vbpubk",
+                        "BryaMPKeys-v25/kernel.keyblock",
+                    ],
+                )
+            ],
+        )
+        osutils.WriteFile(
+            os.path.join(self.out_dir, "out_proto.bin"),
+            expected_response.SerializeToString(),
+            mode="wb",
+        )
+
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(
+            operations=[
+                signing_pb2.KeysetOp(
+                    minios_version_bump=signing_pb2.MiniOsVersionBumpOp()
+                )
+            ],
+            keyset="BryaMPKeys",
+        )
+        res = signing_controller.KeysetManager(
+            request, self.response, self.api_config
+        )
+
+        # Verify request was serialized to in_proto.bin in self.in_dir.
+        self.assertEqual(
+            osutils.ReadBytes(os.path.join(self.in_dir, "in_proto.bin")),
+            request.SerializeToString(),
+        )
+
+        rc.assertCommandContains(
+            ["docker", "inspect", "--type=image", "signing:latest"]
+        )
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "--network",
+                "host",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-e",
+                "LUCI_CONTEXT=/tmp/luci/luci_context.1234",
+                "-e",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{self.keys_dir}:/keys",
+                "-v",
+                f"{self.in_dir}:/in",
+                "--entrypoint",
+                "./keyset_manager.py",
+                "-v",
+                f"{self.out_dir}:/out",
+                "signing:latest",
+                "--keyset-repo",
+                "/keys",
+                "-i",
+                "/in/in_proto.bin",
+                "-o",
+                "/out",
+                "-p",
+                "out_proto.bin",
+            ]
+        )
+        self.assertEqual(self.response, expected_response)
+        self.assertIsNone(res)
+
+    def testValidateOnly(self) -> None:
+        """Verify a validate-only call does not execute any logic."""
+        patch = self.PatchObject(image_service, "CallDockerWithResponse")
+
+        request = self._GetRequest(
+            operations=[
+                signing_pb2.KeysetOp(
+                    minios_version_bump=signing_pb2.MiniOsVersionBumpOp()
+                )
+            ]
+        )
+        signing_controller.KeysetManager(
+            request, self.response, self.validate_only_config
+        )
+        patch.assert_not_called()
+
+    def testMissingResponse(self) -> None:
+        """Verify KeysetManager raises ValueError when response is missing."""
+        self.PatchObject(
+            osutils.TempDir,
+            "__enter__",
+            side_effect=[self.in_dir, self.out_dir],
+        )
+        # We don't write any out_proto.bin to self.out_dir.
+
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(
+            operations=[
+                signing_pb2.KeysetOp(
+                    minios_version_bump=signing_pb2.MiniOsVersionBumpOp()
+                )
+            ]
+        )
+        with self.assertRaises(ValueError):
+            signing_controller.KeysetManager(
                 request, self.response, self.api_config
             )

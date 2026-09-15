@@ -4,8 +4,11 @@
 
 """Signing controller."""
 
+import os
+
 from chromite.api import faux
 from chromite.api import validate
+from chromite.lib import osutils
 from chromite.service import image
 
 
@@ -208,6 +211,53 @@ def CreateKeysHsm(request, response, _config) -> None:
         entrypoint_args=entrypoint_args,
         output_file_name="out_proto.bin",
     )
+
+    if response_bytes is None:
+        raise ValueError(
+            "No response proto found from signing container. "
+            "Please check docker output for errors."
+        )
+
+    response.ParseFromString(response_bytes)
+
+
+@faux.all_empty
+@validate.require("docker_image")
+@validate.exists("release_keys_checkout")
+@validate.require("operations")
+@validate.validation_complete
+def KeysetManager(request, response, _config) -> None:
+    """Execute ad-hoc keyset management operations."""
+    with osutils.TempDir() as input_dir:
+        osutils.WriteFile(
+            os.path.join(input_dir, "in_proto.bin"),
+            request.SerializeToString(),
+            mode="wb",
+        )
+        response_bytes = image.CallDockerWithResponse(
+            request.docker_image,
+            docker_args=[
+                # Mount the keyset checkout as a volume.
+                "-v",
+                f"{request.release_keys_checkout}:/keys",
+                # Mount the input dir as a volume.
+                "-v",
+                f"{input_dir}:/in",
+                "--entrypoint",
+                "./keyset_manager.py",
+            ],
+            entrypoint_args=[
+                "--keyset-repo",
+                "/keys",
+                "-i",
+                "/in/in_proto.bin",
+                "-o",
+                "/out",
+                "-p",
+                "out_proto.bin",
+            ],
+            output_file_name="out_proto.bin",
+        )
 
     if response_bytes is None:
         raise ValueError(
