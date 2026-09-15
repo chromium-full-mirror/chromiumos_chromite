@@ -18,8 +18,6 @@ import pprint
 from typing import Dict, Iterable, List, Optional, Union
 import urllib.parse
 
-from chromite.third_party import httplib2
-
 from chromite.lib import cache
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
@@ -59,7 +57,7 @@ class Error(Exception):
 
 
 def _ChromeInfraRequest(method, request):
-    """Makes a request to the Chrome Infra Packages API with httplib2.
+    """Makes a request to the Chrome Infra Packages API.
 
     Args:
         method: Name of RPC method to call.
@@ -68,34 +66,28 @@ def _ChromeInfraRequest(method, request):
     Returns:
         Deserialized RPC response body.
     """
-
-    # Retry the request to prevent failures due to 5xx errors from CIPD, see
-    # b/383384638.
-    #
-    # The delay between retries will be 2, 4, 8, 16, 32, 64.
-    @retry_util.WithRetry(max_retry=6, sleep=2, backoff_factor=2)
-    def _fetch():
-        resp, body = httplib2.Http().request(
-            uri=CHROME_INFRA_PACKAGES_API_BASE + method,
-            method="POST",
-            headers={
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "User-Agent": "chromite",
-            },
-            body=json.dumps(request),
-        )
-        if resp.status != 200:
-            raise Error(
-                "Got HTTP %d from CIPD %r: %s" % (resp.status, method, body)
-            )
-        return body
-
-    body = _fetch()
+    result = retry_util.RunCurl(
+        [
+            "--fail",
+            "-X",
+            "POST",
+            "-H",
+            "Accept: application/json",
+            "-H",
+            "Content-Type: application/json",
+            "-H",
+            "User-Agent: chromite",
+            "--data",
+            json.dumps(request),
+            CHROME_INFRA_PACKAGES_API_BASE + method,
+        ],
+        capture_output=True,
+        debug_level=logging.DEBUG,
+    )
     try:
-        return json.loads(body.lstrip(b")]}'\n"))
+        return json.loads(result.stdout.lstrip(b")]}'\n"))
     except ValueError:
-        raise Error("Bad response from CIPD server:\n%s" % (body,))
+        raise Error("Bad response from CIPD server:\n%s" % (result.stdout,))
 
 
 def _DownloadCIPD(instance_sha256):
@@ -126,20 +118,12 @@ def _DownloadCIPD(instance_sha256):
         raise Error("Failed to bootstrap CIPD client")
 
     # Download the actual binary.
-    #
-    # Retry the request to prevent failures due to transient GCS errors. The
-    # delay between retries will be 2, 4, 8, 16, 32, 64.
-    @retry_util.WithRetry(max_retry=6, sleep=2, backoff_factor=2)
-    def _fetch():
-        http = httplib2.Http(cache=None)
-        response, binary = http.request(uri=resp["clientBinary"]["signedUrl"])
-        if response.status != 200:
-            raise Error(
-                "Got a %d response from Google Storage." % response.status
-            )
-        return binary
-
-    binary = _fetch()
+    result = retry_util.RunCurl(
+        ["--fail", "-L", resp["clientBinary"]["signedUrl"]],
+        capture_output=True,
+        debug_level=logging.DEBUG,
+    )
+    binary = result.stdout
 
     # Check SHA256 matches what server expects.
     digest = hashlib.sha256(binary).hexdigest()

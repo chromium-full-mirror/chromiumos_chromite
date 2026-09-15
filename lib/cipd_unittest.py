@@ -8,10 +8,8 @@ import hashlib
 import json
 import logging
 from pathlib import Path
-import time
 from unittest import mock
 
-from chromite.third_party import httplib2
 import pytest
 
 from chromite.lib import cipd
@@ -19,13 +17,13 @@ from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.lib import path_util
+from chromite.lib import retry_util
 
 
 class CIPDTest(cros_test_lib.MockTestCase):
     """Tests for chromite.lib.cipd"""
 
     def testChromeInfraRequest(self) -> None:
-        MockHttp = self.PatchObject(httplib2, "Http")
         body = b")]}'\n" + json.dumps(
             {
                 "clientBinary": {
@@ -44,30 +42,11 @@ class CIPDTest(cros_test_lib.MockTestCase):
             }
         ).encode("utf-8")
 
-        # Mock CIPD server errors.
-        response500 = mock.Mock()
-        response500.status = 500
-        response200 = mock.Mock()
-        response200.status = 200
-        MockHttp.return_value.request.side_effect = [
-            (
-                response500,
-                "<title>500 Server Error</title><p>Try again later</p>",
-            ),
-            (
-                response500,
-                "<title>500 Server Error</title><p>Try again later</p>",
-            ),
-            (
-                response500,
-                "<title>500 Server Error</title><p>Try again later</p>",
-            ),
-            (response200, body),
-        ]
-
-        # Also mock time.sleep so we don't slow down the tests during
-        # exponential backoff.
-        MockSleep = self.PatchObject(time, "sleep")
+        mock_curl = self.PatchObject(
+            retry_util,
+            "RunCurl",
+            return_value=cros_build_lib.CompletedProcess(stdout=body),
+        )
 
         # pylint: disable=protected-access
         actual_response = cipd._ChromeInfraRequest(
@@ -99,15 +78,9 @@ class CIPDTest(cros_test_lib.MockTestCase):
                 ],
             },
         )
-
-        # Assert that we waited the expected number of seconds between retries.
-        self.assertEqual(
-            MockSleep.mock_calls,
-            [mock.call(2), mock.call(4), mock.call(8)],
-        )
+        mock_curl.assert_called_once()
 
     def testDownloadCIPD(self) -> None:
-        MockHttp = self.PatchObject(httplib2, "Http")
         cipd_response_body = b")]}'\n" + json.dumps(
             {
                 "clientBinary": {
@@ -126,22 +99,14 @@ class CIPDTest(cros_test_lib.MockTestCase):
             }
         ).encode("utf-8")
 
-        # Mock GCS errors.
-        response500 = mock.Mock()
-        response500.status = 500
-        response200 = mock.Mock()
-        response200.status = 200
-        MockHttp.return_value.request.side_effect = [
-            (response200, cipd_response_body),
-            (response500, "<title>500 Server Error</title><p>GCS is down.</p>"),
-            (response500, "<title>500 Server Error</title><p>GCS is down.</p>"),
-            (response500, "<title>500 Server Error</title><p>GCS is down.</p>"),
-            (response200, b"bogus binary file"),
-        ]
-
-        # Also mock time.sleep so we don't slow down the tests during
-        # exponential backoff.
-        MockSleep = self.PatchObject(time, "sleep")
+        mock_curl = self.PatchObject(
+            retry_util,
+            "RunCurl",
+            side_effect=[
+                cros_build_lib.CompletedProcess(stdout=cipd_response_body),
+                cros_build_lib.CompletedProcess(stdout=b"bogus binary file"),
+            ],
+        )
 
         sha1 = self.PatchObject(hashlib, "sha256")
         sha1.return_value.hexdigest.return_value = "bogus-sha256"
@@ -150,12 +115,7 @@ class CIPDTest(cros_test_lib.MockTestCase):
         self.assertEqual(
             b"bogus binary file", cipd._DownloadCIPD("bogus-instance-sha256")
         )
-
-        # Assert that we waited the expected number of seconds between retries.
-        self.assertEqual(
-            MockSleep.mock_calls,
-            [mock.call(2), mock.call(4), mock.call(8)],
-        )
+        self.assertEqual(mock_curl.call_count, 2)
 
 
 class CipdCacheTest(cros_test_lib.MockTempDirTestCase):
