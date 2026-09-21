@@ -261,12 +261,20 @@ class DiskCache:
         """Returns a list of keys for every item present in the cache."""
         keys = []
         for root, dirs, files in os.walk(self._cache_dir):
-            for f in dirs + files:
+            key_dirs = []
+            for d in dirs:
+                key_path = os.path.join(root, d)
+                if os.path.exists(key_path + self._lock_suffix):
+                    keys.append(self.GetKey(key_path))
+                    key_dirs.append(d)
+            # Do not descend into cached directory entries; their contents are
+            # payloads rather than cache keys and may contain files with sibling
+            # ".lock" files (e.g. MODULE.bazel + MODULE.bazel.lock).
+            for d in key_dirs:
+                dirs.remove(d)
+            for f in files:
                 key_path = os.path.join(root, f)
                 if os.path.exists(key_path + self._lock_suffix):
-                    # Test for the presence of the key's lock file to determine
-                    # if this is the root key path, or some file nested within a
-                    # key's dir.
                     keys.append(self.GetKey(key_path))
         return keys
 

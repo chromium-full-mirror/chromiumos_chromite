@@ -204,6 +204,17 @@ class DiskCacheTest(CacheTestCase):
         self.assertIn(("key1",), keys)
         self.assertIn(("key2",), keys)
 
+    def testListKeysIgnoresNestedLockFilesInCachedDirs(self) -> None:
+        """Verifies ListKeys ignores sibling .lock files inside cached dirs."""
+        entry_dir = os.path.join(self.tempdir, "entry_dir")
+        nested_dir = os.path.join(entry_dir, "nested")
+        osutils.SafeMakedirs(nested_dir)
+        osutils.Touch(os.path.join(nested_dir, "MODULE.bazel"))
+        osutils.Touch(os.path.join(nested_dir, "MODULE.bazel.lock"))
+        cache.CacheReference(self.cache, ("dir_key",)).Assign(entry_dir)
+
+        self.assertEqual(self.cache.ListKeys(), [("dir_key",)])
+
     def testDeleteStale(self) -> None:
         """Verify DeleteStale removes a sufficiently old item in the cache."""
         osutils.Touch(os.path.join(self.tempdir, "file1"))
