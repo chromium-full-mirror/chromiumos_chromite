@@ -73,6 +73,7 @@ EC_BRANCH_CONFIG = {
     "nissa": EcBranchType.FIRMWARE,
     "ocelot": EcBranchType.FIRMWARE,
     "rauru": EcBranchType.FIRMWARE,
+    "skywalker": EcBranchType.FIRMWARE,
     "tanjiro": EcBranchType.FIRMWARE,
     # go/keep-sorted end
 }
