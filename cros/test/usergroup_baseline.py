@@ -503,14 +503,9 @@ GROUP_BASELINE = dict(
             users={"root", "dlcservice", "imageloaderd"},
         ),
         GroupEntry(
-            group="shadercached",
-            gid=333,
-            users={"shadercached", "crosvm"},
-        ),
-        GroupEntry(
             group="crosvm",
             gid=299,
-            users={"crosvm", "shadercached", "spaced"},
+            users={"crosvm", "spaced"},
         ),
         GroupEntry(group="mei-access", gid=427, users={"healthd_psr"}),
         GroupEntry(
