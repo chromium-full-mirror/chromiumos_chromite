@@ -891,6 +891,41 @@ class TestPathResolver(cros_test_lib.MockTempDirTestCase):
             resolver.ToChroot(os.path.join(self.chroot_path, "other/file")),
         )
 
+    @mock.patch(
+        "chromite.lib.cros_build_lib.IsInsideChroot", return_value=False
+    )
+    def testCitcCheckout(self, _) -> None:
+        """Test default chroot_path and out_path in a CitC checkout."""
+        self.PatchObject(path_util, "read_workspace_id", return_value="user/1")
+        self.PatchObject(
+            path_util,
+            "DetermineCheckout",
+            return_value=path_util.CheckoutInfo(
+                path_util.CheckoutType.CITC, FAKE_SOURCE_PATH, None
+            ),
+        )
+        resolver = path_util.ChrootPathResolver(source_from_path_repo=False)
+
+        expected_chroot = str(path_util.get_citc_chroot_path())
+        expected_out = path_util.get_citc_out_path()
+
+        self.assertEqual(expected_chroot, resolver.FromChroot("/"))
+        self.assertEqual("/", resolver.ToChroot(expected_chroot))
+        self.assertEqual(
+            str(expected_out), resolver.FromChroot(constants.CHROOT_OUT_ROOT)
+        )
+        self.assertEqual(
+            str(constants.CHROOT_OUT_ROOT), resolver.ToChroot(expected_out)
+        )
+        self.assertEqual(
+            str(expected_out / "sdk" / "logs" / "foo"),
+            resolver.FromChroot("/var/log/foo"),
+        )
+        self.assertEqual(
+            "/var/log/foo",
+            resolver.ToChroot(expected_out / "sdk" / "logs" / "foo"),
+        )
+
 
 def test_normalize_paths_to_source_root_collapsing_sub_paths() -> None:
     """Test normalize removes sub paths."""

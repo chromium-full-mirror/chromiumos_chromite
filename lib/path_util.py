@@ -138,11 +138,14 @@ class ChrootPathResolver:
             else:
                 # This should have been set above.
                 assert self._source_path is not None
-                chrome_src = DetermineCheckout(source_path).chrome_src_dir
-                if chrome_src is not None:
+                checkout = DetermineCheckout(source_path)
+                if checkout.chrome_src_dir is not None:
                     self._out_path = (
-                        Path(chrome_src) / constants.DEFAULT_OUT_DIR
+                        Path(checkout.chrome_src_dir)
+                        / constants.DEFAULT_OUT_DIR
                     )
+                elif checkout.type == CheckoutType.CITC:
+                    self._out_path = get_citc_out_path()
                 else:
                     self._out_path = (
                         Path(self._source_path) / constants.DEFAULT_OUT_DIR
@@ -179,6 +182,8 @@ class ChrootPathResolver:
             return custom_chroot_path
         if source_path is None:
             return None
+        if DetermineCheckout(source_path).type == CheckoutType.CITC:
+            return str(get_citc_chroot_path())
         return os.path.join(source_path, constants.DEFAULT_CHROOT_DIR)
 
     def _TranslatePath(
