@@ -311,6 +311,7 @@ GROUP_BASELINE = dict(
                 "typecd_ec",
                 "rgbkbd",
                 "ec_coredump",
+                "rmad",
             },
         ),
         GroupEntry(
