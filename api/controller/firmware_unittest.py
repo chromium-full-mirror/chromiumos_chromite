@@ -171,6 +171,58 @@ class BuildAllFirmwareTestCase(
                 response.artifact_dir.location, common_pb2.Path.INSIDE
             )
 
+    @mock.patch("tempfile.mkdtemp")
+    def testBundleFirmwareArtifactsCoverage(self, mock_mkdtemp) -> None:
+        """Verify BundleFirmwareArtifacts passes --code-coverage and --html."""
+        fw_loc = common_pb2.PLATFORM_ZEPHYR
+        fw_path = firmware.get_fw_loc(fw_loc)
+        outdir = os.path.join(self.tempdir, "cov_out")
+        os.mkdir(outdir)
+        mock_mkdtemp.return_value = outdir
+        self.rc.AddCmdResult(
+            [mock.ANY],
+            returncode=0,
+            stdout="",
+        )
+        metadata_path = os.path.join(outdir, "firmware_metadata.jsonpb")
+        with open(metadata_path, "w", encoding="utf-8") as mfile:
+            mfile.write('{"objects": []}')
+
+        request = firmware_pb2.BundleFirmwareArtifactsRequest(
+            chroot={"path": self.chroot_path},
+            artifacts={
+                "output_artifacts": [
+                    {
+                        "location": fw_loc,
+                        "artifact_types": [
+                            "FIRMWARE_LCOV",
+                            "CODE_COVERAGE_HTML",
+                        ],
+                    }
+                ],
+            },
+        )
+        response = firmware_pb2.BundleFirmwareArtifactsResponse()
+        firmware.BundleFirmwareArtifacts(request, response, self.api_config)
+        called_function = os.path.join(
+            constants.SOURCE_ROOT, fw_path, "firmware_builder.py"
+        )
+        self.rc.assertCommandCalled(
+            [
+                called_function,
+                "--metrics",
+                mock.ANY,
+                "--code-coverage",
+                "--html",
+                "--output-dir",
+                mock.ANY,
+                "--metadata",
+                mock.ANY,
+                "bundle",
+            ],
+            check=False,
+        )
+
     def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
         for fw_loc in common_pb2.FwLocation.values():

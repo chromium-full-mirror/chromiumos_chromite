@@ -175,6 +175,8 @@ def BundleFirmwareArtifacts(request, response, _config):
         args = []
         if request.artifacts.FIRMWARE_LCOV in info.artifact_types:
             args += ["--code-coverage"]
+        if request.artifacts.CODE_COVERAGE_HTML in info.artifact_types:
+            args += ["--html"]
         if request.firmware_targets:
             firmware_targets = ",".join(
                 t.name for t in request.firmware_targets
