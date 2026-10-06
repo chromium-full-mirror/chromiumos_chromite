@@ -75,6 +75,37 @@ class BuildAllFirmwareTestCase(
                 check=False,
             )
 
+    def testTestAllFirmware(self) -> None:
+        """Verify TestAllFirmware passes --toolchain when requested."""
+        fw_loc = common_pb2.PLATFORM_ZEPHYR
+        fw_path = firmware.get_fw_loc(fw_loc)
+        request = firmware_pb2.TestAllFirmwareRequest(
+            firmware_location=fw_loc,
+            chroot={"path": self.chroot_path},
+            code_coverage=False,
+            firmware_targets=[
+                firmware_pb2.FirmwareTarget(name="brya"),
+                firmware_pb2.FirmwareTarget(name="corsola"),
+            ],
+            toolchain="host/gnu",
+        )
+        response = firmware_pb2.TestAllFirmwareResponse()
+        firmware.TestAllFirmware(request, response, self.api_config)
+        called_function = os.path.join(
+            constants.SOURCE_ROOT, fw_path, "firmware_builder.py"
+        )
+        self.rc.assertCommandCalled(
+            [
+                called_function,
+                "--metrics",
+                mock.ANY,
+                "--firmware-targets=brya,corsola",
+                "--toolchain=host/gnu",
+                "test",
+            ],
+            check=False,
+        )
+
     @mock.patch("tempfile.mkdtemp")
     def testBundleFirmwareArtifacts(self, mock_mkdtemp) -> None:
         """Test endpoint by verifying call to cros_build_lib.run."""

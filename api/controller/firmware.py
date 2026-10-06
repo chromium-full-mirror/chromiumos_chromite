@@ -146,6 +146,8 @@ def TestAllFirmware(request, response, _config):
     if request.firmware_targets:
         firmware_targets = ",".join(t.name for t in request.firmware_targets)
         args.append(f"--firmware-targets={firmware_targets}")
+    if request.toolchain:
+        args.append(f"--toolchain={request.toolchain}")
     return _call_entry(
         request.firmware_location, response.metrics, "test", *args
     )
