@@ -200,27 +200,35 @@ def BundleFirmwareArtifacts(request, response, _config):
                 )
         else:
             metadata = firmware_pb2.FirmwareArtifactInfo()
-        if request.artifacts.FIRMWARE_TARBALL_INFO in info.artifact_types:
-            response.artifacts.artifacts.add(
-                artifact_type=request.artifacts.FIRMWARE_TARBALL_INFO,
-                location=info.location,
-                paths=[
-                    common_pb2.Path(
-                        path=metadata_path, location=common_pb2.Path.INSIDE
-                    )
-                ],
-            )
-
         full_path = lambda x: common_pb2.Path(
             path=os.path.join(tmpdir, x.file_name),
             location=common_pb2.Path.INSIDE,
         )
+
+        if request.artifacts.FIRMWARE_TARBALL_INFO in info.artifact_types:
+            info_paths = [
+                common_pb2.Path(
+                    path=metadata_path, location=common_pb2.Path.INSIDE
+                )
+            ]
+            if request.artifacts.FIRMWARE_CONFIG not in info.artifact_types:
+                info_paths.extend(
+                    full_path(x)
+                    for x in metadata.objects
+                    if x.WhichOneof("firmware_object_info") == "config_info"
+                )
+            response.artifacts.artifacts.add(
+                artifact_type=request.artifacts.FIRMWARE_TARBALL_INFO,
+                location=info.location,
+                paths=info_paths,
+            )
 
         for typ, name in (
             (request.artifacts.FIRMWARE_TARBALL, "tarball_info"),
             (request.artifacts.FIRMWARE_LCOV, "lcov_info"),
             (request.artifacts.CODE_COVERAGE_HTML, "coverage_html"),
             (request.artifacts.FIRMWARE_TOKEN_DATABASE, "token_info"),
+            (request.artifacts.FIRMWARE_CONFIG, "config_info"),
         ):
             file_paths = [
                 full_path(x)
