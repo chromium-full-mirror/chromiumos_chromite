@@ -234,7 +234,7 @@ GROUP_BASELINE = dict(
         GroupEntry(
             group="preserve",
             gid=253,
-            users={"root", "attestation", "tpm_manager", "rollback_cleanup"},
+            users={"root", "attestation", "rollback_cleanup"},
         ),
         GroupEntry(group="scanner", gid=255, users={_SCANNER_DAEMON}),
         GroupEntry(
@@ -265,6 +265,8 @@ GROUP_BASELINE = dict(
                 "attestation",
                 "chronos",
                 "hardware_verifier",
+                "oobe_config_save",
+                "rollback_cleanup",
                 "secagentd",
                 "shill",
                 "u2f",
