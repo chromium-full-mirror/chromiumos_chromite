@@ -18,7 +18,6 @@ from chromite.lib import gs
 
 # List of Android Portage packages. When adding/removing packages make sure the
 # ANDROID_PACKAGE_TO_BUILD_TARGETS / ARTIFACTS_TO_COPY maps are also updated.
-ANDROID_RVC_PACKAGE = "android-container-rvc"
 ANDROID_VMTM_PACKAGE = "android-vm-tm"
 ANDROID_VMVIC_PACKAGE = "android-vm-vic"
 
@@ -27,13 +26,6 @@ ANDROID_VMVIC_PACKAGE = "android-vm-vic"
 # in Android ebuilds to Android build targets. Used during Android uprev to fill
 # in corresponding variables.
 ANDROID_PACKAGE_TO_BUILD_TARGETS = {
-    ANDROID_RVC_PACKAGE: {
-        "APPS_TARGET": "apps",
-        "ARM64_TARGET": "cheets_arm64-user",
-        "X86_64_TARGET": "cheets_x86_64-user",
-        "ARM64_USERDEBUG_TARGET": "cheets_arm64-userdebug",
-        "X86_64_USERDEBUG_TARGET": "cheets_x86_64-userdebug",
-    },
     ANDROID_VMTM_PACKAGE: {
         "APPS_TARGET": "apps",
         "ARM64_TARGET": "bertha_arm64-user",
@@ -53,19 +45,6 @@ ANDROID_PACKAGE_TO_BUILD_TARGETS = {
 
 # Regex patterns of artifacts to copy for each branch and build target.
 ARTIFACTS_TO_COPY = {
-    ANDROID_RVC_PACKAGE: {
-        # org.chromium.cts.helpers.apk contains helpers needed for CTS.  It is
-        # installed on the board, but not into the VM.
-        "apps": "org.chromium.arc.cachebuilder.jar",
-        "cheets_arm64-user": (r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"),
-        "cheets_x86_64-user": (r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"),
-        "cheets_arm64-userdebug": (
-            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
-        ),
-        "cheets_x86_64-userdebug": (
-            r"(\.zip|/org.chromium.arc.cts.helpers.apk)$"
-        ),
-    },
     ANDROID_VMTM_PACKAGE: {
         # org.chromium.cts.helpers.apk contains helpers needed for CTS.  It is
         # installed on the board, but not into the VM.
@@ -150,7 +129,6 @@ def GetAndroidBranchForPackage(android_package: str) -> str:
         The corresponding Android branch e.g. 'git_tm-arc'
     """
     mapping = {
-        ANDROID_RVC_PACKAGE: "git_rvc-arc",
         ANDROID_VMTM_PACKAGE: "git_tm-arc",
         ANDROID_VMVIC_PACKAGE: "git_vic-arc",
     }
