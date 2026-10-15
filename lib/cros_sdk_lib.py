@@ -1759,6 +1759,11 @@ class ChrootEnteror:
         else:
             os.environ.pop("LUCI_CONTEXT", None)
 
+        if path_util.is_citc_checkout():
+            os.environ["CROS_COG_WORKSPACE_ID"] = path_util.read_workspace_id()
+        else:
+            os.environ.pop("CROS_COG_WORKSPACE_ID", None)
+
         wrapper += [
             f"{v}={os.getenv(v)}"
             for v in constants.CHROOT_ENVIRONMENT_ALLOWLIST

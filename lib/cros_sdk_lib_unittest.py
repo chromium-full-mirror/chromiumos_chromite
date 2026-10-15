@@ -851,6 +851,37 @@ class ChrootEnterorTests(cros_test_lib.MockTempDirTestCase):
         with self.PatchObject(cros_build_lib, "dbg_run"):
             cros_sdk_lib.EnterChroot(self.chroot)
 
+    def _run_enter_chroot(self, is_citc: bool) -> list[str]:
+        """Run _enter_chroot with the given CitC state and return args."""
+        self.PatchObject(cros_sdk_lib.ChrootEnteror, "_check_chroot")
+        self.PatchObject(os, "chdir")
+        self.PatchObject(osutils, "UmountDir")
+        self.PatchObject(path_util, "is_citc_checkout", return_value=is_citc)
+        self.PatchObject(path_util, "read_workspace_id", return_value="user/42")
+        dbg_run_mock = self.PatchObject(
+            cros_build_lib,
+            "dbg_run",
+            return_value=cros_build_lib.CompletedProcess(returncode=0),
+        )
+        with mock.patch.dict(
+            os.environ,
+            {"SUDO_USER": "user", "CROS_COG_WORKSPACE_ID": "stale/99"},
+        ):
+            self.enteror._enter_chroot()
+        return dbg_run_mock.call_args.args[0]
+
+    def testEnterChroot_OutsideCitc(self) -> None:
+        """Verify CROS_COG_WORKSPACE_ID is cleared outside CitC checkouts."""
+        args = self._run_enter_chroot(is_citc=False)
+        self.assertFalse(
+            any(arg.startswith("CROS_COG_WORKSPACE_ID=") for arg in args)
+        )
+
+    def testEnterChroot_InsideCitc(self) -> None:
+        """Verify CROS_COG_WORKSPACE_ID is passed inside CitC checkouts."""
+        args = self._run_enter_chroot(is_citc=True)
+        self.assertIn("CROS_COG_WORKSPACE_ID=user/42", args)
+
     def test_setup_vm_max_map_count(self) -> None:
         """Verify _setup_vm_max_map_count works."""
         self.sysctl_vm_max_map_count.write_text("1024", encoding="utf-8")
