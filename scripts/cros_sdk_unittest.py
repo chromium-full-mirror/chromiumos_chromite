@@ -20,6 +20,7 @@ from chromite.lib import osutils
 from chromite.lib import partial_mock
 from chromite.lib import path_util
 from chromite.scripts import cros_sdk
+from chromite.utils import xdg_util
 
 
 _PARSER, _COMMANDS = cros_sdk.CreateParser(
@@ -384,10 +385,70 @@ def test_update_with_delete(
     assert opts.update is expected
 
 
-def test_citc_workspace_dir_created_non_root(monkeypatch, tmp_path) -> None:
-    """Test CitC workspace directory is created with SafeMakedirsNonRoot."""
+@pytest.mark.parametrize(
+    (
+        "is_citc",
+        "extra_args",
+        "expected_chroot",
+        "expected_out",
+        "expect_workspace_dir",
+    ),
+    (
+        (True, [], "cog_workspace/chroot", "cog_workspace/out", True),
+        (
+            True,
+            ["--chroot=custom_chroot"],
+            "custom_chroot",
+            "cog_workspace/out",
+            True,
+        ),
+        (
+            True,
+            ["--out-dir=custom_out"],
+            "cog_workspace/chroot",
+            "custom_out",
+            True,
+        ),
+        (
+            True,
+            ["--chroot=custom_chroot", "--out-dir=custom_out"],
+            "custom_chroot",
+            "custom_out",
+            False,
+        ),
+        (
+            False,
+            [],
+            "default_chroot",
+            "default_out",
+            False,
+        ),
+        (
+            False,
+            ["--chroot=custom_chroot", "--out-dir=custom_out"],
+            "custom_chroot",
+            "custom_out",
+            False,
+        ),
+    ),
+)
+def test_citc_default_and_custom_paths(
+    monkeypatch,
+    tmp_path,
+    is_citc: bool,
+    extra_args: list[str],
+    expected_chroot: str,
+    expected_out: str,
+    expect_workspace_dir: bool,
+) -> None:
+    """Test default and custom --chroot/--out-dir in CitC and non-CitC."""
+    monkeypatch.chdir(tmp_path)
     workspace_path = tmp_path / "cog_workspace"
-    monkeypatch.setattr(path_util, "is_citc_checkout", lambda: True)
+    monkeypatch.setattr(
+        constants, "DEFAULT_CHROOT_PATH", tmp_path / "default_chroot"
+    )
+    monkeypatch.setattr(constants, "DEFAULT_OUT_PATH", tmp_path / "default_out")
+    monkeypatch.setattr(path_util, "is_citc_checkout", lambda: is_citc)
     monkeypatch.setattr(
         path_util, "get_citc_workspace_path", lambda: workspace_path
     )
@@ -400,7 +461,12 @@ def test_citc_workspace_dir_created_non_root(monkeypatch, tmp_path) -> None:
     safe_makedirs = mock.MagicMock(wraps=osutils.SafeMakedirsNonRoot)
     monkeypatch.setattr(osutils, "SafeMakedirsNonRoot", safe_makedirs)
 
-    opts = _PARSER.parse_args([])
+    opts = _PARSER.parse_args(extra_args)
     cros_sdk._FinalizeOptions(_PARSER, opts, _COMMANDS)
-    assert workspace_path.is_dir()
-    safe_makedirs.assert_any_call(workspace_path)
+    assert opts.chroot == tmp_path / expected_chroot
+    assert opts.out_dir == tmp_path / expected_out
+    assert workspace_path.is_dir() is expect_workspace_dir
+    expected_calls = (
+        [mock.call(workspace_path)] if expect_workspace_dir else []
+    ) + [mock.call(chromite_config.DIR), mock.call(xdg_util.CACHE_HOME)]
+    assert safe_makedirs.call_args_list == expected_calls

@@ -623,24 +623,25 @@ def _FinalizeOptions(
         parser.error("Specifying --force without --delete does not make sense.")
 
     # Resolve default output directories.
-    chroot_path = (
-        constants.DEFAULT_CHROOT_PATH
-        if options.chroot is None
-        else options.chroot
-    )
-    out_path = (
-        constants.DEFAULT_OUT_PATH
-        if options.out_dir is None
-        else options.out_dir
-    )
-
-    if path_util.is_citc_checkout():
+    is_citc = path_util.is_citc_checkout()
+    if is_citc and (options.chroot is None or options.out_dir is None):
         osutils.SafeMakedirsNonRoot(path_util.get_citc_workspace_path())
-        chroot_path = path_util.get_citc_chroot_path()
-        out_path = path_util.get_citc_out_path()
 
-    options.chroot = osutils.ExpandPath(chroot_path)
-    options.out_dir = osutils.ExpandPath(out_path)
+    if options.chroot is None:
+        options.chroot = (
+            path_util.get_citc_chroot_path()
+            if is_citc
+            else constants.DEFAULT_CHROOT_PATH
+        )
+    if options.out_dir is None:
+        options.out_dir = (
+            path_util.get_citc_out_path()
+            if is_citc
+            else constants.DEFAULT_OUT_PATH
+        )
+
+    options.chroot = osutils.ExpandPath(options.chroot)
+    options.out_dir = osutils.ExpandPath(options.out_dir)
     logging.debug("Configuring chroot to %s", options.chroot)
     logging.debug("Configuring output dir to %s", options.out_dir)
 
