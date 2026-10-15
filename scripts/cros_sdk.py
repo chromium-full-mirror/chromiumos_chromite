@@ -635,8 +635,7 @@ def _FinalizeOptions(
     )
 
     if path_util.is_citc_checkout():
-        workspace_path = path_util.get_citc_workspace_path()
-        workspace_path.mkdir(parents=True, exist_ok=True)
+        osutils.SafeMakedirsNonRoot(path_util.get_citc_workspace_path())
         chroot_path = path_util.get_citc_chroot_path()
         out_path = path_util.get_citc_out_path()
 

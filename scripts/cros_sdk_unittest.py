@@ -16,7 +16,9 @@ from chromite.lib import chromite_config
 from chromite.lib import constants
 from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
+from chromite.lib import osutils
 from chromite.lib import partial_mock
+from chromite.lib import path_util
 from chromite.scripts import cros_sdk
 
 
@@ -146,6 +148,12 @@ class CrosSdkParserCommandLineTest(cros_test_lib.MockTestCase):
 
 
 # pylint: disable=protected-access
+
+
+@pytest.fixture(autouse=True)
+def _non_citc_checkout(monkeypatch) -> None:
+    """Default unit tests to a non-CitC checkout."""
+    monkeypatch.setattr(path_util, "is_citc_checkout", lambda: False)
 
 
 def test_freeze_options() -> None:
@@ -374,3 +382,25 @@ def test_update_with_delete(
     cros_sdk._FinalizeOptions(_PARSER, opts, _COMMANDS)
 
     assert opts.update is expected
+
+
+def test_citc_workspace_dir_created_non_root(monkeypatch, tmp_path) -> None:
+    """Test CitC workspace directory is created with SafeMakedirsNonRoot."""
+    workspace_path = tmp_path / "cog_workspace"
+    monkeypatch.setattr(path_util, "is_citc_checkout", lambda: True)
+    monkeypatch.setattr(
+        path_util, "get_citc_workspace_path", lambda: workspace_path
+    )
+    monkeypatch.setattr(
+        path_util, "get_citc_chroot_path", lambda: workspace_path / "chroot"
+    )
+    monkeypatch.setattr(
+        path_util, "get_citc_out_path", lambda: workspace_path / "out"
+    )
+    safe_makedirs = mock.MagicMock(wraps=osutils.SafeMakedirsNonRoot)
+    monkeypatch.setattr(osutils, "SafeMakedirsNonRoot", safe_makedirs)
+
+    opts = _PARSER.parse_args([])
+    cros_sdk._FinalizeOptions(_PARSER, opts, _COMMANDS)
+    assert workspace_path.is_dir()
+    safe_makedirs.assert_any_call(workspace_path)
