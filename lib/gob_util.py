@@ -219,11 +219,14 @@ def GetSsoConfig(host: str) -> Tuple[Dict[str, str], Dict[str, str], str]:
         SsoNotSupportedError if SSO creds are not supported.
     """
 
-    def _refresh_sso_creds():
+    def _refresh_sso_creds() -> cros_build_lib.CompletedProcess:
+        url = f"sso://{gob}/All-Projects"
         return cros_build_lib.dbg_run(
-            ["git", "ls-remote", f"sso://{gob}/All-Projects"],
+            ["git-remote-sso", url, url],
+            input="list\n\n",
             check=False,
             capture_output=True,
+            encoding="utf-8",
         )
 
     def _read_sso_creds(path: Path, git_host: str):

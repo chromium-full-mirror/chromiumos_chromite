@@ -10,11 +10,13 @@ import json
 from pathlib import Path
 import tempfile
 import time
+from typing import Any, List
 import urllib.request
 
 import pytest
 
 from chromite.lib import constants
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import gob_util
 from chromite.lib import timeout_util
@@ -282,6 +284,62 @@ class ParseConfigFileTest(cros_test_lib.TestCase):
             f.flush()
             headers = gob_util.ParseConfig(Path(f.name))
             self.assertEqual(headers, {"Authorization": secret})
+
+
+class GetSsoConfigTest(cros_test_lib.MockTempDirTestCase):
+    """Unittests for GetSsoConfig()."""
+
+    def testRefreshSsoCreds(self) -> None:
+        """Test that GetSsoConfig refreshes SSO cookies via git-remote-sso."""
+        cookie_file = self.tempdir / "cookies.txt"
+        config_file = self.tempdir / "gitconfig"
+        config_file.write_text(
+            "[http]\n\tExtraHeader = Authorization: Basic token\n",
+            encoding="utf-8",
+        )
+
+        def fake_dbg_run(
+            cmd: List[str], **_kwargs: Any
+        ) -> cros_build_lib.CompletedProcess:
+            if "--print_config" in cmd:
+                return cros_build_lib.CompletedProcess(
+                    args=cmd,
+                    returncode=0,
+                    stdout=(
+                        "http.proxy=localhost:1234\n"
+                        f"http.cookiefile={cookie_file}.999\n"
+                        f"include.path={config_file}\n"
+                    ),
+                    stderr="",
+                )
+            cookie_file.write_text(
+                ".google.com\tTRUE\t/\tTRUE\t2147483647\tsid\tval\n",
+                encoding="utf-8",
+            )
+            return cros_build_lib.CompletedProcess(
+                args=cmd, returncode=0, stdout="", stderr=""
+            )
+
+        dbg_run_mock = self.PatchObject(
+            cros_build_lib, "dbg_run", side_effect=fake_dbg_run
+        )
+        cookies, headers, proxy = gob_util.GetSsoConfig(
+            "chromium-review.googlesource.com"
+        )
+        self.assertEqual(cookies, {"sid": "val"})
+        self.assertEqual(headers, {"Authorization": "Basic token"})
+        self.assertEqual(proxy, "localhost:1234")
+        dbg_run_mock.assert_any_call(
+            [
+                "git-remote-sso",
+                "sso://chromium/All-Projects",
+                "sso://chromium/All-Projects",
+            ],
+            input="list\n\n",
+            check=False,
+            capture_output=True,
+            encoding="utf-8",
+        )
 
 
 @pytest.mark.network_test
