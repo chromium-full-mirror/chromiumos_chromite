@@ -42,13 +42,39 @@ class TestLogArchiver(cros_test_lib.MockTempDirTestCase):
 
     def testArchiveFiles(self) -> None:
         """Test LogArchiver.Archive() method."""
+        siso_info_target = self.tempdir / "siso.host.log.INFO.123"
+        osutils.WriteFile(siso_info_target, "Siso INFO log content")
+        siso_info_link = (
+            self.src_dir / "reclient-chromeos-chrome" / "siso.INFO"
+        )
+        osutils.SafeMakedirs(siso_info_link.parent)
+        siso_info_link.symlink_to(siso_info_target)
+
         interesting_log_files = [
             self._create_file("chromeos-chrome", "test.INFO.log"),
             self._create_file("chromeos-chrome", "reproxy_test.INFO"),
             self._create_file("chromeos-chrome", "reproxy_test.rrpl"),
+            siso_info_link,
+            siso_info_target,
+            self._create_file("chromeos-chrome", "siso_build.pprof"),
+            self._create_file("chromeos-chrome", "siso_crash"),
+            self._create_file("chromeos-chrome", "siso_explain"),
+            self._create_file("chromeos-chrome", "siso_failed_commands.sh"),
+            self._create_file("chromeos-chrome", "siso_localexec"),
+            self._create_file("chromeos-chrome", "siso_metadata.json"),
+            self._create_file("chromeos-chrome", "siso_metrics.json"),
+            self._create_file("chromeos-chrome", "siso_output"),
+            self._create_file("chromeos-chrome", "siso_result.json"),
+            self._create_file("chromeos-chrome", "siso_spawn_helper"),
+            self._create_file("chromeos-chrome", "siso_trace.json"),
+            self._create_file("chromeos-chrome", ".siso_config"),
+            self._create_file("chromeos-chrome", ".siso_filegroups"),
         ]
         uninteresting_log_files = [
             self._create_file("chromeos-chrome", "test.INFO"),
+            self._create_file("chromeos-chrome", "siso.0.INFO"),
+            self._create_file("chromeos-chrome", "siso_metrics.0.json"),
+            self._create_file("chromeos-chrome", "siso_output.0"),
         ]
 
         archive_files = self.archiver.archive()
@@ -59,6 +85,20 @@ class TestLogArchiver(cros_test_lib.MockTempDirTestCase):
                 "reclient-chromeos-chrome/test.INFO.log.gz",
                 "reclient-chromeos-chrome/reproxy_test.INFO.gz",
                 "reclient-chromeos-chrome/reproxy_test.rrpl.gz",
+                "reclient-chromeos-chrome/siso.INFO.gz",
+                "reclient-chromeos-chrome/siso_build.pprof.gz",
+                "reclient-chromeos-chrome/siso_crash.gz",
+                "reclient-chromeos-chrome/siso_explain.gz",
+                "reclient-chromeos-chrome/siso_failed_commands.sh.gz",
+                "reclient-chromeos-chrome/siso_localexec.gz",
+                "reclient-chromeos-chrome/siso_metadata.json.gz",
+                "reclient-chromeos-chrome/siso_metrics.json.gz",
+                "reclient-chromeos-chrome/siso_output.gz",
+                "reclient-chromeos-chrome/siso_result.json.gz",
+                "reclient-chromeos-chrome/siso_spawn_helper.gz",
+                "reclient-chromeos-chrome/siso_trace.json.gz",
+                "reclient-chromeos-chrome/.siso_config.gz",
+                "reclient-chromeos-chrome/.siso_filegroups.gz",
             ],
         )
 

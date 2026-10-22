@@ -26,6 +26,23 @@ _REMOTEEXEC_LOG_FILE_PATTERN = (
     "*.INFO.*",
     "reproxy_*.INFO",
     "*.rrpl",
+    # Siso log files are listed explicitly (rather than siso[._]*) so that
+    # rotated logs from previous builds (e.g. siso_metrics.0.json,
+    # siso_output.0) are not archived.
+    "siso.INFO",
+    "siso_build.pprof",
+    "siso_crash",
+    "siso_explain",
+    "siso_failed_commands.sh",
+    "siso_localexec",
+    "siso_metadata.json",
+    "siso_metrics.json",
+    "siso_output",
+    "siso_result.json",
+    "siso_spawn_helper",
+    "siso_trace.json",
+    ".siso_config",
+    ".siso_filegroups",
 )
 
 
@@ -82,6 +99,13 @@ class LogsArchiver:
 
         result = []
         for path in paths:
+            # Siso creates a symlink (e.g. siso.INFO) to its glog file in
+            # /tmp. Compress the symlink target under the symlink name and
+            # remove both.
+            if not path.exists():
+                osutils.SafeUnlink(path)
+                continue
+
             archived_filename = f"{path.name}.gz"
             log_label = f"{directory.name}/{archived_filename}"
             logging.info("Compressing %s", log_label)
@@ -92,6 +116,7 @@ class LogsArchiver:
             osutils.SafeMakedirs(dest_filepath.parent)
             compression_lib.compress_file(path, dest_filepath)
 
+            osutils.SafeUnlink(path.resolve())
             osutils.SafeUnlink(path)
 
             result.append(log_label)
