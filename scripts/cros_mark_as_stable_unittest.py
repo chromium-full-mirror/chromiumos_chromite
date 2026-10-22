@@ -25,114 +25,6 @@ from chromite.scripts import cros_mark_as_stable
 pytestmark = pytest.mark.inside_only
 
 
-class RunGitMock(partial_mock.PartialCmdMock):
-    """Partial mock for git.RunMock."""
-
-    TARGET = "chromite.lib.git"
-    ATTRS = ("RunGit",)
-    DEFAULT_ATTR = "RunGit"
-
-    def RunGit(self, _git_repo, cmd, _retry=True, **kwargs):
-        return self._results["RunGit"].LookupResult(
-            (cmd,), hook_args=(cmd,), hook_kwargs=kwargs
-        )
-
-
-class NonClassTests(cros_test_lib.MockTestCase):
-    """Test the flow for pushing a change."""
-
-    def setUp(self) -> None:
-        self._branch = "test_branch"
-        self._target_manifest_branch = "cros/master"
-
-    def _TestPushChange(self, bad_cls) -> None:
-        side_effect = Exception("unittest says this should not be called")
-
-        git_log = "Marking test_one as stable\nMarking test_two as stable\n"
-        fake_description = "Marking set of ebuilds as stable\n\n%s" % git_log
-        self.PatchObject(git, "DoesCommitExistInRepo", return_value=True)
-        self.PatchObject(
-            cros_mark_as_stable, "_DoWeHaveLocalCommits", return_value=True
-        )
-        self.PatchObject(
-            cros_mark_as_stable.GitBranch,
-            "CreateBranch",
-            side_effect=side_effect,
-        )
-        self.PatchObject(
-            cros_mark_as_stable.GitBranch, "Exists", side_effect=side_effect
-        )
-
-        push_mock = self.PatchObject(git, "PushBranch")
-        self.PatchObject(
-            git,
-            "GetTrackingBranch",
-            return_value=git.RemoteRef("gerrit", "refs/remotes/gerrit/master"),
-        )
-        sync_mock = self.PatchObject(git, "SyncPushBranch")
-        create_mock = self.PatchObject(git, "CreatePushBranch")
-        git_mock = self.StartPatcher(RunGitMock())
-
-        git_mock.AddCmdResult(["checkout", self._branch])
-
-        allowed_authors = [
-            "chrome-bot",
-            "chromeos-ci-prod",
-            "chromeos-ci-release",
-            "chromeos-firmware",
-        ]
-
-        # Create a regex filter for allowed bot authors.
-        author_filter = f"^(?!{'|'.join(allowed_authors)})"
-
-        cmd = [
-            "log",
-            "--format=short",
-            "--perl-regexp",
-            "--author",
-            author_filter,
-            "refs/remotes/gerrit/master..%s" % self._branch,
-        ]
-
-        if bad_cls:
-            push_mock.side_effect = side_effect
-            create_mock.side_effect = side_effect
-            git_mock.AddCmdResult(cmd, stdout="Found bad stuff")
-        else:
-            git_mock.AddCmdResult(cmd, stdout="\n")
-            cmd = [
-                "log",
-                "--format=format:%s%n%n%b",
-                "refs/remotes/gerrit/master..%s" % self._branch,
-            ]
-            git_mock.AddCmdResult(cmd, stdout=git_log)
-            git_mock.AddCmdResult(["merge", "--squash", self._branch])
-            git_mock.AddCmdResult(["commit", "-m", fake_description])
-            git_mock.AddCmdResult(["config", "push.default", "tracking"])
-
-        cros_mark_as_stable.PushChange(
-            self._branch, self._target_manifest_branch, False, "."
-        )
-        sync_mock.assert_called_with(
-            ".", "gerrit", "refs/remotes/gerrit/master"
-        )
-        if not bad_cls:
-            push_mock.assert_called_with(
-                "merge_branch", ".", dryrun=False, staging_branch=None
-            )
-            create_mock.assert_called_with(
-                "merge_branch", ".", remote_push_branch=mock.ANY
-            )
-
-    def testPushChange(self) -> None:
-        """Verify pushing changes works."""
-        self._TestPushChange(bad_cls=False)
-
-    def testPushChangeBadCls(self) -> None:
-        """Verify we do not push bad CLs."""
-        self.assertRaises(AssertionError, self._TestPushChange, bad_cls=True)
-
-
 class EbuildMock:
     """Mock portage_util.Ebuild."""
 
@@ -187,29 +79,6 @@ class MarkAsStableCMDTest(cros_test_lib.MockTempDirTestCase):
         self._commit_options = self._parser.parse_args(
             ["commit", "--buildroot", str(constants.SOURCE_ROOT)]
         )
-        self._push_options = self._parser.parse_args(
-            ["push", "--buildroot", str(constants.SOURCE_ROOT)]
-        )
-
-    def testWorkOnPush(self) -> None:
-        """Test _WorkOnPush."""
-        self.PatchObject(parallel, "RunTasksInProcessPool")
-
-        cros_mark_as_stable._WorkOnPush(
-            self._push_options,
-            self._overlay_tracking_branch,
-            self._git_project_overlays,
-        )
-
-    def testPushOverlays(self) -> None:
-        """Test _PushOverlays."""
-        self.PatchObject(os.path, "isdir", return_value=True)
-        mock_push_change = self.PatchObject(cros_mark_as_stable, "PushChange")
-
-        cros_mark_as_stable._PushOverlays(
-            self._push_options, self._overlays, self._overlay_tracking_branch
-        )
-        self.assertEqual(mock_push_change.call_count, 3)
 
     def testWorkOnCommit(self) -> None:
         """Test _WorkOnCommit."""
@@ -353,9 +222,6 @@ class MainTests(
         self.PatchObject(
             git.ManifestCheckout, "Cached", return_value="manifest"
         )
-        self.mock_work_on_push = self.PatchObject(
-            cros_mark_as_stable, "_WorkOnPush"
-        )
         self.mock_work_on_commit = self.PatchObject(
             cros_mark_as_stable, "_WorkOnCommit"
         )
@@ -395,18 +261,6 @@ class MainTests(
             "manifest",
             None,
         )
-
-    def testMainWithPush(self) -> None:
-        """Test Main with Push options."""
-        cros_mark_as_stable.main(
-            ["push", "--all", "--overlays", ":".join(self._overlays)]
-        )
-        self.mock_work_on_push.assert_called_once_with(
-            mock.ANY, self._overlay_tracking_branch, self._git_project_overlays
-        )
-        options = self.mock_work_on_push.call_args[0][0]
-        self.assertEqual(options.buildroot, constants.SOURCE_ROOT)
-        self.assertIsNone(options.srcroot)
 
     def testMainWithOverlayTypeCommit(self) -> None:
         """Test Main with Commit options."""

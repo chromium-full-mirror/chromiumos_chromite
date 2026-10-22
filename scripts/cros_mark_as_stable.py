@@ -17,7 +17,6 @@ from chromite.lib import osutils
 from chromite.lib import parallel
 from chromite.lib import portage_util
 from chromite.lib import repo_util
-from chromite.lib import retry_util
 
 
 # Commit message subject for uprevving Portage packages.
@@ -29,7 +28,6 @@ _GIT_COMMIT_MESSAGE = "Marking 9999 ebuild for %s as stable."
 # Dictionary of valid commands with usage information.
 COMMAND_DICTIONARY = {
     "commit": "Marks given ebuilds as stable locally",
-    "push": "Pushes previous marking of ebuilds to remote repo",
 }
 
 
@@ -89,132 +87,7 @@ def CleanStalePackages(srcroot, boards, package_atoms) -> None:
     parallel.RunTasksInProcessPool(_CleanStalePackages, tasks)
 
 
-# TODO(build): This code needs to be gutted and rebased to cros_build_lib.
-def _DoWeHaveLocalCommits(stable_branch, tracking_branch, cwd):
-    """Returns true if there are local commits."""
-    output = git.RunGit(
-        cwd, ["rev-parse", stable_branch, tracking_branch]
-    ).stdout.split()
-    return output[0] != output[1]
-
-
 # ======================= End Global Helper Functions ========================
-
-
-def PushChange(
-    stable_branch, tracking_branch, dryrun, cwd, staging_branch=None
-) -> None:
-    """Pushes commits in the stable_branch to the remote git repository.
-
-    Pushes local commits from calls to CommitChange to the remote git
-    repository specified by current working directory. If changes are
-    found to commit, they will be merged to the merge branch and pushed.
-    In that case, the local repository will be left on the merge branch.
-
-    Args:
-        stable_branch: The local branch with commits we want to push.
-        tracking_branch: The tracking branch of the local branch.
-        dryrun: Use git push --dryrun to emulate a push.
-        cwd: The directory to run commands in.
-        staging_branch: The staging branch to push for a failed PFQ run.
-
-    Raises:
-        OSError: Error occurred while pushing.
-    """
-    if not git.DoesCommitExistInRepo(cwd, stable_branch):
-        logging.debug("No branch created for %s.  Exiting", cwd)
-        return
-
-    if not _DoWeHaveLocalCommits(stable_branch, tracking_branch, cwd):
-        logging.debug("No work found to push in %s.  Exiting", cwd)
-        return
-
-    # For the commit queue, our local branch may contain commits that were
-    # just tested and pushed during the CommitQueueCompletion stage. Sync
-    # and rebase our local branch on top of the remote commits.
-    remote_ref = git.GetTrackingBranch(cwd, branch=stable_branch, for_push=True)
-    # SyncPushBranch rebases HEAD onto the updated remote. We need to check out
-    # stable_branch here in order to update it.
-    git.RunGit(cwd, ["checkout", stable_branch])
-    git.SyncPushBranch(cwd, remote_ref.remote, remote_ref.ref)
-
-    # Check whether any local changes remain after the sync.
-    if not _DoWeHaveLocalCommits(stable_branch, remote_ref.ref, cwd):
-        logging.info("All changes already pushed for %s. Exiting", cwd)
-        return
-
-    # Add a failsafe check here.  Only CLs from these users should be here.
-    allowed_authors = [
-        "chrome-bot",
-        "chromeos-ci-prod",
-        "chromeos-ci-release",
-        "chromeos-firmware",
-    ]
-
-    # Create a regex filter for allowed bot authors.
-    author_filter = f"^(?!{'|'.join(allowed_authors)})"
-
-    # If any other CLs are found then complain. In dryruns extra CLs are normal,
-    # though, and can be ignored.
-    bad_cl_cmd = [
-        "log",
-        "--format=short",
-        "--perl-regexp",
-        "--author",
-        author_filter,
-        "%s..%s" % (remote_ref.ref, stable_branch),
-    ]
-    bad_cls = git.RunGit(cwd, bad_cl_cmd).stdout
-    if bad_cls.strip() and not dryrun:
-        logging.error(
-            "The Uprev stage found changes from users other than %s:\n\n%s",
-            ", ".join(allowed_authors),
-            bad_cls,
-        )
-        raise AssertionError("Unexpected CLs found during uprev stage.")
-
-    if staging_branch is not None:
-        logging.info(
-            "PFQ FAILED. Pushing uprev change to staging branch %s",
-            staging_branch,
-        )
-
-    description = git.RunGit(
-        cwd,
-        [
-            "log",
-            "--format=format:%s%n%n%b",
-            "%s..%s" % (remote_ref.ref, stable_branch),
-        ],
-    ).stdout
-    description = "%s\n\n%s" % (GIT_COMMIT_SUBJECT, description)
-    logging.info("For %s, using description %s", cwd, description)
-    git.CreatePushBranch(
-        constants.MERGE_BRANCH, cwd, remote_push_branch=remote_ref
-    )
-    git.RunGit(cwd, ["merge", "--squash", stable_branch])
-    git.RunGit(cwd, ["commit", "-m", description])
-    git.RunGit(cwd, ["config", "push.default", "tracking"])
-
-    # Run git.PushBranch and retry up to 5 times.
-    # retry_util.RetryCommand will only retry on RunCommandErrors,
-    # which would be thrown by git.PushBranch when it gets to
-    # cros_build_lib.run()'ning the actual git command,
-    # which may fail with a transient HTTP 429 Too Many Requests error,
-    # and we need to retry on that.
-    # Do not retry if it fails to setup before cros_build_lib.run
-    # or upon other errors, like getting SIGINT.
-    max_retries = 5
-    retry_util.RetryCommand(
-        git.PushBranch,
-        max_retries,
-        constants.MERGE_BRANCH,
-        cwd,
-        dryrun=dryrun,
-        staging_branch=staging_branch,
-        sleep=15,
-        log_retries=True,
-    )
 
 
 class GitBranch:
@@ -385,9 +258,7 @@ def main(argv) -> None:
             overlay
         )
 
-    if options.command == "push":
-        _WorkOnPush(options, overlay_tracking_branch, git_project_overlays)
-    elif options.command == "commit":
+    if options.command == "commit":
         _WorkOnCommit(
             options,
             overlays,
@@ -395,47 +266,6 @@ def main(argv) -> None:
             git_project_overlays,
             manifest,
             package_list,
-        )
-
-
-def _WorkOnPush(options, overlay_tracking_branch, git_project_overlays) -> None:
-    """Push uprevs of overlays belonging to different git projects in parallel.
-
-    Args:
-        options: The options object returned by the argument parser.
-        overlay_tracking_branch: A dict mapping from each overlay to its
-            tracking branch.
-        git_project_overlays: A dict mapping from each git repository to a list
-            of its overlays.
-    """
-    inputs = [
-        [options, overlays_per_project, overlay_tracking_branch]
-        for overlays_per_project in git_project_overlays.values()
-    ]
-    parallel.RunTasksInProcessPool(_PushOverlays, inputs)
-
-
-def _PushOverlays(options, overlays, overlay_tracking_branch) -> None:
-    """Push uprevs for overlays in sequence.
-
-    Args:
-        options: The options object returned by the argument parser.
-        overlays: A list of overlays to push uprevs in sequence.
-        overlay_tracking_branch: A dict mapping from each overlay to its
-            tracking branch.
-    """
-    for overlay in overlays:
-        if not os.path.isdir(overlay):
-            logging.warning("Skipping %s, which is not a directory.", overlay)
-            continue
-
-        tracking_branch = overlay_tracking_branch[overlay]
-        PushChange(
-            constants.STABLE_EBUILD_BRANCH,
-            tracking_branch,
-            options.dryrun,
-            cwd=overlay,
-            staging_branch=options.staging_branch,
         )
 
 
