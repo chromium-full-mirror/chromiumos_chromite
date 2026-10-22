@@ -155,10 +155,10 @@ class CleanOutdatedCommand(command.CliCommand):
 
     def find_outdated_packages(
         self, board: Optional[str], pkgs: List[portage_util.InstalledPackage]
-    ) -> List[str]:
-        """Returns CPVs of installed packages that don't have an ebuild."""
+    ) -> Dict[str, str]:
+        """Returns CPVs and reasons of installed packages without an ebuild."""
         overlay_paths = OverlayPathFinder(board)
-        outdated_CPs = []
+        outdated_pkgs: Dict[str, str] = {}
         for pkg in pkgs:
             # We usually want to ignore toolchain packages.
             if not self.options.toolchain:
@@ -182,12 +182,12 @@ class CleanOutdatedCommand(command.CliCommand):
                     pkg.category,
                     pkg.package,
                 )
-                outdated_CPs.append(pkg.package_info.cpf)
+                outdated_pkgs[pkg.package_info.cpf] = (
+                    f"overlay {pkg.repository} not found"
+                )
                 continue
             package_src_path = path_to_overlay / pkg.category / pkg.package
 
-            versions_available_as_ebuild = []
-            ebuild_paths = []
             # Enumerate all available ebuilds, if they still exist.
             if not package_src_path.is_dir():
                 logging.debug(
@@ -196,39 +196,62 @@ class CleanOutdatedCommand(command.CliCommand):
                     pkg.package,
                     pkg.repository,
                 )
-                installed_version = None
-                outdated_CPs.append(pkg.package_info.cpf)
-            else:
-                ebuild_paths = list(portage_util.EBuild.List(package_src_path))
-                installed_version = pkg.version
-                for path in ebuild_paths:
-                    cpv = "/".join(path.split(".ebuild")[0].split("/")[-2:])
-                    p = package_info.parse(cpv)
-                    versions_available_as_ebuild.append(p.vr)
+                outdated_pkgs[pkg.package_info.cpf] = (
+                    f"package {pkg.package_info.cp} not found in overlay "
+                    f"{pkg.repository}"
+                )
+                continue
 
-            if (
-                installed_version not in versions_available_as_ebuild
-                or not versions_available_as_ebuild
-            ):
-                outdated_CPs.append(pkg.package_info.cpf)
+            versions_available_as_ebuild = []
+            ebuild_paths = list(portage_util.EBuild.List(package_src_path))
+            installed_version = pkg.version
+            for path in ebuild_paths:
+                cpv = "/".join(path.split(".ebuild")[0].split("/")[-2:])
+                p = package_info.parse(cpv)
+                versions_available_as_ebuild.append(p.vr)
+
+            if not versions_available_as_ebuild:
+                logging.debug(
+                    "Cannot find any ebuilds for %s/%s in overlay %s. "
+                    "Deleting.",
+                    pkg.category,
+                    pkg.package,
+                    pkg.repository,
+                )
+                outdated_pkgs[pkg.package_info.cpf] = (
+                    f"no ebuilds found in overlay {pkg.repository}"
+                )
+            elif installed_version not in versions_available_as_ebuild:
+                avail = ", ".join(sorted(versions_available_as_ebuild))
+                logging.debug(
+                    "Cannot find ebuild for %s in overlay %s (available: %s). "
+                    "Deleting.",
+                    pkg.package_info.cpf,
+                    pkg.repository,
+                    avail,
+                )
+                outdated_pkgs[pkg.package_info.cpf] = (
+                    f"installed version {installed_version} not in overlay "
+                    f"{pkg.repository} (available: {avail})"
+                )
 
         location = "SDK"
         if board:
             location = board
         logging.notice("Installed packages in %s: %s", location, len(pkgs))
         logging.notice(
-            "Outdated packages in %s: %s", location, len(outdated_CPs)
+            "Outdated packages in %s: %s", location, len(outdated_pkgs)
         )
-        logging.debug("Outdated packages in %s: %s", location, outdated_CPs)
+        logging.debug("Outdated packages in %s: %s", location, outdated_pkgs)
 
-        return list(set(outdated_CPs))
+        return outdated_pkgs
 
     def find_slot_conflicted_packages(
         self,
         root_path: str,
         board: Optional[str],
         pkgs: List[portage_util.InstalledPackage],
-    ) -> List[str]:
+    ) -> Dict[str, str]:
         # Look at all InstalledPackages' DEPENDs with slots and find
         # unstatisfiable ones. We can look at all depends, but that is
         # slower, and should not be necessary, given that we just synced
@@ -342,7 +365,9 @@ class CleanOutdatedCommand(command.CliCommand):
 
         # Now use the compiled slot_dep_sat to find packages that can't be
         # satisfied.
-        def is_depend_slot_satisfiable(depend: pms_dependency.RootNode) -> bool:
+        def find_unsatisfiable_slot_deps(
+            depend: pms_dependency.RootNode,
+        ) -> List[str]:
             def anyof_reduce(choices: List[str]) -> Optional[str]:
                 """Reduce func for dep parser."""
                 if not choices:
@@ -381,12 +406,13 @@ class CleanOutdatedCommand(command.CliCommand):
             if not self.options.include_use:
                 parsed_deps = remove_use_flags_from_deps(parsed_deps)
 
-            for dep in parsed_deps:
-                if not slot_dep_sat[dep]:
-                    return False
-            return True
+            return list(
+                dict.fromkeys(
+                    dep for dep in parsed_deps if not slot_dep_sat[dep]
+                )
+            )
 
-        conflicted_pkgs: List[str] = []
+        conflicted_pkgs: Dict[str, str] = {}
         for pkg in pkgs:
             # We usually want to ignore toolchain packages.
             if not self.options.toolchain:
@@ -402,24 +428,32 @@ class CleanOutdatedCommand(command.CliCommand):
             all_deps = pkg.depend + pkg.rdepend
             if not all_deps:
                 continue
-            if not is_depend_slot_satisfiable(all_deps):
+            unsatisfied_deps = find_unsatisfiable_slot_deps(all_deps)
+            if unsatisfied_deps:
                 logging.debug(
                     "Package %s unable to satisfy its DEPEND+RDEPEND: %s",
                     pkg.package_info.cpf,
                     all_deps,
                 )
-                conflicted_pkgs.append(pkg.package_info.cpf)
+                conflicted_pkgs[pkg.package_info.cpf] = (
+                    "unable to satisfy slot dependencies: "
+                    f"{', '.join(unsatisfied_deps)}"
+                )
 
-        return list(set(conflicted_pkgs))
+        return conflicted_pkgs
 
     def filter_packages_to_purge(
-        self, board: Optional[str], pkgs: List[str]
-    ) -> List[str]:
+        self, board: Optional[str], pkgs: Dict[str, str]
+    ) -> Dict[str, str]:
         if not board:
             # Only filter system packages for SDK.
             pkgs_before = len(pkgs)
             for ignored_pkg in SYSTEM_PACKAGES:
-                pkgs = [pkg for pkg in pkgs if ignored_pkg not in pkg]
+                pkgs = {
+                    pkg: reason
+                    for pkg, reason in pkgs.items()
+                    if ignored_pkg not in pkg
+                }
             pkgs_after = len(pkgs)
             if pkgs_before > pkgs_after:
                 logging.notice(
@@ -431,7 +465,11 @@ class CleanOutdatedCommand(command.CliCommand):
             # Filter out Chrome packages, if asked, for both SDK and DUT.
             pkgs_before = len(pkgs)
             for chrome_pkg in constants.ALL_CHROME_PACKAGES:
-                pkgs = [pkg for pkg in pkgs if chrome_pkg not in pkg]
+                pkgs = {
+                    pkg: reason
+                    for pkg, reason in pkgs.items()
+                    if chrome_pkg not in pkg
+                }
 
             pkgs_after = len(pkgs)
             if pkgs_before > pkgs_after:
@@ -441,10 +479,15 @@ class CleanOutdatedCommand(command.CliCommand):
                 )
         return pkgs
 
-    def purge_packages(self, board: Optional[str], pkgs: List[str]) -> None:
+    def purge_packages(
+        self, board: Optional[str], pkgs: Dict[str, str]
+    ) -> None:
         if not pkgs:
             logging.notice("No packages to purge")
             return
+
+        for pkg, reason in sorted(pkgs.items()):
+            logging.notice("Unmerging %s: %s", pkg, reason)
 
         unmerge_cmd = [
             cros_build_lib.GetSysrootToolPath(
@@ -457,8 +500,7 @@ class CleanOutdatedCommand(command.CliCommand):
         if not self.options.ask:
             unmerge_cmd += ["--yes"]
 
-        pkgs = [f"={pkg}" for pkg in pkgs]
-        unmerge_cmd += pkgs
+        unmerge_cmd += [f"={pkg}" for pkg in sorted(pkgs)]
 
         try:
             cros_build_lib.sudo_run(unmerge_cmd)
