@@ -23,7 +23,7 @@ import socket
 import subprocess
 import sys
 import time
-from typing import Any, Dict, Iterable, Optional, Tuple, Union
+from typing import Any, Collection, Dict, Iterable, Optional, Tuple, Union
 import urllib.parse
 import urllib.request
 import warnings
@@ -1094,15 +1094,31 @@ def SetReview(
     remove_reviewers=None,
     ready=None,
     wip=None,
+    add_to_attention_set: Optional[Collection[str]] = None,
+    remove_from_attention_set: Optional[Collection[str]] = None,
+    attention_reason: str = "chromite gerrit CLI",
 ) -> None:
     """Set labels and/or add a message to a code review."""
     if revision is None:
         revision = "current"
-    # Ignore 'notify' on purpose - it's not empty by default in the caller.
-    if not any((msg, labels, reviewers, remove_reviewers, cc, ready, wip)):
+    # Ignore 'notify' & 'attention_reason' on purpose - they're not empty by
+    # default in the caller.
+    if not any(
+        (
+            msg,
+            labels,
+            reviewers,
+            remove_reviewers,
+            cc,
+            ready,
+            wip,
+            add_to_attention_set,
+            remove_from_attention_set,
+        )
+    ):
         return
     path = "%s/revisions/%s/review" % (_GetChangePath(change), revision)
-    body = {"reviewers": []}
+    body: Dict[str, Any] = {"reviewers": []}
     if msg:
         body["message"] = msg
     if labels:
@@ -1117,6 +1133,16 @@ def SetReview(
         body["reviewers"].extend(
             {"reviewer": x, "state": "REMOVED"} for x in remove_reviewers
         )
+    if add_to_attention_set:
+        body["add_to_attention_set"] = [
+            {"user": x, "reason": attention_reason}
+            for x in add_to_attention_set
+        ]
+    if remove_from_attention_set:
+        body["remove_from_attention_set"] = [
+            {"user": x, "reason": attention_reason}
+            for x in remove_from_attention_set
+        ]
     if ready is not None:
         body["ready"] = ready
     if wip is not None:

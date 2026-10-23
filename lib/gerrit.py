@@ -7,7 +7,7 @@
 import logging
 import operator
 import re
-from typing import Any, Tuple
+from typing import Any, Collection, Optional, Tuple
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -106,7 +106,7 @@ class GerritHelper:
         remove: Tuple[str, ...] = (),
         dryrun: bool = False,
         notify: str = "ALL",
-        message: str = "gerrit CLI",
+        message: str = "chromite gerrit CLI",
     ) -> None:
         """Modify the attention set of a gerrit change.
 
@@ -565,6 +565,8 @@ class GerritHelper:
         ready=None,
         wip=None,
         dryrun=False,
+        add_to_attention_set: Optional[Collection[str]] = None,
+        remove_from_attention_set: Optional[Collection[str]] = None,
     ) -> None:
         """Update the review labels on a gerrit change.
 
@@ -580,6 +582,8 @@ class GerritHelper:
             ready: Mark CL as ready.
             wip: Mark CL as work-in-progress.
             dryrun: If True, don't actually update the review.
+            add_to_attention_set: People to add to the attention set.
+            remove_from_attention_set: People to remove from the attention set.
         """
         if dryrun:
             if msg:
@@ -603,6 +607,15 @@ class GerritHelper:
                     "Would have removed %s as reviewer & from CC",
                     remove_reviewers,
                 )
+            if add_to_attention_set:
+                logging.info(
+                    "Would have added %s to attention set", add_to_attention_set
+                )
+            if remove_from_attention_set:
+                logging.info(
+                    "Would have removed %s from attention set",
+                    remove_from_attention_set,
+                )
             if ready:
                 logging.info("Would mark it as ready")
             elif wip:
@@ -619,6 +632,8 @@ class GerritHelper:
             remove_reviewers=remove_reviewers,
             ready=ready,
             wip=wip,
+            add_to_attention_set=add_to_attention_set,
+            remove_from_attention_set=remove_from_attention_set,
         )
 
     def SetTopic(self, change, topic, dryrun=False) -> None:

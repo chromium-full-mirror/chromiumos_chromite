@@ -797,6 +797,42 @@ class GerritParserTest(cros_test_lib.TestCase):
             mock_rebase.assert_not_called()
             self.assertIsNone(res)
 
+    def testSetReviewAttentionSet(self) -> None:
+        """Verify SetReview forwards attention set updates to gob_util."""
+        helper = self._GetHelper()
+        with mock.patch.object(gob_util, "SetReview") as mock_set_review:
+            helper.SetReview(
+                "123",
+                add_to_attention_set={"add@test.org"},
+                remove_from_attention_set={"rem@test.org"},
+            )
+            mock_set_review.assert_called_once_with(
+                helper.host,
+                "123",
+                msg=None,
+                labels=None,
+                notify="ALL",
+                reviewers=None,
+                cc=None,
+                remove_reviewers=None,
+                ready=None,
+                wip=None,
+                add_to_attention_set={"add@test.org"},
+                remove_from_attention_set={"rem@test.org"},
+            )
+
+    def testSetReviewAttentionSetDryrun(self) -> None:
+        """Verify SetReview dryrun does not call gob_util.SetReview."""
+        helper = self._GetHelper()
+        with mock.patch.object(gob_util, "SetReview") as mock_set_review:
+            helper.SetReview(
+                "123",
+                add_to_attention_set={"add@test.org"},
+                remove_from_attention_set={"rem@test.org"},
+                dryrun=True,
+            )
+            mock_set_review.assert_not_called()
+
 
 @pytest.mark.network_test
 class DirectGerritHelperTest(cros_test_lib.TestCase):

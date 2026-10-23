@@ -256,6 +256,47 @@ Too bad..."""
         result = gob_util.Rebase("some.git.url", "100000")
         self.assertEqual(result, change_info)
 
+    def testSetReviewAttentionSet(self) -> None:
+        """Test SetReview() sends attention set updates."""
+        body = b")]}'\n" + json.dumps({}).encode()
+        self.conn.return_value.__enter__.return_value = FakeHTTPResponse(
+            body=body, status=200
+        )
+        gob_util.SetReview(
+            "some.git.url",
+            "100000",
+            notify="ALL",
+            add_to_attention_set=["add@test.org"],
+            remove_from_attention_set=["rem@test.org"],
+        )
+        self.create_http_request.assert_called_once_with(
+            "some.git.url",
+            "changes/100000/revisions/current/review",
+            reqtype="POST",
+            headers=None,
+            body={
+                "reviewers": [],
+                "notify": "ALL",
+                "add_to_attention_set": [
+                    {"user": "add@test.org", "reason": "chromite gerrit CLI"}
+                ],
+                "remove_from_attention_set": [
+                    {"user": "rem@test.org", "reason": "chromite gerrit CLI"}
+                ],
+            },
+        )
+
+    def testSetReviewNoOp(self) -> None:
+        """Test SetReview() returns early when no changes are requested."""
+        gob_util.SetReview(
+            "some.git.url",
+            "100000",
+            notify="ALL",
+            add_to_attention_set=set(),
+            remove_from_attention_set=set(),
+        )
+        self.create_http_request.assert_not_called()
+
 
 class GetCookieTests(cros_test_lib.TestCase):
     """Unittests for GetCookies()"""

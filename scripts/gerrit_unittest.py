@@ -284,3 +284,74 @@ def test_action_rebase_conflicts_and_on_behalf_of_uploader() -> None:
             ["rebase", "--allow-conflicts", "--on-behalf-of-uploader", "123"]
         )
     assert excinfo.value.code != 0
+
+
+def test_action_review_attention(monkeypatch) -> None:
+    """Test ActionReview --attention adds and removes users."""
+    helper = gerrit.gerrit.GetGerritHelper(remote="cros")
+    review_calls = []
+
+    def fake_set_review(change, **kwargs) -> None:
+        review_calls.append((change, kwargs))
+
+    monkeypatch.setattr(helper, "SetReview", fake_set_review)
+    monkeypatch.setattr(gerrit, "GetGerrit", lambda _opts, cl: (helper, cl))
+    monkeypatch.setattr(
+        gerrit,
+        "_run_parallel_tasks",
+        lambda task, _jobs, *args: [task(x) for x in args],
+    )
+
+    gerrit.main(
+        [
+            "review",
+            "-m",
+            "PTAL",
+            "-l",
+            "CR+1",
+            "--re",
+            "rev@chromium.org",
+            "--cc",
+            "cc@chromium.org",
+            "--attention",
+            "add@chromium.org",
+            "--attention",
+            "~rem1@chromium.org",
+            "--attention=-rem2@chromium.org",
+            "--attention",
+            "override@chromium.org",
+            "--attention",
+            "~override@chromium.org",
+            "123",
+        ]
+    )
+
+    assert review_calls == [
+        (
+            "123",
+            {
+                "msg": "PTAL",
+                "labels": {"Code-Review": "1"},
+                "dryrun": False,
+                "notify": "ALL",
+                "reviewers": {"rev@chromium.org"},
+                "cc": {"cc@chromium.org"},
+                "remove_reviewers": set(),
+                "ready": None,
+                "wip": None,
+                "add_to_attention_set": {"add@chromium.org"},
+                "remove_from_attention_set": {
+                    "rem1@chromium.org",
+                    "rem2@chromium.org",
+                    "override@chromium.org",
+                },
+            },
+        ),
+    ]
+
+
+def test_action_review_attention_invalid_email() -> None:
+    """Test ActionReview --attention rejects invalid email addresses."""
+    with pytest.raises(SystemExit) as excinfo:
+        gerrit.main(["review", "--attention", "not-an-email", "123"])
+    assert excinfo.value.code != 0

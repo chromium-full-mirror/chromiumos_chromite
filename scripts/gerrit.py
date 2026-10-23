@@ -986,7 +986,7 @@ class ActionAttentionSet(UserAction):
             "--message",
             metavar="MESSAGE",
             help="Optional message to include",
-            default="gerrit CLI",
+            default="chromite gerrit CLI",
         )
         parser.add_argument("cl", metavar="CL", help="The CL to update")
         parser.add_argument(
@@ -1250,7 +1250,8 @@ class ActionRebase(UserAction):
 class ActionReview(_ActionSimpleParallelCLs):
     """Review CLs with multiple settings
 
-    The reviewers & cc options can remove people by prepending '~' or '-'.
+    The reviewers, cc, & attention options can remove people by prepending '~'
+    or '-'.
     Note: If you want to move someone (reviewer->CC or CC->reviewer), you don't
     have to remove them first, you only need to specify the final state.
 
@@ -1351,6 +1352,13 @@ class ActionReview(_ActionSimpleParallelCLs):
             default=[],
             help="People to add/remove in CC",
         )
+        parser.add_argument(
+            "--attention",
+            action="append",
+            type="email",
+            default=[],
+            help="People to add/remove in attention set",
+        )
         _ActionSimpleParallelCLs.init_subparser(parser)
 
     @staticmethod
@@ -1360,6 +1368,9 @@ class ActionReview(_ActionSimpleParallelCLs):
             opts.reviewers
         )
         add_cc, remove_cc = process_add_remove_lists(opts.cc)
+        add_attention, remove_attention = process_add_remove_lists(
+            opts.attention
+        )
 
         # Gerrit allows people to only be in one state: CC or Reviewer.  If a
         # person is in CC and you want to move them to reviewer, you can't
@@ -1387,6 +1398,8 @@ class ActionReview(_ActionSimpleParallelCLs):
             remove_reviewers=remove_reviewers | remove_cc,
             ready=opts.ready,
             wip=opts.wip,
+            add_to_attention_set=add_attention,
+            remove_from_attention_set=remove_attention,
         )
 
 
