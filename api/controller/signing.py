@@ -199,15 +199,23 @@ def CreateKeysHsm(request, response, _config) -> None:
     if exporter_dry_run:
         entrypoint_args.append("--exporter-dry-run")
 
+    if request.work_dir:
+        entrypoint_args.extend(["--work-dir", "/work"])
+
+    docker_args = [
+        # Mount the keyset checkout as a volume.
+        "-v",
+        f"{request.release_keys_checkout}:/keys",
+    ]
+
+    if request.work_dir:
+        docker_args.extend(["-v", f"{request.work_dir}:/work"])
+
+    docker_args.extend(["--entrypoint", "./create_keys_with_hsm.py"])
+
     response_bytes = image.CallDockerWithResponse(
         request.docker_image,
-        docker_args=[
-            # Mount the keyset checkout as a volume.
-            "-v",
-            f"{request.release_keys_checkout}:/keys",
-            "--entrypoint",
-            "./create_keys_with_hsm.py",
-        ],
+        docker_args=docker_args,
         entrypoint_args=entrypoint_args,
         output_file_name="out_proto.bin",
     )

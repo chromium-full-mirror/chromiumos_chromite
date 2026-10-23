@@ -687,6 +687,7 @@ class CreateKeysHsmTest(
         keyset_name: str = "foo",
         dry_run: bool = False,
         exporter_dry_run: Optional[bool] = None,
+        work_dir: Optional[str] = None,
     ):
         """Helper to build a request instance."""
         req = signing_pb2.CreateKeysHsmRequest(
@@ -698,6 +699,8 @@ class CreateKeysHsmTest(
 
         if exporter_dry_run is not None:
             req.exporter_dry_run = exporter_dry_run
+        if work_dir is not None:
+            req.work_dir = work_dir
         return req
 
     def testSuccess(self) -> None:
@@ -717,7 +720,7 @@ class CreateKeysHsmTest(
         rc = self.StartPatcher(cros_test_lib.RunCommandMock())
         rc.SetDefaultCmdResult()
 
-        request = self._GetRequest(keyset_name="setkey")
+        request = self._GetRequest(keyset_name="setkey", work_dir="/tmp/work")
         res = signing_controller.CreateKeysHsm(
             request, self.response, self.api_config
         )
@@ -742,6 +745,10 @@ class CreateKeysHsmTest(
                 "GCE_METADATA_IP=127.0.0.1:12345",
                 "-e",
                 "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{request.release_keys_checkout}:/keys",
+                "-v",
+                "/tmp/work:/work",
                 "--entrypoint",
                 "./create_keys_with_hsm.py",
                 "signing:latest",
@@ -753,6 +760,8 @@ class CreateKeysHsmTest(
                 "/out",
                 "-p",
                 "out_proto.bin",
+                "--work-dir",
+                "/work",
             ]
         )
         self.assertEqual(self.response, expected_response)
