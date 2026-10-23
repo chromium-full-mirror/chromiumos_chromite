@@ -380,7 +380,7 @@ class BundleChromeOSConfigTest(cros_test_lib.MockTempDirTestCase):
         )
         config_files_root = os.path.join(config_parent_dir, "%s" % self.board)
         config_yaml_root = os.path.join(
-            config_files_root, "usr/share/chromeos-config"
+            config_files_root, "build/share/chromeos-config"
         )
         config_protos_root = os.path.join(config_files_root, "build/share")
 
@@ -429,40 +429,6 @@ class BundleChromeOSConfigTest(cros_test_lib.MockTempDirTestCase):
         self.assertTrue(
             os.path.exists(os.path.join(self.archive_dir, "config_protos.zip"))
         )
-
-    def testBundleChromeOSConfigBuildShare(self) -> None:
-        """Verifies build/share config.yaml is preferred over usr/share."""
-        config_files_root = self.chroot.full_path("build", self.board)
-        build_yaml = os.path.join(
-            config_files_root, "build/share/chromeos-config/yaml/config.yaml"
-        )
-        usr_yaml = os.path.join(
-            config_files_root, "usr/share/chromeos-config/yaml/config.yaml"
-        )
-        os.makedirs(os.path.dirname(build_yaml), exist_ok=True)
-        os.makedirs(os.path.dirname(usr_yaml), exist_ok=True)
-
-        full_payload = {
-            "chromeos": {"configs": [{"identity": {"platform-name": "Full"}}]}
-        }
-        factory_payload = {
-            "chromeos": {"configs": [{"identity": {"platform-name": "Slim"}}]}
-        }
-        with open(build_yaml, "w", encoding="utf-8") as f:
-            json.dump(full_payload, f)
-        with open(usr_yaml, "w", encoding="utf-8") as f:
-            json.dump(factory_payload, f)
-
-        config_filenames = artifacts.BundleChromeOSConfig(
-            self.chroot, self.sysroot, self.archive_dir
-        )
-        self.assertEqual(["config.yaml"], config_filenames)
-        with open(
-            os.path.join(self.archive_dir, "config.yaml"),
-            "r",
-            encoding="utf-8",
-        ) as f:
-            self.assertEqual(full_payload, json.load(f))
 
     def testNoChromeOSConfigFound(self) -> None:
         """Verifies None is returned when no ChromeOS config file is found."""

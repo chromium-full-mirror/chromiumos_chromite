@@ -340,17 +340,12 @@ def BundleChromeOSConfig(
     Returns:
         The file names of the output configs, empty if no config found.
     """
-    yaml_path = chroot.full_path(
-        sysroot.path, "build/share/chromeos-config/yaml/config.yaml"
-    )
-    if not os.path.exists(yaml_path):
-        yaml_path = chroot.full_path(
-            sysroot.path, "usr/share/chromeos-config/yaml/config.yaml"
-        )
     config_paths = [
         p
         for p in [
-            yaml_path,
+            chroot.full_path(
+                sysroot.path, "build/share/chromeos-config/yaml/config.yaml"
+            ),
             chroot.full_path(
                 sysroot.path,
                 "build/share/chromeos-config-bsp-private/config_protos.zip",

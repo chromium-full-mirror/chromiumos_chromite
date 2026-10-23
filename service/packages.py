@@ -2740,10 +2740,6 @@ def _run_cros_config_host(
     config_fname = build_target.full_path(
         "build/share/chromeos-config/yaml/config.yaml"
     )
-    if not os.path.exists(config_fname):
-        config_fname = build_target.full_path(
-            "usr/share/chromeos-config/yaml/config.yaml"
-        )
 
     result = cros_build_lib.run(
         [tool, "-c", config_fname] + args,
