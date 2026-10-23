@@ -88,7 +88,6 @@ KNOWN_ISSUES = (
     "cli/flash.py",
     "cli/flash_unittest.py",
     "contrib/aue_overlays.py",
-    "contrib/bug_reporting/bug_reporting.py",
     "contrib/cl_perf.py",
     "contrib/codemod/auto_type_dunders.py",
     "contrib/codemod/auto_type_none.py",
