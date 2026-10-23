@@ -15,7 +15,7 @@ import os
 from pathlib import Path
 import re
 import shutil
-from typing import Any, Callable, Iterable, List, Optional, Tuple
+from typing import Any, Callable, Iterable, Optional
 
 from chromite.lib import alerts
 from chromite.lib import chroot_lib
@@ -340,7 +340,7 @@ def _ParseCWPProfileName(profile_name):
 
 def _ParseMergedProfileName(
     artifact_name: str,
-) -> Tuple[BenchmarkProfileVersion, CWPProfileVersion]:
+) -> tuple[BenchmarkProfileVersion, CWPProfileVersion]:
     """Parse the name of a release profile for Chrome.
 
     Examples:
@@ -418,7 +418,7 @@ def _CompressAFDOFiles(
     input_dir: Optional[Path],
     output_dir: Path,
     suffix: str,
-) -> List[Path]:
+) -> list[Path]:
     """Compress files using AFDO compression type.
 
     Args:
@@ -1274,7 +1274,7 @@ class _CommonPrepareBundle:
 
         def _GetOrderedMergeableProfiles(
             benchmark_listing: Iterable[gs.GSListResult],
-        ) -> List[gs.GSListResult]:
+        ) -> list[gs.GSListResult]:
             """Get list of mergeable profiles ordered by increasing version."""
             # Exclude merged profiles, because merging merged profiles into
             # merged profiles is likely bad. _ValidBenchmarkProfileVersion takes
@@ -2197,7 +2197,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
 
     def _FindAllCrOSArtifactDirs(
         self, include_incomplete_packages: bool
-    ) -> List[str]:
+    ) -> list[str]:
         """Finds all cros-artifacts directories in the chroot."""
         portage_roots = ["/"]
         portage_roots.extend(
@@ -2345,7 +2345,7 @@ class BundleArtifactHandler(_CommonPrepareBundle):
         )
         return output_compressed
 
-    def _BundleToolchainWarningLogs(self) -> List[str]:
+    def _BundleToolchainWarningLogs(self) -> list[str]:
         """Bundle the compiler warnings for upload for werror checker."""
         with self.chroot.tempdir() as tempdir:
             assert tempdir, f"Could not get chroot '{self.chroot}' tempdir"

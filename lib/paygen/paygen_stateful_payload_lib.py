@@ -7,7 +7,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from chromite.lib import compression_lib
 from chromite.lib import constants
@@ -20,7 +20,7 @@ def _generate_stateful_payload(
     image_path: Union[Path, str],
     output: Union[Path, int, str],
     compression: compression_lib.CompressionType,
-    compressor: Optional[List[str]] = None,
+    compressor: Optional[list[str]] = None,
 ) -> None:
     """Generates a stateful update payload given a path/fd and compression.
 

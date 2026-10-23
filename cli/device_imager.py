@@ -15,7 +15,7 @@ import shutil
 import tempfile
 import threading
 import time
-from typing import Dict, List, Tuple, Union
+from typing import Union
 
 from chromite.cli import command
 from chromite.cli import flash
@@ -234,7 +234,7 @@ class DeviceImager:
         self._image = f"{devserver_constants.GS_IMAGE_DIR}/{build_id}"
         self._image_type = ImageType.REMOTE_DIRECTORY
 
-    def _SplitDevPath(self, path: str) -> Tuple[str, int]:
+    def _SplitDevPath(self, path: str) -> tuple[str, int]:
         """Splits the given /dev/x path into prefix and the dev number.
 
         Args:
@@ -250,7 +250,7 @@ class DeviceImager:
 
         return match.group(1), int(match.group(2))
 
-    def _GetKernelState(self, root_num: int) -> Tuple[Dict, Dict]:
+    def _GetKernelState(self, root_num: int) -> tuple[dict, dict]:
         """Returns the kernel state.
 
         Returns:
@@ -264,7 +264,7 @@ class DeviceImager:
         else:
             raise Error(f"Invalid root partition number {root_num}")
 
-    def _GetMiniOSState(self, minios_num: int) -> Tuple[Dict, Dict]:
+    def _GetMiniOSState(self, minios_num: int) -> tuple[dict, dict]:
         """Returns the miniOS state.
 
         Returns:
@@ -496,7 +496,7 @@ class PartialFileReader(ReaderBase):
         image: str,
         offset: int,
         length: int,
-        compression_command: List[str],
+        compression_command: list[str],
     ) -> None:
         """Initializes the class.
 
@@ -639,7 +639,7 @@ class RawPartitionUpdater(PartitionUpdaterBase):
             finally:
                 generator.CloseTarget()
 
-    def _GetCompressionAndDecompression(self) -> Tuple[List[str], List[str]]:
+    def _GetCompressionAndDecompression(self) -> tuple[list[str], list[str]]:
         """Returns compression / decompression commands."""
 
         return (
@@ -652,7 +652,7 @@ class RawPartitionUpdater(PartitionUpdaterBase):
         )
 
     def _WriteToTarget(
-        self, source: Union[int, io.BytesIO], decompress_command: List[str]
+        self, source: Union[int, io.BytesIO], decompress_command: list[str]
     ) -> None:
         """Writes bytes source to the target device on DUT.
 

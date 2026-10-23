@@ -5,7 +5,7 @@
 """Unittest-only utility functions library."""
 
 import os
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import cros_build_lib
 from chromite.lib import osutils
@@ -18,9 +18,9 @@ class BuildELFError(Exception):
 
 def BuildELF(
     filename: str,
-    defined_symbols: Optional[List[str]] = None,
-    undefined_symbols: Optional[List[str]] = None,
-    used_libs: Optional[List[str]] = None,
+    defined_symbols: Optional[list[str]] = None,
+    undefined_symbols: Optional[list[str]] = None,
+    used_libs: Optional[list[str]] = None,
     executable: bool = False,
     static: bool = False,
     build_id: Optional[str] = None,

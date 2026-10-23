@@ -14,7 +14,7 @@ import functools
 import logging
 import os
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -42,7 +42,7 @@ class Chroot:
         out_path: Optional[Path] = None,
         cache_dir: Optional[str] = None,
         chrome_root: Optional[str] = None,
-        env: Optional[Dict[str, str]] = None,
+        env: Optional[dict[str, str]] = None,
     ) -> None:
         """Initialize.
 
@@ -257,7 +257,7 @@ class Chroot:
             cros_sdk_lib.CleanupChroot(self, delete_out=delete_out_dir)
 
     @functools.cached_property
-    def _os_release_props(self) -> Dict[str, str]:
+    def _os_release_props(self) -> dict[str, str]:
         """The variables contained within /etc/os-release."""
         return key_value_store.LoadFile(
             self.full_path("/etc/os-release"),
@@ -269,7 +269,7 @@ class Chroot:
         """The tarball version the chroot was created from."""
         return self._os_release_props.get("BUILD_ID")
 
-    def get_enter_args(self, for_shell: bool = False) -> List[str]:
+    def get_enter_args(self, for_shell: bool = False) -> list[str]:
         """Build the arguments to enter this chroot.
 
         Args:
@@ -300,7 +300,7 @@ class Chroot:
         return args
 
     @property
-    def env(self) -> Dict[str, str]:
+    def env(self) -> dict[str, str]:
         env = self._env.copy() if self._env else {}
 
         return env
@@ -308,7 +308,7 @@ class Chroot:
     def _runner(
         self,
         func: Callable[..., cros_build_lib.CompletedProcess],
-        cmd: Union[List[str], str],
+        cmd: Union[list[str], str],
         **kwargs,
     ) -> cros_build_lib.CompletedProcess:
         # Merge provided |extra_env| with self.env.
@@ -323,7 +323,7 @@ class Chroot:
         )
 
     def run(
-        self, cmd: Union[List[str], str], **kwargs
+        self, cmd: Union[list[str], str], **kwargs
     ) -> cros_build_lib.CompletedProcess:
         """Run a command inside this chroot.
 
@@ -332,7 +332,7 @@ class Chroot:
         return self._runner(cros_build_lib.run, cmd, **kwargs)
 
     def sudo_run(
-        self, cmd: Union[List[str], str], **kwargs
+        self, cmd: Union[list[str], str], **kwargs
     ) -> cros_build_lib.CompletedProcess:
         """Run a sudo command inside this chroot.
 

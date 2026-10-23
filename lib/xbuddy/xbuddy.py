@@ -14,7 +14,7 @@ import shutil
 import sys
 import threading
 import time
-from typing import List, NamedTuple, Optional, Tuple
+from typing import NamedTuple, Optional
 import urllib
 
 from chromite.third_party.python_graveyard import distutils_version
@@ -330,7 +330,7 @@ class XBuddy:
         alias: str,
         board: Optional[str] = None,
         version: Optional[str] = None,
-    ) -> Tuple[os.PathLike, str]:
+    ) -> tuple[os.PathLike, str]:
         """Given the full xbuddy config, look up an alias for path rewrite.
 
         Args:
@@ -411,7 +411,7 @@ class XBuddy:
 
     def _LS(
         self, path: os.PathLike, list_subdirectory: bool = False
-    ) -> List[os.PathLike]:
+    ) -> list[os.PathLike]:
         """Does a directory listing of the given gs path.
 
         Args:
@@ -596,7 +596,7 @@ class XBuddy:
         suffix: str,
         version: str,
         image_dir: Optional[os.PathLike] = None,
-    ) -> Tuple[os.PathLike, str]:
+    ) -> tuple[os.PathLike, str]:
         """Handle version aliases for remote payloads in GS.
 
         Args:
@@ -742,7 +742,7 @@ class XBuddy:
             if self._manage_builds:
                 update_timestamp(self._timestamp_folder, build_id)
 
-    def _ListBuildTimes(self) -> List[Tuple[os.PathLike, datetime.timedelta]]:
+    def _ListBuildTimes(self) -> list[tuple[os.PathLike, datetime.timedelta]]:
         """Returns the currently cached builds and their last access timestamp.
 
         Returns:
@@ -765,8 +765,8 @@ class XBuddy:
         return return_tup
 
     def _Download(
-        self, gs_url: str, artifacts: List[str], build_id: os.PathLike
-    ) -> List[List[str]]:
+        self, gs_url: str, artifacts: list[str], build_id: os.PathLike
+    ) -> list[list[str]]:
         """Download the artifacts from the given gs_url.
 
         Returns:
@@ -876,7 +876,7 @@ class XBuddy:
         image_type: str,
         image_dir: Optional[os.PathLike] = None,
         channel: Optional[str] = None,
-    ) -> List[os.PathLike]:
+    ) -> list[os.PathLike]:
         """Check if the artifact is available locally. Download from GS if not.
 
         Args:
@@ -909,12 +909,12 @@ class XBuddy:
 
     def _GetArtifact(
         self,
-        path_list: List[str],
+        path_list: list[str],
         board: Optional[str] = None,
         version: Optional[str] = None,
         lookup_only: bool = False,
         image_dir: Optional[os.PathLike] = None,
-    ) -> Tuple[os.PathLike, os.PathLike]:
+    ) -> tuple[os.PathLike, os.PathLike]:
         """Interpret an xBuddy path and return directory/file_name to resource.
 
         Note board can be passed that in but by default if self._board is set,
@@ -1009,11 +1009,11 @@ class XBuddy:
 
     def Translate(
         self,
-        path_list: List[str],
+        path_list: list[str],
         board: Optional[str] = None,
         version: Optional[str] = None,
         image_dir: Optional[os.PathLike] = None,
-    ) -> Tuple[os.PathLike, os.PathLike]:
+    ) -> tuple[os.PathLike, os.PathLike]:
         """Translates an xBuddy path to a real path to artifact if it exists.
 
         Equivalent to the Get call, minus downloading and updating timestamps,
@@ -1051,8 +1051,8 @@ class XBuddy:
         )
 
     def Get(
-        self, path_list: List[str], image_dir: Optional[os.PathLike] = None
-    ) -> Tuple[os.PathLike, os.PathLike]:
+        self, path_list: list[str], image_dir: Optional[os.PathLike] = None
+    ) -> tuple[os.PathLike, os.PathLike]:
         """The full xBuddy call, returns resource specified by path_list.
 
         Please see devserver.py:xbuddy for full documentation.

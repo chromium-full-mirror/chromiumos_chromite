@@ -10,7 +10,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import Dict, Generator, List
+from typing import Generator
 
 from chromite.lint import linters
 from chromite.utils.parser import upstart
@@ -37,7 +37,7 @@ _IGNORE_LINT_REGEX = re.compile(r"#\s+croslint:\s+disable")
 
 # TODO(python3.9): Change to functools.cache.
 @functools.lru_cache(maxsize=None)
-def GetIgnoreLookup() -> Dict[str, List[str]]:
+def GetIgnoreLookup() -> dict[str, list[str]]:
     """Returns the lookup table of upstart config lines to ignore.
 
     On first invocation this loads the list from upstart_exceptions.json.
@@ -52,7 +52,7 @@ def GetIgnoreLookup() -> Dict[str, List[str]]:
         return json.load(fp)
 
 
-def ExtractCommands(job: upstart.Job) -> Generator[List[str], None, None]:
+def ExtractCommands(job: upstart.Job) -> Generator[list[str], None, None]:
     """Finds and normalizes audited commands."""
     text = "\n"
     for stanza in ("main", "pre-start", "post-start", "pre-stop", "post-stop"):

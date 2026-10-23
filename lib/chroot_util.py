@@ -6,7 +6,7 @@
 
 import os
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Union
+from typing import Optional, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -24,7 +24,7 @@ if cros_build_lib.IsInsideChroot():
 tracer = trace.get_tracer(__name__)
 
 
-def _GetToolchainPackages() -> List[str]:
+def _GetToolchainPackages() -> list[str]:
     """Get a list of host toolchain packages."""
     # Load crossdev cache first for faster performance.
     toolchain.Crossdev.Load(False)
@@ -34,9 +34,9 @@ def _GetToolchainPackages() -> List[str]:
 
 def GetEmergeCommand(
     sysroot: Optional[str] = None,
-) -> List[Union[str, "os.PathLike[str]"]]:
+) -> list[Union[str, "os.PathLike[str]"]]:
     """Returns the emerge command to use for |sysroot| (host if None)."""
-    cmd: List[Union[str, "os.PathLike[str]"]] = [
+    cmd: list[Union[str, "os.PathLike[str]"]] = [
         constants.CHROMITE_BIN_DIR / "parallel_emerge"
     ]
     if sysroot and sysroot != "/":
@@ -46,7 +46,7 @@ def GetEmergeCommand(
 
 @tracer.start_as_current_span("chroot_util.Emerge")
 def Emerge(
-    packages: List[str],
+    packages: list[str],
     sysroot: str,
     with_deps: bool = True,
     rebuild_deps: bool = True,
@@ -119,7 +119,7 @@ def Emerge(
 
 
 def _SetUpTestPortageConfig(
-    tempdir: Path, sysroot: Path, packages: Set[str]
+    tempdir: Path, sysroot: Path, packages: set[str]
 ) -> None:
     """Sets up a temporary PORTAGE_CONFIGROOT directory structure.
 
@@ -193,8 +193,8 @@ def _SetUpTestPortageConfig(
 @tracer.start_as_current_span("chroot_util.RunUnittests")
 def RunUnittests(
     sysroot: str,
-    packages: Set[str],
-    extra_env: Optional[Dict[str, str]] = None,
+    packages: set[str],
+    extra_env: Optional[dict[str, str]] = None,
     keep_going: bool = False,
     verbose: bool = False,
     jobs: int = 0,

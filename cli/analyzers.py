@@ -7,7 +7,6 @@
 import logging
 import os
 from pathlib import Path
-from typing import List
 
 from chromite.cli import command
 from chromite.lib import commandline
@@ -16,7 +15,7 @@ from chromite.lib import path_util
 from chromite.utils import path_filter
 
 
-def GetFilesFromCommit(commit: str) -> List[str]:
+def GetFilesFromCommit(commit: str) -> list[str]:
     """Returns files changed in the provided git `commit` as absolute paths."""
     repo_root_path = git.FindGitTopLevel(None)
     files_in_repo = git.RunGit(
@@ -26,7 +25,7 @@ def GetFilesFromCommit(commit: str) -> List[str]:
     return [os.path.join(repo_root_path, p) for p in files_in_repo]
 
 
-def HasUncommittedChanges(files: List[str]) -> bool:
+def HasUncommittedChanges(files: list[str]) -> bool:
     """Returns whether there are uncommitted changes on any of the `files`.
 
     `files` can be absolute or relative to the current working directory. If a

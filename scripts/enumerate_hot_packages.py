@@ -13,7 +13,7 @@ Primarily intended for use by the Chrome OS toolchain team.
 import json
 import logging
 from pathlib import Path
-from typing import Iterable, List, Tuple
+from typing import Iterable
 
 from chromite.lib import commandline
 from chromite.lib import portage_util
@@ -25,7 +25,7 @@ def contains_hot_marker(file_path: Path):
     return "cros_optimize_package_for_speed" in ebuild_contents
 
 
-def find_package_bashrc_files(package_dir: Path) -> List[Path]:
+def find_package_bashrc_files(package_dir: Path) -> list[Path]:
     """Returns bashrc files that can influence builds of the given package."""
     results = []
 
@@ -44,7 +44,7 @@ def find_package_bashrc_files(package_dir: Path) -> List[Path]:
 
 def locate_all_package_ebuilds(
     overlays: Iterable[Path],
-) -> Iterable[Tuple[Path, str, List[Path], List[Path]]]:
+) -> Iterable[tuple[Path, str, list[Path], list[Path]]]:
     """Determines package -> (ebuild, bashrc) mappings for all packages.
 
     Yields a series of (package_path, package_name, [path_to_ebuilds],
@@ -74,7 +74,7 @@ def locate_all_hot_env_packages(overlays: Iterable[Path]) -> Iterable[str]:
                 yield f"{f.parent.name}/{f.name}"
 
 
-def main(argv: List[str]) -> None:
+def main(argv: list[str]) -> None:
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True, type=Path)
     opts = parser.parse_args(argv)

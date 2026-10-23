@@ -8,7 +8,7 @@ import dataclasses
 import getpass
 import logging
 from pathlib import Path
-from typing import Iterable, Iterator, List, Optional
+from typing import Iterable, Iterator, Optional
 
 from chromite.lib import path_util
 
@@ -108,7 +108,7 @@ class Workspaces:
             workspace.name = workspace_name
             workspace.name_workspace_location = name_workspace_location
 
-    def get_citc_workspace_names(self) -> List[str]:
+    def get_citc_workspace_names(self) -> list[str]:
         """Get all named citc workspaces from directory"""
         if not self.named_workspace_parent_dir.exists():
             return []

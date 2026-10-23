@@ -16,7 +16,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import compression_lib
 from chromite.lib import constants
@@ -910,7 +910,7 @@ def _GetLicenseDirectories(
     sysroot: Optional[str] = None,
     dir_set: str = _BOTH_DIRS,
     buildroot: Path = constants.SOURCE_ROOT,
-) -> List[str]:
+) -> list[str]:
     """Get the "licenses" directories for all matching overlays.
 
     With a |board| argument, allows searching without a compiled sysroot.
@@ -1656,9 +1656,9 @@ def ListInstalledPackages(sysroot, all_packages=False):
     return packages
 
 
-def FilterLicenseFileCandidates(stdout: str) -> List[str]:
+def FilterLicenseFileCandidates(stdout: str) -> list[str]:
     """Returns the subset of files in `stdout` that look like licenses."""
-    license_files: List[str] = []
+    license_files: list[str] = []
     basename_include_pattern = re.compile(
         "|".join(f"({x})" for x in LICENSE_BASENAMES_REGEX), re.IGNORECASE
     )

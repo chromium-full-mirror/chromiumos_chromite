@@ -6,7 +6,7 @@
 
 import argparse
 import time
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import commandline
 from chromite.lib.telemetry import trace
@@ -30,7 +30,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def parse_arguments(argv: List) -> argparse.Namespace:
+def parse_arguments(argv: list) -> argparse.Namespace:
     """Parse and validate arguments."""
     parser = get_parser()
     opts = parser.parse_args(argv)
@@ -39,7 +39,7 @@ def parse_arguments(argv: List) -> argparse.Namespace:
     return opts
 
 
-def main(argv: Optional[List[str]]) -> Optional[int]:
+def main(argv: Optional[list[str]]) -> Optional[int]:
     """Main."""
     opts = parse_arguments(argv)
 

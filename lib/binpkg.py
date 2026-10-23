@@ -17,7 +17,7 @@ import os
 from pathlib import Path
 import tempfile
 import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 import urllib.error
 import urllib.request
 
@@ -132,7 +132,7 @@ class PackageIndex:
                 d[k] = v
         return d
 
-    def _FormatPkgIndex(self, entry: dict) -> List[str]:
+    def _FormatPkgIndex(self, entry: dict) -> list[str]:
         """Formats lines for _WritePkgIndex.
 
         Args:
@@ -551,8 +551,8 @@ def CleanStaleBinpkgs(root: Union[str, os.PathLike]) -> None:
 
 def UpdateAndSubmitKeyValueFile(
     filename: Union[str, os.PathLike],
-    data: Dict[str, str],
-    report: Optional[Dict[str, Any]] = None,
+    data: dict[str, str],
+    report: Optional[dict[str, Any]] = None,
     dryrun: bool = False,
 ) -> None:
     """Update a key/value file, commit it, and submit the change.

@@ -27,7 +27,7 @@ import os
 from pathlib import Path
 import re
 import tempfile
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 from chromite.lib import binpkg
 from chromite.lib import chroot_lib
@@ -812,7 +812,7 @@ LATEST_SDK=\"{latest_sdk}\""""
                 UpdateBinhostConfFile(binhost_conf, key, "")
 
 
-def ParseOptions(argv) -> Tuple[argparse.Namespace, Optional[BuildTarget]]:
+def ParseOptions(argv) -> tuple[argparse.Namespace, Optional[BuildTarget]]:
     """Returns options given by the user and the target specified.
 
     Args:

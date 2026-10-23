@@ -20,7 +20,7 @@ import re
 import resource
 import shutil
 import sys
-from typing import Any, List, Optional, Set, Union
+from typing import Any, Optional, Union
 import urllib.parse
 import urllib.request
 
@@ -318,7 +318,7 @@ class SdkVersionConfig:
         return self.latest_version
 
 
-def get_prefetch_sdk_versions() -> Set[str]:
+def get_prefetch_sdk_versions() -> set[str]:
     """Get a reasonable set of SDK versions to have cached locally.
 
     This set includes:
@@ -408,8 +408,8 @@ def get_sdk_latest_conf_file_url(**kwargs: Any) -> str:
 
 def fetch_remote_tarballs(
     storage_dir: Path,
-    urls: List[str],
-    prefetch_versions: Optional[Set[str]] = None,
+    urls: list[str],
+    prefetch_versions: Optional[set[str]] = None,
 ) -> Path:
     """Fetch a tarball given by url, and place it in |storage_dir|.
 
@@ -1396,7 +1396,7 @@ class ChrootCreator:
     def init_group(
         self,
         user: Optional[str] = None,
-        groups: Optional[Set[str]] = None,
+        groups: Optional[set[str]] = None,
         group: Optional[str] = None,
         gid: Optional[int] = None,
     ) -> None:
@@ -1672,7 +1672,7 @@ class ChrootEnteror:
         self,
         chroot: "chroot_lib.Chroot",
         chrome_root_mount: Optional[Path] = None,
-        cmd: Optional[List[str]] = None,
+        cmd: Optional[list[str]] = None,
         cwd: Optional[Path] = None,
         read_only: bool = False,
     ) -> None:
@@ -1703,7 +1703,7 @@ class ChrootEnteror:
             cros_build_lib.die("chroot cannot be in a nosuid mount")
 
     def _enter_chroot(
-        self, cmd: Optional[List[str]] = None, cwd: Optional[Path] = None
+        self, cmd: Optional[list[str]] = None, cwd: Optional[Path] = None
     ) -> cros_build_lib.CompletedProcess:
         """Enter the chroot."""
         self._check_chroot()
@@ -1906,7 +1906,7 @@ class ChrootEnteror:
             logging.warning("%s: %s", self._SYSCTL_KERNEL_PTRACE_SCOPE, e)
 
     def run(
-        self, cmd: Optional[List[str]] = None, cwd: Optional[Path] = None
+        self, cmd: Optional[list[str]] = None, cwd: Optional[Path] = None
     ) -> cros_build_lib.CompletedProcess:
         """Enter the chroot."""
         if "CHROMEOS_SUDO_RLIMITS" in os.environ:

@@ -22,14 +22,11 @@ import sys
 from typing import (
     Any,
     BinaryIO,
-    Dict,
     Iterable,
     Iterator,
-    List,
     NamedTuple,
     Optional,
     TextIO,
-    Tuple,
     Union,
 )
 from xml import sax
@@ -311,7 +308,7 @@ class ProjectCheckout(dict):
     TODO(davidjames): Convert this into an ordinary object instead of a dict.
     """
 
-    def __init__(self, attrs: Dict[str, Any]) -> None:
+    def __init__(self, attrs: dict[str, Any]) -> None:
         """Constructor.
 
         Args:
@@ -355,15 +352,15 @@ class Manifest:
             this will be TOT.
     """
 
-    _instance_cache: Dict[
-        Optional[str], Tuple[Manifest, Tuple[Tuple[str, Optional[str]], ...]]
+    _instance_cache: dict[
+        Optional[str], tuple[Manifest, tuple[tuple[str, Optional[str]], ...]]
     ] = {}
-    default: Dict[str, str]
-    _annotations: Dict[str, str]
-    checkouts_by_path: Dict[str, ProjectCheckout]
-    checkouts_by_name: Dict[str, List[ProjectCheckout]]
-    remotes: Dict[str, Dict[str, str]]
-    includes: Union[List[Tuple[str, str]], Tuple[Tuple[str, str], ...]]
+    default: dict[str, str]
+    _annotations: dict[str, str]
+    checkouts_by_path: dict[str, ProjectCheckout]
+    checkouts_by_name: dict[str, list[ProjectCheckout]]
+    remotes: dict[str, dict[str, str]]
+    includes: Union[list[tuple[str, str]], tuple[tuple[str, str], ...]]
     _current_project_path: Optional[str]
     _current_project_name: Optional[str]
 
@@ -393,7 +390,7 @@ class Manifest:
         self._RunParser(source)
         self.includes = tuple(self.includes)
 
-    def _RequireAttr(self, attr: Any, attrs: Dict[str, Any]) -> None:
+    def _RequireAttr(self, attr: Any, attrs: dict[str, Any]) -> None:
         name = attrs.get("name")
         assert attr in attrs, '%s is missing a "%s" attribute; attrs: %r' % (
             name,
@@ -422,7 +419,7 @@ class Manifest:
         if finalize:
             self._FinalizeAllProjectData()
 
-    def _StartElement(self, name: str, attrs: Dict[str, Any]) -> None:
+    def _StartElement(self, name: str, attrs: dict[str, Any]) -> None:
         """Stores the default manifest properties and per-project overrides."""
         attrs = dict(attrs.items())
         if name == "default":
@@ -490,7 +487,7 @@ class Manifest:
         for path_data in self.checkouts_by_path.values():
             self._FinalizeProjectData(path_data)
 
-    def _FinalizeProjectData(self, attrs: Dict[str, Any]) -> None:
+    def _FinalizeProjectData(self, attrs: dict[str, Any]) -> None:
         """Sets up useful properties for a project.
 
         Args:
@@ -605,9 +602,9 @@ class Manifest:
 class ManifestCheckout(Manifest):
     """A Manifest Handler for a specific manifest checkout."""
 
-    _instance_cache: Dict[
-        Tuple[str, Optional[str]],
-        Tuple[ManifestCheckout, Tuple[Tuple[str, Optional[str]], ...]],
+    _instance_cache: dict[
+        tuple[str, Optional[str]],
+        tuple[ManifestCheckout, tuple[tuple[str, Optional[str]], ...]],
     ] = {}  # type: ignore[assignment]
 
     def __init__(
@@ -656,7 +653,7 @@ class ManifestCheckout(Manifest):
         path: Union[str, "os.PathLike[str]"],
         manifest_path: Optional[Union[str, "os.PathLike[str]"]] = None,
         search: bool = True,
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         root = FindRepoCheckoutRoot(path)
         if root is None:
             raise OSError(errno.ENOENT, "Couldn't find repo root: %s" % (path,))
@@ -674,7 +671,7 @@ class ManifestCheckout(Manifest):
 
     def FindCheckouts(
         self, project: str, branch: Optional[str] = None
-    ) -> List[ProjectCheckout]:
+    ) -> list[ProjectCheckout]:
         """Returns the list of checkouts for a given |project|/|branch|.
 
         Args:
@@ -684,7 +681,7 @@ class ManifestCheckout(Manifest):
         Returns:
             A list of ProjectCheckout objects.
         """
-        checkouts: List[ProjectCheckout] = []
+        checkouts: list[ProjectCheckout] = []
         for checkout in self.checkouts_by_name.get(project, []):
             tracking_branch = checkout["tracking_branch"]
             if branch is None or StripRefs(branch) == StripRefs(
@@ -721,7 +718,7 @@ class ManifestCheckout(Manifest):
             raise AssertionError("Too many checkouts found for %s" % project)
         return checkouts[0]
 
-    def ListCheckouts(self) -> List[ProjectCheckout]:
+    def ListCheckouts(self) -> list[ProjectCheckout]:
         """List the checkouts in the manifest.
 
         Returns:
@@ -778,7 +775,7 @@ class ManifestCheckout(Manifest):
                 ProjectCheckout(x) for x in checkouts
             ]
 
-    def _FinalizeProjectData(self, attrs: Dict[str, Any]) -> None:
+    def _FinalizeProjectData(self, attrs: dict[str, Any]) -> None:
         Manifest._FinalizeProjectData(self, attrs)
         attrs["local_path"] = os.path.join(self.root, attrs["path"])
 
@@ -1080,7 +1077,7 @@ def GetProjectUserEmail(
 
 def MatchBranchName(
     git_repo: Union[str, "os.PathLike[str]"], pattern: str, namespace: str = ""
-) -> List[str]:
+) -> list[str]:
     """Return branches who match the specified regular expression.
 
     Args:
@@ -1458,7 +1455,7 @@ def Log(
     Returns:
         The raw log output as a string.
     """
-    cmd: List[Union[str, "os.PathLike[str]"]] = ["log"]
+    cmd: list[Union[str, "os.PathLike[str]"]] = ["log"]
     if format:
         cmd.append("--format=%s" % format)
     if after:
@@ -1488,7 +1485,7 @@ def LsFiles(
     include_ignored: bool = False,
     staging: bool = True,
     untracked: bool = False,
-) -> List[Path]:
+) -> list[Path]:
     """Do a git ls-files.
 
     Args:
@@ -1548,7 +1545,7 @@ def LsTree(
     cwd: Optional[Union[Path, str]] = None,
     commit: str = "",
     files: Iterable[Union[Path, str]] = (),
-) -> List[LsTreeEntry]:
+) -> list[LsTreeEntry]:
     """Do a git ls-tree.
 
     Args:
@@ -1591,7 +1588,7 @@ def GetChangeId(
         The Gerrit Change-Id assigned to the commit if it exists.
     """
     log = Log(git_repo, max_count=1, format="format:%B", rev=rev)
-    m: List[str] = re.findall(
+    m: list[str] = re.findall(
         r"^Change-Id: (I[a-fA-F0-9]{40})$", log, flags=re.M
     )
     if not m:
@@ -1664,8 +1661,8 @@ class RawDiffEntry(NamedTuple):
     score: Optional[str]
     src_file: Optional[str]
     dst_file: Optional[str]
-    extra_src_modes: List[str] = []
-    extra_src_shas: List[str] = []
+    extra_src_modes: list[str] = []
+    extra_src_shas: list[str] = []
 
 
 # This regular expression pulls apart a line of raw formatted git diff output.
@@ -1755,7 +1752,7 @@ def _match_commit(line: str) -> RawDiffEntry:
 
 def RawDiff(
     path: Union[str, "os.PathLike[str]"], target: Union[str, "os.PathLike[str]"]
-) -> List[RawDiffEntry]:
+) -> list[RawDiffEntry]:
     """Return the parsed raw format diff of target
 
     Args:
@@ -2167,7 +2164,7 @@ class CommitEntry(NamedTuple):
             return datetime.datetime.fromisoformat(date)
 
         def _build_entry(
-            data: Dict[str, str], tags: Dict[str, str]
+            data: dict[str, str], tags: dict[str, str]
         ) -> CommitEntry:
             return CommitEntry(
                 sha=data["sha"],
@@ -2180,8 +2177,8 @@ class CommitEntry(NamedTuple):
 
         # data holds the git commit metadata while tags is used to capture
         # the metadata added to commit message.
-        data: Dict[str, str] = {}
-        tags: Dict[str, str] = {}
+        data: dict[str, str] = {}
+        tags: dict[str, str] = {}
         for line in out.strip().splitlines():
             if line.startswith("commit"):
                 # A commit entry begins with "commit". If we find the line

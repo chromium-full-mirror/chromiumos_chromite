@@ -13,7 +13,7 @@ import glob
 import logging
 import os
 import shutil
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from chromite.lib import autotest_util
 from chromite.lib import compression_lib
@@ -228,7 +228,7 @@ def BundleAutotestFiles(
     chroot: "chroot_lib.Chroot",
     sysroot: "sysroot_lib.Sysroot",
     output_directory: str,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Create the Autotest Hardware Test archives.
 
     Args:
@@ -326,7 +326,7 @@ def BundleChromeOSConfig(
     chroot: "chroot_lib.Chroot",
     sysroot: "sysroot_lib.Sysroot",
     archive_dir: str,
-) -> List[str]:
+) -> list[str]:
     """Outputs the ChromeOS Config payload.
 
     Looks for both the config.yaml and config_protos.zip artifacts from the
@@ -368,7 +368,7 @@ def BundleSimpleChromeArtifacts(
     sysroot: "sysroot_lib.Sysroot",
     build_target: "build_target_lib.BuildTarget",
     output_dir: str,
-) -> List[str]:
+) -> list[str]:
     """Gather all of the simple chrome artifacts.
 
     Args:
@@ -386,7 +386,7 @@ def BundleSimpleChromeArtifacts(
 
 def BundleVmFiles(
     chroot: "chroot_lib.Chroot", test_results_dir: str, output_dir: str
-) -> List[str]:
+) -> list[str]:
     """Gather all of the VM files.
 
     Args:
@@ -401,7 +401,7 @@ def BundleVmFiles(
 
 # TODO(mmortensen): Refactor ArchiveFilesFromImageDir to be part of a library
 # module. I tried moving it to lib/vm.py but this causes a circular dependency.
-def ArchiveFilesFromImageDir(images_dir: str, archive_path: str) -> List[str]:
+def ArchiveFilesFromImageDir(images_dir: str, archive_path: str) -> list[str]:
     """Archives the files into tarballs if they match a prefix from prefix_list.
 
     Create and return a list of tarballs from the images_dir of files that match
@@ -488,7 +488,7 @@ def ArchiveImages(
     sysroot: "sysroot_lib.Sysroot",
     image_dir: str,
     output_dir: str,
-) -> List[str]:
+) -> list[str]:
     """Create a .tar.xz archive for each image that has been created.
 
     This copies already compressed images to output_dir.
@@ -581,7 +581,7 @@ def CreateChromeRoot(
     chroot: "chroot_lib.Chroot",
     build_target: "build_target_lib.BuildTarget",
     output_dir: str,
-) -> List[str]:
+) -> list[str]:
     """Create the chrome sysroot.
 
     Args:
@@ -637,7 +637,7 @@ def BundleTestUpdatePayloads(
     image_path: str,
     output_dir: str,
     zstd_compression_level: int = 19,
-) -> List[str]:
+) -> list[str]:
     """Generate the test update payloads.
 
     Args:
@@ -669,7 +669,7 @@ def BundleTestUpdatePayloads(
     return payloads
 
 
-def ExtendBinPaths(cros_payload_path: str) -> List[str]:
+def ExtendBinPaths(cros_payload_path: str) -> list[str]:
     """Return an array with corresponding .json and .log for a .bin."""
     return [
         cros_payload_path,
@@ -687,7 +687,7 @@ def GenerateTestPayloads(
     stateful: bool = False,
     dlc: bool = False,
     zstd_compression_level: int = 19,
-) -> List[str]:
+) -> list[str]:
     """Generates the payloads for hw testing.
 
     Args:

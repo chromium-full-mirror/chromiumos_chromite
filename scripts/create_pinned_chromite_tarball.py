@@ -5,7 +5,7 @@
 """Build a tarball of Chromite to use as a pinned version of Chromite."""
 
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import commandline
 from chromite.lib import compression_lib
@@ -108,7 +108,7 @@ def _create_chromite_tarball(chromite_dir: Path, output_dir: Path) -> None:
     cros_build_lib.run([zstd, "-9", "--rm", "-f", chromite_tar_path])
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     parser = _get_parser()
     opts = parser.parse_args(argv)
 

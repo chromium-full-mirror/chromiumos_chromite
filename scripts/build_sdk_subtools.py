@@ -25,7 +25,7 @@ bundled, but there will be no attempt to upload / distribute them.
 
 import argparse
 from pathlib import Path
-from typing import List, Optional, Protocol
+from typing import Optional, Protocol
 
 import chromite
 from chromite.lib import build_target_lib
@@ -58,9 +58,9 @@ class Options(Protocol):
     production: bool
     relaunch_for_setup: bool
     output_dir: Path
-    packages: List[str]
+    packages: list[str]
     dryrun: bool
-    upload: List[str]
+    upload: list[str]
     jobs: int
 
     def freeze(self) -> None:
@@ -139,7 +139,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def parse_args(argv: Optional[List[str]]) -> Options:
+def parse_args(argv: Optional[list[str]]) -> Options:
     """Parse and validate CLI arguments."""
 
     parser = get_parser()
@@ -204,12 +204,12 @@ def _run_inside_subtools_chroot(opts: Options) -> None:
         )
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     opts = parse_args(argv)
     return build_sdk_subtools(opts, argv if argv else [])
 
 
-def build_sdk_subtools(opts: Options, argv: List[str]) -> int:
+def build_sdk_subtools(opts: Options, argv: list[str]) -> int:
     """Executes SDK subtools builder steps according to `opts`."""
     # BuildTarget needs a str, but opts.output_dir is osutils.ExpandPath.
     custom_output_dir = str(opts.output_dir) if opts.output_dir else None

@@ -11,7 +11,7 @@ so this helper takes care of setting up & tearing it down reliably.
 import logging
 from pathlib import Path
 import sys
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -89,7 +89,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     parser = get_parser()
     opts = parser.parse_args(argv)
 

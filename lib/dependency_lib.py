@@ -7,7 +7,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import List, Mapping, Union
+from typing import Mapping, Union
 
 from chromite.lib import constants
 from chromite.lib import git
@@ -78,12 +78,12 @@ def _find_matching_eclass_file(eclass, digest, overlay_dirs):
 
 
 def get_source_path_mapping(
-    packages: List[str],
+    packages: list[str],
     sysroot_path: str,
     board: Union[str, None],
     include_eclass: bool = True,
     include_overlay: bool = True,
-) -> Mapping[str, List[str]]:
+) -> Mapping[str, list[str]]:
     """Returns a map from each package to the source paths it depends on.
 
     A source path is considered dependency of a package if modifying files in

@@ -6,7 +6,7 @@
 
 import copy
 import re
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 from chromite.api.gen.chromite.api import payload_pb2
 from chromite.api.gen.chromiumos import common_pb2
@@ -149,7 +149,7 @@ class PayloadConfig:
 
     def GenerateUnsignedPayload(
         self,
-    ) -> Dict[int, "payload_pb2.UnsignedPayload"]:
+    ) -> dict[int, "payload_pb2.UnsignedPayload"]:
         """Do payload generation on Google Storage CrOS images.
 
         Returns:
@@ -173,8 +173,8 @@ class PayloadConfig:
             return self.paygen.CreateUnsignedPayloads()
 
     def FinalizePayload(
-        self, unsigned_payloads: List["payload_pb2.UnsignedPayload"]
-    ) -> Dict[int, Tuple[str, str]]:
+        self, unsigned_payloads: list["payload_pb2.UnsignedPayload"]
+    ) -> dict[int, tuple[str, str]]:
         """(Maybe) sign, (maybe) verify, and upload the given payload(s).
 
         Args:

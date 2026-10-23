@@ -36,7 +36,7 @@ import contextlib
 import logging
 from pathlib import Path
 import sys
-from typing import Iterable, List, Optional, TYPE_CHECKING
+from typing import Iterable, Optional, TYPE_CHECKING
 
 from chromite.third_party.opentelemetry.trace import status
 
@@ -79,7 +79,7 @@ def build_shell_bool_style_args(
     help_str: str,
     deprecation_note: str,
     alternate_name: Optional[str] = None,
-    additional_neg_options: Optional[List[str]] = None,
+    additional_neg_options: Optional[list[str]] = None,
 ) -> None:
     """Build the shell boolean input argument equivalent.
 

@@ -10,7 +10,7 @@ migrated to python from chromiumos/src/scripts/cros_workon_make.
 """
 
 import logging
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
@@ -65,14 +65,14 @@ def GetParser() -> commandline.ArgumentParser:
     return parser
 
 
-def main(argv: Optional[List[str]]) -> Optional[int]:
+def main(argv: Optional[list[str]]) -> Optional[int]:
     commandline.RunInsideChroot()
 
     DoMain(argv)
 
 
 @tracer.start_as_current_span("scripts.cros_workon_make")
-def DoMain(argv: Optional[List[str]]) -> Optional[int]:
+def DoMain(argv: Optional[list[str]]) -> Optional[int]:
     parser = GetParser()
     options = parser.parse_args(argv)
     options.freeze()

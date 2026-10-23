@@ -9,7 +9,7 @@ import logging
 import os
 from pathlib import Path
 import subprocess
-from typing import List, NamedTuple, Optional, TYPE_CHECKING, Union
+from typing import NamedTuple, Optional, TYPE_CHECKING, Union
 
 from chromite.third_party import requests
 
@@ -109,7 +109,7 @@ def _ValidateBinhostConf(path: Path, key: str) -> None:
 
 
 def _ValidatePrebuiltsFiles(
-    prebuilts_root: str, prebuilts_paths: List[str]
+    prebuilts_root: str, prebuilts_paths: list[str]
 ) -> None:
     """Validate all prebuilt files exist.
 
@@ -186,9 +186,9 @@ def GetPrebuiltsRoot(
 
 def GetPrebuiltsFiles(
     prebuilts_root: str,
-    package_index_paths: Optional[List[str]] = None,
+    package_index_paths: Optional[list[str]] = None,
     sudo=False,
-) -> List[str]:
+) -> list[str]:
     """Find paths to prebuilts at the given root directory.
 
     Assumes the root contains a Portage package index named Packages.
@@ -255,7 +255,7 @@ def UpdatePackageIndex(
 
 def _get_current_uris(
     conf_file_path: Union[str, "Path"], key: str
-) -> List[str]:
+) -> list[str]:
     """Returns the uri values of the key from the conf file.
 
     If the file does not exist, then it returns an empty list.
@@ -338,7 +338,7 @@ def RegenBuildCache(
     chroot: "chroot_lib.Chroot",
     overlay_type: str,
     buildroot: Union[str, Path] = constants.SOURCE_ROOT,
-) -> List[str]:
+) -> list[str]:
     """Regenerate the Build Cache for the given target.
 
     Args:
@@ -367,7 +367,7 @@ def RegenBuildCache(
 
 def GetPrebuiltAclArgs(
     build_target: "build_target_lib.BuildTarget",
-) -> List[List[str]]:
+) -> list[list[str]]:
     """Read and parse the GS ACL file from the private overlays.
 
     Args:
@@ -384,7 +384,7 @@ def GetPrebuiltAclArgs(
     if not acl_file:
         raise NoAclFileFound("No ACL file found for %s." % build_target.name)
 
-    lines = osutils.ReadFile(acl_file).splitlines()  # type: List[str]
+    lines: list[str] = osutils.ReadFile(acl_file).splitlines()
     # Remove comments.
     lines = [line.split("#", 1)[0].strip() for line in lines]
     # Remove empty lines.
@@ -393,7 +393,7 @@ def GetPrebuiltAclArgs(
     return [line.split() for line in lines]
 
 
-def GetBinhosts(build_target: "build_target_lib.BuildTarget") -> List[str]:
+def GetBinhosts(build_target: "build_target_lib.BuildTarget") -> list[str]:
     """Get the binhosts for the build target.
 
     Args:
@@ -410,7 +410,7 @@ def GetBinhosts(build_target: "build_target_lib.BuildTarget") -> List[str]:
     return binhosts.split() if binhosts else []
 
 
-def GetHostBinhosts() -> List[Optional[str]]:
+def GetHostBinhosts() -> list[Optional[str]]:
     """Get the binhosts for the host.
 
     Returns:
@@ -437,7 +437,7 @@ def GetHostBinhosts() -> List[Optional[str]]:
     return binhosts
 
 
-def ReadDevInstallPackageFile(filename: str) -> List[str]:
+def ReadDevInstallPackageFile(filename: str) -> list[str]:
     """Parse the dev-install package file.
 
     Args:
@@ -456,7 +456,7 @@ def ReadDevInstallFilesToCreatePackageIndex(
     package_index_path: str,
     upload_uri: str,
     upload_path: str,
-) -> List[str]:
+) -> list[str]:
     """Create dev-install Package index specified by package_index_path
 
     The current Packages file is read and a new Packages file is created based
@@ -506,7 +506,7 @@ def CreateChromePackageIndex(
     package_index_path: str,
     gs_bucket: str,
     upload_path: str,
-) -> List[str]:
+) -> list[str]:
     """Create Chrome package index specified by package_index_path.
 
     The current Packages file is read and a new Packages file is created based
@@ -570,7 +570,7 @@ def ConvertGsUploadUri(upload_uri: str) -> str:
 
 def CreateFilteredPackageIndex(
     package_path: str,
-    package_list: List[str],
+    package_list: list[str],
     package_index_path: str,
     upload_uri: str,
     upload_path: str,
@@ -615,8 +615,8 @@ def CreateFilteredPackageIndex(
 
 
 def GetPrebuiltsForPackages(
-    package_root: str, package_list: List[str]
-) -> List[str]:
+    package_root: str, package_list: list[str]
+) -> list[str]:
     """Create list of file paths for the package list and validate they exist.
 
     Args:
@@ -639,12 +639,12 @@ def GetPrebuiltsForPackages(
 class SnapshotShas(NamedTuple):
     """External and internal snapshot SHAs for the lookup service."""
 
-    external: List[Optional[str]]
-    internal: List[Optional[str]]
+    external: list[Optional[str]]
+    internal: list[Optional[str]]
 
 
 def _fetch_binhosts(
-    snapshot_shas: List[str],
+    snapshot_shas: list[str],
     build_target: str,
     profile: str,
     private: bool,
@@ -652,7 +652,7 @@ def _fetch_binhosts(
     generic_build_target: str,
     generic_profile: str,
     is_staging: bool = False,
-) -> List[Optional[str]]:
+) -> list[Optional[str]]:
     """Call the binhost lookup service to get locations of BINHOSTs.
 
     Args:
@@ -766,7 +766,7 @@ def _get_snapshot_shas() -> SnapshotShas:
     return snapshot_shas
 
 
-def _get_snapshot_shas_from_git_log(internal: bool) -> List[Optional[str]]:
+def _get_snapshot_shas_from_git_log(internal: bool) -> list[Optional[str]]:
     """Get the last n=_MAX_BINHOSTS snapshot SHAs using git log.
 
     We're intentionally swallowing errors related to determining the snapshot
@@ -813,7 +813,7 @@ def lookup_binhosts(
     binhost_lookup_service_data: Optional[
         prebuilts_cloud_pb2.BinhostLookupServiceData
     ] = None,
-) -> List[Optional[str]]:
+) -> list[Optional[str]]:
     """Get binhost locations from the binhost lookup service.
 
     Args:

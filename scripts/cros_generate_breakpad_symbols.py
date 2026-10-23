@@ -22,7 +22,7 @@ import multiprocessing
 import multiprocessing.sharedctypes
 import os
 import re
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
@@ -987,7 +987,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def parse_args(argv: Optional[List[str]]):
+def parse_args(argv: Optional[list[str]]):
     parser = get_parser()
     opts = parser.parse_args(argv)
 
@@ -998,7 +998,7 @@ def parse_args(argv: Optional[List[str]]):
     return opts
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     opts = parse_args(argv)
 
     ignore_expected_files = [

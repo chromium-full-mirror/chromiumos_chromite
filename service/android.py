@@ -10,7 +10,7 @@ import logging
 import os
 import re
 import time
-from typing import Dict, Iterable, Optional, Tuple, Union
+from typing import Iterable, Optional, Union
 
 from chromite.lib import constants
 from chromite.lib import gs
@@ -138,7 +138,7 @@ def GetAndroidBranchForPackage(android_package: str) -> str:
         raise ValueError(f'Unknown Android package "{android_package}"')
 
 
-def GetAndroidEbuildTargetsForPackage(android_package: str) -> Dict[str, str]:
+def GetAndroidEbuildTargetsForPackage(android_package: str) -> dict[str, str]:
     """Returns the ebuild targets map for given Android package.
 
     This is the mapping between Android ebuild variables and Android build
@@ -232,7 +232,7 @@ def GetLatestBuild(
     android_package: str,
     build_branch: Optional[str] = None,
     bucket_url: str = ANDROID_BUCKET_URL,
-) -> Union[Tuple[None, None], Tuple[str, dict]]:
+) -> Union[tuple[None, None], tuple[str, dict]]:
     """Searches the gs bucket for the latest green build.
 
     Args:
@@ -314,7 +314,7 @@ def CopyToArcBucket(
     android_package: str,
     build_branch: str,
     build_id: str,
-    subpaths: Dict[str, str],
+    subpaths: dict[str, str],
     arc_bucket_url: str,
     package_dir: str,
 ) -> None:

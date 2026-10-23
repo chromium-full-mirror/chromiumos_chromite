@@ -6,14 +6,14 @@
 
 import getpass
 import re
-from typing import Optional, Pattern, Sequence, Tuple
+from typing import Optional, Pattern, Sequence
 
 
 class Anonymizer:
     """Redact the personally identifiable information."""
 
     def __init__(
-        self, replacements: Optional[Sequence[Tuple[Pattern[str], str]]] = None
+        self, replacements: Optional[Sequence[tuple[Pattern[str], str]]] = None
     ) -> None:
         self._replacements = list(replacements or [])
         if getpass.getuser() != "root":

@@ -9,7 +9,7 @@ import logging
 import math
 from pathlib import Path
 import tempfile
-from typing import Iterator, List, Optional
+from typing import Iterator, Optional
 import uuid
 
 from chromite.lib import commandline
@@ -200,7 +200,7 @@ def convert_to_lvm_stateful(in_image_name: Path, out_image_name: Path) -> int:
         return 0
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     parser = get_parser()
     opts = parser.parse_args(argv)
     opts.freeze()

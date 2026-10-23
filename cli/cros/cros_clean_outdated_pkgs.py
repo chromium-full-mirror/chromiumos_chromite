@@ -8,7 +8,7 @@ import itertools
 import multiprocessing
 import os
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import chromite
 from chromite.cli import command
@@ -154,11 +154,11 @@ class CleanOutdatedCommand(command.CliCommand):
             parser.error("--host or --board=BOARD required")
 
     def find_outdated_packages(
-        self, board: Optional[str], pkgs: List[portage_util.InstalledPackage]
-    ) -> Dict[str, str]:
+        self, board: Optional[str], pkgs: list[portage_util.InstalledPackage]
+    ) -> dict[str, str]:
         """Returns CPVs and reasons of installed packages without an ebuild."""
         overlay_paths = OverlayPathFinder(board)
-        outdated_pkgs: Dict[str, str] = {}
+        outdated_pkgs: dict[str, str] = {}
         for pkg in pkgs:
             # We usually want to ignore toolchain packages.
             if not self.options.toolchain:
@@ -250,8 +250,8 @@ class CleanOutdatedCommand(command.CliCommand):
         self,
         root_path: str,
         board: Optional[str],
-        pkgs: List[portage_util.InstalledPackage],
-    ) -> Dict[str, str]:
+        pkgs: list[portage_util.InstalledPackage],
+    ) -> dict[str, str]:
         # Look at all InstalledPackages' DEPENDs with slots and find
         # unstatisfiable ones. We can look at all depends, but that is
         # slower, and should not be necessary, given that we just synced
@@ -262,19 +262,19 @@ class CleanOutdatedCommand(command.CliCommand):
             # Returns True if dep has a SLOT depenendcy that isn't "allow any".
             return ":" in dep and ":*" not in dep
 
-        def remove_use_flags_from_deps(deps: List[str]) -> List[str]:
+        def remove_use_flags_from_deps(deps: list[str]) -> list[str]:
             # Removes USE flags from deps in list of deps.
             return [dep.split("[")[0] for dep in deps]
 
-        def remove_slotless_deps(deps: List[str]) -> List[str]:
+        def remove_slotless_deps(deps: list[str]) -> list[str]:
             # Removes slotless deps from the list.
             return [dep for dep in deps if has_slot_dep(dep)]
 
-        def remove_negative_deps(deps: List[str]) -> List[str]:
+        def remove_negative_deps(deps: list[str]) -> list[str]:
             # Removes deps that start with '!' from the list.
             return [dep for dep in deps if not dep.startswith("!")]
 
-        def flatten_deps(deps: List[str]) -> List[str]:
+        def flatten_deps(deps: list[str]) -> list[str]:
             # Flattens the list without splitting strings
             return list(
                 itertools.chain.from_iterable(
@@ -304,8 +304,8 @@ class CleanOutdatedCommand(command.CliCommand):
                 continue
 
             def anyof_reduce_gatherer(
-                choices: List[str],
-            ) -> Union[str, None, Tuple[str, ...]]:
+                choices: list[str],
+            ) -> Union[str, None, tuple[str, ...]]:
                 """Reduce func for dep parser to gather dependencies."""
                 # If there is a slotless dep -> pick it, so it can be ignored
                 # later.
@@ -341,7 +341,7 @@ class CleanOutdatedCommand(command.CliCommand):
         logging.debug("All relevant slot depdendencies: %s", all_slot_deps)
 
         # Determine if dependencies are satisfiable in parallel.
-        slot_dep_sat: Dict[str, bool] = {}
+        slot_dep_sat: dict[str, bool] = {}
         deps_list = list(all_slot_deps)
         with multiprocessing.Pool(processes=os.cpu_count()) as pool:
             args_list = []
@@ -367,8 +367,8 @@ class CleanOutdatedCommand(command.CliCommand):
         # satisfied.
         def find_unsatisfiable_slot_deps(
             depend: pms_dependency.RootNode,
-        ) -> List[str]:
-            def anyof_reduce(choices: List[str]) -> Optional[str]:
+        ) -> list[str]:
+            def anyof_reduce(choices: list[str]) -> Optional[str]:
                 """Reduce func for dep parser."""
                 if not choices:
                     logging.fatal(
@@ -412,7 +412,7 @@ class CleanOutdatedCommand(command.CliCommand):
                 )
             )
 
-        conflicted_pkgs: Dict[str, str] = {}
+        conflicted_pkgs: dict[str, str] = {}
         for pkg in pkgs:
             # We usually want to ignore toolchain packages.
             if not self.options.toolchain:
@@ -443,8 +443,8 @@ class CleanOutdatedCommand(command.CliCommand):
         return conflicted_pkgs
 
     def filter_packages_to_purge(
-        self, board: Optional[str], pkgs: Dict[str, str]
-    ) -> Dict[str, str]:
+        self, board: Optional[str], pkgs: dict[str, str]
+    ) -> dict[str, str]:
         if not board:
             # Only filter system packages for SDK.
             pkgs_before = len(pkgs)
@@ -480,7 +480,7 @@ class CleanOutdatedCommand(command.CliCommand):
         return pkgs
 
     def purge_packages(
-        self, board: Optional[str], pkgs: Dict[str, str]
+        self, board: Optional[str], pkgs: dict[str, str]
     ) -> None:
         if not pkgs:
             logging.notice("No packages to purge")

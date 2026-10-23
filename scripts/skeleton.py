@@ -7,7 +7,7 @@
 TODO(skeleton): Rewrite file docblock.
 """
 
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import commandline
 
@@ -45,7 +45,7 @@ def _add_local_script_args(parser: commandline.ArgumentParser) -> None:
     parser.add_argument("packages", nargs="*", default=[])
 
 
-def parse_arguments(argv: Optional[List[str]]) -> commandline.ArgumentNamespace:
+def parse_arguments(argv: Optional[list[str]]) -> commandline.ArgumentNamespace:
     """Parse and validate arguments."""
     parser = get_parser()
     opts = parser.parse_args(argv)
@@ -54,7 +54,7 @@ def parse_arguments(argv: Optional[List[str]]) -> commandline.ArgumentNamespace:
     return opts
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     """Main."""
     # Uncomment for inside-only scripts.
     # TODO(skeleton) Delete or uncomment.

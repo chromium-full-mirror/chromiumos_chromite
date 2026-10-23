@@ -7,7 +7,7 @@
 import contextlib
 import logging
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Iterable, Optional
 
 from chromite.lib import build_target_lib
 from chromite.lib import constants
@@ -100,7 +100,7 @@ def sysroot_tarball_setup_checks(
 
 def _check_necessary_installed(
     atoms: Iterable[str], board_build_dir: Path
-) -> List[Tuple[str, str]]:
+) -> list[tuple[str, str]]:
     """Helper for checking the packages are installed."""
     match_gen = (
         (x, portage_util.PortageqMatch(x, sysroot=board_build_dir))
@@ -145,7 +145,7 @@ def create_dut_sysroot(
     device.run(untar_cmd)
 
 
-def add_default_fuzz_time(libfuzzer_options: Dict[str, Any]) -> Dict[str, Any]:
+def add_default_fuzz_time(libfuzzer_options: dict[str, Any]) -> dict[str, Any]:
     """Add default maximum fuzz time to the libfuzzer options if not set."""
     return {
         _MAX_TOTAL_TIME_OPTION_NAME: _MAX_TOTAL_TIME_DEFAULT_VALUE,
@@ -153,7 +153,7 @@ def add_default_fuzz_time(libfuzzer_options: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def _setup_envs(cmd: List[str]) -> List[str]:
+def _setup_envs(cmd: list[str]) -> list[str]:
     """Set environment variables for ASAN, MSAN, UBSAN for chroot cmds."""
     # We have to prepend these environment variables because they are
     # run as a string in the chroot.
@@ -206,7 +206,7 @@ def run_fuzzer_executable(
     device: remote_access.ChromiumOSDevice,
     sysroot_device_path: Path,
     sysroot_fuzzer_path: Path,
-    libfuzzer_options: Optional[Dict[str, Any]] = None,
+    libfuzzer_options: Optional[dict[str, Any]] = None,
 ) -> None:
     """Run a fuzzer on a device with an already set-up sysroot.
 

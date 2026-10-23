@@ -7,7 +7,7 @@
 import io
 import os
 import struct
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Optional, Union
 
 from chromite.third_party import lddtree
 from chromite.third_party.pyelftools.elftools.common import exceptions
@@ -24,7 +24,7 @@ def GetSymbolTableSize(elf: elffile.ELFFile) -> int:
     return 0
 
 
-def ParseELFSymbols(elf: elffile.ELFFile) -> Tuple[Set[bytes], Set[bytes]]:
+def ParseELFSymbols(elf: elffile.ELFFile) -> tuple[set[bytes], set[bytes]]:
     """Parses list of symbols in an ELF file.
 
     Args:
@@ -33,8 +33,8 @@ def ParseELFSymbols(elf: elffile.ELFFile) -> Tuple[Set[bytes], Set[bytes]]:
     Returns:
         A 2-tuple of (imported, exported) symbols, each of which is a set.
     """
-    imp: Set[bytes] = set()
-    exp: Set[bytes] = set()
+    imp: set[bytes] = set()
+    exp: set[bytes] = set()
 
     if elf.header.e_type not in ("ET_DYN", "ET_EXEC"):
         return imp, exp
@@ -109,9 +109,9 @@ def ParseELFSymbols(elf: elffile.ELFFile) -> Tuple[Set[bytes], Set[bytes]]:
 def ParseELF(
     root: Union[str, "os.PathLike[str]"],
     rel_path: Union[str, "os.PathLike[str]"],
-    ldpaths: Optional[Dict[str, List[str]]] = None,
+    ldpaths: Optional[dict[str, list[str]]] = None,
     parse_symbols: bool = False,
-) -> Optional[Dict[str, Any]]:
+) -> Optional[dict[str, Any]]:
     """Parse the ELF file.
 
     Loads and parses the passed elf file.
@@ -160,7 +160,7 @@ def ParseELF(
     if ldpaths is None:
         ldpaths = lddtree.LoadLdpaths(root)  # type: ignore[no-untyped-call]
 
-    result: Dict[str, Any] = lddtree.ParseELF(
+    result: dict[str, Any] = lddtree.ParseELF(
         os.path.join(root, rel_path), root=root, ldpaths=ldpaths
     )  # type: ignore[no-untyped-call]
     # Convert files to relative paths.

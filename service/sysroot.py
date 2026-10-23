@@ -16,9 +16,7 @@ import shutil
 import tempfile
 from typing import (
     Callable,
-    Dict,
     Generator,
-    List,
     NamedTuple,
     Optional,
     TYPE_CHECKING,
@@ -73,7 +71,7 @@ _CRITICAL_SDK_PACKAGES = (
     "sys-devel/gcc",
 )
 
-_PACKAGE_LIST = List[Optional[str]]
+_PACKAGE_LIST = list[Optional[str]]
 
 # The default to use for --backtrack everywhere. Must be manually changed in
 # update_chroot.
@@ -194,8 +192,8 @@ class BuildPackagesRunConfig:
     def __init__(
         self,
         usepkg: bool = True,
-        packages: Optional[List[str]] = None,
-        use_flags: Optional[List[str]] = None,
+        packages: Optional[list[str]] = None,
+        use_flags: Optional[list[str]] = None,
         use_remoteexec: bool = False,
         reproxy_cfg_file: str = "",
         use_siso: bool = False,
@@ -324,7 +322,7 @@ class BuildPackagesRunConfig:
 
         return " ".join(use_flags) if use_flags else None
 
-    def GetExtraEnv(self) -> Dict[str, str]:
+    def GetExtraEnv(self) -> dict[str, str]:
         """Get the extra env for this config."""
         env = {}
 
@@ -344,7 +342,7 @@ class BuildPackagesRunConfig:
 
         return env
 
-    def GetPackages(self) -> List[str]:
+    def GetPackages(self) -> list[str]:
         """Get the set of packages to build for this config."""
         if self.packages:
             return self.packages
@@ -481,7 +479,7 @@ class BuildPackagesRunConfig:
 
         return list(force_local_build_packages)
 
-    def GetEmergeFlags(self) -> List[str]:
+    def GetEmergeFlags(self) -> list[str]:
         """Get the emerge flags for this config."""
         flags = [
             "-uDNv",
@@ -649,7 +647,7 @@ def Create(
 
 
 def GenerateArchive(
-    output_dir: str, build_target_name: str, pkg_list: List[str]
+    output_dir: str, build_target_name: str, pkg_list: list[str]
 ) -> str:
     """Generate a sysroot tarball for informational builders.
 
@@ -681,7 +679,7 @@ def _create_sysroot(
     _sysroot_class,
     build_target: "build_target_lib.BuildTarget",
     output_dir: str,
-    package_list: List[str],
+    package_list: list[str],
     output_file: str,
     deps_only: bool = True,
 ) -> str:
@@ -1149,7 +1147,7 @@ def BuildPackages(
     portage_util.write_depgraph_counters_to_span(trace.get_current_span())
 
 
-def _LogBinhostAge(binhosts: List[str], date_threshold: int) -> None:
+def _LogBinhostAge(binhosts: list[str], date_threshold: int) -> None:
     """Log the age of the binhosts and suggest remediation steps if necessary.
 
     Args:
@@ -1217,9 +1215,9 @@ def _GetCrosWorkonPackages(sysroot: Union[str, os.PathLike]) -> _PACKAGE_LIST:
 
 def _GetBaseInstallPackages(
     sysroot: Union[str, os.PathLike],
-    emerge_flags: List[str],
-    packages: List[str],
-) -> List[Optional[str]]:
+    emerge_flags: list[str],
+    packages: list[str],
+) -> list[Optional[str]]:
     """Get packages to determine reverse dependencies for.
 
     Args:
@@ -1266,7 +1264,7 @@ def _GetBaseInstallPackages(
 
 def _GetEmergeCommand(
     sysroot: Optional[Union[str, os.PathLike]] = None,
-) -> List[Union[str, os.PathLike]]:
+) -> list[Union[str, os.PathLike]]:
     """Get the emerge command to use with `cros build-packages`."""
     # TODO(xcl): Convert to directly importing and calling a Python lib instead
     # of calling a binary.
@@ -1283,7 +1281,7 @@ def _GetEmergeCommand(
 
 def _GetFailedPackages(
     bazel_build_event_json_file: str, board: str
-) -> List[str]:
+) -> list[str]:
     """Reads the specified file and returns a list of failed packages.
 
     Each line of the input file is a JSON object which represents an event, and
@@ -1385,11 +1383,11 @@ def _PrintProcessTree() -> None:
 
 
 def _BazelBuild(
-    packages: List[str],
+    packages: list[str],
     target_name: str,
     bazel_lite: bool,
     bazel_use_remote_execution: bool,
-    extra_env: Dict[str, str],
+    extra_env: dict[str, str],
     timeout: int,
     pre_timeout_hook: Callable,
 ) -> None:
@@ -1816,7 +1814,7 @@ def BundleBreakpadSymbols(
     build_target: "build_target_lib.BuildTarget",
     output_dir: str,
     ignore_generation_errors: bool,
-    ignore_generation_expected_files: List[str],
+    ignore_generation_expected_files: list[str],
 ) -> Optional[str]:
     """Bundle breakpad debug symbols into a tarball for importing into GCE.
 
@@ -1889,7 +1887,7 @@ def CollectBazelPerformanceArtifacts(
     _sysroot_class: sysroot_lib.Sysroot,
     _build_target: "build_target_lib.BuildTarget",
     output_dir: str,
-) -> List[Path]:
+) -> list[Path]:
     """Copy Bazel performance artifacts into output_dir for importing into GCS.
 
     Copy the known set of Bazel performance artifacts into output_dir, so they
@@ -1951,7 +1949,7 @@ def GenerateBreakpadSymbols(
     build_target: "build_target_lib.BuildTarget",
     debug: bool,
     ignore_errors: bool,
-    ignore_expected_files: List[str],
+    ignore_expected_files: list[str],
 ) -> cros_build_lib.CompletedProcess:
     """Generate breakpad (go/breakpad) symbols for debugging.
 
@@ -1997,7 +1995,7 @@ def GenerateBreakpadSymbols(
 
 @metrics_lib.timed("service.sysroot.GatherSymbolFiles")
 def GatherSymbolFiles(
-    tempdir: str, destdir: str, paths: List[str]
+    tempdir: str, destdir: str, paths: list[str]
 ) -> Generator[SymbolFileTuple, None, None]:
     """Locate symbol files in |paths|
 

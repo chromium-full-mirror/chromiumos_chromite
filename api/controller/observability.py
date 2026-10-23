@@ -7,7 +7,7 @@
 The monitoring-related API endpoints should generally be found here.
 """
 
-from typing import Dict, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from chromite.api import faux
 from chromite.api import validate
@@ -61,8 +61,8 @@ def GetImageSizeData(
 
 def _build_package_size_output(
     image_type: str,
-    package_sizes: Dict[
-        str, Dict[observability_service.PackageIdentifier, Tuple[int, int]]
+    package_sizes: dict[
+        str, dict[observability_service.PackageIdentifier, tuple[int, int]]
     ],
     response: "observability_pb2.GetImageSizeDataResponse",
 ) -> None:

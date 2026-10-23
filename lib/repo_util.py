@@ -9,7 +9,7 @@ import contextlib
 import logging
 import os
 import re
-from typing import Generator, Iterable, List, Optional, Union
+from typing import Generator, Iterable, Optional, Union
 
 from chromite.lib import cros_build_lib
 from chromite.lib import git
@@ -158,7 +158,7 @@ class Repository:
 
     def _Run(
         self,
-        repo_cmd: List[str],
+        repo_cmd: list[str],
         cwd: Optional[Union[str, os.PathLike]] = None,
         capture_output: bool = False,
     ) -> cros_build_lib.CompletedProcess:
@@ -265,9 +265,9 @@ class Repository:
 
     def List(
         self,
-        projects: Optional[List[str]] = None,
+        projects: Optional[list[str]] = None,
         cwd: Optional[Union[str, os.PathLike]] = None,
-    ) -> List[ProjectInfo]:
+    ) -> list[ProjectInfo]:
         """Run `repo list` to get a list of ProjectInfos for synced projects.
 
         Note that this may produce a different list than Manifest().Projects()
@@ -407,7 +407,7 @@ class Repository:
             return Repository(dest_root)
 
 
-def _ListArg(arg: Optional[Iterable]) -> List:
+def _ListArg(arg: Optional[Iterable]) -> list:
     """Return a new list from arg.
 
     Args:

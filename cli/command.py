@@ -18,7 +18,7 @@ import importlib
 import logging
 import os
 import sys
-from typing import Any, Callable, Dict, Optional, Type
+from typing import Any, Callable, Optional, Type
 
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -220,7 +220,7 @@ class CommandGroup(CliCommand):
 
     # _SUBCOMMANDS is shared amongst child classes.  Maps id(cls) to subcommands
     # for that class.
-    _SUBCOMMANDS: Dict[int, Dict[str, Type[CliCommand]]] = {}
+    _SUBCOMMANDS: dict[int, dict[str, Type[CliCommand]]] = {}
     EPILOG = "Run a subcommand with --help for help on specific commands."
 
     @classmethod

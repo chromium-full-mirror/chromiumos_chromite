@@ -8,7 +8,7 @@ import dataclasses
 import enum
 import os
 from pathlib import Path
-from typing import Callable, Iterator, List, Optional, Union
+from typing import Callable, Iterator, Optional, Union
 
 from chromite.lib import chromite_config
 from chromite.lib import constants
@@ -576,8 +576,8 @@ def FromChrootPath(
 
 
 def normalize_paths_to_source_root(
-    source_paths: List[str], source_root: Path = constants.SOURCE_ROOT
-) -> List[str]:
+    source_paths: list[str], source_root: Path = constants.SOURCE_ROOT
+) -> list[str]:
     """Return the "normalized" list of source paths relative to |source_root|.
 
     Normalizing includes:
@@ -609,7 +609,7 @@ def normalize_paths_to_source_root(
     return results
 
 
-def ExpandDirectories(files: List[Path]) -> Iterator[Path]:
+def ExpandDirectories(files: list[Path]) -> Iterator[Path]:
     """Expand a list of files and directories to be files only.
 
     This function is intended to be called by tools which take a list of file

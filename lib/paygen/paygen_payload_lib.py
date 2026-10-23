@@ -15,7 +15,7 @@ import subprocess
 import tempfile
 import threading
 import time
-from typing import Dict, Iterable, List, Optional, Tuple, Union
+from typing import Iterable, Optional, Union
 
 from chromite.third_party.google.protobuf import json_format
 
@@ -330,7 +330,7 @@ class PaygenPayload:
             cache_dir, cache_size=PaygenPayload.CACHE_SIZE
         )
 
-    def _SetupNewFileNames(self) -> Tuple[str, str]:
+    def _SetupNewFileNames(self) -> tuple[str, str]:
         """Initializes files with static names or with random suffixes.
 
         Returns:
@@ -678,7 +678,7 @@ class PaygenPayload:
         else:
             raise Error("Invalid image type %s" % tgt_image_type)
 
-    def _GetPartitionFiles(self, partition_names: List[str]) -> None:
+    def _GetPartitionFiles(self, partition_names: list[str]) -> None:
         """Creates the target and source file paths for each partition.
 
         Args:
@@ -910,7 +910,7 @@ class PaygenPayload:
         # This can take a very long time with no output, so wrap the call.
         self._RunGeneratorCmd(cmd, squawk_wrap=True)
 
-    def _GenerateHashes(self, payload_file: str) -> Tuple[bytes, bytes]:
+    def _GenerateHashes(self, payload_file: str) -> tuple[bytes, bytes]:
         """Generate a payload hash and a metadata hash.
 
         Works from an unsigned update payload.
@@ -953,7 +953,7 @@ class PaygenPayload:
         logging.error(msg)
         raise UnexpectedSignerResultsError(msg)
 
-    def _SignHashes(self, hashes: List[bytes]) -> List[List[bytes]]:
+    def _SignHashes(self, hashes: list[bytes]) -> list[list[bytes]]:
         """Get the signer to sign the hashes with the update payload key via GS.
 
         May sign each hash with more than one key, based on how many keysets are
@@ -1019,7 +1019,7 @@ class PaygenPayload:
 
         return hashes_sigs
 
-    def _WriteSignaturesToFile(self, signatures: List[bytes]) -> List[str]:
+    def _WriteSignaturesToFile(self, signatures: list[bytes]) -> list[str]:
         """Write each signature into a temp file in the chroot.
 
         Args:
@@ -1043,8 +1043,8 @@ class PaygenPayload:
     def _InsertSignaturesIntoPayload(
         self,
         payload_file: str,
-        payload_signatures: List[bytes],
-        metadata_signatures: List[bytes],
+        payload_signatures: list[bytes],
+        metadata_signatures: list[bytes],
     ) -> str:
         """Put payload and metadata signatures into the payload we sign.
 
@@ -1084,7 +1084,7 @@ class PaygenPayload:
         return signed_payload_file
 
     def _StoreMetadataSignatures(
-        self, metadata_signature_file: str, signatures: List[bytes]
+        self, metadata_signature_file: str, signatures: list[bytes]
     ) -> None:
         """Store metadata signatures related to the payload.
 
@@ -1193,7 +1193,7 @@ class PaygenPayload:
     def _StorePayloadJson(
         self,
         payload_file: str,
-        metadata_signatures: List[bytes],
+        metadata_signatures: list[bytes],
         appid: str,
     ) -> None:
         """Generate the payload description json file.
@@ -1251,7 +1251,7 @@ class PaygenPayload:
 
     def _SignPayload(
         self, payload_file: str
-    ) -> Tuple[Tuple[str, List[bytes], Tuple[str, List[bytes]]]]:
+    ) -> tuple[tuple[str, list[bytes], tuple[str, list[bytes]]]]:
         """Wrap all the steps for signing an existing payload.
 
         Returns:
@@ -1429,7 +1429,7 @@ class PaygenPayload:
         self,
         payload_file: str,
         appid: str,
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         """Sign and finalize metadata for the given payload.
 
         Args:
@@ -1592,7 +1592,7 @@ class PaygenPayload:
 
         return self._Create(payload_file, part_a=part_a)
 
-    def CreateUnsignedPayloads(self) -> Dict[int, payload_pb2.UnsignedPayload]:
+    def CreateUnsignedPayloads(self) -> dict[int, payload_pb2.UnsignedPayload]:
         """Create unsigned payload(s).
 
         Returns:
@@ -1640,7 +1640,7 @@ class PaygenPayload:
 
     def _FinalizePayload(
         self, payload: payload_pb2.UnsignedPayload
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         """Helper method for FinalizePayloads to finalize a payload.
 
         Returns:
@@ -1668,7 +1668,7 @@ class PaygenPayload:
 
     def FinalizePayloads(
         self, payload_info: Iterable["payload_pb2.UnsignedPayload"]
-    ) -> Dict[int, Tuple[str, str]]:
+    ) -> dict[int, tuple[str, str]]:
         """Sign, verify, and upload the given payload.
 
         Args:
@@ -1708,7 +1708,7 @@ def GenerateUpdatePayload(
     private_key: Optional[str] = None,
     check: bool = False,
     minios: bool = False,
-) -> List[str]:
+) -> list[str]:
     """Generates output payload and verifies its integrity if needed.
 
     Args:

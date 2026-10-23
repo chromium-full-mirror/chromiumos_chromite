@@ -7,7 +7,7 @@
 import os
 from pathlib import Path
 import re
-from typing import Iterator, List
+from typing import Iterator
 
 from chromite.lib import constants
 from chromite.lib import path_util
@@ -16,7 +16,7 @@ from chromite.lib import portage_util
 
 def build_target(
     prefix, action, parser, parsed_args  # pylint: disable=unused-argument
-) -> List[str]:
+) -> list[str]:
     """List all possible build targets."""
     RE_NAME = re.compile(r"^overlay-(.*?)(-private)?$")
     overlay_paths = portage_util.FindOverlays(constants.BOTH_OVERLAYS)

@@ -10,7 +10,7 @@ determine what the current LKGM version is.
 
 import logging
 import os
-from typing import Optional, Tuple
+from typing import Optional
 
 from chromite.lib import chromeos_version
 from chromite.lib import constants
@@ -41,7 +41,7 @@ class MissingLkgmFile(Error):
         super().__init__(f"Cannot parse CHROMEOS_LKGM file: {path}")
 
 
-def GetChromeLkgm(chrome_src_dir: str = "") -> Tuple[str, Optional[int]]:
+def GetChromeLkgm(chrome_src_dir: str = "") -> tuple[str, Optional[int]]:
     """Get the CHROMEOS LKGM checked into the Chrome tree.
 
     Args:

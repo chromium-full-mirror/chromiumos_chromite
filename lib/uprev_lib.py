@@ -16,10 +16,8 @@ import sys
 from typing import (
     Collection,
     Iterable,
-    List,
     NamedTuple,
     Optional,
-    Tuple,
     TYPE_CHECKING,
     Union,
 )
@@ -132,7 +130,7 @@ class ChromeEBuild(portage_util.EBuild):
         return settings.get("GIT_COMMIT", "")
 
 
-def get_version_from_refs(refs: List[GitRef]) -> Tuple[str, str]:
+def get_version_from_refs(refs: list[GitRef]) -> tuple[str, str]:
     """Get the version to use from the list of provided tags.
 
     Version strings are of format "78.0.3876.1".
@@ -220,7 +218,7 @@ def best_version(versions: Collection[str]) -> str:
     if not versions:
         raise NoVersionsError("|versions| must not be empty.")
 
-    def _parse_version(ver: str) -> Tuple[int, int, int, int, int]:
+    def _parse_version(ver: str) -> tuple[int, int, int, int, int]:
         if ver == "9999":
             return (sys.maxsize, 0, 0, 0, 0)
         m = CHROME_VERSION_RE.match(ver)
@@ -240,7 +238,7 @@ def best_version(versions: Collection[str]) -> str:
     return vermap[max(vermap)]
 
 
-def best_chrome_ebuild(ebuilds: List[ChromeEBuild]) -> ChromeEBuild:
+def best_chrome_ebuild(ebuilds: list[ChromeEBuild]) -> ChromeEBuild:
     """Determine the best/newest chrome ebuild from a list of ebuilds."""
     if not ebuilds:
         raise NoEbuildsError("|ebuilds| must not be empty.")
@@ -263,7 +261,7 @@ def best_chrome_ebuild(ebuilds: List[ChromeEBuild]) -> ChromeEBuild:
     return best
 
 
-def get_stable_chrome_version() -> Tuple[str, str]:
+def get_stable_chrome_version() -> tuple[str, str]:
     """Get the Chrome version from the latest, stable chrome ebuild."""
     ebuild = _get_best_stable_chrome_ebuild()
     return ebuild.chrome_version, ebuild.commit_hash
@@ -277,7 +275,7 @@ def _get_best_stable_chrome_ebuild() -> ChromeEBuild:
 
 
 def _get_best_stable_chrome_ebuild_from_ebuilds(
-    stable_ebuilds: List[ChromeEBuild],
+    stable_ebuilds: list[ChromeEBuild],
 ) -> Optional[ChromeEBuild]:
     """Get the highest versioned chrome ebuild from a list of stable ebuilds."""
     candidates = []
@@ -293,7 +291,7 @@ def _get_best_stable_chrome_ebuild_from_ebuilds(
 
 def find_chrome_ebuilds(
     package_dir: str,
-) -> Tuple[ChromeEBuild, List[ChromeEBuild]]:
+) -> tuple[ChromeEBuild, list[ChromeEBuild]]:
     """Return a tuple of chrome's unstable ebuild and stable ebuilds.
 
     Args:
@@ -369,7 +367,7 @@ class UprevResult:
     """
 
     outcome: Outcome
-    changed_files: List[str]
+    changed_files: list[str]
 
     def __init__(
         self, outcome: Outcome, changed_files: Optional[Iterable[str]] = None
@@ -428,7 +426,7 @@ class UprevChromeManager:
         self,
         version: str,
         commit_hash: str,
-        build_targets: List["build_target_lib.BuildTarget"] = None,
+        build_targets: list["build_target_lib.BuildTarget"] = None,
         overlay_dir: str = None,
         chroot: chroot_lib.Chroot = None,
     ) -> None:
@@ -441,7 +439,7 @@ class UprevChromeManager:
         self._chroot = chroot
 
     @property
-    def modified_ebuilds(self) -> List[str]:
+    def modified_ebuilds(self) -> list[str]:
         """The list of ebuilds modified during the uprev."""
         return self._new_ebuild_files + self._removed_ebuild_files
 
@@ -483,8 +481,8 @@ class UprevChromeManager:
         return result
 
     def _find_chrome_uprev_candidate(
-        self, stable_ebuilds: List[ChromeEBuild]
-    ) -> Tuple[bool, Optional[ChromeEBuild]]:
+        self, stable_ebuilds: list[ChromeEBuild]
+    ) -> tuple[bool, Optional[ChromeEBuild]]:
         """Find the ebuild to replace.
 
         Args:
@@ -630,9 +628,9 @@ class UprevOverlayManager:
 
     def __init__(
         self,
-        overlays: List[str],
+        overlays: list[str],
         manifest: git.ManifestCheckout,
-        build_targets: List["build_target_lib.BuildTarget"] = None,
+        build_targets: list["build_target_lib.BuildTarget"] = None,
         chroot: chroot_lib.Chroot = None,
         output_dir: str = None,
         source_root: "Path" = constants.SOURCE_ROOT,
@@ -669,7 +667,7 @@ class UprevOverlayManager:
         self._reject_self_repo = root_version >= no_self_repos_version
 
     @property
-    def modified_ebuilds(self) -> List[str]:
+    def modified_ebuilds(self) -> list[str]:
         """Get the list of ebuilds modified by the uprev."""
         if self._new_ebuild_files is not None:
             return self._new_ebuild_files + self._removed_ebuild_files
@@ -677,12 +675,12 @@ class UprevOverlayManager:
             return []
 
     @property
-    def revved_packages(self) -> List[str]:
+    def revved_packages(self) -> list[str]:
         """Get the list of packages uprevved by the uprev."""
         return self._revved_packages or []
 
     def uprev(
-        self, package_list: List[str] = None, force: bool = False
+        self, package_list: list[str] = None, force: bool = False
     ) -> None:
         """Uprev ebuilds.
 
@@ -805,7 +803,7 @@ class UprevOverlayManager:
     def _populate_overlay_ebuilds(
         self,
         use_all: bool = True,
-        package_list: List[str] = None,
+        package_list: list[str] = None,
         force: bool = False,
     ) -> None:
         """Populates the overlay to ebuilds mapping.
@@ -852,7 +850,7 @@ class UprevOverlayManager:
 
 def clean_stale_packages(
     new_package_atoms,
-    build_targets: List["build_target_lib.BuildTarget"],
+    build_targets: list["build_target_lib.BuildTarget"],
     chroot: chroot_lib.Chroot = None,
 ) -> None:
     """Cleans up stale package info from a previous build."""
@@ -915,7 +913,7 @@ class UprevVersionedModifications(NamedTuple):
     """Data object for versioned uprev modifications."""
 
     new_version: str
-    files: List[str]
+    files: list[str]
     additional_commit_info: str = ""
 
 
@@ -966,7 +964,7 @@ class UprevVersionedResult:
 
 def _get_ebuilds(
     package_path: str,
-) -> Tuple[portage_util.EBuild, portage_util.EBuild]:
+) -> tuple[portage_util.EBuild, portage_util.EBuild]:
     """Get stable and unstable ebuilds for a given package path.
 
     Args:

@@ -16,7 +16,7 @@ import enum
 import logging
 import os
 from pathlib import Path
-from typing import Any, Iterable, Iterator, List, Optional, Set, Union
+from typing import Any, Iterable, Iterator, Optional, Union
 
 from chromite.lib import build_target_lib
 from chromite.lib.parser import package_info
@@ -309,7 +309,7 @@ class DependencyGraph:
         self,
         nodes: Iterable[PackageNode],
         sysroot: Union[str, "sysroot_lib.Sysroot"],
-        root_packages: List[Union[str, package_info.PackageInfo]],
+        root_packages: list[Union[str, package_info.PackageInfo]],
     ) -> None:
         """DependencyGraph init.
 
@@ -445,7 +445,7 @@ class DependencyGraph:
         for dep in node.dependencies:
             self._add_node(dep)
 
-    def _get_roots(self, root: RootType = RootType.ALL) -> Set[str]:
+    def _get_roots(self, root: RootType = RootType.ALL) -> set[str]:
         """Helper to translate RootType value to a set of roots."""
         if root is RootType.SDK:
             return self._roots & {self.sdk_root}
@@ -478,7 +478,7 @@ class DependencyGraph:
         self,
         pkgs: Optional[Iterable[Union[package_info.PackageInfo, str]]] = None,
         root_type: RootType = RootType.ALL,
-    ) -> List[PackageNode]:
+    ) -> list[PackageNode]:
         """Get all nodes matching the given packages and root type.
 
         If no |pkgs| are specified will return all nodes for the given
@@ -573,7 +573,7 @@ class DependencyGraph:
         self,
         src_paths: Iterable[Union[str, os.PathLike]],
         root_type: RootType = RootType.ALL,
-    ) -> List[PackageNode]:
+    ) -> list[PackageNode]:
         """Get nodes with matching root where any |src_paths| is relevant."""
         return [
             x

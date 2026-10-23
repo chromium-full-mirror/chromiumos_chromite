@@ -24,7 +24,6 @@ import shlex
 import signal
 import subprocess
 import sys
-from typing import List, Set, Tuple
 import urllib.parse
 
 from chromite.lib import chromite_config
@@ -202,7 +201,7 @@ def limits(cls):
     return lims
 
 
-def process_add_remove_lists(items: List[str]) -> Tuple[Set[str], Set[str]]:
+def process_add_remove_lists(items: list[str]) -> tuple[set[str], set[str]]:
     """Split |items| into "add" and "remove" lists.
 
     Invalid items will cause the program to exit with an error message.

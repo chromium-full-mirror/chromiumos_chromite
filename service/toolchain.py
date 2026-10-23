@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
-from typing import Dict, Iterable, List, NamedTuple, Optional, Set, Tuple
+from typing import Iterable, NamedTuple, Optional
 
 from chromite.lib import chroot_util
 from chromite.lib import cros_build_lib
@@ -148,16 +148,16 @@ class BuildLinter:
 
     def __init__(
         self,
-        packages: List[package_info.PackageInfo],
+        packages: list[package_info.PackageInfo],
         sysroot: str,
         differential: bool = False,
         validate: bool = True,
     ) -> None:
-        self.packages: List[package_info.PackageInfo] = packages
+        self.packages: list[package_info.PackageInfo] = packages
         self.sysroot: str = sysroot
         self.differential: bool = differential
 
-        self.package_atoms: List[str] = [package.atom for package in packages]
+        self.package_atoms: list[str] = [package.atom for package in packages]
 
         if not cros_build_lib.IsInsideChroot():
             raise NotChrootError()
@@ -178,7 +178,7 @@ class BuildLinter:
         use_clippy: bool = True,
         use_tidy: bool = True,
         use_staticcheck: bool = True,
-    ) -> List[LinterFinding]:
+    ) -> list[LinterFinding]:
         """Emerge packages with linter features enabled and fetch the lints.
 
         Args:
@@ -256,7 +256,7 @@ class BuildLinter:
         use_clippy: bool = True,
         use_tidy: bool = True,
         use_staticcheck: bool = True,
-    ) -> List[LinterFinding]:
+    ) -> list[LinterFinding]:
         """Fetch clippy and tidy lints after previously emerging with linting.
 
         Args:
@@ -291,8 +291,8 @@ class BuildLinter:
             osutils.RmDir(cache_files_dir, ignore_missing=True, sudo=True)
 
     def _filter_linter_findings(
-        self, findings: List[LinterFinding]
-    ) -> List[LinterFinding]:
+        self, findings: list[LinterFinding]
+    ) -> list[LinterFinding]:
         """Filters findings to keep only those concerning modified lines."""
         repo_paths = self._get_git_repo_paths()
         if not repo_paths:
@@ -315,8 +315,8 @@ class BuildLinter:
         return [x for x in findings if is_finding_in_new_lines(x)]
 
     def _get_added_lines(
-        self, git_repos: Dict[str, str]
-    ) -> Dict[str, Set[Tuple[int, int]]]:
+        self, git_repos: dict[str, str]
+    ) -> dict[str, set[tuple[int, int]]]:
         """Parses the lines with additions from git diff for the provided repos.
 
         Args:
@@ -373,7 +373,7 @@ class BuildLinter:
                     )
         return new_lines
 
-    def _fetch_clippy_lints(self) -> List[LinterFinding]:
+    def _fetch_clippy_lints(self) -> list[LinterFinding]:
         """Get lints created by Cargo Clippy during emerge."""
         cros_build_lib.AssertInsideChroot()
 
@@ -411,7 +411,7 @@ class BuildLinter:
             )
         return findings_tuples
 
-    def _fetch_tidy_lints(self) -> Set[LinterFinding]:
+    def _fetch_tidy_lints(self) -> set[LinterFinding]:
         """Get lints created by Clang Tidy during emerge."""
         cros_build_lib.AssertInsideChroot()
 
@@ -440,7 +440,7 @@ class BuildLinter:
 
     def _fetch_tidy_lints_from_json(
         self, json_path: Path, package_atom: str
-    ) -> Set[LinterFinding]:
+    ) -> set[LinterFinding]:
         """Fetches Tidy findings for the invocation described by the json."""
         invocation_result = tricium_clang_tidy.parse_tidy_invocation(json_path)
         if isinstance(invocation_result, tricium_clang_tidy.ExceptionData):
@@ -461,9 +461,9 @@ class BuildLinter:
 
     def _parse_tidy_diagnostics(
         self,
-        diagnostics: List["tricium_clang_tidy.TidyDiagnostic"],
+        diagnostics: list["tricium_clang_tidy.TidyDiagnostic"],
         package_atom: str,
-    ) -> Set[LinterFinding]:
+    ) -> set[LinterFinding]:
         """Parse diagnostics from Clang Tidy into LinterFindings objects."""
 
         package = package_info.parse(package_atom)
@@ -521,7 +521,7 @@ class BuildLinter:
             findings.add(finding)
         return findings
 
-    def _fetch_staticcheck_lints(self) -> List[LinterFinding]:
+    def _fetch_staticcheck_lints(self) -> list[LinterFinding]:
         """Get lints created by Staticcheck during emerge."""
         cros_build_lib.AssertInsideChroot()
 
@@ -534,7 +534,7 @@ class BuildLinter:
         return findings
 
     def _parse_staticcheck_files(
-        self, files: List[str], package_atom: str
+        self, files: list[str], package_atom: str
     ) -> Iterable[LinterFinding]:
         """Parse files in the given directory for Staticcheck lints."""
         package = package_info.parse(package_atom)
@@ -596,7 +596,7 @@ class BuildLinter:
 
             packages_seen.add(package_name)
 
-    def _fetch_from_linting_artifacts(self, subdir) -> Dict[str, List[str]]:
+    def _fetch_from_linting_artifacts(self, subdir) -> dict[str, list[str]]:
         """Get file from emerge artifact directory."""
         cros_build_lib.AssertInsideChroot()
         base_dir = Path(self.sysroot) / BuildLinter.BASE_DIR

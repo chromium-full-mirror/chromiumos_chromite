@@ -24,11 +24,9 @@ import types
 from typing import (
     Any,
     Callable,
-    Dict,
     Generator,
     Iterable,
     Iterator,
-    List,
     Optional,
     Type,
     Union,
@@ -984,7 +982,7 @@ def Which(
     return None
 
 
-def FindMissingBinaries(needed_tools: Iterable[str]) -> List[str]:
+def FindMissingBinaries(needed_tools: Iterable[str]) -> list[str]:
     """Verifies that the required tools are present on the system.
 
     This is especially important for scripts that are intended to run
@@ -1529,7 +1527,7 @@ def UmountTree(
         UmountDir(mount_pt, lazy=lazy, cleanup=cleanup)
 
 
-def SetEnvironment(env: Dict[str, str]) -> None:
+def SetEnvironment(env: dict[str, str]) -> None:
     """Restore the environment variables to that of passed in dictionary."""
     os.environ.clear()
     os.environ.update(env)

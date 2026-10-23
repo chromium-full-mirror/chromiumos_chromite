@@ -4,7 +4,7 @@
 
 """Payload API Service."""
 
-from typing import Dict, Tuple, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union
 
 from chromite.api import controller
 from chromite.api import faux
@@ -46,7 +46,7 @@ def _ValidateImages(
         payload_pb2.GenerateUnsignedPayloadRequest,
         payload_pb2.FinalizePayloadRequest,
     ],
-) -> Tuple[
+) -> tuple[
     Union[
         payload_pb2.UnsignedImage,
         payload_pb2.SignedImage,
@@ -174,7 +174,7 @@ def GeneratePayload(
 
 
 def _SuccessfulPaygen(
-    artifacts: Dict[int, Tuple[str, str]], dryrun: bool
+    artifacts: dict[int, tuple[str, str]], dryrun: bool
 ) -> bool:
     """Check to see if the payload generation was successful.
 
@@ -193,7 +193,7 @@ def _SuccessfulPaygen(
 
 def _SetGeneratePayloadOutputProto(
     response: payload_pb2.GenerationResponse,
-    artifacts: Dict[int, Tuple[str, str]],
+    artifacts: dict[int, tuple[str, str]],
 ) -> None:
     """Set the output proto with the results from the service class.
 
@@ -276,7 +276,7 @@ def GenerateUnsignedPayload(
 
 
 def _SuccessfulUnsignedPaygen(
-    unsigned_payloads: Dict[int, payload_pb2.UnsignedPayload],
+    unsigned_payloads: dict[int, payload_pb2.UnsignedPayload],
 ) -> bool:
     """Check to see if the payload generation was successful.
 

@@ -5,13 +5,12 @@
 """Provide build information for language support in Cider G."""
 
 from pathlib import Path
-from typing import List
 
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 
 
-def parse_args(argv: List[str]) -> commandline.ArgumentParser:
+def parse_args(argv: list[str]) -> commandline.ArgumentParser:
     """Parse command-line args."""
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_bool_argument(
@@ -38,7 +37,7 @@ def parse_args(argv: List[str]) -> commandline.ArgumentParser:
     return parser.parse_args(argv)
 
 
-def main(argv: List[str]) -> None:
+def main(argv: list[str]) -> None:
     cros_build_lib.AssertOutsideChroot()
     args = parse_args(argv)
     raise NotImplementedError(args)

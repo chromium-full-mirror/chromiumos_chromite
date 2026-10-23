@@ -21,7 +21,7 @@ import re
 import signal
 import sys
 import types
-from typing import Callable, List, NamedTuple, NoReturn, Optional, Union
+from typing import Callable, NamedTuple, NoReturn, Optional, Union
 import urllib.parse
 
 from chromite.lib import constants
@@ -297,7 +297,7 @@ class DeviceParser:
 
     def __init__(
         self,
-        schemes: Optional[Union[DeviceScheme, List]] = None,
+        schemes: Optional[Union[DeviceScheme, list]] = None,
     ) -> None:
         """Initializes the parser.
 
@@ -1501,7 +1501,7 @@ def RunInsideChroot(command=None, chroot_args=None) -> None:
     raise ChrootRequiredError(argv, chroot_args)
 
 
-def RunAsRootUser(argv: List[str], preserve_env: bool = False) -> None:
+def RunAsRootUser(argv: list[str], preserve_env: bool = False) -> None:
     """Run the given command as the root user.
 
     Args:
@@ -1632,7 +1632,7 @@ def ScriptWrapperMain(
 
 
 def _execute_target(
-    target: Callable[[List[str]], Optional[int]], argv: List[str], name: str
+    target: Callable[[list[str]], Optional[int]], argv: list[str], name: str
 ) -> NoReturn:
     """Execute |target| with |argv|."""
     ret = 1

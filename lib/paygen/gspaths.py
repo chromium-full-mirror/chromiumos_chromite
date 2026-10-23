@@ -18,7 +18,7 @@ import enum
 import logging
 import os
 import re
-from typing import Any, ClassVar, List, Mapping, Union
+from typing import Any, ClassVar, Mapping, Union
 
 from chromite.lib import cros_build_lib
 from chromite.lib.paygen import utils
@@ -1084,7 +1084,7 @@ class ChromeosImageArchive:
         return "gs://%s/%s-release/R%s-%s" % (bucket, board, milestone, version)
 
 
-def VersionKey(version: str) -> List[int]:
+def VersionKey(version: str) -> list[int]:
     """Convert a version string to a comparable value.
 
     All old style values are considered older than all new style values.

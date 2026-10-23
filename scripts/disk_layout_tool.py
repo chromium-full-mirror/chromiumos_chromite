@@ -29,13 +29,13 @@ import argparse
 import inspect
 import os
 import sys
-from typing import List, Union
+from typing import Union
 
 from chromite.lib import disk_layout
 
 
 def WritePartitionScript(
-    options: List[str],
+    options: list[str],
     image_type: str,
     layout_filename: Union[str, os.PathLike],
     sfilename: Union[str, os.PathLike],
@@ -57,7 +57,7 @@ def WritePartitionScript(
 
 
 def GetBlockSize(
-    _options: List[str], layout_filename: Union[str, os.PathLike]
+    _options: list[str], layout_filename: Union[str, os.PathLike]
 ) -> str:
     """Returns the partition table block size.
 
@@ -73,7 +73,7 @@ def GetBlockSize(
 
 
 def GetFilesystemBlockSize(
-    _options: List[str], layout_filename: Union[str, os.PathLike]
+    _options: list[str], layout_filename: Union[str, os.PathLike]
 ) -> str:
     """Returns the filesystem block size.
 
@@ -91,7 +91,7 @@ def GetFilesystemBlockSize(
 
 
 def GetPartitionSize(
-    options: List[str],
+    options: list[str],
     image_type: str,
     layout_filename: Union[str, os.PathLike],
     num: str,
@@ -114,7 +114,7 @@ def GetPartitionSize(
 
 
 def GetFilesystemFormat(
-    options: List[str],
+    options: list[str],
     image_type: str,
     layout_filename: Union[str, os.PathLike],
     num: str,
@@ -137,7 +137,7 @@ def GetFilesystemFormat(
 
 
 def GetFilesystemSize(
-    options: List[str],
+    options: list[str],
     image_type: str,
     layout_filename: Union[str, os.PathLike],
     num: str,
@@ -162,7 +162,7 @@ def GetFilesystemSize(
 
 
 def GetImageTypes(
-    _options: List[str], layout_filename: Union[str, os.PathLike]
+    _options: list[str], layout_filename: Union[str, os.PathLike]
 ) -> str:
     """Returns a list of all the image types in the layout.
 
@@ -179,7 +179,7 @@ def GetImageTypes(
 
 
 def GetFilesystemOptions(
-    options: List[str],
+    options: list[str],
     image_type: str,
     layout_filename: Union[str, os.PathLike],
     num: str,
@@ -202,7 +202,7 @@ def GetFilesystemOptions(
 
 
 def GetLabel(
-    options: List[str],
+    options: list[str],
     image_type: str,
     layout_filename: Union[str, os.PathLike],
     num: str,
@@ -225,7 +225,7 @@ def GetLabel(
 
 
 def GetNumber(
-    options: List[str],
+    options: list[str],
     image_type: str,
     layout_filename: Union[str, os.PathLike],
     label,
@@ -248,7 +248,7 @@ def GetNumber(
 
 
 def GetReservedEraseBlocks(
-    options: List[str],
+    options: list[str],
     image_type: str,
     layout_filename: Union[str, os.PathLike],
     num: str,
@@ -271,7 +271,7 @@ def GetReservedEraseBlocks(
 
 
 def GetType(
-    options: List[str],
+    options: list[str],
     image_type: str,
     layout_filename: Union[str, os.PathLike],
     num: str,
@@ -294,7 +294,7 @@ def GetType(
 
 
 def GetPartitions(
-    options: List[str],
+    options: list[str],
     image_type: str,
     layout_filename: Union[str, os.PathLike],
 ) -> str:
@@ -315,7 +315,7 @@ def GetPartitions(
 
 
 def GetUUID(
-    options: List[str],
+    options: list[str],
     image_type: str,
     layout_filename: Union[str, os.PathLike],
     num: str,
@@ -338,7 +338,7 @@ def GetUUID(
 
 
 def DoDebugOutput(
-    options: List[str],
+    options: list[str],
     layout_filename: Union[str, os.PathLike],
     image_type: str,
 ):
@@ -356,7 +356,7 @@ def DoDebugOutput(
 
 
 def GetVerityHashAlgo(
-    _options: List[str], layout_filename: Union[str, "os.PathLike[str]"]
+    _options: list[str], layout_filename: Union[str, "os.PathLike[str]"]
 ) -> str:
     """Return hashing algo to be used with verity.
 

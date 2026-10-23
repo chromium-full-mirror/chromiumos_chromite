@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 import time
 import traceback
-from typing import List, NamedTuple, Set, TYPE_CHECKING, Union
+from typing import NamedTuple, TYPE_CHECKING, Union
 
 from chromite.api import controller
 from chromite.api import faux
@@ -112,12 +112,12 @@ LOCATION_FACTORY = "factory_shim"
 class ImageTypes(NamedTuple):
     """Parsed image types."""
 
-    images: Set[str]
-    vms: Set[int]
-    mod_images: Set[int]
+    images: set[str]
+    vms: set[int]
+    mod_images: set[int]
 
     @property
-    def core_images(self) -> List[str]:
+    def core_images(self) -> list[str]:
         """The core images (base/dev/test) as a list."""
         return list(self.images - {_IMAGE_MAPPING[_FACTORY_ID]}) or []
 
@@ -127,7 +127,7 @@ class ImageTypes(NamedTuple):
         return _IMAGE_MAPPING[_FACTORY_ID] in self.images
 
     @property
-    def factory(self) -> List[str]:
+    def factory(self) -> list[str]:
         """A list with the factory type if set."""
         return [_IMAGE_MAPPING[_FACTORY_ID]] if self.has_factory else []
 
@@ -446,7 +446,7 @@ def _parse_img_metrics_to_response(
         event.name = f"{board}.package_size.base.rootfs.{pkg}"
 
 
-def _ParseImagesToCreate(to_build: List[int]) -> ImageTypes:
+def _ParseImagesToCreate(to_build: list[int]) -> ImageTypes:
     """Helper function to parse the image types to build.
 
     This function expresses the dependencies of each image type and adds

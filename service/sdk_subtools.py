@@ -6,7 +6,7 @@
 
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 from chromite.lib import build_target_lib
 from chromite.lib import constants
@@ -90,8 +90,8 @@ def setup_base_sdk(
 
 @osutils.rotate_log_file(portage_util.get_die_hook_status_file())
 def _run_system_emerge(
-    emerge_cmd: List[Union[str, Path]],
-    extra_env: Dict[str, str],
+    emerge_cmd: list[Union[str, Path]],
+    extra_env: dict[str, str],
     reason: str,
 ) -> None:
     """Runs an emerge command, updating the live system."""
@@ -117,7 +117,7 @@ def _run_system_emerge(
         ) from e
 
 
-def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
+def update_packages(packages: list[str], jobs: Optional[int] = None) -> None:
     """The BuildPackages workalike for installing into the subtools SDK."""
     assert_inside_subtools_chroot()
     cros_build_lib.AssertNonRootUser()
@@ -161,9 +161,9 @@ def update_packages(packages: List[str], jobs: Optional[int] = None) -> None:
 
 
 def bundle_and_prepare_upload(
-    upload_filter: Optional[List[str]] = None,
+    upload_filter: Optional[list[str]] = None,
     private_only: bool = False,
-) -> Tuple[List[Path], subtool_lib.InstalledSubtools]:
+) -> tuple[list[Path], subtool_lib.InstalledSubtools]:
     """Searches for configured subtools, bundles, and prepares upload metadata.
 
     Args:
@@ -188,7 +188,7 @@ def bundle_and_prepare_upload(
 
 
 def upload_prepared_bundles(
-    use_production: bool, bundles: List[Path], dryrun: bool = False
+    use_production: bool, bundles: list[Path], dryrun: bool = False
 ) -> subtool_lib.BundledSubtools:
     """Uploads the pre-bundled subtools at each of the provided paths.
 

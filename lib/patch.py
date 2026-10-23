@@ -12,7 +12,7 @@ import random
 import re
 import subprocess
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 # We import mock so that we can identify mock.MagicMock instances in tests
 # that use mock.
@@ -868,7 +868,7 @@ class GitRepoPatch(PatchQuery):
         return self._commit_message
 
     @property
-    def footers(self) -> List[Tuple[str, str]]:
+    def footers(self) -> list[tuple[str, str]]:
         return self._ExtractFooters(self._commit_message)
 
     @commit_message.setter
@@ -881,7 +881,7 @@ class GitRepoPatch(PatchQuery):
         return self.remote == constants.INTERNAL_MANIFEST_REMOTE
 
     @staticmethod
-    def _ExtractFooters(msg: str) -> List[Tuple[str, str]]:
+    def _ExtractFooters(msg: str) -> list[tuple[str, str]]:
         """Get the Git footers of the specified commit message.
 
         Args:
@@ -2261,7 +2261,7 @@ class GerritPatch(GerritFetchOnlyPatch):
 
     def GetChangeCommit(
         self, revision: Optional[str] = None
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get the current review information for a CL.
 
         The change will be empty of any file modifications. Use ChangeEdit below
@@ -2285,7 +2285,7 @@ class GerritPatch(GerritFetchOnlyPatch):
         base: Optional[str] = None,
         allow_conflicts: bool = False,
         on_behalf_of_uploader: bool = False,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Rebase the CL.
 
         Args:

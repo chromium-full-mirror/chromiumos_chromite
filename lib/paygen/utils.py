@@ -8,7 +8,7 @@ import collections
 import multiprocessing
 import os
 import time
-from typing import Any, Callable, ClassVar, Optional, Tuple
+from typing import Any, Callable, ClassVar, Optional
 
 from chromite.utils import key_value_store
 
@@ -284,7 +284,7 @@ class MemoryConsumptionSemaphore:
         else:
             return True
 
-    def acquire(self, timeout: float) -> Tuple[bool, str]:
+    def acquire(self, timeout: float) -> tuple[bool, str]:
         """Block until enough available memory, or timeout.
 
         Polls the system every SYSTEM_POLLING_INTERVAL_SECONDS and determines

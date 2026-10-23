@@ -13,7 +13,6 @@ import subprocess
 import tempfile
 import threading
 import time
-from typing import List
 
 from chromite.api.gen.chromite.api import payload_pb2
 from chromite.api.gen.chromiumos import build_report_pb2
@@ -525,7 +524,7 @@ class LocalSignerPayloadsClient:
         self._work_dir = work_dir
         self.public_key = None
 
-    def _CreateArchive(self, archive_file: str, hashes: List[str]) -> List[str]:
+    def _CreateArchive(self, archive_file: str, hashes: list[str]) -> list[str]:
         """Take the hash strings and bundle them in the signer request format.
 
         Take the contents of an array of strings, and put them into a specified
@@ -565,9 +564,9 @@ class LocalSignerPayloadsClient:
     def _ReadSignatures(
         self,
         result_dir: Path,
-        keysets: List[str],
+        keysets: list[str],
         signing_response: "signing_pb2.BuildTargetSignedArtifacts",
-    ) -> List[List[str]]:
+    ) -> list[list[str]]:
         """Read hash signatures from the signed files.
 
         Args:
@@ -608,7 +607,7 @@ class LocalSignerPayloadsClient:
             signatures.append(signatures_by_keyset[keyset])
         return [list(l) for l in zip(*signatures)]
 
-    def GetHashSignatures(self, hashes, keysets) -> List[List[str]]:
+    def GetHashSignatures(self, hashes, keysets) -> list[list[str]]:
         """Take an arbitrary list of hash files, and get them signed.
 
         Args:

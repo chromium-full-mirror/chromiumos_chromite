@@ -14,14 +14,14 @@ version advances.
 
 import functools
 from pathlib import Path
-from typing import Any, Callable, Tuple
+from typing import Any, Callable
 import warnings
 
 import chromite
 
 
 def _available_in(
-    python_version: Tuple[int, int], stdlib_equivalent: str
+    python_version: tuple[int, int], stdlib_equivalent: str
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Annotate a function as available in a certain Python version.
 

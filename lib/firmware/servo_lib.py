@@ -9,7 +9,7 @@ to simplify checking whether a given servo name has a property, such as being a
 CCD/servo v4/servo micro.
 """
 
-from typing import List, NamedTuple
+from typing import NamedTuple
 
 
 SERVO_C2D2 = "c2d2"
@@ -155,6 +155,6 @@ class ServoConfig(NamedTuple):
         programmer: programmer argument (-p) for flashrom and futility.
     """
 
-    dut_control_on: List[List[str]]
-    dut_control_off: List[List[str]]
+    dut_control_on: list[list[str]]
+    dut_control_off: list[list[str]]
     programmer: str

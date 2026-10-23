@@ -7,7 +7,7 @@
 import dataclasses
 import functools
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Optional
 
 from chromite.utils.parser import pms_dependency
 
@@ -61,7 +61,7 @@ class Md5Cache:
         return self._data
 
     @functools.cached_property
-    def vars(self) -> Dict[str, str]:
+    def vars(self) -> dict[str, str]:
         """The raw variables from the md5-cache file."""
         result = {}
         for line in self.data.splitlines():
@@ -75,7 +75,7 @@ class Md5Cache:
         return self.vars.get("DESCRIPTION", "").strip()
 
     @property
-    def homepage(self) -> List[str]:
+    def homepage(self) -> list[str]:
         """All homepages."""
         return self.vars.get("HOMEPAGE", "").split()
 
@@ -90,7 +90,7 @@ class Md5Cache:
         return int(self.vars.get("EAPI", 0))
 
     @property
-    def defined_phases(self) -> Set[str]:
+    def defined_phases(self) -> set[str]:
         """All known phases the ebuild runs."""
         return set(self.vars.get("DEFINED_PHASES", "").split())
 
@@ -115,7 +115,7 @@ class Md5Cache:
         return pms_dependency.parse(self.vars.get("RDEPEND", ""))
 
     @property
-    def iuse(self) -> Set[str]:
+    def iuse(self) -> set[str]:
         """A set of the flags in IUSE."""
         iuse = self.vars.get("IUSE")
         if not iuse:
@@ -128,7 +128,7 @@ class Md5Cache:
         return result
 
     @property
-    def iuse_default(self) -> Set[str]:
+    def iuse_default(self) -> set[str]:
         """A set of the flags enabled by default in IUSE."""
         iuse = self.vars.get("IUSE", "")
         result = set()
@@ -139,7 +139,7 @@ class Md5Cache:
         return result
 
     @property
-    def eclasses(self) -> List[Eclass]:
+    def eclasses(self) -> list[Eclass]:
         """A list of the eclasses inherited by this package and its eclasses."""
         eclasses = self.vars.get("_eclasses_")
         if not eclasses:
@@ -154,12 +154,12 @@ class Md5Cache:
         return [Eclass(*x) for x in zip(elements[::2], elements[1::2])]
 
     @property
-    def keywords(self) -> List[str]:
+    def keywords(self) -> list[str]:
         """The KEYWORDS of this package."""
         return self.vars.get("KEYWORDS", "").split()
 
     @property
-    def properties(self) -> Set[str]:
+    def properties(self) -> set[str]:
         """The PROPERTIES of this package."""
         return set(self.vars.get("PROPERTIES", "").split())
 

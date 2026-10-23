@@ -5,7 +5,6 @@
 """Classes of failure types."""
 
 import collections
-from typing import List
 
 from chromite.lib import cros_build_lib
 
@@ -111,7 +110,7 @@ class PackageBuildFailure(BuildScriptFailure):
         self,
         exception: cros_build_lib.RunCommandError,
         shortname: str,
-        failed_packages: List[str],
+        failed_packages: list[str],
     ) -> None:
         """Construct a PackageBuildFailure object.
 

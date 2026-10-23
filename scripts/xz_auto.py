@@ -9,7 +9,7 @@ import getopt
 import os
 import subprocess
 import sys
-from typing import List, NoReturn
+from typing import NoReturn
 
 from chromite.lib import commandline
 from chromite.lib import osutils
@@ -25,7 +25,7 @@ def HasPixz() -> bool:
     return PIXZ_DISABLE_VAR not in os.environ and osutils.Which("pixz")
 
 
-def ParsePixzArgs(argv: List[str]) -> tuple:
+def ParsePixzArgs(argv: list[str]) -> tuple:
     """Determines flags to pass to pixz, per argv.
 
     Returns:
@@ -60,12 +60,12 @@ def ParsePixzArgs(argv: List[str]) -> tuple:
     return raw_flag_list, file_to_compress, target
 
 
-def Execvp(argv: List[str]) -> NoReturn:
+def Execvp(argv: list[str]) -> NoReturn:
     """Execs the given argv."""
     os.execvp(argv[0], argv)
 
 
-def ExecCompressCommand(stdout: bool, argv: List[str]) -> NoReturn:
+def ExecCompressCommand(stdout: bool, argv: list[str]) -> NoReturn:
     """Execs compression command."""
     # It appears that in order for pixz to do parallel decompression,
     # compression needs to be done with pixz. xz itself is only capable of
@@ -120,7 +120,7 @@ def ExecCompressCommand(stdout: bool, argv: List[str]) -> NoReturn:
     sys.exit(return_code)
 
 
-def ExecXzDecompressCommand(stdout: bool, argv: List[str]) -> NoReturn:
+def ExecXzDecompressCommand(stdout: bool, argv: list[str]) -> NoReturn:
     """Executes `xz` with the given params."""
     cmd = ["xz"]
     if stdout:
@@ -131,7 +131,7 @@ def ExecXzDecompressCommand(stdout: bool, argv: List[str]) -> NoReturn:
     Execvp(cmd)
 
 
-def ExecDecompressCommand(stdout: bool, argv: List[str]) -> NoReturn:
+def ExecDecompressCommand(stdout: bool, argv: list[str]) -> NoReturn:
     """Execs decompression command."""
     if not HasPixz():
         ExecXzDecompressCommand(stdout, argv)
@@ -195,7 +195,7 @@ def GetParser() -> commandline.ArgumentParser:
     return parser
 
 
-def main(argv: List[str]) -> NoReturn:
+def main(argv: list[str]) -> NoReturn:
     parser = GetParser()
     known_args, argv = parser.parse_known_args()
     if "-i" in argv or "-o" in argv:

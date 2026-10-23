@@ -13,7 +13,7 @@ produce incorrect outputs if missed.
 import functools
 import logging
 import os
-from typing import Any, Callable, Iterable, List, Optional, Union
+from typing import Any, Callable, Iterable, Optional, Union
 
 from chromite.third_party.google.protobuf import message as protobuf_message
 
@@ -22,7 +22,7 @@ from chromite.lib import cros_build_lib
 
 def _value(
     field: str, message: protobuf_message.Message
-) -> Union[bool, int, str, None, List, protobuf_message.Message]:
+) -> Union[bool, int, str, None, list, protobuf_message.Message]:
     """Helper function to fetch the value of the field.
 
     Args:

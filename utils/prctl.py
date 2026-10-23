@@ -13,7 +13,7 @@ import ctypes
 import enum
 import errno
 import os
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from chromite.utils import libc
 
@@ -53,14 +53,14 @@ class PrctlError(OSError, Error):
     option: Option
     returncode: int
     # NB: Can't call |args| as Error.args already takes that over.
-    prargs: List[Union[PrctlType, str]]
+    prargs: list[Union[PrctlType, str]]
 
     # pylint: disable=redefined-outer-name
     def __init__(
         self,
         option: Option,
         returncode: int,
-        prargs: Optional[List[Union[PrctlType, str]]] = None,
+        prargs: Optional[list[Union[PrctlType, str]]] = None,
         errno: Optional[int] = None,
     ) -> None:
         if errno is None:

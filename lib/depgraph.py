@@ -10,7 +10,7 @@ import logging
 import os
 import sys
 import time
-from typing import Collection, List, Optional, TYPE_CHECKING, Union
+from typing import Collection, Optional, TYPE_CHECKING, Union
 
 from chromite.lib import build_target_lib
 from chromite.lib import constants
@@ -923,7 +923,7 @@ DepgraphResult = collections.namedtuple(
 
 def _get_emerge_args(
     sysroot_path: str, packages: PackageCollection, include_bdeps: bool
-) -> List[str]:
+) -> list[str]:
     """Get the default emerge arguments for building a depgraph."""
     # Pretend: Don't actually install anything.
     # Emptytree: Act as though nothing is installed (even if some packages are).

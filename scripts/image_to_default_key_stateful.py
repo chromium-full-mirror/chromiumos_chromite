@@ -6,7 +6,7 @@
 
 import contextlib
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -68,7 +68,7 @@ def convert_to_default_key_stateful(
     return 0
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     parser = get_parser()
     opts = parser.parse_args(argv)
     opts.freeze()

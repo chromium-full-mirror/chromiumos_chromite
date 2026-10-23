@@ -21,7 +21,7 @@ Contact: Chrome OS toolchain team.
 import argparse
 import os
 from pathlib import Path
-from typing import List, Optional, Set
+from typing import Optional
 
 from chromite.third_party import lddtree
 
@@ -41,7 +41,7 @@ def _GetSymLinkPath(base_dir: Path, link_path: str) -> Path:
     return base_dir / link_path
 
 
-def _CollectElfDeps(elfpath: Path) -> Set[Path]:
+def _CollectElfDeps(elfpath: Path) -> set[Path]:
     """Returns the set of dependent files for the elf file."""
     libs = set()
     to_process = [elfpath]
@@ -96,7 +96,7 @@ def _GenerateRemoteInputsFile(out_file: str, clang_path: Path) -> None:
     )
 
 
-def ParseArgs(argv: Optional[List[str]]) -> argparse.Namespace:
+def ParseArgs(argv: Optional[list[str]]) -> argparse.Namespace:
     """Parses program arguments."""
     parser = commandline.ArgumentParser(description=__doc__)
 
@@ -118,7 +118,7 @@ def ParseArgs(argv: Optional[List[str]]) -> argparse.Namespace:
     return opts
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     cros_build_lib.AssertInsideChroot()
     opts = ParseArgs(argv)
     _GenerateRemoteInputsFile(opts.output, opts.clang)

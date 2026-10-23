@@ -10,7 +10,7 @@ import logging
 from pathlib import Path
 import re
 import subprocess
-from typing import Callable, Iterable, Iterator, List, Optional, Tuple
+from typing import Callable, Iterable, Iterator, Optional
 
 from chromite.api.controller import controller_util
 from chromite.api.gen.chromite.api import relevancy_pb2
@@ -33,7 +33,7 @@ def _bootimage_enabled(
 
 
 @functools.lru_cache(maxsize=1)
-def _get_chromite_relevant_files() -> List[Path]:
+def _get_chromite_relevant_files() -> list[Path]:
     """Get the set of files in Chromite which are relevant to a CQ build.
 
     This calls the scripts/get_chromite_relevant_files script.  We subprocess
@@ -68,7 +68,7 @@ def _chromite_path_rule(
 #     True: The change is relevant for this path.
 #     False: The change is not relevant for this path.
 #     None: Relevancy could not be determined.
-_PATH_RULES: List[Tuple[str, Callable[..., bool | None]]] = [
+_PATH_RULES: list[tuple[str, Callable[..., bool | None]]] = [
     (r"manifest(?:-internal)?/.*\.xml", lambda _: True),
     (r"chromite/(.*)", _chromite_path_rule),
     (r"src/scripts/.*", lambda _: True),
@@ -242,7 +242,7 @@ class ReasonPackage(Reason):
 
 
 def _belongs(
-    path: Path, overlays: List[build_query.Overlay]
+    path: Path, overlays: list[build_query.Overlay]
 ) -> Iterator[build_query.QueryTarget]:
     """Given a relative source path in the tree, report all belonging objects.
 
@@ -304,7 +304,7 @@ def _belongs(
 
 def _get_belongs_set(
     paths: Iterable[Path],
-) -> Iterator[Tuple[Path, build_query.QueryTarget]]:
+) -> Iterator[tuple[Path, build_query.QueryTarget]]:
     """For a set of paths modified in the tree, get the belongs set.
 
     The belongs set is the set of unique QueryTarget objects that is affected by
@@ -385,7 +385,7 @@ def _belong_applies_to_target(
 def get_relevant_build_targets(
     considered: Iterable[build_target_lib.BuildTarget],
     paths: Iterable[Path],
-) -> Iterator[Tuple[build_target_lib.BuildTarget, Reason]]:
+) -> Iterator[tuple[build_target_lib.BuildTarget, Reason]]:
     """Get the relevant build targets for a change.
 
     Args:

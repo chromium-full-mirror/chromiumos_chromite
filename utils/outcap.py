@@ -14,7 +14,7 @@ import re
 import sys
 import tempfile
 import types
-from typing import Any, IO, List, Optional, TextIO, Type, Union
+from typing import Any, IO, Optional, TextIO, Type, Union
 
 
 class _FdCapturer:
@@ -233,7 +233,7 @@ class OutputCapturer:
         """Return captured stderr so far."""
         return self._stderr_capturer.GetCaptured()
 
-    def _GetOutputLines(self, output: str, include_empties: bool) -> List[str]:
+    def _GetOutputLines(self, output: str, include_empties: bool) -> list[str]:
         """Split |output| into lines, optionally |include_empties|.
 
         Return array of lines.
@@ -245,14 +245,14 @@ class OutputCapturer:
 
         return lines
 
-    def GetStdoutLines(self, include_empties: bool = True) -> List[str]:
+    def GetStdoutLines(self, include_empties: bool = True) -> list[str]:
         """Return captured stdout so far as array of lines.
 
         If |include_empties| is false filter out all empty lines.
         """
         return self._GetOutputLines(self.GetStdout(), include_empties)
 
-    def GetStderrLines(self, include_empties: bool = True) -> List[str]:
+    def GetStderrLines(self, include_empties: bool = True) -> list[str]:
         """Return captured stderr so far as array of lines.
 
         If |include_empties| is false filter out all empty lines.

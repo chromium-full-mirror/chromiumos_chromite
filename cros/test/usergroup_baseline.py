@@ -4,7 +4,7 @@
 
 """Baselines for user/group tests."""
 
-from typing import NamedTuple, Set
+from typing import NamedTuple
 
 from chromite.lib import constants
 
@@ -34,7 +34,7 @@ class GroupEntry(NamedTuple):
     group: str
     encpasswd: str = "!"
     gid: int = None
-    users: Set[str] = set()
+    users: set[str] = set()
 
 
 # For users that we allow to login to the system, allow a number of alternative

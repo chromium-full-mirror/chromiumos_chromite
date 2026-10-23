@@ -11,7 +11,7 @@ chromite.api.Relevancy/GetRelevantBuildTargets Build API endpoint.
 
 import logging
 from pathlib import Path
-from typing import Iterator, List, Optional
+from typing import Iterator, Optional
 
 from chromite.lib import build_query
 from chromite.lib import build_target_lib
@@ -28,7 +28,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def parse_arguments(argv: List[str]) -> commandline.ArgumentNamespace:
+def parse_arguments(argv: list[str]) -> commandline.ArgumentNamespace:
     """Parse and validate arguments."""
     parser = get_parser()
     opts = parser.parse_args(argv)
@@ -42,7 +42,7 @@ def _get_all_build_targets() -> Iterator[build_target_lib.BuildTarget]:
         yield build_target_lib.BuildTarget(board.name, public=False)
 
 
-def main(argv: Optional[List[str]]) -> Optional[int]:
+def main(argv: Optional[list[str]]) -> Optional[int]:
     """Main."""
     opts = parse_arguments(argv)
     paths = [x.resolve().relative_to(constants.SOURCE_ROOT) for x in opts.paths]

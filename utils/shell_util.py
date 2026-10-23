@@ -8,7 +8,7 @@ import logging
 import pathlib
 from pathlib import Path
 import sys
-from typing import Any, Iterable, List, Optional, Tuple, Union
+from typing import Any, Iterable, Optional, Union
 
 
 # For use by quote.  Match all characters that the shell might treat specially.
@@ -116,7 +116,7 @@ def unquote(s: str) -> str:
     return output + s[i] if i < len(s) else output
 
 
-def cmd_to_str(cmd: Union[List[Any], Tuple[Any]]) -> str:
+def cmd_to_str(cmd: Union[list[Any], tuple[Any]]) -> str:
     """Translate a command list into a space-separated string.
 
     The resulting string should be suitable for logging messages and for

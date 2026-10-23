@@ -10,7 +10,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import Iterable, List, Set
+from typing import Iterable
 
 from chromite.lib import build_target_lib
 from chromite.lib import constants
@@ -84,7 +84,7 @@ def _IsWorkonEbuild(include_chrome, ebuild_path, ebuild_contents=None):
     return False
 
 
-def _GetLinesFromFile(path: Path, line_prefix, line_suffix) -> Set[str]:
+def _GetLinesFromFile(path: Path, line_prefix, line_suffix) -> set[str]:
     """Get a unique set of lines from a file, stripping off a prefix and suffix.
 
     Rejects lines that do not start with |line_prefix| or end with
@@ -579,7 +579,7 @@ class WorkonHelper:
 
         return workon_atoms
 
-    def _GetWorkedOnAtoms(self) -> Set[str]:
+    def _GetWorkedOnAtoms(self) -> set[str]:
         """Returns the set of package atoms that we're currently working on."""
         return _GetLinesFromFile(Path(self.workon_file_path), "=", "-9999")
 
@@ -1054,7 +1054,7 @@ class WorkonHelper:
         result.sort()
         return result
 
-    def RunCommandInAtomSourceDirectory(self, atom, command: List[str]) -> None:
+    def RunCommandInAtomSourceDirectory(self, atom, command: list[str]) -> None:
         """Run a command in the source directory of an atom.
 
         Args:
@@ -1073,7 +1073,7 @@ class WorkonHelper:
             cros_build_lib.run(command, cwd=info.srcdir, print_cmd=False)
 
     def RunCommandInPackages(
-        self, packages, command: List[str], use_all=False, use_workon_only=False
+        self, packages, command: list[str], use_all=False, use_workon_only=False
     ) -> None:
         """Run a command in the source directory of a list of packages.
 

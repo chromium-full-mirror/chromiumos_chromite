@@ -15,7 +15,7 @@ from pathlib import Path
 import re
 import textwrap
 import types
-from typing import List, NamedTuple, Optional, Set, Type, Union
+from typing import NamedTuple, Optional, Type, Union
 
 from chromite.lib import cros_build_lib
 from chromite.lib import gs
@@ -59,7 +59,7 @@ class FwImage(NamedTuple):
     board: str
     firmware_name: str
     release: Release
-    branches: Set[str]
+    branches: set[str]
     image_type: str
     firmware_type: Optional[str]
 
@@ -382,7 +382,7 @@ class FwBuddy:
             firmware_type=parse_firmware_type(self.uri.firmware_type),
         )
 
-    def lookup_branches(self) -> Set[str]:
+    def lookup_branches(self) -> set[str]:
         """Gets the firmware branches for the given board combination.
 
         Some firmware archives are stored underneath branches that do not match
@@ -409,7 +409,7 @@ class FwBuddy:
             return set()
 
         self.gs.Copy(BRANCH_MAP_URI, self.temp_dir_path)
-        branches: Set[str] = set()
+        branches: set[str] = set()
         branch_map = json.loads(
             self.branch_map_local_path.read_text(encoding="utf-8")
         )
@@ -704,7 +704,7 @@ def parse_release_string(release_str: str) -> Release:
     return Release(fields[0][0], fields[0][1], fields[0][2])
 
 
-def generate_gspaths(fw_image: FwImage) -> Set[str]:
+def generate_gspaths(fw_image: FwImage) -> set[str]:
     """Generates all possible GS paths the firmware archive may be stored at
 
     Args:
@@ -714,8 +714,8 @@ def generate_gspaths(fw_image: FwImage) -> Set[str]:
     Returns:
         A list of all possible paths the archive may be located at.
     """
-    gspaths: Set[str] = set()
-    schemas: List[str] = []
+    gspaths: set[str] = set()
+    schemas: list[str] = []
     if fw_image.branches:
         schemas.extend(UNSIGNED_GSPATH_SCHEMAS_WITH_BRANCH)
     schemas.extend(UNSIGNED_GSPATH_SCHEMAS_WITHOUT_BRANCH)

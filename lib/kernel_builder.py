@@ -14,7 +14,7 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import List, Optional, Sequence
+from typing import Optional, Sequence
 
 from chromite.lib import build_target_lib
 from chromite.lib import constants
@@ -68,9 +68,9 @@ class Builder:
 
     def CreateCustomKernel(
         self,
-        kernel_flags: List[str],
-        use_flags_override: Optional[List[str]] = None,
-        extra_pkgs: Optional[List[str]] = None,
+        kernel_flags: list[str],
+        use_flags_override: Optional[list[str]] = None,
+        extra_pkgs: Optional[list[str]] = None,
     ) -> None:
         """Builds a custom kernel package and installs it to the install_root.
 
@@ -117,9 +117,9 @@ class Builder:
     def _CreateCustomKernelInternal(
         self,
         pkgdir: str,
-        kernel_flags: List[str],
-        use_flags_override: Optional[List[str]] = None,
-        extra_pkgs: Optional[List[str]] = None,
+        kernel_flags: list[str],
+        use_flags_override: Optional[list[str]] = None,
+        extra_pkgs: Optional[list[str]] = None,
     ) -> None:
         """Internal implementation for CreateCustomKernel()."""
         logging.info("Building custom kernel package.")
@@ -338,7 +338,7 @@ class Builder:
 
     # --- Integrated High-Level Methods ---
 
-    def _get_default_base_features(self, kernel_ramfs: str) -> List[str]:
+    def _get_default_base_features(self, kernel_ramfs: str) -> list[str]:
         """Returns the default list of base kernel features for recovery."""
         # Note: Features starting with '-' are disabled, others enabled.
         # Ensure the specified ramfs is included.
@@ -363,7 +363,7 @@ class Builder:
         self,
         kernel_version: str = "0.0.1",
         kernel_ramfs: str = "recovery_ramfs",
-        kernel_flags: Optional[List[str]] = None,
+        kernel_flags: Optional[list[str]] = None,
         base_kernel_features: Optional[Sequence[str]] = None,
         kernel_serial_console: Optional[str] = None,
         keys_dir: str = constants.VBOOT_DEVKEYS_DIR,
@@ -372,7 +372,7 @@ class Builder:
         keyblock: str = constants.KERNEL_KEYBLOCK,
         disable_rootfs_verification: bool = False,
         output_filename: str = constants.KERNEL_IMAGE_IMG,
-        extra_pkgs: Optional[List[str]] = None,
+        extra_pkgs: Optional[list[str]] = None,
         debug: bool = False,
     ) -> Path:
         """Builds a custom kernel package and creates a bootable kernel image.

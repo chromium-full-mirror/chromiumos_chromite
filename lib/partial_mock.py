@@ -14,12 +14,9 @@ from typing import (
     Any,
     Callable,
     Container,
-    Dict,
     Iterable,
-    List,
     Optional,
     Sequence,
-    Tuple,
     Type,
     Union,
 )
@@ -32,7 +29,7 @@ from chromite.utils import memoize
 
 def _PredicateSplit(
     func: Callable[[Any], bool], iterable: Iterable[Any]
-) -> Tuple[List[Any], List[Any]]:
+) -> tuple[list[Any], list[Any]]:
     """Splits an iterable into two groups based on a predicate return value.
 
     Args:
@@ -45,8 +42,8 @@ def _PredicateSplit(
         returned True for, and the second containing items that func() returned
         False for.
     """
-    trues: List[Any] = []
-    falses: List[Any] = []
+    trues: list[Any] = []
+    falses: list[Any] = []
     for x in iterable:
         (trues if func(x) else falses).append(x)
     return trues, falses
@@ -249,7 +246,7 @@ def ListContains(
         return True
 
 
-def DictContains(small: Dict[Any, Any], big: Dict[Any, Any]) -> bool:
+def DictContains(small: dict[Any, Any], big: dict[Any, Any]) -> bool:
     """Looks for a subset within a dictionary.
 
     Args:
@@ -287,13 +284,13 @@ class MockedCallResults:
             name: The name given to the mock.  Will be used in debug output.
         """
         self.name = name
-        self.mocked_calls: List[Any] = []
+        self.mocked_calls: list[Any] = []
         self.default_result: Any = None
         self.default_side_effect: Optional[Callable[[Any], Any]] = None
 
     @staticmethod
     def AssertArgs(
-        args: Tuple[Any], kwargs: Optional[Dict[Any, Any]] = None
+        args: tuple[Any], kwargs: Optional[dict[Any, Any]] = None
     ) -> None:
         """Verify arguments are of expected type."""
         assert isinstance(args, (tuple))
@@ -302,9 +299,9 @@ class MockedCallResults:
 
     def AddResultForParams(
         self,
-        args: Tuple[Any],
+        args: tuple[Any],
         result: Any,
-        kwargs: Optional[Dict[Any, Any]] = None,
+        kwargs: Optional[dict[Any, Any]] = None,
         side_effect: Optional[Callable[[Any], Any]] = None,
         strict: bool = True,
     ) -> None:
@@ -372,9 +369,9 @@ class MockedCallResults:
 
     def LookupResult(
         self,
-        args: Tuple[Any],
-        kwargs: Optional[Dict[Any, Any]] = None,
-        hook_args: Optional[List[Any]] = None,
+        args: tuple[Any],
+        kwargs: Optional[dict[Any, Any]] = None,
+        hook_args: Optional[list[Any]] = None,
         hook_kwargs: Optional[Any] = None,
     ) -> Any:
         """For a given mocked function call get the recorded internal results.
@@ -488,7 +485,7 @@ class PartialMock:
     # The import spec for the object being mocked.
     TARGET: Optional[str] = None
     # Tuples of attribute names on the target object to mock.
-    ATTRS: Optional[Tuple[str]] = None
+    ATTRS: Optional[tuple[str]] = None
 
     def __init__(self, create_tempdir: bool = False) -> None:
         """Initialize.
@@ -499,10 +496,10 @@ class PartialMock:
                 self.tempdir to the path of the directory.  The directory is
                 deleted when stop() is called.
         """
-        self.backup: Dict[str, Any] = {}
-        self.patchers: Dict[str, Any] = {}
-        self.patched: Dict[str, mock.Mock] = {}
-        self.external_patchers: List[mock.Mock] = []
+        self.backup: dict[str, Any] = {}
+        self.patchers: dict[str, Any] = {}
+        self.patched: dict[str, mock.Mock] = {}
+        self.external_patchers: list[mock.Mock] = []
         self.create_tempdir = create_tempdir
 
         # Set when start() is called.
@@ -511,7 +508,7 @@ class PartialMock:
         self.__saved_env__: Any = None
         self.started = False
 
-        self._results: Dict[str, Any] = {}
+        self._results: dict[str, Any] = {}
 
         if not all([self.TARGET, self.ATTRS]) and any(
             [self.TARGET, self.ATTRS]

@@ -6,7 +6,7 @@
 
 import fnmatch
 import re
-from typing import Any, List, NamedTuple, Optional, TYPE_CHECKING, Union
+from typing import Any, NamedTuple, Optional, TYPE_CHECKING, Union
 
 
 if TYPE_CHECKING:
@@ -44,7 +44,7 @@ class PathFilter(NamedTuple):
     - any unmatched paths will default to "include"
     """
 
-    rules: List[_Rule]
+    rules: list[_Rule]
 
     def match(self, path: Union[str, "os.PathLike[str]"]) -> bool:
         """Returns whether the given path name is included"""
@@ -56,7 +56,7 @@ class PathFilter(NamedTuple):
         return True
 
     def filter(
-        self, paths: List[Union[str, "os.PathLike[str]"]]
-    ) -> List[Union[str, "os.PathLike[str]"]]:
+        self, paths: list[Union[str, "os.PathLike[str]"]]
+    ) -> list[Union[str, "os.PathLike[str]"]]:
         """Returns a subset of names that should be included"""
         return [x for x in paths if self.match(x)]

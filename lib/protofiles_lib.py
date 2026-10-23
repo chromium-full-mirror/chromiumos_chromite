@@ -12,7 +12,6 @@ import logging
 from pathlib import Path
 import re
 import shutil
-from typing import Dict, List
 import urllib.request
 
 from chromite.lib import cros_build_lib
@@ -108,8 +107,8 @@ class ProtofilesLib:
         )
 
     def _FetchLatestCommitHashes(
-        self, project_full_path_list: List[Path], object_type: _GitObjectType
-    ) -> Dict[Path, str]:
+        self, project_full_path_list: list[Path], object_type: _GitObjectType
+    ) -> dict[Path, str]:
         """Fetches object hashes of the latest commits of passed projects.
 
         Args:
@@ -125,7 +124,7 @@ class ProtofilesLib:
             self._GitObjectType.TREE: "%T",
         }
 
-        object_hashes: Dict[Path, str] = {}
+        object_hashes: dict[Path, str] = {}
         git_log_cmd = [
             "git",
             "log",
@@ -148,9 +147,9 @@ class ProtofilesLib:
         self,
         package_path: Path,
         package_name: str,
-        commit_hashes: Dict[Path, str],
-        tree_hashes: Dict[Path, str],
-    ) -> List[Path]:
+        commit_hashes: dict[Path, str],
+        tree_hashes: dict[Path, str],
+    ) -> list[Path]:
         """Updates a stable ebuild file in the |package_path| with new hashes.
 
         Searches for the stable ebuild file with |package_name| prefix
@@ -211,8 +210,8 @@ class ProtofilesLib:
     def _ReplaceHashes(
         self,
         ebuild_path: Path,
-        commit_hashes: Dict[Path, str],
-        tree_hashes: Dict[Path, str],
+        commit_hashes: dict[Path, str],
+        tree_hashes: dict[Path, str],
     ) -> None:
         """Replaces CROS_WORKON_[COMMIT|TREE] hashes in the ebuild file.
 

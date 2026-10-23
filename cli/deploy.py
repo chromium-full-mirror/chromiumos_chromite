@@ -17,7 +17,7 @@ import os
 from pathlib import Path
 import re
 import tempfile
-from typing import Dict, List, NamedTuple, Set, Tuple
+from typing import NamedTuple
 
 from chromite.cli import command
 from chromite.lib import build_target_lib
@@ -66,7 +66,7 @@ _DLC_INSTALL_ROOT = "/var/cache/dlc"
 class CpvInfo(NamedTuple):
     """Holds a CPV and its associated information that we care about"""
 
-    cpv: Dict[str, package_info.CPV]
+    cpv: dict[str, package_info.CPV]
     slot: str
     subslot: str
     rdep_raw: str
@@ -77,7 +77,7 @@ class CpvInfo(NamedTuple):
     @classmethod
     def from_raw(
         cls,
-        cpv: Dict[str, package_info.CPV],
+        cpv: dict[str, package_info.CPV],
         slot: str,
         rdep_raw: str,
         build_time: int,
@@ -235,7 +235,7 @@ print(json.dumps(pkg_info))
         return attrs.cp
 
     @staticmethod
-    def _InDB(cp: str, slot: str, db: Dict[str, Dict[str, PkgInfo]]) -> bool:
+    def _InDB(cp: str, slot: str, db: dict[str, dict[str, PkgInfo]]) -> bool:
         """Returns whether CP and slot are found in a database (if provided)."""
         cp_slots = db.get(cp) if db else None
         return cp_slots is not None and (not slot or slot in cp_slots)
@@ -259,8 +259,8 @@ print(json.dumps(pkg_info))
 
     @classmethod
     def _StripDepAtom(
-        cls, dep_atom: str, installed_db: Dict[str, Dict[str, PkgInfo]] = None
-    ) -> Tuple[str, str]:
+        cls, dep_atom: str, installed_db: dict[str, dict[str, PkgInfo]] = None
+    ) -> tuple[str, str]:
         """Strips a dependency atom and returns a (CP, slot) pair."""
         # TODO(garnold) This is a gross simplification of ebuild dependency
         # semantics, stripping and ignoring various qualifiers (versions, slots,
@@ -308,8 +308,8 @@ print(json.dumps(pkg_info))
     def _ProcessDepStr(
         cls,
         dep_str: str,
-        installed_db: Dict[str, Dict[str, PkgInfo]],
-        avail_db: Dict[str, Dict[str, PkgInfo]],
+        installed_db: dict[str, dict[str, PkgInfo]],
+        avail_db: dict[str, dict[str, PkgInfo]],
     ) -> set:
         """Resolves and returns a list of dependencies from a dependency string.
 
@@ -332,8 +332,8 @@ print(json.dumps(pkg_info))
         """
 
         def ProcessSubDeps(
-            dep_exp: Set[Tuple[str, str]], disjunct: bool
-        ) -> Set[Tuple[str, str]]:
+            dep_exp: set[tuple[str, str]], disjunct: bool
+        ) -> set[tuple[str, str]]:
             """Parses and processes a dependency (sub)expression."""
             deps = set()
             default_deps = set()
@@ -392,11 +392,11 @@ print(json.dumps(pkg_info))
 
     def _BuildDB(
         self,
-        cpv_info: List[CpvInfo],
+        cpv_info: list[CpvInfo],
         process_rdeps: bool,
         process_rev_rdeps: bool,
-        installed_db: Dict[str, Dict[str, PkgInfo]] = None,
-    ) -> Dict[str, Dict[str, PkgInfo]]:
+        installed_db: dict[str, dict[str, PkgInfo]] = None,
+    ) -> dict[str, dict[str, PkgInfo]]:
         """Returns a database of packages given a list of CPV info.
 
         Args:
@@ -588,7 +588,7 @@ print(json.dumps(pkg_info))
             self.listed.add(dep)
         return True
 
-    def _DeqDep(self) -> Tuple[str, bool, bool]:
+    def _DeqDep(self) -> tuple[str, bool, bool]:
         """Dequeues and returns a dependency, its listed and optional flags.
 
         This returns listed packages first, if any are present, to ensure that
@@ -604,7 +604,7 @@ print(json.dumps(pkg_info))
 
         return dep, listed, self.seen[dep]
 
-    def _FindPackageMatches(self, cpv_pattern: str) -> List[Tuple[str, str]]:
+    def _FindPackageMatches(self, cpv_pattern: str) -> list[tuple[str, str]]:
         """Returns list of binpkg (CP, slot) pairs that match |cpv_pattern|.
 
         This is breaking |cpv_pattern| into its C, P and V components, each of
@@ -641,7 +641,7 @@ print(json.dumps(pkg_info))
 
         return matches
 
-    def _FindPackage(self, pkg: str) -> Tuple[str, str]:
+    def _FindPackage(self, pkg: str) -> tuple[str, str]:
         """Returns the (CP, slot) pair for a package matching |pkg|.
 
         Args:
@@ -676,7 +676,7 @@ print(json.dumps(pkg_info))
 
     def _NeedsInstall(
         self, cpv: str, slot: str, build_time: int, optional: bool
-    ) -> Tuple[bool, bool, bool, str]:
+    ) -> tuple[bool, bool, bool, str]:
         """Returns whether a package needs to be installed on the target.
 
         Args:
@@ -707,7 +707,7 @@ print(json.dumps(pkg_info))
 
             def _get_attr_mismatch(
                 attr_name: str, new_attr: any, target_attr: any
-            ) -> Tuple[str, str, str]:
+            ) -> tuple[str, str, str]:
                 """Check if the new and target packages differ for an attribute.
 
                 Args:
@@ -775,7 +775,7 @@ print(json.dumps(pkg_info))
         )
         return True, False, False, None
 
-    def _ProcessDeps(self, deps: List[str], reverse: bool) -> None:
+    def _ProcessDeps(self, deps: list[str], reverse: bool) -> None:
         """Enqueues dependencies for processing.
 
         Args:
@@ -802,7 +802,7 @@ print(json.dumps(pkg_info))
 
     def _ComputeInstalls(
         self, process_rdeps: bool, process_rev_rdeps: bool
-    ) -> Tuple[Dict[str, package_info.CPV], bool]:
+    ) -> tuple[dict[str, package_info.CPV], bool]:
         """Returns a dict of packages that need to be installed on the target.
 
         Args:
@@ -879,7 +879,7 @@ print(json.dumps(pkg_info))
 
         return installs, warnings_shown
 
-    def _SortInstalls(self, installs: List[str]) -> List[str]:
+    def _SortInstalls(self, installs: list[str]) -> list[str]:
         """Returns a sorted list of packages to install.
 
         Performs a topological sort based on dependencies found in the binary
@@ -930,7 +930,7 @@ print(json.dumps(pkg_info))
             )
         self._EnqDep((cp, slot), True, False)
 
-    def _GetPkgRoot(self, cpv: str, installs: List[str]) -> str:
+    def _GetPkgRoot(self, cpv: str, installs: list[str]) -> str:
         cp = self._GetCP(cpv)
         return installs[cp][-1]
 
@@ -947,11 +947,11 @@ print(json.dumps(pkg_info))
         self,
         device: remote_access.RemoteDevice,
         root: str,
-        listed_pkgs: List[str],
+        listed_pkgs: list[str],
         update: bool,
         process_rdeps: bool,
         process_rev_rdeps: bool,
-    ) -> Tuple[List[str], List[str], int, Dict[str, str], Dict[str, str], bool]:
+    ) -> tuple[list[str], list[str], int, dict[str, str], dict[str, str], bool]:
         """Computes the list of packages that need to be installed on a target.
 
         Args:
@@ -1048,8 +1048,8 @@ print(json.dumps(pkg_info))
 
 def _Emerge(
     device: remote_access.RemoteDevice,
-    pkg_paths: Dict[str, str],
-    extra_args: List[str] = None,
+    pkg_paths: dict[str, str],
+    extra_args: list[str] = None,
 ) -> str:
     """Copies |pkg_paths| to |device| and emerges them.
 
@@ -1200,11 +1200,11 @@ def _RestoreSELinuxContext(
 
 
 def _GetPackagesByCPV(
-    cpvs: List[package_info.CPV],
+    cpvs: list[package_info.CPV],
     strip: bool,
     sysroot: str,
-    pkg_root: Dict[str, str],
-) -> Dict[str, str]:
+    pkg_root: dict[str, str],
+) -> dict[str, str]:
     """Returns paths to binary packages corresponding to |cpvs|.
 
     Args:
@@ -1254,8 +1254,8 @@ def _GetPackagesByCPV(
 
 
 def _GetPackagesPaths(
-    pkgs: List[str], strip: bool, sysroot: str, pkg_root: Dict[str, str]
-) -> Dict[str, str]:
+    pkgs: list[str], strip: bool, sysroot: str, pkg_root: dict[str, str]
+) -> dict[str, str]:
     """Returns paths to binary |pkgs|.
 
     Args:
@@ -1272,7 +1272,7 @@ def _GetPackagesPaths(
 
 
 def _Unmerge(
-    device: remote_access.RemoteDevice, pkgs: List[str], root: str
+    device: remote_access.RemoteDevice, pkgs: list[str], root: str
 ) -> None:
     """Unmerges |pkgs| on |device|.
 
@@ -1323,13 +1323,13 @@ def _ConfirmUpdateDespiteWarnings() -> bool:
 
 
 def _EmergePackages(
-    pkgs: List[str],
+    pkgs: list[str],
     device: remote_access.RemoteDevice,
     strip: bool,
     sysroot: str,
-    pkg_root: Dict[str, str],
+    pkg_root: dict[str, str],
     board: str,
-    emerge_args: List[str],
+    emerge_args: list[str],
 ) -> None:
     """Call _Emerge for each package in pkgs."""
     if device.IsSELinuxAvailable():
@@ -1374,10 +1374,10 @@ def _EmergePackages(
 
 
 def _UnmergePackages(
-    pkgs: List[str],
+    pkgs: list[str],
     device: remote_access.RemoteDevice,
     root: str,
-    pkgs_attrs: Dict[str, List[str]],
+    pkgs_attrs: dict[str, list[str]],
 ) -> str:
     """Call _Unmege for each package in pkgs."""
     dlc_uninstalled = False
@@ -1394,7 +1394,7 @@ def _UnmergePackages(
 
 
 def _UninstallDLCImage(
-    device: remote_access.RemoteDevice, pkg_attrs: Dict[str, List[str]]
+    device: remote_access.RemoteDevice, pkg_attrs: dict[str, list[str]]
 ):
     """Uninstall a DLC image."""
     if _DLC_ID in pkg_attrs:
@@ -1574,7 +1574,7 @@ def _DeployDLCLoadPin(
 
 def _GetDLCInfo(
     device: remote_access.RemoteDevice, pkg_path: str, from_dut: bool
-) -> Tuple[str, str]:
+) -> tuple[str, str]:
     """Returns information of a DLC given its package path.
 
     Args:
@@ -1626,7 +1626,7 @@ def _GetDLCInfo(
 @tracer.start_as_current_span("cli.deploy")
 def Deploy(
     device: remote_access.RemoteDevice,
-    packages: List[str],
+    packages: list[str],
     board: str = None,
     emerge: bool = True,
     update: bool = False,
@@ -1635,7 +1635,7 @@ def Deploy(
     clean_binpkg: bool = True,
     root: str = "/",
     strip: bool = True,
-    emerge_args: List[str] = None,
+    emerge_args: list[str] = None,
     ssh_private_key: str = None,
     ping: bool = True,
     force: bool = False,

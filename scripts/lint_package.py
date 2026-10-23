@@ -14,7 +14,7 @@ import logging
 import os
 from pathlib import Path
 import sys
-from typing import DefaultDict, Dict, Iterable, List, Optional, Tuple
+from typing import DefaultDict, Iterable, Optional
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
@@ -54,8 +54,8 @@ def check_plat2_diff() -> bool:
 
 
 def parse_packages(
-    build_target: build_target_lib.BuildTarget, packages: List[str]
-) -> List[package_info.PackageInfo]:
+    build_target: build_target_lib.BuildTarget, packages: list[str]
+) -> list[package_info.PackageInfo]:
     """Parse packages and insert the category if none is given.
 
     Args:
@@ -65,7 +65,7 @@ def parse_packages(
     Returns:
         A list of parsed PackageInfo objects
     """
-    package_infos: List[package_info.PackageInfo] = []
+    package_infos: list[package_info.PackageInfo] = []
     for package in packages:
         parsed = package_info.parse(package)
         if not parsed.category:
@@ -95,9 +95,9 @@ def make_relative_to_cros(file_path: str) -> Path:
 
 def process_fixes_by_file(
     lint: toolchain.LinterFinding,
-    file_lengths: Dict[Path, int],
-    allowed_subdirs: Optional[List[str]],
-) -> Optional[DefaultDict[Path, List[toolchain.SuggestedFix]]]:
+    file_lengths: dict[Path, int],
+    allowed_subdirs: Optional[list[str]],
+) -> Optional[DefaultDict[Path, list[toolchain.SuggestedFix]]]:
     """Get fixes grouped by file if all the fixes apply to valid files.
 
     If any fixes modify invalid files this returns None.
@@ -111,7 +111,7 @@ def process_fixes_by_file(
     if not lint.suggested_fixes:
         return None
 
-    new_fixes_by_file: DefaultDict[Path, List[toolchain.SuggestedFix]] = (
+    new_fixes_by_file: DefaultDict[Path, list[toolchain.SuggestedFix]] = (
         collections.defaultdict(list)
     )
     for fix in lint.suggested_fixes:
@@ -151,11 +151,11 @@ def process_fixes_by_file(
 
 
 def get_noconflict_fixes(
-    lints: List[toolchain.LinterFinding],
-    allowed_subdirs: Optional[List[str]],
-) -> Tuple[
-    DefaultDict[Path, List[toolchain.SuggestedFix]],
-    List[toolchain.LinterFinding],
+    lints: list[toolchain.LinterFinding],
+    allowed_subdirs: Optional[list[str]],
+) -> tuple[
+    DefaultDict[Path, list[toolchain.SuggestedFix]],
+    list[toolchain.LinterFinding],
 ]:
     """Get a conflict free set of replacements to apply for each file.
 
@@ -174,7 +174,7 @@ def get_noconflict_fixes(
           0) the mapping of paths to a list of their suggested fixes
           1) the list of lints which were fixed
     """
-    fixes_by_file: DefaultDict[Path, List[toolchain.SuggestedFix]] = (
+    fixes_by_file: DefaultDict[Path, list[toolchain.SuggestedFix]] = (
         collections.defaultdict(list)
     )
     lints_fixed = []
@@ -205,8 +205,8 @@ def get_noconflict_fixes(
 
 
 def has_overlap(
-    prior_fixes: List[toolchain.SuggestedFix],
-    new_fixes: List[toolchain.SuggestedFix],
+    prior_fixes: list[toolchain.SuggestedFix],
+    new_fixes: list[toolchain.SuggestedFix],
 ) -> bool:
     """Check if new fixes have overlapping ranges with a prior replacement.
 
@@ -227,7 +227,7 @@ def has_overlap(
     return False
 
 
-def apply_edits(content: str, fixes: List[toolchain.SuggestedFix]) -> str:
+def apply_edits(content: str, fixes: list[toolchain.SuggestedFix]) -> str:
     """Modify a file by applying a list of fixes."""
 
     # We need to be able to apply fixes in reverse order within a file to
@@ -249,9 +249,9 @@ def apply_edits(content: str, fixes: List[toolchain.SuggestedFix]) -> str:
 
 
 def apply_fixes(
-    lints: List[toolchain.LinterFinding],
-    allowed_subdirs: Optional[List[str]],
-) -> Tuple[List[toolchain.LinterFinding], Iterable[Path]]:
+    lints: list[toolchain.LinterFinding],
+    allowed_subdirs: Optional[list[str]],
+) -> tuple[list[toolchain.LinterFinding], Iterable[Path]]:
     """Modify files in Platform2 to apply suggested fixes from linter findings.
 
     Some fixes which cannot be applied cleanly will be discarded (see the
@@ -357,7 +357,7 @@ def json_format_lint(lint: toolchain.LinterFinding) -> str:
     return json.dumps(_dictify(lint))
 
 
-def get_all_sysroots() -> List[str]:
+def get_all_sysroots() -> list[str]:
     """Gets all available sysroots for both host and boards."""
     host_root = Path("/")
     roots = [str(host_root)]
@@ -459,7 +459,7 @@ def get_arg_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def parse_args(argv: List[str]):
+def parse_args(argv: list[str]):
     """Parses arguments in argv and returns the options."""
     parser = get_arg_parser()
     opts = parser.parse_args(argv)
@@ -491,13 +491,13 @@ def parse_args(argv: List[str]):
 
 
 def filter_lints(
-    lints: List[toolchain.LinterFinding], names_filters: List[str]
-) -> List[toolchain.LinterFinding]:
+    lints: list[toolchain.LinterFinding], names_filters: list[str]
+) -> list[toolchain.LinterFinding]:
     """Filter linter finding by name."""
     return [l for l in lints if any(f in l.name for f in names_filters)]
 
 
-def main(argv: List[str]) -> None:
+def main(argv: list[str]) -> None:
     cros_build_lib.AssertInsideChroot()
     opts = parse_args(argv)
 

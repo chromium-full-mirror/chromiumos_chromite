@@ -15,7 +15,7 @@ import logging
 import os
 from pathlib import Path
 import pprint
-from typing import Dict, Iterable, List, Optional, Union
+from typing import Iterable, Optional, Union
 import urllib.parse
 
 from chromite.lib import cache
@@ -181,13 +181,13 @@ def GetCIPDFromCache(cache_dir: Optional[str] = None) -> str:
 
 
 def _shared_cipd_args(
-    tags: Optional[Dict[str, str]] = None,
+    tags: Optional[dict[str, str]] = None,
     refs: Optional[Iterable[str]] = None,
     cred_path: Optional[Union[os.PathLike, str]] = None,
     service_url: Optional[str] = None,
-) -> List[Union[os.PathLike, str]]:
+) -> list[Union[os.PathLike, str]]:
     """Creates a list of cipd args shared by multiple subcommands."""
-    ret: List[Union[os.PathLike, str]] = []
+    ret: list[Union[os.PathLike, str]] = []
     if tags:
         for key, value in tags.items():
             ret.extend(["-tag", f"{key}:{value}"])
@@ -227,10 +227,10 @@ def GetInstanceID(cipd_path, package, version, service_account_json=None):
 def search_instances(
     cipd_path: Union[os.PathLike, str],
     package: str,
-    tags: Dict[str, str],
+    tags: dict[str, str],
     cred_path: Optional[Union[os.PathLike, str]] = None,
     service_url: Optional[str] = None,
-) -> List[str]:
+) -> list[str]:
     """Search for instances of `package` in cipd with the given `tags`.
 
     Returns:
@@ -324,7 +324,7 @@ def CreatePackage(
     cipd_path: Union[os.PathLike, str],
     package: str,
     in_dir: Union[os.PathLike, str],
-    tags: Dict[str, str],
+    tags: dict[str, str],
     refs: Iterable[str],
     cred_path: Optional[Union[os.PathLike, str]] = None,
     service_url: Optional[str] = None,

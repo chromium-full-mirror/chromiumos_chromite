@@ -13,7 +13,7 @@ import contextlib
 import importlib
 import logging
 import os
-from typing import Callable, List, TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING
 
 from chromite.third_party.google.protobuf import symbol_database
 
@@ -236,7 +236,7 @@ class Router:
         method_name: str,
         config: "api_config.ApiConfig",
         input_handler: "message_util.MessageHandler",
-        output_handlers: List["message_util.MessageHandler"],
+        output_handlers: list["message_util.MessageHandler"],
         config_handler: "message_util.MessageHandler",
     ) -> int:
         """Dispatch the request.
@@ -400,7 +400,7 @@ class Router:
     def _reexecute_branched(
         self,
         input_handler: "message_util.MessageHandler",
-        output_handlers: List["message_util.MessageHandler"],
+        output_handlers: list["message_util.MessageHandler"],
         config_handler: "message_util.MessageHandler",
         service_name: str,
         method_name: str,
@@ -460,7 +460,7 @@ class Router:
         output_msg: "google.protobuf.Message",
         config: "api_config.ApiConfig",
         input_handler: "message_util.MessageHandler",
-        output_handlers: List["message_util.MessageHandler"],
+        output_handlers: list["message_util.MessageHandler"],
         config_handler: "message_util.MessageHandler",
         service_name: str,
         method_name: str,

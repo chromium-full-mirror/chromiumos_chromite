@@ -13,19 +13,7 @@ import functools
 import logging
 import os
 from pathlib import Path
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import Any, Callable, Iterable, Iterator, Optional, Type, Union
 
 from chromite.lib import constants
 from chromite.lib import git
@@ -109,14 +97,14 @@ class Overlay(QueryTarget):
         yield from self.parents
 
     @functools.cached_property
-    def layout_conf(self) -> Dict[str, str]:
+    def layout_conf(self) -> dict[str, str]:
         """The layout.conf variables."""
         return key_value_store.LoadFile(
             self.path / "metadata" / "layout.conf", ignore_missing=True
         )
 
     @functools.cached_property
-    def parents(self) -> List[Overlay]:
+    def parents(self) -> list[Overlay]:
         """The Portage masters of this overlay.  Note the COIL rename."""
         all_overlays = _get_all_overlays_by_name()
         parents = []
@@ -163,7 +151,7 @@ class Overlay(QueryTarget):
         return self.metadata_dir / "md5-cache"
 
     @functools.cached_property
-    def profiles(self) -> List[Profile]:
+    def profiles(self) -> list[Profile]:
         """A list of all profiles defined in this overlay."""
         if not self.profiles_dir.is_dir():
             return []
@@ -219,7 +207,7 @@ class Overlay(QueryTarget):
         return None
 
     @functools.cached_property
-    def ebuilds(self) -> List[Ebuild]:
+    def ebuilds(self) -> list[Ebuild]:
         """A list of all ebuilds in this overlay."""
         ebuilds = []
         for ebuild_path in self.path.glob("*/*/*.ebuild"):
@@ -227,7 +215,7 @@ class Overlay(QueryTarget):
         return ebuilds
 
     @functools.cached_property
-    def make_conf_vars(self) -> Dict[str, str]:
+    def make_conf_vars(self) -> dict[str, str]:
         """The variables defined in make.conf."""
         make_conf_path = self.path / "make.conf"
         if make_conf_path.is_file():
@@ -240,7 +228,7 @@ class Overlay(QueryTarget):
 
 
 @functools.lru_cache(maxsize=None)
-def _get_all_overlays_by_name() -> Dict[str, Overlay]:
+def _get_all_overlays_by_name() -> dict[str, Overlay]:
     """Get all overlays, in a dictionary by name.
 
     Returns:
@@ -255,7 +243,7 @@ def _get_all_overlays_by_name() -> Dict[str, Overlay]:
 class Profile(QueryTarget):
     """A portage profile, e.g., chromiumos:base."""
 
-    _obj_cache: Dict[Path, Profile] = {}
+    _obj_cache: dict[Path, Profile] = {}
 
     def __new__(cls, _name: str, path: Path, _overlay: Overlay) -> Profile:
         # Caching the construction of profiles prevents a re-parse of
@@ -280,7 +268,7 @@ class Profile(QueryTarget):
             yield from overlay.profiles
 
     @functools.cached_property
-    def make_defaults_vars(self) -> Dict[str, str]:
+    def make_defaults_vars(self) -> dict[str, str]:
         """A dictionary of the raw make.defaults variables."""
         make_defaults_path = self.path / "make.defaults"
         if make_defaults_path.is_file():
@@ -312,7 +300,7 @@ class Profile(QueryTarget):
                 return result
         return default
 
-    def resolve_var_incremental(self, var: str) -> Set[str]:
+    def resolve_var_incremental(self, var: str) -> set[str]:
         """Resolve a variable incrementally, similar to how Portage would.
 
         This will traverse the profiles depth-first, adding tokens which are not
@@ -324,11 +312,11 @@ class Profile(QueryTarget):
         Returns:
             The resolved variable, as a set of the tokens.
         """
-        result: Set[str] = set()
+        result: set[str] = set()
 
         # portage_testables creates recursive overlays.  We don't technically
         # need to track visited overlays for well-formed overlays.
-        visited_overlays: Set[str] = set()
+        visited_overlays: set[str] = set()
 
         def _process_tokens(tokens: Iterable[str]) -> None:
             for token in tokens:
@@ -369,14 +357,14 @@ class Profile(QueryTarget):
         """The machine architecture of this profile."""
         return self.resolve_var("ARCH") or ""
 
-    def _use_flag_changes(self) -> Tuple[Set[str], Set[str]]:
+    def _use_flag_changes(self) -> tuple[set[str], set[str]]:
         """Compute the USE flags changed by this profile.
 
         Returns:
             A 2-tuple: the set of flags set, and the flags unset.
         """
-        flags_set: Set[str] = set()
-        flags_unset: Set[str] = set()
+        flags_set: set[str] = set()
+        flags_unset: set[str] = set()
 
         def _process_flag(flag: str, prefix: str = "") -> None:
             flag_set = True
@@ -407,13 +395,13 @@ class Profile(QueryTarget):
         return flags_set, flags_unset
 
     @property
-    def use_flags_set(self) -> Set[str]:
+    def use_flags_set(self) -> set[str]:
         """A set of what USE flags this profile enables."""
         flags_set, _ = self._use_flag_changes()
         return flags_set
 
     @property
-    def use_flags_unset(self) -> Set[str]:
+    def use_flags_unset(self) -> set[str]:
         """A set of what USE flags this profile disables."""
         _, flags_unset = self._use_flag_changes()
         return flags_unset
@@ -421,7 +409,7 @@ class Profile(QueryTarget):
     # TODO(b/236161656): Fix.
     # pylint: disable-next=cache-max-size-none
     @functools.lru_cache(maxsize=None)
-    def _parse_conf(self, name: str) -> List[List[str]]:
+    def _parse_conf(self, name: str) -> list[list[str]]:
         """Parse a basic conf file, such as parent, use.mask, or use.force."""
         file_path = self.path / name
         if not file_path.is_file():
@@ -429,9 +417,9 @@ class Profile(QueryTarget):
         contents = file_path.read_text(encoding="utf-8")
         return list(portage_profile_conf.parse(contents))
 
-    def _resolve_use_conf(self, name: str) -> Set[str]:
+    def _resolve_use_conf(self, name: str) -> set[str]:
         """Resolve a use.mask or use.force file."""
-        result: Set[str] = set()
+        result: set[str] = set()
 
         def _rec(profile: Profile) -> None:
             for parent in profile.parents:
@@ -447,17 +435,17 @@ class Profile(QueryTarget):
         return result
 
     @property
-    def masked_use_flags(self) -> Set[str]:
+    def masked_use_flags(self) -> set[str]:
         """The resolved set of masked USE flags for this profile."""
         return self._resolve_use_conf("use.mask")
 
     @property
-    def forced_use_flags(self) -> Set[str]:
+    def forced_use_flags(self) -> set[str]:
         """The resolved set of forced USE flags for this profile."""
         return self._resolve_use_conf("use.force")
 
     @property
-    def use_flags(self) -> Set[str]:
+    def use_flags(self) -> set[str]:
         """A set of the fully-resolved USE flags for this profile."""
         use_flags = set(self.resolve_var_incremental("USE"))
         use_expand = self.resolve_var_incremental("USE_EXPAND")
@@ -472,7 +460,7 @@ class Profile(QueryTarget):
         return use_flags
 
     @functools.cached_property
-    def parents(self) -> List[Profile]:
+    def parents(self) -> list[Profile]:
         """A list of the immediate parent profiles of this profile."""
         parents = []
         for tokens in self._parse_conf("parent"):
@@ -586,22 +574,22 @@ class Ebuild(QueryTarget):
         return self.md5_cache.eapi
 
     @property
-    def iuse(self) -> Set[str]:
+    def iuse(self) -> set[str]:
         """A set of the flags in IUSE."""
         return self.md5_cache.iuse
 
     @property
-    def iuse_default(self) -> Set[str]:
+    def iuse_default(self) -> set[str]:
         """A set of the flags enabled by default in IUSE."""
         return self.md5_cache.iuse_default
 
     @property
-    def eclasses(self) -> List[str]:
+    def eclasses(self) -> list[str]:
         """A list of the eclasses inherited by this package and its eclasses."""
         return [x.name for x in self.md5_cache.eclasses]
 
     @property
-    def keywords(self) -> List[str]:
+    def keywords(self) -> list[str]:
         """The KEYWORDS of this package."""
         return self.md5_cache.keywords
 
@@ -720,7 +708,7 @@ class Board(QueryTarget):
             yield self.top_level_profile
 
     @property
-    def use_flags(self) -> Set[str]:
+    def use_flags(self) -> set[str]:
         """The fully-evaluated USE flags for this board."""
         result = {f"board_use_{self.name}"}
         if self.top_level_profile:
@@ -760,7 +748,7 @@ class Query:
         board = Query(Board).filter(lambda board: board.name == "volteer").one()
     """
 
-    _filters: List[Callable[[QueryTarget], bool]]
+    _filters: list[Callable[[QueryTarget], bool]]
 
     def __init__(
         self,
@@ -805,6 +793,6 @@ class Query:
         except StopIteration:
             return None
 
-    def all(self) -> List[QueryTarget]:
+    def all(self) -> list[QueryTarget]:
         """Return all results in a list."""
         return list(self)

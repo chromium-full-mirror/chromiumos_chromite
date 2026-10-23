@@ -11,7 +11,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import cast, Dict, Generator, Iterable, List, Optional, Tuple, Union
+from typing import cast, Generator, Iterable, Optional, Union
 
 from chromite.lib import osutils
 
@@ -46,7 +46,7 @@ def _Open(
 
 def LoadData(
     data: str, multiline: bool = False, source: str = "<data>"
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Turn key=value content into a dict.
 
     Note: If you're designing a new data store, please use json rather than
@@ -106,7 +106,7 @@ def LoadFile(
     obj: Union[str, "os.PathLike[str]", io.TextIOWrapper],
     ignore_missing: bool = False,
     multiline: bool = False,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Turn a key=value file into a dict.
 
     Note: If you're designing a new data store, please use json rather than
@@ -139,7 +139,7 @@ def LoadFile(
 
 def UpdateKeyInContents(
     old_lines: Iterable[str], key: str, value: str
-) -> List[str]:
+) -> list[str]:
     """Update a key in the contents of a key-value store.
 
     Key-value pairs are represented as:
@@ -190,7 +190,7 @@ def UpdateKeyInContents(
         quote_char = DOUBLE_QUOTE
     new_keyval_line = f"{key}={quote_char}{value}{quote_char}"
 
-    def _extract_key_value(line: str) -> Optional[Tuple[str, str]]:
+    def _extract_key_value(line: str) -> Optional[tuple[str, str]]:
         """If the line looks like key="value", return the key and value.
 
         Returns None if the line does not have the expected format.
@@ -258,7 +258,7 @@ def UpdateKeyInLocalFile(
 
 def UpdateKeysInLocalFile(
     filepath: Union[Path, str],
-    keys_values: Dict[str, str],
+    keys_values: dict[str, str],
 ) -> bool:
     """Update any number of key-value pairs in a local key-value store file.
 
@@ -269,7 +269,7 @@ def UpdateKeysInLocalFile(
     Returns:
         True if any key-value pairs were changed in the file.
     """
-    original_lines: List[str] = []
+    original_lines: list[str] = []
     try:
         original_lines = osutils.ReadText(filepath).splitlines()
     except FileNotFoundError:

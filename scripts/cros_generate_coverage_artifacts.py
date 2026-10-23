@@ -12,7 +12,7 @@ all our E2E tests.
 import argparse
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Optional
 
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -34,7 +34,7 @@ _TEST_PROFDATA_PATH = "scripts/testdata/test.profdata"
 _COVERAGE_FILENAME = "coverage.json"
 
 
-def generate_kernel_artifacts(kernel_home: Path) -> Dict[str, str]:
+def generate_kernel_artifacts(kernel_home: Path) -> dict[str, str]:
     """Generate all the kernel artifacts.
 
     Args:
@@ -68,7 +68,7 @@ def generate_kernel_artifacts(kernel_home: Path) -> Dict[str, str]:
     return data
 
 
-def generate_llvm_artifacts(object_files: List[str]) -> str:
+def generate_llvm_artifacts(object_files: list[str]) -> str:
     """Generate the llvm artifacts needed.
 
     Args:
@@ -130,7 +130,7 @@ def _get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def parse_arguments(argv: Optional[List[str]]) -> argparse.Namespace:
+def parse_arguments(argv: Optional[list[str]]) -> argparse.Namespace:
     """Parse and validate arguments.
 
     Args:
@@ -143,7 +143,7 @@ def parse_arguments(argv: Optional[List[str]]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def main(argv: Optional[List[str]]) -> Optional[int]:
+def main(argv: Optional[list[str]]) -> Optional[int]:
     """Main."""
     opts = parse_arguments(argv)
     opts.freeze()

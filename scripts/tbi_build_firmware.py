@@ -15,7 +15,7 @@ import os
 import pwd
 import shutil
 import subprocess
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from chromite.third_party.google.protobuf import json_format
 
@@ -83,7 +83,7 @@ def _drop_to_user(user: str) -> None:
     os.environ["HOME"] = pw.pw_dir
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     parser = get_parser()
     opts = parser.parse_args(argv or [])
 

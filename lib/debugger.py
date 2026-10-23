@@ -11,7 +11,7 @@ from pathlib import Path
 import re
 import subprocess
 import time
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import cros_build_lib
 from chromite.lib import remote_access
@@ -35,14 +35,14 @@ _PLATFORM_START_PORT = 2160
 class Debugger(abc.ABC):
     """Represents a debugger and its actions on local or remote devices."""
 
-    _PortMap = List[remote_access.PortForwardSpec]
+    _PortMap = list[remote_access.PortForwardSpec]
 
     def __init__(
         self,
         debugger_path: Path,
-        debugger_args: Optional[List[str]] = None,
+        debugger_args: Optional[list[str]] = None,
         remote_device: Optional[_RemoteDevice] = None,
-        ssh_settings: Optional[List[str]] = None,
+        ssh_settings: Optional[list[str]] = None,
         sysroot: Optional[str] = None,
         port_forwards: Optional[_PortMap] = None,
     ):
@@ -204,7 +204,7 @@ class LLVMDebugger(Debugger):
         )
         return None
 
-    def _lldb_board_prompt(self, board: Optional[str] = None) -> List[str]:
+    def _lldb_board_prompt(self, board: Optional[str] = None) -> list[str]:
         return ["-O", f'settings set prompt "(lldb-{board}) "'] if board else []
 
     def debug_existing_process(

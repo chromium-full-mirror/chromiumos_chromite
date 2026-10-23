@@ -14,7 +14,7 @@ import importlib
 from pathlib import Path
 import sys
 import types
-from typing import List, Optional
+from typing import Optional
 
 # Any chromite modules imported at this point will become relevant to all build
 # targets.  Use care.
@@ -69,7 +69,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def parse_arguments(argv: Optional[List[str]]) -> commandline.ArgumentNamespace:
+def parse_arguments(argv: Optional[list[str]]) -> commandline.ArgumentNamespace:
     """Parse and validate arguments."""
     parser = get_parser()
     opts = parser.parse_args(argv)
@@ -78,7 +78,7 @@ def parse_arguments(argv: Optional[List[str]]) -> commandline.ArgumentNamespace:
     return opts
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     """Main."""
     parse_arguments(argv)
 

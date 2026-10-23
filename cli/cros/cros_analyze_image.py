@@ -71,7 +71,7 @@ WATCHED_PATHS = [
 
 def sub_paths_size_iter(
     root_path: str,
-) -> typing.Generator[typing.Tuple[str, int], None, None]:
+) -> typing.Generator[tuple[str, int], None, None]:
     """Calculates sizes for paths below root_path.
 
     Args:
@@ -99,7 +99,7 @@ def sub_paths_size_iter(
 
 def get_image_sizes(
     image_filepath: str, required_paths: list = None, min_size: int = None
-) -> typing.Dict[str, int]:
+) -> dict[str, int]:
     """Extracts an image to a temporary directory and calls sub_paths_size_iter.
 
     Args:

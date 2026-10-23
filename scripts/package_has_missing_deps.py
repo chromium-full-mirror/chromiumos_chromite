@@ -23,16 +23,7 @@ from pathlib import Path
 import pprint
 import re
 import sys
-from typing import (
-    Generic,
-    Iterable,
-    List,
-    NamedTuple,
-    Optional,
-    Set,
-    TypeVar,
-    Union,
-)
+from typing import Generic, Iterable, NamedTuple, Optional, TypeVar, Union
 
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
@@ -155,18 +146,18 @@ T = TypeVar("T")
 class ResultSet(Generic[T], NamedTuple):
     """Represent separate but related sets for the build target and sdk."""
 
-    target: Set[T]
-    sdk: Set[T]
+    target: set[T]
+    sdk: set[T]
 
 
 class MissingDependencyDetails(NamedTuple):
     """Information about a package with missing dependencies."""
 
     package: str
-    unsatisfied_libs: List[str]
-    unsatisfied_sdk_libs: List[str]
-    depend: List[str]
-    bdepend: List[str]
+    unsatisfied_libs: list[str]
+    unsatisfied_sdk_libs: list[str]
+    depend: list[str]
+    bdepend: list[str]
 
 
 def is_debug_path(path: str) -> bool:
@@ -289,7 +280,7 @@ class DotSoResolver:
         # We could compare against the installed db to try and find a match,
         # but this seems easiest for now as our PortageDB API doesn't support
         # these kind of primitives yet.
-        def _anyof_reduce(choices: List[str]) -> str:
+        def _anyof_reduce(choices: list[str]) -> str:
             """Reduce ||() nodes."""
 
             def _flatten(eles):
@@ -316,7 +307,7 @@ class DotSoResolver:
             package.bdepend.reduce(anyof_reduce=_anyof_reduce)
         )
 
-        def _clean_deps(raw_deps: List[str], from_sdk=False) -> Set[str]:
+        def _clean_deps(raw_deps: list[str], from_sdk=False) -> set[str]:
             deps = set()
             expanded = []
             for fulldep in raw_deps:
@@ -392,7 +383,7 @@ class DotSoResolver:
                 implicit_libs.update(self.provided_libs(pkg))
         return implicit_libs
 
-    def provided_libs(self, package: portage_util.InstalledPackage) -> Set[str]:
+    def provided_libs(self, package: portage_util.InstalledPackage) -> set[str]:
         """Return a set of .so files provided by |package|."""
         cpvr = f"{package.category}/{package.pf}"
         if cpvr in self.provided_libs_cache:
@@ -437,8 +428,8 @@ class DotSoResolver:
         """Return sets of .so files provided by the immediate dependencies."""
 
         def _expand_to_libs(
-            packages: Set[portage_util.InstalledPackage],
-        ) -> Set[str]:
+            packages: set[portage_util.InstalledPackage],
+        ) -> set[str]:
             provided_libs = set()
             # |package| may not actually be installed yet so manually add it too
             # since a package can depend on its own libs.
@@ -459,7 +450,7 @@ class DotSoResolver:
 
     def lib_to_package(
         self, lib_filename: str = None, from_sdk=False
-    ) -> Set[str]:
+    ) -> set[str]:
         """Return a set of packages that contain the library."""
         lookup = (
             self.sdk_lib_to_package_map if from_sdk else self.lib_to_package_map
@@ -554,7 +545,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def parse_arguments(argv: List[str]) -> argparse.Namespace:
+def parse_arguments(argv: list[str]) -> argparse.Namespace:
     """Parse and validate arguments."""
     parser = get_parser()
     opts = parser.parse_args(argv)
@@ -572,7 +563,7 @@ def parse_arguments(argv: List[str]) -> argparse.Namespace:
 
 def check_package(
     package: portage_util.InstalledPackage,
-    implicit: Set[str],
+    implicit: set[str],
     resolver: DotSoResolver,
     match: bool,
 ) -> Optional[MissingDependencyDetails]:
@@ -644,7 +635,7 @@ def raw_print(details: MissingDependencyDetails) -> None:
     print()
 
 
-def main(argv: Optional[List[str]]) -> None:
+def main(argv: Optional[list[str]]) -> None:
     """Main."""
     commandline.RunInsideChroot()
     opts = parse_arguments(argv)

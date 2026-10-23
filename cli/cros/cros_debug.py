@@ -10,7 +10,7 @@ import pathlib
 import shlex
 import shutil
 import sys
-from typing import List, Optional
+from typing import Optional
 
 from chromite.cli import command
 from chromite.lib import build_target_lib
@@ -85,7 +85,7 @@ To debug a process by its pid:
         self.sysroot: Optional[pathlib.Path] = None
         self.debug_server: Optional[debugger.Debugger] = None
         self.qemu: Optional[qemu.Qemu] = None
-        self.debugger_args: Optional[List[str]] = None
+        self.debugger_args: Optional[list[str]] = None
         self.corefile: Optional[pathlib.Path] = None
 
     @classmethod

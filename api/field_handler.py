@@ -13,7 +13,7 @@ import functools
 import logging
 import os
 import shutil
-from typing import Iterator, List, Optional
+from typing import Iterator, Optional
 
 from chromite.third_party.google.protobuf import message as protobuf_message
 
@@ -264,7 +264,7 @@ def copy_paths_in(
     destination: str,
     delete: Optional[bool] = True,
     chroot: Optional[chroot_lib.Chroot] = None,
-) -> Iterator[List[PathHandler]]:
+) -> Iterator[list[PathHandler]]:
     """Context manager function to transfer and cleanup all Path messages.
 
     Args:

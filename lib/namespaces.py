@@ -17,7 +17,7 @@ import signal
 # the cros_build_lib.run helper.
 import subprocess
 import sys
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import commandline
 from chromite.lib import locking
@@ -487,7 +487,7 @@ def SimpleUnshare(
 
 
 def ReExecuteWithNamespace(
-    argv: List[str],
+    argv: list[str],
     preserve_env: bool = False,
     network: bool = False,
     clear_saved_id: bool = False,

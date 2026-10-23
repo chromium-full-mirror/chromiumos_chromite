@@ -6,7 +6,7 @@
 
 """{Build Target} configs."""
 
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib.firmware import servo_lib
 
@@ -32,7 +32,7 @@ from chromite.lib.firmware import servo_lib
 # DEPLOY_SERVO_FORCE_FLASHROM = False
 
 
-def deploy_extra_flags_futility(servo: Optional[servo_lib.Servo]) -> List[str]:
+def deploy_extra_flags_futility(servo: Optional[servo_lib.Servo]) -> list[str]:
     """Returns extra flags for flashing with futility.
 
     Args:
@@ -51,7 +51,7 @@ def deploy_extra_flags_futility(servo: Optional[servo_lib.Servo]) -> List[str]:
     return []
 
 
-def deploy_extra_flags_flashrom(servo: Optional[servo_lib.Servo]) -> List[str]:
+def deploy_extra_flags_flashrom(servo: Optional[servo_lib.Servo]) -> list[str]:
     """Returns extra flags for flashing with flashrom.
 
     Args:

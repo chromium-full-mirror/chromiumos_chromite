@@ -6,7 +6,7 @@ import importlib
 import logging
 import pkgutil
 from types import ModuleType
-from typing import Iterator, Tuple
+from typing import Iterator
 
 
 _CONFIG_MODULE_FULL_NAME = "chromite.lib.firmware.ap_firmware_config.%s"
@@ -21,7 +21,7 @@ class BuildTargetNotConfiguredError(Error):
     """Thrown when a config module does not exist for the build target."""
 
 
-def configs() -> Iterator[Tuple[str, ModuleType]]:
+def configs() -> Iterator[tuple[str, ModuleType]]:
     """Iterate over all config modules.
 
     Yields:

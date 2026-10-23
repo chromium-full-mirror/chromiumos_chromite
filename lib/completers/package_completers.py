@@ -6,7 +6,7 @@
 
 import argparse
 from pathlib import Path
-from typing import Iterator, List
+from typing import Iterator
 
 from chromite.lib import build_target_lib
 from chromite.lib import portage_util
@@ -16,14 +16,14 @@ from chromite.lib.parser import package_info
 
 def package(
     prefix, action, parser, parsed_args  # pylint: disable=unused-argument
-) -> List[str]:
+) -> list[str]:
     """List all packages with the package version."""
     return [package_info.parse(Path(x)).cpv for x in _get_ebuilds(parsed_args)]
 
 
 def package_atom(
     prefix, action, parser, parsed_args  # pylint: disable=unused-argument
-) -> List[str]:
+) -> list[str]:
     """List all packages without the package version."""
     return [package_info.parse(Path(x)).cp for x in _get_ebuilds(parsed_args)]
 

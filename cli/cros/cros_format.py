@@ -14,7 +14,7 @@ import itertools
 import logging
 import os
 from pathlib import Path
-from typing import Callable, Dict, List, NamedTuple, Optional
+from typing import Callable, NamedTuple, Optional
 
 from chromite.cli import analyzers
 from chromite.cli import command
@@ -157,7 +157,7 @@ def _BreakoutDataByTool(map_to_return, path) -> None:
         logging.debug("%s: reading initial data failed: %s", path, e)
 
 
-def _BreakoutFilesByTool(files: List[Path]) -> Dict[Callable, List[Path]]:
+def _BreakoutFilesByTool(files: list[Path]) -> dict[Callable, list[Path]]:
     """Maps a tool method to the list of files to process."""
     map_to_return = {}
 

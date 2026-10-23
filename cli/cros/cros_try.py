@@ -14,7 +14,6 @@ import os
 from pathlib import Path
 import re
 import sys
-from typing import List
 
 from chromite.cli import command
 from chromite.lib import cipd
@@ -55,7 +54,7 @@ For help, run `cros try help` (with no hyphens).
         try_bin = _InstallTryPackage(self.options.try_version)
         return self._RunTry(try_bin, self.options.input[0])
 
-    def _RunTry(self, try_bin: Path, args: List[str]) -> int:
+    def _RunTry(self, try_bin: Path, args: list[str]) -> int:
         """Run the `try` command with the specified arguments.
 
         Args:

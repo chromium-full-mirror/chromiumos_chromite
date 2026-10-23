@@ -8,7 +8,7 @@ This script is meant to be used in generated wrapper scripts, not used directly.
 """
 
 import os
-from typing import Iterable, List, Optional
+from typing import Iterable, Optional
 
 from chromite.lib import build_query
 from chromite.lib import commandline
@@ -52,7 +52,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def parse_arguments(argv: List[str]) -> commandline.ArgumentNamespace:
+def parse_arguments(argv: list[str]) -> commandline.ArgumentNamespace:
     """Parse and validate arguments."""
     parser = get_parser()
     opts = parser.parse_args(argv)
@@ -61,12 +61,12 @@ def parse_arguments(argv: List[str]) -> commandline.ArgumentNamespace:
     return opts
 
 
-def is_pretend_cmd(command: List[str]) -> bool:
+def is_pretend_cmd(command: list[str]) -> bool:
     """Checks is --pretend or -p is present in the command."""
     return "--pretend" in command or "-p" in command
 
 
-def parse_pkgs(command: List[str], build_target_name: str) -> Iterable[str]:
+def parse_pkgs(command: list[str], build_target_name: str) -> Iterable[str]:
     """Parse packages from a command."""
     pkg_fragments = set()
     for arg in command[1:]:
@@ -159,7 +159,7 @@ def execute(opts: commandline.ArgumentNamespace) -> int:
     return result.returncode
 
 
-def main(argv: Optional[List[str]]) -> Optional[int]:
+def main(argv: Optional[list[str]]) -> Optional[int]:
     """Main."""
     commandline.RunInsideChroot()
 

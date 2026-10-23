@@ -18,12 +18,9 @@ import sys
 import tempfile
 from typing import (
     Callable,
-    Dict,
     Iterable,
-    List,
     NamedTuple,
     Optional,
-    Tuple,
     TYPE_CHECKING,
     TypeVar,
     Union,
@@ -177,8 +174,8 @@ def _register_uprev_handler(key: str) -> Callable[[F], F]:
 
 PackageUprevHandler = Callable[
     [
-        List["build_target_lib.BuildTarget"],
-        List[uprev_lib.GitRef],
+        list["build_target_lib.BuildTarget"],
+        list[uprev_lib.GitRef],
         "chroot_lib.Chroot",
     ],
     uprev_lib.UprevVersionedResult,
@@ -200,7 +197,7 @@ def uprevs_versioned_package(
 
 
 FileUprevHandler = Callable[
-    [List[uprev_lib.GitRef], "chroot_lib.Chroot"],
+    [list[uprev_lib.GitRef], "chroot_lib.Chroot"],
     uprev_lib.UprevVersionedResult,
 ]
 
@@ -224,13 +221,13 @@ class UprevAndroidResult(NamedTuple):
 
     revved: bool
     android_atom: str = None
-    modified_files: List[str] = None
+    modified_files: list[str] = None
 
 
 def uprev_android(
     android_package: str,
     chroot: "chroot_lib.Chroot",
-    build_targets: Optional[List["build_target_lib.BuildTarget"]] = None,
+    build_targets: Optional[list["build_target_lib.BuildTarget"]] = None,
     android_build_branch: Optional[str] = None,
     android_version: Optional[str] = None,
     skip_commit: bool = False,
@@ -316,7 +313,7 @@ def uprev_android(
 
 def uprev_android_lkgb(
     android_package: str,
-    build_targets: List["build_target_lib.BuildTarget"],
+    build_targets: list["build_target_lib.BuildTarget"],
     chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Uprevs an Android package to the version specified in the LKGB file.
@@ -384,7 +381,7 @@ define_uprev_android_lkgb_handlers()
 
 
 def uprev_build_targets(
-    build_targets: Optional[List["build_target_lib.BuildTarget"]],
+    build_targets: Optional[list["build_target_lib.BuildTarget"]],
     overlay_type: str,
     chroot: "chroot_lib.Chroot" = None,
     output_dir: Optional[str] = None,
@@ -418,11 +415,11 @@ def uprev_build_targets(
 
 
 def uprev_overlays(
-    overlays: List[str],
-    build_targets: Optional[List["build_target_lib.BuildTarget"]] = None,
+    overlays: list[str],
+    build_targets: Optional[list["build_target_lib.BuildTarget"]] = None,
     chroot: Optional["chroot_lib.Chroot"] = None,
     output_dir: Optional[str] = None,
-) -> List[str]:
+) -> list[str]:
     """Uprev the given overlays.
 
     Args:
@@ -455,8 +452,8 @@ def uprev_overlays(
 
 def uprev_versioned_package(
     package: package_info.PackageInfo,
-    build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> "uprev_lib.UprevVersionedResult":
     """Call registered uprev handler function for the package.
@@ -482,7 +479,7 @@ def uprev_versioned_package(
 
 def uprev_version_file(
     file_path: str,
-    refs: List[uprev_lib.GitRef],
+    refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> "uprev_lib.UprevVersionedResult":
     """Call registered uprev handler function for the package.
@@ -507,8 +504,8 @@ def uprev_version_file(
 
 @uprevs_versioned_package("x11-apps/igt-gpu-tools")
 def uprev_igt_gpu_tools(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     _chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates igt-gpu-tools ebuilds.
@@ -537,8 +534,8 @@ def uprev_igt_gpu_tools(
 
 @uprevs_versioned_package("chromeos-base/drivefs")
 def uprev_drivefs(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates drivefs ebuilds.
@@ -579,8 +576,8 @@ def uprev_drivefs(
 @uprevs_versioned_package("chromeos-base/perfetto")
 @uprevs_versioned_package("dev-go/perfetto-protos")
 def uprev_perfetto(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates Perfetto ebuilds.
@@ -650,8 +647,8 @@ class AfdoMetadata(NamedTuple):
 
 @uprevs_versioned_package("afdo/kernel-profiles")
 def uprev_kernel_afdo(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    _refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    _refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates kernel ebuilds with versions from kernel_afdo.json.
@@ -727,8 +724,8 @@ def uprev_kernel_afdo(
 @uprevs_versioned_package("chromeos-base/termina-dlc")
 @uprevs_versioned_package("chromeos-base/termina-tools-dlc")
 def uprev_termina_dlcs(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    _refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    _refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates shared termina-dlc and termina-tools-dlc ebuilds.
@@ -766,8 +763,8 @@ def uprev_termina_dlcs(
 
 @uprevs_versioned_package("app-emulation/parallels-desktop")
 def uprev_parallels_desktop(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    _refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    _refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates Parallels Desktop ebuild - app-emulation/parallels-desktop.
@@ -822,8 +819,8 @@ def uprev_parallels_desktop(
 
 @uprevs_versioned_package("chromeos-base/borealis-dlc")
 def uprev_borealis_dlc(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    _refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    _refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates shared borealis-dlc ebuild - chromeos-base/borealis-dlc.
@@ -849,8 +846,8 @@ def uprev_borealis_dlc(
 
 @uprevs_versioned_package("chromeos-base/borealis-dlc-nvidia")
 def uprev_borealis_dlc_nvidia(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    _refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    _refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates shared chromeos-base/borealis-dlc-nvidia ebuild.
@@ -876,8 +873,8 @@ def uprev_borealis_dlc_nvidia(
 
 @uprevs_versioned_package("chromeos-base/borealis-dlc-chroot")
 def uprev_borealis_dlc_chroot(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    _refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    _refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates shared chromeos-base/borealis-dlc-chroot ebuild.
@@ -903,8 +900,8 @@ def uprev_borealis_dlc_chroot(
 
 @uprevs_versioned_package("chromeos-base/chromeos-ec-token")
 def uprev_chromeos_ec_token(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    _refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    _refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates shared chromeos-base/chromeos-ec-token ebuild.
@@ -936,8 +933,8 @@ def _get_version_pin_src_path(package_path):
 
 @uprevs_versioned_package(constants.CHROME_CP)
 def uprev_chrome_from_ref(
-    build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     _chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Uprev chrome and its related packages.
@@ -960,7 +957,7 @@ def uprev_chrome_from_ref(
 
 
 def revbump_chrome(
-    build_targets: List["build_target_lib.BuildTarget"] = None,
+    build_targets: list["build_target_lib.BuildTarget"] = None,
     chroot: Optional["chroot_lib.Chroot"] = None,
 ) -> uprev_lib.UprevVersionedResult:
     """Attempt to revbump chrome.
@@ -977,7 +974,7 @@ def revbump_chrome(
 def uprev_chrome(
     chrome_version: str,
     commit_hash: str,
-    build_targets: Optional[List["build_target_lib.BuildTarget"]],
+    build_targets: Optional[list["build_target_lib.BuildTarget"]],
     chroot: Optional["chroot_lib.Chroot"],
 ) -> uprev_lib.UprevVersionedResult:
     """Attempt to uprev chrome and its related packages to the given version."""
@@ -1038,7 +1035,7 @@ def uprev_chrome(
 
 
 def _get_latest_version_from_refs(
-    refs_prefix: str, refs: List[uprev_lib.GitRef]
+    refs_prefix: str, refs: list[uprev_lib.GitRef]
 ) -> str:
     """Get the latest version from refs
 
@@ -1097,8 +1094,8 @@ def _get_private_overlay_package_root(ref: uprev_lib.GitRef, package: str):
 
 @uprevs_versioned_package("chromeos-base/crosvm")
 def uprev_crosvm(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     _chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates crosvm ebuilds to latest revision
@@ -1144,8 +1141,8 @@ def uprev_crosvm(
 
 @uprevs_versioned_package("chromeos-base/ti50-emulator")
 def uprev_ti50_emulator(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     _chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates ti50-emulator ebuilds to latest revision
@@ -1179,8 +1176,8 @@ def uprev_ti50_emulator(
 
 @uprevs_versioned_package("chromeos-base/ec-devutils")
 def uprev_ecdevutils(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     _chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates ec-devutils ebuilds to latest revision
@@ -1215,8 +1212,8 @@ def uprev_ecdevutils(
 
 @uprevs_versioned_package("chromeos-base/ec-utils")
 def uprev_ecutils(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     _chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates ec-utils ebuilds to latest revision
@@ -1251,8 +1248,8 @@ def uprev_ecutils(
 
 @uprevs_versioned_package("chromeos-base/ec-utils-test")
 def uprev_ecutilstest(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     _chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates ec-utils-test ebuilds to latest revision
@@ -1287,8 +1284,8 @@ def uprev_ecutilstest(
 
 @uprevs_versioned_package("chromeos-base/protofiles")
 def uprev_protofiles(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     _chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Uprevs chromeos-base/protofiles package.
@@ -1330,7 +1327,7 @@ def starbase_find_and_uprev(
     version_id: str,
     overlay_root: str,
     chroot: "chroot_lib.Chroot",
-) -> List[Optional[str]]:
+) -> list[Optional[str]]:
     """Updates and uprevs the starbase artifacts ebuild.
 
     This is factored out of uprev_starbase_artifacts for unit testing.
@@ -1406,8 +1403,8 @@ def starbase_find_and_uprev(
 # in multiple repositories.
 @uprevs_versioned_package("chromeos-base/starbase-apps")
 def uprev_starbase_artifacts(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     """Updates one or more starbase ebuilds to fetch their latest tar file.
@@ -1588,8 +1585,8 @@ _CROSH_CP = "chromeos-base/crosh-extension"
 
 @uprevs_versioned_package(_CROSH_CP)
 def uprev_libapps(
-    _build_targets: Optional[List["build_target_lib.BuildTarget"]],
-    refs: List[uprev_lib.GitRef],
+    _build_targets: Optional[list["build_target_lib.BuildTarget"]],
+    refs: list[uprev_lib.GitRef],
     _chroot: "chroot_lib.Chroot",
     source_root: Path = constants.SOURCE_ROOT,
 ) -> "uprev_lib.UprevVersionedResult":
@@ -1857,8 +1854,8 @@ def uprev_mtk_optee_os_bins_ebuild(overlay, manifest, new_version, ebuild_name):
 
 
 def uprev_mtk_optee_os_internal(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
     is_chromeos: bool,
 ) -> uprev_lib.UprevVersionedResult:
@@ -1981,8 +1978,8 @@ def uprev_mtk_optee_os_internal(
 
 @uprevs_versioned_package("sys-firmware/mtk-optee-os-ta")
 def uprev_mtk_optee_os(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     return uprev_mtk_optee_os_internal(
@@ -1992,8 +1989,8 @@ def uprev_mtk_optee_os(
 
 @uprevs_versioned_package("sys-firmware/mtk-optee-os-ta-chromeos")
 def uprev_mtk_optee_os_chromeos(
-    _build_targets: List["build_target_lib.BuildTarget"],
-    refs: List[uprev_lib.GitRef],
+    _build_targets: list["build_target_lib.BuildTarget"],
+    refs: list[uprev_lib.GitRef],
     chroot: "chroot_lib.Chroot",
 ) -> uprev_lib.UprevVersionedResult:
     return uprev_mtk_optee_os_internal(
@@ -2003,7 +2000,7 @@ def uprev_mtk_optee_os_chromeos(
 
 @uprevs_version_file("chrome/src/chromeos/CHROMEOS_LKGM")
 def uprev_cros_lkgm_file_on_chrome_repo(
-    refs: List[uprev_lib.GitRef], chroot: "chroot_lib.Chroot"
+    refs: list[uprev_lib.GitRef], chroot: "chroot_lib.Chroot"
 ) -> uprev_lib.UprevVersionedResult:
     """Uprevs the CHROMEOS_LKGM file to the specified revision.
 
@@ -2138,7 +2135,7 @@ def builds(atom, build_target, packages=None):
 def needs_chrome_source(
     build_target: "build_target_lib.BuildTarget",
     compile_source=False,
-    packages: Optional[List[package_info.PackageInfo]] = None,
+    packages: Optional[list[package_info.PackageInfo]] = None,
     useflags=None,
 ):
     """Check if the chrome source is needed.
@@ -2245,7 +2242,7 @@ class TargetVersions(NamedTuple):
 
 def get_target_versions(
     build_target: "build_target_lib.BuildTarget",
-    packages: List[package_info.PackageInfo] = None,
+    packages: list[package_info.PackageInfo] = None,
 ) -> TargetVersions:
     """Aggregate version info for a few key packages and the OS as a whole."""
     # Android version.
@@ -2294,8 +2291,8 @@ def get_target_versions(
 def determine_package_version(
     cpv_name: str,
     build_target: "build_target_lib.BuildTarget",
-    variables: Optional[List[str]] = None,
-) -> Optional[Tuple[str, Dict[str, str]]]:
+    variables: Optional[list[str]] = None,
+) -> Optional[tuple[str, dict[str, str]]]:
     """Returns the current package version for the board (or in buildroot).
 
     Args:
@@ -2452,7 +2449,7 @@ def determine_full_version():
 
 def find_fingerprints(
     build_target: "build_target_lib.BuildTarget",
-) -> List[str]:
+) -> list[str]:
     """Returns a list of fingerprints for this build.
 
     Args:
@@ -2675,7 +2672,7 @@ def determine_kernel_version(
 
 def get_models(
     build_target: "build_target_lib.BuildTarget", log_output: bool = True
-) -> Optional[List[str]]:
+) -> Optional[list[str]]:
     """Obtain a list of models supported by a unified board.
 
     This ignored whitelabel models since GoldenEye has no specific support for
@@ -2719,9 +2716,9 @@ def get_key_id(
 
 def _run_cros_config_host(
     build_target: "build_target_lib.BuildTarget",
-    args: List[str],
+    args: list[str],
     log_output: bool = True,
-) -> Optional[List[str]]:
+) -> Optional[list[str]]:
     """Run the cros_config_host tool.
 
     Args:

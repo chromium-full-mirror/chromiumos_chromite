@@ -15,7 +15,7 @@ import re
 import shutil
 import subprocess
 import sys
-from typing import Callable, List
+from typing import Callable
 
 from chromite.ide_tooling.scripts import detect_indent
 
@@ -76,7 +76,7 @@ class Converter:
 
         return self.external_filepath(filepath)
 
-    def convert_include_option(self, option: str) -> List[str]:
+    def convert_include_option(self, option: str) -> list[str]:
         """Converts include option to work outside chroot.
 
         Examples:
@@ -116,7 +116,7 @@ class Converter:
             return self.convert_filepath(value)
         return value
 
-    def convert_clang_option(self, option: str) -> List[str]:
+    def convert_clang_option(self, option: str) -> list[str]:
         if not option.startswith("-"):
             return [self.convert_clang_option_value(option)]
 
@@ -158,7 +158,7 @@ class Converter:
 
         raise Exception(f"Unexpected executable name: {exe}")
 
-    def convert_command_list(self, command: List[str]) -> List[str]:
+    def convert_command_list(self, command: list[str]) -> list[str]:
         exe, *options = command
 
         converted_exe = self.convert_exe(exe)
@@ -216,7 +216,7 @@ def generate(
     return converted
 
 
-def main(argv: List[str]) -> None:
+def main(argv: list[str]) -> None:
     """Main function to convert the compilation database.
 
     Args:

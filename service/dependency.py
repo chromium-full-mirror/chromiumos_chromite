@@ -8,15 +8,7 @@ import functools
 import itertools
 import os
 from pathlib import Path
-from typing import (
-    Collection,
-    List,
-    Mapping,
-    Optional,
-    Set,
-    Tuple,
-    TYPE_CHECKING,
-)
+from typing import Collection, Mapping, Optional, TYPE_CHECKING
 
 from chromite.lib import build_target_lib
 from chromite.lib import constants
@@ -40,11 +32,11 @@ class Error(Exception):
 
 
 def GenerateSourcePathMapping(
-    packages: List[str],
+    packages: list[str],
     sysroot_path: Optional[str] = None,
     board: Optional[str] = None,
     sdk: bool = False,
-) -> Mapping[str, List[str]]:
+) -> Mapping[str, list[str]]:
     """Returns a map from each package to the source paths it depends on.
 
     A source path is considered dependency of a package if modifying files in
@@ -114,7 +106,7 @@ def GetBuildDependency(
     sysroot_path: Optional[str],
     board: Optional[str] = None,
     packages: Optional[Collection["package_info.PackageInfo"]] = None,
-) -> Tuple[dict, dict]:
+) -> tuple[dict, dict]:
     """Return the build dependency and package -> source path map for |board|.
 
     Args:
@@ -208,7 +200,7 @@ def GetBuildDependency(
 
 
 def determine_package_relevance(
-    dep_src_paths: List[str], src_paths: Optional[List[str]] = None
+    dep_src_paths: list[str], src_paths: Optional[list[str]] = None
 ) -> bool:
     """Determine if the package is relevant to the given source paths.
 
@@ -238,7 +230,7 @@ def GetDependencies(
     packages: Optional[Collection[str]] = None,
     include_rev_dependencies: bool = False,
     include_affected_pkgs: bool = False,
-) -> Set["PackageInfo"]:
+) -> set["PackageInfo"]:
     """Return the packages dependent on the given source paths for |board|.
 
     Args:
@@ -269,7 +261,7 @@ def GetDependencies(
         return set(x.pkg_info for x in dep_graph.get_nodes())
 
     dep_nodes = dep_graph.get_relevant_nodes(src_paths=src_paths)
-    rev_dep_nodes: List["dependency_graph.PackageNode"] = []
+    rev_dep_nodes: list["dependency_graph.PackageNode"] = []
     affected_nodes = []
     for dep in dep_nodes:
         if include_rev_dependencies:
@@ -281,7 +273,7 @@ def GetDependencies(
     return set(x.pkg_info for x in dep_nodes + rev_dep_nodes + affected_nodes)
 
 
-def DetermineNonPortageToolchainPaths() -> List[str]:
+def DetermineNonPortageToolchainPaths() -> list[str]:
     """Returns all toolchain change paths that aren't captured by portage."""
     manifest_projects = (
         constants.EXTERNAL_MANIFEST_PROJECT,
@@ -314,7 +306,7 @@ def DetermineNonPortageToolchainPaths() -> List[str]:
     return results
 
 
-def DetermineToolchainSourcePaths() -> List[str]:
+def DetermineToolchainSourcePaths() -> list[str]:
     """Returns a list of all source paths relevant to toolchain packages.
 
     A package is a 'toolchain package' if it is listed as a direct dependency

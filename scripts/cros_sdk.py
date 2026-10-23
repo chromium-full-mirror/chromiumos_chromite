@@ -21,7 +21,7 @@ from pathlib import Path
 import pwd
 import shlex
 import sys
-from typing import Iterable, List, Optional, Tuple
+from typing import Iterable, Optional
 
 from chromite.lib import chromite_config
 from chromite.lib import chroot_lib
@@ -66,7 +66,7 @@ PROXY_NEEDED_TOOLS = ("ip",)
 def get_sdk_tarball_urls(
     version: str,
     bucket: Optional[str] = None,
-) -> List[str]:
+) -> list[str]:
     """Return URL candidates to download an SDK tarball.
 
     Args:
@@ -347,7 +347,7 @@ def _ProxySimSetup(options) -> None:
     process_util.ExitAsStatus(os.waitpid(pid, 0)[1])
 
 
-def _BuildReExecCommand(argv, opts) -> List[str]:
+def _BuildReExecCommand(argv, opts) -> list[str]:
     """Generate new command for self-reexec."""
     # Make sure to preserve the active Python executable in case the version
     # we're running as is not the default one found via the (new) $PATH.
@@ -373,7 +373,7 @@ def _ReExecuteIfNeeded(argv, opts) -> None:
 
 def CreateParser(
     version_conf: cros_sdk_lib.SdkVersionConfig,
-) -> Tuple[argparse.ArgumentParser, argparse._ArgumentGroup]:
+) -> tuple[argparse.ArgumentParser, argparse._ArgumentGroup]:
     """Generate and return the parser with all the options."""
     usage = (
         "usage: %(prog)s [options] "

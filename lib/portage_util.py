@@ -15,18 +15,7 @@ import os
 from pathlib import Path
 import re
 import shutil
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    NamedTuple,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import Any, Iterable, Iterator, NamedTuple, Optional, Union
 
 from chromite.lib import build_query
 from chromite.lib import build_target_lib
@@ -134,7 +123,7 @@ class MissingCacheEntry(Error, FileNotFoundError):
 
 
 @functools.lru_cache(maxsize=None)
-def _GetKnownOverlays(buildroot: BuildrootType) -> Dict[str, Dict]:
+def _GetKnownOverlays(buildroot: BuildrootType) -> dict[str, dict]:
     """Return the list of overlays for a buildroot irrespective of board.
 
     Find all the overlays for a buildroot and cache the result since finding the
@@ -152,7 +141,7 @@ def _GetKnownOverlays(buildroot: BuildrootType) -> Dict[str, Dict]:
         "src/private-overlays",
         "src/third_party",
     )
-    overlays: Dict[str, Dict] = {}
+    overlays: dict[str, dict] = {}
     for path in paths:
         path = os.path.join(buildroot, path, "*")
         for overlay in sorted(glob.glob(path)):
@@ -184,7 +173,7 @@ def _GetKnownOverlays(buildroot: BuildrootType) -> Dict[str, Dict]:
 def _ListOverlays(
     board: Optional[str] = None,
     buildroot: BuildrootType = constants.SOURCE_ROOT,
-) -> List:
+) -> list:
     """Return the list of overlays to use for a given buildbot.
 
     Always returns all overlays in parent -> child order, and does not
@@ -256,7 +245,7 @@ def FindOverlays(
     overlay_type: str,
     board: Optional[str] = None,
     buildroot: Optional[BuildrootType] = None,
-) -> List:
+) -> list:
     """Return the list of overlays to use for a given buildbot.
 
     The returned list of overlays will be in parent -> child order.
@@ -283,7 +272,7 @@ def FindOverlays(
         return []
 
 
-def FindOverlaysForBoards(overlay_type: str, boards: List[str]) -> List[str]:
+def FindOverlaysForBoards(overlay_type: str, boards: list[str]) -> list[str]:
     """Convenience function to find the overlays for multiple boards.
 
     Unlike FindOverlays, there is no guarantee about the overlay ordering.
@@ -490,7 +479,7 @@ class EBuild:
     def UpdateEBuild(
         cls,
         ebuild_path: str,
-        variables: Dict,
+        variables: dict,
         make_stable: bool = True,
     ) -> None:
         """Static function that updates WORKON information in the ebuild.
@@ -532,7 +521,7 @@ class EBuild:
         cls,
         unstable_ebuild_path: str,
         new_stable_ebuild_path: str,
-        variables: Dict,
+        variables: dict,
         make_stable: bool = True,
     ) -> None:
         """Static function that creates a revved stable ebuild.
@@ -573,7 +562,7 @@ class EBuild:
         self,
         path,
         subdir_support=False,
-        use_flags: Optional[List[str]] = None,
+        use_flags: Optional[list[str]] = None,
         cache_file: Optional[Path] = None,
     ) -> None:
         """Sets up data about an ebuild from its path.
@@ -653,7 +642,7 @@ class EBuild:
     @staticmethod
     def Classify(
         ebuild_path,
-        use_flags: Optional[List[str]] = None,
+        use_flags: Optional[list[str]] = None,
         ebuild_cache: Optional[portage_md5_cache.Md5Cache] = None,
     ):
         """Return the workon, stable, and manually uprev status for the ebuild.
@@ -737,7 +726,7 @@ class EBuild:
     def _ReadEBuild(
         self,
         path,
-        use_flags: Optional[List[str]] = None,
+        use_flags: Optional[list[str]] = None,
         cache: Optional[portage_md5_cache.Md5Cache] = None,
     ) -> None:
         """Determine is_workon, is_stable and is_manually_uprevved settings.
@@ -752,7 +741,7 @@ class EBuild:
         ) = EBuild.Classify(path, use_flags, cache)
 
     @staticmethod
-    def _GetAutotestTestsFromSettings(settings) -> List[str]:
+    def _GetAutotestTestsFromSettings(settings) -> list[str]:
         """Return a list of test names, when given a settings dictionary.
 
         Args:
@@ -763,7 +752,7 @@ class EBuild:
         """
         # We do a bit of string wrangling to extract directory names from test
         # names. First, get rid of special characters.
-        test_list: List[str] = []
+        test_list: list[str] = []
         raw_tests_str = settings["IUSE_TESTS"]
         if not raw_tests_str:
             return test_list
@@ -772,7 +761,7 @@ class EBuild:
         return test_list
 
     @staticmethod
-    def GetAutotestSubdirsToRev(ebuild_path, srcdir) -> List[str]:
+    def GetAutotestSubdirsToRev(ebuild_path, srcdir) -> list[str]:
         """Return list of subdirs to be watched while deciding whether to uprev.
 
         This logic is specific to autotest related ebuilds, that derive from the
@@ -786,7 +775,7 @@ class EBuild:
         Returns:
             A list of strings mentioning directory paths.
         """
-        results: List[str] = []
+        results: list[str] = []
         test_vars = ("IUSE_TESTS",)
 
         if not ebuild_path or not srcdir:
@@ -1206,7 +1195,7 @@ class EBuild:
         reject_self_repo=True,
         new_version=None,
         check_same_ebuild=True,
-    ) -> Optional[Tuple[str, str, Optional[str]]]:
+    ) -> Optional[tuple[str, str, Optional[str]]]:
         """Revs a workon ebuild given the git commit hash.
 
         By default, this class overwrites a new ebuild given the normal
@@ -1495,7 +1484,7 @@ class PortageDBError(Error):
 class PortageDB:
     """Wrapper class to access the portage database located in var/db/pkg."""
 
-    _ebuilds: Dict[str, "InstalledPackage"]
+    _ebuilds: dict[str, "InstalledPackage"]
 
     def __init__(
         self,
@@ -1701,7 +1690,7 @@ class InstalledPackage:
         return self._ReadField("LICENSE")
 
     @property
-    def requires(self) -> Dict[str, List[str]]:
+    def requires(self) -> dict[str, list[str]]:
         """Get the REQUIRES field.
 
         The raw file format is:
@@ -1710,7 +1699,7 @@ class InstalledPackage:
 
         This gets parsed into a dictionary mapping architectures to libraries.
         """
-        result: Dict[str, List[str]] = {}
+        result: dict[str, list[str]] = {}
         field = self._ReadField("REQUIRES")
         if not field:
             return result
@@ -1771,7 +1760,7 @@ class InstalledPackage:
         return self._read_depend_field("BDEPEND")
 
     @property
-    def use(self) -> Set[str]:
+    def use(self) -> set[str]:
         """The effective USE flags from the package build."""
         return set(self._ReadField("USE").split(" "))
 
@@ -1812,7 +1801,7 @@ class InstalledPackage:
         return result
 
 
-def BestEBuild(ebuilds: List[EBuild]) -> Optional[EBuild]:
+def BestEBuild(ebuilds: list[EBuild]) -> Optional[EBuild]:
     """Returns the newest EBuild from a list of EBuild objects."""
     if not ebuilds:
         return None
@@ -2048,7 +2037,7 @@ def _Equery(
     sysroot: Optional[str] = None,
     chroot: Optional[chroot_lib.Chroot] = None,
     quiet: bool = True,
-    extra_env: Optional[Dict[str, str]] = None,
+    extra_env: Optional[dict[str, str]] = None,
     check: bool = True,
 ) -> cros_build_lib.CompletedProcess:
     """Executes equery commands.
@@ -2113,7 +2102,7 @@ def FindPackageNameMatches(
     pkg_str: str,
     board: Optional[str] = None,
     chroot: Optional[chroot_lib.Chroot] = None,
-) -> List[package_info.PackageInfo]:
+) -> list[package_info.PackageInfo]:
     """Finds a list of installed packages matching |pkg_str|.
 
     Args:
@@ -2133,7 +2122,7 @@ def FindPackageNameMatches(
     return matches
 
 
-def FindPackageNamesForFiles(*args: str) -> List[package_info.PackageInfo]:
+def FindPackageNamesForFiles(*args: str) -> list[package_info.PackageInfo]:
     """Finds the list of packages that own the files in |args|.
 
     Returns:
@@ -2143,7 +2132,7 @@ def FindPackageNamesForFiles(*args: str) -> List[package_info.PackageInfo]:
     return [package_info.parse(x) for x in result.stdout.strip().splitlines()]
 
 
-def FindOverlaysForPackages(*args: str) -> List[str]:
+def FindOverlaysForPackages(*args: str) -> list[str]:
     """Find the corresponding overlays that installed the provided packages.
 
     Returns:
@@ -2180,11 +2169,11 @@ def FindEbuildForBoardPackage(
 
 
 def _EqueryWhich(
-    packages_list: List[str],
+    packages_list: list[str],
     sysroot: str,
     chroot: Optional[chroot_lib.Chroot] = None,
     include_masked: bool = False,
-    extra_env: Optional[Dict[str, str]] = None,
+    extra_env: Optional[dict[str, str]] = None,
     check: bool = False,
 ) -> cros_build_lib.CompletedProcess:
     """Executes an equery command, returns the result of the cmd.
@@ -2320,7 +2309,7 @@ def FindEbuildForPackage(
 
 
 def FindEbuildsForOverlays(
-    overlays: List[Union[str, os.PathLike]],
+    overlays: list[Union[str, os.PathLike]],
 ) -> Iterator[Path]:
     """Get paths to ebuilds using the given overlay paths.
 
@@ -2410,11 +2399,11 @@ def _ParseDepTreeOutput(equery_output):
 
 
 def GetReverseDependencies(
-    packages: List[str],
+    packages: list[str],
     sysroot: Union[str, os.PathLike] = "/",
     chroot: Optional[chroot_lib.Chroot] = None,
     indirect: bool = False,
-) -> List[Optional[package_info.PackageInfo]]:
+) -> list[Optional[package_info.PackageInfo]]:
     """List all reverse dependencies for the given list of packages.
 
     Args:
@@ -2453,7 +2442,7 @@ def GetReverseDependencies(
 
 
 def _Qlist(
-    args: List[str],
+    args: list[str],
     board: Optional[str] = None,
     buildroot: BuildrootType = constants.SOURCE_ROOT,
 ) -> cros_build_lib.CompletedProcess:
@@ -2482,7 +2471,7 @@ def _Qlist(
     )
 
 
-def get_installed_packages(board=None) -> List[str]:
+def get_installed_packages(board=None) -> list[str]:
     """Get the installed packages."""
     return _Qlist(["-Iv"], board).stdout.splitlines()
 
@@ -2538,7 +2527,7 @@ def GetBinaryPackagePath(c, p, v, sysroot="/", packages_dir=None):
     return path
 
 
-def GetBoardUseFlags(board: str) -> List[str]:
+def GetBoardUseFlags(board: str) -> list[str]:
     """Returns a list of USE flags in effect for a board."""
     return sorted(
         build_query.Query(build_query.Board)
@@ -2589,7 +2578,7 @@ def GetPackageDependencies(
     sysroot: Optional[Union[str, os.PathLike]] = None,
     buildroot: BuildrootType = constants.SOURCE_ROOT,
     set_empty_root: bool = False,
-) -> List[str]:
+) -> list[str]:
     """Returns the depgraph list of packages for a board and package."""
     output = _EmergeBoard(
         package, board, sysroot, buildroot, set_empty_root
@@ -2740,7 +2729,7 @@ def _CheckHasTest(cp, sysroot, arch: str, require_workon: bool = False) -> None:
 
 def PackagesWithTest(
     sysroot, packages: Iterable[str], require_workon: bool = False
-) -> Set[str]:
+) -> set[str]:
     """Returns the subset of |packages| that have unit tests.
 
     Args:
@@ -2773,7 +2762,7 @@ def get_die_hook_status_file() -> Path:
     )
 
 
-def ParseDieHookStatusFile() -> List[package_info.PackageInfo]:
+def ParseDieHookStatusFile() -> list[package_info.PackageInfo]:
     """Parse the status file generated by the failed packages die_hook
 
     Returns:
@@ -2836,7 +2825,7 @@ class PortageqError(Error):
 
 
 def _Portageq(
-    command: List[str],
+    command: list[str],
     board: Optional[str] = None,
     sysroot: Optional[str] = None,
     chroot: Optional[chroot_lib.Chroot] = None,
@@ -2952,12 +2941,12 @@ def PortageqEnvvar(
 
 
 def PortageqEnvvars(
-    variables: List[str],
+    variables: list[str],
     board: Optional[str] = None,
     sysroot: Optional[str] = None,
     allow_undefined: bool = False,
     chroot: Optional[chroot_lib.Chroot] = None,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Run portageq envvar for the given variables.
 
     Args:
@@ -3126,7 +3115,7 @@ def GeneratePackageSizes(db, root, installed_packages):
 
 
 def CalculatePackageSize(
-    files_in_package: Iterable[Tuple[str, str]],
+    files_in_package: Iterable[tuple[str, str]],
     package_install_path: os.PathLike,
 ) -> PackageSizes:
     """Given a fileset for a Portage package, calculate the package size.
@@ -3219,7 +3208,7 @@ def UpdateEbuildManifest(
 
 def read_depgraph_counters(
     content: str, combine: bool = True
-) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
+) -> Union[list[dict[str, Any]], dict[str, Any]]:
     """Transform contents of /var/log/portage/depgraph_counters.log to JSON.
 
     We can expect each line of this file to be a stringified dict. Convert back
@@ -3234,7 +3223,7 @@ def read_depgraph_counters(
     if not content:
         return {}
 
-    def add(a: Dict[str, Any], b: Dict[str, Any]):
+    def add(a: dict[str, Any], b: dict[str, Any]):
         # We make a (possibly faulty) assumption that the inputs are
         # well-formed.
         # All values are either int, str, or list(str), and that the data type

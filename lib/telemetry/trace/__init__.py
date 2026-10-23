@@ -9,7 +9,7 @@ import datetime
 import functools
 import os
 import sys
-from typing import Any, Dict, Iterator, Mapping, Optional, TYPE_CHECKING, Union
+from typing import Any, Iterator, Mapping, Optional, TYPE_CHECKING, Union
 import uuid
 
 
@@ -159,7 +159,7 @@ def get_tracer(name: str, version: Optional[str] = None) -> "ProxyTracer":
 
 def extract_tracecontext() -> Mapping[str, str]:
     """Extract the current tracecontext into a dict."""
-    carrier: Dict[str, str] = {}
+    carrier: dict[str, str] = {}
 
     if _TRACING_INITIALIZED:
         from chromite.third_party.opentelemetry.trace.propagation import (

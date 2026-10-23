@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 import re
 import shutil
-from typing import Dict, Iterable, List, NamedTuple, Optional, Union
+from typing import Iterable, NamedTuple, Optional, Union
 
 from chromite.api.gen.chromiumos import signing_pb2
 from chromite.lib import build_target_lib
@@ -148,7 +148,7 @@ class BuildConfig(NamedTuple):
 # build_image.sh is removed.
 def GetBuildImageCommand(
     config: BuildConfig, image_names: Iterable[str], board: str
-) -> List[Union[str, os.PathLike]]:
+) -> list[Union[str, os.PathLike]]:
     """Get the build_image command for the configuration.
 
     Args:
@@ -195,7 +195,7 @@ def GetBuildImageCommand(
 class BuildResult:
     """Class to record and report build image results."""
 
-    def __init__(self, image_types: List[str]) -> None:
+    def __init__(self, image_types: list[str]) -> None:
         """Init method.
 
         Args:
@@ -209,7 +209,7 @@ class BuildResult:
         self.exception = None
 
     @property
-    def failed_packages(self) -> List[package_info.PackageInfo]:
+    def failed_packages(self) -> list[package_info.PackageInfo]:
         """Get the failed packages."""
         return self._failed_packages
 
@@ -267,7 +267,7 @@ class BuildResult:
 
 def Build(
     board: str,
-    images: List[str],
+    images: list[str],
     config: Optional[BuildConfig] = None,
     extra_env: Optional[dict] = None,
 ) -> BuildResult:
@@ -654,7 +654,7 @@ def CreateGuestVm(
 
 def generate_dlc_artifacts_metadata_list(
     sysroot_path: str,
-) -> List[DlcArtifactsMetadata]:
+) -> list[DlcArtifactsMetadata]:
     """Generates a list of `DlcArtifacts` from base_path.
 
     Args:
@@ -733,7 +733,7 @@ def generate_dlc_artifacts_metadata_list(
     return ret
 
 
-def copy_dlc_image(base_path: str, output_dir: str) -> List[str]:
+def copy_dlc_image(base_path: str, output_dir: str) -> list[str]:
     """Copy DLC images from base_path to output_dir.
 
     Args:
@@ -804,7 +804,7 @@ def copy_dlc_image(base_path: str, output_dir: str) -> List[str]:
 
 def copy_license_credits(
     board: str, output_dir: str, symlink: Optional[str] = None
-) -> List[str]:
+) -> list[str]:
     """Copies license_credits.html from image build dir to output_dir.
 
     Args:
@@ -1051,7 +1051,7 @@ def create_image_scripts_archive(
     return tarball_path
 
 
-def _get_auth_args() -> List[str]:
+def _get_auth_args() -> list[str]:
     """Get the set of LUCI Auth properties off the environment."""
     # Check required env variables present.
     if any(
@@ -1079,8 +1079,8 @@ def _get_auth_args() -> List[str]:
 
 def CallDocker(
     docker_image: str,
-    docker_args: List[str],
-    entrypoint_args: List[str],
+    docker_args: list[str],
+    entrypoint_args: list[str],
     stdin_input: Optional[str] = None,
 ):
     """Call the signing docker container with the given args.
@@ -1126,8 +1126,8 @@ def CallDocker(
 
 def CallDockerWithResponse(
     docker_image: str,
-    docker_args: List[str],
-    entrypoint_args: List[str],
+    docker_args: list[str],
+    entrypoint_args: list[str],
     output_file_name: str = "out_proto.bin",
 ) -> Optional[bytes]:
     """Call the signing docker container and retrieve a raw response file.
@@ -1262,7 +1262,7 @@ class PushImageArguments:
     def profile(self):
         return self.build_target.profile
 
-    def get_cli_args(self, urls_file: Optional[Path] = None) -> List[str]:
+    def get_cli_args(self, urls_file: Optional[Path] = None) -> list[str]:
         """Get the pushimage CLI args."""
         args = [
             self.image_dir,
@@ -1294,7 +1294,7 @@ class PushImageArguments:
         return args
 
 
-def run_push_image(args: PushImageArguments) -> Dict[str, List[str]]:
+def run_push_image(args: PushImageArguments) -> dict[str, list[str]]:
     """Execute the pushimage script.
 
     Named as such to allow the pushimage script to later be refactored into the

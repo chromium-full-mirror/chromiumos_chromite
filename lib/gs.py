@@ -19,16 +19,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    NamedTuple,
-    Optional,
-    Union,
-)
+from typing import Any, Callable, Iterable, NamedTuple, Optional, Union
 import urllib.parse
 
 from chromite.lib import auth
@@ -334,10 +325,6 @@ class GSContext:
         b"cannot read from timed out object",
     )
 
-    # Hack to workaround List() method in this class.
-    # TODO(b/452716731): Migrate everyone to `list` and require Python 3.9.
-    typeList = List  # pylint: disable=used-before-assignment
-
     @classmethod
     def InitializeCache(
         cls,
@@ -580,7 +567,7 @@ wheel: <
             self.InitializeCache(cache_dir=cache_dir, cache_user=cache_user)
             gsutil_bin = self._DEFAULT_GSUTIL_BIN
             if self._CRCMOD_METHOD == "vpython":
-                self._gsutil_bin: List[Optional[str]] = [
+                self._gsutil_bin: list[Optional[str]] = [
                     "vpython3",
                     gsutil_bin,
                 ]
@@ -596,7 +583,7 @@ wheel: <
         # Increase the number of retries. With 10 retries, Boto will try a total
         # of 11 times and wait up to 2**11 seconds (~30 minutes) in total, not
         # including the time spent actually uploading or downloading.
-        self.gsutil_flags: List[str] = ["-o", "Boto:num_retries=10"]
+        self.gsutil_flags: list[str] = ["-o", "Boto:num_retries=10"]
 
         # The default state directory (~/.gsutil) is not writable for the root
         # account, as the SDK mounts /root as read-only.  Use a directory in
@@ -874,7 +861,7 @@ wheel: <
         )
 
     @staticmethod
-    def GetTrackerFilenames(dest_path: str) -> typeList[str]:
+    def GetTrackerFilenames(dest_path: str) -> list[str]:
         """Returns a list of gsutil tracker filenames.
 
         Tracker files are used by gsutil to resume downloads/uploads. This
@@ -1083,7 +1070,7 @@ wheel: <
     # TODO(mtennant): Make a private method.
     def DoCommand(
         self,
-        gsutil_cmd: typeList[str],
+        gsutil_cmd: list[str],
         headers: tuple = (),
         retries: Optional[int] = None,
         version: Optional[int] = None,
@@ -1332,7 +1319,7 @@ wheel: <
         self.Copy("-", gs_uri, input=contents, **kwargs)
 
     # TODO: Merge LS() and List()?
-    def LS(self, path: str, **kwargs: Any) -> typeList[str]:
+    def LS(self, path: str, **kwargs: Any) -> list[str]:
         """Does a directory listing of the given gs path.
 
         Args:
@@ -1362,11 +1349,11 @@ wheel: <
 
     def List(
         self,
-        path: Union[str, typeList[str]],
+        path: Union[str, list[str]],
         details: bool = False,
         generation: bool = False,
         **kwargs: Any,
-    ) -> typeList[GSListResult]:
+    ) -> list[GSListResult]:
         """Does a directory listing of the given gs path.
 
         Args:
@@ -1379,7 +1366,7 @@ wheel: <
             A list of GSListResult objects that matched |path|.  Might be more
             than one if a directory or path include wildcards/etc...
         """
-        ret: List[GSListResult] = []
+        ret: list[GSListResult] = []
         if self.dry_run:
             return ret
 
@@ -1476,7 +1463,7 @@ wheel: <
 
     def SetACL(
         self,
-        path: Union[str, typeList[str]],
+        path: Union[str, list[str]],
         acl: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
@@ -1506,7 +1493,7 @@ wheel: <
         self,
         upload_url: str,
         acl_args_file: Optional[str] = None,
-        acl_args: Optional[typeList[str]] = None,
+        acl_args: Optional[list[str]] = None,
         **kwargs: Any,
     ) -> None:
         """Change access on a file already in google storage with "acl ch".
@@ -1571,7 +1558,7 @@ wheel: <
 
     def Remove(
         self,
-        path: Union[str, typeList[str]],
+        path: Union[str, list[str]],
         recursive: bool = False,
         ignore_missing: bool = False,
         **kwargs: Any,
@@ -1712,7 +1699,7 @@ wheel: <
 
     def WaitForGsPaths(
         self,
-        paths: typeList[str],
+        paths: list[str],
         timeout: int,
         period: int = 10,
     ) -> None:
@@ -1759,7 +1746,7 @@ wheel: <
         timeout: int = 600,
         period: int = 10,
         is_regex_pattern: bool = False,
-    ) -> Optional[typeList[str]]:
+    ) -> Optional[list[str]]:
         """Returns the Google Storage names specified by the given pattern.
 
         This method polls Google Storage until the target files specified by the
@@ -1788,7 +1775,7 @@ wheel: <
             timeout_util.TimeoutError.
         """
 
-        def _GetGsName() -> List[str]:
+        def _GetGsName() -> list[str]:
             uploaded_list = [os.path.basename(p.url) for p in self.List(url)]
 
             if is_regex_pattern:
@@ -1830,7 +1817,7 @@ wheel: <
         ignore_missing: bool = False,
         multiline: bool = False,
         acl: Optional[str] = None,
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Turn a remote key=value file from Google Storage into a dict.
 
         Args:
@@ -1853,7 +1840,7 @@ wheel: <
             )
 
 
-def _FirstMatch(predicate: Callable[[Any], bool], elems: List[Any]):
+def _FirstMatch(predicate: Callable[[Any], bool], elems: list[Any]):
     """Returns the first element matching the given |predicate|.
 
     Args:
@@ -1864,7 +1851,7 @@ def _FirstMatch(predicate: Callable[[Any], bool], elems: List[Any]):
     return matches[0] if matches else None
 
 
-def _FirstSubstring(superstring: bytes, haystack: List[str]) -> Optional[bytes]:
+def _FirstSubstring(superstring: bytes, haystack: list[str]) -> Optional[bytes]:
     """Return the first elem of |haystack|, a substring of |superstring|.
 
     Args:

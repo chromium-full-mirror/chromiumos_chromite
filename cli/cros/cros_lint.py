@@ -14,7 +14,7 @@ import logging
 import os
 from pathlib import Path
 import stat
-from typing import Callable, DefaultDict, Dict, List, Optional, Union
+from typing import Callable, DefaultDict, Optional, Union
 
 from chromite.cli import analyzers
 from chromite.cli import command
@@ -528,7 +528,7 @@ def _PortageLayoutConfLintFile(
 
 
 def _BreakoutDataByTool(
-    map_to_return: DefaultDict[Callable, List[Path]], path: Path
+    map_to_return: DefaultDict[Callable, list[Path]], path: Path
 ) -> None:
     """Maps a tool method to the content of the |path|."""
     # Detect by content of the file itself.
@@ -708,7 +708,7 @@ _TOOL_MAP = collections.OrderedDict(
 _PER_DIR_TOOLS = (_StaticcheckPackage,)
 
 
-def _BreakoutFilesByTool(files: List[Path]) -> Dict[Callable, List[Path]]:
+def _BreakoutFilesByTool(files: list[Path]) -> dict[Callable, list[Path]]:
     """Maps a tool method to the list of files to process."""
     map_to_return = collections.defaultdict(list)
 

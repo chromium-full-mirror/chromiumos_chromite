@@ -12,7 +12,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import Any, Dict, Iterable, List, NamedTuple
+from typing import Any, Iterable, NamedTuple
 
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
@@ -95,7 +95,7 @@ class ClippyDiagnostic(NamedTuple):
 
 
 def parse_locations(
-    orig_json: Dict[str, Any], package_path: str, git_repo: str
+    orig_json: dict[str, Any], package_path: str, git_repo: str
 ) -> Iterable["CodeLocation"]:
     """The code locations associated with this diagnostic as an iter.
 
@@ -148,7 +148,7 @@ def parse_locations(
             yield location
 
 
-def parse_level(src: str, src_line: int, orig_json: Dict[str, Any]) -> str:
+def parse_level(src: str, src_line: int, orig_json: dict[str, Any]) -> str:
     """The level (error or warning) associated with this diagnostic.
 
     Args:
@@ -170,7 +170,7 @@ def parse_level(src: str, src_line: int, orig_json: Dict[str, Any]) -> str:
     return level
 
 
-def parse_message(src: str, src_line: int, orig_json: Dict[str, Any]) -> str:
+def parse_message(src: str, src_line: int, orig_json: dict[str, Any]) -> str:
     """The formatted linter message for this diagnostic.
 
     Args:
@@ -296,7 +296,7 @@ def get_arg_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def main(argv: List[str]) -> None:
+def main(argv: list[str]) -> None:
     cros_build_lib.AssertInsideChroot()
 
     logging.basicConfig()

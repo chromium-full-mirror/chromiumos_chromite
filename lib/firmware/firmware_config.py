@@ -8,7 +8,7 @@ This module holds the firmware config objects, provides functionality to read
 the config from ap_firmware_config modules, and export it into JSON.
 """
 
-from typing import List, NamedTuple, Optional
+from typing import NamedTuple, Optional
 
 from chromite.lib.firmware import ap_firmware_config
 from chromite.lib.firmware import servo_lib
@@ -38,14 +38,14 @@ class FirmwareConfig(NamedTuple):
         build_packages: packages to build.
     """
 
-    dut_control_on: List[List[str]]
-    dut_control_off: List[List[str]]
+    dut_control_on: list[list[str]]
+    dut_control_off: list[list[str]]
     programmer: str
     force_flashrom: bool
-    flash_extra_flags_futility: List[str]
-    flash_extra_flags_flashrom: List[str]
-    workon_packages: Optional[List[str]]
-    build_packages: List[str]
+    flash_extra_flags_futility: list[str]
+    flash_extra_flags_flashrom: list[str]
+    workon_packages: Optional[list[str]]
+    build_packages: list[str]
 
 
 def get_config(

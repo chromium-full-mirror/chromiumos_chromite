@@ -5,7 +5,7 @@
 """Linter for make.defaults."""
 
 import re
-from typing import Iterable, List
+from typing import Iterable
 
 from chromite.utils.parser import make_defaults
 
@@ -90,7 +90,7 @@ def _check_march_flags(data: str) -> Iterable[str]:
     return []
 
 
-def Data(data: str) -> List[str]:
+def Data(data: str) -> list[str]:
     """Lint make.defaults in |data|.
 
     Args:
@@ -99,7 +99,7 @@ def Data(data: str) -> List[str]:
     Returns:
         Any errors found.
     """
-    issues: List[str] = []
+    issues: list[str] = []
 
     issues += _check_march_flags(data)
     return issues

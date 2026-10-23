@@ -18,11 +18,9 @@ import types
 from typing import (
     Any,
     Callable,
-    Dict,
     Generator,
     Iterable,
     Iterator,
-    List,
     NamedTuple,
     Optional,
     Sequence,
@@ -75,7 +73,7 @@ class Directory(NamedTuple):
 
 def _FlattenStructure(
     base_path: Union[str, Path], dir_struct: Sequence[Union[Directory, str]]
-) -> List[str]:
+) -> list[str]:
     """Converts a directory structure to a list of paths."""
     flattened = []
     for obj in dir_struct:
@@ -345,7 +343,7 @@ class StackedSetup(type):
             )
 
 
-class EasyAttr(Dict[Any, Any]):
+class EasyAttr(dict[Any, Any]):
     """Convenient class for simulating objects with attributes in tests.
 
     An EasyAttr object can be created with any attributes initialized very
@@ -374,7 +372,7 @@ class EasyAttr(Dict[Any, Any]):
     def __setattr__(self, attr: str, value: Any) -> None:
         self[attr] = value
 
-    def __dir__(self) -> List[Any]:
+    def __dir__(self) -> list[Any]:
         return list(self.keys())
 
 
@@ -602,7 +600,7 @@ class TestCase(unittest.TestCase, metaclass=StackedSetup):
             return
 
         if msg is None:
-            messages: List[str] = ["path is missing: %s" % path]
+            messages: list[str] = ["path is missing: %s" % path]
             while path != "/":
                 path = os.path.dirname(path)
                 if not path:
@@ -878,7 +876,7 @@ class MockTestCase(TestCase):
     """Python-mock based test case; compatible with StackedSetup"""
 
     def setUp(self) -> None:
-        self._patchers: List[mock.Mock] = []
+        self._patchers: list[mock.Mock] = []
 
     def tearDown(self) -> None:
         # We can't just run stopall() by itself, and need to stop our patchers
@@ -995,7 +993,7 @@ class PopenMock(partial_mock.PartialCmdMock):
         partial_mock.PartialCmdMock.__init__(self, create_tempdir=True)
 
     def _target__init__(
-        self, inst: str, cmd: List[str], *args: Any, **kwargs: Any
+        self, inst: str, cmd: list[str], *args: Any, **kwargs: Any
     ) -> None:
         result = self._results["__init__"].LookupResult(
             (cmd,),

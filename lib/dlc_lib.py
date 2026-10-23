@@ -12,7 +12,7 @@ import math
 import os
 import re
 import shutil
-from typing import Optional, Set
+from typing import Optional
 import zlib
 
 from chromite.lib import build_target_lib
@@ -134,7 +134,7 @@ def CheckAndRaise(value: bool, err_msg: str) -> None:
         raise Error(err_msg)
 
 
-def UniquePowerwashSafeDlcsInRootfs(rootfs: str) -> Set[str]:
+def UniquePowerwashSafeDlcsInRootfs(rootfs: str) -> set[str]:
     """Generates the DLC IDs that are powerwash safe.
 
     Args:

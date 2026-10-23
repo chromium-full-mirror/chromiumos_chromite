@@ -10,7 +10,7 @@ Keep this to a minimum as every chromite import will automatically load it.
 import functools
 import logging
 import sys
-from typing import Any, Dict, Final, Optional, Tuple
+from typing import Any, Final, Optional
 
 
 MIN_PYTHON_VERSION = (3, 9)
@@ -39,7 +39,7 @@ class ChromiteLogger(logging.getLoggerClass()):  # type: ignore
         logging.addLevelName(NOTICE, "NOTICE")
 
     def notice(
-        self, msg: str, *args: Tuple[Any, ...], **kwargs: Dict[str, Any]
+        self, msg: str, *args: tuple[Any, ...], **kwargs: dict[str, Any]
     ) -> None:
         if self.isEnabledFor(NOTICE):
             self._log(NOTICE, msg, args, **kwargs)

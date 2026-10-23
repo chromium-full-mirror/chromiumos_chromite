@@ -8,10 +8,10 @@ These files are lines with space-separated tokens, and single-line comments
 starting with `#`.
 """
 
-from typing import Iterator, List
+from typing import Iterator
 
 
-def parse(contents: str) -> Iterator[List[str]]:
+def parse(contents: str) -> Iterator[list[str]]:
     """Parse the contents of the config.
 
     Args:

@@ -8,7 +8,7 @@ import logging
 import os
 from pathlib import Path
 import subprocess
-from typing import List, Optional, TYPE_CHECKING, Union
+from typing import Optional, TYPE_CHECKING, Union
 
 from chromite.lib import build_target_lib
 from chromite.lib import compression_lib
@@ -41,7 +41,7 @@ class ToolchainInstallError(Error, cros_build_lib.RunCommandError):
         msg: str,
         result: cros_build_lib.CompletedProcess,
         exception: Optional[Exception] = None,
-        tc_info: Optional[List["package_info.PackageInfo"]] = None,
+        tc_info: Optional[list["package_info.PackageInfo"]] = None,
     ) -> None:
         """ToolchainInstallError init.
 

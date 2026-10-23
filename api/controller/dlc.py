@@ -4,7 +4,7 @@
 
 """DLC API Service."""
 
-from typing import List, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from chromite.api import controller
 from chromite.api import faux
@@ -59,7 +59,7 @@ def GenerateDlcArtifactsList(
 
 def _parse_dlc_artifacts_to_response(
     output: "dlc_pb2.GenerateDlcArtifactsListResponse",
-    dlc_artifacts: List[image.DlcArtifactsMetadata],
+    dlc_artifacts: list[image.DlcArtifactsMetadata],
 ) -> None:
     """Parse the DLC artifacts into the output proto.
 

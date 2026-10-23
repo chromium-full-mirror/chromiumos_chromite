@@ -15,7 +15,7 @@ import logging
 import os
 from pathlib import Path
 import time
-from typing import List, NamedTuple, Optional, Union
+from typing import NamedTuple, Optional, Union
 import uuid
 
 from chromite.lib import constants
@@ -166,7 +166,7 @@ def parse_gauge(terms):
     return MetricEvent(int(terms[0]), terms[1], terms[2], arg=int(terms[3]))
 
 
-def parse_counter(terms: List) -> MetricEvent:
+def parse_counter(terms: list) -> MetricEvent:
     """Parse an increment counter."""
     arg = int(terms[3]) if len(terms) == 4 else 1
     assert terms[2] in (OP_INCREMENT_COUNTER, OP_DECREMENT_COUNTER)
@@ -319,7 +319,7 @@ def event(name) -> None:
 
 def deserialize_metrics_log(
     prefix: Optional[str] = None,
-) -> List[METRIC_TYPE]:
+) -> list[METRIC_TYPE]:
     """Parse the metrics events from the metrics file.
 
     Args:

@@ -9,7 +9,7 @@ This is the foundation for parsing many conditional ebuild variables.
 https://projects.gentoo.org/pms/8/pms.html#x1-730008.2
 """
 
-from typing import Callable, List, NamedTuple, Optional
+from typing import Callable, NamedTuple, Optional
 
 
 class Error(Exception):
@@ -28,7 +28,7 @@ class NestedOrUnsupportedError(Error):
     """Using ||() directly within ||() doesn't make sense."""
 
 
-def _dedupe_in_order(iterable) -> List:
+def _dedupe_in_order(iterable) -> list:
     """Dedupe elements while maintaining order."""
     # This uses Python dict insertion order that is guaranteed in newer
     # versions.
@@ -46,7 +46,7 @@ class Node(NamedTuple):
         use_flags: Optional[set] = None,
         anyof_reduce: Optional[Callable] = None,
         flatten_allof: Optional[bool] = True,
-    ) -> List[str]:
+    ) -> list[str]:
         return [self.name]
 
     def __str__(self) -> str:
@@ -64,7 +64,7 @@ class RootNode:
         use_flags: Optional[set] = None,
         anyof_reduce: Optional[Callable] = None,
         flatten_allof: Optional[bool] = True,
-    ) -> List[str]:
+    ) -> list[str]:
         return list(
             _dedupe_in_order(
                 x
@@ -102,7 +102,7 @@ class AllOfNode(RootNode):
         use_flags: Optional[set] = None,
         anyof_reduce: Optional[Callable] = None,
         flatten_allof: Optional[bool] = True,
-    ) -> List[str]:
+    ) -> list[str]:
         ret = super().reduce(use_flags, anyof_reduce, flatten_allof)
         if not flatten_allof:
             ret = (tuple(ret),)
@@ -120,7 +120,7 @@ class AnyOfNode(RootNode):
         use_flags: Optional[set] = None,
         anyof_reduce: Optional[Callable] = None,
         flatten_allof: Optional[bool] = True,
-    ) -> List[str]:
+    ) -> list[str]:
         choices = super().reduce(use_flags, anyof_reduce, False)
         if anyof_reduce:
             return [anyof_reduce(choices)]
@@ -152,7 +152,7 @@ class UseNode(RootNode):
         use_flags: Optional[set] = None,
         anyof_reduce: Optional[Callable] = None,
         flatten_allof: Optional[bool] = True,
-    ) -> List[str]:
+    ) -> list[str]:
         if use_flags is None:
             use_flags = []
 

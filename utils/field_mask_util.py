@@ -5,11 +5,10 @@
 """Utilities for working with FieldMask protobufs."""
 
 import logging
-from typing import Dict, List
 
 
 def _MergeDictWithPathParts(
-    path_parts: List[str], source: Dict, destination: Dict
+    path_parts: list[str], source: dict, destination: dict
 ) -> None:
     """Merges source into destination based on path_parts.
 
@@ -67,7 +66,7 @@ def _MergeDictWithPathParts(
         )
 
 
-def CreateFilteredDict(field_mask: "FieldMask", source: Dict):
+def CreateFilteredDict(field_mask: "FieldMask", source: dict):
     """Returns a copy of source filtered by |field_mask|.
 
     Similar to the FieldMask.MergeMessage method, but for general Python dicts,

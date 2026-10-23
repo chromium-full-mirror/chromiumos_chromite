@@ -11,7 +11,7 @@ import re
 import shutil
 import subprocess
 import tempfile
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
@@ -460,7 +460,7 @@ class Upgrader:
     @staticmethod
     def _EqueryWhich(
         pkg: str,
-        envvars: Dict[str, str],
+        envvars: dict[str, str],
         equery: str = EQUERY_CMD,
         include_masked: bool = False,
     ) -> Optional[tuple]:
@@ -485,7 +485,7 @@ class Upgrader:
             return None
 
     def _EqueryBoardWhich(
-        self, pkg: str, envvars: Dict[str, str], include_masked: bool = False
+        self, pkg: str, envvars: dict[str, str], include_masked: bool = False
     ) -> Optional[tuple]:
         """Run `equery which` (for the board)."""
         return self._EqueryWhich(

@@ -23,7 +23,7 @@ import socket
 import subprocess
 import sys
 import time
-from typing import Any, Collection, Dict, Iterable, Optional, Tuple, Union
+from typing import Any, Collection, Iterable, Optional, Union
 import urllib.parse
 import urllib.request
 import warnings
@@ -184,7 +184,7 @@ def CookieWalker(path: Path) -> Iterable[str]:
                 yield fields
 
 
-def ParseConfig(config_path: Path) -> Dict[str, str]:
+def ParseConfig(config_path: Path) -> dict[str, str]:
     """Parses an INI-style config for SSO settings.
 
     Args:
@@ -206,7 +206,7 @@ def ParseConfig(config_path: Path) -> Dict[str, str]:
     return headers
 
 
-def GetSsoConfig(host: str) -> Tuple[Dict[str, str], Dict[str, str], str]:
+def GetSsoConfig(host: str) -> tuple[dict[str, str], dict[str, str], str]:
     """Get the SSO config for this host if available.
 
     Args:
@@ -298,7 +298,7 @@ def GetCookies(
     host: str,
     path: str,
     cookie_paths: Optional[Iterable[Union[str, os.PathLike]]] = None,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Returns cookies that should be set on a request.
 
     Used by CreateHttpReq for any requests that do not already specify a Cookie
@@ -338,8 +338,8 @@ def CreateHttpReq(
     host: str,
     path: str,
     reqtype: Optional[str] = "GET",
-    headers: Optional[Dict[str, str]] = None,
-    body: Optional[Union[bytes, str, Dict[str, Any], list]] = None,
+    headers: Optional[dict[str, str]] = None,
+    body: Optional[Union[bytes, str, dict[str, Any], list]] = None,
 ) -> urllib.request.Request:
     """Returns a https connection request object to a gerrit service."""
     path = "/a/" + path.lstrip("/")
@@ -444,7 +444,7 @@ def FetchUrl(
     reqtype="GET",
     headers=None,
     body=None,
-    expect: Union[int, Tuple[int]] = 200,
+    expect: Union[int, tuple[int]] = 200,
     ignore_404=True,
 ):
     """Fetches the http response from the specified URL.
@@ -728,7 +728,7 @@ def GetChangeDetail(host, change, o_params=None):
     return FetchUrlJson(host, path)
 
 
-def GetChangeMergeable(host, change, revision=None) -> Optional[Dict[str, Any]]:
+def GetChangeMergeable(host, change, revision=None) -> Optional[dict[str, Any]]:
     """Query a gerrit server for "mergeable" state."""
     if revision is None:
         revision = "current"
@@ -736,7 +736,7 @@ def GetChangeMergeable(host, change, revision=None) -> Optional[Dict[str, Any]]:
     return FetchUrlJson(host, path)
 
 
-def GetRelatedChanges(host, change, revision=None) -> Optional[Dict[str, Any]]:
+def GetRelatedChanges(host, change, revision=None) -> Optional[dict[str, Any]]:
     """Get changes that depend on or are dependencies for a given change.
 
     Args:
@@ -768,7 +768,7 @@ def GetChangeReviewers(host, change) -> None:
 
 def CreateChange(
     host: str, project: str, branch: str, subject: str, publish: bool
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Creates an empty change.
 
     Args:
@@ -799,7 +799,7 @@ def CreateChange(
 
 def ChangeEdit(
     host: str, change: str, filepath: str, contents: str
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Attaches file modifications to an open change.
 
     Args:
@@ -822,7 +822,7 @@ def ChangeEdit(
     return FetchUrlJson(host, path, body=body, reqtype="PUT", expect=204)
 
 
-def PublishChangeEdit(host: str, change: str) -> Dict[str, Any]:
+def PublishChangeEdit(host: str, change: str) -> dict[str, Any]:
     """Publishes any open edits in a change.
 
     Args:
@@ -985,7 +985,7 @@ def MarkReadyForReview(host, change, msg=""):
     return FetchUrlJson(host, path, reqtype="POST", body=body, ignore_404=False)
 
 
-def GetAttentionSet(host: str, change: str) -> Optional[Dict[str, Any]]:
+def GetAttentionSet(host: str, change: str) -> Optional[dict[str, Any]]:
     """Get information about the attention set of a change.
 
     Args:
@@ -1000,8 +1000,8 @@ def GetAttentionSet(host: str, change: str) -> Optional[Dict[str, Any]]:
 
 
 def AddAttentionSet(
-    host: str, change: str, add: Tuple[str, ...], reason: str, notify: str = ""
-) -> Optional[Dict[str, Any]]:
+    host: str, change: str, add: tuple[str, ...], reason: str, notify: str = ""
+) -> Optional[dict[str, Any]]:
     """Add users to the attention set of a change."""
     if not add:
         return
@@ -1023,7 +1023,7 @@ def AddAttentionSet(
 def RemoveAttentionSet(
     host: str,
     change: str,
-    remove: Tuple[str, ...],
+    remove: tuple[str, ...],
     reason: str,
     notify: str = "",
 ) -> None:
@@ -1118,7 +1118,7 @@ def SetReview(
     ):
         return
     path = "%s/revisions/%s/review" % (_GetChangePath(change), revision)
-    body: Dict[str, Any] = {"reviewers": []}
+    body: dict[str, Any] = {"reviewers": []}
     if msg:
         body["message"] = msg
     if labels:
@@ -1339,7 +1339,7 @@ def Rebase(
     base: Optional[str] = None,
     allow_conflicts: bool = False,
     on_behalf_of_uploader: bool = False,
-) -> Optional[Dict[str, Any]]:
+) -> Optional[dict[str, Any]]:
     """Rebase the CL.
 
     Args:
@@ -1354,7 +1354,7 @@ def Rebase(
         ChangeInfo of the change after rebasing.
     """
     path = "%s/rebase" % (_GetChangePath(change),)
-    body: Dict[str, Any] = {}
+    body: dict[str, Any] = {}
     if base is not None:
         body["base"] = base
     if allow_conflicts:

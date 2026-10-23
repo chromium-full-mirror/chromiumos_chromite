@@ -5,7 +5,7 @@
 """Common functions for interacting with repo manifest XML files."""
 
 import io
-from typing import cast, Dict, Generator, Optional, Tuple, TYPE_CHECKING, Union
+from typing import cast, Generator, Optional, TYPE_CHECKING, Union
 from xml.etree import ElementTree
 
 
@@ -52,14 +52,14 @@ class Manifest:
 
     # These __*state__ pickle protocol methods are intended for multiprocessing.
 
-    def __getstate__(self) -> Tuple[str, bool]:
+    def __getstate__(self) -> tuple[str, bool]:
         """Return pickleable state for this Manifest."""
         return (
             ElementTree.tostring(self._etree.getroot(), encoding="unicode"),
             self._allow_unsupported_features,
         )
 
-    def __setstate__(self, state: Tuple[str, bool]) -> None:
+    def __setstate__(self, state: tuple[str, bool]) -> None:
         """Set the state from pickle for this Manifest."""
         tree_string, allow_unsupported_features = state
         root = ElementTree.fromstring(tree_string)
@@ -224,7 +224,7 @@ class Manifest:
 class _ManifestElement:
     """Subclasses of _ManifestElement wrap Manifest child XML elements."""
 
-    ATTRS: Tuple[str, ...] = ()
+    ATTRS: tuple[str, ...] = ()
     TAG = None
 
     def __init__(
@@ -240,14 +240,14 @@ class _ManifestElement:
 
     # These __*state__ pickle protocol methods are intended for multiprocessing.
 
-    def __getstate__(self) -> Tuple[Manifest, str]:
+    def __getstate__(self) -> tuple[Manifest, str]:
         """Return pickleable state for this element."""
         return (
             self._manifest,
             ElementTree.tostring(self._el, encoding="unicode"),
         )
 
-    def __setstate__(self, state: Tuple[Manifest, str]) -> None:
+    def __setstate__(self, state: tuple[Manifest, str]) -> None:
         """Set the state from pickle for this element."""
         self._manifest, xml_data = state
         self._el = ElementTree.fromstring(xml_data)
@@ -370,7 +370,7 @@ class Project(_ManifestElement):
             or self._manifest.Default().revision
         )
 
-    def Annotations(self) -> Dict[str, str]:
+    def Annotations(self) -> dict[str, str]:
         """Return a dictionary from annotation key to annotation value."""
         annotations = {}
         for child in self._el:

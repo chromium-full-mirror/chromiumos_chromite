@@ -7,7 +7,7 @@
 import difflib
 import fnmatch
 import os
-from typing import Hashable, Iterable, List, Sequence, TypeVar
+from typing import Hashable, Iterable, Sequence, TypeVar
 
 
 # _SequenceOfHashables is what difflib.SequenceMatcher operates on. The most
@@ -24,7 +24,7 @@ def GetMostLikelyMatchedObject(
     haystack: Iterable[_SequenceOfHashables],
     needle: _SequenceOfHashables,
     matched_score_threshold: float = 0.4,
-) -> List[_SequenceOfHashables]:
+) -> list[_SequenceOfHashables]:
     """Matches objects whose names are most likely matched with target.
 
     Args:
@@ -48,7 +48,7 @@ def FindFilesMatching(
     target: str = "./",
     cwd: str = os.curdir,
     exclude_dirs: Iterable[str] = (),
-) -> List[str]:
+) -> list[str]:
     """Search the root directory recursively for matching filenames.
 
     The |target| and |cwd| args allow manipulating how the found paths are

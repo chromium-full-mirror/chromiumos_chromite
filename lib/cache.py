@@ -11,7 +11,7 @@ import logging
 import os
 import shutil
 import tempfile
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 import urllib.parse
 
 from chromite.lib import compression_lib
@@ -207,7 +207,7 @@ class DiskCache:
     def _KeyExists(self, key):
         return os.path.lexists(self.GetKeyPath(key))
 
-    def GetKeyPath(self, key: Tuple[str, ...]) -> "os.PathLike[str]":
+    def GetKeyPath(self, key: tuple[str, ...]) -> "os.PathLike[str]":
         """Get the on-disk path of a key."""
         return os.path.join(self._cache_dir, "+".join(key))
 
@@ -278,7 +278,7 @@ class DiskCache:
                     keys.append(self.GetKey(key_path))
         return keys
 
-    def Lookup(self, key: Tuple[str, ...]) -> CacheReference:
+    def Lookup(self, key: tuple[str, ...]) -> CacheReference:
         """Get a reference to a given key."""
         return CacheReference(self, key)
 

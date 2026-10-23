@@ -6,7 +6,6 @@
 
 import logging
 import os
-from typing import List
 
 from chromite.lib import cipd
 from chromite.lib import cros_build_lib
@@ -71,7 +70,7 @@ def GetLuciGitCreds(
     )
 
 
-def Context(cmd: List[str], scopes: List[str] = None) -> List[str]:
+def Context(cmd: list[str], scopes: list[str] = None) -> list[str]:
     """Helper to wrap cmd with `luci-auth context --scopes=... -- [cmd]`."""
     wrapped = [GetLuciAuth(), "context"]
 

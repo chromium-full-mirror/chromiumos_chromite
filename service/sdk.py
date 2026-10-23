@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 import re
 import tempfile
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import binpkg
@@ -106,7 +106,7 @@ class CreateArguments:
         self.ccache_disable = ccache_disable
         self.no_delete_out_dir = no_delete_out_dir
 
-    def GetEntryArgList(self) -> List[str]:
+    def GetEntryArgList(self) -> list[str]:
         """Get the list of command line arguments to simply enter the chroot.
 
         Note that these are a subset of `GetArgList`.
@@ -129,7 +129,7 @@ class CreateArguments:
 
         return args
 
-    def GetArgList(self) -> List[str]:
+    def GetArgList(self) -> list[str]:
         """Get the list of the corresponding command line arguments.
 
         Returns:
@@ -156,7 +156,7 @@ class UpdateArguments:
         self,
         root: Union[str, os.PathLike] = "/",
         build_source: bool = False,
-        toolchain_targets: Optional[List[str]] = None,
+        toolchain_targets: Optional[list[str]] = None,
         toolchain_changed: bool = False,
         jobs: Optional[int] = None,
         backtrack: Optional[int] = None,
@@ -197,7 +197,7 @@ class UpdateResult:
 
     return_code: int
     version: Optional[int] = None
-    failed_pkgs: List[package_info.PackageInfo] = dataclasses.field(
+    failed_pkgs: list[package_info.PackageInfo] = dataclasses.field(
         default_factory=list
     )
 
@@ -662,7 +662,7 @@ def _uprev_local_sdk_version_file(
 
 def _uprev_local_host_prebuilts_files(
     binhost_gs_bucket: str, binhost_version: str
-) -> List[Path]:
+) -> list[Path]:
     """Update the local amd64-host prebuilt files (but don't commit changes).
 
     Args:
@@ -679,7 +679,7 @@ def _uprev_local_host_prebuilts_files(
         A list of files that were actually modified, if any.
     """
     bucket = gs_urls_util.extract_gs_bucket(binhost_gs_bucket)
-    modified_paths: List[Path] = []
+    modified_paths: list[Path] = []
     for conf_path, new_binhost_value in (
         (
             constants.HOST_PREBUILT_CONF_FILE_FULL_PATH,
@@ -702,7 +702,7 @@ def _uprev_local_host_prebuilts_files(
 
 def _find_newest_stable_ebuild(
     in_dir: Path,
-) -> Tuple[Path, package_info.PackageInfo]:
+) -> tuple[Path, package_info.PackageInfo]:
     """Find the ebuild in `in_dir` with the newest version.
 
     This skips 9999 ebuilds.
@@ -767,7 +767,7 @@ def _generate_updated_virtual_contents(
 def uprev_toolchain_virtuals(
     chromiumos_overlay: Path = constants.SOURCE_ROOT
     / constants.CHROMIUMOS_OVERLAY_DIR,
-) -> List[Path]:
+) -> list[Path]:
     """Uprev virtual packages to match their in-tree versions."""
     # List of host package -> virtual package to keep in sync.
     virtuals_to_sync = [
@@ -824,7 +824,7 @@ def uprev_sdk_and_prebuilts(
     toolchain_tarball_template: str,
     binhost_gs_bucket: str,
     sdk_gs_bucket: Optional[str] = None,
-) -> List[Path]:
+) -> list[Path]:
     """Uprev the SDK version and prebuilt conf files on the local filesystem.
 
     Args:
@@ -859,7 +859,7 @@ def uprev_sdk_and_prebuilts(
 
 def BuildPrebuilts(
     chroot: chroot_lib.Chroot, board: str = ""
-) -> Tuple[Path, Path]:
+) -> tuple[Path, Path]:
     """Builds the binary packages that compose the ChromiumOS SDK.
 
     Args:
@@ -921,7 +921,7 @@ def CreateManifestFromSdk(sdk_path: Path, dest_dir: Path) -> Path:
     """
     dest_manifest = dest_dir / f"{constants.SDK_TARBALL_NAME}.Manifest"
     # package_data: {"category/package" : [("version", {}), ...]}
-    package_data: Dict[str, List[Tuple[str, Dict]]] = {}
+    package_data: dict[str, list[tuple[str, dict]]] = {}
     for package in portage_util.PortageDB(sdk_path).InstalledPackages():
         key = f"{package.category}/{package.package}"
         package_data.setdefault(key, []).append((package.version, {}))
@@ -935,7 +935,7 @@ def CreateBinhostCLs(
     version: str,
     upload_location: str,
     sdk_tarball_template: str,
-) -> List[str]:
+) -> list[str]:
     """Create CLs that update the binhost to point at uploaded prebuilts.
 
     The CLs are *not* automatically submitted.
@@ -1043,8 +1043,8 @@ def UploadPrebuiltPackages(
 
 
 def BuildSdkToolchain(
-    extra_env: Optional[Dict[str, str]] = None,
-) -> List[common_pb2.Path]:
+    extra_env: Optional[dict[str, str]] = None,
+) -> list[common_pb2.Path]:
     """Build cross-compiler toolchain packages for the SDK.
 
     Args:
@@ -1056,7 +1056,7 @@ def BuildSdkToolchain(
     cros_build_lib.AssertInsideChroot()
     toolchain_dir = os.path.join("/", constants.SDK_TOOLCHAINS_OUTPUT)
 
-    def _SetupToolchains(flags: List[str], include_extra_env: bool) -> None:
+    def _SetupToolchains(flags: list[str], include_extra_env: bool) -> None:
         """Run the cros_setup_toolchains binary."""
         cmd = ["cros_setup_toolchains"] + flags
         cros_build_lib.sudo_run(

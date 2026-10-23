@@ -7,7 +7,7 @@
 import dataclasses
 import logging
 import os
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import chroot_lib
 from chromite.lib import compression_lib
@@ -289,7 +289,7 @@ class AutotestTarballBuilder:
 
         return files, transforms
 
-    def _GetTastSspFiles(self) -> List[PathMapping]:
+    def _GetTastSspFiles(self) -> list[PathMapping]:
         """Build out the paths to the tast SSP files.
 
         Returns:

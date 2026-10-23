@@ -7,16 +7,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Tuple,
-    TYPE_CHECKING,
-    Union,
-)
+from typing import Any, Iterable, Optional, TYPE_CHECKING, Union
 
 from chromite.lib import build_target_lib
 from chromite.lib import constants
@@ -273,7 +264,7 @@ def _NotEmpty(filepath: str) -> bool:
     return os.path.exists(filepath) and osutils.ReadFile(filepath).strip()
 
 
-def _DictToKeyValue(dictionary: Dict) -> str:
+def _DictToKeyValue(dictionary: dict) -> str:
     """Formats dictionary in to a key=value string.
 
     Args:
@@ -467,7 +458,7 @@ class Sysroot:
         )
 
     @property
-    def board_overlay(self) -> List[str]:
+    def board_overlay(self) -> list[str]:
         """The BOARD_OVERLAY standard field as a list.
 
         The BOARD_OVERLAY field is set on creation, and stores the list of
@@ -480,7 +471,7 @@ class Sysroot:
         return self.GetStandardField(STANDARD_FIELD_BOARD_OVERLAY).split()
 
     @property
-    def _build_target_overlays(self) -> List[Path]:
+    def _build_target_overlays(self) -> list[Path]:
         """Overlays for the build target itself."""
         prefix = f"overlay-{self.build_target_name}"
         return [x for x in self.get_overlays() if x.name.startswith(prefix)]
@@ -523,7 +514,7 @@ class Sysroot:
         return self.GetStandardField(STANDARD_FIELD_CHOST)
 
     @property
-    def portdir_overlay(self) -> List[str]:
+    def portdir_overlay(self) -> list[str]:
         """The PORTDIR_OVERLAY field as a list.
 
         The PORTDIR_OVERLAY field is set on creation, and stores the list of all
@@ -532,12 +523,12 @@ class Sysroot:
         return self.GetStandardField(STANDARD_FIELD_PORTDIR_OVERLAY).split()
 
     @property
-    def use_flags(self) -> List[str]:
+    def use_flags(self) -> list[str]:
         """Get all USE flags for the sysroot."""
         return portage_util.PortageqEnvvar("USE", sysroot=self.path).split()
 
     @property
-    def features(self) -> List[str]:
+    def features(self) -> list[str]:
         """Get all FEATURES for the sysroot."""
         return portage_util.PortageqEnvvar(
             "FEATURES", sysroot=self.path
@@ -554,7 +545,7 @@ class Sysroot:
 
     def get_overlays(
         self, build_target_only: bool = False, relative: bool = False
-    ) -> List[Path]:
+    ) -> list[Path]:
         """Get a list of the overlays available to the sysroot.
 
         Note: The overlay paths are always inside the SDK. If the outside the
@@ -766,7 +757,7 @@ class Sysroot:
         local_only: bool = False,
         use_cq_prebuilts: bool = False,
         expanded_binhost_inheritance: bool = False,
-        binhost_overrides: Optional[List[str]] = None,
+        binhost_overrides: Optional[list[str]] = None,
     ) -> None:
         """Make sure the make.conf.board file exists and is up to date.
 
@@ -834,8 +825,8 @@ class Sysroot:
     def _GenerateConfig(
         self,
         toolchains: toolchain_list.ToolchainList,
-        board_overlays: List[Path],
-        portdir_overlays: List[Path],
+        board_overlays: list[Path],
+        portdir_overlays: list[Path],
         header: str,
         use_internal: bool,
         **kwargs: Any,
@@ -984,7 +975,7 @@ class Sysroot:
         expanded_binhost_inheritance: bool = False,
         use_cq_prebuilts: bool = False,
         source_root: Path = constants.SOURCE_ROOT,
-        binhost_overrides: Optional[List[str]] = None,
+        binhost_overrides: Optional[list[str]] = None,
     ) -> str:
         """Returns the binhost configuration.
 
@@ -1076,7 +1067,7 @@ PORTAGE_BINHOST="$FULL_BINHOST"
         expanded_binhost_inheritance: bool,
         source_root: Path,
         swap_public_private: bool = False,
-    ) -> List[str]:
+    ) -> list[str]:
         config = []
         (binhost_public, binhost_internal) = self._ContinuousBinhosts(
             builder_type, board, expanded_binhost_inheritance, source_root
@@ -1120,7 +1111,7 @@ PORTAGE_BINHOST="$PORTAGE_BINHOST ${builder_type}_BINHOST"
         board: Union[str, None],
         expanded_binhost_inheritance: bool,
         source_root: Path,
-    ) -> Tuple[Optional[str], Optional[str]]:
+    ) -> tuple[Optional[str], Optional[str]]:
         """Returns the postsubmit or CQ binhost to use."""
         boards = []
         # The preference of picking the binhost file for a board is in the same

@@ -7,7 +7,7 @@
 import signal
 import subprocess
 import types
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 from chromite.third_party.opentelemetry import trace as otel_trace_api
 from chromite.third_party.opentelemetry.sdk import trace as otel_trace_sdk
@@ -27,7 +27,7 @@ class ChromiteSpan(otel_trace_api.Span):
         return self._inner.get_span_context()
 
     def set_attributes(
-        self, attributes: Dict[str, otel_types.AttributeValue]
+        self, attributes: dict[str, otel_types.AttributeValue]
     ) -> None:
         self._inner.set_attributes(attributes)
 
@@ -79,7 +79,7 @@ class ChromiteSpan(otel_trace_api.Span):
             escaped=escaped,
         )
 
-    def _record_failed_packages_error(self, exception: Exception) -> Dict:
+    def _record_failed_packages_error(self, exception: Exception) -> dict:
         """Generate attributes for a PackageInstallError or similar."""
         attributes = {}
 
@@ -89,7 +89,7 @@ class ChromiteSpan(otel_trace_api.Span):
 
         return attributes
 
-    def _record_called_process_error(self, exception: Exception) -> Dict:
+    def _record_called_process_error(self, exception: Exception) -> dict:
         """Generate attributes for a CalledProcessError."""
         attributes = {}
         if not isinstance(exception, subprocess.CalledProcessError):

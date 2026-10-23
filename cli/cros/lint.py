@@ -24,7 +24,7 @@ import os
 import re
 import sys
 import tokenize
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 import astroid
 import pylint.checkers
@@ -100,7 +100,7 @@ class EncodingChecker(pylint.checkers.BaseChecker):
         node: astroid.Call,
         encoding_idx: int,
         mode_idx: Optional[int] = None,
-    ) -> Tuple[str, Optional[str]]:
+    ) -> tuple[str, Optional[str]]:
         """Extract the mode & encoding settings in the call."""
         mode = "r"
         encoding = None

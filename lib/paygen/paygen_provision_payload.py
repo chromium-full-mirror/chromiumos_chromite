@@ -7,7 +7,7 @@
 import functools
 import os
 from pathlib import Path
-from typing import List, Mapping, Optional, Union
+from typing import Mapping, Optional, Union
 
 from chromite.lib import compression_lib
 from chromite.lib import constants
@@ -18,7 +18,7 @@ from chromite.lib.paygen import partition_lib
 
 def GenerateProvisionPayloads(
     target_image_path: Union[Path, str], archive_dir: Union[Path, str]
-) -> List[Union[Path, str]]:
+) -> list[Union[Path, str]]:
     """Generates payloads needed for provisioning.
 
     Args:
@@ -62,7 +62,7 @@ def GenerateProvisionPayloads(
         def CompressMappings(
             mapping: Mapping[Union[Path, str], Union[Path, str]],
             compression_level: Optional[int] = None,
-        ) -> List[Union[Path, str]]:
+        ) -> list[Union[Path, str]]:
             """Compresses a mapping of payloads.
 
             Args:

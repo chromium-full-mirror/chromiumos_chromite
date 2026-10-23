@@ -8,7 +8,7 @@ import logging
 import os
 import shutil
 import tempfile
-from typing import Iterable, List, Optional
+from typing import Iterable, Optional
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
@@ -293,7 +293,7 @@ def _build_flash_ssh_cmds(
     ip: str,
     port: int,
     path: str,
-    tmp_ssh_keys: List[str],
+    tmp_ssh_keys: list[str],
     verbose: bool,
     passthrough_args: Iterable[str] = tuple(),
 ):
@@ -499,7 +499,7 @@ def _build_read_ssh_cmds(
     ip: str,
     port: int,
     path: str,
-    tmp_ssh_keys: List[str],
+    tmp_ssh_keys: list[str],
     verbose: bool,
     region: str,
 ):

@@ -13,16 +13,7 @@ import logging
 import os
 import socket
 import time
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    TYPE_CHECKING,
-    Union,
-)
+from typing import Any, Callable, Iterable, Optional, TYPE_CHECKING, Union
 import urllib.error
 import urllib.request
 
@@ -81,7 +72,7 @@ def _get_telemetry_dir() -> "Path":
     return path_util.get_log_dir() / "telemetry"
 
 
-def _get_other_telemetry_dirs() -> List["Path"]:
+def _get_other_telemetry_dirs() -> list["Path"]:
     """Get other directories with telemetry and their telemetry_dir mapping."""
     return [
         path_util.get_log_dir() / "portage" / "telemetry",
@@ -203,7 +194,7 @@ def publish():
 
 
 @tracer.start_as_current_span("chromite.lib.telemetry_publisher._parse_files")
-def _parse_files(publisher: "ClearcutPublisher") -> List["TelemetryFile"]:
+def _parse_files(publisher: "ClearcutPublisher") -> list["TelemetryFile"]:
     """Parse relevant files from the telemetry log dir and queue their spans."""
     pending_files = []
     for current in _get_telemetry_files():
@@ -238,7 +229,7 @@ def _parse_files(publisher: "ClearcutPublisher") -> List["TelemetryFile"]:
 @tracer.start_as_current_span(
     "chromite.lib.telemetry_publisher._post_publish_actions"
 )
-def _post_publish_actions(pending_files: List["TelemetryFile"]):
+def _post_publish_actions(pending_files: list["TelemetryFile"]):
     """Post-publish actions for all published files."""
     # Mark the just published files as published.
     for file in pending_files:
@@ -425,7 +416,7 @@ class TraceSpanDataclassMixin:
     For example, `x.from_json(data).to_json() == data` CANNOT be asserted.
     """
 
-    def _field_mapping(self) -> Dict[str, str]:
+    def _field_mapping(self) -> dict[str, str]:
         """Get the {otel: TraceSpan} field name mapping.
 
         Used to map a field from the otel representation to the dataclass field.
@@ -444,7 +435,7 @@ class TraceSpanDataclassMixin:
 
         return dataclasses.asdict(self, dict_factory=_dict_factory)
 
-    def from_dict(self, mapping: Dict[str, Any]) -> Dict[str, Any]:
+    def from_dict(self, mapping: dict[str, Any]) -> dict[str, Any]:
         """Populate from an otel span dict.
 
         Args:
@@ -502,7 +493,7 @@ class TelemetrySdk(TraceSpanDataclassMixin):
     version: str = ""
     language: str = ""
 
-    def _field_mapping(self) -> Dict[str, str]:
+    def _field_mapping(self) -> dict[str, str]:
         return {
             resources.TELEMETRY_SDK_NAME: "name",
             resources.TELEMETRY_SDK_VERSION: "version",
@@ -520,7 +511,7 @@ class System(TraceSpanDataclassMixin):
     cpu: str = ""
     host_architecture: str = ""
 
-    def _field_mapping(self) -> Dict[str, str]:
+    def _field_mapping(self) -> dict[str, str]:
         return {
             detector.OS_NAME: "os_name",
             resources.OS_DESCRIPTION: "os_version",
@@ -538,15 +529,15 @@ class Process(TraceSpanDataclassMixin):
     executable_name: str = ""
     executable_path: str = ""
     command: str = ""
-    command_args: List[str] = dataclasses.field(default_factory=list)
+    command_args: list[str] = dataclasses.field(default_factory=list)
     owner_is_root: bool = False
     runtime_name: str = ""
     runtime_version: str = ""
     runtime_description: str = ""
     api_version: str = ""
-    env: Dict[str, str] = dataclasses.field(default_factory=dict)
+    env: dict[str, str] = dataclasses.field(default_factory=dict)
 
-    def _field_mapping(self) -> Dict[str, str]:
+    def _field_mapping(self) -> dict[str, str]:
         return {
             resources.PROCESS_EXECUTABLE_NAME: "executable_name",
             resources.PROCESS_EXECUTABLE_PATH: "executable_path",
@@ -558,7 +549,7 @@ class Process(TraceSpanDataclassMixin):
             detector.PROCESS_RUNTIME_API_VERSION: "api_version",
         }
 
-    def from_dict(self, mapping: Dict[str, Any]) -> Dict[str, Any]:
+    def from_dict(self, mapping: dict[str, Any]) -> dict[str, Any]:
         self.pid = str(mapping.pop(resources.PROCESS_PID, ""))
         self.owner_is_root = mapping.pop(resources.PROCESS_OWNER, 1) == 0
         env_keys = [k for k in mapping if k.startswith("process.env.")]
@@ -572,9 +563,9 @@ class Resource(TraceSpanDataclassMixin):
 
     process: Process = dataclasses.field(default_factory=Process)
     system: System = dataclasses.field(default_factory=System)
-    attributes: Dict[str, Any] = dataclasses.field(default_factory=dict)
+    attributes: dict[str, Any] = dataclasses.field(default_factory=dict)
 
-    def from_dict(self, mapping: Dict[str, Any]) -> Dict[str, Any]:
+    def from_dict(self, mapping: dict[str, Any]) -> dict[str, Any]:
         attrs = self.process.from_dict(mapping)
         attrs = self.system.from_dict(attrs)
         # Everything not already consumed.
@@ -619,9 +610,9 @@ class Event(TraceSpanDataclassMixin):
 
     event_time_millis: int = 0
     name: str = ""
-    attributes: Dict[str, Any] = dataclasses.field(default_factory=dict)
+    attributes: dict[str, Any] = dataclasses.field(default_factory=dict)
 
-    def from_dict(self, mapping: Dict[str, Any]) -> Dict[str, Any]:
+    def from_dict(self, mapping: dict[str, Any]) -> dict[str, Any]:
         # TODO(python3.11): Use fromisoformat instead of strptime and replace.
         start = datetime.datetime.strptime(
             mapping.pop("timestamp"), "%Y-%m-%dT%H:%M:%S.%fZ"
@@ -644,11 +635,11 @@ class StackFrame(TraceSpanDataclassMixin):
 class StackTrace(TraceSpanDataclassMixin):
     """StackTrace dataclass."""
 
-    stack_frames: List[StackFrame] = dataclasses.field(default_factory=list)
+    stack_frames: list[StackFrame] = dataclasses.field(default_factory=list)
     dropped_frames_count: int = 0
     stacktrace_hash: str = ""
 
-    def from_dict(self, mapping: Dict[str, Any]) -> Dict[str, Any]:
+    def from_dict(self, mapping: dict[str, Any]) -> dict[str, Any]:
         for frame in mapping.pop("stack_frames", []):
             stack_frame = StackFrame()
             stack_frame.from_dict(frame)
@@ -684,7 +675,7 @@ class Status(TraceSpanDataclassMixin):
     message: str = ""
     stack_trace: StackTrace = dataclasses.field(default_factory=StackTrace)
 
-    def _field_mapping(self) -> Dict[str, str]:
+    def _field_mapping(self) -> dict[str, str]:
         return {
             "description": "message",
         }
@@ -704,9 +695,9 @@ class Link(TraceSpanDataclassMixin):
     """Link dataclass."""
 
     context: Context = dataclasses.field(default_factory=Context)
-    attributes: Dict[str, Any] = dataclasses.field(default_factory=dict)
+    attributes: dict[str, Any] = dataclasses.field(default_factory=dict)
 
-    def from_dict(self, mapping: Dict[str, Any]) -> Dict[str, Any]:
+    def from_dict(self, mapping: dict[str, Any]) -> dict[str, Any]:
         attrs = self.context.from_dict(mapping)
         self.attributes = {**attrs}
         return {}
@@ -722,9 +713,9 @@ class TraceSpan(TraceSpanDataclassMixin):
     span_kind: SpanKind = SpanKind.SPAN_KIND_UNSPECIFIED
     start_time_millis: int = 0
     end_time_millis: int = 0
-    attributes: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    events: List[Event] = dataclasses.field(default_factory=list)
-    links: List[Link] = dataclasses.field(default_factory=list)
+    attributes: dict[str, Any] = dataclasses.field(default_factory=dict)
+    events: list[Event] = dataclasses.field(default_factory=list)
+    links: list[Link] = dataclasses.field(default_factory=list)
     status: Status = dataclasses.field(default_factory=Status)
     resource: Resource = dataclasses.field(default_factory=Resource)
     # TODO: Verify whether InstrumentationScope is ever added to the json.
@@ -735,12 +726,12 @@ class TraceSpan(TraceSpanDataclassMixin):
         default_factory=TelemetrySdk
     )
 
-    def _field_mapping(self) -> Dict[str, str]:
+    def _field_mapping(self) -> dict[str, str]:
         return {
             "kind": "span_kind",
         }
 
-    def from_dict(self, mapping: Dict[str, Any]) -> Dict[str, Any]:
+    def from_dict(self, mapping: dict[str, Any]) -> dict[str, Any]:
         # Force empty string when we get None.
         self.parent_span_id = mapping.pop("parent_id", "") or ""
 

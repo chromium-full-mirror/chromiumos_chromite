@@ -5,7 +5,6 @@
 """Strip packages and place them in <sysroot>/stripped-packages."""
 
 import os
-from typing import List
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
@@ -43,7 +42,7 @@ def create_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def main(argv: List[str]) -> int:
+def main(argv: list[str]) -> int:
     """Main function."""
     cros_build_lib.AssertInsideChroot()
     parser = create_parser()

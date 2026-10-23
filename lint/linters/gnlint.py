@@ -66,7 +66,7 @@ import logging
 import os
 import re
 import subprocess
-from typing import Dict, List, NamedTuple
+from typing import NamedTuple
 
 from chromite.format import formatters
 from chromite.lib import cros_build_lib
@@ -85,7 +85,7 @@ class LintResult(NamedTuple):
     file: str
     # The location in the file where the issue was found.
     # None when it's not tied to a specific line (e.g. file not found).
-    location: Dict
+    location: dict
     # The message for this check.
     msg: str
     # The type of result -- logging.ERROR or logging.WARNING.
@@ -96,7 +96,7 @@ class Issue(NamedTuple):
     """Object holding an issue found by a linter."""
 
     # The location in the file where the issue was found.
-    location: Dict
+    location: dict
     # The message for this check.
     msg: str
 
@@ -107,7 +107,7 @@ class LintSettings(NamedTuple):
     # Linters to skip.
     skip: set
     # Problems we found in the lint settings themselves.
-    issues: List
+    issues: list
 
 
 def FormatLocation(file, location):
@@ -1127,7 +1127,7 @@ def ParseAst(data: str) -> dict:
     return json.loads(result.stdout)
 
 
-def CheckGnData(data: str, gnfile: "Path") -> List:
+def CheckGnData(data: str, gnfile: "Path") -> list:
     """Check |gnfile| for common mistakes.
 
     Args:

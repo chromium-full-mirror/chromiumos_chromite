@@ -11,10 +11,10 @@ in the number of leading spaces between consecutive lines.
 
 import argparse
 import sys
-from typing import Dict, List, Optional
+from typing import Optional
 
 
-def diff_histogram(text: str) -> Dict[int, int]:
+def diff_histogram(text: str) -> dict[int, int]:
     """Split the input text into lines and calculate indentation freqeuency.
 
     The result is a dictionary from indentation length (in spaces)
@@ -51,7 +51,7 @@ def detect_indentation(text: str) -> Optional[int]:
     return selected
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     """main function for manual testing"""
     parser = argparse.ArgumentParser(
         description="Read stdin and detect indentation."

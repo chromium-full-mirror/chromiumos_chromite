@@ -6,7 +6,7 @@
 
 import itertools
 import re
-from typing import Pattern, Tuple
+from typing import Pattern
 
 
 # In order to add a DLC below, please reach out to:
@@ -38,7 +38,7 @@ DLC_POWERWASH_SAFE_RE_COMPILED = tuple(
 )
 
 
-def IsAllowlisted(dlc_id: str, allowlist: Tuple[str]) -> bool:
+def IsAllowlisted(dlc_id: str, allowlist: tuple[str]) -> bool:
     """Checks if the DLC is allowlisted.
 
     Args:
@@ -51,7 +51,7 @@ def IsAllowlisted(dlc_id: str, allowlist: Tuple[str]) -> bool:
     return dlc_id in allowlist
 
 
-def IsAllowlistedRe(dlc_id: str, allowlist_re: Tuple[Pattern]) -> bool:
+def IsAllowlistedRe(dlc_id: str, allowlist_re: tuple[Pattern]) -> bool:
     """Checks if the DLC is allowlisted with full regex match.
 
     Args:

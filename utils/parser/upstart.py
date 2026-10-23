@@ -6,7 +6,7 @@
 
 import dataclasses
 import re
-from typing import Dict, Iterator, List, Optional, Set
+from typing import Iterator, Optional
 
 from chromite.utils import shell_util
 
@@ -29,9 +29,9 @@ class Job:
 
     author: Optional[str] = None
     description: Optional[str] = None
-    env: Dict[str, str] = dataclasses.field(default_factory=dict)
-    exports: Set[str] = dataclasses.field(default_factory=set)
-    imports: Set[str] = dataclasses.field(default_factory=set)
+    env: dict[str, str] = dataclasses.field(default_factory=dict)
+    exports: set[str] = dataclasses.field(default_factory=set)
+    imports: set[str] = dataclasses.field(default_factory=set)
     oom: Optional[str] = None
     main: Optional[str] = None
     prestart: Optional[str] = None
@@ -71,7 +71,7 @@ def _parse_exec(line: str) -> str:
     return m.group(1)
 
 
-def _parse_env(env: Dict[str, str], line: str) -> None:
+def _parse_env(env: dict[str, str], line: str) -> None:
     """Parse 'env' lines."""
     # Can take the form of:
     #   env FOO
@@ -157,7 +157,7 @@ def parse(contents: str) -> Job:
     """
     ret = Job()
 
-    def _iter_lines(lines: List[str]) -> Iterator[str]:
+    def _iter_lines(lines: list[str]) -> Iterator[str]:
         r"""Yield partially cooked lines.
 
         This will:

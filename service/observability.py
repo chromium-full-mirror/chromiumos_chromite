@@ -13,7 +13,7 @@ import functools
 import logging
 import os
 import re
-from typing import Dict, Iterable, NamedTuple, Pattern, Tuple
+from typing import Iterable, NamedTuple, Pattern
 
 from chromite.lib import constants
 from chromite.lib import image_lib
@@ -70,8 +70,8 @@ def _get_version_component_regex() -> Pattern:
 
 
 def get_image_size_data(
-    image_details: Dict[os.PathLike, str],
-) -> Dict[str, Dict[str, Dict[PackageIdentifier, portage_util.PackageSizes]]]:
+    image_details: dict[os.PathLike, str],
+) -> dict[str, dict[str, dict[PackageIdentifier, portage_util.PackageSizes]]]:
     """Entry point method to parse input data and retrieve new data.
 
     Args:
@@ -93,7 +93,7 @@ def get_image_size_data(
 
 def get_installed_package_data(
     image_type: str, image_path: os.PathLike
-) -> Dict[str, Dict[PackageIdentifier, portage_util.PackageSizes]]:
+) -> dict[str, dict[PackageIdentifier, portage_util.PackageSizes]]:
     """Function for mounting an image and setting up a package database.
 
     Utility method which mounts each supported partition of a given image and
@@ -167,9 +167,9 @@ def get_installed_package_data(
 def get_package_details_for_partition(
     installation_path: os.PathLike,
     pkgs: Iterable[
-        Tuple[portage_util.InstalledPackage, Iterable[Tuple[str, str]]]
+        tuple[portage_util.InstalledPackage, Iterable[tuple[str, str]]]
     ],
-) -> Dict[PackageIdentifier, portage_util.PackageSizes]:
+) -> dict[PackageIdentifier, portage_util.PackageSizes]:
     """Retrieve package size and format name details for |pkgs|.
 
     Args:

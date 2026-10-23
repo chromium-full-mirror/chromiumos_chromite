@@ -12,7 +12,7 @@ import os
 from pathlib import Path
 import re
 import stat
-from typing import Dict, List, NamedTuple, Optional, Set, Tuple, Union
+from typing import NamedTuple, Optional, Union
 
 from chromite.lib import cgpt
 from chromite.lib import chromeos_version
@@ -185,7 +185,7 @@ class LoopbackPartitions:
             raise
 
     @staticmethod
-    def _CheckNodeIsLoopback(path: Union[str, os.PathLike]) -> Tuple[int, int]:
+    def _CheckNodeIsLoopback(path: Union[str, os.PathLike]) -> tuple[int, int]:
         """Verify |path| is a loopback device node."""
         st = os.stat(path)
         if not stat.S_ISBLK(st.st_mode):
@@ -406,7 +406,7 @@ class LoopbackPartitions:
             else:
                 raise KeyError(repr(part_id))
 
-    def Mounted(self) -> Dict[str, os.PathLike]:
+    def Mounted(self) -> dict[str, os.PathLike]:
         """Returns information for mounted partitions.
 
         Returns:
@@ -988,7 +988,7 @@ def GetImageDiskPartitionInfo(image_path):
         return _ParseParted(lines)
 
 
-def GetImagesToBuild(image_types: List[str]) -> Set[str]:
+def GetImagesToBuild(image_types: list[str]) -> set[str]:
     """Construct the images to build from the image type.
 
     Args:
@@ -1017,13 +1017,13 @@ def GetImagesToBuild(image_types: List[str]) -> Set[str]:
 
 
 def GetBuildImageEnvvars(
-    image_names: Set[str],
+    image_names: set[str],
     board: str,
     version_info: Optional[chromeos_version.VersionInfo] = None,
     build_dir: Optional[Union[str, os.PathLike]] = None,
     output_dir: Optional[Union[str, os.PathLike]] = None,
-    env_var_init: Optional[Dict[str, str]] = None,
-) -> Dict[str, str]:
+    env_var_init: Optional[dict[str, str]] = None,
+) -> dict[str, str]:
     """Get the environment variables required to build the given images.
 
     Args:
@@ -1083,7 +1083,7 @@ def CreateBuildDir(
     replace: bool = False,
     build_attempt: Optional[int] = None,
     output_suffix: Optional[str] = None,
-) -> Tuple[Path, Path, Path]:
+) -> tuple[Path, Path, Path]:
     """Create the build directory based on input arguments.
 
     Args:

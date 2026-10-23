@@ -29,7 +29,6 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
-from typing import List
 
 import portage  # pylint: disable=import-error
 
@@ -138,7 +137,7 @@ def _filter_install_mask_from_package(in_path: str, out_path: str) -> None:
             shutil.move(tmp_out_path, out_path)
 
 
-def update_gmerge_binhost(sysroot: str, pkgs: List[str], deep: bool) -> bool:
+def update_gmerge_binhost(sysroot: str, pkgs: list[str], deep: bool) -> bool:
     """Add packages to our gmerge-specific binhost.
 
     Files matching DEFAULT_INSTALL_MASK are not included in the tarball.

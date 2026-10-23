@@ -12,7 +12,7 @@ import logging
 import os
 from pathlib import Path
 import time
-from typing import Any, List, Optional, Union
+from typing import Any, Optional, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -240,11 +240,11 @@ def create_tarball(
     cwd: Union[Path, str],
     sudo: Optional[bool] = False,
     compression: CompressionType = CompressionType.XZ,
-    compressor: Optional[List[str]] = None,
+    compressor: Optional[list[str]] = None,
     chroot: Optional[Union[Path, str]] = None,
-    inputs: Optional[List[str]] = None,
+    inputs: Optional[list[str]] = None,
     timeout: int = 300,
-    extra_args: Optional[List[str]] = None,
+    extra_args: Optional[list[str]] = None,
     **kwargs: Any,
 ) -> cros_build_lib.CompletedProcess:
     """Create a tarball.  Executes 'tar' on the commandline.
@@ -370,12 +370,12 @@ def create_tarball(
 def extract_tarball(
     tarball_path: Union[Path, str],
     install_path: Union[Path, str],
-    files_to_extract: Optional[List[str]] = None,
-    excluded_files: Optional[List[str]] = None,
+    files_to_extract: Optional[list[str]] = None,
+    excluded_files: Optional[list[str]] = None,
     return_extracted_files: bool = False,
     sudo: Optional[bool] = False,
     replace_install_path: Optional[bool] = False,
-) -> List[str]:
+) -> list[str]:
     """Extracts a tarball using tar.
 
     Detects whether the tarball is compressed or not based on the file

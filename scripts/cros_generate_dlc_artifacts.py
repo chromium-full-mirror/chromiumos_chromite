@@ -7,7 +7,6 @@
 import logging
 import os
 import shutil
-from typing import List
 
 from chromite.lib import commandline
 from chromite.lib import compression_lib
@@ -23,7 +22,7 @@ _META_OUT_FILE = dlc_lib.DLC_TMP_META_DIR + _TAR_COMP_EXT
 _METADATA_FILE = "metadata"
 
 
-def ParseArguments(argv: List[str]) -> commandline.ArgumentNamespace:
+def ParseArguments(argv: list[str]) -> commandline.ArgumentNamespace:
     """Returns a namespace for the CLI arguments."""
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(

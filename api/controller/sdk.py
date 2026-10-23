@@ -7,7 +7,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Optional, TYPE_CHECKING, Union
+from typing import Optional, TYPE_CHECKING, Union
 
 from chromite.api import controller
 from chromite.api import faux
@@ -407,7 +407,7 @@ def BuildSdkToolchain(
     _config: "api_config.ApiConfig",
 ) -> None:
     """Build cross-compiler packages for the SDK."""
-    extra_env: Dict[str, str] = {}
+    extra_env: dict[str, str] = {}
     if request.use_flags:
         extra_env["USE"] = " ".join(use.flag for use in request.use_flags)
     generated_files = sdk.BuildSdkToolchain(extra_env=extra_env)

@@ -18,7 +18,7 @@ import os
 from pathlib import Path
 import re
 import shutil
-from typing import Any, Dict, List, Literal, Optional, Set
+from typing import Any, Literal, Optional
 
 from chromite.third_party import lddtree
 from chromite.third_party.google import protobuf
@@ -164,9 +164,9 @@ class CipdMetadata:
     """
 
     package: str = ""
-    tags: Dict[str, str] = dataclasses.field(default_factory=dict)
-    refs: List[str] = dataclasses.field(default_factory=list)
-    search_tags: List[str] = dataclasses.field(default_factory=list)
+    tags: dict[str, str] = dataclasses.field(default_factory=dict)
+    refs: list[str] = dataclasses.field(default_factory=list)
+    search_tags: list[str] = dataclasses.field(default_factory=list)
 
 
 @dataclasses.dataclass
@@ -218,7 +218,7 @@ class UploadMetadata:
     gcs_metadata: Optional[GcsMetadata] = None
 
     @staticmethod
-    def from_dict(d: Dict[str, Dict[str, Any]]) -> "UploadMetadata":
+    def from_dict(d: dict[str, dict[str, Any]]) -> "UploadMetadata":
         metadata = UploadMetadata()
         # Fields are never removed, and all have default values, so just unpack.
         metadata.cipd_package = CipdMetadata(**d.get("cipd_package", {}))
@@ -333,7 +333,7 @@ class Subtool:
         self.parse_error: Optional[text_format.ParseError] = None
 
         # Set of c/p-v-r strings that provided the bundle contents.
-        self._source_ebuilds: Set[str] = set()
+        self._source_ebuilds: set[str] = set()
 
         # Paths bundled, but not yet attributed to a source ebuild. Always
         # include the .textproto path: it may belong to a bespoke ebuild, so
@@ -344,7 +344,7 @@ class Subtool:
         # destination file to its hash. Not all destination files may be hashed:
         # only the ones whose hashes we care about. Hash is either a 16- or 40-
         # character hex string.
-        self._content_hashes: Dict[str, str] = {}
+        self._content_hashes: dict[str, str] = {}
 
         # A count of files matched against globs during bundling. This is
         # tracked while gathering files to provide an early exit for globs that
@@ -420,7 +420,7 @@ class Subtool:
         return f"{self.package.name} ({self.url})"
 
     @property
-    def source_packages(self) -> List[str]:
+    def source_packages(self) -> list[str]:
         """The list of packages that contributed files during bundling."""
         return sorted(self._source_ebuilds)
 
@@ -774,7 +774,7 @@ class Subtool:
         logger.notice("Contents provided by %s", self.source_packages)
 
     @functools.cached_property
-    def private_packages(self) -> List[str]:
+    def private_packages(self) -> list[str]:
         """List of private ebuilds (as cpvr) used for this subtool."""
         if not self._source_ebuilds or self._unmatched_paths:
             self._match_ebuilds()
@@ -859,14 +859,14 @@ class InstalledSubtools:
             subtool.bundle()
 
     def prepare_uploads(
-        self, upload_filter: Optional[List[str]] = None
-    ) -> List[Path]:
+        self, upload_filter: Optional[list[str]] = None
+    ) -> list[Path]:
         """Read .textprotos and prepares valid bundles in `work_root`.
 
         Args:
             upload_filter: If provided, only upload subtools with these names.
         """
-        prepared_bundles: List[Path] = []
+        prepared_bundles: list[Path] = []
         for subtool in self.subtools:
             if upload_filter and not any(
                 fnmatch.fnmatch(subtool.package.name, x) for x in upload_filter
@@ -903,12 +903,12 @@ class BundledSubtools:
             package linking to the full URL of the uploaded instance.
     """
 
-    def __init__(self, bundles: List[Path]) -> None:
+    def __init__(self, bundles: list[Path]) -> None:
         """Creates and initializes a BundledSubtools wrapper."""
         self.bundles = bundles
-        self.built_packages: List[Path] = []
-        self.uploaded_subtool_names: List[str] = []
-        self.uploaded_instances_markdown: List[str] = []
+        self.built_packages: list[Path] = []
+        self.uploaded_subtool_names: list[str] = []
+        self.uploaded_instances_markdown: list[str] = []
 
     def upload(self, use_production: bool, dryrun: bool = False) -> None:
         """Uploads each valid, bundled subtool.

@@ -38,17 +38,7 @@ import subprocess
 import sys
 import tempfile
 import traceback
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    List,
-    NamedTuple,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import Any, Iterable, NamedTuple, Optional, Union
 
 import yaml  # pylint: disable=import-error
 
@@ -95,7 +85,7 @@ class TidyExpandedFrom(NamedTuple):
     file_path: Path
     line_number: int
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Converts this |TidyExpandedFrom| to a dict serializeable as JSON."""
         return {
             "file_path": self.file_path.as_posix(),
@@ -128,8 +118,8 @@ class TidyDiagnostic(NamedTuple):
     line_number: int
     diag_name: str
     message: str
-    replacements: Tuple[TidyReplacement]
-    expansion_locs: Tuple[TidyExpandedFrom]
+    replacements: tuple[TidyReplacement]
+    expansion_locs: tuple[TidyExpandedFrom]
 
     def normalize_paths_to(self, where: str) -> "TidyDiagnostic":
         """Creates a new TidyDiagnostic with all paths relative to |where|."""
@@ -143,7 +133,7 @@ class TidyDiagnostic(NamedTuple):
             ),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Converts this |TidyDiagnostic| to a dict serializeable as JSON."""
         return {
             "file_path": self.file_path.as_posix(),
@@ -378,7 +368,7 @@ class InvocationMetadata(NamedTuple):
     """Metadata describing a singular invocation of clang-tidy."""
 
     exit_code: int
-    invocation: List[str]
+    invocation: list[str]
     lint_target: str
     stdstreams: str
     wd: str
@@ -397,7 +387,7 @@ class ExceptionData:
 
 def parse_tidy_invocation(
     json_file: Path,
-) -> Union[ExceptionData, Tuple[InvocationMetadata, List[TidyDiagnostic]]]:
+) -> Union[ExceptionData, tuple[InvocationMetadata, list[TidyDiagnostic]]]:
     """Parses a clang-tidy invocation result based on a JSON file.
 
     This is intended to be run in a separate process, which Exceptions and
@@ -507,7 +497,7 @@ def generate_lints(board: str, ebuild_path: str) -> Path:
 
 def collect_lints(
     lint_tmpdir: Path, yaml_pool: multiprocessing.Pool
-) -> Set[TidyDiagnostic]:
+) -> set[TidyDiagnostic]:
     """Collects lints for a given directory filled with linting artifacts."""
     json_files = list(lint_tmpdir.glob("*.json"))
     pending_parses = yaml_pool.imap(parse_tidy_invocation, json_files)
@@ -541,7 +531,7 @@ def collect_lints(
     return all_complaints
 
 
-def setup_tidy(board: str, ebuild_list: List[portage_util.EBuild]) -> None:
+def setup_tidy(board: str, ebuild_list: list[portage_util.EBuild]) -> None:
     """Sets up to run clang-tidy on the given ebuilds for the given board."""
     packages = [x.package for x in ebuild_list]
     logging.info("Setting up to lint %r", packages)
@@ -573,10 +563,10 @@ def setup_tidy(board: str, ebuild_list: List[portage_util.EBuild]) -> None:
 
 def run_tidy(
     board: str,
-    ebuild_list: List[portage_util.EBuild],
+    ebuild_list: list[portage_util.EBuild],
     keep_dirs: bool,
     parse_errors_are_nonfatal: bool,
-) -> Set[TidyDiagnostic]:
+) -> set[TidyDiagnostic]:
     """Runs clang-tidy on the given ebuilds for the given board.
 
     Returns the set of |TidyDiagnostic|s produced by doing so.
@@ -619,7 +609,7 @@ def run_tidy(
 
 def resolve_package_ebuilds(
     board: str, package_names: Iterable[str]
-) -> List[str]:
+) -> list[str]:
     """Figures out ebuild paths for the given package names."""
 
     def resolve_package(package_name_or_ebuild):
@@ -640,10 +630,10 @@ def resolve_package_ebuilds(
 
 
 def filter_tidy_lints(
-    only_files: Optional[Set[Path]],
+    only_files: Optional[set[Path]],
     git_repo_base: Optional[Path],
     diags: Iterable[TidyDiagnostic],
-) -> List[TidyDiagnostic]:
+) -> list[TidyDiagnostic]:
     """Transforms and filters the given TidyDiagnostics.
 
     Args:
@@ -742,7 +732,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def main(argv: List[str]) -> None:
+def main(argv: list[str]) -> None:
     cros_build_lib.AssertInsideChroot()
     parser = get_parser()
     opts = parser.parse_args(argv)

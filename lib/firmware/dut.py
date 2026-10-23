@@ -6,7 +6,6 @@
 
 import logging
 import time
-from typing import List
 
 from chromite.lib import cros_build_lib
 from chromite.lib.firmware import servo_lib
@@ -75,7 +74,7 @@ class DutControl:
 
     def run(
         self,
-        cmd_fragment: List[str],
+        cmd_fragment: list[str],
         verbose: bool = False,
         dryrun: bool = False,
     ) -> None:
@@ -92,7 +91,7 @@ class DutControl:
 
     def run_all(
         self,
-        cmd_fragments: List[List[str]],
+        cmd_fragments: list[list[str]],
         verbose: bool = False,
         dryrun: bool = False,
     ) -> None:
@@ -108,9 +107,9 @@ class DutControl:
 
     def servo_run(
         self,
-        dut_cmd_on: List[List[str]],
-        dut_cmd_off: List[List[str]],
-        flash_cmd: List[str],
+        dut_cmd_on: list[list[str]],
+        dut_cmd_off: list[list[str]],
+        flash_cmd: list[str],
         verbose: bool,
         dryrun: bool,
     ):

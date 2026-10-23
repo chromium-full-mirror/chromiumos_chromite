@@ -9,7 +9,7 @@ import logging
 import os
 from pathlib import Path
 import pprint
-from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -25,7 +25,7 @@ SOURCE = "SOURCE"
 MOCK_ZERO_COVERAGE = "MockZeroCoverage"
 
 
-def _IsInstrumented(line: str, exclude_line_prefixes: Tuple[str]) -> bool:
+def _IsInstrumented(line: str, exclude_line_prefixes: tuple[str]) -> bool:
     """Returns if the input line is instrumented or not.
 
     Method does a simple prefix based check to determine if
@@ -87,7 +87,7 @@ def _CreateCloseSegment(line_number: int, col: int):
     return [line_number, col, ZERO_COVERAGE_EXEC_COUNT, False, False, False]
 
 
-def _ExtractLlvmCoverageData(coverage_json: Dict) -> List:
+def _ExtractLlvmCoverageData(coverage_json: dict) -> list:
     """Extract coverage data from coverage json.
 
     Args:
@@ -103,8 +103,8 @@ def _ExtractLlvmCoverageData(coverage_json: Dict) -> List:
 
 
 def _GenerateZeroCoverageLLVMForFile(
-    file_path: str, src_prefix_path: str, exclude_line_prefixes: Tuple[str]
-) -> Optional[Dict]:
+    file_path: str, src_prefix_path: str, exclude_line_prefixes: tuple[str]
+) -> Optional[dict]:
     """Generates LLVM json formatted zero % coverage for the given file.
 
     Method to identify all the instrumented lines within a file and generate
@@ -175,7 +175,7 @@ def _GenerateZeroCoverageLLVMForFile(
 
 
 def _ShouldExclude(
-    file: str, exclude_files: List[str], exclude_files_suffixes: Tuple[str]
+    file: str, exclude_files: list[str], exclude_files_suffixes: tuple[str]
 ) -> bool:
     """Determine if the filename should be excluded from zero coverage.
 
@@ -206,7 +206,7 @@ def _ShouldExclude(
     return should_exclude
 
 
-def _ValidatePathMappingEntryList(data: Dict) -> None:
+def _ValidatePathMappingEntryList(data: dict) -> None:
     """Function to validate path mapping json.
 
     Args:
@@ -235,9 +235,9 @@ def _ValidatePathMappingEntryList(data: Dict) -> None:
 
 def _CleanLlvmFileName(
     filename: str,
-    path_mapping_list: List,
+    path_mapping_list: list,
     source_root: str,
-    exclude_dirs: Tuple[str],
+    exclude_dirs: tuple[str],
 ) -> Optional[str]:
     """Clean LLVM generated file name.
 
@@ -281,11 +281,11 @@ def _CleanLlvmFileName(
 
 
 def CleanLlvmFileNames(
-    coverage_json: Dict,
+    coverage_json: dict,
     source_root: str,
-    path_mapping_list: Dict,
-    exclude_dirs: Tuple[str],
-) -> Optional[Dict]:
+    path_mapping_list: dict,
+    exclude_dirs: tuple[str],
+) -> Optional[dict]:
     """Clean LLVM generated file names.
 
     Method to convert the destination work directory paths into
@@ -327,7 +327,7 @@ def CleanLlvmFileNames(
     return CreateLlvmCoverageJson(result_coverage_data)
 
 
-def GatherPathMapping(search_directory: Path) -> Optional[List]:
+def GatherPathMapping(search_directory: Path) -> Optional[list]:
     """Method to gather path mapping json.
 
     Walk through search_directory and read and merge all
@@ -360,7 +360,7 @@ def GatherPathMapping(search_directory: Path) -> Optional[List]:
     return result
 
 
-def LogLlvmCoverageJsonInformation(coverage_json: Dict, message: str) -> None:
+def LogLlvmCoverageJsonInformation(coverage_json: dict, message: str) -> None:
     """Log useful information regarding coverage json.
 
     Method to log list of file paths in the coverage json.
@@ -385,8 +385,8 @@ def LogLlvmCoverageJsonInformation(coverage_json: Dict, message: str) -> None:
 
 
 def GetLLVMCoverageWithFilesExcluded(
-    coverage_json: Dict, exclude_files_suffixes: Tuple[str]
-) -> Dict:
+    coverage_json: dict, exclude_files_suffixes: tuple[str]
+) -> dict:
     """Removes and returns required file entries from coverage json.
 
     Method to remove file entries in coverage json which ends with one of
@@ -414,7 +414,7 @@ def GetLLVMCoverageWithFilesExcluded(
     return CreateLlvmCoverageJson(result_coverage_data)
 
 
-def MergeLLVMCoverageJson(coverage_json_1: Dict, coverage_json_2: Dict) -> Dict:
+def MergeLLVMCoverageJson(coverage_json_1: dict, coverage_json_2: dict) -> dict:
     """Merge coverage data of two coverage json and return single coverage json.
 
     Args:
@@ -433,7 +433,7 @@ def MergeLLVMCoverageJson(coverage_json_1: Dict, coverage_json_2: Dict) -> Dict:
     return CreateLlvmCoverageJson(result)
 
 
-def ExtractFilenames(coverage_json: Dict) -> List[str]:
+def ExtractFilenames(coverage_json: dict) -> list[str]:
     """Extracts filenames from coverage json.
 
     Args:
@@ -457,7 +457,7 @@ def ExtractFilenames(coverage_json: Dict) -> List[str]:
     return filenames
 
 
-def CreateLlvmCoverageJson(coverage_data: List) -> Dict:
+def CreateLlvmCoverageJson(coverage_data: list) -> dict:
     """Given coverage_data, generate llvm format coverage json.
 
     Args:
@@ -479,13 +479,13 @@ def CreateLlvmCoverageJson(coverage_data: List) -> Dict:
 
 
 def GenerateZeroCoverageLlvm(
-    path_to_src_directories: List[str],
-    src_file_extensions: List[str],
-    exclude_line_prefixes: Tuple[str],
-    exclude_files: List[str],
-    exclude_files_suffixes: Tuple[str],
+    path_to_src_directories: list[str],
+    src_file_extensions: list[str],
+    exclude_line_prefixes: tuple[str],
+    exclude_files: list[str],
+    exclude_files_suffixes: tuple[str],
     src_prefix_path: str,
-) -> Dict:
+) -> dict:
     """Generate zero coverage for all src files under |path_to_src_directories|.
 
     More details on how to generate zero coverage: go/chromeos-zero-coverage.
@@ -563,8 +563,8 @@ def GetLlvmJsonCoverageDataIfValid(path_to_file: Path):
 def GetZeroCoverageDirectories(
     build_target: "build_target_lib.BuildTarget",
     src_prefix_path: str,
-    exclude_dirs: Tuple[str],
-) -> List[str]:
+    exclude_dirs: tuple[str],
+) -> list[str]:
     """Get the list of directories to generate zero coverage for.
 
     Args:

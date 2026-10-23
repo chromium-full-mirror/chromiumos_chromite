@@ -7,7 +7,7 @@
 import logging
 import operator
 import re
-from typing import Any, Collection, Optional, Tuple
+from typing import Any, Collection, Optional
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -102,8 +102,8 @@ class GerritHelper:
     def SetAttentionSet(
         self,
         change: str,
-        add: Tuple[str, ...] = (),
-        remove: Tuple[str, ...] = (),
+        add: tuple[str, ...] = (),
+        remove: tuple[str, ...] = (),
         dryrun: bool = False,
         notify: str = "ALL",
         message: str = "chromite gerrit CLI",

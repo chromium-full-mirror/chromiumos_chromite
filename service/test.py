@@ -14,15 +14,7 @@ from pathlib import Path
 import shutil
 import tempfile
 import traceback
-from typing import (
-    Dict,
-    Iterable,
-    List,
-    NamedTuple,
-    Optional,
-    TYPE_CHECKING,
-    Union,
-)
+from typing import Iterable, NamedTuple, Optional, TYPE_CHECKING, Union
 
 from chromite.lib import autotest_util
 from chromite.lib import compression_lib
@@ -77,8 +69,8 @@ class BuildTargetUnitTestResult:
 @osutils.rotate_log_file(portage_util.get_die_hook_status_file())
 def BuildTargetUnitTest(
     build_target: "build_target_lib.BuildTarget",
-    packages: Optional[List[str]] = None,
-    blocklist: Optional[List[str]] = None,
+    packages: Optional[list[str]] = None,
+    blocklist: Optional[list[str]] = None,
     was_built: bool = True,
     code_coverage: bool = False,
     rust_code_coverage: bool = False,
@@ -861,7 +853,7 @@ def _BundleCodeCoverageLlvmJson(
 class GatherCodeCoverageLlvmJsonFileResult(NamedTuple):
     """Class containing result data of GatherCodeCoverageLlvmJsonFile."""
 
-    coverage_json: Dict
+    coverage_json: dict
 
 
 def GatherCodeCoverageLlvmJsonFile(cov_dir: Path):
@@ -968,7 +960,7 @@ def FindSuiteFile(
 
 def FindAllMetadataFiles(
     chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
-) -> List[str]:
+) -> list[str]:
     """Find the full paths to all test metadata paths."""
     # Right now there's no use case for this function inside the chroot.
     # If it's useful, we could make the chroot param optional to run in the SDK.
@@ -982,7 +974,7 @@ def FindAllMetadataFiles(
 
 def _FindAutotestMetadataFiles(
     chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
-) -> List[str]:
+) -> list[str]:
     """Find the full paths to any Autotest test metadata files.
 
     These files are installed during the chromeos-base/autotest ebuild.
@@ -997,7 +989,7 @@ def _FindAutotestMetadataFiles(
 
 def _FindTastMetadataFiles(
     chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
-) -> List[str]:
+) -> list[str]:
     """Find the full paths to all Tast test metadata files.
 
     These files are installed during the tast-bundle eclass.
@@ -1023,7 +1015,7 @@ def _FindTastMetadataFiles(
 
 def _FindGtestMetadataFiles(
     chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
-) -> List[str]:
+) -> list[str]:
     """Find the full paths to any Gtest/Crosier test metadata files.
 
     These files are installed during the tast-bundle eclass.
@@ -1036,7 +1028,7 @@ def _FindGtestMetadataFiles(
 
 def FindAllHarnessMetadataFiles(
     chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
-) -> List[str]:
+) -> list[str]:
     """Find the full paths to all test harness metadata paths."""
     # Right now there's no use case for this function inside the chroot.
     # If it's useful, we could make the chroot param optional to run in the SDK.
@@ -1046,7 +1038,7 @@ def FindAllHarnessMetadataFiles(
 
 def _FindTastHarnessMetadataFiles(
     chroot: "chroot_lib.Chroot", sysroot: "sysroot_lib.Sysroot"
-) -> List[str]:
+) -> list[str]:
     """Find the full paths to all Tast test metadata files.
 
     These files are installed during the tast-bundle eclass.

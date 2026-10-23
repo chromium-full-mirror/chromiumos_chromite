@@ -10,7 +10,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 from chromite.lib import constants
 from chromite.lib import json_lib
@@ -220,7 +220,7 @@ class DiskLayout:
     def __init__(
         self,
         disk_layout_path: Optional[Union[os.PathLike, str]] = None,
-        adjust_partition: Optional[List[str]] = None,
+        adjust_partition: Optional[list[str]] = None,
     ) -> None:
         """Init Method.
 
@@ -262,7 +262,7 @@ class DiskLayout:
             )
 
     def _ApplyLayoutOverrides(
-        self, layout_to_override: Dict[Any, Any], layout: Dict[Any, Any]
+        self, layout_to_override: dict[Any, Any], layout: dict[Any, Any]
     ) -> None:
         """Applies |layout| overrides on to |layout_to_override|.
 
@@ -332,7 +332,7 @@ class DiskLayout:
 
     def _LoadStackedPartitionConfig(
         self, filename: Union[str, os.PathLike]
-    ) -> Dict[Any, Any]:
+    ) -> dict[Any, Any]:
         """Loads a partition table and its possible parent tables.
 
         This does very little validation.  It's just enough to walk all of the
@@ -449,7 +449,7 @@ class DiskLayout:
         config.pop("parent", None)
         return config
 
-    def _loadPartitionConfig(self) -> Dict[Any, Any]:
+    def _loadPartitionConfig(self) -> dict[Any, Any]:
         """Loads a partition tables configuration file into a Python object.
 
         Args:
@@ -650,8 +650,8 @@ class DiskLayout:
         return disk_layout
 
     def _getPartitionByNumber(
-        self, partitions: Dict[Any, Any], num: int
-    ) -> Dict[Any, Any]:
+        self, partitions: dict[Any, Any], num: int
+    ) -> dict[Any, Any]:
         """Given a partition table and number returns the partition object.
 
         Args:
@@ -671,8 +671,8 @@ class DiskLayout:
         raise PartitionNotFoundError("Partition %d not found" % num)
 
     def _getPartitionsByType(
-        self, partitions: Dict[Any, Any], typename: str
-    ) -> List[Dict[Any, Any]]:
+        self, partitions: dict[Any, Any], typename: str
+    ) -> list[dict[Any, Any]]:
         """Given a partition table and type returns the partitions of the type.
 
         Partitions are sorted in num order.
@@ -691,8 +691,8 @@ class DiskLayout:
         return sorted(out, key=lambda partition: partition.get("num"))
 
     def _getMetadataPartition(
-        self, partitions: Dict[Any, Any]
-    ) -> Dict[Any, Any]:
+        self, partitions: dict[Any, Any]
+    ) -> dict[Any, Any]:
         """Given a partition table returns the metadata partition object.
 
         Args:
@@ -708,8 +708,8 @@ class DiskLayout:
         return {}
 
     def _getPartitionByLabel(
-        self, partitions: Dict[Any, Any], label: str
-    ) -> Dict[Any, Any]:
+        self, partitions: dict[Any, Any], label: str
+    ) -> dict[Any, Any]:
         """Given a partition table and label returns the partition object.
 
         Args:
@@ -732,8 +732,8 @@ class DiskLayout:
 
     def _applyPartitionAdjustment(
         self,
-        partitions: Dict[Any, Any],
-        metadata: Dict[Any, Any],
+        partitions: dict[Any, Any],
+        metadata: dict[Any, Any],
         label: str,
         operator: str,
         operand: str,
@@ -776,8 +776,8 @@ class DiskLayout:
             partition["bytes"] = int(partition["bytes"] * 1.15)
 
     def _getPartitionTable(
-        self, image_type: str, part_adjustments: Optional[List[str]] = None
-    ) -> Dict[Any, Any]:
+        self, image_type: str, part_adjustments: Optional[list[str]] = None
+    ) -> dict[Any, Any]:
         """Generates requested image_type layout from a layout configuration.
 
         This loads the requested layout and applies the requested partition size
@@ -843,7 +843,7 @@ class DiskLayout:
 
         return partitions
 
-    def GetImageTypes(self) -> List[str]:
+    def GetImageTypes(self) -> list[str]:
         """Returns a list of all the image types in the layout.
 
         Returns:
@@ -1184,7 +1184,7 @@ class DiskLayout:
 
         return START_SECTOR + self._GetPrimaryEntryArrayPaddingBytes()
 
-    def GetTableTotals(self, partitions: Dict[Any, Any]) -> Dict[Any, Any]:
+    def GetTableTotals(self, partitions: dict[Any, Any]) -> dict[Any, Any]:
         """Calculates total sizes/counts for a partition table.
 
         Args:
@@ -1426,7 +1426,7 @@ class DiskLayout:
         slines += "%s\n}\n\n" % "\n  ".join(lines)
 
     def WritePartitionSizesFunction(
-        self, slines: str, func: str, image_type: str, data: Dict[Any, Any]
+        self, slines: str, func: str, image_type: str, data: dict[Any, Any]
     ) -> None:
         """Writes the partition size variable that can be extracted by a caller.
 

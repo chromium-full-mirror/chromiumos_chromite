@@ -18,7 +18,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from chromite.lib import compression_lib
 from chromite.lib import constants
@@ -1380,7 +1380,7 @@ class RemoteDevice:
 
     def chmod(
         self,
-        path: Union[Union[str, os.PathLike], List[Union[str, os.PathLike]]],
+        path: Union[Union[str, os.PathLike], list[Union[str, os.PathLike]]],
         mode: Union[int, str],
         check: bool = True,
         recursive: bool = False,
@@ -1400,7 +1400,7 @@ class RemoteDevice:
 
     def mkdir(
         self,
-        path: Union[Union[str, os.PathLike], List[Union[str, os.PathLike]]],
+        path: Union[Union[str, os.PathLike], list[Union[str, os.PathLike]]],
         mode: int = 0o755,
     ) -> None:
         """Create a directory on the remote device."""

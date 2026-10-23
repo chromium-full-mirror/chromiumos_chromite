@@ -13,7 +13,7 @@ import argparse
 import logging
 import os
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from chromite.lib import cipd
 from chromite.lib import constants
@@ -141,8 +141,8 @@ def _get_parser() -> argparse.ArgumentParser:
 
 
 def parse_arguments(
-    argv: Optional[List[str]],
-) -> Tuple[argparse.Namespace, List[str]]:
+    argv: Optional[list[str]],
+) -> tuple[argparse.Namespace, list[str]]:
     """Parse and validate arguments.
 
     Args:
@@ -157,7 +157,7 @@ def parse_arguments(
     return opts, bazel_args
 
 
-def main(argv: Optional[List[str]]) -> Optional[int]:
+def main(argv: Optional[list[str]]) -> Optional[int]:
     """Main."""
     opts, bazel_args = parse_arguments(argv)
 

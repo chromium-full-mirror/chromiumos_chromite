@@ -9,7 +9,7 @@ build_packages, so there is typically no need to call this script directly.
 """
 
 import argparse
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
@@ -86,7 +86,7 @@ def get_parser() -> commandline.ArgumentParser:
 
 
 @timer.timed("Elapsed time (update_chroot)")
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     commandline.RunInsideChroot()
 
     parser = get_parser()

@@ -5,14 +5,14 @@
 """Linter for Portage metadata/layout.conf."""
 
 import os
-from typing import Dict, Iterable, List, Optional, Union
+from typing import Iterable, Optional, Union
 
 from chromite.lib import constants
 from chromite.lib import portage_util
 from chromite.utils import key_value_store
 
 
-def _check_eapis_banned(settings: Dict[str, str]) -> Iterable[str]:
+def _check_eapis_banned(settings: dict[str, str]) -> Iterable[str]:
     """Check the 'eapis-banned' key."""
     key = "eapis-banned"
 
@@ -30,7 +30,7 @@ def _check_eapis_banned(settings: Dict[str, str]) -> Iterable[str]:
         yield f"'{key}' is missing; should be set to: {' '.join(wanted)}"
 
 
-def _check_masters(settings: Dict[str, str]) -> Iterable[str]:
+def _check_masters(settings: dict[str, str]) -> Iterable[str]:
     """Check the 'masters' key."""
     key = "masters"
     required = ["portage-stable", "chromiumos", "eclass-overlay"]
@@ -96,7 +96,7 @@ _VALID_PROFILE_FORMATS = {
 }
 
 
-def _check_profile_formats(settings: Dict[str, str]) -> Iterable[str]:
+def _check_profile_formats(settings: dict[str, str]) -> Iterable[str]:
     """Check the 'profile-formats' key."""
     key = "profile-formats"
     required = {"portage-2", "profile-default-eapi"}
@@ -123,7 +123,7 @@ def _check_profile_formats(settings: Dict[str, str]) -> Iterable[str]:
 def Data(
     data: str,
     path: Optional[Union[str, os.PathLike]] = None,
-) -> List[str]:
+) -> list[str]:
     """Lint metadata/layout.conf in |data|.
 
     Args:

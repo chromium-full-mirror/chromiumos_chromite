@@ -22,7 +22,7 @@ $ ebuild chromeos-default-apps-1.0.0.ebuild manifest --force
 import json
 import logging
 import os
-from typing import Any, Dict
+from typing import Any
 import urllib.request
 import xml.dom.minidom
 
@@ -37,7 +37,7 @@ from chromite.utils import pformat
 UPLOAD_URL_BASE = "gs://chromeos-localmirror-private/distfiles"
 
 
-def DownloadCrx(ext: str, extension: Dict[str, Any], crxdir: str) -> bool:
+def DownloadCrx(ext: str, extension: dict[str, Any], crxdir: str) -> bool:
     """Download the extensions CRX from the Chrome web store update URL.
 
     Args:
