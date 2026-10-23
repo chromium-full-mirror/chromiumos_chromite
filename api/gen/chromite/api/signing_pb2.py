@@ -15,7 +15,7 @@ from chromite.api.gen.chromite.api import build_api_pb2 as chromite_dot_api_dot_
 from chromite.api.gen.chromiumos import common_pb2 as chromiumos_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/signing.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"\xd9\x01\n\x16\x43reatePreMPKeysRequest\x12\x14\n\x0c\x64ocker_image\x18\x05 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x06 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x07 \x01(\x08\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x19\n\x11skip_android_keys\x18\x03 \x01(\x08\x12\x0c\n\x04uefi\x18\x04 \x01(\x08\x12\x10\n\x08\x61\x64\x64_loem\x18\x08 \x01(\x08\"N\n\x17\x43reatePreMPKeysResponse\x12\x33\n\x0erequest_status\x18\x02 \x01(\x0e\x32\x1b.chromite.api.RequestStatus\"\xdb\x01\n\x19\x43reateAccessoryKeyRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x11\n\taccessory\x18\x02 \x01(\t\x12\x11\n\tis_pre_mp\x18\x03 \x01(\x08\x12\x14\n\x0c\x64ocker_image\x18\x04 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x05 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x06 \x01(\x08\x12\x12\n\nis_staging\x18\x07 \x01(\x08\x12\x0f\n\x07version\x18\x08 \x01(\x05\"Q\n\x1a\x43reateAccessoryKeyResponse\x12\x33\n\x0erequest_status\x18\x01 \x01(\x0e\x32\x1b.chromite.api.RequestStatus\"\xe3\x01\n\x13SignTi50PaosRequest\x12\x0f\n\x07project\x18\x01 \x01(\t\x12\x10\n\x08location\x18\x02 \x01(\t\x12\x0f\n\x07keyring\x18\x03 \x01(\t\x12\x0b\n\x03key\x18\x04 \x01(\t\x12\x0f\n\x07version\x18\x05 \x01(\x05\x12\x13\n\x0b\x61rchive_dir\x18\x06 \x01(\t\x12+\n\x0bresult_path\x18\x07 \x01(\x0b\x32\x16.chromiumos.ResultPath\x12\x10\n\x08\x66ilename\x18\x08 \x01(\t\x12\x14\n\x0c\x64ocker_image\x18\t \x01(\t\x12\x10\n\x08tmp_path\x18\n \x01(\t\"\x16\n\x14SignTi50PaosResponse\"\xcf\x01\n\x11\x43reateCertRequest\x12\x14\n\x0c\x64ocker_image\x18\x01 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x02 \x01(\x08\x12\x12\n\nis_staging\x18\x03 \x01(\x08\x12\x0f\n\x07keyring\x18\x04 \x01(\t\x12\x10\n\x08key_name\x18\x05 \x01(\t\x12\x10\n\x08out_path\x18\x06 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x07 \x01(\t\x12+\n\x0bresult_path\x18\x08 \x01(\x0b\x32\x16.chromiumos.ResultPath\"\\\n\x12\x43reateCertResponse\x12\x33\n\x0erequest_status\x18\x01 \x01(\x0e\x32\x1b.chromite.api.RequestStatus\x12\x11\n\tcert_path\x18\x02 \x01(\t\"/\n\x17SignViaOnlineHsmRequest\x12\x14\n\x0c\x64ocker_image\x18\x01 \x01(\t\"\x1a\n\x18SignViaOnlineHsmResponse\"\xb6\x01\n\x14\x43reateKeysHsmRequest\x12\x14\n\x0c\x64ocker_image\x18\x01 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x02 \x01(\t\x12\x14\n\x07\x64ry_run\x18\x03 \x01(\x08H\x00\x88\x01\x01\x12\x13\n\x0bkeyset_name\x18\x04 \x01(\t\x12\x1d\n\x10\x65xporter_dry_run\x18\x05 \x01(\x08H\x01\x88\x01\x01\x42\n\n\x08_dry_runB\x13\n\x11_exporter_dry_run\"L\n\x15\x43reateKeysHsmResponse\x12\x33\n\x0erequest_status\x18\x01 \x01(\x0e\x32\x1b.chromite.api.RequestStatus\"\xa5\x01\n\x14KeysetManagerRequest\x12\x14\n\x0c\x64ocker_image\x18\x01 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x02 \x01(\x08\x12\x1d\n\x15release_keys_checkout\x18\x03 \x01(\t\x12*\n\noperations\x18\x04 \x03(\x0b\x32\x16.chromite.api.KeysetOp\x12\x0b\n\x03\x62ug\x18\x05 \x01(\x03\x12\x0e\n\x06keyset\x18\x06 \x01(\t\"\xff\x03\n\x08KeysetOp\x12@\n\x13kernel_version_bump\x18\x01 \x01(\x0b\x32!.chromite.api.KernelVersionBumpOpH\x00\x12@\n\x13minios_version_bump\x18\x02 \x01(\x0b\x32!.chromite.api.MiniOsVersionBumpOpH\x00\x12\x46\n\x16kernel_subkey_rotation\x18\x03 \x01(\x0b\x32$.chromite.api.KernelSubkeyRotationOpH\x00\x12H\n\x17kernel_datakey_rotation\x18\x04 \x01(\x0b\x32%.chromite.api.KernelDatakeyRotationOpH\x00\x12\x44\n\x15\x66irmware_version_bump\x18\x05 \x01(\x0b\x32#.chromite.api.FirmwareVersionBumpOpH\x00\x12K\n\x19usb_recovery_version_bump\x18\x06 \x01(\x0b\x32&.chromite.api.UsbRecoveryVersionBumpOpH\x00\x12\x44\n\x15\x66irmware_key_rotation\x18\x07 \x01(\x0b\x32#.chromite.api.FirmwareKeyRotationOpH\x00\x42\x04\n\x02op\"\x15\n\x13KernelVersionBumpOp\"\x15\n\x13MiniOsVersionBumpOp\"\x18\n\x16KernelSubkeyRotationOp\"\x19\n\x17KernelDatakeyRotationOp\"\x17\n\x15\x46irmwareVersionBumpOp\"\x1a\n\x18UsbRecoveryVersionBumpOp\"\x17\n\x15\x46irmwareKeyRotationOp\"\xe2\x01\n\x15KeysetManagerResponse\x12:\n\x06status\x18\x01 \x01(\x0e\x32*.chromite.api.KeysetManagerResponse.Status\x12-\n\x07results\x18\x02 \x03(\x0b\x32\x1c.chromite.api.KeysetOpResult\x12\x15\n\rerror_message\x18\x03 \x01(\t\"G\n\x06Status\x12\x16\n\x12STATUS_UNSPECIFIED\x10\x00\x12\x12\n\x0eSTATUS_SUCCESS\x10\x01\x12\x11\n\rSTATUS_FAILED\x10\x02\"\xf2\x01\n\x0eKeysetOpResult\x12\x0f\n\x07op_name\x18\x01 \x01(\t\x12\x35\n\x06status\x18\x02 \x01(\x0e\x32%.chromite.api.KeysetOpResult.OpStatus\x12\x16\n\x0emodified_files\x18\x03 \x03(\t\x12\x15\n\rerror_message\x18\x04 \x01(\t\"i\n\x08OpStatus\x12\x19\n\x15OP_STATUS_UNSPECIFIED\x10\x00\x12\x15\n\x11OP_STATUS_SUCCESS\x10\x01\x12\x14\n\x10OP_STATUS_FAILED\x10\x02\x12\x15\n\x11OP_STATUS_PARTIAL\x10\x03*E\n\rRequestStatus\x12\x12\n\x0eSTATUS_UNKNOWN\x10\x00\x12\x0f\n\x0bSTATUS_PASS\x10\x01\x12\x0f\n\x0bSTATUS_FAIL\x10\x02\x32\xba\x05\n\x0eSigningService\x12`\n\x0f\x43reatePreMPKeys\x12$.chromite.api.CreatePreMPKeysRequest\x1a%.chromite.api.CreatePreMPKeysResponse\"\x00\x12j\n\x13\x43reateAccessoryKeys\x12\'.chromite.api.CreateAccessoryKeyRequest\x1a(.chromite.api.CreateAccessoryKeyResponse\"\x00\x12W\n\x0cSignTi50Paos\x12!.chromite.api.SignTi50PaosRequest\x1a\".chromite.api.SignTi50PaosResponse\"\x00\x12Q\n\nCreateCert\x12\x1f.chromite.api.CreateCertRequest\x1a .chromite.api.CreateCertResponse\"\x00\x12\x63\n\x10SignViaOnlineHsm\x12%.chromite.api.SignViaOnlineHsmRequest\x1a&.chromite.api.SignViaOnlineHsmResponse\"\x00\x12Z\n\rCreateKeysHsm\x12\".chromite.api.CreateKeysHsmRequest\x1a#.chromite.api.CreateKeysHsmResponse\"\x00\x12Z\n\rKeysetManager\x12\".chromite.api.KeysetManagerRequest\x1a#.chromite.api.KeysetManagerResponse\"\x00\x1a\x11\xc2\xed\x1a\r\n\x07signing\x10\x02 \x02\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63hromite/api/signing.proto\x12\x0c\x63hromite.api\x1a\x1c\x63hromite/api/build_api.proto\x1a\x17\x63hromiumos/common.proto\"\xd9\x01\n\x16\x43reatePreMPKeysRequest\x12\x14\n\x0c\x64ocker_image\x18\x05 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x06 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x07 \x01(\x08\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x0f\n\x07version\x18\x02 \x01(\x05\x12\x19\n\x11skip_android_keys\x18\x03 \x01(\x08\x12\x0c\n\x04uefi\x18\x04 \x01(\x08\x12\x10\n\x08\x61\x64\x64_loem\x18\x08 \x01(\x08\"N\n\x17\x43reatePreMPKeysResponse\x12\x33\n\x0erequest_status\x18\x02 \x01(\x0e\x32\x1b.chromite.api.RequestStatus\"\xdb\x01\n\x19\x43reateAccessoryKeyRequest\x12-\n\x0c\x62uild_target\x18\x01 \x01(\x0b\x32\x17.chromiumos.BuildTarget\x12\x11\n\taccessory\x18\x02 \x01(\t\x12\x11\n\tis_pre_mp\x18\x03 \x01(\x08\x12\x14\n\x0c\x64ocker_image\x18\x04 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x05 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x06 \x01(\x08\x12\x12\n\nis_staging\x18\x07 \x01(\x08\x12\x0f\n\x07version\x18\x08 \x01(\x05\"Q\n\x1a\x43reateAccessoryKeyResponse\x12\x33\n\x0erequest_status\x18\x01 \x01(\x0e\x32\x1b.chromite.api.RequestStatus\"\xe3\x01\n\x13SignTi50PaosRequest\x12\x0f\n\x07project\x18\x01 \x01(\t\x12\x10\n\x08location\x18\x02 \x01(\t\x12\x0f\n\x07keyring\x18\x03 \x01(\t\x12\x0b\n\x03key\x18\x04 \x01(\t\x12\x0f\n\x07version\x18\x05 \x01(\x05\x12\x13\n\x0b\x61rchive_dir\x18\x06 \x01(\t\x12+\n\x0bresult_path\x18\x07 \x01(\x0b\x32\x16.chromiumos.ResultPath\x12\x10\n\x08\x66ilename\x18\x08 \x01(\t\x12\x14\n\x0c\x64ocker_image\x18\t \x01(\t\x12\x10\n\x08tmp_path\x18\n \x01(\t\"\x16\n\x14SignTi50PaosResponse\"\xcf\x01\n\x11\x43reateCertRequest\x12\x14\n\x0c\x64ocker_image\x18\x01 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x02 \x01(\x08\x12\x12\n\nis_staging\x18\x03 \x01(\x08\x12\x0f\n\x07keyring\x18\x04 \x01(\t\x12\x10\n\x08key_name\x18\x05 \x01(\t\x12\x10\n\x08out_path\x18\x06 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x07 \x01(\t\x12+\n\x0bresult_path\x18\x08 \x01(\x0b\x32\x16.chromiumos.ResultPath\"\\\n\x12\x43reateCertResponse\x12\x33\n\x0erequest_status\x18\x01 \x01(\x0e\x32\x1b.chromite.api.RequestStatus\x12\x11\n\tcert_path\x18\x02 \x01(\t\"/\n\x17SignViaOnlineHsmRequest\x12\x14\n\x0c\x64ocker_image\x18\x01 \x01(\t\"\x1a\n\x18SignViaOnlineHsmResponse\"\xc8\x01\n\x14\x43reateKeysHsmRequest\x12\x14\n\x0c\x64ocker_image\x18\x01 \x01(\t\x12\x1d\n\x15release_keys_checkout\x18\x02 \x01(\t\x12\x14\n\x07\x64ry_run\x18\x03 \x01(\x08H\x00\x88\x01\x01\x12\x13\n\x0bkeyset_name\x18\x04 \x01(\t\x12\x1d\n\x10\x65xporter_dry_run\x18\x05 \x01(\x08H\x01\x88\x01\x01\x12\x10\n\x08work_dir\x18\x06 \x01(\tB\n\n\x08_dry_runB\x13\n\x11_exporter_dry_run\"L\n\x15\x43reateKeysHsmResponse\x12\x33\n\x0erequest_status\x18\x01 \x01(\x0e\x32\x1b.chromite.api.RequestStatus\"\xa5\x01\n\x14KeysetManagerRequest\x12\x14\n\x0c\x64ocker_image\x18\x01 \x01(\t\x12\x0f\n\x07\x64ry_run\x18\x02 \x01(\x08\x12\x1d\n\x15release_keys_checkout\x18\x03 \x01(\t\x12*\n\noperations\x18\x04 \x03(\x0b\x32\x16.chromite.api.KeysetOp\x12\x0b\n\x03\x62ug\x18\x05 \x01(\x03\x12\x0e\n\x06keyset\x18\x06 \x01(\t\"\xff\x03\n\x08KeysetOp\x12@\n\x13kernel_version_bump\x18\x01 \x01(\x0b\x32!.chromite.api.KernelVersionBumpOpH\x00\x12@\n\x13minios_version_bump\x18\x02 \x01(\x0b\x32!.chromite.api.MiniOsVersionBumpOpH\x00\x12\x46\n\x16kernel_subkey_rotation\x18\x03 \x01(\x0b\x32$.chromite.api.KernelSubkeyRotationOpH\x00\x12H\n\x17kernel_datakey_rotation\x18\x04 \x01(\x0b\x32%.chromite.api.KernelDatakeyRotationOpH\x00\x12\x44\n\x15\x66irmware_version_bump\x18\x05 \x01(\x0b\x32#.chromite.api.FirmwareVersionBumpOpH\x00\x12K\n\x19usb_recovery_version_bump\x18\x06 \x01(\x0b\x32&.chromite.api.UsbRecoveryVersionBumpOpH\x00\x12\x44\n\x15\x66irmware_key_rotation\x18\x07 \x01(\x0b\x32#.chromite.api.FirmwareKeyRotationOpH\x00\x42\x04\n\x02op\"\x15\n\x13KernelVersionBumpOp\"\x15\n\x13MiniOsVersionBumpOp\"\x18\n\x16KernelSubkeyRotationOp\"\x19\n\x17KernelDatakeyRotationOp\"\x17\n\x15\x46irmwareVersionBumpOp\"\x1a\n\x18UsbRecoveryVersionBumpOp\"\x17\n\x15\x46irmwareKeyRotationOp\"\xe2\x01\n\x15KeysetManagerResponse\x12:\n\x06status\x18\x01 \x01(\x0e\x32*.chromite.api.KeysetManagerResponse.Status\x12-\n\x07results\x18\x02 \x03(\x0b\x32\x1c.chromite.api.KeysetOpResult\x12\x15\n\rerror_message\x18\x03 \x01(\t\"G\n\x06Status\x12\x16\n\x12STATUS_UNSPECIFIED\x10\x00\x12\x12\n\x0eSTATUS_SUCCESS\x10\x01\x12\x11\n\rSTATUS_FAILED\x10\x02\"\xf2\x01\n\x0eKeysetOpResult\x12\x0f\n\x07op_name\x18\x01 \x01(\t\x12\x35\n\x06status\x18\x02 \x01(\x0e\x32%.chromite.api.KeysetOpResult.OpStatus\x12\x16\n\x0emodified_files\x18\x03 \x03(\t\x12\x15\n\rerror_message\x18\x04 \x01(\t\"i\n\x08OpStatus\x12\x19\n\x15OP_STATUS_UNSPECIFIED\x10\x00\x12\x15\n\x11OP_STATUS_SUCCESS\x10\x01\x12\x14\n\x10OP_STATUS_FAILED\x10\x02\x12\x15\n\x11OP_STATUS_PARTIAL\x10\x03*E\n\rRequestStatus\x12\x12\n\x0eSTATUS_UNKNOWN\x10\x00\x12\x0f\n\x0bSTATUS_PASS\x10\x01\x12\x0f\n\x0bSTATUS_FAIL\x10\x02\x32\xba\x05\n\x0eSigningService\x12`\n\x0f\x43reatePreMPKeys\x12$.chromite.api.CreatePreMPKeysRequest\x1a%.chromite.api.CreatePreMPKeysResponse\"\x00\x12j\n\x13\x43reateAccessoryKeys\x12\'.chromite.api.CreateAccessoryKeyRequest\x1a(.chromite.api.CreateAccessoryKeyResponse\"\x00\x12W\n\x0cSignTi50Paos\x12!.chromite.api.SignTi50PaosRequest\x1a\".chromite.api.SignTi50PaosResponse\"\x00\x12Q\n\nCreateCert\x12\x1f.chromite.api.CreateCertRequest\x1a .chromite.api.CreateCertResponse\"\x00\x12\x63\n\x10SignViaOnlineHsm\x12%.chromite.api.SignViaOnlineHsmRequest\x1a&.chromite.api.SignViaOnlineHsmResponse\"\x00\x12Z\n\rCreateKeysHsm\x12\".chromite.api.CreateKeysHsmRequest\x1a#.chromite.api.CreateKeysHsmResponse\"\x00\x12Z\n\rKeysetManager\x12\".chromite.api.KeysetManagerRequest\x1a#.chromite.api.KeysetManagerResponse\"\x00\x1a\x11\xc2\xed\x1a\r\n\x07signing\x10\x02 \x02\x42\x38Z6go.chromium.org/chromiumos/infra/proto/go/chromite/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromite.api.signing_pb2', globals())
@@ -25,8 +25,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._serialized_options = b'Z6go.chromium.org/chromiumos/infra/proto/go/chromite/api'
   _SIGNINGSERVICE._options = None
   _SIGNINGSERVICE._serialized_options = b'\302\355\032\r\n\007signing\020\002 \002'
-  _REQUESTSTATUS._serialized_start=2935
-  _REQUESTSTATUS._serialized_end=3004
+  _REQUESTSTATUS._serialized_start=2953
+  _REQUESTSTATUS._serialized_end=3022
   _CREATEPREMPKEYSREQUEST._serialized_start=100
   _CREATEPREMPKEYSREQUEST._serialized_end=317
   _CREATEPREMPKEYSRESPONSE._serialized_start=319
@@ -48,35 +48,35 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _SIGNVIAONLINEHSMRESPONSE._serialized_start=1311
   _SIGNVIAONLINEHSMRESPONSE._serialized_end=1337
   _CREATEKEYSHSMREQUEST._serialized_start=1340
-  _CREATEKEYSHSMREQUEST._serialized_end=1522
-  _CREATEKEYSHSMRESPONSE._serialized_start=1524
-  _CREATEKEYSHSMRESPONSE._serialized_end=1600
-  _KEYSETMANAGERREQUEST._serialized_start=1603
-  _KEYSETMANAGERREQUEST._serialized_end=1768
-  _KEYSETOP._serialized_start=1771
-  _KEYSETOP._serialized_end=2282
-  _KERNELVERSIONBUMPOP._serialized_start=2284
-  _KERNELVERSIONBUMPOP._serialized_end=2305
-  _MINIOSVERSIONBUMPOP._serialized_start=2307
-  _MINIOSVERSIONBUMPOP._serialized_end=2328
-  _KERNELSUBKEYROTATIONOP._serialized_start=2330
-  _KERNELSUBKEYROTATIONOP._serialized_end=2354
-  _KERNELDATAKEYROTATIONOP._serialized_start=2356
-  _KERNELDATAKEYROTATIONOP._serialized_end=2381
-  _FIRMWAREVERSIONBUMPOP._serialized_start=2383
-  _FIRMWAREVERSIONBUMPOP._serialized_end=2406
-  _USBRECOVERYVERSIONBUMPOP._serialized_start=2408
-  _USBRECOVERYVERSIONBUMPOP._serialized_end=2434
-  _FIRMWAREKEYROTATIONOP._serialized_start=2436
-  _FIRMWAREKEYROTATIONOP._serialized_end=2459
-  _KEYSETMANAGERRESPONSE._serialized_start=2462
-  _KEYSETMANAGERRESPONSE._serialized_end=2688
-  _KEYSETMANAGERRESPONSE_STATUS._serialized_start=2617
-  _KEYSETMANAGERRESPONSE_STATUS._serialized_end=2688
-  _KEYSETOPRESULT._serialized_start=2691
-  _KEYSETOPRESULT._serialized_end=2933
-  _KEYSETOPRESULT_OPSTATUS._serialized_start=2828
-  _KEYSETOPRESULT_OPSTATUS._serialized_end=2933
-  _SIGNINGSERVICE._serialized_start=3007
-  _SIGNINGSERVICE._serialized_end=3705
+  _CREATEKEYSHSMREQUEST._serialized_end=1540
+  _CREATEKEYSHSMRESPONSE._serialized_start=1542
+  _CREATEKEYSHSMRESPONSE._serialized_end=1618
+  _KEYSETMANAGERREQUEST._serialized_start=1621
+  _KEYSETMANAGERREQUEST._serialized_end=1786
+  _KEYSETOP._serialized_start=1789
+  _KEYSETOP._serialized_end=2300
+  _KERNELVERSIONBUMPOP._serialized_start=2302
+  _KERNELVERSIONBUMPOP._serialized_end=2323
+  _MINIOSVERSIONBUMPOP._serialized_start=2325
+  _MINIOSVERSIONBUMPOP._serialized_end=2346
+  _KERNELSUBKEYROTATIONOP._serialized_start=2348
+  _KERNELSUBKEYROTATIONOP._serialized_end=2372
+  _KERNELDATAKEYROTATIONOP._serialized_start=2374
+  _KERNELDATAKEYROTATIONOP._serialized_end=2399
+  _FIRMWAREVERSIONBUMPOP._serialized_start=2401
+  _FIRMWAREVERSIONBUMPOP._serialized_end=2424
+  _USBRECOVERYVERSIONBUMPOP._serialized_start=2426
+  _USBRECOVERYVERSIONBUMPOP._serialized_end=2452
+  _FIRMWAREKEYROTATIONOP._serialized_start=2454
+  _FIRMWAREKEYROTATIONOP._serialized_end=2477
+  _KEYSETMANAGERRESPONSE._serialized_start=2480
+  _KEYSETMANAGERRESPONSE._serialized_end=2706
+  _KEYSETMANAGERRESPONSE_STATUS._serialized_start=2635
+  _KEYSETMANAGERRESPONSE_STATUS._serialized_end=2706
+  _KEYSETOPRESULT._serialized_start=2709
+  _KEYSETOPRESULT._serialized_end=2951
+  _KEYSETOPRESULT_OPSTATUS._serialized_start=2846
+  _KEYSETOPRESULT_OPSTATUS._serialized_end=2951
+  _SIGNINGSERVICE._serialized_start=3025
+  _SIGNINGSERVICE._serialized_end=3723
 # @@protoc_insertion_point(module_scope)
