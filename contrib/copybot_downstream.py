@@ -14,7 +14,7 @@ import argparse
 import collections
 import logging
 import re
-from typing import Callable, Dict, List, NamedTuple, Tuple
+from typing import Callable, NamedTuple
 
 from chromite.contrib.copybot_downstream_config import downstream_argparser
 from chromite.lib import gerrit
@@ -39,7 +39,7 @@ class PathDomains(NamedTuple):
     """A filepath and the domains that must review it."""
 
     path: str
-    domains: List[str]
+    domains: list[str]
 
 
 class CopybotDownstream:
@@ -99,7 +99,7 @@ class CopybotDownstream:
         ]
         self.check_funcs = default_check_funcs + self._project_check_funcs()
 
-    def _project_check_funcs(self) -> List[List[Tuple[Callable, List]]]:
+    def _project_check_funcs(self) -> list[list[tuple[Callable, list]]]:
         """Return a list of checkers specific to this project config.
 
         Since this is the general-case class, there are no project-specific
@@ -109,8 +109,8 @@ class CopybotDownstream:
         return []
 
     def project_passed_downstreamer_review_paths_check(
-        self, cl: Dict, paths: List[str]
-    ) -> List[str]:
+        self, cl: dict, paths: list[str]
+    ) -> list[str]:
         """Check paths that require further downstreamer review.
 
         * Require additional review from any paths specified by paths.
@@ -150,8 +150,8 @@ class CopybotDownstream:
         return m.group(1).strip()
 
     def _get_contributors_from_commit_msg(
-        self, message: List[str], filters: Dict
-    ) -> Dict:
+        self, message: list[str], filters: dict
+    ) -> dict:
         """Extract contributor values from a commit message
 
         Args:
@@ -175,8 +175,8 @@ class CopybotDownstream:
         return contributors
 
     def project_passed_domain_restricted_paths_check(
-        self, cl: Dict, paths_domains: List[PathDomains]
-    ) -> List[str]:
+        self, cl: dict, paths_domains: list[PathDomains]
+    ) -> list[str]:
         """Check paths that require further downstreamer review.
 
         * Require additional review if changes to paths specified by paths
@@ -219,7 +219,7 @@ class CopybotDownstream:
                 )
         return warning_strings
 
-    def check_commit_message(self, cl: Dict, args: List[str]) -> List[str]:
+    def check_commit_message(self, cl: dict, args: list[str]) -> list[str]:
         """Check commit message for keywords.
 
         * Throw warning if keywords found in commit message.
@@ -244,7 +244,7 @@ class CopybotDownstream:
                 warning_strings.append(f"Found {printable_term} in change!")
         return warning_strings
 
-    def check_hashtags(self, cl: Dict, args: List[str]) -> List[str]:
+    def check_hashtags(self, cl: dict, args: list[str]) -> list[str]:
         """Check hashtags for keywords.
 
         * Throw warning if keywords found in hashtags..
@@ -265,7 +265,7 @@ class CopybotDownstream:
                 )
         return warning_strings
 
-    def check_if_cl_is_submittable(self, cl: Dict) -> bool:
+    def check_if_cl_is_submittable(self, cl: dict) -> bool:
         """Ensures all submit_records in a CL have a status of 'OK'
 
         Args:
@@ -276,7 +276,7 @@ class CopybotDownstream:
         """
         return all({s["status"] == "OK" for s in cl["submit_records"]})
 
-    def _get_relation_chain_and_info(self) -> Tuple[List[str], Dict]:
+    def _get_relation_chain_and_info(self) -> tuple[list[str], dict]:
         """Gets an ordered list of CLs to downstream and detailed info on each.
 
         Also applies the limit set in self.opts.
@@ -389,8 +389,8 @@ class CopybotDownstream:
 
     def _check_cl(
         self,
-        downstream_candidate_cl: Dict,
-    ) -> List[str]:
+        downstream_candidate_cl: dict,
+    ) -> list[str]:
         """Check whether the given CL is OK to downstream.
 
         Args:
@@ -410,7 +410,7 @@ class CopybotDownstream:
 
         return warnings
 
-    def _filter_cls(self, cls_to_downstream: List[str]) -> List[Dict]:
+    def _filter_cls(self, cls_to_downstream: list[str]) -> list[dict]:
         """Filter full CL list based on:
 
             The limit.
@@ -438,7 +438,7 @@ class CopybotDownstream:
             filtered_cls.append(change_num)
         return filtered_cls
 
-    def _get_related_cls(self, change_number: str) -> List[str]:
+    def _get_related_cls(self, change_number: str) -> list[str]:
         """Get the list of related CLs for the passed in CL number.
 
         Args:
@@ -455,7 +455,7 @@ class CopybotDownstream:
             if x["status"] == "NEW"
         ]
 
-    def _act_on_cls(self, cls_to_downstream: List[str]) -> None:
+    def _act_on_cls(self, cls_to_downstream: list[str]) -> None:
         """Perform Gerrit updates on the CLs to downstream.
 
         Args:
@@ -485,7 +485,7 @@ class CopybotDownstream:
                 },
             )
 
-    def _handle_checks_results(self, all_warnings: List[str]) -> int:
+    def _handle_checks_results(self, all_warnings: list[str]) -> int:
         """Perform Gerrit updates on the CLs to downstream.
 
         Args:

@@ -10,7 +10,7 @@ import filecmp
 import json
 import logging
 import os
-from typing import Any, DefaultDict, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, DefaultDict, Optional, Union
 
 from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import package
@@ -57,9 +57,9 @@ class _IncludePathOrder:
         chroot: Paths in the chroot dir, or in the chroot's out dir.
     """
 
-    local: Set[str]
-    generated: Set[str]
-    chroot: Set[str]
+    local: set[str]
+    generated: set[str]
+    chroot: set[str]
 
 
 @dataclasses.dataclass
@@ -72,22 +72,22 @@ class Command:
 
     directory: str
     file: str
-    arguments: Optional[List[str]]
+    arguments: Optional[list[str]]
     # Yes, it's confusing that the "Command" object has a "command" field.
     # That's an upstream problem. See the spec.
     command: Optional[str]
     output: Optional[str]
 
-    def get_compiler_and_arguments(self) -> Tuple[str, List[str]]:
+    def get_compiler_and_arguments(self) -> tuple[str, list[str]]:
         """Return the compiler that this command uses, and the args it takes."""
-        argv: List[str]
+        argv: list[str]
         if self.arguments is not None:
             argv = self.arguments
         else:
             argv = self.command.split()
         return argv[0], argv[1:]
 
-    def to_dict(self) -> Dict[str, Union[str, List[str]]]:
+    def to_dict(self) -> dict[str, Union[str, list[str]]]:
         """Make a dict representation of this command."""
         d = {}
         d["directory"] = self.directory
@@ -102,7 +102,7 @@ class Command:
 
 
 def parse_compile_command(
-    command_dict: Dict[str, Union[str, List[str]]],
+    command_dict: dict[str, Union[str, list[str]]],
 ) -> Command:
     """Parse a single dict containing a compile command JSON into a Command."""
     for key in command_dict:
@@ -128,7 +128,7 @@ def parse_compile_command(
     )
 
 
-def parse_cdb_json(raw_json: str) -> List[Command]:
+def parse_cdb_json(raw_json: str) -> list[Command]:
     """Parse a raw compilation database JSON string into Command objects."""
     command_dicts = json.loads(raw_json)
     if command_dicts == []:
@@ -148,13 +148,13 @@ class Cdb:
 
     def __init__(
         self,
-        commands: List[Command],
+        commands: list[Command],
         pkg: package.Package,
         setup_data: setup.Setup,
-        package_to_include_args: Dict[str, _IncludePathOrder],
+        package_to_include_args: dict[str, _IncludePathOrder],
         *,
         result_build_dir: Optional[str] = None,
-        file_conflicts: Optional[Dict[str, str]] = None,
+        file_conflicts: Optional[dict[str, str]] = None,
     ):
         """Initialize a new Cdb instance.
 
@@ -238,7 +238,7 @@ class Cdb:
             )
         return self.build_dir
 
-    def _get_fixed_arguments(self, command: Command) -> List[str]:
+    def _get_fixed_arguments(self, command: Command) -> list[str]:
         compiler, arguments = command.get_compiler_and_arguments()
 
         # First argument is always a compiler.
@@ -381,7 +381,7 @@ class CdbGenerator:
         setup_data: setup.Setup,
         *,
         result_build_dir: Optional[str] = None,
-        file_conflicts: Optional[Dict[str, str]] = None,
+        file_conflicts: Optional[dict[str, str]] = None,
         fail_fast: bool = False,
     ):
         """Initialize a new CdbGenerator instance.
@@ -400,14 +400,14 @@ class CdbGenerator:
         self.result_build_dir = result_build_dir
         self.file_conflicts = file_conflicts or {}
         self.fail_fast = fail_fast
-        self.package_status: DefaultDict[str, List[str]] = (
+        self.package_status: DefaultDict[str, list[str]] = (
             collections.defaultdict(list)
         )
 
     def _generate_cdb_for_package(
         self,
         pkg: package.Package,
-        packages_to_include_args: Dict[str, _IncludePathOrder],
+        packages_to_include_args: dict[str, _IncludePathOrder],
     ) -> Cdb:
         """Create the compilation database for a given package."""
         logging.debug("%s: Generating compile commands", pkg.full_name)
@@ -418,7 +418,7 @@ class CdbGenerator:
             compile_commands = parse_cdb_json(cdb_str)
         except EmptyCompileCommandsException:
             logging.error("%s: Compile commands are empty", pkg.full_name)
-            compile_commands: List[Command] = []
+            compile_commands: list[Command] = []
         return Cdb(
             compile_commands,
             pkg,
@@ -430,11 +430,11 @@ class CdbGenerator:
 
     def _generate_result_cdb(
         self,
-        packages: List[package.Package],
-    ) -> List[Command]:
+        packages: list[package.Package],
+    ) -> list[Command]:
         result_cdb_commands = []
 
-        packages_to_include_args: Dict[str, _IncludePathOrder] = {}
+        packages_to_include_args: dict[str, _IncludePathOrder] = {}
         for pkg in packages:
             try:
                 cdb = self._generate_cdb_for_package(
@@ -457,7 +457,7 @@ class CdbGenerator:
         return result_cdb_commands
 
     def generate(
-        self, packages: List[package.Package], result_cdb_file: str
+        self, packages: list[package.Package], result_cdb_file: str
     ) -> None:
         """Generate, fix, and merge compile databases for the given packages.
 

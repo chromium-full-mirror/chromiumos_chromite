@@ -101,7 +101,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-from typing import Any, Dict, List
+from typing import Any
 
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -158,7 +158,7 @@ if os.path.exists(rc_file):
         exec(compile(fp.read(), rc_file, "exec"))
 
 
-def run(cmd: List[str], **kwargs: Dict[Any, Any]):
+def run(cmd: list[str], **kwargs: dict[Any, Any]):
     """Run a command with the common settings.
 
     Args:

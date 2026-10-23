@@ -9,7 +9,7 @@ See go/copybot
 For coreboot Downstreaming Rotation: go/coreboot:downstreaming
 """
 
-from typing import Callable, List, Tuple
+from typing import Callable
 
 from chromite.contrib import copybot_downstream
 from chromite.contrib.copybot_downstream_config import downstream_argparser
@@ -46,7 +46,7 @@ COREBOOT_DOMAIN_RESTRICTED_PATHS = [
 class CorebootDownstream(copybot_downstream.CopybotDownstream):
     """Class for extending copybot downstreaming class for coreboot."""
 
-    def _project_check_funcs(self) -> List[List[Tuple[Callable, List]]]:
+    def _project_check_funcs(self) -> list[list[tuple[Callable, list]]]:
         """Return a list of checkers specific to Coreboot."""
         return [
             [

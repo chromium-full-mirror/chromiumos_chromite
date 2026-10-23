@@ -6,7 +6,6 @@
 
 import functools
 from pathlib import Path
-from typing import List
 from unittest import mock
 
 import pytest
@@ -69,7 +68,7 @@ def test_prefetch_sdks(tmp_path: Path) -> None:
         )
 
 
-def _main(args: List[str]) -> int:
+def _main(args: list[str]) -> int:
     """Helper to call cros cron with options."""
     parser = commandline.ArgumentParser()
     cros_cron.CronCommand.AddParser(parser)

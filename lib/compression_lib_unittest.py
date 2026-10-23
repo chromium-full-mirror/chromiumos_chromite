@@ -6,7 +6,6 @@
 
 import os
 from pathlib import Path
-from typing import List
 
 import pytest
 
@@ -250,7 +249,7 @@ class FindCompressorTests(cros_test_lib.MockTempDirTestCase):
     """Tests for find_compressor."""
 
     def _test_comp(
-        self, comps: List[str], comp_type: compression_lib.CompressionType
+        self, comps: list[str], comp_type: compression_lib.CompressionType
     ) -> None:
         """Helper for find_compressor testing."""
         for comp in comps:

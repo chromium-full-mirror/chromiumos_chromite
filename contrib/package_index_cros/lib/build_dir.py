@@ -8,7 +8,6 @@ import filecmp
 import logging
 from pathlib import Path
 import shutil
-from typing import Dict, List
 
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import setup
@@ -43,7 +42,7 @@ class BuildDirMerger:
                 f"Result build dir does not exist: {self.result_build_dir}"
             )
 
-    def append(self, new_package: package.Package) -> Dict[str, str]:
+    def append(self, new_package: package.Package) -> dict[str, str]:
         """Copy new_package's build dir to self.result_build_dir.
 
         Returns:
@@ -51,7 +50,7 @@ class BuildDirMerger:
             content), mapping file's original name to a result name. The result
             name is composed like {dest_dir}/{package_name}_{filename}.
         """
-        source_dest_conflicts: Dict[str, str] = {}
+        source_dest_conflicts: dict[str, str] = {}
 
         def copy_file(source: Path, dest: Path) -> None:
             """Copy a single file from source to dest.
@@ -137,8 +136,8 @@ class BuildDirGenerator:
         logging.debug("Build dir created: %s", result_build_dir)
 
     def generate(
-        self, packages: List[package.Package], result_build_dir: Path
-    ) -> Dict[str, str]:
+        self, packages: list[package.Package], result_build_dir: Path
+    ) -> dict[str, str]:
         """Generate a common result dir containing the packages' artifacts.
 
         Returns:
@@ -152,7 +151,7 @@ class BuildDirGenerator:
         self._prepare_dir(result_build_dir)
 
         merger = BuildDirMerger(self.setup, Path(result_build_dir))
-        source_dest_conflicts: Dict[str, str] = {}
+        source_dest_conflicts: dict[str, str] = {}
         for pkg in packages:
             source_dest_conflicts.update(merger.append(pkg))
             logging.debug(

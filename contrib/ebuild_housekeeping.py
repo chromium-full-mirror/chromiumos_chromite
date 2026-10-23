@@ -9,7 +9,7 @@ import functools
 import logging
 from pathlib import Path
 import re
-from typing import Iterable, List, Optional
+from typing import Iterable, Optional
 
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
@@ -22,7 +22,7 @@ def logging_dryrun(*args, **kwargs) -> None:
     logging.info("(dryrun) " + args[0], *args[1:], **kwargs)
 
 
-def get_var(lines: List[str], var: str) -> Optional[str]:
+def get_var(lines: list[str], var: str) -> Optional[str]:
     """Lookup the value of |var| and return it.
 
     This only supports one-liners, and no arrays.  It's extremely basic.
@@ -59,10 +59,10 @@ class Ebuild:
         return self.path.read_text(encoding="utf-8")
 
     @functools.cached_property
-    def lines(self) -> List[str]:
+    def lines(self) -> list[str]:
         return self.content.strip().splitlines()
 
-    def write_lines(self, lines: List[str], dryrun: bool = False) -> None:
+    def write_lines(self, lines: list[str], dryrun: bool = False) -> None:
         if dryrun:
             logging_dryrun("%s: rewrote %s", self.cpv, self.path.name)
         else:
@@ -133,7 +133,7 @@ def git_add(pkg: Package, dryrun: bool = False) -> None:
 
 def ebuild_bump(
     pkg: Package,
-    ebuilds: List[Ebuild],
+    ebuilds: list[Ebuild],
     dryrun: bool = False,
     force: bool = False,  # pylint: disable=unused-argument
 ) -> None:

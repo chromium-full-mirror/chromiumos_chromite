@@ -5,7 +5,6 @@
 """Tests for query.py."""
 
 from pathlib import Path
-from typing import Dict
 
 import pytest
 
@@ -32,7 +31,7 @@ def test_query_overlays(fake_build_query_overlays) -> None:
 
 def test_query_profiles(fake_build_query_overlays) -> None:
     """Test listing all profiles."""
-    profiles: Dict[str, build_query.Profile] = {
+    profiles: dict[str, build_query.Profile] = {
         str(x): x for x in build_query.Profile.find_all()
     }
     assert profiles["baseboard-fake:base"].overlay.name == "baseboard-fake"

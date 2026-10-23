@@ -6,7 +6,7 @@
 
 import copy
 import json
-from typing import Any, Dict, Iterable, List
+from typing import Any, Iterable
 from unittest import mock
 
 import pytest
@@ -23,7 +23,7 @@ from chromite.lib import portage_util
 
 
 def _create_deptree_stdout(
-    package_name_to_deps: Dict[str, Iterable[package.PackageDependency]],
+    package_name_to_deps: dict[str, Iterable[package.PackageDependency]],
 ) -> str:
     """Generate a valid-looking dependency tree stdout.
 
@@ -45,7 +45,7 @@ def _create_deptree_stdout(
         ...
     }
     """
-    deptree_dict: Dict[str, Any] = {}
+    deptree_dict: dict[str, Any] = {}
     blank_dep_object = {
         "action": "merge",
         "deps": {},
@@ -103,7 +103,7 @@ class GetPackagesDependenciesTestCase(testing_utils.TestCase):
 
     def mock_generate_dependency_tree_stdout(
         self,
-        package_name_to_dependencies: Dict[str, package.PackageDependency],
+        package_name_to_dependencies: dict[str, package.PackageDependency],
     ) -> mock.Mock:
         """Mock out the response from cros_sdk.generate_dependency_tree()."""
         stdout = _create_deptree_stdout(package_name_to_dependencies)
@@ -154,7 +154,7 @@ class ListPackagesWithDepsTestCase(testing_utils.TestCase):
     """Test cases for PackageSleuth._list_packages_with_deps()."""
 
     def _mock_get_package_support(
-        self, supported_package_names: List[str]
+        self, supported_package_names: list[str]
     ) -> mock.Mock:
         """Mock out which packages will be considered supported/unsupported.
 

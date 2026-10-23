@@ -12,7 +12,7 @@ import os
 from pathlib import Path
 import shutil
 import statistics
-from typing import Dict, List, NamedTuple, Optional, Set
+from typing import NamedTuple, Optional
 
 from chromite.lib import cipd
 from chromite.lib import commandline
@@ -149,8 +149,8 @@ def get_base_job_template(bucket: str, builder: str, debug: bool) -> str:
 def get_unique_test_name(
     bucket: str,
     builder: str,
-    cls_tested: List[str],
-    cls_baseline: Optional[List[str]],
+    cls_tested: list[str],
+    cls_baseline: Optional[list[str]],
 ) -> str:
     """Get unique name of the test, which will be a valid dir name in Linux."""
     bucket = bucket.replace("/", "-")
@@ -182,7 +182,7 @@ def get_unique_test_name(
     return test_name
 
 
-def add_cls_to_job(job: str, cls: List[str], debug: bool) -> str:
+def add_cls_to_job(job: str, cls: list[str], debug: bool) -> str:
     """Adds provided CL urls |cls| to the provided |job|."""
     for cl in cls:
         cmd = [
@@ -210,7 +210,7 @@ def get_swarming_url(task_id: str, host_name: str) -> str:
     return f"https://ci.chromium.org/swarming/task/{task_id}?server={host_name}"
 
 
-def get_dirs_in_dir(tests_folder: os.PathLike) -> List[str]:
+def get_dirs_in_dir(tests_folder: os.PathLike) -> list[str]:
     """Returns list of directories in provided directory."""
     if not os.path.isdir(tests_folder):
         return []
@@ -259,12 +259,12 @@ class TestResult:
 
     swarmingUrl: str
     task_id: str
-    build_proto_json: Dict
+    build_proto_json: dict
     total_runtime: int  # seconds
-    steps: Dict[str, int]  # (step_name, elasped_seconds)
+    steps: dict[str, int]  # (step_name, elasped_seconds)
 
     def __init__(
-        self, swarmingUrl: str, task_id: str, build_proto_json: Dict
+        self, swarmingUrl: str, task_id: str, build_proto_json: dict
     ) -> None:
         self.swarmingUrl = swarmingUrl
         self.task_id = task_id
@@ -302,7 +302,7 @@ class TestResult:
                 )
             self.steps[step_name] = elapsed_secs
 
-    def GetStepsNames(self) -> Set[str]:
+    def GetStepsNames(self) -> set[str]:
         """Returns all build steps performed during the Test."""
         step_names = set()
         for step_name in self.steps:
@@ -313,8 +313,8 @@ class TestResult:
 class BuildResults(NamedTuple):
     """Data class for build results."""
 
-    succeeded: List[TestResult]
-    failed: List[TestResult]
+    succeeded: list[TestResult]
+    failed: list[TestResult]
 
     def append(self, test_result: TestResult, succeeded: bool = True) -> None:
         """Save a test result to the appropriate list."""
@@ -327,8 +327,8 @@ class BuildResults(NamedTuple):
 class SwarmingOutputProcessor:
     """Holds output from swarming and compares results."""
 
-    baseline: List[TestResult]
-    tested: List[TestResult]
+    baseline: list[TestResult]
+    tested: list[TestResult]
     repeats: int
     complete: bool
     failed_jobs: bool
@@ -1109,7 +1109,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     parser = get_parser()
     options = parser.parse_args(argv)
 

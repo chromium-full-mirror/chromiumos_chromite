@@ -6,7 +6,7 @@
 
 import argparse
 from pathlib import Path
-from typing import Callable, List
+from typing import Callable
 
 import pytest
 
@@ -45,7 +45,7 @@ def simple_parser() -> argparse.ArgumentParser:
 def get_ebuilds() -> Callable:
     """Returns ebuild files for testing."""
 
-    def mock_return(*_args, **_kwargs) -> List[Path]:
+    def mock_return(*_args, **_kwargs) -> list[Path]:
         return [
             Path("/package1/bar1/bar1-1.0.ebuild"),
             Path("/package2/bar2/bar2-2.0.ebuild"),

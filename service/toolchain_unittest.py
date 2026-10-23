@@ -7,7 +7,7 @@
 import collections
 import os
 from pathlib import Path
-from typing import Dict, List, NamedTuple
+from typing import NamedTuple
 from unittest import mock
 
 from chromite.lib import cros_test_lib
@@ -28,7 +28,7 @@ class MockArtifact(NamedTuple):
 class MockBuildLinter(toolchain.BuildLinter):
     """Mocked version of Build Linters class."""
 
-    def __init__(self, tempdir: str, packages: List[str] = None) -> None:
+    def __init__(self, tempdir: str, packages: list[str] = None) -> None:
         super().__init__([], "", validate=False)
         self.tempdir = tempdir
         self.packages = [] if packages is None else packages
@@ -53,7 +53,7 @@ class MockBuildLinter(toolchain.BuildLinter):
             tmp_artifact_file.write(artifact.contents)
         self.artifacts[artifact.linter][artifact.package].append(tmp_path)
 
-    def _fetch_from_linting_artifacts(self, subdir) -> Dict[str, List[str]]:
+    def _fetch_from_linting_artifacts(self, subdir) -> dict[str, list[str]]:
         """Get file from emerge artifact directory."""
         artifacts = {}
         for package, package_artifacts in self.artifacts[subdir].items():
@@ -95,8 +95,8 @@ class BuildLinterTests(cros_test_lib.MockTempDirTestCase):
 
     def checkArtifacts(
         self,
-        expected_artifacts: List[MockArtifact],
-        retrieved_artifact_paths: Dict[str, List[str]],
+        expected_artifacts: list[MockArtifact],
+        retrieved_artifact_paths: dict[str, list[str]],
     ) -> None:
         """Asserts that artifact paths match the list of expected results."""
 

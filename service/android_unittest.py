@@ -6,7 +6,6 @@
 
 import os
 import re
-from typing import Dict
 
 from chromite.lib import cros_test_lib
 from chromite.lib import gs
@@ -123,7 +122,7 @@ class MockAndroidBuildArtifactsTest(cros_test_lib.MockTempDirTestCase):
         )
 
     def setupMockTarget(
-        self, branch: str, target: str, versions: Dict[str, bool]
+        self, branch: str, target: str, versions: dict[str, bool]
     ) -> None:
         """Mocks GS responses for one build target.
 

@@ -5,7 +5,7 @@
 """Tests for the relevancy service."""
 
 from pathlib import Path
-from typing import List, Optional, Type
+from typing import Optional, Type
 
 import pytest
 
@@ -117,7 +117,7 @@ def test_relevancy(
     path: str,
     board: str,
     expected_reason: Optional[Type[relevancy.Reason]],
-    fake_build_query_overlays: List[portage_testables.Overlay],
+    fake_build_query_overlays: list[portage_testables.Overlay],
     source_root_is_tmp: None,
     mock_source_info: None,
 ) -> None:

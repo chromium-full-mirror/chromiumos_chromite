@@ -5,7 +5,7 @@
 """Utilities for testing spiders in portage_explorer."""
 
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
 
 import chromite as cr
 from chromite.contrib.portage_explorer import spiderlib
@@ -14,7 +14,7 @@ from chromite.lib.parser import package_info
 
 def create_overlays(
     tmp_path: Path, name: str
-) -> Tuple[cr.test.Overlay, spiderlib.Overlay]:
+) -> tuple[cr.test.Overlay, spiderlib.Overlay]:
     """Create test overlays for unit testing spiders.
 
     Create the cr.test.Overlay and spiderlib.Overlay versions of the overlays to
@@ -37,13 +37,13 @@ def create_overlays(
 def create_profiles(
     tmp_path: Path,
     test_overlay: cr.test.Overlay,
-    profile_names: List[str],
-    parent_profiles: Optional[Dict[str, cr.test.Profile]] = None,
-    make_defaults: Optional[Dict[str, Dict[str, str]]] = None,
-) -> Tuple[
-    Dict[str, cr.test.Profile],
-    Dict[str, spiderlib.Profile],
-    Dict[str, spiderlib.Profile],
+    profile_names: list[str],
+    parent_profiles: Optional[dict[str, cr.test.Profile]] = None,
+    make_defaults: Optional[dict[str, dict[str, str]]] = None,
+) -> tuple[
+    dict[str, cr.test.Profile],
+    dict[str, spiderlib.Profile],
+    dict[str, spiderlib.Profile],
 ]:
     """Create test profiles for unit testing spiders.
 
@@ -112,7 +112,7 @@ def create_profiles(
 def create_ebuilds(
     tmp_path: Path,
     test_overlay: cr.test.Overlay,
-    packages: Dict[str, spiderlib.TestEbuild],
+    packages: dict[str, spiderlib.TestEbuild],
 ):
     """Create test ebuilds for unit testing spiders.
 
@@ -198,7 +198,7 @@ def create_ebuilds(
 
 
 def create_eclasses(
-    tmp_path: Path, test_overlay: cr.test.Overlay, eclasses: List[str]
+    tmp_path: Path, test_overlay: cr.test.Overlay, eclasses: list[str]
 ):
     """Create test eclasses in tmp dir for unit testing spiders.
 

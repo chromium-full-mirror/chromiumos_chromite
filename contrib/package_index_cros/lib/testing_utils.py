@@ -7,7 +7,7 @@
 import os
 from pathlib import Path
 import re
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Iterable, Optional
 import uuid
 
 from chromite.contrib.package_index_cros.lib import conductor
@@ -161,7 +161,7 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
         # self._mock_paths_to_checkouts will hold return values for
         # Manifest.FindCheckoutFromPath(). We'll populate it as we create
         # ebuilds.
-        self._mock_paths_to_checkouts: Dict[str, git.ProjectCheckout] = {}
+        self._mock_paths_to_checkouts: dict[str, git.ProjectCheckout] = {}
         self._setup_overlays()
 
         def _FindCheckoutFromPath(
@@ -208,7 +208,7 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
         )
 
     @property
-    def _all_overlay_dirs(self) -> Tuple[Path]:
+    def _all_overlay_dirs(self) -> tuple[Path]:
         """Return a list of all overlay repos the checkout uses."""
         return (
             self.chromiumos_overlay_dir,
@@ -239,10 +239,10 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
         package_name: str = "my-package",
         category: str = "chromeos-base",
         stable_version: str = "1.0.0-r1",
-        cros_workon_localnames: Tuple[str] = ("platform2",),
-        cros_workon_projects: Tuple[str] = ("chromiumos/platform2",),
-        cros_workon_commits: Tuple[str] = ("deadb33f",),
-        cros_workon_subtrees: Tuple[str] = ("common-mk some-source-dir .gn",),
+        cros_workon_localnames: tuple[str] = ("platform2",),
+        cros_workon_projects: tuple[str] = ("chromiumos/platform2",),
+        cros_workon_commits: tuple[str] = ("deadb33f",),
+        cros_workon_subtrees: tuple[str] = ("common-mk some-source-dir .gn",),
         additional_ebuild_contents: str = "",
         create_9999_ebuild: bool = True,
         private: bool = False,
@@ -312,7 +312,7 @@ class TestCase(cros_test_lib.MockTempDirTestCase):
 
     def new_package(  # pylint: disable=docstring-misnamed-args
         self,
-        dependencies: Optional[List[package.PackageDependency]] = None,
+        dependencies: Optional[list[package.PackageDependency]] = None,
         **create_ebuild_kwargs: Any,
     ) -> package.Package:
         """Create a Package we can use for testing."""

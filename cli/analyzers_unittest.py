@@ -4,14 +4,13 @@
 
 """Tests for the analyzers module."""
 
-from typing import List
 from unittest import mock
 
 from chromite.cli import analyzers
 from chromite.lib import commandline
 
 
-def process_args(args: List[str]) -> commandline.ArgumentNamespace:
+def process_args(args: list[str]) -> commandline.ArgumentNamespace:
     """Feeds an ArgumentParser with the provided `args` to AnalyzerCommand."""
     parser = commandline.ArgumentParser(filter=True)
     analyzers.AnalyzerCommand.AddParser(parser)

@@ -5,7 +5,7 @@
 """Tests the `cros try` command."""
 
 from pathlib import Path
-from typing import Any, List
+from typing import Any
 
 from chromite.cli.cros import cros_try
 from chromite.lib import cipd
@@ -37,7 +37,7 @@ class TryCommandTest(cros_test_lib.RunCommandTestCase):
             "PATH": StringStartsWith(str(constants.DEPOT_TOOLS_DIR) + ":"),
         }
 
-    def runCrosTry(self, try_args: List[str]):
+    def runCrosTry(self, try_args: list[str]):
         """Simulate running the `cros try` command with the specified args."""
         return cros.main(["try"] + try_args)
 

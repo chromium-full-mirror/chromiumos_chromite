@@ -14,7 +14,7 @@ import functools
 import logging
 import os
 import re
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Optional
 
 from chromite.contrib.package_index_cros.lib import package
 from chromite.contrib.package_index_cros.lib import setup
@@ -133,7 +133,7 @@ class PathHandler:
         path: str,
         pkg: package.Package,
         *,
-        conflicting_paths: Dict[str, str],
+        conflicting_paths: dict[str, str],
     ) -> FixedPath:
         """Map a temporary source path (outside the chroot) to its actual path.
 
@@ -193,7 +193,7 @@ class PathHandler:
         chroot_path: str,
         pkg: package.Package,
         *,
-        conflicting_paths: Optional[Dict[str, str]] = None,
+        conflicting_paths: Optional[dict[str, str]] = None,
         ignorable_dir: Optional[str] = None,
     ) -> FixedPath:
         """Fix chroot_path's base dir, and append its basename to the fixed dir.
@@ -270,7 +270,7 @@ class PathHandler:
         chroot_path: str,
         pkg: package.Package,
         *,
-        conflicting_paths: Optional[Dict] = None,
+        conflicting_paths: Optional[dict] = None,
     ) -> FixedPath:
         """Convert a chroot path to an original and an actual path (outside).
 
@@ -310,11 +310,11 @@ class PathHandler:
         chroot_path: str,
         pkg: package.Package,
         *,
-        conflicting_paths: Optional[Dict] = None,
+        conflicting_paths: Optional[dict] = None,
         ignore_highly_volatile: bool = False,
         ignore_generated: bool = False,
         ignore_stable: bool = False,
-        ignorable_dirs: Optional[List[str]] = None,
+        ignorable_dirs: Optional[list[str]] = None,
     ) -> FixedPath:
         """Fix a path (like |fix_path|), but ignore some failures.
 
@@ -427,7 +427,7 @@ class PathHandler:
 
 def fix_path_in_argument(
     arg: str, fixer_callback: Callable[[str], str]
-) -> Tuple[str, str]:
+) -> tuple[str, str]:
     """Parse |arg| into a prefix and a path.
 
     If

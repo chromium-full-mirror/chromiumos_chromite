@@ -7,7 +7,7 @@
 import itertools
 import os
 from pathlib import Path
-from typing import Dict, Iterable, Tuple, Union
+from typing import Iterable, Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -375,8 +375,8 @@ class Profile:
 class Package:
     """Portage package, lives in an overlay."""
 
-    inherit: Tuple[str]
-    variables: Dict[str, str]
+    inherit: tuple[str]
+    variables: dict[str, str]
 
     def __init__(
         self,

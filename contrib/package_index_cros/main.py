@@ -10,7 +10,7 @@ For usage instructions, see README.md.
 import argparse
 import os
 import textwrap
-from typing import List, Optional
+from typing import Optional
 
 from chromite.contrib.package_index_cros.lib import conductor
 from chromite.contrib.package_index_cros.lib import setup
@@ -138,7 +138,7 @@ def _build_parser():
     return parser
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     parser = _build_parser()
     args = parser.parse_args(argv)
     if args.compile_commands_file:

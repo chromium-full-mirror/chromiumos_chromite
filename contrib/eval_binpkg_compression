@@ -38,7 +38,7 @@ import shutil
 import subprocess
 import sys
 import time
-from typing import List, Optional
+from typing import Optional
 
 
 # Terminal escape sequence to erase the current line after the cursor.
@@ -122,7 +122,7 @@ def run_stats(output, *args, **kwargs):
 
 def compress_tars(
     workdir: Path,
-    atoms: List[str],
+    atoms: list[str],
     threads_compress: int = 0,
     threads_decompress: int = 0,
 ) -> None:
@@ -160,9 +160,10 @@ def compress_tars(
                 if not out_file.exists():
                     out_file.parent.mkdir(parents=True, exist_ok=True)
                     stats_file = out_dir / f"{atom}.compress.json"
-                    with tar_file.open("rb") as stdin, temp_file.open(
-                        "wb"
-                    ) as stdout:
+                    with (
+                        tar_file.open("rb") as stdin,
+                        temp_file.open("wb") as stdout,
+                    ):
                         run_stats(
                             stats_file,
                             comp_cmd(cmd, threads_compress, level=level),
@@ -186,7 +187,7 @@ def compress_tars(
 
 
 def unpack_binpkgs(
-    workdir: Path, atoms: List[str], threads_decompress: int = 0
+    workdir: Path, atoms: list[str], threads_decompress: int = 0
 ) -> None:
     """Unpack the binpkgs & return a list of the uncompressed tarballs.
 
@@ -246,7 +247,7 @@ def unpack_binpkgs(
     print_status(f"\r{CSI_ERASE_LINE_AFTER}")
 
 
-def fetch_binpkgs(workdir: Path, url: str) -> List[str]:
+def fetch_binpkgs(workdir: Path, url: str) -> list[str]:
     """Download the binpkgs & return a list of atoms.
 
     NB: "tbz2" does not mean the archive is using bzip2.  It's a historical name
@@ -414,7 +415,7 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     parser = get_parser()
     opts = parser.parse_args(argv)
 

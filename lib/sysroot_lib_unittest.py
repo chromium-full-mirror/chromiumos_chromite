@@ -5,7 +5,7 @@
 """Tests for the sysroot library."""
 
 import os
-from typing import Iterable, List, Optional, Tuple
+from typing import Iterable, Optional
 
 import pytest
 
@@ -52,7 +52,7 @@ class SysrootLibTest(cros_test_lib.MockTempDirTestCase):
         board_overlays: Optional[Iterable[str]] = None,
         portdir_overlays: Optional[Iterable[str]] = None,
         board: str = None,
-    ) -> Tuple[List[str], List[str]]:
+    ) -> tuple[list[str], list[str]]:
         """Helper function to write board and portdir overlays for the sysroot.
 
         By default, uses one fake board overlay, and the chromiumos and portage

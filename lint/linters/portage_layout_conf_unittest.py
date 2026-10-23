@@ -5,7 +5,7 @@
 """Test the portage_layout_conf module."""
 
 import os
-from typing import List, Optional
+from typing import Optional
 
 import pytest
 
@@ -79,7 +79,7 @@ def test_bad(data, msg) -> None:
 def test_eapis_banned() -> None:
     """Verify eapis-banned works correctly."""
 
-    def _get(eapis_banned: Optional[str] = None) -> List[str]:
+    def _get(eapis_banned: Optional[str] = None) -> list[str]:
         settings = {}
         if eapis_banned is not None:
             settings["eapis-banned"] = eapis_banned
@@ -106,7 +106,7 @@ def test_masters(monkeypatch) -> None:
 
     def _get(
         masters: Optional[str] = None, repo_name: Optional[str] = None
-    ) -> List[str]:
+    ) -> list[str]:
         settings = {}
         if masters is not None:
             settings["masters"] = masters
@@ -162,7 +162,7 @@ def test_masters(monkeypatch) -> None:
 def test_profile_formats() -> None:
     """Verify profile-formats works correctly."""
 
-    def _get(profile_formats: Optional[str] = None) -> List[str]:
+    def _get(profile_formats: Optional[str] = None) -> list[str]:
         settings = {}
         if profile_formats is not None:
             settings["profile-formats"] = profile_formats

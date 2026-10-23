@@ -7,7 +7,7 @@
 import os
 from pathlib import Path
 import sys
-from typing import List, Union
+from typing import Union
 
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
@@ -78,7 +78,7 @@ class FindTargetTests(cros_test_lib.TempDirTestCase):
             wrapper = path.with_suffix("")
         wrapper.symlink_to(self.wrapper)
 
-    def run_script(self, argv: List[Union[Path, str]], **kwargs):
+    def run_script(self, argv: list[Union[Path, str]], **kwargs):
         """Run |prog| and return the output."""
         # Log the directory layout to help with debugging.
         try:

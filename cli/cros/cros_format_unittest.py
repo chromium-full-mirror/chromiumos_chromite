@@ -6,7 +6,6 @@
 
 import os
 from pathlib import Path
-from typing import List
 from unittest import mock
 
 from chromite.cli.cros import cros_format
@@ -19,7 +18,7 @@ from chromite.scripts import cros
 # pylint: disable=protected-access
 
 
-def _call_cros_format(args: List[str]) -> int:
+def _call_cros_format(args: list[str]) -> int:
     """Call "cros format" with the given command line arguments.
 
     Args:

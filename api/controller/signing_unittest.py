@@ -5,7 +5,7 @@
 """Signing service tests."""
 
 import os
-from typing import List, Optional
+from typing import Optional
 
 from chromite.api import api_config
 from chromite.api.controller import signing as signing_controller
@@ -1067,7 +1067,7 @@ class KeysetManagerTest(
 
     def _GetRequest(
         self,
-        operations: List[signing_pb2.KeysetOp],
+        operations: list[signing_pb2.KeysetOp],
         keyset: str = "BryaMPKeys",
         dry_run: bool = False,
     ):

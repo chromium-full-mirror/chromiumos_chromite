@@ -7,7 +7,6 @@
 import contextlib
 import logging
 import os
-from typing import Set
 
 from chromite.third_party.opentelemetry.trace import status
 
@@ -180,7 +179,7 @@ def inner_main(opts: commandline.ArgumentNamespace):
     if opts.skip_packages:
         skipped_packages |= set(opts.skip_packages.split())
 
-    packages: Set[str] = set()
+    packages: set[str] = set()
     # The list of packages to test can be passed as a file containing a
     # space-separated list of package names.
     # This is used by the builder to test only the packages that were uprevved.

@@ -5,7 +5,7 @@
 """Unit tests for path_handler.py."""
 
 import os
-from typing import Optional, Tuple
+from typing import Optional
 
 import pytest
 
@@ -329,7 +329,7 @@ class FixPathWithIgnoresTestCase(testing_utils.TestCase):
         relative_path: str = "a/b/c/file.txt",
         create: bool = True,
         in_build_dir_instead_of_temp_dir: bool = False,
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         """Return an outside path and its chroot equivalent to use as input.
 
         Args:

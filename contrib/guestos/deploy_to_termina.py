@@ -9,7 +9,7 @@ import os
 import tempfile
 import textwrap
 import time
-from typing import List, NamedTuple
+from typing import NamedTuple
 
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
@@ -23,7 +23,7 @@ class FileSet(NamedTuple):
 
     source_root: str
     destination_image: str
-    files: List[str]
+    files: list[str]
 
 
 TOOLS_PREFIX = "/opt/google/cros-containers"
@@ -38,7 +38,7 @@ def is_in_tools_images(path: str) -> bool:
     return path.startswith(TOOLS_PREFIX)
 
 
-def get_deployment_plan(board: str, packages: List[str]) -> List[FileSet]:
+def get_deployment_plan(board: str, packages: list[str]) -> list[FileSet]:
     """Figures out which files get deployed where for a set of inputs.
 
     Examples:
@@ -71,8 +71,8 @@ def get_deployment_plan(board: str, packages: List[str]) -> List[FileSet]:
         encoding="utf-8",
     ).stdout.splitlines()
 
-    files_rootfs: List[str] = []
-    files_tools: List[str] = []
+    files_rootfs: list[str] = []
+    files_tools: list[str] = []
 
     for file in files:
         if not file.strip():
@@ -97,7 +97,7 @@ def get_deployment_plan(board: str, packages: List[str]) -> List[FileSet]:
 
 def deploy_into_remote_dlc(
     remote: remote_access.ChromiumOSDeviceHandler,
-    transfers: List[FileSet],
+    transfers: list[FileSet],
     dlc_id: str,
 ) -> None:
     """Copies the specified files into a DLC image on hostname."""
@@ -204,7 +204,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def main(argv: List[str]) -> None:
+def main(argv: list[str]) -> None:
     parser = get_parser()
     opts = parser.parse_args(argv)
 

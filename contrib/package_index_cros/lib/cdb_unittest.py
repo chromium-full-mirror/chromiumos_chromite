@@ -7,7 +7,7 @@
 import filecmp
 import json
 import os
-from typing import Any, Dict, Iterable, Optional, Union
+from typing import Any, Iterable, Optional, Union
 from unittest import mock
 
 import pytest
@@ -29,7 +29,7 @@ def _make_command_dict(
     arguments: Optional[Iterable[str]] = ("/path/to/clang++", "some-args"),
     command: Optional[str] = "/path/to/clang++ some-args",
     output: Optional[str] = "some/output/file",
-) -> Dict[str, Union[str, Iterable[str]]]:
+) -> dict[str, Union[str, Iterable[str]]]:
     """Generate a dict that can be parsed into a cdb.Command.
 
     If any of the args is None, it will be excluded from the dict.

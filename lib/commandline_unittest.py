@@ -13,7 +13,7 @@ from pathlib import Path
 import pickle
 import signal
 import sys
-from typing import Callable, List, Optional, Union
+from typing import Callable, Optional, Union
 from unittest import mock
 
 import pytest
@@ -189,7 +189,7 @@ class StandardBoolTest(cros_test_lib.TestCase):
         """Test end-to-end usage with 2 args with different defaults."""
 
         def verify(
-            argv: List[str], dt: bool, df: bool, dn: Optional[bool] = None
+            argv: list[str], dt: bool, df: bool, dn: Optional[bool] = None
         ) -> None:
             options = self.parser.parse_args(argv)
             self.assertEqual(options.dt_var, dt)
@@ -285,7 +285,7 @@ class DeviceParseTest(cros_test_lib.TestCase):
     def _CheckDeviceParse(
         self,
         device_input: str,
-        scheme: Optional[Union[commandline.DeviceScheme, List]] = None,
+        scheme: Optional[Union[commandline.DeviceScheme, list]] = None,
         username: Optional[str] = None,
         hostname: Optional[str] = None,
         port: Optional[int] = None,
@@ -759,7 +759,7 @@ class SplitExtendActionTest(cros_test_lib.TestCase):
 def test_cache_dir(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
-    args: List[str],
+    args: list[str],
     expected_cache_dir: Path,
 ) -> None:
     """Test parsing --cache-dir."""

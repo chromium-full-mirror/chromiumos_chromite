@@ -5,7 +5,6 @@
 """Unit tests for build_dir.py."""
 
 from pathlib import Path
-from typing import List
 
 from chromite.contrib.package_index_cros.lib import build_dir
 from chromite.contrib.package_index_cros.lib import setup
@@ -46,7 +45,7 @@ def test_copy_packages_into_build_dir(tmp_path: Path) -> None:
     # Arrange packages.
     pkg1 = _MockPackage("chromeos-base", "pkg1", tmp_path / "pkg1")
     pkg2 = _MockPackage("chromeos-base", "pkg2", tmp_path / "pkg2")
-    packages: List[_MockPackage] = [pkg1, pkg2]
+    packages: list[_MockPackage] = [pkg1, pkg2]
 
     # Arrange files in packages' build dirs.
     (pkg1.build_dir / "file_from_pkg1").touch()

@@ -7,7 +7,7 @@
 import argparse
 import importlib
 import os
-from typing import List, Optional
+from typing import Optional
 
 import pytest
 
@@ -190,10 +190,10 @@ class MainSub(command.CliCommand):
         (["mainsub", "--return-value", "21"], 21),
     ],
 )
-def test_command_group(args: List[str], expected_return_code: int) -> None:
+def test_command_group(args: list[str], expected_return_code: int) -> None:
     """Test CommandGroup helper."""
 
-    def _main(args: List[str]) -> int:
+    def _main(args: list[str]) -> int:
         """Helper to call MainGroup with options."""
         parser = commandline.ArgumentParser()
         MainGroup.AddParser(parser)

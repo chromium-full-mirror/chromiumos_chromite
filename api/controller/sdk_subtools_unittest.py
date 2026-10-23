@@ -7,7 +7,7 @@
 import os
 from pathlib import Path
 from pathlib import PurePath
-from typing import Dict, Iterator, List, Optional, Union
+from typing import Iterator, Optional, Union
 from unittest import mock
 
 import pytest
@@ -48,7 +48,7 @@ def build_sdk_subtools(
 
 
 def make_upload_request(
-    bundle_paths: Optional[List[str]] = None,
+    bundle_paths: Optional[list[str]] = None,
 ) -> sdk_subtools_pb2.UploadSdkSubtoolsRequest:
     """Helper to build an upload request message."""
     request = sdk_subtools_pb2.UploadSdkSubtoolsRequest()
@@ -72,7 +72,7 @@ def upload_sdk_subtools(
     return response
 
 
-MockService = Dict[str, mock.MagicMock]
+MockService = dict[str, mock.MagicMock]
 
 
 @pytest.fixture(name="mock_service")

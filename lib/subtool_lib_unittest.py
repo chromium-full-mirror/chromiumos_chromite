@@ -9,7 +9,7 @@ import json
 import os
 from pathlib import Path
 import re
-from typing import Dict, Iterator, List, Optional, Set, Tuple, Union
+from typing import Iterator, Optional, Union
 from unittest import mock
 
 from chromite.third_party.google.protobuf import text_format
@@ -96,7 +96,7 @@ class FakeChrootDiskLayout:
     ebuild_owned_file = glob_subdir / "ebuild_owned.file"
 
     @staticmethod
-    def subtree_file_structure() -> Tuple[cros_test_lib.Directory, ...]:
+    def subtree_file_structure() -> tuple[cros_test_lib.Directory, ...]:
         """Recursive structure with the regular files and directories."""
         D = cros_test_lib.Directory
         return (
@@ -132,7 +132,7 @@ def bundle_and_upload(
 
 def bundle_result(
     subtool: subtool_lib.Subtool, has_ebuild_match: bool = False, sed: str = "/"
-) -> List[str]:
+) -> list[str]:
     """Collects files and returns the contents, sorted, as strings.
 
     Args:
@@ -162,8 +162,8 @@ def bundle_result(
 
 def set_run_results(
     run_mock: cros_test_lib.RunCommandMock,
-    cipd: Optional[Dict[str, cros_build_lib.CompletedProcess]] = None,
-    equery: Optional[Dict[str, cros_build_lib.CompletedProcess]] = None,
+    cipd: Optional[dict[str, cros_build_lib.CompletedProcess]] = None,
+    equery: Optional[dict[str, cros_build_lib.CompletedProcess]] = None,
 ) -> None:
     """Set fake results for run calls in the test.
 
@@ -203,12 +203,12 @@ def set_run_results(
 
 def get_cipd_search_tag_keys(
     run_mock: cros_test_lib.RunCommandMock,
-) -> Set[str]:
+) -> set[str]:
     """Returns all -tag keys passed to the first `cipd search` invocation."""
     CMD = [FAKE_CIPD_PATH, "search"]
     run_mock.assertCommandContains(CMD)
     cmd_args = [x.args[0] for x in run_mock.call_args_list]
-    cmd: List[str] = next((x for x in cmd_args if x[:2] == CMD), [])
+    cmd: list[str] = next((x for x in cmd_args if x[:2] == CMD), [])
     return set(
         x.split(":")[0] for i, x in enumerate(cmd) if i and cmd[i - 1] == "-tag"
     )
@@ -262,7 +262,7 @@ class Wrapper:
         return subtool
 
     def set_paths(
-        self, paths: List[subtools_pb2.SubtoolPackage.PathMapping]
+        self, paths: list[subtools_pb2.SubtoolPackage.PathMapping]
     ) -> None:
         """Helper to set the `paths` field on the proto."""
         # "RepeatedCompositeFieldContainer" does not support item assignment.
@@ -279,7 +279,7 @@ class Wrapper:
         osutils.SafeSymlink("regular.file", fs.symlink)
         return fs
 
-    def load_upload_metadata_json(self) -> Dict:
+    def load_upload_metadata_json(self) -> dict:
         """Loads the JSON metadata passed to the upload phase as a dict."""
         with (
             self.work_root / self.proto.name / subtool_lib.UPLOAD_METADATA_FILE
@@ -714,7 +714,7 @@ def test_bundle_idempontence(template_proto: Wrapper) -> None:
         """Glob and concatenate all files in the bundle."""
         subtool = template_proto.create(writes_files=True)
         assert "<license>" in bundle_result(subtool, has_ebuild_match=True)
-        data: List[bytes] = []
+        data: list[bytes] = []
         for entry in subtool.bundle_dir.rglob("*"):
             if entry.is_file():
                 data.append(entry.read_bytes())
@@ -780,7 +780,7 @@ def test_ebuild_match_globs_files(template_proto: Wrapper) -> None:
     ),
 )
 def test_ebuild_match_recursive_glob(
-    glob: str, expected_files: List[str], template_proto: Wrapper
+    glob: str, expected_files: list[str], template_proto: Wrapper
 ) -> None:
     """Test that queries can match real package contents; recursive glob."""
     template_proto.set_paths(

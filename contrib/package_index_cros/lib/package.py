@@ -9,7 +9,7 @@ import enum
 import logging
 import os
 from pathlib import Path
-from typing import List, Mapping, Optional
+from typing import Mapping, Optional
 
 from chromite.contrib.package_index_cros.lib import constants
 from chromite.contrib.package_index_cros.lib import setup
@@ -50,7 +50,7 @@ class PackageDependency:
     """
 
     name: str
-    types: List[str]
+    types: list[str]
 
 
 def _check_ebuild_var(
@@ -247,7 +247,7 @@ class Package:
         self,
         setup_data: setup.Setup,
         ebuild: portage_util.EBuild,
-        deps: Optional[List[PackageDependency]] = None,
+        deps: Optional[list[PackageDependency]] = None,
     ):
         """Initialize instance-level attributes.
 
@@ -275,7 +275,7 @@ class Package:
         self._temp_dir: Optional[str] = None
         self._build_dir: Optional[str] = None
         self._environment: Optional[Mapping[str, str]] = None
-        self._src_dir_matches: Optional[List[TempActualDichotomy]] = None
+        self._src_dir_matches: Optional[list[TempActualDichotomy]] = None
 
     @property
     def is_highly_volatile(self) -> bool:
@@ -314,7 +314,7 @@ class Package:
         return self._build_dir
 
     @property
-    def src_dir_matches(self) -> List[TempActualDichotomy]:
+    def src_dir_matches(self) -> list[TempActualDichotomy]:
         """Return matches between actual src dirs and temp src dirs.
 
         Raises:
@@ -385,7 +385,7 @@ class Package:
 
         self._src_dir_matches = self._get_source_dirs_to_temp_source_dirs_map()
 
-    def _get_ordered_version_suffixes(self) -> List[str]:
+    def _get_ordered_version_suffixes(self) -> list[str]:
         """Return the current package's versions, sorted from high to low."""
 
         return [
@@ -456,7 +456,7 @@ class Package:
 
         raise DirsException(self, "Cannot find build dir")
 
-    def _get_ebuild_source_dirs(self) -> List[str]:
+    def _get_ebuild_source_dirs(self) -> list[str]:
         """Return actual source dirs.
 
         Based on:
@@ -481,7 +481,7 @@ class Package:
             os.path.join(source_base_dir, dir) for dir in source_dirs.split(",")
         ]
 
-    def _get_ebuilds_dest_dirs(self) -> List[str]:
+    def _get_ebuilds_dest_dirs(self) -> list[str]:
         """Return destination source dirs.
 
         Dest dirs contain temp copy of source dirs.
@@ -506,7 +506,7 @@ class Package:
 
     def _get_source_dirs_to_temp_source_dirs_map(
         self,
-    ) -> List[TempActualDichotomy]:
+    ) -> list[TempActualDichotomy]:
         """Return a list of matches between actual src dirs and temp src dirs.
 
         See cros-workon_src_unpack() on

@@ -7,7 +7,7 @@
 import os
 import re
 import sys
-from typing import List, Optional
+from typing import Optional
 from unittest import mock
 
 import pytest  # type: ignore
@@ -190,7 +190,7 @@ def test_implied_download() -> None:
         ["--working-dir", "."],
     ),
 )
-def test_implied_enter(arglist: List[str]) -> None:
+def test_implied_enter(arglist: list[str]) -> None:
     """Test for implicit --enter."""
     options = _PARSER.parse_args(arglist)
     cros_sdk._FinalizeOptions(_PARSER, options, _COMMANDS)
@@ -221,7 +221,7 @@ def test_commands(command: str) -> None:
         ["--read-only-sticky"],  # without --[no-]read-only
     ),
 )
-def test_conflicting_args(arglist: List[str]) -> None:
+def test_conflicting_args(arglist: list[str]) -> None:
     """Test args that conflict raise an error."""
     options = _PARSER.parse_args(arglist)
     with pytest.raises(SystemExit):
@@ -278,7 +278,7 @@ def test_chroot_not_ready() -> None:
 def test_readonly_configuration(
     monkeypatch,
     tmp_path,
-    arglist: List[str],
+    arglist: list[str],
     confcontents: Optional[str],
     expect_ro: bool,
 ) -> None:
@@ -313,7 +313,7 @@ def test_readonly_sticky(
     monkeypatch,
     tmp_path,
     orig_contents: Optional[str],
-    arglist: List[str],
+    arglist: list[str],
     expect_conf_exists: bool,
 ) -> None:
     """Test that we write expected read-only-sticky contents.

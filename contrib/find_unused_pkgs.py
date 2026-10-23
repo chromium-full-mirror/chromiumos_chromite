@@ -10,7 +10,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import Dict, Iterator, List, Optional, Set
+from typing import Iterator, Optional
 
 from chromite.lib import commandline
 from chromite.lib import constants
@@ -56,15 +56,15 @@ class PackageData:
         default_factory=pms_dependency.RootNode
     )
     # All possible deps flattened into just $CATEGORY/$PN.
-    flat_deps: Set[str] = dataclasses.field(default_factory=set)
+    flat_deps: set[str] = dataclasses.field(default_factory=set)
     # The overlay where this package lives.
-    overlays: Set[str] = dataclasses.field(default_factory=set)
+    overlays: set[str] = dataclasses.field(default_factory=set)
 
 
 def process_overlay(
     overlay: Path,
-    pkgs: Dict[str, PackageData],
-    ignore_category: Optional[Set[str]] = None,
+    pkgs: dict[str, PackageData],
+    ignore_category: Optional[set[str]] = None,
 ) -> None:
     """Process |overlay|."""
     logging.debug("%s: checking", overlay.name)
@@ -87,7 +87,7 @@ def process_overlay(
 
 
 def flatten_deps(
-    pkgs: Dict[str, PackageData], ignore_use: Optional[Set[str]] = None
+    pkgs: dict[str, PackageData], ignore_use: Optional[set[str]] = None
 ) -> None:
     """Flatten deps list for faster calculations later."""
 
@@ -126,10 +126,10 @@ def flatten_deps(
 
 
 def compute_orphaned(
-    pkgs: Dict[str, PackageData],
-    known_pkgs: Optional[Set[str]] = None,
-    ignore_pkgs: Optional[Set[str]] = None,
-) -> Dict[str, PackageData]:
+    pkgs: dict[str, PackageData],
+    known_pkgs: Optional[set[str]] = None,
+    ignore_pkgs: Optional[set[str]] = None,
+) -> dict[str, PackageData]:
     """Find orphaned packages."""
 
     if known_pkgs is None:
@@ -184,7 +184,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def parse_args(argv: Optional[List[str]]) -> commandline.ArgumentParser:
+def parse_args(argv: Optional[list[str]]) -> commandline.ArgumentParser:
     """Parse command-line args."""
     parser = get_parser()
     opts = parser.parse_args(argv)
@@ -200,7 +200,7 @@ def parse_args(argv: Optional[List[str]]) -> commandline.ArgumentParser:
     return opts
 
 
-def main(argv: Optional[List[str]]) -> Optional[int]:
+def main(argv: Optional[list[str]]) -> Optional[int]:
     """The main entry point for scripts."""
     opts = parse_args(argv)
 

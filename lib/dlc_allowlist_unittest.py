@@ -5,7 +5,7 @@
 """Unit tests for dlc_allowlist."""
 
 import re
-from typing import Pattern, Tuple
+from typing import Pattern
 
 from chromite.lib import cros_test_lib
 from chromite.lib import dlc_allowlist
@@ -28,7 +28,7 @@ class DlcAllowlistTest(cros_test_lib.TestCase):
     def testIsAllowlistedRe(self) -> None:
         """Test the IsAllowlistedRe function."""
 
-        def compile_regexes(regexes: Tuple[str]) -> Tuple[Pattern]:
+        def compile_regexes(regexes: tuple[str]) -> tuple[Pattern]:
             """Helper to compile regexes."""
             return tuple(re.compile(regex) for regex in regexes)
 

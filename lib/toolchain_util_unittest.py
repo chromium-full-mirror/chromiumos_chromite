@@ -14,7 +14,6 @@ import os
 from pathlib import Path
 import shutil
 import time
-from typing import List
 from unittest import mock
 
 from chromite.lib import chroot_lib
@@ -1571,7 +1570,9 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
         merge_function = self.PatchObject(
             self.obj, "_CreateAndUploadMergedAFDOProfile"
         )
-        with self.assertRaises(toolchain_util.BundleArtifactsHandlerError) as context:
+        with self.assertRaises(
+            toolchain_util.BundleArtifactsHandlerError
+        ) as context:
             self.obj.Bundle()
         self.assertIn("No files found matching", str(context.exception))
         merge_function.assert_not_called()
@@ -1693,8 +1694,8 @@ class BundleArtifactHandlerTest(PrepareBundleTest):
 
     def runToolchainCrOSArtifactsBundleTest(
         self,
-        root_paths: List[str],
-        expected_output_paths: List[str],
+        root_paths: list[str],
+        expected_output_paths: list[str],
     ) -> None:
         """Asserts that the given artifact_path is tarred up properly.
 

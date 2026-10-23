@@ -6,7 +6,6 @@
 
 import itertools
 import os
-from typing import Dict, List
 
 from chromite.lib import constants
 from chromite.lib import osutils
@@ -106,7 +105,7 @@ _FAKE_EXPECTED_PACKAGE_DISK_USAGE = sum(
 
 def make_portage_db(
     tmp_path: os.PathLike,
-    pkgs: Dict[str, List[str]] = None,
+    pkgs: dict[str, list[str]] = None,
     fake_vdb_subdir: str = portage_util.VDB_PATH,
     fake_install_subdir: str = "",
 ):
@@ -169,7 +168,7 @@ def make_portage_db(
     return db
 
 
-def convert_pkg_dict_to_package_identifier(pkgs: Dict[str, List[str]]):
+def convert_pkg_dict_to_package_identifier(pkgs: dict[str, list[str]]):
     """Generate PackageIdentifier instances from test data in dictionary."""
     pkgs_flattened = []
     for cat, pkg_list in pkgs.items():

@@ -22,21 +22,21 @@ The output dictionary is structured as follows:
 
 import argparse
 import json
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
 from chromite.lib import depgraph
 
 
-def _parse_args(argv: List[str]) -> argparse.Namespace:
+def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser = commandline.ArgumentParser()
     parser.add_argument("board")
     parser.add_argument("packages", nargs="*")
     return parser.parse_args(argv)
 
 
-def main(argv: List[str]) -> Optional[int]:
+def main(argv: list[str]) -> Optional[int]:
     cros_build_lib.AssertInsideChroot()
     opts = _parse_args(argv)
 

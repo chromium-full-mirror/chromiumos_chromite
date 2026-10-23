@@ -8,7 +8,6 @@ import copy
 import multiprocessing
 import os
 from pathlib import Path
-from typing import List
 from unittest import mock
 
 import pytest
@@ -777,7 +776,7 @@ class TestSdkBuildToolchain(TestSdk):
     ],
 )
 def test_parse_options_sync_remote_latest_file(
-    extra_args: List[str],
+    extra_args: list[str],
     expected_sync: bool,
 ) -> None:
     """Test --sync-remote-latest-file and --no-sync-remote-latest-file.

@@ -5,7 +5,7 @@
 """Scan a sysroot for packages which don't require libchrome/libbrillo."""
 
 import re
-from typing import List, Optional, Set
+from typing import Optional
 
 from chromite.lib import commandline
 from chromite.lib import portage_util
@@ -16,7 +16,7 @@ from chromite.lib.parser import package_info
 _CPVR_RE = re.compile(r"[^A-Za-z]*([A-Za-z0-9./-]+)[^A-Za-z0-9./-]?.*")
 
 
-def get_dependencies(package: portage_util.InstalledPackage) -> Set[str]:
+def get_dependencies(package: portage_util.InstalledPackage) -> set[str]:
     """Get the dependencies for a package.
 
     We don't care about being super precise here as this is just contrib-sorta
@@ -37,7 +37,7 @@ def get_dependencies(package: portage_util.InstalledPackage) -> Set[str]:
     return result
 
 
-def get_linked_libs(package: portage_util.InstalledPackage) -> Set[str]:
+def get_linked_libs(package: portage_util.InstalledPackage) -> set[str]:
     """Get the libraries a package links to (via REQUIRES)."""
     result = set()
     for libs in package.requires.values():
@@ -56,7 +56,7 @@ def get_parser() -> commandline.ArgumentParser:
     return parser
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     """The main function."""
     parser = get_parser()
     opts = parser.parse_args(argv)

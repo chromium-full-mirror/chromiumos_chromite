@@ -7,7 +7,7 @@
 import dataclasses
 import json
 import logging
-from typing import Dict, List, Optional, Set
+from typing import Optional
 
 from chromite.contrib.package_index_cros.lib import cros_sdk
 from chromite.contrib.package_index_cros.lib import package
@@ -20,8 +20,8 @@ from chromite.lib.parser import package_info
 class SupportedUnsupportedPackages:
     """Dataclass to hold supported and unsupported packages."""
 
-    supported: List[package.Package]
-    unsupported: List[str]
+    supported: list[package.Package]
+    unsupported: list[str]
 
 
 class PackageSleuth:
@@ -36,7 +36,7 @@ class PackageSleuth:
         )
 
     def list_packages(
-        self, *, packages_names: Optional[List[str]] = None
+        self, *, packages_names: Optional[list[str]] = None
     ) -> SupportedUnsupportedPackages:
         """Find all packages matching the given packages_names.
 
@@ -53,7 +53,7 @@ class PackageSleuth:
         return packages
 
     def _list_packages_with_deps(
-        self, package_names: List[str]
+        self, package_names: list[str]
     ) -> SupportedUnsupportedPackages:
         """Return a list of supported packages and their transitive deps."""
         # _get_packages_dependencies() should return a dict with a key for each
@@ -81,7 +81,7 @@ class PackageSleuth:
                 packages.unsupported.append(ebuild.package)
         return packages
 
-    def _list_ebuilds(self, packages_names: List[str]) -> portage_util.EBuild:
+    def _list_ebuilds(self, packages_names: list[str]) -> portage_util.EBuild:
         """Return a list of ebuilds with the given names.
 
         If packages_names is None or empty, return all available ebuilds
@@ -101,8 +101,8 @@ class PackageSleuth:
         return ebuilds
 
     def _get_packages_dependencies(
-        self, packages_names: List[str]
-    ) -> Dict[str, List[package.PackageDependency]]:
+        self, packages_names: list[str]
+    ) -> dict[str, list[package.PackageDependency]]:
         """Return a dictionary mapping package names to their dependencies.
 
         The dictionary size is greater than the given |packages_names|.
@@ -111,8 +111,8 @@ class PackageSleuth:
         return self._get_packages_dependencies_depgraph(packages_names)
 
     def _get_packages_dependencies_depgraph(
-        self, packages_names: List[str]
-    ) -> Dict[str, List[package.PackageDependency]]:
+        self, packages_names: list[str]
+    ) -> dict[str, list[package.PackageDependency]]:
         """Return a dictionary mapping packages names to their dependencies.
 
         The dictionary size is greater than given |packages_names|. Dependencies
@@ -146,7 +146,7 @@ class PackageSleuth:
         return package_to_deps
 
 
-def _filter_packages_dependencies(packages: List[package.Package]) -> None:
+def _filter_packages_dependencies(packages: list[package.Package]) -> None:
     supported_packages_names = set(p.full_name for p in packages)
     for pkg in packages:
         pkg.dependencies = _get_filter_dependencies(
@@ -155,8 +155,8 @@ def _filter_packages_dependencies(packages: List[package.Package]) -> None:
 
 
 def _get_filter_dependencies(
-    pkg: package.Package, available_packages_names: Set[str]
-) -> List[package.PackageDependency]:
+    pkg: package.Package, available_packages_names: set[str]
+) -> list[package.PackageDependency]:
     def is_supported_dependency(dep: package.PackageDependency) -> bool:
         # Filter package itself.
         if dep.name == pkg.full_name:

@@ -13,7 +13,7 @@ organization.
 import dataclasses
 import enum
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib.parser import package_info
 
@@ -77,8 +77,8 @@ class Ebuild:
     rdepend: str = ""
     bdepend: str = ""
     pdepend: str = ""
-    use_flags: List[EbuildUse] = dataclasses.field(default_factory=list)
-    eclass_inherits: List[str] = dataclasses.field(default_factory=list)
+    use_flags: list[EbuildUse] = dataclasses.field(default_factory=list)
+    eclass_inherits: list[str] = dataclasses.field(default_factory=list)
 
     def add_use_flag(self, flag) -> None:
         """Parse the use flag for its UseState and add to use_flags."""
@@ -104,8 +104,8 @@ class Profile:
     id_: str
     path: Path
     name: str
-    parent_profiles: List[str] = dataclasses.field(default_factory=list)
-    use_flags: List[ProfileUse] = dataclasses.field(default_factory=list)
+    parent_profiles: list[str] = dataclasses.field(default_factory=list)
+    use_flags: list[ProfileUse] = dataclasses.field(default_factory=list)
 
     def set_enabled(self, flag: str, enabled: bool = True) -> None:
         """Set the enabled state for a specified use flag in this profile."""
@@ -128,9 +128,9 @@ class Overlay:
 
     path: Path
     name: str
-    profiles: List[Profile] = dataclasses.field(default_factory=list)
-    ebuilds: List[Ebuild] = dataclasses.field(default_factory=list)
-    eclasses: List[Eclass] = dataclasses.field(default_factory=list)
+    profiles: list[Profile] = dataclasses.field(default_factory=list)
+    ebuilds: list[Ebuild] = dataclasses.field(default_factory=list)
+    eclasses: list[Eclass] = dataclasses.field(default_factory=list)
 
 
 @dataclasses.dataclass
@@ -145,5 +145,5 @@ class SpiderOutput:
         overlays: List of overlays. Default value is an empty list.
     """
 
-    build_targets: List[BuildTarget] = dataclasses.field(default_factory=list)
-    overlays: List[Overlay] = dataclasses.field(default_factory=list)
+    build_targets: list[BuildTarget] = dataclasses.field(default_factory=list)
+    overlays: list[Overlay] = dataclasses.field(default_factory=list)

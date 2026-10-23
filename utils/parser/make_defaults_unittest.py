@@ -4,8 +4,6 @@
 
 """Test the make.defaults parser."""
 
-from typing import Dict
-
 import pytest
 
 from chromite.utils.parser import make_defaults
@@ -38,6 +36,6 @@ USE="${USE} another"
         ],
     ],
 )
-def test_parse_make_defaults(contents: str, expected: Dict[str, str]) -> None:
+def test_parse_make_defaults(contents: str, expected: dict[str, str]) -> None:
     """Test the `parse` function."""
     assert make_defaults.parse(contents) == expected

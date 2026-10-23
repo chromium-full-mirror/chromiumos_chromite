@@ -5,7 +5,6 @@
 """Test to ensure consistency between vpython environments."""
 
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
 
 from chromite.third_party.google.protobuf import text_format
 from packaging import version
@@ -34,7 +33,7 @@ _BEGIN_GUARD = "[VPYTHON:BEGIN]"
 _END_GUARD = "[VPYTHON:END]"
 
 
-def _parse(path: Path) -> Tuple[Path, spec_pb2.Spec]:
+def _parse(path: Path) -> tuple[Path, spec_pb2.Spec]:
     resolved_path = constants.CHROMITE_DIR / path
     assert resolved_path.is_file(), f"{path}: Input file must exist."
     assert (
@@ -75,7 +74,7 @@ def test_vpython_consistency() -> None:
     specs = [_parse(x) for x in _find_vpython_specs()]
 
     # Map of package names, and the list of versions for it used by each file.
-    wheels: Dict[str, List[Tuple[version.Version, Path]]] = {}
+    wheels: dict[str, list[tuple[version.Version, Path]]] = {}
     for path, spec in specs:
         for wheel in spec.wheel:
             ver = version.parse(wheel.version.replace("version:", ""))
@@ -85,7 +84,7 @@ def test_vpython_consistency() -> None:
     for versions in wheels.values():
         versions.sort(reverse=True)
 
-    violations: Set[str] = set()
+    violations: set[str] = set()
     for wheel, v in wheels.items():
         best = None
         for ver, path in v:

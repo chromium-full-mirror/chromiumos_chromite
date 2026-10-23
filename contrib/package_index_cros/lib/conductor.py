@@ -7,7 +7,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Optional
 
 from chromite.contrib.package_index_cros.lib import build_dir
 from chromite.contrib.package_index_cros.lib import cdb
@@ -31,9 +31,9 @@ class Conductor:
     def __init__(self, setup_data: setup.Setup):
         self.setup = setup_data
         self.cros_sdk = cros_sdk.CrosSdk(self.setup)
-        self.packages: Optional[List[package.Package]] = None
+        self.packages: Optional[list[package.Package]] = None
 
-    def prepare(self, package_names: List[str]) -> None:
+    def prepare(self, package_names: list[str]) -> None:
         """Find relevant packages.
 
         Args:
@@ -76,7 +76,7 @@ class Conductor:
         """
         if not self.packages:
             raise ValueError("No packages to work on.")
-        bad_packages: List[package.Package] = []
+        bad_packages: list[package.Package] = []
         for p in self.packages:
             try:
                 p.initialize()
@@ -88,7 +88,7 @@ class Conductor:
 
         self.packages = [p for p in self.packages if p not in bad_packages]
 
-        build_dir_conflicts: Dict[str, str] = {}
+        build_dir_conflicts: dict[str, str] = {}
         if build_output_dir:
             build_dir_conflicts = build_dir.BuildDirGenerator(
                 self.setup
@@ -108,8 +108,8 @@ class Conductor:
 
 
 def _get_sorted_packages(
-    packages_list: List[package.Package],
-) -> List[package.Package]:
+    packages_list: list[package.Package],
+) -> list[package.Package]:
     """Return the given packages, sorted according to their dependencies.
 
     More independent packages go first.
@@ -128,12 +128,12 @@ def _get_sorted_packages(
     # with the most dependent (those that no other packages depend on). But for
     # the sake of our algorithm, we'll construct it in the reverse order, and
     # then reverse it.
-    result_packages: List[package.Package] = []
+    result_packages: list[package.Package] = []
 
     # `queue` contains the names of packages that are ready to be appended to
     # result_packages. In other words, a package's name belongs in queue if and
     # only if no packages that aren't in result_packages depend on it.
-    queue: List[str] = [
+    queue: list[str] = [
         p_name for p_name in in_degrees if in_degrees[p_name] == 0
     ]
 

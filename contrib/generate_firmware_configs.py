@@ -34,7 +34,7 @@ import hashlib
 import json
 import logging
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from chromite.third_party.google.protobuf import text_format
 
@@ -204,7 +204,7 @@ def verify_version_number(
         )
 
 
-def parse_arguments(argv: Optional[List[str]]) -> commandline.ArgumentNamespace:
+def parse_arguments(argv: Optional[list[str]]) -> commandline.ArgumentNamespace:
     """Parse and validate arguments."""
     parser = get_parser()
     opts = parser.parse_args(argv)
@@ -605,7 +605,7 @@ def process_model(
     )
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     """Main."""
     opts = parse_arguments(argv)
 

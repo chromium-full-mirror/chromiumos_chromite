@@ -7,7 +7,7 @@
 import io
 from pathlib import Path
 import textwrap
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from chromite.lib import commandline
 
@@ -51,7 +51,7 @@ def _tmp_file_for(input_file: Path) -> Path:
 
 def _comment_text(
     line: str, comment_start_index: Optional[int] = None
-) -> Tuple[str, str]:
+) -> tuple[str, str]:
     """Extract #-style comment text from `line`.
 
     If the line does not look like a candidate for comment-wrapping, returns
@@ -119,13 +119,13 @@ def reflow_comments(input_file: io.TextIOBase, output: io.TextIOBase) -> None:
         _write_comment(output, leading_whitespace, comment)
 
 
-def main(argv: Optional[List[str]] = None) -> Optional[int]:
+def main(argv: Optional[list[str]] = None) -> Optional[int]:
     parser = commandline.ArgumentParser(description=__doc__)
     parser.add_argument(
         "input", nargs="+", help="input files", type=commandline.ExistingFile
     )
     opts = parser.parse_args(argv)
-    inputs: List[Path] = opts.input
+    inputs: list[Path] = opts.input
 
     for input_file in inputs:
         input_file = input_file.resolve()

@@ -7,7 +7,7 @@
 import os
 from pathlib import Path
 import textwrap
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import binpkg
@@ -484,7 +484,7 @@ class UpdateTest(
                 "PORTAGE_BINHOST: ",
             )
 
-    def _find_toolchain_call(self) -> Optional[Tuple]:
+    def _find_toolchain_call(self) -> Optional[tuple]:
         """Find the cros_setup_toolchains call."""
         for call_args, call_kwargs in self.rc.call_args_list:
             if (
@@ -534,7 +534,7 @@ class BuildSdkToolchainTest(cros_test_lib.RunCommandTestCase):
     _toolchain_dir = os.path.join("/", constants.SDK_TOOLCHAINS_OUTPUT)
 
     @property
-    def _expected_generated_files(self) -> List[common_pb2.Path]:
+    def _expected_generated_files(self) -> list[common_pb2.Path]:
         return [
             common_pb2.Path(
                 path=os.path.join(self._toolchain_dir, filename),
@@ -882,9 +882,9 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
 
     def write_versions(
         self,
-        dev_lang_rust_versions: List[str],
-        virtual_rust_versions: List[str],
-        saved_virtual_rust_versions: Optional[List[str]] = None,
+        dev_lang_rust_versions: list[str],
+        virtual_rust_versions: list[str],
+        saved_virtual_rust_versions: Optional[list[str]] = None,
     ) -> Path:
         """Writes the given virtual versions for testing.
 

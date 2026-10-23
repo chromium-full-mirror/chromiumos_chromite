@@ -6,7 +6,7 @@
 
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 from unittest import mock
 
 from chromite.api import api_config
@@ -401,7 +401,7 @@ class RecoveryImageTest(
         )
 
     def _CreateMockBuildResult(
-        self, image_types: List[int]
+        self, image_types: list[int]
     ) -> Optional[image_service.BuildResult]:
         """Helper to create Mock `cros build-image` results.
 

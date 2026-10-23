@@ -6,7 +6,6 @@
 
 import logging
 import sys
-from typing import List
 
 from chromite.lib import build_target_lib
 from chromite.lib import commandline
@@ -38,7 +37,7 @@ def node_to_dict(node: PackageNode) -> dict:
     return data
 
 
-def parse_args(argv: List[str]):
+def parse_args(argv: list[str]):
     """Parse the arguments
 
     Args:
@@ -64,7 +63,7 @@ def parse_args(argv: List[str]):
     return options
 
 
-def main(argv: List[str]) -> None:
+def main(argv: list[str]) -> None:
     commandline.RunInsideChroot()
     opts = parse_args(argv)
     logging.notice(

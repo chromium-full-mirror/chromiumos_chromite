@@ -41,7 +41,7 @@ https://libcst.readthedocs.io/en/latest/index.html
 import importlib.util
 from pathlib import Path
 import sys
-from typing import List, Optional
+from typing import Optional
 
 import libcst.tool
 
@@ -49,7 +49,7 @@ import libcst.tool
 CHROMITE_DIR = Path(__file__).resolve().parent.parent
 
 
-def main(argv: Optional[List[str]]) -> Optional[int]:
+def main(argv: Optional[list[str]]) -> Optional[int]:
     """Entry point to call libcst.tool."""
     return libcst.tool.main(sys.argv[0], argv)
 

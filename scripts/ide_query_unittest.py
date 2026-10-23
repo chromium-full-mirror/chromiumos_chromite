@@ -5,7 +5,7 @@
 """Unit tests for ide_query."""
 
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pytest
 
@@ -16,7 +16,7 @@ from chromite.scripts import ide_query
 @pytest.mark.parametrize(
     "argv", (["-b", "arm64-generic"], ["--out-dir", "foo/"])
 )
-def test_parse_invalid_args(argv: List[str]) -> None:
+def test_parse_invalid_args(argv: list[str]) -> None:
     """Test parse_args() with invalid inputs."""
     with pytest.raises(SystemExit):
         ide_query.parse_args(argv)
@@ -36,8 +36,8 @@ def test_parse_invalid_args(argv: List[str]) -> None:
     ),
 )
 def test_parse_valid_args(
-    argv: List[str],
-    expected_args: Dict[str, Any],
+    argv: list[str],
+    expected_args: dict[str, Any],
 ) -> None:
     """Test parse_args() with valid inputs."""
     args = ide_query.parse_args(argv)

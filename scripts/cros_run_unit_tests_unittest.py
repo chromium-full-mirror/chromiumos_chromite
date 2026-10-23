@@ -6,7 +6,6 @@
 
 import os
 from pathlib import Path
-from typing import List
 from unittest import mock
 
 import pytest
@@ -56,7 +55,7 @@ class CrosRunUnitTestsTest(cros_test_lib.MockTestCase):
     ),
 )
 def test_failure_code(
-    _, __, ___, run_mock, tmp_path: Path, test_args: List[str]
+    _, __, ___, run_mock, tmp_path: Path, test_args: list[str]
 ) -> None:
     """Assert we propagate command failures as return codes."""
     sysroot = tmp_path / "sysroot"

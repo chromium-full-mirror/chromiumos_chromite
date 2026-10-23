@@ -6,7 +6,6 @@
 
 import os
 from pathlib import Path
-from typing import List
 from unittest import mock
 
 import pytest
@@ -189,7 +188,7 @@ def test_cpplint(tmp_path) -> None:
     assert ret.returncode
 
 
-def _call_cros_lint(args: List[str]) -> int:
+def _call_cros_lint(args: list[str]) -> int:
     """Call "cros lint" with the given command line arguments.
 
     Args:

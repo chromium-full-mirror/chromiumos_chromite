@@ -7,7 +7,6 @@
 import json
 import os
 from pathlib import Path
-from typing import List
 
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
@@ -78,7 +77,7 @@ SOURCE = "SOURCE"
 MOCK_ZERO_COVERAGE = "MockZeroCoverage"
 
 
-def extractCovDataForFile(file_name: str, coverage_data: List):
+def extractCovDataForFile(file_name: str, coverage_data: list):
     """Extreact cov data from file"""
     filter_result = [
         coverage

@@ -6,7 +6,7 @@
 
 import collections
 import io
-from typing import Iterable, List, NamedTuple, Optional
+from typing import Iterable, NamedTuple, Optional
 
 import astroid
 import pylint.lint
@@ -1090,7 +1090,7 @@ class ImportCheckerTest(CheckerTestCase):
     def checkImport(
         self,
         module: str,
-        members: List[str],
+        members: list[str],
         member_is_module: Optional[bool] = False,
         fail_lookup: Optional[bool] = False,
         is_submodule: Optional[bool] = False,

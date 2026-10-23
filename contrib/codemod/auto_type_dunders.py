@@ -8,7 +8,7 @@ Many dunder methods (e.g., __init__, __len__, __str__, ...) have predictable
 type signatures.  Automatically apply those.
 """
 
-from typing import Callable, Dict, Optional
+from typing import Callable, Optional
 
 import libcst as cst
 from libcst import codemod
@@ -100,7 +100,7 @@ def _add_import(module: str, obj: Optional[str] = None) -> _Transformer:
     return _transformer
 
 
-_TRANSFORMERS: Dict[str, _Transformer] = {
+_TRANSFORMERS: dict[str, _Transformer] = {
     "__init__": _returns(cst.Name(value="None")),
     "__repr__": _returns(cst.Name(value="str")),
     "__str__": _returns(cst.Name(value="str")),

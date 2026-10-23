@@ -11,7 +11,7 @@ import collections
 import datetime
 import logging
 import os
-from typing import List, Optional
+from typing import Optional
 
 from chromite.lib import commandline
 from chromite.lib import cros_build_lib
@@ -36,7 +36,7 @@ def get_directory_commits(
     directory: str,
     start_date: Optional[datetime.datetime] = None,
     end_date: Optional[datetime.datetime] = None,
-) -> List[Commit]:
+) -> list[Commit]:
     """Get all commits in the given directory.
 
     Args:
@@ -70,7 +70,7 @@ def get_directory_commits(
     return [Commit(*cl.split("|", 2)) for cl in commit_lines]
 
 
-def get_uprev_commits(commits: List[Commit]) -> List[Commit]:
+def get_uprev_commits(commits: list[Commit]) -> list[Commit]:
     """Find all uprev commits among the given git commits.
 
     Preserves order.
@@ -93,7 +93,7 @@ def get_uprev_commits(commits: List[Commit]) -> List[Commit]:
     return uprev_commits
 
 
-def get_commit_timestamps(commits: List[Commit]) -> List[int]:
+def get_commit_timestamps(commits: list[Commit]) -> list[int]:
     """Get all commit timestamps for the given ebuild.
 
     Args:
@@ -105,7 +105,7 @@ def get_commit_timestamps(commits: List[Commit]) -> List[int]:
     return [int(commit.timestamp) for commit in commits]
 
 
-def get_average_timestamp_delta_days(timestamps: List[int]) -> List[int]:
+def get_average_timestamp_delta_days(timestamps: list[int]) -> list[int]:
     """Return the delta in seconds between each consecutive timestamp.
 
     Args:

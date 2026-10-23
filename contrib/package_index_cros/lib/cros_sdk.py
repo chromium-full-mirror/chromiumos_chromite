@@ -5,7 +5,7 @@
 """This module provides functionality to work with the CrOS SDK."""
 
 import logging
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 from chromite.contrib.package_index_cros.lib import constants
 from chromite.contrib.package_index_cros.lib import path_handler
@@ -18,9 +18,9 @@ class CrosSdk:
 
     def _exec(
         self,
-        cmd: Union[List[str], str],
+        cmd: Union[list[str], str],
         *,
-        extra_env: Optional[Dict[str, str]] = None,
+        extra_env: Optional[dict[str, str]] = None,
         with_sudo: bool = False,
     ) -> cros_build_lib.CompletedProcess:
         """Execute a command inside the chroot."""
@@ -58,7 +58,7 @@ class CrosSdk:
         ]
         return self._exec(ninja_cmd).stdout
 
-    def generate_dependency_tree(self, package_names: List[str]):
+    def generate_dependency_tree(self, package_names: list[str]):
         """Generate the dependency tree for the given packages.
 
         Utilizes chromite.lib.depgraph to fetch dependency tree. Depgraph has to

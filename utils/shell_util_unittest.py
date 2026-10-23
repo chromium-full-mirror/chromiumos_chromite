@@ -6,7 +6,7 @@
 
 import builtins
 from pathlib import Path
-from typing import Callable, List, Optional, Tuple
+from typing import Callable, Optional
 
 import pytest
 
@@ -15,7 +15,7 @@ from chromite.utils import shell_util
 
 
 def _test_data(
-    functor: Callable, tests: Tuple[Tuple[str]], check_type: bool = True
+    functor: Callable, tests: tuple[tuple[str]], check_type: bool = True
 ) -> None:
     """Process an iterable of test data."""
     for test_output, test_input in tests:
@@ -96,7 +96,7 @@ def test_quote_objects() -> None:
         ("bad None cmd", ["bad", None, "cmd"]),
     ),
 )
-def test_cmd_to_str(exp: str, data: List[Optional[str]]) -> None:
+def test_cmd_to_str(exp: str, data: list[Optional[str]]) -> None:
     """Verify cmd_to_str behavior."""
     assert shell_util.cmd_to_str(data) == exp
 

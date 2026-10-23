@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 import tempfile
 import time
-from typing import Any, List
+from typing import Any
 import urllib.request
 
 import pytest
@@ -340,7 +340,7 @@ class GetSsoConfigTest(cros_test_lib.MockTempDirTestCase):
         )
 
         def fake_dbg_run(
-            cmd: List[str], **_kwargs: Any
+            cmd: list[str], **_kwargs: Any
         ) -> cros_build_lib.CompletedProcess:
             if "--print_config" in cmd:
                 return cros_build_lib.CompletedProcess(

@@ -7,7 +7,7 @@
 import datetime
 import os
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Optional, Union
 from unittest import mock
 
 from chromite.api import api_config
@@ -318,7 +318,7 @@ class SdkUpdateTest(
     def _GetRequest(
         self,
         build_source: bool = False,
-        targets: List[str] = None,
+        targets: list[str] = None,
         use_snapshot_binhosts: bool = False,
         force_update: bool = True,
     ):
@@ -616,7 +616,7 @@ class BuildSdkToolchainTest(
     def _NewRequest(
         self,
         chroot_path: Optional[str] = None,
-        use_flags: Optional[List[str]] = None,
+        use_flags: Optional[list[str]] = None,
     ) -> sdk_pb2.BuildSdkToolchainRequest:
         """Return a new BuildSdkToolchainRequest message."""
         request = sdk_pb2.BuildSdkToolchainRequest(
@@ -636,7 +636,7 @@ class BuildSdkToolchainTest(
         return request
 
     def _NewResponse(
-        self, generated_filenames: Optional[List[str]] = None
+        self, generated_filenames: Optional[list[str]] = None
     ) -> sdk_pb2.BuildSdkToolchainResponse:
         """Return a new BuildSdkToolchainResponse message."""
         response = sdk_pb2.BuildSdkToolchainResponse()

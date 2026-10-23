@@ -8,7 +8,7 @@ import json
 import os
 from pathlib import Path
 import shutil
-from typing import Any, List
+from typing import Any
 from unittest import mock
 
 from chromite.lib import autotest_util
@@ -842,7 +842,7 @@ class GatherCodeCoverageLlvmJsonFileTest(cros_test_lib.MockTempDirTestCase):
 
     def getCodeCoverageLlvmContents(
         self,
-        filenames: List[str],
+        filenames: list[str],
         version: str = "1",
         file_type: str = "llvm.coverage.json.export",
     ) -> str:
