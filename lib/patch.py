@@ -30,7 +30,6 @@ GERRIT_ON_BORG_LABELS = {
     "Verified": "VRIF",
 }
 
-_MAXIMUM_GERRIT_NUMBER_LENGTH = 7
 _GERRIT_CHANGE_ID_PREFIX = "I"
 _GERRIT_CHANGE_ID_LENGTH = 40
 _GERRIT_CHANGE_ID_TOTAL_LENGTH = _GERRIT_CHANGE_ID_LENGTH + len(
@@ -91,7 +90,7 @@ def ParseGerritNumber(text, error_ok=True):
         returns None when |error_ok| is set and raises an exception when
         |error_ok| is False.
     """
-    valid = text.isdigit() and len(text) <= _MAXIMUM_GERRIT_NUMBER_LENGTH
+    valid = text.isdigit()
     if not error_ok and not valid:
         raise ValueError("%s is not a valid Gerrit number" % (text,))
 

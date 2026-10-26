@@ -1482,12 +1482,12 @@ class TestFormatting(cros_test_lib.TestCase):
         """Tests that we can pasre a Gerrit number."""
         self._assertGood(
             cros_patch.ParseGerritNumber,
-            [("12345",) * 2, ("12",) * 2, ("123",) * 2],
+            [("12345",) * 2, ("12",) * 2, ("123",) * 2, ("12345678",) * 2],
         )
 
         self._assertBad(
             cros_patch.ParseGerritNumber,
-            ["is", "i1325", "01234567", "012345a", "**12345", "+123", "/0123"],
+            ["is", "i1325", "012345a", "**12345", "+123", "/0123"],
             error_ok=False,
         )
 
@@ -1566,7 +1566,7 @@ class TestFormatting(cros_test_lib.TestCase):
 
         self._assertBad(
             cros_patch.ParsePatchDep,
-            ["CL:12345", "145462399", "I47ea3", "i47ea3".ljust(41, "0")],
+            ["CL:12345", "I47ea3", "i47ea3".ljust(41, "0")],
         )
 
 
