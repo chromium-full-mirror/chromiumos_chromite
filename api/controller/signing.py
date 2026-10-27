@@ -174,7 +174,9 @@ def SignViaOnlineHsm(request, _response, _config) -> None:
 @faux.all_empty
 @validate.require("docker_image")
 @validate.require("keyset_name")
+@validate.require("work_dir")
 @validate.exists("release_keys_checkout")
+@validate.exists("work_dir")
 @validate.validation_complete
 def CreateKeysHsm(request, response, _config) -> None:
     """Request key creation from the online HSM."""
@@ -199,19 +201,17 @@ def CreateKeysHsm(request, response, _config) -> None:
     if exporter_dry_run:
         entrypoint_args.append("--exporter-dry-run")
 
-    if request.work_dir:
-        entrypoint_args.extend(["--work-dir", "/work"])
+    entrypoint_args.extend(["--work-dir", "/work"])
 
     docker_args = [
         # Mount the keyset checkout as a volume.
         "-v",
         f"{request.release_keys_checkout}:/keys",
+        "-v",
+        f"{request.work_dir}:/work",
+        "--entrypoint",
+        "./create_keys_with_hsm.py",
     ]
-
-    if request.work_dir:
-        docker_args.extend(["-v", f"{request.work_dir}:/work"])
-
-    docker_args.extend(["--entrypoint", "./create_keys_with_hsm.py"])
 
     response_bytes = image.CallDockerWithResponse(
         request.docker_image,

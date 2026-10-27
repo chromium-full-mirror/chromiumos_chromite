@@ -11,6 +11,7 @@ from chromite.api import api_config
 from chromite.api.controller import signing as signing_controller
 from chromite.api.gen.chromite.api import signing_pb2
 from chromite.api.gen.chromiumos import common_pb2
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
 from chromite.service import image as image_service
@@ -690,17 +691,18 @@ class CreateKeysHsmTest(
         work_dir: Optional[str] = None,
     ):
         """Helper to build a request instance."""
+        if work_dir is None:
+            work_dir = str(self.tempdir)
         req = signing_pb2.CreateKeysHsmRequest(
             docker_image="signing:latest",
             keyset_name=keyset_name,
             dry_run=dry_run,
             release_keys_checkout=str(self.tempdir),
+            work_dir=work_dir,
         )
 
         if exporter_dry_run is not None:
             req.exporter_dry_run = exporter_dry_run
-        if work_dir is not None:
-            req.work_dir = work_dir
         return req
 
     def testSuccess(self) -> None:
@@ -720,7 +722,7 @@ class CreateKeysHsmTest(
         rc = self.StartPatcher(cros_test_lib.RunCommandMock())
         rc.SetDefaultCmdResult()
 
-        request = self._GetRequest(keyset_name="setkey", work_dir="/tmp/work")
+        request = self._GetRequest(keyset_name="setkey")
         res = signing_controller.CreateKeysHsm(
             request, self.response, self.api_config
         )
@@ -748,7 +750,7 @@ class CreateKeysHsmTest(
                 "-v",
                 f"{request.release_keys_checkout}:/keys",
                 "-v",
-                "/tmp/work:/work",
+                f"{request.work_dir}:/work",
                 "--entrypoint",
                 "./create_keys_with_hsm.py",
                 "signing:latest",
@@ -812,6 +814,10 @@ class CreateKeysHsmTest(
                 "GCE_METADATA_IP=127.0.0.1:12345",
                 "-e",
                 "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{request.release_keys_checkout}:/keys",
+                "-v",
+                f"{request.work_dir}:/work",
                 "--entrypoint",
                 "./create_keys_with_hsm.py",
                 "signing:latest",
@@ -825,6 +831,8 @@ class CreateKeysHsmTest(
                 "out_proto.bin",
                 "--mocks",
                 "--exporter-dry-run",
+                "--work-dir",
+                "/work",
             ]
         )
         self.assertEqual(self.response, expected_response)
@@ -875,6 +883,10 @@ class CreateKeysHsmTest(
                 "GCE_METADATA_IP=127.0.0.1:12345",
                 "-e",
                 "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{request.release_keys_checkout}:/keys",
+                "-v",
+                f"{request.work_dir}:/work",
                 "--entrypoint",
                 "./create_keys_with_hsm.py",
                 "signing:latest",
@@ -887,6 +899,8 @@ class CreateKeysHsmTest(
                 "-p",
                 "out_proto.bin",
                 "--exporter-dry-run",
+                "--work-dir",
+                "/work",
             ]
         )
         self.assertEqual(self.response, expected_response)
@@ -937,6 +951,10 @@ class CreateKeysHsmTest(
                 "GCE_METADATA_IP=127.0.0.1:12345",
                 "-e",
                 "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{request.release_keys_checkout}:/keys",
+                "-v",
+                f"{request.work_dir}:/work",
                 "--entrypoint",
                 "./create_keys_with_hsm.py",
                 "signing:latest",
@@ -948,6 +966,8 @@ class CreateKeysHsmTest(
                 "/out",
                 "-p",
                 "out_proto.bin",
+                "--work-dir",
+                "/work",
             ]
         )
         self.assertEqual(self.response, expected_response)
@@ -999,6 +1019,10 @@ class CreateKeysHsmTest(
                 "GCE_METADATA_IP=127.0.0.1:12345",
                 "-e",
                 "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{request.release_keys_checkout}:/keys",
+                "-v",
+                f"{request.work_dir}:/work",
                 "--entrypoint",
                 "./create_keys_with_hsm.py",
                 "signing:latest",
@@ -1011,6 +1035,8 @@ class CreateKeysHsmTest(
                 "-p",
                 "out_proto.bin",
                 "--mocks",
+                "--work-dir",
+                "/work",
             ]
         )
         self.assertEqual(self.response, expected_response)
@@ -1038,6 +1064,24 @@ class CreateKeysHsmTest(
 
         request = self._GetRequest(keyset_name="setkey")
         with self.assertRaises(ValueError):
+            signing_controller.CreateKeysHsm(
+                request, self.response, self.api_config
+            )
+
+    def testValidationMissingWorkDir(self) -> None:
+        """Verify CreateKeysHsm fails validation when work_dir is missing."""
+        request = self._GetRequest(keyset_name="setkey", work_dir="")
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            signing_controller.CreateKeysHsm(
+                request, self.response, self.api_config
+            )
+
+    def testValidationWorkDirDoesNotExist(self) -> None:
+        """Verify CreateKeysHsm fails when work_dir does not exist."""
+        request = self._GetRequest(
+            keyset_name="setkey", work_dir="/nonexistent/work/dir"
+        )
+        with self.assertRaises(cros_build_lib.DieSystemExit):
             signing_controller.CreateKeysHsm(
                 request, self.response, self.api_config
             )
