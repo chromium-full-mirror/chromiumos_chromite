@@ -410,6 +410,12 @@ _COPY_PATHS_CHROME_WITHOUT_EXE = (
     Path("IwaKeyDistribution/", optional=True),
     Path("keyboard_resources.pak"),
     Path(
+        "libchromecompaneros.so",
+        exe=True,
+        cond=C.GnSetTo(_IS_CHROME_BRANDED, True),
+        optional=True,
+    ),
+    Path(
         "libLiteRtWebGpuAccelerator.so",
         exe=True,
         cond=C.GnSetTo(_IS_CHROME_BRANDED, True),
