@@ -303,8 +303,7 @@ class RunThroughTest(
             cmd_args += ["--board", SDKFetcherMock.BOARD]
         if extra_args:
             cmd_args.extend(extra_args)
-        # --no-shell drops gni files in //build/args/chromeos/. reclient configs
-        # are also dropped here regardless of --no-shell or not.
+        # --no-shell drops gni files in //build/args/chromeos/.
         osutils.SafeMakedirs(
             os.path.join(self.chrome_root, "src", "build", "args", "chromeos")
         )

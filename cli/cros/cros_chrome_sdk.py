@@ -1299,39 +1299,6 @@ class ChromeSDKCommand(command.CliCommand):
             return os.path.join(tc_path, "bin", binary)
         return binary
 
-    def _GenerateReclientWrapper(self, board):
-        """Generate a wrapper for reclient. Used for simplechrome builds.
-
-        This function generates a wrapper script for the rewrapper to make it
-        passed with reclient_cros_cc_wrapper
-        The wrapper adds a flag to preserve symlinks which are used by CrOS
-        clang.
-
-        Args:
-            board: Target board name to be used as a config and wrapper name.
-
-        Returns:
-            Absolute path to the wrapper script passed in
-            by reclient_cros_cc_wrapper.
-        """
-        shared_dir = os.path.join(self.options.chrome_src, self._BUILD_ARGS_DIR)
-
-        wrapper_path = os.path.join(shared_dir, "rewrapper_%s" % board)
-        wrapper_content = [
-            "#!/bin/sh\n",
-            "%(rewrapper_dir)s/rewrapper -preserve_symlink=true "
-            '-exec_root="%(chrome_src)s" "$@"\n'
-            % {
-                "rewrapper_dir": os.path.join(
-                    self.options.chrome_src, "buildtools", "reclient"
-                ),
-                "chrome_src": self.options.chrome_src,
-            },
-        ]
-        osutils.WriteFile(wrapper_path, wrapper_content, chmod=0o755)
-        Log("generated rewrapper wrapper %s", wrapper_path, silent=self.silent)
-        return wrapper_path
-
     def _SetupEnvironment(self, board, sdk_ctx, options):
         """Sets environment variables to export to the SDK shell."""
         if options.chroot:
@@ -1600,10 +1567,6 @@ class ChromeSDKCommand(command.CliCommand):
                 "non default value.",
                 msg,
             )
-
-        gn_args["reclient_cros_cc_wrapper"] = self._GenerateReclientWrapper(
-            board
-        )
 
         if options.gn_extra_args:
             gn_args.update(gn_helpers.FromGNArgs(options.gn_extra_args))
