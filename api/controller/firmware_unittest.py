@@ -15,6 +15,7 @@ from chromite.api.gen.chromite.api import firmware_pb2
 from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import constants
 from chromite.lib import cros_test_lib
+from chromite.lib import osutils
 
 
 class BuildAllFirmwareTestCase(
@@ -170,6 +171,81 @@ class BuildAllFirmwareTestCase(
             self.assertEqual(
                 response.artifact_dir.location, common_pb2.Path.INSIDE
             )
+
+    def testBundleFirmwareArtifactsConfig(self) -> None:
+        """Verify FIRMWARE_CONFIG returns the config files, not the tarballs."""
+
+        def fake_builder(cmd, **_kwargs) -> None:
+            """Writes the metadata that firmware_builder.py bundle writes."""
+            osutils.WriteFile(
+                cmd[cmd.index("--metadata") + 1],
+                """
+{
+        "objects": [
+                { "fileName": "brox.EC.tar.bz2",
+                  "tarballInfo": { "type": "EC", "board": ["brox"] } },
+                { "fileName": "configs/brox/ec-ro.config",
+                  "configInfo": { "board": ["brox"], "target": "brox",
+                                  "kind": "ec-ro" } },
+                { "fileName": "configs/brox/ec-rw.config",
+                  "configInfo": { "board": ["brox"], "target": "brox",
+                                  "kind": "ec-rw" } }
+        ]
+}
+                """,
+            )
+
+        self.rc.SetDefaultCmdResult(side_effect=fake_builder)
+
+        def bundle(artifact_types):
+            """Returns the paths that BundleFirmwareArtifacts gives per type."""
+            request = firmware_pb2.BundleFirmwareArtifactsRequest(
+                chroot={"path": self.chroot_path},
+                artifacts={
+                    "output_artifacts": [
+                        {
+                            "location": common_pb2.PLATFORM_ZEPHYR,
+                            "artifact_types": artifact_types,
+                        }
+                    ],
+                },
+            )
+            response = firmware_pb2.BundleFirmwareArtifactsResponse()
+            firmware.BundleFirmwareArtifacts(request, response, self.api_config)
+            return {
+                a.artifact_type: [
+                    os.path.relpath(p.path, response.artifact_dir.path)
+                    for p in a.paths
+                ]
+                for a in response.artifacts.artifacts
+            }
+
+        types = common_pb2.ArtifactsByService.Firmware
+        self.assertEqual(
+            bundle(["FIRMWARE_TARBALL", "FIRMWARE_CONFIG"]),
+            {
+                types.FIRMWARE_TARBALL: ["brox.EC.tar.bz2"],
+                types.FIRMWARE_CONFIG: [
+                    "configs/brox/ec-ro.config",
+                    "configs/brox/ec-rw.config",
+                ],
+            },
+        )
+        self.assertEqual(
+            bundle(["FIRMWARE_TARBALL", "FIRMWARE_TARBALL_INFO"]),
+            {
+                types.FIRMWARE_TARBALL: ["brox.EC.tar.bz2"],
+                types.FIRMWARE_TARBALL_INFO: [
+                    "firmware_metadata.jsonpb",
+                    "configs/brox/ec-ro.config",
+                    "configs/brox/ec-rw.config",
+                ],
+            },
+        )
+        self.assertEqual(
+            bundle(["FIRMWARE_TARBALL"]),
+            {types.FIRMWARE_TARBALL: ["brox.EC.tar.bz2"]},
+        )
 
     def testValidateOnly(self) -> None:
         """Verify a validate-only call does not execute any logic."""
