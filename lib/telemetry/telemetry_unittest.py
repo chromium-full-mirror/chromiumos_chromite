@@ -160,7 +160,7 @@ def test_initialize_to_skip_notice_if_tracecontext_present_in_env(
 
 def test_skip_initialization_when_disable_envvar_set(
     capsys, monkeypatch, telemetry_config
-):
+) -> None:
     """Test initialization skipped when disable envvar set."""
     monkeypatch.setattr(telemetry, "_INITIALIZED", False)
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)
@@ -185,7 +185,7 @@ def test_skip_initialization_when_disable_envvar_set(
 
 def test_skip_initialization_when_user_disabled(
     capsys, monkeypatch, telemetry_config
-):
+) -> None:
     """Test initialization skipped when disable by user."""
     monkeypatch.setattr(telemetry, "_INITIALIZED", False)
     monkeypatch.setattr(hostname_util, "is_google_host", lambda: True)

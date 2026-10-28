@@ -15,7 +15,7 @@ from chromite.lib import gmerge_binhost
 class GmergeBinhostTest(cros_test_lib.TestCase):
     """Tests for gmerge_binhost."""
 
-    def testUpdateGmergeBinhost(self):
+    def testUpdateGmergeBinhost(self) -> None:
         # Use the SDK sysroot, since we can't rely on having already built
         # packages for a particular board.
         sysroot = build_target_lib.get_default_sysroot_path()

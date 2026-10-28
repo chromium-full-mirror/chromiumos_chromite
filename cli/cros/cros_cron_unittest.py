@@ -134,7 +134,7 @@ def has_systemd(monkeypatch: pytest.MonkeyPatch, tmp_path):
     return factory
 
 
-def test_cros_cron_enable(run_mock, has_systemd, outside_sdk):
+def test_cros_cron_enable(run_mock, has_systemd, outside_sdk) -> None:
     """Test the "cros cron enable" command."""
     del outside_sdk
     has_systemd(True)
@@ -146,7 +146,7 @@ def test_cros_cron_enable(run_mock, has_systemd, outside_sdk):
     run_mock.assertCommandCalled(["loginctl", "enable-linger"])
 
 
-def test_cros_cron_disable(run_mock, has_systemd, outside_sdk):
+def test_cros_cron_disable(run_mock, has_systemd, outside_sdk) -> None:
     """Test the "cros cron disable" command."""
     del outside_sdk
     has_systemd(True)
@@ -156,7 +156,7 @@ def test_cros_cron_disable(run_mock, has_systemd, outside_sdk):
     run_mock.assertCommandCalled(["systemctl", "stop", "--user", timer_unit])
 
 
-def test_cros_cron_status(run_mock, has_systemd, outside_sdk):
+def test_cros_cron_status(run_mock, has_systemd, outside_sdk) -> None:
     """Test the "cros cron status" command."""
     del outside_sdk
     has_systemd(True)
@@ -176,7 +176,7 @@ def test_cros_cron_status(run_mock, has_systemd, outside_sdk):
         ["status"],
     ],
 )
-def test_cros_cron_no_systemd(has_systemd, args, outside_sdk):
+def test_cros_cron_no_systemd(has_systemd, args, outside_sdk) -> None:
     """Test commands that should fail without systemd."""
     del outside_sdk
     has_systemd(False)

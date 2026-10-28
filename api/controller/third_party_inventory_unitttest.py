@@ -41,7 +41,7 @@ class ThirdPartyInventoryTest(
             ),
         )
 
-    def testCollect(self):
+    def testCollect(self) -> None:
         fake_output = [
             '{"name": "pkg1"}',
             '{"name": "pkg2"}',
@@ -59,7 +59,7 @@ class ThirdPartyInventoryTest(
         assert self.response.success
         assert len(self.response.metadata_protojson) == 2
 
-    def testCollectFailure(self):
+    def testCollectFailure(self) -> None:
         self.PatchObject(
             third_party_inventory_service,
             "collect_inventory",

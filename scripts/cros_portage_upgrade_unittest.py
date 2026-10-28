@@ -964,55 +964,55 @@ class EmergeableTest(CpuTestBase):
 
         self.assertEqual(code, expect)
 
-    def testAreEmergeableOnePkg(self):
+    def testAreEmergeableOnePkg(self) -> None:
         """Should pass, one cpv target."""
         cpvlist = ["dev-libs/A-1"]
-        return self._TestAreEmergeable(cpvlist, True)
+        self._TestAreEmergeable(cpvlist, True)
 
-    def testAreEmergeableTwoPkgs(self):
+    def testAreEmergeableTwoPkgs(self) -> None:
         """Should pass, two cpv targets."""
         cpvlist = ["dev-libs/A-1", "dev-libs/B-1"]
-        return self._TestAreEmergeable(cpvlist, True)
+        self._TestAreEmergeable(cpvlist, True)
 
-    def testAreEmergeableOnePkgTwoVersions(self):
+    def testAreEmergeableOnePkgTwoVersions(self) -> None:
         """Should fail, targets two versions of same package."""
         cpvlist = ["dev-libs/A-1", "dev-libs/A-2"]
-        return self._TestAreEmergeable(cpvlist, False)
+        self._TestAreEmergeable(cpvlist, False)
 
-    def testAreEmergeableStableFlimFlam(self):
+    def testAreEmergeableStableFlimFlam(self) -> None:
         """Should pass, target stable version of pkg."""
         cpvlist = ["chromeos-base/flimflam-0.0.1-r228"]
-        return self._TestAreEmergeable(cpvlist, True)
+        self._TestAreEmergeable(cpvlist, True)
 
-    def testAreEmergeableUnstableFlimFlam(self):
+    def testAreEmergeableUnstableFlimFlam(self) -> None:
         """Should fail, target unstable version of pkg."""
         cpvlist = ["chromeos-base/flimflam-0.0.2-r123"]
-        return self._TestAreEmergeable(cpvlist, False)
+        self._TestAreEmergeable(cpvlist, False)
 
-    def testAreEmergeableBlockedPackages(self):
+    def testAreEmergeableBlockedPackages(self) -> None:
         """Should fail, targets have blocking deps on each other."""
         cpvlist = ["dev-libs/D-1", "dev-libs/E-2"]
-        return self._TestAreEmergeable(cpvlist, False)
+        self._TestAreEmergeable(cpvlist, False)
 
-    def testAreEmergeableBlockedByInstalledPkg(self):
+    def testAreEmergeableBlockedByInstalledPkg(self) -> None:
         """Should fail because of installed D-1 pkg."""
         cpvlist = ["dev-libs/E-2"]
-        return self._TestAreEmergeable(cpvlist, False)
+        self._TestAreEmergeable(cpvlist, False)
 
-    def testAreEmergeableNotBlockedByInstalledPkgNotInWorld(self):
+    def testAreEmergeableNotBlockedByInstalledPkgNotInWorld(self) -> None:
         """Should pass because installed D-1 pkg not in world."""
         cpvlist = ["dev-libs/E-2"]
-        return self._TestAreEmergeable(cpvlist, True, world=[])
+        self._TestAreEmergeable(cpvlist, True, world=[])
 
-    def testAreEmergeableSamePkgDiffSlots(self):
+    def testAreEmergeableSamePkgDiffSlots(self) -> None:
         """Should pass, same package but different slots."""
         cpvlist = ["dev-libs/F-1", "dev-libs/F-2"]
-        return self._TestAreEmergeable(cpvlist, True)
+        self._TestAreEmergeable(cpvlist, True)
 
-    def testAreEmergeableTwoPackagesIncompatibleDeps(self):
+    def testAreEmergeableTwoPackagesIncompatibleDeps(self) -> None:
         """Should fail, targets depend on two versions of same pkg."""
         cpvlist = ["dev-apps/X-1", "dev-apps/Y-2"]
-        return self._TestAreEmergeable(cpvlist, False)
+        self._TestAreEmergeable(cpvlist, False)
 
 
 class CPVUtilTest(cros_test_lib.TestCase):
@@ -1736,7 +1736,7 @@ class RunBoardTest(CpuTestBase):
                 upstream_only_pinfolist
             )
 
-    def testRunBoard1(self):
+    def testRunBoard1(self) -> None:
         target_pinfolist = [
             cpu.PInfo(
                 user_arg="dev-libs/A",
@@ -1744,9 +1744,9 @@ class RunBoardTest(CpuTestBase):
                 upstream_cpv="dev-libs/A-2",
             )
         ]
-        return self._TestRunBoard(target_pinfolist)
+        self._TestRunBoard(target_pinfolist)
 
-    def testRunBoard2(self):
+    def testRunBoard2(self) -> None:
         target_pinfolist = [
             cpu.PInfo(
                 user_arg="dev-libs/A",
@@ -1754,9 +1754,9 @@ class RunBoardTest(CpuTestBase):
                 upstream_cpv="dev-libs/A-2",
             )
         ]
-        return self._TestRunBoard(target_pinfolist, upgrade=True)
+        self._TestRunBoard(target_pinfolist, upgrade=True)
 
-    def testRunBoard3(self):
+    def testRunBoard3(self) -> None:
         target_pinfolist = [
             cpu.PInfo(
                 user_arg="dev-libs/A",
@@ -1764,9 +1764,7 @@ class RunBoardTest(CpuTestBase):
                 upstream_cpv="dev-libs/A-2",
             )
         ]
-        return self._TestRunBoard(
-            target_pinfolist, upgrade=True, staged_changes=True
-        )
+        self._TestRunBoard(target_pinfolist, upgrade=True, staged_changes=True)
 
     def testRunBoardUpstreamOnlyStatusMode(self) -> None:
         """Status mode with package that is only upstream should error."""
@@ -3151,17 +3149,17 @@ class GetPreOrderDepGraphTest(CpuTestBase):
         golden_deps_set = _GetGoldenDepsSet(pkg)
         self.assertEqual(set(deps_list), golden_deps_set)
 
-    def testGetPreOrderDepGraphDevLibsA(self):
-        return self._TestGetPreOrderDepGraph("dev-libs/A")
+    def testGetPreOrderDepGraphDevLibsA(self) -> None:
+        self._TestGetPreOrderDepGraph("dev-libs/A")
 
-    def testGetPreOrderDepGraphDevLibsC(self):
-        return self._TestGetPreOrderDepGraph("dev-libs/C")
+    def testGetPreOrderDepGraphDevLibsC(self) -> None:
+        self._TestGetPreOrderDepGraph("dev-libs/C")
 
-    def testGetPreOrderDepGraphVirtualLibusb(self):
-        return self._TestGetPreOrderDepGraph("virtual/libusb")
+    def testGetPreOrderDepGraphVirtualLibusb(self) -> None:
+        self._TestGetPreOrderDepGraph("virtual/libusb")
 
-    def testGetPreOrderDepGraphCrosbaseLibcros(self):
-        return self._TestGetPreOrderDepGraph("chromeos-base/libcros")
+    def testGetPreOrderDepGraphCrosbaseLibcros(self) -> None:
+        self._TestGetPreOrderDepGraph("chromeos-base/libcros")
 
 
 @pytest.mark.usefixtures("legacy_capture_output")

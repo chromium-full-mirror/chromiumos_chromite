@@ -1194,7 +1194,7 @@ class BundleTastIntelFilesTest(cros_test_lib.MockTempDirTestCase):
 
         osutils.SafeMakedirs(self.output_dir)
 
-    def testSuccess(self):
+    def testSuccess(self) -> None:
         """Successfully create a tast tarball.
 
         /build/board/build/{libexec/tast,share/tast}/* ->

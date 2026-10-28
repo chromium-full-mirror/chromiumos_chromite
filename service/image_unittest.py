@@ -1452,7 +1452,7 @@ class TestSignImage(cros_test_lib.MockTempDirTestCase):
 class PushImageArgTest(cros_test_lib.TempDirTestCase):
     """PushImageArguments tests."""
 
-    def test_cli_translation_minimal(self):
+    def test_cli_translation_minimal(self) -> None:
         """Test minimal arguments."""
         image_dir = "gs://some/path"
         board = "board"
@@ -1466,7 +1466,7 @@ class PushImageArgTest(cros_test_lib.TempDirTestCase):
 
         self.assertListEqual(expected, args.get_cli_args())
 
-    def test_cli_translation_full(self):
+    def test_cli_translation_full(self) -> None:
         """Test all arguments."""
         image_dir = "gs://some/path"
         board = "board"
@@ -1517,7 +1517,7 @@ class PushImageArgTest(cros_test_lib.TempDirTestCase):
 class RunPushImageTest(cros_test_lib.RunCommandTempDirTestCase):
     """run_push_image tests."""
 
-    def test_command_building(self):
+    def test_command_building(self) -> None:
         """Verify the command is built correctly."""
         image_dir = "gs://some/path"
         board = "board"

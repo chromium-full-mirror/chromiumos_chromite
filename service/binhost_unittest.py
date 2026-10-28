@@ -521,7 +521,7 @@ WRONG_KEY="gs://binhost1 gs://binhost2"
         self.assertEqual(binhosts, ["gs://binhost1"])
 
 
-def test_regen_build_cache(tmp_path, run_mock, outside_sdk):
+def test_regen_build_cache(tmp_path, run_mock, outside_sdk) -> None:
     """Test RegenBuildCache."""
     del outside_sdk
 
@@ -895,7 +895,7 @@ class FetchBinhostsTest(
         api_response._content = content
         self.requests_mock.return_value = api_response
 
-    def test_success(self):
+    def test_success(self) -> None:
         """Test successful fetching of binhosts."""
         self._set_requests_mock_response(
             200, self.mock_lookup_binhosts_response_object
@@ -905,7 +905,7 @@ class FetchBinhostsTest(
             [MOCK_GS_URI]
         )
 
-    def test_binhosts_not_found(self):
+    def test_binhosts_not_found(self) -> None:
         """Test failure case when no binhosts are found."""
         self._set_requests_mock_response(
             404, "No binhosts found with the given parameters"
@@ -917,7 +917,7 @@ class FetchBinhostsTest(
                 logs, "No suitable binhosts found in the binhost lookup service"
             )
 
-    def test_fetching_error(self):
+    def test_fetching_error(self) -> None:
         """Test failure case when there is an error while fetching binhosts."""
         self._set_requests_mock_response(
             400, "Unable to parse filter parameters from the request."
@@ -950,7 +950,7 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
         self.fetch_binhosts = self.PatchObject(binhost, "_fetch_binhosts")
         self.sysroot = self.PatchObject(sysroot_lib, "Sysroot")
 
-    def testInputSnapshotShas(self):
+    def testInputSnapshotShas(self) -> None:
         """Test when snapshot SHAs are passed as input."""
 
         self.fetch_binhosts.return_value = (
@@ -972,7 +972,7 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
             ],
         )
 
-    def testCheckoutSnapshotShas(self):
+    def testCheckoutSnapshotShas(self) -> None:
         """Test when manifest SHAs from the checkout are used as input."""
         self.get_snapshot_shas.return_value = binhost.SnapshotShas(
             self.EXTERNAL_SNAPSHOT_SHAS, self.INTERNAL_SNAPSHOT_SHAS
@@ -1006,7 +1006,7 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
             ],
         )
 
-    def testMainBranch(self):
+    def testMainBranch(self) -> None:
         """Test that nothing is returned with a main branch."""
 
         self.repo_mock.MustFind.return_value.GetBranch.return_value = "main"
@@ -1030,7 +1030,7 @@ class LookupBinhostsTest(cros_test_lib.MockTestCase):
             ],
         )
 
-    def testNonMainBranch(self):
+    def testNonMainBranch(self) -> None:
         """Test that nothing is returned with a non-main branch."""
 
         self.repo_mock.GetBranch.return_value = "factory-branch"

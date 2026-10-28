@@ -564,7 +564,7 @@ class SysrootGenerateBinhostConfTest(cros_test_lib.MockTempDirTestCase):
             lines[8], 'PORTAGE_BINHOST="$PORTAGE_BINHOST $CQ_BINHOST"'
         )
 
-    def test_binhost_overrides(self):
+    def test_binhost_overrides(self) -> None:
         """Test the binhost overrides."""
         overrides = [
             "gs://override/binhost1",

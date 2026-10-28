@@ -930,7 +930,7 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
             )
         return chromiumos_overlay
 
-    def test_nop_update(self):
+    def test_nop_update(self) -> None:
         chromiumos_overlay = self.write_versions(
             dev_lang_rust_versions=["1.77.0"],
             virtual_rust_versions=["1.77.0"],
@@ -938,7 +938,7 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
         updated_files = sdk.uprev_toolchain_virtuals(chromiumos_overlay)
         self.assertEqual(updated_files, [])
 
-    def test_revision_upgrade(self):
+    def test_revision_upgrade(self) -> None:
         chromiumos_overlay = self.write_versions(
             dev_lang_rust_versions=["1.77.0-r1"],
             virtual_rust_versions=["1.77.0"],
@@ -954,7 +954,7 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
         self.assertFalse(old_virtual.exists())
         self.assertTrue(new_virtual.exists())
 
-    def test_highest_is_picked_of_multiple_versions(self):
+    def test_highest_is_picked_of_multiple_versions(self) -> None:
         chromiumos_overlay = self.write_versions(
             dev_lang_rust_versions=["1.77.0", "1.77.0-r3"],
             virtual_rust_versions=["1.77.0", "1.77.0-r2"],
@@ -970,7 +970,7 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
         self.assertFalse(old_virtual.exists())
         self.assertTrue(new_virtual.exists())
 
-    def test_9999_ebuild_is_ignored(self):
+    def test_9999_ebuild_is_ignored(self) -> None:
         chromiumos_overlay = self.write_versions(
             dev_lang_rust_versions=["1.77.0", "1.77.0-r3", "9999"],
             virtual_rust_versions=["1.77.0", "1.77.0-r2"],
@@ -986,7 +986,9 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
         self.assertFalse(old_virtual.exists())
         self.assertTrue(new_virtual.exists())
 
-    def test_virtual_rev_is_bumped_if_version_equality_is_downgrade(self):
+    def test_virtual_rev_is_bumped_if_version_equality_is_downgrade(
+        self,
+    ) -> None:
         chromiumos_overlay = self.write_versions(
             dev_lang_rust_versions=["1.77.0-r5", "9999"],
             virtual_rust_versions=["1.77.0-r6"],
@@ -1006,7 +1008,9 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
             "dev-lang/rust-1.77.0-r5", new_virtual.read_text(encoding="utf-8")
         )
 
-    def test_virtual_revision_is_lowered_if_version_equality_is_upgrade(self):
+    def test_virtual_revision_is_lowered_if_version_equality_is_upgrade(
+        self,
+    ) -> None:
         chromiumos_overlay = self.write_versions(
             dev_lang_rust_versions=["1.80.0-r1", "9999"],
             virtual_rust_versions=["1.77.0-r6"],
@@ -1026,7 +1030,7 @@ class UprevToolchainVirtualsSdkTest(cros_test_lib.MockTempDirTestCase):
             "dev-lang/rust-1.80.0-r1", new_virtual.read_text(encoding="utf-8")
         )
 
-    def test_virtual_ebuild_writing_only_replaces_version(self):
+    def test_virtual_ebuild_writing_only_replaces_version(self) -> None:
         # There's some manual string slicing, so ensure that the virtual rust
         # ebuild remains intact across version string updates.
         chromiumos_overlay = self.write_versions(

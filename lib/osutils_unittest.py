@@ -648,7 +648,7 @@ class TestOsutils(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(group, Group(filename))
 
 
-def test_safe_symlink_exists(tmp_path):
+def test_safe_symlink_exists(tmp_path) -> None:
     """Test that SafeSymlink when dest already exists at the right path."""
     osutils.SafeSymlink("foo.txt", tmp_path / "symlink")
     orig_mtime = os.lstat(tmp_path / "symlink").st_mtime
@@ -1930,19 +1930,19 @@ def fixture_root_log(log_file):
     return log_file
 
 
-def test_rotate_log_file(generic_log):
+def test_rotate_log_file(generic_log) -> None:
     with osutils.rotate_log_file(generic_log, purge=True):
         pass
     assert not generic_log.exists()
 
 
-def test_rotate_log_file_root(root_log):
+def test_rotate_log_file_root(root_log) -> None:
     with osutils.rotate_log_file(root_log, purge=True):
         pass
     assert not root_log.exists()
 
 
-def test_rotate_log_path_is_dir(tmp_path):
+def test_rotate_log_path_is_dir(tmp_path) -> None:
     p = tmp_path / "unreal"
     p.mkdir()
     with pytest.raises(OSError):
@@ -1950,7 +1950,7 @@ def test_rotate_log_path_is_dir(tmp_path):
             pass
 
 
-def test_rotate_log_creates_parent_dir(tmp_path):
+def test_rotate_log_creates_parent_dir(tmp_path) -> None:
     p = tmp_path / "plus" / "some" / "subdir"
     with osutils.rotate_log_file(p / "log.log"):
         pass
@@ -1965,14 +1965,14 @@ def fixture_patch_datetime_now(monkeypatch):
     monkeypatch.setattr(datetime, "datetime", datetime_mock)
 
 
-def test_rotate_log_copy(generic_log, _patch_datetime_now):
+def test_rotate_log_copy(generic_log, _patch_datetime_now) -> None:
     with osutils.rotate_log_file(generic_log):
         pass
     assert not generic_log.exists()
     assert (generic_log.parent / "log-copy-20230101-162000.log").exists()
 
 
-def test_rotate_log_copy_root(root_log, _patch_datetime_now):
+def test_rotate_log_copy_root(root_log, _patch_datetime_now) -> None:
     with osutils.rotate_log_file(root_log):
         pass
     assert not root_log.exists()

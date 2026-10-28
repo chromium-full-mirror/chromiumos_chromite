@@ -212,7 +212,7 @@ def _write_and_commit_space_file(file: Path) -> None:
     git.Commit(repo_root, message="test")
 
 
-def test_commit_absolute_path(tmp_path, monkeypatch):
+def test_commit_absolute_path(tmp_path, monkeypatch) -> None:
     """Check handling of --commit with an absolute file path."""
     file = tmp_path / "foo.txt"
     monkeypatch.chdir(tmp_path)
@@ -221,7 +221,7 @@ def test_commit_absolute_path(tmp_path, monkeypatch):
     assert "" == file.read_text(encoding="utf-8")
 
 
-def test_relative_path_in_root(tmp_path, monkeypatch):
+def test_relative_path_in_root(tmp_path, monkeypatch) -> None:
     """Check handling of --commit with a relative path running in repo root."""
     file = tmp_path / "foo.txt"
     monkeypatch.chdir(tmp_path)
@@ -230,7 +230,7 @@ def test_relative_path_in_root(tmp_path, monkeypatch):
     assert "" == file.read_text(encoding="utf-8")
 
 
-def test_relative_path_in_subdir(tmp_path, monkeypatch):
+def test_relative_path_in_subdir(tmp_path, monkeypatch) -> None:
     """Check --commit with a relative path running in sibling path."""
     dir1 = tmp_path / "dir1"
     dir2 = tmp_path / "dir2"

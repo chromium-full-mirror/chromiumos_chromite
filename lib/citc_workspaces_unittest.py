@@ -257,13 +257,13 @@ def test_workspace_without_chroot_is_not_orphaned(
 # pylint: disable=unused-argument
 def test_found_all_workspaces(
     chroot_without_workspace, workspace_without_chroot, workspace_with_chroot
-):
+) -> None:
     workspaces = citc_workspaces.Workspaces()
     assert len([workspaces.orphaned_workspaces()]) == 1
     assert len(workspaces.workspaces) == 3
 
 
-def test_cog_workspaces_dont_exist(cog_cloud_dir):
+def test_cog_workspaces_dont_exist(cog_cloud_dir) -> None:
     # We don't want to raise unexpected exceptions when a user hasn't created a
     # Cog workspace.
     cog_cloud_dir.mkdir(parents=True)

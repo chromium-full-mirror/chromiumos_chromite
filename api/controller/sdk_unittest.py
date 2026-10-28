@@ -484,7 +484,7 @@ class SdkUpdateTest(
             log_installed_packages=True,
         )
 
-    def testNoForcedUpdate(self):
+    def testNoForcedUpdate(self) -> None:
         """When force_update=False, the Update service should not be called."""
         mock_obj = self.PatchObject(sdk_service, "Update")
         request = self._GetRequest(force_update=False)

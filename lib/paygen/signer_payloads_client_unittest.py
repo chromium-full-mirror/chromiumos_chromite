@@ -779,7 +779,7 @@ class LocalSignerPayloadsClientTest(cros_test_lib.TempDirTestCase):
     @mock.patch.object(image, "SignImage")
     def testGetHashSignaturesMockSignImageFailure(
         self, mock_sign_image: mock.MagicMock
-    ):
+    ) -> None:
         """Test that GetHashSignatures raises an exception if signing fails."""
         client = self.createStandardClient()
 

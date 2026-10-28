@@ -47,7 +47,7 @@ class ThirdPartyInventoryTest(cros_test_lib.MockTempDirTestCase):
             ),
         )
 
-    def testCollectInSysroot(self):
+    def testCollectInSysroot(self) -> None:
         D = cros_test_lib.Directory
         F = cros_test_lib.File
 
@@ -81,7 +81,7 @@ class ThirdPartyInventoryTest(cros_test_lib.MockTempDirTestCase):
         assert pkgs[0].description == "Test package"
         assert len(pkgs[0].homepages) == 2
 
-    def testCollectOutputIntoJSON(self):
+    def testCollectOutputIntoJSON(self) -> None:
         D = cros_test_lib.Directory
         F = cros_test_lib.File
 

@@ -121,7 +121,7 @@ SDK_BUCKET="foo"
     )
     def test_parse_file(
         self, contents: str, expected_value: cros_sdk_lib.SdkVersionConfig
-    ):
+    ) -> None:
         assert (
             cros_sdk_lib.SdkVersionConfig.from_file(io.StringIO(contents))
             == expected_value

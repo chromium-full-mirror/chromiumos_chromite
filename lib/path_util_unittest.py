@@ -190,7 +190,7 @@ class TestCheckoutInfoTracksMain(cros_test_lib.TestCase):
 )
 def test_checkout_repo_binary(
     checkout: path_util.CheckoutInfo, expected_binary: Optional[Path]
-):
+) -> None:
     """Test the CheckoutInfo.repo_binary property."""
     assert checkout.repo_binary == expected_binary
 

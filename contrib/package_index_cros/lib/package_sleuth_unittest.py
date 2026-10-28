@@ -235,7 +235,7 @@ class ListPackagesWithDepsTestCase(testing_utils.TestCase):
 class FilterPackagesDependenciesTestCase(testing_utils.TestCase):
     """Test cases for PackageSleuth._filter_packages_dependencies()."""
 
-    def test_update_dependencies(self):
+    def test_update_dependencies(self) -> None:
         """Make sure each package's dependencies are updated in-place."""
         # main_package will start by depending on both itself and other_package.
         # However, its self-dependency should get filtered out.
