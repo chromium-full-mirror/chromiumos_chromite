@@ -123,7 +123,7 @@ class LoopbackPartitions:
         cros_build_lib.AssertRootUser()
 
         # Sync the image file before we mount it as loop device.
-        osutils.sync_storage(path, filesystem=True)
+        osutils.sync_storage(path)
 
         # Mount the image in the first available loop device.
         cmd = ["losetup", "--show", "-f", path]
