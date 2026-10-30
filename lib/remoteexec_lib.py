@@ -17,9 +17,13 @@ from chromite.lib import osutils
 from chromite.utils import hostname_util
 
 
-# Synced with "log_dir" and "proxy_log_dir" in ./sdk/reclient_cfgs/reproxy.cfg
+# Synced with CROS_SISO_LOG_DIR in chromeos-chrome-9999.ebuild (/tmp/siso-*)
+# and CROS_REMOTEEXEC_LOG_DIR in cros-remoteexec.eclass (/tmp/reclient-*).
 _REMOTEEXEC_LOG_BASE_DIR = Path("/tmp")
-_REMOTEEXEC_LOG_DIRNAME_PATTERN = "reclient-*"
+_REMOTEEXEC_LOG_DIRNAME_PATTERNS = (
+    "siso-*",
+    "reclient-*",
+)
 
 _REMOTEEXEC_LOG_FILE_PATTERN = (
     "*.INFO.*",
@@ -67,7 +71,16 @@ class LogsArchiver:
         log_dir_pattern = (
             self.remoteexec_log_dir_for_testing or _REMOTEEXEC_LOG_BASE_DIR
         )
-        log_dirs = sorted(log_dir_pattern.glob(_REMOTEEXEC_LOG_DIRNAME_PATTERN))
+        # Use a set so that a directory matched by more than one pattern is
+        # only processed once, and skip non-directories (e.g. stray files).
+        log_dirs = sorted(
+            {
+                log_dir
+                for pattern in _REMOTEEXEC_LOG_DIRNAME_PATTERNS
+                for log_dir in log_dir_pattern.glob(pattern)
+                if log_dir.is_dir()
+            }
+        )
 
         archived_log_files = []
         for log_dir in log_dirs:

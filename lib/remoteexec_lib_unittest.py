@@ -31,8 +31,13 @@ class TestLogArchiver(cros_test_lib.MockTempDirTestCase):
         self.archiver = remoteexec_lib.LogsArchiver(self.dest_dir)
         self.archiver.remoteexec_log_dir_for_testing = self.src_dir
 
-    def _create_file(self, package_name: str, filename: str) -> Path:
-        path = self.src_dir / f"reclient-{package_name}" / filename
+    def _create_file(
+        self,
+        package_name: str,
+        filename: str,
+        prefix: str = "siso",
+    ) -> Path:
+        path = self.src_dir / f"{prefix}-{package_name}" / filename
         osutils.WriteFile(
             path,
             f"Package: {package_name}\nFile: {filename}",
@@ -44,16 +49,18 @@ class TestLogArchiver(cros_test_lib.MockTempDirTestCase):
         """Test LogArchiver.Archive() method."""
         siso_info_target = self.tempdir / "siso.host.log.INFO.123"
         osutils.WriteFile(siso_info_target, "Siso INFO log content")
-        siso_info_link = (
-            self.src_dir / "reclient-chromeos-chrome" / "siso.INFO"
-        )
+        siso_info_link = self.src_dir / "siso-chromeos-chrome" / "siso.INFO"
         osutils.SafeMakedirs(siso_info_link.parent)
         siso_info_link.symlink_to(siso_info_target)
 
         interesting_log_files = [
             self._create_file("chromeos-chrome", "test.INFO.log"),
-            self._create_file("chromeos-chrome", "reproxy_test.INFO"),
-            self._create_file("chromeos-chrome", "reproxy_test.rrpl"),
+            self._create_file(
+                "coreboot", "reproxy_test.INFO", prefix="reclient"
+            ),
+            self._create_file(
+                "coreboot", "reproxy_test.rrpl", prefix="reclient"
+            ),
             siso_info_link,
             siso_info_target,
             self._create_file("chromeos-chrome", "siso_build.pprof"),
@@ -82,23 +89,23 @@ class TestLogArchiver(cros_test_lib.MockTempDirTestCase):
         self.assertEqual(
             archive_files,
             [
-                "reclient-chromeos-chrome/test.INFO.log.gz",
-                "reclient-chromeos-chrome/reproxy_test.INFO.gz",
-                "reclient-chromeos-chrome/reproxy_test.rrpl.gz",
-                "reclient-chromeos-chrome/siso.INFO.gz",
-                "reclient-chromeos-chrome/siso_build.pprof.gz",
-                "reclient-chromeos-chrome/siso_crash.gz",
-                "reclient-chromeos-chrome/siso_explain.gz",
-                "reclient-chromeos-chrome/siso_failed_commands.sh.gz",
-                "reclient-chromeos-chrome/siso_localexec.gz",
-                "reclient-chromeos-chrome/siso_metadata.json.gz",
-                "reclient-chromeos-chrome/siso_metrics.json.gz",
-                "reclient-chromeos-chrome/siso_output.gz",
-                "reclient-chromeos-chrome/siso_result.json.gz",
-                "reclient-chromeos-chrome/siso_spawn_helper.gz",
-                "reclient-chromeos-chrome/siso_trace.json.gz",
-                "reclient-chromeos-chrome/.siso_config.gz",
-                "reclient-chromeos-chrome/.siso_filegroups.gz",
+                "reclient-coreboot/reproxy_test.INFO.gz",
+                "reclient-coreboot/reproxy_test.rrpl.gz",
+                "siso-chromeos-chrome/test.INFO.log.gz",
+                "siso-chromeos-chrome/siso.INFO.gz",
+                "siso-chromeos-chrome/siso_build.pprof.gz",
+                "siso-chromeos-chrome/siso_crash.gz",
+                "siso-chromeos-chrome/siso_explain.gz",
+                "siso-chromeos-chrome/siso_failed_commands.sh.gz",
+                "siso-chromeos-chrome/siso_localexec.gz",
+                "siso-chromeos-chrome/siso_metadata.json.gz",
+                "siso-chromeos-chrome/siso_metrics.json.gz",
+                "siso-chromeos-chrome/siso_output.gz",
+                "siso-chromeos-chrome/siso_result.json.gz",
+                "siso-chromeos-chrome/siso_spawn_helper.gz",
+                "siso-chromeos-chrome/siso_trace.json.gz",
+                "siso-chromeos-chrome/.siso_config.gz",
+                "siso-chromeos-chrome/.siso_filegroups.gz",
             ],
         )
 
@@ -113,7 +120,7 @@ class TestLogArchiver(cros_test_lib.MockTempDirTestCase):
 
     def testNinjaLogArchive(self) -> None:
         """Test successful archive of ninja logs."""
-        log_path = os.path.join(self.src_dir, "reclient-chromeos-chrome")
+        log_path = os.path.join(self.src_dir, "siso-chromeos-chrome")
 
         ninja_log_path = os.path.join(log_path, "ninja_log")
         osutils.WriteFile(ninja_log_path, "Ninja Log Content\n", makedirs=True)
