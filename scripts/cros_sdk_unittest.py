@@ -4,6 +4,7 @@
 
 """Tests for cros_sdk."""
 
+import ast
 import os
 import re
 import sys
@@ -14,6 +15,7 @@ import pytest  # type: ignore
 
 from chromite.lib import chromite_config
 from chromite.lib import constants
+from chromite.lib import cros_build_lib
 from chromite.lib import cros_sdk_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
@@ -470,3 +472,94 @@ def test_citc_default_and_custom_paths(
         [mock.call(workspace_path)] if expect_workspace_dir else []
     ) + [mock.call(chromite_config.DIR), mock.call(xdg_util.CACHE_HOME)]
     assert safe_makedirs.call_args_list == expected_calls
+
+
+@pytest.mark.parametrize(
+    ("isatty", "env", "expected"),
+    (
+        (True, {"TERM": "xterm-256color"}, True),
+        (True, {"TERM": "xterm-256color", "ANTIGRAVITY_AGENT": "0"}, True),
+        (True, {"TERM": "xterm-256color", "GEMINI_CLI": "false"}, True),
+        (False, {"TERM": "xterm-256color"}, False),
+        (True, {"TERM": "dumb"}, False),
+        *(
+            (True, {"TERM": "xterm-256color", var: "1"}, False)
+            for var in cros_sdk.AI_AGENT_ENV_VARS
+        ),
+    ),
+)
+def test_can_prompt_for_sudo_password(
+    monkeypatch: pytest.MonkeyPatch,
+    isatty: bool,
+    env: dict[str, str],
+    expected: bool,
+) -> None:
+    """Test _CanPromptForSudoPassword across interactive and agent sessions."""
+    monkeypatch.setattr(sys.stdin, "isatty", lambda: isatty)
+    for var in cros_sdk.AI_AGENT_ENV_VARS:
+        monkeypatch.delenv(var, raising=False)
+    for k, v in env.items():
+        monkeypatch.setenv(k, v)
+
+    assert cros_sdk._CanPromptForSudoPassword() is expected
+
+
+@pytest.mark.usefixtures("as_non_root_user")
+@pytest.mark.parametrize("can_prompt", (True, False))
+def test_reexecute_if_needed(
+    monkeypatch: pytest.MonkeyPatch,
+    run_mock: cros_test_lib.RunCommandMock,
+    can_prompt: bool,
+) -> None:
+    """Test _ReExecuteIfNeeded when interactive or when sudo is cached."""
+    monkeypatch.setattr(
+        cros_sdk, "_CanPromptForSudoPassword", lambda: can_prompt
+    )
+    monkeypatch.setattr(cros_sdk, "_SudoCommand", lambda: ["sudo"])
+    execvp_mock = mock.MagicMock()
+    monkeypatch.setattr(os, "execvp", execvp_mock)
+
+    cros_sdk._ReExecuteIfNeeded(["cros_sdk"], _PARSER.parse_args([]))
+
+    run_mock.assertCommandContains(
+        ["sudo", "-n", "true"], expected=not can_prompt
+    )
+    execvp_mock.assert_called_once_with(
+        "sudo", ["sudo", "--", sys.executable, "cros_sdk"]
+    )
+
+
+@pytest.mark.usefixtures("as_non_root_user")
+def test_reexecute_if_needed_uncached_sudo(
+    monkeypatch: pytest.MonkeyPatch,
+    run_mock: cros_test_lib.RunCommandMock,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Test _ReExecuteIfNeeded fails fast when non-interactive sudo fails."""
+    monkeypatch.setattr(cros_sdk, "_CanPromptForSudoPassword", lambda: False)
+    run_mock.AddCmdResult(["sudo", "-n", "true"], returncode=1)
+    execvp_mock = mock.MagicMock()
+    monkeypatch.setattr(os, "execvp", execvp_mock)
+
+    with pytest.raises(cros_build_lib.DieSystemExit):
+        cros_sdk._ReExecuteIfNeeded(["cros_sdk"], _PARSER.parse_args([]))
+
+    assert "sudo -v" in caplog.text
+    assert cros_sdk.SUDO_TIPS_URL in caplog.text
+    execvp_mock.assert_not_called()
+
+
+def test_ai_agent_env_vars_synced() -> None:
+    """Verify AI_AGENT_ENV_VARS stays in sync with depot_tools."""
+    gclient_utils_path = constants.DEPOT_TOOLS_DIR / "gclient_utils.py"
+    tree = ast.parse(gclient_utils_path.read_text(encoding="utf-8"))
+    depot_tools_vars = next(
+        ast.literal_eval(node.value)
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(
+            isinstance(t, ast.Name) and t.id == "AI_AGENT_ENV_VARS"
+            for t in node.targets
+        )
+    )
+    assert cros_sdk.AI_AGENT_ENV_VARS == depot_tools_vars

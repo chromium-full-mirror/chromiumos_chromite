@@ -62,6 +62,23 @@ NEEDED_TOOLS = ("curl",)
 # Tools needed for --proxy-sim only.
 PROXY_NEEDED_TOOLS = ("ip",)
 
+# Environment variables indicating the process is running inside an AI agent.
+# Kept in sync with depot_tools/gclient_utils.py.
+AI_AGENT_ENV_VARS = (
+    "GEMINI_CLI",
+    "CLAUDECODE",
+    "ANTIGRAVITY_AGENT",
+    "CODEX_SANDBOX",
+    "CURSOR_AGENT",
+    "COPILOT_CLI",
+    "AI_AGENT",
+)
+
+SUDO_TIPS_URL = (
+    "https://www.chromium.org/chromium-os/developer-library/guides/"
+    "recipes/tips-and-tricks/#how-to-make-sudo-a-little-more-permissive"
+)
+
 
 def get_sdk_tarball_urls(
     version: str,
@@ -357,6 +374,18 @@ def _BuildReExecCommand(argv, opts) -> list[str]:
     return cmd + [sys.executable] + argv
 
 
+def _CanPromptForSudoPassword() -> bool:
+    """Return True if sudo can interactively prompt the user for a password."""
+    return (
+        sys.stdin.isatty()
+        and os.environ.get("TERM") != "dumb"
+        and all(
+            os.environ.get(v, "").lower() in ("", "0", "false")
+            for v in AI_AGENT_ENV_VARS
+        )
+    )
+
+
 def _ReExecuteIfNeeded(argv, opts) -> None:
     """Re-execute cros_sdk as root.
 
@@ -364,6 +393,22 @@ def _ReExecuteIfNeeded(argv, opts) -> None:
     the chroot can't mess with our mounts.
     """
     if osutils.IsNonRootUser():
+        if not _CanPromptForSudoPassword():
+            result = cros_build_lib.dbg_run(
+                ["sudo", "-n", "true"],
+                capture_output=True,
+                check=False,
+            )
+            if result.returncode:
+                cros_build_lib.die(
+                    "cros_sdk requires root privileges, but sudo cannot prompt "
+                    "for a password in a non-interactive or agent session.\n"
+                    "Please run `sudo -v` in a separate interactive terminal "
+                    "to cache your sudo credentials, then retry.\n"
+                    "Note: Sharing cached sudo credentials across terminals "
+                    "requires disabling sudo tty_tickets; see:\n"
+                    f"  {SUDO_TIPS_URL}"
+                )
         cmd = _BuildReExecCommand(argv, opts)
         logging.debug(
             "Reexecing self via sudo:\n%s", shell_util.cmd_to_str(cmd)
