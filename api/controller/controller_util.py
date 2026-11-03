@@ -17,7 +17,6 @@ from chromite.api.gen.chromiumos import common_pb2
 from chromite.lib import binpkg
 from chromite.lib import build_target_lib
 from chromite.lib import chroot_lib
-from chromite.lib import constants
 from chromite.lib import sysroot_lib
 from chromite.lib.parser import package_info
 
@@ -48,13 +47,11 @@ def ParseChroot(chroot_message: common_pb2.Chroot) -> chroot_lib.Chroot:
     """
     assert isinstance(chroot_message, common_pb2.Chroot)
 
-    path = chroot_message.path or constants.DEFAULT_CHROOT_PATH
+    path = chroot_message.path
     cache_dir = chroot_message.cache_dir
     chrome_root = chroot_message.chrome_dir
     out_path = (
-        Path(chroot_message.out_path)
-        if chroot_message.out_path
-        else constants.DEFAULT_OUT_PATH
+        Path(chroot_message.out_path) if chroot_message.out_path else None
     )
 
     use_flags = [u.flag for u in chroot_message.env.use_flags]

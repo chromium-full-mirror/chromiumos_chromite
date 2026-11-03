@@ -19,6 +19,7 @@ from chromite.lib import cros_test_lib
 from chromite.lib import gs
 from chromite.lib import osutils
 from chromite.lib import partial_mock
+from chromite.lib import path_util
 from chromite.lib import portage_util
 from chromite.lib import sdk_builder_lib
 from chromite.lib.parser import package_info
@@ -96,6 +97,9 @@ class CreateManifestFromSdkTest(cros_test_lib.MockTempDirTestCase):
 
 class CreateArgumentsTest(cros_test_lib.MockTestCase):
     """CreateArguments tests."""
+
+    def setUp(self) -> None:
+        self.PatchObject(path_util, "is_citc_checkout", return_value=False)
 
     def _GetArgsList(self, **kwargs):
         """Helper to simplify getting the argument list."""

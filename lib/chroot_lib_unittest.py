@@ -6,14 +6,17 @@
 
 import os
 from pathlib import Path
+from typing import Optional
 from unittest import mock
 
 import pytest
 
 from chromite.lib import chroot_lib
+from chromite.lib import constants
 from chromite.lib import cros_build_lib
 from chromite.lib import cros_test_lib
 from chromite.lib import osutils
+from chromite.lib import path_util
 from chromite.lib import timeout_util
 
 
@@ -395,3 +398,48 @@ class ChrootRunTest(cros_test_lib.RunCommandTempDirTestCase):
             chroot_args=self.chroot.get_enter_args() + ["--no-read-only"],
             extra_env={},
         )
+
+
+_DEFAULT_CHROOT = constants.DEFAULT_CHROOT_PATH
+_DEFAULT_OUT = constants.DEFAULT_OUT_PATH
+_CITC_CHROOT = Path("/citc/chroot")
+_CITC_OUT = Path("/citc/out")
+_CUSTOM_OUT = Path("/custom/out")
+
+
+@pytest.mark.parametrize(
+    (
+        "inside_chroot",
+        "is_citc",
+        "path",
+        "out_path",
+        "expected_path",
+        "expected_out",
+    ),
+    [
+        (False, False, None, None, _DEFAULT_CHROOT, _DEFAULT_OUT),
+        (False, True, None, None, "/citc/chroot", _CITC_OUT),
+        (False, True, "/custom/chroot", None, "/custom/chroot", _CITC_OUT),
+        (False, True, None, _CUSTOM_OUT, "/citc/chroot", _CUSTOM_OUT),
+        (True, True, None, None, _DEFAULT_CHROOT, _DEFAULT_OUT),
+    ],
+)
+def test_default_and_partial_paths(
+    monkeypatch: pytest.MonkeyPatch,
+    inside_chroot: bool,
+    is_citc: bool,
+    path: Optional[str],
+    out_path: Optional[Path],
+    expected_path: str,
+    expected_out: Path,
+) -> None:
+    """Verify Chroot() path resolution across SDK, CitC, and partial args."""
+    monkeypatch.setattr(cros_build_lib, "IsInsideChroot", lambda: inside_chroot)
+    monkeypatch.setattr(path_util, "is_citc_checkout", lambda: is_citc)
+    monkeypatch.setattr(path_util, "get_citc_chroot_path", lambda: _CITC_CHROOT)
+    monkeypatch.setattr(path_util, "get_citc_out_path", lambda: _CITC_OUT)
+
+    chroot = chroot_lib.Chroot(path=path, out_path=out_path)
+
+    assert chroot.path == expected_path
+    assert chroot.out_path == expected_out

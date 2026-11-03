@@ -53,10 +53,25 @@ class Chroot:
             chrome_root: Root of the Chrome browser source checkout.
             env: Extra environment settings to use.
         """
+        is_citc = (
+            (not path or not out_path)
+            and not cros_build_lib.IsInsideChroot()
+            and path_util.is_citc_checkout()
+        )
+        chroot_path = path or (
+            path_util.get_citc_chroot_path()
+            if is_citc
+            else constants.DEFAULT_CHROOT_PATH
+        )
         # Strip trailing / by going to Path and back to str for consistency.
         # TODO(vapier): Switch this to Path instead of str.
-        self._path = str(Path(path)) if path else constants.DEFAULT_CHROOT_PATH
-        self._out_path = out_path if out_path else constants.DEFAULT_OUT_PATH
+        self._path = str(Path(chroot_path))
+        self._out_path = out_path or (
+            path_util.get_citc_out_path()
+            if is_citc
+            else constants.DEFAULT_OUT_PATH
+        )
+
         self._is_default_path = not bool(path)
         self._is_default_out_path = not out_path
         self._env = env

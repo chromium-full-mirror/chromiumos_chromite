@@ -25,6 +25,7 @@ class ParseChrootTest(cros_test_lib.MockTestCase):
     def testSuccess(self) -> None:
         """Test successful handling case."""
         path = "/chroot/path"
+        out_path = "/chroot/out"
         cache_dir = "/cache/dir"
         chrome_root = "/chrome/root"
         use_flags = [{"flag": "useflag1"}, {"flag": "useflag2"}]
@@ -37,6 +38,7 @@ class ParseChrootTest(cros_test_lib.MockTestCase):
 
         chroot_message = common_pb2.Chroot(
             path=path,
+            out_path=out_path,
             cache_dir=cache_dir,
             chrome_dir=chrome_root,
             env={"use_flags": use_flags, "features": features},
@@ -44,6 +46,7 @@ class ParseChrootTest(cros_test_lib.MockTestCase):
 
         expected = chroot_lib.Chroot(
             path=path,
+            out_path=Path(out_path),
             cache_dir=cache_dir,
             chrome_root=chrome_root,
             env=expected_env,
@@ -51,6 +54,11 @@ class ParseChrootTest(cros_test_lib.MockTestCase):
         result = controller_util.ParseChroot(chroot_message)
 
         self.assertEqual(expected, result)
+
+    def testEmptyMessageDefaults(self) -> None:
+        """Test empty Chroot message delegates default paths to Chroot."""
+        result = controller_util.ParseChroot(common_pb2.Chroot())
+        self.assertEqual(chroot_lib.Chroot(), result)
 
     def testWrongMessage(self) -> None:
         """Test invalid message type given."""
