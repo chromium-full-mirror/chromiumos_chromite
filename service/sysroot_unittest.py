@@ -915,6 +915,20 @@ class BuildPackagesTest(
             [constants.DEPOT_TOOLS_DIR / "ensure_bootstrap"]
         )
 
+    def testBrootJobs(self) -> None:
+        """Ensure broot parallel_emerge receives --jobs when jobs is set."""
+        broot_cmd = [
+            constants.CHROMITE_BIN_DIR / "parallel_emerge",
+            "--root",
+            self.target.broot,
+            "--sysroot",
+            self.target.broot,
+            "--jobs=8",
+        ]
+        config = sysroot.BuildPackagesRunConfig(jobs=8)
+        sysroot.BuildPackages(self.target, self.sysroot, config)
+        self.assertCommandContains(broot_cmd)
+
 
 class GatherSymbolFilesTest(cros_test_lib.MockTempDirTestCase):
     """Base class for testing GatherSymbolFiles."""

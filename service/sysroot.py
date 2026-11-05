@@ -1028,6 +1028,8 @@ def BuildPackages(
             ]
             if run_configs.usepkg:
                 cmd += ["--usepkg", "--getbinpkg"]
+            if run_configs.jobs:
+                cmd += [f"--jobs={run_configs.jobs}"]
             cmd += [constants.TARGET_SDK_BROOT]
             with metrics_lib.timer(f"{metrics_prefix}.Broot"):
                 try:
