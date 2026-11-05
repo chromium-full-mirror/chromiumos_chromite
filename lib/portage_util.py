@@ -2530,7 +2530,7 @@ def GetBinaryPackagePath(c, p, v, sysroot="/", packages_dir=None):
 def GetBoardUseFlags(board: str) -> list[str]:
     """Returns a list of USE flags in effect for a board."""
     return sorted(
-        build_query.Query(build_query.Board)
+        build_query.Query(build_query.Board, board=board)
         .filter(lambda x: x.name == board)
         .one()
         .use_flags
