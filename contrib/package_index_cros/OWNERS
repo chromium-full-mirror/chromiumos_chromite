@@ -1,4 +1,3 @@
-ajp@chromium.org
-sokcevic@google.com
-gavinmak@google.com
+include chromiumos/owners:v1:/infra/OWNERS.build
+
 asumaneev@google.com

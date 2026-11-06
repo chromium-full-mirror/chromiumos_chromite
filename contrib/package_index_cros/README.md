@@ -105,4 +105,4 @@ $ /path/to/package_index_cros/main \
 [chromium checkout instructions]: https://chromium.googlesource.com/chromium/src/+/main/docs/linux/build_instructions.md#get-the-code
 [clangd]: go/clangd
 [`package_index`]: https://source.chromium.org/chromium/infra/infra/+/main:go/src/infra/cmd/package_index
-[`package_index_cros`]: https://source.chromium.org/chromium/infra/infra/+/main:go/src/infra/cmd/package_index_cros
+[`package_index_cros`]: https://chromium.googlesource.com/chromiumos/chromite/+/HEAD/contrib/package_index_cros
