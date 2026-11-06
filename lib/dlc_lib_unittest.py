@@ -17,6 +17,7 @@ from chromite.lib import cros_test_lib
 from chromite.lib import dlc_allowlist
 from chromite.lib import dlc_lib
 from chromite.lib import osutils
+from chromite.lib import parallel_unittest
 from chromite.lib import partial_mock
 from chromite.scripts import cros_set_lsb_release
 
@@ -1864,3 +1865,64 @@ def test_install_dlc_images_duplicate_ids_sanity_check(
             )
     else:
         fnc()
+
+
+class BuildDlcsTest(cros_test_lib.MockTempDirTestCase):
+    """Tests for BuildDlcs worker pool dispatch."""
+
+    def testBuildDlcsDispatchesAllDlcs(self) -> None:
+        """Verify BuildDlcs runs GenerateDlc, PreloadDlc, FactoryInstallDlc."""
+        # Populate legacy (dlc), scaled (dlc-scaled), and artifacts-meta
+        # (dlc-meta) directories to cover all three BuildDlcs passes.
+        build_dir = os.path.join(self.tempdir, "dlc")
+        build_dir_scaled = os.path.join(self.tempdir, "dlc-scaled")
+        build_dir_meta = os.path.join(self.tempdir, "dlc-meta")
+        for d in (
+            os.path.join(build_dir, "dlc-a"),
+            os.path.join(build_dir, "dlc-b"),
+            os.path.join(build_dir_scaled, "dlc-s"),
+            os.path.join(build_dir_meta, "dlc-m"),
+        ):
+            osutils.SafeMakedirs(d)
+
+        gen_mock = self.PatchObject(dlc_lib, "GenerateDlc")
+        preload_mock = self.PatchObject(dlc_lib, "PreloadDlc")
+        factory_mock = self.PatchObject(dlc_lib, "FactoryInstallDlc")
+
+        # Run BackgroundTaskRunner workers in-process so mock calls are
+        # recorded in the parent process.
+        with parallel_unittest.ParallelMock():
+            dlc_lib.BuildDlcs(
+                board=_BOARD,
+                build_dir=build_dir,
+                build_dir_scaled=build_dir_scaled,
+                build_dir_artifacts_meta=build_dir_meta,
+                dlc_id=None,
+                install_root_dir="/install",
+                rootfs=None,
+                src_dir="/src",
+                stateful="/stateful",
+                sysroot=str(self.tempdir),
+                factory_install=True,
+                preload=True,
+                reproducible=False,
+            )
+
+        # Legacy and scaled DLCs run GenerateDlc (with matching scaled flag)
+        # and FactoryInstallDlc; artifacts-meta (dlc-m) sets only_preload, so
+        # it skips both and runs only PreloadDlc.
+        self.assertEqual(
+            [
+                (c.kwargs["dlc_id"], c.kwargs["scaled"])
+                for c in gen_mock.call_args_list
+            ],
+            [("dlc-a", False), ("dlc-b", False), ("dlc-s", True)],
+        )
+        self.assertEqual(
+            [c.kwargs["dlc_id"] for c in preload_mock.call_args_list],
+            ["dlc-a", "dlc-b", "dlc-s", "dlc-m"],
+        )
+        self.assertEqual(
+            [c.kwargs["dlc_id"] for c in factory_mock.call_args_list],
+            ["dlc-a", "dlc-b", "dlc-s"],
+        )

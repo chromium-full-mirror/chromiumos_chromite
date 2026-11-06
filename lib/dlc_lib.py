@@ -12,7 +12,7 @@ import math
 import os
 import re
 import shutil
-from typing import Optional
+from typing import Any, Callable, Optional
 import zlib
 
 from chromite.lib import build_target_lib
@@ -1592,6 +1592,38 @@ def InstallDlcImages(
     logging.debug("Done installing DLCs.")
 
 
+_MAX_PARALLEL_TASKS = 32
+
+
+def _CallWithDlcId(func: Callable[..., None], dlc_id: str) -> None:
+    """Adapter: BackgroundTaskRunner passes queued args positionally."""
+    func(dlc_id=dlc_id)
+
+
+def _RunPerDlc(
+    func: Callable[..., None],
+    dlc_ids: list[str],
+    **kwargs: Any,
+) -> None:
+    """Runs keyword-only |func| across |dlc_ids| in a bounded worker pool.
+
+    Uses BackgroundTaskRunner rather than RunParallelSteps, which forks one
+    process per step up front even when max_parallel is set.
+    """
+    if not dlc_ids:
+        return
+    bound_func = functools.partial(func, **kwargs)
+    with parallel.BackgroundTaskRunner(
+        _CallWithDlcId,
+        bound_func,
+        processes=min(_MAX_PARALLEL_TASKS, len(dlc_ids)),
+    ) as queue:
+        for d_id in dlc_ids:
+            # Each queued list is unpacked as positional args after bound_func,
+            # invoking _CallWithDlcId(bound_func, d_id).
+            queue.put([d_id])
+
+
 def BuildDlcs(
     *,
     board: str,
@@ -1669,62 +1701,41 @@ def BuildDlcs(
             )
 
         if info.get("only_preload"):
-            parallel.RunParallelSteps(
-                [
-                    functools.partial(
-                        PreloadDlc,
-                        dlc_build_dir=dlc_build_dir,
-                        dlc_id=d_id,
-                        install_root_dir=install_root_dir,
-                        preload=preload,
-                    )
-                    for d_id in dlc_ids
-                ]
+            _RunPerDlc(
+                PreloadDlc,
+                dlc_ids,
+                dlc_build_dir=dlc_build_dir,
+                install_root_dir=install_root_dir,
+                preload=preload,
             )
             continue
 
-        parallel.RunParallelSteps(
-            [
-                functools.partial(
-                    GenerateDlc,
-                    board=board,
-                    dlc_build_dir=dlc_build_dir,
-                    dlc_id=d_id,
-                    src_dir=src_dir,
-                    sysroot=sysroot,
-                    scaled=scaled,
-                    reproducible=reproducible,
-                )
-                for d_id in dlc_ids
-            ],
-            max_parallel=32,
+        _RunPerDlc(
+            GenerateDlc,
+            dlc_ids,
+            board=board,
+            dlc_build_dir=dlc_build_dir,
+            src_dir=src_dir,
+            sysroot=sysroot,
+            scaled=scaled,
+            reproducible=reproducible,
         )
 
-        parallel.RunParallelSteps(
-            [
-                functools.partial(
-                    PreloadDlc,
-                    dlc_build_dir=dlc_build_dir,
-                    dlc_id=d_id,
-                    install_root_dir=install_root_dir,
-                    preload=preload,
-                    stateful=stateful,
-                )
-                for d_id in dlc_ids
-            ]
+        _RunPerDlc(
+            PreloadDlc,
+            dlc_ids,
+            dlc_build_dir=dlc_build_dir,
+            install_root_dir=install_root_dir,
+            preload=preload,
+            stateful=stateful,
         )
 
         if stateful and factory_install:
-            parallel.RunParallelSteps(
-                [
-                    functools.partial(
-                        FactoryInstallDlc,
-                        dlc_build_dir=dlc_build_dir,
-                        dlc_id=d_id,
-                        stateful=stateful,
-                    )
-                    for d_id in dlc_ids
-                ]
+            _RunPerDlc(
+                FactoryInstallDlc,
+                dlc_ids,
+                dlc_build_dir=dlc_build_dir,
+                stateful=stateful,
             )
 
         for d_id in dlc_ids:
