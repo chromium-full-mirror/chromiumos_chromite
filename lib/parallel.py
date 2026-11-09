@@ -10,9 +10,9 @@ import errno
 import functools
 import logging
 import multiprocessing
-from multiprocessing.managers import SyncManager
+from multiprocessing import managers
 import os
-import queue as Queue
+import pickle
 import signal
 import sys
 import time
@@ -29,7 +29,7 @@ from chromite.utils import prctl
 _BUFSIZE = 1024
 
 
-class HackTimeoutSyncManager(SyncManager):
+class HackTimeoutSyncManager(managers.SyncManager):
     """Increase the process join timeout in SyncManager.
 
     The timeout for the manager process to join in the core library is
@@ -50,7 +50,8 @@ class HackTimeoutSyncManager(SyncManager):
             functor(*args, **kwargs)
 
         process.join = functools.partial(_join, process.join)
-        SyncManager._finalize_manager(process, *args, **kwargs)
+        # pylint: disable-next=protected-access
+        managers.SyncManager._finalize_manager(process, *args, **kwargs)
 
 
 def IgnoreSigintAndSigterm() -> None:
@@ -183,7 +184,7 @@ class _BackgroundTask(multiprocessing.Process):
     PRINT_INTERVAL = 1
 
     def __init__(
-        self, task, queue, semaphore=None, task_args=None, task_kwargs=None
+        self, task, semaphore=None, task_args=None, task_kwargs=None
     ) -> None:
         """Create a new _BackgroundTask object.
 
@@ -193,20 +194,19 @@ class _BackgroundTask(multiprocessing.Process):
 
         Args:
             task: The task (a functor) to run in the background.
-            queue: A queue to be used for managing communication between the
-                parent and child process. This queue must be valid for the
-                length of the life of the child process, until the parent has
-                collected its status.
             semaphore: The lock to hold while |task| runs.
             task_args: A list of args to pass to the |task|.
             task_kwargs: A dict of optional args to pass to the |task|.
         """
         multiprocessing.Process.__init__(self)
         self._task = task
-        self._queue = queue
         self._semaphore = semaphore
         self._started = multiprocessing.Event()
         self._killing = multiprocessing.Event()
+        # Avoid per-task SyncManager Queue proxies, which reconnect in every
+        # forked child and cause O(N^2) IPC handshakes across N tasks.
+        self._finished = multiprocessing.Event()
+        self._has_errors = multiprocessing.Event()
         self._output = None
         self._parent_pid = None
         self._task_args = task_args if task_args else ()
@@ -351,8 +351,9 @@ class _BackgroundTask(multiprocessing.Process):
                         textline = self._DecodeToUtf8(line)
                         logging.debug(textline.rstrip("\n"))
         finally:
-            # Clean up our temporary file.
+            # Clean up our temporary files.
             osutils.SafeUnlink(self._output.name)
+            osutils.SafeUnlink(f"{self._output.name}.err")
             self._output.close()
             self._output = None
 
@@ -385,15 +386,16 @@ class _BackgroundTask(multiprocessing.Process):
                     # Check whether the process is still alive.
                     running = self.is_alive()
 
-                    try:
-                        errors = self._queue.get(True, self.PRINT_INTERVAL)
-                        if errors:
-                            task_errors.extend(errors)
-
+                    # Wait up to PRINT_INTERVAL while alive to flush stdout,
+                    # or check immediately if the child already exited.
+                    if self._finished.wait(
+                        self.PRINT_INTERVAL if running else 0
+                    ):
+                        if self._has_errors.is_set():
+                            with open(f"{self._output.name}.err", "rb") as f:
+                                task_errors.extend(pickle.load(f))
                         running = False
                         exited_cleanly = True
-                    except Queue.Empty:
-                        pass
 
                     if not running:
                         # Wait for the process to actually exit. If the child
@@ -498,7 +500,13 @@ class _BackgroundTask(multiprocessing.Process):
             errors = self._Run()
         finally:
             if not self._killing.is_set() and os.getpid() == pid:
-                self._queue.put(errors)
+                # Write pickled errors exclusively on failure before signaling
+                # completion; Cleanup() removes the .err file in the parent.
+                if errors:
+                    with open(f"{self._output.name}.err", "xb") as f:
+                        pickle.dump(errors, f)
+                    self._has_errors.set()
+                self._finished.set()
                 if self._semaphore is not None:
                     self._semaphore.release()
 
@@ -628,44 +636,41 @@ class _BackgroundTask(multiprocessing.Process):
             semaphore = multiprocessing.Semaphore(max_parallel)
 
         # First, start all the steps.
-        with Manager() as manager:
-            bg_tasks = collections.deque()
-            for step in steps:
-                task = cls(step, queue=manager.Queue(), semaphore=semaphore)
-                task.start()
-                bg_tasks.append(task)
+        bg_tasks = collections.deque()
+        for step in steps:
+            task = cls(step, semaphore=semaphore)
+            task.start()
+            bg_tasks.append(task)
 
-            foreground_except = None
-            try:
-                yield
-            except BaseException:
-                foreground_except = sys.exc_info()
-            finally:
-                errors = []
-                skip_bg_wait = halt_on_error and foreground_except is not None
-                # Wait for each step to complete.
-                while not skip_bg_wait and bg_tasks:
-                    task = bg_tasks.popleft()
-                    task_errors = task.Wait()
-                    if task_errors:
-                        errors.extend(task_errors)
-                        if halt_on_error:
-                            break
+        foreground_except = None
+        try:
+            yield
+        except BaseException:
+            foreground_except = sys.exc_info()
+        finally:
+            errors = []
+            skip_bg_wait = halt_on_error and foreground_except is not None
+            # Wait for each step to complete.
+            while not skip_bg_wait and bg_tasks:
+                task = bg_tasks.popleft()
+                task_errors = task.Wait()
+                if task_errors:
+                    errors.extend(task_errors)
+                    if halt_on_error:
+                        break
 
-                # If there are still tasks left, kill them.
-                if bg_tasks:
-                    cls._KillChildren(bg_tasks, log_level=logging.DEBUG)
+            # If there are still tasks left, kill them.
+            if bg_tasks:
+                cls._KillChildren(bg_tasks, log_level=logging.DEBUG)
 
-                # Propagate any exceptions; foreground exceptions take
-                # precedence.
-                if foreground_except is not None:
-                    # contextlib ignores caught exceptions unless explicitly
-                    # re-raised.
-                    raise foreground_except[1].with_traceback(
-                        foreground_except[2]
-                    )
-                if errors:
-                    raise BackgroundFailure(exc_infos=errors)
+            # Propagate any exceptions; foreground exceptions take
+            # precedence.
+            if foreground_except is not None:
+                # contextlib ignores caught exceptions unless explicitly
+                # re-raised.
+                raise foreground_except[1].with_traceback(foreground_except[2])
+            if errors:
+                raise BackgroundFailure(exc_infos=errors)
 
     @staticmethod
     def TaskRunner(
