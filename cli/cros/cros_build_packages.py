@@ -289,12 +289,6 @@ class BuildPackagesCommand(command.CliCommand):
             deprecated=deprecated_note % "--no-run-remoteexec",
             help=argparse.SUPPRESS,
         )
-        group.add_bool_argument(
-            "--use-siso",
-            False,
-            "Use Siso to build packages instead of Ninja.",
-            "Use Ninja to build packages.",
-        )
 
         group.add_bool_argument(
             "--bazel",
@@ -369,7 +363,6 @@ class BuildPackagesCommand(command.CliCommand):
             usepkg=options.usepkg,
             packages=options.packages,
             use_remoteexec=options.run_remoteexec,
-            use_siso=options.use_siso,
             incremental_build=options.withrevdeps,
             dryrun=options.pretend,
             usepkgonly=options.usepkgonly,

@@ -196,7 +196,6 @@ class BuildPackagesRunConfig:
         use_flags: Optional[list[str]] = None,
         use_remoteexec: bool = False,
         reproxy_cfg_file: str = "",
-        use_siso: bool = False,
         incremental_build: bool = True,
         dryrun: bool = False,
         usepkgonly: bool = False,
@@ -233,7 +232,6 @@ class BuildPackagesRunConfig:
             use_flags: A list of use flags to set.
             use_remoteexec: Whether to use RBE for remoteexec.
             reproxy_cfg_file: Config file for remoteexec
-            use_siso: Whether to use Siso.
             incremental_build: Whether to treat the build as an incremental
                 build or a fresh build. Always treating it as an incremental
                 build is safe, but certain operations can be faster when we know
@@ -273,7 +271,6 @@ class BuildPackagesRunConfig:
         self.use_flags = use_flags
         self.use_remoteexec = use_remoteexec
         self.reproxy_cfg_file = reproxy_cfg_file
-        self.use_siso = use_siso
         self.is_incremental = incremental_build
         self.dryrun = dryrun
         self.usepkgonly = usepkgonly
@@ -337,8 +334,6 @@ class BuildPackagesRunConfig:
         if self.use_remoteexec:
             env["USE_REMOTEEXEC"] = "true"
             env["REPROXY_CFG_FILE"] = self.reproxy_cfg_file
-        if self.use_siso:
-            env["USE_SISO"] = "true"
 
         return env
 
