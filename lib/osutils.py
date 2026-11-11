@@ -697,6 +697,32 @@ class BadPathsException(Exception):
     """Raised by various osutils path manipulation functions on bad input."""
 
 
+# Minimum file size (1 MiB) to spawn cp --reflink=auto; smaller files are
+# copied in-process with shutil.copy to avoid subprocess overhead.
+_REFLINK_MIN_SIZE = 1024 * 1024
+
+
+def reflink_or_copy_file(
+    src: Union[str, os.PathLike],
+    dst: Union[str, os.PathLike],
+) -> None:
+    """Copy a file, cloning extents via cp --reflink=auto for large files.
+
+    Drop-in alternative to shutil.copy. Files larger than 1 MiB use
+    cp --reflink=auto so copy-on-write filesystems like btrfs clone extents
+    in O(1) while other filesystems fall back to a regular copy; smaller
+    files use shutil.copy to avoid subprocess overhead.
+
+    Args:
+        src: Source file path.
+        dst: Destination file path or existing directory.
+    """
+    if os.path.getsize(src) > _REFLINK_MIN_SIZE:
+        cros_build_lib.dbg_run(["cp", "--reflink=auto", "--", src, dst])
+    else:
+        shutil.copy(src, dst)
+
+
 def _CopyDirContents(
     from_dir: Union[str, os.PathLike],
     to_dir: Union[str, os.PathLike],

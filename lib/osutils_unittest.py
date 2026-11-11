@@ -11,6 +11,7 @@ import filecmp
 import glob
 import grp
 import itertools
+import logging
 import os
 from pathlib import Path
 import pwd
@@ -1977,3 +1978,53 @@ def test_rotate_log_copy_root(root_log, _patch_datetime_now) -> None:
         pass
     assert not root_log.exists()
     assert (root_log.parent / "log-copy-20230101-162000.log").exists()
+
+
+def test_reflink_or_copy_file_small(
+    run_mock: cros_test_lib.RunCommandMock, tmp_path: Path
+) -> None:
+    """Verify small files copy via shutil.copy without spawning cp."""
+    src = tmp_path / "src.bin"
+    src.write_bytes(b"hello world")
+    src.chmod(0o750)
+
+    dst = tmp_path / "dst.bin"
+    osutils.reflink_or_copy_file(src, dst)
+    assert dst.read_bytes() == b"hello world"
+    assert stat.S_IMODE(dst.stat().st_mode) == 0o750
+
+    dst_dir = tmp_path / "out"
+    dst_dir.mkdir()
+    osutils.reflink_or_copy_file(src, dst_dir)
+    assert (dst_dir / "src.bin").read_bytes() == b"hello world"
+    assert run_mock.call_count == 0
+
+
+def test_reflink_or_copy_file_large(tmp_path: Path) -> None:
+    """Verify large files copy contents and mode via cp --reflink=auto."""
+    src = tmp_path / "large.bin"
+    src.write_bytes(b"header")
+    os.truncate(src, 2 * 1024 * 1024)
+    src.chmod(0o750)
+
+    dst = tmp_path / "dst.bin"
+    osutils.reflink_or_copy_file(src, dst)
+    assert filecmp.cmp(src, dst, shallow=False)
+    assert stat.S_IMODE(dst.stat().st_mode) == 0o750
+
+
+def test_reflink_or_copy_file_large_cmd(
+    run_mock: cros_test_lib.RunCommandMock, tmp_path: Path
+) -> None:
+    """Verify files larger than 1 MiB invoke cp --reflink=auto via dbg_run."""
+    src = tmp_path / "large.bin"
+    src.touch()
+    os.truncate(src, 2 * 1024 * 1024)
+    dst = tmp_path / "dst.bin"
+    run_mock.SetDefaultCmdResult()
+
+    osutils.reflink_or_copy_file(src, dst)
+    run_mock.assertCommandCalled(
+        ["cp", "--reflink=auto", "--", src, dst],
+        debug_level=logging.DEBUG,
+    )

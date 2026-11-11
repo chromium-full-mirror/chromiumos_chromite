@@ -1926,3 +1926,22 @@ class BuildDlcsTest(cros_test_lib.MockTempDirTestCase):
             [c.kwargs["dlc_id"] for c in factory_mock.call_args_list],
             ["dlc-a", "dlc-b", "dlc-s"],
         )
+
+    def testPreloadDlcUsesReflinkOrCopyFile(self) -> None:
+        """Verify PreloadDlc copies .img files via reflink_or_copy_file."""
+        build_dir = os.path.join(self.tempdir, "dlc")
+        img_path = os.path.join(build_dir, _ID, _PACKAGE, dlc_lib.DLC_IMAGE)
+        osutils.WriteFile(img_path, "image content", makedirs=True)
+        install_root = os.path.join(self.tempdir, "install")
+
+        copy_mock = self.PatchObject(osutils, "reflink_or_copy_file")
+        dlc_lib.PreloadDlc(
+            dlc_build_dir=build_dir,
+            dlc_id=_ID,
+            install_root_dir=install_root,
+            preload=False,
+        )
+
+        copy_mock.assert_called_once_with(
+            img_path, os.path.join(install_root, _ID, _PACKAGE)
+        )

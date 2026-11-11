@@ -1934,7 +1934,7 @@ def PreloadDlc(
                         filepath,
                         install_dlc_dir,
                     )
-                    shutil.copy(filepath, install_dlc_dir)
+                    osutils.reflink_or_copy_file(filepath, install_dlc_dir)
                     logging.debug("Done copying DLC to %s.", install_dlc_dir)
         else:
             logging.debug(
