@@ -502,18 +502,18 @@ class TestExceptions(cros_test_lib.MockTestCase):
         with self.assertRaises(parallel.BackgroundFailure):
             parallel.RunParallelSteps([self._BadPickler], return_values=True)
 
-    def testErrorTempFileCleanup(self) -> None:
-        """Verify output and error temp files are removed on failure."""
-        # Run a failing task so the child writes the .err file, then check
-        # that Wait collects the error and removes both temp files.
-        task = parallel._BackgroundTask(self._SystemExit)
-        with outcap.OutputCapturer():
-            task.start()
-            output_name = task._output.name
-            errors = task.Wait()
-        self.assertTrue(errors)
-        self.assertFalse(os.path.exists(output_name))
-        self.assertFalse(os.path.exists(f"{output_name}.err"))
+    def testErrorCleanup(self) -> None:
+        """Verify errors pass via Manager dict and output file is removed."""
+        with parallel.Manager() as manager:
+            error_map = manager.dict()
+            task = parallel._BackgroundTask(self._SystemExit, error_map)
+            with outcap.OutputCapturer():
+                task.start()
+                output_name = task._output.name
+                errors = task.Wait()
+            self.assertTrue(errors)
+            self.assertEqual(len(error_map), 0)
+            self.assertNotExists(output_name)
 
 
 class _TestForegroundException(Exception):

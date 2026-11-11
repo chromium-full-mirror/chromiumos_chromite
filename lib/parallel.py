@@ -12,7 +12,6 @@ import logging
 import multiprocessing
 from multiprocessing import managers
 import os
-import pickle
 import signal
 import sys
 import time
@@ -184,7 +183,12 @@ class _BackgroundTask(multiprocessing.Process):
     PRINT_INTERVAL = 1
 
     def __init__(
-        self, task, semaphore=None, task_args=None, task_kwargs=None
+        self,
+        task,
+        error_map,
+        semaphore=None,
+        task_args=None,
+        task_kwargs=None,
     ) -> None:
         """Create a new _BackgroundTask object.
 
@@ -194,17 +198,20 @@ class _BackgroundTask(multiprocessing.Process):
 
         Args:
             task: The task (a functor) to run in the background.
+            error_map: A Manager.dict() shared across tasks for passing child
+                error lists back to the parent, keyed by child PID.
             semaphore: The lock to hold while |task| runs.
             task_args: A list of args to pass to the |task|.
             task_kwargs: A dict of optional args to pass to the |task|.
         """
         multiprocessing.Process.__init__(self)
         self._task = task
+        self._error_map = error_map
         self._semaphore = semaphore
         self._started = multiprocessing.Event()
         self._killing = multiprocessing.Event()
-        # Avoid per-task SyncManager Queue proxies, which reconnect in every
-        # forked child and cause O(N^2) IPC handshakes across N tasks.
+        # Use per-task Events so Wait() only touches error_map when a step
+        # actually fails.
         self._finished = multiprocessing.Event()
         self._has_errors = multiprocessing.Event()
         self._output = None
@@ -351,9 +358,8 @@ class _BackgroundTask(multiprocessing.Process):
                         textline = self._DecodeToUtf8(line)
                         logging.debug(textline.rstrip("\n"))
         finally:
-            # Clean up our temporary files.
+            # Clean up our temporary file.
             osutils.SafeUnlink(self._output.name)
-            osutils.SafeUnlink(f"{self._output.name}.err")
             self._output.close()
             self._output = None
 
@@ -392,8 +398,7 @@ class _BackgroundTask(multiprocessing.Process):
                         self.PRINT_INTERVAL if running else 0
                     ):
                         if self._has_errors.is_set():
-                            with open(f"{self._output.name}.err", "rb") as f:
-                                task_errors.extend(pickle.load(f))
+                            task_errors.extend(self._error_map.pop(self.pid))
                         running = False
                         exited_cleanly = True
 
@@ -500,11 +505,10 @@ class _BackgroundTask(multiprocessing.Process):
             errors = self._Run()
         finally:
             if not self._killing.is_set() and os.getpid() == pid:
-                # Write pickled errors exclusively on failure before signaling
-                # completion; Cleanup() removes the .err file in the parent.
+                # Pass errors back over IPC via the shared Manager dict before
+                # signaling completion.
                 if errors:
-                    with open(f"{self._output.name}.err", "xb") as f:
-                        pickle.dump(errors, f)
+                    self._error_map[pid] = errors
                     self._has_errors.set()
                 self._finished.set()
                 if self._semaphore is not None:
@@ -635,42 +639,47 @@ class _BackgroundTask(multiprocessing.Process):
         if max_parallel is not None:
             semaphore = multiprocessing.Semaphore(max_parallel)
 
-        # First, start all the steps.
-        bg_tasks = collections.deque()
-        for step in steps:
-            task = cls(step, semaphore=semaphore)
-            task.start()
-            bg_tasks.append(task)
+        # Share a single Manager dict across all steps instead of a proxy per
+        # step, avoiding O(N^2) BaseProxy after-fork handshakes.
+        with Manager() as manager:
+            error_map = manager.dict()
+            bg_tasks = collections.deque()
+            for step in steps:
+                task = cls(step, error_map, semaphore=semaphore)
+                task.start()
+                bg_tasks.append(task)
 
-        foreground_except = None
-        try:
-            yield
-        except BaseException:
-            foreground_except = sys.exc_info()
-        finally:
-            errors = []
-            skip_bg_wait = halt_on_error and foreground_except is not None
-            # Wait for each step to complete.
-            while not skip_bg_wait and bg_tasks:
-                task = bg_tasks.popleft()
-                task_errors = task.Wait()
-                if task_errors:
-                    errors.extend(task_errors)
-                    if halt_on_error:
-                        break
+            foreground_except = None
+            try:
+                yield
+            except BaseException:
+                foreground_except = sys.exc_info()
+            finally:
+                errors = []
+                skip_bg_wait = halt_on_error and foreground_except is not None
+                # Wait for each step to complete.
+                while not skip_bg_wait and bg_tasks:
+                    task = bg_tasks.popleft()
+                    task_errors = task.Wait()
+                    if task_errors:
+                        errors.extend(task_errors)
+                        if halt_on_error:
+                            break
 
-            # If there are still tasks left, kill them.
-            if bg_tasks:
-                cls._KillChildren(bg_tasks, log_level=logging.DEBUG)
+                # If there are still tasks left, kill them.
+                if bg_tasks:
+                    cls._KillChildren(bg_tasks, log_level=logging.DEBUG)
 
-            # Propagate any exceptions; foreground exceptions take
-            # precedence.
-            if foreground_except is not None:
-                # contextlib ignores caught exceptions unless explicitly
-                # re-raised.
-                raise foreground_except[1].with_traceback(foreground_except[2])
-            if errors:
-                raise BackgroundFailure(exc_infos=errors)
+                # Propagate any exceptions; foreground exceptions take
+                # precedence.
+                if foreground_except is not None:
+                    # contextlib ignores caught exceptions unless explicitly
+                    # re-raised.
+                    raise foreground_except[1].with_traceback(
+                        foreground_except[2]
+                    )
+                if errors:
+                    raise BackgroundFailure(exc_infos=errors)
 
     @staticmethod
     def TaskRunner(
