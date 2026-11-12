@@ -7,7 +7,6 @@
 import logging
 import os
 import re
-import shutil
 
 from chromite.cli import device_imager
 from chromite.cli.cros import cros_chrome_sdk
@@ -352,8 +351,8 @@ class FileImager(USBImager):
         else:
             logging.info("Copying to %s", self.device)
         try:
-            shutil.copy(image_path, self.device)
-        except IOError:
+            osutils.reflink_or_copy_file(image_path, self.device)
+        except (OSError, cros_build_lib.RunCommandError):
             logging.error(
                 "Failed to copy image %s to %s", image_path, self.device
             )

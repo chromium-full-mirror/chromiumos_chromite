@@ -5,7 +5,7 @@
 """Downloaders used to download artifacts and files from a given source."""
 
 import collections
-from datetime import datetime
+import datetime
 import glob
 import logging
 import os
@@ -145,8 +145,8 @@ class Downloader:
             file_info = os.stat(file_path)
             ls_info = ls_format(
                 file_path,
-                datetime.fromtimestamp(file_info.st_atime),
-                datetime.fromtimestamp(file_info.st_mtime),
+                datetime.datetime.fromtimestamp(file_info.st_atime),
+                datetime.datetime.fromtimestamp(file_info.st_mtime),
                 file_info.st_size,
             )
             build_dir_info += output_format % ls_info._asdict()
@@ -437,7 +437,7 @@ class LocalDownloader(Downloader):
         if self._move_files:
             shutil.move(src_path, install_path)
         else:
-            shutil.copyfile(src_path, install_path)
+            osutils.reflink_or_copy_file(src_path, install_path)
         return install_path
 
     def DescribeSource(self):

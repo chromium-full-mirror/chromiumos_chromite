@@ -6,7 +6,6 @@
 
 import os
 from pathlib import Path
-import shutil
 import tempfile
 from unittest import mock
 
@@ -32,7 +31,7 @@ class BuildMiniosTest(cros_test_lib.RunCommandTempDirTestCase):
             minios, "InsertMiniOsKernelImage"
         )
 
-        self.copy_mock = self.PatchObject(shutil, "copy")
+        self.copy_mock = self.PatchObject(osutils, "reflink_or_copy_file")
         # Patch to assert against the tempdir that's created under the anchored.
         # tempdir created by cros_test_lib.
         self._tempdir = os.path.join(self.tempdir, "test-dir")

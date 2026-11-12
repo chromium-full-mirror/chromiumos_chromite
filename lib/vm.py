@@ -86,7 +86,7 @@ def CreateVMImage(image=None, board=None, updatable=True, dest_dir=None):
 
     if exists and dest_dir:
         # Copy the existing VM image to dest_dir.
-        shutil.copyfile(src_path, dest_path)
+        osutils.reflink_or_copy_file(src_path, dest_path)
 
     if not exists:
         # No existing VM image that we can reuse. Create a new VM image.
@@ -718,7 +718,7 @@ class VM(device.Device):
         if not self.image_copy_dir:
             logging.debug("Told to copy VM image, but no output directory set")
             return
-        shutil.copy(
+        osutils.reflink_or_copy_file(
             self.image_path,
             os.path.join(
                 self.image_copy_dir, os.path.basename(self.image_path)

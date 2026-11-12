@@ -11,12 +11,12 @@ import argparse
 import logging
 import os
 from pathlib import Path
-import shutil
 import tempfile
 
 from chromite.lib import commandline
 from chromite.lib import constants
 from chromite.lib import minios
+from chromite.lib import osutils
 
 
 def validate_path(path_string, path_type, required_permission=None):
@@ -178,7 +178,7 @@ def main(argv) -> None:
         )
 
         if opts.kernel_output:
-            shutil.copy(kernel, opts.kernel_output)
+            osutils.reflink_or_copy_file(kernel, opts.kernel_output)
             logging.info("kernel image copied to: %s", opts.kernel_output)
 
         if not opts.kernel_only:

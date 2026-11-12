@@ -23,7 +23,6 @@ $ cros analyze-image --image=/tmp/cros-analyze-coral-m86.bin
 
 import csv
 import logging
-import shutil
 import sys
 import typing
 
@@ -146,8 +145,8 @@ def fetch_image(board: str, version: str, local_path: str = None) -> str:
 
     if local_path:
         try:
-            shutil.copyfile(image_path, local_path)
-        except OSError as e:
+            osutils.reflink_or_copy_file(image_path, local_path)
+        except (OSError, cros_build_lib.RunCommandError) as e:
             cros_build_lib.die(
                 f"Copy error '{image_path}' to '{local_path}': {e}"
             )

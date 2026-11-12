@@ -10,7 +10,6 @@ import hashlib
 import logging
 import os
 import re
-import shutil
 import tempfile
 import threading
 
@@ -264,7 +263,7 @@ def GetFileSha256(file_path):
 def CopyFile(source, dest) -> None:
     """Copies a file from |source| to |dest|."""
     logging.debug("Copy File %s -> %s", source, dest)
-    shutil.copy(source, dest)
+    osutils.reflink_or_copy_file(source, dest)
 
 
 def SymlinkFile(target, link) -> None:
