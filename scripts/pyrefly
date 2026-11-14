@@ -1,0 +1,60 @@
+#!/usr/bin/env vpython3
+# Copyright 2026 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# [VPYTHON:BEGIN]
+# python_version: "3.11"
+#
+# wheel: <
+#   name: "infra/python/wheels/pyrefly/${vpython_platform}"
+#   version: "version:1.4.0"
+# >
+#
+# # Dependencies used by chromite but we want for typing.
+#
+# wheel: <
+#   name: "infra/python/wheels/astroid-py3"
+#   version: "version:3.2.4"
+# >
+# wheel: <
+#   name: "infra/python/wheels/debugpy/${vpython_platform}"
+#   version: "version:1.8.0"
+# >
+# wheel: <
+#   name: "infra/python/wheels/libcst/${vpython_platform}"
+#   version: "version:1.1.0"
+# >
+# wheel: <
+#   name: "infra/python/wheels/psutil/${vpython_platform}"
+#   version: "version:5.7.2"
+# >
+# wheel: <
+#   name: "infra/python/wheels/pylint-py3"
+#   version: "version:3.2.7"
+# >
+# wheel: <
+#   name: "infra/python/wheels/pytest-py3"
+#   version: "version:8.3.4"
+# >
+# wheel: <
+#   name: "infra/python/wheels/python-magic-py2_py3"
+#   version: "version:0.4.24"
+# >
+# wheel: <
+#   name: "infra/python/wheels/pyyaml-py3"
+#   version: "version:5.3.1"
+# >
+#
+# [VPYTHON:END]
+
+"""Wrapper for stable version of black that we control."""
+
+import os
+import sys
+
+# pylint: disable=import-error,unused-import
+import pyrefly.__main__
+
+
+os.execv(pyrefly.__main__.get_pyrefly_bin(), sys.argv)

@@ -25,3 +25,21 @@ module = [
     "chromite.third_party.*",
 ]
 ignore_errors = true
+
+# https://pyrefly.org/en/docs/configuration/
+[tool.pyrefly]
+project-includes = [
+    # go/keep-sorted start
+    "**/*.py*",
+    # go/keep-sorted end
+]
+# We use relative module imports for our own modules.
+enable-fallback-search-path = true
+project-excludes = [
+    # go/keep-sorted start
+    "**/*.sh",
+    "**/*_pb2.py",
+    "**/*_pb2.pyi",
+    "third_party/**",
+    # go/keep-sorted end
+]

@@ -22,6 +22,7 @@ _INPUTS = (
     "scripts/isort",
     "scripts/mypy",
     "scripts/pylint",
+    "scripts/pyrefly",
     "scripts/vpython_wrapper.py",
 )
 
