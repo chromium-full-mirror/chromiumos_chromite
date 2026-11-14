@@ -2,30 +2,6 @@
 line-length = 80
 target-version = ['py311']
 
-# https://mypy.readthedocs.io/en/stable/config_file.html
-# https://mypy.readthedocs.io/en/stable/command_line.html
-[tool.mypy]
-plugins = [
-    'lint/mypy_plugin.py',
-]
-exclude = [
-    'third_party/',
-    'sdk/bin/',
-    '_pb2\.pyi?$',
-    '_grpc\.pyi?$',
-]
-
-[[tool.mypy.overrides]]
-# NB: Even though we've excluded pb2 modules above, mypy will still type check
-# imported modules.  We exclude the directories that only contain pb2 modules
-# to workaround.  If we start mixing pb2 with other files, this will get messy.
-module = [
-    "chromite.api.gen.*",
-    "chromite.api.gen_test.*",
-    "chromite.third_party.*",
-]
-ignore_errors = true
-
 # https://pyrefly.org/en/docs/configuration/
 [tool.pyrefly]
 project-includes = [

@@ -324,7 +324,6 @@ KNOWN_ISSUES = (
     "lint/linters/portage_layout_conf.py",
     "lint/linters/shell.py",
     "lint/linters/upstart_unittest.py",
-    "lint/mypy_plugin.py",
     "scripts/analyze_bazel_exec_logs.py",
     "scripts/autotest_quickmerge.py",
     "scripts/autotest_quickmerge_unittest.py",

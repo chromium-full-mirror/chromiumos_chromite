@@ -20,7 +20,6 @@ from chromite.lib import constants
 _INPUTS = (
     "scripts/black",
     "scripts/isort",
-    "scripts/mypy",
     "scripts/pylint",
     "scripts/pyrefly",
     "scripts/vpython_wrapper.py",

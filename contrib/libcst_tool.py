@@ -28,14 +28,6 @@ https://libcst.readthedocs.io/en/latest/index.html
 #   name: "infra/python/wheels/pyyaml-py3"
 #   version: "version:5.3.1"
 # >
-# wheel: <
-#   name: "infra/python/wheels/mypy-py3"
-#   version: "version:1.13.0"
-# >
-# wheel: <
-#   name: "infra/python/wheels/mypy-extensions-py3"
-#   version: "version:1.1.0"
-# >
 # [VPYTHON:END]
 
 import importlib.util
