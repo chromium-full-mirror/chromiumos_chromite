@@ -4,12 +4,11 @@
 
 """Chromite type checker.
 
-Run the chromite Python codebase through the mypy type checker.
+Run the chromite Python codebase through the type checker.
 """
 
 import dataclasses
-import logging
-import os
+import json
 from typing import Iterator, Optional
 
 from chromite.lib import commandline
@@ -25,11 +24,12 @@ KNOWN_ISSUES = (
     "api/api_config.py",
     "api/compile_build_api_proto.py",
     "api/contrib/depgraph_common_ancestors.py",
+    "api/contrib/fetch_builder_requests.py",
+    "api/controller/android.py",
     "api/controller/artifacts.py",
     "api/controller/binhost.py",
-    "api/controller/controller_util_unittest.py",
-    "api/controller/dependency_unittest.py",
-    "api/controller/dlc.py",
+    "api/controller/copybot.py",
+    "api/controller/dependency.py",
     "api/controller/firmware.py",
     "api/controller/firmware_unittest.py",
     "api/controller/image.py",
@@ -38,6 +38,7 @@ KNOWN_ISSUES = (
     "api/controller/packages.py",
     "api/controller/payload.py",
     "api/controller/payload_unittest.py",
+    "api/controller/portage_explorer.py",
     "api/controller/recovery.py",
     "api/controller/sdk.py",
     "api/controller/sdk_unittest.py",
@@ -48,8 +49,8 @@ KNOWN_ISSUES = (
     "api/controller/toolchain.py",
     "api/faux.py",
     "api/field_handler.py",
-    "api/field_handler_unittest.py",
     "api/message_util.py",
+    "api/message_util_unittest.py",
     "api/router.py",
     "api/validate.py",
     "api/validate_unittest.py",
@@ -60,10 +61,11 @@ KNOWN_ISSUES = (
     "cli/cros/cros_analyze_image.py",
     "cli/cros/cros_ap.py",
     "cli/cros/cros_build_image.py",
-    "cli/cros/cros_build_kernel_unittest.py",
+    "cli/cros/cros_build_kernel.py",
     "cli/cros/cros_build_packages.py",
     "cli/cros/cros_chrome_sdk.py",
     "cli/cros/cros_chrome_sdk_unittest.py",
+    "cli/cros/cros_clean.py",
     "cli/cros/cros_clean_outdated_pkgs.py",
     "cli/cros/cros_cp.py",
     "cli/cros/cros_cp_unittest.py",
@@ -71,30 +73,43 @@ KNOWN_ISSUES = (
     "cli/cros/cros_cron_unittest.py",
     "cli/cros/cros_debug.py",
     "cli/cros/cros_debug_unittest.py",
+    "cli/cros/cros_deploy.py",
     "cli/cros/cros_deploy_unittest.py",
+    "cli/cros/cros_ensure_bootstrap.py",
+    "cli/cros/cros_fix.py",
     "cli/cros/cros_flash.py",
     "cli/cros/cros_flash_unittest.py",
     "cli/cros/cros_format.py",
     "cli/cros/cros_lint.py",
+    "cli/cros/cros_lint_unittest.py",
+    "cli/cros/cros_path.py",
+    "cli/cros/cros_query.py",
+    "cli/cros/cros_query_unittest.py",
     "cli/cros/cros_shell.py",
     "cli/cros/cros_shell_unittest.py",
+    "cli/cros/cros_stage.py",
+    "cli/cros/cros_telemetry.py",
     "cli/cros/cros_try.py",
+    "cli/cros/cros_vm.py",
+    "cli/cros/cros_workon.py",
     "cli/cros/lint.py",
     "cli/cros/lint_unittest.py",
+    "cli/cros/tests/cros_vm_test.py",
     "cli/deploy.py",
     "cli/deploy_unittest.py",
     "cli/device_imager.py",
     "cli/device_imager_unittest.py",
     "cli/flash.py",
     "cli/flash_unittest.py",
+    "conftest.py",
     "contrib/aue_overlays.py",
     "contrib/cl_perf.py",
-    "contrib/codemod/auto_type_dunders.py",
     "contrib/codemod/auto_type_none.py",
     "contrib/copybot_downstream.py",
     "contrib/copybot_downstream_config/coreboot_downstream.py",
     "contrib/copybot_downstream_config/downstream_argparser.py",
     "contrib/crosfw.py",
+    "contrib/dump_depgraph.py",
     "contrib/ebuild_housekeeping.py",
     "contrib/find_unused_pkgs.py",
     "contrib/fwgdb.py",
@@ -104,6 +119,7 @@ KNOWN_ISSUES = (
     "contrib/gs_dump_acls.py",
     "contrib/guestos/deploy_to_termina.py",
     "contrib/img_size.py",
+    "contrib/json_diff.py",
     "contrib/libcst_tool.py",
     "contrib/package_index_cros/lib/cdb.py",
     "contrib/package_index_cros/lib/cdb_unittest.py",
@@ -119,6 +135,7 @@ KNOWN_ISSUES = (
     "contrib/parse_emerge.py",
     "contrib/portage_explorer/get_ebuild_metadata_spider.py",
     "contrib/portage_explorer/get_overlays_spider.py",
+    "contrib/portage_explorer/get_profile_inheritance_spider_unittest.py",
     "contrib/portage_explorer/spider_testables.py",
     "contrib/uprev_frequency.py",
     "contrib/you_dont_need_libchrome.py",
@@ -131,14 +148,13 @@ KNOWN_ISSUES = (
     "format/formatters/star.py",
     "format/formatters/textproto.py",
     "ide_tooling/scripts/compdb_no_chroot.py",
-    "ide_tooling/scripts/compdb_no_chroot_unittest.py",
-    "ide_tooling/scripts/detect_indent.py",
-    "ide_tooling/scripts/detect_indent_unittest.py",
+    "lib/alerts.py",
+    "lib/alerts_unittest.py",
     "lib/auth.py",
-    "lib/auth_unittest.py",
     "lib/autotest_util.py",
     "lib/autotest_util_unittest.py",
     "lib/binpkg.py",
+    "lib/binpkg_unittest.py",
     "lib/build_query.py",
     "lib/build_query_unittest.py",
     "lib/build_target_lib.py",
@@ -146,6 +162,7 @@ KNOWN_ISSUES = (
     "lib/cache_unittest.py",
     "lib/chrome_lkgm.py",
     "lib/chrome_lkgm_unittest.py",
+    "lib/chrome_util.py",
     "lib/chrome_util_unittest.py",
     "lib/chromeos_version.py",
     "lib/chroot_lib.py",
@@ -160,30 +177,35 @@ KNOWN_ISSUES = (
     "lib/completers/package_completers.py",
     "lib/compression_lib.py",
     "lib/compression_lib_unittest.py",
-    "lib/constants.py",
     "lib/cros_build_lib.py",
     "lib/cros_build_lib_unittest.py",
     "lib/cros_sdk_lib.py",
     "lib/cros_sdk_lib_unittest.py",
     "lib/cros_test.py",
     "lib/cros_test_lib.py",
+    "lib/cros_test_lib_unittest.py",
     "lib/cros_test_unittest.py",
     "lib/debugger.py",
+    "lib/debugger_unittest.py",
     "lib/dependency_graph.py",
     "lib/dependency_lib.py",
     "lib/depgraph.py",
     "lib/depgraph_unittest.py",
+    "lib/dev_server_wrapper.py",
     "lib/disk_layout.py",
     "lib/dlc_allowlist.py",
     "lib/dlc_allowlist_unittest.py",
     "lib/dlc_lib.py",
     "lib/dlc_lib_unittest.py",
-    "lib/dot_helper.py",
+    "lib/failures_lib.py",
+    "lib/filetype.py",
+    "lib/firmware/ap_firmware_config/__init__.py",
     "lib/firmware/firmware_lib.py",
     "lib/firmware/firmware_lib_unittest.py",
     "lib/flexor.py",
     "lib/fwbuddy/fwbuddy.py",
     "lib/fwbuddy/fwbuddy_unittest.py",
+    "lib/gerrit.py",
     "lib/gerrit_unittest.py",
     "lib/git.py",
     "lib/git_unittest.py",
@@ -194,18 +216,21 @@ KNOWN_ISSUES = (
     "lib/gs_unittest.py",
     "lib/image_lib.py",
     "lib/image_lib_unittest.py",
+    "lib/image_test_lib.py",
     "lib/kernel_builder.py",
     "lib/kernel_builder_unittest.py",
     "lib/kernel_cmdline.py",
     "lib/kernel_cmdline_unittest.py",
     "lib/loas.py",
+    "lib/locking.py",
     "lib/locking_unittest.py",
     "lib/metrics.py",
     "lib/metrics_lib.py",
     "lib/metrics_lib_unittest.py",
+    "lib/metrics_unittest.py",
     "lib/minios_unittest.py",
+    "lib/namespaces.py",
     "lib/namespaces_unittest.py",
-    "lib/nebraska_wrapper.py",
     "lib/nebraska_wrapper_unittest.py",
     "lib/on_device_fuzz.py",
     "lib/on_device_fuzz_unittest.py",
@@ -215,23 +240,24 @@ KNOWN_ISSUES = (
     "lib/osutils_unittest.py",
     "lib/parallel.py",
     "lib/parallel_unittest.py",
+    "lib/parseelf.py",
     "lib/parseelf_unittest.py",
     "lib/parser/elog_unittest.py",
+    "lib/parser/package_info.py",
+    "lib/partial_mock.py",
     "lib/partial_mock_unittest.py",
     "lib/patch.py",
     "lib/patch_unittest.py",
     "lib/path_util.py",
     "lib/path_util_unittest.py",
+    "lib/paygen/download_cache_unittest.py",
     "lib/paygen/gslock.py",
-    "lib/paygen/gslock_unittest.py",
-    "lib/paygen/gspaths.py",
     "lib/paygen/partition_lib.py",
     "lib/paygen/partition_lib_unittest.py",
     "lib/paygen/paygen_build_lib.py",
     "lib/paygen/paygen_payload_lib.py",
     "lib/paygen/paygen_payload_lib_unittest.py",
     "lib/paygen/paygen_provision_payload.py",
-    "lib/paygen/paygen_stateful_payload_lib.py",
     "lib/paygen/signer_payloads_client.py",
     "lib/paygen/signer_payloads_client_unittest.py",
     "lib/paygen/urilib.py",
@@ -243,18 +269,18 @@ KNOWN_ISSUES = (
     "lib/protofiles_lib.py",
     "lib/qemu.py",
     "lib/remote_access.py",
+    "lib/remote_access_unittest.py",
     "lib/remoteexec_lib.py",
-    "lib/remoteexec_lib_unittest.py",
     "lib/repo_util_unittest.py",
     "lib/retry_stats.py",
     "lib/retry_stats_unittest.py",
-    "lib/retry_util_unittest.py",
+    "lib/retry_util.py",
     "lib/sdk_builder_lib.py",
     "lib/sdk_builder_lib_unittest.py",
+    "lib/stateful_updater.py",
     "lib/stateful_updater_unittest.py",
     "lib/subtool_lib.py",
     "lib/subtool_lib_unittest.py",
-    "lib/sudo.py",
     "lib/sysroot_lib.py",
     "lib/sysroot_lib_unittest.py",
     "lib/telemetry/__init__.py",
@@ -263,22 +289,22 @@ KNOWN_ISSUES = (
     "lib/telemetry/cros_detector.py",
     "lib/telemetry/cros_detector_unittest.py",
     "lib/telemetry/telemetry_unittest.py",
+    "lib/telemetry/trace/__init__.py",
     "lib/telemetry/trace/chromite_span.py",
     "lib/telemetry/trace/chromite_tracer.py",
-    "lib/telemetry/trace/chromite_tracer_unittest.py",
     "lib/telemetry_publisher.py",
-    "lib/telemetry_publisher_unittest.py",
     "lib/terminal.py",
     "lib/timeout_util.py",
+    "lib/timeout_util_unittest.py",
     "lib/toolchain.py",
     "lib/toolchain_list.py",
-    "lib/toolchain_unittest.py",
     "lib/toolchain_util.py",
     "lib/toolchain_util_unittest.py",
     "lib/ts_mon_config.py",
     "lib/ts_mon_config_unittest.py",
     "lib/uprev_lib.py",
     "lib/uprev_lib_unittest.py",
+    "lib/user_db.py",
     "lib/verity.py",
     "lib/vm.py",
     "lib/vm_unittest.py",
@@ -287,7 +313,8 @@ KNOWN_ISSUES = (
     "lib/xbuddy/build_artifact.py",
     "lib/xbuddy/build_artifact_unittest.py",
     "lib/xbuddy/common_util.py",
-    "lib/xbuddy/downloader_unittest.py",
+    "lib/xbuddy/downloader.py",
+    "lib/xbuddy/retry.py",
     "lib/xbuddy/xbuddy.py",
     "lib/xbuddy/xbuddy_unittest.py",
     "licensing/licenses_lib.py",
@@ -297,6 +324,7 @@ KNOWN_ISSUES = (
     "lint/linters/portage_layout_conf.py",
     "lint/linters/shell.py",
     "lint/linters/upstart_unittest.py",
+    "lint/mypy_plugin.py",
     "scripts/analyze_bazel_exec_logs.py",
     "scripts/autotest_quickmerge.py",
     "scripts/autotest_quickmerge_unittest.py",
@@ -304,26 +332,24 @@ KNOWN_ISSUES = (
     "scripts/build_minios_unittest.py",
     "scripts/build_sdk_subtools.py",
     "scripts/clang_format.py",
-    "scripts/clang_format_unittest.py",
-    "scripts/collect_third_party_inventory.py",
     "scripts/create_pinned_chromite_tarball.py",
+    "scripts/cros.py",
     "scripts/cros_choose_profile.py",
     "scripts/cros_choose_profile_unittest.py",
     "scripts/cros_fuzz.py",
     "scripts/cros_fuzz_unittest.py",
     "scripts/cros_gdb.py",
     "scripts/cros_generate_breakpad_symbols.py",
+    "scripts/cros_generate_breakpad_symbols_unittest.py",
     "scripts/cros_generate_coverage_artifacts.py",
-    "scripts/cros_generate_coverage_artifacts_unittest.py",
     "scripts/cros_generate_dlc_artifacts.py",
-    "scripts/cros_generate_local_binhosts.py",
     "scripts/cros_generate_os_release.py",
     "scripts/cros_generate_sysroot_unittest.py",
-    "scripts/cros_list_modified_packages.py",
     "scripts/cros_losetup.py",
+    "scripts/cros_losetup_unittest.py",
     "scripts/cros_mark_android_as_stable.py",
+    "scripts/cros_mark_android_as_stable_unittest.py",
     "scripts/cros_mark_as_stable.py",
-    "scripts/cros_mark_as_stable_unittest.py",
     "scripts/cros_on_device_fuzz.py",
     "scripts/cros_portage_upgrade.py",
     "scripts/cros_portage_upgrade_unittest.py",
@@ -332,49 +358,48 @@ KNOWN_ISSUES = (
     "scripts/cros_sdk.py",
     "scripts/cros_sdk_unittest.py",
     "scripts/cros_setup_toolchains.py",
-    "scripts/cros_update_metadata_cache.py",
-    "scripts/cros_workon_make.py",
+    "scripts/cros_vm.py",
     "scripts/dep_tracker.py",
     "scripts/dep_tracker_unittest.py",
+    "scripts/deploy_chrome.py",
     "scripts/deploy_chrome_unittest.py",
     "scripts/disk_layout_tool.py",
     "scripts/gconv_strip.py",
     "scripts/generate_reclient_inputs.py",
     "scripts/gerrit.py",
-    "scripts/gerrit_unittest.py",
-    "scripts/get_chromite_relevant_files.py",
     "scripts/image_to_default_key_stateful.py",
     "scripts/image_to_lvm.py",
     "scripts/install_toolchain_unittest.py",
+    "scripts/lddtree.py",
     "scripts/lint_package.py",
     "scripts/lint_package_unittest.py",
+    "scripts/loman.py",
     "scripts/loman_unittest.py",
     "scripts/package_has_missing_deps.py",
+    "scripts/parallel_emerge.py",
     "scripts/pkg_size.py",
     "scripts/portage_cmd_wrapper.py",
-    "scripts/publish_telemetry.py",
     "scripts/run_chroot_version_hooks.py",
     "scripts/run_tests.py",
-    "scripts/run_typing.py",
-    "scripts/skeleton.py",
+    "scripts/security_test_image.py",
+    "scripts/setup_board.py",
     "scripts/sysmon/net_metrics_unittest.py",
+    "scripts/sysmon/osinfo_metrics.py",
     "scripts/sysmon/osinfo_metrics_unittest.py",
-    "scripts/sysmon/proc_metrics.py",
-    "scripts/sysmon/system_metrics.py",
-    "scripts/tbi_build_firmware.py",
     "scripts/telemetry_poc.py",
+    "scripts/test_image.py",
     "scripts/test_image_unittest.py",
     "scripts/tricium_cargo_clippy.py",
     "scripts/tricium_cargo_clippy_unittest.py",
     "scripts/tricium_clang_tidy.py",
+    "scripts/tricium_clang_tidy_unittest.py",
     "scripts/trigger_gsc_signing.py",
     "scripts/upload_prebuilts.py",
     "scripts/upload_prebuilts_unittest.py",
     "scripts/vpython_consistency_unittest.py",
-    "scripts/vpython_wrapper.py",
+    "scripts/wrapper3.py",
     "scripts/wrapper3_unittest.py",
     "scripts/xz_auto.py",
-    "scripts/xz_auto_unittest.py",
     "service/android.py",
     "service/android_unittest.py",
     "service/artifacts.py",
@@ -394,13 +419,16 @@ KNOWN_ISSUES = (
     "service/payload_unittest.py",
     "service/sdk.py",
     "service/sdk_subtools.py",
+    "service/sdk_subtools_unittest.py",
     "service/sdk_unittest.py",
     "service/sysroot.py",
     "service/sysroot_unittest.py",
     "service/test.py",
+    "service/third_party_inventory.py",
+    "service/third_party_inventory_unittest.py",
     "service/toolchain.py",
     "service/toolchain_unittest.py",
-    "signing/bin/dump_image_config_unittest.py",
+    "signing/bin/update_release_keys.py",
     "signing/bin/update_release_keys_unittest.py",
     "signing/image_signing/imagefile.py",
     "signing/image_signing/imagefile_unittest.py",
@@ -410,21 +438,17 @@ KNOWN_ISSUES = (
     "signing/lib/signer.py",
     "signing/lib/signer_unittest.py",
     "test/portage_testables.py",
-    "test/portage_testables_unittest.py",
-    "utils/c_blkpg_unittest.py",
+    "utils/attrs_freezer.py",
     "utils/code_coverage_util.py",
     "utils/code_coverage_util_unittest.py",
     "utils/field_mask_util.py",
     "utils/key_value_store_unittest.py",
     "utils/matching_unittest.py",
-    "utils/memoize_unittest.py",
     "utils/os_util_unittest.py",
-    "utils/parser/ebuild_license_unittest.py",
     "utils/parser/pms_dependency.py",
     "utils/parser/portage_md5_cache.py",
     "utils/parser/upstart.py",
-    "utils/prctl.py",
-    "utils/prctl_unittest.py",
+    "utils/proctitle_util.py",
     "utils/repo_manifest.py",
     "utils/repo_manifest_unittest.py",
     "utils/shell_util.py",
@@ -443,10 +467,14 @@ class Report:
     line: int
     severity: str
     message: str
+    rule: str
 
     def __str__(self) -> str:
-        """Mimic the mypy output."""
-        return f"{self.file}:{self.line}: {self.severity}:{self.message}"
+        """One-line output."""
+        return (
+            f"{self.file}:{self.line}: {self.severity}: "
+            f"{self.rule}: {self.message}"
+        )
 
     def __lt__(self, other: "Report") -> bool:
         """Basic compare logic to sort results."""
@@ -456,51 +484,20 @@ class Report:
             return self.file < other.file
 
 
-def parse_output(output: str) -> Iterator[Report]:
-    """Parse the output into structured results."""
-    lines = output.splitlines()
-    if lines[-1].startswith("Found "):
-        lines.pop()
-
-    # Our current version of mypy produces output like:
-    #   file.py:88: error: msg
-    # Newer versions can produce JSON like:
-    #   {"file": "file.py", "line": 88, "severity": "error", "message": "msg"}
-    # Once we upgrade to mypy 1.11+, we can switch to the --output=json format
-    # instead of parsing ourselves.  Until then, the Report object fields use
-    # the same naming conventions as the newer JSON output so it's easier to
-    # switch one day.
-    for line in lines:
-        ele = line.split(":", 3)
-        if len(ele) != 4:
-            logging.warning("Unknown output: %s", line)
-            continue
-
-        yield Report(
-            file=ele[0],
-            line=int(ele[1]),
-            severity=ele[2].strip(),
-            message=ele[3],
-        )
-
-
-def sort_results(output: str) -> Iterator[str]:
+def sort_results(output: str) -> Iterator[Report]:
     """Sort the results by file."""
-    blocks = []
-    block = []
-    file = None
-    for report in parse_output(output):
-        if file != report.file:
-            if block:
-                blocks.append(block)
-                block = []
-            file = report.file
-        block.append(report)
-
-    blocks.append(block)
-    blocks.sort()
-    for block in blocks:
-        yield from block
+    # Output format is SARIF.  Extract path & findings to use in our baseline.
+    sarif = json.loads(output)
+    for run in sarif["runs"]:
+        for result in run["results"]:
+            for loc in result["locations"]:
+                yield Report(
+                    file=loc["physicalLocation"]["artifactLocation"]["uri"],
+                    line=int(loc["physicalLocation"]["region"]["startLine"]),
+                    severity=result["level"],
+                    message=result["message"]["text"],
+                    rule=result["ruleId"],
+                )
 
 
 def get_parser() -> commandline.ArgumentParser:
@@ -535,7 +532,6 @@ def main(argv: Optional[list[str]] = None) -> Optional[int]:
             break
         paths.append(arg)
     if not paths:
-        paths = [os.path.relpath(constants.CHROMITE_DIR)]
         full_run = True
     else:
         paths.clear()
@@ -557,7 +553,13 @@ def main(argv: Optional[list[str]] = None) -> Optional[int]:
     # we'd slow it down overall.  That could be fixed in run_tests to write the
     # output to a tempfile, but we also workaround it here by post-processing.
     result = cros_build_lib.run(
-        [constants.CHROMITE_SCRIPTS_DIR / "mypy"] + opts.args + paths,
+        [
+            constants.CHROMITE_SCRIPTS_DIR / "pyrefly",
+            "check",
+            "--output-format=sarif",
+        ]
+        + opts.args
+        + paths,
         check=False,
         encoding="utf-8",
         stdout=True,

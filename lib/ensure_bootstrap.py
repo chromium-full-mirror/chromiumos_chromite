@@ -77,7 +77,7 @@ def for_everything() -> None:
         compile_build_api_proto.ProtocVersion.CHROMITE
     )
 
-    _vpython_bootstrap(constants.CHROMITE_SCRIPTS_DIR / "mypy")
+    _vpython_bootstrap(constants.CHROMITE_SCRIPTS_DIR / "pyrefly")
 
     for_format()
     for_lint()

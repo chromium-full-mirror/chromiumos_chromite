@@ -24,7 +24,7 @@ if cros_build_lib.IsInsideChroot():
 
 if TYPE_CHECKING:
     from chromite.lib import dependency_graph
-    from chromite.libparser import package_info
+    from chromite.lib.parser import package_info
 
 
 class Error(Exception):
