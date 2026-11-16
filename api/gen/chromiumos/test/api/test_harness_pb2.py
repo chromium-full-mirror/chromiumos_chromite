@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&chromiumos/test/api/test_harness.proto\x12\x13\x63hromiumos.test.api\"\xd8\x04\n\x0bTestHarness\x12\x39\n\x06manual\x18\x01 \x01(\x0b\x32\'.chromiumos.test.api.TestHarness.ManualH\x00\x12\x37\n\x05tauto\x18\x02 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.TautoH\x00\x12\x35\n\x04tast\x18\x03 \x01(\x0b\x32%.chromiumos.test.api.TestHarness.TastH\x00\x12\x37\n\x05gtest\x18\x04 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.GtestH\x00\x12\x37\n\x05mobly\x18\x05 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.MoblyH\x00\x12;\n\x07\x63rosier\x18\x06 \x01(\x0b\x32(.chromiumos.test.api.TestHarness.CrosierH\x00\x12=\n\x08tradefed\x18\x07 \x01(\x0b\x32).chromiumos.test.api.TestHarness.TradefedH\x00\x12\x33\n\x03\x64tc\x18\x08 \x01(\x0b\x32$.chromiumos.test.api.TestHarness.DTCH\x00\x1a\x08\n\x06Manual\x1a\x06\n\x04Tast\x1a\x07\n\x05Tauto\x1a$\n\x05Gtest\x12\x1b\n\x13target_bin_location\x18\x01 \x01(\t\x1a\x07\n\x05Mobly\x1a\t\n\x07\x43rosier\x1a\n\n\x08Tradefed\x1a\x05\n\x03\x44TCB\x13\n\x11test_harness_typeB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&chromiumos/test/api/test_harness.proto\x12\x13\x63hromiumos.test.api\"\xa4\x05\n\x0bTestHarness\x12\x39\n\x06manual\x18\x01 \x01(\x0b\x32\'.chromiumos.test.api.TestHarness.ManualH\x00\x12\x37\n\x05tauto\x18\x02 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.TautoH\x00\x12\x35\n\x04tast\x18\x03 \x01(\x0b\x32%.chromiumos.test.api.TestHarness.TastH\x00\x12\x37\n\x05gtest\x18\x04 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.GtestH\x00\x12\x37\n\x05mobly\x18\x05 \x01(\x0b\x32&.chromiumos.test.api.TestHarness.MoblyH\x00\x12;\n\x07\x63rosier\x18\x06 \x01(\x0b\x32(.chromiumos.test.api.TestHarness.CrosierH\x00\x12=\n\x08tradefed\x18\x07 \x01(\x0b\x32).chromiumos.test.api.TestHarness.TradefedH\x00\x12\x33\n\x03\x64tc\x18\x08 \x01(\x0b\x32$.chromiumos.test.api.TestHarness.DTCH\x00\x12>\n\tweb_tests\x18\t \x01(\x0b\x32).chromiumos.test.api.TestHarness.WebTestsH\x00\x1a\x08\n\x06Manual\x1a\x06\n\x04Tast\x1a\x07\n\x05Tauto\x1a$\n\x05Gtest\x12\x1b\n\x13target_bin_location\x18\x01 \x01(\t\x1a\x07\n\x05Mobly\x1a\t\n\x07\x43rosier\x1a\n\n\x08Tradefed\x1a\x05\n\x03\x44TC\x1a\n\n\x08WebTestsB\x13\n\x11test_harness_typeB/Z-go.chromium.org/chromiumos/config/go/test/apib\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chromiumos.test.api.test_harness_pb2', globals())
@@ -22,21 +22,23 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z-go.chromium.org/chromiumos/config/go/test/api'
   _TESTHARNESS._serialized_start=64
-  _TESTHARNESS._serialized_end=664
-  _TESTHARNESS_MANUAL._serialized_start=541
-  _TESTHARNESS_MANUAL._serialized_end=549
-  _TESTHARNESS_TAST._serialized_start=551
-  _TESTHARNESS_TAST._serialized_end=557
-  _TESTHARNESS_TAUTO._serialized_start=559
-  _TESTHARNESS_TAUTO._serialized_end=566
-  _TESTHARNESS_GTEST._serialized_start=568
-  _TESTHARNESS_GTEST._serialized_end=604
-  _TESTHARNESS_MOBLY._serialized_start=606
-  _TESTHARNESS_MOBLY._serialized_end=613
-  _TESTHARNESS_CROSIER._serialized_start=615
-  _TESTHARNESS_CROSIER._serialized_end=624
-  _TESTHARNESS_TRADEFED._serialized_start=626
-  _TESTHARNESS_TRADEFED._serialized_end=636
-  _TESTHARNESS_DTC._serialized_start=638
-  _TESTHARNESS_DTC._serialized_end=643
+  _TESTHARNESS._serialized_end=740
+  _TESTHARNESS_MANUAL._serialized_start=605
+  _TESTHARNESS_MANUAL._serialized_end=613
+  _TESTHARNESS_TAST._serialized_start=615
+  _TESTHARNESS_TAST._serialized_end=621
+  _TESTHARNESS_TAUTO._serialized_start=623
+  _TESTHARNESS_TAUTO._serialized_end=630
+  _TESTHARNESS_GTEST._serialized_start=632
+  _TESTHARNESS_GTEST._serialized_end=668
+  _TESTHARNESS_MOBLY._serialized_start=670
+  _TESTHARNESS_MOBLY._serialized_end=677
+  _TESTHARNESS_CROSIER._serialized_start=679
+  _TESTHARNESS_CROSIER._serialized_end=688
+  _TESTHARNESS_TRADEFED._serialized_start=690
+  _TESTHARNESS_TRADEFED._serialized_end=700
+  _TESTHARNESS_DTC._serialized_start=702
+  _TESTHARNESS_DTC._serialized_end=707
+  _TESTHARNESS_WEBTESTS._serialized_start=709
+  _TESTHARNESS_WEBTESTS._serialized_end=719
 # @@protoc_insertion_point(module_scope)
