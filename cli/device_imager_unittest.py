@@ -78,6 +78,38 @@ class DeviceImagerTest(cros_test_lib.MockTestCase):
             self.assertEqual(
                 di._image_type, device_imager.ImageType.REMOTE_DIRECTORY
             )
+            self.assertFalse(di._no_stateful_update)
+
+    @mock.patch.object(xbuddy.XBuddy, "Translate")
+    @mock.patch.object(
+        xbuddy.XBuddy, "Get", return_value=("eve/R90", "path/to/non_test.bin")
+    )
+    @mock.patch.object(
+        remote_access.ChromiumOSDevice,
+        "board",
+        return_value="foo",
+        new_callable=mock.PropertyMock,
+    )
+    def test_LocateImageXBuddyRemoteNonTest(
+        self, _board_mock, get_mock, translate_mock
+    ) -> None:
+        """Tests remote non-test xBuddy paths fetch full image."""
+        with remote_access.ChromiumOSDeviceHandler(
+            remote_access.TEST_IP
+        ) as device:
+            for image_type in ("base", "recovery", "signed"):
+                get_mock.reset_mock()
+                di = device_imager.DeviceImager(
+                    device, f"xbuddy://remote/eve/latest/{image_type}"
+                )
+                di._LocateImage()
+                get_mock.assert_called_once_with(
+                    [f"xbuddy://remote/eve/latest/{image_type}"]
+                )
+                translate_mock.assert_not_called()
+                self.assertEqual(di._image, "path/to/non_test.bin")
+                self.assertEqual(di._image_type, device_imager.ImageType.FULL)
+                self.assertTrue(di._no_stateful_update)
 
     @mock.patch.object(
         xbuddy.XBuddy, "Translate", return_value=("eve/R90", "path/to/file")

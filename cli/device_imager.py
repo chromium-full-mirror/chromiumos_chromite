@@ -211,9 +211,25 @@ class DeviceImager:
         )
 
         xb = xbuddy.XBuddy(board=board, version=self._version)
-        xb_component = xbuddy.InterpretPath(self._image, board, self._version)
+        resolved_path, _ = xb.LookupAlias(
+            self._image, board=board, version=self._version
+        )
+        xb_component = xbuddy.InterpretPath(resolved_path, board, self._version)
+        if (
+            xb_component.image_type
+            in (xbuddy.BASE, xbuddy.RECOVERY, xbuddy.SIGNED)
+            and not self._no_stateful_update
+        ):
+            logging.warning(
+                "Disabling stateful update for non-test (%s) image.",
+                xb_component.image_type,
+            )
+            self._no_stateful_update = True
         func = (
-            xb.Get if xb_component.image_type == xbuddy.SIGNED else xb.Translate
+            xb.Get
+            if not xb_component.is_local
+            and xb_component.image_type != xbuddy.TEST
+            else xb.Translate
         )
 
         build_id, local_file = func([self._image])

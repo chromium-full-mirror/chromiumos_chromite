@@ -72,8 +72,9 @@ Examples:
   For more information and known problems/fixes, please see:
   https://www.chromium.org/chromium-os/developer-library/reference/tools/cros-flash/
 
-Note: When flashing a signed image, ssh connection to the device will be lost
-  and flash must be invoked with --no-stateful-update.
+Note: When flashing a non-test image (base, recovery, signed), ssh connection
+  to the device will be lost; local image files also require
+  --no-stateful-update.
 """
 
     # Override base class property to use cache related commandline options.
