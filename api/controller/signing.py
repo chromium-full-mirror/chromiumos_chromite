@@ -231,6 +231,56 @@ def CreateKeysHsm(request, response, _config) -> None:
 
 @faux.all_empty
 @validate.require("docker_image")
+@validate.require("keyset_name")
+@validate.require("work_dir")
+@validate.exists("release_keys_checkout")
+@validate.exists("work_dir")
+@validate.validation_complete
+def FinalizeKeysHsm(request, response, _config) -> None:
+    """Finalize key creation after online HSM quorum approval."""
+    entrypoint_args = [
+        "--keyset-name",
+        request.keyset_name,
+        "--keyset-repo",
+        "/keys",
+        "-o",
+        "/out",
+        "-p",
+        "out_proto.bin",
+        "--work-dir",
+        "/work",
+    ]
+    if request.dry_run:
+        entrypoint_args.append("--mocks")
+
+    docker_args = [
+        # Mount the keyset checkout as a volume.
+        "-v",
+        f"{request.release_keys_checkout}:/keys",
+        "-v",
+        f"{request.work_dir}:/work",
+        "--entrypoint",
+        "./finalize_keys_with_hsm.py",
+    ]
+
+    response_bytes = image.CallDockerWithResponse(
+        request.docker_image,
+        docker_args=docker_args,
+        entrypoint_args=entrypoint_args,
+        output_file_name="out_proto.bin",
+    )
+
+    if response_bytes is None:
+        raise ValueError(
+            "No response proto found from signing container. "
+            "Please check docker output for errors."
+        )
+
+    response.ParseFromString(response_bytes)
+
+
+@faux.all_empty
+@validate.require("docker_image")
 @validate.exists("release_keys_checkout")
 @validate.require("operations")
 @validate.validation_complete

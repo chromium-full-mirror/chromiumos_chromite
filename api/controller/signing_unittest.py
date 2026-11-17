@@ -1087,6 +1087,216 @@ class CreateKeysHsmTest(
             )
 
 
+class FinalizeKeysHsmTest(
+    cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
+):
+    """Finalize key with online HSM tests."""
+
+    def setUp(self) -> None:
+        self.response = signing_pb2.FinalizeKeysHsmResponse()
+        self.docker_image = (
+            "us-docker.pkg.dev/chromeos-release-bot/signing/signing:123"
+        )
+
+        os.environ["LUCI_CONTEXT"] = "/tmp/foo/bar/luci_context.1234"
+        os.environ["GCE_METADATA_HOST"] = "127.0.0.1:12345"
+        os.environ["GCE_METADATA_IP"] = "127.0.0.1:12345"
+        os.environ["GCE_METADATA_ROOT"] = "127.0.0.1:12345"
+
+    def _GetRequest(
+        self,
+        keyset_name: str = "foo",
+        dry_run: bool = False,
+        work_dir: Optional[str] = None,
+    ):
+        """Helper to build a request instance."""
+        if work_dir is None:
+            work_dir = str(self.tempdir)
+        return signing_pb2.FinalizeKeysHsmRequest(
+            docker_image="signing:latest",
+            keyset_name=keyset_name,
+            dry_run=dry_run,
+            release_keys_checkout=str(self.tempdir),
+            work_dir=work_dir,
+        )
+
+    def testSuccess(self) -> None:
+        """FinalizeKeysHsm succeeds and returns a populated response."""
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+        expected_response = signing_pb2.FinalizeKeysHsmResponse(
+            request_status=signing_pb2.STATUS_PASS
+        )
+        osutils.WriteFile(
+            os.path.join(self.tempdir, "out_proto.bin"),
+            expected_response.SerializeToString(),
+            mode="wb",
+        )
+
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(keyset_name="setkey")
+        res = signing_controller.FinalizeKeysHsm(
+            request, self.response, self.api_config
+        )
+
+        rc.assertCommandContains(
+            ["docker", "inspect", "--type=image", "signing:latest"]
+        )
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "--network",
+                "host",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-e",
+                "LUCI_CONTEXT=/tmp/luci/luci_context.1234",
+                "-e",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{request.release_keys_checkout}:/keys",
+                "-v",
+                f"{request.work_dir}:/work",
+                "--entrypoint",
+                "./finalize_keys_with_hsm.py",
+                "signing:latest",
+                "--keyset-name",
+                "setkey",
+                "--keyset-repo",
+                "/keys",
+                "-o",
+                "/out",
+                "-p",
+                "out_proto.bin",
+                "--work-dir",
+                "/work",
+            ]
+        )
+        self.assertEqual(self.response, expected_response)
+        self.assertIsNone(res)
+
+    def testDryRun(self) -> None:
+        """Verify that dryrun mode passes --mocks."""
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+        expected_response = signing_pb2.FinalizeKeysHsmResponse(
+            request_status=signing_pb2.STATUS_PASS
+        )
+        osutils.WriteFile(
+            os.path.join(self.tempdir, "out_proto.bin"),
+            expected_response.SerializeToString(),
+            mode="wb",
+        )
+
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(
+            keyset_name="setkey",
+            dry_run=True,
+        )
+        res = signing_controller.FinalizeKeysHsm(
+            request, self.response, self.api_config
+        )
+
+        rc.assertCommandContains(
+            ["docker", "inspect", "--type=image", "signing:latest"]
+        )
+        rc.assertCommandContains(
+            [
+                "docker",
+                "run",
+                "--privileged",
+                "--network",
+                "host",
+                "-v",
+                "/tmp/foo/bar/luci_context.1234:/tmp/luci/luci_context.1234",
+                "-e",
+                "LUCI_CONTEXT=/tmp/luci/luci_context.1234",
+                "-e",
+                "GCE_METADATA_HOST=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_IP=127.0.0.1:12345",
+                "-e",
+                "GCE_METADATA_ROOT=127.0.0.1:12345",
+                "-v",
+                f"{request.release_keys_checkout}:/keys",
+                "-v",
+                f"{request.work_dir}:/work",
+                "--entrypoint",
+                "./finalize_keys_with_hsm.py",
+                "signing:latest",
+                "--keyset-name",
+                "setkey",
+                "--keyset-repo",
+                "/keys",
+                "-o",
+                "/out",
+                "-p",
+                "out_proto.bin",
+                "--work-dir",
+                "/work",
+                "--mocks",
+            ]
+        )
+        self.assertEqual(self.response, expected_response)
+        self.assertIsNone(res)
+
+    def testValidateOnly(self) -> None:
+        """Verify a validate-only call does not execute any logic."""
+        patch = self.PatchObject(image_service, "CallDockerWithResponse")
+
+        request = self._GetRequest(keyset_name="setkey")
+        signing_controller.FinalizeKeysHsm(
+            request, self.response, self.validate_only_config
+        )
+        patch.assert_not_called()
+
+    def testMissingResponse(self) -> None:
+        """Verify FinalizeKeysHsm raises ValueError when response is missing."""
+        self.PatchObject(
+            osutils.TempDir, "__enter__", return_value=self.tempdir
+        )
+        # We don't write any out_proto.bin to self.tempdir.
+
+        rc = self.StartPatcher(cros_test_lib.RunCommandMock())
+        rc.SetDefaultCmdResult()
+
+        request = self._GetRequest(keyset_name="setkey")
+        with self.assertRaises(ValueError):
+            signing_controller.FinalizeKeysHsm(
+                request, self.response, self.api_config
+            )
+
+    def testValidationMissingWorkDir(self) -> None:
+        """Verify FinalizeKeysHsm fails validation when work_dir is missing."""
+        request = self._GetRequest(keyset_name="setkey", work_dir="")
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            signing_controller.FinalizeKeysHsm(
+                request, self.response, self.api_config
+            )
+
+    def testValidationWorkDirDoesNotExist(self) -> None:
+        """Verify FinalizeKeysHsm fails when work_dir does not exist."""
+        request = self._GetRequest(
+            keyset_name="setkey", work_dir="/nonexistent/work/dir"
+        )
+        with self.assertRaises(cros_build_lib.DieSystemExit):
+            signing_controller.FinalizeKeysHsm(
+                request, self.response, self.api_config
+            )
+
+
 class KeysetManagerTest(
     cros_test_lib.MockTempDirTestCase, api_config.ApiConfigMixin
 ):
