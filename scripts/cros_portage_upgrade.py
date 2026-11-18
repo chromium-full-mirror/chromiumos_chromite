@@ -142,7 +142,7 @@ class Upgrader:
     OPT_SLOTS = (
         "amend",
         "force",
-        "no_upstream_cache",
+        "upstream_cache",
         "rdeps",
         "upgrade",
         "upgrade_deep",
@@ -167,7 +167,7 @@ class Upgrader:
         "_missing_eclass_re",  # Regexp for missing eclass in equery
         "_outdated_eclass_re",  # Regexp for outdated eclass in equery
         "_emptydir",  # Path to temporary empty directory
-        "_no_upstream_cache",  # Boolean.  Delete upstream cache when done
+        "_upstream_cache",  # Boolean.  Keep upstream cache when done
         "_porttree",  # Reference to portage porttree object
         "_rdeps",  # Boolean, if True pass --root-deps=rdeps
         "_stable_repo",  # Path to portage-stable
@@ -1717,7 +1717,7 @@ class Upgrader:
 
     def RunCompleted(self) -> None:
         """Undo any checkout of upstream gentoo if requested."""
-        if self._no_upstream_cache:
+        if not self._upstream_cache:
             oper.Notice(
                 "Removing upstream cache at %s as requested." % self._upstream
             )
@@ -1986,11 +1986,11 @@ def _CreateParser():
         default=False,
         help="Host target pseudo-board",
     )
-    parser.add_argument(
-        "--no-upstream-cache",
-        action="store_true",
-        default=False,
-        help="Do not preserve cached upstream for future runs",
+    parser.add_bool_argument(
+        "--upstream-cache",
+        True,
+        "Preserve cached upstream for future runs",
+        "Do not preserve cached upstream for future runs",
     )
     parser.add_argument(
         "--rdeps",
