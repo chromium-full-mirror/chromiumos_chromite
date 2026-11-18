@@ -2448,14 +2448,20 @@ class CommitTest(CpuTestBase):
 
         mocked_upgrader._RunGit.side_effect = RunGit
 
-        def CreateCommit(mock_upgrade_lines, mock_remaining_lines) -> None:
+        def CreateCommit(
+            mock_upgrade_lines, bug_tag, test_tag, mock_remaining_lines
+        ) -> None:
             self.assertEqual(gold_lines, mock_upgrade_lines)
+            self.assertEqual("bug", bug_tag)
+            self.assertEqual("test", test_tag)
             self.assertEqual(remaining_lines, mock_remaining_lines)
 
         mocked_upgrader._CreateCommitMessage = CreateCommit
 
         # Verify.
-        cpu.Upgrader._AmendCommitMessage(mocked_upgrader, new_upgrade_lines)
+        cpu.Upgrader._AmendCommitMessage(
+            mocked_upgrader, new_upgrade_lines, "bug", "test"
+        )
 
     def testOldAndNew(self) -> None:
         new_upgrade_lines = [
@@ -2540,7 +2546,7 @@ class CommitTest(CpuTestBase):
 
     def _TestCreateCommitMessage(self, upgrade_lines):
         """Test Upgrader._CreateCommitMessage"""
-        result = cpu.Upgrader._CreateCommitMessage(upgrade_lines)
+        result = cpu.Upgrader._CreateCommitMessage(upgrade_lines, "bug", "test")
 
         self.assertTrue(
             ": upgraded package" in result or "Upgraded the following" in result
@@ -2554,8 +2560,8 @@ class CommitTest(CpuTestBase):
         # Commit message should have:
         # - Summary that mentions 'efg' and ends in "package" (singular).
         # - Body corresponding to upgrade_lines.
-        # - BUG= line (with space after '=' to invalidate it).
-        # - TEST= line (with space after '=' to invalidate it).
+        # - BUG= line.
+        # - TEST= line.
         body = r"\n".join(
             re.sub(r"\s+", r"\\s", line) for line in upgrade_lines
         )
@@ -2564,13 +2570,13 @@ class CommitTest(CpuTestBase):
                             ^\s*\n                            # Blank line
                             %s\n                              # Body
                             ^\s*\n                            # Blank line
-                            ^BUG=\s.+\n                       # BUG line
-                            ^TEST=\s                          # TEST line
+                            ^BUG=.+\n                         # BUG line
+                            ^TEST=.+                          # TEST line
                             """
             % body,
             re.VERBOSE | re.MULTILINE,
         )
-        self.assertTrue(regexp.search(result))
+        self.assertRegex(result, regexp)
 
     def testCreateCommitMessageThreePkgs(self) -> None:
         upgrade_lines = [
@@ -2585,8 +2591,8 @@ class CommitTest(CpuTestBase):
         # - Summary that mentions 'efg, pqr, uvw' and ends in "packages"
         #   (plural).
         # - Body corresponding to upgrade_lines.
-        # - BUG= line (with space after '=' to invalidate it).
-        # - TEST= line (with space after '=' to invalidate it).
+        # - BUG= line.
+        # - TEST= line.
         body = r"\n".join(
             re.sub(r"\s+", r"\\s", line) for line in upgrade_lines
         )
@@ -2595,13 +2601,13 @@ class CommitTest(CpuTestBase):
                             ^\s*\n                            # Blank line
                             %s\n                              # Body
                             ^\s*\n                            # Blank line
-                            ^BUG=\s.+\n                       # BUG line
-                            ^TEST=\s                          # TEST line
+                            ^BUG=.+\n                         # BUG line
+                            ^TEST=.+                          # TEST line
                             """
             % body,
             re.VERBOSE | re.MULTILINE,
         )
-        self.assertTrue(regexp.search(result))
+        self.assertRegex(result, regexp)
 
     def testCreateCommitMessageTenPkgs(self) -> None:
         upgrade_lines = [
@@ -2621,8 +2627,8 @@ class CommitTest(CpuTestBase):
         # Commit message should have:
         # - Summary that mentions '10' and ends in "packages" (plural).
         # - Body corresponding to upgrade_lines.
-        # - BUG= line (with space after '=' to invalidate it).
-        # - TEST= line (with space after '=' to invalidate it).
+        # - BUG= line.
+        # - TEST= line.
         body = r"\n".join(
             re.sub(r"\s+", r"\\s", line) for line in upgrade_lines
         )
@@ -2631,13 +2637,13 @@ class CommitTest(CpuTestBase):
                             ^\s*\n                            # Blank line
                             %s\n                              # Body
                             ^\s*\n                            # Blank line
-                            ^BUG=\s.+\n                       # BUG line
-                            ^TEST=\s                          # TEST line
+                            ^BUG=.+\n                         # BUG line
+                            ^TEST=.+                          # TEST line
                             """
             % body,
             re.VERBOSE | re.MULTILINE,
         )
-        self.assertTrue(regexp.search(result))
+        self.assertRegex(result, regexp)
 
 
 @unittest.skip("playground setup needs more work")

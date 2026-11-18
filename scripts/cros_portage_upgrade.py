@@ -1127,7 +1127,9 @@ class Upgrader:
         return sorted(pkgs)
 
     @staticmethod
-    def _CreateCommitMessage(upgrade_lines, remaining_lines=None):
+    def _CreateCommitMessage(
+        upgrade_lines, bug_tag: str, test_tag: str, remaining_lines=None
+    ) -> str:
         """Create appropriate commit message for upgrades in |upgrade_lines|."""
         message = None
         upgrade_pkgs = Upgrader._ExtractUpgradedPkgs(upgrade_lines)
@@ -1146,14 +1148,14 @@ class Upgrader:
             # Keep previous remaining lines verbatim.
             message += "\n%s\n" % "\n".join(remaining_lines)
         else:
-            # The space before <fill-in> (at least for TEST=) fails pre-submit
-            # check, which is the intention here.
-            message += "\nBUG= <fill-in>"
-            message += "\nTEST= <fill-in>"
+            message += f"\nBUG={bug_tag}"
+            message += f"\nTEST={test_tag}"
 
         return message
 
-    def _AmendCommitMessage(self, upgrade_lines):
+    def _AmendCommitMessage(
+        self, upgrade_lines, bug_tag: str, test_tag: str
+    ) -> str:
         """Create commit message combining |upgrade_lines| with last commit."""
         # First get the body of the last commit message.
         git_cmd = ["show", "-s", "--format=%b"]
@@ -1191,7 +1193,9 @@ class Upgrader:
             else:
                 before_break = False
 
-        return self._CreateCommitMessage(upgrade_lines, remaining_lines)
+        return self._CreateCommitMessage(
+            upgrade_lines, bug_tag, test_tag, remaining_lines
+        )
 
     def _GiveEmergeResults(self, pinfolist) -> None:
         """Summarize emerge checks, raise RuntimeError if there is a problem."""
@@ -1736,7 +1740,7 @@ class Upgrader:
         """Return True if upgrades are staged and ready for a commit."""
         return bool(self._upgrade_cnt)
 
-    def Commit(self) -> None:
+    def Commit(self, bug_tag: str, test_tag: str) -> None:
         """Commit whatever has been prepared in the stable repo."""
         # Lines for the body of the commit message.
         commit_lines = []
@@ -1760,12 +1764,16 @@ class Upgrader:
 
         if commit_lines:
             if self._amend:
-                message = self._AmendCommitMessage(commit_lines)
+                message = self._AmendCommitMessage(
+                    commit_lines, bug_tag, test_tag
+                )
                 self._RunGit(
                     self._stable_repo, ["commit", "--amend", "-m", message]
                 )
             else:
-                message = self._CreateCommitMessage(commit_lines)
+                message = self._CreateCommitMessage(
+                    commit_lines, bug_tag, test_tag
+                )
                 self._RunGit(self._stable_repo, ["commit", "-m", message])
 
             oper.Warning(
@@ -2035,6 +2043,16 @@ def _CreateParser():
         default=False,
         help="Do not attempt to update local portage cache",
     )
+    parser.add_argument(
+        "--bug",
+        default="<fill-in>",
+        help="Bug to place into BUG= tag.",
+    )
+    parser.add_argument(
+        "--test",
+        default="CQ passes",
+        help="Test info to place into TEST= tag.",
+    )
     return parser
 
 
@@ -2116,7 +2134,7 @@ def main(argv) -> None:
         oper.Die("Failed with above errors.")
 
     if upgrader.CommitIsStaged():
-        upgrader.Commit()
+        upgrader.Commit(options.bug, options.test)
 
     # TODO(mtennant): Move stdout output to here, rather than as-we-go.  That
     # way it won't come out for each board.  Base it on contents of final table.
