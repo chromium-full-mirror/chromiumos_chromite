@@ -82,9 +82,8 @@ cmds+=(
 
   # Copying some files for bootstrapping empty chroot.
   # See http://crosbug.com/14499
-  "mkdir -p '${BOARD_ETC}'/{init.d,xml}"
+  "mkdir -p '${BOARD_ETC}'/xml"
   "cp /etc/xml/catalog '${BOARD_ETC}'/xml/"
-  "cp /etc/init.d/functions.sh '${BOARD_ETC}'/init.d/"
 )
 sudo_multi "${cmds[@]}"
 
