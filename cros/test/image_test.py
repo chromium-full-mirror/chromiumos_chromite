@@ -855,7 +855,7 @@ class SymlinkTest(image_test_lib.ImageTestCase):
         "/etc/*": {"/run/*"},
         "/etc/localtime": {"/var/lib/timezone/localtime"},
         "/etc/machine-id": {"/var/lib/dbus/machine-id"},
-        "/etc/mtab": {"/proc/mounts"},
+        "/etc/mtab": {"/proc/mounts", "/proc/self/mounts"},
         # Some boards don't set this up properly.  It's not a big deal.
         "/usr/libexec/editor": {"/usr/bin/*"},
         # These are hacks to make dev images and `dev_install` work.  Normally
