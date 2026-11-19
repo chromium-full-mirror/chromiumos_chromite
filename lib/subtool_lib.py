@@ -35,7 +35,6 @@ from chromite.lib import osutils
 from chromite.lib import portage_util
 from chromite.lib.parser import package_info
 from chromite.licensing import licenses_lib
-from chromite.utils import compat
 from chromite.utils import gs_urls_util
 
 
@@ -746,7 +745,7 @@ class Subtool:
         """Ensure all installed symlinks resolve inside the bundle directory."""
         for path in self.bundle_dir.glob("**/*"):
             realpath = path.resolve(strict=True)
-            if not compat.path_is_relative_to(realpath, self.bundle_dir):
+            if not realpath.is_relative_to(self.bundle_dir):
                 raise ManifestBundlingError(
                     f"{path} resolves to {realpath}, which is outside of "
                     f"{self.bundle_dir}",

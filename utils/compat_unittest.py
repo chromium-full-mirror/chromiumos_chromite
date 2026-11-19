@@ -8,26 +8,41 @@ No need to get too intensive with testing here, especially if you just
 copy-pasted the function from cpython/Lib.
 """
 
-from pathlib import Path
+import warnings
 
 import pytest
 
+import chromite
 from chromite.utils import compat
 
 
-@pytest.mark.parametrize(
-    ("inner", "outer", "expected_result"),
-    [
-        (Path("/"), Path("/"), True),
-        (Path("/etc/env.d"), Path("/etc"), True),
-        (Path("/etc/env.d"), Path("/usr"), False),
-        (Path("a"), Path("a"), True),
-        (Path("a"), Path("b"), False),
-        (Path("a/b"), Path("a"), True),
-    ],
-)
-def test_path_is_relative_to(
-    inner: Path, outer: Path, expected_result: bool
-) -> None:
-    """Test comapt.path_is_relative_to()."""
-    assert compat.path_is_relative_to(inner, outer) == expected_result
+# pylint: disable=protected-access
+
+
+def test_available_in_warns(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test _available_in() warns when MIN_PYTHON_VERSION is high enough."""
+    monkeypatch.setattr(chromite, "MIN_PYTHON_VERSION", (3, 9))
+
+    @compat._available_in((3, 9), "stdlib.func")
+    def my_func(x: int) -> int:
+        return x + 1
+
+    with pytest.warns(
+        DeprecationWarning,
+        match=r"my_func is now available in the Python standard library\."
+        r"  Please use stdlib\.func instead\.",
+    ):
+        assert my_func(1) == 2
+
+
+def test_available_in_no_warn(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test _available_in() does not warn for newer Python versions."""
+    monkeypatch.setattr(chromite, "MIN_PYTHON_VERSION", (3, 9))
+
+    @compat._available_in((3, 10), "stdlib.func")
+    def my_func(x: int) -> int:
+        return x + 1
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        assert my_func(1) == 2

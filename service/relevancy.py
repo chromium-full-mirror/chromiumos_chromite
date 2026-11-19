@@ -19,7 +19,6 @@ from chromite.lib import build_query
 from chromite.lib import build_target_lib
 from chromite.lib import constants
 from chromite.lib import cros_build_lib
-from chromite.utils import compat
 
 
 def _bootimage_enabled(
@@ -262,7 +261,7 @@ def _belongs(
     path = constants.SOURCE_ROOT / path
 
     for overlay in overlays:
-        if compat.path_is_relative_to(path, overlay.profiles_dir):
+        if path.is_relative_to(overlay.profiles_dir):
             # Iterate through all profiles in this overlay.  We must consider
             # not only the profile which is a parent path of this path, but
             # also any profiles which symlink to this profile, since portage
@@ -271,14 +270,14 @@ def _belongs(
             # it an overlay change instead of a profile change.
             is_profile = False
             for profile in overlay.profiles:
-                if compat.path_is_relative_to(path, profile.path.resolve()):
+                if path.is_relative_to(profile.path.resolve()):
                     is_profile = True
                     logging.debug("%s changes profile %s", path, profile)
                     yield profile
             if is_profile:
                 return
         for ebuild in overlay.ebuilds:
-            if compat.path_is_relative_to(path, ebuild.ebuild_file.parent):
+            if path.is_relative_to(ebuild.ebuild_file.parent):
                 logging.debug("%s changes ebuild files for %s", path, ebuild)
                 yield ebuild
                 return
@@ -294,10 +293,10 @@ def _belongs(
 
             subtrees = [Path(x) for x in ebuild.source_info.subtrees]
             for subtree in subtrees:
-                if compat.path_is_relative_to(path, subtree):
+                if path.is_relative_to(subtree):
                     logging.debug("%s changes a subtree of %s", path, ebuild)
                     yield ebuild
-        if compat.path_is_relative_to(path, overlay.path):
+        if path.is_relative_to(overlay.path):
             logging.debug("%s is an overlay change for %s", path, overlay)
             yield overlay
 

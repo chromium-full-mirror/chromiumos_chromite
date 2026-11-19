@@ -13,7 +13,6 @@ version advances.
 """
 
 import functools
-from pathlib import Path
 from typing import Any, Callable
 import warnings
 
@@ -47,17 +46,3 @@ def _available_in(
         return _wrapper
 
     return _decorator
-
-
-@_available_in((3, 9), "pathlib.Path.is_relative_to")
-def path_is_relative_to(inner: Path, outer: Path) -> bool:
-    """Backport of Path.is_relative_to() (available in Python 3.9+).
-
-    Args:
-        inner: The inner path.
-        outer: The outer path.
-
-    Returns:
-        True if inner is inside the parents of outer, false otherwise.
-    """
-    return outer == inner or outer in inner.parents
