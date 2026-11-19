@@ -753,7 +753,7 @@ def test_ebuild_match_globs_files(template_proto: Wrapper) -> None:
         # Also cover ebuild_filter + strip_prefix + dest.
         [
             path_mapping(
-                "/etc/init.d/*",
+                "/etc/env.d/*",
                 dest="/",
                 strip_regex="^.*/etc/",
                 ebuild_filter="sys-apps/baselayout",
@@ -763,8 +763,8 @@ def test_ebuild_match_globs_files(template_proto: Wrapper) -> None:
     subtool = template_proto.create(writes_files=True)
     assert bundle_result(subtool, has_ebuild_match=True) == [
         "<license>",
-        "init.d",
-        "init.d/functions.sh",
+        "env.d",
+        "env.d/00basic",
     ]
     assert subtool.source_packages[0].startswith("sys-apps/baselayout-")
 
