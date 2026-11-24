@@ -282,15 +282,15 @@ def create_tarball(
     # in some cases.
     if compressor is None:
         compressor = [find_compressor(compression, chroot=chroot)]
-    # Using 'raw' hole detection instead of 'seek' isn't that much slower, but
-    # will provide much better results when archiving large disk images that are
-    # not fully sparse.
+    # Use seek hole detection so only filesystem holes are recorded; raw scans
+    # every 512-byte zero block and produces >1 MiB sparse maps on large disk
+    # images, exceeding Go archive/tar's 1 MiB cap (b/590225883).
     cmd = (
         ["tar"]
         + extra_args
         + [
             "--sparse",
-            "--hole-detection=raw",
+            "--hole-detection=seek",
             "--use-compress-program",
             shell_util.cmd_to_str(compressor),
             "-c",

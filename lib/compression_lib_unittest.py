@@ -216,6 +216,8 @@ class FailedCreateTarballTests(cros_test_lib.RunCommandTestCase):
         compression_lib.create_tarball("foo", "bar", inputs=["a", "b"])
 
         self.assertEqual(self.rc.call_count, 1)
+        # Verify seek hole detection is used so sparse maps stay compact.
+        self.rc.assertCommandContains(["--sparse", "--hole-detection=seek"])
 
     def test_failed_once_soft(self) -> None:
         """Force a single retry for create_tarball."""
