@@ -345,6 +345,7 @@ class Path:
 _ENABLE_NACL = "enable_nacl"
 _IS_CHROME_BRANDED = "is_chrome_branded"
 _IS_COMPONENT_BUILD = "is_component_build"
+_USE_STATIC_ANGLE = "use_static_angle"
 
 _HIGHDPI_FLAG = "highdpi"
 STAGING_FLAGS = (_HIGHDPI_FLAG,)
@@ -433,8 +434,18 @@ _COPY_PATHS_CHROME_WITHOUT_EXE = (
         cond=C.GnSetTo(_IS_CHROME_BRANDED, True),
         optional=True,
     ),
-    Path("libEGL.so", exe=True, optional=True),
-    Path("libGLESv2.so", exe=True, optional=True),
+    Path(
+        "libEGL.so",
+        exe=True,
+        cond=C.GnSetTo(_USE_STATIC_ANGLE, False),
+        optional=True,
+    ),
+    Path(
+        "libGLESv2.so",
+        exe=True,
+        cond=C.GnSetTo(_USE_STATIC_ANGLE, False),
+        optional=True,
+    ),
     # Widevine CDM is already pre-stripped.  In addition, it doesn't
     # play well with the binutils stripping tools, so skip stripping.
     # Optional for arm64 builds (http://crbug.com/881022)

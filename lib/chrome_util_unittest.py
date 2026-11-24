@@ -264,3 +264,42 @@ PATCH=9
         self.assertEqual(
             versions, {"MAJOR": 123, "MINOR": 456, "BUILD": 0, "PATCH": 9}
         )
+
+
+class AngleSharedLibraryStagingTest(cros_test_lib.TempDirTestCase):
+    """Tests conditional staging of ANGLE shared libraries."""
+
+    def setUp(self) -> None:
+        self.build_dir = os.path.join(self.tempdir, "build")
+        os.mkdir(self.build_dir)
+        cros_test_lib.CreateOnDiskHierarchy(
+            self.build_dir, ["chrome", "libEGL.so", "libGLESv2.so"]
+        )
+
+    def _StageWithGnArgs(self, name, gn_args):
+        staging_dir = os.path.join(self.tempdir, name)
+        os.mkdir(staging_dir)
+        chrome_util.StageChromeFromBuildDir(
+            staging_dir,
+            self.build_dir,
+            strip_bin=None,
+            sloppy=True,
+            gn_args=gn_args,
+        )
+        return set(os.listdir(staging_dir))
+
+    def testSkippedWhenStaticAngleDefaultOrEnabled(self) -> None:
+        for name, gn_args in (
+            ("default", {"is_chrome_branded": True}),
+            ("static", {"use_static_angle": True}),
+        ):
+            staged = self._StageWithGnArgs(name, gn_args)
+            self.assertIn("chrome", staged)
+            self.assertNotIn("libEGL.so", staged)
+            self.assertNotIn("libGLESv2.so", staged)
+
+    def testStagedWhenStaticAngleDisabled(self) -> None:
+        staged = self._StageWithGnArgs("dynamic", {"use_static_angle": False})
+        self.assertIn("chrome", staged)
+        self.assertIn("libEGL.so", staged)
+        self.assertIn("libGLESv2.so", staged)
